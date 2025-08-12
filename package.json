@@ -9,14 +9,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
     "@google/genai": "1.13.0",
     "openai": "4.52.7",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^22.14.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "terser": "^5.43.1",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
