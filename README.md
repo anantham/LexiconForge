@@ -159,6 +159,45 @@ npm run dev
 
 The app will be available at: **http://localhost:5173/**
 
+## 🚀 Deploy to Vercel
+
+### Quick Deploy
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/anantham/LexiconForge)
+
+### Manual Deployment Steps
+
+1. **Fork/Clone the repository**
+2. **Connect to Vercel**:
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Framework preset: **Vite** (auto-detected)
+
+3. **Configure Environment Variables** in Vercel Dashboard:
+   ```bash
+   # Required (at least one)
+   GEMINI_API_KEY=your_gemini_key_here
+   OPENAI_API_KEY=your_openai_key_here
+   DEEPSEEK_API_KEY=your_deepseek_key_here
+   ```
+
+4. **Deploy**: Vercel will automatically build and deploy
+
+### 🔒 **Security Considerations for Production**
+
+**⚠️ IMPORTANT: Client-Side API Key Exposure**
+- API keys are **visible in browser** (client-side app)
+- Users can extract keys from browser dev tools
+- **Recommendation**: Use separate, limited-scope API keys for production
+
+**🛡️ Security Best Practices:**
+- **Rate Limiting**: Monitor API usage in provider dashboards
+- **Usage Quotas**: Set spending limits on API keys
+- **Key Rotation**: Regularly rotate API keys
+- **Monitoring**: Set up usage alerts
+
+**💡 Enterprise Option:**
+For production use with hidden API keys, consider adding a backend API layer to proxy requests and keep keys server-side.
+
 ## Usage
 
 1. **Enter a web novel URL** in the input field

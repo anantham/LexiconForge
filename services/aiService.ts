@@ -135,10 +135,10 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     let baseURL: string | undefined;
 
     if (settings.provider === 'OpenAI') {
-        apiKey = settings.apiKeyOpenAI;
+        apiKey = settings.apiKeyOpenAI || (typeof process !== 'undefined' ? process.env.OPENAI_API_KEY : undefined);
         baseURL = 'https://api.openai.com/v1';
     } else if (settings.provider === 'DeepSeek') {
-        apiKey = settings.apiKeyDeepSeek;
+        apiKey = settings.apiKeyDeepSeek || (typeof process !== 'undefined' ? process.env.DEEPSEEK_API_KEY : undefined);
         baseURL = 'https://api.deepseek.com/v1';
     }
 
