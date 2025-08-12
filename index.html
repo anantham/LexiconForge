@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collaborative Novel Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script>
+      // Early error capture before anything else loads
+      window.__earlyErrors = [];
+      window.onerror = (m,s,l,c,e) => { 
+        console.error('🚨 EARLY ERROR:', {message: m, source: s, line: l, col: c, error: e}); 
+        window.__earlyErrors.push({type:'error',m,s,l,c,e}); 
+      };
+      window.onunhandledrejection = (ev) => { 
+        console.error('🚨 EARLY UNHANDLED REJECTION:', ev.reason); 
+        window.__earlyErrors.push({type:'unhandledrejection', reason: String(ev.reason)}); 
+      };
+      
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['Lora', 'serif'],
+            },
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.1.1",
+    "react/": "https://esm.sh/react@19.1.1/",
+    "react-dom/client": "https://esm.sh/react-dom@19.1.1/client",
+    "react-dom/": "https://esm.sh/react-dom@19.1.1/",
+    "@google/genai": "https://esm.sh/@google/genai@1.13.0",
+    "@google/genai/": "https://esm.sh/@google/genai@1.13.0/",
+    "openai": "https://esm.sh/openai@4.52.7",
+    "openai/": "https://esm.sh/openai@4.52.7/",
+    "zustand": "https://esm.sh/zustand@5.0.7",
+    "zustand/": "https://esm.sh/zustand@5.0.7/",
+    "zustand/middleware": "https://esm.sh/zustand@5.0.7/middleware",
+    "zustand/react/shallow": "https://esm.sh/zustand@5.0.7/react/shallow"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gray-100 dark:bg-gray-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

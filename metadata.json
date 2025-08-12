@@ -1,0 +1,5 @@
+{
+  "name": "Collaborative Novel Translator",
+  "description": "An application to read web novels from various sources, with AI-powered translation that can be collaboratively refined through user feedback.",
+  "requestFramePermissions": []
+}
