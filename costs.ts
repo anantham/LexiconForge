@@ -46,6 +46,12 @@ export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output:
     'gpt-4o': { input: 2.50, output: 10.00 },
     'gpt-4o-mini': { input: 0.15, output: 0.60 },
 
+    // --- OpenAI Models with date suffixes (real model IDs from API) ---
+    'gpt-5-2025-01-12': { input: 1.25, output: 10.00 },
+    'gpt-5-mini-2025-08-07': { input: 0.25, output: 2.00 },
+    'gpt-5-nano-2025-01-12': { input: 0.05, output: 0.40 },
+    'gpt-5-chat-latest-2025-01-12': { input: 1.25, output: 10.00 },
+
     // --- DeepSeek Models (Standard pricing - cache miss) ---
     'deepseek-chat': { input: 0.27, output: 1.10 },
     'deepseek-reasoner': { input: 0.55, output: 2.19 },

@@ -40,6 +40,8 @@ interface AppState {
     isDirty: boolean;
     amendmentProposal: AmendmentProposal | null;
     lastApiCallTimestamp: number;
+    activeTranslations: Record<string, AbortController>;
+    urlLoadingStates: Record<string, boolean>;
 }
 
 interface AppActions {
@@ -59,11 +61,13 @@ interface AppActions {
     clearSession: () => void;
     importSession: (event: React.ChangeEvent<HTMLInputElement>) => void;
     exportSession: () => void;
+    cancelActiveTranslations: () => void;
+    isUrlTranslating: (url: string) => boolean;
 }
 
 type Store = AppState & AppActions;
 
-// Define the keys we want to persist
+// Define the keys we want to persist (activeTranslations and urlLoadingStates are runtime-only)
 const PERSIST_KEYS = ['sessionData', 'currentUrl', 'urlHistory', 'showEnglish', 'feedbackHistory', 'settings', 'proxyScores'] as const;
 type PersistedState = Pick<Store, typeof PERSIST_KEYS[number]>;
 
@@ -95,6 +99,8 @@ const useAppStore = create<Store>()(
             isDirty: false,
             amendmentProposal: null,
             lastApiCallTimestamp: 0,
+            activeTranslations: {},
+            urlLoadingStates: {},
             
             // --- ACTIONS ---
             
@@ -157,7 +163,13 @@ const useAppStore = create<Store>()(
             },
 
             handleTranslate: async (urlToTranslate, isSilent = false) => {
-                const { sessionData, urlHistory, settings, feedbackHistory, lastApiCallTimestamp } = get();
+                const { sessionData, urlHistory, settings, feedbackHistory, lastApiCallTimestamp, activeTranslations } = get();
+
+                // Cancel any existing translation for this URL
+                if (activeTranslations[urlToTranslate]) {
+                    activeTranslations[urlToTranslate].abort();
+                    console.log(`[Translation] Cancelled existing translation for ${urlToTranslate}`);
+                }
 
                 const RATE_LIMIT_INTERVAL_MS = 6500;
                 const now = Date.now();
@@ -173,9 +185,24 @@ const useAppStore = create<Store>()(
                 
                 const chapterToTranslate = sessionData[urlToTranslate]?.chapter;
                 if (!chapterToTranslate?.content) return;
+
+                // Create abort controller for this translation
+                const abortController = new AbortController();
                 
                 if (!isSilent) {
-                    set(prev => ({ ...prev, isLoading: { ...prev.isLoading, translating: true }, error: null }));
+                    set(prev => ({ 
+                        ...prev, 
+                        isLoading: { ...prev.isLoading, translating: true }, 
+                        error: null,
+                        activeTranslations: { ...prev.activeTranslations, [urlToTranslate]: abortController },
+                        urlLoadingStates: { ...prev.urlLoadingStates, [urlToTranslate]: true }
+                    }));
+                } else {
+                    set(prev => ({ 
+                        ...prev,
+                        activeTranslations: { ...prev.activeTranslations, [urlToTranslate]: abortController },
+                        urlLoadingStates: { ...prev.urlLoadingStates, [urlToTranslate]: true }
+                    }));
                 }
                 
                 const historyUrls = urlHistory.slice(Math.max(0, urlHistory.indexOf(urlToTranslate) - settings.contextDepth), urlHistory.indexOf(urlToTranslate));
@@ -193,6 +220,13 @@ const useAppStore = create<Store>()(
 
                 try {
                     const result = await translateChapter(chapterToTranslate.title, chapterToTranslate.content, settings, historyForApi);
+                    
+                    // Check if translation was cancelled
+                    if (abortController.signal.aborted) {
+                        console.log(`[Translation] Translation for ${urlToTranslate} was cancelled`);
+                        return;
+                    }
+
                     set(state => ({
                         sessionData: {
                             ...state.sessionData,
@@ -201,6 +235,12 @@ const useAppStore = create<Store>()(
                         amendmentProposal: (result.proposal && !isSilent) ? result.proposal : state.amendmentProposal
                     }));
                 } catch (e: any) {
+                    // Don't show errors for aborted translations
+                    if (abortController.signal.aborted) {
+                        console.log(`[Translation] Translation for ${urlToTranslate} was cancelled`);
+                        return;
+                    }
+
                     const sanitizedMessage = JSON.stringify(e instanceof Error ? e.message : String(e));
                     if (!isSilent) {
                         let errorMessage = `An unexpected error occurred during translation. Full error: ${sanitizedMessage}`;
@@ -222,9 +262,20 @@ const useAppStore = create<Store>()(
                         console.error(`Silent translation failed for ${urlToTranslate}:`, sanitizedMessage);
                     }
                 } finally {
-                    if (!isSilent) {
-                        set(prev => ({ isLoading: { ...prev.isLoading, translating: false } }));
-                    }
+                    // Clean up regardless of success/failure/cancellation
+                    set(prev => {
+                        const newActiveTranslations = { ...prev.activeTranslations };
+                        const newUrlLoadingStates = { ...prev.urlLoadingStates };
+                        delete newActiveTranslations[urlToTranslate];
+                        delete newUrlLoadingStates[urlToTranslate];
+
+                        return {
+                            ...prev,
+                            isLoading: { ...prev.isLoading, translating: Object.keys(newActiveTranslations).length > 0 },
+                            activeTranslations: newActiveTranslations,
+                            urlLoadingStates: newUrlLoadingStates
+                        };
+                    });
                 }
             },
 
@@ -298,7 +349,19 @@ const useAppStore = create<Store>()(
 
             setShowSettingsModal: (isOpen: boolean) => set({ showSettingsModal: isOpen }),
             
-            updateSettings: (newSettings: Partial<AppSettings>) => set(state => ({ settings: { ...state.settings, ...newSettings } })),
+            updateSettings: (newSettings: Partial<AppSettings>) => {
+                const currentSettings = get().settings;
+                const modelOrProviderChanged = 
+                    (newSettings.provider && newSettings.provider !== currentSettings.provider) ||
+                    (newSettings.model && newSettings.model !== currentSettings.model);
+
+                if (modelOrProviderChanged) {
+                    console.log('[Settings] Model/provider changed, cancelling active translations');
+                    get().cancelActiveTranslations();
+                }
+
+                set(state => ({ settings: { ...state.settings, ...newSettings } }));
+            },
 
             updateProxyScore: (proxyUrl: string, successful: boolean) => {
                 set(state => {
@@ -445,6 +508,24 @@ const useAppStore = create<Store>()(
                 };
                 reader.readAsText(file);
                 event.target.value = '';
+            },
+
+            cancelActiveTranslations: () => {
+                const { activeTranslations } = get();
+                Object.keys(activeTranslations).forEach(url => {
+                    activeTranslations[url].abort();
+                    console.log(`[Translation] Cancelled translation for ${url}`);
+                });
+                set(prev => ({
+                    activeTranslations: {},
+                    urlLoadingStates: {},
+                    isLoading: { ...prev.isLoading, translating: false }
+                }));
+            },
+
+            isUrlTranslating: (url: string) => {
+                const { urlLoadingStates } = get();
+                return urlLoadingStates[url] || false;
             },
         }),
         persistOptions

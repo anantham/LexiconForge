@@ -35,7 +35,17 @@ const formatHistory = (history: HistoricalChapter[]): string => {
 // --- COST CALCULATION ---
 
 const calculateCost = (model: string, promptTokens: number, completionTokens: number): number => {
-    const modelCosts = COSTS_PER_MILLION_TOKENS[model];
+    let modelCosts = COSTS_PER_MILLION_TOKENS[model];
+    
+    // If exact model not found, try stripping date suffix (e.g., gpt-5-mini-2025-08-07 -> gpt-5-mini)
+    if (!modelCosts) {
+        const baseModel = model.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+        modelCosts = COSTS_PER_MILLION_TOKENS[baseModel];
+        if (modelCosts) {
+            console.log(`[Cost] Using pricing for base model '${baseModel}' for '${model}'`);
+        }
+    }
+    
     if (!modelCosts) {
         console.warn(`[Cost] No pricing information found for model: ${model}. Cost will be reported as 0.`);
         return 0;

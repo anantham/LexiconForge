@@ -28,7 +28,8 @@ const ChapterView: React.FC = () => {
     addFeedback,
     deleteFeedback,
     updateFeedbackComment,
-    handleRetranslateCurrent
+    handleRetranslateCurrent,
+    isUrlTranslating
   } = useAppStore(useShallow(state => ({
     currentUrl: state.currentUrl,
     sessionData: state.sessionData,
@@ -43,6 +44,7 @@ const ChapterView: React.FC = () => {
     deleteFeedback: state.deleteFeedback,
     updateFeedbackComment: state.updateFeedbackComment,
     handleRetranslateCurrent: state.handleRetranslateCurrent,
+    isUrlTranslating: state.isUrlTranslating,
   })));
   
   const chapter = currentUrl ? sessionData[currentUrl]?.chapter : null;
@@ -126,7 +128,16 @@ const ChapterView: React.FC = () => {
         </div>
       );
     }
-    if (showEnglish && (isLoading.translating || !translationResult)) {
+
+    // Check if THIS specific URL is being translated
+    const currentUrlTranslating = currentUrl ? isUrlTranslating(currentUrl) : false;
+    
+    if (showEnglish && currentUrlTranslating && !translationResult) {
+      return <Loader text={`Translating with ${settings.provider}...`} />;
+    }
+
+    // If we have cached translation result, show it even if other chapters are translating
+    if (showEnglish && !translationResult) {
       return <Loader text={`Translating with ${settings.provider}...`} />;
     }
     
@@ -205,7 +216,7 @@ const ChapterView: React.FC = () => {
               {showEnglish && (
                 <button
                   onClick={handleRetranslateCurrent}
-                  disabled={!isDirty || isLoading.translating}
+                  disabled={!isDirty || (currentUrl ? isUrlTranslating(currentUrl) : false)}
                   className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent transition"
                   title="Re-translate with new feedback"
                 >
