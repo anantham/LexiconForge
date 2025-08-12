@@ -34,7 +34,12 @@ const formatHistory = (history: HistoricalChapter[]): string => {
 
 // --- COST CALCULATION ---
 
-const calculateCost = (model: string, promptTokens: number, completionTokens: number): number => {
+export const calculateCost = (model: string, promptTokens: number, completionTokens: number): number => {
+    // Validate input parameters
+    if (promptTokens < 0 || completionTokens < 0) {
+        throw new Error(`Invalid token counts: promptTokens=${promptTokens}, completionTokens=${completionTokens}. Token counts must be non-negative.`);
+    }
+    
     let modelCosts = COSTS_PER_MILLION_TOKENS[model];
     
     // If exact model not found, try stripping date suffix (e.g., gpt-5-mini-2025-08-07 -> gpt-5-mini)

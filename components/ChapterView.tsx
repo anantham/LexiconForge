@@ -82,7 +82,7 @@ const ChapterView: React.FC = () => {
             <ol className="list-decimal list-inside space-y-2 text-sm">
                 {footnotes.map((note) => (
                     <li key={note.marker} id={`footnote-def-${note.marker}`} className="text-gray-600 dark:text-gray-400">
-                       {note.text} <a href={`#footnote-ref-${note.marker}`} className="text-blue-500 hover:underline">↑</a>
+                       {parseAndRender(note.text)} <a href={`#footnote-ref-${note.marker}`} className="text-blue-500 hover:underline">↑</a>
                     </li>
                 ))}
             </ol>
