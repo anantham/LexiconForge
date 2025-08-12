@@ -29,7 +29,9 @@ const ChapterView: React.FC = () => {
     deleteFeedback,
     updateFeedbackComment,
     handleRetranslateCurrent,
-    isUrlTranslating
+    isUrlTranslating,
+    shouldEnableRetranslation,
+    hasTranslationSettingsChanged
   } = useAppStore(useShallow(state => ({
     currentUrl: state.currentUrl,
     sessionData: state.sessionData,
@@ -45,6 +47,8 @@ const ChapterView: React.FC = () => {
     updateFeedbackComment: state.updateFeedbackComment,
     handleRetranslateCurrent: state.handleRetranslateCurrent,
     isUrlTranslating: state.isUrlTranslating,
+    shouldEnableRetranslation: state.shouldEnableRetranslation,
+    hasTranslationSettingsChanged: state.hasTranslationSettingsChanged,
   })));
   
   const chapter = currentUrl ? sessionData[currentUrl]?.chapter : null;
@@ -154,6 +158,29 @@ const ChapterView: React.FC = () => {
   
   const shouldShowPopover = showEnglish && selection;
 
+  // Dynamic tooltip for retranslation button
+  const getRetranslationTooltip = () => {
+    if (!currentUrl) return "Re-translate this chapter";
+    
+    const currentUrlTranslating = isUrlTranslating(currentUrl);
+    if (currentUrlTranslating) {
+      return `Translating with ${settings.provider} ${settings.model}...`;
+    }
+    
+    const settingsChanged = hasTranslationSettingsChanged(currentUrl);
+    const feedbackChanged = isDirty;
+    
+    if (settingsChanged && feedbackChanged) {
+      return `Re-translate with ${settings.provider} ${settings.model} and new feedback`;
+    } else if (settingsChanged) {
+      return `Re-translate with ${settings.provider} ${settings.model}`;
+    } else if (feedbackChanged) {
+      return "Re-translate with new feedback";
+    } else {
+      return `Re-translate with ${settings.provider} ${settings.model}`;
+    }
+  };
+
   const NavigationControls = () => chapter && (
     <div className="flex justify-between items-center w-full">
         <button
@@ -216,11 +243,17 @@ const ChapterView: React.FC = () => {
               {showEnglish && (
                 <button
                   onClick={handleRetranslateCurrent}
-                  disabled={!isDirty || (currentUrl ? isUrlTranslating(currentUrl) : false)}
-                  className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent transition"
-                  title="Re-translate with new feedback"
+                  disabled={!shouldEnableRetranslation(currentUrl || '') || (currentUrl ? isUrlTranslating(currentUrl) : false)}
+                  className={`p-2 rounded-full border transition-all duration-200 ${
+                    currentUrl && isUrlTranslating(currentUrl)
+                      ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700 cursor-wait'
+                      : shouldEnableRetranslation(currentUrl || '')
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
+                      : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                  }`}
+                  title={getRetranslationTooltip()}
                 >
-                  <RefreshIcon className="w-5 h-5" />
+                  <RefreshIcon className={`w-5 h-5 ${currentUrl && isUrlTranslating(currentUrl) ? 'animate-spin' : ''}`} />
                 </button>
               )}
             </div>

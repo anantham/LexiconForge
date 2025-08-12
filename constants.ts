@@ -37,7 +37,7 @@ Culturally-Specific Nouns: For Japanese mythological, folkloric, or magical term
 Standard Fantasy Archetypes: Generic or Western fantasy terms will be translated into English (e.g., フロストレイス -> Frost Wraith).
 Novel-Specific Glossary (Live Document): This glossary will be maintained for consistency.
 Romaji Terms: hitogata, koku, jō, Gashadokuro, ayakashi, onryō, yokai.
-Translated Terms: Almiraj (Horned Rabbit), Frost Wraith.
+Translated Terms: Almiraj (Horned Rabbit), Frost Wraith, 認定票 (Adventurer's Medallion).
 Evocative Translations: 《召命》 (Shōmei) -> 《By my command—Arise》.
 3. 💔 Emotional Impact:
 Show, Don't Tell: Convey the meaning, tone, and impact of the original. Instead of "Haruka was shocked," describe the physical and mental sensations: "A jolt of ice shot through Haruka's veins."
@@ -68,9 +68,6 @@ Distinguish Footnote Types: Clearly label footnotes to differentiate your notes 
 [TL Note:] Use for translator commentary, cultural context, or explaining a choice. Also it surface ambiguities that the reader can pay attention to and decide to flag. You can use Notes to elicit feedback.
 [Author's Note:] Use for explanations present in the original text (like unit conversions).
 Use footnotes to explain the significance of terms, such as the folklore behind the Gashadokuro.
-
-Glossary : 
-認定票 -> Adventurer's Medallion
 `;
 
 // Available AI models by provider
@@ -83,10 +80,13 @@ export const AVAILABLE_MODELS = {
     { id: 'gemini-2.0-flash-lite', name: 'Gemini 2.0 Flash Lite', description: 'Previous generation, lightweight' },
   ],
   OpenAI: [
-    { id: 'gpt-4o', name: 'GPT-4o', description: 'Latest multimodal model' },
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Faster, cost-effective' },
-    { id: 'gpt-4', name: 'GPT-4', description: 'Previous generation flagship' },
-    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'Fast and economical' },
+    { id: 'gpt-5', name: 'GPT-5', description: 'Latest flagship model, most capable' },
+    { id: 'gpt-5-mini', name: 'GPT-5 Mini', description: 'Balanced performance and cost' },
+    { id: 'gpt-5-nano', name: 'GPT-5 Nano', description: 'Lightweight, fastest responses' },
+    { id: 'gpt-5-chat-latest', name: 'GPT-5 Chat Latest', description: 'Latest conversational model' },
+    { id: 'gpt-4.1', name: 'GPT-4.1', description: 'Enhanced previous generation' },
+    { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Efficient 4.1 variant' },
+    { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Compact 4.1 variant' },
   ],
   DeepSeek: [
     { id: 'deepseek-chat', name: 'DeepSeek Chat', description: 'General purpose model' },

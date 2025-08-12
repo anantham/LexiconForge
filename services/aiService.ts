@@ -175,17 +175,37 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         response_format: { type: 'json_object' },
     };
 
+    console.log(`[OpenAI] Preparing request for model: ${settings.model}`);
+    console.log(`[OpenAI] Temperature setting: ${settings.temperature}`);
+    console.log(`[OpenAI] Message count: ${messages.length}`);
+    console.log(`[OpenAI] Request options:`, JSON.stringify(requestOptions, null, 2));
+
     // Add temperature if the model supports it (some newer models only support default)
     let response: ChatCompletion;
     try {
         requestOptions.temperature = settings.temperature;
+        console.log(`[OpenAI] Attempt 1: Sending request with temperature ${settings.temperature}`);
         response = await openai.chat.completions.create(requestOptions);
+        console.log(`[OpenAI] Attempt 1: Success! Response received`);
     } catch (error: any) {
+        console.error(`[OpenAI] Attempt 1 failed:`, error);
+        console.log(`[OpenAI] Error status:`, error.status || 'unknown');
+        console.log(`[OpenAI] Error message:`, error.message || 'unknown');
+        console.log(`[OpenAI] Error response:`, error.response?.data || 'no response data');
+        
         // If temperature fails, retry without it
-        if (error.message?.includes('temperature')) {
-            console.warn(`[OpenAI] Model ${settings.model} doesn't support custom temperature, using default`);
+        if (error.message?.includes('temperature') || error.message?.includes('not supported') || error.status === 400) {
+            console.warn(`[OpenAI] Retrying without temperature setting for model ${settings.model}`);
             delete requestOptions.temperature;
-            response = await openai.chat.completions.create(requestOptions);
+            console.log(`[OpenAI] Attempt 2: Retry request options:`, JSON.stringify(requestOptions, null, 2));
+            
+            try {
+                response = await openai.chat.completions.create(requestOptions);
+                console.log(`[OpenAI] Attempt 2: Success! Response received`);
+            } catch (retryError: any) {
+                console.error(`[OpenAI] Attempt 2 also failed:`, retryError);
+                throw retryError;
+            }
         } else {
             throw error;
         }

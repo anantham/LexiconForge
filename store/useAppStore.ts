@@ -42,6 +42,7 @@ interface AppState {
     lastApiCallTimestamp: number;
     activeTranslations: Record<string, AbortController>;
     urlLoadingStates: Record<string, boolean>;
+    lastTranslationSettings: Record<string, { provider: string; model: string; temperature: number }>;
 }
 
 interface AppActions {
@@ -63,6 +64,8 @@ interface AppActions {
     exportSession: () => void;
     cancelActiveTranslations: () => void;
     isUrlTranslating: (url: string) => boolean;
+    hasTranslationSettingsChanged: (url: string) => boolean;
+    shouldEnableRetranslation: (url: string) => boolean;
 }
 
 type Store = AppState & AppActions;
@@ -101,6 +104,7 @@ const useAppStore = create<Store>()(
             lastApiCallTimestamp: 0,
             activeTranslations: {},
             urlLoadingStates: {},
+            lastTranslationSettings: {},
             
             // --- ACTIONS ---
             
@@ -232,7 +236,15 @@ const useAppStore = create<Store>()(
                             ...state.sessionData,
                             [urlToTranslate]: { ...state.sessionData[urlToTranslate], translationResult: result },
                         },
-                        amendmentProposal: (result.proposal && !isSilent) ? result.proposal : state.amendmentProposal
+                        amendmentProposal: (result.proposal && !isSilent) ? result.proposal : state.amendmentProposal,
+                        lastTranslationSettings: {
+                            ...state.lastTranslationSettings,
+                            [urlToTranslate]: {
+                                provider: settings.provider,
+                                model: settings.model,
+                                temperature: settings.temperature
+                            }
+                        }
                     }));
                 } catch (e: any) {
                     // Don't show errors for aborted translations
@@ -385,9 +397,65 @@ const useAppStore = create<Store>()(
 
             acceptProposal: () => {
                 const { amendmentProposal, settings } = get();
-                if (!amendmentProposal) return;
-                const newPrompt = settings.systemPrompt.replace(amendmentProposal.currentRule, amendmentProposal.proposedChange.replace(/^[+-]\s/gm, ''));
-                set(state => ({ settings: {...state.settings, systemPrompt: newPrompt}, amendmentProposal: null }));
+                if (!amendmentProposal) {
+                    console.warn('[Amendment] No amendment proposal to accept');
+                    return;
+                }
+                
+                console.groupCollapsed('[Amendment] Processing proposal acceptance');
+                
+                // Log current state
+                console.log('[Amendment] Current system prompt (first 300 chars):', 
+                    settings.systemPrompt.substring(0, 300) + (settings.systemPrompt.length > 300 ? '...' : ''));
+                
+                console.log('[Amendment] Searching for current rule:', amendmentProposal.currentRule);
+                console.log('[Amendment] Original proposed change:', amendmentProposal.proposedChange);
+                
+                // Process the proposed change (remove +/- prefixes)
+                const processedChange = amendmentProposal.proposedChange.replace(/^[+-]\s/gm, '');
+                console.log('[Amendment] Processed proposed change (after regex):', processedChange);
+                
+                // Check if current rule exists in the prompt
+                const ruleFound = settings.systemPrompt.includes(amendmentProposal.currentRule);
+                console.log('[Amendment] Current rule found in system prompt:', ruleFound);
+                
+                if (!ruleFound) {
+                    console.warn('[Amendment] Current rule not found in system prompt - replacement will fail');
+                    console.log('[Amendment] This might be due to text formatting differences');
+                }
+                
+                // Perform the replacement
+                const newPrompt = settings.systemPrompt.replace(amendmentProposal.currentRule, processedChange);
+                
+                // Check if replacement actually happened
+                const replacementWorked = newPrompt !== settings.systemPrompt;
+                console.log('[Amendment] Replacement worked:', replacementWorked);
+                
+                if (replacementWorked) {
+                    console.log('[Amendment] New system prompt (first 300 chars):', 
+                        newPrompt.substring(0, 300) + (newPrompt.length > 300 ? '...' : ''));
+                    
+                    // Show the specific changed section if possible
+                    const changeIndex = newPrompt.indexOf(processedChange);
+                    if (changeIndex !== -1) {
+                        const contextStart = Math.max(0, changeIndex - 50);
+                        const contextEnd = Math.min(newPrompt.length, changeIndex + processedChange.length + 50);
+                        console.log('[Amendment] Changed section with context:', 
+                            '...' + newPrompt.substring(contextStart, contextEnd) + '...');
+                    }
+                } else {
+                    console.error('[Amendment] Replacement failed - system prompt unchanged');
+                }
+                
+                console.groupEnd();
+                
+                // Update the state
+                set(state => ({ 
+                    settings: {...state.settings, systemPrompt: newPrompt}, 
+                    amendmentProposal: null 
+                }));
+                
+                console.log('[Amendment] Amendment processing complete, proposal cleared');
             },
             
             rejectProposal: () => set({ amendmentProposal: null }),
@@ -526,6 +594,28 @@ const useAppStore = create<Store>()(
             isUrlTranslating: (url: string) => {
                 const { urlLoadingStates } = get();
                 return urlLoadingStates[url] || false;
+            },
+
+            hasTranslationSettingsChanged: (url: string) => {
+                const { settings, lastTranslationSettings } = get();
+                const lastSettings = lastTranslationSettings[url];
+                
+                if (!lastSettings) return false; // No previous translation
+                
+                return (
+                    lastSettings.provider !== settings.provider ||
+                    lastSettings.model !== settings.model ||
+                    lastSettings.temperature !== settings.temperature
+                );
+            },
+
+            shouldEnableRetranslation: (url: string) => {
+                const { sessionData, isDirty } = get();
+                const translationExists = !!sessionData[url]?.translationResult;
+                const settingsChanged = get().hasTranslationSettingsChanged(url);
+                const isTranslating = get().isUrlTranslating(url);
+                
+                return translationExists && !isTranslating && (isDirty || settingsChanged);
             },
         }),
         persistOptions
