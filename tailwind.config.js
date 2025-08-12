@@ -2,8 +2,15 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./**/*.{js,ts,jsx,tsx}", // Include all TypeScript/JSX files in project root
+    "./App.tsx",
+    "./index.tsx", 
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./hooks/**/*.{js,ts,jsx,tsx}",
+    "./services/**/*.{js,ts,jsx,tsx}",
+    "./store/**/*.{js,ts,jsx,tsx}",
+    "./types.ts",
+    "./constants.ts",
+    "./costs.ts"
   ],
   theme: {
     extend: {
