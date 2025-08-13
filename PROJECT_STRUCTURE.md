@@ -135,6 +135,13 @@ LexiconForge/
   - System prompt evolution
   - Rule change reasoning
 
+#### **components/Illustration.tsx**
+- **Role**: Renders AI-generated illustrations
+- **Features**:
+  - Handles loading and error states for images
+  - Displays the final image from a base64 string
+  - Connects to the global state to get image data by its marker
+
 ### **Utility Components**
 
 #### **components/Loader.tsx**
@@ -171,6 +178,14 @@ LexiconForge/
   - **Context Management**: Previous chapter integration
   - **Error Handling**: Retry logic with exponential backoff
   - **Cost Tracking**: Real-time usage and pricing
+
+### **services/imageService.ts**
+- **Role**: Handles all AI image generation requests
+- **Key Features**:
+  - Calls the Gemini Image API with a given text prompt
+  - Configured for a high-quality, anime/manga art style
+  - Processes the API response to extract a base64 image string
+  - Contains robust error handling for API failures
 
 ### **services/geminiService.ts**
 - **Role**: Google Gemini API integration

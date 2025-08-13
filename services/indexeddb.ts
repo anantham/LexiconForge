@@ -21,7 +21,7 @@ import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate }
 
 // Database configuration
 const DB_NAME = 'lexicon-forge';
-const DB_VERSION = 2; // Increment for prompt templates
+const DB_VERSION = 3; // Increment for prompt templates
 
 // Object store names
 const STORES = {

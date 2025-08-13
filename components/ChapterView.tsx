@@ -8,6 +8,7 @@ import FeedbackDisplay from './FeedbackDisplay';
 import RefreshIcon from './icons/RefreshIcon';
 import useAppStore from '../store/useAppStore';
 import { useShallow } from 'zustand/react/shallow';
+import Illustration from './Illustration';
 
 
 const ChapterView: React.FC = () => {
@@ -36,7 +37,9 @@ const ChapterView: React.FC = () => {
     hasTranslationSettingsChanged,
     switchTranslationVersion,
     deleteTranslationVersion,
-    loadTranslationVersions
+    loadTranslationVersions,
+    generatedImages,
+    imageGenerationMetrics
   } = useAppStore(useShallow(state => ({
     currentUrl: state.currentUrl,
     sessionData: state.sessionData,
@@ -58,6 +61,8 @@ const ChapterView: React.FC = () => {
     switchTranslationVersion: state.switchTranslationVersion,
     deleteTranslationVersion: state.deleteTranslationVersion,
     loadTranslationVersions: state.loadTranslationVersions,
+    generatedImages: state.generatedImages,
+    imageGenerationMetrics: state.imageGenerationMetrics,
   })));
   
   const chapter = currentUrl ? sessionData[currentUrl]?.chapter : null;
@@ -187,9 +192,15 @@ const ChapterView: React.FC = () => {
   }
   
   const parseAndRender = (text: string): React.ReactNode[] => {
-    const parts = text.split(/(\[\d+\]|<i>.*?<\/i>|<b>.*?<\/b>|\*.*?\*)/g).filter(Boolean);
+    const parts = text.split(/(\[\d+\]|<i>.*?<\/i>|<b>.*?<\/b>|\*.*?\*|\[ILLUSTRATION-\d+\])/g).filter(Boolean);
 
     return parts.map((part, index) => {
+      // Illustration
+      const illustrationMatch = part.match(/^(\[ILLUSTRATION-\d+\])$/);
+      if (illustrationMatch) {
+        return <Illustration key={index} marker={illustrationMatch[1]} />;
+      }
+
       // Footnote
       const footnoteMatch = part.match(/^\[(\d+)\]$/);
       if (footnoteMatch) {
@@ -405,6 +416,12 @@ const ChapterView: React.FC = () => {
     </div>
   );
 
+  const ImageMetricsDisplay = ({ metrics }: { metrics: { count: number; totalTime: number; totalCost: number; } }) => (
+    <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
+      Generated {metrics.count} images in {metrics.totalTime.toFixed(2)}s (~${metrics.totalCost.toFixed(5)})
+    </div>
+  );
+
   return (
     <div ref={viewRef} className="relative w-full max-w-4xl mx-auto mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 sm:p-8">
       {chapter && (
@@ -467,6 +484,9 @@ const ChapterView: React.FC = () => {
           </div>
           {showEnglish && translationResult?.usageMetrics && (
             <MetricsDisplay metrics={translationResult.usageMetrics} />
+          )}
+          {showEnglish && imageGenerationMetrics && (
+            <ImageMetricsDisplay metrics={imageGenerationMetrics} />
           )}
           
           {/* Version Management Section */}

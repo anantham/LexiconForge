@@ -46,6 +46,12 @@ export interface SuggestedIllustration {
   imagePrompt: string;
 }
 
+export interface GeneratedImageResult {
+  imageData: string; // base64 string
+  requestTime: number; // in seconds
+  cost: number;
+}
+
 export interface UsageMetrics {
   totalTokens: number;
   promptTokens: number;

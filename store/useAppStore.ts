@@ -4,6 +4,7 @@ import { persist, PersistOptions } from 'zustand/middleware';
 import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, ImportedSession, TranslationProvider, PromptTemplate } from '../types';
 import { INITIAL_SYSTEM_PROMPT } from '../constants';
 import { translateChapter, validateApiKey } from '../services/aiService';
+import { generateImage } from '../services/imageService';
 import { fetchAndParseUrl } from '../services/adapters';
 import { indexedDBService, TranslationRecord, PromptTemplateRecord, migrateFromLocalStorage } from '../services/indexeddb';
 
@@ -49,6 +50,8 @@ interface AppState {
     lastTranslationSettings: Record<string, { provider: string; model: string; temperature: number }>;
     promptTemplates: PromptTemplateRecord[];
     activePromptTemplate: PromptTemplateRecord | null;
+    generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; }>;
+    imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; } | null;
 }
 
 interface AppActions {
@@ -72,6 +75,7 @@ interface AppActions {
     isUrlTranslating: (url: string) => boolean;
     hasTranslationSettingsChanged: (url: string) => boolean;
     shouldEnableRetranslation: (url: string) => boolean;
+    handleGenerateImages: (url: string) => Promise<void>;
     // Version management
     loadTranslationVersions: (url: string) => Promise<void>;
     switchTranslationVersion: (url: string, version: number) => Promise<void>;
@@ -125,6 +129,8 @@ const useAppStore = create<Store>()(
             lastTranslationSettings: {},
             promptTemplates: [],
             activePromptTemplate: null,
+            generatedImages: {},
+            imageGenerationMetrics: null,
             
             // --- ACTIONS ---
             
@@ -339,6 +345,11 @@ const useAppStore = create<Store>()(
                         // Reload versions to update UI
                         await get().loadTranslationVersions(urlToTranslate);
                         
+                        // NEW: Trigger image generation if prompts were returned
+                        if (result.suggestedIllustrations && result.suggestedIllustrations.length > 0) {
+                            get().handleGenerateImages(urlToTranslate);
+                        }
+
                         console.log(`[Translation] Stored new version for ${urlToTranslate}`);
                     } catch (error) {
                         console.error('[Translation] Failed to store in IndexedDB:', error);
@@ -810,6 +821,70 @@ const useAppStore = create<Store>()(
                 const isTranslating = get().isUrlTranslating(url);
                 
                 return translationExists && !isTranslating && (isDirty || settingsChanged);
+            },
+
+                        handleGenerateImages: async (url: string) => {
+                console.log(`[ImageGen] Starting image generation for ${url}`);
+                const { sessionData, settings } = get();
+                const translationResult = sessionData[url]?.translationResult;
+
+                if (!translationResult || !translationResult.suggestedIllustrations) {
+                    console.warn('[ImageGen] No illustrations suggested for this chapter.');
+                    return;
+                }
+
+                // Reset metrics and set initial loading state
+                set(state => {
+                    const initialImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; }> = {};
+                    translationResult.suggestedIllustrations.forEach(illust => {
+                        initialImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null };
+                    });
+                    return {
+                        imageGenerationMetrics: null,
+                        generatedImages: { ...state.generatedImages, ...initialImageStates }
+                    };
+                });
+
+                let totalTime = 0;
+                let totalCost = 0;
+                let generatedCount = 0;
+
+                // Sequentially generate images to avoid overwhelming the API
+                for (const illust of translationResult.suggestedIllustrations) {
+                    try {
+                        console.log(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
+                        const result = await generateImage(illust.imagePrompt, settings);
+                        totalTime += result.requestTime;
+                        totalCost += result.cost;
+                        generatedCount++;
+
+                        set(state => ({
+                            generatedImages: {
+                                ...state.generatedImages,
+                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null },
+                            }
+                        }));
+                        console.log(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
+                    } catch (error: any) {
+                        console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, error);
+                        set(state => ({
+                            generatedImages: {
+                                ...state.generatedImages,
+                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message },
+                            }
+                        }));
+                    }
+                }
+
+                // Set final aggregated metrics
+                set({
+                    imageGenerationMetrics: {
+                        count: generatedCount,
+                        totalTime: totalTime,
+                        totalCost: totalCost,
+                    }
+                });
+                console.log(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
             },
 
             // Version management methods

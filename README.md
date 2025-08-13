@@ -1,292 +1,59 @@
-# LexiconForge - Collaborative Novel Translator
+# LexiconForge: Your Personal AI-Powered Web Novel Translator
 
-An AI-powered web application for reading and translating web novels with collaborative user feedback and iterative translation refinement.
+**Tired of waiting for official translations? Wish you could continue the story right after the anime or manga ends?**
 
-## 🎯 Current Implementation Status
+LexiconForge is your gateway to the world of web novels. It's a powerful, AI-driven tool that lets you translate chapters from almost any source, in any language, and customize the reading experience to be *exactly* how you like it. Break down the language barriers and dive into the original stories.
 
-### ✅ **Fully Implemented Features**
+*(I recommend adding a screenshot or GIF of the app in action here!)*
 
-**🤖 Multi-Provider AI Translation**
-- Gemini API integration (primary, fully tested)
-- OpenAI API support (configured, ready to use)
-- DeepSeek API support (configured, ready to use)
-- Automatic rate limiting and error handling
-- Cost tracking with detailed usage metrics
+---
 
-**🔗 Universal Web Novel Scraping**
-- **4 Site Adapters**: Kakuyomu, Dxmwx, Kanunu, Novelcool
-- Smart proxy rotation with automatic failover
-- Robust error handling and retry logic
-- Chapter navigation (prev/next) extraction
+## ✨ Key Features: The Ultimate Reading Experience
 
-**👥 Collaborative Feedback System**
-- Text selection feedback (👍/👎/? + comments)
-- Real-time feedback collection and persistence
-- Amendment proposal system for translation rules
-- Feedback-driven system prompt evolution
+LexiconForge is more than just a translator; it's a power tool for readers.
 
-**📱 Real-time Translation Experience**
-- Context-aware translation (uses previous chapters)
-- Proactive chapter preloading (configurable count)
-- Session-based caching for performance
-- Synchronized text display with feedback integration
+*   📖 **Universal Access:** Just paste a chapter URL, and LexiconForge will fetch and prepare it for translation.
+*   🎨 **AI-Generated Illustrations:** See pivotal moments in the story come to life with automatically generated images for key scenes.
+*   🔑 **You're in Control (Bring Your Own Key):** Securely use your own API key for Gemini, OpenAI, or DeepSeek. You control your usage and data.
+*   💰 **Transparent Cost Tracking:** An obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent.
+*   🧠 **A Smarter AI:** The translator learns from your feedback! Use simple 👍/👎 reactions to teach the AI your preferred style for names, tones, and phrases.
+*   ✍️ **Become the Prompt Master:** Take full control by editing the AI's system prompt. Want a more formal tone? More descriptive prose? You decide.
+*   📊 **Model Showdown:** Not all AIs are created equal. Switch between 15+ different models on the fly to find the perfect translator for your specific novel.
+*   💾 **Own Your Data:** Your reading history, translations, and feedback are yours. Export your entire session to a local file at any time.
 
-**⚙️ Advanced Configuration**
-- Translation provider switching (runtime)
-- Comprehensive model selection (15+ models across providers)
-- Temperature control (0.0-2.0) for creativity/determinism balance
-- Context depth control (0-10 previous chapters)
-- Typography customization (font, size, line height)
-- System prompt editing with live preview
-- Preload count optimization (0-10 chapters)
+---
 
-**💾 Session Management**
-- Complete session persistence (localStorage)
-- Export/import functionality (JSON format)
-- Reading history tracking
-- Conflict resolution for imported sessions
+## 🚀 Getting Started
 
-**🔧 Developer Experience**
-- TypeScript throughout with strict typing
-- Zustand state management with persistence
-- Modular component architecture
-- ES modules with importmap (no bundler needed)
-- Early error logging and debugging tools
+### The Easy Way: Use the Live Version
+The easiest way to start is with the official hosted version on Vercel. No installation required!
 
-### 🚧 **Architecture Highlights**
+**[➡️ Click here to launch LexiconForge](https://lexicon-forge.vercel.app/)**
 
-**Translation Pipeline**
-1. **Fetch**: Universal adapter → structured chapter data
-2. **Context**: Gather previous chapters for consistency
-3. **Translate**: AI service → translation + footnotes + amendments
-4. **Feedback**: User selection → collaborative refinement
-5. **Iterate**: Amendment proposals → system prompt evolution
+### For Developers: Self-Hosting
+Want to run your own instance? It's easy.
 
-**Supported Novel Sites**
-- **Kakuyomu** (kakuyomu.jp) - Japanese web novels
-- **Dxmwx** (dxmwx.org) - Chinese web novels  
-- **Kanunu** (kanunu8.com) - Chinese literature
-- **Novelcool** (novelcool.com) - Multi-language novels
+1.  **Clone the repository.**
+2.  **Install dependencies:** `npm install`
+3.  **Add your API keys** to a new `.env.local` file.
+4.  **Run the app:** `npm run dev`
 
-**AI Integration Details**
-- **Latest Models**: GPT-5 series, Gemini 2.5 Pro, DeepSeek V3/R1
-- **Context-aware**: Uses 2-10 previous chapters for consistency
-- **Temperature Control**: Adjustable creativity/determinism (0.0-2.0)
-- **Collaborative**: Incorporates user feedback into future translations
-- **Adaptive**: System prompt evolves based on user preferences
-- **Multi-metric**: Tracks tokens, cost, response time per provider
-- **Current Pricing**: Real-time cost tracking with 2025 pricing
+For more detailed technical information, see the [Project Structure & Technical Details](./PROJECT_STRUCTURE.md).
 
-## 📋 **Roadmap & Future Enhancements**
+---
 
-### 🎯 **Planned Features**
-- [ ] **Additional Site Adapters** (NovelUpdates, Webnovel.com)
-- [ ] **Translation Memory** with terminology consistency
-- [ ] **Batch Translation** for entire novels
-- [ ] **Offline Mode** with IndexedDB storage
-- [ ] **User Accounts** with cloud sync
-- [ ] **Advanced Analytics** for translation quality metrics
-- [ ] **Plugin System** for custom adapters
-- [ ] **Mobile PWA** with offline reading
+## 💬 Community & Support
 
-### 🔧 **Technical Debt**
-- [ ] **Test Coverage** (unit + integration tests)
-- [ ] **Performance Optimization** (virtual scrolling for long chapters)
-- [ ] **Error Boundary** components for graceful failures
-- [ ] **Accessibility** improvements (ARIA, keyboard navigation)
-- [ ] **SEO Optimization** for translated content indexing
+Have a question, a feature request, or want to see what's next?
 
-## 🚦 **Stability Status**
+*   **Join our Telegram Group:** Get help, suggest new site adapters, and chat with other users at [@webnovels](https://t.me/webnovels).
 
-### ✅ **Production Ready Components**
-- **Core Translation Pipeline**: Stable, handles errors gracefully
-- **State Management**: Persistent, conflict-resistant
-- **Site Adapters**: Tested across multiple novel sources
-- **UI Components**: Responsive, accessible baseline
-- **API Integration**: Rate-limited, cost-tracked
+---
 
-### ⚠️ **Known Limitations**
-- **Site Coverage**: Limited to 4 adapters (easily extensible)
-- **Test Coverage**: Manual testing only (automated tests planned)
-- **Error Recovery**: Basic retry logic (could be more sophisticated)
-- **Performance**: Client-side only (no server-side optimizations)
+## ❤️ Support the Project
 
-### 🎯 **Recommended Usage**
-- **Individual Reading**: Excellent for personal novel translation
-- **Research Projects**: Good for studying translation approaches
-- **Development**: Solid foundation for extensions and improvements
-- **Production**: Ready for single-user deployment with monitoring
+LexiconForge is a passion project. If you find it useful, please consider supporting its continued development.
 
-## 📊 **Performance Characteristics**
+*   **Donate via Ethereum:** `adityaarpitha.eth`
 
-- **Cold Start**: ~500ms (module loading)
-- **Chapter Fetch**: 1-3s (depends on source site)
-- **Translation**: 3-10s (depends on chapter length + provider)
-- **Memory Usage**: ~50MB (for 50+ cached chapters)
-- **Storage**: ~1MB per 100 chapters (localStorage)
-
-## Prerequisites
-
-- **Node.js 18+** (recommended: latest LTS)
-- **API Keys** for translation services (at least one required):
-  - Gemini API Key (Google AI Studio)
-  - OpenAI API Key (optional)
-  - DeepSeek API Key (optional)
-
-## Quick Setup
-
-### 1. Install Dependencies
-```bash
-cd LexiconForge
-npm install
-```
-
-### 2. Configure API Keys
-Create/edit `.env.local` file:
-```bash
-# Required: Get from https://aistudio.google.com/app/apikey
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Optional additional providers
-OPENAI_API_KEY=your_openai_key_here
-DEEPSEEK_API_KEY=your_deepseek_key_here
-```
-
-### 3. Start Development Server
-```bash
-npm run dev
-```
-
-The app will be available at: **http://localhost:5173/**
-
-## 🚀 Deploy to Vercel
-
-### Quick Deploy
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/anantham/LexiconForge)
-
-### Manual Deployment Steps
-
-1. **Fork/Clone the repository**
-2. **Connect to Vercel**:
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Framework preset: **Vite** (auto-detected)
-
-3. **Configure Environment Variables** in Vercel Dashboard:
-   ```bash
-   # Required (at least one)
-   GEMINI_API_KEY=your_gemini_key_here
-   OPENAI_API_KEY=your_openai_key_here
-   DEEPSEEK_API_KEY=your_deepseek_key_here
-   ```
-
-4. **Deploy**: Vercel will automatically build and deploy
-
-### 🔒 **Security Considerations for Production**
-
-**⚠️ IMPORTANT: Client-Side API Key Exposure**
-- API keys are **visible in browser** (client-side app)
-- Users can extract keys from browser dev tools
-- **Recommendation**: Use separate, limited-scope API keys for production
-
-**🛡️ Security Best Practices:**
-- **Rate Limiting**: Monitor API usage in provider dashboards
-- **Usage Quotas**: Set spending limits on API keys
-- **Key Rotation**: Regularly rotate API keys
-- **Monitoring**: Set up usage alerts
-
-**💡 Enterprise Option:**
-For production use with hidden API keys, consider adding a backend API layer to proxy requests and keep keys server-side.
-
-## Usage
-
-1. **Enter a web novel URL** in the input field
-2. **Fetch chapter content** from supported sites
-3. **Toggle translation** to see AI-generated English translation
-4. **Provide feedback** by selecting text and rating/commenting
-5. **Navigate chapters** using prev/next links
-6. **Export/import sessions** to save your progress
-
-## Configuration
-
-### Translation Settings
-- **Provider**: Choose between Gemini, OpenAI, or DeepSeek
-- **Context Depth**: How many previous chapters to include for consistency
-- **Preload Count**: Number of chapters to fetch ahead of time
-- **System Prompt**: Customize translation style and instructions
-
-### Reading Settings
-- **Font**: Sans-serif or serif typography
-- **Font Size**: Adjustable text size
-- **Line Height**: Reading comfort customization
-
-## Supported Sites
-
-The app includes adapters for various web novel platforms. Add new sites by extending the adapter system in `services/adapters.ts`.
-
-## Development
-
-### Project Structure
-```
-├── components/          # React UI components
-├── hooks/              # Custom React hooks
-├── services/           # API and adapter services
-├── store/              # Zustand state management
-├── types.ts            # TypeScript type definitions
-├── constants.ts        # App constants and prompts
-└── index.html          # Entry point with importmap
-```
-
-### Build Commands
-```bash
-npm run build          # Production build
-npm run preview        # Preview production build
-```
-
-## Troubleshooting
-
-### "Failed to load the app" Error
-1. **Check browser console** for specific error messages
-2. **Verify API keys** are correctly set in `.env.local`
-3. **Hard refresh** (Cmd+Shift+R) to clear module cache
-4. **Check network tab** for failed module imports
-
-### Translation Not Working
-1. **Verify API key** for selected provider
-2. **Check rate limits** - app includes automatic throttling
-3. **Try different content** - some text may be blocked by safety filters
-
-### Module Loading Issues
-The app uses ES modules with importmap. If you see module resolution errors:
-1. **Clear browser cache** completely
-2. **Check console** for early loading errors
-3. **Verify all dependencies** are properly installed
-
-## API Key Setup
-
-### Gemini (Google AI Studio)
-1. Visit: https://aistudio.google.com/app/apikey
-2. Create new API key
-3. Add to `.env.local` as `GEMINI_API_KEY`
-
-### OpenAI
-1. Visit: https://platform.openai.com/api-keys
-2. Create new secret key
-3. Add to `.env.local` as `OPENAI_API_KEY`
-
-### DeepSeek
-1. Visit: https://platform.deepseek.com/api-keys
-2. Create new API key
-3. Add to `.env.local` as `DEEPSEEK_API_KEY`
-
-## Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Make changes with proper TypeScript types
-4. Test thoroughly with different novel sources
-5. Submit pull request
-
-## License
-
-This project is private and proprietary.
+---
