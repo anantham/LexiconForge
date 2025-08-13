@@ -5,7 +5,7 @@ import { AppSettings, GeneratedImageResult } from '../types';
 // --- CONSTANTS ---
 // Using a cutting-edge model known for high-quality image generation.
 // This could be parameterized in settings later if needed.
-const IMAGE_MODEL = 'gemini-1.5-flash'; 
+const IMAGE_MODEL = 'gemini-1.5-flash';
 
 // --- IMAGE GENERATION SERVICE ---
 
@@ -28,25 +28,31 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
     
     try {
         const ai = new GoogleGenAI({ apiKey });
-        const imageModel = ai.getGenerativeModel({ model: IMAGE_MODEL });
 
-        const response = await imageModel.generateContent([
-            prompt, 
-            "Please generate this image in a dark, atmospheric, and highly detailed anime/manga style."
-        ]);
+        // Corrected implementation: Use the model directly for image generation tasks
+        const response = await ai.models.generateContent({
+            model: IMAGE_MODEL,
+            contents: [{
+                role: 'user',
+                parts: [
+                    { text: prompt },
+                    { text: "Please generate this image in a dark, atmospheric, and highly detailed anime/manga style." }
+                ]
+            }],
+            // Configuration to request an image response
+            generationConfig: {
+                responseMimeType: 'image/png',
+            }
+        });
 
-        // The new Gemini API returns a different response structure.
-        // We need to access the function call result to get the image data.
-        const result = await response.response;
-        const call = result.functionCalls?.[0];
+        const imagePart = response.response.candidates?.[0].content.parts[0];
 
-        if (!call || call.name !== 'tools.display_image' || !call.args.image_data) {
-            console.error("[ImageService] Unexpected response structure:", JSON.stringify(result, null, 2));
+        if (!imagePart || !('inlineData' in imagePart)) {
+            console.error("[ImageService] Unexpected response structure:", JSON.stringify(response.response, null, 2));
             throw new Error("Failed to receive valid image data from the API.");
         }
         
-        // The image_data is already in base64 format.
-        const base64Data = call.args.image_data as string;
+        const base64Data = imagePart.inlineData.data;
         const requestTime = (performance.now() - startTime) / 1000; // in seconds
 
         console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s.`);
