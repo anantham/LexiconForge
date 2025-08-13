@@ -592,7 +592,8 @@ const useAppStore = create<Store>()(
             
             rejectProposal: () => set({ amendmentProposal: null }),
             
-            clearSession: () => {
+            clearSession: async () => {
+                // Clear in-memory state first
                 set({
                     sessionData: {},
                     currentUrl: null,
@@ -606,6 +607,27 @@ const useAppStore = create<Store>()(
                     isDirty: false,
                     amendmentProposal: null,
                 });
+
+                // Clear IndexedDB for complete clean slate
+                try {
+                    console.log('[ClearSession] Wiping IndexedDB...');
+                    indexedDBService.close(); // Close connection first
+                    
+                    // Delete the entire database
+                    const deleteRequest = indexedDB.deleteDatabase('lexicon-forge');
+                    await new Promise<void>((resolve, reject) => {
+                        deleteRequest.onsuccess = () => {
+                            console.log('[ClearSession] IndexedDB cleared successfully');
+                            resolve();
+                        };
+                        deleteRequest.onerror = () => {
+                            console.error('[ClearSession] Failed to clear IndexedDB:', deleteRequest.error);
+                            reject(deleteRequest.error);
+                        };
+                    });
+                } catch (error) {
+                    console.error('[ClearSession] Error clearing IndexedDB:', error);
+                }
             },
             
             exportSession: () => {

@@ -55,9 +55,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     onClose();
   };
   
-  const handleClear = () => {
-    if (window.confirm('Are you sure you want to clear all cached chapters and settings? This action cannot be undone.')) {
-        clearSession();
+  const handleClear = async () => {
+    if (window.confirm('Are you sure you want to clear all cached chapters, translation versions, and settings? This will completely wipe the slate clean - all data including IndexedDB will be permanently deleted. This action cannot be undone.')) {
+        await clearSession();
         onClose();
     }
   }
