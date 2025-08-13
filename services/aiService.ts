@@ -148,6 +148,13 @@ const translateWithGemini = async (title: string, content: string, settings: App
       }
   });
 
+  // Add a defensive check to ensure the response is valid before proceeding.
+  // The Gemini API might not throw on all errors (e.g., 500), but return a response with no valid candidates.
+  if (!response.response.candidates || response.response.candidates.length === 0) {
+    console.error("[Gemini] API call returned no candidates. Full response:", JSON.stringify(response.response, null, 2));
+    throw new Error("Translation failed: The API returned an empty or invalid response.");
+  }
+
   const requestTime = (performance.now() - startTime) / 1000;
   
   const usage = response.usageMetadata;
