@@ -98,6 +98,34 @@ export const calculateCost = (model: string, promptTokens: number, completionTok
     return inputCost + outputCost;
 }
 
+// --- ILLUSTRATION VALIDATION ---
+
+const validateIllustrations = (translation: string, suggestedIllustrations: any[] | undefined): void => {
+    const textMarkers = translation.match(/[\[]ILLUSTRATION-\d+[A-Za-z]*[\]]/g) || [];
+    const jsonMarkers = (suggestedIllustrations || []).map(item => item.placementMarker);
+
+    if (textMarkers.length === 0 && jsonMarkers.length === 0) {
+        return; // No illustrations, nothing to validate.
+    }
+
+    const textMarkerSet = new Set(textMarkers);
+    const jsonMarkerSet = new Set(jsonMarkers);
+
+    const textOnlyMarkers = [...textMarkerSet].filter(m => !jsonMarkerSet.has(m));
+    const jsonOnlyMarkers = [...jsonMarkerSet].filter(m => !textMarkerSet.has(m));
+
+    if (textOnlyMarkers.length > 0 || jsonOnlyMarkers.length > 0) {
+        const errorMessage = `AI response validation failed: Mismatch between illustration placeholders and structured data.\n- Markers in text but not in JSON: ${textOnlyMarkers.join(', ') || 'None'}\n- Markers in JSON but not in text: ${jsonOnlyMarkers.join(', ') || 'None'}`;
+        
+        console.error('Illustration mismatch detected.', {
+            textMarkers: Array.from(textMarkerSet),
+            jsonMarkers: Array.from(jsonMarkerSet),
+        });
+
+        throw new Error(errorMessage);
+    }
+};
+
 // --- GEMINI PROVIDER ---
 
 const geminiResponseSchema = {
@@ -174,6 +202,7 @@ const translateWithGemini = async (title: string, content: string, settings: App
     if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
         throw new Error('Invalid JSON structure in AI response.');
     }
+    validateIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
     return {
         translatedTitle: parsedJson.translatedTitle,
         translation: parsedJson.translation,
@@ -358,6 +387,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
             throw new Error('Invalid JSON structure in AI response.');
         }
+        validateIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
         
         return {
             translatedTitle: parsedJson.translatedTitle,

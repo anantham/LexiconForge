@@ -57,6 +57,8 @@ Based on the chapter content, identify 1-3 pivotal or visually striking scenes t
 3.  For each object, write a detailed, descriptive 'imagePrompt' suitable for a high-quality text-to-image AI like Imagen 3 or Midjourney. The prompt should capture the mood, characters, setting, and action of the scene in a vivid, artistic style.
 Example: If you place [ILLUSTRATION-1] in the text, the JSON should contain { "placementMarker": "[ILLUSTRATION-1]", "imagePrompt": "A dramatic wide shot of Seika, a young boy with silver hair, standing defiantly in a windswept graveyard at night. Behind him, a colossal Gashadokuro skeleton, glowing with an eerie blue light, rises from the earth, its bony fingers clawing at the sky. The moon is full and casts long, menacing shadows. Cinematic, dark fantasy, highly detailed." }
 
+CRITICAL RULE: The 'suggestedIllustrations' array MUST NOT be empty if the translated text contains any [ILLUSTRATION-X] markers. For every marker in the text, there must be a corresponding object in the array. If there are no markers, the array must be empty or null. This is a non-negotiable rule for the output format.
+
 Bonus Points & Advanced Techniques
 Multi-Sensory Imagery: Go beyond visuals. Describe the sound of a barrier forming (a crystalline chime?), the feel of spiritual power (a prickling static?), and the scent of a yokai's den (damp earth and ozone?).
 
