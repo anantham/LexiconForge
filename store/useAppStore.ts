@@ -239,7 +239,7 @@ const useAppStore = create<Store>()(
                 const historyUrls = urlHistory.slice(Math.max(0, urlHistory.indexOf(urlToTranslate) - settings.contextDepth), urlHistory.indexOf(urlToTranslate));
                 const historyForApi: HistoricalChapter[] = historyUrls.map(url => {
                     const data = sessionData[url];
-                    if (!data?.translationResult) return null;
+                    if (!data?.translationResult || !data?.chapter) return null;
                     return {
                         originalTitle: data.chapter.title,
                         originalContent: data.chapter.content,
@@ -621,7 +621,9 @@ const useAppStore = create<Store>()(
                         settings: settingsToExport
                     },
                     urlHistory: urlHistory,
-                    chapters: Object.entries(sessionData).map(([url, data]) => ({
+                    chapters: Object.entries(sessionData)
+                        .filter(([url, data]) => data?.chapter) // Filter out entries with no chapter data
+                        .map(([url, data]) => ({
                         sourceUrl: url,
                         title: data.chapter.title,
                         originalContent: data.chapter.content,

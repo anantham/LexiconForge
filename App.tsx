@@ -90,7 +90,7 @@ const App: React.FC = () => {
                     console.log(`[Worker] Skipping ${url} - conditions changed during fetch`);
                 }
 
-                nextUrlToPreload = chapter.nextUrl;
+                nextUrlToPreload = chapter?.nextUrl || null;
             }
         };
         
