@@ -125,7 +125,7 @@ export const createMockFeedbackItems = (): FeedbackItem[] => [
 
 export const createMockAppSettings = (overrides: Partial<AppSettings> = {}): AppSettings => ({
   contextDepth: 2,
-  preloadCount: 3,
+  preloadCount: 0,
   fontSize: 18,
   fontStyle: 'serif',
   lineHeight: 1.7,
@@ -147,7 +147,7 @@ export const createMockImportedSession = (): ImportedSession => {
       exported_at: '2023-12-01T12:00:00.000Z',
       settings: {
         contextDepth: 2,
-        preloadCount: 3,
+        preloadCount: 0,
         fontSize: 18,
         fontStyle: 'serif',
         lineHeight: 1.7,

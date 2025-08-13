@@ -137,7 +137,7 @@ export const createPopulatedStorage = (): MockStorage => {
       feedbackHistory: {},
       settings: {
         contextDepth: 2,
-        preloadCount: 3,
+        preloadCount: 0,
         fontSize: 18,
         fontStyle: 'serif',
         lineHeight: 1.7,

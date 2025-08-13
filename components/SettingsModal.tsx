@@ -128,7 +128,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">How many previous chapters to send as context. More improves consistency but costs more.</p>
               </div>
               <div>
-                <label htmlFor="preloadCount" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pre-load Ahead: <span className="font-bold text-blue-500">{currentSettings.preloadCount}</span></label>
+                <label htmlFor="preloadCount" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Pre-load Ahead: 
+                  <span className={`font-bold ml-1 ${currentSettings.preloadCount === 0 ? 'text-red-500' : 'text-blue-500'}`}>
+                    {currentSettings.preloadCount === 0 ? 'DISABLED' : currentSettings.preloadCount}
+                  </span>
+                </label>
                 <input
                   id="preloadCount"
                   type="range"
@@ -138,7 +143,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   onChange={(e) => handleSettingChange('preloadCount', parseInt(e.target.value, 10))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">How many future chapters to fetch and translate in the background for a smooth experience.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {currentSettings.preloadCount === 0 
+                    ? '🔴 Background preload is DISABLED. Chapters will only load when you navigate to them.'
+                    : `How many future chapters to fetch and translate in the background for a smooth experience.`
+                  }
+                </p>
               </div>
               <div>
                 <label htmlFor="temperature" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Temperature: <span className="font-bold text-blue-500">{currentSettings.temperature}</span></label>
