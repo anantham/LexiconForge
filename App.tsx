@@ -47,28 +47,47 @@ const App: React.FC = () => {
         if (!currentUrl || settings.preloadCount === 0) return;
 
         const worker = async () => {
-            let nextUrlToPreload = sessionData[currentUrl]?.chapter.nextUrl;
+            const currentSessionData = useAppStore.getState().sessionData;
+            let nextUrlToPreload = currentSessionData[currentUrl]?.chapter.nextUrl;
             
             for (let i = 0; i < settings.preloadCount && nextUrlToPreload; i++) {
                 const url = nextUrlToPreload;
-                const currentSessionData = useAppStore.getState().sessionData;
+                const latestSessionData = useAppStore.getState().sessionData;
 
-                if (currentSessionData[url]?.translationResult) {
-                    console.log(`[Worker] Skipping already pre-loaded chapter: ${url}`);
-                    nextUrlToPreload = currentSessionData[url]?.chapter.nextUrl;
+                // Check if URL is already being translated
+                if (useAppStore.getState().isUrlTranslating(url)) {
+                    console.log(`[Worker] Skipping ${url} - translation in progress`);
+                    nextUrlToPreload = latestSessionData[url]?.chapter.nextUrl;
+                    continue;
+                }
+
+                // Check if we have a translation with current settings
+                const hasCurrentTranslation = latestSessionData[url]?.translationResult && 
+                    !useAppStore.getState().hasTranslationSettingsChanged(url);
+                
+                if (hasCurrentTranslation) {
+                    console.log(`[Worker] Skipping ${url} - already translated with current settings`);
+                    nextUrlToPreload = latestSessionData[url]?.chapter.nextUrl;
                     continue;
                 }
                 
-                const chapter = currentSessionData[url]?.chapter || await handleFetch(url, true);
+                const chapter = latestSessionData[url]?.chapter || await handleFetch(url, true);
 
                 if (!chapter) {
                     console.warn(`[Worker] Halting preload chain due to fetch failure for: ${url}`);
                     break;
                 }
                 
-                if (!useAppStore.getState().sessionData[url]?.translationResult) {
+                // Final check before translating - settings might have changed during fetch
+                const finalCheck = useAppStore.getState();
+                const stillNeedsTranslation = !finalCheck.sessionData[url]?.translationResult || 
+                    finalCheck.hasTranslationSettingsChanged(url);
+                
+                if (stillNeedsTranslation && !finalCheck.isUrlTranslating(url)) {
                     console.log(`[Worker] Pre-translating chapter: ${url}`);
                     await handleTranslate(url, true);
+                } else {
+                    console.log(`[Worker] Skipping ${url} - conditions changed during fetch`);
                 }
 
                 nextUrlToPreload = chapter.nextUrl;
@@ -78,7 +97,7 @@ const App: React.FC = () => {
         const timeoutId = setTimeout(worker, 1500);
         return () => clearTimeout(timeoutId);
 
-    }, [currentUrl, sessionData, settings.preloadCount, handleFetch, handleTranslate]);
+    }, [currentUrl, settings.preloadCount, settings.provider, settings.model, settings.temperature, handleFetch, handleTranslate]);
     
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
