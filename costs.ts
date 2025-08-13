@@ -35,12 +35,12 @@ export const MODELS: ModelInfo[] = [
 ];
 
 export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output: number } } = {
-    // --- Gemini Models (estimated based on competitive pricing) ---
-    'gemini-2.5-pro': { input: 3.50, output: 10.50 },
-    'gemini-2.5-flash': { input: 0.35, output: 0.70 },
-    'gemini-2.5-flash-lite': { input: 0.15, output: 0.30 },
-    'gemini-2.0-flash': { input: 0.25, output: 0.50 },
-    'gemini-2.0-flash-lite': { input: 0.10, output: 0.20 },
+    // --- Gemini Models (Official Google 2025 pricing) ---
+    'gemini-2.5-pro': { input: 1.25, output: 10.00 }, // <=200k tokens, >200k: $2.50/$15.00
+    'gemini-2.5-flash': { input: 0.075, output: 0.30 }, // <=128k tokens, >128k: $0.15/$0.60
+    'gemini-2.5-flash-lite': { input: 0.15, output: 0.30 }, // Estimated based on pattern
+    'gemini-2.0-flash': { input: 0.25, output: 0.50 }, // Estimated legacy pricing
+    'gemini-2.0-flash-lite': { input: 0.10, output: 0.20 }, // Estimated legacy pricing
     
     // --- OpenAI Models (Official 2025 pricing) ---
     'gpt-5': { input: 1.25, output: 10.00 },
@@ -79,4 +79,21 @@ export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output:
     'claude-3-7-sonnet-20250219': { input: 3.00, output: 15.00 },
     'claude-3-5-sonnet-20241022': { input: 3.00, output: 15.00 },
     'claude-3-5-haiku-20241022': { input: 0.80, output: 4.00 },
+};
+
+// --- IMAGE MODEL COSTS (Per Image in USD) ---
+export const IMAGE_COSTS: { [key: string]: number } = {
+    // Google Gemini Image Models
+    'gemini-1.5-flash': 0.00, // Free tier
+    'gemini-2.0-flash-preview-image-generation': 0.00, // Preview/free
+    
+    // Google Imagen Models (Official 2025 pricing)
+    'imagen-3.0-generate-002': 0.03, // Imagen 3 - $0.03 per image
+    'imagen-4.0-generate-preview-06-06': 0.04, // Imagen 4 Standard - $0.04 per image
+    'imagen-4.0-ultra-generate-preview-06-06': 0.06, // Imagen 4 Ultra - $0.06 per image
+    
+    // Aliases for shorter model names
+    'imagen-3': 0.03,
+    'imagen-4': 0.04,
+    'imagen-4-ultra': 0.06,
 };

@@ -21,7 +21,7 @@ import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate }
 
 // Database configuration
 const DB_NAME = 'lexicon-forge';
-const DB_VERSION = 3; // Increment for prompt templates
+const DB_VERSION = 4; // Increment for image data in suggestedIllustrations
 
 // Object store names
 const STORES = {
@@ -51,7 +51,7 @@ export interface TranslationRecord {
   translatedTitle: string;
   translation: string;
   footnotes: Array<{ marker: string; text: string }>;
-  suggestedIllustrations: Array<{ placementMarker: string; imagePrompt: string }>;
+  suggestedIllustrations: Array<{ placementMarker: string; imagePrompt: string; url?: string; }>; // Added url field
   
   // Translation metadata
   provider: string;               // 'Gemini', 'OpenAI', 'DeepSeek'

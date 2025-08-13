@@ -104,7 +104,7 @@ If there is no proposal, use null for proposal.`;
         const response = await claude.messages.create({
             model: settings.model,
             max_tokens: 8192,
-            temperature: settings.temperature,
+            temperature: Math.max(0, Math.min(1, settings.temperature)), // Clamp temperature to 0-1 range as UI max is 2
             messages: [
                 {
                     role: 'user',
@@ -113,7 +113,8 @@ If there is no proposal, use null for proposal.`;
                 {
                     // Response prefilling - starts the JSON structure for Claude
                     role: 'assistant', 
-                    content: '{"translatedTitle":'
+                    content: `{
+  "translatedTitle": "`
                 }
             ]
         });
@@ -144,7 +145,8 @@ If there is no proposal, use null for proposal.`;
         }
 
         // Since we prefilled with '{"translatedTitle":', we need to complete the JSON
-        const completeJsonText = '{"translatedTitle":' + responseContent.text;
+        const completeJsonText = '{
+  "translatedTitle": "' + responseContent.text;
         
         try {
             const parsedJson = JSON.parse(completeJsonText);

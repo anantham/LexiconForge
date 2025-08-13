@@ -1,11 +1,23 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { AppSettings, GeneratedImageResult } from '../types';
+import { IMAGE_COSTS } from '../costs';
 
 // --- CONSTANTS ---
 // Using a cutting-edge model known for high-quality image generation.
 // This could be parameterized in settings later if needed.
 const IMAGE_MODEL = 'gemini-1.5-flash';
+
+// --- IMAGE COST CALCULATION ---
+
+/**
+ * Calculates the cost for generating one image with the specified model
+ * @param model The image model ID
+ * @returns Cost in USD for one image
+ */
+export const calculateImageCost = (model: string): number => {
+    return IMAGE_COSTS[model] || 0;
+};
 
 // --- IMAGE GENERATION SERVICE ---
 
@@ -14,7 +26,7 @@ const IMAGE_MODEL = 'gemini-1.5-flash';
  *
  * @param prompt The detailed text prompt for the image.
  * @param settings The current application settings containing the API key.
- * @returns A base64 encoded string of the generated PNG image.
+ * @returns A base64 encoded string of the generated PNG image with cost.
  * @throws An error if the API key is missing or if the image generation fails.
  */
 export const generateImage = async (prompt: string, settings: AppSettings): Promise<GeneratedImageResult> => {
@@ -74,12 +86,13 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
         }
 
         const requestTime = (performance.now() - startTime) / 1000; // in seconds
+        const cost = calculateImageCost(imageModel);
 
-        console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s.`);
+        console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s. Cost: $${cost.toFixed(5)}`);
         return {
             imageData: `data:image/png;base64,${base64Data}`,
             requestTime,
-            cost: 0 // Image generation is currently free for these models
+            cost
         };
 
     } catch (error: any) {

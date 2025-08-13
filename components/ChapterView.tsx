@@ -441,6 +441,17 @@ const ChapterView: React.FC = () => {
             </button>
             
             <div className="flex justify-center items-center gap-4">
+              {chapter?.originalUrl && (
+                <a 
+                  href={chapter.originalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline font-semibold text-gray-600 dark:text-gray-300 hidden sm:inline"
+                  title="View original source"
+                >
+                  Source:
+                </a>
+              )}
               <span className="font-semibold text-gray-600 dark:text-gray-300 hidden sm:inline">Language:</span>
               <div className="relative inline-flex items-center p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                 <button

@@ -398,6 +398,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         console.log(`[OpenAI] Attempt 1: Sending request with temperature ${settings.temperature}`);
         response = await openai.chat.completions.create(requestOptions);
         console.log(`[OpenAI] Attempt 1: Success! Response received`);
+        console.log(`[OpenAI] Raw response text:`, response.choices[0].message.content); // Added log
         console.log(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
     } catch (error: any) {
         console.error(`[OpenAI] Attempt 1 failed:`, error);
@@ -414,6 +415,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
             try {
                 response = await openai.chat.completions.create(requestOptions);
                 console.log(`[OpenAI] Attempt 2: Success! Response received`);
+                console.log(`[OpenAI] Raw response text:`, response.choices[0].message.content); // Added log
                 console.log(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
             } catch (retryError: any) {
                 console.error(`[OpenAI] Attempt 2 also failed:`, retryError);

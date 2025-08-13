@@ -51,7 +51,7 @@ interface AppState {
     lastTranslationSettings: Record<string, { provider: string; model: string; temperature: number }>;
     promptTemplates: PromptTemplateRecord[];
     activePromptTemplate: PromptTemplateRecord | null;
-    generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; }>;
+    generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; imagePrompt: string; }>;
     imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; } | null;
 }
 
@@ -139,7 +139,7 @@ const useAppStore = create<Store>()(
                 const { sessionData, proxyScores, updateProxyScore } = get();
                 if (!isSilent) {
                     console.groupCollapsed(`[App] handleFetch triggered for: ${fetchUrl}`);
-                    set({ error: null, currentUrl: fetchUrl, isDirty: false });
+                    set({ error: null, currentUrl: fetchUrl, isDirty: false, imageGenerationMetrics: null });
                 } else {
                     console.groupCollapsed(`[App] Silent fetch triggered for: ${fetchUrl}`);
                 }
@@ -252,6 +252,15 @@ const useAppStore = create<Store>()(
                 
                 const chapterToTranslate = sessionData[urlToTranslate]?.chapter;
                 if (!chapterToTranslate?.content) return;
+
+                // For silent pre-translations, check if any version already exists in IndexedDB
+                if (isSilent) {
+                    const existingVersions = await indexedDBService.getTranslationVersions(urlToTranslate);
+                    if (existingVersions.length > 0) {
+                        console.log(`[Translation] Skipping silent pre-translation for ${urlToTranslate}: Version(s) already exist.`);
+                        return; // Skip API call if a version already exists
+                    }
+                }
 
                 // Create abort controller for this translation
                 const abortController = new AbortController();
@@ -844,9 +853,9 @@ const useAppStore = create<Store>()(
 
                 // Reset metrics and set initial loading state
                 set(state => {
-                    const initialImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; }> = {};
+                    const initialImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; imagePrompt: string; }> = {};
                     translationResult.suggestedIllustrations.forEach(illust => {
-                        initialImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null };
+                        initialImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null, imagePrompt: illust.imagePrompt };
                     });
                     return {
                         imageGenerationMetrics: null,
@@ -867,19 +876,46 @@ const useAppStore = create<Store>()(
                         totalCost += result.cost;
                         generatedCount++;
 
-                        set(state => ({
-                            generatedImages: {
+                        set(state => {
+                            // Update generatedImages state
+                            const newGeneratedImages = {
                                 ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null },
+                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null, imagePrompt: illust.imagePrompt },
+                            };
+
+                            // Update translationResult in sessionData for persistence
+                            const currentSessionData = state.sessionData[url];
+                            if (currentSessionData && currentSessionData.translationResult) {
+                                const newSuggestedIllustrations = currentSessionData.translationResult.suggestedIllustrations?.map(si => {
+                                    if (si.placementMarker === illust.placementMarker) {
+                                        return { ...si, url: result.imageData }; // Add the generated image data
+                                    }
+                                    return si;
+                                });
+                                const newTranslationResult = {
+                                    ...currentSessionData.translationResult,
+                                    suggestedIllustrations: newSuggestedIllustrations,
+                                };
+                                return {
+                                    generatedImages: newGeneratedImages,
+                                    sessionData: {
+                                        ...state.sessionData,
+                                        [url]: {
+                                            ...currentSessionData,
+                                            translationResult: newTranslationResult,
+                                        },
+                                    },
+                                };
                             }
-                        }));
+                            return { generatedImages: newGeneratedImages }; // Fallback if translationResult not found
+                        });
                         console.log(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
                     } catch (error: any) {
                         console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, error);
                         set(state => ({
                             generatedImages: {
                                 ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message },
+                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message, imagePrompt: illust.imagePrompt },
                             }
                         }));
                     }
@@ -937,19 +973,46 @@ const useAppStore = create<Store>()(
                         console.log(`[ImageGen] Retrying image for marker: ${illust.placementMarker}`);
                         const result = await generateImage(illust.imagePrompt, settings);
 
-                        set(state => ({
-                            generatedImages: {
+                        set(state => {
+                            // Update generatedImages state
+                            const newGeneratedImages = {
                                 ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null },
+                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null, imagePrompt: illust.imagePrompt },
+                            };
+
+                            // Update translationResult in sessionData for persistence
+                            const currentSessionData = state.sessionData[url];
+                            if (currentSessionData && currentSessionData.translationResult) {
+                                const newSuggestedIllustrations = currentSessionData.translationResult.suggestedIllustrations?.map(si => {
+                                    if (si.placementMarker === illust.placementMarker) {
+                                        return { ...si, url: result.imageData }; // Add the generated image data
+                                    } 
+                                    return si;
+                                });
+                                const newTranslationResult = {
+                                    ...currentSessionData.translationResult,
+                                    suggestedIllustrations: newSuggestedIllustrations,
+                                };
+                                return {
+                                    generatedImages: newGeneratedImages,
+                                    sessionData: {
+                                        ...state.sessionData,
+                                        [url]: {
+                                            ...currentSessionData,
+                                            translationResult: newTranslationResult,
+                                        },
+                                    },
+                                };
                             }
-                        }));
+                            return { generatedImages: newGeneratedImages }; // Fallback if translationResult not found
+                        });
                         console.log(`[ImageGen] Successfully retried and stored image for ${illust.placementMarker}`);
                     } catch (error: any) {
                         console.error(`[ImageGen] Retry failed for ${illust.placementMarker}:`, error);
                         set(state => ({
                             generatedImages: {
                                 ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message },
+                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message, imagePrompt: illust.imagePrompt },
                             }
                         }));
                     }

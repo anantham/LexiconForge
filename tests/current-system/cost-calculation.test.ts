@@ -49,7 +49,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { calculateCost } from '../../services/aiService';
-import { COSTS_PER_MILLION_TOKENS } from '../../costs';
+import { calculateImageCost } from '../../services/imageService';
+import { COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../../costs';
 
 describe('Cost Calculation Accuracy', () => {
   
@@ -63,12 +64,12 @@ describe('Cost Calculation Accuracy', () => {
       
       const cost = calculateCost(model, promptTokens, completionTokens);
       
-      // Based on current Gemini pricing: $3.50 input, $10.50 output per million
-      const expectedCost = (1800 * 3.50 + 700 * 10.50) / 1_000_000;
+      // Based on official Google 2025 pricing: $1.25 input, $10.00 output per million (<=200k tokens)
+      const expectedCost = (1800 * 1.25 + 700 * 10.00) / 1_000_000;
       
       expect(cost).toBeCloseTo(expectedCost, 8); // 8 decimal places for precision
       expect(cost).toBeGreaterThan(0);
-      expect(cost).toBeCloseTo(0.01365, 6); // Use toBeCloseTo for floating point
+      expect(cost).toBeCloseTo(0.009250, 6); // Updated for new pricing
     });
 
     it('should calculate Gemini 2.5 Flash costs correctly', () => {
@@ -79,11 +80,11 @@ describe('Cost Calculation Accuracy', () => {
       
       const cost = calculateCost(model, promptTokens, completionTokens);
       
-      // $0.35 input, $0.70 output per million tokens
-      const expectedCost = (1000 * 0.35 + 500 * 0.70) / 1_000_000;
+      // Official Google 2025 pricing: $0.075 input, $0.30 output per million tokens (<=128k tokens)
+      const expectedCost = (1000 * 0.075 + 500 * 0.30) / 1_000_000;
       
       expect(cost).toBeCloseTo(expectedCost, 8);
-      expect(cost).toBeCloseTo(0.0007, 6); // Use toBeCloseTo for floating point
+      expect(cost).toBeCloseTo(0.000225, 6); // Updated for new pricing
     });
 
     it('should handle all Gemini model variants', () => {
@@ -225,10 +226,10 @@ describe('Cost Calculation Accuracy', () => {
       // Some chapters might be extremely long
       const cost = calculateCost('gemini-2.5-flash', 100_000, 50_000);
       
-      const expectedCost = (100_000 * 0.35 + 50_000 * 0.70) / 1_000_000;
+      const expectedCost = (100_000 * 0.075 + 50_000 * 0.30) / 1_000_000;
       
       expect(cost).toBeCloseTo(expectedCost, 8);
-      expect(cost).toBeCloseTo(0.07, 6); // $0.07 for very long content
+      expect(cost).toBeCloseTo(0.0225, 6); // Updated for new pricing
       expect(isFinite(cost)).toBe(true);
     });
 
@@ -262,8 +263,8 @@ describe('Cost Calculation Accuracy', () => {
       // PREVENTS: Costs like $0.008579999999 confusing users
       const cost = calculateCost('gemini-2.5-flash', 1, 1);
       
-      // Should be exactly (1 * 0.35 + 1 * 0.70) / 1_000_000 = 0.00000105
-      expect(cost).toBeCloseTo(0.00000105, 8);
+      // Should be exactly (1 * 0.075 + 1 * 0.30) / 1_000_000 = 0.000000375
+      expect(cost).toBeCloseTo(0.000000375, 8);
       expect(cost.toString().length).toBeLessThan(15); // Reasonable precision
     });
   });
@@ -283,7 +284,7 @@ describe('Cost Calculation Accuracy', () => {
       
       // Verify mathematical accuracy against pricing table
       const expectedDeepSeek = (10_000 * 0.27 + 5_000 * 1.10) / 1_000_000;
-      const expectedGemini = (10_000 * 0.35 + 5_000 * 0.70) / 1_000_000;
+      const expectedGemini = (10_000 * 0.075 + 5_000 * 0.30) / 1_000_000; // Updated for new pricing
       const expectedOpenAI = (10_000 * 0.25 + 5_000 * 2.00) / 1_000_000;
       const expectedOpenAIPro = (10_000 * 1.25 + 5_000 * 10.00) / 1_000_000;
       
@@ -353,6 +354,85 @@ describe('Cost Calculation Accuracy', () => {
         const cost = calculateCost(model, 1000, 500);
         expect(cost).toBeGreaterThan(0);
         expect(isFinite(cost)).toBe(true);
+      });
+    });
+  });
+
+  describe('Image Generation Costs', () => {
+    // WHY: Image generation costs are per-image, not per-token, requiring different calculation logic
+    // PREVENTS: Users getting surprise bills from image generation or wrong cost estimates
+    it('should calculate Imagen 3 costs correctly', () => {
+      const cost = calculateImageCost('imagen-3.0-generate-002');
+      
+      expect(cost).toBe(0.03); // $0.03 per image
+      expect(typeof cost).toBe('number');
+      expect(isFinite(cost)).toBe(true);
+    });
+
+    it('should calculate Imagen 4 Standard costs correctly', () => {
+      const cost = calculateImageCost('imagen-4.0-generate-preview-06-06');
+      
+      expect(cost).toBe(0.04); // $0.04 per image
+      expect(typeof cost).toBe('number');
+      expect(isFinite(cost)).toBe(true);
+    });
+
+    it('should calculate Imagen 4 Ultra costs correctly', () => {
+      const cost = calculateImageCost('imagen-4.0-ultra-generate-preview-06-06');
+      
+      expect(cost).toBe(0.06); // $0.06 per image - premium model
+      expect(typeof cost).toBe('number');
+      expect(isFinite(cost)).toBe(true);
+    });
+
+    it('should handle free image models correctly', () => {
+      const geminiFlashCost = calculateImageCost('gemini-1.5-flash');
+      const gemini2FlashCost = calculateImageCost('gemini-2.0-flash-preview-image-generation');
+      
+      expect(geminiFlashCost).toBe(0.00); // Free tier
+      expect(gemini2FlashCost).toBe(0.00); // Preview/free
+      expect(typeof geminiFlashCost).toBe('number');
+      expect(typeof gemini2FlashCost).toBe('number');
+    });
+
+    it('should handle unknown image models gracefully', () => {
+      const cost = calculateImageCost('unknown-image-model-2025');
+      
+      expect(cost).toBe(0); // Should default to 0, not crash
+      expect(typeof cost).toBe('number');
+    });
+
+    it('should validate all image models have defined pricing', () => {
+      const allImageModels = Object.keys(IMAGE_COSTS);
+      
+      expect(allImageModels.length).toBeGreaterThan(5); // Should have several models
+      
+      allImageModels.forEach(model => {
+        const cost = IMAGE_COSTS[model];
+        
+        expect(cost).toBeDefined();
+        expect(typeof cost).toBe('number');
+        expect(cost).toBeGreaterThanOrEqual(0); // Can be 0 for free models
+        expect(isFinite(cost)).toBe(true);
+      });
+    });
+
+    it('should handle image cost calculation in realistic scenarios', () => {
+      // WHY: Test realistic usage scenarios with multiple images
+      const scenarios = [
+        { model: 'gemini-1.5-flash', images: 5, expectedTotal: 0.00 }, // Free
+        { model: 'imagen-3.0-generate-002', images: 3, expectedTotal: 0.09 }, // 3 × $0.03
+        { model: 'imagen-4.0-generate-preview-06-06', images: 2, expectedTotal: 0.08 }, // 2 × $0.04
+        { model: 'imagen-4.0-ultra-generate-preview-06-06', images: 1, expectedTotal: 0.06 }, // 1 × $0.06
+      ];
+      
+      scenarios.forEach(scenario => {
+        const costPerImage = calculateImageCost(scenario.model);
+        const totalCost = costPerImage * scenario.images;
+        
+        expect(totalCost).toBeCloseTo(scenario.expectedTotal, 6);
+        expect(totalCost).toBeGreaterThanOrEqual(0);
+        expect(isFinite(totalCost)).toBe(true);
       });
     });
   });

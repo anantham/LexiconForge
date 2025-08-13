@@ -9,11 +9,18 @@ interface IllustrationProps {
 }
 
 const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
-  const { imageState, retryFailedImages, currentUrl } = useAppStore(useShallow(state => ({
+  const { imageState, retryFailedImages, currentUrl, sessionData } = useAppStore(useShallow(state => ({
     imageState: state.generatedImages[marker],
     retryFailedImages: state.retryFailedImages,
     currentUrl: state.currentUrl,
+    sessionData: state.sessionData, // Add sessionData to fetched state
   })));
+
+  // Try to get cached image data from IndexedDB (via sessionData)
+  const cachedIllustration = currentUrl && sessionData[currentUrl]?.translationResult?.suggestedIllustrations?.find(
+    (illust) => illust.placementMarker === marker
+  );
+  const cachedImageData = cachedIllustration?.url; // This is the base64 data from IndexedDB
 
   const handleRetry = async () => {
     if (currentUrl) {
@@ -49,14 +56,22 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     );
   }
 
-  if (data) {
+  // Prioritize cached image data if available
+  const displayImageData = cachedImageData || data;
+
+  if (displayImageData) {
     return (
-      <div className="my-6 flex justify-center">
+      <div className="my-6 flex justify-center flex-col items-center">
         <img 
-          src={data} 
-          alt={`AI-generated illustration for marker ${marker}`}
+          src={displayImageData} 
+          alt={imageState.imagePrompt} // Changed alt to imagePrompt
           className="rounded-lg shadow-lg max-w-full h-auto border-4 border-gray-200 dark:border-gray-700"
         />
+        {imageState.imagePrompt && (
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 italic text-center max-w-prose">
+            {imageState.imagePrompt} (Marker: {marker})
+          </p>
+        )}
       </div>
     );
   }
