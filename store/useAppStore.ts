@@ -1,11 +1,11 @@
 
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
-import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, ImportedSession, TranslationProvider } from '../types';
+import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, ImportedSession, TranslationProvider, PromptTemplate } from '../types';
 import { INITIAL_SYSTEM_PROMPT } from '../constants';
-import { translateChapter } from '../services/aiService';
+import { translateChapter, validateApiKey } from '../services/aiService';
 import { fetchAndParseUrl } from '../services/adapters';
-import { indexedDBService, TranslationRecord, migrateFromLocalStorage } from '../services/indexeddb';
+import { indexedDBService, TranslationRecord, PromptTemplateRecord, migrateFromLocalStorage } from '../services/indexeddb';
 
 export interface SessionChapterData {
   chapter: Chapter;
@@ -47,6 +47,8 @@ interface AppState {
     activeTranslations: Record<string, AbortController>;
     urlLoadingStates: Record<string, boolean>;
     lastTranslationSettings: Record<string, { provider: string; model: string; temperature: number }>;
+    promptTemplates: PromptTemplateRecord[];
+    activePromptTemplate: PromptTemplateRecord | null;
 }
 
 interface AppActions {
@@ -75,6 +77,12 @@ interface AppActions {
     switchTranslationVersion: (url: string, version: number) => Promise<void>;
     deleteTranslationVersion: (url: string, version: number) => Promise<void>;
     initializeIndexedDB: () => Promise<void>;
+    // Prompt template management
+    loadPromptTemplates: () => Promise<void>;
+    createPromptTemplate: (name: string, content: string, description?: string) => Promise<void>;
+    updatePromptTemplate: (template: PromptTemplate) => Promise<void>;
+    deletePromptTemplate: (id: string) => Promise<void>;
+    setActivePromptTemplate: (id: string) => Promise<void>;
 }
 
 type Store = AppState & AppActions;
@@ -115,6 +123,8 @@ const useAppStore = create<Store>()(
             activeTranslations: {},
             urlLoadingStates: {},
             lastTranslationSettings: {},
+            promptTemplates: [],
+            activePromptTemplate: null,
             
             // --- ACTIONS ---
             
@@ -195,6 +205,16 @@ const useAppStore = create<Store>()(
 
             handleTranslate: async (urlToTranslate, isSilent = false) => {
                 const { sessionData, urlHistory, settings, feedbackHistory, lastApiCallTimestamp, activeTranslations } = get();
+
+                // EARLY API KEY VALIDATION - Check before any processing
+                const apiValidation = validateApiKey(settings);
+                if (!apiValidation.isValid) {
+                    console.error(`[Translation] API key validation failed: ${apiValidation.errorMessage}`);
+                    if (!isSilent) {
+                        set({ error: `Translation API error: ${apiValidation.errorMessage}` });
+                    }
+                    return; // Exit immediately, no rate limiting, no state changes
+                }
 
                 // Cancel any existing translation for this URL
                 if (activeTranslations[urlToTranslate]) {
@@ -297,11 +317,14 @@ const useAppStore = create<Store>()(
                             }
                         }
                         
+                        const { activePromptTemplate } = get();
                         await indexedDBService.storeTranslation(urlToTranslate, result, {
                             provider: settings.provider,
                             model: settings.model,
                             temperature: settings.temperature,
-                            systemPrompt: settings.systemPrompt
+                            systemPrompt: settings.systemPrompt,
+                            promptId: activePromptTemplate?.id,
+                            promptName: activePromptTemplate?.name
                         });
                         
                         // Reload versions to update UI
@@ -793,6 +816,20 @@ const useAppStore = create<Store>()(
                     } catch (error) {
                         console.log('[Migration] No localStorage data to migrate or migration failed:', error);
                     }
+                    
+                    // Load prompt templates or create default one
+                    await get().loadPromptTemplates();
+                    
+                    const { promptTemplates, settings } = get();
+                    if (promptTemplates.length === 0) {
+                        // Create default template from current system prompt
+                        console.log('[PromptTemplates] Creating default template from current system prompt');
+                        await get().createPromptTemplate(
+                            'Default',
+                            settings.systemPrompt,
+                            'Default system prompt for translations'
+                        );
+                    }
                 } catch (error) {
                     console.error('[IndexedDB] Initialization failed:', error);
                 }
@@ -877,6 +914,115 @@ const useAppStore = create<Store>()(
                     }
                 } catch (error) {
                     console.error('[Versions] Failed to delete version:', error);
+                }
+            },
+
+            // Prompt template management methods
+            loadPromptTemplates: async () => {
+                try {
+                    const templates = await indexedDBService.getPromptTemplates();
+                    const defaultTemplate = await indexedDBService.getDefaultPromptTemplate();
+                    
+                    set({
+                        promptTemplates: templates,
+                        activePromptTemplate: defaultTemplate
+                    });
+                    
+                    console.log(`[PromptTemplates] Loaded ${templates.length} templates`);
+                } catch (error) {
+                    console.error('[PromptTemplates] Failed to load templates:', error);
+                }
+            },
+
+            createPromptTemplate: async (name: string, content: string, description?: string) => {
+                try {
+                    const { promptTemplates } = get();
+                    const isFirstTemplate = promptTemplates.length === 0;
+                    
+                    const template: PromptTemplate = {
+                        id: crypto.randomUUID(),
+                        name,
+                        content,
+                        description,
+                        isDefault: isFirstTemplate, // First template becomes default
+                        createdAt: new Date().toISOString(),
+                        lastUsed: isFirstTemplate ? new Date().toISOString() : undefined
+                    };
+                    
+                    await indexedDBService.storePromptTemplate(template);
+                    await get().loadPromptTemplates();
+                    
+                    console.log(`[PromptTemplates] Created template: ${name}`);
+                } catch (error) {
+                    console.error('[PromptTemplates] Failed to create template:', error);
+                }
+            },
+
+            updatePromptTemplate: async (template: PromptTemplate) => {
+                try {
+                    await indexedDBService.storePromptTemplate(template);
+                    await get().loadPromptTemplates();
+                    
+                    console.log(`[PromptTemplates] Updated template: ${template.name}`);
+                } catch (error) {
+                    console.error('[PromptTemplates] Failed to update template:', error);
+                }
+            },
+
+            deletePromptTemplate: async (id: string) => {
+                try {
+                    const { activePromptTemplate, promptTemplates } = get();
+                    
+                    // Don't delete the active template if it's the only one
+                    if (promptTemplates.length <= 1) {
+                        console.warn('[PromptTemplates] Cannot delete the only template');
+                        return;
+                    }
+                    
+                    await indexedDBService.deletePromptTemplate(id);
+                    
+                    // If we deleted the active template, switch to another one
+                    if (activePromptTemplate?.id === id) {
+                        const remainingTemplates = promptTemplates.filter(t => t.id !== id);
+                        if (remainingTemplates.length > 0) {
+                            await get().setActivePromptTemplate(remainingTemplates[0].id);
+                        }
+                    } else {
+                        await get().loadPromptTemplates();
+                    }
+                    
+                    console.log(`[PromptTemplates] Deleted template: ${id}`);
+                } catch (error) {
+                    console.error('[PromptTemplates] Failed to delete template:', error);
+                }
+            },
+
+            setActivePromptTemplate: async (id: string) => {
+                try {
+                    const template = await indexedDBService.getPromptTemplate(id);
+                    if (template) {
+                        // Update lastUsed timestamp
+                        template.lastUsed = new Date().toISOString();
+                        await indexedDBService.storePromptTemplate(template);
+                        
+                        // Set as default and update settings
+                        await indexedDBService.setDefaultPromptTemplate(id);
+                        
+                        set(state => ({
+                            activePromptTemplate: template,
+                            settings: {
+                                ...state.settings,
+                                systemPrompt: template.content,
+                                activePromptId: id
+                            }
+                        }));
+                        
+                        await get().loadPromptTemplates();
+                        
+                        console.log(`[PromptTemplates] Set active template: ${template.name}`);
+                    }
+                } catch (error) {
+                    console.error('[PromptTemplates] Failed to set active template:', error);
                 }
             },
         }),

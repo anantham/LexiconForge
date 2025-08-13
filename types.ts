@@ -75,6 +75,16 @@ export interface HistoricalChapter {
 
 export type TranslationProvider = 'Gemini' | 'OpenAI' | 'DeepSeek';
 
+export interface PromptTemplate {
+  id: string;                    // UUID
+  name: string;                  // "Wuxia Romance", "Technical Manual", etc.
+  description?: string;          // Optional description
+  content: string;               // The actual system prompt
+  isDefault: boolean;            // One template marked as default
+  createdAt: string;             // ISO timestamp
+  lastUsed?: string;             // ISO timestamp when last selected
+}
+
 export interface ModelInfo {
     id: string;
     name: string;
@@ -87,7 +97,8 @@ export interface AppSettings {
     fontSize: number;
     fontStyle: 'sans' | 'serif';
     lineHeight: number;
-    systemPrompt: string;
+    systemPrompt: string;          // Keep for backward compatibility
+    activePromptId?: string;       // ID of currently selected prompt template
     provider: TranslationProvider;
     model: string; // The ID of the model, e.g., 'gemini-2.5-pro'
     temperature: number; // 0.0 to 2.0, controls randomness/creativity

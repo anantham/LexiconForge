@@ -6,6 +6,7 @@ import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';
 import SettingsModal from './components/SettingsModal';
 import { useShallow } from 'zustand/react/shallow';
+import { validateApiKey } from './services/aiService';
 import { Analytics } from '@vercel/analytics/react';
 
 const App: React.FC = () => {
@@ -84,6 +85,13 @@ const App: React.FC = () => {
                     finalCheck.hasTranslationSettingsChanged(url);
                 
                 if (stillNeedsTranslation && !finalCheck.isUrlTranslating(url)) {
+                    // Check API key before attempting translation
+                    const apiValidation = validateApiKey(finalCheck.settings);
+                    if (!apiValidation.isValid) {
+                        console.warn(`[Worker] Skipping preload translation for ${url} - API key missing: ${apiValidation.errorMessage}`);
+                        break; // Stop the preload chain when API key is missing
+                    }
+                    
                     console.log(`[Worker] Pre-translating chapter: ${url}`);
                     await handleTranslate(url, true);
                 } else {

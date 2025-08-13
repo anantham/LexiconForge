@@ -17,18 +17,19 @@
  * - Migration from localStorage data
  */
 
-import { Chapter, TranslationResult, AppSettings, FeedbackItem } from '../types';
+import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate } from '../types';
 
 // Database configuration
 const DB_NAME = 'lexicon-forge';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Increment for prompt templates
 
 // Object store names
 const STORES = {
   CHAPTERS: 'chapters',
   TRANSLATIONS: 'translations', 
   SETTINGS: 'settings',
-  FEEDBACK: 'feedback'
+  FEEDBACK: 'feedback',
+  PROMPT_TEMPLATES: 'prompt_templates'
 } as const;
 
 // IndexedDB Schema Types
@@ -57,6 +58,8 @@ export interface TranslationRecord {
   model: string;                  // 'gemini-2.5-flash', 'gpt-5', etc.
   temperature: number;
   systemPrompt: string;           // Snapshot of prompt used
+  promptId?: string;              // Reference to prompt template used
+  promptName?: string;            // Snapshot of prompt name at time of translation
   
   // Usage metrics
   totalTokens: number;
@@ -92,6 +95,16 @@ export interface FeedbackRecord {
   selection: string;              // Text user selected
   comment: string;                // User's comment
   createdAt: string;              // ISO timestamp
+}
+
+export interface PromptTemplateRecord {
+  id: string;                     // Generated UUID
+  name: string;                   // Display name like "Wuxia Romance"
+  description?: string;           // Optional description
+  content: string;                // The actual system prompt
+  isDefault: boolean;             // One template marked as default
+  createdAt: string;              // ISO timestamp
+  lastUsed?: string;              // ISO timestamp when last selected
 }
 
 // Database service class
@@ -177,6 +190,16 @@ class IndexedDBService {
       feedbackStore.createIndex('type', 'type');
       console.log('[IndexedDB] Created feedback store');
     }
+    
+    // Prompt Templates store
+    if (!db.objectStoreNames.contains(STORES.PROMPT_TEMPLATES)) {
+      const promptStore = db.createObjectStore(STORES.PROMPT_TEMPLATES, { keyPath: 'id' });
+      promptStore.createIndex('name', 'name');
+      promptStore.createIndex('isDefault', 'isDefault');
+      promptStore.createIndex('createdAt', 'createdAt');
+      promptStore.createIndex('lastUsed', 'lastUsed');
+      console.log('[IndexedDB] Created prompt templates store');
+    }
   }
   
   /**
@@ -231,6 +254,8 @@ class IndexedDBService {
       model: string; 
       temperature: number;
       systemPrompt: string;
+      promptId?: string;
+      promptName?: string;
     }
   ): Promise<TranslationRecord> {
     const db = await this.init();
@@ -265,6 +290,8 @@ class IndexedDBService {
       model: translationSettings.model,
       temperature: translationSettings.temperature,
       systemPrompt: translationSettings.systemPrompt,
+      promptId: translationSettings.promptId,
+      promptName: translationSettings.promptName,
       
       totalTokens: usageMetrics.totalTokens,
       promptTokens: usageMetrics.promptTokens,
@@ -546,6 +573,145 @@ class IndexedDBService {
   }
   
   /**
+   * Store prompt template
+   */
+  async storePromptTemplate(template: PromptTemplate): Promise<void> {
+    const db = await this.init();
+    
+    const record: PromptTemplateRecord = {
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      content: template.content,
+      isDefault: template.isDefault,
+      createdAt: template.createdAt,
+      lastUsed: template.lastUsed
+    };
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.PROMPT_TEMPLATES], 'readwrite');
+      const store = transaction.objectStore(STORES.PROMPT_TEMPLATES);
+      
+      const request = store.put(record);
+      request.onsuccess = () => {
+        console.log(`[IndexedDB] Prompt template stored: ${template.name}`);
+        resolve();
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+  
+  /**
+   * Get all prompt templates
+   */
+  async getPromptTemplates(): Promise<PromptTemplateRecord[]> {
+    const db = await this.init();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.PROMPT_TEMPLATES], 'readonly');
+      const store = transaction.objectStore(STORES.PROMPT_TEMPLATES);
+      
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const templates = request.result.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        resolve(templates);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+  
+  /**
+   * Get default prompt template
+   */
+  async getDefaultPromptTemplate(): Promise<PromptTemplateRecord | null> {
+    const db = await this.init();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.PROMPT_TEMPLATES], 'readonly');
+      const store = transaction.objectStore(STORES.PROMPT_TEMPLATES);
+      const index = store.index('isDefault');
+      
+      const request = index.get(IDBKeyRange.only(true));
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+  
+  /**
+   * Get prompt template by ID
+   */
+  async getPromptTemplate(id: string): Promise<PromptTemplateRecord | null> {
+    const db = await this.init();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.PROMPT_TEMPLATES], 'readonly');
+      const store = transaction.objectStore(STORES.PROMPT_TEMPLATES);
+      
+      const request = store.get(id);
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+  
+  /**
+   * Delete prompt template
+   */
+  async deletePromptTemplate(id: string): Promise<void> {
+    const db = await this.init();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.PROMPT_TEMPLATES], 'readwrite');
+      const store = transaction.objectStore(STORES.PROMPT_TEMPLATES);
+      
+      const request = store.delete(id);
+      request.onsuccess = () => {
+        console.log(`[IndexedDB] Prompt template deleted: ${id}`);
+        resolve();
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+  
+  /**
+   * Set default prompt template (unsets others)
+   */
+  async setDefaultPromptTemplate(id: string): Promise<void> {
+    const db = await this.init();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.PROMPT_TEMPLATES], 'readwrite');
+      const store = transaction.objectStore(STORES.PROMPT_TEMPLATES);
+      
+      // First, unset all defaults
+      const getAllRequest = store.getAll();
+      getAllRequest.onsuccess = () => {
+        const updates: Promise<void>[] = [];
+        
+        getAllRequest.result.forEach(template => {
+          template.isDefault = template.id === id;
+          
+          updates.push(new Promise((resolveUpdate) => {
+            const updateRequest = store.put(template);
+            updateRequest.onsuccess = () => resolveUpdate();
+          }));
+        });
+        
+        Promise.all(updates).then(() => {
+          console.log(`[IndexedDB] Set default prompt template: ${id}`);
+          resolve();
+        });
+      };
+      getAllRequest.onerror = () => reject(getAllRequest.error);
+    });
+  }
+  
+  /**
    * Close database connection
    */
   close(): void {
@@ -567,7 +733,18 @@ let migrationInProgress = false;
 // Expose cleanup function globally for emergency use
 if (typeof window !== 'undefined') {
   (window as any).cleanupDuplicateVersions = cleanupDuplicateVersions;
-  console.log('🧹 Emergency cleanup available: run cleanupDuplicateVersions() in console to remove duplicates');
+  
+  // Expose integrated cleanup that refreshes UI
+  (window as any).cleanupAndRefresh = async () => {
+    await cleanupDuplicateVersions();
+    // Trigger page refresh to reload all version data
+    console.log('[Cleanup] Refreshing page to update UI...');
+    window.location.reload();
+  };
+  
+  console.log('🧹 Emergency cleanup available:');
+  console.log('• cleanupDuplicateVersions() - Clean DB only');  
+  console.log('• cleanupAndRefresh() - Clean DB + refresh UI');
 }
 
 /**

@@ -5,6 +5,44 @@ import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageM
 import { COSTS_PER_MILLION_TOKENS } from '../costs';
 import { ChatCompletion } from 'openai/resources';
 
+// --- API KEY VALIDATION ---
+
+/**
+ * Validates that the required API key exists for the current provider.
+ * This should be called BEFORE attempting any translation to prevent
+ * wasted resources and provide immediate user feedback.
+ */
+export const validateApiKey = (settings: AppSettings): { isValid: boolean; errorMessage?: string } => {
+  let requiredApiKey: string | undefined;
+  let providerName: string;
+
+  switch (settings.provider) {
+    case 'Gemini':
+      requiredApiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
+      providerName = 'Google Gemini';
+      break;
+    case 'OpenAI':
+      requiredApiKey = settings.apiKeyOpenAI || (typeof process !== 'undefined' ? process.env.OPENAI_API_KEY : undefined);
+      providerName = 'OpenAI';
+      break;
+    case 'DeepSeek':
+      requiredApiKey = settings.apiKeyDeepSeek || (typeof process !== 'undefined' ? process.env.DEEPSEEK_API_KEY : undefined);
+      providerName = 'DeepSeek';
+      break;
+    default:
+      return { isValid: false, errorMessage: `Unknown provider: ${settings.provider}` };
+  }
+
+  if (!requiredApiKey?.trim()) {
+    return { 
+      isValid: false, 
+      errorMessage: `${providerName} API key is missing. Please add it in the settings.` 
+    };
+  }
+
+  return { isValid: true };
+};
+
 // --- SHARED PROMPT LOGIC ---
 
 const formatHistory = (history: HistoricalChapter[]): string => {
