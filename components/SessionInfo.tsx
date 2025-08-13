@@ -22,11 +22,67 @@ const SessionInfo: React.FC = () => {
     })));
     
     const sortedChapters = useMemo(() => {
-        // Sort the chapters based on their order in the urlHistory array
-        return urlHistory
-            .map(url => ({ url, data: sessionData[url] }))
-            .filter(item => !!item.data?.chapter); // Ensure chapter data exists
-    }, [sessionData, urlHistory]);
+        const chapterMap = new Map<string, { url: string, data: SessionChapterData }>();
+        Object.entries(sessionData).forEach(([url, data]) => {
+            if (data?.chapter) {
+                chapterMap.set(url, { url, data });
+            }
+        });
+
+        if (chapterMap.size === 0) return [];
+
+        // Find the starting nodes (heads) of all chapter chains
+        const heads = new Set(chapterMap.values());
+        for (const chapter of chapterMap.values()) {
+            const prevUrl = chapter.data.chapter.prevUrl;
+            if (prevUrl && chapterMap.has(prevUrl)) {
+                heads.delete(chapter); // This node is not a head because something points to it
+            }
+        }
+
+        // Build the chains by following nextUrl from each head
+        const chains: Array<{ url: string, data: SessionChapterData }[]> = [];
+        for (const head of heads) {
+            const currentChain: { url: string, data: SessionChapterData }[] = [];
+            let currentNode: { url: string, data: SessionChapterData } | undefined = head;
+            while (currentNode) {
+                currentChain.push(currentNode);
+                const nextUrl = currentNode.data.chapter.nextUrl;
+                // Ensure we don't add chapters that aren't in the session, preventing infinite loops
+                currentNode = nextUrl && chapterMap.has(nextUrl) ? chapterMap.get(nextUrl) : undefined;
+            }
+            chains.push(currentChain);
+        }
+
+        // Sort the chains using the hybrid, multi-level logic
+        chains.sort((chainA, chainB) => {
+            const firstA = chainA[0];
+            const firstB = chainB[0];
+
+            const titleA = firstA.data.translationResult?.translatedTitle || firstA.data.chapter.title || '';
+            const titleB = firstB.data.translationResult?.translatedTitle || firstB.data.chapter.title || '';
+
+            // 1. Primary Sort: By number in the title
+            const numA_title = getChapterNumber(titleA);
+            const numB_title = getChapterNumber(titleB);
+            if (numA_title !== null && numB_title !== null && numA_title !== numB_title) {
+                return numA_title - numB_title;
+            }
+
+            // 2. Tie-breaker: By number in the URL
+            const numA_url = getChapterNumber(firstA.url);
+            const numB_url = getChapterNumber(firstB.url);
+            if (numA_url !== null && numB_url !== null && numA_url !== numB_url) {
+                return numA_url - numB_url;
+            }
+
+            // 3. Final Tie-breaker: Alphabetical URL sort for stability
+            return firstA.url.localeCompare(firstB.url);
+        });
+
+        // Flatten the sorted chains into a single list
+        return chains.flat();
+    }, [sessionData]);
 
     const sessionIsEmpty = sortedChapters.length === 0;
 
