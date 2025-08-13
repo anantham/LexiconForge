@@ -583,7 +583,7 @@ class IndexedDBService {
       name: template.name,
       description: template.description,
       content: template.content,
-      isDefault: template.isDefault,
+      isDefault: template.isDefault ? 1 : 0, // Convert boolean to number for IndexedDB
       createdAt: template.createdAt,
       lastUsed: template.lastUsed
     };
@@ -613,9 +613,14 @@ class IndexedDBService {
       
       const request = store.getAll();
       request.onsuccess = () => {
-        const templates = request.result.sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        const templates = request.result
+          .map(template => ({
+            ...template,
+            isDefault: Boolean(template.isDefault) // Convert number back to boolean
+          }))
+          .sort((a, b) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         resolve(templates);
       };
       request.onerror = () => reject(request.error);
@@ -633,9 +638,15 @@ class IndexedDBService {
       const store = transaction.objectStore(STORES.PROMPT_TEMPLATES);
       const index = store.index('isDefault');
       
-      const request = index.get(IDBKeyRange.only(true));
+      // Use number (1) instead of boolean (true) for IndexedDB key range
+      const request = index.get(IDBKeyRange.only(1));
       request.onsuccess = () => {
-        resolve(request.result || null);
+        const result = request.result;
+        if (result) {
+          // Convert number back to boolean for the interface
+          result.isDefault = Boolean(result.isDefault);
+        }
+        resolve(result || null);
       };
       request.onerror = () => reject(request.error);
     });
@@ -653,7 +664,12 @@ class IndexedDBService {
       
       const request = store.get(id);
       request.onsuccess = () => {
-        resolve(request.result || null);
+        const result = request.result;
+        if (result) {
+          // Convert number back to boolean for the interface
+          result.isDefault = Boolean(result.isDefault);
+        }
+        resolve(result || null);
       };
       request.onerror = () => reject(request.error);
     });
@@ -694,7 +710,7 @@ class IndexedDBService {
         const updates: Promise<void>[] = [];
         
         getAllRequest.result.forEach(template => {
-          template.isDefault = template.id === id;
+          template.isDefault = template.id === id ? 1 : 0; // Convert boolean to number
           
           updates.push(new Promise((resolveUpdate) => {
             const updateRequest = store.put(template);
