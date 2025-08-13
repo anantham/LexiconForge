@@ -192,7 +192,7 @@ const ChapterView: React.FC = () => {
   }
   
   const parseAndRender = (text: string): React.ReactNode[] => {
-    const parts = text.split(/(\[\d+\]|<i>.*?<\/i>|<b>.*?<\/b>|\*.*?\*|\[ILLUSTRATION-\d+\])/g).filter(Boolean);
+    const parts = text.split(/(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\])/g).filter(Boolean);
 
     return parts.map((part, index) => {
       // Illustration

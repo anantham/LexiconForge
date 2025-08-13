@@ -29,6 +29,10 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
       requiredApiKey = settings.apiKeyDeepSeek || (typeof process !== 'undefined' ? process.env.DEEPSEEK_API_KEY : undefined);
       providerName = 'DeepSeek';
       break;
+    case 'Claude':
+      requiredApiKey = settings.apiKeyClaude || (typeof process !== 'undefined' ? process.env.CLAUDE_API_KEY : undefined);
+      providerName = 'Claude (Anthropic)';
+      break;
     default:
       return { isValid: false, errorMessage: `Unknown provider: ${settings.provider}` };
   }
@@ -98,32 +102,94 @@ export const calculateCost = (model: string, promptTokens: number, completionTok
     return inputCost + outputCost;
 }
 
-// --- ILLUSTRATION VALIDATION ---
+// --- ILLUSTRATION VALIDATION & AUTO-RECOVERY ---
 
-const validateIllustrations = (translation: string, suggestedIllustrations: any[] | undefined): void => {
-    const textMarkers = translation.match(/[\[]ILLUSTRATION-\d+[A-Za-z]*[\]]/g) || [];
-    const jsonMarkers = (suggestedIllustrations || []).map(item => item.placementMarker);
+const validateAndFixIllustrations = (translation: string, suggestedIllustrations: any[] | undefined): { translation: string; suggestedIllustrations: any[] } => {
+    const textMarkers = translation.match(/\[ILLUSTRATION-\d+[A-Za-z]*\]/g) || [];
+    const jsonIllustrations = suggestedIllustrations || [];
+    const jsonMarkers = jsonIllustrations.map(item => item.placementMarker);
 
-    if (textMarkers.length === 0 && jsonMarkers.length === 0) {
-        return; // No illustrations, nothing to validate.
+    // Case 1: Perfect match - no changes needed
+    if (textMarkers.length === jsonMarkers.length) {
+        const textMarkerSet = new Set(textMarkers);
+        const jsonMarkerSet = new Set(jsonMarkers);
+        
+        if (textMarkers.every(marker => jsonMarkerSet.has(marker)) && 
+            jsonMarkers.every(marker => textMarkerSet.has(marker))) {
+            console.log('[IllustrationFix] Perfect match - no changes needed');
+            return { translation, suggestedIllustrations: jsonIllustrations };
+        }
     }
 
-    const textMarkerSet = new Set(textMarkers);
-    const jsonMarkerSet = new Set(jsonMarkers);
-
-    const textOnlyMarkers = [...textMarkerSet].filter(m => !jsonMarkerSet.has(m));
-    const jsonOnlyMarkers = [...jsonMarkerSet].filter(m => !textMarkerSet.has(m));
-
-    if (textOnlyMarkers.length > 0 || jsonOnlyMarkers.length > 0) {
-        const errorMessage = `AI response validation failed: Mismatch between illustration placeholders and structured data.\n- Markers in text but not in JSON: ${textOnlyMarkers.join(', ') || 'None'}\n- Markers in JSON but not in text: ${jsonOnlyMarkers.join(', ') || 'None'}`;
+    // Case 2: More JSON prompts than text markers - auto-insert missing markers
+    if (jsonMarkers.length > textMarkers.length) {
+        const textMarkerSet = new Set(textMarkers);
+        const unmatchedPrompts = jsonIllustrations.filter(item => !textMarkerSet.has(item.placementMarker));
         
-        console.error('Illustration mismatch detected.', {
-            textMarkers: Array.from(textMarkerSet),
-            jsonMarkers: Array.from(jsonMarkerSet),
+        console.log(`[IllustrationFix] Auto-recovery: ${unmatchedPrompts.length} unmatched prompts, inserting at end of text`);
+        
+        let updatedTranslation = translation;
+        for (const prompt of unmatchedPrompts) {
+            // Insert marker at end of text before any final paragraph breaks
+            updatedTranslation = updatedTranslation.trim() + ` ${prompt.placementMarker}`;
+        }
+        
+        console.log('[IllustrationFix] Auto-recovery successful - saved translation with inserted markers');
+        return { translation: updatedTranslation, suggestedIllustrations: jsonIllustrations };
+    }
+
+    // Case 3: More text markers than JSON prompts - this is unfixable
+    if (textMarkers.length > jsonMarkers.length) {
+        const textMarkerSet = new Set(textMarkers);
+        const jsonMarkerSet = new Set(jsonMarkers);
+        const orphanedMarkers = textMarkers.filter(marker => !jsonMarkerSet.has(marker));
+        
+        const errorMessage = `AI response validation failed: Cannot auto-fix - missing illustration prompts.\n- Text has ${textMarkers.length} markers but JSON only has ${jsonMarkers.length} prompts\n- Orphaned markers: ${orphanedMarkers.join(', ')}\n\nThis requires AI to regenerate with proper prompts for all markers.`;
+        
+        console.error('Illustration validation failed - insufficient prompts:', {
+            textMarkers,
+            jsonMarkers,
+            orphanedMarkers
         });
 
         throw new Error(errorMessage);
     }
+
+    // Case 4: Same count but mismatched markers - try to fix if possible  
+    const textMarkerSet = new Set(textMarkers);
+    const jsonMarkerSet = new Set(jsonMarkers);
+    
+    const textOnlyMarkers = textMarkers.filter(m => !jsonMarkerSet.has(m));
+    const jsonOnlyMarkers = jsonMarkers.filter(m => !textMarkerSet.has(m));
+    
+    if (textOnlyMarkers.length === jsonOnlyMarkers.length) {
+        console.log(`[IllustrationFix] Attempting marker reconciliation: ${textOnlyMarkers.length} mismatched pairs`);
+        
+        // Create a mapping from unmatched JSON markers to unmatched text markers
+        const updatedIllustrations = jsonIllustrations.map(item => {
+            if (!textMarkerSet.has(item.placementMarker) && textOnlyMarkers.length > 0) {
+                const newMarker = textOnlyMarkers.shift()!; // Take the first unmatched text marker
+                console.log(`[IllustrationFix] Remapped ${item.placementMarker} -> ${newMarker}`);
+                return { ...item, placementMarker: newMarker };
+            }
+            return item;
+        });
+        
+        console.log('[IllustrationFix] Marker reconciliation successful - saved translation');
+        return { translation, suggestedIllustrations: updatedIllustrations };
+    }
+    
+    // Case 5: Unfixable mismatch
+    const errorMessage = `AI response validation failed: Complex illustration mismatch cannot be auto-fixed.\n- Text markers: ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires AI regeneration with proper marker alignment.`;
+    
+    console.error('Illustration validation failed - complex mismatch:', {
+        textMarkers,
+        jsonMarkers,
+        textOnlyMarkers,
+        jsonOnlyMarkers
+    });
+
+    throw new Error(errorMessage);
 };
 
 // --- GEMINI PROVIDER ---
@@ -132,22 +198,22 @@ const geminiResponseSchema = {
     type: Type.OBJECT,
     properties: {
         translatedTitle: { type: Type.STRING, description: "The translated chapter title." },
-        translation: { type: Type.STRING, description: "The full translated chapter content, with markers like [1] for footnotes and [ILLUSTRATION-X] for images." },
+        translation: { type: Type.STRING, description: "STRUCTURAL REQUIREMENT: Full translated chapter content using HTML formatting (<i>italics</i>, <b>bold</b> - never markdown). MUST include numbered markers [1], [2], [3] in the text for any footnotes. MUST include placement markers [ILLUSTRATION-1], [ILLUSTRATION-2], etc. in the text for any visual scenes you want illustrated. Every marker in this text must have a corresponding entry in the respective arrays below." },
         footnotes: {
-          type: Type.ARRAY, nullable: true, description: "Footnotes referenced in the text.",
+          type: Type.ARRAY, nullable: true, description: "STRUCTURAL REQUIREMENT: Each footnote must correspond to a numbered marker [1], [2], [3] found in the translation text. Use format prefixes: '[TL Note:]' for translator commentary/cultural context, '[Author's Note:]' for original text explanations. If no markers exist in text, this must be null or empty array.",
           items: {
-            type: Type.OBJECT, properties: { marker: { type: Type.STRING }, text: { type: Type.STRING } }, required: ['marker', 'text']
+            type: Type.OBJECT, properties: { marker: { type: Type.STRING, description: "Exact marker from text: '[1]', '[2]', etc." }, text: { type: Type.STRING, description: "Footnote content with appropriate prefix: '[TL Note:]' or '[Author's Note:]'" } }, required: ['marker', 'text']
           }
         },
         suggestedIllustrations: {
-            type: Type.ARRAY, nullable: true, description: "Suggested illustrations.",
+            type: Type.ARRAY, nullable: true, description: "CRITICAL STRUCTURAL REQUIREMENT: Must contain exactly the same [ILLUSTRATION-X] markers found in the translation text. Each marker in the text requires a corresponding object here. If no [ILLUSTRATION-X] markers exist in the translation text, this must be null or empty array. This is validated strictly.",
             items: {
-                type: Type.OBJECT, properties: { placementMarker: { type: Type.STRING }, imagePrompt: { type: Type.STRING } }, required: ['placementMarker', 'imagePrompt']
+                type: Type.OBJECT, properties: { placementMarker: { type: Type.STRING, description: "Exact marker from text: '[ILLUSTRATION-1]', '[ILLUSTRATION-2]', etc." }, imagePrompt: { type: Type.STRING, description: "Detailed prompt for AI image generation describing the scene, mood, characters, and visual style" } }, required: ['placementMarker', 'imagePrompt']
             }
         },
         proposal: {
-            type: Type.OBJECT, nullable: true, description: "A proposal to amend the system prompt.",
-            properties: { observation: { type: Type.STRING }, currentRule: { type: Type.STRING }, proposedChange: { type: Type.STRING }, reasoning: { type: Type.STRING } },
+            type: Type.OBJECT, nullable: true, description: "Optional proposal to improve the user's system prompt based on translation challenges encountered. Only include if you genuinely believe a specific improvement would help future translations.",
+            properties: { observation: { type: Type.STRING, description: "What translation challenge or feedback pattern triggered this proposal" }, currentRule: { type: Type.STRING, description: "Exact text from user's system prompt that could be improved" }, proposedChange: { type: Type.STRING, description: "Suggested replacement text with clear improvements" }, reasoning: { type: Type.STRING, description: "Why this change would improve translation quality" } },
             required: ['observation', 'currentRule', 'proposedChange', 'reasoning'],
         }
     },
@@ -202,13 +268,13 @@ const translateWithGemini = async (title: string, content: string, settings: App
     if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
         throw new Error('Invalid JSON structure in AI response.');
     }
-    validateIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+    const { translation: fixedTranslation, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
     return {
         translatedTitle: parsedJson.translatedTitle,
-        translation: parsedJson.translation,
+        translation: fixedTranslation,
         proposal: parsedJson.proposal ?? null,
         footnotes: parsedJson.footnotes ?? [],
-        suggestedIllustrations: parsedJson.suggestedIllustrations ?? [],
+        suggestedIllustrations: fixedIllustrations,
         usageMetrics: usageMetrics,
     };
   } catch (e) {
@@ -229,16 +295,16 @@ const openaiResponseSchema = {
         },
         "translation": {
             "type": "string", 
-            "description": "The full translated chapter content, with markers like [1] for footnotes and [ILLUSTRATION-X] for images."
+            "description": "STRUCTURAL REQUIREMENT: Full translated chapter content using HTML formatting (<i>italics</i>, <b>bold</b> - never markdown). MUST include numbered markers [1], [2], [3] in the text for any footnotes. MUST include placement markers [ILLUSTRATION-1], [ILLUSTRATION-2], etc. in the text for any visual scenes you want illustrated. Every marker in this text must have a corresponding entry in the respective arrays below."
         },
         "footnotes": {
             "type": ["array", "null"],
-            "description": "Footnotes referenced in the text.",
+            "description": "STRUCTURAL REQUIREMENT: Each footnote must correspond to a numbered marker [1], [2], [3] found in the translation text. Use format prefixes: '[TL Note:]' for translator commentary/cultural context, '[Author's Note:]' for original text explanations. If no markers exist in text, this must be null or empty array.",
             "items": {
                 "type": "object",
                 "properties": {
-                    "marker": {"type": "string"},
-                    "text": {"type": "string"}
+                    "marker": {"type": "string", "description": "Exact marker from text: '[1]', '[2]', etc."},
+                    "text": {"type": "string", "description": "Footnote content with appropriate prefix: '[TL Note:]' or '[Author's Note:]'"}
                 },
                 "required": ["marker", "text"],
                 "additionalProperties": false
@@ -246,12 +312,12 @@ const openaiResponseSchema = {
         },
         "suggestedIllustrations": {
             "type": ["array", "null"],
-            "description": "Suggested illustrations.",
+            "description": "CRITICAL STRUCTURAL REQUIREMENT: Must contain exactly the same [ILLUSTRATION-X] markers found in the translation text. Each marker in the text requires a corresponding object here. If no [ILLUSTRATION-X] markers exist in the translation text, this must be null or empty array. This is validated strictly.",
             "items": {
                 "type": "object", 
                 "properties": {
-                    "placementMarker": {"type": "string"},
-                    "imagePrompt": {"type": "string"}
+                    "placementMarker": {"type": "string", "description": "Exact marker from text: '[ILLUSTRATION-1]', '[ILLUSTRATION-2]', etc."},
+                    "imagePrompt": {"type": "string", "description": "Detailed prompt for AI image generation describing the scene, mood, characters, and visual style"}
                 },
                 "required": ["placementMarker", "imagePrompt"],
                 "additionalProperties": false
@@ -259,12 +325,12 @@ const openaiResponseSchema = {
         },
         "proposal": {
             "type": ["object", "null"],
-            "description": "A proposal to amend the system prompt.",
+            "description": "Optional proposal to improve the user's system prompt based on translation challenges encountered. Only include if you genuinely believe a specific improvement would help future translations.",
             "properties": {
-                "observation": {"type": "string"},
-                "currentRule": {"type": "string"},
-                "proposedChange": {"type": "string"},
-                "reasoning": {"type": "string"}
+                "observation": {"type": "string", "description": "What translation challenge or feedback pattern triggered this proposal"},
+                "currentRule": {"type": "string", "description": "Exact text from user's system prompt that could be improved"},
+                "proposedChange": {"type": "string", "description": "Suggested replacement text with clear improvements"},
+                "reasoning": {"type": "string", "description": "Why this change would improve translation quality"}
             },
             "required": ["observation", "currentRule", "proposedChange", "reasoning"],
             "additionalProperties": false
@@ -387,14 +453,14 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
             throw new Error('Invalid JSON structure in AI response.');
         }
-        validateIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+        const { translation: fixedTranslation, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
         
         return {
             translatedTitle: parsedJson.translatedTitle,
-            translation: parsedJson.translation,
+            translation: fixedTranslation,
             proposal: parsedJson.proposal,
             footnotes: parsedJson.footnotes ?? [],
-            suggestedIllustrations: parsedJson.suggestedIllustrations ?? [],
+            suggestedIllustrations: fixedIllustrations,
             usageMetrics: usageMetrics,
         };
     } catch (e) {
@@ -415,7 +481,22 @@ export const translateChapter = async (
 ): Promise<TranslationResult> => {
     let lastError: Error | null = null;
     
-    const translationFunction = settings.provider === 'Gemini' ? translateWithGemini : translateWithOpenAI;
+    let translationFunction: (title: string, content: string, settings: AppSettings, history: HistoricalChapter[]) => Promise<TranslationResult>;
+    
+    switch (settings.provider) {
+        case 'Gemini':
+            translationFunction = translateWithGemini;
+            break;
+        case 'Claude':
+            const { translateWithClaude } = await import('./claudeService');
+            translationFunction = translateWithClaude;
+            break;
+        case 'OpenAI':
+        case 'DeepSeek':
+        default:
+            translationFunction = translateWithOpenAI;
+            break;
+    }
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {

@@ -79,7 +79,7 @@ export interface HistoricalChapter {
   feedback: FeedbackItem[];
 }
 
-export type TranslationProvider = 'Gemini' | 'OpenAI' | 'DeepSeek';
+export type TranslationProvider = 'Gemini' | 'OpenAI' | 'DeepSeek' | 'Claude';
 
 export interface PromptTemplate {
   id: string;                    // UUID
@@ -112,6 +112,7 @@ export interface AppSettings {
     apiKeyGemini?: string;
     apiKeyOpenAI?: string;
     apiKeyDeepSeek?: string;
+    apiKeyClaude?: string;
 }
 
 export interface ImportedChapter {

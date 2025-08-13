@@ -24,6 +24,14 @@ export const MODELS: ModelInfo[] = [
     // DeepSeek Models
     { id: 'deepseek-chat', name: 'DeepSeek Chat (V3)', provider: 'DeepSeek' },
     { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner (R1)', provider: 'DeepSeek' },
+    
+    // Claude Models (Anthropic) - 2025 models
+    { id: 'claude-opus-4-1', name: 'Claude Opus 4.1', provider: 'Claude' },
+    { id: 'claude-opus-4-0', name: 'Claude Opus 4', provider: 'Claude' },
+    { id: 'claude-sonnet-4-0', name: 'Claude Sonnet 4', provider: 'Claude' },
+    { id: 'claude-3-7-sonnet-latest', name: 'Claude Sonnet 3.7 Latest', provider: 'Claude' },
+    { id: 'claude-3-5-sonnet-latest', name: 'Claude Sonnet 3.5 Latest', provider: 'Claude' },
+    { id: 'claude-3-5-haiku-latest', name: 'Claude Haiku 3.5 Latest', provider: 'Claude' },
 ];
 
 export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output: number } } = {
@@ -55,4 +63,20 @@ export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output:
     // --- DeepSeek Models (Standard pricing - cache miss) ---
     'deepseek-chat': { input: 0.27, output: 1.10 },
     'deepseek-reasoner': { input: 0.55, output: 2.19 },
+
+    // --- Claude Models (Anthropic - Official 2025 pricing) ---
+    'claude-opus-4-1': { input: 15.00, output: 75.00 },
+    'claude-opus-4-0': { input: 15.00, output: 75.00 },
+    'claude-sonnet-4-0': { input: 3.00, output: 15.00 },
+    'claude-3-7-sonnet-latest': { input: 3.00, output: 15.00 },
+    'claude-3-5-sonnet-latest': { input: 3.00, output: 15.00 },
+    'claude-3-5-haiku-latest': { input: 0.80, output: 4.00 },
+    
+    // Support exact model IDs as well
+    'claude-opus-4-1-20250805': { input: 15.00, output: 75.00 },
+    'claude-opus-4-20250514': { input: 15.00, output: 75.00 },
+    'claude-sonnet-4-20250514': { input: 3.00, output: 15.00 },
+    'claude-3-7-sonnet-20250219': { input: 3.00, output: 15.00 },
+    'claude-3-5-sonnet-20241022': { input: 3.00, output: 15.00 },
+    'claude-3-5-haiku-20241022': { input: 0.80, output: 4.00 },
 };

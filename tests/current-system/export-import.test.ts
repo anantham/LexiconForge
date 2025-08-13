@@ -387,17 +387,17 @@ describe('Export/Import System', () => {
       const store = useAppStore.getState();
       const unicodeChapter = createMockChapter({
         title: '第一章：魔王の覚醒 ～禁断の力～',
-        content: '「お前は何者だ？」
+        content: `「お前は何者だ？」
 彼は剣を構えながら問いかけた。
 
-※この物語はフィクションです。',
+※この物語はフィクションです。`,
       });
       
       const unicodeResult = createMockTranslationResult({
         translatedTitle: 'Chapter 1: The Demon King\'s Awakening ~Forbidden Power~',
-        translation: '"Who are you?" he asked while readying his sword.
+        translation: `"Who are you?" he asked while readying his sword.
 
-※This story is fiction.',
+※This story is fiction.`,
         footnotes: [{ marker: '※', text: 'Translator\'s note: This is a common disclaimer' }]
       });
       

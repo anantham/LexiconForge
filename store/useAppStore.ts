@@ -549,6 +549,14 @@ const useAppStore = create<Store>()(
                 }
 
                 set(state => ({ settings: { ...state.settings, ...newSettings } }));
+                
+                // Auto-retry failed images if Gemini API key was just added
+                if (!currentSettings.apiKeyGemini && newSettings.apiKeyGemini && get().currentUrl) {
+                    console.log('[Settings] Gemini API key added, auto-retrying failed images...');
+                    setTimeout(() => {
+                        get().retryFailedImages(get().currentUrl!);
+                    }, 500); // Small delay to ensure UI updates
+                }
             },
 
             updateProxyScore: (proxyUrl: string, successful: boolean) => {
@@ -886,6 +894,66 @@ const useAppStore = create<Store>()(
                     }
                 });
                 console.log(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
+            },
+
+            // Retry failed image generation
+            retryFailedImages: async (url: string) => {
+                console.log(`[ImageGen] Retrying failed image generation for ${url}`);
+                const { sessionData, settings, generatedImages } = get();
+                const translationResult = sessionData[url]?.translationResult;
+
+                if (!translationResult || !translationResult.suggestedIllustrations) {
+                    console.warn('[ImageGen] No illustrations to retry for this chapter.');
+                    return;
+                }
+
+                // Find failed images
+                const failedImages = translationResult.suggestedIllustrations.filter(illust => {
+                    const imageState = generatedImages[illust.placementMarker];
+                    return imageState && imageState.error && !imageState.data;
+                });
+
+                if (failedImages.length === 0) {
+                    console.log('[ImageGen] No failed images to retry.');
+                    return;
+                }
+
+                console.log(`[ImageGen] Found ${failedImages.length} failed images to retry`);
+
+                // Reset failed images to loading state
+                set(state => {
+                    const updatedImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; }> = {};
+                    failedImages.forEach(illust => {
+                        updatedImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null };
+                    });
+                    return {
+                        generatedImages: { ...state.generatedImages, ...updatedImageStates }
+                    };
+                });
+
+                // Retry generation for failed images
+                for (const illust of failedImages) {
+                    try {
+                        console.log(`[ImageGen] Retrying image for marker: ${illust.placementMarker}`);
+                        const result = await generateImage(illust.imagePrompt, settings);
+
+                        set(state => ({
+                            generatedImages: {
+                                ...state.generatedImages,
+                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null },
+                            }
+                        }));
+                        console.log(`[ImageGen] Successfully retried and stored image for ${illust.placementMarker}`);
+                    } catch (error: any) {
+                        console.error(`[ImageGen] Retry failed for ${illust.placementMarker}:`, error);
+                        set(state => ({
+                            generatedImages: {
+                                ...state.generatedImages,
+                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message },
+                            }
+                        }));
+                    }
+                }
             },
 
             // Version management methods

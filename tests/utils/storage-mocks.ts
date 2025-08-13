@@ -207,3 +207,20 @@ export const applyStorageMock = (storageMock: MockStorage) => {
   
   return storageMock;
 };
+
+/**
+ * Default storage setup for tests
+ * This function sets up a clean localStorage mock before each test
+ */
+export const setupStorageMocks = () => {
+  const mockStorage = createMockStorage();
+  applyStorageMock(mockStorage);
+  return mockStorage;
+};
+
+/**
+ * Utility to create corrupted storage data for testing error handling
+ */
+export const createCorruptedStorageData = () => {
+  return '{"invalid": json, "missing_quotes": true, broken}';
+};

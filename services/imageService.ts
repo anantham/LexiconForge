@@ -41,13 +41,13 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
                 config: { number_of_images: 1 },
             });
 
-            // Assuming the response structure is an array of generated images
-            const firstImage = response.generated_images?.[0];
-            if (!firstImage || !firstImage.image_data) {
+            // Fix response structure parsing based on actual API response
+            const firstImage = response.generatedImages?.[0];
+            if (!firstImage || !firstImage.image || !firstImage.image.imageBytes) {
                 console.error("[ImageService/Imagen] Unexpected response structure:", JSON.stringify(response, null, 2));
                 throw new Error("Failed to receive valid image data from Imagen API.");
             }
-            base64Data = firstImage.image_data as string;
+            base64Data = firstImage.image.imageBytes as string;
 
         } else {
             // This path is for multimodal Gemini models
