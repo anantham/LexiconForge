@@ -183,6 +183,61 @@ const translateWithGemini = async (title: string, content: string, settings: App
 
 // --- OPENAI / DEEPSEEK PROVIDER ---
 
+// Define OpenAI Structured Output schema (different format from Gemini)
+const openaiResponseSchema = {
+    "type": "object",
+    "properties": {
+        "translatedTitle": {
+            "type": "string",
+            "description": "The translated chapter title."
+        },
+        "translation": {
+            "type": "string", 
+            "description": "The full translated chapter content, with markers like [1] for footnotes and [ILLUSTRATION-X] for images."
+        },
+        "footnotes": {
+            "type": ["array", "null"],
+            "description": "Footnotes referenced in the text.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "marker": {"type": "string"},
+                    "text": {"type": "string"}
+                },
+                "required": ["marker", "text"],
+                "additionalProperties": false
+            }
+        },
+        "suggestedIllustrations": {
+            "type": ["array", "null"],
+            "description": "Suggested illustrations.",
+            "items": {
+                "type": "object", 
+                "properties": {
+                    "placementMarker": {"type": "string"},
+                    "imagePrompt": {"type": "string"}
+                },
+                "required": ["placementMarker", "imagePrompt"],
+                "additionalProperties": false
+            }
+        },
+        "proposal": {
+            "type": ["object", "null"],
+            "description": "A proposal to amend the system prompt.",
+            "properties": {
+                "observation": {"type": "string"},
+                "currentRule": {"type": "string"},
+                "proposedChange": {"type": "string"},
+                "reasoning": {"type": "string"}
+            },
+            "required": ["observation", "currentRule", "proposedChange", "reasoning"],
+            "additionalProperties": false
+        }
+    },
+    "required": ["translatedTitle", "translation", "footnotes", "suggestedIllustrations", "proposal"],
+    "additionalProperties": false
+};
+
 const translateWithOpenAI = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[]): Promise<TranslationResult> => {
     let apiKey: string | undefined;
     let baseURL: string | undefined;
@@ -200,8 +255,9 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     const startTime = performance.now();
     const openai = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
     
+    // Clean system prompt without JSON schema instructions (schema is enforced natively)
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: 'system', content: `${settings.systemPrompt}\n\nYou MUST respond with a JSON object that strictly adheres to the following JSON schema:\n${JSON.stringify(geminiResponseSchema, null, 2)}` },
+        { role: 'system', content: settings.systemPrompt },
     ];
     
     history.forEach(h => {
@@ -211,14 +267,24 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     
     messages.push({ role: 'user', content: `Translate this new chapter:\n\nTITLE:\n${title}\n\nCONTENT:\n${content}` });
 
-    // Prepare the request options
+    // Determine if model supports structured outputs
+    const supportsStructuredOutputs = settings.provider === 'OpenAI' && (
+        settings.model.startsWith('gpt-4o') || 
+        settings.model.startsWith('gpt-5') ||
+        settings.model.startsWith('gpt-4.1')
+    );
+
+    // Prepare the request options with native structured outputs
     const requestOptions: any = {
         model: settings.model,
         messages,
-        response_format: { type: 'json_object' },
+        response_format: supportsStructuredOutputs 
+            ? { type: 'json_schema', json_schema: { name: 'translation_response', schema: openaiResponseSchema, strict: true }}
+            : { type: 'json_object' } // Fallback to JSON mode for unsupported models
     };
 
     console.log(`[OpenAI] Preparing request for model: ${settings.model}`);
+    console.log(`[OpenAI] Using structured outputs: ${supportsStructuredOutputs}`);
     console.log(`[OpenAI] Temperature setting: ${settings.temperature}`);
     console.log(`[OpenAI] Message count: ${messages.length}`);
     console.log(`[OpenAI] Request options:`, JSON.stringify(requestOptions, null, 2));
@@ -230,6 +296,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         console.log(`[OpenAI] Attempt 1: Sending request with temperature ${settings.temperature}`);
         response = await openai.chat.completions.create(requestOptions);
         console.log(`[OpenAI] Attempt 1: Success! Response received`);
+        console.log(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
     } catch (error: any) {
         console.error(`[OpenAI] Attempt 1 failed:`, error);
         console.log(`[OpenAI] Error status:`, error.status || 'unknown');
@@ -245,6 +312,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
             try {
                 response = await openai.chat.completions.create(requestOptions);
                 console.log(`[OpenAI] Attempt 2: Success! Response received`);
+                console.log(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
             } catch (retryError: any) {
                 console.error(`[OpenAI] Attempt 2 also failed:`, retryError);
                 throw retryError;
@@ -252,6 +320,12 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         } else {
             throw error;
         }
+    }
+
+    // Handle structured output refusals
+    if (response.choices[0].finish_reason === 'refused') {
+        console.error('[OpenAI] Model refused to generate structured output');
+        throw new Error('The AI model refused to generate the requested translation format. Please try again or adjust your system prompt.');
     }
 
     const requestTime = (performance.now() - startTime) / 1000;
@@ -272,13 +346,16 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     
     try {
         const parsedJson = JSON.parse(responseText);
-         if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
+        
+        // With structured outputs, validation should be unnecessary, but keep for safety
+        if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
             throw new Error('Invalid JSON structure in AI response.');
         }
+        
         return {
             translatedTitle: parsedJson.translatedTitle,
             translation: parsedJson.translation,
-            proposal: parsedJson.proposal ?? null,
+            proposal: parsedJson.proposal,
             footnotes: parsedJson.footnotes ?? [],
             suggestedIllustrations: parsedJson.suggestedIllustrations ?? [],
             usageMetrics: usageMetrics,
