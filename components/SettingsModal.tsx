@@ -159,6 +159,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <option value="Gemini">Google Gemini</option>
                     <option value="OpenAI">OpenAI</option>
                     <option value="DeepSeek">DeepSeek</option>
+                    <option value="Claude">Claude (Anthropic)</option>
                   </select>
                 </div>
                 <div>
@@ -291,6 +292,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   value={currentSettings.apiKeyDeepSeek || ''}
                   onChange={(e) => handleSettingChange('apiKeyDeepSeek', e.target.value)}
                   placeholder="Enter your DeepSeek API Key"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="apiKeyClaude" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Claude API Key</label>
+                <input
+                  id="apiKeyClaude"
+                  type="password"
+                  value={currentSettings.apiKeyClaude || ''}
+                  onChange={(e) => handleSettingChange('apiKeyClaude', e.target.value)}
+                  placeholder="Enter your Claude API Key"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
