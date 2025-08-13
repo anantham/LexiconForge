@@ -18,7 +18,7 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
 
   switch (settings.provider) {
     case 'Gemini':
-      requiredApiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
+      requiredApiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined);
       providerName = 'Google Gemini';
       break;
     case 'OpenAI':
@@ -127,7 +127,7 @@ const geminiResponseSchema = {
 };
 
 const translateWithGemini = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[]): Promise<TranslationResult> => {
-  const apiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
+  const apiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined);
   if (!apiKey) {
     throw new Error("Gemini API key is missing. Please add it in the settings.");
   }
