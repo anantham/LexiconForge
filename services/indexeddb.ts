@@ -241,6 +241,17 @@ class IndexedDBService {
     // Generate unique ID
     const id = crypto.randomUUID();
     
+    // Handle legacy data that might not have usageMetrics
+    const usageMetrics = translationResult.usageMetrics || {
+      totalTokens: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      estimatedCost: 0,
+      requestTime: 0,
+      provider: translationSettings.provider,
+      model: translationSettings.model
+    };
+
     const translationRecord: TranslationRecord = {
       id,
       chapterUrl,
@@ -255,11 +266,11 @@ class IndexedDBService {
       temperature: translationSettings.temperature,
       systemPrompt: translationSettings.systemPrompt,
       
-      totalTokens: translationResult.usageMetrics.totalTokens,
-      promptTokens: translationResult.usageMetrics.promptTokens,
-      completionTokens: translationResult.usageMetrics.completionTokens,
-      estimatedCost: translationResult.usageMetrics.estimatedCost,
-      requestTime: translationResult.usageMetrics.requestTime,
+      totalTokens: usageMetrics.totalTokens,
+      promptTokens: usageMetrics.promptTokens,
+      completionTokens: usageMetrics.completionTokens,
+      estimatedCost: usageMetrics.estimatedCost,
+      requestTime: usageMetrics.requestTime,
       
       createdAt: new Date().toISOString(),
       isActive: true, // New translation is active by default
@@ -550,38 +561,173 @@ class IndexedDBService {
 // Export singleton instance
 export const indexedDBService = new IndexedDBService();
 
+// Migration mutex to prevent concurrent migrations
+let migrationInProgress = false;
+
+// Expose cleanup function globally for emergency use
+if (typeof window !== 'undefined') {
+  (window as any).cleanupDuplicateVersions = cleanupDuplicateVersions;
+  console.log('🧹 Emergency cleanup available: run cleanupDuplicateVersions() in console to remove duplicates');
+}
+
 /**
  * Helper function to migrate localStorage data to IndexedDB
  */
-export async function migrateFromLocalStorage(): Promise<void> {
-  console.log('[Migration] Starting localStorage to IndexedDB migration');
+/**
+ * Emergency cleanup function to remove duplicate translation versions
+ */
+export async function cleanupDuplicateVersions(): Promise<void> {
+  console.log('[Cleanup] Starting duplicate version cleanup');
   
   try {
-    // Get existing data from localStorage
+    await indexedDBService.init();
+    
+    // Get all translations
+    const db = indexedDBService.db;
+    if (!db) throw new Error('Database not initialized');
+    
+    const transaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
+    const store = transaction.objectStore(STORES.TRANSLATIONS);
+    
+    return new Promise((resolve, reject) => {
+      const getAllRequest = store.getAll();
+      
+      getAllRequest.onsuccess = async () => {
+        const allTranslations = getAllRequest.result as TranslationRecord[];
+        console.log(`[Cleanup] Found ${allTranslations.length} total translations`);
+        
+        // Group by URL
+        const translationsByUrl: { [url: string]: TranslationRecord[] } = {};
+        allTranslations.forEach(t => {
+          if (!translationsByUrl[t.chapterUrl]) {
+            translationsByUrl[t.chapterUrl] = [];
+          }
+          translationsByUrl[t.chapterUrl].push(t);
+        });
+        
+        // For each URL, keep only the oldest translation (version 1)
+        for (const [url, translations] of Object.entries(translationsByUrl)) {
+          if (translations.length <= 1) continue;
+          
+          console.log(`[Cleanup] ${url}: Found ${translations.length} versions, cleaning up duplicates`);
+          
+          // Sort by creation date (oldest first)
+          translations.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          
+          // Keep the first (oldest) one, delete the rest
+          const toKeep = translations[0];
+          const toDelete = translations.slice(1);
+          
+          console.log(`[Cleanup] ${url}: Keeping version ${toKeep.version} (${toKeep.createdAt})`);
+          console.log(`[Cleanup] ${url}: Deleting ${toDelete.length} duplicate versions`);
+          
+          // Delete duplicates
+          for (const duplicate of toDelete) {
+            const deleteTransaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
+            const deleteStore = deleteTransaction.objectStore(STORES.TRANSLATIONS);
+            deleteStore.delete(duplicate.id);
+            console.log(`[Cleanup] ${url}: Deleted version ${duplicate.version} (${duplicate.id})`);
+          }
+        }
+        
+        console.log('[Cleanup] Duplicate cleanup completed');
+        resolve();
+      };
+      
+      getAllRequest.onerror = () => reject(getAllRequest.error);
+    });
+  } catch (error) {
+    console.error('[Cleanup] Failed to cleanup duplicates:', error);
+    throw error;
+  }
+}
+
+export async function migrateFromLocalStorage(): Promise<void> {
+  const timestamp = new Date().toISOString();
+  console.log(`[Migration ${timestamp}] Starting localStorage to IndexedDB migration`);
+  
+  // Check if migration is already in progress
+  if (migrationInProgress) {
+    console.log('[Migration] Migration already in progress, skipping');
+    return;
+  }
+  
+  try {
+    // Set migration mutex
+    migrationInProgress = true;
+    console.log('[Migration] 🔒 Migration mutex acquired');
+    
+    // Set flag IMMEDIATELY to prevent race conditions
+    localStorage.setItem('indexeddb-migration-completed', 'true');
+    console.log('[Migration] 🔒 Migration flag set immediately to prevent duplicates');
+    
+    // Check if we actually need to migrate
     const sessionDataStr = localStorage.getItem('novel-translator-storage-v2');
     if (!sessionDataStr) {
       console.log('[Migration] No localStorage data found to migrate');
       return;
     }
     
+    // Check if IndexedDB already has data
+    const db = indexedDBService.db;
+    if (db) {
+      const chapterCount = await new Promise<number>((resolve, reject) => {
+        const transaction = db.transaction([STORES.CHAPTERS], 'readonly');
+        const store = transaction.objectStore(STORES.CHAPTERS);
+        const countRequest = store.count();
+        
+        countRequest.onsuccess = () => resolve(countRequest.result);
+        countRequest.onerror = () => reject(countRequest.error);
+      });
+      
+      if (chapterCount > 0) {
+        console.log(`[Migration] IndexedDB already has ${chapterCount} chapters, skipping migration`);
+        return;
+      }
+    }
+    
+    console.log('[Migration] Proceeding with migration of localStorage data');
+    
     const sessionData = JSON.parse(sessionDataStr);
     
     // Migrate chapters and translations
     if (sessionData.state?.sessionData) {
       for (const [url, data] of Object.entries(sessionData.state.sessionData) as [string, any][]) {
-        // Store chapter
-        await indexedDBService.storeChapter(data.chapter);
+        // Check if chapter already exists to avoid duplicates
+        try {
+          const existingChapter = await indexedDBService.getChapter(url);
+          if (!existingChapter) {
+            // Store chapter only if it doesn't exist
+            await indexedDBService.storeChapter(data.chapter);
+          }
+        } catch (error) {
+          // Chapter doesn't exist, store it
+          await indexedDBService.storeChapter(data.chapter);
+        }
         
-        // Store translation if it exists
+        // Store translation if it exists and no versions exist yet
         if (data.translationResult) {
-          // We need to reconstruct the translation settings from somewhere
-          const settings = sessionData.state.settings || {};
-          await indexedDBService.storeTranslation(url, data.translationResult, {
-            provider: settings.provider || 'Gemini',
-            model: settings.model || 'gemini-2.5-flash',
-            temperature: settings.temperature || 0.3,
-            systemPrompt: settings.systemPrompt || ''
-          });
+          const existingVersions = await indexedDBService.getTranslationVersions(url);
+          console.log(`[Migration] ${url}: Found ${existingVersions.length} existing versions`);
+          
+          if (existingVersions.length === 0) {
+            console.log(`[Migration] ${url}: No versions exist, migrating translation`);
+            const settings = sessionData.state.settings || {};
+            await indexedDBService.storeTranslation(url, data.translationResult, {
+              provider: settings.provider || 'Gemini',
+              model: settings.model || 'gemini-2.5-flash',
+              temperature: settings.temperature || 0.3,
+              systemPrompt: settings.systemPrompt || ''
+            });
+            console.log(`[Migration] ${url}: Translation migrated successfully`);
+          } else {
+            console.log(`[Migration] ${url}: Skipping translation migration - ${existingVersions.length} versions already exist`);
+            existingVersions.forEach((v, i) => {
+              console.log(`[Migration] ${url}: Version ${v.version} - ${v.provider} ${v.model} - ${v.createdAt}`);
+            });
+          }
+        } else {
+          console.log(`[Migration] ${url}: No translation result to migrate`);
         }
       }
     }
@@ -602,11 +748,18 @@ export async function migrateFromLocalStorage(): Promise<void> {
     
     console.log('[Migration] Successfully migrated localStorage data to IndexedDB');
     
+    // Mark migration as completed
+    localStorage.setItem('indexeddb-migration-completed', 'true');
+    
     // Optionally clear localStorage after successful migration
     // localStorage.removeItem('novel-translator-storage-v2');
     
   } catch (error) {
     console.error('[Migration] Failed to migrate localStorage data:', error);
     throw error;
+  } finally {
+    // Always release the migration mutex
+    migrationInProgress = false;
+    console.log('[Migration] 🔓 Migration mutex released');
   }
 }

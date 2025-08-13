@@ -6,12 +6,14 @@ import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';
 import SettingsModal from './components/SettingsModal';
 import { useShallow } from 'zustand/react/shallow';
+import { Analytics } from '@vercel/analytics/react';
 
 const App: React.FC = () => {
     // Select state and actions needed for orchestration and conditional rendering
     const { 
       currentUrl, sessionData, showEnglish, isLoading, settings,
-      handleTranslate, handleFetch, amendmentProposal, acceptProposal, rejectProposal, showSettingsModal, setShowSettingsModal
+      handleTranslate, handleFetch, amendmentProposal, acceptProposal, rejectProposal, showSettingsModal, setShowSettingsModal,
+      initializeIndexedDB
     } = useAppStore(useShallow(state => ({
         currentUrl: state.currentUrl,
         sessionData: state.sessionData,
@@ -25,7 +27,13 @@ const App: React.FC = () => {
         rejectProposal: state.rejectProposal,
         showSettingsModal: state.showSettingsModal,
         setShowSettingsModal: state.setShowSettingsModal,
+        initializeIndexedDB: state.initializeIndexedDB,
     })));
+
+    // Initialize IndexedDB on app start
+    useEffect(() => {
+        initializeIndexedDB();
+    }, [initializeIndexedDB]);
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
@@ -94,6 +102,7 @@ const App: React.FC = () => {
                     />
                 )}
             </main>
+            <Analytics />
         </div>
     );
 };

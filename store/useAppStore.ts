@@ -5,10 +5,13 @@ import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSetting
 import { INITIAL_SYSTEM_PROMPT } from '../constants';
 import { translateChapter } from '../services/aiService';
 import { fetchAndParseUrl } from '../services/adapters';
+import { indexedDBService, TranslationRecord, migrateFromLocalStorage } from '../services/indexeddb';
 
 export interface SessionChapterData {
   chapter: Chapter;
   translationResult: TranslationResult | null;
+  availableVersions?: TranslationRecord[]; // All available translation versions
+  activeVersion?: number; // Currently selected version number
 }
 
 const defaultSettings: AppSettings = {
@@ -34,7 +37,8 @@ interface AppState {
     currentUrl: string | null;
     urlHistory: string[];
     showEnglish: boolean;
-    feedbackHistory: { [key: string]: FeedbackItem[] };
+    feedbackHistory: { [key: string]: FeedbackItem[] }; // Legacy: URL -> feedback[]
+    versionFeedback: { [url: string]: { [versionId: string]: FeedbackItem[] } }; // New: URL -> version -> feedback[]
     settings: AppSettings;
     proxyScores: Record<string, number>;
     isDirty: boolean;
@@ -66,12 +70,17 @@ interface AppActions {
     isUrlTranslating: (url: string) => boolean;
     hasTranslationSettingsChanged: (url: string) => boolean;
     shouldEnableRetranslation: (url: string) => boolean;
+    // Version management
+    loadTranslationVersions: (url: string) => Promise<void>;
+    switchTranslationVersion: (url: string, version: number) => Promise<void>;
+    deleteTranslationVersion: (url: string, version: number) => Promise<void>;
+    initializeIndexedDB: () => Promise<void>;
 }
 
 type Store = AppState & AppActions;
 
 // Define the keys we want to persist (activeTranslations and urlLoadingStates are runtime-only)
-const PERSIST_KEYS = ['sessionData', 'currentUrl', 'urlHistory', 'showEnglish', 'feedbackHistory', 'settings', 'proxyScores'] as const;
+const PERSIST_KEYS = ['sessionData', 'currentUrl', 'urlHistory', 'showEnglish', 'feedbackHistory', 'versionFeedback', 'settings', 'proxyScores'] as const;
 type PersistedState = Pick<Store, typeof PERSIST_KEYS[number]>;
 
 const persistOptions: PersistOptions<Store, PersistedState> = {
@@ -96,7 +105,8 @@ const useAppStore = create<Store>()(
             currentUrl: null,
             urlHistory: [],
             showEnglish: false,
-            feedbackHistory: {},
+            feedbackHistory: {}, // Legacy feedback storage
+            versionFeedback: {}, // New version-specific feedback storage
             settings: defaultSettings,
             proxyScores: {},
             isDirty: false,
@@ -139,6 +149,14 @@ const useAppStore = create<Store>()(
                     const chapterData = await fetchAndParseUrl(fetchUrl, proxyScores, updateProxyScore);
                     if (!isSilent) console.log('Fetch successful. New chapter data:', chapterData);
                     
+                    // Store chapter in IndexedDB
+                    try {
+                        await indexedDBService.storeChapter(chapterData);
+                        console.log(`[IndexedDB] Chapter stored: ${fetchUrl}`);
+                    } catch (error) {
+                        console.error('[IndexedDB] Failed to store chapter:', error);
+                    }
+                    
                     set(state => ({
                         sessionData: {
                             ...state.sessionData,
@@ -146,6 +164,15 @@ const useAppStore = create<Store>()(
                         },
                         urlHistory: state.urlHistory.includes(fetchUrl) ? state.urlHistory : [...state.urlHistory, fetchUrl]
                     }));
+
+                    // Load existing translation versions for this chapter
+                    if (!isSilent) {
+                        try {
+                            await get().loadTranslationVersions(fetchUrl);
+                        } catch (error) {
+                            console.error('[Versions] Failed to load versions during fetch:', error);
+                        }
+                    }
 
                     console.groupEnd();
                     return chapterData;
@@ -229,6 +256,61 @@ const useAppStore = create<Store>()(
                     if (abortController.signal.aborted) {
                         console.log(`[Translation] Translation for ${urlToTranslate} was cancelled`);
                         return;
+                    }
+
+                    // Store translation as new version in IndexedDB
+                    try {
+                        // Check version limit before storing
+                        const existingVersions = await indexedDBService.getTranslationVersions(urlToTranslate);
+                        const MAX_VERSIONS = 9;
+                        
+                        if (existingVersions.length >= MAX_VERSIONS) {
+                            // Prompt user to delete a version
+                            const versionList = existingVersions
+                                .sort((a, b) => b.version - a.version) // Latest first
+                                .map(v => `v${v.version} (${v.provider} ${v.model}) - ${new Date(v.createdAt).toLocaleDateString()}`)
+                                .join('\n');
+                            
+                            const userChoice = confirm(
+                                `You have reached the maximum of ${MAX_VERSIONS} translation versions for this chapter.\n\n` +
+                                `Current versions:\n${versionList}\n\n` +
+                                `Would you like to delete the oldest version to make room for the new translation?\n\n` +
+                                `Click OK to delete oldest, or Cancel to keep current versions (new translation will not be saved).`
+                            );
+                            
+                            if (userChoice) {
+                                // Delete the oldest version
+                                const oldestVersion = existingVersions.sort((a, b) => a.version - b.version)[0];
+                                await indexedDBService.deleteTranslationVersion(oldestVersion.id);
+                                console.log(`[Translation] Deleted oldest version ${oldestVersion.version} to make room`);
+                            } else {
+                                console.log('[Translation] User cancelled - not storing new version');
+                                // Still update in-memory but don't store in IndexedDB
+                                set(state => ({
+                                    sessionData: {
+                                        ...state.sessionData,
+                                        [urlToTranslate]: { ...state.sessionData[urlToTranslate], translationResult: result },
+                                    },
+                                    amendmentProposal: (result.proposal && !isSilent) ? result.proposal : state.amendmentProposal,
+                                }));
+                                return;
+                            }
+                        }
+                        
+                        await indexedDBService.storeTranslation(urlToTranslate, result, {
+                            provider: settings.provider,
+                            model: settings.model,
+                            temperature: settings.temperature,
+                            systemPrompt: settings.systemPrompt
+                        });
+                        
+                        // Reload versions to update UI
+                        await get().loadTranslationVersions(urlToTranslate);
+                        
+                        console.log(`[Translation] Stored new version for ${urlToTranslate}`);
+                    } catch (error) {
+                        console.error('[Translation] Failed to store in IndexedDB:', error);
+                        // Fallback to in-memory storage
                     }
 
                     set(state => ({
@@ -321,39 +403,89 @@ const useAppStore = create<Store>()(
             handleToggleLanguage: (show: boolean) => set({ showEnglish: show, isDirty: false }),
 
             addFeedback: (feedback: Omit<FeedbackItem, 'id'>) => {
-                const { currentUrl } = get();
+                const { currentUrl, sessionData } = get();
                 if (!currentUrl) return;
+                
+                const activeVersion = sessionData[currentUrl]?.activeVersion;
+                if (!activeVersion) {
+                    console.warn('[Feedback] No active version found for feedback');
+                    return;
+                }
+                
                 const newFeedback: FeedbackItem = { ...feedback, id: new Date().toISOString() };
+                const versionKey = activeVersion.toString();
+                
                 set(state => ({
+                    // Keep legacy feedbackHistory for backward compatibility during transition
                     feedbackHistory: {
                         ...state.feedbackHistory,
                         [currentUrl]: [...(state.feedbackHistory[currentUrl] ?? []), newFeedback],
+                    },
+                    // Add to version-specific feedback
+                    versionFeedback: {
+                        ...state.versionFeedback,
+                        [currentUrl]: {
+                            ...state.versionFeedback[currentUrl],
+                            [versionKey]: [...(state.versionFeedback[currentUrl]?.[versionKey] ?? []), newFeedback],
+                        }
                     },
                     isDirty: true
                 }));
             },
 
             deleteFeedback: (feedbackId: string) => {
-                const { currentUrl } = get();
+                const { currentUrl, sessionData } = get();
                 if (!currentUrl) return;
+                
+                const activeVersion = sessionData[currentUrl]?.activeVersion;
+                if (!activeVersion) return;
+                
+                const versionKey = activeVersion.toString();
+                
                 set(state => ({
+                    // Update legacy feedback
                     feedbackHistory: {
                         ...state.feedbackHistory,
                         [currentUrl]: (state.feedbackHistory[currentUrl] || []).filter(f => f.id !== feedbackId),
+                    },
+                    // Update version-specific feedback
+                    versionFeedback: {
+                        ...state.versionFeedback,
+                        [currentUrl]: {
+                            ...state.versionFeedback[currentUrl],
+                            [versionKey]: (state.versionFeedback[currentUrl]?.[versionKey] || []).filter(f => f.id !== feedbackId),
+                        }
                     },
                     isDirty: true
                 }));
             },
 
             updateFeedbackComment: (feedbackId: string, comment: string) => {
-                const { currentUrl } = get();
+                const { currentUrl, sessionData } = get();
                 if (!currentUrl) return;
+                
+                const activeVersion = sessionData[currentUrl]?.activeVersion;
+                if (!activeVersion) return;
+                
+                const versionKey = activeVersion.toString();
+                
                 set(state => ({
+                    // Update legacy feedback
                     feedbackHistory: {
                         ...state.feedbackHistory,
                         [currentUrl]: (state.feedbackHistory[currentUrl] || []).map(f =>
                             f.id === feedbackId ? { ...f, comment } : f
                         ),
+                    },
+                    // Update version-specific feedback
+                    versionFeedback: {
+                        ...state.versionFeedback,
+                        [currentUrl]: {
+                            ...state.versionFeedback[currentUrl],
+                            [versionKey]: (state.versionFeedback[currentUrl]?.[versionKey] || []).map(f =>
+                                f.id === feedbackId ? { ...f, comment } : f
+                            ),
+                        }
                     },
                     isDirty: true
                 }));
@@ -467,6 +599,7 @@ const useAppStore = create<Store>()(
                     urlHistory: [],
                     showEnglish: false,
                     feedbackHistory: {},
+                    versionFeedback: {},
                     settings: defaultSettings,
                     proxyScores: {},
                     error: null,
@@ -597,10 +730,15 @@ const useAppStore = create<Store>()(
             },
 
             hasTranslationSettingsChanged: (url: string) => {
-                const { settings, lastTranslationSettings } = get();
+                const { settings, lastTranslationSettings, sessionData } = get();
                 const lastSettings = lastTranslationSettings[url];
+                const hasTranslation = !!sessionData[url]?.translationResult;
                 
-                if (!lastSettings) return false; // No previous translation
+                // If there's a translation but no recorded last settings, assume settings changed
+                if (!lastSettings && hasTranslation) return true;
+                
+                // If no last settings and no translation, no change
+                if (!lastSettings) return false;
                 
                 return (
                     lastSettings.provider !== settings.provider ||
@@ -616,6 +754,106 @@ const useAppStore = create<Store>()(
                 const isTranslating = get().isUrlTranslating(url);
                 
                 return translationExists && !isTranslating && (isDirty || settingsChanged);
+            },
+
+            // Version management methods
+            initializeIndexedDB: async () => {
+                try {
+                    await indexedDBService.init();
+                    console.log('[IndexedDB] Initialized successfully');
+                    
+                    // Try to migrate from localStorage
+                    try {
+                        await migrateFromLocalStorage();
+                        console.log('[Migration] Successfully migrated from localStorage');
+                    } catch (error) {
+                        console.log('[Migration] No localStorage data to migrate or migration failed:', error);
+                    }
+                } catch (error) {
+                    console.error('[IndexedDB] Initialization failed:', error);
+                }
+            },
+
+            loadTranslationVersions: async (url: string) => {
+                try {
+                    const versions = await indexedDBService.getTranslationVersions(url);
+                    const activeTranslation = await indexedDBService.getActiveTranslation(url);
+                    
+                    set(state => ({
+                        sessionData: {
+                            ...state.sessionData,
+                            [url]: {
+                                ...state.sessionData[url],
+                                availableVersions: versions,
+                                activeVersion: activeTranslation?.version
+                            }
+                        }
+                    }));
+                    
+                    console.log(`[Versions] Loaded ${versions.length} versions for ${url}`);
+                } catch (error) {
+                    console.error('[Versions] Failed to load versions:', error);
+                }
+            },
+
+            switchTranslationVersion: async (url: string, version: number) => {
+                try {
+                    await indexedDBService.setActiveTranslation(url, version);
+                    const activeTranslation = await indexedDBService.getActiveTranslation(url);
+                    
+                    if (activeTranslation) {
+                        // Convert IndexedDB record back to TranslationResult format
+                        const translationResult: TranslationResult = {
+                            translatedTitle: activeTranslation.translatedTitle,
+                            translation: activeTranslation.translation,
+                            footnotes: activeTranslation.footnotes,
+                            suggestedIllustrations: activeTranslation.suggestedIllustrations,
+                            usageMetrics: {
+                                totalTokens: activeTranslation.totalTokens,
+                                promptTokens: activeTranslation.promptTokens,
+                                completionTokens: activeTranslation.completionTokens,
+                                estimatedCost: activeTranslation.estimatedCost,
+                                requestTime: activeTranslation.requestTime,
+                                provider: activeTranslation.provider,
+                                model: activeTranslation.model
+                            },
+                            proposal: activeTranslation.proposal
+                        };
+                        
+                        set(state => ({
+                            sessionData: {
+                                ...state.sessionData,
+                                [url]: {
+                                    ...state.sessionData[url],
+                                    translationResult,
+                                    activeVersion: version
+                                }
+                            }
+                        }));
+                        
+                        console.log(`[Versions] Switched to version ${version} for ${url}`);
+                    }
+                } catch (error) {
+                    console.error('[Versions] Failed to switch version:', error);
+                }
+            },
+
+            deleteTranslationVersion: async (url: string, version: number) => {
+                try {
+                    const versions = await indexedDBService.getTranslationVersions(url);
+                    const versionToDelete = versions.find(v => v.version === version);
+                    
+                    if (versionToDelete) {
+                        await indexedDBService.deleteTranslationVersion(versionToDelete.id);
+                        
+                        // Reload versions
+                        await get().loadTranslationVersions(url);
+                        
+                        console.log(`[Versions] Deleted version ${version} for ${url}`);
+                    }
+                } catch (error) {
+                    console.error('[Versions] Failed to delete version:', error);
+                }
             },
         }),
         persistOptions

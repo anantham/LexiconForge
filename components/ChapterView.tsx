@@ -1,5 +1,5 @@
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { FeedbackItem, Footnote, UsageMetrics } from '../types';
 import Loader from './Loader';
 import { useTextSelection } from '../hooks/useTextSelection';
@@ -14,6 +14,7 @@ const ChapterView: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<HTMLDivElement>(null);
   const { selection, clearSelection } = useTextSelection(contentRef);
+  const [showAllVersionFeedback, setShowAllVersionFeedback] = useState(false);
   
   const {
     currentUrl,
@@ -22,6 +23,7 @@ const ChapterView: React.FC = () => {
     showEnglish,
     settings,
     feedbackHistory,
+    versionFeedback,
     isDirty,
     handleToggleLanguage,
     handleNavigate,
@@ -31,7 +33,10 @@ const ChapterView: React.FC = () => {
     handleRetranslateCurrent,
     isUrlTranslating,
     shouldEnableRetranslation,
-    hasTranslationSettingsChanged
+    hasTranslationSettingsChanged,
+    switchTranslationVersion,
+    deleteTranslationVersion,
+    loadTranslationVersions
   } = useAppStore(useShallow(state => ({
     currentUrl: state.currentUrl,
     sessionData: state.sessionData,
@@ -39,6 +44,7 @@ const ChapterView: React.FC = () => {
     showEnglish: state.showEnglish,
     settings: state.settings,
     feedbackHistory: state.feedbackHistory,
+    versionFeedback: state.versionFeedback,
     isDirty: state.isDirty,
     handleToggleLanguage: state.handleToggleLanguage,
     handleNavigate: state.handleNavigate,
@@ -49,15 +55,105 @@ const ChapterView: React.FC = () => {
     isUrlTranslating: state.isUrlTranslating,
     shouldEnableRetranslation: state.shouldEnableRetranslation,
     hasTranslationSettingsChanged: state.hasTranslationSettingsChanged,
+    switchTranslationVersion: state.switchTranslationVersion,
+    deleteTranslationVersion: state.deleteTranslationVersion,
+    loadTranslationVersions: state.loadTranslationVersions,
   })));
   
   const chapter = currentUrl ? sessionData[currentUrl]?.chapter : null;
   const translationResult = currentUrl ? sessionData[currentUrl]?.translationResult : null;
-  const feedbackForChapter = (currentUrl && feedbackHistory[currentUrl]) ? feedbackHistory[currentUrl] : [];
+  const availableVersions = currentUrl ? sessionData[currentUrl]?.availableVersions || [] : [];
+  const activeVersion = currentUrl ? sessionData[currentUrl]?.activeVersion : null;
+  
+  // Get version-specific feedback or all feedback based on toggle
+  const feedbackForChapter = useMemo(() => {
+    if (!currentUrl) return [];
+    
+    if (showAllVersionFeedback) {
+      // Show all feedback from all versions
+      const allFeedback: FeedbackItem[] = [];
+      
+      // Add legacy feedback
+      if (feedbackHistory[currentUrl]) {
+        allFeedback.push(...feedbackHistory[currentUrl]);
+      }
+      
+      // Add version-specific feedback
+      const urlVersions = versionFeedback[currentUrl];
+      if (urlVersions) {
+        Object.values(urlVersions).forEach(versionFeedbackList => {
+          allFeedback.push(...versionFeedbackList);
+        });
+      }
+      
+      // Remove duplicates based on ID (in case legacy and version feedback overlap)
+      const uniqueFeedback = allFeedback.filter((feedback, index, array) => 
+        array.findIndex(f => f.id === feedback.id) === index
+      );
+      
+      return uniqueFeedback;
+    }
+    
+    // Show only current version feedback
+    if (!activeVersion) return [];
+    
+    const versionKey = activeVersion.toString();
+    const versionSpecificFeedback = versionFeedback[currentUrl]?.[versionKey];
+    if (versionSpecificFeedback) {
+      return versionSpecificFeedback;
+    }
+    
+    // Fallback to legacy feedback if no version-specific feedback exists
+    return feedbackHistory[currentUrl] || [];
+  }, [currentUrl, activeVersion, versionFeedback, feedbackHistory, showAllVersionFeedback]);
 
   const handleFeedbackSubmit = (feedback: Omit<FeedbackItem, 'id'>) => {
     addFeedback(feedback);
     clearSelection();
+  };
+
+  const handleScrollToText = (selectedText: string) => {
+    if (!contentRef.current) return;
+    
+    // Find the text in the content
+    const walker = document.createTreeWalker(
+      contentRef.current,
+      NodeFilter.SHOW_TEXT,
+      null,
+    );
+    
+    let node;
+    while (node = walker.nextNode()) {
+      const textContent = node.textContent || '';
+      const index = textContent.indexOf(selectedText);
+      if (index !== -1) {
+        // Found the text, get the parent element to scroll to
+        const parentElement = node.parentElement;
+        if (parentElement) {
+          parentElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+          
+          // Highlight the text temporarily
+          const range = document.createRange();
+          range.setStart(node, index);
+          range.setEnd(node, index + selectedText.length);
+          
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+          
+          // Clear selection after 2 seconds
+          setTimeout(() => {
+            selection?.removeAllRanges();
+          }, 2000);
+          
+          break;
+        }
+      }
+    }
   };
 
   const displayTitle = useMemo(() => {
@@ -181,6 +277,109 @@ const ChapterView: React.FC = () => {
     }
   };
 
+  // Helper function to get model abbreviation (provider + model specific)
+  const getModelAbbreviation = (provider: string, model: string) => {
+    // Gemini models
+    if (provider === 'Gemini') {
+      switch (model) {
+        case 'gemini-2.5-pro': return 'GM25Pro';
+        case 'gemini-2.5-flash': return 'GM25Flash';
+        case 'gemini-2.5-flash-lite': return 'GM25Lite';
+        default: return 'GM' + model.replace('gemini-', '').replace('.', '').replace('-', '');
+      }
+    }
+    
+    // OpenAI models
+    if (provider === 'OpenAI') {
+      switch (model) {
+        case 'gpt-5': return 'G5';
+        case 'gpt-5-mini': return 'G5Mini';
+        case 'gpt-5-nano': return 'G5Nano';
+        case 'gpt-5-chat-latest': return 'G5Chat';
+        case 'gpt-4.1': return 'G41';
+        case 'gpt-4.1-mini': return 'G41Mini';
+        case 'gpt-4.1-nano': return 'G41Nano';
+        case 'gpt-4o': return 'G4o';
+        case 'gpt-4o-mini': return 'G4oMini';
+        default: 
+          // Handle date suffixes like gpt-5-2025-01-12
+          const baseModel = model.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+          return getModelAbbreviation(provider, baseModel);
+      }
+    }
+    
+    // DeepSeek models
+    if (provider === 'DeepSeek') {
+      switch (model) {
+        case 'deepseek-chat': return 'DSChat';
+        case 'deepseek-reasoner': return 'DSR1';
+        case 'deepseek-coder': return 'DSCode';
+        default: return 'DS' + model.replace('deepseek-', '').replace('-', '');
+      }
+    }
+    
+    // Claude models (future support)
+    if (provider === 'Claude') {
+      return 'C' + model.replace('claude-', '').replace('.', '').replace('-', '');
+    }
+    
+    // Fallback for unknown providers/models
+    const providerAbbrev = provider.substring(0, 2).toUpperCase();
+    const modelAbbrev = model.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6);
+    return providerAbbrev + modelAbbrev;
+  };
+
+  // Helper function to format timestamp
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
+
+  // Version dropdown component
+  const VersionDropdown = () => {
+    if (!currentUrl || !showEnglish || availableVersions.length <= 1) return null;
+
+    return (
+      <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Translation Versions:</span>
+          <select
+            value={activeVersion || ''}
+            onChange={(e) => {
+              const version = parseInt(e.target.value);
+              if (version && currentUrl) {
+                switchTranslationVersion(currentUrl, version);
+              }
+            }}
+            className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
+          >
+            {availableVersions.map((version) => (
+              <option key={version.id} value={version.version}>
+                v{version.version} - {formatTimestamp(version.createdAt)} - {getModelAbbreviation(version.provider, version.model)} - T={version.temperature}
+              </option>
+            ))}
+          </select>
+        </div>
+        {availableVersions.length > 1 && (
+          <button
+            onClick={() => {
+              if (activeVersion && currentUrl && availableVersions.length > 1) {
+                if (confirm(`Delete version ${activeVersion}? This cannot be undone.`)) {
+                  deleteTranslationVersion(currentUrl, activeVersion);
+                }
+              }
+            }}
+            disabled={availableVersions.length <= 1}
+            className="ml-3 px-3 py-2 text-xs bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded hover:bg-red-200 dark:hover:bg-red-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            title="Delete current version"
+          >
+            🗑️ Delete
+          </button>
+        )}
+      </div>
+    );
+  };
+
   const NavigationControls = () => chapter && (
     <div className="flex justify-between items-center w-full">
         <button
@@ -269,6 +468,9 @@ const ChapterView: React.FC = () => {
           {showEnglish && translationResult?.usageMetrics && (
             <MetricsDisplay metrics={translationResult.usageMetrics} />
           )}
+          
+          {/* Version Management Section */}
+          {showEnglish && <VersionDropdown />}
         </header>
       )}
 
@@ -276,11 +478,32 @@ const ChapterView: React.FC = () => {
         {renderContent()}
         {showEnglish && renderFootnotes(translationResult?.footnotes)}
         {showEnglish && feedbackForChapter.length > 0 && (
-            <FeedbackDisplay 
-                feedback={feedbackForChapter}
-                onDelete={deleteFeedback}
-                onUpdate={updateFeedbackComment}
-            />
+            <div className="mt-8">
+              {/* Feedback Toggle */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                  Reader Feedback
+                </h3>
+                <button
+                  onClick={() => setShowAllVersionFeedback(!showAllVersionFeedback)}
+                  className={`px-3 py-1 text-sm rounded transition-colors ${
+                    showAllVersionFeedback
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                  } hover:bg-blue-50 dark:hover:bg-blue-900/20`}
+                  title={showAllVersionFeedback ? 'Show only current version feedback' : 'Show feedback from all versions'}
+                >
+                  {showAllVersionFeedback ? 'Current Version Only' : 'All Versions'}
+                </button>
+              </div>
+              
+              <FeedbackDisplay 
+                  feedback={feedbackForChapter}
+                  onDelete={deleteFeedback}
+                  onUpdate={updateFeedbackComment}
+                  onScrollToText={handleScrollToText}
+              />
+            </div>
         )}
       </div>
 

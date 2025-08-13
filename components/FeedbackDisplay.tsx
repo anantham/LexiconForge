@@ -8,9 +8,10 @@ interface FeedbackDisplayProps {
     feedback: FeedbackItem[];
     onDelete: (feedbackId: string) => void;
     onUpdate: (feedbackId: string, comment: string) => void;
+    onScrollToText?: (selectedText: string) => void;
 }
 
-const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ feedback, onDelete, onUpdate }) => {
+const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ feedback, onDelete, onUpdate, onScrollToText }) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [commentText, setCommentText] = useState('');
 
@@ -61,7 +62,14 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ feedback, onDelete, o
                             <div className="flex justify-between items-start gap-4">
                                 <div className="flex-grow">
                                     <p className="font-semibold text-gray-800 dark:text-gray-200">
-                                        <span className="text-2xl mr-2">{item.type}</span> on: "{item.selection}"
+                                        <span className="text-2xl mr-2">{item.type}</span> on: "
+                                        <button
+                                            onClick={() => onScrollToText?.(item.selection)}
+                                            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors"
+                                            title="Click to scroll to this text in the chapter"
+                                        >
+                                            {item.selection}
+                                        </button>"
                                     </p>
                                     {item.comment && (
                                         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 italic pl-8">
