@@ -10,7 +10,8 @@ export default defineConfig(({ mode }) => {
         // All provider API keys for Vercel deployment
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
-        'process.env.DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY)
+        'process.env.DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
+        'process.env.CLAUDE_API_KEY': JSON.stringify(env.CLAUDE_API_KEY)
       },
       resolve: {
         alias: {
@@ -22,6 +23,9 @@ export default defineConfig(({ mode }) => {
         sourcemap: false,
         minify: 'terser',
         chunkSizeWarningLimit: 1000
+      },
+      optimizeDeps: {
+        include: ['epub-gen']
       }
     };
 });

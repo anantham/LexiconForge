@@ -145,8 +145,7 @@ If there is no proposal, use null for proposal.`;
         }
 
         // Since we prefilled with '{"translatedTitle":', we need to complete the JSON
-        const completeJsonText = '{
-  "translatedTitle": "' + responseContent.text;
+        const completeJsonText = '{"translatedTitle": "' + responseContent.text;
         
         try {
             const parsedJson = JSON.parse(completeJsonText);

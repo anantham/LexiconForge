@@ -7,6 +7,7 @@ import { translateChapter, validateApiKey } from '../services/aiService';
 import { generateImage } from '../services/imageService';
 import { fetchAndParseUrl } from '../services/adapters';
 import { indexedDBService, TranslationRecord, PromptTemplateRecord, migrateFromLocalStorage } from '../services/indexeddb';
+import { collectActiveVersions, generateEpub, EpubExportOptions } from '../services/epubService';
 
 export interface SessionChapterData {
   chapter: Chapter;
@@ -72,6 +73,7 @@ interface AppActions {
     clearSession: () => void;
     importSession: (event: React.ChangeEvent<HTMLInputElement>) => void;
     exportSession: () => void;
+    exportEpub: () => Promise<void>;
     cancelActiveTranslations: () => void;
     isUrlTranslating: (url: string) => boolean;
     hasTranslationSettingsChanged: (url: string) => boolean;
@@ -724,6 +726,41 @@ const useAppStore = create<Store>()(
                 const timestamp = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}-${now.getSeconds().toString().padStart(2, '0')}`;
                 link.download = `novel-translator-session_${timestamp}_${Object.keys(sessionData).length}-chapters.json`;
                 link.click();
+            },
+
+            exportEpub: async () => {
+                const { sessionData, settings, urlHistory } = get();
+                if (Object.keys(sessionData).length === 0) {
+                    throw new Error('No chapters available for EPUB export');
+                }
+
+                console.log('[EPUB Export] Starting EPUB generation...');
+
+                // Collect chapters with active versions (last viewed translations)
+                const chapters = collectActiveVersions(sessionData, urlHistory);
+                
+                if (chapters.length === 0) {
+                    throw new Error('No translated chapters available for EPUB export');
+                }
+
+                console.log(`[EPUB Export] Collected ${chapters.length} chapters for EPUB`);
+
+                // Determine book title from first chapter or use fallback
+                const firstChapter = chapters[0];
+                const bookTitle = firstChapter.translatedTitle || firstChapter.title || 'Translated Novel';
+
+                const epubOptions: EpubExportOptions = {
+                    title: bookTitle,
+                    author: 'AI Translation',
+                    description: `AI-translated novel containing ${chapters.length} chapters. Translated using ${settings.provider} ${settings.model}.`,
+                    chapters,
+                    settings
+                };
+
+                // Generate and download EPUB
+                await generateEpub(epubOptions);
+                
+                console.log('[EPUB Export] EPUB generation completed successfully');
             },
             
             importSession: (event: React.ChangeEvent<HTMLInputElement>) => {

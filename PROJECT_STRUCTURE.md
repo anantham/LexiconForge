@@ -19,7 +19,7 @@ LexiconForge/
 
 ### **package.json**
 - **Role**: Dependency management and script definitions
-- **Key Dependencies**: React 19, Zustand 5.0.7, Gemini/OpenAI SDKs, TypeScript, Vite
+- **Key Dependencies**: React 19, Zustand 5.0.7, Gemini/OpenAI/Claude SDKs, TypeScript, Vite, epub-gen
 - **Scripts**: Development server, build, and preview commands
 
 ### **package-lock.json**
@@ -95,6 +95,8 @@ LexiconForge/
   - Translation progress
   - Cost tracking display
   - Session statistics
+  - Export format selection (JSON/EPUB)
+  - Professional export modal interface
 
 ### **Settings & Configuration**
 
@@ -208,21 +210,39 @@ LexiconForge/
   - Navigation link detection
   - Error handling and retry logic
 
+### **services/epubService.ts**
+- **Role**: Professional EPUB generation with comprehensive statistics
+- **Key Features**:
+  - **Statistics Aggregation**: Total cost, time, tokens across all chapters
+  - **Provider/Model Breakdown**: Detailed usage analytics by AI provider and model
+  - **Table of Contents**: Professional chapter listing with translation metadata
+  - **Customizable Templates**: User-configurable gratitude messages and project info
+  - **Image Integration**: Embedded AI-generated illustrations with proper formatting
+  - **Professional Styling**: Enhanced CSS with typography, tables, and gradient designs
+- **Functions**:
+  - `collectActiveVersions()`: Gathers chapters with usage metrics
+  - `calculateTranslationStats()`: Aggregates comprehensive statistics
+  - `generateEpub()`: Creates professional EPUB with all features
+  - `getDefaultTemplate()`: Provides customizable acknowledgment templates
+  - `createCustomTemplate()`: Easy template customization interface
+
 ## 🗄️ **State Management**
 
 ### **store/useAppStore.ts**
 - **Role**: Central Zustand store with persistence
 - **Key Sections**:
-  - **Session Data**: Chapter cache and translation results
+  - **Session Data**: Chapter cache and translation results with usage metrics
   - **Settings**: User preferences and API configurations
   - **Feedback History**: Collaborative feedback storage
   - **Loading States**: UI state management
   - **Amendment System**: Translation rule evolution
+  - **Export System**: JSON and EPUB export functionality
 - **Features**:
   - Persistent storage with selective partitioning
-  - Session import/export
+  - Dual format export (JSON/EPUB) with statistics
   - Proxy score tracking
   - Rate limiting integration
+  - Usage metrics aggregation for cost transparency
 
 ## 📊 **Data & Configuration**
 
@@ -285,4 +305,34 @@ LexiconForge/
 - **Benefits**: Easy to add new AI providers or novel sites
 - **Implementation**: Abstract base classes with concrete implementations
 
-This architecture provides a solid foundation for a production-ready collaborative translation platform with room for future enhancements and easy maintenance.
+### **Professional Export System**
+- **Pattern**: Comprehensive data aggregation with customizable templates
+- **Benefits**: Transparency in AI costs and usage, professional presentation
+- **Features**:
+  - **Cost Tracking**: Real-time aggregation of translation costs across providers
+  - **Template System**: User-customizable acknowledgments and project descriptions
+  - **Statistics Dashboard**: Visual breakdown of model usage, time, and token consumption
+  - **Professional EPUB**: Production-ready e-books with embedded images and styling
+
+## 📚 **EPUB Export Feature Details**
+
+### **What Gets Generated**
+Each exported EPUB contains:
+1. **Table of Contents** - Professional chapter listing with AI model metadata
+2. **All Translated Chapters** - With embedded AI-generated illustrations  
+3. **Translation Statistics** - Comprehensive cost and usage breakdown
+4. **Acknowledgments** - Customizable gratitude section thanking AI providers
+
+### **Customization Example**
+```typescript
+import { createCustomTemplate } from './services/epubService';
+
+const myTemplate = createCustomTemplate({
+  gratitudeMessage: 'Special thanks to the AI models that made this possible...',
+  projectDescription: 'This translation project explores...',
+  githubUrl: 'https://github.com/myusername/myproject',
+  customFooter: 'Made with ❤️ in 2025'
+});
+```
+
+This architecture provides a solid foundation for a production-ready collaborative translation platform with comprehensive export capabilities and easy maintenance.

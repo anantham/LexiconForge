@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import useAppStore from '../store/useAppStore';
 import SettingsIcon from './icons/SettingsIcon';
 import { useShallow } from 'zustand/react/shallow';
@@ -11,6 +12,7 @@ const SessionInfo: React.FC = () => {
         urlHistory, // <-- Get the urlHistory
         handleNavigate,
         exportSession,
+        exportEpub,
         setShowSettingsModal
     } = useAppStore(useShallow(state => ({
         currentUrl: state.currentUrl,
@@ -18,8 +20,12 @@ const SessionInfo: React.FC = () => {
         urlHistory: state.urlHistory, // <-- Get the urlHistory
         handleNavigate: state.handleNavigate,
         exportSession: state.exportSession,
+        exportEpub: state.exportEpub,
         setShowSettingsModal: state.setShowSettingsModal,
     })));
+    
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     
     const sortedChapters = useMemo(() => {
         const chapterMap = new Map<string, { url: string, data: SessionChapterData }>();
@@ -93,6 +99,23 @@ const SessionInfo: React.FC = () => {
         }
     }
 
+    const handleExportFormat = async (format: 'json' | 'epub') => {
+        setIsExporting(true);
+        try {
+            if (format === 'json') {
+                exportSession();
+            } else {
+                await exportEpub();
+            }
+            setShowExportModal(false);
+        } catch (error: any) {
+            console.error('[Export] Export failed:', error);
+            alert(`Export failed: ${error.message || 'Unknown error'}`);
+        } finally {
+            setIsExporting(false);
+        }
+    }
+
   return (
     <div className="w-full max-w-4xl mx-auto -mt-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-b-xl shadow-lg flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-200 dark:border-gray-700">
       <div className="flex-grow w-full sm:w-auto flex items-center gap-2">
@@ -130,13 +153,55 @@ const SessionInfo: React.FC = () => {
         >
             <SettingsIcon className="w-5 h-5"/>
         </button>
-        <button
-            onClick={exportSession}
-            disabled={sessionIsEmpty}
-            className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition duration-300 ease-in-out"
-        >
-            Export Session
-        </button>
+        <div className="relative">
+          <button
+              onClick={() => setShowExportModal(true)}
+              disabled={sessionIsEmpty || isExporting}
+              className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+          >
+              {isExporting ? 'Exporting...' : 'Export Session'}
+          </button>
+          
+          {/* Export Format Modal */}
+          {showExportModal && createPortal(
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowExportModal(false)}>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Choose Export Format</h3>
+                
+                <div className="space-y-3">
+                  <button
+                    onClick={() => handleExportFormat('json')}
+                    disabled={isExporting}
+                    className="w-full p-4 text-left border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="font-medium text-gray-900 dark:text-gray-100">JSON Format</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Export session data as JSON file for backup or sharing</div>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleExportFormat('epub')}
+                    disabled={isExporting}
+                    className="w-full p-4 text-left border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="font-medium text-gray-900 dark:text-gray-100">EPUB Format</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Generate readable e-book with active translations and images</div>
+                  </button>
+                </div>
+                
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={() => setShowExportModal(false)}
+                    disabled={isExporting}
+                    className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+        </div>
       </div>
     </div>
   );

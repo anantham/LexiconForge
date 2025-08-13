@@ -19,7 +19,8 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 *   🧠 **A Smarter AI:** The translator learns from your feedback! Use simple 👍/👎 reactions to teach the AI your preferred style for names, tones, and phrases.
 *   ✍️ **Become the Prompt Master:** Take full control by editing the AI's system prompt. Want a more formal tone? More descriptive prose? You decide.
 *   📊 **Model Showdown:** Not all AIs are created equal. Switch between 15+ different models on the fly to find the perfect translator for your specific novel.
-*   💾 **Own Your Data:** Your reading history, translations, and feedback are yours. Export your entire session to a local file at any time.
+*   📚 **Professional EPUB Export:** Generate beautiful e-books with comprehensive translation statistics, cost breakdowns, and customizable acknowledgments. Perfect for sharing or offline reading.
+*   💾 **Own Your Data:** Your reading history, translations, and feedback are yours. Export as JSON for backup or as professional EPUB for reading.
 
 ---
 
