@@ -210,10 +210,19 @@ const useAppStore = create<Store>()(
                 const apiValidation = validateApiKey(settings);
                 if (!apiValidation.isValid) {
                     console.error(`[Translation] API key validation failed: ${apiValidation.errorMessage}`);
-                    if (!isSilent) {
-                        set({ error: `Translation API error: ${apiValidation.errorMessage}` });
-                    }
-                    return; // Exit immediately, no rate limiting, no state changes
+                    
+                    // Clear any loading state for this URL since we're not actually translating
+                    set(prev => {
+                        const newUrlLoadingStates = { ...prev.urlLoadingStates };
+                        delete newUrlLoadingStates[urlToTranslate];
+                        
+                        return {
+                            ...prev,
+                            urlLoadingStates: newUrlLoadingStates,
+                            error: isSilent ? prev.error : `Translation API error: ${apiValidation.errorMessage}`
+                        };
+                    });
+                    return; // Exit immediately, no rate limiting, no further state changes
                 }
 
                 // Cancel any existing translation for this URL
