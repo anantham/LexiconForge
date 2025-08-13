@@ -8,45 +8,25 @@ const SessionInfo: React.FC = () => {
     const {
         currentUrl,
         sessionData,
+        urlHistory, // <-- Get the urlHistory
         handleNavigate,
         exportSession,
         setShowSettingsModal
     } = useAppStore(useShallow(state => ({
         currentUrl: state.currentUrl,
         sessionData: state.sessionData,
+        urlHistory: state.urlHistory, // <-- Get the urlHistory
         handleNavigate: state.handleNavigate,
         exportSession: state.exportSession,
         setShowSettingsModal: state.setShowSettingsModal,
     })));
     
-    const getChapterNumber = (title: string): number | null => {
-      if (!title) return null;
-      // This regex finds the first sequence of digits in the string.
-      const match = title.match(/\d+/);
-      return match ? parseInt(match[0], 10) : null;
-    };
-    
     const sortedChapters = useMemo(() => {
-        return Object.entries(sessionData)
-            .map(([url, data]) => ({ url, data }))
-            .sort((a, b) => {
-                const titleA = a.data.translationResult?.translatedTitle || a.data.chapter.title || '';
-                const titleB = b.data.translationResult?.translatedTitle || b.data.chapter.title || '';
-
-                const numA = getChapterNumber(titleA);
-                const numB = getChapterNumber(titleB);
-
-                if (numA !== null && numB !== null) {
-                    if (numA !== numB) return numA - numB;
-                }
-                
-                if (numA !== null) return -1; // A has a number, B does not. A comes first.
-                if (numB !== null) return 1;  // B has a number, A does not. B comes first.
-
-                // Fallback to URL sorting if no numbers are found in titles for a stable order
-                return a.url.localeCompare(b.url);
-            });
-    }, [sessionData]);
+        // Sort the chapters based on their order in the urlHistory array
+        return urlHistory
+            .map(url => ({ url, data: sessionData[url] }))
+            .filter(item => !!item.data?.chapter); // Ensure chapter data exists
+    }, [sessionData, urlHistory]);
 
     const sessionIsEmpty = sortedChapters.length === 0;
 
