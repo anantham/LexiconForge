@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AppSettings, TranslationProvider } from '../types';
 import useAppStore from '../store/useAppStore';
-import { MODELS } from '../costs';
+import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
 import { useShallow } from 'zustand/react/shallow';
 
 interface SettingsModalProps {
@@ -126,7 +126,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     setEditingPrompt(null);
   };
 
-  const availableModels = MODELS.filter(m => m.provider === currentSettings.provider);
+  const availableTextModels = AVAILABLE_MODELS[currentSettings.provider] || [];
+  const availableImageModels = AVAILABLE_IMAGE_MODELS['Gemini'] || [];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={handleCancel}>
@@ -147,7 +148,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Provider</label>
+                  <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Text Provider</label>
                   <select
                     id="provider"
                     value={currentSettings.provider}
@@ -160,18 +161,32 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Model</label>
+                  <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Text Model</label>
                   <select
                     id="model"
                     value={currentSettings.model}
                     onChange={(e) => handleSettingChange('model', e.target.value)}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   >
-                    {availableModels.map(m => (
+                    {availableTextModels.map(m => (
                       <option key={m.id} value={m.id}>{m.name}</option>
                     ))}
                   </select>
                 </div>
+              </div>
+              <div>
+                  <label htmlFor="imageModel" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Generation Model (Gemini only)</label>
+                  <select
+                    id="imageModel"
+                    value={currentSettings.imageModel}
+                    onChange={(e) => handleSettingChange('imageModel', e.target.value)}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  >
+                    {availableImageModels.map(m => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Dedicated models like Imagen can produce higher quality images. All image generation requires a Gemini API key.</p>
               </div>
               
               <div>

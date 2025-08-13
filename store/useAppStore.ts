@@ -24,6 +24,7 @@ const defaultSettings: AppSettings = {
     systemPrompt: INITIAL_SYSTEM_PROMPT,
     provider: 'Gemini',
     model: 'gemini-2.5-flash',
+    imageModel: 'gemini-1.5-flash',
     temperature: 0.3,
     apiKeyGemini: '',
     apiKeyOpenAI: '',

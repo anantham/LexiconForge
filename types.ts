@@ -107,6 +107,7 @@ export interface AppSettings {
     activePromptId?: string;       // ID of currently selected prompt template
     provider: TranslationProvider;
     model: string; // The ID of the model, e.g., 'gemini-2.5-pro'
+    imageModel: string; // The ID of the image model, e.g., 'imagen-4.0-ultra...'
     temperature: number; // 0.0 to 2.0, controls randomness/creativity
     apiKeyGemini?: string;
     apiKeyOpenAI?: string;
