@@ -242,6 +242,8 @@ const translateWithGemini = async (title: string, content: string, settings: App
       }
   });
 
+  // console.log("[Gemini] Full API response:", JSON.stringify(response, null, 2)); // Commented out for brevity during debugging
+
   // Add a defensive check to ensure the response is valid before proceeding.
   // The Gemini API might not throw on all errors (e.g., 500), but return a response with no valid candidates.
   if (!response.response.candidates || response.response.candidates.length === 0) {

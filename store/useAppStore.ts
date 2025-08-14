@@ -2,12 +2,28 @@
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, ImportedSession, TranslationProvider, PromptTemplate } from '../types';
-import { INITIAL_SYSTEM_PROMPT } from '../constants';
+import { INITIAL_SYSTEM_PROMPT, SUPPORTED_WEBSITES } from '../constants';
 import { translateChapter, validateApiKey } from '../services/aiService';
 import { generateImage } from '../services/imageService';
 import { fetchAndParseUrl } from '../services/adapters';
 import { indexedDBService, TranslationRecord, PromptTemplateRecord, migrateFromLocalStorage } from '../services/indexeddb';
 import { collectActiveVersions, generateEpub, EpubExportOptions } from '../services/epubService';
+
+// Helper to prevent duplicate URLs (e.g. with/without trailing slash, viewer param)
+const normalizeUrl = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    try {
+        const urlObj = new URL(url);
+        // Remove the viewer and book parameter
+        urlObj.searchParams.delete('viewer');
+        urlObj.searchParams.delete('book');
+        // Rebuild the URL without the hash and with a standardized path
+        return urlObj.origin + urlObj.pathname.replace(/\/$/, "") + urlObj.search;
+    } catch (e) {
+        // If URL is invalid, return it as is
+        return url;
+    }
+};
 
 export interface SessionChapterData {
   chapter: Chapter;
@@ -137,8 +153,39 @@ const useAppStore = create<Store>()(
             
             // --- ACTIONS ---
             
-            handleFetch: async (fetchUrl, isSilent = false) => {
+            handleFetch: async (rawFetchUrl, isSilent = false) => {
+                const fetchUrl = normalizeUrl(rawFetchUrl);
+                if (!fetchUrl) return null;
+
                 const { sessionData, proxyScores, updateProxyScore } = get();
+
+                // Check if the chapter is already in the cache
+                if (sessionData[fetchUrl]) {
+                    if (!isSilent) {
+                        console.log('%cCACHE HIT', 'color: green; font-weight: bold;', 'Using cached chapter data.');
+                        set(state => ({
+                            currentUrl: fetchUrl,
+                            urlHistory: state.urlHistory.includes(fetchUrl) 
+                                ? [...state.urlHistory.filter(u => u !== fetchUrl), fetchUrl] 
+                                : [...state.urlHistory, fetchUrl]
+                        }));
+                    }
+                    return sessionData[fetchUrl].chapter;
+                }
+
+                // If not in cache, check if the URL is from a supported website
+                try {
+                    const urlObj = new URL(fetchUrl);
+                    if (!SUPPORTED_WEBSITES.some(hostname => urlObj.hostname.includes(hostname))) {
+                        console.log(`[Fetch] Skipping fetch for unsupported website: ${urlObj.hostname}`);
+                        return null;
+                    }
+                } catch (e) {
+                    console.error(`[Fetch] Invalid URL: ${fetchUrl}`);
+                    return null;
+                }
+
+                console.log(`[Fetch] handleFetch called for: ${fetchUrl}`);
                 if (!isSilent) {
                     console.groupCollapsed(`[App] handleFetch triggered for: ${fetchUrl}`);
                     set({ error: null, currentUrl: fetchUrl, isDirty: false, imageGenerationMetrics: null });
@@ -176,13 +223,16 @@ const useAppStore = create<Store>()(
                         console.error('[IndexedDB] Failed to store chapter:', error);
                     }
                     
-                    set(state => ({
-                        sessionData: {
-                            ...state.sessionData,
-                            [fetchUrl]: { chapter: chapterData, translationResult: null },
-                        },
-                        urlHistory: state.urlHistory.includes(fetchUrl) ? state.urlHistory : [...state.urlHistory, fetchUrl]
-                    }));
+                    set(state => {
+                        console.log(`%c[Diag] handleFetch: Updating sessionData for ${fetchUrl}. Setting translationResult to NULL.`, 'color: green; font-weight: bold;');
+                        return {
+                            sessionData: {
+                                ...state.sessionData,
+                                [fetchUrl]: { chapter: chapterData, translationResult: null },
+                            },
+                            urlHistory: state.urlHistory.includes(fetchUrl) ? state.urlHistory : [...state.urlHistory, fetchUrl]
+                        };
+                    });
 
                     // Load existing translation versions for this chapter
                     if (!isSilent) {
@@ -213,6 +263,7 @@ const useAppStore = create<Store>()(
             },
 
             handleTranslate: async (urlToTranslate, isSilent = false) => {
+                console.log(`%c[Diag] handleTranslate START for ${urlToTranslate}. Silent: ${isSilent}`, 'color: #ff00ff; font-weight: bold;');
                 const { sessionData, urlHistory, settings, feedbackHistory, lastApiCallTimestamp, activeTranslations } = get();
 
                 // EARLY API KEY VALIDATION - Check before any processing
@@ -297,7 +348,9 @@ const useAppStore = create<Store>()(
                 }).filter((item): item is HistoricalChapter => item !== null);
 
                 try {
+                    console.log('%c[Diag] handleTranslate: TRY block entered', 'color: #ff00ff; font-weight: bold;');
                     const result = await translateChapter(chapterToTranslate.title, chapterToTranslate.content, settings, historyForApi);
+                    console.log('%c[Diag] handleTranslate: API call SUCCEEDED', 'color: #ff00ff; font-weight: bold;', result);
                     
                     // Check if translation was cancelled
                     if (abortController.signal.aborted) {
@@ -307,6 +360,7 @@ const useAppStore = create<Store>()(
 
                     // Store translation as new version in IndexedDB
                     try {
+                        console.log('%c[Diag] handleTranslate: Storing in IndexedDB...', 'color: #ff00ff; font-weight: bold;');
                         // Check version limit before storing
                         const existingVersions = await indexedDBService.getTranslationVersions(urlToTranslate);
                         const MAX_VERSIONS = 9;
@@ -354,9 +408,11 @@ const useAppStore = create<Store>()(
                             promptName: activePromptTemplate?.name
                         });
                         
+                        console.log('%c[Diag] handleTranslate: Stored in IndexedDB. Reloading versions...', 'color: #ff00ff; font-weight: bold;');
                         // Reload versions to update UI
                         await get().loadTranslationVersions(urlToTranslate);
                         
+                        console.log('%c[Diag] handleTranslate: Versions reloaded. Checking for image generation...', 'color: #ff00ff; font-weight: bold;');
                         // NEW: Trigger image generation if prompts were returned
                         if (result.suggestedIllustrations && result.suggestedIllustrations.length > 0) {
                             get().handleGenerateImages(urlToTranslate);
@@ -368,21 +424,63 @@ const useAppStore = create<Store>()(
                         // Fallback to in-memory storage
                     }
 
-                    set(state => ({
-                        sessionData: {
-                            ...state.sessionData,
-                            [urlToTranslate]: { ...state.sessionData[urlToTranslate], translationResult: result },
+                    set((state) => {
+                      const prevUrlEntry = state.sessionData[urlToTranslate];
+                      if (!prevUrlEntry) {
+                        console.error(`[Translation] Cannot set translation result - no chapter data found for ${urlToTranslate}`);
+                        return state; // Don't update if no chapter data exists
+                      }
+                      
+                      const nextUrlEntry: SessionChapterData = {
+                        ...prevUrlEntry,
+                        // write the new leaf
+                        translationResult: result,
+                        // optional: keep lightweight metadata to help selectors/debugging
+                        translationMeta: {
+                          ...(prevUrlEntry as any).translationMeta,
+                          updatedAt: Date.now(),
+                          settings: {
+                            provider: settings.provider,
+                            model: settings.model,
+                            temperature: settings.temperature,
+                          },
                         },
-                        amendmentProposal: (result.proposal && !isSilent) ? result.proposal : state.amendmentProposal,
+                      };
+
+                      return {
+                        // NEW object for the map
+                        sessionData: {
+                          ...state.sessionData,
+                          [urlToTranslate]: nextUrlEntry, // NEW object for the url entry
+                        },
+
+                        // keep or clear proposal as you intended
+                        amendmentProposal:
+                          result.proposal && !isSilent ? result.proposal : state.amendmentProposal,
+
+                        // persist last translation settings per-URL immutably
                         lastTranslationSettings: {
-                            ...state.lastTranslationSettings,
-                            [urlToTranslate]: {
-                                provider: settings.provider,
-                                model: settings.model,
-                                temperature: settings.temperature
-                            }
-                        }
-                    }));
+                          ...state.lastTranslationSettings,
+                          [urlToTranslate]: {
+                            provider: settings.provider,
+                            model: settings.model,
+                            temperature: settings.temperature,
+                          },
+                        },
+
+                        // make sure the global loading flag changes by ref
+                        isLoading: {
+                          ...state.isLoading,
+                          translating: false,
+                        },
+
+                        // IMPORTANT: if you track per-URL translating, replace that map by ref too
+                        urlLoadingStates: { // Assuming urlLoadingStates is the per-URL translating flag
+                          ...state.urlLoadingStates,
+                          [urlToTranslate]: false,
+                        },
+                      };
+                    });
                 } catch (e: any) {
                     // Don't show errors for aborted translations
                     if (abortController.signal.aborted) {
@@ -411,6 +509,7 @@ const useAppStore = create<Store>()(
                         console.error(`Silent translation failed for ${urlToTranslate}:`, sanitizedMessage);
                     }
                 } finally {
+                    console.log(`%c[Diag] handleTranslate: FINALLY block entered for ${urlToTranslate}`, 'color: #ff00ff; font-weight: bold;');
                     // Clean up regardless of success/failure/cancellation
                     set(prev => {
                         const newActiveTranslations = { ...prev.activeTranslations };
@@ -453,7 +552,12 @@ const useAppStore = create<Store>()(
                 set({ isDirty: false });
             },
 
-            handleNavigate: (newUrl: string) => get().handleFetch(newUrl),
+            handleNavigate: (rawUrl: string) => {
+                const newUrl = normalizeUrl(rawUrl);
+                if (!newUrl) return;
+                console.log(`[Navigate] Navigating to: ${newUrl}`);
+                get().handleFetch(newUrl);
+            },
 
             handleToggleLanguage: (show: boolean) => set({ showEnglish: show, isDirty: false }),
 
@@ -774,9 +878,15 @@ const useAppStore = create<Store>()(
                         if (typeof text !== 'string') throw new Error('File content is not text.');
                         
                         const importedData: ImportedSession = JSON.parse(text);
-                        if (!importedData.session_metadata || !Array.isArray(importedData.chapters)) {
+                        
+                        // Compatibility check for older session files
+                        const sessionMetadata = importedData.session_metadata || importedData.metadata;
+
+                        if (!sessionMetadata || !Array.isArray(importedData.chapters)) {
                             throw new Error('Invalid session file format.');
                         }
+
+                        console.groupCollapsed('[Import] Processing imported session file');
 
                         set(state => {
                             const newSessionData = { ...state.sessionData };
@@ -784,28 +894,38 @@ const useAppStore = create<Store>()(
                             let conflicts = 0;
 
                             for (const chapter of importedData.chapters) {
-                                if (!chapter.sourceUrl) continue;
-                                const chapterExists = !!newSessionData[chapter.sourceUrl];
+                                const sourceUrl = normalizeUrl(chapter.sourceUrl || (chapter as any).url); // Compatibility with older formats
+                                if (!sourceUrl) continue;
+
+                                console.log(`[Import] Processing chapter: ${chapter.title}`, {
+                                    sourceUrl: sourceUrl,
+                                    nextUrl: normalizeUrl(chapter.nextUrl),
+                                    prevUrl: normalizeUrl(chapter.prevUrl),
+                                });
+
+                                const chapterExists = !!newSessionData[sourceUrl];
                                 if (chapterExists) conflicts++;
 
-                                if (!chapterExists || window.confirm(`A chapter for the URL "${chapter.sourceUrl}" already exists. Overwrite your local version with the one from the file?`)) {
-                                    newSessionData[chapter.sourceUrl] = {
+                                if (!chapterExists || window.confirm(`A chapter for the URL "${sourceUrl}" already exists. Overwrite your local version with the one from the file?`)) {
+                                    newSessionData[sourceUrl] = {
                                         chapter: {
                                             title: chapter.title, 
-                                            content: chapter.originalContent, 
-                                            originalUrl: chapter.sourceUrl,
-                                            nextUrl: chapter.nextUrl, 
-                                            prevUrl: chapter.prevUrl,
+                                            content: (chapter as any).content || chapter.originalContent, // Compatibility with older formats
+                                            originalUrl: sourceUrl,
+                                            nextUrl: normalizeUrl(chapter.nextUrl), 
+                                            prevUrl: normalizeUrl(chapter.prevUrl),
                                         },
                                         translationResult: chapter.translationResult ?? null,
                                     };
-                                    if (chapter.feedback?.length > 0) newFeedbackHistory[chapter.sourceUrl] = chapter.feedback;
+                                    if (chapter.feedback?.length > 0) newFeedbackHistory[sourceUrl] = chapter.feedback;
                                 }
                             }
 
+                            console.groupEnd();
+
                             let newSettings = state.settings;
-                            if (importedData.session_metadata.settings && window.confirm('Session file contains settings. Do you want to import and apply them?')) {
-                                newSettings = { ...state.settings, ...importedData.session_metadata.settings };
+                            if (sessionMetadata?.settings && window.confirm('Session file contains settings. Do you want to import and apply them?')) {
+                                newSettings = { ...state.settings, ...sessionMetadata.settings };
                             }
                             
                             let newUrlHistory = state.urlHistory;
@@ -815,12 +935,15 @@ const useAppStore = create<Store>()(
                             
                             alert(`Import complete! ${importedData.chapters.length} chapters processed. ${conflicts} conflicts were handled.`);
                             
+                            console.log('[Import] sessionData before import:', state.sessionData);
+                            console.log('[Import] newSessionData after import:', newSessionData);
+
                             return {
                                 sessionData: newSessionData,
                                 feedbackHistory: newFeedbackHistory,
                                 settings: newSettings,
                                 urlHistory: newUrlHistory,
-                                currentUrl: importedData.chapters.length > 0 ? importedData.chapters[importedData.chapters.length - 1].sourceUrl : state.currentUrl
+                                currentUrl: importedData.chapters.length > 0 ? normalizeUrl((importedData.chapters[importedData.chapters.length - 1].sourceUrl || (importedData.chapters[importedData.chapters.length - 1] as any).url)) : state.currentUrl
                             };
                         });
 

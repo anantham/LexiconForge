@@ -125,6 +125,13 @@ export interface ImportedChapter {
     feedback: FeedbackItem[];
 }
 
+export interface SessionChapterData {
+  chapter: Chapter;
+  translationResult: TranslationResult | null;
+  availableVersions?: any[]; // All available translation versions
+  activeVersion?: number; // Currently selected version number
+}
+
 export interface ImportedSession {
     session_metadata: {
         exported_at: string;

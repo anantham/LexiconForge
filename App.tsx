@@ -5,43 +5,124 @@ import ChapterView from './components/ChapterView';
 import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';
 import SettingsModal from './components/SettingsModal';
-import { useShallow } from 'zustand/react/shallow';
+
 import { validateApiKey } from './services/aiService';
 import { Analytics } from '@vercel/analytics/react';
 
 const App: React.FC = () => {
-    // Select state and actions needed for orchestration and conditional rendering
-    const { 
-      currentUrl, sessionData, showEnglish, isLoading, settings,
-      handleTranslate, handleFetch, amendmentProposal, acceptProposal, rejectProposal, showSettingsModal, setShowSettingsModal,
-      initializeIndexedDB
-    } = useAppStore(useShallow(state => ({
-        currentUrl: state.currentUrl,
-        sessionData: state.sessionData,
-        showEnglish: state.showEnglish,
-        isLoading: state.isLoading,
-        settings: state.settings,
-        handleTranslate: state.handleTranslate,
-        handleFetch: state.handleFetch,
-        amendmentProposal: state.amendmentProposal,
-        acceptProposal: state.acceptProposal,
-        rejectProposal: state.rejectProposal,
-        showSettingsModal: state.showSettingsModal,
-        setShowSettingsModal: state.setShowSettingsModal,
-        initializeIndexedDB: state.initializeIndexedDB,
-    })));
+// inside App component, near the top
+// Individual primitive selectors to avoid fresh object creation
+const currentUrl = useAppStore((s) => s.currentUrl);
+const showEnglish = useAppStore((s) => s.showEnglish);
+const isLoading = useAppStore((s) => s.isLoading);
+const settings = useAppStore((s) => s.settings);
+const sessionData = useAppStore((s) => s.sessionData);
+const isUrlTranslating = useAppStore((s) => s.isUrlTranslating);
+const handleTranslate = useAppStore((s) => s.handleTranslate);
+const handleFetch = useAppStore((s) => s.handleFetch);
+const amendmentProposal = useAppStore((s) => s.amendmentProposal);
+const acceptProposal = useAppStore((s) => s.acceptProposal);
+const rejectProposal = useAppStore((s) => s.rejectProposal);
+const showSettingsModal = useAppStore((s) => s.showSettingsModal);
+const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
+const initializeIndexedDB = useAppStore((s) => s.initializeIndexedDB);
 
-    // Initialize IndexedDB on app start
+// Separate leaf selector for translation result (returns primitive/null)
+const currentChapterTranslationResult = useAppStore((state) => {
+  const url = state.currentUrl;
+  return url ? state.sessionData[url]?.translationResult : null;
+});
+
+// one-shot guard helpers
+const requestedRef = React.useRef(new Map<string, string>());
+
+const settingsFingerprint = React.useMemo(
+  () =>
+    JSON.stringify({
+      provider: settings.provider,
+      model: settings.model,
+      temperature: settings.temperature,
+    }),
+  [settings.provider, settings.model, settings.temperature]
+);
+
+// Debug logging (moved to avoid infinite loop from separate selector)
+React.useEffect(() => {
+  console.log(
+    `%c[App.tsx Selector] currentUrl: ${currentUrl}, chapterData exists: ${!!(currentUrl && sessionData[currentUrl])}, translationResult: ${currentChapterTranslationResult ? 'EXISTS' : 'NULL'}`,
+    'color: purple;'
+  );
+}, [currentUrl, sessionData, currentChapterTranslationResult]);
+
+    // Initialize IndexedDB on app start (one-shot)
+    const didInitDB = React.useRef(false);
     useEffect(() => {
-        initializeIndexedDB();
+        if (didInitDB.current) return;
+        didInitDB.current = true;
+
+        console.log('[App.tsx] Initializing IndexedDB…');
+        const initPromise = initializeIndexedDB();
+        if (initPromise && typeof initPromise.then === 'function') {
+            initPromise.then(() => {
+                console.log('[App.tsx] IndexedDB init complete');
+            }).catch((e) => {
+                console.error('[App.tsx] IndexedDB init failed', e);
+            });
+        }
     }, [initializeIndexedDB]);
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-        if (showEnglish && currentUrl && sessionData[currentUrl] && !sessionData[currentUrl].translationResult && !isLoading.translating) {
-            handleTranslate(currentUrl);
+      if (!showEnglish || !currentUrl) return;
+
+      const translating = isUrlTranslating(currentUrl) || isLoading.translating;
+      const hasResult  = !!currentChapterTranslationResult;
+      const prevSig    = requestedRef.current.get(currentUrl);
+      const alreadyRequested = prevSig === settingsFingerprint;
+
+      console.log(
+        `%c[App.tsx useEffect] RE-EVALUATING (guarded). showEnglish=${showEnglish}, url=${currentUrl}, hasResult=${hasResult}, translating=${translating}, alreadyRequested=${alreadyRequested}`,
+        'color: blue;'
+      );
+
+      if (!hasResult && !translating && !alreadyRequested) {
+        requestedRef.current.set(currentUrl, settingsFingerprint);
+        console.log('%c[App.tsx useEffect] Triggering handleTranslate (one-shot)', 'color: red; font-weight: bold;');
+        handleTranslate(currentUrl);
+      }
+    }, [
+      showEnglish,
+      currentUrl,
+      currentChapterTranslationResult,
+      settingsFingerprint,
+      isLoading.translating,
+      isUrlTranslating,
+      handleTranslate,
+    ]);
+
+    // And clear the one-shot once a result lands (or when leaving English):
+    useEffect(() => {
+      if (currentUrl && currentChapterTranslationResult) {
+        requestedRef.current.delete(currentUrl);
+      }
+    }, [currentUrl, currentChapterTranslationResult]);
+
+    useEffect(() => {
+      if (!showEnglish && currentUrl) {
+        requestedRef.current.delete(currentUrl);
+      }
+    }, [showEnglish, currentUrl]);
+
+    // Sanity check: selector subscription (optional but nice)
+    useEffect(() => {
+      const unsub = useAppStore.subscribe(
+        (s) => (s.currentUrl ? s.sessionData[s.currentUrl]?.translationResult : null),
+        (next, prev) => {
+          console.log('[subscribe] translationResult changed:', { prev, next });
         }
-    }, [showEnglish, currentUrl, sessionData, isLoading.translating, handleTranslate]);
+      );
+      return unsub;
+    }, []);
 
     // Proactive Cache Worker effect also remains to orchestrate silent fetches/translations
     useEffect(() => {

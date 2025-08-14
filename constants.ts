@@ -118,3 +118,11 @@ export const AVAILABLE_IMAGE_MODELS = {
     { id: 'gemini-2.0-flash-preview-image-generation', name: 'Gemini 2.0 Flash (Preview)', description: 'Preview model for image generation' },
   ]
 };
+
+export const SUPPORTED_WEBSITES = [
+  'kakuyomu.jp',
+  'dxmwx.org',
+  'kanunu8.com',
+  'kanunu.net',
+  'novelcool.com',
+];

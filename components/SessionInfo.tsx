@@ -5,6 +5,28 @@ import SettingsIcon from './icons/SettingsIcon';
 import { useShallow } from 'zustand/react/shallow';
 import { SessionChapterData } from '../store/useAppStore';
 
+/**
+ * Extracts a chapter number from a string.
+ * It looks for standalone numbers or numbers prefixed with "Chapter".
+ * @param str The string to parse.
+ * @returns The chapter number, or null if not found.
+ */
+const getChapterNumber = (str: string): number | null => {
+    if (!str) return null;
+
+    // Attempt to match "Chapter 123", "ch 123", "123", etc.
+    const match = str.match(/(?:chapter|ch|ตอนที่|ตอน)?[\s.]*(\d+)/i);
+
+    if (match && match[1]) {
+        const num = parseInt(match[1], 10);
+        // Basic validation to avoid giant numbers from other parts of the URL/string
+        if (num >= 0 && num < 100000) {
+            return num;
+        }
+    }
+    return null;
+};
+
 const SessionInfo: React.FC = () => {
     const {
         currentUrl,
