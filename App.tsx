@@ -30,7 +30,7 @@ const initializeIndexedDB = useAppStore((s) => s.initializeIndexedDB);
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
   const url = state.currentUrl;
-  return url ? state.sessionData[url]?.translationResult : null;
+  return url ? state.getSessionDataByUrl(url)?.translationResult : null;
 });
 
 // one-shot guard helpers
@@ -46,13 +46,6 @@ const settingsFingerprint = React.useMemo(
   [settings.provider, settings.model, settings.temperature]
 );
 
-// Debug logging (moved to avoid infinite loop from separate selector)
-React.useEffect(() => {
-  console.log(
-    `%c[App.tsx Selector] currentUrl: ${currentUrl}, chapterData exists: ${!!(currentUrl && sessionData[currentUrl])}, translationResult: ${currentChapterTranslationResult ? 'EXISTS' : 'NULL'}`,
-    'color: purple;'
-  );
-}, [currentUrl, sessionData, currentChapterTranslationResult]);
 
     // Initialize IndexedDB on app start (one-shot)
     const didInitDB = React.useRef(false);
@@ -60,7 +53,6 @@ React.useEffect(() => {
         if (didInitDB.current) return;
         didInitDB.current = true;
 
-        console.log('[App.tsx] Initializing IndexedDB…');
         const initPromise = initializeIndexedDB();
         if (initPromise && typeof initPromise.then === 'function') {
             initPromise.then(() => {
@@ -80,15 +72,19 @@ React.useEffect(() => {
       const prevSig    = requestedRef.current.get(currentUrl);
       const alreadyRequested = prevSig === settingsFingerprint;
 
-      console.log(
-        `%c[App.tsx useEffect] RE-EVALUATING (guarded). showEnglish=${showEnglish}, url=${currentUrl}, hasResult=${hasResult}, translating=${translating}, alreadyRequested=${alreadyRequested}`,
-        'color: blue;'
-      );
+      console.log(`[UI Debug] Translation trigger check for ${currentUrl}:`);
+      console.log(`[UI Debug] - isUrlTranslating(${currentUrl}): ${isUrlTranslating(currentUrl)}`);
+      console.log(`[UI Debug] - isLoading.translating: ${isLoading.translating}`);
+      console.log(`[UI Debug] - translating (combined): ${translating}`);
+      console.log(`[UI Debug] - hasResult: ${hasResult}`);
+      console.log(`[UI Debug] - alreadyRequested: ${alreadyRequested}`);
 
       if (!hasResult && !translating && !alreadyRequested) {
+        console.log(`[UI Debug] Triggering handleTranslate for ${currentUrl}`);
         requestedRef.current.set(currentUrl, settingsFingerprint);
-        console.log('%c[App.tsx useEffect] Triggering handleTranslate (one-shot)', 'color: red; font-weight: bold;');
         handleTranslate(currentUrl);
+      } else {
+        console.log(`[UI Debug] NOT triggering handleTranslate - conditions not met`);
       }
     }, [
       showEnglish,

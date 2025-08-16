@@ -116,7 +116,6 @@ const validateAndFixIllustrations = (translation: string, suggestedIllustrations
         
         if (textMarkers.every(marker => jsonMarkerSet.has(marker)) && 
             jsonMarkers.every(marker => textMarkerSet.has(marker))) {
-            console.log('[IllustrationFix] Perfect match - no changes needed');
             return { translation, suggestedIllustrations: jsonIllustrations };
         }
     }
@@ -126,15 +125,11 @@ const validateAndFixIllustrations = (translation: string, suggestedIllustrations
         const textMarkerSet = new Set(textMarkers);
         const unmatchedPrompts = jsonIllustrations.filter(item => !textMarkerSet.has(item.placementMarker));
         
-        console.log(`[IllustrationFix] Auto-recovery: ${unmatchedPrompts.length} unmatched prompts, inserting at end of text`);
-        
         let updatedTranslation = translation;
         for (const prompt of unmatchedPrompts) {
             // Insert marker at end of text before any final paragraph breaks
             updatedTranslation = updatedTranslation.trim() + ` ${prompt.placementMarker}`;
         }
-        
-        console.log('[IllustrationFix] Auto-recovery successful - saved translation with inserted markers');
         return { translation: updatedTranslation, suggestedIllustrations: jsonIllustrations };
     }
 
@@ -198,7 +193,7 @@ const geminiResponseSchema = {
     type: Type.OBJECT,
     properties: {
         translatedTitle: { type: Type.STRING, description: "The translated chapter title." },
-        translation: { type: Type.STRING, description: "STRUCTURAL REQUIREMENT: Full translated chapter content using HTML formatting (<i>italics</i>, <b>bold</b> - never markdown). MUST include numbered markers [1], [2], [3] in the text for any footnotes. MUST include placement markers [ILLUSTRATION-1], [ILLUSTRATION-2], etc. in the text for any visual scenes you want illustrated. Every marker in this text must have a corresponding entry in the respective arrays below." },
+        translation: { type: Type.STRING, description: "CRITICAL HTML FORMAT RULE: You are STRICTLY FORBIDDEN from using <p> tags or * symbols anywhere in this text. ONLY ALLOWED HTML TAGS: <i>text</i> for italics, <b>text</b> for bold, <br> for single line breaks, and <br><br> for paragraph breaks. Transform ALL paragraph breaks into <br><br>. Transform ALL italic emphasis into <i>text</i>. NO OTHER HTML TAGS PERMITTED. MUST include numbered markers [1], [2], [3] for footnotes and [ILLUSTRATION-1], [ILLUSTRATION-2] for visual scenes." },
         footnotes: {
           type: Type.ARRAY, nullable: true, description: "STRUCTURAL REQUIREMENT: Each footnote must correspond to a numbered marker [1], [2], [3] found in the translation text. Use format prefixes: '[TL Note:]' for translator commentary/cultural context, '[Author's Note:]' for original text explanations. If no markers exist in text, this must be null or empty array.",
           items: {
@@ -246,9 +241,16 @@ const translateWithGemini = async (title: string, content: string, settings: App
 
   // Add a defensive check to ensure the response is valid before proceeding.
   // The Gemini API might not throw on all errors (e.g., 500), but return a response with no valid candidates.
-  if (!response.response.candidates || response.response.candidates.length === 0) {
-    console.error("[Gemini] API call returned no candidates. Full response:", JSON.stringify(response.response, null, 2));
+  if (!response.candidates || response.candidates.length === 0) {
+    console.error("[Gemini] API call returned invalid response structure. Full response:", JSON.stringify(response, null, 2));
     throw new Error("Translation failed: The API returned an empty or invalid response.");
+  }
+
+  // Additional check for content structure
+  const candidate = response.candidates[0];
+  if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
+    console.error("[Gemini] API candidate missing content/parts. Candidate:", JSON.stringify(candidate, null, 2));
+    throw new Error("Translation failed: The API response is missing content parts.");
   }
 
   const requestTime = (performance.now() - startTime) / 1000;
@@ -264,7 +266,13 @@ const translateWithGemini = async (title: string, content: string, settings: App
     provider: 'Gemini', model: settings.model
   };
   
-  const responseText = response.text.trim();
+  const responseText = response.candidates[0].content.parts[0].text.trim();
+  
+  console.log("[Gemini Debug] Raw response text length:", responseText.length);
+  console.log("[Gemini Debug] Response text preview:", responseText.substring(0, 200) + "...");
+  console.log("[Gemini Debug] Response text ends with:", responseText.slice(-50));
+  
+  
   try {
     const parsedJson = JSON.parse(responseText);
     if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
@@ -280,8 +288,22 @@ const translateWithGemini = async (title: string, content: string, settings: App
         usageMetrics: usageMetrics,
     };
   } catch (e) {
-      console.error("Failed to parse JSON response from Gemini:", responseText, e);
-      throw new Error("AI returned a malformed response. Could not parse translation.");
+      console.error("[Gemini] Failed to parse JSON response. Error:", e);
+      console.error("[Gemini] Full response text (first 1000 chars):", responseText.substring(0, 1000));
+      console.error("[Gemini] Response text ends with:", responseText.slice(-100));
+      
+      // Try to provide more specific error info
+      if (responseText.length === 0) {
+        throw new Error("Translation failed: API returned empty response text.");
+      }
+      if (!responseText.includes('{')) {
+        throw new Error("Translation failed: API response is not JSON format.");
+      }
+      if (!responseText.includes('translatedTitle')) {
+        throw new Error("Translation failed: API response appears to be truncated or incomplete.");
+      }
+      
+      throw new Error(`Translation failed: AI returned malformed JSON. Error: ${e.message}`);
   }
 };
 
@@ -297,7 +319,7 @@ const openaiResponseSchema = {
         },
         "translation": {
             "type": "string", 
-            "description": "STRUCTURAL REQUIREMENT: Full translated chapter content using HTML formatting (<i>italics</i>, <b>bold</b> - never markdown). MUST include numbered markers [1], [2], [3] in the text for any footnotes. MUST include placement markers [ILLUSTRATION-1], [ILLUSTRATION-2], etc. in the text for any visual scenes you want illustrated. Every marker in this text must have a corresponding entry in the respective arrays below."
+            "description": "CRITICAL HTML FORMAT RULE: You are STRICTLY FORBIDDEN from using <p> tags or * symbols anywhere in this text. ONLY ALLOWED HTML TAGS: <i>text</i> for italics, <b>text</b> for bold, <br> for single line breaks, and <br><br> for paragraph breaks. Transform ALL paragraph breaks into <br><br>. Transform ALL italic emphasis into <i>text</i>. NO OTHER HTML TAGS PERMITTED. MUST include numbered markers [1], [2], [3] for footnotes and [ILLUSTRATION-1], [ILLUSTRATION-2] for visual scenes."
         },
         "footnotes": {
             "type": ["array", "null"],
@@ -450,9 +472,42 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     const responseText = response.choices[0].message.content;
     if (!responseText) throw new Error("Received an empty response from the API.");
     
+    // HTML VALIDATION DEBUGGING
+    const containsPTags = responseText.includes('<p>') || responseText.includes('</p>');
+    const containsAsterisks = responseText.includes('*');
+    console.log(`[OpenAI HTML Validation] Response contains <p> tags: ${containsPTags}`);
+    console.log(`[OpenAI HTML Validation] Response contains * symbols: ${containsAsterisks}`);
+    if (containsPTags) {
+      const pTagMatches = responseText.match(/<\/?p[^>]*>/g);
+      console.log(`[OpenAI HTML Validation] Found <p> tags:`, pTagMatches?.slice(0, 5));
+    }
+    if (containsAsterisks) {
+      const asteriskMatches = responseText.match(/\*[^*]*\*/g);
+      console.log(`[OpenAI HTML Validation] Found * patterns:`, asteriskMatches?.slice(0, 5));
+    }
+    
     try {
-        const parsedJson = JSON.parse(responseText);
-        
+        let parsedJson;
+        try {
+            // First, try to parse the response text directly
+            parsedJson = JSON.parse(responseText);
+        } catch (initialParseError) {
+            console.warn(`[DeepSeek] Initial JSON parse failed. Attempting fallback extraction. Error: ${initialParseError.message}`);
+            // If direct parse fails, attempt to extract the JSON part
+            const jsonStartIndex = responseText.indexOf('{');
+            const jsonEndIndex = responseText.lastIndexOf('}');
+
+            let jsonString = responseText;
+            if (jsonStartIndex !== -1 && jsonEndIndex !== -1 && jsonEndIndex > jsonStartIndex) {
+                jsonString = responseText.substring(jsonStartIndex, jsonEndIndex + 1);
+                console.log(`[DeepSeek] Extracted JSON substring. Original length: ${responseText.length}, Extracted length: ${jsonString.length}`);
+            } else {
+                console.warn(`[DeepSeek] Could not find valid JSON boundaries in response for fallback. Re-throwing original error.`);
+                throw initialParseError; // Re-throw if extraction is not possible
+            }
+            parsedJson = JSON.parse(jsonString); // Try parsing the extracted string
+        }
+
         // With structured outputs, validation should be unnecessary, but keep for safety
         if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
             throw new Error('Invalid JSON structure in AI response.');

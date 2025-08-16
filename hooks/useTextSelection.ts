@@ -50,12 +50,10 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
   useEffect(() => {
     // This effect now runs only once on mount and cleans up on unmount.
     // The handlers are stable thanks to useCallback.
-    console.log('[useTextSelection] useEffect: Attaching listeners to document.');
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('scroll', clearSelection, true);
 
     return () => {
-      console.log('[useTextSelection] useEffect cleanup: Removing listeners.');
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('scroll', clearSelection, true);
     };
