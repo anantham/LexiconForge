@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import useAppStore from '../store/useAppStore';
 import SettingsIcon from './icons/SettingsIcon';
 import { useShallow } from 'zustand/react/shallow';
 import { SessionChapterData } from '../store/useAppStore';
+import { ImportTransformationService } from '../services/importTransformationService';
 
 /**
  * Extracts a chapter number from a string.
@@ -49,7 +50,42 @@ const SessionInfo: React.FC = () => {
     const [showExportModal, setShowExportModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     
-    const sortedChapters = useMemo(() => {
+    // Enhanced chapter data with stable IDs for React keys
+    const [stableChapters, setStableChapters] = useState<Array<{
+        stableId: string;
+        url: string;
+        data: any;
+        title: string;
+        chapterNumber: number;
+    }>>([]);
+
+    // Load stable chapters asynchronously
+    useEffect(() => {
+        const loadStableChapters = async () => {
+            try {
+                const chaptersWithStableKeys = await ImportTransformationService.getChaptersForReactRendering();
+                console.log('[SessionInfo] Loaded chapters with stable keys:', chaptersWithStableKeys.length);
+                setStableChapters(chaptersWithStableKeys);
+            } catch (error) {
+                console.error('[SessionInfo] Failed to load stable chapters:', error);
+                // Fallback to legacy behavior if stable system fails
+                setStableChapters([]);
+            }
+        };
+
+        // Only load stable chapters if we have sessionData
+        if (Object.keys(sessionData).length > 0) {
+            loadStableChapters();
+        } else {
+            setStableChapters([]);
+        }
+    }, [sessionData]);
+
+    // Fallback to legacy sorting when stable system unavailable
+    const legacySortedChapters = useMemo(() => {
+        // Only use legacy system when stable chapters are not available
+        if (stableChapters.length > 0) return [];
+
         const chapterMap = new Map<string, { url: string, data: SessionChapterData }>();
         Object.entries(sessionData).forEach(([url, data]) => {
             if (data?.chapter) {
@@ -110,7 +146,10 @@ const SessionInfo: React.FC = () => {
 
         // Flatten the sorted chains into a single list
         return chains.flat();
-    }, [sessionData]);
+    }, [sessionData, stableChapters.length]);
+
+    // Use stable chapters if available, otherwise fall back to legacy
+    const sortedChapters = stableChapters.length > 0 ? stableChapters : legacySortedChapters;
 
     const sessionIsEmpty = sortedChapters.length === 0;
 
@@ -155,14 +194,30 @@ const SessionInfo: React.FC = () => {
             className="flex-grow w-full px-3 py-2 text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             aria-label="Select a chapter to navigate to"
           >
-            {sortedChapters.map(({ url, data }) => {
-              if (!data) return null; 
-              const title = data.translationResult?.translatedTitle || data.chapter.title || 'Untitled Chapter';
-              return (
-                <option key={url} value={url}>
-                  {title}
-                </option>
-              );
+            {sortedChapters.map((chapter) => {
+              // Handle both stable and legacy chapter formats
+              if (stableChapters.length > 0) {
+                // Use stable chapter format with stable ID as key
+                const stableChapter = chapter as { stableId: string; url: string; data: any; title: string; chapterNumber: number };
+                const title = stableChapter.data?.translationResult?.translatedTitle || stableChapter.title || 'Untitled Chapter';
+                return (
+                  <option key={stableChapter.stableId} value={stableChapter.url}>
+                    {title}
+                  </option>
+                );
+              } else {
+                // Legacy format fallback
+                const legacyChapter = chapter as { url: string; data: SessionChapterData };
+                if (!legacyChapter.data) return null;
+                const title = legacyChapter.data.translationResult?.translatedTitle || legacyChapter.data.chapter.title || 'Untitled Chapter';
+                // Create render-cycle unique key to handle React.StrictMode double-rendering
+                const chapterKey = `${legacyChapter.url}-${legacyChapter.data.chapter.chapterNumber}-${Math.random().toString(36).substring(2, 15)}`;
+                return (
+                  <option key={chapterKey} value={legacyChapter.url}>
+                    {title}
+                  </option>
+                );
+              }
             })}
           </select>
         )}
