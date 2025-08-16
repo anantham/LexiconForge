@@ -91,21 +91,47 @@ export const collectActiveVersions = (
   const chapters: ChapterForEpub[] = [];
   
   // Use urlHistory for ordering, but also include any chapters not in history
-  const allUrls = new Set([...urlHistory, ...Object.keys(sessionData)]);
+  // First, process chapters in urlHistory order to maintain chronological sequence
+  const processedUrls = new Set<string>();
   
-  for (const url of allUrls) {
+  // Add chapters from urlHistory first (in order)
+  for (const url of urlHistory) {
+    if (sessionData[url]?.chapter && sessionData[url]?.translationResult) {
+      processedUrls.add(url);
+      const data = sessionData[url];
+      chapters.push(createChapterForEpub(data, url));
+    }
+  }
+  
+  // Then add any remaining chapters not in urlHistory (sorted by URL for consistency)
+  const remainingUrls = Object.keys(sessionData)
+    .filter(url => !processedUrls.has(url))
+    .sort();
+  
+  for (const url of remainingUrls) {
     const data = sessionData[url];
     if (!data?.chapter || !data?.translationResult) {
       console.log(`[EPUBService] Skipping ${url} - missing chapter or translation result`);
       continue;
     }
     
-    // Create default metrics for chapters missing usage data
-    let metrics = data.translationResult.usageMetrics;
-    
-    if (!metrics) {
-      console.warn(`[EPUBService] Chapter ${url} missing usageMetrics - using defaults for statistics`);
-      metrics = {
+    chapters.push(createChapterForEpub(data, url));
+  }
+  
+  console.log(`[EPUBService] Prepared ${chapters.length} chapters for EPUB in chronological order`);
+  return chapters;
+};
+
+/**
+ * Creates a ChapterForEpub object from session data
+ */
+const createChapterForEpub = (data: any, url: string): ChapterForEpub => {
+  // Create default metrics for chapters missing usage data
+  let metrics = data.translationResult.usageMetrics;
+  
+  if (!metrics) {
+    console.warn(`[EPUBService] Chapter ${url} missing usageMetrics - using defaults for statistics`);
+    metrics = {
         totalTokens: 0,
         promptTokens: 0,
         completionTokens: 0,
@@ -138,42 +164,39 @@ export const collectActiveVersions = (
         });
       }
       
-      metrics = fixedMetrics;
-    }
-    
-    // Get images from translation result
-    const images = data.translationResult.suggestedIllustrations?.map(illust => ({
-      marker: illust.placementMarker,
-      imageData: illust.url || '', // This should be base64 data from generation
-      prompt: illust.imagePrompt
-    })) || [];
-    
-    // Get footnotes from translation result
-    const footnotes = data.translationResult.footnotes?.map(footnote => ({
-      marker: footnote.marker,
-      text: footnote.text
-    })) || [];
-    
-    chapters.push({
-      title: data.chapter.title,
-      content: data.translationResult.translation || data.chapter.content, // Use translation, fallback to original
-      originalUrl: url,
-      translatedTitle: data.translationResult.translatedTitle,
-      usageMetrics: {
-        totalTokens: metrics.totalTokens,
-        promptTokens: metrics.promptTokens,
-        completionTokens: metrics.completionTokens,
-        estimatedCost: metrics.estimatedCost,
-        requestTime: metrics.requestTime,
-        provider: metrics.provider,
-        model: metrics.model,
-      },
-      images: images.filter(img => img.imageData), // Only include images with data
-      footnotes: footnotes
-    });
+    metrics = fixedMetrics;
   }
   
-  return chapters;
+  // Get images from translation result
+  const images = data.translationResult.suggestedIllustrations?.map(illust => ({
+    marker: illust.placementMarker,
+    imageData: illust.url || '', // This should be base64 data from generation
+    prompt: illust.imagePrompt
+  })) || [];
+  
+  // Get footnotes from translation result
+  const footnotes = data.translationResult.footnotes?.map(footnote => ({
+    marker: footnote.marker,
+    text: footnote.text
+  })) || [];
+  
+  return {
+    title: data.chapter.title,
+    content: data.translationResult.translation || data.chapter.content, // Use translation, fallback to original
+    originalUrl: url,
+    translatedTitle: data.translationResult.translatedTitle,
+    usageMetrics: {
+      totalTokens: metrics.totalTokens,
+      promptTokens: metrics.promptTokens,
+      completionTokens: metrics.completionTokens,
+      estimatedCost: metrics.estimatedCost,
+      requestTime: metrics.requestTime,
+      provider: metrics.provider,
+      model: metrics.model,
+    },
+    images: images.filter(img => img.imageData), // Only include images with data
+    footnotes: footnotes
+  };
 };
 
 /**
@@ -447,9 +470,9 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
   // Project description
   html += `<div style="margin: 2em 0; padding: 1.5em; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">\n`;
   html += `<h2 style="margin-top: 0; color: #007bff;">About This Translation</h2>\n`;
-  html += `<p>${escapeHtml(template.projectDescription || '')}</p>\n`;
+  html += `<p>${escapeXml(template.projectDescription || '')}</p>\n`;
   if (template.githubUrl) {
-    html += `<p><strong>Source Code:</strong> <a href="${escapeHtml(template.githubUrl)}" style="color: #007bff;">${escapeHtml(template.githubUrl)}</a></p>\n`;
+    html += `<p><strong>Source Code:</strong> <a href="${escapeXml(template.githubUrl)}" style="color: #007bff;">${escapeXml(template.githubUrl)}</a></p>\n`;
   }
   html += `</div>\n\n`;
 
@@ -502,7 +525,7 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
     providers.forEach(provider => {
       const providerStats = stats.providerBreakdown[provider];
       html += `    <tr>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; font-weight: bold;">${escapeHtml(provider)}</td>\n`;
+      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; font-weight: bold;">${escapeXml(provider)}</td>\n`;
       html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${providerStats.chapters}</td>\n`;
       html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">$${providerStats.cost.toFixed(4)}</td>\n`;
       html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${Math.round(providerStats.time)}s</td>\n`;
@@ -534,7 +557,7 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
     
     models.forEach(([model, modelStats]) => {
       html += `    <tr>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; font-family: monospace; font-size: 0.9em;">${escapeHtml(model)}</td>\n`;
+      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; font-family: monospace; font-size: 0.9em;">${escapeXml(model)}</td>\n`;
       html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${modelStats.chapters}</td>\n`;
       html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${modelStats.tokens.toLocaleString()}</td>\n`;
       html += `    </tr>\n`;
@@ -548,16 +571,16 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
   // Gratitude message
   html += `<div style="margin: 3em 0; padding: 2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">\n`;
   html += `<h2 style="margin-top: 0; color: white; text-align: center;">Gratitude & Acknowledgments</h2>\n`;
-  html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeHtml(template.gratitudeMessage || '')}</p>\n`;
+  html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeXml(template.gratitudeMessage || '')}</p>\n`;
   if (template.additionalAcknowledgments) {
-    html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeHtml(template.additionalAcknowledgments)}</p>\n`;
+    html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeXml(template.additionalAcknowledgments)}</p>\n`;
   }
   html += `</div>\n\n`;
 
   // Footer
   if (template.customFooter) {
     html += `<div style="margin: 2em 0; text-align: center; padding: 1em; border-top: 1px solid #dee2e6; font-style: italic; color: #666;">\n`;
-    html += `${escapeHtml(template.customFooter)}\n`;
+    html += `${escapeXml(template.customFooter)}\n`;
     html += `</div>\n`;
   }
 
@@ -819,7 +842,7 @@ const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapter[]): 
   // Helper to wrap content in XHTML
   const xhtmlWrap = (title: string, body: string) => `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${lang}">
   <head>
     <meta charset="utf-8"/>
     <title>${escapeXml(title)}</title>
