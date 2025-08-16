@@ -26,6 +26,7 @@ const ChapterView: React.FC = () => {
     feedbackHistory,
     versionFeedback,
     isDirty,
+    error,
     handleToggleLanguage,
     handleNavigate,
     addFeedback,
@@ -49,6 +50,7 @@ const ChapterView: React.FC = () => {
     feedbackHistory: state.feedbackHistory,
     versionFeedback: state.versionFeedback,
     isDirty: state.isDirty,
+    error: state.error,
     handleToggleLanguage: state.handleToggleLanguage,
     handleNavigate: state.handleNavigate,
     addFeedback: state.addFeedback,
@@ -192,7 +194,7 @@ const ChapterView: React.FC = () => {
   }
   
   const parseAndRender = (text: string): React.ReactNode[] => {
-    const parts = text.split(/(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\])/g).filter(Boolean);
+    const parts = text.split(/(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>)/g).filter(Boolean);
 
     return parts.map((part, index) => {
       // Illustration
@@ -223,6 +225,10 @@ const ChapterView: React.FC = () => {
       if (part.startsWith('*') && part.endsWith('*')) {
         return <i key={index}>{parseAndRender(part.slice(1, -1))}</i>;
       }
+      // HTML line breaks
+      if (part.match(/^<br\s*\/?>$/)) {
+        return <br key={index} />;
+      }
       return part;
     });
   };
@@ -243,12 +249,22 @@ const ChapterView: React.FC = () => {
     // Check if THIS specific URL is being translated
     const currentUrlTranslating = currentUrl ? isUrlTranslating(currentUrl) : false;
     
+    // console.log(`[ChapterView Debug] Render check for ${currentUrl}:`);
+    // console.log(`[ChapterView Debug] - showEnglish: ${showEnglish}`);
+    // console.log(`[ChapterView Debug] - currentUrlTranslating: ${currentUrlTranslating}`);
+    // console.log(`[ChapterView Debug] - translationResult: ${!!translationResult}`);
+    // console.log(`[ChapterView Debug] - error: ${!!error}`);
+    // console.log(`[ChapterView Debug] - First condition (showEnglish && currentUrlTranslating && !translationResult): ${showEnglish && currentUrlTranslating && !translationResult}`);
+    // console.log(`[ChapterView Debug] - Second condition (showEnglish && !translationResult && !error): ${showEnglish && !translationResult && !error}`);
+    
     if (showEnglish && currentUrlTranslating && !translationResult) {
+      // console.log(`[ChapterView Debug] Showing loader - first condition met`);
       return <Loader text={`Translating with ${settings.provider}...`} />;
     }
 
-    // If we have cached translation result, show it even if other chapters are translating
-    if (showEnglish && !translationResult) {
+    // Only show loader if we're in English mode, no translation result, AND no error
+    if (showEnglish && !translationResult && !error) {
+      // console.log(`[ChapterView Debug] Showing loader - second condition met`);
       return <Loader text={`Translating with ${settings.provider}...`} />;
     }
     
