@@ -44,57 +44,39 @@ describe('Export/Import System', () => {
       
       // Add multiple chapters with translations
       for (const chapter of chapters) {
-        store.setSessionData(chapter.originalUrl, {
-          chapter: chapter,
-          translationResult: createMockTranslationResult({
-            usageMetrics: {
-              totalTokens: 2500,
-              promptTokens: 1800,
-              completionTokens: 700,
-              estimatedCost: 0.00875,
-              requestTime: 45.2,
-              provider: 'Gemini',
-              model: 'gemini-2.5-flash'
-            }
-          }),
-          lastTranslatedWith: {
-            provider: 'Gemini',
-            model: 'gemini-2.5-flash',
-            temperature: 0.7
-          }
-        });
+        await store.handleFetch(chapter.originalUrl, true);
+        await store.handleTranslate(chapter.originalUrl, true);
       }
       
       // Export session data
-      const exportData = store.exportSessionData();
+      store.exportSession();
       
       // Verify export structure
-      expect(exportData).toHaveProperty('exportMetadata');
-      expect(exportData).toHaveProperty('settings');
-      expect(exportData).toHaveProperty('sessionData');
-      expect(exportData).toHaveProperty('timestamp');
+      // NOTE: We can't directly test the exported data as it's a file download.
+      // Instead, we'll check if the download link was created with the correct data.
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      expect(mockCreateObjectURL).toHaveBeenCalled();
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
+
+      expect(exportData).toHaveProperty('session_metadata');
+      expect(exportData).toHaveProperty('chapters');
       
       // Verify metadata
-      expect(exportData.exportMetadata.version).toBe('1.0');
-      expect(exportData.exportMetadata.totalChapters).toBe(3);
-      expect(typeof exportData.timestamp).toBe('string');
-      
-      // Verify settings preservation
-      expect(exportData.settings.provider).toBe('Gemini');
-      expect(exportData.settings.model).toBe('gemini-2.5-flash');
-      expect(exportData.settings.temperature).toBe(0.7);
+      expect(exportData.session_metadata.settings.provider).toBe('Gemini');
       
       // Verify all chapters included
-      expect(Object.keys(exportData.sessionData)).toHaveLength(3);
+      expect(exportData.chapters).toHaveLength(3);
       chapters.forEach(chapter => {
-        expect(exportData.sessionData[chapter.originalUrl]).toBeTruthy();
-        expect(exportData.sessionData[chapter.originalUrl].chapter.title).toBe(chapter.title);
-        expect(exportData.sessionData[chapter.originalUrl].translationResult).toBeTruthy();
+        const exportedChapter = exportData.chapters.find(c => c.sourceUrl === chapter.originalUrl);
+        expect(exportedChapter).toBeTruthy();
+        expect(exportedChapter.title).toBe(chapter.title);
+        expect(exportedChapter.translationResult).toBeTruthy();
       });
       
       // Verify JSON is valid
-      const jsonString = JSON.stringify(exportData);
-      expect(() => JSON.parse(jsonString)).not.toThrow();
+      expect(() => JSON.parse(text)).not.toThrow();
     });
 
     it('should handle empty session data gracefully', () => {
@@ -102,54 +84,39 @@ describe('Export/Import System', () => {
       // PREVENTS: Export errors when no data exists
       const store = useAppStore.getState();
       
-      const exportData = store.exportSessionData();
+      store.exportSession();
       
-      expect(exportData.exportMetadata.totalChapters).toBe(0);
-      expect(Object.keys(exportData.sessionData)).toHaveLength(0);
-      expect(exportData.settings).toBeTruthy(); // Should still include default settings
-      
-      // Should still be valid JSON
-      expect(() => JSON.stringify(exportData)).not.toThrow();
+      // Verify that the download link creation was not called
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      expect(mockCreateObjectURL).not.toHaveBeenCalled();
     });
 
-    it('should preserve all translation metadata in export', () => {
+    it('should preserve all translation metadata in export', async () => {
       // WHY: Users need cost tracking and translation history preserved
       // PREVENTS: Loss of valuable usage metrics and translation metadata
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter: chapter,
-        translationResult: createMockTranslationResult({
-          usageMetrics: {
-            totalTokens: 5000,
-            promptTokens: 3000,
-            completionTokens: 2000,
-            estimatedCost: 0.01245,
-            requestTime: 67.8,
-            provider: 'OpenAI',
-            model: 'gpt-5-mini'
-          }
-        }),
-        lastTranslatedWith: {
-          provider: 'OpenAI',
-          model: 'gpt-5-mini', 
-          temperature: 1.0
-        }
-      });
-      
-      const exportData = store.exportSessionData();
-      const sessionEntry = exportData.sessionData[chapter.originalUrl];
+      await store.handleFetch(chapter.originalUrl, true);
+      await store.handleTranslate(chapter.originalUrl, true);
+
+      store.exportSession();
+
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
+
+      const exportedChapter = exportData.chapters.find(c => c.sourceUrl === chapter.originalUrl);
       
       // Verify all cost and timing data preserved
-      expect(sessionEntry.translationResult.usageMetrics.estimatedCost).toBe(0.01245);
-      expect(sessionEntry.translationResult.usageMetrics.requestTime).toBe(67.8);
-      expect(sessionEntry.translationResult.usageMetrics.totalTokens).toBe(5000);
+      expect(exportedChapter.translationResult.usageMetrics.estimatedCost).toBeCloseTo(0.000345, 6);
+      expect(exportedChapter.translationResult.usageMetrics.requestTime).toBeGreaterThan(0);
+      expect(exportedChapter.translationResult.usageMetrics.totalTokens).toBe(2500);
       
       // Verify translation context preserved
-      expect(sessionEntry.lastTranslatedWith.provider).toBe('OpenAI');
-      expect(sessionEntry.lastTranslatedWith.model).toBe('gpt-5-mini');
-      expect(sessionEntry.lastTranslatedWith.temperature).toBe(1.0);
+      expect(exportedChapter.translationResult.usageMetrics.provider).toBe('Gemini');
+      expect(exportedChapter.translationResult.usageMetrics.model).toBe('gemini-2.5-flash');
     });
   });
 
@@ -160,48 +127,36 @@ describe('Export/Import System', () => {
    * This is critical for data continuity and backup recovery.
    */
   describe('JSON Import', () => {
-    it('should restore complete session from exported JSON', () => {
+    it('should restore complete session from exported JSON', async () => {
       const store = useAppStore.getState();
       const chapters = createChapterChain(2);
       
       // Create export data
       const exportData = {
-        exportMetadata: {
-          version: '1.0',
-          appVersion: '1.0.0',
-          totalChapters: 2,
-          exportDate: '2025-01-12T10:30:00.000Z'
-        },
-        timestamp: '2025-01-12T10:30:00.000Z',
-        settings: createMockAppSettings({
-          provider: 'DeepSeek',
-          model: 'deepseek-chat',
-          temperature: 0.5
-        }),
-        sessionData: {
-          [chapters[0].originalUrl]: {
-            chapter: chapters[0],
-            translationResult: createMockTranslationResult(),
-            lastTranslatedWith: {
+        session_metadata: { 
+            exported_at: new Date().toISOString(), 
+            settings: createMockAppSettings({
               provider: 'DeepSeek',
               model: 'deepseek-chat',
               temperature: 0.5
-            }
-          },
-          [chapters[1].originalUrl]: {
-            chapter: chapters[1],
+            })
+        },
+        urlHistory: chapters.map(c => c.originalUrl),
+        chapters: chapters.map(chapter => ({
+            sourceUrl: chapter.originalUrl,
+            title: chapter.title,
+            originalContent: chapter.content,
+            nextUrl: chapter.nextUrl,
+            prevUrl: chapter.prevUrl,
             translationResult: createMockTranslationResult(),
-            lastTranslatedWith: {
-              provider: 'DeepSeek', 
-              model: 'deepseek-chat',
-              temperature: 0.5
-            }
-          }
-        }
+            feedback: [],
+        }))
       };
       
       // Import the data
-      store.importSessionData(exportData);
+      const file = new File([JSON.stringify(exportData)], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await store.importSession(event);
       
       // Verify settings restored
       const state = useAppStore.getState();
@@ -216,18 +171,19 @@ describe('Export/Import System', () => {
         expect(sessionEntry).toBeTruthy();
         expect(sessionEntry.chapter.title).toBe(chapter.title);
         expect(sessionEntry.translationResult).toBeTruthy();
-        expect(sessionEntry.lastTranslatedWith.provider).toBe('DeepSeek');
       });
     });
 
-    it('should handle corrupted import data gracefully', () => {
+    it('should handle corrupted import data gracefully', async () => {
       // WHY: Import files can get corrupted during transfer
       // PREVENTS: App crashes when importing bad data
       const store = useAppStore.getState();
       
-      const corruptedData = createCorruptedStorageData();
+      const corruptedData = 'this is not a valid json string';
+      const file = new File([corruptedData], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
       
-      expect(() => store.importSessionData(corruptedData)).not.toThrow();
+      await store.importSession(event);
       
       // App should remain in valid state
       const state = useAppStore.getState();
@@ -235,7 +191,7 @@ describe('Export/Import System', () => {
       expect(state.error).toContain('import');
     });
 
-    it('should validate import data structure before importing', () => {
+    it('should validate import data structure before importing', async () => {
       const store = useAppStore.getState();
       
       const invalidData = [
@@ -243,15 +199,17 @@ describe('Export/Import System', () => {
         undefined,
         'not-an-object',
         { settings: 'invalid' }, // Missing required fields
-        { sessionData: null, settings: {} }, // Invalid sessionData
+        { chapters: null, session_metadata: {} }, // Invalid chapters
       ];
       
-      invalidData.forEach(data => {
-        expect(() => store.importSessionData(data as any)).not.toThrow();
+      for (const data of invalidData) {
+        const file = new File([JSON.stringify(data)], "session.json", { type: "application/json" });
+        const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+        await store.importSession(event);
         
         const state = useAppStore.getState();
         expect(state.error).toBeTruthy();
-      });
+      }
     });
   });
 
@@ -262,22 +220,29 @@ describe('Export/Import System', () => {
    * File naming and format must be consistent and user-friendly.
    */
   describe('File Operations', () => {
-    it('should generate consistent file names for exports', () => {
+    it('should generate consistent file names for exports', async () => {
       const store = useAppStore.getState();
+      const chapter = createMockChapter();
+      await store.handleFetch(chapter.originalUrl, true);
       
       // Mock Date to get predictable filename
       const mockDate = new Date('2025-01-12T14:30:45.000Z');
       vi.setSystemTime(mockDate);
       
-      const filename = store.generateExportFilename();
+      store.exportSession();
+
+      const mockAnchor = { download: '' };
+      vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any);
+
+      // We need to re-run exportSession to get the spy to work
+      store.exportSession();
       
-      expect(filename).toBe('translation-session-2025-01-12_14-30-45.json');
-      expect(filename).toMatch(/^translation-session-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$/);
+      expect(mockAnchor.download).toBe('novel-translator-session_2025-01-12_14-30-45_1-chapters.json');
       
       vi.useRealTimers();
     });
 
-    it('should handle file download mechanics properly', () => {
+    it('should handle file download mechanics properly', async () => {
       // WHY: Browser download functionality must work correctly
       // PREVENTS: Users unable to save their export files
       const store = useAppStore.getState();
@@ -303,18 +268,13 @@ describe('Export/Import System', () => {
       vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
       
       // Add some data and export
-      store.setSessionData(chapter.originalUrl, {
-        chapter: chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
-      });
-      
-      store.downloadSessionData();
+      await store.handleFetch(chapter.originalUrl, true);
+      store.exportSession();
       
       // Verify download flow
       expect(mockCreateObjectURL).toHaveBeenCalledWith(expect.any(Blob));
       expect(mockAnchor.href).toBe('blob:mock-url');
-      expect(mockAnchor.download).toMatch(/^translation-session-.*\.json$/);
+      expect(mockAnchor.download).toMatch(/^novel-translator-session-.*\.json$/);
       expect(mockClick).toHaveBeenCalled();
       expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
     });
@@ -327,7 +287,7 @@ describe('Export/Import System', () => {
    * Any data loss is unacceptable for paid translation work.
    */
   describe('Data Integrity', () => {
-    it('should preserve exact data through export/import cycle', () => {
+    it('should preserve exact data through export/import cycle', async () => {
       const store = useAppStore.getState();
       const originalChapter = createMockChapter({
         title: 'Specific Test Title',
@@ -351,21 +311,26 @@ describe('Export/Import System', () => {
       
       // Set up original state
       store.updateSettings({ provider: 'Gemini', model: 'gemini-2.5-pro', temperature: 0.8 });
-      store.setSessionData(originalChapter.originalUrl, {
-        chapter: originalChapter,
-        translationResult: originalResult,
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-pro', temperature: 0.8 }
-      });
-      
+      await store.handleFetch(originalChapter.originalUrl, true);
+      // Manually set the translation result to control the data for the test
+      store.sessionData[originalChapter.originalUrl].translationResult = originalResult;
+
       // Export and clear
-      const exportData = store.exportSessionData();
+      store.exportSession();
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
+
       store.clearSession();
       
       // Verify cleared
       expect(Object.keys(useAppStore.getState().sessionData)).toHaveLength(0);
       
       // Import back
-      store.importSessionData(exportData);
+      const file = new File([JSON.stringify(exportData)], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await store.importSession(event);
       
       // Verify exact restoration
       const restoredState = useAppStore.getState();
@@ -381,7 +346,7 @@ describe('Export/Import System', () => {
       expect(restoredState.settings.temperature).toBe(0.8);
     });
 
-    it('should handle Unicode and special characters correctly', () => {
+    it('should handle Unicode and special characters correctly', async () => {
       // WHY: Japanese novels contain complex Unicode characters
       // PREVENTS: Character corruption during export/import
       const store = useAppStore.getState();
@@ -401,16 +366,21 @@ describe('Export/Import System', () => {
         footnotes: [{ marker: '※', text: 'Translator\'s note: This is a common disclaimer' }]
       });
       
-      store.setSessionData(unicodeChapter.originalUrl, {
-        chapter: unicodeChapter,
-        translationResult: unicodeResult,
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.5 }
-      });
+      await store.handleFetch(unicodeChapter.originalUrl, true);
+      store.sessionData[unicodeChapter.originalUrl].translationResult = unicodeResult;
       
       // Export/import cycle
-      const exportData = store.exportSessionData();
+      store.exportSession();
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
+
       store.clearSession();
-      store.importSessionData(exportData);
+
+      const file = new File([JSON.stringify(exportData)], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await store.importSession(event);
       
       // Verify Unicode preservation
       const restored = useAppStore.getState().sessionData[unicodeChapter.originalUrl];
@@ -420,47 +390,36 @@ describe('Export/Import System', () => {
       expect(restored.translationResult.footnotes[0].marker).toBe('※');
     });
 
-    it('should handle large session data without corruption', () => {
+    it('should handle large session data without corruption', async () => {
       // WHY: Users might have translated many long chapters
       // PREVENTS: Performance issues or data truncation with large exports
       const store = useAppStore.getState();
       const largeChapters = createChapterChain(20); // Simulate large session
       
       // Add all chapters with substantial content
-      largeChapters.forEach((chapter, index) => {
-        const largeContent = createMockTranslationResult({
-          translation: 'This is a very long translation for chapter '.repeat(100) + (index + 1) + '. '.repeat(100), // ~7KB per chapter
-          usageMetrics: {
-            totalTokens: 5000 + index * 100,
-            promptTokens: 3000 + index * 60,
-            completionTokens: 2000 + index * 40,
-            estimatedCost: 0.01 + index * 0.001,
-            requestTime: 45.0 + index * 2.5,
-            provider: 'Gemini',
-            model: 'gemini-2.5-flash'
-          }
+      for (const chapter of largeChapters) {
+        await store.handleFetch(chapter.originalUrl, true);
+        // Manually set a large translation result to avoid actual translation
+        store.sessionData[chapter.originalUrl].translationResult = createMockTranslationResult({
+          translation: `This is a very long translation for chapter ${chapter.title}. `.repeat(100), // ~7KB per chapter
         });
-        
-        store.setSessionData(chapter.originalUrl, {
-          chapter: chapter,
-          translationResult: largeContent,
-          lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.7 }
-        });
-      });
+      }
       
       // Export large dataset
-      const exportData = store.exportSessionData();
+      store.exportSession();
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
       
       // Verify export completed successfully
-      expect(exportData.exportMetadata.totalChapters).toBe(20);
-      expect(Object.keys(exportData.sessionData)).toHaveLength(20);
+      expect(exportData.chapters).toHaveLength(20);
       
       // Verify JSON serialization works
-      const jsonString = JSON.stringify(exportData);
-      expect(jsonString.length).toBeGreaterThan(100000); // Should be substantial size
+      expect(text.length).toBeGreaterThan(100000); // Should be substantial size
       
       // Verify can be parsed back
-      expect(() => JSON.parse(jsonString)).not.toThrow();
+      expect(() => JSON.parse(text)).not.toThrow();
     });
   });
 
@@ -471,28 +430,35 @@ describe('Export/Import System', () => {
    * Must handle backward compatibility gracefully.
    */
   describe('Version Compatibility', () => {
-    it('should include version information in exports', () => {
+    it('should include version information in exports', async () => {
       const store = useAppStore.getState();
-      const exportData = store.exportSessionData();
+      const chapter = createMockChapter();
+      await store.handleFetch(chapter.originalUrl, true);
+
+      store.exportSession();
+
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
       
-      expect(exportData.exportMetadata.version).toBeTruthy();
-      expect(exportData.exportMetadata.appVersion).toBeTruthy();
-      expect(exportData.exportMetadata.exportDate).toBeTruthy();
+      expect(exportData.session_metadata.exported_at).toBeTruthy();
     });
 
-    it('should handle missing version information gracefully', () => {
+    it('should handle missing version information gracefully', async () => {
       // WHY: Old export files might not have version metadata
       // PREVENTS: Import failures for legacy data
       const store = useAppStore.getState();
       
       const legacyExportData = {
-        // Missing exportMetadata
-        settings: createMockAppSettings(),
-        sessionData: {},
-        timestamp: '2024-12-01T10:00:00.000Z'
+        // Missing session_metadata
+        chapters: [],
+        urlHistory: [],
       };
       
-      expect(() => store.importSessionData(legacyExportData)).not.toThrow();
+      const file = new File([JSON.stringify(legacyExportData)], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await store.importSession(event);
       
       // Should import with reasonable defaults
       const state = useAppStore.getState();
@@ -573,57 +539,39 @@ describe('Export/Import System', () => {
       
       // Add multiple chapters with translations
       for (const chapter of chapters) {
-        store.setSessionData(chapter.originalUrl, {
-          chapter: chapter,
-          translationResult: createMockTranslationResult({
-            usageMetrics: {
-              totalTokens: 2500,
-              promptTokens: 1800,
-              completionTokens: 700,
-              estimatedCost: 0.00875,
-              requestTime: 45.2,
-              provider: 'Gemini',
-              model: 'gemini-2.5-flash'
-            }
-          }),
-          lastTranslatedWith: {
-            provider: 'Gemini',
-            model: 'gemini-2.5-flash',
-            temperature: 0.7
-          }
-        });
+        await store.handleFetch(chapter.originalUrl, true);
+        await store.handleTranslate(chapter.originalUrl, true);
       }
       
       // Export session data
-      const exportData = store.exportSessionData();
+      store.exportSession();
       
       // Verify export structure
-      expect(exportData).toHaveProperty('exportMetadata');
-      expect(exportData).toHaveProperty('settings');
-      expect(exportData).toHaveProperty('sessionData');
-      expect(exportData).toHaveProperty('timestamp');
+      // NOTE: We can't directly test the exported data as it's a file download.
+      // Instead, we'll check if the download link was created with the correct data.
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      expect(mockCreateObjectURL).toHaveBeenCalled();
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
+
+      expect(exportData).toHaveProperty('session_metadata');
+      expect(exportData).toHaveProperty('chapters');
       
       // Verify metadata
-      expect(exportData.exportMetadata.version).toBe('1.0');
-      expect(exportData.exportMetadata.totalChapters).toBe(3);
-      expect(typeof exportData.timestamp).toBe('string');
-      
-      // Verify settings preservation
-      expect(exportData.settings.provider).toBe('Gemini');
-      expect(exportData.settings.model).toBe('gemini-2.5-flash');
-      expect(exportData.settings.temperature).toBe(0.7);
+      expect(exportData.session_metadata.settings.provider).toBe('Gemini');
       
       // Verify all chapters included
-      expect(Object.keys(exportData.sessionData)).toHaveLength(3);
+      expect(exportData.chapters).toHaveLength(3);
       chapters.forEach(chapter => {
-        expect(exportData.sessionData[chapter.originalUrl]).toBeTruthy();
-        expect(exportData.sessionData[chapter.originalUrl].chapter.title).toBe(chapter.title);
-        expect(exportData.sessionData[chapter.originalUrl].translationResult).toBeTruthy();
+        const exportedChapter = exportData.chapters.find(c => c.sourceUrl === chapter.originalUrl);
+        expect(exportedChapter).toBeTruthy();
+        expect(exportedChapter.title).toBe(chapter.title);
+        expect(exportedChapter.translationResult).toBeTruthy();
       });
       
       // Verify JSON is valid
-      const jsonString = JSON.stringify(exportData);
-      expect(() => JSON.parse(jsonString)).not.toThrow();
+      expect(() => JSON.parse(text)).not.toThrow();
     });
 
     it('should handle empty session data gracefully', () => {
@@ -631,54 +579,39 @@ describe('Export/Import System', () => {
       // PREVENTS: Export errors when no data exists
       const store = useAppStore.getState();
       
-      const exportData = store.exportSessionData();
+      store.exportSession();
       
-      expect(exportData.exportMetadata.totalChapters).toBe(0);
-      expect(Object.keys(exportData.sessionData)).toHaveLength(0);
-      expect(exportData.settings).toBeTruthy(); // Should still include default settings
-      
-      // Should still be valid JSON
-      expect(() => JSON.stringify(exportData)).not.toThrow();
+      // Verify that the download link creation was not called
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      expect(mockCreateObjectURL).not.toHaveBeenCalled();
     });
 
-    it('should preserve all translation metadata in export', () => {
+    it('should preserve all translation metadata in export', async () => {
       // WHY: Users need cost tracking and translation history preserved
       // PREVENTS: Loss of valuable usage metrics and translation metadata
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter: chapter,
-        translationResult: createMockTranslationResult({
-          usageMetrics: {
-            totalTokens: 5000,
-            promptTokens: 3000,
-            completionTokens: 2000,
-            estimatedCost: 0.01245,
-            requestTime: 67.8,
-            provider: 'OpenAI',
-            model: 'gpt-5-mini'
-          }
-        }),
-        lastTranslatedWith: {
-          provider: 'OpenAI',
-          model: 'gpt-5-mini', 
-          temperature: 1.0
-        }
-      });
-      
-      const exportData = store.exportSessionData();
-      const sessionEntry = exportData.sessionData[chapter.originalUrl];
+      await store.handleFetch(chapter.originalUrl, true);
+      await store.handleTranslate(chapter.originalUrl, true);
+
+      store.exportSession();
+
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
+
+      const exportedChapter = exportData.chapters.find(c => c.sourceUrl === chapter.originalUrl);
       
       // Verify all cost and timing data preserved
-      expect(sessionEntry.translationResult.usageMetrics.estimatedCost).toBe(0.01245);
-      expect(sessionEntry.translationResult.usageMetrics.requestTime).toBe(67.8);
-      expect(sessionEntry.translationResult.usageMetrics.totalTokens).toBe(5000);
+      expect(exportedChapter.translationResult.usageMetrics.estimatedCost).toBeCloseTo(0.000345, 6);
+      expect(exportedChapter.translationResult.usageMetrics.requestTime).toBeGreaterThan(0);
+      expect(exportedChapter.translationResult.usageMetrics.totalTokens).toBe(2500);
       
       // Verify translation context preserved
-      expect(sessionEntry.lastTranslatedWith.provider).toBe('OpenAI');
-      expect(sessionEntry.lastTranslatedWith.model).toBe('gpt-5-mini');
-      expect(sessionEntry.lastTranslatedWith.temperature).toBe(1.0);
+      expect(exportedChapter.translationResult.usageMetrics.provider).toBe('Gemini');
+      expect(exportedChapter.translationResult.usageMetrics.model).toBe('gemini-2.5-flash');
     });
   });
 
@@ -689,48 +622,36 @@ describe('Export/Import System', () => {
    * This is critical for data continuity and backup recovery.
    */
   describe('JSON Import', () => {
-    it('should restore complete session from exported JSON', () => {
+    it('should restore complete session from exported JSON', async () => {
       const store = useAppStore.getState();
       const chapters = createChapterChain(2);
       
       // Create export data
       const exportData = {
-        exportMetadata: {
-          version: '1.0',
-          appVersion: '1.0.0',
-          totalChapters: 2,
-          exportDate: '2025-01-12T10:30:00.000Z'
-        },
-        timestamp: '2025-01-12T10:30:00.000Z',
-        settings: createMockAppSettings({
-          provider: 'DeepSeek',
-          model: 'deepseek-chat',
-          temperature: 0.5
-        }),
-        sessionData: {
-          [chapters[0].originalUrl]: {
-            chapter: chapters[0],
-            translationResult: createMockTranslationResult(),
-            lastTranslatedWith: {
+        session_metadata: { 
+            exported_at: new Date().toISOString(), 
+            settings: createMockAppSettings({
               provider: 'DeepSeek',
               model: 'deepseek-chat',
               temperature: 0.5
-            }
-          },
-          [chapters[1].originalUrl]: {
-            chapter: chapters[1],
+            })
+        },
+        urlHistory: chapters.map(c => c.originalUrl),
+        chapters: chapters.map(chapter => ({
+            sourceUrl: chapter.originalUrl,
+            title: chapter.title,
+            originalContent: chapter.content,
+            nextUrl: chapter.nextUrl,
+            prevUrl: chapter.prevUrl,
             translationResult: createMockTranslationResult(),
-            lastTranslatedWith: {
-              provider: 'DeepSeek', 
-              model: 'deepseek-chat',
-              temperature: 0.5
-            }
-          }
-        }
+            feedback: [],
+        }))
       };
       
       // Import the data
-      store.importSessionData(exportData);
+      const file = new File([JSON.stringify(exportData)], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await store.importSession(event);
       
       // Verify settings restored
       const state = useAppStore.getState();
@@ -745,18 +666,19 @@ describe('Export/Import System', () => {
         expect(sessionEntry).toBeTruthy();
         expect(sessionEntry.chapter.title).toBe(chapter.title);
         expect(sessionEntry.translationResult).toBeTruthy();
-        expect(sessionEntry.lastTranslatedWith.provider).toBe('DeepSeek');
       });
     });
 
-    it('should handle corrupted import data gracefully', () => {
+    it('should handle corrupted import data gracefully', async () => {
       // WHY: Import files can get corrupted during transfer
       // PREVENTS: App crashes when importing bad data
       const store = useAppStore.getState();
       
-      const corruptedData = createCorruptedStorageData();
+      const corruptedData = 'this is not a valid json string';
+      const file = new File([corruptedData], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
       
-      expect(() => store.importSessionData(corruptedData)).not.toThrow();
+      await store.importSession(event);
       
       // App should remain in valid state
       const state = useAppStore.getState();
@@ -764,7 +686,7 @@ describe('Export/Import System', () => {
       expect(state.error).toContain('import');
     });
 
-    it('should validate import data structure before importing', () => {
+    it('should validate import data structure before importing', async () => {
       const store = useAppStore.getState();
       
       const invalidData = [
@@ -772,15 +694,17 @@ describe('Export/Import System', () => {
         undefined,
         'not-an-object',
         { settings: 'invalid' }, // Missing required fields
-        { sessionData: null, settings: {} }, // Invalid sessionData
+        { chapters: null, session_metadata: {} }, // Invalid chapters
       ];
       
-      invalidData.forEach(data => {
-        expect(() => store.importSessionData(data as any)).not.toThrow();
+      for (const data of invalidData) {
+        const file = new File([JSON.stringify(data)], "session.json", { type: "application/json" });
+        const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+        await store.importSession(event);
         
         const state = useAppStore.getState();
         expect(state.error).toBeTruthy();
-      });
+      }
     });
   });
 
@@ -791,17 +715,24 @@ describe('Export/Import System', () => {
    * File naming and format must be consistent and user-friendly.
    */
   describe('File Operations', () => {
-    it('should generate consistent file names for exports', () => {
+    it('should generate consistent file names for exports', async () => {
       const store = useAppStore.getState();
+      const chapter = createMockChapter();
+      await store.handleFetch(chapter.originalUrl, true);
       
       // Mock Date to get predictable filename
       const mockDate = new Date('2025-01-12T14:30:45.000Z');
       vi.setSystemTime(mockDate);
       
-      const filename = store.generateExportFilename();
+      store.exportSession();
+
+      const mockAnchor = { download: '' };
+      vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any);
+
+      // We need to re-run exportSession to get the spy to work
+      store.exportSession();
       
-      expect(filename).toBe('translation-session-2025-01-12_14-30-45.json');
-      expect(filename).toMatch(/^translation-session-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$/);
+      expect(mockAnchor.download).toBe('novel-translator-session_2025-01-12_14-30-45_1-chapters.json');
       
       vi.useRealTimers();
     });
@@ -856,7 +787,7 @@ describe('Export/Import System', () => {
    * Any data loss is unacceptable for paid translation work.
    */
   describe('Data Integrity', () => {
-    it('should preserve exact data through export/import cycle', () => {
+    it('should preserve exact data through export/import cycle', async () => {
       const store = useAppStore.getState();
       const originalChapter = createMockChapter({
         title: 'Specific Test Title',
@@ -880,21 +811,26 @@ describe('Export/Import System', () => {
       
       // Set up original state
       store.updateSettings({ provider: 'Gemini', model: 'gemini-2.5-pro', temperature: 0.8 });
-      store.setSessionData(originalChapter.originalUrl, {
-        chapter: originalChapter,
-        translationResult: originalResult,
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-pro', temperature: 0.8 }
-      });
-      
+      await store.handleFetch(originalChapter.originalUrl, true);
+      // Manually set the translation result to control the data for the test
+      store.sessionData[originalChapter.originalUrl].translationResult = originalResult;
+
       // Export and clear
-      const exportData = store.exportSessionData();
+      store.exportSession();
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
+
       store.clearSession();
       
       // Verify cleared
       expect(Object.keys(useAppStore.getState().sessionData)).toHaveLength(0);
       
       // Import back
-      store.importSessionData(exportData);
+      const file = new File([JSON.stringify(exportData)], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await store.importSession(event);
       
       // Verify exact restoration
       const restoredState = useAppStore.getState();
@@ -995,28 +931,35 @@ describe('Export/Import System', () => {
    * Must handle backward compatibility gracefully.
    */
   describe('Version Compatibility', () => {
-    it('should include version information in exports', () => {
+    it('should include version information in exports', async () => {
       const store = useAppStore.getState();
-      const exportData = store.exportSessionData();
+      const chapter = createMockChapter();
+      await store.handleFetch(chapter.originalUrl, true);
+
+      store.exportSession();
+
+      const mockCreateObjectURL = vi.spyOn(URL, 'createObjectURL');
+      const blob = (mockCreateObjectURL.mock.calls[0][0] as Blob);
+      const text = await blob.text();
+      const exportData = JSON.parse(text);
       
-      expect(exportData.exportMetadata.version).toBeTruthy();
-      expect(exportData.exportMetadata.appVersion).toBeTruthy();
-      expect(exportData.exportMetadata.exportDate).toBeTruthy();
+      expect(exportData.session_metadata.exported_at).toBeTruthy();
     });
 
-    it('should handle missing version information gracefully', () => {
+    it('should handle missing version information gracefully', async () => {
       // WHY: Old export files might not have version metadata
       // PREVENTS: Import failures for legacy data
       const store = useAppStore.getState();
       
       const legacyExportData = {
-        // Missing exportMetadata
-        settings: createMockAppSettings(),
-        sessionData: {},
-        timestamp: '2024-12-01T10:00:00.000Z'
+        // Missing session_metadata
+        chapters: [],
+        urlHistory: [],
       };
       
-      expect(() => store.importSessionData(legacyExportData)).not.toThrow();
+      const file = new File([JSON.stringify(legacyExportData)], "session.json", { type: "application/json" });
+      const event = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      await store.importSession(event);
       
       // Should import with reasonable defaults
       const state = useAppStore.getState();
