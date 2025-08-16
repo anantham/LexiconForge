@@ -758,9 +758,6 @@ if (typeof window !== 'undefined') {
     window.location.reload();
   };
   
-  console.log('🧹 Emergency cleanup available:');
-  console.log('• cleanupDuplicateVersions() - Clean DB only');  
-  console.log('• cleanupAndRefresh() - Clean DB + refresh UI');
 }
 
 /**

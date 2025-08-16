@@ -5,6 +5,7 @@ export interface Chapter {
   originalUrl: string;
   nextUrl: string | null;
   prevUrl: string | null;
+  chapterNumber?: number;
 }
 
 export abstract class BaseAdapter {
@@ -123,6 +124,7 @@ export interface ImportedChapter {
     prevUrl: string | null;
     translationResult: TranslationResult | null;
     feedback: FeedbackItem[];
+    chapterNumber?: number;
 }
 
 export interface SessionChapterData {

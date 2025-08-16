@@ -9,6 +9,26 @@ import { fetchAndParseUrl } from '../services/adapters';
 import { indexedDBService, TranslationRecord, PromptTemplateRecord, migrateFromLocalStorage } from '../services/indexeddb';
 import { collectActiveVersions, generateEpub, EpubExportOptions } from '../services/epubService';
 
+// Helper function to find session data by normalized URL
+const findSessionDataByUrl = (sessionData: Record<string, any>, targetUrl: string): any => {
+    const normalizedTarget = normalizeUrl(targetUrl);
+    if (!normalizedTarget) return null;
+    
+    // First try exact match
+    if (sessionData[targetUrl]) {
+        return sessionData[targetUrl];
+    }
+    
+    // Then try normalized match
+    for (const [storedUrl, data] of Object.entries(sessionData)) {
+        if (normalizeUrl(storedUrl) === normalizedTarget) {
+            return data;
+        }
+    }
+    
+    return null;
+};
+
 // Helper to prevent duplicate URLs (e.g. with/without trailing slash, viewer param)
 const normalizeUrl = (url: string | null | undefined): string | null => {
     if (!url) return null;
@@ -95,6 +115,7 @@ interface AppActions {
     hasTranslationSettingsChanged: (url: string) => boolean;
     shouldEnableRetranslation: (url: string) => boolean;
     handleGenerateImages: (url: string) => Promise<void>;
+    getSessionDataByUrl: (url: string) => any;
     // Version management
     loadTranslationVersions: (url: string) => Promise<void>;
     switchTranslationVersion: (url: string, version: number) => Promise<void>;
@@ -263,25 +284,40 @@ const useAppStore = create<Store>()(
             },
 
             handleTranslate: async (urlToTranslate, isSilent = false) => {
-                console.log(`%c[Diag] handleTranslate START for ${urlToTranslate}. Silent: ${isSilent}`, 'color: #ff00ff; font-weight: bold;');
                 const { sessionData, urlHistory, settings, feedbackHistory, lastApiCallTimestamp, activeTranslations } = get();
+
+                console.log(`[LoadingState Debug] handleTranslate called for ${urlToTranslate}, isSilent: ${isSilent}`);
+                const currentState = get();
+                console.log(`[LoadingState Debug] Current isLoading.translating: ${currentState.isLoading.translating}`);
+                console.log(`[LoadingState Debug] Current urlLoadingStates[${urlToTranslate}]: ${currentState.urlLoadingStates[urlToTranslate]}`);
 
                 // EARLY API KEY VALIDATION - Check before any processing
                 const apiValidation = validateApiKey(settings);
                 if (!apiValidation.isValid) {
                     console.error(`[Translation] API key validation failed: ${apiValidation.errorMessage}`);
+                    console.log(`[LoadingState Debug] API validation failed - about to clear loading states`);
                     
                     // Clear any loading state for this URL since we're not actually translating
                     set(prev => {
                         const newUrlLoadingStates = { ...prev.urlLoadingStates };
                         delete newUrlLoadingStates[urlToTranslate];
                         
+                        console.log(`[LoadingState Debug] Clearing states - prev.isLoading.translating: ${prev.isLoading.translating}`);
+                        console.log(`[LoadingState Debug] Clearing states - prev.urlLoadingStates[${urlToTranslate}]: ${prev.urlLoadingStates[urlToTranslate]}`);
+                        
                         return {
                             ...prev,
                             urlLoadingStates: newUrlLoadingStates,
+                            isLoading: { ...prev.isLoading, translating: false },
                             error: isSilent ? prev.error : `Translation API error: ${apiValidation.errorMessage}`
                         };
                     });
+                    
+                    // Log the state after clearing
+                    const stateAfterClear = get();
+                    console.log(`[LoadingState Debug] After clearing - isLoading.translating: ${stateAfterClear.isLoading.translating}`);
+                    console.log(`[LoadingState Debug] After clearing - urlLoadingStates[${urlToTranslate}]: ${stateAfterClear.urlLoadingStates[urlToTranslate]}`);
+                    
                     return; // Exit immediately, no rate limiting, no further state changes
                 }
 
@@ -348,7 +384,6 @@ const useAppStore = create<Store>()(
                 }).filter((item): item is HistoricalChapter => item !== null);
 
                 try {
-                    console.log('%c[Diag] handleTranslate: TRY block entered', 'color: #ff00ff; font-weight: bold;');
                     const result = await translateChapter(chapterToTranslate.title, chapterToTranslate.content, settings, historyForApi);
                     console.log('%c[Diag] handleTranslate: API call SUCCEEDED', 'color: #ff00ff; font-weight: bold;', result);
                     
@@ -413,10 +448,14 @@ const useAppStore = create<Store>()(
                         await get().loadTranslationVersions(urlToTranslate);
                         
                         console.log('%c[Diag] handleTranslate: Versions reloaded. Checking for image generation...', 'color: #ff00ff; font-weight: bold;');
-                        // NEW: Trigger image generation if prompts were returned
-                        if (result.suggestedIllustrations && result.suggestedIllustrations.length > 0) {
-                            get().handleGenerateImages(urlToTranslate);
-                        }
+                        
+                        // COMPREHENSIVE IMAGE GENERATION DIAGNOSTICS
+                        console.log(`[ImageGen Debug] Translation result exists: ${!!result}`);
+                        console.log(`[ImageGen Debug] suggestedIllustrations exists: ${!!result.suggestedIllustrations}`);
+                        console.log(`[ImageGen Debug] suggestedIllustrations length: ${result.suggestedIllustrations?.length || 'undefined'}`);
+                        console.log(`[ImageGen Debug] suggestedIllustrations content:`, result.suggestedIllustrations);
+                        console.log(`[ImageGen Debug] urlToTranslate: ${urlToTranslate}`);
+                        
 
                         console.log(`[Translation] Stored new version for ${urlToTranslate}`);
                     } catch (error) {
@@ -425,11 +464,32 @@ const useAppStore = create<Store>()(
                     }
 
                     set((state) => {
-                      const prevUrlEntry = state.sessionData[urlToTranslate];
+                      console.log(`%c[Translation Update] Starting state update for: ${urlToTranslate}`, 'color: #00ff00; font-weight: bold;');
+                      
+                      // Use helper function to handle URL normalization differences
+                      const prevUrlEntry = findSessionDataByUrl(state.sessionData, urlToTranslate);
                       if (!prevUrlEntry) {
                         console.error(`[Translation] Cannot set translation result - no chapter data found for ${urlToTranslate}`);
+                        console.error(`[Translation] Available keys:`, Object.keys(state.sessionData).slice(0, 3));
                         return state; // Don't update if no chapter data exists
                       }
+                      
+                      // Find the actual key that was matched (for updating the right entry)
+                      let actualKey = urlToTranslate;
+                      if (!state.sessionData[urlToTranslate]) {
+                        // If direct lookup failed, find the key that findSessionDataByUrl found
+                        const normalizedTarget = normalizeUrl(urlToTranslate);
+                        for (const [storedUrl] of Object.entries(state.sessionData)) {
+                          if (normalizeUrl(storedUrl) === normalizedTarget) {
+                            actualKey = storedUrl;
+                            console.log(`[Translation] URL mapping: ${urlToTranslate} → ${actualKey}`);
+                            break;
+                          }
+                        }
+                      }
+                      
+                      console.log(`%c[Translation] Updating sessionData with key: ${actualKey}`, 'color: green; font-weight: bold;');
+                      console.log(`[Translation] Result has ${result?.translation?.length || 0} chars`);
                       
                       const nextUrlEntry: SessionChapterData = {
                         ...prevUrlEntry,
@@ -451,7 +511,7 @@ const useAppStore = create<Store>()(
                         // NEW object for the map
                         sessionData: {
                           ...state.sessionData,
-                          [urlToTranslate]: nextUrlEntry, // NEW object for the url entry
+                          [actualKey]: nextUrlEntry, // Use actualKey instead of urlToTranslate
                         },
 
                         // keep or clear proposal as you intended
@@ -481,6 +541,19 @@ const useAppStore = create<Store>()(
                         },
                       };
                     });
+                    
+                    // FIXED: Trigger image generation AFTER sessionData is updated
+                    if (result.suggestedIllustrations && result.suggestedIllustrations.length > 0) {
+                        console.log(`[ImageGen Debug] ✅ CONDITION MET - Calling handleGenerateImages for ${result.suggestedIllustrations.length} illustrations`);
+                        get().handleGenerateImages(urlToTranslate);
+                    } else {
+                        console.log(`[ImageGen Debug] ❌ CONDITION NOT MET - No image generation triggered`);
+                        if (!result.suggestedIllustrations) {
+                            console.log(`[ImageGen Debug] - suggestedIllustrations is falsy: ${result.suggestedIllustrations}`);
+                        } else if (result.suggestedIllustrations.length === 0) {
+                            console.log(`[ImageGen Debug] - suggestedIllustrations array is empty`);
+                        }
+                    }
                 } catch (e: any) {
                     // Don't show errors for aborted translations
                     if (abortController.signal.aborted) {
@@ -894,17 +967,34 @@ const useAppStore = create<Store>()(
                             let conflicts = 0;
 
                             for (const chapter of importedData.chapters) {
-                                const sourceUrl = normalizeUrl(chapter.sourceUrl || (chapter as any).url); // Compatibility with older formats
-                                if (!sourceUrl) continue;
+                                const rawChapterUrl = chapter.sourceUrl || (chapter as any).url;
+                                if (!rawChapterUrl) continue;
 
-                                console.log(`[Import] Processing chapter: ${chapter.title}`, {
-                                    sourceUrl: sourceUrl,
-                                    nextUrl: normalizeUrl(chapter.nextUrl),
-                                    prevUrl: normalizeUrl(chapter.prevUrl),
-                                });
+                                let sourceUrl: string | null = rawChapterUrl;
+                                let nextUrl: string | null = chapter.nextUrl;
+                                let prevUrl: string | null = chapter.prevUrl;
+
+                                try {
+                                    // Always normalize URLs during import for consistent cache lookups
+                                    sourceUrl = normalizeUrl(rawChapterUrl);
+                                    nextUrl = normalizeUrl(chapter.nextUrl);
+                                    prevUrl = normalizeUrl(chapter.prevUrl);
+                                } catch (e) {
+                                    console.warn(`[Import] Invalid URL encountered during normalization: ${rawChapterUrl}. Using as-is.`);
+                                    // If URL is invalid, use it as-is, and next/prev as-is
+                                }
+                                
+                                if (!sourceUrl) continue; // Should not happen if rawChapterUrl was valid
+
+                                console.log(`[Import Debug] Original URL: ${rawChapterUrl}`);
+                                console.log(`[Import Debug] Processed URL: ${sourceUrl} (Normalized: ${sourceUrl !== rawChapterUrl})`);
+                                console.log(`[Import Debug] Chapter Number: ${chapter.chapterNumber}`);
 
                                 const chapterExists = !!newSessionData[sourceUrl];
-                                if (chapterExists) conflicts++;
+                                if (chapterExists) {
+                                    conflicts++;
+                                    console.warn(`[Import Debug] Conflict detected for processed URL: ${sourceUrl}. Overwriting existing entry.`);
+                                }
 
                                 if (!chapterExists || window.confirm(`A chapter for the URL "${sourceUrl}" already exists. Overwrite your local version with the one from the file?`)) {
                                     newSessionData[sourceUrl] = {
@@ -912,13 +1002,15 @@ const useAppStore = create<Store>()(
                                             title: chapter.title, 
                                             content: (chapter as any).content || chapter.originalContent, // Compatibility with older formats
                                             originalUrl: sourceUrl,
-                                            nextUrl: normalizeUrl(chapter.nextUrl), 
-                                            prevUrl: normalizeUrl(chapter.prevUrl),
+                                            nextUrl: nextUrl, 
+                                            prevUrl: prevUrl,
+                                            chapterNumber: chapter.chapterNumber,
                                         },
                                         translationResult: chapter.translationResult ?? null,
                                     };
                                     if (chapter.feedback?.length > 0) newFeedbackHistory[sourceUrl] = chapter.feedback;
                                 }
+                                console.log(`[Import Debug] newSessionData after processing ${sourceUrl}:`, newSessionData);
                             }
 
                             console.groupEnd();
@@ -994,20 +1086,49 @@ const useAppStore = create<Store>()(
 
             shouldEnableRetranslation: (url: string) => {
                 const { sessionData, isDirty } = get();
-                const translationExists = !!sessionData[url]?.translationResult;
+                const urlData = findSessionDataByUrl(sessionData, url);
+                const translationExists = !!urlData?.translationResult;
                 const settingsChanged = get().hasTranslationSettingsChanged(url);
                 const isTranslating = get().isUrlTranslating(url);
                 
                 return translationExists && !isTranslating && (isDirty || settingsChanged);
             },
 
-                        handleGenerateImages: async (url: string) => {
-                console.log(`[ImageGen] Starting image generation for ${url}`);
-                const { sessionData, settings } = get();
-                const translationResult = sessionData[url]?.translationResult;
+            getSessionDataByUrl: (url: string) => {
+                const { sessionData } = get();
+                return findSessionDataByUrl(sessionData, url);
+            },
 
-                if (!translationResult || !translationResult.suggestedIllustrations) {
+                        handleGenerateImages: async (url: string) => {
+                console.log(`%c[ImageGen] ⚡ FUNCTION CALLED - Starting image generation for ${url}`, 'color: #00ff00; font-weight: bold; font-size: 14px;');
+                const { sessionData, settings } = get();
+                
+                // DIAGNOSTIC LOGGING - Let's see what's actually happening
+                const urlSessionData = findSessionDataByUrl(sessionData, url);
+                console.log(`[ImageGen Debug] Session data exists for URL: ${!!urlSessionData}`);
+                console.log(`[ImageGen Debug] Session data keys: ${Object.keys(sessionData)}`);
+                
+                const translationResult = urlSessionData?.translationResult;
+                console.log(`[ImageGen Debug] Translation result exists: ${!!translationResult}`);
+                console.log(`[ImageGen Debug] Translation result type: ${typeof translationResult}`);
+                
+                if (translationResult) {
+                    console.log(`[ImageGen Debug] Translation result keys: ${Object.keys(translationResult)}`);
+                    console.log(`[ImageGen Debug] suggestedIllustrations exists: ${!!translationResult.suggestedIllustrations}`);
+                    console.log(`[ImageGen Debug] suggestedIllustrations type: ${typeof translationResult.suggestedIllustrations}`);
+                    console.log(`[ImageGen Debug] suggestedIllustrations length: ${translationResult.suggestedIllustrations?.length || 'undefined'}`);
+                    
+                    if (translationResult.suggestedIllustrations) {
+                        console.log(`[ImageGen Debug] Illustration details:`, translationResult.suggestedIllustrations);
+                    }
+                } else {
+                    console.log(`[ImageGen Debug] Translation result is null/undefined`);
+                    console.log(`[ImageGen Debug] Full session data for URL:`, urlSessionData);
+                }
+
+                if (!translationResult || !translationResult.suggestedIllustrations || translationResult.suggestedIllustrations.length === 0) {
                     console.warn('[ImageGen] No illustrations suggested for this chapter.');
+                    console.log(`[ImageGen Debug] Reason: translationResult=${!!translationResult}, suggestedIllustrations=${!!translationResult?.suggestedIllustrations}, length=${translationResult?.suggestedIllustrations?.length}`);
                     return;
                 }
 
