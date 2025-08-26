@@ -31,7 +31,15 @@ export const mockFetch = () => {
     
     // Parse request to determine provider and response
     if (url.includes('generativelanguage.googleapis.com')) {
-      return mockGeminiResponse(body);
+      // Differentiate between translation and image generation
+      if (url.includes(':generateImages')) {
+        return Promise.resolve(new Response(
+          JSON.stringify(MOCK_API_RESPONSES.image.success),
+          { status: 200 }
+        ));
+      } else {
+        return mockGeminiResponse(body);
+      }
     } else if (url.includes('api.openai.com')) {
       return mockOpenAIResponse(body);  
     } else if (url.includes('api.deepseek.com')) {

@@ -36,11 +36,12 @@ export const MODELS: ModelInfo[] = [
 
 export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output: number } } = {
     // --- Gemini Models (Official Google 2025 pricing) ---
-    'gemini-2.5-pro': { input: 1.25, output: 10.00 }, // <=200k tokens, >200k: $2.50/$15.00
-    'gemini-2.5-flash': { input: 0.075, output: 0.30 }, // <=128k tokens, >128k: $0.15/$0.60
-    'gemini-2.5-flash-lite': { input: 0.15, output: 0.30 }, // Estimated based on pattern
-    'gemini-2.0-flash': { input: 0.25, output: 0.50 }, // Estimated legacy pricing
-    'gemini-2.0-flash-lite': { input: 0.10, output: 0.20 }, // Estimated legacy pricing
+    'gemini-2.5-pro': { input: 1.25, output: 10.00 }, // keep as is unless updated
+    // Updated per your latest pricing
+    'gemini-2.5-flash': { input: 0.30, output: 2.50 },
+    'gemini-2.5-flash-lite': { input: 0.10, output: 0.40 },
+    'gemini-2.0-flash': { input: 0.10, output: 0.40 },
+    'gemini-2.0-flash-lite': { input: 0.10, output: 0.20 },
     
     // --- OpenAI Models (Official 2025 pricing) ---
     'gpt-5': { input: 1.25, output: 10.00 },
@@ -84,8 +85,8 @@ export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output:
 // --- IMAGE MODEL COSTS (Per Image in USD) ---
 export const IMAGE_COSTS: { [key: string]: number } = {
     // Google Gemini Image Models
-    'gemini-1.5-flash': 0.00, // Free tier
     'gemini-2.0-flash-preview-image-generation': 0.039, // $0.039 per image
+    'gemini-2.5-flash-image-preview': 0.039, // $0.039 per image
     
     // Google Imagen Models (Official 2025 pricing)
     'imagen-3.0-generate-002': 0.03, // Imagen 3 - $0.03 per image
@@ -96,4 +97,12 @@ export const IMAGE_COSTS: { [key: string]: number } = {
     'imagen-3': 0.03,
     'imagen-4': 0.04,
     'imagen-4-ultra': 0.06,
+
+    // PiAPI Flux models (pricing provided by user)
+    // Flux.1-Schnell: $0.0015 per image (batch 1-4)
+    'Qubico/flux1-schnell': 0.0015,
+    // Flux.1-Dev: $0.015 per generation (treat as per image for single-image use)
+    'Qubico/flux1-dev': 0.015,
+    // Flux.1-Dev-Advanced: $0.02 per generation
+    'Qubico/flux1-dev-advanced': 0.02,
 };

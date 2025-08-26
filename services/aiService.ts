@@ -67,6 +67,10 @@ const formatHistory = (history: HistoricalChapter[]): string => {
     return "No recent history available.";
   }
   return history.map((h, index) => {
+    // Derive structured-output hints from the previous translated text
+    const illuCount = (h.translatedContent.match(/\[ILLUSTRATION-\d+\]/g) || []).length;
+    const footMarkerCount = (h.translatedContent.match(/\[(\d+)\]/g) || []).length;
+    const feedbackCount = h.feedback?.length || 0;
     const feedbackStr = h.feedback.length > 0
         ? "Feedback on this chapter:\n" + h.feedback.map((f: FeedbackItem) => {
             const commentStr = f.comment ? ` (User comment: ${f.comment})` : '';
@@ -81,6 +85,10 @@ const formatHistory = (history: HistoricalChapter[]): string => {
            `== PREVIOUS TRANSLATION ==\n` +
            `TITLE: ${h.translatedTitle}\n` +
            `CONTENT:\n${h.translatedContent}\n\n` +
+           `== STRUCTURED OUTPUT SUMMARY ==\n` +
+           `Illustration markers: ${illuCount}\n` +
+           `Footnote markers: ${footMarkerCount}\n` +
+           `Feedback items: ${feedbackCount}\n\n` +
            `== USER FEEDBACK ON THIS TRANSLATION ==\n` +
            `${feedbackStr}\n\n` +
            `--- END OF CONTEXT FOR PREVIOUS CHAPTER ${index + 1} ---`;
@@ -483,16 +491,93 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     const openai = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
     
     // Clean system prompt without JSON schema instructions (schema is enforced natively)
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: 'system', content: settings.systemPrompt },
-    ];
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
     
-    history.forEach(h => {
-        messages.push({ role: 'user', content: `TITLE: ${h.originalTitle}\n\nCONTENT:\n${h.originalContent}` });
-        messages.push({ role: 'assistant', content: h.translatedContent });
+    // DIAGNOSTIC: Validate system prompt
+    console.log('[OpenAI DIAGNOSTIC] System prompt validation:', {
+        exists: !!settings.systemPrompt,
+        type: typeof settings.systemPrompt,
+        length: settings.systemPrompt?.length || 0,
+        isNull: settings.systemPrompt === null,
+        isUndefined: settings.systemPrompt === undefined,
+        preview: settings.systemPrompt?.slice(0, 50) + '...'
     });
     
-    messages.push({ role: 'user', content: `Translate this new chapter:\n\nTITLE:\n${title}\n\nCONTENT:\n${content}` });
+    if (!settings.systemPrompt) {
+        console.error('[OpenAI DIAGNOSTIC] System prompt is null/undefined!');
+        throw new Error('System prompt cannot be empty for OpenAI translation');
+    }
+    
+    messages.push({ role: 'system', content: settings.systemPrompt });
+    
+    // DIAGNOSTIC: Validate history
+    console.log('[OpenAI DIAGNOSTIC] History validation:', {
+        historyCount: history.length,
+        historyExists: !!history
+    });
+    
+    history.forEach((h, index) => {
+        console.log(`[OpenAI DIAGNOSTIC] History[${index}]:`, {
+            originalTitle: { exists: !!h.originalTitle, type: typeof h.originalTitle, isNull: h.originalTitle === null },
+            originalContent: { exists: !!h.originalContent, type: typeof h.originalContent, isNull: h.originalContent === null, length: h.originalContent?.length || 0 },
+            translatedContent: { exists: !!h.translatedContent, type: typeof h.translatedContent, isNull: h.translatedContent === null, length: h.translatedContent?.length || 0 }
+        });
+        
+        if (h.originalTitle === null || h.originalContent === null || h.translatedContent === null) {
+            console.error(`[OpenAI DIAGNOSTIC] History[${index}] has null content! Skipping...`);
+            return; // Skip this history entry
+        }
+        
+        const userContent = `TITLE: ${h.originalTitle}\n\nCONTENT:\n${h.originalContent}`;
+        const assistantContent = h.translatedContent;
+        
+        console.log(`[OpenAI DIAGNOSTIC] Adding history[${index}] messages:`, {
+            userContentLength: userContent.length,
+            assistantContentLength: assistantContent.length,
+            userContentIsNull: userContent === null,
+            assistantContentIsNull: assistantContent === null
+        });
+        
+        messages.push({ role: 'user', content: userContent });
+        messages.push({ role: 'assistant', content: assistantContent });
+    });
+    
+    // DIAGNOSTIC: Validate current chapter
+    console.log('[OpenAI DIAGNOSTIC] Current chapter validation:', {
+        title: { exists: !!title, type: typeof title, isNull: title === null, length: title?.length || 0 },
+        content: { exists: !!content, type: typeof content, isNull: content === null, length: content?.length || 0 }
+    });
+    
+    if (title === null || content === null) {
+        console.error('[OpenAI DIAGNOSTIC] Current chapter has null title or content!');
+        throw new Error('Chapter title and content cannot be null for OpenAI translation');
+    }
+    
+    const finalUserContent = `Translate this new chapter:\n\nTITLE:\n${title}\n\nCONTENT:\n${content}`;
+    console.log('[OpenAI DIAGNOSTIC] Final user message:', {
+        contentLength: finalUserContent.length,
+        isNull: finalUserContent === null
+    });
+    
+    messages.push({ role: 'user', content: finalUserContent });
+    
+    // DIAGNOSTIC: Final message array validation
+    console.log('[OpenAI DIAGNOSTIC] Final messages array validation:');
+    messages.forEach((msg, index) => {
+        console.log(`  Message[${index}]:`, {
+            role: msg.role,
+            contentExists: !!msg.content,
+            contentType: typeof msg.content,
+            contentIsNull: msg.content === null,
+            contentIsUndefined: msg.content === undefined,
+            contentLength: msg.content?.length || 0,
+            contentPreview: typeof msg.content === 'string' ? msg.content.slice(0, 30) + '...' : msg.content
+        });
+        
+        if (msg.content === null || msg.content === undefined) {
+            console.error(`[OpenAI DIAGNOSTIC] MESSAGE[${index}] HAS NULL CONTENT!`, msg);
+        }
+    });
 
     // Determine if model supports structured outputs
     const supportsStructuredOutputs = settings.provider === 'OpenAI' && (
@@ -515,15 +600,51 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     dlog(`[OpenAI] Temperature setting: ${settings.temperature}`);
     dlog(`[OpenAI] Message count: ${messages.length}`);
     
+    // DIAGNOSTIC: Final pre-flight validation of request
+    console.log('[OpenAI DIAGNOSTIC] PRE-FLIGHT CHECK - Final request validation:');
+    console.log('  Model:', requestOptions.model);
+    console.log('  Messages count:', requestOptions.messages?.length || 0);
+    
+    // Check each message in the final request
+    requestOptions.messages?.forEach((msg: any, index: number) => {
+        console.log(`  Message[${index}]:`, {
+            role: msg.role,
+            hasContent: msg.content !== null && msg.content !== undefined,
+            contentType: typeof msg.content,
+            contentLength: msg.content?.length || 0,
+            isNull: msg.content === null,
+            isUndefined: msg.content === undefined
+        });
+        
+        if (msg.content === null || msg.content === undefined) {
+            console.error(`[OpenAI DIAGNOSTIC] CRITICAL: Message[${index}] has ${msg.content === null ? 'NULL' : 'UNDEFINED'} content!`);
+            console.error('Full message:', JSON.stringify(msg, null, 2));
+        }
+    });
+    
     // TEMP: Always print the exact request body we send (like Gemini)
     try { console.log(`[${settings.provider} Debug] Full request body:`, JSON.stringify(requestOptions, null, 2)); } catch {}
     dlog(`[OpenAI] Request options:`, JSON.stringify(requestOptions, null, 2));
 
+    // Proactive temperature compatibility check for newer models
+    const skipTemperature = settings.model.startsWith('gpt-5') || 
+                           settings.model.startsWith('gpt-4.1') ||
+                           settings.model === 'gpt-5-chat-latest';
+    
+    if (skipTemperature) {
+        console.warn(`[OpenAI] Skipping temperature setting for model ${settings.model} (known incompatibility)`);
+        dlog(`[OpenAI] Model ${settings.model} does not support custom temperature, using default`);
+    } else {
+        requestOptions.temperature = settings.temperature;
+        dlog(`[OpenAI] Using temperature ${settings.temperature} for model ${settings.model}`);
+    }
+
     // Add temperature if the model supports it (some newer models only support default)
     let response: ChatCompletion;
     try {
-        requestOptions.temperature = settings.temperature;
-        dlog(`[OpenAI] Attempt 1: Sending request with temperature ${settings.temperature}`);
+        dlog(`[OpenAI] Attempt 1: Sending request ${skipTemperature ? 'without' : 'with'} temperature`);
+        
+        console.log('[OpenAI DIAGNOSTIC] ABOUT TO MAKE API CALL - Final sanity check completed');
         response = await openai.chat.completions.create(requestOptions);
         dlog(`[OpenAI] Attempt 1: Success! Response received`);
         
@@ -552,7 +673,24 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
             delete requestOptions.temperature;
             dlog(`[OpenAI] Attempt 2: Retry request options:`, JSON.stringify(requestOptions, null, 2));
             
+            // DIAGNOSTIC: Re-validate request after temperature removal
+            console.log('[OpenAI DIAGNOSTIC] RETRY ATTEMPT - Re-validating request after temperature removal:');
+            requestOptions.messages?.forEach((msg: any, index: number) => {
+                console.log(`  Retry Message[${index}]:`, {
+                    role: msg.role,
+                    hasContent: msg.content !== null && msg.content !== undefined,
+                    contentType: typeof msg.content,
+                    isNull: msg.content === null,
+                    isUndefined: msg.content === undefined
+                });
+                
+                if (msg.content === null || msg.content === undefined) {
+                    console.error(`[OpenAI DIAGNOSTIC] RETRY CRITICAL: Message[${index}] STILL has ${msg.content === null ? 'NULL' : 'UNDEFINED'} content!`);
+                }
+            });
+            
             try {
+                console.log('[OpenAI DIAGNOSTIC] RETRY - About to make second API call');
                 response = await openai.chat.completions.create(requestOptions);
                 dlog(`[OpenAI] Attempt 2: Success! Response received`);
                 

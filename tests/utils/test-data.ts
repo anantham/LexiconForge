@@ -234,6 +234,17 @@ export const MOCK_API_RESPONSES = {
       },
     },
   },
+  image: {
+    success: {
+      generatedImages: [
+        {
+          image: {
+            imageBytes: 'mock-base64-image-data',
+          },
+        },
+      ],
+    },
+  },
 };
 
 // Test scenarios for edge cases

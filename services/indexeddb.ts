@@ -791,6 +791,63 @@ class IndexedDBService {
     const versions = await this.getTranslationVersions(chapterUrl);
     return versions.find(v => v.isActive) || null;
   }
+
+  /**
+   * Get recent active translations for a given domain, newest first.
+   * Excludes a specific stableId if provided (e.g., the current chapter).
+   */
+  async getRecentActiveTranslationsByDomain(domain: string, limit: number = 3, excludeStableId?: string): Promise<Array<{ translation: TranslationRecord; chapter: ChapterRecord }>> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.TRANSLATIONS, STORES.CHAPTERS], 'readonly');
+        const translationsStore = tx.objectStore(STORES.TRANSLATIONS);
+        const isActiveIdx = translationsStore.index('isActive');
+        const req = isActiveIdx.getAll(true);
+
+        req.onsuccess = async () => {
+          try {
+            const allActive = (req.result as TranslationRecord[]) || [];
+            // Filter to domain and exclude current
+            const candidates: Array<{ translation: TranslationRecord; chapter: ChapterRecord }> = [];
+
+            // Helper to get chapter by url
+            const getChapterByUrl = (url: string) => new Promise<ChapterRecord | null>((res, rej) => {
+              try {
+                const chTx = db.transaction([STORES.CHAPTERS], 'readonly');
+                const chStore = chTx.objectStore(STORES.CHAPTERS);
+                const getReq = chStore.get(url);
+                getReq.onsuccess = () => res((getReq.result as ChapterRecord) || null);
+                getReq.onerror = () => rej(getReq.error);
+              } catch (e) { rej(e); }
+            });
+
+            for (const tr of allActive) {
+              if (excludeStableId && tr.stableId && tr.stableId === excludeStableId) continue;
+              let host: string | null = null;
+              try { host = new URL(tr.chapterUrl).hostname; } catch { host = null; }
+              if (!host || host !== domain) continue;
+
+              const ch = await getChapterByUrl(tr.chapterUrl);
+              if (!ch || !ch.content) continue; // Need content for context
+              candidates.push({ translation: tr, chapter: ch });
+            }
+
+            candidates.sort((a, b) => {
+              const at = new Date(a.translation.createdAt || a.chapter.lastAccessed || 0).getTime();
+              const bt = new Date(b.translation.createdAt || b.chapter.lastAccessed || 0).getTime();
+              return bt - at; // newest first
+            });
+
+            resolve(candidates.slice(0, limit));
+          } catch (e) {
+            reject(e);
+          }
+        };
+        req.onerror = () => reject(req.error);
+      } catch (e) { reject(e); }
+    });
+  }
   
   /**
    * Set active translation version
@@ -963,13 +1020,13 @@ class IndexedDBService {
     const db = await this.openDatabase();
     
     const feedbackRecord: FeedbackRecord = {
-      id: crypto.randomUUID(),
+      id: (feedback as any).id || crypto.randomUUID(),
       chapterUrl,
       translationId,
       type: feedback.type,
       selection: feedback.selection,
       comment: feedback.comment,
-      createdAt: new Date().toISOString()
+      createdAt: (feedback as any).createdAt ? new Date((feedback as any).createdAt).toISOString() : new Date().toISOString()
     };
     
     return new Promise((resolve, reject) => {
@@ -1005,6 +1062,207 @@ class IndexedDBService {
       };
       request.onerror = () => reject(request.error);
     });
+  }
+
+  /**
+   * Update feedback comment by feedback ID
+   */
+  async updateFeedbackComment(feedbackId: string, comment: string): Promise<void> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STORES.FEEDBACK], 'readwrite');
+      const store = tx.objectStore(STORES.FEEDBACK);
+      const req = store.get(feedbackId);
+      req.onsuccess = () => {
+        const rec = req.result as FeedbackRecord | undefined;
+        if (!rec) { resolve(); return; }
+        rec.comment = comment;
+        const put = store.put(rec);
+        put.onsuccess = () => resolve();
+        put.onerror = () => reject(put.error);
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /**
+   * Delete feedback by ID
+   */
+  async deleteFeedbackById(feedbackId: string): Promise<void> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STORES.FEEDBACK], 'readwrite');
+      const store = tx.objectStore(STORES.FEEDBACK);
+      const req = store.delete(feedbackId);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /**
+   * Convenience: get URL mapping for a stableId
+   */
+  async getUrlForStableId(stableId: string): Promise<string | null> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.URL_MAPPINGS], 'readonly');
+        const store = tx.objectStore(STORES.URL_MAPPINGS);
+        const idx = store.index('stableId');
+        const req = idx.get(stableId);
+        req.onsuccess = () => resolve((req.result as UrlMappingRecord | undefined)?.url ?? null);
+        req.onerror = () => reject(req.error);
+      } catch (e) { reject(e); }
+    });
+  }
+
+  /**
+   * Convenience: get mapping record by URL
+   */
+  async getUrlMappingForUrl(url: string): Promise<UrlMappingRecord | null> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.URL_MAPPINGS], 'readonly');
+        const store = tx.objectStore(STORES.URL_MAPPINGS);
+        const req = store.get(url);
+        req.onsuccess = () => resolve((req.result as UrlMappingRecord) || null);
+        req.onerror = () => reject(req.error);
+      } catch (e) { reject(e); }
+    });
+  }
+
+  /**
+   * List all chapters
+   */
+  async getAllChapters(): Promise<ChapterRecord[]> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STORES.CHAPTERS], 'readonly');
+      const store = tx.objectStore(STORES.CHAPTERS);
+      const req = store.getAll();
+      req.onsuccess = () => resolve((req.result as ChapterRecord[]) || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /**
+   * List all novels
+   */
+  async getAllNovels(): Promise<NovelRecord[]> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STORES.NOVELS], 'readonly');
+      const store = tx.objectStore(STORES.NOVELS);
+      const req = store.getAll();
+      req.onsuccess = () => resolve((req.result as NovelRecord[]) || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /**
+   * List all feedback across chapters
+   */
+  async getAllFeedback(): Promise<FeedbackRecord[]> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STORES.FEEDBACK], 'readonly');
+      const store = tx.objectStore(STORES.FEEDBACK);
+      const req = store.getAll();
+      req.onsuccess = () => resolve((req.result as FeedbackRecord[]) || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /**
+   * Export a full session JSON with everything stored in IndexedDB
+   */
+  async exportFullSessionToJson(): Promise<any> {
+    const [settings, urlMappings, novels, chapters, navHist, lastActive] = await Promise.all([
+      this.getSettings(),
+      this.getAllUrlMappings(),
+      this.getAllNovels().catch(() => []),
+      this.getAllChapters(),
+      this.getSetting<any>('navigation-history').catch(() => null),
+      this.getSetting<any>('lastActiveChapter').catch(() => null),
+    ]);
+
+    const chaptersOut: any[] = [];
+
+    for (const ch of chapters) {
+      // Resolve stableId and canonicalUrl
+      const stableId = ch.stableId || (await this.getUrlMappingForUrl(ch.url))?.stableId || undefined;
+      const canonicalUrl = ch.canonicalUrl || ch.url;
+
+      // Pull translations for this chapter (all versions)
+      const versions = stableId ? await this.getTranslationVersionsByStableId(stableId) : await this.getTranslationVersions(canonicalUrl);
+
+      // Pull feedback for this chapter URL
+      const feedback = await this.getFeedback(canonicalUrl).catch(() => []);
+
+      chaptersOut.push({
+        stableId,
+        canonicalUrl,
+        title: ch.title,
+        content: ch.content,
+        nextUrl: ch.nextUrl || null,
+        prevUrl: ch.prevUrl || null,
+        chapterNumber: ch.chapterNumber ?? null,
+        translations: versions.map(v => ({
+          id: v.id,
+          version: v.version,
+          isActive: v.isActive,
+          createdAt: v.createdAt,
+          translatedTitle: v.translatedTitle,
+          translation: v.translation,
+          footnotes: v.footnotes,
+          suggestedIllustrations: v.suggestedIllustrations,
+          provider: v.provider,
+          model: v.model,
+          temperature: v.temperature,
+          systemPrompt: v.systemPrompt,
+          promptId: v.promptId,
+          promptName: v.promptName,
+          usageMetrics: {
+            totalTokens: v.totalTokens,
+            promptTokens: v.promptTokens,
+            completionTokens: v.completionTokens,
+            estimatedCost: v.estimatedCost,
+            requestTime: v.requestTime,
+            provider: v.provider,
+            model: v.model
+          }
+        })),
+        feedback: feedback.map(f => ({ id: f.id, type: f.type, selection: f.selection, comment: f.comment, createdAt: f.createdAt }))
+      });
+    }
+
+    const promptTemplates = await this.getPromptTemplates().catch(() => []);
+
+    const out = {
+      metadata: {
+        exportedAt: new Date().toISOString(),
+        format: 'lexiconforge-full-1'
+      },
+      settings: settings ? {
+        ...settings,
+        apiKeyGemini: undefined,
+        apiKeyOpenAI: undefined,
+        apiKeyDeepSeek: undefined,
+        apiKeyClaude: undefined,
+        apiKeyPiAPI: undefined,
+      } : null,
+      navigation: {
+        history: navHist?.stableIds || [],
+        lastActive: lastActive || null
+      },
+      urlMappings,
+      novels,
+      chapters: chaptersOut,
+      promptTemplates
+    };
+
+    return out;
   }
   
   /**
@@ -1634,6 +1892,161 @@ class IndexedDBService {
       }
       for (const [rawUrl, sid] of stableData.rawUrlIndex || []) {
         writeMapping(rawUrl, sid, false);
+      }
+    });
+  }
+
+  /**
+   * Import a full-session JSON produced by exportFullSessionToJson()
+   */
+  async importFullSessionData(payload: any): Promise<void> {
+    const db = await this.openDatabase();
+    const { settings, urlMappings, novels, chapters, promptTemplates } = payload || {};
+
+    return new Promise<void>((resolve, reject) => {
+      const tx = db.transaction([
+        STORES.CHAPTERS,
+        STORES.URL_MAPPINGS,
+        STORES.TRANSLATIONS,
+        STORES.FEEDBACK,
+        STORES.SETTINGS,
+        STORES.NOVELS,
+        STORES.PROMPT_TEMPLATES
+      ], 'readwrite');
+
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error as any);
+
+      try {
+        // Settings
+        if (settings) {
+          const setStore = tx.objectStore(STORES.SETTINGS);
+          setStore.put({ key: 'app-settings', value: settings, updatedAt: new Date().toISOString() });
+        }
+        if (payload?.navigation) {
+          const setStore = tx.objectStore(STORES.SETTINGS);
+          setStore.put({ key: 'navigation-history', value: { stableIds: payload.navigation.history || [] }, updatedAt: new Date().toISOString() });
+          if (payload.navigation.lastActive) {
+            setStore.put({ key: 'lastActiveChapter', value: payload.navigation.lastActive, updatedAt: new Date().toISOString() });
+          }
+        }
+
+        // URL mappings
+        if (Array.isArray(urlMappings)) {
+          const mapStore = tx.objectStore(STORES.URL_MAPPINGS);
+          for (const m of urlMappings) {
+            const rec: UrlMappingRecord = {
+              url: m.url,
+              stableId: m.stableId,
+              isCanonical: !!m.isCanonical,
+              dateAdded: m.dateAdded || new Date().toISOString()
+            };
+            mapStore.put(rec);
+          }
+        }
+
+        // Novels
+        if (Array.isArray(novels)) {
+          const novelStore = tx.objectStore(STORES.NOVELS);
+          for (const n of novels) {
+            const rec: NovelRecord = {
+              id: n.id,
+              title: n.title,
+              source: n.source,
+              chapterCount: n.chapterCount || 0,
+              dateAdded: n.dateAdded || new Date().toISOString(),
+              lastAccessed: n.lastAccessed || new Date().toISOString()
+            };
+            novelStore.put(rec);
+          }
+        }
+
+        // Chapters + Translations + Feedback
+        const chStore = tx.objectStore(STORES.CHAPTERS);
+        const trStore = tx.objectStore(STORES.TRANSLATIONS);
+        const fbStore = tx.objectStore(STORES.FEEDBACK);
+
+        if (Array.isArray(chapters)) {
+          for (const c of chapters) {
+            const chapterRec: ChapterRecord = {
+              url: c.canonicalUrl,
+              stableId: c.stableId,
+              title: c.title,
+              content: c.content,
+              originalUrl: c.canonicalUrl,
+              nextUrl: c.nextUrl || undefined,
+              prevUrl: c.prevUrl || undefined,
+              dateAdded: new Date().toISOString(),
+              lastAccessed: new Date().toISOString(),
+              chapterNumber: c.chapterNumber || undefined,
+              canonicalUrl: c.canonicalUrl
+            };
+            chStore.put(chapterRec);
+
+            if (Array.isArray(c.translations)) {
+              // Clear isActive first by setting while we import; we'll respect flags on records
+              for (const t of c.translations) {
+                const v: TranslationRecord = {
+                  id: t.id || crypto.randomUUID(),
+                  chapterUrl: c.canonicalUrl,
+                  stableId: c.stableId,
+                  version: t.version || 1,
+                  translatedTitle: t.translatedTitle,
+                  translation: t.translation,
+                  footnotes: t.footnotes || [],
+                  suggestedIllustrations: t.suggestedIllustrations || [],
+                  provider: t.provider,
+                  model: t.model,
+                  temperature: t.temperature,
+                  systemPrompt: t.systemPrompt,
+                  promptId: t.promptId,
+                  promptName: t.promptName,
+                  totalTokens: t.usageMetrics?.totalTokens || 0,
+                  promptTokens: t.usageMetrics?.promptTokens || 0,
+                  completionTokens: t.usageMetrics?.completionTokens || 0,
+                  estimatedCost: t.usageMetrics?.estimatedCost || 0,
+                  requestTime: t.usageMetrics?.requestTime || 0,
+                  createdAt: t.createdAt || new Date().toISOString(),
+                  isActive: !!t.isActive
+                };
+                trStore.put(v);
+              }
+            }
+
+            if (Array.isArray(c.feedback)) {
+              for (const f of c.feedback) {
+                const fb: FeedbackRecord = {
+                  id: f.id || crypto.randomUUID(),
+                  chapterUrl: c.canonicalUrl,
+                  translationId: undefined,
+                  type: f.type,
+                  selection: f.selection,
+                  comment: f.comment || '',
+                  createdAt: f.createdAt || new Date().toISOString()
+                };
+                fbStore.put(fb);
+              }
+            }
+          }
+        }
+
+        // Prompt templates
+        if (Array.isArray(promptTemplates)) {
+          const promptStore = tx.objectStore(STORES.PROMPT_TEMPLATES);
+          for (const p of promptTemplates) {
+            promptStore.put({
+              id: p.id,
+              name: p.name,
+              description: p.description,
+              content: p.content,
+              isDefault: p.isDefault ? 1 : 0,
+              createdAt: p.createdAt || new Date().toISOString(),
+              lastUsed: p.lastUsed || undefined
+            } as PromptTemplateRecord);
+          }
+        }
+      } catch (e) {
+        reject(e);
       }
     });
   }

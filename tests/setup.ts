@@ -1,20 +1,13 @@
 // Test setup file
-import { beforeEach, vi } from 'vitest'
-import * as fakeIndexedDB from 'fake-indexeddb'
+import { beforeEach, vi } from 'vitest';
+import 'fake-indexeddb/auto';
 
-// Setup fake-indexeddb
-if (typeof window !== 'undefined') {
-  globalThis.indexedDB = new fakeIndexedDB.FDBFactory()
-}
-
-// Clear localStorage and indexedDB before each test
+// Clear localStorage before each test
 beforeEach(() => {
   if (typeof window !== 'undefined') {
-    localStorage.clear()
-    // Clear all databases
-    fakeIndexedDB.FDBFactory.clear()
+    localStorage.clear();
   }
-})
+});
 
 // Mock console methods to reduce noise in tests unless specifically testing logging
 global.console = {
@@ -26,4 +19,4 @@ global.console = {
   debug: vi.fn(),
   groupCollapsed: vi.fn(),
   groupEnd: vi.fn(),
-}
+};

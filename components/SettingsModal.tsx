@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppSettings, TranslationProvider } from '../types';
 import useAppStore from '../store/useAppStore';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
-import { MODELS } from '../costs';
+import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../costs';
 import { useShallow } from 'zustand/react/shallow';
 
 interface SettingsModalProps {
@@ -79,6 +79,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     } catch {}
   };
   
+
+  // Helpers for aspect ratio and size presets
+  const applyAspectAndSize = (ratio: string, preset: string) => {
+    if (preset === 'CUSTOM') return;
+    const long = preset === '2K' ? 2048 : (preset === '1K' ? 1024 : 768);
+    const parts = ratio.split(':').map(n => parseInt(n, 10));
+    let w = (currentSettings as any).imageWidth || 1024;
+    let h = (currentSettings as any).imageHeight || 1024;
+    if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
+      const rw = parts[0], rh = parts[1];
+      if (rw >= rh) { w = long; h = Math.round(long * rh / rw); }
+      else { h = long; w = Math.round(long * rw / rh); }
+    } else { w = long; h = long; }
+    handleSettingChange('imageWidth' as any, w);
+    handleSettingChange('imageHeight' as any, h);
+  };
   if (!isOpen) return null;
 
   const handleSettingChange = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
@@ -195,8 +211,33 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     setEditingPrompt(null);
   };
 
-  const availableTextModels = AVAILABLE_MODELS[currentSettings.provider] || [];
-  const availableImageModels = AVAILABLE_IMAGE_MODELS['Gemini'] || [];
+  // Build priced, sorted text models for the selected provider
+  const rawTextModels = AVAILABLE_MODELS[currentSettings.provider] || [];
+  const pricedTextModels = rawTextModels
+    .map(m => {
+      const costs = COSTS_PER_MILLION_TOKENS[m.id];
+      const input = costs?.input;
+      const output = costs?.output;
+      const label = (input != null && output != null)
+        ? `${m.name} — $${input.toFixed(2)}/$${output.toFixed(2)} per 1M`
+        : m.name;
+      const sortKey = (input != null && output != null) ? (input + output) : Number.POSITIVE_INFINITY;
+      return { ...m, label, sortKey };
+    })
+    .sort((a, b) => a.sortKey - b.sortKey);
+
+  // Build priced, sorted image models (Gemini only)
+  const rawImageModels = AVAILABLE_IMAGE_MODELS['Gemini'] || [];
+  const pricedImageModels = rawImageModels
+    .map(m => {
+      const price = IMAGE_COSTS[m.id];
+      const label = (price != null)
+        ? `${m.name} — $${price.toFixed(3)}/image`
+        : m.name;
+      const sortKey = (price != null) ? price : Number.POSITIVE_INFINITY;
+      return { ...m, label, sortKey };
+    })
+    .sort((a, b) => a.sortKey - b.sortKey);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={handleCancel}>
@@ -231,34 +272,88 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Text Model</label>
+                  <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Text Model
+                    <span
+                      className="ml-2 inline-block text-xs text-gray-500 dark:text-gray-400 cursor-help"
+                      title={
+                        'Prices are shown as $input/$output per 1M tokens.\n' +
+                        '• Input = prompt/context tokens you send.\n' +
+                        '• Output = tokens the model generates (includes thinking tokens when applicable).\n' +
+                        'Model IDs ending with “latest” are rolling aliases managed by the provider (e.g., gpt-5-chat-latest).\n' +
+                        'Fixed IDs (e.g., gpt-5) are specific snapshots. The exact slug you select is passed to the API.'
+                      }
+                    >
+                      (what do these prices mean?)
+                    </span>
+                  </label>
                   <select
                     id="model"
                     value={currentSettings.model}
                     onChange={(e) => handleSettingChange('model', e.target.value)}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   >
-                    {availableTextModels.map(m => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
+                    {pricedTextModels.map(m => (
+                      <option key={m.id} value={m.id}>{m.label}</option>
                     ))}
                   </select>
                 </div>
               </div>
               <div>
-                  <label htmlFor="imageModel" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Generation Model (Gemini only)</label>
+                  <label htmlFor="imageModel" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Image Generation Model
+                    <span
+                      className="ml-2 inline-block text-xs text-gray-500 dark:text-gray-400 cursor-help"
+                      title={
+                        'Image prices are per generated image.\n' +
+                        'Some image models are previews and may have rate limits or change behavior.'
+                      }
+                    >
+                      (pricing?)
+                    </span>
+                  </label>
                   <select
                     id="imageModel"
                     value={currentSettings.imageModel}
                     onChange={(e) => handleSettingChange('imageModel', e.target.value)}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   >
-                    <option value="None">None (Disable Illustrations)</option>
-                    {availableImageModels.map(m => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
+                    <option value="None">None (Disable Illustrations) — $0.000/image</option>
+                    {pricedImageModels.map(m => (
+                      <option key={m.id} value={m.id}>{m.label}</option>
                     ))}
                   </select>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Dedicated models like Imagen can produce higher quality images. All image generation requires a Gemini API key.</p>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="imageWidth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Width (px)</label>
+                  <input
+                    id="imageWidth"
+                    type="number"
+                    min={256}
+                    max={2048}
+                    step={64}
+                    value={(currentSettings as any).imageWidth || 1024}
+                    onChange={(e) => handleSettingChange('imageWidth' as any, Math.max(256, Math.min(2048, parseInt(e.target.value || '1024', 10))))}
+                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="imageHeight" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Height (px)</label>
+                  <input
+                    id="imageHeight"
+                    type="number"
+                    min={256}
+                    max={2048}
+                    step={64}
+                    value={(currentSettings as any).imageHeight || 1024}
+                    onChange={(e) => handleSettingChange('imageHeight' as any, Math.max(256, Math.min(2048, parseInt(e.target.value || '1024', 10))))}
+                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Max pixels may be limited by providers (e.g., PiAPI ≤ 1,048,576). For Imagen 4, we map to supported aspect ratios and 1K/2K sizes. For Gemini image preview, we hint desired size/ratio in the prompt.</p>
               
               <div>
                 <label htmlFor="contextDepth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Context Depth: <span className="font-bold text-blue-500">{currentSettings.contextDepth}</span></label>
@@ -372,6 +467,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   value={currentSettings.apiKeyClaude || ''}
                   onChange={(e) => handleSettingChange('apiKeyClaude', e.target.value)}
                   placeholder="Enter your Claude API Key"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="apiKeyPiAPI" className="block text-sm font-medium text-gray-700 dark:text-gray-300">PiAPI API Key</label>
+                <input
+                  id="apiKeyPiAPI"
+                  type="password"
+                  value={(currentSettings as any).apiKeyPiAPI || ''}
+                  onChange={(e) => handleSettingChange('apiKeyPiAPI' as any, e.target.value)}
+                  placeholder="Enter your PiAPI API Key"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>

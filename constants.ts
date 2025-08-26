@@ -111,11 +111,15 @@ export const AVAILABLE_MODELS = {
 // Available AI models for Image Generation
 export const AVAILABLE_IMAGE_MODELS = {
   Gemini: [
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Fast, free, good for general use' },
+    { id: 'gemini-2.5-flash-image-preview', name: 'Gemini 2.5 Flash (Image Preview)', description: 'Native image generation, $0.039 per image' },
+    { id: 'gemini-2.0-flash-preview-image-generation', name: 'Gemini 2.0 Flash (Image Preview)', description: 'Native image generation, $0.039 per image' },
     { id: 'imagen-3.0-generate-002', name: 'Imagen 3.0', description: 'High-quality image generation' },
     { id: 'imagen-4.0-generate-preview-06-06', name: 'Imagen 4.0 (Preview)', description: 'Next-gen image model' },
     { id: 'imagen-4.0-ultra-generate-preview-06-06', name: 'Imagen 4.0 Ultra (Preview)', description: 'Highest quality experimental model' },
-    { id: 'gemini-2.0-flash-preview-image-generation', name: 'Gemini 2.0 Flash (Preview)', description: 'Native image generation, $0.039 per image' },
+    // PiAPI Flux models
+    { id: 'Qubico/flux1-schnell', name: 'PiAPI Flux 1 Schnell', description: 'Fast flux text-to-image (PiAPI)' },
+    { id: 'Qubico/flux1-dev', name: 'PiAPI Flux 1 Dev', description: 'Balanced flux text-to-image (PiAPI)' },
+    { id: 'Qubico/flux1-dev-advanced', name: 'PiAPI Flux 1 Dev Advanced', description: 'Advanced flux text-to-image (PiAPI)' },
   ]
 };
 

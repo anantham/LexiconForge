@@ -45,6 +45,7 @@ export interface Footnote {
 export interface SuggestedIllustration {
   placementMarker: string;
   imagePrompt: string;
+  generatedImage?: GeneratedImageResult; // Stores the actual generated image data for persistence
 }
 
 export interface GeneratedImageResult {
@@ -114,6 +115,9 @@ export interface AppSettings {
     apiKeyOpenAI?: string;
     apiKeyDeepSeek?: string;
     apiKeyClaude?: string;
+    apiKeyPiAPI?: string;
+    imageWidth?: number;
+    imageHeight?: number;
 }
 
 export interface ImportedChapter {
