@@ -12,12 +12,11 @@ import { Analytics } from '@vercel/analytics/react';
 const App: React.FC = () => {
 // inside App component, near the top
 // Individual primitive selectors to avoid fresh object creation
-const currentUrl = useAppStore((s) => s.currentUrl);
+const currentChapterId = useAppStore((s) => s.currentChapterId);
 const showEnglish = useAppStore((s) => s.showEnglish);
 const isLoading = useAppStore((s) => s.isLoading);
 const settings = useAppStore((s) => s.settings);
-const sessionData = useAppStore((s) => s.sessionData);
-const isUrlTranslating = useAppStore((s) => s.isUrlTranslating);
+const isChapterTranslating = useAppStore((s) => s.isChapterTranslating);
 const handleTranslate = useAppStore((s) => s.handleTranslate);
 const handleFetch = useAppStore((s) => s.handleFetch);
 const amendmentProposal = useAppStore((s) => s.amendmentProposal);
@@ -25,12 +24,15 @@ const acceptProposal = useAppStore((s) => s.acceptProposal);
 const rejectProposal = useAppStore((s) => s.rejectProposal);
 const showSettingsModal = useAppStore((s) => s.showSettingsModal);
 const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
-const initializeIndexedDB = useAppStore((s) => s.initializeIndexedDB);
+const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
+const getChapterById = useAppStore((s) => s.getChapterById);
+const hydrateIndicesOnBoot = useAppStore((s) => s.hydrateIndicesOnBoot);
 
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
-  const url = state.currentUrl;
-  return url ? state.getSessionDataByUrl(url)?.translationResult : null;
+  const id = state.currentChapterId;
+  const ch = id ? state.getChapterById(id) : null;
+  return ch?.translationResult || null;
 });
 
 // one-shot guard helpers
@@ -47,142 +49,132 @@ const settingsFingerprint = React.useMemo(
 );
 
 
-    // Initialize IndexedDB on app start (one-shot)
-    const didInitDB = React.useRef(false);
-    useEffect(() => {
-        if (didInitDB.current) return;
-        didInitDB.current = true;
+    // IndexedDB initializes automatically when first accessed
 
-        const initPromise = initializeIndexedDB();
-        if (initPromise && typeof initPromise.then === 'function') {
-            initPromise.then(() => {
-                console.log('[App.tsx] IndexedDB init complete');
-            }).catch((e) => {
-                console.error('[App.tsx] IndexedDB init failed', e);
-            });
-        }
-    }, [initializeIndexedDB]);
+    // Load prompt templates on app startup
+    useEffect(() => {
+        loadPromptTemplates();
+    }, [loadPromptTemplates]);
+
+    // Boot-time index-only hydration (Option C)
+    useEffect(() => {
+      hydrateIndicesOnBoot();
+    }, [hydrateIndicesOnBoot]);
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-      if (!showEnglish || !currentUrl) return;
+      if (!showEnglish || !currentChapterId) return;
 
-      const translating = isUrlTranslating(currentUrl) || isLoading.translating;
+      const translating = isChapterTranslating(currentChapterId) || isLoading.translating;
       const hasResult  = !!currentChapterTranslationResult;
-      const prevSig    = requestedRef.current.get(currentUrl);
+      const prevSig    = requestedRef.current.get(currentChapterId);
       const alreadyRequested = prevSig === settingsFingerprint;
 
-      console.log(`[UI Debug] Translation trigger check for ${currentUrl}:`);
-      console.log(`[UI Debug] - isUrlTranslating(${currentUrl}): ${isUrlTranslating(currentUrl)}`);
-      console.log(`[UI Debug] - isLoading.translating: ${isLoading.translating}`);
-      console.log(`[UI Debug] - translating (combined): ${translating}`);
-      console.log(`[UI Debug] - hasResult: ${hasResult}`);
-      console.log(`[UI Debug] - alreadyRequested: ${alreadyRequested}`);
+      // console.log(`[UI Debug] Translation trigger check for ${currentUrl}:`);
+      // console.log(`[UI Debug] - isUrlTranslating(${currentUrl}): ${isUrlTranslating(currentUrl)}`);
+      // console.log(`[UI Debug] - isLoading.translating: ${isLoading.translating}`);
+      // console.log(`[UI Debug] - translating (combined): ${translating}`);
+      // console.log(`[UI Debug] - hasResult: ${hasResult}`);
+      // console.log(`[UI Debug] - alreadyRequested: ${alreadyRequested}`);
 
       if (!hasResult && !translating && !alreadyRequested) {
-        console.log(`[UI Debug] Triggering handleTranslate for ${currentUrl}`);
-        requestedRef.current.set(currentUrl, settingsFingerprint);
-        handleTranslate(currentUrl);
+        requestedRef.current.set(currentChapterId, settingsFingerprint);
+        handleTranslate(currentChapterId);
       } else {
-        console.log(`[UI Debug] NOT triggering handleTranslate - conditions not met`);
+        // console.log(`[UI Debug] NOT triggering handleTranslate - conditions not met`);
       }
     }, [
       showEnglish,
-      currentUrl,
+      currentChapterId,
       currentChapterTranslationResult,
       settingsFingerprint,
       isLoading.translating,
-      isUrlTranslating,
+      isChapterTranslating,
       handleTranslate,
     ]);
 
     // And clear the one-shot once a result lands (or when leaving English):
     useEffect(() => {
-      if (currentUrl && currentChapterTranslationResult) {
-        requestedRef.current.delete(currentUrl);
+      if (currentChapterId && currentChapterTranslationResult) {
+        requestedRef.current.delete(currentChapterId);
       }
-    }, [currentUrl, currentChapterTranslationResult]);
+    }, [currentChapterId, currentChapterTranslationResult]);
 
     useEffect(() => {
-      if (!showEnglish && currentUrl) {
-        requestedRef.current.delete(currentUrl);
+      if (!showEnglish && currentChapterId) {
+        requestedRef.current.delete(currentChapterId);
       }
-    }, [showEnglish, currentUrl]);
+    }, [showEnglish, currentChapterId]);
 
     // Sanity check: selector subscription (optional but nice)
-    useEffect(() => {
-      const unsub = useAppStore.subscribe(
-        (s) => (s.currentUrl ? s.sessionData[s.currentUrl]?.translationResult : null),
-        (next, prev) => {
-          console.log('[subscribe] translationResult changed:', { prev, next });
-        }
-      );
-      return unsub;
-    }, []);
+    // Optional subscription for debugging
+    // useEffect(() => {
+    //   const unsub = useAppStore.subscribe(
+    //     (s) => (s.currentChapterId ? s.getChapterById(s.currentChapterId)?.translationResult : null),
+    //     (next, prev) => {
+    //       console.log('[subscribe] translationResult changed:', { prev, next });
+    //     }
+    //   );
+    //   return unsub;
+    // }, []);
 
     // Proactive Cache Worker effect also remains to orchestrate silent fetches/translations
     useEffect(() => {
-        if (!currentUrl || settings.preloadCount === 0) return;
+      if (!currentChapterId || settings.preloadCount === 0) return;
 
-        const worker = async () => {
-            const currentSessionData = useAppStore.getState().sessionData;
-            let nextUrlToPreload = currentSessionData[currentUrl]?.chapter.nextUrl;
-            
-            for (let i = 0; i < settings.preloadCount && nextUrlToPreload; i++) {
-                const url = nextUrlToPreload;
-                const latestSessionData = useAppStore.getState().sessionData;
+      const worker = async () => {
+        const state = useAppStore.getState();
+        let nextUrlToPreload = state.chapters.get(currentChapterId)?.nextUrl || null;
 
-                // Check if URL is already being translated
-                if (useAppStore.getState().isUrlTranslating(url)) {
-                    console.log(`[Worker] Skipping ${url} - translation in progress`);
-                    nextUrlToPreload = latestSessionData[url]?.chapter.nextUrl;
-                    continue;
-                }
+        for (let i = 0; i < settings.preloadCount && nextUrlToPreload; i++) {
+          const url = nextUrlToPreload;
+          let s = useAppStore.getState();
+          // Resolve chapterId via indices (try raw first, then canonical index)
+          let nextChapterId = s.rawUrlIndex.get(url) || s.urlIndex.get(url) || '';
 
-                // Check if we have a translation with current settings
-                const hasCurrentTranslation = latestSessionData[url]?.translationResult && 
-                    !useAppStore.getState().hasTranslationSettingsChanged(url);
-                
-                if (hasCurrentTranslation) {
-                    console.log(`[Worker] Skipping ${url} - already translated with current settings`);
-                    nextUrlToPreload = latestSessionData[url]?.chapter.nextUrl;
-                    continue;
-                }
-                
-                const chapter = latestSessionData[url]?.chapter || await handleFetch(url, true);
+          if (!nextChapterId) {
+            // Fetch if unknown
+            await handleFetch(url);
+            s = useAppStore.getState();
+            nextChapterId = s.rawUrlIndex.get(url) || s.urlIndex.get(url) || '';
+          }
 
-                if (!chapter) {
-                    console.warn(`[Worker] Halting preload chain due to fetch failure for: ${url}`);
-                    break;
-                }
-                
-                // Final check before translating - settings might have changed during fetch
-                const finalCheck = useAppStore.getState();
-                const stillNeedsTranslation = !finalCheck.sessionData[url]?.translationResult || 
-                    finalCheck.hasTranslationSettingsChanged(url);
-                
-                if (stillNeedsTranslation && !finalCheck.isUrlTranslating(url)) {
-                    // Check API key before attempting translation
-                    const apiValidation = validateApiKey(finalCheck.settings);
-                    if (!apiValidation.isValid) {
-                        console.warn(`[Worker] Skipping preload translation for ${url} - API key missing: ${apiValidation.errorMessage}`);
-                        break; // Stop the preload chain when API key is missing
-                    }
-                    
-                    console.log(`[Worker] Pre-translating chapter: ${url}`);
-                    await handleTranslate(url, true);
-                } else {
-                    console.log(`[Worker] Skipping ${url} - conditions changed during fetch`);
-                }
+          if (!nextChapterId) {
+            console.warn(`[Worker] Could not resolve chapterId for ${url}`);
+            break;
+          }
 
-                nextUrlToPreload = chapter?.nextUrl || null;
-            }
-        };
-        
-        const timeoutId = setTimeout(worker, 1500);
-        return () => clearTimeout(timeoutId);
+          // Skip if translating
+          if (s.isChapterTranslating(nextChapterId)) {
+            console.log(`[Worker] Skipping ${url} - translation in progress`);
+            nextUrlToPreload = s.chapters.get(nextChapterId)?.nextUrl || null;
+            continue;
+          }
 
-    }, [currentUrl, settings.preloadCount, settings.provider, settings.model, settings.temperature, handleFetch, handleTranslate]);
+          const ch = s.chapters.get(nextChapterId);
+          const hasCurrentTranslation = !!ch?.translationResult && !s.hasTranslationSettingsChanged(nextChapterId);
+          if (hasCurrentTranslation) {
+            nextUrlToPreload = ch?.nextUrl || null;
+            continue;
+          }
+
+          const apiValidation = validateApiKey(s.settings);
+          if (!apiValidation.isValid) {
+            console.warn(`[Worker] Stopping preload - API key missing: ${apiValidation.errorMessage}`);
+            break;
+          }
+
+          console.log(`[Worker] Pre-translating chapter: ${url}`);
+          await handleTranslate(nextChapterId);
+          s = useAppStore.getState();
+          nextUrlToPreload = s.chapters.get(nextChapterId)?.nextUrl || null;
+        }
+      };
+
+      const timeoutId = setTimeout(worker, 1500);
+      return () => clearTimeout(timeoutId);
+
+    }, [currentChapterId, settings.preloadCount, settings.provider, settings.model, settings.temperature, handleFetch, handleTranslate]);
     
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">

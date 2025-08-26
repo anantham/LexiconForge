@@ -1,59 +1,67 @@
-
 import { create } from 'zustand';
-import { persist, PersistOptions } from 'zustand/middleware';
-import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, ImportedSession, TranslationProvider, PromptTemplate } from '../types';
+import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, PromptTemplate } from '../types';
 import { INITIAL_SYSTEM_PROMPT, SUPPORTED_WEBSITES } from '../constants';
 import { translateChapter, validateApiKey } from '../services/aiService';
-import { generateImage } from '../services/imageService';
 import { fetchAndParseUrl } from '../services/adapters';
-import { indexedDBService, TranslationRecord, PromptTemplateRecord, migrateFromLocalStorage } from '../services/indexeddb';
-import { collectActiveVersions, generateEpub, EpubExportOptions } from '../services/epubService';
+import { TranslationRecord, indexedDBService } from '../services/indexeddb';
+import { 
+  NovelInfo, 
+  EnhancedChapter, 
+  normalizeUrlAggressively, 
+  generateStableChapterId, 
+  transformImportedChapters 
+} from '../services/stableIdService';
 
-// Helper function to find session data by normalized URL
-const findSessionDataByUrl = (sessionData: Record<string, any>, targetUrl: string): any => {
-    const normalizedTarget = normalizeUrl(targetUrl);
-    if (!normalizedTarget) return null;
-    
-    // First try exact match
-    if (sessionData[targetUrl]) {
-        return sessionData[targetUrl];
-    }
-    
-    // Then try normalized match
-    for (const [storedUrl, data] of Object.entries(sessionData)) {
-        if (normalizeUrl(storedUrl) === normalizedTarget) {
-            return data;
-        }
-    }
-    
-    return null;
+// ---- User provided helpers ----
+const settingsStorageKey = 'app-settings';
+
+const isKakuyomuUrl = (u: string) => {
+  try {
+    const url = new URL(u);
+    if (url.hostname !== 'kakuyomu.jp') return false;
+    return /^\/works\/\d+\/episodes\/\d+/.test(url.pathname);
+  } catch { return false; }
 };
 
-// Helper to prevent duplicate URLs (e.g. with/without trailing slash, viewer param)
-const normalizeUrl = (url: string | null | undefined): string | null => {
-    if (!url) return null;
-    try {
-        const urlObj = new URL(url);
-        // Remove the viewer and book parameter
-        urlObj.searchParams.delete('viewer');
-        urlObj.searchParams.delete('book');
-        // Rebuild the URL without the hash and with a standardized path
-        return urlObj.origin + urlObj.pathname.replace(/\/$/, "") + urlObj.search;
-    } catch (e) {
-        // If URL is invalid, return it as is
-        return url;
-    }
+const normalizeUrl = (url: string | null): string | null => {
+  if (!url) return null;
+  try {
+    const urlObj = new URL(url);
+    urlObj.searchParams.delete('viewer');
+    urlObj.searchParams.delete('book');
+    // Also remove trailing slashes from pathname
+    const pathname = urlObj.pathname.replace(/\/$/, '');
+    return urlObj.origin + pathname + urlObj.search;
+  } catch (e) {
+    // If URL is invalid, return it as is.
+    return url;
+  }
 };
+
+// Check if URL has a supported adapter using centralized SUPPORTED_WEBSITES list
+const hasAdapter = (u: string) => {
+  try {
+    const url = new URL(u);
+    return SUPPORTED_WEBSITES.some(domain => url.hostname.includes(domain));
+  } catch { return false; }
+};
+
+const shallowEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
+
+const inflightFetches = new Map<string, Promise<void>>();
+// ---- End of user provided helpers ----
 
 export interface SessionChapterData {
   chapter: Chapter;
   translationResult: TranslationResult | null;
-  availableVersions?: TranslationRecord[]; // All available translation versions
-  activeVersion?: number; // Currently selected version number
+  availableVersions?: TranslationRecord[];
+  activeVersion?: number;
+  feedback?: FeedbackItem[];
+  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'contextDepth' | 'systemPrompt'>>;
 }
 
 const defaultSettings: AppSettings = {
-    contextDepth: 2,
+    contextDepth: 3, // <-- Updated as per user's instruction
     preloadCount: 0,
     fontSize: 18,
     fontStyle: 'serif',
@@ -61,7 +69,7 @@ const defaultSettings: AppSettings = {
     systemPrompt: INITIAL_SYSTEM_PROMPT,
     provider: 'Gemini',
     model: 'gemini-2.5-flash',
-    imageModel: 'gemini-1.5-flash',
+    imageModel: 'imagen-3.0-generate-001',
     temperature: 0.3,
     apiKeyGemini: '',
     apiKeyOpenAI: '',
@@ -72,1459 +80,1015 @@ interface AppState {
     isLoading: { fetching: boolean; translating: boolean };
     error: string | null;
     showSettingsModal: boolean;
-    sessionData: Record<string, SessionChapterData>;
-    currentUrl: string | null;
-    urlHistory: string[];
+
+    // New Stable State
+    novels: Map<string, NovelInfo>;
+    chapters: Map<string, EnhancedChapter>;
+    urlIndex: Map<string, string>; // normalizedUrl -> chapterId
+    rawUrlIndex: Map<string, string>; // rawUrl -> chapterId
+    currentChapterId: string | null;
+    navigationHistory: string[]; // array of chapterIds
+
     showEnglish: boolean;
-    feedbackHistory: { [key: string]: FeedbackItem[] }; // Legacy: URL -> feedback[]
-    versionFeedback: { [url: string]: { [versionId: string]: FeedbackItem[] } }; // New: URL -> version -> feedback[]
+    feedbackHistory: { [key: string]: FeedbackItem[] }; // Keyed by chapterId
     settings: AppSettings;
-    proxyScores: Record<string, number>;
     isDirty: boolean;
     amendmentProposal: AmendmentProposal | null;
-    lastApiCallTimestamp: number;
-    activeTranslations: Record<string, AbortController>;
-    urlLoadingStates: Record<string, boolean>;
-    lastTranslationSettings: Record<string, { provider: string; model: string; temperature: number }>;
-    promptTemplates: PromptTemplateRecord[];
-    activePromptTemplate: PromptTemplateRecord | null;
-    generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; imagePrompt: string; }>;
-    imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; } | null;
+    activeTranslations: Record<string, AbortController>; // Keyed by chapterId
+    urlLoadingStates: Record<string, boolean>; // Keyed by chapterId
+    feedbackUIState?: { isSubmitting: boolean; activeChapterId?: string };
+    promptTemplates: PromptTemplate[];
+    activePromptTemplate: PromptTemplate | null;
 }
 
 interface AppActions {
-    handleFetch: (fetchUrl: string, isSilent?: boolean) => Promise<Chapter | null>;
-    handleTranslate: (urlToTranslate: string, isSilent?: boolean) => Promise<void>;
+    handleFetch: (fetchUrl: string) => Promise<void>;
+    handleTranslate: (chapterId: string) => Promise<void>;
     handleRetranslateCurrent: () => void;
-    handleNavigate: (newUrl: string) => void;
+    handleNavigate: (newUrl: string) => Promise<void>;
+    isValidUrl: (url: string) => boolean;
     handleToggleLanguage: (show: boolean) => void;
-    addFeedback: (feedback: Omit<FeedbackItem, 'id'>) => void;
-    deleteFeedback: (feedbackId: string) => void;
-    updateFeedbackComment: (feedbackId: string, comment: string) => void;
+    isChapterLoading: (chapterId: string) => boolean;
+    buildTranslationHistory: (chapterId: string) => HistoricalChapter[];
+    addFeedback: (chapterId: string, item: FeedbackItem) => void;
+    deleteFeedback: (chapterId: string, id: string) => void;
+    updateFeedbackComment: (chapterId: string, id: string, comment: string) => void;
     setShowSettingsModal: (isOpen: boolean) => void;
     updateSettings: (newSettings: Partial<AppSettings>) => void;
-    updateProxyScore: (proxyUrl: string, successful: boolean) => void;
     acceptProposal: () => void;
     rejectProposal: () => void;
     clearSession: () => void;
-    importSession: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    exportSession: () => void;
-    exportEpub: () => Promise<void>;
-    cancelActiveTranslations: () => void;
-    isUrlTranslating: (url: string) => boolean;
-    hasTranslationSettingsChanged: (url: string) => boolean;
-    shouldEnableRetranslation: (url: string) => boolean;
-    handleGenerateImages: (url: string) => Promise<void>;
-    getSessionDataByUrl: (url: string) => any;
-    // Version management
-    loadTranslationVersions: (url: string) => Promise<void>;
-    switchTranslationVersion: (url: string, version: number) => Promise<void>;
-    deleteTranslationVersion: (url: string, version: number) => Promise<void>;
-    initializeIndexedDB: () => Promise<void>;
-    // Prompt template management
-    loadPromptTemplates: () => Promise<void>;
-    createPromptTemplate: (name: string, content: string, description?: string) => Promise<void>;
+    importSessionData: (payload: string | object) => Promise<void>;
+    exportSessionData: () => string;
+    isChapterTranslating: (chapterId: string) => boolean;
+    hasTranslationSettingsChanged: (chapterId: string) => boolean;
+    shouldEnableRetranslation: (chapterId: string) => boolean;
+    getNavigationHistory: () => string[];
+    navigateBack: () => string | undefined;
+    startFeedbackSubmission: (chapterId: string) => void;
+    cancelFeedbackSubmission: () => void;
+    createPromptTemplate: (template: Omit<PromptTemplate, 'id' | 'createdAt'>) => Promise<void>;
     updatePromptTemplate: (template: PromptTemplate) => Promise<void>;
     deletePromptTemplate: (id: string) => Promise<void>;
     setActivePromptTemplate: (id: string) => Promise<void>;
+    loadPromptTemplates: () => Promise<void>;
+    getChapterById: (chapterId: string) => EnhancedChapter | null;
+    hydrateIndicesOnBoot: () => Promise<void>;
+    loadChapterFromIDB: (chapterId: string) => Promise<EnhancedChapter | null>;
+    fetchTranslationVersions: (chapterId: string) => Promise<TranslationRecord[]>;
+    setActiveTranslationVersion: (chapterId: string, version: number) => Promise<void>;
 }
 
 type Store = AppState & AppActions;
 
-// Define the keys we want to persist (activeTranslations and urlLoadingStates are runtime-only)
-const PERSIST_KEYS = ['sessionData', 'currentUrl', 'urlHistory', 'showEnglish', 'feedbackHistory', 'versionFeedback', 'settings', 'proxyScores'] as const;
-type PersistedState = Pick<Store, typeof PERSIST_KEYS[number]>;
+export const useAppStore = create<Store>()((set, get) => ({
+  // NEW STATE
+  novels: new Map(),
+  chapters: new Map(),
+  urlIndex: new Map(),
+  rawUrlIndex: new Map(),
+  currentChapterId: null,
+  navigationHistory: [],
 
-const persistOptions: PersistOptions<Store, PersistedState> = {
-    name: 'novel-translator-storage-v2',
-    partialize: (state) => {
-        const persisted: Partial<PersistedState> = {};
-        PERSIST_KEYS.forEach(key => {
-            (persisted as any)[key] = state[key];
+  urlLoadingStates: {},
+  activeTranslations: {},
+  feedbackHistory: {},
+  feedbackUIState: { isSubmitting: false },
+  error: null,
+  isLoading: { fetching: false, translating: false },
+  showSettingsModal: false,
+  showEnglish: false,
+  isDirty: false,
+  amendmentProposal: null,
+  promptTemplates: [],
+  activePromptTemplate: null,
+
+  // DEFAULTS + HYDRATE
+  settings: (() => {
+    try {
+      const raw = localStorage.getItem(settingsStorageKey);
+      if (raw) return { ...defaultSettings, ...JSON.parse(raw) } as AppSettings;
+    } catch (e) { console.warn('[settings] corrupted, using defaults', e); }
+    return { ...defaultSettings };
+  })(),
+
+  // CONTRACT HELPERS
+  isValidUrl: (u) => hasAdapter(u),
+  isUrlLoading: (u) => !!get().urlLoadingStates[u],
+  isUrlTranslating: (u) => !!get().activeTranslations[u],
+  // StableID helpers used by new UI
+  isChapterLoading: (chapterId: string) => !!get().urlLoadingStates[chapterId],
+  isChapterTranslating: (chapterId: string) => !!get().activeTranslations[chapterId],
+
+  getNavigationHistory: () => {
+    const { navigationHistory, chapters } = get();
+    // Return canonical URLs for display or external use
+    return navigationHistory.map(id => chapters.get(id)?.canonicalUrl).filter(Boolean) as string[];
+  },
+  navigateBack: () => {
+    const { navigationHistory, chapters } = get();
+    if (navigationHistory.length < 2) return undefined;
+    
+    const prevChapterId = navigationHistory[navigationHistory.length - 2];
+    
+    set({ 
+      navigationHistory: navigationHistory.slice(0, -1),
+      currentChapterId: prevChapterId
+    });
+
+    return chapters.get(prevChapterId)?.canonicalUrl;
+  },
+
+  handleNavigate: async (url: string) => {
+    console.log(`[Nav] Navigating to: ${url}`);
+    const { urlIndex, rawUrlIndex, chapters } = get();
+    const normalizedUrl = normalizeUrlAggressively(url);
+    
+    console.log(`[Nav] URL normalization: ${url} -> ${normalizedUrl}`);
+    console.log(`[Nav] URL index size: ${urlIndex.size}, Raw URL index size: ${rawUrlIndex.size}`);
+
+    let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
+    console.log(`[Nav] Resolved chapterId: ${chapterId}`);
+    
+    if (chapterId) {
+      const hasChapter = chapters.has(chapterId);
+      const chapter = chapters.get(chapterId);
+      console.log(`[Nav] Chapter ${chapterId} status:`, {
+        inMemory: hasChapter,
+        hasContent: !!chapter?.content,
+        contentLength: chapter?.content?.length || 0,
+        hasTranslation: !!chapter?.translationResult,
+        title: chapter?.title
+      });
+    }
+
+    if (chapterId && chapters.has(chapterId)) {
+      // Chapter is already loaded, just set it as current
+      console.log(`[Nav] Chapter found in memory, updating navigation history`);
+      set(s => {
+        const newHistory = [...new Set(s.navigationHistory.concat(chapterId!))];
+        console.log(`[Nav] Navigation history update:`, {
+          before: s.navigationHistory,
+          after: newHistory,
+          currentChapter: chapterId
         });
-        return persisted as PersistedState;
-    },
-};
+        return {
+          currentChapterId: chapterId,
+          navigationHistory: newHistory,
+          error: null
+        };
+      });
+      try {
+        const canonical = chapters.get(chapterId)?.canonicalUrl || url;
+        await indexedDBService.setSetting('lastActiveChapter', { id: chapterId, url: canonical });
+      } catch {}
+      console.log(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
+      
+      // Update browser history
+      const chapter = chapters.get(chapterId);
+      if (chapter && typeof history !== 'undefined' && history.pushState) {
+          // Avoid using `?url=` which collides with Vite's special asset query
+          history.pushState({ chapterId }, '', `?chapter=${encodeURIComponent(chapter.canonicalUrl)}`);
+      }
 
-const useAppStore = create<Store>()(
-    persist(
-        (set, get) => ({
-            // --- INITIAL STATE ---
-            isLoading: { fetching: false, translating: false },
+    } else if (chapterId && !chapters.has(chapterId)) {
+      // We have a mapping but content isn't in memory; lazy-load from IndexedDB
+      console.log(`[Nav] Mapping found (${chapterId}) but not loaded. Hydrating from IndexedDB...`);
+      set(s => ({ urlLoadingStates: { ...s.urlLoadingStates, [chapterId]: true }, error: null }));
+      try {
+        const loaded = await get().loadChapterFromIDB(chapterId);
+        console.log(`[Nav] Lazy load result:`, {
+          success: !!loaded,
+          chapterId,
+          title: loaded?.title,
+          hasContent: !!loaded?.content,
+          contentLength: loaded?.content?.length || 0
+        });
+        if (loaded) {
+          set(s => {
+            const newHistory = [...new Set(s.navigationHistory.concat(chapterId!))];
+            console.log(`[Nav] Post-lazy-load navigation history:`, {
+              before: s.navigationHistory,
+              after: newHistory,
+              currentChapter: chapterId
+            });
+            return {
+              currentChapterId: chapterId,
+              navigationHistory: newHistory,
+              error: null,
+            };
+          });
+          try { await indexedDBService.setSetting('lastActiveChapter', { id: chapterId, url: loaded.canonicalUrl }); } catch {}
+          if (typeof history !== 'undefined' && history.pushState) {
+            history.pushState({ chapterId }, '', `?chapter=${encodeURIComponent(loaded.canonicalUrl)}`);
+          }
+          console.log(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
+          return;
+        }
+      } catch (e) {
+        console.error('[Navigate] Failed to hydrate chapter from IndexedDB', e);
+      } finally {
+        set(s => {
+          const ls = { ...s.urlLoadingStates };
+          delete ls[chapterId!];
+          return { urlLoadingStates: ls };
+        });
+      }
+
+      // Fall through to supported fetch or error
+      if (get().isValidUrl(url)) {
+        console.log(`[Navigate] Hydration failed; attempting fetch for ${url}...`);
+        set({ error: null });
+        await get().handleFetch(url);
+      } else {
+        const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported.`;
+        console.error(`[Navigate] ${errorMessage}`, { url });
+        set({ error: errorMessage });
+      }
+
+    } else if (get().isValidUrl(url)) {
+      // Chapter not found, but the URL is from a supported scraping source
+      console.log(`[Navigate] No chapter found for ${url}. Attempting to fetch...`);
+      // Clear any stale error before we attempt a fresh fetch
+      set({ error: null });
+      await get().handleFetch(url);
+
+    } else {
+      // Chapter not found and not a valid scraping URL
+      // As a last resort, try to locate the chapter directly in IndexedDB by URL
+      try {
+        const found = await indexedDBService.findChapterByUrl(url);
+        if (found?.stableId) {
+          const chapterIdFound = found.stableId;
+          const c = found.data?.chapter || {};
+          const canonicalUrl = found.canonicalUrl || c.originalUrl || url;
+          const enhanced: EnhancedChapter = {
+            id: chapterIdFound,
+            title: c.title || 'Untitled Chapter',
+            content: c.content || '',
+            originalUrl: canonicalUrl,
+            canonicalUrl,
+            nextUrl: c.nextUrl,
+            prevUrl: c.prevUrl,
+            chapterNumber: c.chapterNumber || 0,
+            sourceUrls: [c.originalUrl || canonicalUrl],
+            importSource: { originalUrl: c.originalUrl || canonicalUrl, importDate: new Date(), sourceFormat: 'json' },
+            translationResult: found.data?.translationResult || null,
+          } as EnhancedChapter;
+
+          set(s => {
+            const chapters = new Map(s.chapters);
+            chapters.set(chapterIdFound, enhanced);
+            const urlIndex = new Map(s.urlIndex);
+            const rawUrlIndex = new Map(s.rawUrlIndex);
+            const norm = normalizeUrlAggressively(canonicalUrl);
+            if (norm) urlIndex.set(norm, chapterIdFound);
+            rawUrlIndex.set(canonicalUrl, chapterIdFound);
+            return { chapters, urlIndex, rawUrlIndex };
+          });
+
+          set(s => ({
+            currentChapterId: chapterIdFound,
+            navigationHistory: [...new Set(s.navigationHistory.concat(chapterIdFound))],
             error: null,
-            showSettingsModal: false,
-            sessionData: {},
-            currentUrl: null,
-            urlHistory: [],
-            showEnglish: false,
-            feedbackHistory: {}, // Legacy feedback storage
-            versionFeedback: {}, // New version-specific feedback storage
-            settings: defaultSettings,
-            proxyScores: {},
-            isDirty: false,
-            amendmentProposal: null,
-            lastApiCallTimestamp: 0,
-            activeTranslations: {},
-            urlLoadingStates: {},
-            lastTranslationSettings: {},
-            promptTemplates: [],
-            activePromptTemplate: null,
-            generatedImages: {},
-            imageGenerationMetrics: null,
-            
-            // --- ACTIONS ---
-            
-            handleFetch: async (rawFetchUrl, isSilent = false) => {
-                const fetchUrl = normalizeUrl(rawFetchUrl);
-                if (!fetchUrl) return null;
-
-                const { sessionData, proxyScores, updateProxyScore } = get();
-
-                // Check if the chapter is already in the cache
-                if (sessionData[fetchUrl]) {
-                    if (!isSilent) {
-                        console.log('%cCACHE HIT', 'color: green; font-weight: bold;', 'Using cached chapter data.');
-                        set(state => ({
-                            currentUrl: fetchUrl,
-                            urlHistory: state.urlHistory.includes(fetchUrl) 
-                                ? [...state.urlHistory.filter(u => u !== fetchUrl), fetchUrl] 
-                                : [...state.urlHistory, fetchUrl]
-                        }));
-                    }
-                    return sessionData[fetchUrl].chapter;
-                }
-
-                // If not in cache, check if the URL is from a supported website
-                try {
-                    const urlObj = new URL(fetchUrl);
-                    if (!SUPPORTED_WEBSITES.some(hostname => urlObj.hostname.includes(hostname))) {
-                        console.log(`[Fetch] Skipping fetch for unsupported website: ${urlObj.hostname}`);
-                        return null;
-                    }
-                } catch (e) {
-                    console.error(`[Fetch] Invalid URL: ${fetchUrl}`);
-                    return null;
-                }
-
-                console.log(`[Fetch] handleFetch called for: ${fetchUrl}`);
-                if (!isSilent) {
-                    console.groupCollapsed(`[App] handleFetch triggered for: ${fetchUrl}`);
-                    set({ error: null, currentUrl: fetchUrl, isDirty: false, imageGenerationMetrics: null });
-                } else {
-                    console.groupCollapsed(`[App] Silent fetch triggered for: ${fetchUrl}`);
-                }
-                
-                if (sessionData[fetchUrl]) {
-                    if (!isSilent) {
-                        console.log('%cCACHE HIT', 'color: green; font-weight: bold;', 'Using cached chapter data.');
-                        set(state => ({
-                            urlHistory: state.urlHistory.includes(fetchUrl) 
-                                ? [...state.urlHistory.filter(u => u !== fetchUrl), fetchUrl] 
-                                : [...state.urlHistory, fetchUrl]
-                        }));
-                    }
-                    console.groupEnd();
-                    return sessionData[fetchUrl].chapter;
-                }
-
-                if (!isSilent) {
-                    console.log('%cCACHE MISS', 'color: orange; font-weight: bold;', 'No data in cache. Proceeding to fetch.');
-                    set({ isLoading: { fetching: true, translating: false }, showEnglish: false });
-                }
-
-                try {
-                    const chapterData = await fetchAndParseUrl(fetchUrl, proxyScores, updateProxyScore);
-                    if (!isSilent) console.log('Fetch successful. New chapter data:', chapterData);
-                    
-                    // Store chapter in IndexedDB
-                    try {
-                        await indexedDBService.storeChapter(chapterData);
-                        console.log(`[IndexedDB] Chapter stored: ${fetchUrl}`);
-                    } catch (error) {
-                        console.error('[IndexedDB] Failed to store chapter:', error);
-                    }
-                    
-                    set(state => {
-                        console.log(`%c[Diag] handleFetch: Updating sessionData for ${fetchUrl}. Setting translationResult to NULL.`, 'color: green; font-weight: bold;');
-                        return {
-                            sessionData: {
-                                ...state.sessionData,
-                                [fetchUrl]: { chapter: chapterData, translationResult: null },
-                            },
-                            urlHistory: state.urlHistory.includes(fetchUrl) ? state.urlHistory : [...state.urlHistory, fetchUrl]
-                        };
-                    });
-
-                    // Load existing translation versions for this chapter
-                    if (!isSilent) {
-                        try {
-                            await get().loadTranslationVersions(fetchUrl);
-                        } catch (error) {
-                            console.error('[Versions] Failed to load versions during fetch:', error);
-                        }
-                    }
-
-                    console.groupEnd();
-                    return chapterData;
-                } catch (e: any) {
-                    if (!isSilent) {
-                        console.error('Fetch failed with error:', e.message);
-                        set({ error: e.message || 'An unknown error occurred during fetching.' });
-                        if(get().currentUrl === fetchUrl) set({ currentUrl: null });
-                    } else {
-                        console.error(`Silent fetch failed for ${fetchUrl}:`, e);
-                    }
-                    console.groupEnd();
-                    return null;
-                } finally {
-                    if (!isSilent) {
-                        set(prev => ({ isLoading: { ...prev.isLoading, fetching: false } }));
-                    }
-                }
-            },
-
-            handleTranslate: async (urlToTranslate, isSilent = false) => {
-                const { sessionData, urlHistory, settings, feedbackHistory, lastApiCallTimestamp, activeTranslations } = get();
-
-                console.log(`[LoadingState Debug] handleTranslate called for ${urlToTranslate}, isSilent: ${isSilent}`);
-                const currentState = get();
-                console.log(`[LoadingState Debug] Current isLoading.translating: ${currentState.isLoading.translating}`);
-                console.log(`[LoadingState Debug] Current urlLoadingStates[${urlToTranslate}]: ${currentState.urlLoadingStates[urlToTranslate]}`);
-
-                // EARLY API KEY VALIDATION - Check before any processing
-                const apiValidation = validateApiKey(settings);
-                if (!apiValidation.isValid) {
-                    console.error(`[Translation] API key validation failed: ${apiValidation.errorMessage}`);
-                    console.log(`[LoadingState Debug] API validation failed - about to clear loading states`);
-                    
-                    // Clear any loading state for this URL since we're not actually translating
-                    set(prev => {
-                        const newUrlLoadingStates = { ...prev.urlLoadingStates };
-                        delete newUrlLoadingStates[urlToTranslate];
-                        
-                        console.log(`[LoadingState Debug] Clearing states - prev.isLoading.translating: ${prev.isLoading.translating}`);
-                        console.log(`[LoadingState Debug] Clearing states - prev.urlLoadingStates[${urlToTranslate}]: ${prev.urlLoadingStates[urlToTranslate]}`);
-                        
-                        return {
-                            ...prev,
-                            urlLoadingStates: newUrlLoadingStates,
-                            isLoading: { ...prev.isLoading, translating: false },
-                            error: isSilent ? prev.error : `Translation API error: ${apiValidation.errorMessage}`
-                        };
-                    });
-                    
-                    // Log the state after clearing
-                    const stateAfterClear = get();
-                    console.log(`[LoadingState Debug] After clearing - isLoading.translating: ${stateAfterClear.isLoading.translating}`);
-                    console.log(`[LoadingState Debug] After clearing - urlLoadingStates[${urlToTranslate}]: ${stateAfterClear.urlLoadingStates[urlToTranslate]}`);
-                    
-                    return; // Exit immediately, no rate limiting, no further state changes
-                }
-
-                // Cancel any existing translation for this URL
-                if (activeTranslations[urlToTranslate]) {
-                    activeTranslations[urlToTranslate].abort();
-                    console.log(`[Translation] Cancelled existing translation for ${urlToTranslate}`);
-                }
-
-                const RATE_LIMIT_INTERVAL_MS = 6500;
-                const now = Date.now();
-                const timeSinceLastCall = now - lastApiCallTimestamp;
-
-                if (timeSinceLastCall < RATE_LIMIT_INTERVAL_MS) {
-                    const delay = RATE_LIMIT_INTERVAL_MS - timeSinceLastCall;
-                    console.log(`[Rate Limiter] Throttling request for ${delay}ms to respect API rate limits.`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-                
-                set({ lastApiCallTimestamp: Date.now() });
-                
-                const chapterToTranslate = sessionData[urlToTranslate]?.chapter;
-                if (!chapterToTranslate?.content) return;
-
-                // For silent pre-translations, check if any version already exists in IndexedDB
-                if (isSilent) {
-                    const existingVersions = await indexedDBService.getTranslationVersions(urlToTranslate);
-                    if (existingVersions.length > 0) {
-                        console.log(`[Translation] Skipping silent pre-translation for ${urlToTranslate}: Version(s) already exist.`);
-                        return; // Skip API call if a version already exists
-                    }
-                }
-
-                // Create abort controller for this translation
-                const abortController = new AbortController();
-                
-                if (!isSilent) {
-                    set(prev => ({ 
-                        ...prev, 
-                        isLoading: { ...prev.isLoading, translating: true }, 
-                        error: null,
-                        activeTranslations: { ...prev.activeTranslations, [urlToTranslate]: abortController },
-                        urlLoadingStates: { ...prev.urlLoadingStates, [urlToTranslate]: true }
-                    }));
-                } else {
-                    set(prev => ({ 
-                        ...prev,
-                        activeTranslations: { ...prev.activeTranslations, [urlToTranslate]: abortController },
-                        urlLoadingStates: { ...prev.urlLoadingStates, [urlToTranslate]: true }
-                    }));
-                }
-                
-                const historyUrls = urlHistory.slice(Math.max(0, urlHistory.indexOf(urlToTranslate) - settings.contextDepth), urlHistory.indexOf(urlToTranslate));
-                const historyForApi: HistoricalChapter[] = historyUrls.map(url => {
-                    const data = sessionData[url];
-                    if (!data?.translationResult || !data?.chapter) return null;
-                    return {
-                        originalTitle: data.chapter.title,
-                        originalContent: data.chapter.content,
-                        translatedTitle: data.translationResult.translatedTitle,
-                        translatedContent: data.translationResult.translation,
-                        feedback: feedbackHistory[url] ?? []
-                    };
-                }).filter((item): item is HistoricalChapter => item !== null);
-
-                try {
-                    const result = await translateChapter(chapterToTranslate.title, chapterToTranslate.content, settings, historyForApi);
-                    console.log('%c[Diag] handleTranslate: API call SUCCEEDED', 'color: #ff00ff; font-weight: bold;', result);
-                    
-                    // Check if translation was cancelled
-                    if (abortController.signal.aborted) {
-                        console.log(`[Translation] Translation for ${urlToTranslate} was cancelled`);
-                        return;
-                    }
-
-                    // Store translation as new version in IndexedDB
-                    try {
-                        console.log('%c[Diag] handleTranslate: Storing in IndexedDB...', 'color: #ff00ff; font-weight: bold;');
-                        // Check version limit before storing
-                        const existingVersions = await indexedDBService.getTranslationVersions(urlToTranslate);
-                        const MAX_VERSIONS = 9;
-                        
-                        if (existingVersions.length >= MAX_VERSIONS) {
-                            // Prompt user to delete a version
-                            const versionList = existingVersions
-                                .sort((a, b) => b.version - a.version) // Latest first
-                                .map(v => `v${v.version} (${v.provider} ${v.model}) - ${new Date(v.createdAt).toLocaleDateString()}`)
-                                .join('\n');
-                            
-                            const userChoice = confirm(
-                                `You have reached the maximum of ${MAX_VERSIONS} translation versions for this chapter.\n\n` +
-                                `Current versions:\n${versionList}\n\n` +
-                                `Would you like to delete the oldest version to make room for the new translation?\n\n` +
-                                `Click OK to delete oldest, or Cancel to keep current versions (new translation will not be saved).`
-                            );
-                            
-                            if (userChoice) {
-                                // Delete the oldest version
-                                const oldestVersion = existingVersions.sort((a, b) => a.version - b.version)[0];
-                                await indexedDBService.deleteTranslationVersion(oldestVersion.id);
-                                console.log(`[Translation] Deleted oldest version ${oldestVersion.version} to make room`);
-                            } else {
-                                console.log('[Translation] User cancelled - not storing new version');
-                                // Still update in-memory but don't store in IndexedDB
-                                set(state => ({
-                                    sessionData: {
-                                        ...state.sessionData,
-                                        [urlToTranslate]: { ...state.sessionData[urlToTranslate], translationResult: result },
-                                    },
-                                    amendmentProposal: (result.proposal && !isSilent) ? result.proposal : state.amendmentProposal,
-                                }));
-                                return;
-                            }
-                        }
-                        
-                        const { activePromptTemplate } = get();
-                        await indexedDBService.storeTranslation(urlToTranslate, result, {
-                            provider: settings.provider,
-                            model: settings.model,
-                            temperature: settings.temperature,
-                            systemPrompt: settings.systemPrompt,
-                            promptId: activePromptTemplate?.id,
-                            promptName: activePromptTemplate?.name
-                        });
-                        
-                        console.log('%c[Diag] handleTranslate: Stored in IndexedDB. Reloading versions...', 'color: #ff00ff; font-weight: bold;');
-                        // Reload versions to update UI
-                        await get().loadTranslationVersions(urlToTranslate);
-                        
-                        console.log('%c[Diag] handleTranslate: Versions reloaded. Checking for image generation...', 'color: #ff00ff; font-weight: bold;');
-                        
-                        // COMPREHENSIVE IMAGE GENERATION DIAGNOSTICS
-                        console.log(`[ImageGen Debug] Translation result exists: ${!!result}`);
-                        console.log(`[ImageGen Debug] suggestedIllustrations exists: ${!!result.suggestedIllustrations}`);
-                        console.log(`[ImageGen Debug] suggestedIllustrations length: ${result.suggestedIllustrations?.length || 'undefined'}`);
-                        console.log(`[ImageGen Debug] suggestedIllustrations content:`, result.suggestedIllustrations);
-                        console.log(`[ImageGen Debug] urlToTranslate: ${urlToTranslate}`);
-                        
-
-                        console.log(`[Translation] Stored new version for ${urlToTranslate}`);
-                    } catch (error) {
-                        console.error('[Translation] Failed to store in IndexedDB:', error);
-                        // Fallback to in-memory storage
-                    }
-
-                    set((state) => {
-                      console.log(`%c[Translation Update] Starting state update for: ${urlToTranslate}`, 'color: #00ff00; font-weight: bold;');
-                      
-                      // Use helper function to handle URL normalization differences
-                      const prevUrlEntry = findSessionDataByUrl(state.sessionData, urlToTranslate);
-                      if (!prevUrlEntry) {
-                        console.error(`[Translation] Cannot set translation result - no chapter data found for ${urlToTranslate}`);
-                        console.error(`[Translation] Available keys:`, Object.keys(state.sessionData).slice(0, 3));
-                        return state; // Don't update if no chapter data exists
-                      }
-                      
-                      // Find the actual key that was matched (for updating the right entry)
-                      let actualKey = urlToTranslate;
-                      if (!state.sessionData[urlToTranslate]) {
-                        // If direct lookup failed, find the key that findSessionDataByUrl found
-                        const normalizedTarget = normalizeUrl(urlToTranslate);
-                        for (const [storedUrl] of Object.entries(state.sessionData)) {
-                          if (normalizeUrl(storedUrl) === normalizedTarget) {
-                            actualKey = storedUrl;
-                            console.log(`[Translation] URL mapping: ${urlToTranslate} → ${actualKey}`);
-                            break;
-                          }
-                        }
-                      }
-                      
-                      console.log(`%c[Translation] Updating sessionData with key: ${actualKey}`, 'color: green; font-weight: bold;');
-                      console.log(`[Translation] Result has ${result?.translation?.length || 0} chars`);
-                      
-                      const nextUrlEntry: SessionChapterData = {
-                        ...prevUrlEntry,
-                        // write the new leaf
-                        translationResult: result,
-                        // optional: keep lightweight metadata to help selectors/debugging
-                        translationMeta: {
-                          ...(prevUrlEntry as any).translationMeta,
-                          updatedAt: Date.now(),
-                          settings: {
-                            provider: settings.provider,
-                            model: settings.model,
-                            temperature: settings.temperature,
-                          },
-                        },
-                      };
-
-                      return {
-                        // NEW object for the map
-                        sessionData: {
-                          ...state.sessionData,
-                          [actualKey]: nextUrlEntry, // Use actualKey instead of urlToTranslate
-                        },
-
-                        // keep or clear proposal as you intended
-                        amendmentProposal:
-                          result.proposal && !isSilent ? result.proposal : state.amendmentProposal,
-
-                        // persist last translation settings per-URL immutably
-                        lastTranslationSettings: {
-                          ...state.lastTranslationSettings,
-                          [urlToTranslate]: {
-                            provider: settings.provider,
-                            model: settings.model,
-                            temperature: settings.temperature,
-                          },
-                        },
-
-                        // make sure the global loading flag changes by ref
-                        isLoading: {
-                          ...state.isLoading,
-                          translating: false,
-                        },
-
-                        // IMPORTANT: if you track per-URL translating, replace that map by ref too
-                        urlLoadingStates: { // Assuming urlLoadingStates is the per-URL translating flag
-                          ...state.urlLoadingStates,
-                          [urlToTranslate]: false,
-                        },
-                      };
-                    });
-                    
-                    // FIXED: Trigger image generation AFTER sessionData is updated
-                    if (result.suggestedIllustrations && result.suggestedIllustrations.length > 0) {
-                        console.log(`[ImageGen Debug] ✅ CONDITION MET - Calling handleGenerateImages for ${result.suggestedIllustrations.length} illustrations`);
-                        get().handleGenerateImages(urlToTranslate);
-                    } else {
-                        console.log(`[ImageGen Debug] ❌ CONDITION NOT MET - No image generation triggered`);
-                        if (!result.suggestedIllustrations) {
-                            console.log(`[ImageGen Debug] - suggestedIllustrations is falsy: ${result.suggestedIllustrations}`);
-                        } else if (result.suggestedIllustrations.length === 0) {
-                            console.log(`[ImageGen Debug] - suggestedIllustrations array is empty`);
-                        }
-                    }
-                } catch (e: any) {
-                    // Don't show errors for aborted translations
-                    if (abortController.signal.aborted) {
-                        console.log(`[Translation] Translation for ${urlToTranslate} was cancelled`);
-                        return;
-                    }
-
-                    const sanitizedMessage = JSON.stringify(e instanceof Error ? e.message : String(e));
-                    if (!isSilent) {
-                        let errorMessage = `An unexpected error occurred during translation. Full error: ${sanitizedMessage}`;
-                        if (e instanceof Error) {
-                             if (e.message.includes('429')) {
-                                errorMessage = 'API rate limit exceeded. The app will automatically slow down. Please try again in a moment.';
-                             } else if (e.message.toLowerCase().includes('api key')) {
-                                 errorMessage = `Translation API error: Invalid or missing API Key for ${settings.provider}. Please add it in the settings.`;
-                             } else if (e.message.toLowerCase().includes('quota')) {
-                                 errorMessage = 'Translation API error: You may have exceeded your API usage quota.';
-                             } else if (e.message.toLowerCase().includes('blocked')) {
-                                 errorMessage = 'Translation failed because the content was blocked by the safety policy. The source text may contain sensitive material.';
-                             } else {
-                                errorMessage = `Translation API error: ${e.message}`;
-                             }
-                        }
-                        set({ error: errorMessage });
-                    } else {
-                        console.error(`Silent translation failed for ${urlToTranslate}:`, sanitizedMessage);
-                    }
-                } finally {
-                    console.log(`%c[Diag] handleTranslate: FINALLY block entered for ${urlToTranslate}`, 'color: #ff00ff; font-weight: bold;');
-                    // Clean up regardless of success/failure/cancellation
-                    set(prev => {
-                        const newActiveTranslations = { ...prev.activeTranslations };
-                        const newUrlLoadingStates = { ...prev.urlLoadingStates };
-                        delete newActiveTranslations[urlToTranslate];
-                        delete newUrlLoadingStates[urlToTranslate];
-
-                        return {
-                            ...prev,
-                            isLoading: { ...prev.isLoading, translating: Object.keys(newActiveTranslations).length > 0 },
-                            activeTranslations: newActiveTranslations,
-                            urlLoadingStates: newUrlLoadingStates
-                        };
-                    });
-                }
-            },
-
-            handleRetranslateCurrent: () => {
-                const { currentUrl, urlHistory, handleTranslate } = get();
-                if (!currentUrl) return;
-
-                const currentIndex = urlHistory.indexOf(currentUrl);
-                if (currentIndex !== -1) {
-                    const urlsToInvalidate = urlHistory.slice(currentIndex + 1);
-                    if (urlsToInvalidate.length > 0) {
-                        console.log(`[Retranslate] Invalidating future cache for ${urlsToInvalidate.length} chapter(s).`);
-                    }
-                    set(state => {
-                        const newData = { ...state.sessionData };
-                        urlsToInvalidate.forEach(url => {
-                            if (newData[url]) {
-                                newData[url] = { ...newData[url], translationResult: null };
-                            }
-                        });
-                        return { sessionData: newData };
-                    });
-                }
-                
-                handleTranslate(currentUrl);
-                set({ isDirty: false });
-            },
-
-            handleNavigate: (rawUrl: string) => {
-                const newUrl = normalizeUrl(rawUrl);
-                if (!newUrl) return;
-                console.log(`[Navigate] Navigating to: ${newUrl}`);
-                get().handleFetch(newUrl);
-            },
-
-            handleToggleLanguage: (show: boolean) => set({ showEnglish: show, isDirty: false }),
-
-            addFeedback: (feedback: Omit<FeedbackItem, 'id'>) => {
-                const { currentUrl, sessionData } = get();
-                if (!currentUrl) return;
-                
-                const activeVersion = sessionData[currentUrl]?.activeVersion;
-                if (!activeVersion) {
-                    console.warn('[Feedback] No active version found for feedback');
-                    return;
-                }
-                
-                const newFeedback: FeedbackItem = { ...feedback, id: new Date().toISOString() };
-                const versionKey = activeVersion.toString();
-                
-                set(state => ({
-                    // Keep legacy feedbackHistory for backward compatibility during transition
-                    feedbackHistory: {
-                        ...state.feedbackHistory,
-                        [currentUrl]: [...(state.feedbackHistory[currentUrl] ?? []), newFeedback],
-                    },
-                    // Add to version-specific feedback
-                    versionFeedback: {
-                        ...state.versionFeedback,
-                        [currentUrl]: {
-                            ...state.versionFeedback[currentUrl],
-                            [versionKey]: [...(state.versionFeedback[currentUrl]?.[versionKey] ?? []), newFeedback],
-                        }
-                    },
-                    isDirty: true
-                }));
-            },
-
-            deleteFeedback: (feedbackId: string) => {
-                const { currentUrl, sessionData } = get();
-                if (!currentUrl) return;
-                
-                const activeVersion = sessionData[currentUrl]?.activeVersion;
-                if (!activeVersion) return;
-                
-                const versionKey = activeVersion.toString();
-                
-                set(state => ({
-                    // Update legacy feedback
-                    feedbackHistory: {
-                        ...state.feedbackHistory,
-                        [currentUrl]: (state.feedbackHistory[currentUrl] || []).filter(f => f.id !== feedbackId),
-                    },
-                    // Update version-specific feedback
-                    versionFeedback: {
-                        ...state.versionFeedback,
-                        [currentUrl]: {
-                            ...state.versionFeedback[currentUrl],
-                            [versionKey]: (state.versionFeedback[currentUrl]?.[versionKey] || []).filter(f => f.id !== feedbackId),
-                        }
-                    },
-                    isDirty: true
-                }));
-            },
-
-            updateFeedbackComment: (feedbackId: string, comment: string) => {
-                const { currentUrl, sessionData } = get();
-                if (!currentUrl) return;
-                
-                const activeVersion = sessionData[currentUrl]?.activeVersion;
-                if (!activeVersion) return;
-                
-                const versionKey = activeVersion.toString();
-                
-                set(state => ({
-                    // Update legacy feedback
-                    feedbackHistory: {
-                        ...state.feedbackHistory,
-                        [currentUrl]: (state.feedbackHistory[currentUrl] || []).map(f =>
-                            f.id === feedbackId ? { ...f, comment } : f
-                        ),
-                    },
-                    // Update version-specific feedback
-                    versionFeedback: {
-                        ...state.versionFeedback,
-                        [currentUrl]: {
-                            ...state.versionFeedback[currentUrl],
-                            [versionKey]: (state.versionFeedback[currentUrl]?.[versionKey] || []).map(f =>
-                                f.id === feedbackId ? { ...f, comment } : f
-                            ),
-                        }
-                    },
-                    isDirty: true
-                }));
-            },
-
-            setShowSettingsModal: (isOpen: boolean) => set({ showSettingsModal: isOpen }),
-            
-            updateSettings: (newSettings: Partial<AppSettings>) => {
-                const currentSettings = get().settings;
-                const modelOrProviderChanged = 
-                    (newSettings.provider && newSettings.provider !== currentSettings.provider) ||
-                    (newSettings.model && newSettings.model !== currentSettings.model);
-
-                if (modelOrProviderChanged) {
-                    console.log('[Settings] Model/provider changed, cancelling active translations');
-                    get().cancelActiveTranslations();
-                }
-
-                set(state => ({ settings: { ...state.settings, ...newSettings } }));
-                
-                // Auto-retry failed images if Gemini API key was just added
-                if (!currentSettings.apiKeyGemini && newSettings.apiKeyGemini && get().currentUrl) {
-                    console.log('[Settings] Gemini API key added, auto-retrying failed images...');
-                    setTimeout(() => {
-                        get().retryFailedImages(get().currentUrl!);
-                    }, 500); // Small delay to ensure UI updates
-                }
-            },
-
-            updateProxyScore: (proxyUrl: string, successful: boolean) => {
-                set(state => {
-                    const currentScore = state.proxyScores[proxyUrl] || 0;
-                    const newScore = successful 
-                        ? Math.min(5, currentScore + 1)
-                        : Math.max(-5, currentScore - 1);
-                    
-                    try {
-                        console.log(`[ProxyManager] Score for ${new URL(proxyUrl).hostname}: ${currentScore} -> ${newScore} (${successful ? 'Success' : 'Failure'})`);
-                    } catch(e) { /* ignore invalid url for hostname */ }
-            
-                    return {
-                        proxyScores: {
-                            ...state.proxyScores,
-                            [proxyUrl]: newScore
-                        }
-                    };
-                });
-            },
-
-            acceptProposal: () => {
-                const { amendmentProposal, settings } = get();
-                if (!amendmentProposal) {
-                    console.warn('[Amendment] No amendment proposal to accept');
-                    return;
-                }
-                
-                console.groupCollapsed('[Amendment] Processing proposal acceptance');
-                
-                // Log current state
-                console.log('[Amendment] Current system prompt (first 300 chars):', 
-                    settings.systemPrompt.substring(0, 300) + (settings.systemPrompt.length > 300 ? '...' : ''));
-                
-                console.log('[Amendment] Searching for current rule:', amendmentProposal.currentRule);
-                console.log('[Amendment] Original proposed change:', amendmentProposal.proposedChange);
-                
-                // Process the proposed change (remove +/- prefixes)
-                const processedChange = amendmentProposal.proposedChange.replace(/^[+-]\s/gm, '');
-                console.log('[Amendment] Processed proposed change (after regex):', processedChange);
-                
-                // Check if current rule exists in the prompt
-                const ruleFound = settings.systemPrompt.includes(amendmentProposal.currentRule);
-                console.log('[Amendment] Current rule found in system prompt:', ruleFound);
-                
-                if (!ruleFound) {
-                    console.warn('[Amendment] Current rule not found in system prompt - replacement will fail');
-                    console.log('[Amendment] This might be due to text formatting differences');
-                }
-                
-                // Perform the replacement
-                const newPrompt = settings.systemPrompt.replace(amendmentProposal.currentRule, processedChange);
-                
-                // Check if replacement actually happened
-                const replacementWorked = newPrompt !== settings.systemPrompt;
-                console.log('[Amendment] Replacement worked:', replacementWorked);
-                
-                if (replacementWorked) {
-                    console.log('[Amendment] New system prompt (first 300 chars):', 
-                        newPrompt.substring(0, 300) + (newPrompt.length > 300 ? '...' : ''));
-                    
-                    // Show the specific changed section if possible
-                    const changeIndex = newPrompt.indexOf(processedChange);
-                    if (changeIndex !== -1) {
-                        const contextStart = Math.max(0, changeIndex - 50);
-                        const contextEnd = Math.min(newPrompt.length, changeIndex + processedChange.length + 50);
-                        console.log('[Amendment] Changed section with context:', 
-                            '...' + newPrompt.substring(contextStart, contextEnd) + '...');
-                    }
-                } else {
-                    console.error('[Amendment] Replacement failed - system prompt unchanged');
-                }
-                
-                console.groupEnd();
-                
-                // Update the state
-                set(state => ({ 
-                    settings: {...state.settings, systemPrompt: newPrompt}, 
-                    amendmentProposal: null 
-                }));
-                
-                console.log('[Amendment] Amendment processing complete, proposal cleared');
-            },
-            
-            rejectProposal: () => set({ amendmentProposal: null }),
-            
-            clearSession: async () => {
-                // Clear in-memory state first
-                set({
-                    sessionData: {},
-                    currentUrl: null,
-                    urlHistory: [],
-                    showEnglish: false,
-                    feedbackHistory: {},
-                    versionFeedback: {},
-                    settings: defaultSettings,
-                    proxyScores: {},
-                    error: null,
-                    isDirty: false,
-                    amendmentProposal: null,
-                });
-
-                // Clear IndexedDB for complete clean slate
-                try {
-                    console.log('[ClearSession] Wiping IndexedDB...');
-                    indexedDBService.close(); // Close connection first
-                    
-                    // Delete the entire database
-                    const deleteRequest = indexedDB.deleteDatabase('lexicon-forge');
-                    await new Promise<void>((resolve, reject) => {
-                        deleteRequest.onsuccess = () => {
-                            console.log('[ClearSession] IndexedDB cleared successfully');
-                            resolve();
-                        };
-                        deleteRequest.onerror = () => {
-                            console.error('[ClearSession] Failed to clear IndexedDB:', deleteRequest.error);
-                            reject(deleteRequest.error);
-                        };
-                    });
-                } catch (error) {
-                    console.error('[ClearSession] Error clearing IndexedDB:', error);
-                }
-            },
-            
-            exportSession: () => {
-                const { sessionData, settings, urlHistory, feedbackHistory } = get();
-                if (Object.keys(sessionData).length === 0) return;
-
-                // Destructure to remove sensitive API keys before exporting
-                const { apiKeyGemini, apiKeyOpenAI, apiKeyDeepSeek, ...settingsToExport } = settings;
-
-                const dataToExport = {
-                    session_metadata: { 
-                        exported_at: new Date().toISOString(), 
-                        settings: settingsToExport
-                    },
-                    urlHistory: urlHistory,
-                    chapters: Object.entries(sessionData)
-                        .filter(([url, data]) => data?.chapter) // Filter out entries with no chapter data
-                        .map(([url, data]) => ({
-                        sourceUrl: url,
-                        title: data.chapter.title,
-                        originalContent: data.chapter.content,
-                        nextUrl: data.chapter.nextUrl,
-                        prevUrl: data.chapter.prevUrl,
-                        translationResult: data.translationResult,
-                        feedback: feedbackHistory[url] ?? [],
-                    }))
-                };
-                
-                const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(dataToExport, null, 2))}`;
-                const link = document.createElement('a');
-                link.href = jsonString;
-                const now = new Date();
-                const timestamp = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}-${now.getSeconds().toString().padStart(2, '0')}`;
-                link.download = `novel-translator-session_${timestamp}_${Object.keys(sessionData).length}-chapters.json`;
-                link.click();
-            },
-
-            exportEpub: async () => {
-                const { sessionData, settings, urlHistory } = get();
-                if (Object.keys(sessionData).length === 0) {
-                    throw new Error('No chapters available for EPUB export');
-                }
-
-                console.log('[EPUB Export] Starting EPUB generation...');
-
-                // Collect chapters with active versions (last viewed translations)
-                const chapters = collectActiveVersions(sessionData, urlHistory);
-                
-                if (chapters.length === 0) {
-                    throw new Error('No translated chapters available for EPUB export');
-                }
-
-                console.log(`[EPUB Export] Collected ${chapters.length} chapters for EPUB`);
-
-                // Determine book title from first chapter or use fallback
-                const firstChapter = chapters[0];
-                const bookTitle = firstChapter.translatedTitle || firstChapter.title || 'Translated Novel';
-
-                const epubOptions: EpubExportOptions = {
-                    title: bookTitle,
-                    author: 'AI Translation',
-                    description: `AI-translated novel containing ${chapters.length} chapters. Translated using ${settings.provider} ${settings.model}.`,
-                    chapters,
-                    settings
-                };
-
-                // Generate and download EPUB
-                await generateEpub(epubOptions);
-                
-                console.log('[EPUB Export] EPUB generation completed successfully');
-            },
-            
-            importSession: (event: React.ChangeEvent<HTMLInputElement>) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const text = e.target?.result;
-                        if (typeof text !== 'string') throw new Error('File content is not text.');
-                        
-                        const importedData: ImportedSession = JSON.parse(text);
-                        
-                        // Compatibility check for older session files
-                        const sessionMetadata = importedData.session_metadata || importedData.metadata;
-
-                        if (!sessionMetadata || !Array.isArray(importedData.chapters)) {
-                            throw new Error('Invalid session file format.');
-                        }
-
-                        console.groupCollapsed('[Import] Processing imported session file');
-
-                        set(state => {
-                            const newSessionData = { ...state.sessionData };
-                            const newFeedbackHistory = { ...state.feedbackHistory };
-                            let conflicts = 0;
-
-                            for (const chapter of importedData.chapters) {
-                                const rawChapterUrl = chapter.sourceUrl || (chapter as any).url;
-                                if (!rawChapterUrl) continue;
-
-                                let sourceUrl: string | null = rawChapterUrl;
-                                let nextUrl: string | null = chapter.nextUrl;
-                                let prevUrl: string | null = chapter.prevUrl;
-
-                                try {
-                                    // Always normalize URLs during import for consistent cache lookups
-                                    sourceUrl = normalizeUrl(rawChapterUrl);
-                                    nextUrl = normalizeUrl(chapter.nextUrl);
-                                    prevUrl = normalizeUrl(chapter.prevUrl);
-                                } catch (e) {
-                                    console.warn(`[Import] Invalid URL encountered during normalization: ${rawChapterUrl}. Using as-is.`);
-                                    // If URL is invalid, use it as-is, and next/prev as-is
-                                }
-                                
-                                if (!sourceUrl) continue; // Should not happen if rawChapterUrl was valid
-
-                                console.log(`[Import Debug] Original URL: ${rawChapterUrl}`);
-                                console.log(`[Import Debug] Processed URL: ${sourceUrl} (Normalized: ${sourceUrl !== rawChapterUrl})`);
-                                console.log(`[Import Debug] Chapter Number: ${chapter.chapterNumber}`);
-
-                                const chapterExists = !!newSessionData[sourceUrl];
-                                if (chapterExists) {
-                                    conflicts++;
-                                    console.warn(`[Import Debug] Conflict detected for processed URL: ${sourceUrl}. Overwriting existing entry.`);
-                                }
-
-                                if (!chapterExists || window.confirm(`A chapter for the URL "${sourceUrl}" already exists. Overwrite your local version with the one from the file?`)) {
-                                    newSessionData[sourceUrl] = {
-                                        chapter: {
-                                            title: chapter.title, 
-                                            content: (chapter as any).content || chapter.originalContent, // Compatibility with older formats
-                                            originalUrl: sourceUrl,
-                                            nextUrl: nextUrl, 
-                                            prevUrl: prevUrl,
-                                            chapterNumber: chapter.chapterNumber,
-                                        },
-                                        translationResult: chapter.translationResult ?? null,
-                                    };
-                                    if (chapter.feedback?.length > 0) newFeedbackHistory[sourceUrl] = chapter.feedback;
-                                }
-                                console.log(`[Import Debug] newSessionData after processing ${sourceUrl}:`, newSessionData);
-                            }
-
-                            console.groupEnd();
-
-                            let newSettings = state.settings;
-                            if (sessionMetadata?.settings && window.confirm('Session file contains settings. Do you want to import and apply them?')) {
-                                newSettings = { ...state.settings, ...sessionMetadata.settings };
-                            }
-                            
-                            let newUrlHistory = state.urlHistory;
-                            if (importedData.urlHistory && window.confirm('Session file contains reading history. Do you want to import it? This will overwrite your current reading path.')) {
-                                newUrlHistory = importedData.urlHistory;
-                            }
-                            
-                            alert(`Import complete! ${importedData.chapters.length} chapters processed. ${conflicts} conflicts were handled.`);
-                            
-                            console.log('[Import] sessionData before import:', state.sessionData);
-                            console.log('[Import] newSessionData after import:', newSessionData);
-
-                            return {
-                                sessionData: newSessionData,
-                                feedbackHistory: newFeedbackHistory,
-                                settings: newSettings,
-                                urlHistory: newUrlHistory,
-                                currentUrl: importedData.chapters.length > 0 ? normalizeUrl((importedData.chapters[importedData.chapters.length - 1].sourceUrl || (importedData.chapters[importedData.chapters.length - 1] as any).url)) : state.currentUrl
-                            };
-                        });
-
-                    } catch (err: any) {
-                        console.error("Failed to import session file:", err);
-                        alert(`Error importing file: ${err.message}`);
-                    }
-                };
-                reader.readAsText(file);
-                event.target.value = '';
-            },
-
-            cancelActiveTranslations: () => {
-                const { activeTranslations } = get();
-                Object.keys(activeTranslations).forEach(url => {
-                    activeTranslations[url].abort();
-                    console.log(`[Translation] Cancelled translation for ${url}`);
-                });
-                set(prev => ({
-                    activeTranslations: {},
-                    urlLoadingStates: {},
-                    isLoading: { ...prev.isLoading, translating: false }
-                }));
-            },
-
-            isUrlTranslating: (url: string) => {
-                const { urlLoadingStates } = get();
-                return urlLoadingStates[url] || false;
-            },
-
-            hasTranslationSettingsChanged: (url: string) => {
-                const { settings, lastTranslationSettings, sessionData } = get();
-                const lastSettings = lastTranslationSettings[url];
-                const hasTranslation = !!sessionData[url]?.translationResult;
-                
-                // If there's a translation but no recorded last settings, assume settings changed
-                if (!lastSettings && hasTranslation) return true;
-                
-                // If no last settings and no translation, no change
-                if (!lastSettings) return false;
-                
-                return (
-                    lastSettings.provider !== settings.provider ||
-                    lastSettings.model !== settings.model ||
-                    lastSettings.temperature !== settings.temperature
-                );
-            },
-
-            shouldEnableRetranslation: (url: string) => {
-                const { sessionData, isDirty } = get();
-                const urlData = findSessionDataByUrl(sessionData, url);
-                const translationExists = !!urlData?.translationResult;
-                const settingsChanged = get().hasTranslationSettingsChanged(url);
-                const isTranslating = get().isUrlTranslating(url);
-                
-                return translationExists && !isTranslating && (isDirty || settingsChanged);
-            },
-
-            getSessionDataByUrl: (url: string) => {
-                const { sessionData } = get();
-                return findSessionDataByUrl(sessionData, url);
-            },
-
-                        handleGenerateImages: async (url: string) => {
-                console.log(`%c[ImageGen] ⚡ FUNCTION CALLED - Starting image generation for ${url}`, 'color: #00ff00; font-weight: bold; font-size: 14px;');
-                const { sessionData, settings } = get();
-                
-                // DIAGNOSTIC LOGGING - Let's see what's actually happening
-                const urlSessionData = findSessionDataByUrl(sessionData, url);
-                console.log(`[ImageGen Debug] Session data exists for URL: ${!!urlSessionData}`);
-                console.log(`[ImageGen Debug] Session data keys: ${Object.keys(sessionData)}`);
-                
-                const translationResult = urlSessionData?.translationResult;
-                console.log(`[ImageGen Debug] Translation result exists: ${!!translationResult}`);
-                console.log(`[ImageGen Debug] Translation result type: ${typeof translationResult}`);
-                
-                if (translationResult) {
-                    console.log(`[ImageGen Debug] Translation result keys: ${Object.keys(translationResult)}`);
-                    console.log(`[ImageGen Debug] suggestedIllustrations exists: ${!!translationResult.suggestedIllustrations}`);
-                    console.log(`[ImageGen Debug] suggestedIllustrations type: ${typeof translationResult.suggestedIllustrations}`);
-                    console.log(`[ImageGen Debug] suggestedIllustrations length: ${translationResult.suggestedIllustrations?.length || 'undefined'}`);
-                    
-                    if (translationResult.suggestedIllustrations) {
-                        console.log(`[ImageGen Debug] Illustration details:`, translationResult.suggestedIllustrations);
-                    }
-                } else {
-                    console.log(`[ImageGen Debug] Translation result is null/undefined`);
-                    console.log(`[ImageGen Debug] Full session data for URL:`, urlSessionData);
-                }
-
-                if (!translationResult || !translationResult.suggestedIllustrations || translationResult.suggestedIllustrations.length === 0) {
-                    console.warn('[ImageGen] No illustrations suggested for this chapter.');
-                    console.log(`[ImageGen Debug] Reason: translationResult=${!!translationResult}, suggestedIllustrations=${!!translationResult?.suggestedIllustrations}, length=${translationResult?.suggestedIllustrations?.length}`);
-                    return;
-                }
-
-                // Reset metrics and set initial loading state
-                set(state => {
-                    const initialImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; imagePrompt: string; }> = {};
-                    translationResult.suggestedIllustrations.forEach(illust => {
-                        initialImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null, imagePrompt: illust.imagePrompt };
-                    });
-                    return {
-                        imageGenerationMetrics: null,
-                        generatedImages: { ...state.generatedImages, ...initialImageStates }
-                    };
-                });
-
-                let totalTime = 0;
-                let totalCost = 0;
-                let generatedCount = 0;
-
-                // Sequentially generate images to avoid overwhelming the API
-                for (const illust of translationResult.suggestedIllustrations) {
-                    try {
-                        console.log(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
-                        const result = await generateImage(illust.imagePrompt, settings);
-                        totalTime += result.requestTime;
-                        totalCost += result.cost;
-                        generatedCount++;
-
-                        set(state => {
-                            // Update generatedImages state
-                            const newGeneratedImages = {
-                                ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null, imagePrompt: illust.imagePrompt },
-                            };
-
-                            // Update translationResult in sessionData for persistence
-                            const currentSessionData = state.sessionData[url];
-                            if (currentSessionData && currentSessionData.translationResult) {
-                                const newSuggestedIllustrations = currentSessionData.translationResult.suggestedIllustrations?.map(si => {
-                                    if (si.placementMarker === illust.placementMarker) {
-                                        return { ...si, url: result.imageData }; // Add the generated image data
-                                    }
-                                    return si;
-                                });
-                                const newTranslationResult = {
-                                    ...currentSessionData.translationResult,
-                                    suggestedIllustrations: newSuggestedIllustrations,
-                                };
-                                return {
-                                    generatedImages: newGeneratedImages,
-                                    sessionData: {
-                                        ...state.sessionData,
-                                        [url]: {
-                                            ...currentSessionData,
-                                            translationResult: newTranslationResult,
-                                        },
-                                    },
-                                };
-                            }
-                            return { generatedImages: newGeneratedImages }; // Fallback if translationResult not found
-                        });
-                        console.log(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
-                    } catch (error: any) {
-                        console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, error);
-                        set(state => ({
-                            generatedImages: {
-                                ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message, imagePrompt: illust.imagePrompt },
-                            }
-                        }));
-                    }
-                }
-
-                // Set final aggregated metrics
-                set({
-                    imageGenerationMetrics: {
-                        count: generatedCount,
-                        totalTime: totalTime,
-                        totalCost: totalCost,
-                    }
-                });
-                console.log(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
-            },
-
-            // Retry failed image generation
-            retryFailedImages: async (url: string) => {
-                console.log(`[ImageGen] Retrying failed image generation for ${url}`);
-                const { sessionData, settings, generatedImages } = get();
-                const translationResult = sessionData[url]?.translationResult;
-
-                if (!translationResult || !translationResult.suggestedIllustrations) {
-                    console.warn('[ImageGen] No illustrations to retry for this chapter.');
-                    return;
-                }
-
-                // Find failed images
-                const failedImages = translationResult.suggestedIllustrations.filter(illust => {
-                    const imageState = generatedImages[illust.placementMarker];
-                    return imageState && imageState.error && !imageState.data;
-                });
-
-                if (failedImages.length === 0) {
-                    console.log('[ImageGen] No failed images to retry.');
-                    return;
-                }
-
-                console.log(`[ImageGen] Found ${failedImages.length} failed images to retry`);
-
-                // Reset failed images to loading state
-                set(state => {
-                    const updatedImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; }> = {};
-                    failedImages.forEach(illust => {
-                        updatedImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null };
-                    });
-                    return {
-                        generatedImages: { ...state.generatedImages, ...updatedImageStates }
-                    };
-                });
-
-                // Retry generation for failed images
-                for (const illust of failedImages) {
-                    try {
-                        console.log(`[ImageGen] Retrying image for marker: ${illust.placementMarker}`);
-                        const result = await generateImage(illust.imagePrompt, settings);
-
-                        set(state => {
-                            // Update generatedImages state
-                            const newGeneratedImages = {
-                                ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null, imagePrompt: illust.imagePrompt },
-                            };
-
-                            // Update translationResult in sessionData for persistence
-                            const currentSessionData = state.sessionData[url];
-                            if (currentSessionData && currentSessionData.translationResult) {
-                                const newSuggestedIllustrations = currentSessionData.translationResult.suggestedIllustrations?.map(si => {
-                                    if (si.placementMarker === illust.placementMarker) {
-                                        return { ...si, url: result.imageData }; // Add the generated image data
-                                    } 
-                                    return si;
-                                });
-                                const newTranslationResult = {
-                                    ...currentSessionData.translationResult,
-                                    suggestedIllustrations: newSuggestedIllustrations,
-                                };
-                                return {
-                                    generatedImages: newGeneratedImages,
-                                    sessionData: {
-                                        ...state.sessionData,
-                                        [url]: {
-                                            ...currentSessionData,
-                                            translationResult: newTranslationResult,
-                                        },
-                                    },
-                                };
-                            }
-                            return { generatedImages: newGeneratedImages }; // Fallback if translationResult not found
-                        });
-                        console.log(`[ImageGen] Successfully retried and stored image for ${illust.placementMarker}`);
-                    } catch (error: any) {
-                        console.error(`[ImageGen] Retry failed for ${illust.placementMarker}:`, error);
-                        set(state => ({
-                            generatedImages: {
-                                ...state.generatedImages,
-                                [illust.placementMarker]: { isLoading: false, data: null, error: error.message, imagePrompt: illust.imagePrompt },
-                            }
-                        }));
-                    }
-                }
-            },
-
-            // Version management methods
-            initializeIndexedDB: async () => {
-                try {
-                    await indexedDBService.init();
-                    console.log('[IndexedDB] Initialized successfully');
-                    
-                    // Try to migrate from localStorage
-                    try {
-                        await migrateFromLocalStorage();
-                        console.log('[Migration] Successfully migrated from localStorage');
-                    } catch (error) {
-                        console.log('[Migration] No localStorage data to migrate or migration failed:', error);
-                    }
-                    
-                    // Load prompt templates or create default one
-                    await get().loadPromptTemplates();
-                    
-                    const { promptTemplates, settings } = get();
-                    if (promptTemplates.length === 0) {
-                        // Create default template from current system prompt
-                        console.log('[PromptTemplates] Creating default template from current system prompt');
-                        await get().createPromptTemplate(
-                            'Default',
-                            settings.systemPrompt,
-                            'Default system prompt for translations'
-                        );
-                    }
-                } catch (error) {
-                    console.error('[IndexedDB] Initialization failed:', error);
-                }
-            },
-
-            loadTranslationVersions: async (url: string) => {
-                try {
-                    const versions = await indexedDBService.getTranslationVersions(url);
-                    const activeTranslation = await indexedDBService.getActiveTranslation(url);
-                    
-                    set(state => ({
-                        sessionData: {
-                            ...state.sessionData,
-                            [url]: {
-                                ...state.sessionData[url],
-                                availableVersions: versions,
-                                activeVersion: activeTranslation?.version
-                            }
-                        }
-                    }));
-                    
-                    console.log(`[Versions] Loaded ${versions.length} versions for ${url}`);
-                } catch (error) {
-                    console.error('[Versions] Failed to load versions:', error);
-                }
-            },
-
-            switchTranslationVersion: async (url: string, version: number) => {
-                try {
-                    await indexedDBService.setActiveTranslation(url, version);
-                    const activeTranslation = await indexedDBService.getActiveTranslation(url);
-                    
-                    if (activeTranslation) {
-                        // Convert IndexedDB record back to TranslationResult format
-                        const translationResult: TranslationResult = {
-                            translatedTitle: activeTranslation.translatedTitle,
-                            translation: activeTranslation.translation,
-                            footnotes: activeTranslation.footnotes,
-                            suggestedIllustrations: activeTranslation.suggestedIllustrations,
-                            usageMetrics: {
-                                totalTokens: activeTranslation.totalTokens,
-                                promptTokens: activeTranslation.promptTokens,
-                                completionTokens: activeTranslation.completionTokens,
-                                estimatedCost: activeTranslation.estimatedCost,
-                                requestTime: activeTranslation.requestTime,
-                                provider: activeTranslation.provider,
-                                model: activeTranslation.model
-                            },
-                            proposal: activeTranslation.proposal
-                        };
-                        
-                        set(state => ({
-                            sessionData: {
-                                ...state.sessionData,
-                                [url]: {
-                                    ...state.sessionData[url],
-                                    translationResult,
-                                    activeVersion: version
-                                }
-                            }
-                        }));
-                        
-                        console.log(`[Versions] Switched to version ${version} for ${url}`);
-                    }
-                } catch (error) {
-                    console.error('[Versions] Failed to switch version:', error);
-                }
-            },
-
-            deleteTranslationVersion: async (url: string, version: number) => {
-                try {
-                    const versions = await indexedDBService.getTranslationVersions(url);
-                    const versionToDelete = versions.find(v => v.version === version);
-                    
-                    if (versionToDelete) {
-                        await indexedDBService.deleteTranslationVersion(versionToDelete.id);
-                        
-                        // Reload versions
-                        await get().loadTranslationVersions(url);
-                        
-                        console.log(`[Versions] Deleted version ${version} for ${url}`);
-                    }
-                } catch (error) {
-                    console.error('[Versions] Failed to delete version:', error);
-                }
-            },
-
-            // Prompt template management methods
-            loadPromptTemplates: async () => {
-                try {
-                    const templates = await indexedDBService.getPromptTemplates();
-                    const defaultTemplate = await indexedDBService.getDefaultPromptTemplate();
-                    
-                    set({
-                        promptTemplates: templates,
-                        activePromptTemplate: defaultTemplate
-                    });
-                    
-                    console.log(`[PromptTemplates] Loaded ${templates.length} templates`);
-                } catch (error) {
-                    console.error('[PromptTemplates] Failed to load templates:', error);
-                }
-            },
-
-            createPromptTemplate: async (name: string, content: string, description?: string) => {
-                try {
-                    const { promptTemplates } = get();
-                    const isFirstTemplate = promptTemplates.length === 0;
-                    
-                    const template: PromptTemplate = {
-                        id: crypto.randomUUID(),
-                        name,
-                        content,
-                        description,
-                        isDefault: isFirstTemplate, // First template becomes default
-                        createdAt: new Date().toISOString(),
-                        lastUsed: isFirstTemplate ? new Date().toISOString() : undefined
-                    };
-                    
-                    await indexedDBService.storePromptTemplate(template);
-                    await get().loadPromptTemplates();
-                    
-                    console.log(`[PromptTemplates] Created template: ${name}`);
-                } catch (error) {
-                    console.error('[PromptTemplates] Failed to create template:', error);
-                }
-            },
-
-            updatePromptTemplate: async (template: PromptTemplate) => {
-                try {
-                    await indexedDBService.storePromptTemplate(template);
-                    await get().loadPromptTemplates();
-                    
-                    console.log(`[PromptTemplates] Updated template: ${template.name}`);
-                } catch (error) {
-                    console.error('[PromptTemplates] Failed to update template:', error);
-                }
-            },
-
-            deletePromptTemplate: async (id: string) => {
-                try {
-                    const { activePromptTemplate, promptTemplates } = get();
-                    
-                    // Don't delete the active template if it's the only one
-                    if (promptTemplates.length <= 1) {
-                        console.warn('[PromptTemplates] Cannot delete the only template');
-                        return;
-                    }
-                    
-                    await indexedDBService.deletePromptTemplate(id);
-                    
-                    // If we deleted the active template, switch to another one
-                    if (activePromptTemplate?.id === id) {
-                        const remainingTemplates = promptTemplates.filter(t => t.id !== id);
-                        if (remainingTemplates.length > 0) {
-                            await get().setActivePromptTemplate(remainingTemplates[0].id);
-                        }
-                    } else {
-                        await get().loadPromptTemplates();
-                    }
-                    
-                    console.log(`[PromptTemplates] Deleted template: ${id}`);
-                } catch (error) {
-                    console.error('[PromptTemplates] Failed to delete template:', error);
-                }
-            },
-
-            setActivePromptTemplate: async (id: string) => {
-                try {
-                    const template = await indexedDBService.getPromptTemplate(id);
-                    if (template) {
-                        // Update lastUsed timestamp
-                        template.lastUsed = new Date().toISOString();
-                        await indexedDBService.storePromptTemplate(template);
-                        
-                        // Set as default and update settings
-                        await indexedDBService.setDefaultPromptTemplate(id);
-                        
-                        set(state => ({
-                            activePromptTemplate: template,
-                            settings: {
-                                ...state.settings,
-                                systemPrompt: template.content,
-                                activePromptId: id
-                            }
-                        }));
-                        
-                        await get().loadPromptTemplates();
-                        
-                        console.log(`[PromptTemplates] Set active template: ${template.name}`);
-                    }
-                } catch (error) {
-                    console.error('[PromptTemplates] Failed to set active template:', error);
-                }
-            },
-        }),
-        persistOptions
-    )
-);
+          }));
+          try { await indexedDBService.setSetting('lastActiveChapter', { id: chapterIdFound, url: canonicalUrl }); } catch {}
+          if (typeof history !== 'undefined' && history.pushState) {
+            history.pushState({ chapterId: chapterIdFound }, '', `?chapter=${encodeURIComponent(canonicalUrl)}`);
+          }
+          console.log(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);
+          return;
+        }
+      } catch (e) {
+        console.warn('[Navigate] IndexedDB direct lookup failed', e);
+      }
+
+      const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported.`;
+      console.error(`[Navigate] ${errorMessage}`, { url });
+      set({ error: errorMessage });
+    }
+  },
+
+  // Lazily load a chapter by stableId from IndexedDB and cache it in memory
+  loadChapterFromIDB: async (chapterId: string) => {
+    console.log(`[IDB] Loading chapter from IndexedDB: ${chapterId}`);
+    try {
+      const rec = await indexedDBService.getChapterByStableId(chapterId);
+      console.log(`[IDB] Retrieved record:`, {
+          exists: !!rec,
+          title: rec?.title,
+          hasContent: !!rec?.content,
+          contentLength: rec?.content?.length || 0,
+          url: rec?.url,
+          canonicalUrl: rec?.canonicalUrl,
+          originalUrl: rec?.originalUrl,
+          chapterNumber: rec?.chapterNumber,
+          nextUrl: rec?.nextUrl,
+          prevUrl: rec?.prevUrl
+      });
+      
+      if (!rec) {
+          console.warn(`[IDB] No record found for ${chapterId}`);
+          return null;
+      }
+      
+      if (!rec.content) {
+          console.error(`[IDB] CRITICAL: Chapter ${chapterId} has no content in IndexedDB:`, rec);
+      }
+      
+      const canonicalUrl = rec.canonicalUrl || rec.url;
+      const enhanced: EnhancedChapter = {
+        id: chapterId,
+        title: rec.title,
+        content: rec.content,
+        originalUrl: canonicalUrl,
+        canonicalUrl,
+        nextUrl: rec.nextUrl,
+        prevUrl: rec.prevUrl,
+        chapterNumber: rec.chapterNumber || 0,
+        sourceUrls: [rec.originalUrl || canonicalUrl],
+        importSource: { originalUrl: rec.originalUrl || canonicalUrl, importDate: new Date(), sourceFormat: 'json' },
+        translationResult: null,
+      } as EnhancedChapter;
+      
+      console.log(`[IDB] Created enhanced chapter:`, {
+          id: enhanced.id,
+          title: enhanced.title,
+          hasContent: !!enhanced.content,
+          contentLength: enhanced.content?.length || 0,
+          canonicalUrl: enhanced.canonicalUrl,
+          sourceUrls: enhanced.sourceUrls
+      });
+      // Try to hydrate active translation version for this chapter
+      try {
+        const active = await indexedDBService.getActiveTranslationByStableId(chapterId);
+        if (active) {
+          const usageMetrics = {
+            totalTokens: active.totalTokens || 0,
+            promptTokens: active.promptTokens || 0,
+            completionTokens: active.completionTokens || 0,
+            estimatedCost: active.estimatedCost || 0,
+            requestTime: active.requestTime || 0,
+            provider: (active.provider as any) || get().settings.provider,
+            model: active.model || get().settings.model,
+          } as any;
+          enhanced.translationResult = {
+            translatedTitle: active.translatedTitle,
+            translation: active.translation,
+            proposal: active.proposal || null,
+            footnotes: active.footnotes || [],
+            suggestedIllustrations: active.suggestedIllustrations || [],
+            usageMetrics,
+          } as any;
+        }
+      } catch {}
+      set(s => {
+        const chapters = new Map(s.chapters);
+        chapters.set(chapterId, enhanced);
+        // best effort: keep indices consistent
+        const urlIndex = new Map(s.urlIndex);
+        const rawUrlIndex = new Map(s.rawUrlIndex);
+        const norm = normalizeUrlAggressively(canonicalUrl);
+        if (norm) urlIndex.set(norm, chapterId);
+        rawUrlIndex.set(canonicalUrl, chapterId);
+        return { chapters, urlIndex, rawUrlIndex };
+      });
+      return enhanced;
+    } catch (e) {
+      console.error('[Store] loadChapterFromIDB failed', e);
+      return null;
+    }
+  },
+
+  addFeedback: (chapterId, item) => {
+    const id = item.id ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    set(s => {
+      const newFeedbackHistory = { ...s.feedbackHistory };
+      const feedbackForChapter = newFeedbackHistory[chapterId] ?? [];
+      newFeedbackHistory[chapterId] = feedbackForChapter.concat({ ...item, id, createdAt: Date.now() });
+
+      const newChapters = new Map(s.chapters);
+      const chapter = newChapters.get(chapterId);
+      if (chapter) {
+        chapter.feedback = (chapter.feedback ?? []).concat({ ...item, id, createdAt: Date.now() });
+        newChapters.set(chapterId, chapter);
+      }
+
+      return { 
+        feedbackHistory: newFeedbackHistory,
+        chapters: newChapters,
+        isDirty: true 
+      };
+    });
+  },
+  deleteFeedback: (chapterId, id) => set(s => {
+    const newFeedbackHistory = { ...s.feedbackHistory };
+    newFeedbackHistory[chapterId] = (newFeedbackHistory[chapterId] ?? []).filter(f => f.id !== id);
+    
+    const newChapters = new Map(s.chapters);
+    const chapter = newChapters.get(chapterId);
+    if (chapter && chapter.feedback) {
+      chapter.feedback = chapter.feedback.filter(f => f.id !== id);
+      newChapters.set(chapterId, chapter);
+    }
+
+    return { 
+      feedbackHistory: newFeedbackHistory,
+      chapters: newChapters,
+      isDirty: true 
+    };
+  }),
+  updateFeedbackComment: (chapterId, id, comment) => set(s => {
+    const newFeedbackHistory = { ...s.feedbackHistory };
+    (newFeedbackHistory[chapterId] ?? []).forEach(f => { if (f.id === id) f.comment = comment; });
+
+    const newChapters = new Map(s.chapters);
+    const chapter = newChapters.get(chapterId);
+    if (chapter && chapter.feedback) {
+      chapter.feedback.forEach(f => { if (f.id === id) f.comment = comment; });
+      newChapters.set(chapterId, chapter);
+    }
+    
+    return { 
+      feedbackHistory: newFeedbackHistory,
+      chapters: newChapters,
+      isDirty: true 
+    };
+  }),
+
+  startFeedbackSubmission: (chapterId: string) => set({ feedbackUIState: { isSubmitting: false, activeChapterId: chapterId } }),
+  cancelFeedbackSubmission: () => set({ feedbackUIState: { isSubmitting: false, activeChapterId: undefined } }),
+
+  buildTranslationHistory: (currentChapterId: string) => {
+    console.log(`[History] Building history for chapter: ${currentChapterId}`);
+    const { navigationHistory, chapters, settings } = get();
+    
+    console.log(`[History] Navigation history:`, navigationHistory);
+    console.log(`[History] Total chapters in memory:`, chapters.size);
+    console.log(`[History] Context depth setting:`, settings.contextDepth);
+    
+    const idx = navigationHistory.lastIndexOf(currentChapterId);
+    console.log(`[History] Current chapter index in nav history: ${idx}`);
+    
+    if (idx <= 0) {
+      console.log(`[History] No history available (idx=${idx})`);
+      return [];
+    }
+
+    const historyChapterIds = navigationHistory.slice(Math.max(0, idx - settings.contextDepth), idx);
+    console.log(`[History] History chapter IDs to process:`, historyChapterIds);
+    
+    const result = historyChapterIds.map(chapterId => {
+      const chapter = chapters.get(chapterId);
+      console.log(`[History] Processing chapter ${chapterId}:`, {
+          exists: !!chapter,
+          title: chapter?.title,
+          hasContent: !!chapter?.content,
+          contentLength: chapter?.content?.length || 0,
+          hasTranslation: !!chapter?.translationResult,
+          translatedTitle: chapter?.translationResult?.translatedTitle
+      });
+      
+      if (!chapter) {
+          console.warn(`[History] Chapter ${chapterId} not found in chapters Map`);
+          return null;
+      }
+      
+      if (!chapter.content) {
+          console.warn(`[History] Chapter ${chapterId} has no content:`, {
+              id: chapter.id,
+              title: chapter.title,
+              originalUrl: chapter.originalUrl,
+              canonicalUrl: chapter.canonicalUrl,
+              hasTranslationResult: !!chapter.translationResult,
+              sourceUrls: chapter.sourceUrls,
+              importSource: chapter.importSource
+          });
+      }
+      
+      return chapter ? {
+        originalUrl: chapter.canonicalUrl,
+        originalTitle: chapter.title,
+        translatedTitle: chapter.translationResult?.translatedTitle ?? '',
+        content: chapter.content,
+        feedback: chapter.feedback ?? [],
+      } : null;
+    });
+    
+    const filtered = result.filter((c): c is HistoricalChapter => !!c && !!c.content);
+    console.log(`[History] Final history items:`, filtered.length);
+    filtered.forEach((item, idx) => {
+      console.log(`[History] History item ${idx}:`, {
+        title: item.originalTitle,
+        translatedTitle: item.translatedTitle,
+        hasContent: !!item.content,
+        contentPreview: item.content?.substring(0, 100) + '...',
+        feedbackCount: item.feedback?.length || 0
+      });
+    });
+    
+    return filtered;
+  },
+
+  hasTranslationSettingsChanged: (chapterId) => {
+    const chapter = get().chapters.get(chapterId);
+    if (!chapter?.translationSettingsSnapshot) return true;
+    
+    const relevantSettings = (({ provider, model, temperature, contextDepth, systemPrompt }) =>
+      ({ provider, model, temperature, contextDepth, systemPrompt }))(get().settings);
+      
+    return !shallowEqual(chapter.translationSettingsSnapshot, relevantSettings);
+  },
+  shouldEnableRetranslation: (chapterId) => get().hasTranslationSettingsChanged(chapterId),
+
+  exportSessionData: () => {
+    const { chapters } = get();
+    const data = {
+      // We need to reconstruct the chapter array in a serializable format
+      chapters: Array.from(chapters.values()).map(chapter => ({
+        sourceUrl: chapter.canonicalUrl,
+        title: chapter.title,
+        content: chapter.content,
+        translationResult: chapter.translationResult,
+        feedback: chapter.feedback,
+        chapterNumber: chapter.chapterNumber,
+        nextUrl: chapter.nextUrl,
+        prevUrl: chapter.prevUrl
+      })),
+      // We could also export novels and other metadata here if needed
+    };
+    const json = JSON.stringify(data, null, 2);
+    try {
+      const a = document.createElement('a');
+      a.download = 'lexicon-forge-session.json';
+      a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(json);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch {}
+    return json; // make tests happy
+  },
+
+  importSessionData: async (payload: string | object) => {
+    try {
+      const obj = typeof payload === 'string' ? JSON.parse(payload) : payload as any;
+      if (!obj.chapters || !Array.isArray(obj.chapters)) {
+        throw new Error('Invalid import file format: Missing chapters array.');
+      }
+
+      console.log(`[Import] Starting import of ${obj.chapters.length} chapters.`);
+
+      // Use the stableIdService to process the imported data
+      const incomingStableData = transformImportedChapters(obj.chapters, obj.metadata);
+
+      // Merge the new stable data with the existing state
+      set(s => {
+        const newChapters = new Map([...s.chapters, ...incomingStableData.chapters]);
+        const newNovels = new Map([...s.novels, ...incomingStableData.novels]);
+        const newUrlIndex = new Map([...s.urlIndex, ...incomingStableData.urlIndex]);
+        const newRawUrlIndex = new Map([...s.rawUrlIndex, ...incomingStableData.rawUrlIndex]);
+
+        // Create a unified navigation history, preventing duplicates
+        const newNavigationHistory = [...s.navigationHistory];
+        for (const chapterId of incomingStableData.navigationHistory) {
+          if (!newNavigationHistory.includes(chapterId)) {
+            newNavigationHistory.push(chapterId);
+          }
+        }
+
+        // Set the current chapter to the first imported chapter if the session is new
+        const currentChapterId = s.currentChapterId || incomingStableData.currentChapterId;
+
+        console.log(`[Import] Merge complete. Total chapters: ${newChapters.size}`);
+
+        // Persist the newly merged data to IndexedDB
+        indexedDBService.importStableSessionData({
+          novels: newNovels,
+          chapters: newChapters,
+          urlIndex: newUrlIndex,
+          rawUrlIndex: newRawUrlIndex,
+          currentChapterId: currentChapterId,
+          navigationHistory: newNavigationHistory
+        }).catch(err => console.error('[DB] Failed to persist imported session', err));
+
+        return {
+          chapters: newChapters,
+          novels: newNovels,
+          urlIndex: newUrlIndex,
+          rawUrlIndex: newRawUrlIndex,
+          navigationHistory: newNavigationHistory,
+          currentChapterId: currentChapterId,
+          error: null,
+        };
+      });
+
+    } catch (e: any) {
+      console.error('[Import] Import failed:', e);
+      set({ error: `Failed to import session: ${e.message}` });
+    }
+  },
+
+  updateSettings: (partial) => {
+    set(s => {
+        const newSettings = { ...s.settings, ...partial };
+        try { localStorage.setItem(settingsStorageKey, JSON.stringify(newSettings)); } catch {}
+        return { settings: newSettings };
+    });
+  },
+
+  handleFetch: async (url: string) => {
+    if (inflightFetches.has(url)) return inflightFetches.get(url);
+
+    const fetchPromise = (async () => {
+      set(s => ({
+        urlLoadingStates: { ...s.urlLoadingStates, [url]: true }, // Use raw URL for loading state key
+        isLoading: { ...s.isLoading, fetching: true },
+        error: null
+      }));
+
+      try {
+        console.log(`[Fetch] Fetching and parsing URL: ${url}`);
+        const chapterData = await fetchAndParseUrl(url, {}, () => {});
+        console.log(`[Fetch] Raw chapter data:`, {
+          title: chapterData.title,
+          hasContent: !!chapterData.content,
+          contentLength: chapterData.content?.length || 0,
+          url: chapterData.url,
+          chapterNumber: chapterData.chapterNumber,
+          nextUrl: chapterData.nextUrl,
+          prevUrl: chapterData.prevUrl
+        });
+        
+        // This is a new chapter, so we need to transform it to the stable format
+        console.log(`[Fetch] Transforming to stable format...`);
+        const stableData = transformImportedChapters([chapterData]);
+        console.log(`[Fetch] Stable transformation result:`, {
+          chaptersCount: stableData.chapters.size,
+          currentChapterId: stableData.currentChapterId,
+          urlIndexSize: stableData.urlIndex.size,
+          rawUrlIndexSize: stableData.rawUrlIndex.size
+        });
+        
+        // Verify the transformed chapter has content
+        if (stableData.currentChapterId) {
+          const transformedChapter = stableData.chapters.get(stableData.currentChapterId);
+          console.log(`[Fetch] Transformed chapter content check:`, {
+            chapterId: stableData.currentChapterId,
+            title: transformedChapter?.title,
+            hasContent: !!transformedChapter?.content,
+            contentLength: transformedChapter?.content?.length || 0,
+            canonicalUrl: transformedChapter?.canonicalUrl
+          });
+        }
+        
+        set(s => {
+          const newChapters = new Map([...s.chapters, ...stableData.chapters]);
+          const newUrlIndex = new Map([...s.urlIndex, ...stableData.urlIndex]);
+          const newRawUrlIndex = new Map([...s.rawUrlIndex, ...stableData.rawUrlIndex]);
+          const newNovels = new Map([...s.novels, ...stableData.novels]);
+          
+          // Navigate to the newly fetched chapter
+          const newChapterId = stableData.currentChapterId;
+          const newHistory = newChapterId ? [...new Set(s.navigationHistory.concat(newChapterId))] : s.navigationHistory;
+          
+          console.log(`[Fetch] State update:`, {
+            totalChaptersAfter: newChapters.size,
+            navigationHistoryAfter: newHistory,
+            currentChapterId: newChapterId
+          });
+
+          return {
+            chapters: newChapters,
+            urlIndex: newUrlIndex,
+            rawUrlIndex: newRawUrlIndex,
+            novels: newNovels,
+            currentChapterId: newChapterId,
+            navigationHistory: newHistory,
+          };
+        });
+        try {
+          if (stableData.currentChapterId) {
+            const ch = Array.from(stableData.chapters.values())[0];
+            await indexedDBService.setSetting('lastActiveChapter', { id: stableData.currentChapterId, url: ch?.canonicalUrl || url });
+          }
+        } catch {}
+
+        // Persist to IndexedDB so it survives reloads
+        try {
+          await indexedDBService.importStableSessionData({
+            novels: stableData.novels,
+            chapters: stableData.chapters,
+            urlIndex: stableData.urlIndex,
+            rawUrlIndex: stableData.rawUrlIndex,
+            currentChapterId: stableData.currentChapterId,
+            navigationHistory: [],
+          });
+        } catch (e) {
+          console.warn('[DB] Failed to persist fetched chapter to IndexedDB', e);
+        }
+
+      } catch (e: any) {
+        console.error('[FETCH-ERROR]', e);
+        set({ error: String(e?.message ?? e ?? 'Fetch failed') });
+      } finally {
+        set(s => {
+          const newLoadingStates = { ...s.urlLoadingStates };
+          delete newLoadingStates[url];
+          const isStillFetching = Object.values(newLoadingStates).some(Boolean);
+          return {
+            urlLoadingStates: newLoadingStates,
+            isLoading: { ...s.isLoading, fetching: isStillFetching }
+          };
+        });
+        inflightFetches.delete(url);
+      }
+    })();
+
+    inflightFetches.set(url, fetchPromise);
+    return fetchPromise;
+  },
+
+  handleTranslate: async (chapterId: string) => {
+    const { chapters, settings, buildTranslationHistory, activeTranslations } = get();
+    const chapterToTranslate = chapters.get(chapterId);
+
+    if (!chapterToTranslate) return;
+
+    const apiValidation = validateApiKey(settings);
+    if (!apiValidation.isValid) {
+        set({ error: `Translation API error: ${apiValidation.errorMessage}` });
+        return;
+    }
+    
+    if (activeTranslations[chapterId]) {
+        activeTranslations[chapterId].abort();
+    }
+    const abortController = new AbortController();
+    set(s => ({ 
+        // Clear any stale error when a fresh translation begins
+        error: null,
+        activeTranslations: { ...s.activeTranslations, [chapterId]: abortController }, 
+        urlLoadingStates: { ...s.urlLoadingStates, [chapterId]: true }, 
+        isLoading: { ...s.isLoading, translating: true } 
+    }));
+
+    try {
+        const history = buildTranslationHistory(chapterId);
+        const result = await translateChapter(
+          chapterToTranslate.title,
+          chapterToTranslate.content,
+          settings,
+          history
+        );
+        
+        if (abortController.signal.aborted) {
+            console.log(`Translation for ${chapterId} was cancelled.`);
+            return;
+        }
+
+        const relevantSettings = (({ provider, model, temperature, contextDepth, systemPrompt }) =>
+            ({ provider, model, temperature, contextDepth, systemPrompt }))(settings);
+
+        set(s => {
+            const newChapters = new Map(s.chapters);
+            const chapter = newChapters.get(chapterId);
+            if (chapter) {
+                (chapter as any).translationResult = result;
+                (chapter as any).translationSettingsSnapshot = relevantSettings;
+                newChapters.set(chapterId, chapter);
+            }
+            return { chapters: newChapters, amendmentProposal: result.proposal ?? null };
+        });
+
+        // Persist translation as a new version and mark it active
+        try {
+          await indexedDBService.storeTranslationByStableId(chapterId, result as any, {
+            provider: settings.provider,
+            model: settings.model,
+            temperature: settings.temperature,
+            systemPrompt: settings.systemPrompt,
+            promptId: get().activePromptTemplate?.id,
+            promptName: get().activePromptTemplate?.name,
+          });
+        } catch (e) {
+          console.warn('[Store] Failed to persist translation version', e);
+        }
+
+    } catch (e: any) {
+        if (e.name === 'AbortError') {
+            console.log(`Translation for ${chapterId} was aborted.`);
+        } else {
+            set({ error: String(e?.message ?? e ?? 'Translate failed') });
+        }
+    } finally {
+        set(s => {
+            const newActiveTranslations = { ...s.activeTranslations };
+            const newUrlLoadingStates = { ...s.urlLoadingStates };
+            delete newActiveTranslations[chapterId];
+            delete newUrlLoadingStates[chapterId];
+            const isTranslating = Object.values(newActiveTranslations).some(Boolean);
+            return { 
+                activeTranslations: newActiveTranslations, 
+                urlLoadingStates: newUrlLoadingStates, 
+                isLoading: { ...s.isLoading, translating: isTranslating } 
+            };
+        });
+    }
+  },
+  
+  // Keep other methods from the original file that are not in the skeleton
+  handleRetranslateCurrent: () => {
+      const { currentChapterId, handleTranslate } = get();
+      if (!currentChapterId) return;
+      handleTranslate(currentChapterId);
+  },
+  handleToggleLanguage: (show: boolean) => set({ showEnglish: show }),
+  setShowSettingsModal: (isOpen: boolean) => set({ showSettingsModal: isOpen }),
+  acceptProposal: () => {
+      const { amendmentProposal, settings } = get();
+      if (!amendmentProposal) return;
+      const newPrompt = settings.systemPrompt.replace(amendmentProposal.currentRule, amendmentProposal.proposedChange.replace(/^[+-]\s/gm, ''));
+      set(s => ({
+          settings: { ...s.settings, systemPrompt: newPrompt },
+          amendmentProposal: null,
+      }));
+  },
+  rejectProposal: () => set({ amendmentProposal: null }),
+  clearSession: () => {
+      set({
+          novels: new Map(),
+          chapters: new Map(),
+          urlIndex: new Map(),
+          rawUrlIndex: new Map(),
+          currentChapterId: null,
+          navigationHistory: [],
+          feedbackHistory: {},
+          error: null,
+          amendmentProposal: null,
+      });
+      // We might want to clear indexedDB as well
+      indexedDBService.clearAllData().catch(err => console.error('[DB] Failed to clear database', err));
+      localStorage.removeItem(settingsStorageKey);
+  },
+
+  // Prompt Template Methods
+  loadPromptTemplates: async () => {
+    try {
+      const templates = await indexedDBService.getPromptTemplates();
+      const activeTemplate = await indexedDBService.getDefaultPromptTemplate();
+      set({ 
+        promptTemplates: templates,
+        activePromptTemplate: activeTemplate 
+      });
+    } catch (error) {
+      console.error('[Store] Failed to load prompt templates:', error);
+    }
+  },
+
+  createPromptTemplate: async (templateData) => {
+    try {
+      const template: PromptTemplate = {
+        ...templateData,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+      };
+      await indexedDBService.storePromptTemplate(template);
+      set(state => ({
+        promptTemplates: [...state.promptTemplates, template]
+      }));
+    } catch (error) {
+      console.error('[Store] Failed to create prompt template:', error);
+    }
+  },
+
+  updatePromptTemplate: async (template) => {
+    try {
+      await indexedDBService.storePromptTemplate(template);
+      set(state => ({
+        promptTemplates: state.promptTemplates.map(t => t.id === template.id ? template : t),
+        activePromptTemplate: state.activePromptTemplate?.id === template.id ? template : state.activePromptTemplate
+      }));
+    } catch (error) {
+      console.error('[Store] Failed to update prompt template:', error);
+    }
+  },
+
+  deletePromptTemplate: async (id) => {
+    try {
+      await indexedDBService.deletePromptTemplate(id);
+      set(state => ({
+        promptTemplates: state.promptTemplates.filter(t => t.id !== id),
+        activePromptTemplate: state.activePromptTemplate?.id === id ? null : state.activePromptTemplate
+      }));
+    } catch (error) {
+      console.error('[Store] Failed to delete prompt template:', error);
+    }
+  },
+
+  setActivePromptTemplate: async (id) => {
+    try {
+      await indexedDBService.setDefaultPromptTemplate(id);
+      const template = get().promptTemplates.find(t => t.id === id);
+      set({ activePromptTemplate: template || null });
+    } catch (error) {
+      console.error('[Store] Failed to set active prompt template:', error);
+    }
+  },
+
+  getChapterById: (chapterId: string) => {
+    return get().chapters.get(chapterId) || null;
+  },
+
+  // Versioning helpers
+  fetchTranslationVersions: async (chapterId: string) => {
+    try {
+      const versions = await indexedDBService.getTranslationVersionsByStableId(chapterId);
+      return versions;
+    } catch (e) {
+      console.warn('[Store] fetchTranslationVersions failed', e);
+      return [] as any;
+    }
+  },
+
+  setActiveTranslationVersion: async (chapterId: string, version: number) => {
+    try {
+      await indexedDBService.setActiveTranslationByStableId(chapterId, version);
+      const active = await indexedDBService.getActiveTranslationByStableId(chapterId);
+      if (active) {
+        const usageMetrics = {
+          totalTokens: active.totalTokens || 0,
+          promptTokens: active.promptTokens || 0,
+          completionTokens: active.candidatesTokenCount || active.completionTokens || 0,
+          estimatedCost: active.estimatedCost || 0,
+          requestTime: active.requestTime || 0,
+          provider: (active.provider as any) || get().settings.provider,
+          model: active.model || get().settings.model,
+        } as any;
+
+        set(s => {
+          const chapters = new Map(s.chapters);
+          const ch = chapters.get(chapterId);
+          if (ch) {
+            ch.translationResult = {
+              translatedTitle: active.translatedTitle,
+              translation: active.translation,
+              proposal: active.proposal || null,
+              footnotes: active.footnotes || [],
+              suggestedIllustrations: active.suggestedIllustrations || [],
+              usageMetrics,
+            } as any;
+            chapters.set(chapterId, ch);
+          }
+          return { chapters };
+        });
+      }
+    } catch (e) {
+      console.error('[Store] setActiveTranslationVersion failed', e);
+      set({ error: 'Failed to switch translation version' });
+    }
+  },
+
+  // Boot-time index hydration for Option C (index-only)
+  hydrateIndicesOnBoot: async () => {
+    try {
+      // One-time backfill of URL mappings if needed
+      const already = await indexedDBService.getSetting<boolean>('urlMappingsBackfilled');
+      if (!already) {
+        await indexedDBService.backfillUrlMappingsFromChapters();
+      }
+      const mappings = await indexedDBService.getAllUrlMappings();
+      if (!mappings || mappings.length === 0) return;
+      set(s => {
+        const urlIndex = new Map(s.urlIndex);
+        const rawUrlIndex = new Map(s.rawUrlIndex);
+        for (const m of mappings) {
+          if (m.isCanonical) urlIndex.set(m.url, m.stableId);
+          else rawUrlIndex.set(m.url, m.stableId);
+        }
+        return { urlIndex, rawUrlIndex };
+      });
+      // Prefer exact last active chapter if available
+      const last = await indexedDBService.getSetting<{ id: string; url: string }>('lastActiveChapter');
+      if (last?.id) {
+        set(s => ({ currentChapterId: s.currentChapterId || last.id }));
+        // lazily load content for last active if missing
+        const sNow = get();
+        if (!sNow.chapters.has(last.id)) {
+          // fire and forget; UI can render once loaded
+          get().loadChapterFromIDB(last.id).catch(() => {});
+        }
+      } else {
+        // Fallback to most recent in DB
+        const mostRecent = await indexedDBService.getMostRecentChapterStableId();
+        if (mostRecent?.stableId) {
+          set(s => ({ currentChapterId: s.currentChapterId || mostRecent.stableId }));
+        }
+      }
+      console.log(`[Boot] Hydrated ${mappings.length} URL mappings from IndexedDB`);
+    } catch (e) {
+      console.warn('[Boot] Failed to hydrate URL indices from IndexedDB', e);
+    }
+  },
+}));
 
 export default useAppStore;

@@ -2,6 +2,18 @@ import Anthropic from '@anthropic-ai/sdk';
 import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
 import { calculateCost } from './aiService';
 
+// --- DEBUG UTILITIES ---
+const aiDebugEnabled = (): boolean => {
+  try {
+    return typeof localStorage !== 'undefined' && localStorage.getItem('LF_AI_DEBUG') === '1';
+  } catch { return false; }
+};
+const dlog = (...args: any[]) => { if (aiDebugEnabled()) console.log(...args); };
+const aiDebugFullEnabled = (): boolean => {
+  try { return typeof localStorage !== 'undefined' && localStorage.getItem('LF_AI_DEBUG_FULL') === '1'; } catch { return false; }
+};
+const dlogFull = (...args: any[]) => { if (aiDebugFullEnabled()) console.log(...args); };
+
 // --- SHARED PROMPT LOGIC ---
 
 const formatHistory = (history: HistoricalChapter[]): string => {
@@ -99,24 +111,51 @@ If there are no footnotes, use null or empty array for footnotes.
 If there are no illustrations, use null or empty array for suggestedIllustrations.
 If there is no proposal, use null for proposal.`;
 
+    // Debug: what we're sending (sanitized)
+    dlog('[Claude Debug] Request summary:', {
+      model: settings.model,
+      temperature: settings.temperature,
+      clampedTemperature: Math.max(0, Math.min(1, settings.temperature)),
+      historyChapters: history.length,
+      fullPromptLength: fullPrompt.length,
+      fullPromptPreview: fullPrompt.slice(0, 400)
+    });
+    
+    const requestPayload = {
+        model: settings.model,
+        max_tokens: 8192,
+        temperature: Math.max(0, Math.min(1, settings.temperature)), // Clamp temperature to 0-1 range as UI max is 2
+        messages: [
+            {
+                role: 'user',
+                content: fullPrompt
+            },
+            {
+                // Response prefilling - starts the JSON structure for Claude
+                role: 'assistant', 
+                content: `{
+  "translatedTitle": "`
+            }
+        ]
+    };
+    
+    // Gated: Full request body
+    dlogFull('[Claude Debug] Full request body:', JSON.stringify(requestPayload, null, 2));
+
     try {
         // Use Claude's message format with response prefilling for consistency
-        const response = await claude.messages.create({
-            model: settings.model,
-            max_tokens: 8192,
-            temperature: Math.max(0, Math.min(1, settings.temperature)), // Clamp temperature to 0-1 range as UI max is 2
-            messages: [
-                {
-                    role: 'user',
-                    content: fullPrompt
-                },
-                {
-                    // Response prefilling - starts the JSON structure for Claude
-                    role: 'assistant', 
-                    content: `{
-  "translatedTitle": "`
-                }
-            ]
+        const response = await claude.messages.create(requestPayload);
+        
+        dlog('[Claude Debug] Raw API response:', JSON.stringify(response, null, 2));
+        
+        // Debug response structure
+        dlog('[Claude Debug] Response structure:', {
+          contentLength: response.content?.length || 0,
+          contentTypes: response.content?.map(c => c.type) || [],
+          stopReason: response.stop_reason,
+          stopSequence: response.stop_sequence,
+          model: response.model,
+          role: response.role
         });
 
         const requestTime = (performance.now() - startTime) / 1000;

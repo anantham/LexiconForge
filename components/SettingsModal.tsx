@@ -16,7 +16,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     settings, 
     updateSettings, 
     clearSession, 
-    importSession,
+    importSessionData,
     promptTemplates,
     activePromptTemplate,
     createPromptTemplate,
@@ -27,7 +27,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       settings: state.settings,
       updateSettings: state.updateSettings,
       clearSession: state.clearSession,
-      importSession: state.importSession,
+      importSessionData: state.importSessionData,
       promptTemplates: state.promptTemplates,
       activePromptTemplate: state.activePromptTemplate,
       createPromptTemplate: state.createPromptTemplate,
@@ -46,6 +46,38 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     setCurrentSettings(settings);
   }, [settings, isOpen]);
+  // Developer settings hooks must be before early return to obey Rules of Hooks
+  const [showDev, setShowDev] = useState(false);
+  type DebugLevel = 'off' | 'summary' | 'full';
+  const [apiDebugLevel, setApiDebugLevel] = useState<DebugLevel>(() => {
+    try {
+      const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL') as DebugLevel | null;
+      if (lvl === 'off' || lvl === 'summary' || lvl === 'full') return lvl;
+      // Backward-compat with old flags
+      const full = localStorage.getItem('LF_AI_DEBUG_FULL') === '1';
+      const summary = localStorage.getItem('LF_AI_DEBUG') === '1';
+      if (full) return 'full';
+      if (summary) return 'summary';
+      return 'off';
+    } catch { return 'off'; }
+  });
+  const setDebugLevel = (level: DebugLevel) => {
+    setApiDebugLevel(level);
+    try {
+      localStorage.setItem('LF_AI_DEBUG_LEVEL', level);
+      // Normalize legacy flags so providers can keep using them
+      if (level === 'off') {
+        localStorage.removeItem('LF_AI_DEBUG');
+        localStorage.removeItem('LF_AI_DEBUG_FULL');
+      } else if (level === 'summary') {
+        localStorage.setItem('LF_AI_DEBUG', '1');
+        localStorage.removeItem('LF_AI_DEBUG_FULL');
+      } else if (level === 'full') {
+        localStorage.setItem('LF_AI_DEBUG', '1');
+        localStorage.setItem('LF_AI_DEBUG_FULL', '1');
+      }
+    } catch {}
+  };
   
   if (!isOpen) return null;
 
@@ -83,14 +115,38 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     fileInputRef.current?.click();
   };
 
+  const handleImportSession = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const content = e.target?.result as string;
+        const data = JSON.parse(content);
+        await importSessionData(data);
+        console.log('[Import] Session data imported successfully');
+        // Optionally show success feedback
+      } catch (error) {
+        console.error('[Import] Failed to import session:', error);
+        // Error is already handled by importSessionData setting error state
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset the input so the same file can be imported again
+    event.target.value = '';
+  };
+
   const handleCreatePrompt = async () => {
     if (!newPromptName.trim()) return;
     
-    await createPromptTemplate(
-      newPromptName.trim(),
-      currentSettings.systemPrompt,
-      newPromptDescription.trim() || undefined
-    );
+    await createPromptTemplate({
+      name: newPromptName.trim(),
+      content: currentSettings.systemPrompt,
+      description: newPromptDescription.trim() || undefined,
+      isDefault: false,
+    });
     
     setShowCreatePrompt(false);
     setNewPromptName('');
@@ -101,11 +157,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     await setActivePromptTemplate(templateId);
     const template = promptTemplates.find(t => t.id === templateId);
     if (template) {
+      // Immediately apply globally
+      updateSettings({ systemPrompt: template.content, activePromptId: templateId });
+      // Reflect in local modal state
       setCurrentSettings(prev => ({
         ...prev,
         systemPrompt: template.content,
-        activePromptId: templateId
+        activePromptId: templateId,
       }));
+      // Visual cue: scroll and highlight the active prompt
+      requestAnimationFrame(() => {
+        const el = document.getElementById(`prompt-${templateId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-blue-400');
+          setTimeout(() => el.classList.remove('ring-2', 'ring-blue-400'), 1200);
+        }
+      });
     }
   };
 
@@ -398,7 +466,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               {/* Existing templates */}
               <div className="space-y-2">
                 {promptTemplates.map(template => (
-                  <div key={template.id} className={`border rounded-md p-3 ${template.id === activePromptTemplate?.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                  <div id={`prompt-${template.id}`} key={template.id} className={`border rounded-md p-3 ${template.id === activePromptTemplate?.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
@@ -411,8 +479,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{template.description}</p>
                         )}
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Created: {new Date(template.createdAt).toLocaleDateString()}
-                          {template.lastUsed && ` • Last used: ${new Date(template.lastUsed).toLocaleDateString()}`}
+                          Created: {new Date(template.createdAt).toLocaleString(undefined, { month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                          {template.lastUsed && (
+                            <> • Last used: {new Date(template.lastUsed).toLocaleString(undefined, { month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</>
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -431,10 +501,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                           >
                             Save
                           </button>
-                        ) : (
+                        ) : template.id === activePromptTemplate?.id ? (
                           <button
                             onClick={() => setEditingPrompt(template.id)}
                             className="px-2 py-1 bg-gray-500 text-white text-xs rounded-md hover:bg-gray-600 transition"
+                          >
+                            Edit
+                          </button>
+                        ) : (
+                          <button
+                            disabled
+                            title="Activate this prompt (Use) to edit"
+                            className="px-2 py-1 bg-gray-300 dark:bg-gray-600 text-white text-xs rounded-md opacity-60 cursor-not-allowed"
                           >
                             Edit
                           </button>
@@ -466,15 +544,40 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
              <textarea
                 value={currentSettings.systemPrompt}
                 onChange={(e) => handleSettingChange('systemPrompt', e.target.value)}
+                readOnly={!(activePromptTemplate && editingPrompt === activePromptTemplate.id)}
                 rows={10}
-                className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 font-mono text-xs"
+                className={`w-full p-2 border rounded-md font-mono text-xs ${activePromptTemplate && editingPrompt === activePromptTemplate.id ? 'border-blue-300 dark:border-blue-600 dark:bg-gray-900 dark:text-gray-200' : 'border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed'}`}
              />
           </fieldset>
+
+          {/* Developer Settings (collapsible) */}
+          <details className="mt-2 border border-gray-200 dark:border-gray-700 rounded-md" open={showDev} onToggle={(e) => setShowDev((e.target as HTMLDetailsElement).open)}>
+            <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 rounded-md">
+              Developer Settings
+            </summary>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">API logging level</label>
+                <select
+                  value={apiDebugLevel}
+                  onChange={(e) => setDebugLevel(e.target.value as DebugLevel)}
+                  className="mt-1 block w-full sm:w-64 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                >
+                  <option value="off">Off — errors only</option>
+                  <option value="summary">Summary — request/response summaries</option>
+                  <option value="full">Full — include full request/response JSON</option>
+                </select>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  Summary: model, temperature, history, structure, tokens. Full: complete request/response JSON (very verbose).
+                </p>
+              </div>
+            </div>
+          </details>
 
         </div>
         <footer className="px-6 sm:px-8 py-4 bg-gray-50 dark:bg-gray-700/50 mt-auto sticky bottom-0 flex justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-                 <input type="file" ref={fileInputRef} onChange={importSession} style={{display: 'none'}} accept=".json" />
+                 <input type="file" ref={fileInputRef} onChange={handleImportSession} style={{display: 'none'}} accept=".json" />
                  <button
                     onClick={handleImportClick}
                     className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"

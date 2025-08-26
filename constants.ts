@@ -115,7 +115,7 @@ export const AVAILABLE_IMAGE_MODELS = {
     { id: 'imagen-3.0-generate-002', name: 'Imagen 3.0', description: 'High-quality image generation' },
     { id: 'imagen-4.0-generate-preview-06-06', name: 'Imagen 4.0 (Preview)', description: 'Next-gen image model' },
     { id: 'imagen-4.0-ultra-generate-preview-06-06', name: 'Imagen 4.0 Ultra (Preview)', description: 'Highest quality experimental model' },
-    { id: 'gemini-2.0-flash-preview-image-generation', name: 'Gemini 2.0 Flash (Preview)', description: 'Preview model for image generation' },
+    { id: 'gemini-2.0-flash-preview-image-generation', name: 'Gemini 2.0 Flash (Preview)', description: 'Native image generation, $0.039 per image' },
   ]
 };
 
@@ -123,6 +123,33 @@ export const SUPPORTED_WEBSITES = [
   'kakuyomu.jp',
   'dxmwx.org',
   'kanunu8.com',
-  'kanunu.net',
   'novelcool.com',
 ];
+
+// Abbreviations for model IDs to keep UI labels compact
+export const MODEL_ABBREVIATIONS: Record<string, string> = {
+  // Gemini 2.5
+  'gemini-2.5-pro': 'G2.5-P',
+  'gemini-2.5-flash': 'G2.5-F',
+  'gemini-2.5-flash-lite': 'G2.5-L',
+  // Gemini 2.0
+  'gemini-2.0-flash': 'G2.0-F',
+  'gemini-2.0-flash-lite': 'G2.0-L',
+  // OpenAI
+  'gpt-5': 'G5',
+  'gpt-5-mini': 'G5 Mini',
+  'gpt-5-nano': 'G5 Nano',
+  'gpt-5-chat-latest': 'G5 Chat',
+  'gpt-4.1': 'G4.1',
+  'gpt-4.1-mini': 'G4.1 Mini',
+  'gpt-4.1-nano': 'G4.1 Nano',
+  // Claude
+  'claude-opus-4-1': 'C Opus 4.1',
+  'claude-opus-4-0': 'C Opus 4',
+  'claude-3-7-sonnet-latest': 'C Sonnet 3.7',
+  'claude-3-5-sonnet-latest': 'C Sonnet 3.5',
+  'claude-3-5-haiku-latest': 'C Haiku 3.5',
+  // DeepSeek
+  'deepseek-chat': 'DS Chat',
+  'deepseek-coder': 'DS Coder',
+};

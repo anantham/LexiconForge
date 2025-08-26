@@ -47,6 +47,19 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
   return { isValid: true };
 };
 
+// --- DEBUG UTILITIES ---
+const aiDebugEnabled = (): boolean => {
+  try {
+    // Enable by running: localStorage.setItem('LF_AI_DEBUG', '1') in DevTools
+    return typeof localStorage !== 'undefined' && localStorage.getItem('LF_AI_DEBUG') === '1';
+  } catch { return false; }
+};
+const dlog = (...args: any[]) => { if (aiDebugEnabled()) console.log(...args); };
+const aiDebugFullEnabled = (): boolean => {
+  try { return typeof localStorage !== 'undefined' && localStorage.getItem('LF_AI_DEBUG_FULL') === '1'; } catch { return false; }
+};
+const dlogFull = (...args: any[]) => { if (aiDebugFullEnabled()) console.log(...args); };
+
 // --- SHARED PROMPT LOGIC ---
 
 const formatHistory = (history: HistoricalChapter[]): string => {
@@ -226,31 +239,81 @@ const translateWithGemini = async (title: string, content: string, settings: App
   const historyPrompt = formatHistory(history);
   const fullPrompt = `${historyPrompt}\n\n-----\n\nBased on the context from previous chapters, please translate the following new chapter:\n\nTITLE:\n${title}\n\nCONTENT:\n${content}`;
 
-  const response: GenerateContentResponse = await ai.models.generateContent({
-      model: settings.model,
-      contents: fullPrompt,
-      config: {
-          systemInstruction: settings.systemPrompt,
-          responseMimeType: "application/json",
-          responseSchema: geminiResponseSchema,
-          temperature: settings.temperature,
-      }
+  // Debug: what we're sending (sanitized)
+  dlog('[Gemini Debug] Request summary:', {
+    model: settings.model,
+    temperature: settings.temperature,
+    systemInstructionLength: settings.systemPrompt?.length ?? 0,
+    historyChapters: history.length,
+    fullPromptLength: fullPrompt.length,
+    fullPromptPreview: fullPrompt.slice(0, 400)
   });
 
-  // console.log("[Gemini] Full API response:", JSON.stringify(response, null, 2)); // Commented out for brevity during debugging
+  // Revert to models.generateContent for compatibility with current SDK
+  const baseRequest = {
+    model: settings.model,
+    contents: [{ role: 'user', parts: [{ text: fullPrompt }]}],
+    // Per SDK: systemInstruction is top-level; generationConfig holds response settings
+    systemInstruction: settings.systemPrompt,
+    generationConfig: {
+      temperature: settings.temperature,
+      responseMimeType: 'application/json',
+      responseSchema: geminiResponseSchema,
+      maxOutputTokens: 2048,
+    },
+  } as const;
+
+  // Gated: Full request body only when LF_AI_DEBUG_FULL is enabled
+  dlogFull('[Gemini Debug] Full request body:', JSON.stringify(baseRequest, null, 2));
+
+  let response: any;
+  try {
+    response = await (ai as any).models.generateContent(baseRequest);
+  } catch (err) {
+    console.error('[Gemini] Primary call failed, error:', err);
+    throw err;
+  }
+
+  dlog('[Gemini Debug] Raw API response:', JSON.stringify(response, null, 2));
 
   // Add a defensive check to ensure the response is valid before proceeding.
   // The Gemini API might not throw on all errors (e.g., 500), but return a response with no valid candidates.
-  if (!response.candidates || response.candidates.length === 0) {
+  if (!response?.candidates || response.candidates.length === 0) {
     console.error("[Gemini] API call returned invalid response structure. Full response:", JSON.stringify(response, null, 2));
     throw new Error("Translation failed: The API returned an empty or invalid response.");
   }
 
   // Additional check for content structure
-  const candidate = response.candidates[0];
+  let candidate = response.candidates[0];
+  dlog('[Gemini Debug] finishReason:', candidate?.finishReason);
+  dlog('[Gemini Debug] safetyRatings:', JSON.stringify((candidate as any)?.safetyRatings || [], null, 2));
   if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
-    console.error("[Gemini] API candidate missing content/parts. Candidate:", JSON.stringify(candidate, null, 2));
-    throw new Error("Translation failed: The API response is missing content parts.");
+    console.warn('[Gemini] Empty candidate on first attempt — retrying without schema');
+    // Retry without responseSchema and loosen mime type
+    const fallbackReq = {
+      ...baseRequest,
+      generationConfig: {
+        ...baseRequest.generationConfig,
+        responseSchema: undefined,
+        responseMimeType: 'application/json',
+      },
+    } as any;
+    try {
+      // Gated: Fallback request body
+      dlogFull('[Gemini Debug] Fallback request body:', JSON.stringify(fallbackReq, null, 2));
+      const retryResp = await (ai as any).models.generateContent(fallbackReq);
+      if (retryResp?.candidates?.length) {
+        candidate = retryResp.candidates[0];
+        response = retryResp;
+      }
+    } catch (e) {
+      console.error('[Gemini] Fallback call failed:', e);
+    }
+
+    if (!candidate?.content?.parts?.length) {
+      console.error("[Gemini] API candidate missing content/parts after fallback. Candidate:", JSON.stringify(candidate || {}, null, 2));
+      throw new Error(`empty_candidate: finishReason=${candidate?.finishReason ?? 'UNKNOWN'}`);
+    }
   }
 
   const requestTime = (performance.now() - startTime) / 1000;
@@ -266,13 +329,36 @@ const translateWithGemini = async (title: string, content: string, settings: App
     provider: 'Gemini', model: settings.model
   };
   
-  const responseText = response.candidates[0].content.parts[0].text.trim();
-  
-  console.log("[Gemini Debug] Raw response text length:", responseText.length);
-  console.log("[Gemini Debug] Response text preview:", responseText.substring(0, 200) + "...");
-  console.log("[Gemini Debug] Response text ends with:", responseText.slice(-50));
-  
-  
+  const joinParts = (cand: any): string => {
+    const parts = cand?.content?.parts || [];
+    return parts.map((p: any) => (p?.text ?? '')).join('');
+  };
+
+  const responseText = joinParts(response.candidates[0]).trim();
+  dlog('[Gemini Debug] Response text length:', responseText.length);
+  dlog('[Gemini Debug] Response text preview:', responseText.substring(0, 200) + '...');
+  dlog('[Gemini Debug] Response text ends with:', responseText.slice(-50));
+
+  const extractFirstBalancedJson = (text: string): string | null => {
+    const scan = (open: string, close: string) => {
+      let i = text.indexOf(open);
+      while (i !== -1) {
+        let depth = 0, inStr = false, esc = false;
+        for (let j = i; j < text.length; j++) {
+          const ch = text[j];
+          if (inStr) {
+            if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false;
+          } else {
+            if (ch === '"') inStr = true; else if (ch === open) depth++; else if (ch === close) { depth--; if (depth === 0) return text.slice(i, j + 1); }
+          }
+        }
+        i = text.indexOf(open, i + 1);
+      }
+      return null;
+    };
+    return scan('{', '}') || scan('[', ']');
+  };
+
   try {
     const parsedJson = JSON.parse(responseText);
     if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
@@ -291,18 +377,33 @@ const translateWithGemini = async (title: string, content: string, settings: App
       console.error("[Gemini] Failed to parse JSON response. Error:", e);
       console.error("[Gemini] Full response text (first 1000 chars):", responseText.substring(0, 1000));
       console.error("[Gemini] Response text ends with:", responseText.slice(-100));
-      
-      // Try to provide more specific error info
-      if (responseText.length === 0) {
-        throw new Error("Translation failed: API returned empty response text.");
+
+      // Attempt to extract first balanced JSON block
+      const jsonBlock = extractFirstBalancedJson(responseText);
+      if (jsonBlock) {
+        try {
+          const parsedJson = JSON.parse(jsonBlock);
+          if (typeof parsedJson.translatedTitle === 'string' && typeof parsedJson.translation === 'string') {
+            const { translation: fixedTranslation, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+            return {
+              translatedTitle: parsedJson.translatedTitle,
+              translation: fixedTranslation,
+              proposal: parsedJson.proposal ?? null,
+              footnotes: parsedJson.footnotes ?? [],
+              suggestedIllustrations: fixedIllustrations,
+              usageMetrics: usageMetrics,
+            };
+          }
+        } catch (e2) {
+          console.error('[Gemini] JSON block parse failed:', e2);
+        }
       }
-      if (!responseText.includes('{')) {
-        throw new Error("Translation failed: API response is not JSON format.");
-      }
-      if (!responseText.includes('translatedTitle')) {
-        throw new Error("Translation failed: API response appears to be truncated or incomplete.");
-      }
-      
+
+      // Provide more specific error info then fail
+      if (responseText.length === 0) throw new Error("Translation failed: API returned empty response text.");
+      if (!responseText.includes('{')) throw new Error("Translation failed: API response is not JSON format.");
+      if (!responseText.includes('translatedTitle')) throw new Error("Translation failed: API response appears to be truncated or incomplete.");
+
       throw new Error(`Translation failed: AI returned malformed JSON. Error: ${e.message}`);
   }
 };
@@ -409,38 +510,57 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
             : { type: 'json_object' } // Fallback to JSON mode for unsupported models
     };
 
-    console.log(`[OpenAI] Preparing request for model: ${settings.model}`);
-    console.log(`[OpenAI] Using structured outputs: ${supportsStructuredOutputs}`);
-    console.log(`[OpenAI] Temperature setting: ${settings.temperature}`);
-    console.log(`[OpenAI] Message count: ${messages.length}`);
-    console.log(`[OpenAI] Request options:`, JSON.stringify(requestOptions, null, 2));
+    dlog(`[OpenAI] Preparing request for model: ${settings.model}`);
+    dlog(`[OpenAI] Using structured outputs: ${supportsStructuredOutputs}`);
+    dlog(`[OpenAI] Temperature setting: ${settings.temperature}`);
+    dlog(`[OpenAI] Message count: ${messages.length}`);
+    
+    // TEMP: Always print the exact request body we send (like Gemini)
+    try { console.log(`[${settings.provider} Debug] Full request body:`, JSON.stringify(requestOptions, null, 2)); } catch {}
+    dlog(`[OpenAI] Request options:`, JSON.stringify(requestOptions, null, 2));
 
     // Add temperature if the model supports it (some newer models only support default)
     let response: ChatCompletion;
     try {
         requestOptions.temperature = settings.temperature;
-        console.log(`[OpenAI] Attempt 1: Sending request with temperature ${settings.temperature}`);
+        dlog(`[OpenAI] Attempt 1: Sending request with temperature ${settings.temperature}`);
         response = await openai.chat.completions.create(requestOptions);
-        console.log(`[OpenAI] Attempt 1: Success! Response received`);
-        console.log(`[OpenAI] Raw response text:`, response.choices[0].message.content); // Added log
-        console.log(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
+        dlog(`[OpenAI] Attempt 1: Success! Response received`);
+        
+        // Full response logging
+        dlog(`[${settings.provider} Debug] Raw API response:`, JSON.stringify(response, null, 2));
+        dlog(`[OpenAI] Response structure:`, {
+          choicesLength: response.choices?.length || 0,
+          finishReason: response.choices?.[0]?.finish_reason,
+          hasContent: !!response.choices?.[0]?.message?.content,
+          contentLength: response.choices?.[0]?.message?.content?.length || 0,
+          model: response.model,
+          usage: response.usage
+        });
+        
+        dlog(`[OpenAI] Raw response text:`, response.choices[0].message.content);
+        dlog(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
     } catch (error: any) {
         console.error(`[OpenAI] Attempt 1 failed:`, error);
-        console.log(`[OpenAI] Error status:`, error.status || 'unknown');
-        console.log(`[OpenAI] Error message:`, error.message || 'unknown');
-        console.log(`[OpenAI] Error response:`, error.response?.data || 'no response data');
+        dlog(`[OpenAI] Error status:`, error.status || 'unknown');
+        dlog(`[OpenAI] Error message:`, error.message || 'unknown');
+        dlog(`[OpenAI] Error response:`, error.response?.data || 'no response data');
         
         // If temperature fails, retry without it
         if (error.message?.includes('temperature') || error.message?.includes('not supported') || error.status === 400) {
             console.warn(`[OpenAI] Retrying without temperature setting for model ${settings.model}`);
             delete requestOptions.temperature;
-            console.log(`[OpenAI] Attempt 2: Retry request options:`, JSON.stringify(requestOptions, null, 2));
+            dlog(`[OpenAI] Attempt 2: Retry request options:`, JSON.stringify(requestOptions, null, 2));
             
             try {
                 response = await openai.chat.completions.create(requestOptions);
-                console.log(`[OpenAI] Attempt 2: Success! Response received`);
-                console.log(`[OpenAI] Raw response text:`, response.choices[0].message.content); // Added log
-                console.log(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
+                dlog(`[OpenAI] Attempt 2: Success! Response received`);
+                
+                // Full response logging for retry
+                dlog(`[${settings.provider} Debug] Raw API response (retry):`, JSON.stringify(response, null, 2));
+                
+                dlog(`[OpenAI] Raw response text:`, response.choices[0].message.content);
+                dlog(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
             } catch (retryError: any) {
                 console.error(`[OpenAI] Attempt 2 also failed:`, retryError);
                 throw retryError;
@@ -475,15 +595,15 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     // HTML VALIDATION DEBUGGING
     const containsPTags = responseText.includes('<p>') || responseText.includes('</p>');
     const containsAsterisks = responseText.includes('*');
-    console.log(`[OpenAI HTML Validation] Response contains <p> tags: ${containsPTags}`);
-    console.log(`[OpenAI HTML Validation] Response contains * symbols: ${containsAsterisks}`);
+    dlog(`[OpenAI HTML Validation] Response contains <p> tags: ${containsPTags}`);
+    dlog(`[OpenAI HTML Validation] Response contains * symbols: ${containsAsterisks}`);
     if (containsPTags) {
       const pTagMatches = responseText.match(/<\/?p[^>]*>/g);
-      console.log(`[OpenAI HTML Validation] Found <p> tags:`, pTagMatches?.slice(0, 5));
+      dlog(`[OpenAI HTML Validation] Found <p> tags:`, pTagMatches?.slice(0, 5));
     }
     if (containsAsterisks) {
       const asteriskMatches = responseText.match(/\*[^*]*\*/g);
-      console.log(`[OpenAI HTML Validation] Found * patterns:`, asteriskMatches?.slice(0, 5));
+      dlog(`[OpenAI HTML Validation] Found * patterns:`, asteriskMatches?.slice(0, 5));
     }
     
     try {
@@ -564,12 +684,18 @@ export const translateChapter = async (
         } catch (e: any) {
             lastError = e;
             const isRateLimitError = e.message?.includes('429') || e.status === 429;
-            if (isRateLimitError && attempt < maxRetries - 1) {
-                const delay = initialDelay * Math.pow(2, attempt);
-                console.warn(`[aiService] Rate limit hit for ${settings.provider}. Retrying in ${delay / 1000}s...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                continue;
+            if (isRateLimitError) {
+                if (attempt < maxRetries - 1) {
+                    const delay = initialDelay * Math.pow(2, attempt);
+                    console.warn(`[aiService] Rate limit hit for ${settings.provider}. Retrying in ${delay / 1000}s...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                } else {
+                    // Last attempt, throw a normalized error
+                    throw new Error(`rate_limit: Exceeded API rate limits for ${settings.provider} after ${maxRetries} attempts.`);
+                }
             }
+            // For other errors, just rethrow
             throw lastError;
         }
     }
