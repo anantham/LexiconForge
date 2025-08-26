@@ -1,6 +1,7 @@
 import React from 'react';
 import useAppStore from '../store/useAppStore';
 import { useShallow } from 'zustand/react/shallow';
+import PencilIcon from './icons/PencilIcon';
 
 interface IllustrationProps {
   marker: string;
@@ -11,12 +12,14 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     currentChapterId,
     getChapterById,
     generatedImages,
-    handleRetryImage
+    handleRetryImage,
+    updateIllustrationPrompt
   } = useAppStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
     getChapterById: s.getChapterById,
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
+    updateIllustrationPrompt: s.updateIllustrationPrompt,
   })));
 
   const chapter = currentChapterId ? getChapterById(currentChapterId) : null;
@@ -24,11 +27,37 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     (i) => i.placementMarker === marker
   );
 
-  const imageState = generatedImages[marker];
+  const key = chapter ? `${chapter.id}:${marker}` : `?:${marker}`;
+  const imageState = generatedImages[key];
+  const base64FromIllust = (illust as any)?.url as string | undefined;
+  const hasIllust = !!illust;
+  const isLoading = imageState?.isLoading || false;
+  const base64 = imageState?.data || base64FromIllust || null;
+  const error = imageState?.error || null;
 
-  if (!imageState) return null; // Nothing to show yet
+  const [draftPrompt, setDraftPrompt] = React.useState<string>(illust?.imagePrompt || '');
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
 
-  const { isLoading, data: base64, error } = imageState;
+  React.useEffect(() => {
+    setDraftPrompt(illust?.imagePrompt || '');
+  }, [illust?.imagePrompt, marker, chapter?.id]);
+
+  const savePromptIfChanged = async () => {
+    if (!chapter || !illust) return;
+    const trimmed = (draftPrompt || '').trim();
+    if (trimmed === (illust.imagePrompt || '').trim()) return;
+    try {
+      setIsSaving(true);
+      await updateIllustrationPrompt(chapter.id, marker, trimmed);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const startEditing = () => setIsEditing(true);
+  const cancelEditing = () => { setDraftPrompt(illust?.imagePrompt || ''); setIsEditing(false); };
+  const saveAndClose = async () => { await savePromptIfChanged(); setIsEditing(false); };
 
   return (
     <div className="my-6 flex justify-center flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
@@ -38,31 +67,159 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Generating illustration...</p>
         </div>
       )}
-      {error && (
-        <div className="flex flex-col items-center justify-center h-48 text-center">
-          <p className="text-red-500 font-semibold">Image generation failed</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-md">{error}</p>
-          <button
-            onClick={() => handleRetryImage(chapter!.id, marker)}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition"
-          >
-            Retry
-          </button>
+      {!isLoading && error && (
+        <div className="flex flex-col items-center justify-center min-h-48 text-center p-4">
+          <p className="text-red-500 font-semibold mb-2">Image generation failed</p>
+          
+          {/* Multi-line error display */}
+          <div className="text-xs text-gray-600 dark:text-gray-400 max-w-md mb-4">
+            {error.split('\n').map((line, index) => (
+              <p key={index} className={line.startsWith('•') ? 'ml-2 mt-1' : line.startsWith('Suggestions:') ? 'font-semibold mt-2 mb-1' : ''}>
+                {line}
+              </p>
+            ))}
+          </div>
+          {hasIllust && (
+            <div className="w-full max-w-xl text-left mb-3">
+              <div className="flex items-start justify-between gap-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Illustration prompt</label>
+                {!isEditing && (
+                  <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit caption" aria-label="Edit caption">
+                    <PencilIcon className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              {!isEditing && (
+                <p className="mt-1 text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{illust?.imagePrompt || 'No prompt provided.'}</p>
+              )}
+              {isEditing && (
+                <div>
+                  <textarea
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    value={draftPrompt}
+                    onChange={(e) => setDraftPrompt(e.target.value)}
+                    placeholder="Describe the image you want..."
+                  />
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={saveAndClose} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60" disabled={isSaving}>
+                      {isSaving ? 'Saving…' : 'Save'}
+                    </button>
+                    <button onClick={cancelEditing} className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-xs rounded-md">Cancel</button>
+                  </div>
+                </div>
+              )}
+              <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Edit the prompt and retry to generate a new image.</p>
+            </div>
+          )}
+          <div className="flex gap-2">
+            {hasIllust && (
+              <button
+                onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60"
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving…' : 'Retry Generation'}
+              </button>
+            )}
+          </div>
         </div>
       )}
-      {base64 && (
+      {!isLoading && !error && base64 && (
         <>
           <img
             src={base64}
             alt={illust?.imagePrompt || `Illustration ${marker}`}
             className="rounded-lg shadow-lg max-w-full h-auto border-4 border-gray-200 dark:border-gray-700"
           />
-          {illust?.imagePrompt && (
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 italic text-center max-w-prose">
-              {illust.imagePrompt} (Marker: {marker})
-            </p>
+          {hasIllust && (
+            <div className="w-full max-w-xl text-left mt-3">
+              <div className="flex items-start justify-between gap-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Caption</label>
+                {!isEditing && (
+                  <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit caption" aria-label="Edit caption">
+                    <PencilIcon className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              {!isEditing && (
+                <p className="mt-1 text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{illust?.imagePrompt || 'No caption.'}</p>
+              )}
+              {isEditing && (
+                <div>
+                  <textarea
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    value={draftPrompt}
+                    onChange={(e) => setDraftPrompt(e.target.value)}
+                    placeholder="Describe or refine the image…"
+                  />
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={saveAndClose} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60" disabled={isSaving}>
+                      {isSaving ? 'Saving…' : 'Save'}
+                    </button>
+                    <button onClick={cancelEditing} className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-xs rounded-md">Cancel</button>
+                  </div>
+                </div>
+              )}
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}
+                  className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60"
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Saving…' : 'Regenerate'}
+                </button>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400">Updates the caption, then creates a new image.</span>
+              </div>
+            </div>
           )}
         </>
+      )}
+      {!isLoading && !error && !base64 && hasIllust && (
+        <div className="flex flex-col items-center justify-center w-full text-center p-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">No image yet for {marker}.</p>
+          <div className="w-full max-w-xl text-left mb-3">
+            <div className="flex items-start justify-between gap-2">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Illustration prompt</label>
+              {!isEditing && (
+                <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit prompt" aria-label="Edit prompt">
+                  <PencilIcon className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            {!isEditing && (
+              <p className="mt-1 text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{illust?.imagePrompt || 'No prompt provided.'}</p>
+            )}
+            {isEditing && (
+              <div>
+                <textarea
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  value={draftPrompt}
+                  onChange={(e) => setDraftPrompt(e.target.value)}
+                  placeholder="Describe the image you want..."
+                />
+                <div className="mt-2 flex gap-2">
+                  <button onClick={saveAndClose} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60" disabled={isSaving}>
+                    {isSaving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button onClick={cancelEditing} className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-xs rounded-md">Cancel</button>
+                </div>
+              </div>
+            )}
+            <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Click the pencil to tweak before generating.</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}
+              className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60"
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving…' : 'Generate Image'}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -75,6 +75,10 @@ const defaultSettings: AppSettings = {
     apiKeyGemini: '',
     apiKeyOpenAI: '',
     apiKeyDeepSeek: '',
+    imageWidth: 1024,
+    imageHeight: 1024,
+    imageAspectRatio: '1:1',
+    imageSizePreset: '1K',
 };
 
 interface AppState {
@@ -113,6 +117,7 @@ interface AppActions {
     handleToggleLanguage: (show: boolean) => void;
     isChapterLoading: (chapterId: string) => boolean;
     buildTranslationHistory: (chapterId: string) => HistoricalChapter[];
+    buildTranslationHistoryAsync?: (chapterId: string) => Promise<HistoricalChapter[]>;
     addFeedback: (chapterId: string, item: FeedbackItem) => void;
     deleteFeedback: (chapterId: string, id: string) => void;
     updateFeedbackComment: (chapterId: string, id: string, comment: string) => void;
@@ -132,6 +137,7 @@ interface AppActions {
     cancelFeedbackSubmission: () => void;
     handleGenerateImages: (chapterId: string) => Promise<void>;
     handleRetryImage: (chapterId: string, placementMarker: string) => Promise<void>;
+    updateIllustrationPrompt: (chapterId: string, placementMarker: string, newPrompt: string) => Promise<void>;
     createPromptTemplate: (template: Omit<PromptTemplate, 'id' | 'createdAt'>) => Promise<void>;
     updatePromptTemplate: (template: PromptTemplate) => Promise<void>;
     deletePromptTemplate: (id: string) => Promise<void>;
@@ -202,6 +208,12 @@ export const useAppStore = create<Store>()((set, get) => ({
       navigationHistory: navigationHistory.slice(0, -1),
       currentChapterId: prevChapterId
     });
+    // Persist navigation history
+    try { indexedDBService.setSetting('navigation-history', { stableIds: navigationHistory.slice(0, -1) }).catch(() => {}); } catch {}
+    try {
+      const prevUrl = chapters.get(prevChapterId)?.canonicalUrl;
+      if (prevUrl) indexedDBService.setSetting('lastActiveChapter', { id: prevChapterId, url: prevUrl }).catch(() => {});
+    } catch {}
 
     return chapters.get(prevChapterId)?.canonicalUrl;
   },
@@ -239,16 +251,16 @@ export const useAppStore = create<Store>()((set, get) => ({
           after: newHistory,
           currentChapter: chapterId
         });
+        // Persist
+        try { indexedDBService.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {}); } catch {}
+        try { indexedDBService.setSetting('lastActiveChapter', { id: chapterId, url: chapters.get(chapterId!)?.canonicalUrl || url }).catch(() => {}); } catch {}
         return {
           currentChapterId: chapterId,
           navigationHistory: newHistory,
           error: null
         };
       });
-      try {
-        const canonical = chapters.get(chapterId)?.canonicalUrl || url;
-        await indexedDBService.setSetting('lastActiveChapter', { id: chapterId, url: canonical });
-      } catch {}
+
       console.log(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
       
       // Update browser history
@@ -279,13 +291,15 @@ export const useAppStore = create<Store>()((set, get) => ({
               after: newHistory,
               currentChapter: chapterId
             });
+            // Persist
+            try { indexedDBService.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {}); } catch {}
+            try { indexedDBService.setSetting('lastActiveChapter', { id: chapterId, url: loaded.canonicalUrl }).catch(() => {}); } catch {}
             return {
               currentChapterId: chapterId,
               navigationHistory: newHistory,
               error: null,
             };
           });
-          try { await indexedDBService.setSetting('lastActiveChapter', { id: chapterId, url: loaded.canonicalUrl }); } catch {}
           if (typeof history !== 'undefined' && history.pushState) {
             history.pushState({ chapterId }, '', `?chapter=${encodeURIComponent(loaded.canonicalUrl)}`);
           }
@@ -359,7 +373,11 @@ export const useAppStore = create<Store>()((set, get) => ({
             navigationHistory: [...new Set(s.navigationHistory.concat(chapterIdFound))],
             error: null,
           }));
-          try { await indexedDBService.setSetting('lastActiveChapter', { id: chapterIdFound, url: canonicalUrl }); } catch {}
+          try {
+            await indexedDBService.setSetting('lastActiveChapter', { id: chapterIdFound, url: canonicalUrl });
+            const hist = get().navigationHistory;
+            await indexedDBService.setSetting('navigation-history', { stableIds: hist });
+          } catch {}
           if (typeof history !== 'undefined' && history.pushState) {
             history.pushState({ chapterId: chapterIdFound }, '', `?chapter=${encodeURIComponent(canonicalUrl)}`);
           }
@@ -487,6 +505,14 @@ export const useAppStore = create<Store>()((set, get) => ({
         isDirty: true 
       };
     });
+    // Persist to IndexedDB (fire-and-forget)
+    try {
+      const ch = get().chapters.get(chapterId);
+      const url = ch?.canonicalUrl || ch?.originalUrl;
+      if (url) {
+        indexedDBService.storeFeedback(url, { ...item, id, createdAt: Date.now() } as any).catch(() => {});
+      }
+    } catch {}
   },
   deleteFeedback: (chapterId, id) => set(s => {
     const newFeedbackHistory = { ...s.feedbackHistory };
@@ -499,6 +525,8 @@ export const useAppStore = create<Store>()((set, get) => ({
       newChapters.set(chapterId, chapter);
     }
 
+    // Persist deletion
+    try { indexedDBService.deleteFeedbackById(id).catch(() => {}); } catch {}
     return { 
       feedbackHistory: newFeedbackHistory,
       chapters: newChapters,
@@ -515,6 +543,8 @@ export const useAppStore = create<Store>()((set, get) => ({
       chapter.feedback.forEach(f => { if (f.id === id) f.comment = comment; });
       newChapters.set(chapterId, chapter);
     }
+    // Persist update
+    try { indexedDBService.updateFeedbackComment(id, comment).catch(() => {}); } catch {}
     
     return { 
       feedbackHistory: newFeedbackHistory,
@@ -528,73 +558,220 @@ export const useAppStore = create<Store>()((set, get) => ({
 
   buildTranslationHistory: (currentChapterId: string) => {
     console.log(`[History] Building history for chapter: ${currentChapterId}`);
-    const { navigationHistory, chapters, settings } = get();
+    const { chapters, settings } = get();
+    const currentChapter = chapters.get(currentChapterId);
     
-    console.log(`[History] Navigation history:`, navigationHistory);
+    console.log(`[History] Current chapter:`, {
+      exists: !!currentChapter,
+      title: currentChapter?.title,
+      chapterNumber: currentChapter?.chapterNumber
+    });
     console.log(`[History] Total chapters in memory:`, chapters.size);
     console.log(`[History] Context depth setting:`, settings.contextDepth);
     
-    const idx = navigationHistory.lastIndexOf(currentChapterId);
-    console.log(`[History] Current chapter index in nav history: ${idx}`);
-    
-    if (idx <= 0) {
-      console.log(`[History] No history available (idx=${idx})`);
+    if (!currentChapter?.chapterNumber || settings.contextDepth === 0) {
+      console.log(`[History] No context: missing chapter number (${currentChapter?.chapterNumber}) or contextDepth is 0`);
       return [];
     }
+    
+    // Find previous chapters by chapter number that have translations
+    const targetNumbers = [];
+    for (let i = 1; i <= settings.contextDepth; i++) {
+      const prevNumber = currentChapter.chapterNumber - i;
+      if (prevNumber > 0) targetNumbers.push(prevNumber);
+    }
+    console.log(`[History] Looking for chapters with numbers:`, targetNumbers);
+    
+    const candidateChapters: Array<{ chapter: EnhancedChapter, id: string }> = [];
+    for (const [chapterId, chapter] of chapters.entries()) {
+      if (targetNumbers.includes(chapter.chapterNumber || 0) && 
+          chapter.translationResult &&
+          chapter.content) {
+        candidateChapters.push({ chapter, id: chapterId });
+      }
+    }
+    
+    console.log(`[History] Found ${candidateChapters.length} candidate chapters with translations`);
+    
+    // Sort by chapter number ascending and build history
+    const result = candidateChapters
+      .sort((a, b) => (a.chapter.chapterNumber || 0) - (b.chapter.chapterNumber || 0))
+      .slice(-settings.contextDepth)  // Take the most recent contextDepth chapters
+      .map(({ chapter, id }) => {
+        console.log(`[History] Including chapter ${id} (${chapter.chapterNumber}): ${chapter.title}`);
+        return {
+          originalTitle: chapter.title,
+          originalContent: chapter.content,
+          translatedTitle: chapter.translationResult!.translatedTitle,
+          translatedContent: chapter.translationResult!.translation,
+          feedback: chapter.feedback ?? [],
+        };
+      });
+    
+    console.log(`[History] Built history with ${result.length} chapters using chapter-number-based selection`);
+    return result;
+  },
 
-    const historyChapterIds = navigationHistory.slice(Math.max(0, idx - settings.contextDepth), idx);
-    console.log(`[History] History chapter IDs to process:`, historyChapterIds);
-    
-    const result = historyChapterIds.map(chapterId => {
-      const chapter = chapters.get(chapterId);
-      console.log(`[History] Processing chapter ${chapterId}:`, {
-          exists: !!chapter,
-          title: chapter?.title,
-          hasContent: !!chapter?.content,
-          contentLength: chapter?.content?.length || 0,
-          hasTranslation: !!chapter?.translationResult,
-          translatedTitle: chapter?.translationResult?.translatedTitle
-      });
-      
-      if (!chapter) {
-          console.warn(`[History] Chapter ${chapterId} not found in chapters Map`);
-          return null;
+  // Async variant that can hydrate missing context from IndexedDB
+  buildTranslationHistoryAsync: async (currentChapterId: string) => {
+    try {
+      console.log(`[HistoryAsync] Building history for chapter: ${currentChapterId}`);
+      const { chapters, settings } = get();
+      const currentChapter = chapters.get(currentChapterId);
+
+      if (!currentChapter) {
+        console.log('[HistoryAsync] Current chapter not in memory; returning empty history');
+        return [];
       }
-      
-      if (!chapter.content) {
-          console.warn(`[History] Chapter ${chapterId} has no content:`, {
-              id: chapter.id,
-              title: chapter.title,
-              originalUrl: chapter.originalUrl,
-              canonicalUrl: chapter.canonicalUrl,
-              hasTranslationResult: !!chapter.translationResult,
-              sourceUrls: chapter.sourceUrls,
-              importSource: chapter.importSource
-          });
+
+      if (settings.contextDepth === 0) {
+        console.log(`[HistoryAsync] No context: contextDepth is 0`);
+        return [];
       }
-      
-      return chapter ? {
-        originalUrl: chapter.canonicalUrl,
-        originalTitle: chapter.title,
-        translatedTitle: chapter.translationResult?.translatedTitle ?? '',
-        content: chapter.content,
-        feedback: chapter.feedback ?? [],
-      } : null;
-    });
-    
-    const filtered = result.filter((c): c is HistoricalChapter => !!c && !!c.content);
-    console.log(`[History] Final history items:`, filtered.length);
-    filtered.forEach((item, idx) => {
-      console.log(`[History] History item ${idx}:`, {
-        title: item.originalTitle,
-        translatedTitle: item.translatedTitle,
-        hasContent: !!item.content,
-        contentPreview: item.content?.substring(0, 100) + '...',
-        feedbackCount: item.feedback?.length || 0
-      });
-    });
-    
-    return filtered;
+
+      // If chapterNumber missing, switch to chronological fallback by domain
+      if (!currentChapter.chapterNumber) {
+        try {
+          const domain = new URL(currentChapter.canonicalUrl || currentChapter.originalUrl).hostname;
+          console.warn(`[HistoryAsync] Missing chapterNumber for ${currentChapterId}. Falling back to chronological context by domain: ${domain}`);
+          const recent = await indexedDBService.getRecentActiveTranslationsByDomain(domain, settings.contextDepth, currentChapterId);
+          const built: HistoricalChapter[] = recent
+            .reverse() // oldest -> newest among selected
+            .map(({ translation: tr, chapter: ch }) => ({
+              originalTitle: ch.title,
+              originalContent: ch.content,
+              translatedTitle: tr.translatedTitle,
+              translatedContent: tr.translation,
+              feedback: []
+            }));
+          console.log(`[HistoryAsync] Chronological fallback built ${built.length} items`);
+          return built;
+        } catch (e) {
+          console.warn('[HistoryAsync] Chronological fallback failed:', e);
+          return [];
+        }
+      }
+
+      // Reuse in-memory builder first
+      const inMemory = get().buildTranslationHistory(currentChapterId);
+      console.log(`[HistoryAsync] In-memory context count: ${inMemory.length} (target ${settings.contextDepth})`);
+      if (inMemory.length >= settings.contextDepth) return inMemory;
+
+      // Determine target chapter numbers
+      const targets: number[] = [];
+      for (let i = 1; i <= settings.contextDepth; i++) {
+        const n = (currentChapter.chapterNumber || 0) - i;
+        if (n > 0) targets.push(n);
+      }
+      console.log('[HistoryAsync] Target chapter numbers:', targets);
+
+      // Load all chapters from IDB to find missing ones
+      const allFromDb = await indexedDBService.getChaptersForReactRendering();
+      const byNumber = new Map<number, typeof allFromDb[number]>();
+      for (const ch of allFromDb) {
+        if (typeof ch.chapterNumber === 'number') byNumber.set(ch.chapterNumber, ch);
+      }
+
+      // Collect candidates in ascending order
+      const candidates: HistoricalChapter[] = [];
+      for (const num of targets.sort((a, b) => a - b)) {
+        // Skip if already included from memory
+        const already = inMemory.find(h => {
+          // No direct number on HistoricalChapter; approximate by title/content match
+          // Rely on DB for missing ones
+          return false;
+        });
+        if (already) continue;
+
+        const dbRec = byNumber.get(num);
+        if (!dbRec) continue;
+
+        // Need an active translation for this stableId
+        const active = await indexedDBService.getActiveTranslationByStableId(dbRec.stableId);
+        if (!active) {
+          console.log(`[HistoryAsync] No active translation for chapterNumber ${num}; skipping`);
+          continue;
+        }
+
+        // Use original content from DB and translated content from active version
+        const originalTitle = dbRec.title;
+        const originalContent = dbRec.data?.chapter?.content || '';
+        if (!originalContent) {
+          console.log(`[HistoryAsync] DB chapter ${num} missing content; skipping`);
+          continue;
+        }
+        candidates.push({
+          originalTitle,
+          originalContent,
+          translatedTitle: active.translatedTitle,
+          translatedContent: active.translation,
+          feedback: []
+        });
+      }
+
+      // Build final list oldest->newest by target numbers, prefer live memory match
+      const merged: HistoricalChapter[] = [];
+      const want = settings.contextDepth;
+      const ordered = targets.sort((a, b) => a - b);
+      const stateChapters = get().chapters;
+      for (const num of ordered) {
+        // Prefer in-memory chapter with this chapterNumber
+        let picked: HistoricalChapter | null = null;
+        for (const [, ch] of stateChapters) {
+          if ((ch.chapterNumber || 0) === num && ch.translationResult && ch.content) {
+            picked = {
+              originalTitle: ch.title,
+              originalContent: ch.content,
+              translatedTitle: ch.translationResult.translatedTitle,
+              translatedContent: ch.translationResult.translation,
+              feedback: ch.feedback ?? []
+            };
+            break;
+          }
+        }
+        if (!picked) {
+          // Fallback to DB candidate for this number
+          const idx = ordered.indexOf(num);
+          const c = candidates[idx];
+          if (c) picked = c;
+        }
+        if (picked) merged.push(picked);
+        if (merged.length >= want) break;
+      }
+
+      let finalHistory = merged.length > 0 ? merged : inMemory;
+
+      // If still short, top-up via chronological fallback by domain
+      if (finalHistory.length < settings.contextDepth) {
+        try {
+          const domain = new URL(currentChapter.canonicalUrl || currentChapter.originalUrl).hostname;
+          const needed = settings.contextDepth - finalHistory.length;
+          console.warn(`[HistoryAsync] Insufficient in-memory/numbered context (${finalHistory.length}/${settings.contextDepth}). Topping up ${needed} via chronological fallback for domain ${domain}`);
+          const recent = await indexedDBService.getRecentActiveTranslationsByDomain(domain, settings.contextDepth + 2, currentChapterId);
+          // Build candidates not already present by matching originalContent title pairs
+          const existingKeys = new Set(finalHistory.map(h => `${h.originalTitle}|${h.translatedTitle}`));
+          for (const { translation: tr, chapter: ch } of recent.reverse()) { // oldest first
+            const key = `${ch.title}|${tr.translatedTitle}`;
+            if (existingKeys.has(key)) continue;
+            finalHistory.push({
+              originalTitle: ch.title,
+              originalContent: ch.content,
+              translatedTitle: tr.translatedTitle,
+              translatedContent: tr.translation,
+              feedback: []
+            });
+            if (finalHistory.length >= settings.contextDepth) break;
+          }
+        } catch (e) {
+          console.warn('[HistoryAsync] Chronological top-up failed:', e);
+        }
+      }
+      console.log(`[HistoryAsync] Final context count: ${finalHistory.length}`);
+      return finalHistory;
+    } catch (e) {
+      console.warn('[HistoryAsync] Failed to build history with DB fallback:', e);
+      return get().buildTranslationHistory(currentChapterId);
+    }
   },
 
   hasTranslationSettingsChanged: (chapterId) => {
@@ -609,9 +786,9 @@ export const useAppStore = create<Store>()((set, get) => ({
   shouldEnableRetranslation: (chapterId) => get().hasTranslationSettingsChanged(chapterId),
 
   exportSessionData: () => {
+    // Maintain return shape for tests: return in-memory snapshot
     const { chapters } = get();
-    const data = {
-      // We need to reconstruct the chapter array in a serializable format
+    const memorySnapshot = {
       chapters: Array.from(chapters.values()).map(chapter => ({
         sourceUrl: chapter.canonicalUrl,
         title: chapter.title,
@@ -622,23 +799,82 @@ export const useAppStore = create<Store>()((set, get) => ({
         nextUrl: chapter.nextUrl,
         prevUrl: chapter.prevUrl
       })),
-      // We could also export novels and other metadata here if needed
     };
-    const json = JSON.stringify(data, null, 2);
-    try {
-      const a = document.createElement('a');
-      a.download = 'lexicon-forge-session.json';
-      a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(json);
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch {}
-    return json; // make tests happy
+    const memoryJson = JSON.stringify(memorySnapshot, null, 2);
+
+    // Kick off full IndexedDB export for the actual download
+    indexedDBService.exportFullSessionToJson()
+      .then(jsonObj => {
+        const json = JSON.stringify(jsonObj, null, 2);
+        try {
+          const a = document.createElement('a');
+          a.download = 'lexicon-forge-session.json';
+          a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(json);
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch {}
+      })
+      .catch(err => {
+        console.warn('[Export] Full export failed, falling back to memory snapshot download', err);
+        try {
+          const a = document.createElement('a');
+          a.download = 'lexicon-forge-session.json';
+          a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(memoryJson);
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch {}
+      });
+
+    return memoryJson;
   },
 
   importSessionData: async (payload: string | object) => {
     try {
       const obj = typeof payload === 'string' ? JSON.parse(payload) : payload as any;
+      // Full session format branch
+      if (obj?.metadata?.format === 'lexiconforge-full-1') {
+        console.log('[Import] Detected full session format. Importing into IndexedDB as ground truth.');
+        await indexedDBService.importFullSessionData(obj);
+        // Hydrate store from IDB for UI
+        const rendering = await indexedDBService.getChaptersForReactRendering();
+        const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
+        const lastActive = await indexedDBService.getSetting<any>('lastActiveChapter').catch(() => null);
+        set(s => {
+          const newChapters = new Map<string, any>();
+          const newUrlIndex = new Map<string, string>();
+          const newRawUrlIndex = new Map<string, string>();
+          for (const ch of rendering) {
+            newChapters.set(ch.stableId, {
+              id: ch.stableId,
+              title: ch.data.chapter.title,
+              content: ch.data.chapter.content,
+              originalUrl: ch.url,
+              nextUrl: ch.data.chapter.nextUrl,
+              prevUrl: ch.data.chapter.prevUrl,
+              chapterNumber: ch.chapterNumber,
+              canonicalUrl: ch.url,
+              sourceUrls: [ch.url],
+              translationResult: ch.data.translationResult || null,
+              feedback: [],
+            });
+            const norm = normalizeUrlAggressively(ch.url);
+            if (norm) newUrlIndex.set(norm, ch.stableId);
+            newRawUrlIndex.set(ch.url, ch.stableId);
+          }
+          return {
+            chapters: newChapters,
+            urlIndex: newUrlIndex,
+            rawUrlIndex: newRawUrlIndex,
+            navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : s.navigationHistory,
+            currentChapterId: (lastActive && lastActive.id) ? lastActive.id : s.currentChapterId,
+            error: null,
+          };
+        });
+        return;
+      }
+
       if (!obj.chapters || !Array.isArray(obj.chapters)) {
         throw new Error('Invalid import file format: Missing chapters array.');
       }
@@ -756,13 +992,22 @@ export const useAppStore = create<Store>()((set, get) => ({
           
           // Navigate to the newly fetched chapter
           const newChapterId = stableData.currentChapterId;
-          const newHistory = newChapterId ? [...new Set(s.navigationHistory.concat(newChapterId))] : s.navigationHistory;
+            const newHistory = newChapterId ? [...new Set(s.navigationHistory.concat(newChapterId))] : s.navigationHistory;
           
           console.log(`[Fetch] State update:`, {
             totalChaptersAfter: newChapters.size,
             navigationHistoryAfter: newHistory,
             currentChapterId: newChapterId
           });
+
+          // Persist navigation updates
+          try { indexedDBService.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {}); } catch {}
+          try {
+            if (newChapterId) {
+              const ch = Array.from(stableData.chapters.values())[0];
+              indexedDBService.setSetting('lastActiveChapter', { id: newChapterId, url: ch?.canonicalUrl || url }).catch(() => {});
+            }
+          } catch {}
 
           return {
             chapters: newChapters,
@@ -773,12 +1018,6 @@ export const useAppStore = create<Store>()((set, get) => ({
             navigationHistory: newHistory,
           };
         });
-        try {
-          if (stableData.currentChapterId) {
-            const ch = Array.from(stableData.chapters.values())[0];
-            await indexedDBService.setSetting('lastActiveChapter', { id: stableData.currentChapterId, url: ch?.canonicalUrl || url });
-          }
-        } catch {}
 
         // Persist to IndexedDB so it survives reloads
         try {
@@ -840,7 +1079,14 @@ export const useAppStore = create<Store>()((set, get) => ({
     }));
 
     try {
-        const history = buildTranslationHistory(chapterId);
+        // Prefer async builder to hydrate from IndexedDB when needed
+        let history: HistoricalChapter[] = [];
+        if (typeof get().buildTranslationHistoryAsync === 'function') {
+            history = await (get().buildTranslationHistoryAsync as any)(chapterId);
+        } else {
+            history = buildTranslationHistory(chapterId);
+        }
+        console.log('[Translate] Using context items:', history.length);
         const result = await translateChapter(
           chapterToTranslate.title,
           chapterToTranslate.content,
@@ -867,11 +1113,20 @@ export const useAppStore = create<Store>()((set, get) => ({
             return { chapters: newChapters, amendmentProposal: result.proposal ?? null };
         });
 
-        // NEW: Trigger image generation if prompts were returned
+        // NEW: Load existing images and generate new ones if needed
         if (result.suggestedIllustrations && result.suggestedIllustrations.length > 0) {
-            get().handleGenerateImages(chapterId);
+            // First, load any existing images from persisted data
+            get().loadExistingImages(chapterId);
+            
+            // Then check if any illustrations need new generation
+            const needsGeneration = result.suggestedIllustrations.some(illust => !illust.generatedImage);
+            if (needsGeneration) {
+                get().handleGenerateImages(chapterId);
+            } else {
+                console.log(`[ImageGen] All illustrations already generated for chapter ${chapterId}`);
+            }
         }
-
+            
         // Persist translation as a new version and mark it active
         try {
           await indexedDBService.storeTranslationByStableId(chapterId, result as any, {
@@ -908,6 +1163,41 @@ export const useAppStore = create<Store>()((set, get) => ({
     }
   },
 
+  loadExistingImages: (chapterId: string) => {
+    console.log(`[ImageGen] Loading existing images for ${chapterId}`);
+    const { chapters } = get();
+    const chapter = chapters.get(chapterId);
+    const translationResult = chapter?.translationResult;
+
+    if (!translationResult || !translationResult.suggestedIllustrations) {
+      console.log(`[ImageGen] No illustrations found for chapter ${chapterId}`);
+      return;
+    }
+
+    const imageStateUpdates: Record<string, { isLoading: boolean; data: string | null; error: string | null; }> = {};
+    let foundExistingImages = false;
+
+    translationResult.suggestedIllustrations.forEach(illust => {
+      if (illust.generatedImage) {
+        const key = `${chapterId}:${illust.placementMarker}`;
+        imageStateUpdates[key] = {
+          isLoading: false,
+          data: illust.generatedImage.imageData,
+          error: null
+        };
+        foundExistingImages = true;
+        console.log(`[ImageGen] Loaded existing image for ${illust.placementMarker}`);
+      }
+    });
+
+    if (foundExistingImages) {
+      set(state => ({
+        generatedImages: { ...state.generatedImages, ...imageStateUpdates }
+      }));
+      console.log(`[ImageGen] Loaded ${Object.keys(imageStateUpdates).length} existing images for chapter ${chapterId}`);
+    }
+  },
+
   handleGenerateImages: async (chapterId: string) => {
     console.log(`[ImageGen] Starting image generation for ${chapterId}`);
     const { chapters, settings, generatedImages } = get();
@@ -928,7 +1218,8 @@ export const useAppStore = create<Store>()((set, get) => ({
     set(state => {
         const initialImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; }> = {};
         translationResult.suggestedIllustrations.forEach(illust => {
-            initialImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null };
+            const key = `${chapterId}:${illust.placementMarker}`;
+            initialImageStates[key] = { isLoading: true, data: null, error: null };
         });
         return {
             imageGenerationMetrics: null,
@@ -940,8 +1231,20 @@ export const useAppStore = create<Store>()((set, get) => ({
     let totalCost = 0;
     let generatedCount = 0;
 
+    // Only generate images for illustrations that don't already have generated data
+    const illustrationsNeedingGeneration = translationResult.suggestedIllustrations.filter(
+        illust => !illust.generatedImage
+    );
+
+    if (illustrationsNeedingGeneration.length === 0) {
+        console.log('[ImageGen] All illustrations already have generated images');
+        return;
+    }
+
+    console.log(`[ImageGen] Generating ${illustrationsNeedingGeneration.length}/${translationResult.suggestedIllustrations.length} new images`);
+
     // Sequentially generate images to avoid overwhelming the API
-    for (const illust of translationResult.suggestedIllustrations) {
+    for (const illust of illustrationsNeedingGeneration) {
         try {
             console.log(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
             const result = await generateImage(illust.imagePrompt, settings);
@@ -949,19 +1252,61 @@ export const useAppStore = create<Store>()((set, get) => ({
             totalCost += result.cost;
             generatedCount++;
 
+            // Store in Zustand for immediate UI updates
             set(state => ({
                 generatedImages: {
                     ...state.generatedImages,
-                    [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null },
+                    [`${chapterId}:${illust.placementMarker}`]: { isLoading: false, data: result.imageData, error: null },
                 }
             }));
+
+            // Store in chapter's translationResult for persistence
+            if (chapter && chapter.translationResult) {
+                const suggestionIndex = chapter.translationResult.suggestedIllustrations.findIndex(
+                    s => s.placementMarker === illust.placementMarker
+                );
+                if (suggestionIndex >= 0) {
+                    const target = chapter.translationResult.suggestedIllustrations[suggestionIndex];
+                    target.generatedImage = result;
+                    // Write base64 into url so UI/exports can embed images
+                    (target as any).url = result.imageData;
+                    // Persist to IndexedDB using stableId mapping
+                    try {
+                        await indexedDBService.storeTranslationByStableId(chapter.id, chapter.translationResult as any, {
+                          provider: settings.provider,
+                          model: settings.model,
+                          temperature: settings.temperature,
+                          systemPrompt: settings.systemPrompt,
+                          promptId: get().activePromptTemplate?.id,
+                          promptName: get().activePromptTemplate?.name,
+                        });
+                        console.log(`[ImageGen] Persisted image for ${illust.placementMarker} to IndexedDB`);
+                    } catch (error) {
+                        console.warn(`[ImageGen] Failed to persist image to IndexedDB:`, error);
+                    }
+                }
+            }
+            
             console.log(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
         } catch (error: any) {
             console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, error);
+            
+            // Enhanced error message with suggestions
+            let errorMessage = error.message || 'Image generation failed';
+            if (error.suggestedActions && error.suggestedActions.length > 0) {
+                errorMessage += `\n\nSuggestions:\n• ${error.suggestedActions.join('\n• ')}`;
+            }
+            
             set(state => ({
                 generatedImages: {
                     ...state.generatedImages,
-                    [illust.placementMarker]: { isLoading: false, data: null, error: error.message },
+                    [`${chapterId}:${illust.placementMarker}`]: { 
+                        isLoading: false, 
+                        data: null, 
+                        error: errorMessage,
+                        errorType: error.errorType,
+                        canRetry: error.canRetry
+                    },
                 }
             }));
         }
@@ -993,7 +1338,7 @@ export const useAppStore = create<Store>()((set, get) => ({
     set(state => ({
         generatedImages: {
             ...state.generatedImages,
-            [placementMarker]: { isLoading: true, data: null, error: null },
+            [`${chapterId}:${placementMarker}`]: { isLoading: true, data: null, error: null },
         }
     }));
 
@@ -1002,18 +1347,81 @@ export const useAppStore = create<Store>()((set, get) => ({
         set(state => ({
             generatedImages: {
                 ...state.generatedImages,
-                [placementMarker]: { isLoading: false, data: result.imageData, error: null },
+                [`${chapterId}:${placementMarker}`]: { isLoading: false, data: result.imageData, error: null },
             }
         }));
+        // Write into chapter translation and persist
+        if (chapter && chapter.translationResult) {
+          const suggestionIndex = chapter.translationResult.suggestedIllustrations.findIndex(
+            s => s.placementMarker === placementMarker
+          );
+          if (suggestionIndex >= 0) {
+            const target = chapter.translationResult.suggestedIllustrations[suggestionIndex];
+            target.generatedImage = result;
+            (target as any).url = result.imageData;
+            try {
+              await indexedDBService.storeTranslationByStableId(chapter.id, chapter.translationResult as any, {
+                provider: settings.provider,
+                model: settings.model,
+                temperature: settings.temperature,
+                systemPrompt: settings.systemPrompt,
+                promptId: get().activePromptTemplate?.id,
+                promptName: get().activePromptTemplate?.name,
+              });
+              console.log(`[ImageGen] Persisted retry image for ${placementMarker} to IndexedDB`);
+            } catch (e) {
+              console.warn('[ImageGen] Failed to persist retry image to IndexedDB', e);
+            }
+          }
+        }
         console.log(`[ImageGen] Successfully retried and stored image for ${placementMarker}`);
     } catch (error: any) {
         console.error(`[ImageGen] Failed to retry image for ${placementMarker}:`, error);
         set(state => ({
             generatedImages: {
                 ...state.generatedImages,
-                [placementMarker]: { isLoading: false, data: null, error: error.message },
+                [`${chapterId}:${placementMarker}`]: { isLoading: false, data: null, error: error.message },
             }
         }));
+    }
+  },
+
+  // Allow users to edit a suggested illustration's prompt and persist it
+  updateIllustrationPrompt: async (chapterId: string, placementMarker: string, newPrompt: string) => {
+    const { chapters, settings } = get();
+    const chapter = chapters.get(chapterId);
+    if (!chapter || !chapter.translationResult || !Array.isArray(chapter.translationResult.suggestedIllustrations)) {
+      return;
+    }
+
+    const idx = chapter.translationResult.suggestedIllustrations.findIndex(s => s.placementMarker === placementMarker);
+    if (idx < 0) return;
+
+    // Update in-memory
+    set(s => {
+      const newChapters = new Map(s.chapters);
+      const ch = newChapters.get(chapterId);
+      if (ch && ch.translationResult) {
+        const target = ch.translationResult.suggestedIllustrations[idx];
+        target.imagePrompt = newPrompt;
+        newChapters.set(chapterId, { ...ch });
+      }
+      return { chapters: newChapters };
+    });
+
+    // Persist by storing a new active translation version with updated illustrations
+    try {
+      await indexedDBService.storeTranslationByStableId(chapterId, chapter.translationResult as any, {
+        provider: settings.provider,
+        model: settings.model,
+        temperature: settings.temperature,
+        systemPrompt: settings.systemPrompt,
+        promptId: get().activePromptTemplate?.id,
+        promptName: get().activePromptTemplate?.name,
+      });
+      console.log(`[ImageGen] Updated illustration prompt persisted for ${placementMarker}`);
+    } catch (e) {
+      console.warn('[ImageGen] Failed to persist updated illustration prompt', e);
     }
   },
   
@@ -1036,6 +1444,7 @@ export const useAppStore = create<Store>()((set, get) => ({
   },
   rejectProposal: () => set({ amendmentProposal: null }),
   clearSession: () => {
+      // Reset in-memory session state immediately
       set({
           novels: new Map(),
           chapters: new Map(),
@@ -1047,9 +1456,44 @@ export const useAppStore = create<Store>()((set, get) => ({
           error: null,
           amendmentProposal: null,
       });
-      // We might want to clear indexedDB as well
-      indexedDBService.clearAllData().catch(err => console.error('[DB] Failed to clear database', err));
-      localStorage.removeItem(settingsStorageKey);
+
+      // Clear IndexedDB fully
+      indexedDBService.clearAllData()
+        .then(async () => {
+          // Recreate a default prompt template so UI isn't left without one
+          const defaultTemplate = {
+            id: crypto.randomUUID(),
+            name: 'Default',
+            description: 'Initial system prompt',
+            content: INITIAL_SYSTEM_PROMPT,
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            lastUsed: new Date().toISOString(),
+          } as PromptTemplate;
+          try {
+            await indexedDBService.storePromptTemplate(defaultTemplate);
+            await indexedDBService.setDefaultPromptTemplate(defaultTemplate.id);
+          } catch (e) {
+            console.warn('[ClearSession] Failed to bootstrap default prompt template', e);
+          }
+
+          // Update in-memory settings to defaults and point to the default template
+          set(() => ({
+            settings: { ...defaultSettings, systemPrompt: INITIAL_SYSTEM_PROMPT, activePromptId: defaultTemplate.id },
+            promptTemplates: [defaultTemplate],
+            activePromptTemplate: defaultTemplate
+          }));
+        })
+        .catch(err => console.error('[DB] Failed to clear database', err));
+
+      // Remove persisted app settings from localStorage
+      try { localStorage.removeItem(settingsStorageKey); } catch {}
+      // Clear API debug flags
+      try {
+        localStorage.removeItem('LF_AI_DEBUG');
+        localStorage.removeItem('LF_AI_DEBUG_FULL');
+        localStorage.removeItem('LF_AI_DEBUG_LEVEL');
+      } catch {}
   },
 
   // Prompt Template Methods
