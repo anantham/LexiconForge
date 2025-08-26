@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, PromptTemplate } from '../types';
 import { INITIAL_SYSTEM_PROMPT, SUPPORTED_WEBSITES } from '../constants';
 import { translateChapter, validateApiKey } from '../services/aiService';
+import { generateImage } from '../services/imageService';
 import { fetchAndParseUrl } from '../services/adapters';
 import { TranslationRecord, indexedDBService } from '../services/indexeddb';
 import { 
@@ -99,6 +100,8 @@ interface AppState {
     feedbackUIState?: { isSubmitting: boolean; activeChapterId?: string };
     promptTemplates: PromptTemplate[];
     activePromptTemplate: PromptTemplate | null;
+    generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; }>;
+    imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; } | null;
 }
 
 interface AppActions {
@@ -127,6 +130,8 @@ interface AppActions {
     navigateBack: () => string | undefined;
     startFeedbackSubmission: (chapterId: string) => void;
     cancelFeedbackSubmission: () => void;
+    handleGenerateImages: (chapterId: string) => Promise<void>;
+    handleRetryImage: (chapterId: string, placementMarker: string) => Promise<void>;
     createPromptTemplate: (template: Omit<PromptTemplate, 'id' | 'createdAt'>) => Promise<void>;
     updatePromptTemplate: (template: PromptTemplate) => Promise<void>;
     deletePromptTemplate: (id: string) => Promise<void>;
@@ -162,6 +167,8 @@ export const useAppStore = create<Store>()((set, get) => ({
   amendmentProposal: null,
   promptTemplates: [],
   activePromptTemplate: null,
+  generatedImages: {},
+  imageGenerationMetrics: null,
 
   // DEFAULTS + HYDRATE
   settings: (() => {
@@ -860,6 +867,11 @@ export const useAppStore = create<Store>()((set, get) => ({
             return { chapters: newChapters, amendmentProposal: result.proposal ?? null };
         });
 
+        // NEW: Trigger image generation if prompts were returned
+        if (result.suggestedIllustrations && result.suggestedIllustrations.length > 0) {
+            get().handleGenerateImages(chapterId);
+        }
+
         // Persist translation as a new version and mark it active
         try {
           await indexedDBService.storeTranslationByStableId(chapterId, result as any, {
@@ -893,6 +905,115 @@ export const useAppStore = create<Store>()((set, get) => ({
                 isLoading: { ...s.isLoading, translating: isTranslating } 
             };
         });
+    }
+  },
+
+  handleGenerateImages: async (chapterId: string) => {
+    console.log(`[ImageGen] Starting image generation for ${chapterId}`);
+    const { chapters, settings, generatedImages } = get();
+    const chapter = chapters.get(chapterId);
+    const translationResult = chapter?.translationResult;
+
+    if (settings.imageModel === 'None') {
+      console.log('[ImageGen] Image generation is disabled in settings.');
+      return;
+    }
+
+    if (!translationResult || !translationResult.suggestedIllustrations) {
+        console.warn('[ImageGen] No illustrations suggested for this chapter.');
+        return;
+    }
+
+    // Reset metrics and set initial loading state
+    set(state => {
+        const initialImageStates: Record<string, { isLoading: boolean; data: string | null; error: string | null; }> = {};
+        translationResult.suggestedIllustrations.forEach(illust => {
+            initialImageStates[illust.placementMarker] = { isLoading: true, data: null, error: null };
+        });
+        return {
+            imageGenerationMetrics: null,
+            generatedImages: { ...state.generatedImages, ...initialImageStates }
+        };
+    });
+
+    let totalTime = 0;
+    let totalCost = 0;
+    let generatedCount = 0;
+
+    // Sequentially generate images to avoid overwhelming the API
+    for (const illust of translationResult.suggestedIllustrations) {
+        try {
+            console.log(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
+            const result = await generateImage(illust.imagePrompt, settings);
+            totalTime += result.requestTime;
+            totalCost += result.cost;
+            generatedCount++;
+
+            set(state => ({
+                generatedImages: {
+                    ...state.generatedImages,
+                    [illust.placementMarker]: { isLoading: false, data: result.imageData, error: null },
+                }
+            }));
+            console.log(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
+        } catch (error: any) {
+            console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, error);
+            set(state => ({
+                generatedImages: {
+                    ...state.generatedImages,
+                    [illust.placementMarker]: { isLoading: false, data: null, error: error.message },
+                }
+            }));
+        }
+    }
+
+    // Set final aggregated metrics
+    set({
+        imageGenerationMetrics: {
+            count: generatedCount,
+            totalTime: totalTime,
+            totalCost: totalCost,
+        }
+    });
+    console.log(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
+  },
+
+  handleRetryImage: async (chapterId: string, placementMarker: string) => {
+    console.log(`[ImageGen] Retrying image generation for ${placementMarker} in chapter ${chapterId}`);
+    const { chapters, settings } = get();
+    const chapter = chapters.get(chapterId);
+    const illust = chapter?.translationResult?.suggestedIllustrations?.find(i => i.placementMarker === placementMarker);
+
+    if (!illust) {
+        console.error(`[ImageGen] Could not find illustration with marker ${placementMarker} to retry.`);
+        return;
+    }
+
+    // Set loading state for this specific image
+    set(state => ({
+        generatedImages: {
+            ...state.generatedImages,
+            [placementMarker]: { isLoading: true, data: null, error: null },
+        }
+    }));
+
+    try {
+        const result = await generateImage(illust.imagePrompt, settings);
+        set(state => ({
+            generatedImages: {
+                ...state.generatedImages,
+                [placementMarker]: { isLoading: false, data: result.imageData, error: null },
+            }
+        }));
+        console.log(`[ImageGen] Successfully retried and stored image for ${placementMarker}`);
+    } catch (error: any) {
+        console.error(`[ImageGen] Failed to retry image for ${placementMarker}:`, error);
+        set(state => ({
+            generatedImages: {
+                ...state.generatedImages,
+                [placementMarker]: { isLoading: false, data: null, error: error.message },
+            }
+        }));
     }
   },
   

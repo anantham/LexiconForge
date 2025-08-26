@@ -35,60 +35,65 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
         throw new Error("Gemini API key is missing. Cannot generate images.");
     }
 
-    const imageModel = settings.imageModel || 'gemini-1.5-flash';
-    console.log(`[ImageService] Generating image with model: ${imageModel}`);
+    const imageModel = settings.imageModel || 'imagen-3.0-generate-001';
+    console.log(`[ImageService] Starting image generation...`);
+    console.log(`[ImageService] - Model: ${imageModel}`);
+    console.log(`[ImageService] - Prompt: ${prompt.substring(0, 100)}...`);
+    console.log(`[ImageService] - API Key present: ${!!apiKey}`);
+    
     const startTime = performance.now();
     
     try {
         const ai = new GoogleGenAI({ apiKey });
         let base64Data: string;
 
-        // Use the appropriate API based on the model name
         if (imageModel.startsWith('imagen')) {
-            // This path is for dedicated Imagen models, using a different API method
+            console.log('[ImageService] Using Imagen model:', imageModel);
             const response = await ai.models.generateImages({
                 model: imageModel,
-                prompt: prompt,
-                // Assuming a similar config structure to the user's Python snippet
-                config: { number_of_images: 1 },
+                prompt: `${prompt}. Please generate this image in a dark, atmospheric, and highly detailed anime/manga style.`,
+                config: {
+                    numberOfImages: 1,
+                },
             });
 
-            // Fix response structure parsing based on actual API response
-            const firstImage = response.generatedImages?.[0];
-            if (!firstImage || !firstImage.image || !firstImage.image.imageBytes) {
-                console.error("[ImageService/Imagen] Unexpected response structure:", JSON.stringify(response, null, 2));
-                throw new Error("Failed to receive valid image data from Imagen API.");
+            if (!response.generated_images || response.generated_images.length === 0) {
+                console.error("[ImageService/Imagen] Unexpected response structure or empty image list:", response);
+                throw new Error("Failed to receive valid image data from Imagen API. The prompt may have been blocked by safety filters.");
             }
-            base64Data = firstImage.image.imageBytes as string;
+            base64Data = response.generated_images[0].image;
 
-        } else {
-            // This path is for multimodal Gemini models
-            const response = await ai.models.generateContent({
-                model: imageModel,
-                contents: [{
-                    role: 'user',
-                    parts: [
-                        { text: prompt },
-                        { text: "Please generate this image in a dark, atmospheric, and highly detailed anime/manga style." }
-                    ]
-                }],
-                generationConfig: {
-                    responseMimeType: 'image/png',
+        } else if (imageModel.startsWith('gemini')) {
+            console.log('[ImageService] Using Gemini native image generation:', imageModel);
+            const model = ai.getGenerativeModel({ model: imageModel });
+            
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+
+            let foundImageData = null;
+            const parts = response.candidates?.[0]?.content?.parts || [];
+            for (const part of parts) {
+                if (part.inlineData) {
+                    foundImageData = part.inlineData.data;
+                    break;
                 }
-            });
-
-            const imagePart = response.response.candidates?.[0].content.parts[0];
-            if (!imagePart || !('inlineData' in imagePart)) {
-                console.error("[ImageService/Gemini] Unexpected response structure:", JSON.stringify(response.response, null, 2));
+            }
+            
+            if (!foundImageData) {
+                console.error("[ImageService/Gemini] No image data found in response:", response);
                 throw new Error("Failed to receive valid image data from Gemini API.");
             }
-            base64Data = imagePart.inlineData.data;
+            base64Data = foundImageData;
+            
+        } else {
+            console.error(`[ImageService] Unrecognized model: ${imageModel}`);
+            throw new Error(`Unrecognized image model: ${imageModel}.`);
         }
 
         const requestTime = (performance.now() - startTime) / 1000; // in seconds
         const cost = calculateImageCost(imageModel);
 
-        console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s. Cost: $${cost.toFixed(5)}`);
+        console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s. Cost: ${cost.toFixed(5)}`);
         return {
             imageData: `data:image/png;base64,${base64Data}`,
             requestTime,
