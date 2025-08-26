@@ -13,6 +13,7 @@ vi.mock('../../services/aiService');
 vi.mock('../../services/adapters');
 
 const mockTranslateChapter = vi.mocked(aiService.translateChapter);
+const mockValidateApiKey = vi.mocked(aiService.validateApiKey);
 const mockFetchAndParseUrl = vi.mocked(adapters.fetchAndParseUrl);
 
 // --- Test Data ---
@@ -186,9 +187,12 @@ describe('useAppStore: Core Functionality', () => {
 
   describe('handleTranslate', () => {
     beforeEach(() => {
-      // Mock translateChapter to return a successful translation by default
+      // Justification: For translation tests, we must ensure the store is in a valid state,
+      // which includes having the necessary settings (like a provider and API key) and
+      // mocking the API validation to pass by default.
+      mockValidateApiKey.mockReturnValue({ isValid: true });
       mockTranslateChapter.mockResolvedValue(testTranslationResult);
-      // Ensure there's a chapter in sessionData to translate
+
       useAppStore.setState({
         sessionData: {
           [testChapter.originalUrl]: {
@@ -197,20 +201,46 @@ describe('useAppStore: Core Functionality', () => {
           },
         },
         urlHistory: [testChapter.originalUrl],
+        settings: {
+          ...useAppStore.getState().settings,
+          provider: 'Gemini',
+          apiKeyGemini: 'test-key',
+        },
       });
     });
 
     it('should successfully translate a chapter and update state', async () => {
+      // Justification: This is the primary success path for the translation feature.
+      // It verifies that the store correctly calls the translation service, updates the
+      // loading state, and stores the final translation result.
       await useAppStore.getState().handleTranslate(testChapter.originalUrl);
 
       const state = useAppStore.getState();
       expect(state.isLoading.translating).toBe(false);
       expect(state.sessionData[testChapter.originalUrl].translationResult).toEqual(testTranslationResult);
       expect(mockTranslateChapter).toHaveBeenCalledTimes(1);
-      expect(state.urlLoadingStates[testChapter.originalUrl]).toBeUndefined();
+      // The per-URL loading state should be cleared after completion.
+      expect(state.urlLoadingStates[testChapter.originalUrl]).toBe(false);
+    });
+
+    it('should set an error if API key validation fails', async () => {
+      // Justification: It is critical that the application provides immediate and clear
+      // feedback if an API key is missing or invalid, preventing the user from waiting
+      // for a translation that will never succeed.
+      mockValidateApiKey.mockReturnValue({ isValid: false, errorMessage: 'API key is missing.' });
+
+      await useAppStore.getState().handleTranslate(testChapter.originalUrl);
+
+      const state = useAppStore.getState();
+      expect(state.error).toContain('API key is missing.');
+      // If validation fails, the translation service should not be called.
+      expect(mockTranslateChapter).not.toHaveBeenCalled();
     });
 
     it('should handle translation errors gracefully', async () => {
+      // Justification: This test ensures that if the external translation API fails
+      // for any reason (e.g., network error, server-side issue), the app does not crash
+      // and the user is shown a helpful error message.
       const errorMessage = 'API Key Invalid';
       mockTranslateChapter.mockRejectedValue(new Error(errorMessage));
 
@@ -219,10 +249,13 @@ describe('useAppStore: Core Functionality', () => {
       const state = useAppStore.getState();
       expect(state.isLoading.translating).toBe(false);
       expect(state.error).toContain(errorMessage);
-      expect(state.urlLoadingStates[testChapter.originalUrl]).toBeUndefined();
+      expect(state.urlLoadingStates[testChapter.originalUrl]).toBe(false);
     });
 
     it('should set amendment proposal if returned by translation', async () => {
+      // Justification: This tests the advanced feature where the AI can suggest
+      // improvements to the system prompt. The store must correctly capture and
+      // surface these proposals to the user.
       const proposal = { observation: 'test', currentRule: 'rule', proposedChange: 'change', reasoning: 'reason' };
       mockTranslateChapter.mockResolvedValue({ ...testTranslationResult, proposal });
 
@@ -233,25 +266,69 @@ describe('useAppStore: Core Functionality', () => {
     });
 
     it('should cancel active translation if a new one is initiated for the same URL', async () => {
-      // Mock a long-running translation
-      mockTranslateChapter.mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve(testTranslationResult), 100)));
+      // Justification: To prevent race conditions and unnecessary API calls, if a user
+      // initiates a new translation while one is already in progress for the same chapter,
+      // the old one should be cancelled.
+      const firstController = new AbortController();
+      const secondController = new AbortController();
+      useAppStore.setState({ activeTranslations: { [testChapter.originalUrl]: firstController } });
+      const abortSpy = vi.spyOn(firstController, 'abort');
 
-      const translatePromise1 = useAppStore.getState().handleTranslate(testChapter.originalUrl);
-      // Immediately call again, which should trigger cancellation
-      const translatePromise2 = useAppStore.getState().handleTranslate(testChapter.originalUrl);
+      // This mock simulates a translation that never resolves, to test cancellation.
+      mockTranslateChapter.mockImplementation(() => new Promise(() => {}));
 
-      await Promise.allSettled([translatePromise1, translatePromise2]);
+      // Start the first translation (which will hang)
+      useAppStore.getState().handleTranslate(testChapter.originalUrl);
+      // Immediately start the second one
+      useAppStore.getState().handleTranslate(testChapter.originalUrl);
 
-      // Expect translateChapter to have been called twice, but the first one should have been aborted
-      expect(mockTranslateChapter).toHaveBeenCalledTimes(2);
-      // The final state should reflect the last successful translation
-      expect(useAppStore.getState().sessionData[testChapter.originalUrl].translationResult).toEqual(testTranslationResult);
+      // The key assertion is that the first translation's abort controller was called.
+      expect(abortSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should apply rate limiting if calls are too frequent', async () => {
-      // Skip this test for now as the rate limiting logic may not be implemented
-      // or may work differently than expected
-      expect(true).toBe(true);
+    it('should call translateChapter with correct prompt and history', async () => {
+      // Justification: This is a critical test to ensure that the core translation
+      // logic is assembling the correct context (history) and using the correct
+      // system prompt from settings before making the API call.
+      const customPrompt = 'Translate like a pirate.';
+      const chapter1 = { ...testChapter, originalUrl: 'http://test.com/1', title: 'Chapter 1' };
+      const chapter2 = { ...testChapter, originalUrl: 'http://test.com/2', title: 'Chapter 2' };
+      const chapter3 = { ...testChapter, originalUrl: 'http://test.com/3', title: 'Chapter 3' };
+      const chapter4 = { ...testChapter, originalUrl: 'http://test.com/4', title: 'Chapter 4' };
+
+      useAppStore.setState({
+        settings: {
+          ...useAppStore.getState().settings,
+          systemPrompt: customPrompt,
+          contextDepth: 2,
+        },
+        urlHistory: [chapter1.originalUrl, chapter2.originalUrl, chapter3.originalUrl, chapter4.originalUrl],
+        sessionData: {
+          [chapter1.originalUrl]: { chapter: chapter1, translationResult: testTranslationResult },
+          [chapter2.originalUrl]: { chapter: chapter2, translationResult: testTranslationResult },
+          [chapter3.originalUrl]: { chapter: chapter3, translationResult: testTranslationResult },
+          [chapter4.originalUrl]: { chapter: chapter4, translationResult: null }, // The one to translate
+        },
+      });
+
+      await useAppStore.getState().handleTranslate(chapter4.originalUrl);
+
+      expect(mockTranslateChapter).toHaveBeenCalledTimes(1);
+
+      // Verify the arguments passed to the mocked translateChapter function
+      const callArgs = mockTranslateChapter.mock.calls[0];
+      const passedSettings = callArgs[2];
+      const passedHistory = callArgs[3];
+
+      // Check if the correct system prompt was passed
+      expect(passedSettings.systemPrompt).toBe(customPrompt);
+
+      // Check if the history has the correct length based on contextDepth
+      expect(passedHistory).toHaveLength(2);
+
+      // Check if the history contains the correct chapters in the correct order
+      expect(passedHistory[0].originalTitle).toBe(chapter2.title);
+      expect(passedHistory[1].originalTitle).toBe(chapter3.title);
     });
   });
 

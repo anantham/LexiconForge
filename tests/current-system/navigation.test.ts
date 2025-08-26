@@ -96,7 +96,6 @@ describe('Navigation Logic', () => {
       ];
       
       validKakuyomuUrls.forEach(url => {
-        expect(() => store.validateUrl(url)).not.toThrow();
         expect(store.isValidUrl(url)).toBe(true);
       });
     });

@@ -12,7 +12,7 @@ import {
   StableSessionData,
   getSortedChaptersForRendering 
 } from './stableIdService';
-import { stableIdIndexedDBService } from './stableIdIndexedDB';
+import { indexedDBService } from './indexeddb';
 
 export interface ImportTransformationResult {
   success: boolean;
@@ -72,7 +72,7 @@ export class ImportTransformationService {
       const conflicts = await this.detectConflicts(stableData, existingSessionData);
       
       // Store in IndexedDB
-      await stableIdIndexedDBService.importStableSessionData(stableData);
+      await indexedDBService.importStableSessionData(stableData);
       
       return {
         success: true,
@@ -141,26 +141,12 @@ export class ImportTransformationService {
     chapterNumber: number;
   }>> {
     try {
-      await stableIdIndexedDBService.initialize();
-      const renderingData = await stableIdIndexedDBService.getChaptersForRendering();
+      console.log('[ImportTransformation] Using unified indexedDBService for chapter rendering');
       
-      return renderingData.map(({ id, chapter, canonicalUrl }) => ({
-        stableId: id,              // This is the stable ID for React keys
-        url: canonicalUrl,         // This is for navigation and compatibility
-        data: {
-          chapter: {
-            title: chapter.title,
-            content: chapter.content,
-            originalUrl: chapter.canonicalUrl,
-            nextUrl: undefined, // TODO: Resolve from nextChapterId
-            prevUrl: undefined, // TODO: Resolve from prevChapterId
-            chapterNumber: chapter.chapterNumber,
-          },
-          translationResult: null    // TODO: Load from translations store
-        },
-        title: chapter.title,
-        chapterNumber: chapter.chapterNumber
-      }));
+      const renderingData = await indexedDBService.getChaptersForReactRendering();
+      
+      // The unified service already returns the correct format
+      return renderingData;
       
     } catch (error) {
       console.error('[ImportTransformation] Failed to get chapters for rendering:', error);
@@ -177,26 +163,12 @@ export class ImportTransformationService {
     data: any;
   } | null> {
     try {
-      await stableIdIndexedDBService.initialize();
-      const chapter = await stableIdIndexedDBService.findChapterByUrl(url);
+      console.log('[ImportTransformation] Using unified indexedDBService for chapter lookup');
       
-      if (!chapter) return null;
+      const chapter = await indexedDBService.findChapterByUrl(url);
       
-      return {
-        stableId: chapter.id,
-        canonicalUrl: chapter.canonicalUrl,
-        data: {
-          chapter: {
-            title: chapter.title,
-            content: chapter.content,
-            originalUrl: chapter.canonicalUrl,
-            nextUrl: undefined, // TODO: Resolve from nextChapterId
-            prevUrl: undefined, // TODO: Resolve from prevChapterId
-            chapterNumber: chapter.chapterNumber,
-          },
-          translationResult: null    // TODO: Load from translations store
-        }
-      };
+      // The unified service already returns the correct format
+      return chapter;
       
     } catch (error) {
       console.error('[ImportTransformation] Failed to find chapter by URL:', error);

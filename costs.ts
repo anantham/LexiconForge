@@ -85,7 +85,7 @@ export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output:
 export const IMAGE_COSTS: { [key: string]: number } = {
     // Google Gemini Image Models
     'gemini-1.5-flash': 0.00, // Free tier
-    'gemini-2.0-flash-preview-image-generation': 0.00, // Preview/free
+    'gemini-2.0-flash-preview-image-generation': 0.039, // $0.039 per image
     
     // Google Imagen Models (Official 2025 pricing)
     'imagen-3.0-generate-002': 0.03, // Imagen 3 - $0.03 per image

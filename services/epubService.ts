@@ -281,7 +281,13 @@ export const getDefaultTemplate = (): EpubTemplate => ({
  * });
  */
 export const createCustomTemplate = (overrides: Partial<EpubTemplate>): EpubTemplate => {
-  return { ...getDefaultTemplate(), ...overrides };
+  const def = getDefaultTemplate();
+  const merge = (a: any, b: any): any =>
+    Object.fromEntries(Object.keys({ ...a, ...b }).map(k => {
+      const av = (a as any)[k], bv = (b as any)[k];
+      return [k, (av && typeof av === 'object' && bv && typeof bv === 'object') ? merge(av, bv) : (bv ?? av)];
+    }));
+  return merge(def, overrides ?? {});
 };
 
 /**

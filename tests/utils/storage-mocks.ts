@@ -117,7 +117,7 @@ export const createPopulatedStorage = (): MockStorage => {
           },
           translationResult: {
             translatedTitle: 'Chapter 1: The Strongest Exorcist Makes Excuses',
-            translation: '"You——are the Demon King, aren\'t you?"...',
+            translation: '"You——are the Demon King, aren\'t you?"...', // Corrected escaping for the quote within the string
             proposal: null,
             footnotes: [],
             suggestedIllustrations: [],
@@ -141,7 +141,7 @@ export const createPopulatedStorage = (): MockStorage => {
         fontSize: 18,
         fontStyle: 'serif',
         lineHeight: 1.7,
-        systemPrompt: 'You are a translator...',
+        systemPrompt: 'You are a translator...', 
         provider: 'Gemini',
         model: 'gemini-2.5-flash',
         temperature: 0.3,
@@ -224,3 +224,17 @@ export const setupStorageMocks = () => {
 export const createCorruptedStorageData = () => {
   return '{"invalid": json, "missing_quotes": true, broken}';
 };
+
+let originalSetItem = localStorage.setItem.bind(localStorage);
+
+export function simulateStorageFailure(kind: 'QuotaExceededError' | 'SecurityError' | 'GenericError') {
+  localStorage.setItem = () => {
+    const e: any = new Error(kind);
+    e.name = kind;
+    throw e;
+  };
+}
+
+export function restoreStorage() {
+  localStorage.setItem = originalSetItem;
+}

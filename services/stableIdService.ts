@@ -7,7 +7,7 @@
  * 3. Providing a transformation layer between import and storage
  */
 
-import { Chapter } from '../types';
+import { Chapter, TranslationResult, AppSettings, FeedbackItem } from '../types';
 
 /**
  * Generates a stable chapter ID based on content characteristics
@@ -53,6 +53,9 @@ export interface EnhancedChapter extends Chapter {
     importDate: Date;
     sourceFormat: 'json' | 'scraping' | 'manual';
   };
+  translationResult?: TranslationResult | null;
+  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'contextDepth' | 'systemPrompt'>>;
+  feedback?: FeedbackItem[];
 }
 
 /**

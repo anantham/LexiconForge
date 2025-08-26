@@ -12,15 +12,37 @@ LexiconForge is your gateway to the world of web novels. It's a powerful, AI-dri
 
 LexiconForge is more than just a translator; it's a power tool for readers.
 
-*   📖 **Universal Access:** Just paste a chapter URL, and LexiconForge will fetch and prepare it for translation.
-*   🎨 **AI-Generated Illustrations:** See pivotal moments in the story come to life with automatically generated images for key scenes.
-*   🔑 **You're in Control (Bring Your Own Key):** Securely use your own API key for Gemini, OpenAI, or DeepSeek. You control your usage and data.
-*   💰 **Transparent Cost Tracking:** An obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent.
-*   🧠 **A Smarter AI:** The translator learns from your feedback! Use simple 👍/👎 reactions to teach the AI your preferred style for names, tones, and phrases.
-*   ✍️ **Become the Prompt Master:** Take full control by editing the AI's system prompt. Want a more formal tone? More descriptive prose? You decide.
-*   📊 **Model Showdown:** Not all AIs are created equal. Switch between 15+ different models on the fly to find the perfect translator for your specific novel.
-*   📚 **Professional EPUB Export:** Generate beautiful e-books with comprehensive translation statistics, cost breakdowns, and customizable acknowledgments. Perfect for sharing or offline reading.
-*   💾 **Own Your Data:** Your reading history, translations, and feedback are yours. Export as JSON for backup or as professional EPUB for reading.
+### **🌐 Universal Web Novel Access**
+*   📖 **Multi-Site Support:** Paste URLs from Kakuyomu, Dxmwx, Kanunu, NovelCool, and more. LexiconForge automatically adapts to each site's structure.
+*   ⚡ **Smart Preloading:** Background fetching of upcoming chapters for seamless reading (configurable 0-10 chapters ahead).
+*   🔗 **Navigation Memory:** Built-in chapter history and navigation breadcrumbs for easy browsing.
+
+### **🤖 Advanced AI Translation**
+*   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, OpenAI, DeepSeek, or Claude. You control your usage and data.
+*   📊 **22+ AI Models:** Access the latest generation of AI models across all providers to find your perfect translator.
+*   🎛️ **Fine-Tuned Control:** Adjust temperature (creativity), context depth (0-5 previous chapters), and model-specific settings.
+*   💰 **Real-Time Cost Tracking:** Obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent, with 2025 pricing.
+
+### **🧠 Collaborative AI Training**
+*   💬 **Text Selection Feedback:** Select any text and rate it 👍👎? to teach the AI your preferences.
+*   ✍️ **Prompt Template Library:** Create, save, and manage custom system prompts for different novel types (Wuxia, Romance, Technical, etc.).
+*   🔄 **Amendment Proposals:** AI suggests prompt improvements based on your feedback patterns.
+*   📝 **Inline Annotations:** Collaborative feedback system with comments and rating history.
+
+### **🎨 Rich Media & Export**
+*   🖼️ **AI-Generated Illustrations:** Bring pivotal story moments to life with automatically generated images. Smart illustration system places visual markers in translations and generates contextual artwork.
+*   📚 **Professional EPUB Export:** Generate beautiful e-books with:
+  - Comprehensive translation statistics and cost breakdowns
+  - Provider/model usage analytics across your entire library
+  - Embedded AI-generated illustrations with captions
+  - Customizable acknowledgments and project descriptions
+*   💾 **Complete Data Ownership:** Export/import your entire session as JSON. Your reading history, translations, feedback, and settings belong to you.
+
+### **⚡ Performance & Storage**
+*   🗄️ **Dual-Tier Architecture:** Instant UI updates (Zustand) + unlimited persistent storage (IndexedDB) for the best of both worlds.
+*   🔄 **Session Persistence:** Survive browser crashes and restarts. Your progress is never lost.
+*   📊 **Professional Statistics:** Detailed breakdowns of token usage, costs, translation time, and model performance across your entire library.
+*   🔧 **Developer-Friendly Debugging:** Optional console logging system to monitor translation performance and troubleshoot issues.
 
 ---
 
@@ -36,10 +58,23 @@ Want to run your own instance? It's easy.
 
 1.  **Clone the repository.**
 2.  **Install dependencies:** `npm install`
-3.  **Add your API keys** to a new `.env.local` file.
+3.  **Add your API keys** to a new `.env.local` file:
+    ```env
+    VITE_GEMINI_API_KEY=your_gemini_key_here
+    VITE_OPENAI_API_KEY=your_openai_key_here
+    VITE_DEEPSEEK_API_KEY=your_deepseek_key_here
+    VITE_CLAUDE_API_KEY=your_claude_key_here
+    ```
 4.  **Run the app:** `npm run dev`
 
-For more detailed technical information, see the [Project Structure & Technical Details](./PROJECT_STRUCTURE.md).
+### Technical Architecture
+LexiconForge uses a sophisticated **dual-tier data architecture**:
+- **Zustand Store**: Sub-millisecond UI reactivity for active session
+- **IndexedDB**: Unlimited persistent storage for chapter library and translations
+- **Professional Export System**: EPUB generation with comprehensive statistics and embedded illustrations
+- **Multi-Provider AI Integration**: Unified interface for 4 major AI providers with advanced illustration pipeline
+
+For detailed technical information, see the [Project Structure & Technical Details](./PROJECT_STRUCTURE.md).
 
 ---
 
