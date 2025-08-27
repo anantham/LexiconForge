@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppSettings, TranslationProvider } from '../types';
 import useAppStore from '../store/useAppStore';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
+import { getDefaultTemplate } from '../services/epubService';
 import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../costs';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -37,6 +38,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   })));
 
   const [currentSettings, setCurrentSettings] = useState(settings);
+  const [activeTab, setActiveTab] = useState<'general' | 'export' | 'templates' | 'advanced'>('general');
+  const defaultTpl = getDefaultTemplate();
   const [showCreatePrompt, setShowCreatePrompt] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<string | null>(null);
   const [newPromptName, setNewPromptName] = useState('');
@@ -251,7 +254,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           </p>
         </header>
 
+        {/* Tabs */}
+        <div className="px-6 sm:px-8 pt-4 border-b border-gray-200 dark:border-gray-700 flex gap-2">
+          {[
+            { id: 'general', label: 'General' },
+            { id: 'export', label: 'Export' },
+            { id: 'templates', label: 'Templates' },
+            { id: 'advanced', label: 'Advanced' },
+          ].map(t => (
+            <button key={t.id}
+              onClick={() => setActiveTab(t.id as any)}
+              className={`px-3 py-2 text-sm rounded-t-md ${activeTab === t.id ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`}
+            >{t.label}</button>
+          ))}
+        </div>
+
         <div className="p-6 sm:p-8 space-y-8 overflow-y-auto">
+          {activeTab === 'general' && (<>
           {/* Translation Engine Settings */}
           <fieldset>
             <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Translation Engine</legend>
@@ -656,30 +675,91 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 className={`w-full p-2 border rounded-md font-mono text-xs ${activePromptTemplate && editingPrompt === activePromptTemplate.id ? 'border-blue-300 dark:border-blue-600 dark:bg-gray-900 dark:text-gray-200' : 'border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed'}`}
              />
           </fieldset>
+          </>) }
 
-          {/* Developer Settings (collapsible) */}
-          <details className="mt-2 border border-gray-200 dark:border-gray-700 rounded-md" open={showDev} onToggle={(e) => setShowDev((e.target as HTMLDetailsElement).open)}>
-            <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 rounded-md">
-              Developer Settings
-            </summary>
-            <div className="p-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">API logging level</label>
-                <select
-                  value={apiDebugLevel}
-                  onChange={(e) => setDebugLevel(e.target.value as DebugLevel)}
-                  className="mt-1 block w-full sm:w-64 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                >
-                  <option value="off">Off — errors only</option>
-                  <option value="summary">Summary — request/response summaries</option>
-                  <option value="full">Full — include full request/response JSON</option>
-                </select>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Summary: model, temperature, history, structure, tokens. Full: complete request/response JSON (very verbose).
-                </p>
+          {activeTab === 'export' && (
+            <fieldset>
+              <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Export</legend>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Chapter ordering</label>
+                    <select
+                      value={(currentSettings as any).exportOrder || 'number'}
+                      onChange={(e) => handleSettingChange('exportOrder' as any, e.target.value as any)}
+                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                    >
+                      <option value="number">By chapter number</option>
+                      <option value="navigation">By navigation order</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
+                      <input type="checkbox" className="mr-2" checked={(currentSettings as any).includeTitlePage !== false}
+                        onChange={(e) => handleSettingChange('includeTitlePage' as any, e.target.checked)} />
+                      Include title page
+                    </label>
+                    <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
+                      <input type="checkbox" className="mr-2" checked={(currentSettings as any).includeStatsPage !== false}
+                        onChange={(e) => handleSettingChange('includeStatsPage' as any, e.target.checked)} />
+                      Include acknowledgments page
+                    </label>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Ordering affects ToC and spine. When not all chapters have numbers, navigation order may give better results.</p>
               </div>
-            </div>
-          </details>
+            </fieldset>
+          )}
+
+          {activeTab === 'templates' && (
+            <fieldset>
+              <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">EPUB Template</legend>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gratitude message</label>
+                  <textarea
+                    rows={3}
+                    value={(currentSettings as any).epubGratitudeMessage || defaultTpl.gratitudeMessage || ''}
+                    onChange={(e) => handleSettingChange('epubGratitudeMessage' as any, e.target.value)}
+                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project description</label>
+                  <textarea rows={3} value={(currentSettings as any).epubProjectDescription || defaultTpl.projectDescription || ''}
+                    onChange={(e) => handleSettingChange('epubProjectDescription' as any, e.target.value)}
+                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Footer (leave blank to hide)</label>
+                  <input type="text" value={(currentSettings as any).epubFooter ?? (defaultTpl.customFooter || '')}
+                    onChange={(e) => handleSettingChange('epubFooter' as any, e.target.value)}
+                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" />
+                </div>
+              </div>
+            </fieldset>
+          )}
+
+          {activeTab === 'advanced' && (
+            <fieldset>
+              <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Advanced</legend>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">API logging level</label>
+                  <select
+                    value={apiDebugLevel}
+                    onChange={(e) => setDebugLevel(e.target.value as DebugLevel)}
+                    className="mt-1 block w-full sm:w-64 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  >
+                    <option value="off">Off — errors only</option>
+                    <option value="summary">Summary — request/response summaries</option>
+                    <option value="full">Full — include full request/response JSON</option>
+                  </select>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full also attaches EPUB parse diagnostics to the export.</p>
+                </div>
+              </div>
+            </fieldset>
+          )}
 
         </div>
         <footer className="px-6 sm:px-8 py-4 bg-gray-50 dark:bg-gray-700/50 mt-auto sticky bottom-0 flex justify-between items-center gap-4">
