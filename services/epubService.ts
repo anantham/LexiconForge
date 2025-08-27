@@ -1,6 +1,237 @@
 import { SessionChapterData, AppSettings } from '../types';
 import JSZip from 'jszip';
 
+// XHTML/XML namespaces used for strict XML serialization
+const XHTML_NS = 'http://www.w3.org/1999/xhtml';
+const XML_NS   = 'http://www.w3.org/XML/1998/namespace';
+const EPUB_NS  = 'http://www.idpf.org/2007/ops';
+const XLINK_NS = 'http://www.w3.org/1999/xlink';
+
+// Simplified XML Name validation (sufficient for XHTML attribute names)
+const XML_NAME = /^[A-Za-z_][A-Za-z0-9._:-]*$/;
+
+// Basic bans for unsafe attributes
+function isBannedAttr(name: string) {
+  return name.startsWith('on') || name === 'srcdoc';
+}
+
+// Very lightweight CSS sanitizer; keep as a single attribute
+function sanitizeStyle(value: string) {
+  const v = (value ?? '').replace(/[\u0000-\u001F\u007F]/g, '');
+  if (/url\s*\(\s*javascript:/i.test(v)) return '';
+  if (/expression\s*\(/i.test(v)) return '';
+  return v.trim();
+}
+
+function setAttrNS(el: Element, name: string, value: string) {
+  if (name === 'xml:lang') { el.setAttributeNS(XML_NS, name, value); return; }
+  if (name.startsWith('epub:')) { el.setAttributeNS(EPUB_NS, name, value); return; }
+  if (name.startsWith('xlink:')) { el.setAttributeNS(XLINK_NS, name, value); return; }
+  el.setAttribute(name, value);
+}
+
+function copyAttributesSafely(srcEl: Element, dstEl: Element) {
+  for (const attr of Array.from(srcEl.attributes)) {
+    let name = attr.name;
+    let value = attr.value ?? '';
+
+    // Keep style as a single attribute; do not expand/split
+    if (name.toLowerCase() === 'style') {
+      const s = sanitizeStyle(value);
+      if (s) dstEl.setAttribute('style', s);
+      continue;
+    }
+
+    // Drop unsafe attributes
+    if (isBannedAttr(name)) continue;
+
+    // Validate XML name to avoid InvalidCharacterError (e.g., 'down;')
+    if (!XML_NAME.test(name)) {
+      try { console.warn('[EPUB XClone] Dropping invalid attribute', name, 'on <' + srcEl.tagName + '>'); } catch {}
+      continue;
+    }
+
+    // Normalize non-namespaced names to lowercase
+    if (!name.includes(':')) name = name.toLowerCase();
+
+    try {
+      setAttrNS(dstEl, name, value);
+    } catch (e) {
+      try {
+        const snippet = (srcEl as any).outerHTML ? (srcEl as any).outerHTML.slice(0, 160).replace(/\s+/g, ' ') : `<${srcEl.tagName}>`;
+        console.warn('[EPUB XClone] Could not set attribute', name, 'value=', value, 'on', snippet, e);
+      } catch {}
+      // Continue without throwing
+    }
+  }
+}
+
+// Clone an HTML node tree into an XHTML XMLDocument parent
+function cloneIntoXhtml(srcNode: Node, xdoc: XMLDocument, dstParent: Element) {
+  switch (srcNode.nodeType) {
+    case Node.ELEMENT_NODE: {
+      const srcEl = srcNode as Element;
+      // Lowercase localName for XHTML consistency; guard invalid names
+      const name = srcEl.localName.toLowerCase();
+      const isValidXmlLocalName = /^[A-Za-z_][A-Za-z0-9._-]*$/.test(name);
+      if (!isValidXmlLocalName) {
+        // Skip invalid element; clone its children directly into parent
+        for (const child of Array.from(srcEl.childNodes)) {
+          cloneIntoXhtml(child, xdoc, dstParent);
+        }
+        break;
+      }
+      const el = xdoc.createElementNS(XHTML_NS, name);
+      // Copy attributes safely (validated + namespaced)
+      copyAttributesSafely(srcEl, el);
+      // Ensure <img> has alt for accessibility nicety
+      if (el.localName === 'img' && !el.hasAttribute('alt')) {
+        el.setAttribute('alt', '');
+      }
+      // Avoid scripts in EPUB content
+      if (el.localName !== 'script') {
+        for (const child of Array.from(srcEl.childNodes)) {
+          cloneIntoXhtml(child, xdoc, el);
+        }
+      }
+      dstParent.appendChild(el);
+      break;
+    }
+    case Node.TEXT_NODE: {
+      dstParent.appendChild(xdoc.createTextNode((srcNode as Text).data));
+      break;
+    }
+    // Omit comments/CDATA by default for chapters
+    default:
+      break;
+  }
+}
+
+// Convert an HTML fragment string into serialized XHTML fragment
+function htmlFragmentToXhtml(fragmentHtml: string): string {
+  // Repair common broken void tags like <br“... or <hr“... into <br/> then the quote remains as text
+  fragmentHtml = fragmentHtml
+    .replace(/<br(?=(?:[“”"]) )/g, '<br/>')
+    .replace(/<br(?=(?:[“”"]))/g, '<br/>')
+    .replace(/<hr(?=(?:[“”"]))/g, '<hr/>');
+  // 1) Tolerant parse as HTML
+  const htmlDoc = new DOMParser().parseFromString(fragmentHtml, 'text/html');
+  // 2) Create fresh XHTML document and a <body> container
+  const xdoc = document.implementation.createDocument(XHTML_NS, 'html', null);
+  const htmlEl = xdoc.documentElement;
+  // Bind common namespaces used by EPUB content
+  htmlEl.setAttribute('xmlns:epub', EPUB_NS);
+  // Default language; may be overridden per element via xml:lang during cloning
+  if (!htmlEl.hasAttribute('xml:lang')) htmlEl.setAttributeNS(XML_NS, 'xml:lang', 'en');
+  const body = xdoc.createElementNS(XHTML_NS, 'body');
+  htmlEl.appendChild(body);
+  // 3) Clone children into XHTML body
+  for (const node of Array.from(htmlDoc.body.childNodes)) {
+    cloneIntoXhtml(node, xdoc, body);
+  }
+  // 4) Serialize children individually to avoid wrapping <body> markup
+  const serializer = new XMLSerializer();
+  const parts: string[] = [];
+  for (const child of Array.from(body.childNodes)) {
+    parts.push(serializer.serializeToString(child as any));
+  }
+  let xhtml = parts.join('');
+  // 5) Prefer numeric nbsp entity for max compatibility
+  xhtml = xhtml.replace(/\u00A0/g, '&#160;');
+  return xhtml;
+}
+
+// Very small allowlist sanitizer for inline/basic block tags used in chapters
+function sanitizeHtmlAllowlist(html: string): string {
+  const allowedTags = new Set([
+    'i','em','b','strong','u','s','br','sup','sub','a','p','ul','ol','li','span'
+  ]);
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const body = doc.body;
+
+  const unwrapNode = (node: Element) => {
+    const parent = node.parentNode;
+    if (!parent) return;
+    while (node.firstChild) parent.insertBefore(node.firstChild, node);
+    parent.removeChild(node);
+  };
+
+  const isSafeHref = (href: string): boolean => {
+    try {
+      const url = new URL(href, 'https://example.com');
+      const proto = (url.protocol || '').toLowerCase();
+      return proto === 'http:' || proto === 'https:' || proto === 'mailto:';
+    } catch { return false; }
+  };
+
+  const sanitizeEl = (el: Element) => {
+    // Copy array since we'll mutate children
+    for (const child of Array.from(el.childNodes)) {
+      if (child.nodeType === Node.COMMENT_NODE) {
+        el.removeChild(child);
+        continue;
+      }
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        const c = child as Element;
+        const tag = c.tagName.toLowerCase();
+        if (!allowedTags.has(tag)) {
+          // unwrap unknown element, keep its children
+          unwrapNode(c);
+          continue;
+        }
+        // Strip disallowed attributes
+        for (const attr of Array.from(c.attributes)) {
+          const name = attr.name.toLowerCase();
+          const value = attr.value;
+          const isEvent = name.startsWith('on');
+          if (isEvent || name === 'style') { c.removeAttribute(attr.name); continue; }
+          if (tag === 'a') {
+            if (name === 'href') {
+              if (!isSafeHref(value)) c.removeAttribute('href');
+              continue;
+            }
+            if (name === 'title') continue;
+            // drop everything else on <a>
+            c.removeAttribute(attr.name);
+            continue;
+          }
+          if (tag === 'span') {
+            // Keep our placeholders only
+            if (name === 'data-illu' || name === 'data-fn') continue;
+            c.removeAttribute(attr.name);
+            continue;
+          }
+          // For other allowed tags: drop all attributes
+          c.removeAttribute(attr.name);
+        }
+        sanitizeEl(c);
+      }
+    }
+  };
+  sanitizeEl(body);
+  return body.innerHTML;
+}
+
+// Replace newline characters in text nodes with <br> elements for display parity
+function convertNewlinesToBrInElement(root: Element) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const textNodes: Text[] = [];
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    const t = node as Text;
+    if (t.data.includes('\n')) textNodes.push(t);
+  }
+  for (const t of textNodes) {
+    const parts = t.data.split(/\n/);
+    const frag = document.createDocumentFragment();
+    parts.forEach((part, idx) => {
+      if (part) frag.appendChild(document.createTextNode(part));
+      if (idx < parts.length - 1) frag.appendChild(document.createElement('br'));
+    });
+    t.parentNode?.replaceChild(frag, t);
+  }
+}
+
 export interface ChapterForEpub {
   title: string;
   content: string;
@@ -265,11 +496,11 @@ export const getDefaultTemplate = (): EpubTemplate => ({
   
   projectDescription: `This e-book was generated using LexiconForge, an open-source AI translation platform that enables high-quality, creative translations of literature. The platform supports multiple AI providers and allows for collaborative refinement of translations.`,
   
-  githubUrl: 'https://github.com/user/LexiconForge',
+  githubUrl: 'https://github.com/anantham/LexiconForge',
   
   additionalAcknowledgments: `Special thanks to the original authors whose creative works inspire these translations, and to the open-source community that makes tools like this possible. Translation is an art that bridges cultures and languages, bringing stories to new audiences worldwide.`,
   
-  customFooter: `Generated with love using AI translation technology`
+  customFooter: ''
 });
 
 /**
@@ -435,7 +666,7 @@ const generateTitlePage = (novelConfig: NovelConfig, stats: TranslationStats): s
 /**
  * Generates a comprehensive table of contents page with navigation links
  */
-const generateTableOfContents = (chapters: ChapterForEpub[]): string => {
+const generateTableOfContents = (chapters: ChapterForEpub[], includeStatsPage: boolean): string => {
   let tocHtml = `<h1 style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;">Table of Contents</h1>\n\n`;
   
   tocHtml += `<div style="margin: 2em 0;">\n`;
@@ -462,6 +693,12 @@ const generateTableOfContents = (chapters: ChapterForEpub[]): string => {
     tocHtml += `  </li>\n`;
   });
   
+  // Optionally include special sections at the end
+  if (includeStatsPage) {
+    tocHtml += `  <li style="margin-bottom: 0.5em;">\n`;
+    tocHtml += `    <a href="stats.xhtml" style="text-decoration: none; color: #007bff;"><strong>Translation Details and Acknowledgments</strong></a>\n`;
+    tocHtml += `  </li>\n`;
+  }
   tocHtml += `</ol>\n`;
   
   return tocHtml;
@@ -471,7 +708,7 @@ const generateTableOfContents = (chapters: ChapterForEpub[]): string => {
  * Generates a detailed statistics and acknowledgments page
  */
 const generateStatsAndAcknowledgments = (stats: TranslationStats, template: EpubTemplate): string => {
-  let html = `<h1 style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;">Translation Details & Acknowledgments</h1>\n\n`;
+  let html = `<h1 style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;">Translation Details and Acknowledgments</h1>\n\n`;
 
   // Project description
   html += `<div style="margin: 2em 0; padding: 1.5em; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">\n`;
@@ -576,7 +813,7 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
 
   // Gratitude message
   html += `<div style="margin: 3em 0; padding: 2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">\n`;
-  html += `<h2 style="margin-top: 0; color: white; text-align: center;">Gratitude & Acknowledgments</h2>\n`;
+  html += `<h2 style="margin-top: 0; color: white; text-align: center;">Acknowledgments</h2>\n`;
   html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeXml(template.gratitudeMessage || '')}</p>\n`;
   if (template.additionalAcknowledgments) {
     html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeXml(template.additionalAcknowledgments)}</p>\n`;
@@ -683,6 +920,101 @@ const convertToXhtmlParagraphs = (content: string): string => {
 };
 
 /**
+ * Build chapter XHTML using DOM nodes (footnotes visible inline and at end)
+ */
+const buildChapterXhtml = (chapter: ChapterForEpub): string => {
+  const root = document.createElement('div');
+  // Title
+  const h1 = document.createElement('h1');
+  h1.textContent = chapter.translatedTitle || chapter.title;
+  root.appendChild(h1);
+
+  // 1) Inject placeholders for markers
+  const withIllu = chapter.content.replace(/\[(ILLUSTRATION-\d+[A-Za-z]*)\]/g, (_m, marker) => {
+    return `<span data-illu="${marker}"></span>`;
+  });
+  const withPlaceholders = withIllu.replace(/\[(\d+)\]/g, (_m, n) => `<span data-fn="${n}"></span>`);
+
+  // 2) Sanitize with tight allowlist to preserve inline tags safely
+  const sanitized = sanitizeHtmlAllowlist(withPlaceholders);
+
+  // 3) Materialize into a working container and normalize newlines to <br>
+  const container = document.createElement('div');
+  container.innerHTML = sanitized;
+  convertNewlinesToBrInElement(container);
+
+  // 4) Replace placeholders with generated illustration blocks and footnote refs
+  const imagesByMarker = new Map<string, typeof chapter.images[number]>(
+    chapter.images.map(i => [i.marker, i])
+  );
+  for (const span of Array.from(container.querySelectorAll('span[data-illu]'))) {
+    const marker = (span as HTMLElement).getAttribute('data-illu') || '';
+    const img = imagesByMarker.get(`[${marker}]`) || imagesByMarker.get(marker);
+    if (img) {
+      const wrap = document.createElement('div');
+      wrap.setAttribute('class', 'illustration');
+      const im = document.createElement('img');
+      im.setAttribute('src', img.imageData);
+      im.setAttribute('alt', img.prompt);
+      im.setAttribute('style', 'max-width: 100%; height: auto; display: block; margin: 1em auto;');
+      const cap = document.createElement('p');
+      cap.setAttribute('class', 'illustration-caption');
+      cap.setAttribute('style', 'text-align: center; font-style: italic; color: #666; font-size: 0.9em; margin-top: 0.5em;');
+      cap.textContent = img.prompt;
+      wrap.appendChild(im);
+      wrap.appendChild(cap);
+      span.replaceWith(wrap);
+    } else {
+      // If missing, remove placeholder
+      span.remove();
+    }
+  }
+  for (const span of Array.from(container.querySelectorAll('span[data-fn]'))) {
+    const num = (span as HTMLElement).getAttribute('data-fn') || '';
+    const sup = document.createElement('sup');
+    const a = document.createElement('a');
+    a.setAttribute('href', `#fn${num}`);
+    a.setAttribute('class', 'footnote-ref');
+    a.setAttribute('id', `fnref${num}`);
+    a.setAttribute('epub:type', 'noteref');
+    a.textContent = `[${num}]`;
+    sup.appendChild(a);
+    span.replaceWith(sup);
+  }
+
+  // 5) Append sanitized content under title
+  while (container.firstChild) root.appendChild(container.firstChild);
+
+  // 6) Footnotes section at end
+  if (chapter.footnotes && chapter.footnotes.length > 0) {
+    const div = document.createElement('div');
+    div.setAttribute('class', 'footnotes');
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Footnotes';
+    const ol = document.createElement('ol');
+    div.appendChild(h3);
+    div.appendChild(ol);
+    for (const fn of chapter.footnotes) {
+      const num = String(fn.marker).replace(/^\[|\]$/g, '');
+      const li = document.createElement('li');
+      li.setAttribute('id', `fn${num}`);
+      li.setAttribute('epub:type', 'footnote');
+      li.appendChild(document.createTextNode(fn.text + ' '));
+      const back = document.createElement('a');
+      back.setAttribute('href', `#fnref${num}`);
+      back.setAttribute('class', 'footnote-backref');
+      back.setAttribute('epub:type', 'backlink');
+      back.textContent = '↩';
+      li.appendChild(back);
+      ol.appendChild(li);
+    }
+    root.appendChild(div);
+  }
+
+  // 7) XHTML serialization
+  return htmlFragmentToXhtml(root.innerHTML);
+};
+/**
  * Escape HTML characters to prevent XSS and formatting issues (kept for backward compatibility)
  */
 const escapeHtml = (text: string): string => {
@@ -724,40 +1056,32 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
   
   // Generate special pages  
   const titlePage = generateTitlePage(novelConfig, stats);
-  const tableOfContents = generateTableOfContents(options.chapters);
+  const includeTitle = (options as any).includeTitlePage !== false;
+  const includeStats = (options as any).includeStatsPage !== false;
+  const tableOfContents = generateTableOfContents(options.chapters, includeStats);
   const statsAndAcknowledgments = generateStatsAndAcknowledgments(stats, template);
+  // Ensure special pages are XHTML-safe
+  const titlePageXhtml = htmlFragmentToXhtml(titlePage);
+  const tocXhtml = htmlFragmentToXhtml(tableOfContents);
+  const statsXhtml = htmlFragmentToXhtml(statsAndAcknowledgments);
   
-  // Convert chapters to EPUB3-compatible format
-  const chapters = [
-    // Title page (first)
-    {
-      id: 'title-page',
-      title: 'Title Page',
-      xhtml: titlePage,
-      href: 'title.xhtml'
-    },
-    // Table of Contents (second)
-    {
-      id: 'toc-page',
-      title: 'Table of Contents', 
-      xhtml: tableOfContents,
-      href: 'toc.xhtml'
-    },
-    // Main chapters
-    ...options.chapters.map((chapter, index) => ({
+  // Convert chapters to EPUB3-compatible format (with optional pages)
+  const chapters: EpubChapter[] = [];
+  if (includeTitle) {
+    chapters.push({ id: 'title-page', title: 'Title Page', xhtml: titlePageXhtml, href: 'title.xhtml' });
+  }
+  chapters.push({ id: 'toc-page', title: 'Table of Contents', xhtml: tocXhtml, href: 'toc.xhtml' });
+  options.chapters.forEach((chapter, index) => {
+    chapters.push({
       id: `ch-${String(index + 1).padStart(3, '0')}`,
       title: chapter.translatedTitle || chapter.title,
-      xhtml: convertChapterToHtml(chapter),
+      xhtml: buildChapterXhtml(chapter),
       href: `chapter-${String(index + 1).padStart(4, '0')}.xhtml`
-    })),
-    // Stats and acknowledgments (last page)
-    {
-      id: 'stats-page',
-      title: 'Translation Details & Acknowledgments',
-      xhtml: statsAndAcknowledgments,
-      href: 'stats.xhtml'
-    }
-  ];
+    });
+  });
+  if (includeStats) {
+    chapters.push({ id: 'stats-page', title: 'Translation Details and Acknowledgments', xhtml: statsXhtml, href: 'stats.xhtml' });
+  }
   
   try {
     console.log('[EPUBService] Generating EPUB with comprehensive statistics:', {
@@ -790,8 +1114,8 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
     const blob = new Blob([epubBuffer], { type: 'application/epub+zip' });
     const url = URL.createObjectURL(blob);
     
-    // Generate filename with timestamp
-    const timestamp = new Date().toISOString().slice(0, 16).replace(/[:-]/g, '');
+    // Generate filename with timestamp (UTC, to seconds)
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
     const filename = `translated-novel-${timestamp}.epub`;
     
     // Trigger download
@@ -1079,6 +1403,58 @@ li {
   margin: 0.5em 0;
 }`;
 
+  // Extract data:image payloads from chapter XHTML and rewrite to packaged image files
+  type ImgEntry = { href: string; mediaType: string; base64: string; id: string };
+  const processedChapters: { ch: EpubChapter; xhtml: string }[] = [];
+  const imageEntries: ImgEntry[] = [];
+  let imgIndex = 1;
+  const dataImgRegex = /(<img\b[^>]*?src=\")(data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=]+))(\"[^>]*>)/g;
+
+  for (const ch of chapters) {
+    let xhtml = ch.xhtml;
+    xhtml = xhtml.replace(dataImgRegex, (_m, p1, _src, mime, b64, p5) => {
+      const ext = mime.endsWith('jpeg') ? 'jpg' : (mime.split('/')[1] || 'png');
+      const filename = `img-${String(imgIndex).padStart(4, '0')}.${ext}`;
+      const href = `images/${filename}`;
+      const id = `img${imgIndex}`;
+      imageEntries.push({ href, mediaType: mime, base64: b64, id });
+      imgIndex++;
+      return `${p1}../${href}${p5}`;
+    });
+    processedChapters.push({ ch, xhtml });
+  }
+
+  // Build manifest and spine including images
+  const manifestItemsText = processedChapters.map(({ ch }) =>
+    `<item id="${ch.id}" href="text/${ch.href}" media-type="application/xhtml+xml"/>`
+  ).join('\n        ');
+  const manifestItemsImages = imageEntries.map(img =>
+    `<item id="${img.id}" href="${escapeXml(img.href)}" media-type="${escapeXml(img.mediaType)}"/>`
+  ).join('\n        ');
+  const spineItems2 = processedChapters.map(({ ch }) => `<itemref idref="${ch.id}"/>`).join('\n        ');
+
+  const contentOpf2 = `<?xml version="1.0" encoding="utf-8"?>
+<package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" xml:lang="${lang}">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="bookid">${escapeXml(bookId)}</dc:identifier>
+    <dc:title>${escapeXml(meta.title)}</dc:title>
+    <dc:language>${lang}</dc:language>
+    ${meta.author ? `<dc:creator>${escapeXml(meta.author)}</dc:creator>` : ''}
+    ${meta.publisher ? `<dc:publisher>${escapeXml(meta.publisher)}</dc:publisher>` : ''}
+    ${meta.description ? `<dc:description>${escapeXml(meta.description)}</dc:description>` : ''}
+    <meta property="dcterms:modified">${new Date().toISOString()}</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="text/nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="css" href="styles/stylesheet.css" media-type="text/css"/>
+        ${manifestItemsText}
+        ${manifestItemsImages ? `\n        ${manifestItemsImages}` : ''}
+  </manifest>
+  <spine>
+        ${spineItems2}
+  </spine>
+</package>`;
+
   // Create ZIP with JSZip
   const zip = new JSZip();
   
@@ -1089,16 +1465,38 @@ li {
   zip.file('META-INF/container.xml', containerXml);
   
   // Add OEBPS content
-  zip.file(`${oebps}/content.opf`, contentOpf);
+  zip.file(`${oebps}/content.opf`, contentOpf2);
   zip.file(`${textDir}/nav.xhtml`, navXhtml);
   zip.file(`${stylesDir}/stylesheet.css`, stylesheet);
   
-  // Add chapter files
-  for (const chapter of chapters) {
-    const safeBody = sanitizeHtml(chapter.xhtml);
-    zip.file(`${textDir}/${chapter.href}`, xhtmlWrap(chapter.title, safeBody));
+  // Add processed chapter files and extracted images (with optional strict XML parse diagnostics)
+  const parseErrors: string[] = [];
+  for (const { ch, xhtml } of processedChapters) {
+    const wrapped = xhtmlWrap(ch.title, xhtml);
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(wrapped, 'application/xhtml+xml');
+      const err = doc.querySelector('parsererror');
+      if (err) {
+        const msg = `[ParseError] ${ch.href}: ${err.textContent?.slice(0, 300)}`;
+        console.warn(msg);
+        parseErrors.push(msg);
+      }
+    } catch {}
+    zip.file(`${textDir}/${ch.href}`, wrapped);
+  }
+  for (const img of imageEntries) {
+    zip.file(`${oebps}/${img.href}`, img.base64, { base64: true });
   }
   
+  // Attach diagnostics when parse errors are detected
+  if (parseErrors.length > 0) {
+    zip.file(`${oebps}/debug/parse-errors.txt`, parseErrors.join('\n'));
+    processedChapters.forEach(({ ch, xhtml }) => {
+      zip.file(`${oebps}/debug/text/${ch.href}.raw.xhtml`, xhtml);
+    });
+  }
+
   // Generate and return ArrayBuffer
   return await zip.generateAsync({ 
     type: 'arraybuffer', 
@@ -1123,5 +1521,29 @@ const escapeXml = (text: string): string => {
  */
 const sanitizeHtml = (html: string): string => {
   // Remove scripts for security
-  return html.replace(/<script[\s\S]*?<\/script>/gi, '');
+  let out = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+  // Normalize common void elements to XHTML self-closing
+  out = out.replace(/<br(\s*[^\/>]*)>/gi, '<br$1/>');
+  out = out.replace(/<hr(\s*[^\/>]*)>/gi, '<hr$1/>');
+  // Repair broken `<brX` / `<hrX` (letter or dash appended to tag name)
+  out = out.replace(/<br([A-Za-z])/g, '<br/>$1');
+  out = out.replace(/<hr([A-Za-z])/g, '<hr/>$1');
+  out = out.replace(/<br([—–-])/g, '<br/>$1');
+  out = out.replace(/<hr([—–-])/g, '<hr/>$1');
+  // Repair `<br<` or `<hr<` sequences left by marker replacement
+  out = out.replace(/<br</g, '<br/></');
+  out = out.replace(/<hr</g, '<hr/></');
+  // Repair stray `<br“` or `<br"` (missing closing) into `<br/>`
+  out = out.replace(/<br(?=(?:\"|“))/g, '<br/>' );
+  out = out.replace(/<hr(?=(?:\"|“))/g, '<hr/>' );
+  // Escape raw ampersands in attribute values (both single- and double-quoted)
+  out = out.replace(/(=\")(.*?)(\")/g, (_m, p1, val, p3) => {
+    const fixed = val.replace(/&(?!(amp|lt|gt|quot|apos);)/g, '&amp;');
+    return p1 + fixed + p3;
+  });
+  out = out.replace(/(=')(.*?)(')/g, (_m, p1, val, p3) => {
+    const fixed = val.replace(/&(?!(amp|lt|gt|quot|apos);)/g, '&amp;');
+    return p1 + fixed + p3;
+  });
+  return out;
 };
