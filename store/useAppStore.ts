@@ -79,6 +79,12 @@ const defaultSettings: AppSettings = {
     imageHeight: 1024,
     imageAspectRatio: '1:1',
     imageSizePreset: '1K',
+    exportOrder: 'number',
+    includeTitlePage: true,
+    includeStatsPage: true,
+    epubGratitudeMessage: '',
+    epubProjectDescription: '',
+    epubFooter: '',
 };
 
 interface AppState {
@@ -94,7 +100,7 @@ interface AppState {
     currentChapterId: string | null;
     navigationHistory: string[]; // array of chapterIds
 
-    showEnglish: boolean;
+    viewMode: 'original' | 'fan' | 'english';
     feedbackHistory: { [key: string]: FeedbackItem[] }; // Keyed by chapterId
     settings: AppSettings;
     isDirty: boolean;
@@ -105,16 +111,17 @@ interface AppState {
     promptTemplates: PromptTemplate[];
     activePromptTemplate: PromptTemplate | null;
     generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; }>;
-    imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; } | null;
+    imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; lastModel?: string; } | null;
 }
 
 interface AppActions {
     handleFetch: (fetchUrl: string) => Promise<void>;
     handleTranslate: (chapterId: string) => Promise<void>;
+    cancelTranslation: (chapterId: string) => void;
     handleRetranslateCurrent: () => void;
     handleNavigate: (newUrl: string) => Promise<void>;
     isValidUrl: (url: string) => boolean;
-    handleToggleLanguage: (show: boolean) => void;
+    handleToggleLanguage: (mode: 'original' | 'fan' | 'english') => void;
     isChapterLoading: (chapterId: string) => boolean;
     buildTranslationHistory: (chapterId: string) => HistoricalChapter[];
     buildTranslationHistoryAsync?: (chapterId: string) => Promise<HistoricalChapter[]>;
@@ -128,6 +135,7 @@ interface AppActions {
     clearSession: () => void;
     importSessionData: (payload: string | object) => Promise<void>;
     exportSessionData: () => string;
+    exportEpub: () => Promise<void>;
     isChapterTranslating: (chapterId: string) => boolean;
     hasTranslationSettingsChanged: (chapterId: string) => boolean;
     shouldEnableRetranslation: (chapterId: string) => boolean;
@@ -168,7 +176,7 @@ export const useAppStore = create<Store>()((set, get) => ({
   error: null,
   isLoading: { fetching: false, translating: false },
   showSettingsModal: false,
-  showEnglish: false,
+  viewMode: 'original',
   isDirty: false,
   amendmentProposal: null,
   promptTemplates: [],
@@ -270,6 +278,40 @@ export const useAppStore = create<Store>()((set, get) => ({
           history.pushState({ chapterId }, '', `?chapter=${encodeURIComponent(chapter.canonicalUrl)}`);
       }
 
+      // If translationResult is missing in memory, hydrate active version from IndexedDB
+      try {
+        if (chapter && !chapter.translationResult) {
+          const active = await indexedDBService.getActiveTranslationByStableId(chapterId);
+          if (active) {
+            set(s => {
+              const cs = new Map(s.chapters);
+              const ch = cs.get(chapterId);
+              if (ch) {
+                const usageMetrics = {
+                  totalTokens: active.totalTokens || 0,
+                  promptTokens: active.promptTokens || 0,
+                  completionTokens: active.completionTokens || 0,
+                  estimatedCost: active.estimatedCost || 0,
+                  requestTime: active.requestTime || 0,
+                  provider: (active.provider as any) || s.settings.provider,
+                  model: active.model || s.settings.model,
+                } as any;
+                ch.translationResult = {
+                  translatedTitle: active.translatedTitle,
+                  translation: active.translation,
+                  proposal: active.proposal || null,
+                  footnotes: active.footnotes || [],
+                  suggestedIllustrations: active.suggestedIllustrations || [],
+                  usageMetrics,
+                } as any;
+                cs.set(chapterId, ch);
+              }
+              return { chapters: cs };
+            });
+          }
+        }
+      } catch {}
+
     } else if (chapterId && !chapters.has(chapterId)) {
       // We have a mapping but content isn't in memory; lazy-load from IndexedDB
       console.log(`[Nav] Mapping found (${chapterId}) but not loaded. Hydrating from IndexedDB...`);
@@ -317,6 +359,20 @@ export const useAppStore = create<Store>()((set, get) => ({
       }
 
       // Fall through to supported fetch or error
+      // Before fetching, attempt a last-chance cache hit by querying URL mapping in IndexedDB
+      try {
+        const norm = normalizedUrl;
+        const mapping = (norm ? await indexedDBService.getUrlMappingForUrl(norm) : null) ||
+                        await indexedDBService.getUrlMappingForUrl(url);
+        if (mapping?.stableId) {
+          console.log('[Navigate] Found URL mapping in IndexedDB. Hydrating chapter instead of fetching.');
+          const loaded = await get().loadChapterFromIDB(mapping.stableId);
+          if (loaded) return; // success; stop here
+        }
+      } catch (e) {
+        console.warn('[Navigate] IDB mapping lookup failed, proceeding to fetch if supported', e);
+      }
+
       if (get().isValidUrl(url)) {
         console.log(`[Navigate] Hydration failed; attempting fetch for ${url}...`);
         set({ error: null });
@@ -433,6 +489,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         chapterNumber: rec.chapterNumber || 0,
         sourceUrls: [rec.originalUrl || canonicalUrl],
         importSource: { originalUrl: rec.originalUrl || canonicalUrl, importDate: new Date(), sourceFormat: 'json' },
+        fanTranslation: (rec as any).fanTranslation || null,
         translationResult: null,
       } as EnhancedChapter;
       
@@ -806,9 +863,11 @@ export const useAppStore = create<Store>()((set, get) => ({
     indexedDBService.exportFullSessionToJson()
       .then(jsonObj => {
         const json = JSON.stringify(jsonObj, null, 2);
+        const ts = new Date().toISOString().slice(0,19).replace(/[-:T]/g, '');
+        const filename = `lexicon-forge-session-${ts}.json`;
         try {
           const a = document.createElement('a');
-          a.download = 'lexicon-forge-session.json';
+          a.download = filename;
           a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(json);
           document.body.appendChild(a);
           a.click();
@@ -818,8 +877,10 @@ export const useAppStore = create<Store>()((set, get) => ({
       .catch(err => {
         console.warn('[Export] Full export failed, falling back to memory snapshot download', err);
         try {
+          const ts = new Date().toISOString().slice(0,19).replace(/[-:T]/g, '');
+          const filename = `lexicon-forge-session-${ts}.json`;
           const a = document.createElement('a');
-          a.download = 'lexicon-forge-session.json';
+          a.download = filename;
           a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(memoryJson);
           document.body.appendChild(a);
           a.click();
@@ -828,6 +889,124 @@ export const useAppStore = create<Store>()((set, get) => ({
       });
 
     return memoryJson;
+  },
+
+  exportEpub: async () => {
+    try {
+      // Gather chapters in order using IndexedDB as ground truth
+      const [rendering, navHistSetting] = await Promise.all([
+        indexedDBService.getChaptersForReactRendering(),
+        indexedDBService.getSetting<any>('navigation-history').catch(() => null),
+      ]);
+
+      const navOrder: string[] = Array.isArray(navHistSetting?.stableIds) ? navHistSetting.stableIds : [];
+      const byStableId = new Map(rendering.map(r => [r.stableId, r] as const));
+
+      // Build candidate orders
+      // A) Navigation-first (current default behavior)
+      const remaining = rendering
+        .map(r => r.stableId)
+        .filter(id => !navOrder.includes(id));
+      const sortedRemaining = remaining.sort((a, b) => {
+        const ca = byStableId.get(a)?.chapterNumber ?? 0;
+        const cb = byStableId.get(b)?.chapterNumber ?? 0;
+        return ca - cb;
+      });
+      const navOrdered = [...navOrder.filter(id => byStableId.has(id)), ...sortedRemaining];
+
+      // B) Numeric chapterNumber order (preferred when most chapters have numbers)
+      const extractNumFromTitle = (t?: string): number => {
+        if (!t) return 0;
+        const m = t.match(/(?:chapter|episode)\s*(\d+)/i);
+        return m ? parseInt(m[1], 10) : 0;
+      };
+      const withNumbers = rendering.map(r => ({
+        id: r.stableId,
+        num: (r.chapterNumber && r.chapterNumber > 0) ? r.chapterNumber : extractNumFromTitle(r.title)
+      }));
+      const haveNums = withNumbers.filter(x => x.num && x.num > 0).length;
+      const numericOrdered = withNumbers
+        .slice()
+        .sort((a, b) => (a.num || 0) - (b.num || 0))
+        .map(x => x.id);
+
+      // Choose ordering based on settings or heuristic
+      const prefOrder = get().settings.exportOrder;
+      let ordered: string[];
+      if (prefOrder === 'number') ordered = numericOrdered;
+      else if (prefOrder === 'navigation') ordered = navOrdered;
+      else {
+        const threshold = Math.ceil(rendering.length * 0.6);
+        ordered = haveNums >= threshold ? numericOrdered : navOrdered;
+      }
+
+      // Build ChapterForEpub list using active translation versions
+      const chaptersForEpub: import('../services/epubService').ChapterForEpub[] = [];
+      for (const sid of ordered) {
+        const ch = byStableId.get(sid);
+        if (!ch) continue;
+        const active = await indexedDBService.getActiveTranslationByStableId(sid);
+        if (!active) continue;
+        // Compose chapter for EPUB
+        const images = (active.suggestedIllustrations || [])
+          .filter((i: any) => !!(i as any).url)
+          .map((i: any) => ({ marker: i.placementMarker, imageData: (i as any).url, prompt: i.imagePrompt }));
+        const footnotes = (active.footnotes || []).map((f: any) => ({ marker: f.marker, text: f.text }));
+        chaptersForEpub.push({
+          title: ch.title,
+          content: active.translation || ch.data?.chapter?.content || '',
+          originalUrl: ch.url,
+          translatedTitle: active.translatedTitle || ch.title,
+          usageMetrics: {
+            totalTokens: active.totalTokens || 0,
+            promptTokens: active.promptTokens || 0,
+            completionTokens: active.completionTokens || 0,
+            estimatedCost: active.estimatedCost || 0,
+            requestTime: active.requestTime || 0,
+            provider: (active.provider as any) || get().settings.provider,
+            model: active.model || get().settings.model,
+          },
+          images,
+          footnotes,
+        });
+      }
+
+      if (chaptersForEpub.length === 0) {
+        throw new Error('No chapters with active translations found to export.');
+      }
+
+      // Generate EPUB via service
+      const { generateEpub, getDefaultTemplate } = await import('../services/epubService');
+      // Enable EPUB debug artifacts only when API logging level is FULL
+      let epubDebug = false;
+      try {
+        const level = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+        const full = localStorage.getItem('LF_AI_DEBUG_FULL');
+        epubDebug = (level && level.toLowerCase() === 'full') || (full === '1' || (full ?? '').toLowerCase() === 'true');
+      } catch {}
+
+      const tpl = getDefaultTemplate();
+      const s = get().settings as any;
+      if (s.epubGratitudeMessage) tpl.gratitudeMessage = s.epubGratitudeMessage;
+      if (s.epubProjectDescription) tpl.projectDescription = s.epubProjectDescription;
+      if (s.epubFooter !== undefined) tpl.customFooter = s.epubFooter || '';
+
+      await generateEpub({
+        title: undefined,
+        author: undefined,
+        description: undefined,
+        chapters: chaptersForEpub,
+        settings: get().settings,
+        template: tpl,
+        novelConfig: undefined,
+        includeTitlePage: !!get().settings.includeTitlePage,
+        includeStatsPage: !!get().settings.includeStatsPage,
+        debug: epubDebug,
+      });
+    } catch (e: any) {
+      console.error('[Export] EPUB generation failed', e);
+      throw e;
+    }
   },
 
   importSessionData: async (payload: string | object) => {
@@ -856,6 +1035,7 @@ export const useAppStore = create<Store>()((set, get) => ({
               chapterNumber: ch.chapterNumber,
               canonicalUrl: ch.url,
               sourceUrls: [ch.url],
+              fanTranslation: (ch.data.chapter as any).fanTranslation ?? null,
               translationResult: ch.data.translationResult || null,
               feedback: [],
             });
@@ -872,6 +1052,41 @@ export const useAppStore = create<Store>()((set, get) => ({
             error: null,
           };
         });
+        // Hydrate active translation for current chapter in memory for immediate display
+        try {
+          const activeId = (await indexedDBService.getSetting<any>('lastActiveChapter').catch(() => null))?.id;
+          const targetId = activeId || (await indexedDBService.getMostRecentChapterStableId().catch(() => null))?.stableId;
+          if (targetId) {
+            const active = await indexedDBService.getActiveTranslationByStableId(targetId);
+            if (active) {
+              set(s => {
+                const chapters = new Map(s.chapters);
+                const ch = chapters.get(targetId);
+                if (ch) {
+                  const usageMetrics = {
+                    totalTokens: active.totalTokens || 0,
+                    promptTokens: active.promptTokens || 0,
+                    completionTokens: active.completionTokens || 0,
+                    estimatedCost: active.estimatedCost || 0,
+                    requestTime: active.requestTime || 0,
+                    provider: (active.provider as any) || s.settings.provider,
+                    model: active.model || s.settings.model,
+                  } as any;
+                  ch.translationResult = {
+                    translatedTitle: active.translatedTitle,
+                    translation: active.translation,
+                    proposal: active.proposal || null,
+                    footnotes: active.footnotes || [],
+                    suggestedIllustrations: active.suggestedIllustrations || [],
+                    usageMetrics,
+                  } as any;
+                  chapters.set(targetId, ch);
+                }
+                return { chapters };
+              });
+            }
+          }
+        } catch {}
         return;
       }
 
@@ -884,7 +1099,46 @@ export const useAppStore = create<Store>()((set, get) => ({
       // Use the stableIdService to process the imported data
       const incomingStableData = transformImportedChapters(obj.chapters, obj.metadata);
 
-      // Merge the new stable data with the existing state
+      // Persist chapters + URL mappings to IndexedDB first so translations can bind to stableIds
+      try {
+        await indexedDBService.importStableSessionData({
+          novels: incomingStableData.novels,
+          chapters: incomingStableData.chapters,
+          urlIndex: incomingStableData.urlIndex,
+          rawUrlIndex: incomingStableData.rawUrlIndex,
+          currentChapterId: incomingStableData.currentChapterId,
+          navigationHistory: incomingStableData.navigationHistory
+        });
+      } catch (e) {
+        console.warn('[DB] Failed to persist imported chapters before translations', e);
+      }
+
+      // If incoming JSON carried an active translationResult per chapter, persist it as version 1 and mark active
+      for (const raw of obj.chapters as any[]) {
+        try {
+          const originalUrl = raw.url || raw.sourceUrl;
+          if (!originalUrl) continue;
+          if (!raw.translationResult) continue; // nothing to persist
+          const stableId = generateStableChapterId(raw.content || '', raw.chapterNumber || 0, raw.title || '');
+          const tr: any = raw.translationResult;
+          const provider = tr?.usageMetrics?.provider || get().settings.provider;
+          const model = tr?.usageMetrics?.model || get().settings.model;
+          const temperature = get().settings.temperature;
+          const systemPrompt = get().settings.systemPrompt;
+          await indexedDBService.storeTranslationByStableId(stableId, tr, {
+            provider,
+            model,
+            temperature,
+            systemPrompt,
+            promptId: get().activePromptTemplate?.id,
+            promptName: get().activePromptTemplate?.name,
+          });
+        } catch (e) {
+          console.warn('[Import] Skipped persisting translationResult for a chapter:', e);
+        }
+      }
+
+      // Merge the new stable data with the existing state (and reflect any active translationResult present in file)
       set(s => {
         const newChapters = new Map([...s.chapters, ...incomingStableData.chapters]);
         const newNovels = new Map([...s.novels, ...incomingStableData.novels]);
@@ -902,17 +1156,17 @@ export const useAppStore = create<Store>()((set, get) => ({
         // Set the current chapter to the first imported chapter if the session is new
         const currentChapterId = s.currentChapterId || incomingStableData.currentChapterId;
 
-        console.log(`[Import] Merge complete. Total chapters: ${newChapters.size}`);
+        // If the incoming JSON has translationResult, also reflect it in memory for immediate use
+        for (const raw of obj.chapters as any[]) {
+          const sid = generateStableChapterId(raw.content || '', raw.chapterNumber || 0, raw.title || '');
+          const ch = newChapters.get(sid);
+          if (ch && raw.translationResult) {
+            ch.translationResult = raw.translationResult;
+            newChapters.set(sid, ch);
+          }
+        }
 
-        // Persist the newly merged data to IndexedDB
-        indexedDBService.importStableSessionData({
-          novels: newNovels,
-          chapters: newChapters,
-          urlIndex: newUrlIndex,
-          rawUrlIndex: newRawUrlIndex,
-          currentChapterId: currentChapterId,
-          navigationHistory: newNavigationHistory
-        }).catch(err => console.error('[DB] Failed to persist imported session', err));
+        console.log(`[Import] Merge complete. Total chapters: ${newChapters.size}`);
 
         return {
           chapters: newChapters,
@@ -956,7 +1210,7 @@ export const useAppStore = create<Store>()((set, get) => ({
           title: chapterData.title,
           hasContent: !!chapterData.content,
           contentLength: chapterData.content?.length || 0,
-          url: chapterData.url,
+          url: chapterData.originalUrl, // <--- ADDED THIS LINE
           chapterNumber: chapterData.chapterNumber,
           nextUrl: chapterData.nextUrl,
           prevUrl: chapterData.prevUrl
@@ -964,7 +1218,12 @@ export const useAppStore = create<Store>()((set, get) => ({
         
         // This is a new chapter, so we need to transform it to the stable format
         console.log(`[Fetch] Transforming to stable format...`);
-        const stableData = transformImportedChapters([chapterData]);
+        // Create a new object that includes the 'url' property for transformation
+        const dataForTransformation = {
+          ...chapterData,
+          url: chapterData.originalUrl // Ensure 'url' property is present for stableIdService
+        };
+        const stableData = transformImportedChapters([dataForTransformation]);
         console.log(`[Fetch] Stable transformation result:`, {
           chaptersCount: stableData.chapters.size,
           currentChapterId: stableData.currentChapterId,
@@ -1091,7 +1350,11 @@ export const useAppStore = create<Store>()((set, get) => ({
           chapterToTranslate.title,
           chapterToTranslate.content,
           settings,
-          history
+          history,
+          (chapterToTranslate as any).fanTranslation || null,
+          3,
+          2000,
+          abortController.signal
         );
         
         if (abortController.signal.aborted) {
@@ -1160,6 +1423,25 @@ export const useAppStore = create<Store>()((set, get) => ({
                 isLoading: { ...s.isLoading, translating: isTranslating } 
             };
         });
+    }
+  },
+
+  // Cancel an in-flight translation for this chapter (if any)
+  cancelTranslation: (chapterId: string) => {
+    const { activeTranslations } = get();
+    const ctrl = activeTranslations[chapterId];
+    if (ctrl) {
+      try { ctrl.abort(); } catch {}
+      // Immediately reflect cancel in UI
+      set(s => {
+        const active = { ...s.activeTranslations };
+        delete active[chapterId];
+        const urlStates = { ...s.urlLoadingStates };
+        delete urlStates[chapterId];
+        const stillTranslating = Object.keys(active).length > 0;
+        return { activeTranslations: active, urlLoadingStates: urlStates, isLoading: { ...s.isLoading, translating: stillTranslating } };
+      });
+      console.log(`[Translate] Cancel requested for ${chapterId}`);
     }
   },
 
@@ -1318,6 +1600,7 @@ export const useAppStore = create<Store>()((set, get) => ({
             count: generatedCount,
             totalTime: totalTime,
             totalCost: totalCost,
+            lastModel: settings.imageModel,
         }
     });
     console.log(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
@@ -1349,6 +1632,22 @@ export const useAppStore = create<Store>()((set, get) => ({
                 ...state.generatedImages,
                 [`${chapterId}:${placementMarker}`]: { isLoading: false, data: result.imageData, error: null },
             }
+        }));
+        // Update aggregated image metrics for this session
+        set(state => ({
+          imageGenerationMetrics: state.imageGenerationMetrics
+            ? {
+                count: state.imageGenerationMetrics.count + 1,
+                totalTime: state.imageGenerationMetrics.totalTime + result.requestTime,
+                totalCost: state.imageGenerationMetrics.totalCost + result.cost,
+                lastModel: settings.imageModel,
+              }
+            : {
+                count: 1,
+                totalTime: result.requestTime,
+                totalCost: result.cost,
+                lastModel: settings.imageModel,
+              }
         }));
         // Write into chapter translation and persist
         if (chapter && chapter.translationResult) {
@@ -1431,7 +1730,7 @@ export const useAppStore = create<Store>()((set, get) => ({
       if (!currentChapterId) return;
       handleTranslate(currentChapterId);
   },
-  handleToggleLanguage: (show: boolean) => set({ showEnglish: show }),
+  handleToggleLanguage: (mode: 'original' | 'fan' | 'english') => set({ viewMode: mode }),
   setShowSettingsModal: (isOpen: boolean) => set({ showSettingsModal: isOpen }),
   acceptProposal: () => {
       const { amendmentProposal, settings } = get();

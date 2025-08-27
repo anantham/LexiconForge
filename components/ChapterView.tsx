@@ -22,7 +22,7 @@ const ChapterView: React.FC = () => {
     currentChapterId,
     chapters,
     isLoading,
-    showEnglish,
+    viewMode,
     settings,
     error,
     handleToggleLanguage,
@@ -31,6 +31,7 @@ const ChapterView: React.FC = () => {
     deleteFeedback,
     updateFeedbackComment,
     handleRetranslateCurrent,
+    cancelTranslation,
     isChapterLoading,
     isChapterTranslating,
     shouldEnableRetranslation,
@@ -40,7 +41,7 @@ const ChapterView: React.FC = () => {
     currentChapterId: state.currentChapterId,
     chapters: state.chapters,
     isLoading: state.isLoading,
-    showEnglish: state.showEnglish,
+    viewMode: state.viewMode,
     settings: state.settings,
     error: state.error,
     handleToggleLanguage: state.handleToggleLanguage,
@@ -49,11 +50,12 @@ const ChapterView: React.FC = () => {
     deleteFeedback: state.deleteFeedback,
     updateFeedbackComment: state.updateFeedbackComment,
     handleRetranslateCurrent: state.handleRetranslateCurrent,
+    cancelTranslation: state.cancelTranslation,
     isChapterLoading: state.isChapterLoading,
     isChapterTranslating: state.isChapterTranslating,
     shouldEnableRetranslation: state.shouldEnableRetranslation,
     hasTranslationSettingsChanged: state.hasTranslationSettingsChanged,
-    imageGenerationMetrics: (state.chapters.get(state.currentChapterId || '') as any)?.imageGenerationMetrics, // This needs to be added to EnhancedChapter
+    imageGenerationMetrics: state.imageGenerationMetrics,
   })));
 
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
@@ -91,18 +93,27 @@ const ChapterView: React.FC = () => {
   };
 
   const displayTitle = useMemo(() => {
-    if (showEnglish && translationResult?.translatedTitle) {
+    if (viewMode === 'english' && translationResult?.translatedTitle) {
       return translationResult.translatedTitle;
     }
     return chapter?.title ?? '';
-  }, [showEnglish, chapter, translationResult]);
+  }, [viewMode, chapter, translationResult]);
 
   const contentToDisplay = useMemo(() => {
-    if (showEnglish) {
-      return translationResult?.translation ?? '';
+    switch (viewMode) {
+      case 'english':
+        return translationResult?.translation ?? '';
+      case 'fan':
+        return (chapter as any)?.fanTranslation ?? '';
+      case 'original':
+      default:
+        return chapter?.content ?? '';
     }
-    return chapter?.content ?? '';
-  }, [showEnglish, chapter, translationResult]);
+  }, [viewMode, chapter, translationResult]);
+
+  const hasFanTranslation = useMemo(() => {
+    return !!(chapter as any)?.fanTranslation;
+  }, [chapter]);
 
   const renderFootnotes = (footnotes: Footnote[] | undefined) => {
     if (!footnotes || footnotes.length === 0) return null;
@@ -175,11 +186,11 @@ const ChapterView: React.FC = () => {
 
     const currentChapterTranslating = currentChapterId ? isChapterTranslating(currentChapterId) : false;
     
-    if (showEnglish && currentChapterTranslating && !translationResult) {
+    if (viewMode === 'english' && currentChapterTranslating && !translationResult) {
       return <Loader text={`Translating with ${settings.provider}...`} />;
     }
 
-    if (showEnglish && !translationResult && !error) {
+    if (viewMode === 'english' && !translationResult && !error) {
       return <Loader text={`Translating with ${settings.provider}...`} />;
     }
     
@@ -200,14 +211,14 @@ const ChapterView: React.FC = () => {
              className={`prose prose-lg dark:prose-invert max-w-none whitespace-pre-wrap ${settings.fontStyle === 'serif' ? 'font-serif' : 'font-sans'}`}
              style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
            >
-             {showEnglish ? parseAndRender(contentToDisplay) : contentToDisplay}
+             {viewMode === 'english' ? parseAndRender(contentToDisplay) : contentToDisplay}
            </div>
          )}
        </div>
     )
   };
   
-  const shouldShowPopover = showEnglish && selection;
+  const shouldShowPopover = viewMode === 'english' && selection;
   // Version selector moved to SessionInfo top bar
 
   // Footnote navigation within the reader container
@@ -232,7 +243,7 @@ const ChapterView: React.FC = () => {
 
     container.addEventListener('click', onClick);
     return () => container.removeEventListener('click', onClick);
-  }, [viewRef, showEnglish, currentChapterId]);
+  }, [viewRef, viewMode, currentChapterId]);
 
   // Handle hash navigation (e.g., when hash already set or on back navigation)
   useEffect(() => {
@@ -248,7 +259,7 @@ const ChapterView: React.FC = () => {
     // Run once on mount or when chapter changes
     handleHash();
     return () => window.removeEventListener('hashchange', handleHash);
-  }, [currentChapterId, showEnglish]);
+  }, [currentChapterId, viewMode]);
 
   const NavigationControls = () => chapter && (
     <div className="flex justify-between items-center w-full">
@@ -275,9 +286,9 @@ const ChapterView: React.FC = () => {
     </div>
   );
 
-  const ImageMetricsDisplay = ({ metrics }: { metrics: { count: number; totalTime: number; totalCost: number; } }) => (
+  const ImageMetricsDisplay = ({ metrics }: { metrics: { count: number; totalTime: number; totalCost: number; lastModel?: string } }) => (
     <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
-      Generated {metrics.count} images in {metrics.totalTime.toFixed(2)}s (~${metrics.totalCost.toFixed(5)})
+      Generated {metrics.count} images{metrics.lastModel ? ` with ${metrics.lastModel}` : ''} in {metrics.totalTime.toFixed(2)}s (~${metrics.totalCost.toFixed(5)})
     </div>
   );
 
@@ -313,30 +324,45 @@ const ChapterView: React.FC = () => {
               <span className="font-semibold text-gray-600 dark:text-gray-300 hidden sm:inline">Language:</span>
               <div className="relative inline-flex items-center p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                 <button
-                  onClick={() => handleToggleLanguage(false)}
-                  className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors ${!showEnglish ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
+                  onClick={() => handleToggleLanguage('original')}
+                  className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors ${viewMode === 'original' ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
                 >
                   Original
                 </button>
+                {hasFanTranslation && (
+                  <button
+                    onClick={() => handleToggleLanguage('fan')}
+                    className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors ${viewMode === 'fan' ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
+                  >
+                    Fan
+                  </button>
+                )}
                 <button
-                  onClick={() => handleToggleLanguage(true)}
-                  className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors ${showEnglish ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
+                  onClick={() => handleToggleLanguage('english')}
+                  className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors ${viewMode === 'english' ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
                 >
                   English
                 </button>
               </div>
-              {showEnglish && (
+              {viewMode === 'english' && (
                 <button
-                  onClick={handleRetranslateCurrent}
-                  disabled={!shouldEnableRetranslation(currentChapterId || '') || (currentChapterId ? isChapterTranslating(currentChapterId) : false)}
+                  onClick={() => {
+                    if (!currentChapterId) return;
+                    if (isChapterTranslating(currentChapterId)) {
+                      cancelTranslation(currentChapterId);
+                    } else {
+                      handleRetranslateCurrent();
+                    }
+                  }}
+                  disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isChapterTranslating(currentChapterId))}
                   className={`p-2 rounded-full border transition-all duration-200 ${
                     currentChapterId && isChapterTranslating(currentChapterId)
-                      ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700 cursor-wait'
+                      ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
                       : shouldEnableRetranslation(currentChapterId || '')
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
                       : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                   }`}
-                  title="Retranslate chapter"
+                  title={currentChapterId && isChapterTranslating(currentChapterId) ? 'Cancel translation' : 'Retranslate chapter'}
                 >
                   <RefreshIcon className={`w-5 h-5 ${currentChapterId && isChapterTranslating(currentChapterId) ? 'animate-spin' : ''}`} />
                 </button>
@@ -352,10 +378,10 @@ const ChapterView: React.FC = () => {
                 Next &rarr;
             </button>
           </div>
-          {showEnglish && translationResult?.usageMetrics && (
+          {viewMode === 'english' && translationResult?.usageMetrics && (
             <MetricsDisplay metrics={translationResult.usageMetrics} />
           )}
-          {showEnglish && imageGenerationMetrics && (
+          {viewMode === 'english' && imageGenerationMetrics && (
             <ImageMetricsDisplay metrics={imageGenerationMetrics} />
           )}
         </header>
@@ -363,8 +389,8 @@ const ChapterView: React.FC = () => {
 
       <div className="min-h-[400px]">
         {renderContent()}
-        {showEnglish && renderFootnotes(translationResult?.footnotes)}
-        {showEnglish && feedbackForChapter.length > 0 && (
+        {viewMode === 'english' && renderFootnotes(translationResult?.footnotes)}
+        {viewMode === 'english' && feedbackForChapter.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                 Reader Feedback
