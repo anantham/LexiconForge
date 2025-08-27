@@ -21,9 +21,9 @@ export const MODELS: ModelInfo[] = [
     { id: 'gpt-4o', name: 'GPT-4o (Legacy)', provider: 'OpenAI' },
     { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Legacy)', provider: 'OpenAI' },
     
-    // DeepSeek Models
-    { id: 'deepseek-chat', name: 'DeepSeek Chat (V3)', provider: 'DeepSeek' },
-    { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner (R1)', provider: 'DeepSeek' },
+    // DeepSeek Models (V3.1)
+    { id: 'deepseek-chat', name: 'DeepSeek V3.1 (Chat)', provider: 'DeepSeek' },
+    { id: 'deepseek-reasoner', name: 'DeepSeek V3.1 (Reasoner)', provider: 'DeepSeek' },
     
     // Claude Models (Anthropic) - 2025 models
     { id: 'claude-opus-4-1', name: 'Claude Opus 4.1', provider: 'Claude' },
@@ -61,9 +61,11 @@ export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output:
     'gpt-5-nano-2025-01-12': { input: 0.05, output: 0.40 },
     'gpt-5-chat-latest-2025-01-12': { input: 1.25, output: 10.00 },
 
-    // --- DeepSeek Models (Standard pricing - cache miss) ---
-    'deepseek-chat': { input: 0.27, output: 1.10 },
-    'deepseek-reasoner': { input: 0.55, output: 2.19 },
+    // --- DeepSeek Models (V3.1)
+    // Pricing shown uses cache-miss input rate per 1M tokens.
+    // Cache-hit input rate is $0.07/1M (not modeled separately here).
+    'deepseek-chat': { input: 0.56, output: 1.68 },
+    'deepseek-reasoner': { input: 0.56, output: 1.68 },
 
     // --- Claude Models (Anthropic - Official 2025 pricing) ---
     'claude-opus-4-1': { input: 15.00, output: 75.00 },
