@@ -117,8 +117,7 @@ const SessionInfo: React.FC = () => {
             if (format === 'json') {
                 exportSessionData();
             } else {
-                // await exportEpub();
-                alert('EPUB export is temporarily disabled.');
+                await (useAppStore.getState().exportEpub());
             }
             setShowExportModal(false);
         } catch (error: any) {
