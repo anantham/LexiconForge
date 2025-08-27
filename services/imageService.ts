@@ -99,8 +99,10 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({ model: imageModel });
             try {
+                const needsModalities = imageModel.includes('gemini-2.0') && imageModel.includes('image-generation');
                 const result = await model.generateContent({
-                    contents: [{ role: 'user', parts: [{ text: `Generate an image based on this description: ${prompt}. Target size approximately ${reqW}x${reqH} with a matching aspect ratio. Style: dark, atmospheric, highly detailed.` }]}]
+                    contents: [{ role: 'user', parts: [{ text: `Generate an image based on this description: ${prompt}. Target size approximately ${reqW}x${reqH} with a matching aspect ratio. Style: dark, atmospheric, highly detailed.` }]}],
+                    generationConfig: needsModalities ? { responseModalities: ['TEXT','IMAGE'] as any } : undefined,
                 });
                 const response = result.response;
                 let foundImageData = null as string | null;
