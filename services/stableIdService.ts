@@ -53,6 +53,7 @@ export interface EnhancedChapter extends Chapter {
     importDate: Date;
     sourceFormat: 'json' | 'scraping' | 'manual';
   };
+  fanTranslation?: string | null; // Optional fan translation reference text
   translationResult?: TranslationResult | null;
   translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'contextDepth' | 'systemPrompt'>>;
   feedback?: FeedbackItem[];
@@ -214,6 +215,7 @@ export const transformImportedChapters = (
       chapterNumber: rawChapter.chapterNumber || 0,
       canonicalUrl,
       sourceUrls: [originalUrl], // Store original URL as source
+      fanTranslation: rawChapter.fanTranslation ?? null,
       importSource: {
         originalUrl,
         importDate: new Date(),
@@ -266,6 +268,7 @@ export const toLegacySessionData = (stableData: StableSessionData): Record<strin
         nextUrl: chapter.nextUrl,
         prevUrl: chapter.prevUrl,
         chapterNumber: chapter.chapterNumber,
+        fanTranslation: chapter.fanTranslation ?? null,
       },
       translationResult: null, // This will be populated by the translation system
     };

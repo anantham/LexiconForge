@@ -43,6 +43,7 @@ export interface ChapterRecord {
   originalUrl: string;
   nextUrl?: string;
   prevUrl?: string;
+  fanTranslation?: string;        // NEW: Fan translation reference text
   dateAdded: string;              // ISO timestamp
   lastAccessed: string;           // ISO timestamp
   
@@ -1205,6 +1206,7 @@ class IndexedDBService {
         canonicalUrl,
         title: ch.title,
         content: ch.content,
+        fanTranslation: ch.fanTranslation || null,
         nextUrl: ch.nextUrl || null,
         prevUrl: ch.prevUrl || null,
         chapterNumber: ch.chapterNumber ?? null,
@@ -1712,15 +1714,16 @@ class IndexedDBService {
               stableId,
               url: chapter.url,
               data: {
-                chapter: {
-                  title: chapter.title,
-                  content: chapter.content,
-                  originalUrl: chapter.url,
-                  nextUrl: chapter.nextUrl,
-                  prevUrl: chapter.prevUrl,
-                  chapterNumber: chapter.chapterNumber,
-                },
-                translationResult: null // Will be loaded separately if needed
+              chapter: {
+                title: chapter.title,
+                content: chapter.content,
+                originalUrl: chapter.url,
+                nextUrl: chapter.nextUrl,
+                prevUrl: chapter.prevUrl,
+                chapterNumber: chapter.chapterNumber,
+                fanTranslation: chapter.fanTranslation,
+              },
+              translationResult: null // Will be loaded separately if needed
               },
               title: chapter.title,
               chapterNumber: chapter.chapterNumber || 0
@@ -1861,6 +1864,7 @@ class IndexedDBService {
             originalUrl: canonicalUrl,
             nextUrl: ch.nextUrl || ch.chapter?.nextUrl || undefined,
             prevUrl: ch.prevUrl || ch.chapter?.prevUrl || undefined,
+            fanTranslation: ch.fanTranslation || ch.chapter?.fanTranslation || undefined,
             dateAdded: new Date().toISOString(),
             lastAccessed: new Date().toISOString(),
             chapterNumber: ch.chapterNumber || ch.chapter?.chapterNumber || undefined,
@@ -1973,6 +1977,7 @@ class IndexedDBService {
               stableId: c.stableId,
               title: c.title,
               content: c.content,
+              fanTranslation: c.fanTranslation || undefined,
               originalUrl: c.canonicalUrl,
               nextUrl: c.nextUrl || undefined,
               prevUrl: c.prevUrl || undefined,
