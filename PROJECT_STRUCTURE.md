@@ -172,6 +172,19 @@ LexiconForge/
 - **Role**: localStorage persistence utilities
 - **Features**: State synchronization with localStorage
 
+## 🛠️ **Scripts & Utilities**
+
+### **scripts/merge-fan-translations.ts**
+- **Role**: Fan translation integration utility for enhanced AI context
+- **Purpose**: Merges existing fan translations into session JSON files to provide AI models with reference material for improved translation quality
+- **Key Features**:
+  - **Chapter Matching**: Automatically matches fan translations to chapters by extracting numbers from filenames (e.g., `Chapter-0147-*.txt` → Chapter 147)
+  - **Coverage Analysis**: Reports matching statistics and identifies chapters without fan translations
+  - **JSON Enhancement**: Adds `fanTranslation` field to matching chapters in session data
+  - **Quality Context**: Provides AI models with established character voices, terminology, and narrative pacing
+- **Usage**: `npm run merge-fan-translations <session.json> <fan-translation-dir> [output.json]`
+- **Integration**: Enhanced sessions automatically enable 3-way toggle (Original | Fan | English) in UI and pass fan translations as contextual reference to all AI providers
+
 ## 🔌 **Services Layer**
 
 ### **services/aiService.ts**
