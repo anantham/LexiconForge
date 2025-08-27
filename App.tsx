@@ -13,7 +13,7 @@ const App: React.FC = () => {
 // inside App component, near the top
 // Individual primitive selectors to avoid fresh object creation
 const currentChapterId = useAppStore((s) => s.currentChapterId);
-const showEnglish = useAppStore((s) => s.showEnglish);
+const viewMode = useAppStore((s) => s.viewMode);
 const isLoading = useAppStore((s) => s.isLoading);
 const settings = useAppStore((s) => s.settings);
 const isChapterTranslating = useAppStore((s) => s.isChapterTranslating);
@@ -63,7 +63,7 @@ const settingsFingerprint = React.useMemo(
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-      if (!showEnglish || !currentChapterId) return;
+      if (viewMode !== 'english' || !currentChapterId) return;
 
       const translating = isChapterTranslating(currentChapterId) || isLoading.translating;
       const hasResult  = !!currentChapterTranslationResult;
@@ -84,7 +84,7 @@ const settingsFingerprint = React.useMemo(
         // console.log(`[UI Debug] NOT triggering handleTranslate - conditions not met`);
       }
     }, [
-      showEnglish,
+      viewMode,
       currentChapterId,
       currentChapterTranslationResult,
       settingsFingerprint,
@@ -101,10 +101,10 @@ const settingsFingerprint = React.useMemo(
     }, [currentChapterId, currentChapterTranslationResult]);
 
     useEffect(() => {
-      if (!showEnglish && currentChapterId) {
+      if (viewMode !== 'english' && currentChapterId) {
         requestedRef.current.delete(currentChapterId);
       }
-    }, [showEnglish, currentChapterId]);
+    }, [viewMode, currentChapterId]);
 
     // Sanity check: selector subscription (optional but nice)
     // Optional subscription for debugging
