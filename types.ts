@@ -118,6 +118,14 @@ export interface AppSettings {
     apiKeyPiAPI?: string;
     imageWidth?: number;
     imageHeight?: number;
+    // EPUB/export options
+    exportOrder?: 'number' | 'navigation';
+    includeTitlePage?: boolean;
+    includeStatsPage?: boolean;
+    // EPUB template overrides (optional; leave blank to use defaults)
+    epubGratitudeMessage?: string;
+    epubProjectDescription?: string;
+    epubFooter?: string | null;
 }
 
 export interface ImportedChapter {
