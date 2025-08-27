@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 350px;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #1a73e8;
+            font-size: 18px;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status.ready {
+            background: #e8f5e8;
+            color: #1e7e34;
+        }
+        
+        .status.working {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .primary {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .primary:hover {
+            background: #1557b0;
+        }
+        
+        .secondary {
+            background: #f1f3f4;
+            color: #3c4043;
+        }
+        
+        .secondary:hover {
+            background: #e8eaed;
+        }
+        
+        .danger {
+            background: #d93025;
+            color: white;
+        }
+        
+        .danger:hover {
+            background: #b52d20;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 5px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .progress {
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f1f3f4;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #1a73e8;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 BookToki Scraper</h1>
+    </div>
+    
+    <div id="status" class="status ready">
+        Ready to scrape
+    </div>
+    
+    <div class="controls">
+        <div style="margin-bottom: 15px;">
+            <label for="maxChapters" style="display: block; margin-bottom: 5px; font-weight: bold;">Max chapters to scrape:</label>
+            <input type="number" id="maxChapters" min="1" max="50" value="10" style="width: 100%; padding: 8px; border: 1px solid #dadce0; border-radius: 4px;">
+        </div>
+        
+        <button id="startScraping" class="primary">
+            📚 Start Multi-Chapter Scraping
+        </button>
+        
+        <button id="downloadAccumulated" class="secondary">
+            💾 Download Accumulated Chapters
+        </button>
+        
+        <button id="clearAllData" class="secondary">
+            🗑️ Clear All Data
+        </button>
+        
+        <button id="stopScraping" class="danger" style="display: none;">
+            ⏹️ Stop Scraping
+        </button>
+    </div>
+    
+    <div class="progress" id="progressContainer" style="display: none;">
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div id="progressText">Step 1 of 4</div>
+    </div>
+    
+    <div id="log" class="log">
+        Extension ready. Navigate to booktoki468.com and click "Start Multi-Chapter Scraping".
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

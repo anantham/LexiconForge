@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "BookToki Scraper Extension",
+  "version": "1.0",
+  "description": "Natural scraping extension for BookToki with CAPTCHA support",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "downloads",
+    "tabs",
+    "scripting"
+  ],
+  
+  "host_permissions": [
+    "*://booktoki468.com/*"
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "BookToki Scraper"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["*://booktoki468.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png", 
+    "128": "icon128.png"
+  }
+}
