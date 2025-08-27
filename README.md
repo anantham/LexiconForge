@@ -4,7 +4,14 @@
 
 LexiconForge is your gateway to the world of web novels. It's a powerful, AI-driven tool that lets you translate chapters from almost any source, in any language, and customize the reading experience to be *exactly* how you like it. Break down the language barriers and dive into the original stories.
 
-*(I recommend adding a screenshot or GIF of the app in action here!)*
+<video width="640" controls muted playsinline poster="media/demo_poster.jpg">
+  <source src="media/demo.mp4"  type="video/mp4">   <!-- H.264/AAC -->
+  <source src="media/demo.webm" type="video/webm">  <!-- VP9/Opus -->
+  <!-- Fallback if the browser can't play any of the sources -->
+  <img src="media/demo.gif" alt="Demo animation" width="640">
+  <!-- Extra belt-and-suspenders link -->
+  <a href="media/demo.mp4">Download the video</a>
+</video>
 
 ---
 
@@ -19,9 +26,11 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 
 ### **🤖 Advanced AI Translation**
 *   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, OpenAI, DeepSeek, or Claude. You control your usage and data.
-*   📊 **22+ AI Models:** Access the latest generation of AI models across all providers to find your perfect translator.
+*   📊 **22+ AI Models:** Access the latest generation of AI models across all providers (incl. DeepSeek V3.1 Chat/Reasoner) to find your perfect translator.
 *   🎛️ **Fine-Tuned Control:** Adjust temperature (creativity), context depth (0-5 previous chapters), and model-specific settings.
 *   💰 **Real-Time Cost Tracking:** Obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent, with 2025 pricing.
+*   🛑 **Cancelable Requests:** Click the red spinner to abort in‑flight translations instantly.
+*   ✅ **Structure Guarantees:** Built-in validation for illustration and footnote markers keeps body text and JSON aligned.
 
 ### **🧠 Collaborative AI Training**
 *   💬 **Text Selection Feedback:** Select any text and rate it 👍👎? to teach the AI your preferences.
@@ -67,12 +76,22 @@ Want to run your own instance? It's easy.
     ```
 4.  **Run the app:** `npm run dev`
 
+#### Fan Translation Merge (optional)
+If you have reference fan translations, you can merge them into an exported session JSON to enable Fan view and provide better context to AI:
+
+```
+npm run merge-fan-translations path/to/session.json path/to/fan-translations/ [output.json]
+```
+The CLI matches files by chapter number, merges them as `fanTranslation`, and prints coverage.
+
 ### Technical Architecture
 LexiconForge uses a sophisticated **dual-tier data architecture**:
 - **Zustand Store**: Sub-millisecond UI reactivity for active session
 - **IndexedDB**: Unlimited persistent storage for chapter library and translations
 - **Professional Export System**: EPUB generation with comprehensive statistics and embedded illustrations
 - **Multi-Provider AI Integration**: Unified interface for 4 major AI providers with advanced illustration pipeline
+
+Prompts & JSON schema descriptions are centralized in `config/prompts.json`, so you can quickly change the HTML rules, footnote/illustration requirements, DeepSeek JSON guard, fan-translation preface, translate preface, and history labels without touching code.
 
 For detailed technical information, see the [Project Structure & Technical Details](./PROJECT_STRUCTURE.md).
 
