@@ -398,7 +398,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   id="preloadCount"
                   type="range"
                   min="0"
-                  max="10"
+                  max="50"
                   value={currentSettings.preloadCount}
                   onChange={(e) => handleSettingChange('preloadCount', parseInt(e.target.value, 10))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
@@ -406,7 +406,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {currentSettings.preloadCount === 0 
                     ? '🔴 Background preload is DISABLED. Chapters will only load when you navigate to them.'
-                    : `How many future chapters to fetch and translate in the background for a smooth experience.`
+                    : `How many future chapters to fetch and translate in the background (serially). Higher values may increase API usage and hit provider rate limits.`
                   }
                 </p>
               </div>
