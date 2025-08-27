@@ -696,7 +696,7 @@ const generateTableOfContents = (chapters: ChapterForEpub[], includeStatsPage: b
   // Optionally include special sections at the end
   if (includeStatsPage) {
     tocHtml += `  <li style="margin-bottom: 0.5em;">\n`;
-    tocHtml += `    <a href="stats.xhtml" style="text-decoration: none; color: #007bff;"><strong>Translation Details and Acknowledgments</strong></a>\n`;
+    tocHtml += `    <a href="stats.xhtml" style="text-decoration: none; color: #007bff;"><strong>Acknowledgments</strong></a>\n`;
     tocHtml += `  </li>\n`;
   }
   tocHtml += `</ol>\n`;
@@ -708,7 +708,7 @@ const generateTableOfContents = (chapters: ChapterForEpub[], includeStatsPage: b
  * Generates a detailed statistics and acknowledgments page
  */
 const generateStatsAndAcknowledgments = (stats: TranslationStats, template: EpubTemplate): string => {
-  let html = `<h1 style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;">Translation Details and Acknowledgments</h1>\n\n`;
+  let html = `<h1 style=\"text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;\">Acknowledgments</h1>\\n\\n`;
 
   // Project description
   html += `<div style="margin: 2em 0; padding: 1.5em; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">\n`;
@@ -999,7 +999,22 @@ const buildChapterXhtml = (chapter: ChapterForEpub): string => {
       const li = document.createElement('li');
       li.setAttribute('id', `fn${num}`);
       li.setAttribute('epub:type', 'footnote');
-      li.appendChild(document.createTextNode(fn.text + ' '));
+
+      // Allow limited inline HTML inside footnotes (e.g., <i>, <b>, <br>)
+      try {
+        const safeHtml = sanitizeHtmlAllowlist(fn.text || '');
+        if (safeHtml) {
+          const temp = document.createElement('div');
+          temp.innerHTML = safeHtml;
+          while (temp.firstChild) li.appendChild(temp.firstChild);
+          li.appendChild(document.createTextNode(' '));
+        } else {
+          li.appendChild(document.createTextNode((fn.text || '') + ' '));
+        }
+      } catch {
+        li.appendChild(document.createTextNode((fn.text || '') + ' '));
+      }
+
       const back = document.createElement('a');
       back.setAttribute('href', `#fnref${num}`);
       back.setAttribute('class', 'footnote-backref');
@@ -1080,7 +1095,7 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
     });
   });
   if (includeStats) {
-    chapters.push({ id: 'stats-page', title: 'Translation Details and Acknowledgments', xhtml: statsXhtml, href: 'stats.xhtml' });
+    chapters.push({ id: 'stats-page', title: 'Acknowledgments', xhtml: statsXhtml, href: 'stats.xhtml' });
   }
   
   try {
