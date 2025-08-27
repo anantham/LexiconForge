@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
+import prompts from '../config/prompts.json';
 import { calculateCost } from './aiService';
 
 // --- DEBUG UTILITIES ---
@@ -16,26 +17,31 @@ const dlogFull = (...args: any[]) => { if (aiDebugFullEnabled()) console.log(...
 
 // --- SHARED PROMPT LOGIC ---
 
+const buildFanTranslationContext = (fanTranslation: string | null): string => {
+  if (!fanTranslation) return '';
+  return `\n${prompts.fanRefHeader}\n\n${prompts.fanRefBullets}\n\n${prompts.fanRefImportant}\n\nFAN TRANSLATION REFERENCE:\n${fanTranslation}\n\n${prompts.fanRefEnd}\n`;
+};
+
 const formatHistory = (history: HistoricalChapter[]): string => {
     if (history.length === 0) {
-        return "No recent history available.";
+        return prompts.historyNoRecent;
     }
     return history.map((h, index) => {
         const feedbackStr = h.feedback.length > 0
-            ? "Feedback on this chapter:\n" + h.feedback.map((f: FeedbackItem) => {
+            ? prompts.historyFeedbackOnThisChapter + "\n" + h.feedback.map((f: FeedbackItem) => {
                 const commentStr = f.comment ? ` (User comment: ${f.comment})` : '';
                 return `- ${f.type} on: "${f.selection}"${commentStr}`;
             }).join('\n')
-            : "No feedback was given on this chapter.";
+            : prompts.historyNoFeedback;
         
-        return `--- PREVIOUS CHAPTER CONTEXT ${index + 1} (OLDEST) ---\n\n` +
-               `== ORIGINAL TEXT ==\n` +
+        return `${prompts.historyHeaderTemplate.replace('{index}', String(index + 1))}\n\n` +
+               `${prompts.historyOriginalHeader}\n` +
                `TITLE: ${h.originalTitle}\n` +
                `CONTENT:\n${h.originalContent}\n\n` +
-               `== PREVIOUS TRANSLATION ==\n` +
+               `${prompts.historyPreviousHeader}\n` +
                `TITLE: ${h.translatedTitle}\n` +
                `CONTENT:\n${h.translatedContent}\n\n` +
-               `== USER FEEDBACK ON THIS TRANSLATION ==\n` +
+               `${prompts.historyUserFeedbackHeader}\n` +
                `${feedbackStr}\n\n` +
                `--- END OF CONTEXT FOR PREVIOUS CHAPTER ${index + 1} ---`;
     }).join('\n\n');
@@ -51,7 +57,8 @@ export const translateWithClaude = async (
     title: string, 
     content: string, 
     settings: AppSettings, 
-    history: HistoricalChapter[]
+    history: HistoricalChapter[],
+    fanTranslation?: string | null
 ): Promise<TranslationResult> => {
 
     const apiKey = settings.apiKeyClaude || (typeof process !== 'undefined' ? process.env.CLAUDE_API_KEY : undefined);
@@ -67,21 +74,11 @@ export const translateWithClaude = async (
 
     // Format history for Claude
     const historyPrompt = formatHistory(history);
+    const fanTranslationContext = buildFanTranslationContext(fanTranslation);
     
     // Create comprehensive prompt with schema description
-    const fullPrompt = `${settings.systemPrompt}
-
-${historyPrompt}
-
------
-
-Based on the context from previous chapters, please translate the following new chapter:
-
-TITLE:
-${title}
-
-CONTENT:
-${content}
+    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
+    const fullPrompt = `${settings.systemPrompt}\n\n${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}
 
 IMPORTANT: You must respond with valid JSON in exactly this format:
 {
@@ -233,14 +230,57 @@ If there is no proposal, use null for proposal.`;
                 return { translation, suggestedIllustrations: jsonIllustrations };
             };
             
-            const { translation: fixedTranslation, suggestedIllustrations: fixedIllustrations } = 
+            const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = 
                 validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+
+            // Basic footnote validator (align markers in text with JSON footnotes)
+            const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefined): { translation: string; footnotes: any[] } => {
+                const textMarkers = (translation.match(/\[(\d+)\]/g) || []).filter(m => !/\[ILLUSTRATION-/i.test(m));
+                const jsonFootnotes = Array.isArray(footnotes) ? footnotes.slice() : [];
+                const normalize = (m: string) => m.startsWith('[') ? m : `[${m.replace(/\[|\]/g, '')}]`;
+                const jsonMarkers = jsonFootnotes.map(fn => normalize(String(fn.marker || '')));
+                if (textMarkers.length === jsonMarkers.length) {
+                    const tSet = new Set(textMarkers), jSet = new Set(jsonMarkers);
+                    if (textMarkers.every(m => jSet.has(m)) && jsonMarkers.every(m => tSet.has(m))) {
+                        const fixed = jsonFootnotes.map((fn, i) => ({ ...fn, marker: normalize(String(fn.marker || jsonMarkers[i])) }));
+                        return { translation, footnotes: fixed };
+                    }
+                    const textOnly = textMarkers.filter(m => !jSet.has(m));
+                    if (textOnly.length > 0) {
+                        console.warn(`[FootnoteFix] (Claude) Remapping ${textOnly.length} JSON footnotes to unmatched text markers`);
+                    }
+                    const fixed = jsonFootnotes.map(fn => {
+                        const nm = normalize(String(fn.marker || ''));
+                        if (!tSet.has(nm) && textOnly.length > 0) {
+                            const use = textOnly.shift()!;
+                            return { ...fn, marker: use };
+                        }
+                        return { ...fn, marker: nm };
+                    });
+                    return { translation, footnotes: fixed };
+                }
+                if (jsonMarkers.length > textMarkers.length) {
+                    const tSet = new Set(textMarkers);
+                    const extra = jsonMarkers.filter(m => !tSet.has(m));
+                    if (extra.length > 0) {
+                        console.warn(`[FootnoteFix] (Claude) Detected ${extra.length} footnotes without text markers; appending markers at end of translation`);
+                    }
+                    let updated = translation.trim();
+                    for (const m of extra) updated += ` ${m}`;
+                    const fixed = jsonFootnotes.map(fn => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
+                    return { translation: updated, footnotes: fixed };
+                }
+                const errorMessage = `AI response validation failed: Missing footnotes for markers.\n- Text markers: ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires regeneration with matching footnotes.`;
+                throw new Error(errorMessage);
+            };
+
+            const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
 
             return {
                 translatedTitle: parsedJson.translatedTitle,
                 translation: fixedTranslation,
                 proposal: parsedJson.proposal || null,
-                footnotes: parsedJson.footnotes || [],
+                footnotes: fixedFootnotes || [],
                 suggestedIllustrations: fixedIllustrations,
                 usageMetrics: usageMetrics,
             };
