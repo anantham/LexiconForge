@@ -10,7 +10,8 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "merge-fan-translations": "tsx scripts/merge-fan-translations.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.59.0",
@@ -35,6 +36,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "terser": "^5.43.1",
+    "tsx": "^4.20.5",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
     "vitest": "^2.1.8"
