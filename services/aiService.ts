@@ -1,5 +1,6 @@
 
 import { GoogleGenAI, GenerateContentResponse, Type } from '@google/genai';
+import prompts from '../config/prompts.json';
 import OpenAI from 'openai';
 import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
 import { COSTS_PER_MILLION_TOKENS } from '../costs';
@@ -62,9 +63,49 @@ const dlogFull = (...args: any[]) => { if (aiDebugFullEnabled()) console.log(...
 
 // --- SHARED PROMPT LOGIC ---
 
+// Robust, string-aware balanced-JSON extractor
+function extractBalancedJson(text: string): string {
+  const start = text.indexOf('{');
+  if (start < 0) throw new Error('no_json: No opening brace found.');
+  let depth = 0;
+  let i = start;
+  let end = -1;
+  while (i < text.length) {
+    const ch = text[i];
+    if (ch === '"') {
+      // Skip strings, handle escapes
+      i++;
+      while (i < text.length) {
+        if (text[i] === '\\') i += 2; else if (text[i] === '"') { i++; break; } else i++;
+      }
+      continue;
+    }
+    if (ch === '{') depth++;
+    if (ch === '}') { depth--; if (depth === 0) { end = i; break; } }
+    i++;
+  }
+  if (end === -1) throw new Error('unbalanced_json: Truncated JSON payload.');
+  return text.slice(start, end + 1);
+}
+
+// Normalize common scene break markers and stray tags in translation HTML
+function sanitizeTranslationHTML(s: string): string {
+  if (!s) return s;
+  // Replace common scene breaks like "* * *", "***", emdashes, etc. with XHTML-safe hr
+  s = s.replace(/\s*(?:\* \* \*|\*{3,}|—{3,}|- {2,}-)\s*/g, '<hr />');
+  // Strip <p> tags if they sneak in
+  s = s.replace(/<\/?p[^>]*>/gi, '');
+  return s;
+}
+
+const buildFanTranslationContext = (fanTranslation: string | null): string => {
+  if (!fanTranslation) return '';
+  return `\n${prompts.fanRefHeader}\n\n${prompts.fanRefBullets}\n\n${prompts.fanRefImportant}\n\nFAN TRANSLATION REFERENCE:\n${fanTranslation}\n\n${prompts.fanRefEnd}\n`;
+};
+
 const formatHistory = (history: HistoricalChapter[]): string => {
   if (history.length === 0) {
-    return "No recent history available.";
+    return prompts.historyNoRecent;
   }
   return history.map((h, index) => {
     // Derive structured-output hints from the previous translated text
@@ -78,18 +119,18 @@ const formatHistory = (history: HistoricalChapter[]): string => {
         }).join('\n')
         : "No feedback was given on this chapter.";
     
-    return `--- PREVIOUS CHAPTER CONTEXT ${index + 1} (OLDEST) ---\n\n` +
-           `== ORIGINAL TEXT ==\n` +
+    return `${prompts.historyHeaderTemplate.replace('{index}', String(index + 1))}\n\n` +
+           `${prompts.historyOriginalHeader}\n` +
            `TITLE: ${h.originalTitle}\n` +
            `CONTENT:\n${h.originalContent}\n\n` +
-           `== PREVIOUS TRANSLATION ==\n` +
+           `${prompts.historyPreviousHeader}\n` +
            `TITLE: ${h.translatedTitle}\n` +
            `CONTENT:\n${h.translatedContent}\n\n` +
-           `== STRUCTURED OUTPUT SUMMARY ==\n` +
-           `Illustration markers: ${illuCount}\n` +
-           `Footnote markers: ${footMarkerCount}\n` +
-           `Feedback items: ${feedbackCount}\n\n` +
-           `== USER FEEDBACK ON THIS TRANSLATION ==\n` +
+           `${prompts.historyStructuredHeader}\n` +
+           `${prompts.historyIllustrationMarkersLabel} ${illuCount}\n` +
+           `${prompts.historyFootnoteMarkersLabel} ${footMarkerCount}\n` +
+           `${prompts.historyFeedbackCountLabel} ${feedbackCount}\n\n` +
+           `${prompts.historyUserFeedbackHeader}\n` +
            `${feedbackStr}\n\n` +
            `--- END OF CONTEXT FOR PREVIOUS CHAPTER ${index + 1} ---`;
   }).join('\n\n');
@@ -208,35 +249,87 @@ const validateAndFixIllustrations = (translation: string, suggestedIllustrations
     throw new Error(errorMessage);
 };
 
+// Validate footnote markers in text vs. JSON footnotes and reconcile where safe
+const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefined): { translation: string; footnotes: any[] } => {
+    const textMarkers = (translation.match(/\[(\d+)\]/g) || []).filter(m => !/\[ILLUSTRATION-/i.test(m));
+    const jsonFootnotes = Array.isArray(footnotes) ? footnotes.slice() : [];
+    const normalize = (m: string) => m.startsWith('[') ? m : `[${m.replace(/\[|\]/g, '')}]`;
+    const jsonMarkers = jsonFootnotes.map(fn => normalize(String(fn.marker || '')));
+
+    // Perfect match
+    if (textMarkers.length === jsonMarkers.length) {
+        const tSet = new Set(textMarkers);
+        const jSet = new Set(jsonMarkers);
+        if (textMarkers.every(m => jSet.has(m)) && jsonMarkers.every(m => tSet.has(m))) {
+            // Normalize markers in JSON to bracketed form
+            const fixed = jsonFootnotes.map((fn, i) => ({ ...fn, marker: normalize(String(fn.marker || jsonMarkers[i])) }));
+            return { translation, footnotes: fixed };
+        }
+        // Remap mismatched markers 1:1
+        const textOnly = textMarkers.filter(m => !jSet.has(m));
+        if (textOnly.length > 0) {
+            console.warn(`[FootnoteFix] Remapping ${textOnly.length} JSON footnotes to unmatched text markers`);
+        }
+        const fixed = jsonFootnotes.map(fn => {
+            const nm = normalize(String(fn.marker || ''));
+            if (!tSet.has(nm) && textOnly.length > 0) {
+                const use = textOnly.shift()!;
+                return { ...fn, marker: use };
+            }
+            return { ...fn, marker: nm };
+        });
+        return { translation, footnotes: fixed };
+    }
+
+    // More JSON footnotes than markers in text → append missing markers at end of translation
+    if (jsonMarkers.length > textMarkers.length) {
+        const tSet = new Set(textMarkers);
+        const extra = jsonMarkers.filter(m => !tSet.has(m));
+        if (extra.length > 0) {
+            console.warn(`[FootnoteFix] Detected ${extra.length} footnotes without text markers; appending markers at end of translation`);
+        }
+        let updated = translation.trim();
+        for (const m of extra) updated += ` ${m}`;
+        // Normalize markers in JSON
+        const fixed = jsonFootnotes.map(fn => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
+        return { translation: updated, footnotes: fixed };
+    }
+
+    // More markers in text than JSON footnotes → cannot auto-fix
+    const errorMessage = `AI response validation failed: Missing footnotes for markers.\n- Text markers: ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires regeneration with matching footnotes.`;
+    console.error('Footnote validation failed - insufficient footnotes:', { textMarkers, jsonMarkers });
+    throw new Error(errorMessage);
+};
+
 // --- GEMINI PROVIDER ---
 
 const geminiResponseSchema = {
     type: Type.OBJECT,
     properties: {
         translatedTitle: { type: Type.STRING, description: "The translated chapter title." },
-        translation: { type: Type.STRING, description: "CRITICAL HTML FORMAT RULE: You are STRICTLY FORBIDDEN from using <p> tags or * symbols anywhere in this text. ONLY ALLOWED HTML TAGS: <i>text</i> for italics, <b>text</b> for bold, <br> for single line breaks, and <br><br> for paragraph breaks. Transform ALL paragraph breaks into <br><br>. Transform ALL italic emphasis into <i>text</i>. NO OTHER HTML TAGS PERMITTED. MUST include numbered markers [1], [2], [3] for footnotes and [ILLUSTRATION-1], [ILLUSTRATION-2] for visual scenes." },
+        translation: { type: Type.STRING, description: prompts.translationHtmlRules },
         footnotes: {
-          type: Type.ARRAY, nullable: true, description: "STRUCTURAL REQUIREMENT: Each footnote must correspond to a numbered marker [1], [2], [3] found in the translation text. Use format prefixes: '[TL Note:]' for translator commentary/cultural context, '[Author's Note:]' for original text explanations. If no markers exist in text, this must be null or empty array.",
+          type: Type.ARRAY, nullable: true, description: prompts.footnotesDescription,
           items: {
-            type: Type.OBJECT, properties: { marker: { type: Type.STRING, description: "Exact marker from text: '[1]', '[2]', etc." }, text: { type: Type.STRING, description: "Footnote content with appropriate prefix: '[TL Note:]' or '[Author's Note:]'" } }, required: ['marker', 'text']
+            type: Type.OBJECT, properties: { marker: { type: Type.STRING, description: "" + prompts.footnoteMarkerDescription }, text: { type: Type.STRING, description: "" + prompts.footnoteTextDescription } }, required: ['marker', 'text']
           }
         },
         suggestedIllustrations: {
-            type: Type.ARRAY, nullable: true, description: "CRITICAL STRUCTURAL REQUIREMENT: Must contain exactly the same [ILLUSTRATION-X] markers found in the translation text. Each marker in the text requires a corresponding object here. If no [ILLUSTRATION-X] markers exist in the translation text, this must be null or empty array. This is validated strictly.",
+            type: Type.ARRAY, nullable: true, description: "" + prompts.illustrationsDescription,
             items: {
-                type: Type.OBJECT, properties: { placementMarker: { type: Type.STRING, description: "Exact marker from text: '[ILLUSTRATION-1]', '[ILLUSTRATION-2]', etc." }, imagePrompt: { type: Type.STRING, description: "Detailed prompt for AI image generation describing the scene, mood, characters, and visual style" } }, required: ['placementMarker', 'imagePrompt']
+                type: Type.OBJECT, properties: { placementMarker: { type: Type.STRING, description: "" + prompts.illustrationPlacementMarkerDescription }, imagePrompt: { type: Type.STRING, description: "" + prompts.illustrationImagePromptDescription } }, required: ['placementMarker', 'imagePrompt']
             }
         },
         proposal: {
-            type: Type.OBJECT, nullable: true, description: "Optional proposal to improve the user's system prompt based on translation challenges encountered. Only include if you genuinely believe a specific improvement would help future translations.",
-            properties: { observation: { type: Type.STRING, description: "What translation challenge or feedback pattern triggered this proposal" }, currentRule: { type: Type.STRING, description: "Exact text from user's system prompt that could be improved" }, proposedChange: { type: Type.STRING, description: "Suggested replacement text with clear improvements" }, reasoning: { type: Type.STRING, description: "Why this change would improve translation quality" } },
+            type: Type.OBJECT, nullable: true, description: "" + prompts.proposalDescription,
+            properties: { observation: { type: Type.STRING, description: "" + prompts.proposalObservationDescription }, currentRule: { type: Type.STRING, description: "" + prompts.proposalCurrentRuleDescription }, proposedChange: { type: Type.STRING, description: "" + prompts.proposalProposedChangeDescription }, reasoning: { type: Type.STRING, description: "" + prompts.proposalReasoningDescription } },
             required: ['observation', 'currentRule', 'proposedChange', 'reasoning'],
         }
     },
     required: ['translatedTitle', 'translation']
 };
 
-const translateWithGemini = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[]): Promise<TranslationResult> => {
+const translateWithGemini = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null, abortSignal?: AbortSignal): Promise<TranslationResult> => {
   const apiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined);
   if (!apiKey) {
     throw new Error("Gemini API key is missing. Please add it in the settings.");
@@ -245,7 +338,9 @@ const translateWithGemini = async (title: string, content: string, settings: App
   const startTime = performance.now();
   const ai = new GoogleGenAI({ apiKey });
   const historyPrompt = formatHistory(history);
-  const fullPrompt = `${historyPrompt}\n\n-----\n\nBased on the context from previous chapters, please translate the following new chapter:\n\nTITLE:\n${title}\n\nCONTENT:\n${content}`;
+  const fanTranslationContext = buildFanTranslationContext(fanTranslation);
+  const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
+  const fullPrompt = `${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
 
   // Debug: what we're sending (sanitized)
   dlog('[Gemini Debug] Request summary:', {
@@ -276,7 +371,16 @@ const translateWithGemini = async (title: string, content: string, settings: App
 
   let response: any;
   try {
-    response = await (ai as any).models.generateContent(baseRequest);
+    // If the SDK does not support AbortSignal, perform a race so UI can recover immediately
+    const call = (ai as any).models.generateContent(baseRequest);
+    if (abortSignal) {
+      response = await Promise.race([
+        call,
+        new Promise((_, reject) => abortSignal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true }))
+      ]);
+    } else {
+      response = await call;
+    }
   } catch (err) {
     console.error('[Gemini] Primary call failed, error:', err);
     throw err;
@@ -372,12 +476,13 @@ const translateWithGemini = async (title: string, content: string, settings: App
     if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
         throw new Error('Invalid JSON structure in AI response.');
     }
-    const { translation: fixedTranslation, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+    const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+    const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
     return {
         translatedTitle: parsedJson.translatedTitle,
         translation: fixedTranslation,
         proposal: parsedJson.proposal ?? null,
-        footnotes: parsedJson.footnotes ?? [],
+        footnotes: fixedFootnotes ?? [],
         suggestedIllustrations: fixedIllustrations,
         usageMetrics: usageMetrics,
     };
@@ -392,12 +497,13 @@ const translateWithGemini = async (title: string, content: string, settings: App
         try {
           const parsedJson = JSON.parse(jsonBlock);
           if (typeof parsedJson.translatedTitle === 'string' && typeof parsedJson.translation === 'string') {
-            const { translation: fixedTranslation, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+            const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+    const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
             return {
               translatedTitle: parsedJson.translatedTitle,
               translation: fixedTranslation,
               proposal: parsedJson.proposal ?? null,
-              footnotes: parsedJson.footnotes ?? [],
+              footnotes: fixedFootnotes ?? [],
               suggestedIllustrations: fixedIllustrations,
               usageMetrics: usageMetrics,
             };
@@ -426,18 +532,15 @@ const openaiResponseSchema = {
             "type": "string",
             "description": "The translated chapter title."
         },
-        "translation": {
-            "type": "string", 
-            "description": "CRITICAL HTML FORMAT RULE: You are STRICTLY FORBIDDEN from using <p> tags or * symbols anywhere in this text. ONLY ALLOWED HTML TAGS: <i>text</i> for italics, <b>text</b> for bold, <br> for single line breaks, and <br><br> for paragraph breaks. Transform ALL paragraph breaks into <br><br>. Transform ALL italic emphasis into <i>text</i>. NO OTHER HTML TAGS PERMITTED. MUST include numbered markers [1], [2], [3] for footnotes and [ILLUSTRATION-1], [ILLUSTRATION-2] for visual scenes."
-        },
+        "translation": { "type": "string", "description": "" + prompts.translationHtmlRules },
         "footnotes": {
             "type": ["array", "null"],
-            "description": "STRUCTURAL REQUIREMENT: Each footnote must correspond to a numbered marker [1], [2], [3] found in the translation text. Use format prefixes: '[TL Note:]' for translator commentary/cultural context, '[Author's Note:]' for original text explanations. If no markers exist in text, this must be null or empty array.",
+            "description": "" + prompts.footnotesDescription,
             "items": {
                 "type": "object",
                 "properties": {
-                    "marker": {"type": "string", "description": "Exact marker from text: '[1]', '[2]', etc."},
-                    "text": {"type": "string", "description": "Footnote content with appropriate prefix: '[TL Note:]' or '[Author's Note:]'"}
+                    "marker": {"type": "string", "description": "" + prompts.footnoteMarkerDescription},
+                    "text": {"type": "string", "description": "" + prompts.footnoteTextDescription}
                 },
                 "required": ["marker", "text"],
                 "additionalProperties": false
@@ -445,12 +548,12 @@ const openaiResponseSchema = {
         },
         "suggestedIllustrations": {
             "type": ["array", "null"],
-            "description": "CRITICAL STRUCTURAL REQUIREMENT: Must contain exactly the same [ILLUSTRATION-X] markers found in the translation text. Each marker in the text requires a corresponding object here. If no [ILLUSTRATION-X] markers exist in the translation text, this must be null or empty array. This is validated strictly.",
+            "description": "" + prompts.illustrationsDescription,
             "items": {
                 "type": "object", 
                 "properties": {
-                    "placementMarker": {"type": "string", "description": "Exact marker from text: '[ILLUSTRATION-1]', '[ILLUSTRATION-2]', etc."},
-                    "imagePrompt": {"type": "string", "description": "Detailed prompt for AI image generation describing the scene, mood, characters, and visual style"}
+                    "placementMarker": {"type": "string", "description": "" + prompts.illustrationPlacementMarkerDescription},
+                    "imagePrompt": {"type": "string", "description": "" + prompts.illustrationImagePromptDescription}
                 },
                 "required": ["placementMarker", "imagePrompt"],
                 "additionalProperties": false
@@ -458,12 +561,12 @@ const openaiResponseSchema = {
         },
         "proposal": {
             "type": ["object", "null"],
-            "description": "Optional proposal to improve the user's system prompt based on translation challenges encountered. Only include if you genuinely believe a specific improvement would help future translations.",
+            "description": "" + prompts.proposalDescription,
             "properties": {
-                "observation": {"type": "string", "description": "What translation challenge or feedback pattern triggered this proposal"},
-                "currentRule": {"type": "string", "description": "Exact text from user's system prompt that could be improved"},
-                "proposedChange": {"type": "string", "description": "Suggested replacement text with clear improvements"},
-                "reasoning": {"type": "string", "description": "Why this change would improve translation quality"}
+                "observation": {"type": "string", "description": "" + prompts.proposalObservationDescription},
+                "currentRule": {"type": "string", "description": "" + prompts.proposalCurrentRuleDescription},
+                "proposedChange": {"type": "string", "description": "" + prompts.proposalProposedChangeDescription},
+                "reasoning": {"type": "string", "description": "" + prompts.proposalReasoningDescription}
             },
             "required": ["observation", "currentRule", "proposedChange", "reasoning"],
             "additionalProperties": false
@@ -473,7 +576,7 @@ const openaiResponseSchema = {
     "additionalProperties": false
 };
 
-const translateWithOpenAI = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[]): Promise<TranslationResult> => {
+const translateWithOpenAI = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null, abortSignal?: AbortSignal): Promise<TranslationResult> => {
     let apiKey: string | undefined;
     let baseURL: string | undefined;
 
@@ -492,6 +595,15 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     
     // Clean system prompt without JSON schema instructions (schema is enforced natively)
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+
+    // DeepSeek: inject strict JSON-only instruction up-front
+    const isDeepSeek = settings.provider === 'DeepSeek';
+    if (isDeepSeek) {
+        messages.push({
+            role: 'system',
+            content: prompts.deepseekJsonSystemMessage
+        });
+    }
     
     // DIAGNOSTIC: Validate system prompt
     console.log('[OpenAI DIAGNOSTIC] System prompt validation:', {
@@ -553,7 +665,9 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         throw new Error('Chapter title and content cannot be null for OpenAI translation');
     }
     
-    const finalUserContent = `Translate this new chapter:\n\nTITLE:\n${title}\n\nCONTENT:\n${content}`;
+    const fanTranslationContext = buildFanTranslationContext(fanTranslation);
+    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
+    const finalUserContent = `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
     console.log('[OpenAI DIAGNOSTIC] Final user message:', {
         contentLength: finalUserContent.length,
         isNull: finalUserContent === null
@@ -586,14 +700,16 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         settings.model.startsWith('gpt-4.1')
     );
 
-    // Prepare the request options with native structured outputs
-    const requestOptions: any = {
-        model: settings.model,
-        messages,
-        response_format: supportsStructuredOutputs 
-            ? { type: 'json_schema', json_schema: { name: 'translation_response', schema: openaiResponseSchema, strict: true }}
-            : { type: 'json_object' } // Fallback to JSON mode for unsupported models
-    };
+    // Prepare the request options; DeepSeek uses json_object + explicit max_tokens
+    const requestOptions: any = { model: settings.model, messages };
+    if (supportsStructuredOutputs) {
+        requestOptions.response_format = { type: 'json_schema', json_schema: { name: 'translation_response', schema: openaiResponseSchema, strict: true } };
+    } else if (isDeepSeek) {
+        requestOptions.response_format = { type: 'json_object' };
+        requestOptions.max_tokens = 8192; // generous cap to avoid truncation on chapter-length JSON
+    } else {
+        requestOptions.response_format = { type: 'json_object' };
+    }
 
     dlog(`[OpenAI] Preparing request for model: ${settings.model}`);
     dlog(`[OpenAI] Using structured outputs: ${supportsStructuredOutputs}`);
@@ -645,7 +761,11 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         dlog(`[OpenAI] Attempt 1: Sending request ${skipTemperature ? 'without' : 'with'} temperature`);
         
         console.log('[OpenAI DIAGNOSTIC] ABOUT TO MAKE API CALL - Final sanity check completed');
-        response = await openai.chat.completions.create(requestOptions);
+        if (abortSignal?.aborted) throw new DOMException('Aborted', 'AbortError');
+        // Pass AbortSignal via RequestOptions (second arg), not in payload
+        response = await (abortSignal
+          ? openai.chat.completions.create(requestOptions, { signal: abortSignal })
+          : openai.chat.completions.create(requestOptions));
         dlog(`[OpenAI] Attempt 1: Success! Response received`);
         
         // Full response logging
@@ -691,7 +811,10 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
             
             try {
                 console.log('[OpenAI DIAGNOSTIC] RETRY - About to make second API call');
-                response = await openai.chat.completions.create(requestOptions);
+                if (abortSignal?.aborted) throw new DOMException('Aborted', 'AbortError');
+                response = await (abortSignal
+                  ? openai.chat.completions.create(requestOptions, { signal: abortSignal })
+                  : openai.chat.completions.create(requestOptions));
                 dlog(`[OpenAI] Attempt 2: Success! Response received`);
                 
                 // Full response logging for retry
@@ -727,8 +850,15 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         provider: settings.provider, model: settings.model
     };
 
-    const responseText = response.choices[0].message.content;
-    if (!responseText) throw new Error("Received an empty response from the API.");
+    const firstChoice = response.choices?.[0];
+    const responseText = firstChoice?.message?.content || '';
+    if (!responseText) {
+      // Known DeepSeek behavior: may return empty content; signal clearly
+      throw new Error('empty_content: Provider returned no message content.');
+    }
+    if (firstChoice?.finish_reason === 'length') {
+      throw new Error('length_cap: Model hit token limit. Increase max_tokens or split the chapter.');
+    }
     
     // HTML VALIDATION DEBUGGING
     const containsPTags = responseText.includes('<p>') || responseText.includes('</p>');
@@ -751,32 +881,26 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
             parsedJson = JSON.parse(responseText);
         } catch (initialParseError) {
             console.warn(`[DeepSeek] Initial JSON parse failed. Attempting fallback extraction. Error: ${initialParseError.message}`);
-            // If direct parse fails, attempt to extract the JSON part
-            const jsonStartIndex = responseText.indexOf('{');
-            const jsonEndIndex = responseText.lastIndexOf('}');
-
-            let jsonString = responseText;
-            if (jsonStartIndex !== -1 && jsonEndIndex !== -1 && jsonEndIndex > jsonStartIndex) {
-                jsonString = responseText.substring(jsonStartIndex, jsonEndIndex + 1);
-                console.log(`[DeepSeek] Extracted JSON substring. Original length: ${responseText.length}, Extracted length: ${jsonString.length}`);
-            } else {
-                console.warn(`[DeepSeek] Could not find valid JSON boundaries in response for fallback. Re-throwing original error.`);
-                throw initialParseError; // Re-throw if extraction is not possible
-            }
-            parsedJson = JSON.parse(jsonString); // Try parsing the extracted string
+            // Use robust balanced-brace extraction
+            const jsonString = extractBalancedJson(responseText);
+            console.log(`[DeepSeek] Extracted JSON substring. Original length: ${responseText.length}, Extracted length: ${jsonString.length}`);
+            parsedJson = JSON.parse(jsonString);
         }
 
         // With structured outputs, validation should be unnecessary, but keep for safety
         if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
             throw new Error('Invalid JSON structure in AI response.');
         }
-        const { translation: fixedTranslation, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
+        // Sanitize translation HTML for scene breaks and stray tags before validation
+        const sanitized = sanitizeTranslationHTML(parsedJson.translation);
+        const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(sanitized, parsedJson.suggestedIllustrations);
+        const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
         
         return {
             translatedTitle: parsedJson.translatedTitle,
             translation: fixedTranslation,
             proposal: parsedJson.proposal,
-            footnotes: parsedJson.footnotes ?? [],
+            footnotes: fixedFootnotes ?? [],
             suggestedIllustrations: fixedIllustrations,
             usageMetrics: usageMetrics,
         };
@@ -793,12 +917,14 @@ export const translateChapter = async (
   content: string,
   settings: AppSettings,
   history: HistoricalChapter[],
+  fanTranslation?: string | null,
   maxRetries: number = 3,
-  initialDelay: number = 2000
+  initialDelay: number = 2000,
+  abortSignal?: AbortSignal
 ): Promise<TranslationResult> => {
     let lastError: Error | null = null;
     
-    let translationFunction: (title: string, content: string, settings: AppSettings, history: HistoricalChapter[]) => Promise<TranslationResult>;
+    let translationFunction: (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null) => Promise<TranslationResult>;
     
     switch (settings.provider) {
         case 'Gemini':
@@ -818,7 +944,11 @@ export const translateChapter = async (
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             console.log(`[aiService] Attempt ${attempt + 1}/${maxRetries} to translate with ${settings.provider} (${settings.model})...`);
-            return await translationFunction(title, content, settings, history);
+            // Early abort check
+            if (abortSignal?.aborted) {
+                throw new DOMException('Aborted', 'AbortError');
+            }
+            return await translationFunction(title, content, settings, history, fanTranslation, abortSignal as any);
         } catch (e: any) {
             lastError = e;
             const isRateLimitError = e.message?.includes('429') || e.status === 429;
