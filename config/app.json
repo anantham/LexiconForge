@@ -1,0 +1,11 @@
+{
+  "openrouter": {
+    "referer": "https://lexicon-forge.vercel.app/",
+    "title": "LexiconForge"
+  },
+  "app": {
+    "name": "LexiconForge",
+    "version": "1.0.0",
+    "description": "AI-powered translation and content creation tool"
+  }
+}
