@@ -45,7 +45,7 @@ const InputBar: React.FC = () => {
         <span className="font-semibold">Examples:</span>
         <button onClick={() => handleExampleClick('https://www.kanunu8.com/book3/7561/72829.html')} className="ml-2 text-blue-500 hover:underline">Kanunu8</button>
         <button onClick={() => handleExampleClick('https://www.dxmwx.org/read/47693_37783373.html')} className="ml-2 text-blue-500 hover:underline">Dxmwx</button>
-        <button onClick={() => handleExampleClick('https://novelcool.com/chapter/Eternal-Life-Chapter-49/10041268/')} className="ml-2 text-blue-500 hover:underline">Novelcool</button>
+        {/* Novelcool removed from examples (English-only content) */}
         <button onClick={() => handleExampleClick('https://kakuyomu.jp/works/16816927859418072361/episodes/16817330667519070884')} className="ml-2 text-blue-500 hover:underline">Kakuyomu</button>
       </div>
       {error && <p className="mt-3 text-red-500 dark:text-red-400 text-center font-medium">{error}</p>}
