@@ -51,6 +51,13 @@ function copyAttributesSafely(srcEl: Element, dstEl: Element) {
       continue;
     }
 
+    // reject unknown namespace prefixes (avoid unbound prefixes)
+    if (name.includes(':')) {
+      const [prefix] = name.split(':', 1);
+      const ok = prefix === 'xml' || prefix === 'epub' || prefix === 'xlink';
+      if (!ok) continue;
+    }
+
     // Normalize non-namespaced names to lowercase
     if (!name.includes(':')) name = name.toLowerCase();
 
@@ -246,12 +253,12 @@ export interface ChapterForEpub {
     provider: string;
     model: string;
   };
-  images: Array<{
+  images: Array<{ 
     marker: string;
     imageData: string; // base64 data URL
     prompt: string;
   }>;
-  footnotes?: Array<{
+  footnotes?: Array<{ 
     marker: string;
     text: string;
   }>;
@@ -491,14 +498,14 @@ export const calculateTranslationStats = (chapters: ChapterForEpub[]): Translati
  * Default template for EPUB metadata
  * This template can be customized by users to personalize their EPUB exports
  */
-export const getDefaultTemplate = (): EpubTemplate => ({
-  gratitudeMessage: `This translation was made possible through the remarkable capabilities of modern AI language models. We express our deep gratitude to the teams behind these technologies who have made creative translation accessible to everyone.`,
+export const getDefaultTemplate = ():EpubTemplate => ({
+  gratitudeMessage: `This translation was made possible through the remarkable capabilities of modern AI language models. We express our deep gratitude to the teams behind these technologies who have made creative translation accessible to everyone.`, 
   
   projectDescription: `This e-book was generated using LexiconForge, an open-source AI translation platform that enables high-quality, creative translations of literature. The platform supports multiple AI providers and allows for collaborative refinement of translations.`,
   
   githubUrl: 'https://github.com/anantham/LexiconForge',
   
-  additionalAcknowledgments: `Special thanks to the original authors whose creative works inspire these translations, and to the open-source community that makes tools like this possible. Translation is an art that bridges cultures and languages, bringing stories to new audiences worldwide.`,
+  additionalAcknowledgments: `Special thanks to the original authors whose creative works inspire these translations, and to the open-source community that makes tools like this possible. Translation is an art that bridges cultures and languages, bringing stories to new audiences worldwide.`, 
   
   customFooter: ''
 });
@@ -605,28 +612,35 @@ export const getNovelConfig = (firstChapterUrl?: string, manualConfig?: Partial<
  * Generates a professional title page using novel metadata
  */
 const generateTitlePage = (novelConfig: NovelConfig, stats: TranslationStats): string => {
-  let titlePageHtml = `<div class="title-page">\n`;
+  let titlePageHtml = `<div class="title-page">
+`;
   
   // Main title
-  titlePageHtml += `<h1>${escapeXml(novelConfig.title)}</h1>\n`;
+  titlePageHtml += `<h1>${escapeXml(novelConfig.title)}</h1>
+`;
   
   // Original title (if different)
   if (novelConfig.originalTitle && novelConfig.originalTitle !== novelConfig.title) {
-    titlePageHtml += `<div class="subtitle">${escapeXml(novelConfig.originalTitle)}</div>\n`;
+    titlePageHtml += `<div class="subtitle">${escapeXml(novelConfig.originalTitle)}</div>
+`;
   }
   
   // Author
-  titlePageHtml += `<div class="author">by ${escapeXml(novelConfig.author)}</div>\n`;
+  titlePageHtml += `<div class="author">by ${escapeXml(novelConfig.author)}</div>
+`;
   
   // Metadata section
-  titlePageHtml += `<div class="metadata">\n`;
+  titlePageHtml += `<div class="metadata">
+`;
   
   if (novelConfig.description) {
-    titlePageHtml += `<p><strong>Description:</strong><br/>${escapeXml(novelConfig.description)}</p>\n`;
+    titlePageHtml += `<p><strong>Description:</strong><br/>${escapeXml(novelConfig.description)}</p>
+`;
   }
   
   if (novelConfig.genre) {
-    titlePageHtml += `<p><strong>Genre:</strong> ${escapeXml(novelConfig.genre)}</p>\n`;
+    titlePageHtml += `<p><strong>Genre:</strong> ${escapeXml(novelConfig.genre)}</p>
+`;
   }
   
   if (novelConfig.originalLanguage && novelConfig.language) {
@@ -636,29 +650,37 @@ const generateTitlePage = (novelConfig: NovelConfig, stats: TranslationStats): s
     };
     const fromLang = langMap[novelConfig.originalLanguage] || novelConfig.originalLanguage;
     const toLang = langMap[novelConfig.language] || novelConfig.language;
-    titlePageHtml += `<p><strong>Translation:</strong> ${fromLang} → ${toLang}</p>\n`;
+    titlePageHtml += `<p><strong>Translation:</strong> ${fromLang} → ${toLang}</p>
+`;
   }
   
   if (novelConfig.seriesName && novelConfig.volumeNumber) {
-    titlePageHtml += `<p><strong>Series:</strong> ${escapeXml(novelConfig.seriesName)}, Volume ${novelConfig.volumeNumber}</p>\n`;
+    titlePageHtml += `<p><strong>Series:</strong> ${escapeXml(novelConfig.seriesName)}, Volume ${novelConfig.volumeNumber}</p>
+`;
   }
   
   if (novelConfig.publisher) {
-    titlePageHtml += `<p><strong>Publisher:</strong> ${escapeXml(novelConfig.publisher)}</p>\n`;
+    titlePageHtml += `<p><strong>Publisher:</strong> ${escapeXml(novelConfig.publisher)}</p>
+`;
   }
   
   // Translation statistics
   titlePageHtml += `<p><strong>Translation Stats:</strong> ${stats.chapterCount} chapters, `;
   titlePageHtml += `${stats.totalTokens.toLocaleString()} tokens processed, `;
-  titlePageHtml += `$${stats.totalCost.toFixed(4)} cost</p>\n`;
+  titlePageHtml += `$${stats.totalCost.toFixed(4)} cost</p>
+`;
   
   if (novelConfig.translationNotes) {
-    titlePageHtml += `<p><em>${escapeXml(novelConfig.translationNotes)}</em></p>\n`;
+    titlePageHtml += `<p><em>${escapeXml(novelConfig.translationNotes)}</em></p>
+`;
   }
   
-  titlePageHtml += `<p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>\n`;
-  titlePageHtml += `</div>\n`; // metadata
-  titlePageHtml += `</div>\n`; // title-page
+  titlePageHtml += `<p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+`;
+  titlePageHtml += `</div>
+`; // metadata
+  titlePageHtml += `</div>
+`; // title-page
   
   return titlePageHtml;
 };
@@ -669,37 +691,50 @@ const generateTitlePage = (novelConfig: NovelConfig, stats: TranslationStats): s
 const generateTableOfContents = (chapters: ChapterForEpub[], includeStatsPage: boolean): string => {
   let tocHtml = `<h1 style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;">Table of Contents</h1>\n\n`;
   
-  tocHtml += `<div style="margin: 2em 0;">\n`;
-  tocHtml += `<p style="text-align: center; font-style: italic; color: #666;">This translation contains ${chapters.length} chapters</p>\n`;
+  tocHtml += `<div style="margin: 2em 0;">
+`;
+  tocHtml += `<p style="text-align: center; font-style: italic; color: #666;">This translation contains ${chapters.length} chapters</p>
+`;
   tocHtml += `</div>\n\n`;
 
-  tocHtml += `<ol style="list-style-type: decimal; padding-left: 2em; line-height: 1.8;">\n`;
+  tocHtml += `<ol style="list-style-type: decimal; padding-left: 2em; line-height: 1.8;">
+`;
   
   chapters.forEach((chapter, index) => {
     const chapterTitle = chapter.translatedTitle || chapter.title || `Chapter ${index + 1}`;
     const chapterHref = `chapter-${String(index + 1).padStart(4, '0')}.xhtml`;
     
-    tocHtml += `  <li style="margin-bottom: 0.5em;">\n`;
-    tocHtml += `    <a href="${chapterHref}" style="text-decoration: none; color: #007bff;"><strong>${escapeXml(chapterTitle)}</strong></a>\n`;
-    tocHtml += `    <div style="font-size: 0.85em; color: #666; margin-top: 0.2em;">\n`;
-    tocHtml += `      Translated with ${escapeXml(chapter.usageMetrics.provider)} ${escapeXml(chapter.usageMetrics.model)}\n`;
+    tocHtml += `  <li style="margin-bottom: 0.5em;">
+`;
+    tocHtml += `    <a href="${chapterHref}" style="text-decoration: none; color: #007bff;"><strong>${escapeXml(chapterTitle)}</strong></a>
+`;
+    tocHtml += `    <div style="font-size: 0.85em; color: #666; margin-top: 0.2em;">
+`;
+    tocHtml += `      Translated with ${escapeXml(chapter.usageMetrics.provider)} ${escapeXml(chapter.usageMetrics.model)}
+`;
     if (chapter.images && chapter.images.length > 0) {
       tocHtml += ` • ${chapter.images.length} illustration${chapter.images.length > 1 ? 's' : ''}`;
     }
     if (chapter.footnotes && chapter.footnotes.length > 0) {
       tocHtml += ` • ${chapter.footnotes.length} footnote${chapter.footnotes.length > 1 ? 's' : ''}`;
     }
-    tocHtml += `    </div>\n`;
-    tocHtml += `  </li>\n`;
+    tocHtml += `    </div>
+`;
+    tocHtml += `  </li>
+`;
   });
   
   // Optionally include special sections at the end
   if (includeStatsPage) {
-    tocHtml += `  <li style="margin-bottom: 0.5em;">\n`;
-    tocHtml += `    <a href="stats.xhtml" style="text-decoration: none; color: #007bff;"><strong>Acknowledgments</strong></a>\n`;
-    tocHtml += `  </li>\n`;
+    tocHtml += `  <li style="margin-bottom: 0.5em;">
+`;
+    tocHtml += `    <a href="stats.xhtml" style="text-decoration: none; color: #007bff;"><strong>Acknowledgments</strong></a>
+`;
+    tocHtml += `  </li>
+`;
   }
-  tocHtml += `</ol>\n`;
+  tocHtml += `</ol>
+`;
   
   return tocHtml;
 };
@@ -711,72 +746,120 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
   let html = `<h1 style=\"text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;\">Acknowledgments</h1>\\n\\n`;
 
   // Project description
-  html += `<div style="margin: 2em 0; padding: 1.5em; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">\n`;
-  html += `<h2 style="margin-top: 0; color: #007bff;">About This Translation</h2>\n`;
-  html += `<p>${escapeXml(template.projectDescription || '')}</p>\n`;
+  html += `<div style=\"margin: 2em 0; padding: 1.5em; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;\">
+`;
+  html += `<h2 style=\"margin-top: 0; color: #007bff;\">About This Translation</h2>
+`;
+  html += `<p>${escapeXml(template.projectDescription || '')}</p>
+`;
   if (template.githubUrl) {
-    html += `<p><strong>Source Code:</strong> <a href="${escapeXml(template.githubUrl)}" style="color: #007bff;">${escapeXml(template.githubUrl)}</a></p>\n`;
+    html += `<p><strong>Source Code:</strong> <a href=\"${escapeXml(template.githubUrl)}\" style=\"color: #007bff;\">${escapeXml(template.githubUrl)}</a></p>
+`;
   }
   html += `</div>\n\n`;
 
   // Translation statistics
-  html += `<div style="margin: 2em 0;">\n`;
-  html += `<h2 style="color: #28a745; border-bottom: 1px solid #28a745; padding-bottom: 0.5em;">Translation Statistics</h2>\n`;
+  html += `<div style=\"margin: 2em 0;\">
+`;
+  html += `<h2 style=\"color: #28a745; border-bottom: 1px solid #28a745; padding-bottom: 0.5em;\">Translation Statistics</h2>
+`;
   
-  html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin: 1em 0;">\n`;
-  html += `  <div style="text-align: center; padding: 1em; background: #e7f3ff; border-radius: 8px;">\n`;
-  html += `    <div style="font-size: 2em; font-weight: bold; color: #007bff;">${stats.chapterCount}</div>\n`;
-  html += `    <div style="color: #666;">Chapters</div>\n`;
-  html += `  </div>\n`;
-  html += `  <div style="text-align: center; padding: 1em; background: #e7f8e7; border-radius: 8px;">\n`;
-  html += `    <div style="font-size: 2em; font-weight: bold; color: #28a745;">$${stats.totalCost.toFixed(4)}</div>\n`;
-  html += `    <div style="color: #666;">Total Cost</div>\n`;
-  html += `  </div>\n`;
-  html += `  <div style="text-align: center; padding: 1em; background: #fff3e0; border-radius: 8px;">\n`;
-  html += `    <div style="font-size: 2em; font-weight: bold; color: #f57c00;">${Math.round(stats.totalTime)}s</div>\n`;
-  html += `    <div style="color: #666;">Total Time</div>\n`;
-  html += `  </div>\n`;
-  html += `  <div style="text-align: center; padding: 1em; background: #fce4ec; border-radius: 8px;">\n`;
-  html += `    <div style="font-size: 2em; font-weight: bold; color: #c2185b;">${stats.totalTokens.toLocaleString()}</div>\n`;
-  html += `    <div style="color: #666;">Total Tokens</div>\n`;
-  html += `  </div>\n`;
+  html += `<div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin: 1em 0;\">
+`;
+  html += `  <div style=\"text-align: center; padding: 1em; background: #e7f3ff; border-radius: 8px;\">
+`;
+  html += `    <div style=\"font-size: 2em; font-weight: bold; color: #007bff;\">${stats.chapterCount}</div>
+`;
+  html += `    <div style=\"color: #666;\">Chapters</div>
+`;
+  html += `  </div>
+`;
+  html += `  <div style=\"text-align: center; padding: 1em; background: #e7f8e7; border-radius: 8px;\">
+`;
+  html += `    <div style=\"font-size: 2em; font-weight: bold; color: #28a745;\">$${stats.totalCost.toFixed(4)}</div>
+`;
+  html += `    <div style=\"color: #666;\">Total Cost</div>
+`;
+  html += `  </div>
+`;
+  html += `  <div style=\"text-align: center; padding: 1em; background: #fff3e0; border-radius: 8px;\">
+`;
+  html += `    <div style=\"font-size: 2em; font-weight: bold; color: #f57c00;\">${Math.round(stats.totalTime)}s</div>
+`;
+  html += `    <div style=\"color: #666;\">Total Time</div>
+`;
+  html += `  </div>
+`;
+  html += `  <div style=\"text-align: center; padding: 1em; background: #fce4ec; border-radius: 8px;\">
+`;
+  html += `    <div style=\"font-size: 2em; font-weight: bold; color: #c2185b;\">${stats.totalTokens.toLocaleString()}</div>
+`;
+  html += `    <div style=\"color: #666;\">Total Tokens</div>
+`;
+  html += `  </div>
+`;
   if (stats.imageCount > 0) {
-    html += `  <div style="text-align: center; padding: 1em; background: #f3e5f5; border-radius: 8px;">\n`;
-    html += `    <div style="font-size: 2em; font-weight: bold; color: #7b1fa2;">${stats.imageCount}</div>\n`;
-    html += `    <div style="color: #666;">Images Generated</div>\n`;
-    html += `  </div>\n`;
+    html += `  <div style=\"text-align: center; padding: 1em; background: #f3e5f5; border-radius: 8px;\">
+`;
+    html += `    <div style=\"font-size: 2em; font-weight: bold; color: #7b1fa2;\">${stats.imageCount}</div>
+`;
+    html += `    <div style=\"color: #666;\">Images Generated</div>
+`;
+    html += `  </div>
+`;
   }
-  html += `</div>\n`;
+  html += `</div>
+`;
   html += `</div>\n\n`;
 
   // Provider breakdown
   const providers = Object.keys(stats.providerBreakdown);
   if (providers.length > 0) {
-    html += `<div style="margin: 2em 0;">\n`;
-    html += `<h3 style="color: #6f42c1;">Translation Providers Used</h3>\n`;
-    html += `<table style="width: 100%; border-collapse: collapse; margin: 1em 0;">\n`;
-    html += `  <thead>\n`;
-    html += `    <tr style="background: #f8f9fa;">\n`;
-    html += `      <th style="border: 1px solid #dee2e6; padding: 0.75em; text-align: left;">Provider</th>\n`;
-    html += `      <th style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">Chapters</th>\n`;
-    html += `      <th style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">Cost</th>\n`;
-    html += `      <th style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">Time</th>\n`;
-    html += `    </tr>\n`;
-    html += `  </thead>\n`;
-    html += `  <tbody>\n`;
+    html += `<div style=\"margin: 2em 0;\">
+`;
+    html += `<h3 style=\"color: #6f42c1;\">Translation Providers Used</h3>
+`;
+    html += `<table style=\"width: 100%; border-collapse: collapse; margin: 1em 0;\">
+`;
+    html += `  <thead>
+`;
+    html += `    <tr style=\"background: #f8f9fa;\">
+`;
+    html += `      <th style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: left;\">Provider</th>
+`;
+    html += `      <th style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">Chapters</th>
+`;
+    html += `      <th style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">Cost</th>
+`;
+    html += `      <th style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">Time</th>
+`;
+    html += `    </tr>
+`;
+    html += `  </thead>
+`;
+    html += `  <tbody>
+`;
     
     providers.forEach(provider => {
       const providerStats = stats.providerBreakdown[provider];
-      html += `    <tr>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; font-weight: bold;">${escapeXml(provider)}</td>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${providerStats.chapters}</td>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">$${providerStats.cost.toFixed(4)}</td>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${Math.round(providerStats.time)}s</td>\n`;
-      html += `    </tr>\n`;
+      html += `    <tr>
+`;
+      html += `      <td style=\"border: 1px solid #dee2e6; padding: 0.75em; font-weight: bold;\">${escapeXml(provider)}</td>
+`;
+      html += `      <td style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">${providerStats.chapters}</td>
+`;
+      html += `      <td style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">$${providerStats.cost.toFixed(4)}</td>
+`;
+      html += `      <td style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">${Math.round(providerStats.time)}s</td>
+`;
+      html += `    </tr>
+`;
     });
     
-    html += `  </tbody>\n`;
-    html += `</table>\n`;
+    html += `  </tbody>
+`;
+    html += `</table>
+`;
     html += `</div>\n\n`;
   }
 
@@ -786,50 +869,78 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
     .slice(0, 10);
     
   if (models.length > 0) {
-    html += `<div style="margin: 2em 0;">\n`;
-    html += `<h3 style="color: #dc3545;">AI Models Used</h3>\n`;
-    html += `<table style="width: 100%; border-collapse: collapse; margin: 1em 0;">\n`;
-    html += `  <thead>\n`;
-    html += `    <tr style="background: #f8f9fa;">\n`;
-    html += `      <th style="border: 1px solid #dee2e6; padding: 0.75em; text-align: left;">Model</th>\n`;
-    html += `      <th style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">Chapters</th>\n`;
-    html += `      <th style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">Tokens</th>\n`;
-    html += `    </tr>\n`;
-    html += `  </thead>\n`;
-    html += `  <tbody>\n`;
+    html += `<div style=\"margin: 2em 0;\">
+`;
+    html += `<h3 style=\"color: #dc3545;\">AI Models Used</h3>
+`;
+    html += `<table style=\"width: 100%; border-collapse: collapse; margin: 1em 0;\">
+`;
+    html += `  <thead>
+`;
+    html += `    <tr style=\"background: #f8f9fa;\">
+`;
+    html += `      <th style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: left;\">Model</th>
+`;
+    html += `      <th style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">Chapters</th>
+`;
+    html += `      <th style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">Tokens</th>
+`;
+    html += `    </tr>
+`;
+    html += `  </thead>
+`;
+    html += `  <tbody>
+`;
     
     models.forEach(([model, modelStats]) => {
-      html += `    <tr>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; font-family: monospace; font-size: 0.9em;">${escapeXml(model)}</td>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${modelStats.chapters}</td>\n`;
-      html += `      <td style="border: 1px solid #dee2e6; padding: 0.75em; text-align: center;">${modelStats.tokens.toLocaleString()}</td>\n`;
-      html += `    </tr>\n`;
+      html += `    <tr>
+`;
+      html += `      <td style=\"border: 1px solid #dee2e6; padding: 0.75em; font-family: monospace; font-size: 0.9em;\">${escapeXml(model)}</td>
+`;
+      html += `      <td style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">${modelStats.chapters}</td>
+`;
+      html += `      <td style=\"border: 1px solid #dee2e6; padding: 0.75em; text-align: center;\">${modelStats.tokens.toLocaleString()}</td>
+`;
+      html += `    </tr>
+`;
     });
     
-    html += `  </tbody>\n`;
-    html += `</table>\n`;
+    html += `  </tbody>
+`;
+    html += `</table>
+`;
     html += `</div>\n\n`;
   }
 
   // Gratitude message
-  html += `<div style="margin: 3em 0; padding: 2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">\n`;
-  html += `<h2 style="margin-top: 0; color: white; text-align: center;">Acknowledgments</h2>\n`;
-  html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeXml(template.gratitudeMessage || '')}</p>\n`;
+  html += `<div style=\"margin: 3em 0; padding: 2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;\">
+`;
+  html += `<h2 style=\"margin-top: 0; color: white; text-align: center;\">Acknowledgments</h2>
+`;
+  html += `<p style=\"font-size: 1.1em; line-height: 1.6; text-align: justify;\">${escapeXml(template.gratitudeMessage || '')}</p>
+`;
   if (template.additionalAcknowledgments) {
-    html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeXml(template.additionalAcknowledgments)}</p>\n`;
+    html += `<p style=\"font-size: 1.1em; line-height: 1.6; text-align: justify;\">${escapeXml(template.additionalAcknowledgments)}</p>
+`;
   }
   html += `</div>\n\n`;
 
   // Footer
   if (template.customFooter) {
-    html += `<div style="margin: 2em 0; text-align: center; padding: 1em; border-top: 1px solid #dee2e6; font-style: italic; color: #666;">\n`;
-    html += `${escapeXml(template.customFooter)}\n`;
-    html += `</div>\n`;
+    html += `<div style=\"margin: 2em 0; text-align: center; padding: 1em; border-top: 1px solid #dee2e6; font-style: italic; color: #666;\">
+`;
+    html += `${escapeXml(template.customFooter)}
+`;
+    html += `</div>
+`;
   }
 
-  html += `<div style="margin: 2em 0; text-align: center; padding: 1em; border-top: 1px solid #dee2e6; font-size: 0.9em; color: #666;">\n`;
-  html += `<p><em>Translation completed on ${new Date().toLocaleDateString()}</em></p>\n`;
-  html += `</div>\n`;
+  html += `<div style=\"margin: 2em 0; text-align: center; padding: 1em; border-top: 1px solid #dee2e6; font-size: 0.9em; color: #666;\">
+`;
+  html += `<p><em>Translation completed on ${new Date().toLocaleDateString()}</em></p>
+`;
+  html += `</div>
+`;
 
   return html;
 };
@@ -849,9 +960,9 @@ const convertChapterToHtml = (chapter: ChapterForEpub): string => {
   if (chapter.images.length > 0) {
     // Replace illustration markers with actual images
     for (const image of chapter.images) {
-      const imgHtml = `<div class="illustration">
-        <img src="${escapeXml(image.imageData)}" alt="${escapeXml(image.prompt)}" style="max-width: 100%; height: auto; display: block; margin: 1em auto;" />
-        <p class="illustration-caption" style="text-align: center; font-style: italic; color: #666; font-size: 0.9em; margin-top: 0.5em;">${escapeXml(image.prompt)}</p>
+      const imgHtml = `<div class=\"illustration\">
+        <img src=\"${escapeXml(image.imageData)}\" alt=\"${escapeXml(image.prompt)}\" style=\"max-width: 100%; height: auto; display: block; margin: 1em auto;\" />
+        <p class=\"illustration-caption\" style=\"text-align: center; font-style: italic; color: #666; font-size: 0.9em; margin-top: 0.5em;\">${escapeXml(image.prompt)}</p>
       </div>`;
       
       content = content.replace(image.marker, imgHtml);
@@ -862,17 +973,20 @@ const convertChapterToHtml = (chapter: ChapterForEpub): string => {
   if (chapter.footnotes && chapter.footnotes.length > 0) {
     // Replace footnote markers with links
     for (const footnote of chapter.footnotes) {
-      const footnoteLink = `<a href="#fn${footnote.marker}" class="footnote-ref" id="fnref${footnote.marker}" epub:type="noteref">[${footnote.marker}]</a>`;
+      const footnoteLink = `<a href=\"#fn${footnote.marker}\" class=\"footnote-ref\" id=\"fnref${footnote.marker}\" epub:type=\"noteref\">[${footnote.marker}]</a>`;
       content = content.replace(`[${footnote.marker}]`, footnoteLink);
     }
     
     // Add footnotes section at the end
-    let footnotesHtml = '<div class="footnotes">\n<h3>Footnotes</h3>\n<ol>\n';
+    let footnotesHtml = '<div class=\"footnotes\">\n<h3>Footnotes</h3>\n<ol>\n';
     for (const footnote of chapter.footnotes) {
-      footnotesHtml += `<li id="fn${footnote.marker}" epub:type="footnote">
-        ${escapeXml(footnote.text)}
-        <a href="#fnref${footnote.marker}" class="footnote-backref" epub:type="backlink">↩</a>
-      </li>\n`;
+      footnotesHtml += `<li id=\"fn${footnote.marker}\" epub:type=\"footnote\">
+`;
+      footnotesHtml += `        ${escapeXml(footnote.text)}
+`;
+      footnotesHtml += `        <a href=\"#fnref${footnote.marker}\" class=\"footnote-backref\" epub:type=\"backlink\">↩</a>
+`;
+      footnotesHtml += `      </li>\n`;
     }
     footnotesHtml += '</ol>\n</div>\n';
     content += '\n' + footnotesHtml;
@@ -930,7 +1044,7 @@ const buildChapterXhtml = (chapter: ChapterForEpub): string => {
   root.appendChild(h1);
 
   // 1) Inject placeholders for markers
-  const withIllu = chapter.content.replace(/\[(ILLUSTRATION-\d+[A-Za-z]*)\]/g, (_m, marker) => {
+  const withIllu = chapter.content.replace(/\[(ILLUSTRATION-\d+[A-Za-z]*) \]/g, (_m, marker) => {
     return `<span data-illu="${marker}"></span>`;
   });
   const withPlaceholders = withIllu.replace(/\[(\d+)\]/g, (_m, n) => `<span data-fn="${n}"></span>`);
@@ -995,7 +1109,7 @@ const buildChapterXhtml = (chapter: ChapterForEpub): string => {
     div.appendChild(h3);
     div.appendChild(ol);
     for (const fn of chapter.footnotes) {
-      const num = String(fn.marker).replace(/^\[|\]$/g, '');
+      const num = String(fn.marker).replace(/^\ \[|\]$/g, '');
       const li = document.createElement('li');
       li.setAttribute('id', `fn${num}`);
       li.setAttribute('epub:type', 'footnote');
@@ -1027,7 +1141,7 @@ const buildChapterXhtml = (chapter: ChapterForEpub): string => {
   }
 
   // 7) XHTML serialization
-  return htmlFragmentToXhtml(root.innerHTML);
+  return htmlFragmentToXhtml(toStrictXhtml(root.innerHTML));
 };
 /**
  * Escape HTML characters to prevent XSS and formatting issues (kept for backward compatibility)
@@ -1063,8 +1177,8 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
   const title = options.title || novelConfig.title;
   const author = options.author || novelConfig.author;
   const description = options.description || novelConfig.description || 
-    `${novelConfig.translationNotes || 'AI-translated novel'} containing ${options.chapters.length} chapters. ` +
-    `Total cost: $${stats.totalCost.toFixed(4)}, ` +
+    `${novelConfig.translationNotes || 'AI-translated novel'} containing ${options.chapters.length} chapters. ` + 
+    `Total cost: $${stats.totalCost.toFixed(4)}, ` + 
     `translated using ${Object.keys(stats.providerBreakdown).join(', ')}.`;
   const language = novelConfig.language || 'en';
   const bookId = novelConfig.isbn || `urn:uuid:${crypto.randomUUID()}`;
@@ -1080,7 +1194,7 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
   const tocXhtml = htmlFragmentToXhtml(tableOfContents);
   const statsXhtml = htmlFragmentToXhtml(statsAndAcknowledgments);
   
-  // Convert chapters to EPUB3-compatible format (with optional pages)
+  // Convert chapters to EPUB3-compatible format (with optional pages) 
   const chapters: EpubChapter[] = [];
   if (includeTitle) {
     chapters.push({ id: 'title-page', title: 'Title Page', xhtml: titlePageXhtml, href: 'title.xhtml' });
@@ -1211,7 +1325,7 @@ const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapter[]): 
     <nav epub:type="toc" id="toc">
       <h1>Table of Contents</h1>
       <ol>
-        ${chapters.map(ch => `<li><a href="../text/${ch.href}">${escapeXml(ch.title)}</a></li>`).join('\n        ')}
+        ${chapters.map(ch => `<li><a href="${ch.href}">${escapeXml(ch.title)}</a></li>`).join('\n        ')}
       </ol>
     </nav>
   </body>
@@ -1423,7 +1537,7 @@ li {
   const processedChapters: { ch: EpubChapter; xhtml: string }[] = [];
   const imageEntries: ImgEntry[] = [];
   let imgIndex = 1;
-  const dataImgRegex = /(<img\b[^>]*?src=\")(data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=]+))(\"[^>]*>)/g;
+  const dataImgRegex = /(<img\b[^>]*?src=")(data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=]+))(\"[^>]*>)/g;
 
   for (const ch of chapters) {
     let xhtml = ch.xhtml;
@@ -1491,9 +1605,12 @@ li {
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(wrapped, 'application/xhtml+xml');
-      const err = doc.querySelector('parsererror');
-      if (err) {
-        const msg = `[ParseError] ${ch.href}: ${err.textContent?.slice(0, 300)}`;
+      const hasError =
+        doc.getElementsByTagName('parsererror').length > 0 ||
+        doc.getElementsByTagNameNS('*', 'parsererror').length > 0;
+      if (hasError) {
+        const txt = doc.documentElement.textContent || '';
+        const msg = `[ParseError] ${ch.href}: ${txt.slice(0, 300)}`;
         console.warn(msg);
         parseErrors.push(msg);
       }
@@ -1531,6 +1648,33 @@ const escapeXml = (text: string): string => {
     .replace(/'/g, '&apos;');
 };
 
+function toStrictXhtml(html: string): string {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const allowed = new Set(['BR','HR','I','EM','B','STRONG','U','S','SUB','SUP']);
+
+  const xdoc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'div', null);
+  const root = xdoc.documentElement;
+
+  const transplant = (node: Node, into: Element) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      into.appendChild(xdoc.createTextNode(node.nodeValue || ''));
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      if (!allowed.has(el.tagName)) { // flatten unknown tags
+        el.childNodes.forEach(n => transplant(n, into));
+        return;
+      }
+      const xEl = xdoc.createElementNS('http://www.w3.org/1999/xhtml', el.tagName.toLowerCase());
+      // drop attributes for safety
+      el.childNodes.forEach(n => transplant(n, xEl));
+      into.appendChild(xEl);
+    }
+  };
+
+  doc.body.childNodes.forEach(n => transplant(n, root));
+  return new XMLSerializer().serializeToString(root); // XHTML-safe string
+}
+
 /**
  * Sanitizes HTML content for EPUB (removes scripts, ensures valid XHTML)
  */
@@ -1552,7 +1696,7 @@ const sanitizeHtml = (html: string): string => {
   out = out.replace(/<br(?=(?:\"|“))/g, '<br/>' );
   out = out.replace(/<hr(?=(?:\"|“))/g, '<hr/>' );
   // Escape raw ampersands in attribute values (both single- and double-quoted)
-  out = out.replace(/(=\")(.*?)(\")/g, (_m, p1, val, p3) => {
+  out = out.replace(/(=")(.*?)(")/g, (_m, p1, val, p3) => {
     const fixed = val.replace(/&(?!(amp|lt|gt|quot|apos);)/g, '&amp;');
     return p1 + fixed + p3;
   });
