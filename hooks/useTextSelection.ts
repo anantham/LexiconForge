@@ -1,6 +1,13 @@
 
 import { useState, useEffect, RefObject, useCallback } from 'react';
 
+// Local debug gate for selection logs (only at FULL level)
+const selDebugEnabled = (): boolean => {
+  try {
+    return localStorage.getItem('LF_AI_DEBUG_LEVEL') === 'full';
+  } catch { return false; }
+};
+
 interface Selection {
   text: string;
   rect: DOMRect;
@@ -17,7 +24,7 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
       return; // Not ready yet, do nothing.
     }
     
-    console.groupCollapsed('[useTextSelection] MouseUp Event');
+    if (selDebugEnabled()) console.groupCollapsed('[useTextSelection] MouseUp Event');
     const currentSelection = window.getSelection();
 
     // The logic is now: IF a selection exists AND it is inside our target element, then update the state.
@@ -26,17 +33,17 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
       const range = currentSelection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       
-      console.log(`Selected text: "${text}"`);
-      console.log('Selection is within the target element.');
+      if (selDebugEnabled()) console.log(`Selected text: "${text}"`);
+      if (selDebugEnabled()) console.log('Selection is within the target element.');
       setSelection({ text, rect });
-      console.log('State updated with new selection.');
+      if (selDebugEnabled()) console.log('State updated with new selection.');
     } else {
       // OTHERWISE (no selection, or selection is outside our element), clear the state.
       // This ensures clicking outside the box dismisses the popover.
-      console.log('Selection is empty or outside the target element. Clearing state.');
+      if (selDebugEnabled()) console.log('Selection is empty or outside the target element. Clearing state.');
       setSelection(null);
     }
-    console.groupEnd();
+    if (selDebugEnabled()) console.groupEnd();
   }, [ref]); // Dependency on the stable ref object
 
   const clearSelection = useCallback(() => {
