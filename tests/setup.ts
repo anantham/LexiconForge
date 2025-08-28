@@ -1,6 +1,7 @@
 // Test setup file
 import { beforeEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
+import '@testing-library/jest-dom';
 
 // Clear localStorage before each test
 beforeEach(() => {
