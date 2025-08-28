@@ -14,6 +14,16 @@ import {
 } from './stableIdService';
 import { indexedDBService } from './indexeddb';
 
+// Light debug gate tied to AI debug level
+const impDebugEnabled = (): boolean => {
+  try {
+    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+    if (lvl === 'summary' || lvl === 'full') return true;
+    return localStorage.getItem('LF_AI_DEBUG') === '1';
+  } catch { return false; }
+};
+const implog = (...args: any[]) => { if (impDebugEnabled()) console.log(...args); };
+
 export interface ImportTransformationResult {
   success: boolean;
   message: string;
@@ -40,7 +50,7 @@ export class ImportTransformationService {
     existingSessionData: Record<string, any> = {}
   ): Promise<ImportTransformationResult> {
     try {
-      console.log('[ImportTransformation] Processing imported file:', file.name);
+      implog('[ImportTransformation] Processing imported file:', file.name);
       
       // Read and parse the file
       const fileContent = await this.readFileContent(file);
@@ -62,7 +72,7 @@ export class ImportTransformationService {
         importedData.metadata
       );
       
-      console.log('[ImportTransformation] Transformation complete:', {
+      implog('[ImportTransformation] Transformation complete:', {
         novels: stableData.novels.size,
         chapters: stableData.chapters.size,
         urlMappings: stableData.urlIndex.size + stableData.rawUrlIndex.size
@@ -141,7 +151,7 @@ export class ImportTransformationService {
     chapterNumber: number;
   }>> {
     try {
-      console.log('[ImportTransformation] Using unified indexedDBService for chapter rendering');
+      implog('[ImportTransformation] Using unified indexedDBService for chapter rendering');
       
       const renderingData = await indexedDBService.getChaptersForReactRendering();
       
@@ -163,7 +173,7 @@ export class ImportTransformationService {
     data: any;
   } | null> {
     try {
-      console.log('[ImportTransformation] Using unified indexedDBService for chapter lookup');
+      implog('[ImportTransformation] Using unified indexedDBService for chapter lookup');
       
       const chapter = await indexedDBService.findChapterByUrl(url);
       
