@@ -25,6 +25,10 @@ export const MODELS: ModelInfo[] = [
     { id: 'deepseek-chat', name: 'DeepSeek V3.1 (Chat)', provider: 'DeepSeek' },
     { id: 'deepseek-reasoner', name: 'DeepSeek V3.1 (Reasoner)', provider: 'DeepSeek' },
     
+    // OpenRouter (example slugs; pricing varies per underlying model)
+    { id: 'openai/gpt-4o', name: 'OpenAI GPT-4o (OpenRouter)', provider: 'OpenRouter' },
+    { id: 'deepseek/deepseek-reasoner', name: 'DeepSeek Reasoner (OpenRouter)', provider: 'OpenRouter' },
+    
     // Claude Models (Anthropic) - 2025 models
     { id: 'claude-opus-4-1', name: 'Claude Opus 4.1', provider: 'Claude' },
     { id: 'claude-opus-4-0', name: 'Claude Opus 4', provider: 'Claude' },
