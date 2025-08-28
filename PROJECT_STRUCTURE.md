@@ -28,7 +28,7 @@ LexiconForge/
 
 ### **tsconfig.json**
 - **Role**: TypeScript configuration with strict typing
-- **Features**: Bundler resolution, ES2022 target, path mapping (@/*)
+- **Features**: Bundler resolution, ES2022 target, path mapping (@/*), JSON module imports (resolveJsonModule)
 - **Safety**: Strict type checking for production reliability
 
 ### **vite.config.ts**
@@ -64,7 +64,7 @@ LexiconForge/
 - **Key Features**:
   - useShallow optimization for performance
   - Proactive chapter preloading system
-  - Translation pipeline orchestration
+  - Translation pipeline orchestration (gated by language view mode)
   - Amendment proposal management
 - **Architecture**: Connects all major components and manages global state
 
@@ -103,6 +103,7 @@ LexiconForge/
 #### **components/SettingsModal.tsx**
 - **Role**: Comprehensive settings interface
 - **Key Features**:
+  - Tabbed UI: General, Export, Templates, Advanced
   - **Temperature Control**: 0.0-2.0 slider for AI creativity
   - **Model Selection**: 22+ models across Gemini/OpenAI/DeepSeek/Claude
   - **Context Depth**: Previous chapter context (0-5)
@@ -110,6 +111,8 @@ LexiconForge/
   - **Typography**: Font, size, line height controls
   - **API Keys**: Secure key management for all providers
   - **Session Management**: Import/export functionality
+  - Export tab: chapter ordering and include special pages
+  - Templates tab: EPUB gratitude, project description, footer overrides
 
 ### **Feedback & Collaboration**
 
@@ -190,12 +193,19 @@ LexiconForge/
 ### **services/aiService.ts**
 - **Role**: Unified AI translation router and coordinator
 - **Key Features**:
-  - **Multi-provider Support**: Gemini, OpenAI, DeepSeek
+  - **Multi-provider Support**: Gemini, OpenAI, DeepSeek, Claude (via claudeService)
   - **Temperature Control**: User-adjustable creativity (0.0-2.0)
   - **Intelligent Fallback**: Handles models that don't support custom temperature
   - **Context Management**: Previous chapter integration
   - **Error Handling**: Retry logic with exponential backoff
   - **Cost Tracking**: Real-time usage and pricing
+  - **Structured Output**: JSON-mode schemas with centralized prompts
+  - **Validation**: Illustration and footnote marker reconciliation with strict failure on missing anchors
+  - **Cancellation**: Abortable requests with immediate UI cleanup
+
+### **claudeService.ts**
+- **Role**: Claude API integration
+- **Notes**: Uses the same centralized prompts; includes local fallback validators for illustrations/footnotes
 
 ### **services/imageService.ts**
 - **Role**: Comprehensive AI image generation system with advanced validation and recovery
@@ -211,13 +221,10 @@ LexiconForge/
   - **Base64 Processing**: Converts API responses to browser-compatible data URLs
   - **Cost Tracking**: Real-time image generation cost calculation
 
-### **services/geminiService.ts**
-- **Role**: Google Gemini API integration
-- **Features**:
-  - Response schema validation
-  - System instruction support
-  - JSON mode with structured output
-  - Temperature and model configuration
+### **Centralized Prompts**
+- **config/prompts.json**
+- **Role**: Single source for natural-language schema descriptions and prompt prefaces
+- **Used by**: aiService.ts and claudeService.ts for schemas, fan reference, history, and translate instructions
 
 ### **services/adapters.ts**
 - **Role**: Universal web novel scraping system
