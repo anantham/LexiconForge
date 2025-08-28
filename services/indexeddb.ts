@@ -19,6 +19,24 @@
 
 import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate } from '../types';
 
+// Debug gates (reuse AI debug flags)
+const dbDebugEnabled = (): boolean => {
+  try {
+    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+    if (lvl === 'summary') return true; if (lvl === 'full') return true;
+    return localStorage.getItem('LF_AI_DEBUG') === '1';
+  } catch { return false; }
+};
+const dbDebugFullEnabled = (): boolean => {
+  try {
+    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+    if (lvl === 'full') return true;
+    return localStorage.getItem('LF_AI_DEBUG_FULL') === '1';
+  } catch { return false; }
+};
+const dblog = (...args: any[]) => { if (dbDebugEnabled()) console.log(...args); };
+const dblogFull = (...args: any[]) => { if (dbDebugFullEnabled()) console.log(...args); };
+
 // Database configuration
 const DB_NAME = 'lexicon-forge';
 const DB_VERSION = 5; // Increment for stable ID support
@@ -153,23 +171,23 @@ class IndexedDBService {
     // Create new open promise with proper event handling
     dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
       const startTime = performance.now();
-      console.log('[IndexedDB] Opening database...', { DB_NAME, DB_VERSION });
+      dblog('[IndexedDB] Opening database...', { DB_NAME, DB_VERSION });
       
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       // Warning timer (don't reject - let browser complete)
       const warnTimer = setTimeout(() => {
         const elapsed = Math.round(performance.now() - startTime);
-        console.warn(`[IndexedDB] Open taking ${elapsed}ms. Possibly BLOCKED by another tab or slow I/O. Still waiting...`);
+        if (dbDebugEnabled()) console.warn(`[IndexedDB] Open taking ${elapsed}ms. Possibly BLOCKED by another tab or slow I/O. Still waiting...`);
       }, 5000);
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
         const oldVersion = (event as IDBVersionChangeEvent).oldVersion || 0;
-        console.log(`[IndexedDB] Upgrade needed: v${oldVersion} → v${db.version}`);
+        dblog(`[IndexedDB] Upgrade needed: v${oldVersion} → v${db.version}`);
         try {
           this.createSchema(db);
-          console.log('[IndexedDB] Schema creation completed');
+          dblog('[IndexedDB] Schema creation completed');
         } catch (error) {
           console.error('[IndexedDB] Schema creation failed:', error);
           clearTimeout(warnTimer);
@@ -178,7 +196,7 @@ class IndexedDBService {
       };
 
       request.onblocked = () => {
-        console.warn('[IndexedDB] Upgrade BLOCKED by another open connection. Close other tabs or reload to proceed.');
+        if (dbDebugEnabled()) console.warn('[IndexedDB] Upgrade BLOCKED by another open connection. Close other tabs or reload to proceed.');
         // Don't reject - let browser handle when other connection closes
       };
 
@@ -193,11 +211,11 @@ class IndexedDBService {
         clearTimeout(warnTimer);
         const db = request.result;
         const elapsed = Math.round(performance.now() - startTime);
-        console.log(`[IndexedDB] Opened successfully v${db.version} in ${elapsed}ms`);
+        dblog(`[IndexedDB] Opened successfully v${db.version} in ${elapsed}ms`);
         
         // Handle version changes from other tabs
         db.onversionchange = () => {
-          console.warn('[IndexedDB] Version change detected - closing old connection');
+          if (dbDebugEnabled()) console.warn('[IndexedDB] Version change detected - closing old connection');
           db.close();
           dbInstance = null;
           dbPromise = null;
@@ -233,7 +251,7 @@ class IndexedDBService {
     const missingStores = requiredStores.filter(store => !existingStores.includes(store));
     
     if (missingStores.length === 0) {
-      console.log('[IndexedDB] Schema verification passed - all stores present');
+      dblog('[IndexedDB] Schema verification passed - all stores present');
       return;
     }
 
@@ -748,33 +766,33 @@ class IndexedDBService {
    * Get all translation versions for a chapter
    */
   async getTranslationVersions(chapterUrl: string): Promise<TranslationRecord[]> {
-    console.log(`%c[IndexedDB DETAILED] getTranslationVersions called for: ${chapterUrl}`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] getTranslationVersions called for: ${chapterUrl}`, 'color: #ff6600; font-weight: bold;');
     
-    console.log(`%c[IndexedDB DETAILED] About to call openDatabase()...`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] About to call openDatabase()...`, 'color: #ff6600; font-weight: bold;');
     const db = await this.openDatabase();
-    console.log(`%c[IndexedDB DETAILED] openDatabase() completed successfully`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] openDatabase() completed successfully`, 'color: #ff6600; font-weight: bold;');
     
     return new Promise((resolve, reject) => {
-      console.log(`%c[IndexedDB DETAILED] Creating transaction...`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] Creating transaction...`, 'color: #ff6600; font-weight: bold;');
       const transaction = db.transaction([STORES.TRANSLATIONS], 'readonly');
-      console.log(`%c[IndexedDB DETAILED] Transaction created successfully`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] Transaction created successfully`, 'color: #ff6600; font-weight: bold;');
       
       transaction.onerror = (event) => {
         console.error(`%c[IndexedDB DETAILED] Transaction error:`, 'color: #ff0000; font-weight: bold;', event);
         reject(transaction.error);
       };
       
-      console.log(`%c[IndexedDB DETAILED] Getting object store...`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] Getting object store...`, 'color: #ff6600; font-weight: bold;');
       const store = transaction.objectStore(STORES.TRANSLATIONS);
-      console.log(`%c[IndexedDB DETAILED] Getting index...`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] Getting index...`, 'color: #ff6600; font-weight: bold;');
       const index = store.index('chapterUrl');
-      console.log(`%c[IndexedDB DETAILED] Calling getAll...`, 'color: #ff6600; font-weight: bold;');
+      dblogFull(`%c[IndexedDB DETAILED] Calling getAll...`, 'color: #ff6600; font-weight: bold;');
       const request = index.getAll(IDBKeyRange.only(chapterUrl));
       
       request.onsuccess = () => {
-        console.log(`%c[IndexedDB DETAILED] getAll SUCCESS!`, 'color: #00ff00; font-weight: bold;');
+        dblogFull(`%c[IndexedDB DETAILED] getAll SUCCESS!`, 'color: #00ff00; font-weight: bold;');
         const versions = request.result.sort((a, b) => b.version - a.version); // Latest first
-        console.log(`%c[IndexedDB DETAILED] Found ${versions.length} versions for ${chapterUrl}`, 'color: #00ff00; font-weight: bold;');
+        dblogFull(`%c[IndexedDB DETAILED] Found ${versions.length} versions for ${chapterUrl}`, 'color: #00ff00; font-weight: bold;');
         resolve(versions);
       };
       
@@ -804,7 +822,56 @@ class IndexedDBService {
         const tx = db.transaction([STORES.TRANSLATIONS, STORES.CHAPTERS], 'readonly');
         const translationsStore = tx.objectStore(STORES.TRANSLATIONS);
         const isActiveIdx = translationsStore.index('isActive');
-        const req = isActiveIdx.getAll(true);
+        // Use an explicit key range to avoid DataError on some IDB implementations
+        let req: IDBRequest<unknown>;
+        try {
+          req = isActiveIdx.getAll(IDBKeyRange.only(true));
+        } catch (err) {
+          // Fallback: scan via cursor if key range construction fails
+          const results: TranslationRecord[] = [] as any;
+          const cursorReq = isActiveIdx.openCursor();
+          cursorReq.onsuccess = async () => {
+            const cursor = (cursorReq as IDBRequest<IDBCursorWithValue>).result;
+            if (cursor) {
+              const val = cursor.value as TranslationRecord;
+              if ((val as any)?.isActive === true) results.push(val);
+              cursor.continue();
+            } else {
+              // No more entries; synthesize the rest of the original logic
+              try {
+                const candidates: Array<{ translation: TranslationRecord; chapter: ChapterRecord }> = [];
+                const getChapterByUrl = (url: string) => new Promise<ChapterRecord | null>((res, rej) => {
+                  try {
+                    const chTx = db.transaction([STORES.CHAPTERS], 'readonly');
+                    const chStore = chTx.objectStore(STORES.CHAPTERS);
+                    const getReq = chStore.get(url);
+                    getReq.onsuccess = () => res((getReq.result as ChapterRecord) || null);
+                    getReq.onerror = () => rej(getReq.error);
+                  } catch (e) { rej(e); }
+                });
+                for (const tr of results) {
+                  if (excludeStableId && tr.stableId && tr.stableId === excludeStableId) continue;
+                  let host: string | null = null;
+                  try { host = new URL(tr.chapterUrl).hostname; } catch { host = null; }
+                  if (!host || host !== domain) continue;
+                  const ch = await getChapterByUrl(tr.chapterUrl);
+                  if (!ch || !ch.content) continue;
+                  candidates.push({ translation: tr, chapter: ch });
+                }
+                candidates.sort((a, b) => {
+                  const at = new Date(a.translation.createdAt || a.chapter.lastAccessed || 0).getTime();
+                  const bt = new Date(b.translation.createdAt || b.chapter.lastAccessed || 0).getTime();
+                  return bt - at;
+                });
+                resolve(candidates.slice(0, limit));
+              } catch (e) {
+                reject(e);
+              }
+            }
+          };
+          cursorReq.onerror = () => reject(cursorReq.error);
+          return; // Stop normal flow; using cursor fallback
+        }
 
         req.onsuccess = async () => {
           try {
@@ -1674,23 +1741,23 @@ class IndexedDBService {
     chapterNumber: number;
   }>> {
     try {
-      console.log('[INDEXEDDB-DEBUG] getChaptersForReactRendering() called');
+      dblogFull('[INDEXEDDB-DEBUG] getChaptersForReactRendering() called');
       
       const db = await this.openDatabase();
-      console.log('[INDEXEDDB-DEBUG] Database opened successfully');
+      dblogFull('[INDEXEDDB-DEBUG] Database opened successfully');
       
       const transaction = db.transaction(['chapters'], 'readonly');
       const store = transaction.objectStore('chapters');
-      console.log('[INDEXEDDB-DEBUG] Transaction and store created');
+      dblogFull('[INDEXEDDB-DEBUG] Transaction and store created');
       
       return new Promise((resolve, reject) => {
         const request = store.getAll();
-        console.log('[INDEXEDDB-DEBUG] getAll() request created');
+        dblogFull('[INDEXEDDB-DEBUG] getAll() request created');
         
         request.onsuccess = () => {
           const chapters = request.result as ChapterRecord[];
           
-          console.log('[INDEXEDDB-DEBUG] Raw chapters from IndexedDB:', {
+          dblogFull('[INDEXEDDB-DEBUG] Raw chapters from IndexedDB:', {
             chaptersCount: chapters.length,
             chaptersData: chapters.map((ch, idx) => ({
               index: idx,
@@ -1755,7 +1822,7 @@ class IndexedDBService {
           //   }))
           // });
           
-          console.log('[IndexedDB] getChaptersForReactRendering:', chaptersWithStableIds.length, 'chapters');
+          dblog('[IndexedDB] getChaptersForReactRendering:', chaptersWithStableIds.length, 'chapters');
           resolve(chaptersWithStableIds);
         };
         request.onerror = () => {
@@ -2163,7 +2230,7 @@ if (typeof window !== 'undefined') {
     return result;
   };
   
-  console.log('[IndexedDB] Service loaded, window.testStableIdSchema() available');
+    dblog('[IndexedDB] Service loaded, window.testStableIdSchema() available');
 }
 
 /**
