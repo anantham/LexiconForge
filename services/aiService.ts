@@ -2,6 +2,8 @@
 import { GoogleGenAI, GenerateContentResponse, Type } from '@google/genai';
 import prompts from '../config/prompts.json';
 import OpenAI from 'openai';
+import { openrouterService } from './openrouterService';
+import { supportsStructuredOutputs } from './capabilityService';
 import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
 import { COSTS_PER_MILLION_TOKENS } from '../costs';
 import { ChatCompletion } from 'openai/resources';
@@ -16,22 +18,60 @@ import { ChatCompletion } from 'openai/resources';
 export const validateApiKey = (settings: AppSettings): { isValid: boolean; errorMessage?: string } => {
   let requiredApiKey: string | undefined;
   let providerName: string;
+  const mask = (k: any) => {
+    if (!k || typeof k !== 'string') return String(k ?? '');
+    return '*'.repeat(Math.max(0, k.length - 4)) + k.slice(-4);
+  };
 
   switch (settings.provider) {
     case 'Gemini':
-      requiredApiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined);
+      requiredApiKey = settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any);
+      dlog('[API Key Diagnostic][Gemini]', {
+        hasSettingsKey: !!settings.apiKeyGemini,
+        settingsKeyMasked: settings.apiKeyGemini ? mask(settings.apiKeyGemini) : null,
+        hasEnvKey: !!process.env.GEMINI_API_KEY,
+        envKeyMasked: process.env.GEMINI_API_KEY ? mask(process.env.GEMINI_API_KEY) : null,
+      });
       providerName = 'Google Gemini';
       break;
     case 'OpenAI':
-      requiredApiKey = settings.apiKeyOpenAI || (typeof process !== 'undefined' ? process.env.OPENAI_API_KEY : undefined);
+      requiredApiKey = settings.apiKeyOpenAI || (process.env.OPENAI_API_KEY as any);
+      dlog('[API Key Diagnostic][OpenAI]', {
+        hasSettingsKey: !!settings.apiKeyOpenAI,
+        settingsKeyMasked: settings.apiKeyOpenAI ? mask(settings.apiKeyOpenAI) : null,
+        hasEnvKey: !!process.env.OPENAI_API_KEY,
+        envKeyMasked: process.env.OPENAI_API_KEY ? mask(process.env.OPENAI_API_KEY) : null,
+      });
       providerName = 'OpenAI';
       break;
     case 'DeepSeek':
-      requiredApiKey = settings.apiKeyDeepSeek || (typeof process !== 'undefined' ? process.env.DEEPSEEK_API_KEY : undefined);
+      requiredApiKey = settings.apiKeyDeepSeek || (process.env.DEEPSEEK_API_KEY as any);
+      dlog('[API Key Diagnostic][DeepSeek]', {
+        hasSettingsKey: !!settings.apiKeyDeepSeek,
+        settingsKeyMasked: settings.apiKeyDeepSeek ? mask(settings.apiKeyDeepSeek) : null,
+        hasEnvKey: !!process.env.DEEPSEEK_API_KEY,
+        envKeyMasked: process.env.DEEPSEEK_API_KEY ? mask(process.env.DEEPSEEK_API_KEY) : null,
+      });
       providerName = 'DeepSeek';
       break;
+    case 'OpenRouter':
+      requiredApiKey = (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as any);
+      dlog('[API Key Diagnostic][OpenRouter]', {
+        hasSettingsKey: !!(settings as any).apiKeyOpenRouter,
+        settingsKeyMasked: (settings as any).apiKeyOpenRouter ? mask((settings as any).apiKeyOpenRouter) : null,
+        hasEnvKey: !!process.env.OPENROUTER_API_KEY,
+        envKeyMasked: process.env.OPENROUTER_API_KEY ? mask(process.env.OPENROUTER_API_KEY) : null,
+      });
+      providerName = 'OpenRouter';
+      break;
     case 'Claude':
-      requiredApiKey = settings.apiKeyClaude || (typeof process !== 'undefined' ? process.env.CLAUDE_API_KEY : undefined);
+      requiredApiKey = settings.apiKeyClaude || (process.env.CLAUDE_API_KEY as any);
+      dlog('[API Key Diagnostic][Claude]', {
+        hasSettingsKey: !!settings.apiKeyClaude,
+        settingsKeyMasked: settings.apiKeyClaude ? mask(settings.apiKeyClaude) : null,
+        hasEnvKey: !!process.env.CLAUDE_API_KEY,
+        envKeyMasked: process.env.CLAUDE_API_KEY ? mask(process.env.CLAUDE_API_KEY) : null,
+      });
       providerName = 'Claude (Anthropic)';
       break;
     default:
@@ -39,10 +79,8 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
   }
 
   if (!requiredApiKey?.trim()) {
-    return { 
-      isValid: false, 
-      errorMessage: `${providerName} API key is missing. Please add it in the settings.` 
-    };
+    dlog('[API Key Diagnostic] Missing key', { provider: providerName });
+    return { isValid: false, errorMessage: `${providerName} API key is missing. Add it in settings or .env file.` };
   }
 
   return { isValid: true };
@@ -62,6 +100,16 @@ const aiDebugFullEnabled = (): boolean => {
 const dlogFull = (...args: any[]) => { if (aiDebugFullEnabled()) console.log(...args); };
 
 // --- SHARED PROMPT LOGIC ---
+
+// Replace localization placeholders in the system prompt
+function replacePlaceholders(input: string, settings: AppSettings): string {
+  const lang = settings.targetLanguage || 'English';
+  let s = input || '';
+  s = s.replaceAll('{{targetLanguage}}', lang);
+  // Backward-compat if any leftover template uses variant syntax
+  s = s.replaceAll('{{targetLanguageVariant}}', lang);
+  return s;
+}
 
 // Robust, string-aware balanced-JSON extractor
 function extractBalancedJson(text: string): string {
@@ -89,12 +137,35 @@ function extractBalancedJson(text: string): string {
 }
 
 // Normalize common scene break markers and stray tags in translation HTML
-function sanitizeTranslationHTML(s: string): string {
-  if (!s) return s;
-  // Replace common scene breaks like "* * *", "***", emdashes, etc. with XHTML-safe hr
+function sanitizeTranslationHTML(input: string): string {
+  let s = input;
+
+  // Normalize common scene breaks you already handle
   s = s.replace(/\s*(?:\* \* \*|\*{3,}|—{3,}|- {2,}-)\s*/g, '<hr />');
+
   // Strip <p> tags if they sneak in
   s = s.replace(/<\/?p[^>]*>/gi, '');
+
+  // --- Heal & canonicalize void tags ---
+  // Any <br ...>  → <br />
+  s = s.replace(/<\s*br\b[^>]*>/gi, '<br />');
+  // Malformed <br\u2026 (no '>') → <br />
+  s = s.replace(/<\s*br\b(?![^>]*>)/gi, '<br />');
+  // Remove illegal </br>
+  s = s.replace(/<\/\s*br\s*>/gi, '');
+
+  // Same for <hr>
+  s = s.replace(/<\s*hr\b[^>]*>/gi, '<hr />');
+  s = s.replace(/<\s*hr\b(?![^>]*>)/gi, '<hr />');
+  s = s.replace(/<\/\s*hr\s*>/gi, '');
+
+  // --- Tighten inline formatting tags: drop hallucinated attributes ---
+  s = s.replace(/<\s*([/]?)(i|em|b|strong|u|s|sub|sup)\b[^>]*>/gi, '<\$1\$2>');
+
+  // --- Escape any other accidental '<tag' sequences to plain text ---
+  // (Prevents things like <down;> becoming an attribute during XML cloning)
+  s = s.replace(/<(?!\/?(?:br|hr|i|em|b|strong|u|s|sub|sup)\b)/gi, '&lt;');
+
   return s;
 }
 
@@ -250,26 +321,33 @@ const validateAndFixIllustrations = (translation: string, suggestedIllustrations
 };
 
 // Validate footnote markers in text vs. JSON footnotes and reconcile where safe
-const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefined): { translation: string; footnotes: any[] } => {
-    const textMarkers = (translation.match(/\[(\d+)\]/g) || []).filter(m => !/\[ILLUSTRATION-/i.test(m));
+const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefined, strictMode: 'append_missing' | 'fail' = 'append_missing'): { translation: string; footnotes: any[] } => {
+    // Extract unique numeric markers from text in order of first appearance (exclude illustration markers)
+    const allMatches = translation.match(/\[(\d+)\]/g) || [];
+    const seenText = new Set<string>();
+    const textMarkers: string[] = [];
+    for (const m of allMatches) {
+        if (/\[ILLUSTRATION-/i.test(m)) continue;
+        if (!seenText.has(m)) { seenText.add(m); textMarkers.push(m); }
+    }
+
     const jsonFootnotes = Array.isArray(footnotes) ? footnotes.slice() : [];
     const normalize = (m: string) => m.startsWith('[') ? m : `[${m.replace(/\[|\]/g, '')}]`;
-    const jsonMarkers = jsonFootnotes.map(fn => normalize(String(fn.marker || '')));
+    const jsonMarkersRaw = jsonFootnotes.map(fn => normalize(String(fn.marker || '')));
+    const jsonMarkers = Array.from(new Set(jsonMarkersRaw));
 
-    // Perfect match
+    // Perfect set match (ignoring duplicates in text):
     if (textMarkers.length === jsonMarkers.length) {
         const tSet = new Set(textMarkers);
         const jSet = new Set(jsonMarkers);
         if (textMarkers.every(m => jSet.has(m)) && jsonMarkers.every(m => tSet.has(m))) {
             // Normalize markers in JSON to bracketed form
-            const fixed = jsonFootnotes.map((fn, i) => ({ ...fn, marker: normalize(String(fn.marker || jsonMarkers[i])) }));
+            const fixed = jsonFootnotes.map((fn) => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
             return { translation, footnotes: fixed };
         }
-        // Remap mismatched markers 1:1
+        // Same cardinality but mismatched labels → remap JSON to the text set 1:1
         const textOnly = textMarkers.filter(m => !jSet.has(m));
-        if (textOnly.length > 0) {
-            console.warn(`[FootnoteFix] Remapping ${textOnly.length} JSON footnotes to unmatched text markers`);
-        }
+        if (textOnly.length > 0) console.warn(`[FootnoteFix] Remapping ${textOnly.length} JSON footnotes to unmatched text markers`);
         const fixed = jsonFootnotes.map(fn => {
             const nm = normalize(String(fn.marker || ''));
             if (!tSet.has(nm) && textOnly.length > 0) {
@@ -281,22 +359,24 @@ const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefin
         return { translation, footnotes: fixed };
     }
 
-    // More JSON footnotes than markers in text → append missing markers at end of translation
+    // More JSON footnotes than unique markers in text → append missing markers at end of translation
     if (jsonMarkers.length > textMarkers.length) {
+        if (strictMode === 'fail') {
+            const errorMessage = `AI response validation failed: Extra footnotes without matching markers.\n- Text markers (unique): ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}`;
+            console.error('[Footnote validation] strict mode fail on extra JSON footnotes');
+            throw new Error(errorMessage);
+        }
         const tSet = new Set(textMarkers);
         const extra = jsonMarkers.filter(m => !tSet.has(m));
-        if (extra.length > 0) {
-            console.warn(`[FootnoteFix] Detected ${extra.length} footnotes without text markers; appending markers at end of translation`);
-        }
+        if (extra.length > 0) console.warn(`[FootnoteFix] Detected ${extra.length} footnotes without text markers; appending markers at end of translation`);
         let updated = translation.trim();
         for (const m of extra) updated += ` ${m}`;
-        // Normalize markers in JSON
         const fixed = jsonFootnotes.map(fn => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
         return { translation: updated, footnotes: fixed };
     }
 
-    // More markers in text than JSON footnotes → cannot auto-fix
-    const errorMessage = `AI response validation failed: Missing footnotes for markers.\n- Text markers: ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires regeneration with matching footnotes.`;
+    // More unique markers in text than JSON footnotes → cannot auto-fix
+    const errorMessage = `AI response validation failed: Missing footnotes for markers.\n- Text markers (unique): ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires regeneration with matching footnotes.`;
     console.error('Footnote validation failed - insufficient footnotes:', { textMarkers, jsonMarkers });
     throw new Error(errorMessage);
 };
@@ -330,7 +410,7 @@ const geminiResponseSchema = {
 };
 
 const translateWithGemini = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null, abortSignal?: AbortSignal): Promise<TranslationResult> => {
-  const apiKey = settings.apiKeyGemini || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined);
+  const apiKey = settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any);
   if (!apiKey) {
     throw new Error("Gemini API key is missing. Please add it in the settings.");
   }
@@ -357,12 +437,12 @@ const translateWithGemini = async (title: string, content: string, settings: App
     model: settings.model,
     contents: [{ role: 'user', parts: [{ text: fullPrompt }]}],
     // Per SDK: systemInstruction is top-level; generationConfig holds response settings
-    systemInstruction: settings.systemPrompt,
+    systemInstruction: replacePlaceholders(settings.systemPrompt, settings),
     generationConfig: {
       temperature: settings.temperature,
       responseMimeType: 'application/json',
       responseSchema: geminiResponseSchema,
-      maxOutputTokens: 2048,
+      maxOutputTokens: Math.max(1, Math.min((settings.maxOutputTokens ?? 2048), 32768)),
     },
   } as const;
 
@@ -473,13 +553,72 @@ const translateWithGemini = async (title: string, content: string, settings: App
 
   try {
     const parsedJson = JSON.parse(responseText);
-    if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
-        throw new Error('Invalid JSON structure in AI response.');
+    
+    // Primary validation: Check for expected schema
+    let isCompliantSchema = typeof parsedJson.translatedTitle === 'string' && typeof parsedJson.translation === 'string';
+    
+    // Fallback schema detection: Check for common alternative field names
+    let title: string | undefined;
+    let translation: string | undefined;
+    let isFallbackMode = false;
+    
+    if (isCompliantSchema) {
+        title = parsedJson.translatedTitle;
+        translation = parsedJson.translation;
+    } else {
+        // Attempt fallback field mapping
+        title = parsedJson.title || parsedJson.translatedTitle || parsedJson.chapter_title;
+        
+        // Handle content field - might be string or array
+        let contentRaw = parsedJson.content || parsedJson.translation || parsedJson.translated_content || parsedJson.body;
+        if (Array.isArray(contentRaw)) {
+            // Join array elements with line breaks
+            translation = contentRaw.join('\n\n');
+        } else if (typeof contentRaw === 'string') {
+            translation = contentRaw;
+        }
+        
+        if (typeof title === 'string' && typeof translation === 'string') {
+            isFallbackMode = true;
+            console.warn(`[Gemini] Schema non-compliance detected. Using fallback mode with fields: title="${title ? 'found' : 'missing'}", content="${translation ? 'found' : 'missing'}"`);
+            console.warn(`[Gemini] Fallback mode: Will attempt to extract footnotes and illustrations from alternative formats.`);
+        } else {
+            // Neither schema works - this is a real error
+            const availableFields = Object.keys(parsedJson).join(', ');
+            throw new Error(`Invalid JSON structure in AI response. Expected 'translatedTitle'+'translation' or 'title'+'content', but found fields: ${availableFields}`);
+        }
     }
-    const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
-    const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
+    
+    // Handle illustrations and footnotes based on compliance mode
+    let fixedIllustrations: any[] = [];
+    let fixedFootnotes: any[] = [];
+    let fixedTranslation = translation;
+    
+    if (!isFallbackMode) {
+        // Full schema compliance - process normally
+        const { translation: fixedTranslation_1, suggestedIllustrations } = validateAndFixIllustrations(translation, parsedJson.suggestedIllustrations);
+        const { translation: finalTranslation, footnotes } = validateAndFixFootnotes(
+          fixedTranslation_1,
+          parsedJson.footnotes,
+          (settings.footnoteStrictMode as any) || 'append_missing'
+        );
+        fixedTranslation = finalTranslation;
+        fixedIllustrations = suggestedIllustrations;
+        fixedFootnotes = footnotes;
+    } else {
+        // Fallback mode - skip advanced processing, just ensure basic structure
+        console.warn(`[Gemini] Fallback mode active: Skipping illustration and footnote processing`);
+        // Still attempt to extract any basic illustrations/footnotes if they happen to exist
+        try {
+            fixedIllustrations = Array.isArray(parsedJson.suggestedIllustrations) ? parsedJson.suggestedIllustrations : [];
+            fixedFootnotes = Array.isArray(parsedJson.footnotes) ? parsedJson.footnotes : [];
+        } catch {
+            // Ignore errors in fallback mode
+        }
+    }
+    
     return {
-        translatedTitle: parsedJson.translatedTitle,
+        translatedTitle: title,
         translation: fixedTranslation,
         proposal: parsedJson.proposal ?? null,
         footnotes: fixedFootnotes ?? [],
@@ -496,18 +635,59 @@ const translateWithGemini = async (title: string, content: string, settings: App
       if (jsonBlock) {
         try {
           const parsedJson = JSON.parse(jsonBlock);
-          if (typeof parsedJson.translatedTitle === 'string' && typeof parsedJson.translation === 'string') {
-            const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
-    const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
-            return {
-              translatedTitle: parsedJson.translatedTitle,
-              translation: fixedTranslation,
-              proposal: parsedJson.proposal ?? null,
-              footnotes: fixedFootnotes ?? [],
-              suggestedIllustrations: fixedIllustrations,
-              usageMetrics: usageMetrics,
-            };
+          
+          // Apply same fallback logic to extracted JSON block
+          let isCompliantSchema = typeof parsedJson.translatedTitle === 'string' && typeof parsedJson.translation === 'string';
+          let title: string | undefined;
+          let translation: string | undefined;
+          let isFallbackMode = false;
+          
+          if (isCompliantSchema) {
+              title = parsedJson.translatedTitle;
+              translation = parsedJson.translation;
+          } else {
+              title = parsedJson.title || parsedJson.translatedTitle || parsedJson.chapter_title;
+              translation = parsedJson.content || parsedJson.translation || parsedJson.translated_content || parsedJson.body;
+              
+              if (typeof title === 'string' && typeof translation === 'string') {
+                  isFallbackMode = true;
+                  console.warn(`[Gemini Fallback] Using fallback mode with extracted JSON block`);
+              } else {
+                  return; // Continue to next fallback attempt
+              }
           }
+          
+          // Handle illustrations and footnotes based on compliance mode
+          let fixedIllustrations: any[] = [];
+          let fixedFootnotes: any[] = [];
+          let fixedTranslation = translation;
+          
+          if (!isFallbackMode) {
+              const { translation: fixedTranslation_1, suggestedIllustrations } = validateAndFixIllustrations(translation, parsedJson.suggestedIllustrations);
+              const { translation: finalTranslation, footnotes } = validateAndFixFootnotes(
+                fixedTranslation_1,
+                parsedJson.footnotes,
+                (settings.footnoteStrictMode as any) || 'append_missing'
+              );
+              fixedTranslation = finalTranslation;
+              fixedIllustrations = suggestedIllustrations;
+              fixedFootnotes = footnotes;
+          } else {
+              console.warn(`[Gemini Fallback] Skipping advanced processing for extracted block`);
+              try {
+                  fixedIllustrations = Array.isArray(parsedJson.suggestedIllustrations) ? parsedJson.suggestedIllustrations : [];
+                  fixedFootnotes = Array.isArray(parsedJson.footnotes) ? parsedJson.footnotes : [];
+              } catch {}
+          }
+          
+          return {
+            translatedTitle: title,
+            translation: fixedTranslation,
+            proposal: parsedJson.proposal ?? null,
+            footnotes: fixedFootnotes ?? [],
+            suggestedIllustrations: fixedIllustrations,
+            usageMetrics: usageMetrics,
+          };
         } catch (e2) {
           console.error('[Gemini] JSON block parse failed:', e2);
         }
@@ -581,12 +761,25 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     let baseURL: string | undefined;
 
     if (settings.provider === 'OpenAI') {
-        apiKey = settings.apiKeyOpenAI || (typeof process !== 'undefined' ? process.env.OPENAI_API_KEY : undefined);
+        apiKey = settings.apiKeyOpenAI || (process.env.OPENAI_API_KEY as any);
         baseURL = 'https://api.openai.com/v1';
     } else if (settings.provider === 'DeepSeek') {
-        apiKey = settings.apiKeyDeepSeek || (typeof process !== 'undefined' ? process.env.DEEPSEEK_API_KEY : undefined);
+        apiKey = settings.apiKeyDeepSeek || (process.env.DEEPSEEK_API_KEY as any);
         baseURL = 'https://api.deepseek.com/v1';
+    } else if (settings.provider === 'OpenRouter') {
+        apiKey = (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as any);
+        baseURL = 'https://openrouter.ai/api/v1';
     }
+
+    // Diagnostics: where did the key come from, what base URL
+    try {
+      const src = settings.provider === 'OpenAI' ? (settings.apiKeyOpenAI ? 'settings' : (process.env.OPENAI_API_KEY ? '.env' : 'missing'))
+        : settings.provider === 'DeepSeek' ? (settings.apiKeyDeepSeek ? 'settings' : (process.env.DEEPSEEK_API_KEY ? '.env' : 'missing'))
+        : settings.provider === 'OpenRouter' ? ((settings as any).apiKeyOpenRouter ? 'settings' : (process.env.OPENROUTER_API_KEY ? '.env' : 'missing'))
+        : 'settings';
+      const masked = apiKey ? ('*'.repeat(Math.max(0, (apiKey as string).length - 4)) + (apiKey as string).slice(-4)) : 'null';
+      dlog('[OpenAI/Compatible Diagnostic]', { provider: settings.provider, baseURL, keySource: src, keyMasked: masked, model: settings.model });
+    } catch {}
 
     if (!apiKey) throw new Error(`${settings.provider} API key is missing. Please add it in the settings.`);
 
@@ -606,7 +799,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     }
     
     // DIAGNOSTIC: Validate system prompt
-    console.log('[OpenAI DIAGNOSTIC] System prompt validation:', {
+    dlog('[OpenAI DIAGNOSTIC] System prompt validation:', {
         exists: !!settings.systemPrompt,
         type: typeof settings.systemPrompt,
         length: settings.systemPrompt?.length || 0,
@@ -616,34 +809,34 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     });
     
     if (!settings.systemPrompt) {
-        console.error('[OpenAI DIAGNOSTIC] System prompt is null/undefined!');
+        if (aiDebugEnabled()) console.error('[OpenAI DIAGNOSTIC] System prompt is null/undefined!');
         throw new Error('System prompt cannot be empty for OpenAI translation');
     }
     
-    messages.push({ role: 'system', content: settings.systemPrompt });
+    messages.push({ role: 'system', content: replacePlaceholders(settings.systemPrompt, settings) });
     
     // DIAGNOSTIC: Validate history
-    console.log('[OpenAI DIAGNOSTIC] History validation:', {
+    dlog('[OpenAI DIAGNOSTIC] History validation:', {
         historyCount: history.length,
         historyExists: !!history
     });
     
     history.forEach((h, index) => {
-        console.log(`[OpenAI DIAGNOSTIC] History[${index}]:`, {
+        dlog(`[OpenAI DIAGNOSTIC] History[${index}]:`, {
             originalTitle: { exists: !!h.originalTitle, type: typeof h.originalTitle, isNull: h.originalTitle === null },
             originalContent: { exists: !!h.originalContent, type: typeof h.originalContent, isNull: h.originalContent === null, length: h.originalContent?.length || 0 },
             translatedContent: { exists: !!h.translatedContent, type: typeof h.translatedContent, isNull: h.translatedContent === null, length: h.translatedContent?.length || 0 }
         });
         
         if (h.originalTitle === null || h.originalContent === null || h.translatedContent === null) {
-            console.error(`[OpenAI DIAGNOSTIC] History[${index}] has null content! Skipping...`);
+            if (aiDebugEnabled()) console.error(`[OpenAI DIAGNOSTIC] History[${index}] has null content! Skipping...`);
             return; // Skip this history entry
         }
         
         const userContent = `TITLE: ${h.originalTitle}\n\nCONTENT:\n${h.originalContent}`;
         const assistantContent = h.translatedContent;
         
-        console.log(`[OpenAI DIAGNOSTIC] Adding history[${index}] messages:`, {
+        dlog(`[OpenAI DIAGNOSTIC] Adding history[${index}] messages:`, {
             userContentLength: userContent.length,
             assistantContentLength: assistantContent.length,
             userContentIsNull: userContent === null,
@@ -655,20 +848,20 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     });
     
     // DIAGNOSTIC: Validate current chapter
-    console.log('[OpenAI DIAGNOSTIC] Current chapter validation:', {
+    dlog('[OpenAI DIAGNOSTIC] Current chapter validation:', {
         title: { exists: !!title, type: typeof title, isNull: title === null, length: title?.length || 0 },
         content: { exists: !!content, type: typeof content, isNull: content === null, length: content?.length || 0 }
     });
     
     if (title === null || content === null) {
-        console.error('[OpenAI DIAGNOSTIC] Current chapter has null title or content!');
+        if (aiDebugEnabled()) console.error('[OpenAI DIAGNOSTIC] Current chapter has null title or content!');
         throw new Error('Chapter title and content cannot be null for OpenAI translation');
     }
     
     const fanTranslationContext = buildFanTranslationContext(fanTranslation);
     const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
     const finalUserContent = `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
-    console.log('[OpenAI DIAGNOSTIC] Final user message:', {
+    dlog('[OpenAI DIAGNOSTIC] Final user message:', {
         contentLength: finalUserContent.length,
         isNull: finalUserContent === null
     });
@@ -676,9 +869,9 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     messages.push({ role: 'user', content: finalUserContent });
     
     // DIAGNOSTIC: Final message array validation
-    console.log('[OpenAI DIAGNOSTIC] Final messages array validation:');
+    dlog('[OpenAI DIAGNOSTIC] Final messages array validation:');
     messages.forEach((msg, index) => {
-        console.log(`  Message[${index}]:`, {
+        dlog(`  Message[${index}]:`, {
             role: msg.role,
             contentExists: !!msg.content,
             contentType: typeof msg.content,
@@ -689,41 +882,73 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         });
         
         if (msg.content === null || msg.content === undefined) {
-            console.error(`[OpenAI DIAGNOSTIC] MESSAGE[${index}] HAS NULL CONTENT!`, msg);
+            if (aiDebugEnabled()) console.error(`[OpenAI DIAGNOSTIC] MESSAGE[${index}] HAS NULL CONTENT!`, msg);
         }
     });
 
-    // Determine if model supports structured outputs
-    const supportsStructuredOutputs = settings.provider === 'OpenAI' && (
-        settings.model.startsWith('gpt-4o') || 
-        settings.model.startsWith('gpt-5') ||
-        settings.model.startsWith('gpt-4.1')
-    );
+    // Determine if model supports structured outputs using API-based capability detection
+    const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
 
     // Prepare the request options; DeepSeek uses json_object + explicit max_tokens
     const requestOptions: any = { model: settings.model, messages };
-    if (supportsStructuredOutputs) {
-        requestOptions.response_format = { type: 'json_schema', json_schema: { name: 'translation_response', schema: openaiResponseSchema, strict: true } };
+    
+    if (hasStructuredOutputs) {
+        requestOptions.response_format = { 
+            type: 'json_schema', 
+            json_schema: { 
+                name: 'translation_response', 
+                schema: openaiResponseSchema, 
+                strict: true 
+            } 
+        };
+        // Ensure OpenRouter uses compatible providers
+        if (settings.provider === 'OpenRouter') {
+            requestOptions.provider = { require_parameters: true };
+        }
     } else if (isDeepSeek) {
         requestOptions.response_format = { type: 'json_object' };
-        requestOptions.max_tokens = 8192; // generous cap to avoid truncation on chapter-length JSON
+        requestOptions.max_tokens = settings.maxOutputTokens ?? 8192; // generous cap
     } else {
         requestOptions.response_format = { type: 'json_object' };
     }
 
+    // Optional max_tokens cap for OpenAI/OpenRouter when user sets it
+    if (!isDeepSeek && settings.provider !== 'Gemini' && settings.provider !== 'Claude') {
+        if (settings.maxOutputTokens && settings.maxOutputTokens > 0) {
+            requestOptions.max_tokens = settings.maxOutputTokens;
+        }
+    }
+
+    // OpenRouter: pass optional headers for rankings from config
+    if (settings.provider === 'OpenRouter') {
+        try {
+            const appConfig = await import('../config/app.json');
+            const extraHeaders: Record<string, string> = {};
+            if (appConfig.openrouter?.referer) extraHeaders['HTTP-Referer'] = appConfig.openrouter.referer;
+            if (appConfig.openrouter?.title) extraHeaders['X-Title'] = appConfig.openrouter.title;
+            if (Object.keys(extraHeaders).length > 0) {
+                requestOptions.extra_headers = extraHeaders;
+            }
+        } catch (error) {
+            // Config file not found or invalid, continue without headers
+            dlog('[OpenRouter] Config file not found, skipping optional headers');
+        }
+    }
+
     dlog(`[OpenAI] Preparing request for model: ${settings.model}`);
-    dlog(`[OpenAI] Using structured outputs: ${supportsStructuredOutputs}`);
+    dlog(`[OpenAI] Provider: ${settings.provider}`);
+    dlog(`[OpenAI] Using structured outputs: ${hasStructuredOutputs} (API-detected)`);
     dlog(`[OpenAI] Temperature setting: ${settings.temperature}`);
     dlog(`[OpenAI] Message count: ${messages.length}`);
     
     // DIAGNOSTIC: Final pre-flight validation of request
-    console.log('[OpenAI DIAGNOSTIC] PRE-FLIGHT CHECK - Final request validation:');
-    console.log('  Model:', requestOptions.model);
-    console.log('  Messages count:', requestOptions.messages?.length || 0);
+    dlog('[OpenAI DIAGNOSTIC] PRE-FLIGHT CHECK - Final request validation:');
+    dlog('  Model:', requestOptions.model);
+    dlog('  Messages count:', requestOptions.messages?.length || 0);
     
     // Check each message in the final request
     requestOptions.messages?.forEach((msg: any, index: number) => {
-        console.log(`  Message[${index}]:`, {
+        dlog(`  Message[${index}]:`, {
             role: msg.role,
             hasContent: msg.content !== null && msg.content !== undefined,
             contentType: typeof msg.content,
@@ -733,13 +958,15 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         });
         
         if (msg.content === null || msg.content === undefined) {
-            console.error(`[OpenAI DIAGNOSTIC] CRITICAL: Message[${index}] has ${msg.content === null ? 'NULL' : 'UNDEFINED'} content!`);
-            console.error('Full message:', JSON.stringify(msg, null, 2));
+            if (aiDebugEnabled()) {
+              console.error(`[OpenAI DIAGNOSTIC] CRITICAL: Message[${index}] has ${msg.content === null ? 'NULL' : 'UNDEFINED'} content!`);
+              console.error('Full message:', JSON.stringify(msg, null, 2));
+            }
         }
     });
     
     // TEMP: Always print the exact request body we send (like Gemini)
-    try { console.log(`[${settings.provider} Debug] Full request body:`, JSON.stringify(requestOptions, null, 2)); } catch {}
+    try { dlogFull(`[${settings.provider} Debug] Full request body:`, JSON.stringify(requestOptions, null, 2)); } catch {}
     dlog(`[OpenAI] Request options:`, JSON.stringify(requestOptions, null, 2));
 
     // Proactive temperature compatibility check for newer models
@@ -748,7 +975,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
                            settings.model === 'gpt-5-chat-latest';
     
     if (skipTemperature) {
-        console.warn(`[OpenAI] Skipping temperature setting for model ${settings.model} (known incompatibility)`);
+        if (aiDebugEnabled()) console.warn(`[OpenAI] Skipping temperature setting for model ${settings.model} (known incompatibility)`);
         dlog(`[OpenAI] Model ${settings.model} does not support custom temperature, using default`);
     } else {
         requestOptions.temperature = settings.temperature;
@@ -760,7 +987,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     try {
         dlog(`[OpenAI] Attempt 1: Sending request ${skipTemperature ? 'without' : 'with'} temperature`);
         
-        console.log('[OpenAI DIAGNOSTIC] ABOUT TO MAKE API CALL - Final sanity check completed');
+        dlog('[OpenAI DIAGNOSTIC] ABOUT TO MAKE API CALL - Final sanity check completed');
         if (abortSignal?.aborted) throw new DOMException('Aborted', 'AbortError');
         // Pass AbortSignal via RequestOptions (second arg), not in payload
         response = await (abortSignal
@@ -769,7 +996,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         dlog(`[OpenAI] Attempt 1: Success! Response received`);
         
         // Full response logging
-        dlog(`[${settings.provider} Debug] Raw API response:`, JSON.stringify(response, null, 2));
+        dlogFull(`[${settings.provider} Debug] Raw API response:`, JSON.stringify(response, null, 2));
         dlog(`[OpenAI] Response structure:`, {
           choicesLength: response.choices?.length || 0,
           finishReason: response.choices?.[0]?.finish_reason,
@@ -789,14 +1016,14 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         
         // If temperature fails, retry without it
         if (error.message?.includes('temperature') || error.message?.includes('not supported') || error.status === 400) {
-            console.warn(`[OpenAI] Retrying without temperature setting for model ${settings.model}`);
+            if (aiDebugEnabled()) console.warn(`[OpenAI] Retrying without temperature setting for model ${settings.model}`);
             delete requestOptions.temperature;
             dlog(`[OpenAI] Attempt 2: Retry request options:`, JSON.stringify(requestOptions, null, 2));
             
             // DIAGNOSTIC: Re-validate request after temperature removal
-            console.log('[OpenAI DIAGNOSTIC] RETRY ATTEMPT - Re-validating request after temperature removal:');
+            dlog('[OpenAI DIAGNOSTIC] RETRY ATTEMPT - Re-validating request after temperature removal:');
             requestOptions.messages?.forEach((msg: any, index: number) => {
-                console.log(`  Retry Message[${index}]:`, {
+                dlog(`  Retry Message[${index}]:`, {
                     role: msg.role,
                     hasContent: msg.content !== null && msg.content !== undefined,
                     contentType: typeof msg.content,
@@ -805,12 +1032,12 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
                 });
                 
                 if (msg.content === null || msg.content === undefined) {
-                    console.error(`[OpenAI DIAGNOSTIC] RETRY CRITICAL: Message[${index}] STILL has ${msg.content === null ? 'NULL' : 'UNDEFINED'} content!`);
+                    if (aiDebugEnabled()) console.error(`[OpenAI DIAGNOSTIC] RETRY CRITICAL: Message[${index}] STILL has ${msg.content === null ? 'NULL' : 'UNDEFINED'} content!`);
                 }
             });
             
             try {
-                console.log('[OpenAI DIAGNOSTIC] RETRY - About to make second API call');
+                dlog('[OpenAI DIAGNOSTIC] RETRY - About to make second API call');
                 if (abortSignal?.aborted) throw new DOMException('Aborted', 'AbortError');
                 response = await (abortSignal
                   ? openai.chat.completions.create(requestOptions, { signal: abortSignal })
@@ -818,7 +1045,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
                 dlog(`[OpenAI] Attempt 2: Success! Response received`);
                 
                 // Full response logging for retry
-                dlog(`[${settings.provider} Debug] Raw API response (retry):`, JSON.stringify(response, null, 2));
+                dlogFull(`[${settings.provider} Debug] Raw API response (retry):`, JSON.stringify(response, null, 2));
                 
                 dlog(`[OpenAI] Raw response text:`, response.choices[0].message.content);
                 dlog(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
@@ -843,7 +1070,23 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     const promptTokens = usage?.prompt_tokens ?? 0;
     const completionTokens = usage?.completion_tokens ?? 0;
     const totalTokens = usage?.total_tokens ?? (promptTokens + completionTokens);
-    const estimatedCost = calculateCost(settings.model, promptTokens, completionTokens);
+    let estimatedCost = calculateCost(settings.model, promptTokens, completionTokens);
+    // If using OpenRouter, prefer dynamic per-token pricing from the cached catalogue
+    if (settings.provider === 'OpenRouter') {
+      try {
+        const cache = await openrouterService.getCachedModels();
+        const found = cache?.data?.find(m => m.id === settings.model);
+        const pin = found?.pricing?.prompt;
+        const pout = found?.pricing?.completion;
+        const inRate = typeof pin === 'string' ? parseFloat(pin) : (typeof pin === 'number' ? pin : null);
+        const outRate = typeof pout === 'string' ? parseFloat(pout) : (typeof pout === 'number' ? pout : null);
+        if (inRate != null || outRate != null) {
+          const inputCost = inRate != null ? (promptTokens * inRate) : 0;
+          const outputCost = outRate != null ? (completionTokens * outRate) : 0;
+          estimatedCost = inputCost + outputCost;
+        }
+      } catch {}
+    }
 
     const usageMetrics: UsageMetrics = {
         totalTokens, promptTokens, completionTokens, estimatedCost, requestTime,
@@ -879,7 +1122,11 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         try {
             // First, try to parse the response text directly
             parsedJson = JSON.parse(responseText);
-        } catch (initialParseError) {
+        } catch (initialParseError: any) {
+            if (initialParseError instanceof SyntaxError && initialParseError.message.includes('Unexpected end of JSON input')) {
+                console.error(`[OpenAI] JSON Parse Error: Unexpected end of JSON input. Raw API response text:`);
+                console.error(responseText);
+            }
             console.warn(`[DeepSeek] Initial JSON parse failed. Attempting fallback extraction. Error: ${initialParseError.message}`);
             // Use robust balanced-brace extraction
             const jsonString = extractBalancedJson(responseText);
@@ -887,19 +1134,106 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
             parsedJson = JSON.parse(jsonString);
         }
 
-        // With structured outputs, validation should be unnecessary, but keep for safety
-        if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
-            throw new Error('Invalid JSON structure in AI response.');
+        // Primary validation: Check for expected schema
+        let isCompliantSchema = typeof parsedJson.translatedTitle === 'string' && typeof parsedJson.translation === 'string';
+        
+        // Fallback schema detection: Check for common alternative field names
+        let title: string | undefined;
+        let translation: string | undefined;
+        let isFallbackMode = false;
+        
+        if (isCompliantSchema) {
+            title = parsedJson.translatedTitle;
+            translation = parsedJson.translation;
+        } else {
+            // Attempt fallback field mapping
+            title = parsedJson.title || parsedJson.translatedTitle || parsedJson.chapter_title;
+            
+            // Handle content field - might be string or array
+            let contentRaw = parsedJson.content || parsedJson.translation || parsedJson.translated_content || parsedJson.body;
+            if (Array.isArray(contentRaw)) {
+                // Join array elements with line breaks
+                translation = contentRaw.join('\n\n');
+            } else if (typeof contentRaw === 'string') {
+                translation = contentRaw;
+            }
+            
+            if (typeof title === 'string' && typeof translation === 'string') {
+                isFallbackMode = true;
+                console.warn(`[${settings.provider}] Schema non-compliance detected. Using fallback mode with fields: title="${title ? 'found' : 'missing'}", content="${translation ? 'found' : 'missing'}"`);
+                console.warn(`[${settings.provider}] Fallback mode: Will attempt to extract footnotes and illustrations from alternative formats.`);
+            } else {
+                // Neither schema works - this is a real error
+                const availableFields = Object.keys(parsedJson).join(', ');
+                throw new Error(`Invalid JSON structure in AI response. Expected 'translatedTitle'+'translation' or 'title'+'content', but found fields: ${availableFields}`);
+            }
         }
+        
         // Sanitize translation HTML for scene breaks and stray tags before validation
-        const sanitized = sanitizeTranslationHTML(parsedJson.translation);
-        const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = validateAndFixIllustrations(sanitized, parsedJson.suggestedIllustrations);
-        const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
+        const sanitized = sanitizeTranslationHTML(translation);
+        
+        // Handle illustrations and footnotes based on compliance mode
+        let fixedIllustrations: any[] = [];
+        let fixedFootnotes: any[] = [];
+        let fixedTranslation = sanitized;
+        
+        if (!isFallbackMode) {
+            // Full schema compliance - process normally
+            const { translation: fixedTranslation_1, suggestedIllustrations } = validateAndFixIllustrations(sanitized, parsedJson.suggestedIllustrations);
+            const { translation: finalTranslation, footnotes } = validateAndFixFootnotes(
+              fixedTranslation_1,
+              parsedJson.footnotes,
+              (settings.footnoteStrictMode as any) || 'append_missing'
+            );
+            fixedTranslation = finalTranslation;
+            fixedIllustrations = suggestedIllustrations;
+            fixedFootnotes = footnotes;
+        } else {
+            // Fallback mode - attempt to extract from alternative formats
+            console.warn(`[${settings.provider}] Fallback mode active: Attempting to extract footnotes and illustrations from alternative formats`);
+            
+            // Handle footnotes - might be object with numbered keys or array
+            try {
+                if (parsedJson.footnotes && typeof parsedJson.footnotes === 'object' && !Array.isArray(parsedJson.footnotes)) {
+                    // Convert object footnotes to array format: {"1": "text", "2": "text"} → [{marker: "[1]", text: "text"}]
+                    fixedFootnotes = Object.entries(parsedJson.footnotes).map(([key, text]) => ({
+                        marker: `[${key}]`,
+                        text: String(text)
+                    }));
+                    console.log(`[${settings.provider}] Converted ${fixedFootnotes.length} footnotes from object format`);
+                } else if (Array.isArray(parsedJson.footnotes)) {
+                    fixedFootnotes = parsedJson.footnotes;
+                }
+            } catch (e) {
+                console.warn(`[${settings.provider}] Failed to process footnotes:`, e);
+            }
+            
+            // Handle illustrations - might be single prompt or array format
+            try {
+                if (typeof parsedJson.illustration_prompt === 'string') {
+                    // Convert single illustration prompt to array format
+                    fixedIllustrations = [{
+                        placementMarker: '[ILLUSTRATION-1]',
+                        imagePrompt: parsedJson.illustration_prompt
+                    }];
+                    console.log(`[${settings.provider}] Converted single illustration prompt to array format`);
+                } else if (Array.isArray(parsedJson.suggestedIllustrations)) {
+                    fixedIllustrations = parsedJson.suggestedIllustrations;
+                } else if (Array.isArray(parsedJson.illustrations)) {
+                    fixedIllustrations = parsedJson.illustrations;
+                }
+            } catch (e) {
+                console.warn(`[${settings.provider}] Failed to process illustrations:`, e);
+            }
+        }
+        
+        // Track last-used model for OpenRouter catalogue ordering
+        try { if (settings.provider === 'OpenRouter') await openrouterService.setLastUsed(settings.model); } catch {}
         
         return {
-            translatedTitle: parsedJson.translatedTitle,
+            translatedTitle: title,
             translation: fixedTranslation,
-            proposal: parsedJson.proposal,
+            proposal: parsedJson.proposal ?? null,
             footnotes: fixedFootnotes ?? [],
             suggestedIllustrations: fixedIllustrations,
             usageMetrics: usageMetrics,
@@ -941,7 +1275,10 @@ export const translateChapter = async (
             break;
     }
 
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
+    // Use retry settings from AppSettings if provided
+    const retries = (settings.retryMax ?? maxRetries);
+    const baseDelay = (settings.retryInitialDelayMs ?? initialDelay);
+    for (let attempt = 0; attempt < retries; attempt++) {
         try {
             console.log(`[aiService] Attempt ${attempt + 1}/${maxRetries} to translate with ${settings.provider} (${settings.model})...`);
             // Early abort check
@@ -953,14 +1290,14 @@ export const translateChapter = async (
             lastError = e;
             const isRateLimitError = e.message?.includes('429') || e.status === 429;
             if (isRateLimitError) {
-                if (attempt < maxRetries - 1) {
-                    const delay = initialDelay * Math.pow(2, attempt);
+                if (attempt < retries - 1) {
+                    const delay = baseDelay * Math.pow(2, attempt);
                     console.warn(`[aiService] Rate limit hit for ${settings.provider}. Retrying in ${delay / 1000}s...`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     continue;
                 } else {
                     // Last attempt, throw a normalized error
-                    throw new Error(`rate_limit: Exceeded API rate limits for ${settings.provider} after ${maxRetries} attempts.`);
+                    throw new Error(`rate_limit: Exceeded API rate limits for ${settings.provider} after ${retries} attempts.`);
                 }
             }
             // For other errors, just rethrow

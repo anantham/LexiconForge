@@ -81,7 +81,7 @@ export interface HistoricalChapter {
   feedback: FeedbackItem[];
 }
 
-export type TranslationProvider = 'Gemini' | 'OpenAI' | 'DeepSeek' | 'Claude';
+export type TranslationProvider = 'Gemini' | 'OpenAI' | 'DeepSeek' | 'Claude' | 'OpenRouter';
 
 export interface PromptTemplate {
   id: string;                    // UUID
@@ -107,6 +107,8 @@ export interface AppSettings {
     lineHeight: number;
     systemPrompt: string;          // Keep for backward compatibility
     activePromptId?: string;       // ID of currently selected prompt template
+    // Localization target
+    targetLanguage?: string;       // e.g., "English", "Malayalam"
     provider: TranslationProvider;
     model: string; // The ID of the model, e.g., 'gemini-2.5-pro'
     imageModel: string; // The ID of the image model, e.g., 'imagen-4.0-ultra...'
@@ -115,6 +117,7 @@ export interface AppSettings {
     apiKeyOpenAI?: string;
     apiKeyDeepSeek?: string;
     apiKeyClaude?: string;
+    apiKeyOpenRouter?: string;
     apiKeyPiAPI?: string;
     imageWidth?: number;
     imageHeight?: number;
@@ -126,6 +129,12 @@ export interface AppSettings {
     epubGratitudeMessage?: string;
     epubProjectDescription?: string;
     epubFooter?: string | null;
+
+    // Advanced AI controls
+    maxOutputTokens?: number;                 // Optional hard cap on generated tokens
+    retryMax?: number;                        // Max retries for rate-limit/backoff
+    retryInitialDelayMs?: number;             // Initial backoff delay in ms
+    footnoteStrictMode?: 'append_missing' | 'fail'; // Footnote validation behavior
 }
 
 export interface ImportedChapter {

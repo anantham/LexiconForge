@@ -68,14 +68,22 @@ const defaultSettings: AppSettings = {
     fontStyle: 'serif',
     lineHeight: 1.7,
     systemPrompt: INITIAL_SYSTEM_PROMPT,
+    // Localization
+    targetLanguage: 'English',
     provider: 'Gemini',
     model: 'gemini-2.5-flash',
     imageModel: 'imagen-3.0-generate-001',
-    temperature: 0.3,
-    apiKeyGemini: '',
-    apiKeyOpenAI: '',
-    apiKeyDeepSeek: '',
-    imageWidth: 1024,
+  temperature: 0.3,
+  apiKeyGemini: '',
+  apiKeyOpenAI: '',
+  apiKeyDeepSeek: '',
+  apiKeyOpenRouter: '',
+  // Advanced defaults
+  maxOutputTokens: 8192,
+  retryMax: 3,
+  retryInitialDelayMs: 2000,
+  footnoteStrictMode: 'append_missing',
+  imageWidth: 1024,
     imageHeight: 1024,
     imageAspectRatio: '1:1',
     imageSizePreset: '1K',
@@ -112,6 +120,11 @@ interface AppState {
     activePromptTemplate: PromptTemplate | null;
     generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; }>;
     imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; lastModel?: string; } | null;
+    // OpenRouter dynamic catalogue state (cached)
+    openRouterModels?: { data: any[]; fetchedAt: string } | null;
+    openRouterKeyUsage?: { usage: number | null; limit: number | null; remaining: number | null; fetchedAt: string } | null;
+    // Distinct cache hydration state per chapter (separate from URL fetches and translations)
+    hydratingChapters: Record<string, boolean>;
 }
 
 interface AppActions {
@@ -151,7 +164,13 @@ interface AppActions {
     deletePromptTemplate: (id: string) => Promise<void>;
     setActivePromptTemplate: (id: string) => Promise<void>;
     loadPromptTemplates: () => Promise<void>;
+    // OpenRouter helpers
+    loadOpenRouterCatalogue: (force?: boolean) => Promise<void>;
+    refreshOpenRouterModels: () => Promise<void>;
+    refreshOpenRouterCredits: () => Promise<void>;
+    getOpenRouterOptions: (search?: string) => Array<{ id: string; label: string; lastUsed?: string; priceKey?: number | null }>;
     getChapterById: (chapterId: string) => EnhancedChapter | null;
+    isChapterHydrating: (chapterId: string) => boolean;
     hydrateIndicesOnBoot: () => Promise<void>;
     loadChapterFromIDB: (chapterId: string) => Promise<EnhancedChapter | null>;
     fetchTranslationVersions: (chapterId: string) => Promise<TranslationRecord[]>;
@@ -159,6 +178,19 @@ interface AppActions {
 }
 
 type Store = AppState & AppActions;
+
+// Store-level debug gates (respect LF_AI_DEBUG_LEVEL: off|summary|full)
+const storeDebugEnabled = (): boolean => {
+  try {
+    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+    return lvl === 'summary' || lvl === 'full';
+  } catch { return false; }
+};
+const storeDebugFullEnabled = (): boolean => {
+  try { return localStorage.getItem('LF_AI_DEBUG_LEVEL') === 'full'; } catch { return false; }
+};
+const slog = (...args: any[]) => { if (storeDebugEnabled()) console.log(...args); };
+const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...args); };
 
 export const useAppStore = create<Store>()((set, get) => ({
   // NEW STATE
@@ -183,6 +215,9 @@ export const useAppStore = create<Store>()((set, get) => ({
   activePromptTemplate: null,
   generatedImages: {},
   imageGenerationMetrics: null,
+  openRouterModels: null,
+  openRouterKeyUsage: null,
+  hydratingChapters: {},
 
   // DEFAULTS + HYDRATE
   settings: (() => {
@@ -200,6 +235,7 @@ export const useAppStore = create<Store>()((set, get) => ({
   // StableID helpers used by new UI
   isChapterLoading: (chapterId: string) => !!get().urlLoadingStates[chapterId],
   isChapterTranslating: (chapterId: string) => !!get().activeTranslations[chapterId],
+  isChapterHydrating: (chapterId: string) => !!get().hydratingChapters[chapterId],
 
   getNavigationHistory: () => {
     const { navigationHistory, chapters } = get();
@@ -265,11 +301,12 @@ export const useAppStore = create<Store>()((set, get) => ({
         return {
           currentChapterId: chapterId,
           navigationHistory: newHistory,
-          error: null
+          error: null,
+          imageGenerationMetrics: null,
         };
       });
 
-      console.log(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
+      slog(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
       
       // Update browser history
       const chapter = chapters.get(chapterId);
@@ -315,7 +352,7 @@ export const useAppStore = create<Store>()((set, get) => ({
     } else if (chapterId && !chapters.has(chapterId)) {
       // We have a mapping but content isn't in memory; lazy-load from IndexedDB
       console.log(`[Nav] Mapping found (${chapterId}) but not loaded. Hydrating from IndexedDB...`);
-      set(s => ({ urlLoadingStates: { ...s.urlLoadingStates, [chapterId]: true }, error: null }));
+      set(s => ({ hydratingChapters: { ...s.hydratingChapters, [chapterId]: true }, error: null }));
       try {
         const loaded = await get().loadChapterFromIDB(chapterId);
         console.log(`[Nav] Lazy load result:`, {
@@ -340,21 +377,22 @@ export const useAppStore = create<Store>()((set, get) => ({
               currentChapterId: chapterId,
               navigationHistory: newHistory,
               error: null,
+              imageGenerationMetrics: null,
             };
           });
           if (typeof history !== 'undefined' && history.pushState) {
             history.pushState({ chapterId }, '', `?chapter=${encodeURIComponent(loaded.canonicalUrl)}`);
           }
-          console.log(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
+          slog(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
           return;
         }
       } catch (e) {
         console.error('[Navigate] Failed to hydrate chapter from IndexedDB', e);
       } finally {
         set(s => {
-          const ls = { ...s.urlLoadingStates };
-          delete ls[chapterId!];
-          return { urlLoadingStates: ls };
+          const hc = { ...s.hydratingChapters };
+          delete hc[chapterId!];
+          return { hydratingChapters: hc };
         });
       }
 
@@ -370,11 +408,11 @@ export const useAppStore = create<Store>()((set, get) => ({
           if (loaded) return; // success; stop here
         }
       } catch (e) {
-        console.warn('[Navigate] IDB mapping lookup failed, proceeding to fetch if supported', e);
+        swarn('[Navigate] IDB mapping lookup failed, proceeding to fetch if supported', e);
       }
 
       if (get().isValidUrl(url)) {
-        console.log(`[Navigate] Hydration failed; attempting fetch for ${url}...`);
+        slog(`[Navigate] Hydration failed; attempting fetch for ${url}...`);
         set({ error: null });
         await get().handleFetch(url);
       } else {
@@ -385,7 +423,7 @@ export const useAppStore = create<Store>()((set, get) => ({
 
     } else if (get().isValidUrl(url)) {
       // Chapter not found, but the URL is from a supported scraping source
-      console.log(`[Navigate] No chapter found for ${url}. Attempting to fetch...`);
+      slog(`[Navigate] No chapter found for ${url}. Attempting to fetch...`);
       // Clear any stale error before we attempt a fresh fetch
       set({ error: null });
       await get().handleFetch(url);
@@ -428,6 +466,7 @@ export const useAppStore = create<Store>()((set, get) => ({
             currentChapterId: chapterIdFound,
             navigationHistory: [...new Set(s.navigationHistory.concat(chapterIdFound))],
             error: null,
+            imageGenerationMetrics: null,
           }));
           try {
             await indexedDBService.setSetting('lastActiveChapter', { id: chapterIdFound, url: canonicalUrl });
@@ -437,11 +476,11 @@ export const useAppStore = create<Store>()((set, get) => ({
           if (typeof history !== 'undefined' && history.pushState) {
             history.pushState({ chapterId: chapterIdFound }, '', `?chapter=${encodeURIComponent(canonicalUrl)}`);
           }
-          console.log(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);
+          slog(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);
           return;
         }
       } catch (e) {
-        console.warn('[Navigate] IndexedDB direct lookup failed', e);
+        swarn('[Navigate] IndexedDB direct lookup failed', e);
       }
 
       const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported.`;
@@ -452,10 +491,12 @@ export const useAppStore = create<Store>()((set, get) => ({
 
   // Lazily load a chapter by stableId from IndexedDB and cache it in memory
   loadChapterFromIDB: async (chapterId: string) => {
-    console.log(`[IDB] Loading chapter from IndexedDB: ${chapterId}`);
+    slog(`[IDB] Loading chapter from IndexedDB: ${chapterId}`);
+    // Mark hydrating
+    set(s => ({ hydratingChapters: { ...s.hydratingChapters, [chapterId]: true } }));
     try {
       const rec = await indexedDBService.getChapterByStableId(chapterId);
-      console.log(`[IDB] Retrieved record:`, {
+      slog(`[IDB] Retrieved record:`, {
           exists: !!rec,
           title: rec?.title,
           hasContent: !!rec?.content,
@@ -469,7 +510,7 @@ export const useAppStore = create<Store>()((set, get) => ({
       });
       
       if (!rec) {
-          console.warn(`[IDB] No record found for ${chapterId}`);
+          swarn(`[IDB] No record found for ${chapterId}`);
           return null;
       }
       
@@ -493,7 +534,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         translationResult: null,
       } as EnhancedChapter;
       
-      console.log(`[IDB] Created enhanced chapter:`, {
+      slog(`[IDB] Created enhanced chapter:`, {
           id: enhanced.id,
           title: enhanced.title,
           hasContent: !!enhanced.content,
@@ -539,6 +580,12 @@ export const useAppStore = create<Store>()((set, get) => ({
     } catch (e) {
       console.error('[Store] loadChapterFromIDB failed', e);
       return null;
+    } finally {
+      set(s => {
+        const hc = { ...s.hydratingChapters };
+        delete hc[chapterId];
+        return { hydratingChapters: hc };
+      });
     }
   },
 
@@ -672,17 +719,17 @@ export const useAppStore = create<Store>()((set, get) => ({
   // Async variant that can hydrate missing context from IndexedDB
   buildTranslationHistoryAsync: async (currentChapterId: string) => {
     try {
-      console.log(`[HistoryAsync] Building history for chapter: ${currentChapterId}`);
+      slog(`[HistoryAsync] Building history for chapter: ${currentChapterId}`);
       const { chapters, settings } = get();
       const currentChapter = chapters.get(currentChapterId);
 
       if (!currentChapter) {
-        console.log('[HistoryAsync] Current chapter not in memory; returning empty history');
+        slog('[HistoryAsync] Current chapter not in memory; returning empty history');
         return [];
       }
 
       if (settings.contextDepth === 0) {
-        console.log(`[HistoryAsync] No context: contextDepth is 0`);
+        slog(`[HistoryAsync] No context: contextDepth is 0`);
         return [];
       }
 
@@ -690,7 +737,7 @@ export const useAppStore = create<Store>()((set, get) => ({
       if (!currentChapter.chapterNumber) {
         try {
           const domain = new URL(currentChapter.canonicalUrl || currentChapter.originalUrl).hostname;
-          console.warn(`[HistoryAsync] Missing chapterNumber for ${currentChapterId}. Falling back to chronological context by domain: ${domain}`);
+          swarn(`[HistoryAsync] Missing chapterNumber for ${currentChapterId}. Falling back to chronological context by domain: ${domain}`);
           const recent = await indexedDBService.getRecentActiveTranslationsByDomain(domain, settings.contextDepth, currentChapterId);
           const built: HistoricalChapter[] = recent
             .reverse() // oldest -> newest among selected
@@ -701,17 +748,17 @@ export const useAppStore = create<Store>()((set, get) => ({
               translatedContent: tr.translation,
               feedback: []
             }));
-          console.log(`[HistoryAsync] Chronological fallback built ${built.length} items`);
+          slog(`[HistoryAsync] Chronological fallback built ${built.length} items`);
           return built;
         } catch (e) {
-          console.warn('[HistoryAsync] Chronological fallback failed:', e);
+          swarn('[HistoryAsync] Chronological fallback failed:', e);
           return [];
         }
       }
 
       // Reuse in-memory builder first
       const inMemory = get().buildTranslationHistory(currentChapterId);
-      console.log(`[HistoryAsync] In-memory context count: ${inMemory.length} (target ${settings.contextDepth})`);
+      slog(`[HistoryAsync] In-memory context count: ${inMemory.length} (target ${settings.contextDepth})`);
       if (inMemory.length >= settings.contextDepth) return inMemory;
 
       // Determine target chapter numbers
@@ -720,7 +767,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         const n = (currentChapter.chapterNumber || 0) - i;
         if (n > 0) targets.push(n);
       }
-      console.log('[HistoryAsync] Target chapter numbers:', targets);
+      slog('[HistoryAsync] Target chapter numbers:', targets);
 
       // Load all chapters from IDB to find missing ones
       const allFromDb = await indexedDBService.getChaptersForReactRendering();
@@ -746,7 +793,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         // Need an active translation for this stableId
         const active = await indexedDBService.getActiveTranslationByStableId(dbRec.stableId);
         if (!active) {
-          console.log(`[HistoryAsync] No active translation for chapterNumber ${num}; skipping`);
+          slog(`[HistoryAsync] No active translation for chapterNumber ${num}; skipping`);
           continue;
         }
 
@@ -754,7 +801,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         const originalTitle = dbRec.title;
         const originalContent = dbRec.data?.chapter?.content || '';
         if (!originalContent) {
-          console.log(`[HistoryAsync] DB chapter ${num} missing content; skipping`);
+          slog(`[HistoryAsync] DB chapter ${num} missing content; skipping`);
           continue;
         }
         candidates.push({
@@ -803,7 +850,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         try {
           const domain = new URL(currentChapter.canonicalUrl || currentChapter.originalUrl).hostname;
           const needed = settings.contextDepth - finalHistory.length;
-          console.warn(`[HistoryAsync] Insufficient in-memory/numbered context (${finalHistory.length}/${settings.contextDepth}). Topping up ${needed} via chronological fallback for domain ${domain}`);
+          swarn(`[HistoryAsync] Insufficient in-memory/numbered context (${finalHistory.length}/${settings.contextDepth}). Topping up ${needed} via chronological fallback for domain ${domain}`);
           const recent = await indexedDBService.getRecentActiveTranslationsByDomain(domain, settings.contextDepth + 2, currentChapterId);
           // Build candidates not already present by matching originalContent title pairs
           const existingKeys = new Set(finalHistory.map(h => `${h.originalTitle}|${h.translatedTitle}`));
@@ -820,13 +867,13 @@ export const useAppStore = create<Store>()((set, get) => ({
             if (finalHistory.length >= settings.contextDepth) break;
           }
         } catch (e) {
-          console.warn('[HistoryAsync] Chronological top-up failed:', e);
+          swarn('[HistoryAsync] Chronological top-up failed:', e);
         }
       }
-      console.log(`[HistoryAsync] Final context count: ${finalHistory.length}`);
+      slog(`[HistoryAsync] Final context count: ${finalHistory.length}`);
       return finalHistory;
     } catch (e) {
-      console.warn('[HistoryAsync] Failed to build history with DB fallback:', e);
+      swarn('[HistoryAsync] Failed to build history with DB fallback:', e);
       return get().buildTranslationHistory(currentChapterId);
     }
   },
@@ -875,7 +922,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         } catch {}
       })
       .catch(err => {
-        console.warn('[Export] Full export failed, falling back to memory snapshot download', err);
+        swarn('[Export] Full export failed, falling back to memory snapshot download', err);
         try {
           const ts = new Date().toISOString().slice(0,19).replace(/[-:T]/g, '');
           const filename = `lexicon-forge-session-${ts}.json`;
@@ -1052,39 +1099,43 @@ export const useAppStore = create<Store>()((set, get) => ({
             error: null,
           };
         });
-        // Hydrate active translation for current chapter in memory for immediate display
+        // Hydrate active translations for all loaded chapters to avoid cache-miss UI
         try {
-          const activeId = (await indexedDBService.getSetting<any>('lastActiveChapter').catch(() => null))?.id;
-          const targetId = activeId || (await indexedDBService.getMostRecentChapterStableId().catch(() => null))?.stableId;
-          if (targetId) {
-            const active = await indexedDBService.getActiveTranslationByStableId(targetId);
-            if (active) {
+          const ids = rendering.map(r => r.stableId);
+          const hydrateTranslation = async (sid: string) => {
+            try {
+              const active = await indexedDBService.getActiveTranslationByStableId(sid);
+              if (!active) return;
               set(s => {
                 const chapters = new Map(s.chapters);
-                const ch = chapters.get(targetId);
-                if (ch) {
-                  const usageMetrics = {
-                    totalTokens: active.totalTokens || 0,
-                    promptTokens: active.promptTokens || 0,
-                    completionTokens: active.completionTokens || 0,
-                    estimatedCost: active.estimatedCost || 0,
-                    requestTime: active.requestTime || 0,
-                    provider: (active.provider as any) || s.settings.provider,
-                    model: active.model || s.settings.model,
-                  } as any;
-                  ch.translationResult = {
-                    translatedTitle: active.translatedTitle,
-                    translation: active.translation,
-                    proposal: active.proposal || null,
-                    footnotes: active.footnotes || [],
-                    suggestedIllustrations: active.suggestedIllustrations || [],
-                    usageMetrics,
-                  } as any;
-                  chapters.set(targetId, ch);
-                }
-                return { chapters };
+                const ch = chapters.get(sid);
+                if (!ch) return {} as any;
+                const usageMetrics = {
+                  totalTokens: active.totalTokens || 0,
+                  promptTokens: active.promptTokens || 0,
+                  completionTokens: active.completionTokens || 0,
+                  estimatedCost: active.estimatedCost || 0,
+                  requestTime: active.requestTime || 0,
+                  provider: (active.provider as any) || s.settings.provider,
+                  model: active.model || s.settings.model,
+                } as any;
+                ch.translationResult = {
+                  translatedTitle: active.translatedTitle,
+                  translation: active.translation,
+                  proposal: active.proposal || null,
+                  footnotes: active.footnotes || [],
+                  suggestedIllustrations: active.suggestedIllustrations || [],
+                  usageMetrics,
+                } as any;
+                chapters.set(sid, ch);
+                return { chapters } as any;
               });
-            }
+            } catch {}
+          };
+          const HYDRATION_BATCH_SIZE = 8;
+          for (let i = 0; i < ids.length; i += HYDRATION_BATCH_SIZE) {
+            const batch = ids.slice(i, i + HYDRATION_BATCH_SIZE);
+            await Promise.all(batch.map(hydrateTranslation));
           }
         } catch {}
         return;
@@ -1179,6 +1230,46 @@ export const useAppStore = create<Store>()((set, get) => ({
         };
       });
 
+      // After persisting, hydrate active translations from IDB for all imported chapters
+      try {
+        const ids = Array.from(incomingStableData.chapters.keys());
+        const hydrateTranslation = async (sid: string) => {
+          try {
+            const active = await indexedDBService.getActiveTranslationByStableId(sid);
+            if (!active) return;
+            set(s => {
+              const chapters = new Map(s.chapters);
+              const ch = chapters.get(sid);
+              if (!ch) return {} as any;
+              const usageMetrics = {
+                totalTokens: active.totalTokens || 0,
+                promptTokens: active.promptTokens || 0,
+                completionTokens: active.completionTokens || 0,
+                estimatedCost: active.estimatedCost || 0,
+                requestTime: active.requestTime || 0,
+                provider: (active.provider as any) || s.settings.provider,
+                model: active.model || s.settings.model,
+              } as any;
+              ch.translationResult = {
+                translatedTitle: active.translatedTitle,
+                translation: active.translation,
+                proposal: active.proposal || null,
+                footnotes: active.footnotes || [],
+                suggestedIllustrations: active.suggestedIllustrations || [],
+                usageMetrics,
+              } as any;
+              chapters.set(sid, ch);
+              return { chapters } as any;
+            });
+          } catch {}
+        };
+        const HYDRATION_BATCH_SIZE = 8;
+        for (let i = 0; i < ids.length; i += HYDRATION_BATCH_SIZE) {
+          const batch = ids.slice(i, i + HYDRATION_BATCH_SIZE);
+          await Promise.all(batch.map(hydrateTranslation));
+        }
+      } catch {}
+
     } catch (e: any) {
       console.error('[Import] Import failed:', e);
       set({ error: `Failed to import session: ${e.message}` });
@@ -1204,9 +1295,9 @@ export const useAppStore = create<Store>()((set, get) => ({
       }));
 
       try {
-        console.log(`[Fetch] Fetching and parsing URL: ${url}`);
+        slog(`[Fetch] Fetching and parsing URL: ${url}`);
         const chapterData = await fetchAndParseUrl(url, {}, () => {});
-        console.log(`[Fetch] Raw chapter data:`, {
+        slog(`[Fetch] Raw chapter data:`, {
           title: chapterData.title,
           hasContent: !!chapterData.content,
           contentLength: chapterData.content?.length || 0,
@@ -1217,14 +1308,14 @@ export const useAppStore = create<Store>()((set, get) => ({
         });
         
         // This is a new chapter, so we need to transform it to the stable format
-        console.log(`[Fetch] Transforming to stable format...`);
+        slog(`[Fetch] Transforming to stable format...`);
         // Create a new object that includes the 'url' property for transformation
         const dataForTransformation = {
           ...chapterData,
           url: chapterData.originalUrl // Ensure 'url' property is present for stableIdService
         };
         const stableData = transformImportedChapters([dataForTransformation]);
-        console.log(`[Fetch] Stable transformation result:`, {
+        slog(`[Fetch] Stable transformation result:`, {
           chaptersCount: stableData.chapters.size,
           currentChapterId: stableData.currentChapterId,
           urlIndexSize: stableData.urlIndex.size,
@@ -1234,7 +1325,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         // Verify the transformed chapter has content
         if (stableData.currentChapterId) {
           const transformedChapter = stableData.chapters.get(stableData.currentChapterId);
-          console.log(`[Fetch] Transformed chapter content check:`, {
+          slog(`[Fetch] Transformed chapter content check:`, {
             chapterId: stableData.currentChapterId,
             title: transformedChapter?.title,
             hasContent: !!transformedChapter?.content,
@@ -1253,7 +1344,7 @@ export const useAppStore = create<Store>()((set, get) => ({
           const newChapterId = stableData.currentChapterId;
             const newHistory = newChapterId ? [...new Set(s.navigationHistory.concat(newChapterId))] : s.navigationHistory;
           
-          console.log(`[Fetch] State update:`, {
+          slog(`[Fetch] State update:`, {
             totalChaptersAfter: newChapters.size,
             navigationHistoryAfter: newHistory,
             currentChapterId: newChapterId
@@ -1333,7 +1424,6 @@ export const useAppStore = create<Store>()((set, get) => ({
         // Clear any stale error when a fresh translation begins
         error: null,
         activeTranslations: { ...s.activeTranslations, [chapterId]: abortController }, 
-        urlLoadingStates: { ...s.urlLoadingStates, [chapterId]: true }, 
         isLoading: { ...s.isLoading, translating: true } 
     }));
 
@@ -1345,7 +1435,7 @@ export const useAppStore = create<Store>()((set, get) => ({
         } else {
             history = buildTranslationHistory(chapterId);
         }
-        console.log('[Translate] Using context items:', history.length);
+        slog('[Translate] Using context items:', history.length);
         const result = await translateChapter(
           chapterToTranslate.title,
           chapterToTranslate.content,
@@ -1386,7 +1476,7 @@ export const useAppStore = create<Store>()((set, get) => ({
             if (needsGeneration) {
                 get().handleGenerateImages(chapterId);
             } else {
-                console.log(`[ImageGen] All illustrations already generated for chapter ${chapterId}`);
+                slog(`[ImageGen] All illustrations already generated for chapter ${chapterId}`);
             }
         }
             
@@ -1413,13 +1503,10 @@ export const useAppStore = create<Store>()((set, get) => ({
     } finally {
         set(s => {
             const newActiveTranslations = { ...s.activeTranslations };
-            const newUrlLoadingStates = { ...s.urlLoadingStates };
             delete newActiveTranslations[chapterId];
-            delete newUrlLoadingStates[chapterId];
             const isTranslating = Object.values(newActiveTranslations).some(Boolean);
             return { 
                 activeTranslations: newActiveTranslations, 
-                urlLoadingStates: newUrlLoadingStates, 
                 isLoading: { ...s.isLoading, translating: isTranslating } 
             };
         });
@@ -1441,18 +1528,18 @@ export const useAppStore = create<Store>()((set, get) => ({
         const stillTranslating = Object.keys(active).length > 0;
         return { activeTranslations: active, urlLoadingStates: urlStates, isLoading: { ...s.isLoading, translating: stillTranslating } };
       });
-      console.log(`[Translate] Cancel requested for ${chapterId}`);
+      slog(`[Translate] Cancel requested for ${chapterId}`);
     }
   },
 
   loadExistingImages: (chapterId: string) => {
-    console.log(`[ImageGen] Loading existing images for ${chapterId}`);
+    slog(`[ImageGen] Loading existing images for ${chapterId}`);
     const { chapters } = get();
     const chapter = chapters.get(chapterId);
     const translationResult = chapter?.translationResult;
 
     if (!translationResult || !translationResult.suggestedIllustrations) {
-      console.log(`[ImageGen] No illustrations found for chapter ${chapterId}`);
+      slog(`[ImageGen] No illustrations found for chapter ${chapterId}`);
       return;
     }
 
@@ -1468,7 +1555,7 @@ export const useAppStore = create<Store>()((set, get) => ({
           error: null
         };
         foundExistingImages = true;
-        console.log(`[ImageGen] Loaded existing image for ${illust.placementMarker}`);
+        slog(`[ImageGen] Loaded existing image for ${illust.placementMarker}`);
       }
     });
 
@@ -1476,23 +1563,23 @@ export const useAppStore = create<Store>()((set, get) => ({
       set(state => ({
         generatedImages: { ...state.generatedImages, ...imageStateUpdates }
       }));
-      console.log(`[ImageGen] Loaded ${Object.keys(imageStateUpdates).length} existing images for chapter ${chapterId}`);
+      slog(`[ImageGen] Loaded ${Object.keys(imageStateUpdates).length} existing images for chapter ${chapterId}`);
     }
   },
 
   handleGenerateImages: async (chapterId: string) => {
-    console.log(`[ImageGen] Starting image generation for ${chapterId}`);
+    slog(`[ImageGen] Starting image generation for ${chapterId}`);
     const { chapters, settings, generatedImages } = get();
     const chapter = chapters.get(chapterId);
     const translationResult = chapter?.translationResult;
 
     if (settings.imageModel === 'None') {
-      console.log('[ImageGen] Image generation is disabled in settings.');
+      slog('[ImageGen] Image generation is disabled in settings.');
       return;
     }
 
     if (!translationResult || !translationResult.suggestedIllustrations) {
-        console.warn('[ImageGen] No illustrations suggested for this chapter.');
+        swarn('[ImageGen] No illustrations suggested for this chapter.');
         return;
     }
 
@@ -1519,16 +1606,16 @@ export const useAppStore = create<Store>()((set, get) => ({
     );
 
     if (illustrationsNeedingGeneration.length === 0) {
-        console.log('[ImageGen] All illustrations already have generated images');
+        slog('[ImageGen] All illustrations already have generated images');
         return;
     }
 
-    console.log(`[ImageGen] Generating ${illustrationsNeedingGeneration.length}/${translationResult.suggestedIllustrations.length} new images`);
+    slog(`[ImageGen] Generating ${illustrationsNeedingGeneration.length}/${translationResult.suggestedIllustrations.length} new images`);
 
     // Sequentially generate images to avoid overwhelming the API
     for (const illust of illustrationsNeedingGeneration) {
         try {
-            console.log(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
+            slog(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
             const result = await generateImage(illust.imagePrompt, settings);
             totalTime += result.requestTime;
             totalCost += result.cost;
@@ -1562,14 +1649,14 @@ export const useAppStore = create<Store>()((set, get) => ({
                           promptId: get().activePromptTemplate?.id,
                           promptName: get().activePromptTemplate?.name,
                         });
-                        console.log(`[ImageGen] Persisted image for ${illust.placementMarker} to IndexedDB`);
+                        slog(`[ImageGen] Persisted image for ${illust.placementMarker} to IndexedDB`);
                     } catch (error) {
-                        console.warn(`[ImageGen] Failed to persist image to IndexedDB:`, error);
+                        swarn(`[ImageGen] Failed to persist image to IndexedDB:`, error);
                     }
                 }
             }
             
-            console.log(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
+            slog(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
         } catch (error: any) {
             console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, error);
             
@@ -1603,17 +1690,33 @@ export const useAppStore = create<Store>()((set, get) => ({
             lastModel: settings.imageModel,
         }
     });
-    console.log(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
+    slog(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
   },
 
   handleRetryImage: async (chapterId: string, placementMarker: string) => {
-    console.log(`[ImageGen] Retrying image generation for ${placementMarker} in chapter ${chapterId}`);
+    slog(`[ImageGen] Retrying image generation for ${placementMarker} in chapter ${chapterId}`);
     const { chapters, settings } = get();
     const chapter = chapters.get(chapterId);
     const illust = chapter?.translationResult?.suggestedIllustrations?.find(i => i.placementMarker === placementMarker);
 
     if (!illust) {
         console.error(`[ImageGen] Could not find illustration with marker ${placementMarker} to retry.`);
+        return;
+    }
+
+    if (settings.imageModel === 'None') {
+        // Immediately surface a friendly message instead of calling the API
+        set(state => ({
+            generatedImages: {
+                ...state.generatedImages,
+                [`${chapterId}:${placementMarker}`]: {
+                    isLoading: false,
+                    data: null,
+                    error: 'Image generation is disabled in Settings (Image Generation Model = None). Choose Imagen 3.0/4.0 or a Gemini image-capable model to enable.'
+                },
+            }
+        }));
+        slog('[ImageGen] Retry skipped because image model is None');
         return;
     }
 
@@ -1667,13 +1770,13 @@ export const useAppStore = create<Store>()((set, get) => ({
                 promptId: get().activePromptTemplate?.id,
                 promptName: get().activePromptTemplate?.name,
               });
-              console.log(`[ImageGen] Persisted retry image for ${placementMarker} to IndexedDB`);
+              slog(`[ImageGen] Persisted retry image for ${placementMarker} to IndexedDB`);
             } catch (e) {
-              console.warn('[ImageGen] Failed to persist retry image to IndexedDB', e);
+              swarn('[ImageGen] Failed to persist retry image to IndexedDB', e);
             }
           }
         }
-        console.log(`[ImageGen] Successfully retried and stored image for ${placementMarker}`);
+        slog(`[ImageGen] Successfully retried and stored image for ${placementMarker}`);
     } catch (error: any) {
         console.error(`[ImageGen] Failed to retry image for ${placementMarker}:`, error);
         set(state => ({
@@ -1718,9 +1821,9 @@ export const useAppStore = create<Store>()((set, get) => ({
         promptId: get().activePromptTemplate?.id,
         promptName: get().activePromptTemplate?.name,
       });
-      console.log(`[ImageGen] Updated illustration prompt persisted for ${placementMarker}`);
+      slog(`[ImageGen] Updated illustration prompt persisted for ${placementMarker}`);
     } catch (e) {
-      console.warn('[ImageGen] Failed to persist updated illustration prompt', e);
+      swarn('[ImageGen] Failed to persist updated illustration prompt', e);
     }
   },
   
@@ -1859,6 +1962,87 @@ export const useAppStore = create<Store>()((set, get) => ({
     }
   },
 
+  // OpenRouter dynamic catalogue and credits
+  loadOpenRouterCatalogue: async (force = false) => {
+    try {
+      const { openrouterService } = await import('../services/openrouterService');
+      const cached = await indexedDBService.getSetting<any>('openrouter-models');
+      const ttlMs = 24 * 60 * 60 * 1000; // 24h
+      const fresh = cached && cached.fetchedAt && (Date.now() - new Date(cached.fetchedAt).getTime() < ttlMs);
+      if (cached) set({ openRouterModels: cached });
+      if (!fresh || force) {
+        const envKey = (process as any).env?.OPENROUTER_API_KEY as string | undefined;
+        const apiKey = (get().settings as any).apiKeyOpenRouter || envKey || '';
+        const updated = await openrouterService.fetchModels(apiKey);
+        set({ openRouterModels: updated });
+      }
+    } catch (e) {
+      console.warn('[OpenRouter] loadOpenRouterCatalogue failed', e);
+    }
+  },
+  refreshOpenRouterModels: async () => {
+    try {
+      const { openrouterService } = await import('../services/openrouterService');
+      const envKey = (process as any).env?.OPENROUTER_API_KEY as string | undefined;
+      const apiKey = (get().settings as any).apiKeyOpenRouter || envKey || '';
+      const updated = await openrouterService.fetchModels(apiKey);
+      set({ openRouterModels: updated });
+    } catch (e) { console.warn('[OpenRouter] refresh models failed', e); }
+  },
+  refreshOpenRouterCredits: async () => {
+    try {
+      const { openrouterService } = await import('../services/openrouterService');
+      const envKey = (process as any).env?.OPENROUTER_API_KEY as string | undefined;
+      const apiKey = (get().settings as any).apiKeyOpenRouter || envKey || '';
+      if (!apiKey) { set({ openRouterKeyUsage: null }); return; }
+      const ttlMs = 30 * 60 * 1000; // 30m
+      const cached = await indexedDBService.getSetting<any>('openrouter-key-usage');
+      const fresh = cached && cached.fetchedAt && (Date.now() - new Date(cached.fetchedAt).getTime() < ttlMs);
+      if (fresh) { set({ openRouterKeyUsage: cached }); return; }
+      const updated = await openrouterService.fetchKeyUsage(apiKey);
+      set({ openRouterKeyUsage: updated });
+    } catch (e) { console.warn('[OpenRouter] refresh credits failed', e); }
+  },
+  getOpenRouterOptions: (search?: string) => {
+    const state = get();
+    const cached = state.openRouterModels?.data || [];
+    const needle = (search || '').trim().toLowerCase();
+    const filterTextCapable = (m: any) => {
+      const ins = (m.architecture?.input_modalities || []).map((x: any) => String(x).toLowerCase());
+      const outs = (m.architecture?.output_modalities || []).map((x: any) => String(x).toLowerCase());
+      return ins.includes('text') && outs.includes('text');
+    };
+    const list = cached.filter(filterTextCapable).filter((m: any) => {
+      if (!needle) return true;
+      return (m.name?.toLowerCase().includes(needle) || m.id?.toLowerCase().includes(needle));
+    }).map((m: any) => {
+      const pricing = m.pricing || {};
+      const pIn = typeof pricing.prompt === 'string' ? parseFloat(pricing.prompt) : pricing.prompt;
+      const pOut = typeof pricing.completion === 'string' ? parseFloat(pricing.completion) : pricing.completion;
+      const inPerM = (pIn && isFinite(pIn) && pIn > 0) ? pIn * 1_000_000 : null;
+      const outPerM = (pOut && isFinite(pOut) && pOut > 0) ? pOut * 1_000_000 : null;
+      const extras: string[] = [];
+      const ins = (m.architecture?.input_modalities || []).map((x: any) => String(x).toLowerCase());
+      const outs = (m.architecture?.output_modalities || []).map((x: any) => String(x).toLowerCase());
+      if (ins.includes('image')) extras.push('image-in');
+      if (ins.includes('audio')) extras.push('audio-in');
+      if (outs.includes('image')) extras.push('image-out');
+      if (outs.includes('audio')) extras.push('audio-out');
+      const extrasLabel = extras.length ? ` (${extras.join(', ')})` : '';
+      const label = (inPerM != null && outPerM != null)
+        ? `${m.name} — $${inPerM.toFixed(2)}/$${outPerM.toFixed(2)} per 1M${extrasLabel}`
+        : `${m.name}${extrasLabel}`;
+      const priceKey = (inPerM != null && outPerM != null) ? (inPerM + outPerM) : null;
+      return { id: m.id, label, priceKey };
+    });
+    // Basic sort by price (recents applied in UI through selection memory)
+    return list.sort((a, b) => {
+      const ak = a.priceKey == null ? Number.POSITIVE_INFINITY : a.priceKey;
+      const bk = b.priceKey == null ? Number.POSITIVE_INFINITY : b.priceKey;
+      return ak - bk || a.id.localeCompare(b.id);
+    });
+  },
+
   getChapterById: (chapterId: string) => {
     return get().chapters.get(chapterId) || null;
   },
@@ -1948,9 +2132,9 @@ export const useAppStore = create<Store>()((set, get) => ({
           set(s => ({ currentChapterId: s.currentChapterId || mostRecent.stableId }));
         }
       }
-      console.log(`[Boot] Hydrated ${mappings.length} URL mappings from IndexedDB`);
+      slog(`[Boot] Hydrated ${mappings.length} URL mappings from IndexedDB`);
     } catch (e) {
-      console.warn('[Boot] Failed to hydrate URL indices from IndexedDB', e);
+      swarn('[Boot] Failed to hydrate URL indices from IndexedDB', e);
     }
   },
 }));

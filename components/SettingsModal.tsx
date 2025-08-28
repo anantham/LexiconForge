@@ -5,6 +5,7 @@ import useAppStore from '../store/useAppStore';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
 import { getDefaultTemplate } from '../services/epubService';
 import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../costs';
+import { supportsStructuredOutputs } from '../services/capabilityService';
 import { useShallow } from 'zustand/react/shallow';
 
 interface SettingsModalProps {
@@ -23,7 +24,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     createPromptTemplate,
     updatePromptTemplate,
     deletePromptTemplate,
-    setActivePromptTemplate
+    setActivePromptTemplate,
+    loadOpenRouterCatalogue,
+    refreshOpenRouterModels,
+    refreshOpenRouterCredits,
+    getOpenRouterOptions,
+    openRouterModels,
+    openRouterKeyUsage,
   } = useAppStore(useShallow(state => ({
       settings: state.settings,
       updateSettings: state.updateSettings,
@@ -34,7 +41,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       createPromptTemplate: state.createPromptTemplate,
       updatePromptTemplate: state.updatePromptTemplate,
       deletePromptTemplate: state.deletePromptTemplate,
-      setActivePromptTemplate: state.setActivePromptTemplate
+      setActivePromptTemplate: state.setActivePromptTemplate,
+      loadOpenRouterCatalogue: state.loadOpenRouterCatalogue,
+      refreshOpenRouterModels: state.refreshOpenRouterModels,
+      refreshOpenRouterCredits: state.refreshOpenRouterCredits,
+      getOpenRouterOptions: state.getOpenRouterOptions,
+      openRouterModels: state.openRouterModels,
+      openRouterKeyUsage: state.openRouterKeyUsage,
   })));
 
   const [currentSettings, setCurrentSettings] = useState(settings);
@@ -45,10 +58,93 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [newPromptName, setNewPromptName] = useState('');
   const [newPromptDescription, setNewPromptDescription] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [orSearch, setOrSearch] = useState('');
+  const [lastUsedMap, setLastUsedMap] = useState<Record<string, string>>({});
+  const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
 
   useEffect(() => {
     setCurrentSettings(settings);
   }, [settings, isOpen]);
+
+  // Check structured output support for current models when provider/model changes
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const checkStructuredOutputSupport = async (provider: string, modelId: string) => {
+      const key = `${provider}:${modelId}`;
+      if (structuredOutputSupport[key] !== null) return; // Already checked
+      
+      try {
+        const hasSupport = await supportsStructuredOutputs(provider, modelId);
+        setStructuredOutputSupport(prev => ({ ...prev, [key]: hasSupport }));
+      } catch (error) {
+        console.warn(`Failed to check structured output support for ${provider}:${modelId}`, error);
+        setStructuredOutputSupport(prev => ({ ...prev, [key]: false }));
+      }
+    };
+    
+    checkStructuredOutputSupport(currentSettings.provider, currentSettings.model);
+  }, [currentSettings.provider, currentSettings.model, isOpen, structuredOutputSupport]);
+
+  // Pre-check structured output support for all visible models when provider changes
+  useEffect(() => {
+    if (!isOpen || currentSettings.provider === 'OpenRouter') return; // Skip for OpenRouter due to large model list
+    
+    const checkAllModels = async () => {
+      const models = AVAILABLE_MODELS[currentSettings.provider] || [];
+      for (const model of models) {
+        const key = `${currentSettings.provider}:${model.id}`;
+        if (structuredOutputSupport[key] !== null) continue; // Already checked
+        
+        try {
+          const hasSupport = await supportsStructuredOutputs(currentSettings.provider, model.id);
+          setStructuredOutputSupport(prev => ({ ...prev, [key]: hasSupport }));
+          // Small delay to avoid overwhelming the API
+          await new Promise(resolve => setTimeout(resolve, 50));
+        } catch (error) {
+          console.warn(`Failed to check structured output support for ${currentSettings.provider}:${model.id}`, error);
+          setStructuredOutputSupport(prev => ({ ...prev, [key]: false }));
+        }
+      }
+    };
+    
+    checkAllModels();
+  }, [currentSettings.provider, isOpen, structuredOutputSupport]);
+
+  // For OpenRouter, check structured output support on-demand when model selection changes
+  useEffect(() => {
+    if (!isOpen || currentSettings.provider !== 'OpenRouter') return;
+    
+    const checkOpenRouterModel = async (modelId: string) => {
+      const key = `OpenRouter:${modelId}`;
+      if (structuredOutputSupport[key] !== null) return; // Already checked
+      
+      try {
+        const hasSupport = await supportsStructuredOutputs('OpenRouter', modelId);
+        setStructuredOutputSupport(prev => ({ ...prev, [key]: hasSupport }));
+      } catch (error) {
+        console.warn(`Failed to check structured output support for OpenRouter:${modelId}`, error);
+        setStructuredOutputSupport(prev => ({ ...prev, [key]: false }));
+      }
+    };
+    
+    checkOpenRouterModel(currentSettings.model);
+  }, [currentSettings.provider, currentSettings.model, isOpen, structuredOutputSupport]);
+
+  // Load OpenRouter catalogue + credits when modal opens on OpenRouter, or when switching to OpenRouter
+  useEffect(() => {
+    if (!isOpen) return;
+    if (currentSettings.provider !== 'OpenRouter') return;
+    loadOpenRouterCatalogue(false);
+    refreshOpenRouterCredits();
+    (async () => {
+      try {
+        const { openrouterService } = await import('../services/openrouterService');
+        const map = await openrouterService.getLastUsedMap();
+        setLastUsedMap(map);
+      } catch {}
+    })();
+  }, [isOpen, currentSettings.provider]);
   // Developer settings hooks must be before early return to obey Rules of Hooks
   const [showDev, setShowDev] = useState(false);
   type DebugLevel = 'off' | 'summary' | 'full';
@@ -216,18 +312,36 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
   // Build priced, sorted text models for the selected provider
   const rawTextModels = AVAILABLE_MODELS[currentSettings.provider] || [];
-  const pricedTextModels = rawTextModels
-    .map(m => {
-      const costs = COSTS_PER_MILLION_TOKENS[m.id];
-      const input = costs?.input;
-      const output = costs?.output;
-      const label = (input != null && output != null)
-        ? `${m.name} — $${input.toFixed(2)}/$${output.toFixed(2)} per 1M`
-        : m.name;
-      const sortKey = (input != null && output != null) ? (input + output) : Number.POSITIVE_INFINITY;
-      return { ...m, label, sortKey };
-    })
-    .sort((a, b) => a.sortKey - b.sortKey);
+  const pricedTextModels = currentSettings.provider === 'OpenRouter'
+    ? (() => {
+        const options = getOpenRouterOptions(orSearch);
+        // Apply last-used ordering: top 10 by recency
+        const withLU = options.map(o => ({...o, lastUsed: lastUsedMap[o.id]}));
+        const recents = withLU.filter(o => !!o.lastUsed)
+          .sort((a, b) => new Date(b.lastUsed!).getTime() - new Date(a.lastUsed!).getTime())
+          .slice(0, 10);
+        const recentIds = new Set(recents.map(r => r.id));
+        const rest = withLU.filter(o => !recentIds.has(o.id))
+          .sort((a, b) => {
+            const ak = a.priceKey == null ? Number.POSITIVE_INFINITY : a.priceKey;
+            const bk = b.priceKey == null ? Number.POSITIVE_INFINITY : b.priceKey;
+            return ak - bk || a.id.localeCompare(b.id);
+          });
+        const combined = recents.concat(rest);
+        return combined.map(m => ({ id: m.id, name: m.label, label: m.label, sortKey: m.priceKey ?? Number.POSITIVE_INFINITY }));
+      })()
+    : rawTextModels
+        .map(m => {
+          const costs = COSTS_PER_MILLION_TOKENS[m.id];
+          const input = costs?.input;
+          const output = costs?.output;
+          const label = (input != null && output != null)
+            ? `${m.name} — $${input.toFixed(2)}/$${output.toFixed(2)} per 1M`
+            : m.name;
+          const sortKey = (input != null && output != null) ? (input + output) : Number.POSITIVE_INFINITY;
+          return { ...m, label, sortKey };
+        })
+        .sort((a, b) => a.sortKey - b.sortKey);
 
   // Build priced, sorted image models (Gemini only)
   const rawImageModels = AVAILABLE_IMAGE_MODELS['Gemini'] || [];
@@ -275,6 +389,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           <fieldset>
             <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Translation Engine</legend>
             <div className="space-y-4">
+              <div>
+                <label htmlFor="targetLanguage" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Language</label>
+                <input
+                  id="targetLanguage"
+                  type="text"
+                  value={(currentSettings as any).targetLanguage || 'English'}
+                  onChange={(e) => handleSettingChange('targetLanguage' as any, e.target.value)}
+                  placeholder="e.g., English, Malayalam, Español"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Text Provider</label>
@@ -287,6 +412,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <option value="Gemini">Google Gemini</option>
                     <option value="OpenAI">OpenAI</option>
                     <option value="DeepSeek">DeepSeek</option>
+                    <option value="OpenRouter">OpenRouter</option>
                     <option value="Claude">Claude (Anthropic)</option>
                   </select>
                 </div>
@@ -300,22 +426,78 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                         '• Input = prompt/context tokens you send.\n' +
                         '• Output = tokens the model generates (includes thinking tokens when applicable).\n' +
                         'Model IDs ending with “latest” are rolling aliases managed by the provider (e.g., gpt-5-chat-latest).\n' +
-                        'Fixed IDs (e.g., gpt-5) are specific snapshots. The exact slug you select is passed to the API.'
+                        'Fixed IDs (e.g., gpt-5) are specific snapshots. The exact slug you select is passed to the API.\n\n' +
+                        'Green checkmarks (✅) indicate models that support structured outputs for better JSON schema compliance.'
                       }
                     >
-                      (what do these prices mean?)
+                      (pricing & capabilities)
                     </span>
                   </label>
+                  {currentSettings.provider === 'OpenRouter' && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <input
+                        type="text"
+                        placeholder="Search models…"
+                        value={orSearch}
+                        onChange={(e) => setOrSearch(e.target.value)}
+                        className="flex-1 p-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          refreshOpenRouterModels();
+                          // Clear structured output cache for OpenRouter to re-check capabilities
+                          setStructuredOutputSupport(prev => {
+                            const filtered = Object.fromEntries(
+                              Object.entries(prev).filter(([key]) => !key.startsWith('OpenRouter:'))
+                            );
+                            return filtered;
+                          });
+                        }}
+                        className="px-3 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded-md"
+                        title={`Last updated: ${openRouterModels?.fetchedAt ? new Date(openRouterModels.fetchedAt).toLocaleString() : '—'}`}
+                      >
+                        Refresh models
+                      </button>
+                    </div>
+                  )}
                   <select
                     id="model"
                     value={currentSettings.model}
                     onChange={(e) => handleSettingChange('model', e.target.value)}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   >
-                    {pricedTextModels.map(m => (
-                      <option key={m.id} value={m.id}>{m.label}</option>
-                    ))}
+                    {pricedTextModels.map(m => {
+                      const supportKey = `${currentSettings.provider}:${m.id}`;
+                      const hasStructuredSupport = structuredOutputSupport[supportKey];
+                      const badge = hasStructuredSupport ? " ✅" : "";
+                      return (
+                        <option key={m.id} value={m.id}>{m.label}{badge}</option>
+                      );
+                    })}
                   </select>
+                  {currentSettings.provider === 'OpenRouter' && (
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      Models updated: {openRouterModels?.fetchedAt ? new Date(openRouterModels.fetchedAt).toLocaleString() : '—'}
+                    </div>
+                  )}
+                  
+                  {/* Current model structured output support indicator */}
+                  {(() => {
+                    const currentSupportKey = `${currentSettings.provider}:${currentSettings.model}`;
+                    const currentSupport = structuredOutputSupport[currentSupportKey];
+                    return currentSupport === true ? (
+                      <div className="mt-2 flex items-center text-xs text-green-600 dark:text-green-400">
+                        <span className="mr-1">✅</span>
+                        This model supports structured outputs for better schema compliance
+                      </div>
+                    ) : currentSupport === false ? (
+                      <div className="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                        <span className="mr-1">ℹ️</span>
+                        This model uses JSON object format with fallback handling
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               </div>
               <div>
@@ -439,7 +621,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Security Notice</h3>
                   <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                    API keys are stored locally in your browser and visible in client-side code. For production deployments, consider using separate limited-scope keys and monitor usage.
+                    Your API keys are stored locally on your device. This is a static app with no backend; all data (including keys) lives in your browser’s storage.
+                  </p>
+                  <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+                    Requests to providers (OpenAI, Gemini, OpenRouter, etc.) are sent directly from your current browser session, and your keys are never sent anywhere else. This project is open source - browse the
+                    {' '}
+                    <a href="https://github.com/anantham/LexiconForge" target="_blank" rel="noopener noreferrer" className="underline font-medium">repo</a>
+                    {' '}and see.
                   </p>
                 </div>
               </div>
@@ -477,6 +665,33 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   placeholder="Enter your DeepSeek API Key"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+              </div>
+              <div>
+                <label htmlFor="apiKeyOpenRouter" className="block text-sm font-medium text-gray-700 dark:text-gray-300">OpenRouter API Key</label>
+                <input
+                  id="apiKeyOpenRouter"
+                  type="password"
+                  value={(currentSettings as any).apiKeyOpenRouter || ''}
+                  onChange={(e) => handleSettingChange('apiKeyOpenRouter' as any, e.target.value)}
+                  placeholder="Enter your OpenRouter API Key"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => refreshOpenRouterCredits()}
+                    className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
+                  >
+                    Refresh credits
+                  </button>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {openRouterKeyUsage ? (
+                      openRouterKeyUsage.limit == null
+                        ? 'Remaining: ∞'
+                        : `Remaining: $${(openRouterKeyUsage.remaining ?? 0).toFixed(2)} (updated ${new Date(openRouterKeyUsage.fetchedAt).toLocaleTimeString()})`
+                    ) : 'Remaining: —'}
+                  </span>
+                </div>
               </div>
               <div>
                 <label htmlFor="apiKeyClaude" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Claude API Key</label>
@@ -756,6 +971,62 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <option value="full">Full — include full request/response JSON</option>
                   </select>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full also attaches EPUB parse diagnostics to the export.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="maxOutputTokens" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Output Tokens</label>
+                    <input
+                      id="maxOutputTokens"
+                      type="number"
+                      min={256}
+                      max={200000}
+                      step={256}
+                      value={(currentSettings as any).maxOutputTokens ?? 8192}
+                      onChange={(e) => handleSettingChange('maxOutputTokens' as any, Math.max(256, Math.min(200000, parseInt(e.target.value || '8192', 10))))}
+                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Hard cap for generated tokens. Applied where supported.</p>
+                  </div>
+                  <div>
+                    <label htmlFor="retryMax" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Retry Attempts</label>
+                    <input
+                      id="retryMax"
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={(currentSettings as any).retryMax ?? 3}
+                      onChange={(e) => handleSettingChange('retryMax' as any, Math.max(0, Math.min(10, parseInt(e.target.value || '3', 10))))}
+                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Max retries for rate-limits and transient failures.</p>
+                  </div>
+                  <div>
+                    <label htmlFor="retryInitialDelayMs" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Retry Initial Delay (ms)</label>
+                    <input
+                      id="retryInitialDelayMs"
+                      type="number"
+                      min={100}
+                      max={60000}
+                      step={100}
+                      value={(currentSettings as any).retryInitialDelayMs ?? 2000}
+                      onChange={(e) => handleSettingChange('retryInitialDelayMs' as any, Math.max(100, Math.min(60000, parseInt(e.target.value || '2000', 10))))}
+                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Exponential backoff starts with this delay.</p>
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="footnoteStrictMode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Footnote Strictness</label>
+                  <select
+                    id="footnoteStrictMode"
+                    value={(currentSettings as any).footnoteStrictMode ?? 'append_missing'}
+                    onChange={(e) => handleSettingChange('footnoteStrictMode' as any, e.target.value as any)}
+                    className="mt-1 block w-full sm:w-64 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  >
+                    <option value="append_missing">Append missing markers (tolerant)</option>
+                    <option value="fail">Fail on imbalance (strict)</option>
+                  </select>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Strict mode errors when JSON footnotes don’t match text markers.</p>
                 </div>
               </div>
             </fieldset>

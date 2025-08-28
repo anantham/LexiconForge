@@ -32,7 +32,6 @@ const ChapterView: React.FC = () => {
     updateFeedbackComment,
     handleRetranslateCurrent,
     cancelTranslation,
-    isChapterLoading,
     isChapterTranslating,
     shouldEnableRetranslation,
     hasTranslationSettingsChanged,
@@ -51,12 +50,12 @@ const ChapterView: React.FC = () => {
     updateFeedbackComment: state.updateFeedbackComment,
     handleRetranslateCurrent: state.handleRetranslateCurrent,
     cancelTranslation: state.cancelTranslation,
-    isChapterLoading: state.isChapterLoading,
     isChapterTranslating: state.isChapterTranslating,
     shouldEnableRetranslation: state.shouldEnableRetranslation,
     hasTranslationSettingsChanged: state.hasTranslationSettingsChanged,
     imageGenerationMetrics: state.imageGenerationMetrics,
   })));
+  const hydratingMap = useAppStore(s => s.hydratingChapters);
 
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
   const translationResult = chapter?.translationResult;
@@ -138,6 +137,7 @@ const ChapterView: React.FC = () => {
   }
   
   const parseAndRender = (text: string): React.ReactNode[] => {
+    if (!text) return [];
     const parts = text.split(/(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>)/g).filter(Boolean);
 
     return parts.map((part, index) => {
@@ -173,7 +173,7 @@ const ChapterView: React.FC = () => {
 
   const renderContent = () => {
     if (isLoading.fetching) {
-      return <Loader text="Fetching chapter..." />;
+      return <Loader text="Fetching chapter raws..." />;
     }
     if (!chapter) {
       return (
@@ -185,13 +185,19 @@ const ChapterView: React.FC = () => {
     }
 
     const currentChapterTranslating = currentChapterId ? isChapterTranslating(currentChapterId) : false;
+    const isHydrating = currentChapterId ? !!hydratingMap[currentChapterId] : false;
     
     if (viewMode === 'english' && currentChapterTranslating && !translationResult) {
-      return <Loader text={`Translating with ${settings.provider}...`} />;
+      return <Loader text={`Translating with ${settings.provider}${settings.model ? ' — ' + settings.model : ''}...`} />;
     }
 
     if (viewMode === 'english' && !translationResult && !error) {
-      return <Loader text={`Translating with ${settings.provider}...`} />;
+      return <Loader text={`Translating with ${settings.provider}${settings.model ? ' — ' + settings.model : ''}...`} />;
+    }
+
+    // Only show cache hydration spinner when not actively translating
+    if (isHydrating && !currentChapterTranslating) {
+      return <Loader text="Loading chapter from cache..." />;
     }
     
     return (
@@ -341,7 +347,7 @@ const ChapterView: React.FC = () => {
                   onClick={() => handleToggleLanguage('english')}
                   className={`px-4 py-1 text-sm font-semibold rounded-full transition-colors ${viewMode === 'english' ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
                 >
-                  English
+                  {settings.targetLanguage || 'English'}
                 </button>
               </div>
               {viewMode === 'english' && (
@@ -367,6 +373,7 @@ const ChapterView: React.FC = () => {
                   <RefreshIcon className={`w-5 h-5 ${currentChapterId && isChapterTranslating(currentChapterId) ? 'animate-spin' : ''}`} />
                 </button>
               )}
+
               
             </div>
 
@@ -378,10 +385,15 @@ const ChapterView: React.FC = () => {
                 Next &rarr;
             </button>
           </div>
-          {viewMode === 'english' && translationResult?.usageMetrics && (
+          {currentChapterId && isChapterTranslating(currentChapterId) && (
+            <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+              Translating: <span className="font-semibold">{settings.provider}</span>{settings.model ? ` — ${settings.model}` : ''}
+            </div>
+          )}
+          {viewMode === 'english' && translationResult?.usageMetrics && !isLoading.fetching && !(currentChapterId ? isChapterTranslating(currentChapterId) : false) && !(currentChapterId ? !!hydratingMap[currentChapterId] : false) && (
             <MetricsDisplay metrics={translationResult.usageMetrics} />
           )}
-          {viewMode === 'english' && imageGenerationMetrics && (
+          {viewMode === 'english' && imageGenerationMetrics && !isLoading.fetching && !(currentChapterId ? isChapterTranslating(currentChapterId) : false) && !(currentChapterId ? !!hydratingMap[currentChapterId] : false) && (
             <ImageMetricsDisplay metrics={imageGenerationMetrics} />
           )}
         </header>

@@ -61,7 +61,7 @@ export const translateWithClaude = async (
     fanTranslation?: string | null
 ): Promise<TranslationResult> => {
 
-    const apiKey = settings.apiKeyClaude || (typeof process !== 'undefined' ? process.env.CLAUDE_API_KEY : undefined);
+    const apiKey = settings.apiKeyClaude || (process.env.CLAUDE_API_KEY as any);
     if (!apiKey) {
         throw new Error("Claude API key is missing. Please add it in the settings.");
     }
@@ -78,7 +78,10 @@ export const translateWithClaude = async (
     
     // Create comprehensive prompt with schema description
     const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
-    const fullPrompt = `${settings.systemPrompt}\n\n${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}
+    const sys = (settings.systemPrompt || '')
+      .replaceAll('{{targetLanguage}}', settings.targetLanguage || 'English')
+      .replaceAll('{{targetLanguageVariant}}', settings.targetLanguage || 'English');
+    const fullPrompt = `${sys}\n\n${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}
 
 IMPORTANT: You must respond with valid JSON in exactly this format:
 {
@@ -120,7 +123,7 @@ If there is no proposal, use null for proposal.`;
     
     const requestPayload = {
         model: settings.model,
-        max_tokens: 8192,
+        max_tokens: Math.max(1, Math.min((settings.maxOutputTokens ?? 8192), 200000)),
         temperature: Math.max(0, Math.min(1, settings.temperature)), // Clamp temperature to 0-1 range as UI max is 2
         messages: [
             {
@@ -235,20 +238,23 @@ If there is no proposal, use null for proposal.`;
 
             // Basic footnote validator (align markers in text with JSON footnotes)
             const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefined): { translation: string; footnotes: any[] } => {
-                const textMarkers = (translation.match(/\[(\d+)\]/g) || []).filter(m => !/\[ILLUSTRATION-/i.test(m));
+                // Unique markers from text (first appearance), exclude illustrations
+                const all = translation.match(/\[(\d+)\]/g) || [];
+                const seen = new Set<string>();
+                const textMarkers: string[] = [];
+                for (const m of all) { if (/\[ILLUSTRATION-/i.test(m)) continue; if (!seen.has(m)) { seen.add(m); textMarkers.push(m); } }
                 const jsonFootnotes = Array.isArray(footnotes) ? footnotes.slice() : [];
                 const normalize = (m: string) => m.startsWith('[') ? m : `[${m.replace(/\[|\]/g, '')}]`;
-                const jsonMarkers = jsonFootnotes.map(fn => normalize(String(fn.marker || '')));
+                const jsonMarkersRaw = jsonFootnotes.map(fn => normalize(String(fn.marker || '')));
+                const jsonMarkers = Array.from(new Set(jsonMarkersRaw));
                 if (textMarkers.length === jsonMarkers.length) {
                     const tSet = new Set(textMarkers), jSet = new Set(jsonMarkers);
                     if (textMarkers.every(m => jSet.has(m)) && jsonMarkers.every(m => tSet.has(m))) {
-                        const fixed = jsonFootnotes.map((fn, i) => ({ ...fn, marker: normalize(String(fn.marker || jsonMarkers[i])) }));
+                        const fixed = jsonFootnotes.map(fn => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
                         return { translation, footnotes: fixed };
                     }
                     const textOnly = textMarkers.filter(m => !jSet.has(m));
-                    if (textOnly.length > 0) {
-                        console.warn(`[FootnoteFix] (Claude) Remapping ${textOnly.length} JSON footnotes to unmatched text markers`);
-                    }
+                    if (textOnly.length > 0) console.warn(`[FootnoteFix] (Claude) Remapping ${textOnly.length} JSON footnotes to unmatched text markers`);
                     const fixed = jsonFootnotes.map(fn => {
                         const nm = normalize(String(fn.marker || ''));
                         if (!tSet.has(nm) && textOnly.length > 0) {
@@ -262,19 +268,17 @@ If there is no proposal, use null for proposal.`;
                 if (jsonMarkers.length > textMarkers.length) {
                     const tSet = new Set(textMarkers);
                     const extra = jsonMarkers.filter(m => !tSet.has(m));
-                    if (extra.length > 0) {
-                        console.warn(`[FootnoteFix] (Claude) Detected ${extra.length} footnotes without text markers; appending markers at end of translation`);
-                    }
+                    if (extra.length > 0) console.warn(`[FootnoteFix] (Claude) Detected ${extra.length} footnotes without text markers; appending markers at end of translation`);
                     let updated = translation.trim();
                     for (const m of extra) updated += ` ${m}`;
                     const fixed = jsonFootnotes.map(fn => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
                     return { translation: updated, footnotes: fixed };
                 }
-                const errorMessage = `AI response validation failed: Missing footnotes for markers.\n- Text markers: ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires regeneration with matching footnotes.`;
+                const errorMessage = `AI response validation failed: Missing footnotes for markers.\n- Text markers (unique): ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires regeneration with matching footnotes.`;
                 throw new Error(errorMessage);
             };
 
-            const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes);
+            const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes, (settings as any).footnoteStrictMode || 'append_missing');
 
             return {
                 translatedTitle: parsedJson.translatedTitle,
