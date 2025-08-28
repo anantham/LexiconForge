@@ -786,112 +786,21 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     const startTime = performance.now();
     const openai = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
     
-    // Clean system prompt without JSON schema instructions (schema is enforced natively)
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+    // --- Refactored Request Building ---
 
-    // DeepSeek: inject strict JSON-only instruction up-front
+    // 1. Prepare all request components and settings first.
     const isDeepSeek = settings.provider === 'DeepSeek';
-    if (isDeepSeek) {
-        messages.push({
-            role: 'system',
-            content: prompts.deepseekJsonSystemMessage
-        });
-    }
-    
-    // DIAGNOSTIC: Validate system prompt
-    dlog('[OpenAI DIAGNOSTIC] System prompt validation:', {
-        exists: !!settings.systemPrompt,
-        type: typeof settings.systemPrompt,
-        length: settings.systemPrompt?.length || 0,
-        isNull: settings.systemPrompt === null,
-        isUndefined: settings.systemPrompt === undefined,
-        preview: settings.systemPrompt?.slice(0, 50) + '...'
-    });
-    
+    const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
+    let systemPrompt = replacePlaceholders(settings.systemPrompt, settings);
+
     if (!settings.systemPrompt) {
         if (aiDebugEnabled()) console.error('[OpenAI DIAGNOSTIC] System prompt is null/undefined!');
         throw new Error('System prompt cannot be empty for OpenAI translation');
     }
-    
-    messages.push({ role: 'system', content: replacePlaceholders(settings.systemPrompt, settings) });
-    
-    // DIAGNOSTIC: Validate history
-    dlog('[OpenAI DIAGNOSTIC] History validation:', {
-        historyCount: history.length,
-        historyExists: !!history
-    });
-    
-    history.forEach((h, index) => {
-        dlog(`[OpenAI DIAGNOSTIC] History[${index}]:`, {
-            originalTitle: { exists: !!h.originalTitle, type: typeof h.originalTitle, isNull: h.originalTitle === null },
-            originalContent: { exists: !!h.originalContent, type: typeof h.originalContent, isNull: h.originalContent === null, length: h.originalContent?.length || 0 },
-            translatedContent: { exists: !!h.translatedContent, type: typeof h.translatedContent, isNull: h.translatedContent === null, length: h.translatedContent?.length || 0 }
-        });
-        
-        if (h.originalTitle === null || h.originalContent === null || h.translatedContent === null) {
-            if (aiDebugEnabled()) console.error(`[OpenAI DIAGNOSTIC] History[${index}] has null content! Skipping...`);
-            return; // Skip this history entry
-        }
-        
-        const userContent = `TITLE: ${h.originalTitle}\n\nCONTENT:\n${h.originalContent}`;
-        const assistantContent = h.translatedContent;
-        
-        dlog(`[OpenAI DIAGNOSTIC] Adding history[${index}] messages:`, {
-            userContentLength: userContent.length,
-            assistantContentLength: assistantContent.length,
-            userContentIsNull: userContent === null,
-            assistantContentIsNull: assistantContent === null
-        });
-        
-        messages.push({ role: 'user', content: userContent });
-        messages.push({ role: 'assistant', content: assistantContent });
-    });
-    
-    // DIAGNOSTIC: Validate current chapter
-    dlog('[OpenAI DIAGNOSTIC] Current chapter validation:', {
-        title: { exists: !!title, type: typeof title, isNull: title === null, length: title?.length || 0 },
-        content: { exists: !!content, type: typeof content, isNull: content === null, length: content?.length || 0 }
-    });
-    
-    if (title === null || content === null) {
-        if (aiDebugEnabled()) console.error('[OpenAI DIAGNOSTIC] Current chapter has null title or content!');
-        throw new Error('Chapter title and content cannot be null for OpenAI translation');
-    }
-    
-    const fanTranslationContext = buildFanTranslationContext(fanTranslation);
-    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
-    const finalUserContent = `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
-    dlog('[OpenAI DIAGNOSTIC] Final user message:', {
-        contentLength: finalUserContent.length,
-        isNull: finalUserContent === null
-    });
-    
-    messages.push({ role: 'user', content: finalUserContent });
-    
-    // DIAGNOSTIC: Final message array validation
-    dlog('[OpenAI DIAGNOSTIC] Final messages array validation:');
-    messages.forEach((msg, index) => {
-        dlog(`  Message[${index}]:`, {
-            role: msg.role,
-            contentExists: !!msg.content,
-            contentType: typeof msg.content,
-            contentIsNull: msg.content === null,
-            contentIsUndefined: msg.content === undefined,
-            contentLength: msg.content?.length || 0,
-            contentPreview: typeof msg.content === 'string' ? msg.content.slice(0, 30) + '...' : msg.content
-        });
-        
-        if (msg.content === null || msg.content === undefined) {
-            if (aiDebugEnabled()) console.error(`[OpenAI DIAGNOSTIC] MESSAGE[${index}] HAS NULL CONTENT!`, msg);
-        }
-    });
 
-    // Determine if model supports structured outputs using API-based capability detection
-    const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
+    const requestOptions: any = { model: settings.model };
 
-    // Prepare the request options; DeepSeek uses json_object + explicit max_tokens
-    const requestOptions: any = { model: settings.model, messages };
-    
+    // 2. Set response_format and conditionally modify the system prompt.
     if (hasStructuredOutputs) {
         requestOptions.response_format = { 
             type: 'json_schema', 
@@ -901,20 +810,76 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
                 strict: true 
             } 
         };
-        // Ensure OpenRouter uses compatible providers
         if (settings.provider === 'OpenRouter') {
             requestOptions.provider = { require_parameters: true };
         }
-    } else if (isDeepSeek) {
-        requestOptions.response_format = { type: 'json_object' };
-        requestOptions.max_tokens = settings.maxOutputTokens ?? 8192; // generous cap
     } else {
         requestOptions.response_format = { type: 'json_object' };
+        // For basic json_object mode, some models require the word "json" in the prompt.
+        if (!systemPrompt.toLowerCase().includes('json')) {
+            systemPrompt += `\n\nYour response must be a single, valid JSON object.`;
+            dlog('[OpenAI] Injected JSON requirement into system prompt for json_object mode.');
+        }
+    }
+    
+    // 3. Now, build the final messages array with the (potentially modified) system prompt.
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+
+    if (isDeepSeek) {
+        messages.push({ role: 'system', content: prompts.deepseekJsonSystemMessage });
+    }
+    
+    messages.push({ role: 'system', content: systemPrompt });
+
+    history.forEach((h, index) => {
+        if (h.originalTitle === null || h.originalContent === null || h.translatedContent === null) {
+            if (aiDebugEnabled()) console.error(`[OpenAI DIAGNOSTIC] History[${index}] has null content! Skipping...`);
+            return;
+        }
+        messages.push({ role: 'user', content: `TITLE: ${h.originalTitle}\n\nCONTENT:\n${h.originalContent}` });
+        messages.push({ role: 'assistant', content: h.translatedContent });
+    });
+
+    if (title === null || content === null) {
+        if (aiDebugEnabled()) console.error('[OpenAI DIAGNOSTIC] Current chapter has null title or content!');
+        throw new Error('Chapter title and content cannot be null for OpenAI translation');
     }
 
-    // Optional max_tokens cap for OpenAI/OpenRouter when user sets it
-    if (!isDeepSeek && settings.provider !== 'Gemini' && settings.provider !== 'Claude') {
-        if (settings.maxOutputTokens && settings.maxOutputTokens > 0) {
+    const fanTranslationContext = buildFanTranslationContext(fanTranslation);
+    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
+    const finalUserContent = `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
+    messages.push({ role: 'user', content: finalUserContent });
+
+    // Add the now-finalized messages to the request
+    requestOptions.messages = messages;
+
+    // --- MODEL-SPECIFIC QUIRKS & CAPABILITIES ---
+    // Some models have non-standard behaviors. We define them here to apply conditional logic.
+    const modelsThatSkipTemperature = [
+        'gpt-5', 
+        'gpt-4.1', 
+        'gpt-5-chat-latest'
+    ];
+    // Based on user feedback, gpt-5 and claude models require max_completion_tokens.
+    const modelsThatUseMaxCompletionTokens = [
+        'claude',
+        'gpt-5'
+    ];
+
+    // Determine if the current model has any of these quirks.
+    const skipTemperature = modelsThatSkipTemperature.some(p => settings.model.startsWith(p));
+    const useMaxCompletionTokens = modelsThatUseMaxCompletionTokens.some(p => settings.model.startsWith(p));
+
+    // Apply model-specific parameters
+    if (!skipTemperature) {
+        requestOptions.temperature = settings.temperature;
+    }
+    if (settings.maxOutputTokens && settings.maxOutputTokens > 0) {
+        // This logic is now applied to all providers that go through this function,
+        // including OpenAI, OpenRouter, and DeepSeek, so we don't need the provider check.
+        if (useMaxCompletionTokens) {
+            requestOptions.max_completion_tokens = settings.maxOutputTokens;
+        } else {
             requestOptions.max_tokens = settings.maxOutputTokens;
         }
     }
@@ -969,18 +934,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     try { dlogFull(`[${settings.provider} Debug] Full request body:`, JSON.stringify(requestOptions, null, 2)); } catch {}
     dlog(`[OpenAI] Request options:`, JSON.stringify(requestOptions, null, 2));
 
-    // Proactive temperature compatibility check for newer models
-    const skipTemperature = settings.model.startsWith('gpt-5') || 
-                           settings.model.startsWith('gpt-4.1') ||
-                           settings.model === 'gpt-5-chat-latest';
     
-    if (skipTemperature) {
-        if (aiDebugEnabled()) console.warn(`[OpenAI] Skipping temperature setting for model ${settings.model} (known incompatibility)`);
-        dlog(`[OpenAI] Model ${settings.model} does not support custom temperature, using default`);
-    } else {
-        requestOptions.temperature = settings.temperature;
-        dlog(`[OpenAI] Using temperature ${settings.temperature} for model ${settings.model}`);
-    }
 
     // Add temperature if the model supports it (some newer models only support default)
     let response: ChatCompletion;
@@ -1051,6 +1005,10 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
                 dlog(`[OpenAI] Finish reason:`, response.choices[0].finish_reason);
             } catch (retryError: any) {
                 console.error(`[OpenAI] Attempt 2 also failed:`, retryError);
+                // Log the full JSON error response from the API if available
+                if (retryError.response?.data) {
+                    console.error('[OpenAI] Full JSON error response:', JSON.stringify(retryError.response.data, null, 2));
+                }
                 throw retryError;
             }
         } else {
