@@ -2,6 +2,19 @@
 import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AppSettings, GeneratedImageResult } from '../types';
+
+const imgDebugEnabled = (): boolean => {
+  try {
+    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+    return lvl === 'summary' || lvl === 'full';
+  } catch { return false; }
+};
+const imgDebugFullEnabled = (): boolean => {
+  try { return localStorage.getItem('LF_AI_DEBUG_LEVEL') === 'full'; } catch { return false; }
+};
+const ilog = (...args: any[]) => { if (imgDebugEnabled()) console.log(...args); };
+const iwarn = (...args: any[]) => { if (imgDebugEnabled()) console.warn(...args); };
+const ierror = (...args: any[]) => { console.error(...args); };
 import { IMAGE_COSTS } from '../costs';
 
 // --- CONSTANTS ---
@@ -41,19 +54,24 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
         piW = Math.max(256, Math.floor(piW * scale));
         piH = Math.max(256, Math.floor(piH * scale));
     }
-    console.log(`[ImageService] Starting image generation...`);
-    console.log(`[ImageService] - Model: ${imageModel}`);
-    console.log(`[ImageService] - Prompt: ${prompt.substring(0, 100)}...`);
-    const hasKey = imageModel.startsWith('Qubico/') ? !!settings.apiKeyPiAPI : !!settings.apiKeyGemini;
-    console.log(`[ImageService] - API Key present: ${hasKey}`);
+    ilog(`[ImageService] Starting image generation...`);
+    ilog(`[ImageService] - Model: ${imageModel}`);
+    ilog(`[ImageService] - Prompt: ${prompt.substring(0, 100)}...`);
+    const hasKey = imageModel.startsWith('Qubico/')
+      ? !!settings.apiKeyPiAPI
+      : imageModel.startsWith('openrouter/')
+        ? !!(settings as any).apiKeyOpenRouter
+        : !!settings.apiKeyGemini;
+    ilog(`[ImageService] - API Key present: ${hasKey}`);
     
     const startTime = performance.now();
     
     try {
         let base64Data: string;
+        let mimeTypeForReturn: string | null = null;
 
         if (imageModel.startsWith('imagen')) {
-            console.log('[ImageService] Using Imagen model:', imageModel);
+            ilog('[ImageService] Using Imagen model:', imageModel);
             const apiKey = settings.apiKeyGemini; if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
             const ai = new GoogleGenAI({ apiKey });
             let response: any;
@@ -85,16 +103,16 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
                 });
             }
 
-            console.log('[ImageService/Imagen] Full API Response:', JSON.stringify(response, null, 2));
+            if (imgDebugFullEnabled()) console.log('[ImageService/Imagen] Full API Response:', JSON.stringify(response, null, 2));
 
             if (!response.generatedImages || response.generatedImages.length === 0 || !response.generatedImages[0].image?.imageBytes) {
-                console.error("[ImageService/Imagen] Unexpected response structure or empty image list:", response);
+                ierror("[ImageService/Imagen] Unexpected response structure or empty image list:", response);
                 throw new Error("Failed to receive valid image data from Imagen API. The prompt may have been blocked by safety filters.");
             }
             base64Data = response.generatedImages[0].image.imageBytes;
 
         } else if (imageModel.startsWith('gemini')) {
-            console.log('[ImageService] Using Gemini native image generation:', imageModel);
+            ilog('[ImageService] Using Gemini native image generation:', imageModel);
             const apiKey = settings.apiKeyGemini; if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({ model: imageModel });
@@ -114,19 +132,19 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
                     }
                 }
                 if (!foundImageData) {
-                    console.error("[ImageService/Gemini] No image data found in response:", JSON.stringify(response, null, 2));
+                    ierror("[ImageService/Gemini] No image data found in response:", JSON.stringify(response, null, 2));
                     throw new Error("Failed to receive valid image data from Gemini API. The model may not support image generation or the prompt was rejected.");
                 }
                 base64Data = foundImageData;
             } catch (err: any) {
                 // Rich diagnostics for debugging (no auto-fallback)
                 try {
-                    console.error('[ImageService/Gemini] generateContent error (object):', err);
-                    if (err?.cause) console.error('[ImageService/Gemini] error.cause:', err.cause);
+                    ierror('[ImageService/Gemini] generateContent error (object):', err);
+                    if (err?.cause) ierror('[ImageService/Gemini] error.cause:', err.cause);
                     const causeMsg = (err?.cause && err.cause.message) ? String(err.cause.message) : '';
                     const msg = String(err?.message || '');
-                    console.error('[ImageService/Gemini] error.message:', msg);
-                    if (causeMsg) console.error('[ImageService/Gemini] error.cause.message:', causeMsg);
+                    ierror('[ImageService/Gemini] error.message:', msg);
+                    if (causeMsg) ierror('[ImageService/Gemini] error.cause.message:', causeMsg);
                 } catch {}
 
                 // Re-throw with guidance for the reader to choose a different model
@@ -145,6 +163,64 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
             }
             
         
+        } else if (imageModel.startsWith('openrouter/')) {
+            // --- OpenRouter image generation via chat completions ---
+            const orKey = (settings as any).apiKeyOpenRouter;
+            if (!orKey) throw new Error('OpenRouter API key is missing. Please add it in Settings.');
+            const modelSlug = imageModel.replace('openrouter/', '');
+
+            // Optional headers from config/app.json similar to text path
+            const extraHeaders: Record<string, string> = {};
+            try {
+              const appConfig = await import('../config/app.json');
+              if (appConfig.openrouter?.referer) extraHeaders['HTTP-Referer'] = appConfig.openrouter.referer;
+              if (appConfig.openrouter?.title) extraHeaders['X-Title'] = appConfig.openrouter.title;
+            } catch {}
+
+            const reqBody: any = {
+              model: modelSlug,
+              messages: [{ role: 'user', content: prompt }],
+              modalities: ['image', 'text'],
+            };
+
+            const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${orKey}`,
+                'Content-Type': 'application/json',
+                ...extraHeaders,
+              },
+              body: JSON.stringify(reqBody),
+            });
+
+            const raw = await resp.text();
+            if (!resp.ok) {
+              let msg = `OpenRouter error ${resp.status}`;
+              try { const j = JSON.parse(raw); msg = j?.error?.message || j?.message || msg; } catch {}
+              throw new Error(msg);
+            }
+            let parsed: any = {};
+            try { parsed = JSON.parse(raw); } catch { throw new Error('Failed to parse OpenRouter response'); }
+            const choice = parsed?.choices?.[0];
+            const images = choice?.message?.images;
+            if (!Array.isArray(images) || images.length === 0) {
+              throw new Error('OpenRouter response did not include image data. Ensure the selected model supports image output.');
+            }
+            const first = images[0];
+            const dataUrl = first?.image_url?.url;
+            if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) {
+              throw new Error('OpenRouter returned an unexpected image format.');
+            }
+            // Remove data: prefix to align with other code paths expecting raw base64 in calculate/compose
+            const commaIdx = dataUrl.indexOf(',');
+            const header = dataUrl.slice(5, commaIdx); // e.g., image/png;base64
+            const semi = header.indexOf(';');
+            const detectedMime = semi >= 0 ? header.slice(0, semi) : header; // image/png
+            const base64Part = dataUrl.slice(commaIdx + 1);
+            if (!base64Part) throw new Error('Invalid data URL returned by OpenRouter.');
+            base64Data = base64Part;
+            mimeTypeForReturn = detectedMime || 'image/png';
+
         } else if (imageModel.startsWith('Qubico/')) {
             // --- PiAPI Flux (task-based) ---
             const apiKeyPi = settings.apiKeyPiAPI;
@@ -188,7 +264,7 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
             // Extract task id robustly
             const taskId = extractTaskId(created);
             if (!taskId) {
-                console.warn('[PiAPI] Unexpected create response (first 500 chars):', rawCreateText.slice(0, 500));
+                iwarn('[PiAPI] Unexpected create response (first 500 chars):', rawCreateText.slice(0, 500));
                 throw new Error('PiAPI: missing task id in create response.');
             }
 
@@ -226,19 +302,23 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
                     try {
                         b64 = await fetchImageAsBase64(imgUrl);
                     } catch (e: any) {
-                        console.error('[ImageService/PiAPI] Failed to fetch image_url:', imgUrl, e);
+                        ierror('[ImageService/PiAPI] Failed to fetch image_url:', imgUrl, e);
                         throw new Error(`PiAPI task returned an image_url but it could not be fetched (possible CORS or network issue). URL: ${imgUrl}`);
                     }
                 }
             }
             if (!b64) {
-                console.error('[ImageService/PiAPI] Unexpected task response:', taskData);
+                ierror('[ImageService/PiAPI] Unexpected task response:', taskData);
                 throw new Error('PiAPI task completed but no image payload found.');
             }
             base64Data = b64;
         }
- else {
-            console.error(`[ImageService] Unrecognized model: ${imageModel}`);
+        else if (imageModel === 'None') {
+            // Explicit UX-friendly error when images are disabled
+            throw new Error('Image generation is disabled in Settings (Image Generation Model = None). Choose Imagen 3.0/4.0 or a Gemini image-capable model to enable.');
+        }
+        else {
+            ierror(`[ImageService] Unrecognized model: ${imageModel}`);
             throw new Error(`Unrecognized image model: ${imageModel}. Supported prefixes: imagen, gemini.`);
         }
 
@@ -247,7 +327,7 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
 
         console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s. Cost: ${cost.toFixed(5)}`);
         return {
-            imageData: `data:image/png;base64,${base64Data}`,
+            imageData: `data:${mimeTypeForReturn || 'image/png'};base64,${base64Data}`,
             requestTime,
             cost
         };

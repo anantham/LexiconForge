@@ -24,6 +24,11 @@ export const AVAILABLE_MODELS = {
     { id: 'deepseek-chat', name: 'DeepSeek V3.1 (Chat)', description: 'Non-thinking mode of DeepSeek-V3.1' },
     { id: 'deepseek-reasoner', name: 'DeepSeek V3.1 (Reasoner)', description: 'Thinking mode of DeepSeek-V3.1' },
   ],
+  OpenRouter: [
+    // Common OpenRouter model slugs (examples)
+    { id: 'openai/gpt-4o', name: 'OpenAI GPT-4o via OpenRouter', description: 'OpenAI GPT-4o routed through OpenRouter' },
+    { id: 'deepseek/deepseek-reasoner', name: 'DeepSeek Reasoner via OpenRouter', description: 'DeepSeek Reasoner via OpenRouter' },
+  ],
   Claude: [
     { id: 'claude-opus-4-1', name: 'Claude Opus 4.1', description: 'Most advanced reasoning, best for complex translations' },
     { id: 'claude-opus-4-0', name: 'Claude Opus 4', description: 'Powerful reasoning and analysis capabilities' },
@@ -46,6 +51,9 @@ export const AVAILABLE_IMAGE_MODELS = {
     { id: 'Qubico/flux1-schnell', name: 'PiAPI Flux 1 Schnell', description: 'Fast flux text-to-image (PiAPI)' },
     { id: 'Qubico/flux1-dev', name: 'PiAPI Flux 1 Dev', description: 'Balanced flux text-to-image (PiAPI)' },
     { id: 'Qubico/flux1-dev-advanced', name: 'PiAPI Flux 1 Dev Advanced', description: 'Advanced flux text-to-image (PiAPI)' },
+    // OpenRouter image models
+    { id: 'openrouter/google/gemini-2.5-flash-image-preview', name: 'OpenRouter Gemini 2.5 Flash (Image)', description: 'Gemini image generation via OpenRouter' },
+    { id: 'openrouter/google/gemini-2.5-flash-image-preview:free', name: 'OpenRouter Gemini 2.5 Flash (Image, Free)', description: 'Free Gemini image generation via OpenRouter' },
   ]
 };
 
