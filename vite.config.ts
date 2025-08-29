@@ -15,6 +15,7 @@ export default defineConfig(({ mode }) => {
       DEEPSEEK_API_KEY: mask(env.DEEPSEEK_API_KEY),
       CLAUDE_API_KEY: mask(env.CLAUDE_API_KEY),
       OPENROUTER_API_KEY: mask(env.OPENROUTER_API_KEY),
+      PIAPI_API_KEY: mask(env.PIAPI_API_KEY),
       mode
     });
     return {
@@ -26,7 +27,8 @@ export default defineConfig(({ mode }) => {
         'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
         'process.env.DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
         'process.env.CLAUDE_API_KEY': JSON.stringify(env.CLAUDE_API_KEY),
-        'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY)
+        'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY),
+        'process.env.PIAPI_API_KEY': JSON.stringify(env.PIAPI_API_KEY)
       },
       resolve: {
         alias: {

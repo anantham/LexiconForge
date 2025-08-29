@@ -2,6 +2,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AppSettings, GeneratedImageResult } from '../types';
+import { getModelMetadata } from './capabilityService';
 
 const imgDebugEnabled = (): boolean => {
   try {
@@ -58,10 +59,10 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
     ilog(`[ImageService] - Model: ${imageModel}`);
     ilog(`[ImageService] - Prompt: ${prompt.substring(0, 100)}...`);
     const hasKey = imageModel.startsWith('Qubico/')
-      ? !!settings.apiKeyPiAPI
+      ? !!(settings.apiKeyPiAPI || (process.env.PIAPI_API_KEY as any))
       : imageModel.startsWith('openrouter/')
-        ? !!(settings as any).apiKeyOpenRouter
-        : !!settings.apiKeyGemini;
+        ? !!((settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as any))
+        : !!(settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any));
     ilog(`[ImageService] - API Key present: ${hasKey}`);
     
     const startTime = performance.now();
@@ -72,7 +73,7 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
 
         if (imageModel.startsWith('imagen')) {
             ilog('[ImageService] Using Imagen model:', imageModel);
-            const apiKey = settings.apiKeyGemini; if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
+            const apiKey = settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
             const ai = new GoogleGenAI({ apiKey });
             let response: any;
             if (imageModel.startsWith('imagen-4.0')) {
@@ -113,7 +114,7 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
 
         } else if (imageModel.startsWith('gemini')) {
             ilog('[ImageService] Using Gemini native image generation:', imageModel);
-            const apiKey = settings.apiKeyGemini; if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
+            const apiKey = settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({ model: imageModel });
             try {
@@ -165,9 +166,28 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
         
         } else if (imageModel.startsWith('openrouter/')) {
             // --- OpenRouter image generation via chat completions ---
-            const orKey = (settings as any).apiKeyOpenRouter;
+            const orKey = (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as any);
             if (!orKey) throw new Error('OpenRouter API key is missing. Please add it in Settings.');
             const modelSlug = imageModel.replace('openrouter/', '');
+            
+            // Validate model capabilities before making request
+            try {
+              const metadata = await getModelMetadata(modelSlug);
+              ilog('[OpenRouter Debug] Model capability check:', {
+                model: modelSlug,
+                hasMetadata: !!metadata,
+                inputModalities: metadata?.architecture?.input_modalities,
+                outputModalities: metadata?.architecture?.output_modalities,
+                supportsImageOutput: metadata?.architecture?.output_modalities?.includes('image')
+              });
+              
+              if (metadata && metadata.architecture?.output_modalities && !metadata.architecture.output_modalities.includes('image')) {
+                throw new Error(`Model ${modelSlug} does not support image generation. Supported output modalities: ${metadata.architecture.output_modalities.join(', ')}`);
+              }
+            } catch (capError: any) {
+              // Don't fail on capability check errors, but log them
+              ilog('[OpenRouter Debug] Capability check failed:', capError.message);
+            }
 
             // Optional headers from config/app.json similar to text path
             const extraHeaders: Record<string, string> = {};
@@ -201,15 +221,63 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
             }
             let parsed: any = {};
             try { parsed = JSON.parse(raw); } catch { throw new Error('Failed to parse OpenRouter response'); }
+            
+            // Enhanced debugging: log the actual response structure
+            ilog('[OpenRouter Debug] Full response structure:', JSON.stringify(parsed, null, 2));
+            
             const choice = parsed?.choices?.[0];
             const images = choice?.message?.images;
+            
+            // Detailed diagnostic logging
+            ilog('[OpenRouter Debug] Response analysis:', {
+              hasChoices: !!parsed?.choices,
+              choicesLength: parsed?.choices?.length || 0,
+              firstChoice: choice ? Object.keys(choice) : 'null',
+              hasMessage: !!choice?.message,
+              messageKeys: choice?.message ? Object.keys(choice.message) : 'null',
+              hasImages: !!images,
+              imagesType: Array.isArray(images) ? 'array' : typeof images,
+              imagesLength: Array.isArray(images) ? images.length : 'n/a'
+            });
+            
             if (!Array.isArray(images) || images.length === 0) {
-              throw new Error('OpenRouter response did not include image data. Ensure the selected model supports image output.');
+              // Enhanced error with actual response structure
+              const errorDetails = {
+                model: modelSlug,
+                responseKeys: Object.keys(parsed),
+                choiceStructure: choice ? Object.keys(choice) : null,
+                messageStructure: choice?.message ? Object.keys(choice.message) : null,
+                actualImages: images,
+                fullResponse: parsed
+              };
+              
+              console.error('[OpenRouter Debug] Missing image data. Full diagnostic:', errorDetails);
+              throw new Error(`OpenRouter response missing image data. Model: ${modelSlug}. Response structure: ${JSON.stringify(errorDetails, null, 2)}`);
             }
             const first = images[0];
             const dataUrl = first?.image_url?.url;
+            
+            // Enhanced image format debugging
+            ilog('[OpenRouter Debug] Image format analysis:', {
+              firstImageKeys: first ? Object.keys(first) : 'null',
+              imageUrlStructure: first?.image_url ? Object.keys(first.image_url) : 'null', 
+              dataUrlType: typeof dataUrl,
+              dataUrlPrefix: typeof dataUrl === 'string' ? dataUrl.substring(0, 30) + '...' : dataUrl,
+              isDataUrl: typeof dataUrl === 'string' && dataUrl.startsWith('data:image/'),
+              firstImageFull: first
+            });
+            
             if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/')) {
-              throw new Error('OpenRouter returned an unexpected image format.');
+              const formatError = {
+                model: modelSlug,
+                expectedFormat: 'data:image/...',
+                actualFormat: typeof dataUrl === 'string' ? dataUrl.substring(0, 50) + '...' : dataUrl,
+                imageStructure: first,
+                allImages: images
+              };
+              
+              console.error('[OpenRouter Debug] Unexpected image format. Full diagnostic:', formatError);
+              throw new Error(`OpenRouter returned unexpected image format. Model: ${modelSlug}. Expected: data:image/..., Got: ${typeof dataUrl === 'string' ? dataUrl.substring(0, 50) + '...' : dataUrl}. Structure: ${JSON.stringify(formatError, null, 2)}`);
             }
             // Remove data: prefix to align with other code paths expecting raw base64 in calculate/compose
             const commaIdx = dataUrl.indexOf(',');
@@ -223,7 +291,7 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
 
         } else if (imageModel.startsWith('Qubico/')) {
             // --- PiAPI Flux (task-based) ---
-            const apiKeyPi = settings.apiKeyPiAPI;
+            const apiKeyPi = settings.apiKeyPiAPI || (process.env.PIAPI_API_KEY as any);
             if (!apiKeyPi) throw new Error('PiAPI API key is missing. Please add it in Settings.');
 
             // Normalize model/task_type pairing: txt2img does not need advanced
@@ -341,7 +409,13 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
         
         if (message.includes('API key')) {
             errorType = 'INVALID_API_KEY';
-            message = imageModel.startsWith('Qubico/') ? 'Invalid PiAPI API key. Please check your API key in Settings.' : 'Invalid Gemini API key. Please check your API key in Settings.';
+            if (imageModel.startsWith('Qubico/')) {
+                message = 'Invalid PiAPI API key. Please check your API key in Settings.';
+            } else if (imageModel.startsWith('openrouter/')) {
+                message = 'Invalid OpenRouter API key. Please check your API key in Settings.';
+            } else {
+                message = 'Invalid Gemini API key. Please check your API key in Settings.';
+            }
         } else if (message.includes('safety') || message.includes('Responsible AI practices')) {
             errorType = 'SAFETY_FILTER';
             message = `Content blocked by safety filters. Try rephrasing the prompt or using a different model (Imagen 3/4 may be more permissive).`;
