@@ -60,6 +60,4 @@ temp/
 # Local datasets (large Booktoki dumps) — do not version control
 booktoki_*.json
 
-# Developer debug scripts — ad-hoc local tooling, not part of the app
-debug-*.js
-debug-*.cjs
+

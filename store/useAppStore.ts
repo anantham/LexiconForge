@@ -58,7 +58,7 @@ export interface SessionChapterData {
   availableVersions?: TranslationRecord[];
   activeVersion?: number;
   feedback?: FeedbackItem[];
-  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'contextDepth' | 'systemPrompt'>>;
+  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
 }
 
 const defaultSettings: AppSettings = {
@@ -882,8 +882,8 @@ export const useAppStore = create<Store>()((set, get) => ({
     const chapter = get().chapters.get(chapterId);
     if (!chapter?.translationSettingsSnapshot) return true;
     
-    const relevantSettings = (({ provider, model, temperature, contextDepth, systemPrompt }) =>
-      ({ provider, model, temperature, contextDepth, systemPrompt }))(get().settings);
+    const relevantSettings = (({ provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt }) =>
+      ({ provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt }))(get().settings);
       
     return !shallowEqual(chapter.translationSettingsSnapshot, relevantSettings);
   },
@@ -1452,8 +1452,8 @@ export const useAppStore = create<Store>()((set, get) => ({
             return;
         }
 
-        const relevantSettings = (({ provider, model, temperature, contextDepth, systemPrompt }) =>
-            ({ provider, model, temperature, contextDepth, systemPrompt }))(settings);
+        const relevantSettings = (({ provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt }) =>
+            ({ provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt }))(settings);
 
         set(s => {
             const newChapters = new Map(s.chapters);

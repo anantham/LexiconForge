@@ -55,7 +55,7 @@ export interface EnhancedChapter extends Chapter {
   };
   fanTranslation?: string | null; // Optional fan translation reference text
   translationResult?: TranslationResult | null;
-  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'contextDepth' | 'systemPrompt'>>;
+  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
   feedback?: FeedbackItem[];
 }
 

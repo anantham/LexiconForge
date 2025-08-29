@@ -170,7 +170,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                 >
                   {isSaving ? 'Saving…' : 'Regenerate'}
                 </button>
-                <span className="text-[11px] text-gray-500 dark:text-gray-400">Updates the caption, then creates a new image.</span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400">try editing the caption and click regenerate to see a new image!</span>
               </div>
             </div>
           )}
