@@ -1,0 +1,55 @@
+types.ts:11 - BaseAdapter
+types.ts:153 - ImportedChapter (used in module)
+vite.config.ts:4 - default
+vitest.config.ts:4 - default
+scripts/merge-fan-translations.ts:180 - mergeSessionWithFanTranslations (used in module)
+scripts/merge-fan-translations.ts:180 - extractChapterNumber (used in module)
+scripts/merge-fan-translations.ts:180 - loadFanTranslations (used in module)
+services/capabilityService.ts:169 - getModelPricing
+services/capabilityService.ts:251 - clearCapabilityCache
+services/importTransformationService.ts:27 - ImportTransformationResult (used in module)
+services/importTransformationService.ts:244 - getStableSessionDataForStore
+services/indexeddb.ts:2242 - cleanupDuplicateVersions (used in module)
+services/indexeddb.ts:2305 - migrateFromLocalStorage
+services/indexeddb.ts:117 - FeedbackRecord (used in module)
+services/stableIdService.ts:86 - generateCanonicalUrl (used in module)
+services/stableIdService.ts:115 - extractNovelInfo (used in module)
+services/stableIdService.ts:284 - findChapterByUrl
+store/useAppStore.ts:196 - useAppStore (used in module)
+adapters/providers/Provider.ts:3 - ChatRequest (used in module)
+adapters/providers/Provider.ts:10 - ChatResponse (used in module)
+adapters/repo/index.ts:1 - Repo
+adapters/repo/index.ts:2 - repo
+adapters/repo/IndexedDbRepo.ts:49 - default
+services/epub/XhtmlSerializer.ts:118 - htmlFragmentToXhtml (used in module)
+services/epub/XhtmlSerializer.ts:146 - sanitizeHtmlAllowlist (used in module)
+services/epub/XhtmlSerializer.ts:222 - convertToXhtmlParagraphs
+services/epub/XhtmlSerializer.ts:250 - escapeHtml (used in module)
+tests/utils/api-mocks.ts:6 - mockLocalStorage (used in module)
+tests/utils/api-mocks.ts:28 - mockFetch (used in module)
+tests/utils/api-mocks.ts:138 - mockChapterHtml (used in module)
+tests/utils/api-mocks.ts:183 - mockChapterFetch (used in module)
+tests/utils/api-mocks.ts:201 - mockAbortController (used in module)
+tests/utils/db-harness.ts:8 - getTestDB (used in module)
+tests/utils/db-harness.ts:15 - getDBSchema
+tests/utils/db-harness.ts:37 - clearObjectStores
+tests/utils/db-harness.ts:53 - seedData
+tests/utils/network-mocks.ts:5 - mockFetchSuccess
+tests/utils/network-mocks.ts:15 - mockFetchError
+tests/utils/network-mocks.ts:25 - mockFetchCorrupted
+tests/utils/storage-mocks.ts:238 - restoreStorage
+tests/utils/storage-mocks.ts:14 - MockStorage (used in module)
+tests/utils/storage-mocks.ts:24 - createMockStorage (used in module)
+tests/utils/storage-mocks.ts:65 - createQuotaExceededStorage
+tests/utils/storage-mocks.ts:87 - createCorruptedStorage
+tests/utils/storage-mocks.ts:106 - createPopulatedStorage
+tests/utils/storage-mocks.ts:163 - createSlowStorage
+tests/utils/storage-mocks.ts:185 - createRestrictedStorage
+tests/utils/storage-mocks.ts:202 - applyStorageMock (used in module)
+tests/utils/storage-mocks.ts:224 - createCorruptedStorageData
+tests/utils/test-data.ts:52 - createMockUsageMetrics (used in module)
+tests/utils/test-data.ts:63 - createMockFootnotes (used in module)
+tests/utils/test-data.ts:74 - createMockIllustrations (used in module)
+tests/utils/test-data.ts:105 - createMockFeedbackItems (used in module)
+tests/utils/test-data.ts:142 - createMockImportedSession
+tests/utils/test-data.ts:251 - TEST_SCENARIOS

@@ -1,5 +1,6 @@
 import { SessionChapterData, AppSettings } from '../types';
 import JSZip from 'jszip';
+import { toStrictXhtml } from './translate/HtmlSanitizer';
 
 // XHTML/XML namespaces used for strict XML serialization
 const XHTML_NS = 'http://www.w3.org/1999/xhtml';
@@ -1648,61 +1649,6 @@ const escapeXml = (text: string): string => {
     .replace(/'/g, '&apos;');
 };
 
-function toStrictXhtml(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const allowed = new Set(['BR','HR','I','EM','B','STRONG','U','S','SUB','SUP']);
+// toStrictXhtml is imported from services/translate/HtmlSanitizer
 
-  const xdoc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'div', null);
-  const root = xdoc.documentElement;
-
-  const transplant = (node: Node, into: Element) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      into.appendChild(xdoc.createTextNode(node.nodeValue || ''));
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const el = node as HTMLElement;
-      if (!allowed.has(el.tagName)) { // flatten unknown tags
-        el.childNodes.forEach(n => transplant(n, into));
-        return;
-      }
-      const xEl = xdoc.createElementNS('http://www.w3.org/1999/xhtml', el.tagName.toLowerCase());
-      // drop attributes for safety
-      el.childNodes.forEach(n => transplant(n, xEl));
-      into.appendChild(xEl);
-    }
-  };
-
-  doc.body.childNodes.forEach(n => transplant(n, root));
-  return new XMLSerializer().serializeToString(root); // XHTML-safe string
-}
-
-/**
- * Sanitizes HTML content for EPUB (removes scripts, ensures valid XHTML)
- */
-const sanitizeHtml = (html: string): string => {
-  // Remove scripts for security
-  let out = html.replace(/<script[\s\S]*?<\/script>/gi, '');
-  // Normalize common void elements to XHTML self-closing
-  out = out.replace(/<br(\s*[^\/>]*)>/gi, '<br$1/>');
-  out = out.replace(/<hr(\s*[^\/>]*)>/gi, '<hr$1/>');
-  // Repair broken `<brX` / `<hrX` (letter or dash appended to tag name)
-  out = out.replace(/<br([A-Za-z])/g, '<br/>$1');
-  out = out.replace(/<hr([A-Za-z])/g, '<hr/>$1');
-  out = out.replace(/<br([—–-])/g, '<br/>$1');
-  out = out.replace(/<hr([—–-])/g, '<hr/>$1');
-  // Repair `<br<` or `<hr<` sequences left by marker replacement
-  out = out.replace(/<br</g, '<br/></');
-  out = out.replace(/<hr</g, '<hr/></');
-  // Repair stray `<br“` or `<br"` (missing closing) into `<br/>`
-  out = out.replace(/<br(?=(?:\"|“))/g, '<br/>' );
-  out = out.replace(/<hr(?=(?:\"|“))/g, '<hr/>' );
-  // Escape raw ampersands in attribute values (both single- and double-quoted)
-  out = out.replace(/(=")(.*?)(")/g, (_m, p1, val, p3) => {
-    const fixed = val.replace(/&(?!(amp|lt|gt|quot|apos);)/g, '&amp;');
-    return p1 + fixed + p3;
-  });
-  out = out.replace(/(=')(.*?)(')/g, (_m, p1, val, p3) => {
-    const fixed = val.replace(/&(?!(amp|lt|gt|quot|apos);)/g, '&amp;');
-    return p1 + fixed + p3;
-  });
-  return out;
-};
+// sanitizeHtml function removed - unused in epubService

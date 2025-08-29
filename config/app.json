@@ -1,4 +1,5 @@
 {
+  "footnoteStrictMode": "append_missing",
   "openrouter": {
     "referer": "https://lexicon-forge.vercel.app/",
     "title": "LexiconForge"

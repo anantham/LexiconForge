@@ -85,10 +85,16 @@ describe('User Feedback System', () => {
       const translationResult = createMockTranslationResult();
       
       // Set up translated chapter
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult,
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult,
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // User provides positive feedback
@@ -113,10 +119,16 @@ describe('User Feedback System', () => {
       const chapter = createMockChapter();
       const translationResult = createMockTranslationResult();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult,
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult,
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // User provides negative feedback
@@ -138,10 +150,16 @@ describe('User Feedback System', () => {
       const chapter = createMockChapter();
       const translationResult = createMockTranslationResult();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult,
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult,
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // User provides improvement suggestion
@@ -165,10 +183,16 @@ describe('User Feedback System', () => {
       const chapter = createMockChapter();
       const translationResult = createMockTranslationResult();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult,
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult,
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Add multiple feedback items
@@ -210,10 +234,16 @@ describe('User Feedback System', () => {
       }));
       
       // Translate first chapter and add feedback
-      store.setSessionData(chapters[0].originalUrl, {
-        chapter: chapters[0],
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapters[0].id, {
+            ...chapters[0],
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapters[0].id
       });
       
       const feedback: FeedbackItem[] = [
@@ -232,11 +262,15 @@ describe('User Feedback System', () => {
       feedback.forEach(f => store.addFeedback(chapters[0].originalUrl, f));
       
       // Translate second chapter - should include first chapter's feedback in context
-      store.setSessionData(chapters[1].originalUrl, {
-        chapter: chapters[1],
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
-      });
+      useAppStore.setState(state => ({
+        chapters: new Map(state.chapters).set(chapters[1].id, {
+          ...chapters[1],
+          translationResult: createMockTranslationResult(),
+          feedback: [],
+          translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+        }),
+        currentChapterId: chapters[1].id
+      }));
       
       // Verify feedback is included when building context for chapter 2
       const history = store.buildTranslationHistory(chapters[1].originalUrl);
@@ -252,10 +286,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Add comprehensive feedback
@@ -308,11 +348,14 @@ describe('User Feedback System', () => {
       
       // Add chapters with feedback
       chapters.slice(0, 4).forEach((chapter, index) => {
-        store.setSessionData(chapter.originalUrl, {
-          chapter,
-          translationResult: createMockTranslationResult(),
-          lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
-        });
+        useAppStore.setState(state => ({
+          chapters: new Map(state.chapters).set(chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          })
+        }));
         
         // Add feedback to each chapter
         store.addFeedback(chapter.originalUrl, {
@@ -342,10 +385,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Add feedback
@@ -378,10 +427,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Add feedback in specific order
@@ -422,10 +477,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Valid feedback should work
@@ -452,10 +513,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Empty selection should still work (general feedback)
@@ -486,10 +553,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       const longComment = 'This is a very detailed comment. '.repeat(200); // ~6KB comment
@@ -518,10 +591,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Initially no feedback UI state
@@ -550,10 +629,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Start feedback process
@@ -572,10 +657,16 @@ describe('User Feedback System', () => {
       const store = useAppStore.getState();
       const chapter = createMockChapter();
       
-      store.setSessionData(chapter.originalUrl, {
-        chapter,
-        translationResult: createMockTranslationResult(),
-        lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          }]
+        ]),
+        currentChapterId: chapter.id
       });
       
       // Add initial feedback
@@ -623,11 +714,14 @@ describe('User Feedback System', () => {
       
       // Set up translation chain with progressive feedback
       chapters.slice(0, 3).forEach((chapter, index) => {
-        store.setSessionData(chapter.originalUrl, {
-          chapter,
-          translationResult: createMockTranslationResult(),
-          lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
-        });
+        useAppStore.setState(state => ({
+          chapters: new Map(state.chapters).set(chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          })
+        }));
         
         // Add feedback that builds on previous feedback
         const feedback: FeedbackItem = {
@@ -665,11 +759,14 @@ describe('User Feedback System', () => {
       ];
       
       chapters.slice(0, 4).forEach((chapter, index) => {
-        store.setSessionData(chapter.originalUrl, {
-          chapter,
-          translationResult: createMockTranslationResult(),
-          lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
-        });
+        useAppStore.setState(state => ({
+          chapters: new Map(state.chapters).set(chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          })
+        }));
         
         store.addFeedback(chapter.originalUrl, {
           type: index < 2 ? 'negative' : 'positive', // Pattern: negative -> positive feedback

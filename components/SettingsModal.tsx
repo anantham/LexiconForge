@@ -562,35 +562,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </select>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Dedicated models like Imagen can produce higher quality images. All image generation requires a Gemini API key.</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="imageWidth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Width (px)</label>
-                  <input
-                    id="imageWidth"
-                    type="number"
-                    min={256}
-                    max={2048}
-                    step={64}
-                    value={(currentSettings as any).imageWidth || 1024}
-                    onChange={(e) => handleSettingChange('imageWidth' as any, Math.max(256, Math.min(2048, parseInt(e.target.value || '1024', 10))))}
-                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="imageHeight" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Height (px)</label>
-                  <input
-                    id="imageHeight"
-                    type="number"
-                    min={256}
-                    max={2048}
-                    step={64}
-                    value={(currentSettings as any).imageHeight || 1024}
-                    onChange={(e) => handleSettingChange('imageHeight' as any, Math.max(256, Math.min(2048, parseInt(e.target.value || '1024', 10))))}
-                    className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Max pixels may be limited by providers (e.g., PiAPI ≤ 1,048,576). For Imagen 4, we map to supported aspect ratios and 1K/2K sizes. For Gemini image preview, we hint desired size/ratio in the prompt.</p>
               
               <div>
                 <label htmlFor="contextDepth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Context Depth: <span className="font-bold text-blue-500">{currentSettings.contextDepth}</span></label>
@@ -627,130 +598,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     : `How many future chapters to fetch and translate in the background (serially). Higher values may increase API usage and hit provider rate limits.`
                   }
                 </p>
-              </div>
-              <div>
-                <label htmlFor="temperature" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Temperature: <span className="font-bold text-blue-500 mx-1">{currentSettings.temperature}</span>
-                  {(() => {
-                    const key = `${currentSettings.provider}:${currentSettings.model}`;
-                    const support = parameterSupport[key]?.temperature;
-                    if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
-                    if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
-                    return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
-                  })()}
-                </label>
-                <input
-                  id="temperature"
-                  type="range"
-                  min={appConfig.aiParameters.limits.temperature.min}
-                  max={appConfig.aiParameters.limits.temperature.max}
-                  step="0.1"
-                  value={currentSettings.temperature}
-                  onChange={(e) => handleSettingChange('temperature', parseFloat(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.temperature}</p>
-              </div>
-              
-              {/* Advanced Parameters */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="topP" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Top P: <span className="font-bold text-blue-500 mx-1">{currentSettings.topP ?? appConfig.aiParameters.defaults.top_p}</span>
-                    {(() => {
-                      const key = `${currentSettings.provider}:${currentSettings.model}`;
-                      const support = parameterSupport[key]?.topP;
-                      if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
-                      if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
-                      return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
-                    })()}
-                  </label>
-                  <input
-                    id="topP"
-                    type="range"
-                    min={appConfig.aiParameters.limits.top_p.min}
-                    max={appConfig.aiParameters.limits.top_p.max}
-                    step="0.05"
-                    value={currentSettings.topP ?? appConfig.aiParameters.defaults.top_p}
-                    onChange={(e) => handleSettingChange('topP', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.top_p}</p>
-                </div>
-                
-                <div>
-                  <label htmlFor="seed" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Seed (optional)
-                    {(() => {
-                      const key = `${currentSettings.provider}:${currentSettings.model}`;
-                      const support = parameterSupport[key]?.seed;
-                      if (support === true) return <span className="text-green-500 text-xs ml-1" title="Supported by this model">✓</span>;
-                      if (support === false) return <span className="text-red-500 text-xs ml-1" title="Not supported by this model">✗</span>;
-                      return <span className="text-gray-400 text-xs ml-1" title="Checking support...">?</span>;
-                    })()}
-                  </label>
-                  <input
-                    id="seed"
-                    type="number"
-                    min={appConfig.aiParameters.limits.seed.min}
-                    max={appConfig.aiParameters.limits.seed.max}
-                    value={currentSettings.seed ?? ''}
-                    onChange={(e) => handleSettingChange('seed', e.target.value ? parseInt(e.target.value) : null)}
-                    placeholder="Random generation"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.seed}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="frequencyPenalty" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Frequency Penalty: <span className="font-bold text-blue-500 mx-1">{currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}</span>
-                    {(() => {
-                      const key = `${currentSettings.provider}:${currentSettings.model}`;
-                      const support = parameterSupport[key]?.frequencyPenalty;
-                      if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
-                      if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
-                      return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
-                    })()}
-                  </label>
-                  <input
-                    id="frequencyPenalty"
-                    type="range"
-                    min={appConfig.aiParameters.limits.frequency_penalty.min}
-                    max={appConfig.aiParameters.limits.frequency_penalty.max}
-                    step="0.1"
-                    value={currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}
-                    onChange={(e) => handleSettingChange('frequencyPenalty', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.frequency_penalty}</p>
-                </div>
-                
-                <div>
-                  <label htmlFor="presencePenalty" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Presence Penalty: <span className="font-bold text-blue-500 mx-1">{currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}</span>
-                    {(() => {
-                      const key = `${currentSettings.provider}:${currentSettings.model}`;
-                      const support = parameterSupport[key]?.presencePenalty;
-                      if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
-                      if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
-                      return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
-                    })()}
-                  </label>
-                  <input
-                    id="presencePenalty"
-                    type="range"
-                    min={appConfig.aiParameters.limits.presence_penalty.min}
-                    max={appConfig.aiParameters.limits.presence_penalty.max}
-                    step="0.1"
-                    value={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
-                    onChange={(e) => handleSettingChange('presencePenalty', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.presence_penalty}</p>
-                </div>
               </div>
             </div>
           </fieldset>
@@ -1118,6 +965,208 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </select>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full also attaches EPUB parse diagnostics to the export.</p>
                 </div>
+                
+                {/* Image Dimensions */}
+                <fieldset>
+                  <legend className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3 border-b border-gray-200 dark:border-gray-700 pb-1">Image Generation</legend>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="imageWidth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Width (px)</label>
+                      <input
+                        id="imageWidth"
+                        type="number"
+                        min={256}
+                        max={2048}
+                        step={64}
+                        value={(currentSettings as any).imageWidth || 1024}
+                        onChange={(e) => handleSettingChange('imageWidth' as any, Math.max(256, Math.min(2048, parseInt(e.target.value || '1024', 10))))}
+                        className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="imageHeight" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Image Height (px)</label>
+                      <input
+                        id="imageHeight"
+                        type="number"
+                        min={256}
+                        max={2048}
+                        step={64}
+                        value={(currentSettings as any).imageHeight || 1024}
+                        onChange={(e) => handleSettingChange('imageHeight' as any, Math.max(256, Math.min(2048, parseInt(e.target.value || '1024', 10))))}
+                        className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Max pixels may be limited by providers (e.g., PiAPI ≤ 1,048,576). For Imagen 4, we map to supported aspect ratios and 1K/2K sizes. For Gemini image preview, we hint desired size/ratio in the prompt.</p>
+                  
+                  {/* Advanced Image Generation Controls */}
+                  <div className="mt-6 space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <h4 className="text-sm font-medium text-gray-800 dark:text-gray-200">Advanced Defaults</h4>
+                    <div>
+                      <label htmlFor="defaultNegativePrompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Default Negative Prompt</label>
+                      <textarea
+                        id="defaultNegativePrompt"
+                        rows={2}
+                        value={(currentSettings as any).defaultNegativePrompt || ''}
+                        onChange={(e) => handleSettingChange('defaultNegativePrompt' as any, e.target.value)}
+                        placeholder="low quality, blurry, distorted, text, watermark"
+                        className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                      />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Default negative prompt used for all new illustrations (what you don't want in images)</p>
+                    </div>
+                    <div>
+                      <label htmlFor="defaultGuidanceScale" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Default Guidance Scale: <span className="font-mono text-xs">{((currentSettings as any).defaultGuidanceScale || 3.5).toFixed(1)}</span>
+                      </label>
+                      <input
+                        id="defaultGuidanceScale"
+                        type="range"
+                        min="1.5"
+                        max="5.0"
+                        step="0.1"
+                        value={(currentSettings as any).defaultGuidanceScale || 3.5}
+                        onChange={(e) => handleSettingChange('defaultGuidanceScale' as any, parseFloat(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span>1.5 (Creative)</span>
+                        <span>5.0 (Precise)</span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">How closely the AI follows prompts (higher = more precise, lower = more creative)</p>
+                    </div>
+                  </div>
+                </fieldset>
+                
+                {/* AI Parameters */}
+                <fieldset>
+                  <legend className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3 border-b border-gray-200 dark:border-gray-700 pb-1">AI Parameters</legend>
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="temperature" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Temperature: <span className="font-bold text-blue-500 mx-1">{currentSettings.temperature}</span>
+                        {(() => {
+                          const key = `${currentSettings.provider}:${currentSettings.model}`;
+                          const support = parameterSupport[key]?.temperature;
+                          if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                          if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                          return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                        })()}
+                      </label>
+                      <input
+                        id="temperature"
+                        type="range"
+                        min={appConfig.aiParameters.limits.temperature.min}
+                        max={appConfig.aiParameters.limits.temperature.max}
+                        step="0.1"
+                        value={currentSettings.temperature}
+                        onChange={(e) => handleSettingChange('temperature', parseFloat(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                      />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.temperature}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="topP" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Top P: <span className="font-bold text-blue-500 mx-1">{currentSettings.topP ?? appConfig.aiParameters.defaults.top_p}</span>
+                          {(() => {
+                            const key = `${currentSettings.provider}:${currentSettings.model}`;
+                            const support = parameterSupport[key]?.topP;
+                            if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                            if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                            return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                          })()}
+                        </label>
+                        <input
+                          id="topP"
+                          type="range"
+                          min={appConfig.aiParameters.limits.top_p.min}
+                          max={appConfig.aiParameters.limits.top_p.max}
+                          step="0.05"
+                          value={currentSettings.topP ?? appConfig.aiParameters.defaults.top_p}
+                          onChange={(e) => handleSettingChange('topP', parseFloat(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.top_p}</p>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="seed" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Seed (optional)
+                          {(() => {
+                            const key = `${currentSettings.provider}:${currentSettings.model}`;
+                            const support = parameterSupport[key]?.seed;
+                            if (support === true) return <span className="text-green-500 text-xs ml-1" title="Supported by this model">✓</span>;
+                            if (support === false) return <span className="text-red-500 text-xs ml-1" title="Not supported by this model">✗</span>;
+                            return <span className="text-gray-400 text-xs ml-1" title="Checking support...">?</span>;
+                          })()}
+                        </label>
+                        <input
+                          id="seed"
+                          type="number"
+                          min={appConfig.aiParameters.limits.seed.min}
+                          max={appConfig.aiParameters.limits.seed.max}
+                          value={currentSettings.seed ?? ''}
+                          onChange={(e) => handleSettingChange('seed', e.target.value ? parseInt(e.target.value) : null)}
+                          placeholder="Random generation"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.seed}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="frequencyPenalty" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Frequency Penalty: <span className="font-bold text-blue-500 mx-1">{currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}</span>
+                          {(() => {
+                            const key = `${currentSettings.provider}:${currentSettings.model}`;
+                            const support = parameterSupport[key]?.frequencyPenalty;
+                            if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                            if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                            return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                          })()}
+                        </label>
+                        <input
+                          id="frequencyPenalty"
+                          type="range"
+                          min={appConfig.aiParameters.limits.frequency_penalty.min}
+                          max={appConfig.aiParameters.limits.frequency_penalty.max}
+                          step="0.1"
+                          value={currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}
+                          onChange={(e) => handleSettingChange('frequencyPenalty', parseFloat(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.frequency_penalty}</p>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="presencePenalty" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Presence Penalty: <span className="font-bold text-blue-500 mx-1">{currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}</span>
+                          {(() => {
+                            const key = `${currentSettings.provider}:${currentSettings.model}`;
+                            const support = parameterSupport[key]?.presencePenalty;
+                            if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                            if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                            return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                          })()}
+                        </label>
+                        <input
+                          id="presencePenalty"
+                          type="range"
+                          min={appConfig.aiParameters.limits.presence_penalty.min}
+                          max={appConfig.aiParameters.limits.presence_penalty.max}
+                          step="0.1"
+                          value={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
+                          onChange={(e) => handleSettingChange('presencePenalty', parseFloat(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.presence_penalty}</p>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+                
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label htmlFor="maxOutputTokens" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Output Tokens</label>
@@ -1161,19 +1210,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Exponential backoff starts with this delay.</p>
                   </div>
                 </div>
-                <div>
-                  <label htmlFor="footnoteStrictMode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Footnote Strictness</label>
-                  <select
-                    id="footnoteStrictMode"
-                    value={(currentSettings as any).footnoteStrictMode ?? 'append_missing'}
-                    onChange={(e) => handleSettingChange('footnoteStrictMode' as any, e.target.value as any)}
-                    className="mt-1 block w-full sm:w-64 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                  >
-                    <option value="append_missing">Append missing markers (tolerant)</option>
-                    <option value="fail">Fail on imbalance (strict)</option>
-                  </select>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Strict mode errors when JSON footnotes don’t match text markers.</p>
-                </div>
+                
               </div>
             </fieldset>
           )}

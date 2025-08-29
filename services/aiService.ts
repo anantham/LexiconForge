@@ -1278,54 +1278,22 @@ export const translateChapter = async (
   initialDelay: number = 2000,
   abortSignal?: AbortSignal
 ): Promise<TranslationResult> => {
-    let lastError: Error | null = null;
+    // Initialize providers if not already done
+    const { initializeProviders } = await import('../adapters/providers');
+    await initializeProviders();
     
-    let translationFunction: (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null) => Promise<TranslationResult>;
+    // Use the new Translator with provider adapters
+    const { translator } = await import('./translate/Translator');
     
-    switch (settings.provider) {
-        case 'Gemini':
-            translationFunction = translateWithGemini;
-            break;
-        case 'Claude':
-            const { translateWithClaude } = await import('./claudeService');
-            translationFunction = translateWithClaude;
-            break;
-        case 'OpenAI':
-        case 'DeepSeek':
-        default:
-            translationFunction = translateWithOpenAI;
-            break;
-    }
-
-    // Use retry settings from AppSettings if provided
-    const retries = (settings.retryMax ?? maxRetries);
-    const baseDelay = (settings.retryInitialDelayMs ?? initialDelay);
-    for (let attempt = 0; attempt < retries; attempt++) {
-        try {
-            console.log(`[aiService] Attempt ${attempt + 1}/${maxRetries} to translate with ${settings.provider} (${settings.model})...`);
-            // Early abort check
-            if (abortSignal?.aborted) {
-                throw new DOMException('Aborted', 'AbortError');
-            }
-            return await translationFunction(title, content, settings, history, fanTranslation, abortSignal as any);
-        } catch (e: any) {
-            lastError = e;
-            const isRateLimitError = e.message?.includes('429') || e.status === 429;
-            if (isRateLimitError) {
-                if (attempt < retries - 1) {
-                    const delay = baseDelay * Math.pow(2, attempt);
-                    console.warn(`[aiService] Rate limit hit for ${settings.provider}. Retrying in ${delay / 1000}s...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    continue;
-                } else {
-                    // Last attempt, throw a normalized error
-                    throw new Error(`rate_limit: Exceeded API rate limits for ${settings.provider} after ${retries} attempts.`);
-                }
-            }
-            // For other errors, just rethrow
-            throw lastError;
-        }
-    }
-
-    throw lastError ?? new Error(`An unknown error occurred during translation with ${settings.provider} after all retries.`);
+    return translator.translate({
+      title,
+      content,
+      settings,
+      history,
+      fanTranslation,
+      abortSignal
+    }, {
+      maxRetries,
+      initialDelay
+    });
 };

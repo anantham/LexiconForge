@@ -134,6 +134,9 @@ export interface AppSettings {
     apiKeyPiAPI?: string;
     imageWidth?: number;
     imageHeight?: number;
+    // Image generation advanced controls
+    defaultNegativePrompt?: string;
+    defaultGuidanceScale?: number;
     // EPUB/export options
     exportOrder?: 'number' | 'navigation';
     includeTitlePage?: boolean;

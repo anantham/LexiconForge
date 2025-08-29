@@ -82,7 +82,19 @@ describe('AI Provider Integration', () => {
       
       const chapter = createMockChapter();
       
-      await translateChapter(chapter.title, chapter.content, settings, []);
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
       
       // Verify correct API endpoint was called
       expect(mocks.fetch).toHaveBeenCalledWith(
@@ -116,8 +128,20 @@ describe('AI Provider Integration', () => {
       const settings = createMockAppSettings({ provider: 'Gemini', apiKeyGemini: 'test-key' });
       const chapter = createMockChapter();
       
-      await expect(translateChapter(chapter.title, chapter.content, settings, [])).rejects.toThrow(
-        expect.stringMatching(/resource exhausted|rate limit/i)
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await expect(store.handleTranslate(chapter.id)).rejects.toThrow(
+        /resource exhausted|rate limit/i
       );
     });
 
@@ -134,7 +158,20 @@ describe('AI Provider Integration', () => {
         });
         
         const chapter = createMockChapter();
-        const result = await translateChapter(chapter.title, chapter.content, settings, []);
+        useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
+      const result = store.chapters.get(chapter.id).translationResult;
         
         // Each model should work and return correct model name in metrics
         expect(result.usageMetrics.model).toBe(model);
@@ -159,7 +196,20 @@ describe('AI Provider Integration', () => {
       const chapter = createMockChapter();
       
       // Should succeed after automatic retry without temperature
-      const result = await translateChapter(chapter.title, chapter.content, settings, []);
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
+      const result = store.chapters.get(chapter.id).translationResult;
       
       expect(result).toBeTruthy();
       expect(result.usageMetrics.model).toBe('gpt-5');
@@ -179,7 +229,19 @@ describe('AI Provider Integration', () => {
       });
       
       const chapter = createMockChapter();
-      await translateChapter(chapter.title, chapter.content, settings, []);
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
       
       // Verify OpenAI API endpoint
       expect(mocks.fetch).toHaveBeenCalledWith(
@@ -216,7 +278,20 @@ describe('AI Provider Integration', () => {
         });
         
         const chapter = createMockChapter();
-        const result = await translateChapter(chapter.title, chapter.content, settings, []);
+        useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
+      const result = store.chapters.get(chapter.id).translationResult;
         
         expect(result.usageMetrics.model).toBe(model);
         expect(result.usageMetrics.provider).toBe('OpenAI');
@@ -234,8 +309,20 @@ describe('AI Provider Integration', () => {
       const settings = createMockAppSettings({ provider: 'OpenAI', apiKeyOpenAI: 'test-key' });
       const chapter = createMockChapter();
       
-      await expect(translateChapter(chapter.title, chapter.content, settings, [])).rejects.toThrow(
-        expect.stringMatching(/rate limit/i)
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await expect(store.handleTranslate(chapter.id)).rejects.toThrow(
+        /rate limit/i
       );
     });
   });
@@ -251,7 +338,19 @@ describe('AI Provider Integration', () => {
       });
       
       const chapter = createMockChapter();
-      await translateChapter(chapter.title, chapter.content, settings, []);
+      useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
       
       // Verify DeepSeek API endpoint (uses OpenAI-compatible format)
       expect(mocks.fetch).toHaveBeenCalledWith(
@@ -279,7 +378,20 @@ describe('AI Provider Integration', () => {
         });
         
         const chapter = createMockChapter();
-        const result = await translateChapter(chapter.title, chapter.content, settings, []);
+        useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
+      const result = store.chapters.get(chapter.id).translationResult;
         
         // DeepSeek should have different (lower) costs than OpenAI
         expect(result.usageMetrics.model).toBe(model);
@@ -308,7 +420,20 @@ describe('AI Provider Integration', () => {
         });
         
         const chapter = createMockChapter();
-        const result = await translateChapter(chapter.title, chapter.content, settings, []);
+        useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
+      const result = store.chapters.get(chapter.id).translationResult;
         
         // All providers must return same structure
         expect(result).toHaveProperty('translatedTitle');
@@ -333,9 +458,9 @@ describe('AI Provider Integration', () => {
       const testTokens = { prompt: 1000, completion: 500 };
       
       // Mock responses with known token counts
-      const mockGeminiCost = (1000 * 0.35 + 500 * 0.70) / 1_000_000; // Gemini 2.5 Flash pricing
+      const mockGeminiCost = (1000 * 0.30 + 500 * 2.50) / 1_000_000; // Gemini 2.5 Flash pricing
       const mockOpenAICost = (1000 * 0.25 + 500 * 2.00) / 1_000_000; // GPT-5-mini pricing
-      const mockDeepSeekCost = (1000 * 0.27 + 500 * 1.10) / 1_000_000; // DeepSeek pricing
+      const mockDeepSeekCost = (1000 * 0.56 + 500 * 1.68) / 1_000_000; // DeepSeek pricing
       
       const testCases = [
         { provider: 'Gemini', model: 'gemini-2.5-flash', expectedCost: mockGeminiCost },
@@ -351,7 +476,20 @@ describe('AI Provider Integration', () => {
         });
         
         const chapter = createMockChapter();
-        const result = await translateChapter(chapter.title, chapter.content, settings, []);
+        useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+      const store = useAppStore.getState();
+      await store.handleTranslate(chapter.id);
+      const result = store.chapters.get(chapter.id).translationResult;
         
         // Cost should be within reasonable range (accounting for rounding)
         expect(result.usageMetrics.estimatedCost).toBeCloseTo(expectedCost, 6);
@@ -378,7 +516,18 @@ describe('AI Provider Integration', () => {
         
         const chapter = createMockChapter();
         
-        await expect(translateChapter(chapter.title, chapter.content, settings, [])).rejects.toThrow(
+        useAppStore.setState({
+        chapters: new Map([
+          [chapter.id, {
+            ...chapter,
+            translationResult: null,
+            feedback: [],
+            translationSettingsSnapshot: null
+          }]
+        ]),
+        currentChapterId: chapter.id
+      });
+        await expect(useAppStore.getState().handleTranslate(chapter.id)).rejects.toThrow(
           expect.stringMatching(/api key|authentication/i)
         );
       }

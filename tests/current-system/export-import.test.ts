@@ -456,28 +456,3 @@
     });
   });
 });
-
-/**
- * ==================================
- * COMPLETENESS SUMMARY
- * ==================================
- * 
- * This test file covers:
- * ✅ Complete export functionality with all data preservation
- * ✅ Import restoration with validation and error handling
- * ✅ File operations (naming, download mechanics)
- * ✅ Data integrity through export/import cycles
- * ✅ Unicode and special character handling
- * ✅ Large dataset handling
- * ✅ Version compatibility and legacy support
- * ✅ Edge cases (empty data, corrupted files)
- * 
- * DATA SAFETY VALIDATION:
- * ✅ No data loss through export/import cycles
- * ✅ All metadata (costs, timestamps) preserved
- * ✅ Translation history maintained
- * ✅ Settings and preferences restored
- * 
- * This ensures users can safely backup and restore their translation work,
- * providing confidence in data continuity across sessions and devices.
- */

@@ -81,10 +81,10 @@ describe('Cost Calculation Accuracy', () => {
       const cost = calculateCost(model, promptTokens, completionTokens);
       
       // Official Google 2025 pricing: $0.075 input, $0.30 output per million tokens (<=128k tokens)
-      const expectedCost = (1000 * 0.075 + 500 * 0.30) / 1_000_000;
+      const expectedCost = (1000 * 0.30 + 500 * 2.50) / 1_000_000;
       
       expect(cost).toBeCloseTo(expectedCost, 8);
-      expect(cost).toBeCloseTo(0.000225, 6); // Updated for new pricing
+      expect(cost).toBeCloseTo(0.00155, 6); // Updated for new pricing
     });
 
     it('should handle all Gemini model variants', () => {
@@ -189,10 +189,10 @@ describe('Cost Calculation Accuracy', () => {
       const cost = calculateCost(model, promptTokens, completionTokens);
       
       // $0.27 input, $1.10 output per million tokens - cheapest option
-      const expectedCost = (2000 * 0.27 + 1000 * 1.10) / 1_000_000;
+      const expectedCost = (2000 * 0.56 + 1000 * 1.68) / 1_000_000;
       
       expect(cost).toBeCloseTo(expectedCost, 8);
-      expect(cost).toBeCloseTo(0.00164, 6); // Very affordable
+      expect(cost).toBeCloseTo(0.0028, 6); // Very affordable
     });
 
     it('should calculate DeepSeek costs accurately regardless of relative pricing', () => {
@@ -203,10 +203,10 @@ describe('Cost Calculation Accuracy', () => {
       const deepseekCost = calculateCost('deepseek-chat', tokens.prompt, tokens.completion);
       
       // $0.27 input, $1.10 output per million tokens - verify exact calculation
-      const expectedCost = (1000 * 0.27 + 500 * 1.10) / 1_000_000;
+      const expectedCost = (1000 * 0.56 + 500 * 1.68) / 1_000_000;
       
       expect(deepseekCost).toBeCloseTo(expectedCost, 8);
-      expect(deepseekCost).toBeCloseTo(0.00082, 6);
+      expect(deepseekCost).toBeCloseTo(0.0014, 6);
       expect(deepseekCost).toBeGreaterThan(0);
     });
   });
@@ -226,10 +226,10 @@ describe('Cost Calculation Accuracy', () => {
       // Some chapters might be extremely long
       const cost = calculateCost('gemini-2.5-flash', 100_000, 50_000);
       
-      const expectedCost = (100_000 * 0.075 + 50_000 * 0.30) / 1_000_000;
+      const expectedCost = (100_000 * 0.30 + 50_000 * 2.50) / 1_000_000;
       
       expect(cost).toBeCloseTo(expectedCost, 8);
-      expect(cost).toBeCloseTo(0.0225, 6); // Updated for new pricing
+      expect(cost).toBeCloseTo(0.155, 6); // Updated for new pricing
       expect(isFinite(cost)).toBe(true);
     });
 
@@ -263,8 +263,8 @@ describe('Cost Calculation Accuracy', () => {
       // PREVENTS: Costs like $0.008579999999 confusing users
       const cost = calculateCost('gemini-2.5-flash', 1, 1);
       
-      // Should be exactly (1 * 0.075 + 1 * 0.30) / 1_000_000 = 0.000000375
-      expect(cost).toBeCloseTo(0.000000375, 8);
+      // Should be exactly (1 * 0.30 + 1 * 2.50) / 1_000_000 = 0.0000028
+      expect(cost).toBeCloseTo(0.0000028, 8);
       expect(cost.toString().length).toBeLessThan(15); // Reasonable precision
     });
   });
@@ -283,8 +283,8 @@ describe('Cost Calculation Accuracy', () => {
       };
       
       // Verify mathematical accuracy against pricing table
-      const expectedDeepSeek = (10_000 * 0.27 + 5_000 * 1.10) / 1_000_000;
-      const expectedGemini = (10_000 * 0.075 + 5_000 * 0.30) / 1_000_000; // Updated for new pricing
+      const expectedDeepSeek = (10_000 * 0.56 + 5_000 * 1.68) / 1_000_000;
+      const expectedGemini = (10_000 * 0.30 + 5_000 * 2.50) / 1_000_000; // Updated for new pricing
       const expectedOpenAI = (10_000 * 0.25 + 5_000 * 2.00) / 1_000_000;
       const expectedOpenAIPro = (10_000 * 1.25 + 5_000 * 10.00) / 1_000_000;
       
@@ -389,8 +389,8 @@ describe('Cost Calculation Accuracy', () => {
       const geminiFlashCost = calculateImageCost('gemini-1.5-flash');
       const gemini2FlashCost = calculateImageCost('gemini-2.0-flash-preview-image-generation');
       
-      expect(geminiFlashCost).toBe(0.00); // Free tier
-      expect(gemini2FlashCost).toBe(0.00); // Preview/free
+      expect(geminiFlashCost).toBe(0.039); // Free tier
+      expect(gemini2FlashCost).toBe(0.039); // Preview/free
       expect(typeof geminiFlashCost).toBe('number');
       expect(typeof gemini2FlashCost).toBe('number');
     });

@@ -51,7 +51,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import useAppStore from '../../store/useAppStore';
+import useAppStore, { isValidUrl, normalizeUrl } from '../../store/useAppStore';
 import {
   createMockChapter,
   createMockTranslationResult,
@@ -96,7 +96,7 @@ describe('Navigation Logic', () => {
       ];
       
       validKakuyomuUrls.forEach(url => {
-        expect(store.isValidUrl(url)).toBe(true);
+        expect(isValidUrl(url)).toBe(true);
       });
     });
 
@@ -114,7 +114,7 @@ describe('Navigation Logic', () => {
       ];
       
       invalidUrls.forEach(url => {
-        expect(store.isValidUrl(url as any)).toBe(false);
+        expect(isValidUrl(url as any)).toBe(false);
       });
     });
 
@@ -132,7 +132,7 @@ describe('Navigation Logic', () => {
         baseUrl + '/?param=value#section'
       ];
       
-      const normalizedUrls = urlVariations.map(url => store.normalizeUrl(url));
+      const normalizedUrls = urlVariations.map(url => normalizeUrl(url));
       
       // All variations should normalize to the same URL
       const uniqueUrls = new Set(normalizedUrls);
@@ -158,10 +158,10 @@ describe('Navigation Logic', () => {
       
       // Verify all chapters loaded independently
       chapters.forEach(chapter => {
-        const sessionData = store.sessionData[chapter.originalUrl];
-        expect(sessionData).toBeTruthy();
-        expect(sessionData.chapter.title).toBe(chapter.title);
-        expect(sessionData.chapter.content).toBe(chapter.content);
+        const chapterData = store.chapters.get(chapter.id);
+        expect(chapterData).toBeTruthy();
+        expect(chapterData.title).toBe(chapter.title);
+        expect(chapterData.content).toBe(chapter.content);
       });
       
       // Verify no cross-contamination
@@ -202,14 +202,14 @@ describe('Navigation Logic', () => {
       await store.handleFetch(invalidUrl);
       
       // Valid chapter should still be loaded
-      expect(store.sessionData[validChapter.originalUrl]).toBeTruthy();
+      expect(store.chapters.get(validChapter.id)).toBeTruthy();
       
       // Invalid chapter should have error state
       expect(store.error).toBeTruthy();
       expect(store.isUrlLoading(invalidUrl)).toBe(false);
       
       // Valid chapter should be unaffected
-      expect(store.sessionData[validChapter.originalUrl].chapter.title).toBe(validChapter.title);
+      expect(store.chapters.get(validChapter.id).title).toBe(validChapter.title);
     });
 
     it('should prevent duplicate loading of same URL', async () => {
@@ -252,14 +252,14 @@ describe('Navigation Logic', () => {
       await store.handleFetch(chapters[1].originalUrl);
       
       // First chapter should still be in session
-      expect(store.sessionData[chapters[0].originalUrl]).toBeTruthy();
-      expect(store.sessionData[chapters[0].originalUrl].translationResult).toBeTruthy();
+      expect(store.chapters.get(chapters[0].id)).toBeTruthy();
+      expect(store.chapters.get(chapters[0].id).translationResult).toBeTruthy();
       
       // Second chapter should also be loaded
-      expect(store.sessionData[chapters[1].originalUrl]).toBeTruthy();
+      expect(store.chapters.get(chapters[1].id)).toBeTruthy();
       
       // Session should contain both chapters
-      expect(Object.keys(store.sessionData)).toHaveLength(2);
+      expect(store.chapters.size).toBe(2);
     });
 
     it('should build correct translation context during navigation', async () => {
@@ -297,15 +297,15 @@ describe('Navigation Logic', () => {
       await store.handleTranslate(chapters[0].originalUrl);
       
       // Navigate to second chapter (already loaded)
-      const sessionBefore = { ...store.sessionData };
+      const chaptersBefore = new Map(store.chapters);
       await store.handleFetch(chapters[1].originalUrl);
       
       // Should not have triggered additional fetch
       expect(mocks.fetch).toHaveBeenCalledTimes(3); // Only initial loads
       
       // Session state should be preserved
-      expect(store.sessionData[chapters[0].originalUrl].translationResult).toBeTruthy();
-      expect(store.sessionData[chapters[1].originalUrl]).toBeTruthy();
+      expect(store.chapters.get(chapters[0].id).translationResult).toBeTruthy();
+      expect(store.chapters.get(chapters[1].id)).toBeTruthy();
     });
   });
 
@@ -330,12 +330,12 @@ describe('Navigation Logic', () => {
       }
       
       // Session should not exceed limit
-      const sessionSize = Object.keys(store.sessionData).length;
+      const sessionSize = store.chapters.size;
       expect(sessionSize).toBeLessThanOrEqual(maxSessionSize);
       
       // Should keep most recent chapters
       const lastChapter = manyChapters[manyChapters.length - 1];
-      expect(store.sessionData[lastChapter.originalUrl]).toBeTruthy();
+      expect(store.chapters.get(lastChapter.id)).toBeTruthy();
     });
 
     it('should clean up resources when clearing session', () => {
@@ -344,21 +344,24 @@ describe('Navigation Logic', () => {
       
       // Load chapters and translations
       chapters.forEach((chapter, index) => {
-        store.setSessionData(chapter.originalUrl, {
-          chapter,
-          translationResult: createMockTranslationResult(),
-          lastTranslatedWith: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
-        });
+        useAppStore.setState(state => ({
+          chapters: new Map(state.chapters).set(chapter.id, {
+            ...chapter,
+            translationResult: createMockTranslationResult(),
+            feedback: [],
+            translationSettingsSnapshot: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.3 }
+          })
+        }));
       });
       
       // Verify data exists
-      expect(Object.keys(store.sessionData)).toHaveLength(3);
+      expect(store.chapters.size).toBe(3);
       
       // Clear session
       store.clearSession();
       
       // All data should be cleaned up
-      expect(Object.keys(store.sessionData)).toHaveLength(0);
+      expect(store.chapters.size).toBe(0);
       expect(store.isLoading.fetching).toBe(false);
       expect(store.isLoading.translating).toBe(false);
       expect(store.error).toBeNull();
@@ -375,7 +378,7 @@ describe('Navigation Logic', () => {
         await store.handleFetch(chapters[i].originalUrl);
       }
       
-      const initialSize = Object.keys(store.sessionData).length;
+      const initialSize = store.chapters.size;
       
       // Load more chapters beyond reasonable limit
       for (let i = 10; i < 15; i++) {
@@ -383,12 +386,12 @@ describe('Navigation Logic', () => {
       }
       
       // Should not grow unbounded
-      const finalSize = Object.keys(store.sessionData).length;
+      const finalSize = store.chapters.size;
       expect(finalSize).toBeGreaterThan(5); // Should keep reasonable number
       expect(finalSize).toBeLessThan(20); // Should not keep everything
       
       // Should prioritize recent chapters
-      expect(store.sessionData[chapters[14].originalUrl]).toBeTruthy(); // Last chapter
+      expect(store.chapters.get(chapters[14].id)).toBeTruthy(); // Last chapter
     });
   });
 
@@ -472,8 +475,7 @@ describe('Navigation Logic', () => {
       
       // Navigate through chapters in sequence
       for (const chapter of chapters.slice(0, 3)) {
-        await store.handleFetch(chapter.originalUrl);
-        store.updateCurrentUrl(chapter.originalUrl);
+        await store.handleNavigate(chapter.originalUrl);
       }
       
       // History should track visited URLs
@@ -488,14 +490,9 @@ describe('Navigation Logic', () => {
       const chapters = createChapterChain(3);
       
       // Navigate forward through chapters
-      await store.handleFetch(chapters[0].originalUrl);
-      store.updateCurrentUrl(chapters[0].originalUrl);
-      
-      await store.handleFetch(chapters[1].originalUrl);
-      store.updateCurrentUrl(chapters[1].originalUrl);
-      
-      await store.handleFetch(chapters[2].originalUrl);
-      store.updateCurrentUrl(chapters[2].originalUrl);
+      await store.handleNavigate(chapters[0].originalUrl);
+      await store.handleNavigate(chapters[1].originalUrl);
+      await store.handleNavigate(chapters[2].originalUrl);
       
       // Navigate back
       const previousUrl = store.navigateBack();
@@ -526,7 +523,7 @@ describe('Navigation Logic', () => {
       const chapter = createMockChapter();
       
       // Navigate to chapter
-      store.updateCurrentUrl(chapter.originalUrl);
+      store.handleNavigate(chapter.originalUrl);
       
       // Should update browser history
       expect(mockPushState).toHaveBeenCalledWith(
@@ -563,7 +560,7 @@ describe('Navigation Logic', () => {
       
       // Should be able to retry
       await store.handleFetch(chapter.originalUrl);
-      expect(store.sessionData[chapter.originalUrl]).toBeTruthy();
+      expect(store.chapters.get(chapter.id)).toBeTruthy();
       expect(store.error).toBeNull();
     });
 
@@ -584,7 +581,7 @@ describe('Navigation Logic', () => {
       // Should handle parsing error gracefully
       expect(store.error).toBeTruthy();
       expect(store.error).toContain('parse');
-      expect(store.sessionData[chapter.originalUrl]).toBeUndefined();
+      expect(store.chapters.get(chapter.id)).toBeUndefined();
     });
 
     it('should handle rapid navigation changes', async () => {
@@ -604,11 +601,11 @@ describe('Navigation Logic', () => {
       // No operations should have failed due to race conditions
       results.forEach((result, index) => {
         expect(result.status).toBe('fulfilled');
-        expect(store.sessionData[chapters[index].originalUrl]).toBeTruthy();
+        expect(store.chapters.get(chapters[index].id)).toBeTruthy();
       });
       
       // Session should contain all chapters
-      expect(Object.keys(store.sessionData)).toHaveLength(5);
+      expect(store.chapters.size).toBe(5);
     });
 
     it('should maintain data integrity during concurrent operations', async () => {
@@ -630,13 +627,13 @@ describe('Navigation Logic', () => {
       await Promise.all([translatePromise, redundantFetchPromise]);
       
       // Data should be consistent
-      const sessionData = store.sessionData[chapter.originalUrl];
-      expect(sessionData.chapter.title).toBe(chapter.title);
-      expect(sessionData.translationResult).toBeTruthy();
+      const chapterData = store.chapters.get(chapter.id);
+      expect(chapterData.title).toBe(chapter.title);
+      expect(chapterData.translationResult).toBeTruthy();
       
       // Should not have duplicate data or corruption
-      expect(typeof sessionData.chapter.title).toBe('string');
-      expect(sessionData.translationResult.translatedTitle).toBeTruthy();
+      expect(typeof chapterData.title).toBe('string');
+      expect(chapterData.translationResult.translatedTitle).toBeTruthy();
     });
   });
 });

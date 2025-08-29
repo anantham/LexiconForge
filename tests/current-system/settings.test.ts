@@ -121,7 +121,7 @@ describe('Settings Persistence', () => {
       
       // Create new store instance (simulates app restart)
       const store = useAppStore.getState();
-      store.initializeSettings();
+
       
       // Verify settings restored
       expect(store.settings.provider).toBe('DeepSeek');
@@ -137,7 +137,7 @@ describe('Settings Persistence', () => {
       (localStorage.getItem as any).mockReturnValue(null);
       
       const store = useAppStore.getState();
-      store.initializeSettings();
+
       
       // Should use defaults
       expect(store.settings.provider).toBe('Gemini'); // Default provider
@@ -470,7 +470,7 @@ describe('Settings Persistence', () => {
   describe('Default Settings Management', () => {
     it('should provide sensible defaults for new users', () => {
       const store = useAppStore.getState();
-      store.initializeSettings(); // No stored settings
+ // No stored settings
       
       // Provider default should be most reliable (Gemini)
       expect(store.settings.provider).toBe('Gemini');

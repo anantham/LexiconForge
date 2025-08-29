@@ -42,7 +42,7 @@ export const AVAILABLE_MODELS = {
 // Available AI models for Image Generation
 export const AVAILABLE_IMAGE_MODELS = {
   Gemini: [
-    { id: 'gemini-2.5-flash-image-preview', name: 'Gemini 2.5 Flash (Image Preview)', description: 'Native image generation, $0.039 per image' },
+    { id: 'gemini-2.5-flash-image-preview', name: 'Gemini 2.5 Flash (Image Preview) [nano banana]', description: 'Native image generation, $0.039 per image' },
     { id: 'gemini-2.0-flash-preview-image-generation', name: 'Gemini 2.0 Flash (Image Preview)', description: 'Native image generation, $0.039 per image' },
     { id: 'imagen-3.0-generate-002', name: 'Imagen 3.0', description: 'High-quality image generation' },
     { id: 'imagen-4.0-generate-preview-06-06', name: 'Imagen 4.0 (Preview)', description: 'Next-gen image model' },
