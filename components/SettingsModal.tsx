@@ -3,9 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppSettings, TranslationProvider } from '../types';
 import useAppStore from '../store/useAppStore';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
+import appConfig from '../config/app.json';
 import { getDefaultTemplate } from '../services/epubService';
 import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../costs';
-import { supportsStructuredOutputs } from '../services/capabilityService';
+import { supportsStructuredOutputs, supportsParameters } from '../services/capabilityService';
 import { useShallow } from 'zustand/react/shallow';
 
 interface SettingsModalProps {
@@ -61,6 +62,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [orSearch, setOrSearch] = useState('');
   const [lastUsedMap, setLastUsedMap] = useState<Record<string, string>>({});
   const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
+  const [parameterSupport, setParameterSupport] = useState<Record<string, { 
+    temperature: boolean | null;
+    topP: boolean | null; 
+    frequencyPenalty: boolean | null;
+    presencePenalty: boolean | null;
+    seed: boolean | null;
+  }>>({});
 
   useEffect(() => {
     setCurrentSettings(settings);
@@ -83,8 +91,36 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       }
     };
     
+    // Check parameter support for current model
+    const checkParameterSupport = async (provider: string, modelId: string) => {
+      const key = `${provider}:${modelId}`;
+      if (parameterSupport[key]) return; // Already checked
+      
+      try {
+        const [temperature, topP, frequencyPenalty, presencePenalty, seed] = await Promise.all([
+          supportsParameters(provider, modelId, ['temperature']),
+          supportsParameters(provider, modelId, ['top_p']),
+          supportsParameters(provider, modelId, ['frequency_penalty']),
+          supportsParameters(provider, modelId, ['presence_penalty']),
+          supportsParameters(provider, modelId, ['seed'])
+        ]);
+        
+        setParameterSupport(prev => ({ 
+          ...prev, 
+          [key]: { temperature, topP, frequencyPenalty, presencePenalty, seed }
+        }));
+      } catch (error) {
+        console.warn(`Failed to check parameter support for ${provider}:${modelId}`, error);
+        setParameterSupport(prev => ({ 
+          ...prev, 
+          [key]: { temperature: null, topP: null, frequencyPenalty: null, presencePenalty: null, seed: null }
+        }));
+      }
+    };
+    
     checkStructuredOutputSupport(currentSettings.provider, currentSettings.model);
-  }, [currentSettings.provider, currentSettings.model, isOpen, structuredOutputSupport]);
+    checkParameterSupport(currentSettings.provider, currentSettings.model);
+  }, [currentSettings.provider, currentSettings.model, isOpen, structuredOutputSupport, parameterSupport]);
 
   // Pre-check structured output support for all visible models when provider changes
   useEffect(() => {
@@ -593,18 +629,128 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 </p>
               </div>
               <div>
-                <label htmlFor="temperature" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Temperature: <span className="font-bold text-blue-500">{currentSettings.temperature}</span></label>
+                <label htmlFor="temperature" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Temperature: <span className="font-bold text-blue-500 mx-1">{currentSettings.temperature}</span>
+                  {(() => {
+                    const key = `${currentSettings.provider}:${currentSettings.model}`;
+                    const support = parameterSupport[key]?.temperature;
+                    if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                    if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                    return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                  })()}
+                </label>
                 <input
                   id="temperature"
                   type="range"
-                  min="0"
-                  max="2"
+                  min={appConfig.aiParameters.limits.temperature.min}
+                  max={appConfig.aiParameters.limits.temperature.max}
                   step="0.1"
                   value={currentSettings.temperature}
                   onChange={(e) => handleSettingChange('temperature', parseFloat(e.target.value))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Controls randomness/creativity. 0 = deterministic, 2 = very creative. Some models only support default (1).</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.temperature}</p>
+              </div>
+              
+              {/* Advanced Parameters */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="topP" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Top P: <span className="font-bold text-blue-500 mx-1">{currentSettings.topP ?? appConfig.aiParameters.defaults.top_p}</span>
+                    {(() => {
+                      const key = `${currentSettings.provider}:${currentSettings.model}`;
+                      const support = parameterSupport[key]?.topP;
+                      if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                      if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                      return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                    })()}
+                  </label>
+                  <input
+                    id="topP"
+                    type="range"
+                    min={appConfig.aiParameters.limits.top_p.min}
+                    max={appConfig.aiParameters.limits.top_p.max}
+                    step="0.05"
+                    value={currentSettings.topP ?? appConfig.aiParameters.defaults.top_p}
+                    onChange={(e) => handleSettingChange('topP', parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.top_p}</p>
+                </div>
+                
+                <div>
+                  <label htmlFor="seed" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Seed (optional)
+                    {(() => {
+                      const key = `${currentSettings.provider}:${currentSettings.model}`;
+                      const support = parameterSupport[key]?.seed;
+                      if (support === true) return <span className="text-green-500 text-xs ml-1" title="Supported by this model">✓</span>;
+                      if (support === false) return <span className="text-red-500 text-xs ml-1" title="Not supported by this model">✗</span>;
+                      return <span className="text-gray-400 text-xs ml-1" title="Checking support...">?</span>;
+                    })()}
+                  </label>
+                  <input
+                    id="seed"
+                    type="number"
+                    min={appConfig.aiParameters.limits.seed.min}
+                    max={appConfig.aiParameters.limits.seed.max}
+                    value={currentSettings.seed ?? ''}
+                    onChange={(e) => handleSettingChange('seed', e.target.value ? parseInt(e.target.value) : null)}
+                    placeholder="Random generation"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.seed}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="frequencyPenalty" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Frequency Penalty: <span className="font-bold text-blue-500 mx-1">{currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}</span>
+                    {(() => {
+                      const key = `${currentSettings.provider}:${currentSettings.model}`;
+                      const support = parameterSupport[key]?.frequencyPenalty;
+                      if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                      if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                      return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                    })()}
+                  </label>
+                  <input
+                    id="frequencyPenalty"
+                    type="range"
+                    min={appConfig.aiParameters.limits.frequency_penalty.min}
+                    max={appConfig.aiParameters.limits.frequency_penalty.max}
+                    step="0.1"
+                    value={currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}
+                    onChange={(e) => handleSettingChange('frequencyPenalty', parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.frequency_penalty}</p>
+                </div>
+                
+                <div>
+                  <label htmlFor="presencePenalty" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Presence Penalty: <span className="font-bold text-blue-500 mx-1">{currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}</span>
+                    {(() => {
+                      const key = `${currentSettings.provider}:${currentSettings.model}`;
+                      const support = parameterSupport[key]?.presencePenalty;
+                      if (support === true) return <span className="text-green-500 text-xs" title="Supported by this model">✓</span>;
+                      if (support === false) return <span className="text-red-500 text-xs" title="Not supported by this model">✗</span>;
+                      return <span className="text-gray-400 text-xs" title="Checking support...">?</span>;
+                    })()}
+                  </label>
+                  <input
+                    id="presencePenalty"
+                    type="range"
+                    min={appConfig.aiParameters.limits.presence_penalty.min}
+                    max={appConfig.aiParameters.limits.presence_penalty.max}
+                    step="0.1"
+                    value={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
+                    onChange={(e) => handleSettingChange('presencePenalty', parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{appConfig.aiParameters.descriptions.presence_penalty}</p>
+                </div>
               </div>
             </div>
           </fieldset>

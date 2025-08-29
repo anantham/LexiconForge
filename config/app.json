@@ -7,5 +7,28 @@
     "name": "LexiconForge",
     "version": "1.0.0",
     "description": "AI-powered translation and content creation tool"
+  },
+  "aiParameters": {
+    "defaults": {
+      "temperature": 0.3,
+      "top_p": 1.0,
+      "frequency_penalty": 0.0,
+      "presence_penalty": 0.0,
+      "seed": null
+    },
+    "limits": {
+      "temperature": { "min": 0.0, "max": 2.0 },
+      "top_p": { "min": 0.0, "max": 1.0 },
+      "frequency_penalty": { "min": -2.0, "max": 2.0 },
+      "presence_penalty": { "min": -2.0, "max": 2.0 },
+      "seed": { "min": 0, "max": 2147483647 }
+    },
+    "descriptions": {
+      "temperature": "Controls randomness. Lower = more focused, higher = more creative",
+      "top_p": "Nucleus sampling. Use with low temperature for best results",
+      "frequency_penalty": "Penalizes repeated tokens. Positive = less repetition",
+      "presence_penalty": "Penalizes new topics. Positive = more focused on topic",
+      "seed": "For reproducible outputs. Leave empty for random generation"
+    }
   }
 }

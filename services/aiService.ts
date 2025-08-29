@@ -3,10 +3,31 @@ import { GoogleGenAI, GenerateContentResponse, Type } from '@google/genai';
 import prompts from '../config/prompts.json';
 import OpenAI from 'openai';
 import { openrouterService } from './openrouterService';
-import { supportsStructuredOutputs } from './capabilityService';
+import { supportsStructuredOutputs, supportsParameters } from './capabilityService';
+import { rateLimitService } from './rateLimitService';
 import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
 import { COSTS_PER_MILLION_TOKENS } from '../costs';
+import appConfig from '../config/app.json';
+
+// Parameter validation using config limits
+const validateAndClampParameter = (value: any, paramName: string): any => {
+  if (value === undefined || value === null) return value;
+  
+  const limits = appConfig.aiParameters.limits[paramName as keyof typeof appConfig.aiParameters.limits];
+  if (!limits) return value;
+  
+  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
+  if (isNaN(numValue)) return value;
+  
+  const clamped = Math.max(limits.min, Math.min(limits.max, numValue));
+  if (clamped !== numValue) {
+    console.warn(`[Parameter Validation] Clamped ${paramName} from ${numValue} to ${clamped} (limits: ${limits.min}-${limits.max})`);
+  }
+  
+  return clamped;
+};
 import { ChatCompletion } from 'openai/resources';
+import { sanitizeHtml as sanitizeTranslationHTML } from './translate/HtmlSanitizer';
 
 // --- API KEY VALIDATION ---
 
@@ -137,37 +158,7 @@ function extractBalancedJson(text: string): string {
 }
 
 // Normalize common scene break markers and stray tags in translation HTML
-function sanitizeTranslationHTML(input: string): string {
-  let s = input;
-
-  // Normalize common scene breaks you already handle
-  s = s.replace(/\s*(?:\* \* \*|\*{3,}|—{3,}|- {2,}-)\s*/g, '<hr />');
-
-  // Strip <p> tags if they sneak in
-  s = s.replace(/<\/?p[^>]*>/gi, '');
-
-  // --- Heal & canonicalize void tags ---
-  // Any <br ...>  → <br />
-  s = s.replace(/<\s*br\b[^>]*>/gi, '<br />');
-  // Malformed <br\u2026 (no '>') → <br />
-  s = s.replace(/<\s*br\b(?![^>]*>)/gi, '<br />');
-  // Remove illegal </br>
-  s = s.replace(/<\/\s*br\s*>/gi, '');
-
-  // Same for <hr>
-  s = s.replace(/<\s*hr\b[^>]*>/gi, '<hr />');
-  s = s.replace(/<\s*hr\b(?![^>]*>)/gi, '<hr />');
-  s = s.replace(/<\/\s*hr\s*>/gi, '');
-
-  // --- Tighten inline formatting tags: drop hallucinated attributes ---
-  s = s.replace(/<\s*([/]?)(i|em|b|strong|u|s|sub|sup)\b[^>]*>/gi, '<\$1\$2>');
-
-  // --- Escape any other accidental '<tag' sequences to plain text ---
-  // (Prevents things like <down;> becoming an attribute during XML cloning)
-  s = s.replace(/<(?!\/?(?:br|hr|i|em|b|strong|u|s|sub|sup)\b)/gi, '&lt;');
-
-  return s;
-}
+// sanitizeTranslationHTML is imported from services/translate/HtmlSanitizer
 
 const buildFanTranslationContext = (fanTranslation: string | null): string => {
   if (!fanTranslation) return '';
@@ -516,9 +507,17 @@ const translateWithGemini = async (title: string, content: string, settings: App
   const totalTokens = promptTokens + completionTokens;
   const estimatedCost = calculateCost(settings.model, promptTokens, completionTokens);
   
+  // Track actual parameters that were sent to Gemini (for UI display)
+  const actualParams: UsageMetrics['actualParams'] = {};
+  if (settings.temperature !== appConfig.aiParameters.defaults.temperature) {
+    actualParams.temperature = settings.temperature;
+  }
+  // Note: Gemini doesn't support the other OpenAI parameters, so we don't track them
+  
   const usageMetrics: UsageMetrics = {
     totalTokens, promptTokens, completionTokens, estimatedCost, requestTime,
-    provider: 'Gemini', model: settings.model
+    provider: 'Gemini', model: settings.model,
+    actualParams: Object.keys(actualParams).length > 0 ? actualParams : undefined
   };
   
   const joinParts = (cand: any): string => {
@@ -798,7 +797,24 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         throw new Error('System prompt cannot be empty for OpenAI translation');
     }
 
+    // Check rate limits before proceeding
+    await rateLimitService.canMakeRequest(settings.model);
+    
     const requestOptions: any = { model: settings.model };
+    
+    // Add supported parameters from expanded settings - now including temperature
+    const parameterSupport = await Promise.all([
+        supportsParameters(settings.provider, settings.model, ['temperature']),
+        supportsParameters(settings.provider, settings.model, ['top_p']),
+        supportsParameters(settings.provider, settings.model, ['frequency_penalty']),
+        supportsParameters(settings.provider, settings.model, ['presence_penalty']),
+        supportsParameters(settings.provider, settings.model, ['seed'])
+    ]);
+    
+    const [supportsTemperature, supportsTopP, supportsFreqPen, supportsPresPen, supportsSeed] = parameterSupport;
+    
+    dlog(`[Parameter Detection] Model: ${settings.model}, Provider: ${settings.provider}`);
+    dlog(`[Parameter Support] temp=${supportsTemperature}, top_p=${supportsTopP}, freq_pen=${supportsFreqPen}, pres_pen=${supportsPresPen}, seed=${supportsSeed}`);
 
     // 2. Set response_format and conditionally modify the system prompt.
     if (hasStructuredOutputs) {
@@ -853,26 +869,59 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     // Add the now-finalized messages to the request
     requestOptions.messages = messages;
 
-    // --- MODEL-SPECIFIC QUIRKS & CAPABILITIES ---
-    // Some models have non-standard behaviors. We define them here to apply conditional logic.
-    const modelsThatSkipTemperature = [
-        'gpt-5', 
-        'gpt-4.1', 
-        'gpt-5-chat-latest'
-    ];
+    // --- MODEL-SPECIFIC CAPABILITIES (API-Based) ---
     // Based on user feedback, gpt-5 and claude models require max_completion_tokens.
     const modelsThatUseMaxCompletionTokens = [
         'claude',
         'gpt-5'
     ];
-
-    // Determine if the current model has any of these quirks.
-    const skipTemperature = modelsThatSkipTemperature.some(p => settings.model.startsWith(p));
     const useMaxCompletionTokens = modelsThatUseMaxCompletionTokens.some(p => settings.model.startsWith(p));
 
-    // Apply model-specific parameters
-    if (!skipTemperature) {
-        requestOptions.temperature = settings.temperature;
+    // Apply API-detected parameters with validation
+    if (supportsTemperature && settings.temperature !== appConfig.aiParameters.defaults.temperature) {
+        const validatedTemp = validateAndClampParameter(settings.temperature, 'temperature');
+        requestOptions.temperature = validatedTemp;
+        dlog(`[Parameters] Added temperature=${validatedTemp}`);
+    }
+    
+    // Apply expanded AI parameters if supported and configured with validation
+    if (supportsTopP && settings.topP !== undefined && settings.topP !== appConfig.aiParameters.defaults.top_p) {
+        const validatedTopP = validateAndClampParameter(settings.topP, 'top_p');
+        requestOptions.top_p = validatedTopP;
+        dlog(`[Parameters] Added top_p=${validatedTopP}`);
+    }
+    if (supportsFreqPen && settings.frequencyPenalty !== undefined && settings.frequencyPenalty !== appConfig.aiParameters.defaults.frequency_penalty) {
+        const validatedFreqPen = validateAndClampParameter(settings.frequencyPenalty, 'frequency_penalty');
+        requestOptions.frequency_penalty = validatedFreqPen;
+        dlog(`[Parameters] Added frequency_penalty=${validatedFreqPen}`);
+    }
+    if (supportsPresPen && settings.presencePenalty !== undefined && settings.presencePenalty !== appConfig.aiParameters.defaults.presence_penalty) {
+        const validatedPresPen = validateAndClampParameter(settings.presencePenalty, 'presence_penalty');
+        requestOptions.presence_penalty = validatedPresPen;
+        dlog(`[Parameters] Added presence_penalty=${validatedPresPen}`);
+    }
+    if (supportsSeed && settings.seed !== undefined && settings.seed !== null) {
+        const validatedSeed = validateAndClampParameter(settings.seed, 'seed');
+        requestOptions.seed = validatedSeed;
+        dlog(`[Parameters] Added seed=${validatedSeed}`);
+    }
+    
+    // Track actual parameters that were sent to API (for UI display)
+    const actualParams: UsageMetrics['actualParams'] = {};
+    if (requestOptions.temperature !== undefined) {
+        actualParams.temperature = requestOptions.temperature;
+    }
+    if (requestOptions.top_p !== undefined) {
+        actualParams.topP = requestOptions.top_p;
+    }
+    if (requestOptions.frequency_penalty !== undefined) {
+        actualParams.frequencyPenalty = requestOptions.frequency_penalty;
+    }
+    if (requestOptions.presence_penalty !== undefined) {
+        actualParams.presencePenalty = requestOptions.presence_penalty;
+    }
+    if (requestOptions.seed !== undefined) {
+        actualParams.seed = requestOptions.seed;
     }
     if (settings.maxOutputTokens && settings.maxOutputTokens > 0) {
         // This logic is now applied to all providers that go through this function,
@@ -939,7 +988,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     // Add temperature if the model supports it (some newer models only support default)
     let response: ChatCompletion;
     try {
-        dlog(`[OpenAI] Attempt 1: Sending request ${skipTemperature ? 'without' : 'with'} temperature`);
+        dlog(`[OpenAI] Attempt 1: Sending request ${requestOptions.temperature !== undefined ? 'with' : 'without'} temperature`);
         
         dlog('[OpenAI DIAGNOSTIC] ABOUT TO MAKE API CALL - Final sanity check completed');
         if (abortSignal?.aborted) throw new DOMException('Aborted', 'AbortError');
@@ -968,14 +1017,28 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
         dlog(`[OpenAI] Error message:`, error.message || 'unknown');
         dlog(`[OpenAI] Error response:`, error.response?.data || 'no response data');
         
-        // If temperature fails, retry without it
-        if (error.message?.includes('temperature') || error.message?.includes('not supported') || error.status === 400) {
-            if (aiDebugEnabled()) console.warn(`[OpenAI] Retrying without temperature setting for model ${settings.model}`);
-            delete requestOptions.temperature;
+        // If parameter error, retry with progressive parameter removal
+        if (error.message?.includes('temperature') || error.message?.includes('top_p') || 
+            error.message?.includes('frequency_penalty') || error.message?.includes('presence_penalty') ||
+            error.message?.includes('seed') || error.message?.includes('not supported') || error.status === 400) {
+            
+            const originalParams = Object.keys(requestOptions).filter(k => 
+                ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'].includes(k)
+            );
+            
+            if (aiDebugEnabled()) console.warn(`[OpenAI] Parameter error detected. Retrying without: ${originalParams.join(', ')} for model ${settings.model}`);
+            
+            // Remove all AI parameters for retry
+            ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'].forEach(param => {
+                if (requestOptions[param] !== undefined) {
+                    delete requestOptions[param];
+                    dlog(`[Retry] Removed ${param} from request`);
+                }
+            });
             dlog(`[OpenAI] Attempt 2: Retry request options:`, JSON.stringify(requestOptions, null, 2));
             
-            // DIAGNOSTIC: Re-validate request after temperature removal
-            dlog('[OpenAI DIAGNOSTIC] RETRY ATTEMPT - Re-validating request after temperature removal:');
+            // DIAGNOSTIC: Re-validate request after parameter removal
+            dlog('[OpenAI DIAGNOSTIC] RETRY ATTEMPT - Re-validating request after parameter removal:');
             requestOptions.messages?.forEach((msg: any, index: number) => {
                 dlog(`  Retry Message[${index}]:`, {
                     role: msg.role,
@@ -1048,7 +1111,8 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
 
     const usageMetrics: UsageMetrics = {
         totalTokens, promptTokens, completionTokens, estimatedCost, requestTime,
-        provider: settings.provider, model: settings.model
+        provider: settings.provider, model: settings.model,
+        actualParams: Object.keys(actualParams).length > 0 ? actualParams : undefined
     };
 
     const firstChoice = response.choices?.[0];

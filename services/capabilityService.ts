@@ -5,8 +5,30 @@
 
 type ModelMeta = {
   id: string;
+  name?: string;
   supported_parameters?: string[];
   canonical_slug?: string; // e.g. "openai/gpt-4o"
+  context_length?: number;
+  pricing?: {
+    prompt?: string | number;
+    completion?: string | number;
+    image?: string | number;
+    request?: string | number;
+  };
+  per_request_limits?: {
+    [key: string]: number;
+  } | null;
+  architecture?: {
+    input_modalities?: string[];
+    output_modalities?: string[];
+    tokenizer?: string;
+    instruct_type?: string;
+  };
+  top_provider?: {
+    context_length?: number;
+    max_completion_tokens?: number;
+    is_moderated?: boolean;
+  };
 };
 
 type Endpoint = {
@@ -71,6 +93,7 @@ async function loadEndpoints(author: string, slug: string): Promise<Endpoint[]> 
  * Uses OpenRouter's APIs to get actual capability data
  */
 export async function supportsStructuredOutputs(providerName: string, modelId: string): Promise<boolean> {
+  let apiSaysYes = false;
   try {
     // 1) Model-level (union across providers) — quick check
     const models = await loadModels();
@@ -102,23 +125,78 @@ export async function supportsStructuredOutputs(providerName: string, modelId: s
       // For non-OpenRouter providers, use model-level data
       providerHasSO = modelUnionHasSO;
     }
+    apiSaysYes = providerHasSO;
 
-    return providerHasSO;
   } catch (error) {
     console.warn('[CapabilityService] Error checking structured outputs support:', error);
-    // Fallback to conservative hardcoded detection for critical models
-    return (
-      (providerName === 'OpenAI' && (
-        modelId.startsWith('gpt-4o') || 
-        modelId.startsWith('gpt-5') ||
-        modelId.startsWith('gpt-4.1')
-      )) ||
-      (providerName === 'OpenRouter' && (
-        modelId.includes('gpt-4o') || 
-        modelId.includes('gpt-5') ||
-        modelId.includes('gpt-4.1')
-      ))
-    );
+  }
+
+  if (apiSaysYes) {
+    return true;
+  }
+
+  // Fallback to conservative hardcoded detection for critical models
+  return (
+    (providerName === 'OpenAI' && (
+      modelId.startsWith('gpt-4o') || 
+      modelId.startsWith('gpt-5') ||
+      modelId.startsWith('gpt-4.1')
+    )) ||
+    (providerName === 'OpenRouter' && (
+      modelId.includes('gpt-4o') || 
+      modelId.includes('gpt-5') ||
+      modelId.includes('gpt-4.1')
+    ))
+  );
+}
+
+/**
+ * Get full model metadata including pricing and limits
+ */
+export async function getModelMetadata(modelId: string): Promise<ModelMeta | null> {
+  try {
+    const models = await loadModels();
+    return models.get(modelId) || null;
+  } catch (error) {
+    console.warn('[CapabilityService] Error getting model metadata:', error);
+    return null;
+  }
+}
+
+/**
+ * Get pricing data for cost-aware model selection
+ */
+export async function getModelPricing(modelId: string): Promise<{ input: number; output: number } | null> {
+  try {
+    const meta = await getModelMetadata(modelId);
+    if (!meta?.pricing) return null;
+    
+    const prompt = typeof meta.pricing.prompt === 'string' ? parseFloat(meta.pricing.prompt) : meta.pricing.prompt;
+    const completion = typeof meta.pricing.completion === 'string' ? parseFloat(meta.pricing.completion) : meta.pricing.completion;
+    
+    if (typeof prompt === 'number' && typeof completion === 'number') {
+      return {
+        input: prompt * 1_000_000, // Convert to per-million tokens
+        output: completion * 1_000_000
+      };
+    }
+    return null;
+  } catch (error) {
+    console.warn('[CapabilityService] Error getting model pricing:', error);
+    return null;
+  }
+}
+
+/**
+ * Get rate limits for a model to respect per_request_limits
+ */
+export async function getModelLimits(modelId: string): Promise<{ [key: string]: number } | null> {
+  try {
+    const meta = await getModelMetadata(modelId);
+    return meta?.per_request_limits || null;
+  } catch (error) {
+    console.warn('[CapabilityService] Error getting model limits:', error);
+    return null;
   }
 }
 

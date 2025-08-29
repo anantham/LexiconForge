@@ -62,6 +62,14 @@ export interface UsageMetrics {
   requestTime: number; // in seconds
   provider: TranslationProvider;
   model: string;
+  // Track actual parameters sent to API (only non-default, supported values)
+  actualParams?: {
+    temperature?: number;
+    topP?: number; 
+    frequencyPenalty?: number;
+    presencePenalty?: number;
+    seed?: number | null;
+  };
 }
 
 export interface TranslationResult {
@@ -113,6 +121,11 @@ export interface AppSettings {
     model: string; // The ID of the model, e.g., 'gemini-2.5-pro'
     imageModel: string; // The ID of the image model, e.g., 'imagen-4.0-ultra...'
     temperature: number; // 0.0 to 2.0, controls randomness/creativity
+    // Expanded AI parameters (OpenAI-compatible)
+    topP?: number;               // 0.0 to 1.0, nucleus sampling 
+    frequencyPenalty?: number;   // -2.0 to 2.0, reduces repetition
+    presencePenalty?: number;    // -2.0 to 2.0, encourages topic diversity  
+    seed?: number | null;        // For reproducible outputs
     apiKeyGemini?: string;
     apiKeyOpenAI?: string;
     apiKeyDeepSeek?: string;

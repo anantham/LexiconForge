@@ -286,11 +286,27 @@ const ChapterView: React.FC = () => {
     </div>
   );
 
-  const MetricsDisplay = ({ metrics }: { metrics: UsageMetrics }) => (
-    <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
-      Translated in {metrics.requestTime.toFixed(2)}s with <span className="font-semibold">{metrics.model}</span> (~${metrics.estimatedCost.toFixed(5)})
-    </div>
-  );
+  const MetricsDisplay = ({ metrics }: { metrics: UsageMetrics }) => {
+    // Format actual parameters that were sent to API
+    const formatParams = (params?: UsageMetrics['actualParams']) => {
+      if (!params || Object.keys(params).length === 0) return '';
+      
+      const paramStrings = [];
+      if (params.temperature !== undefined) paramStrings.push(`temp=${params.temperature}`);
+      if (params.topP !== undefined) paramStrings.push(`top_p=${params.topP}`);
+      if (params.frequencyPenalty !== undefined) paramStrings.push(`freq_pen=${params.frequencyPenalty}`);
+      if (params.presencePenalty !== undefined) paramStrings.push(`pres_pen=${params.presencePenalty}`);
+      if (params.seed !== undefined && params.seed !== null) paramStrings.push(`seed=${params.seed}`);
+      
+      return paramStrings.length > 0 ? ` [${paramStrings.join(', ')}]` : '';
+    };
+    
+    return (
+      <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+        Translated in {metrics.requestTime.toFixed(2)}s with <span className="font-semibold">{metrics.model}</span>{formatParams(metrics.actualParams)} (~${metrics.estimatedCost.toFixed(5)})
+      </div>
+    );
+  };
 
   const ImageMetricsDisplay = ({ metrics }: { metrics: { count: number; totalTime: number; totalCost: number; lastModel?: string } }) => (
     <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
