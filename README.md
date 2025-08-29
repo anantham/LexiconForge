@@ -39,7 +39,13 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 *   📝 **Inline Annotations:** Collaborative feedback system with comments and rating history.
 
 ### **🎨 Rich Media & Export**
-*   🖼️ **AI-Generated Illustrations:** Bring pivotal story moments to life with automatically generated images. Smart illustration system places visual markers in translations and generates contextual artwork.
+*   🖼️ **Advanced AI Image Generation:** Bring pivotal story moments to life with cutting-edge image generation:
+  - **Multi-Model Support:** Flux models (PiAPI), Imagen 3.0/4.0, and Gemini image generation
+  - **21 LoRA Style Models:** XLabs (7) and CivitAI (14) collections for artistic transformation - anime, realism, cyberpunk, art deco, and more
+  - **img2img with Steering Images:** Guide generation with reference images for consistent character/scene styling
+  - **Advanced Controls:** Negative prompts, guidance scale (1.5-5.0), and LoRA strength tuning (0.1-2.0)
+  - **Smart Context Placement:** AI automatically places illustration markers at key story moments
+  - **Collapsible Interface:** Advanced controls hidden by default for distraction-free reading
 *   📚 **Professional EPUB Export:** Generate beautiful e-books with:
   - Comprehensive translation statistics and cost breakdowns
   - Provider/model usage analytics across your entire library
@@ -73,6 +79,8 @@ Want to run your own instance? It's easy.
     VITE_OPENAI_API_KEY=your_openai_key_here
     VITE_DEEPSEEK_API_KEY=your_deepseek_key_here
     VITE_CLAUDE_API_KEY=your_claude_key_here
+    VITE_PIAPI_API_KEY=your_piapi_key_here      # For Flux models and LoRA
+    VITE_OPENROUTER_API_KEY=your_openrouter_key # Optional for additional models
     ```
 4.  **Run the app:** `npm run dev`
 
@@ -89,7 +97,7 @@ LexiconForge uses a sophisticated **dual-tier data architecture**:
 - **Zustand Store**: Sub-millisecond UI reactivity for active session
 - **IndexedDB**: Unlimited persistent storage for chapter library and translations
 - **Professional Export System**: EPUB generation with comprehensive statistics and embedded illustrations
-- **Multi-Provider AI Integration**: Unified interface for 4 major AI providers with advanced illustration pipeline
+- **Multi-Provider AI Integration**: Unified interface for 6 major AI providers with advanced illustration pipeline (Gemini, OpenAI, Claude, DeepSeek, PiAPI, OpenRouter)
 
 Prompts & JSON schema descriptions are centralized in `config/prompts.json`, so you can quickly change the HTML rules, footnote/illustration requirements, DeepSeek JSON guard, fan-translation preface, translate preface, and history labels without touching code.
 

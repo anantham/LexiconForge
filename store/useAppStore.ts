@@ -12,6 +12,7 @@ import {
   generateStableChapterId, 
   transformImportedChapters 
 } from '../services/stableIdService';
+import appConfig from '../config/app.json';
 
 // ---- User provided helpers ----
 const settingsStorageKey = 'app-settings';
@@ -82,11 +83,14 @@ const defaultSettings: AppSettings = {
   maxOutputTokens: 8192,
   retryMax: 3,
   retryInitialDelayMs: 2000,
-  footnoteStrictMode: 'append_missing',
+  footnoteStrictMode: appConfig.footnoteStrictMode as 'append_missing' | 'fail',
   imageWidth: 1024,
     imageHeight: 1024,
     imageAspectRatio: '1:1',
     imageSizePreset: '1K',
+    // Image generation advanced controls
+    defaultNegativePrompt: 'low quality, blurry, distorted, text, watermark',
+    defaultGuidanceScale: 3.5,
     exportOrder: 'number',
     includeTitlePage: true,
     includeStatsPage: true,
@@ -120,6 +124,11 @@ interface AppState {
     activePromptTemplate: PromptTemplate | null;
     generatedImages: Record<string, { isLoading: boolean; data: string | null; error: string | null; }>;
     imageGenerationMetrics: { count: number; totalTime: number; totalCost: number; lastModel?: string; } | null;
+    steeringImages: Record<string, string | null>; // chapterId:placementMarker -> steering image filename
+    negativePrompts: Record<string, string>; // chapterId:placementMarker -> negative prompt
+    guidanceScales: Record<string, number>; // chapterId:placementMarker -> guidance scale
+    loraModels: Record<string, string | null>; // chapterId:placementMarker -> LoRA model name
+    loraStrengths: Record<string, number>; // chapterId:placementMarker -> LoRA strength
     // OpenRouter dynamic catalogue state (cached)
     openRouterModels?: { data: any[]; fetchedAt: string } | null;
     openRouterKeyUsage?: { usage: number | null; limit: number | null; remaining: number | null; fetchedAt: string } | null;
@@ -159,6 +168,11 @@ interface AppActions {
     handleGenerateImages: (chapterId: string) => Promise<void>;
     handleRetryImage: (chapterId: string, placementMarker: string) => Promise<void>;
     updateIllustrationPrompt: (chapterId: string, placementMarker: string, newPrompt: string) => Promise<void>;
+    setSteeringImage: (chapterId: string, placementMarker: string, steeringImagePath: string | null) => void;
+    setNegativePrompt: (chapterId: string, placementMarker: string, negativePrompt: string) => void;
+    setGuidanceScale: (chapterId: string, placementMarker: string, guidanceScale: number) => void;
+    setLoRAModel: (chapterId: string, placementMarker: string, loraModel: string | null) => void;
+    setLoRAStrength: (chapterId: string, placementMarker: string, loraStrength: number) => void;
     createPromptTemplate: (template: Omit<PromptTemplate, 'id' | 'createdAt'>) => Promise<void>;
     updatePromptTemplate: (template: PromptTemplate) => Promise<void>;
     deletePromptTemplate: (id: string) => Promise<void>;
@@ -215,6 +229,11 @@ export const useAppStore = create<Store>()((set, get) => ({
   activePromptTemplate: null,
   generatedImages: {},
   imageGenerationMetrics: null,
+  steeringImages: {},
+  negativePrompts: {},
+  guidanceScales: {},
+  loraModels: {},
+  loraStrengths: {},
   openRouterModels: null,
   openRouterKeyUsage: null,
   hydratingChapters: {},
@@ -1616,7 +1635,13 @@ export const useAppStore = create<Store>()((set, get) => ({
     for (const illust of illustrationsNeedingGeneration) {
         try {
             slog(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
-            const result = await generateImage(illust.imagePrompt, settings);
+            // Get advanced controls for this illustration
+            const steeringImagePath = get().steeringImages[`${chapterId}:${illust.placementMarker}`] || null;
+            const negativePrompt = get().negativePrompts[`${chapterId}:${illust.placementMarker}`] || settings.defaultNegativePrompt || '';
+            const guidanceScale = get().guidanceScales[`${chapterId}:${illust.placementMarker}`] || settings.defaultGuidanceScale || 3.5;
+            const loraModel = get().loraModels[`${chapterId}:${illust.placementMarker}`] || null;
+            const loraStrength = get().loraStrengths[`${chapterId}:${illust.placementMarker}`] || 0.8;
+            const result = await generateImage(illust.imagePrompt, settings, steeringImagePath, negativePrompt, guidanceScale, loraModel, loraStrength);
             totalTime += result.requestTime;
             totalCost += result.cost;
             generatedCount++;
@@ -1729,7 +1754,13 @@ export const useAppStore = create<Store>()((set, get) => ({
     }));
 
     try {
-        const result = await generateImage(illust.imagePrompt, settings);
+        // Get advanced controls for this illustration
+        const steeringImagePath = get().steeringImages[`${chapterId}:${placementMarker}`] || null;
+        const negativePrompt = get().negativePrompts[`${chapterId}:${placementMarker}`] || settings.defaultNegativePrompt || '';
+        const guidanceScale = get().guidanceScales[`${chapterId}:${placementMarker}`] || settings.defaultGuidanceScale || 3.5;
+        const loraModel = get().loraModels[`${chapterId}:${placementMarker}`] || null;
+        const loraStrength = get().loraStrengths[`${chapterId}:${placementMarker}`] || 0.8;
+        const result = await generateImage(illust.imagePrompt, settings, steeringImagePath, negativePrompt, guidanceScale, loraModel, loraStrength);
         set(state => ({
             generatedImages: {
                 ...state.generatedImages,
@@ -1825,6 +1856,51 @@ export const useAppStore = create<Store>()((set, get) => ({
     } catch (e) {
       swarn('[ImageGen] Failed to persist updated illustration prompt', e);
     }
+  },
+
+  setSteeringImage: (chapterId: string, placementMarker: string, steeringImagePath: string | null) => {
+    set(state => ({
+      steeringImages: {
+        ...state.steeringImages,
+        [`${chapterId}:${placementMarker}`]: steeringImagePath,
+      }
+    }));
+  },
+
+  setNegativePrompt: (chapterId: string, placementMarker: string, negativePrompt: string) => {
+    set(state => ({
+      negativePrompts: {
+        ...state.negativePrompts,
+        [`${chapterId}:${placementMarker}`]: negativePrompt,
+      }
+    }));
+  },
+
+  setGuidanceScale: (chapterId: string, placementMarker: string, guidanceScale: number) => {
+    set(state => ({
+      guidanceScales: {
+        ...state.guidanceScales,
+        [`${chapterId}:${placementMarker}`]: guidanceScale,
+      }
+    }));
+  },
+
+  setLoRAModel: (chapterId: string, placementMarker: string, loraModel: string | null) => {
+    set(state => ({
+      loraModels: {
+        ...state.loraModels,
+        [`${chapterId}:${placementMarker}`]: loraModel,
+      }
+    }));
+  },
+
+  setLoRAStrength: (chapterId: string, placementMarker: string, loraStrength: number) => {
+    set(state => ({
+      loraStrengths: {
+        ...state.loraStrengths,
+        [`${chapterId}:${placementMarker}`]: loraStrength,
+      }
+    }));
   },
   
   // Keep other methods from the original file that are not in the skeleton

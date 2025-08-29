@@ -3,6 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AppSettings, GeneratedImageResult } from '../types';
 import { getModelMetadata } from './capabilityService';
+import { imageFileToBase64 } from './imageUtils';
 
 const imgDebugEnabled = (): boolean => {
   try {
@@ -37,14 +38,24 @@ export const calculateImageCost = (model: string): number => {
 // --- IMAGE GENERATION SERVICE ---
 
 /**
- * Generates an image from a text prompt using the Gemini Image API.
+ * Generates an image from a text prompt using the configured Image API.
+ * Supports both text-to-image and image-to-image generation.
  *
  * @param prompt The detailed text prompt for the image.
  * @param settings The current application settings containing the API key.
+ * @param steeringImagePath Optional path to steering image for img2img (relative to steering directory)
  * @returns A base64 encoded string of the generated PNG image with cost.
  * @throws An error if the API key is missing or if the image generation fails.
  */
-export const generateImage = async (prompt: string, settings: AppSettings): Promise<GeneratedImageResult> => {
+export const generateImage = async (
+  prompt: string, 
+  settings: AppSettings, 
+  steeringImagePath?: string,
+  negativePrompt?: string,
+  guidanceScale?: number,
+  loraModel?: string | null,
+  loraStrength?: number
+): Promise<GeneratedImageResult> => {
     const imageModel = settings.imageModel || 'imagen-3.0-generate-001';
     const reqW = Math.max(256, Math.min(4096, (settings.imageWidth || 1024)));
     const reqH = Math.max(256, Math.min(4096, (settings.imageHeight || 1024)));
@@ -290,14 +301,60 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
             mimeTypeForReturn = detectedMime || 'image/png';
 
         } else if (imageModel.startsWith('Qubico/')) {
-            // --- PiAPI Flux (task-based) ---
+            // --- PiAPI Flux (task-based) with img2img support ---
             const apiKeyPi = settings.apiKeyPiAPI || (process.env.PIAPI_API_KEY as any);
             if (!apiKeyPi) throw new Error('PiAPI API key is missing. Please add it in Settings.');
 
-            // Normalize model/task_type pairing: txt2img does not need advanced
+            // Determine task type based on whether steering image is provided
+            const taskType = steeringImagePath ? 'img2img' : 'txt2img';
             const isAdvanced = imageModel === 'Qubico/flux1-dev-advanced';
-            const taskType = 'txt2img';
             const modelForTask = (isAdvanced && taskType === 'txt2img') ? 'Qubico/flux1-dev' : imageModel;
+            
+            ilog(`[PiAPI] Using ${taskType} with model ${modelForTask}`);
+
+            // Prepare input object with advanced controls
+            let inputData: any = { 
+                prompt, 
+                width: piW, 
+                height: piH 
+            };
+            
+            // Add negative prompt if provided
+            if (negativePrompt && negativePrompt.trim()) {
+                inputData.negative_prompt = negativePrompt.trim();
+                ilog(`[PiAPI] Added negative prompt: "${negativePrompt.trim()}"`);
+            }
+            
+            // Add guidance scale if provided (PiAPI supports this parameter)
+            if (guidanceScale !== undefined && guidanceScale >= 1.5 && guidanceScale <= 5.0) {
+                inputData.guidance_scale = guidanceScale;
+                ilog(`[PiAPI] Added guidance scale: ${guidanceScale}`);
+            }
+            
+            // Add LoRA settings if provided
+            if (loraModel && loraModel.trim()) {
+                const loraSettings = [{
+                    lora_type: loraModel.trim(),
+                    lora_strength: (loraStrength !== undefined && loraStrength >= 0.1 && loraStrength <= 2.0) 
+                        ? loraStrength 
+                        : 0.8 // Default strength
+                }];
+                inputData.lora_settings = loraSettings;
+                ilog(`[PiAPI] Added LoRA model: ${loraModel} with strength: ${loraSettings[0].lora_strength}`);
+            }
+            
+            // Add steering image for img2img
+            if (steeringImagePath && taskType === 'img2img') {
+                try {
+                    // Use HTTP URL for steering images in public/steering/
+                    const steeringImageBase64 = await imageFileToBase64(steeringImagePath);
+                    inputData.image = steeringImageBase64;
+                    ilog(`[PiAPI] Added steering image: ${steeringImagePath}`);
+                } catch (error) {
+                    iwarn(`[PiAPI] Failed to load steering image: ${steeringImagePath}`, error);
+                    throw new Error(`Failed to load steering image "${steeringImagePath}". Please check that the file exists in public/steering/. Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+            }
 
             // 1) CREATE TASK
             const createResp = await fetch('https://api.piapi.ai/api/v1/task', {
@@ -310,7 +367,7 @@ export const generateImage = async (prompt: string, settings: AppSettings): Prom
                 body: JSON.stringify({
                     model: modelForTask,
                     task_type: taskType,
-                    input: { prompt, width: piW, height: piH },
+                    input: inputData,
                     // service_mode: 'public', // optional
                 }),
             });

@@ -2,6 +2,9 @@ import React from 'react';
 import useAppStore from '../store/useAppStore';
 import { useShallow } from 'zustand/react/shallow';
 import PencilIcon from './icons/PencilIcon';
+import SteeringImageDropdown from './SteeringImageDropdown';
+import AdvancedImageControls from './AdvancedImageControls';
+import { isFluxModel } from '../utils/imageModelUtils';
 
 interface IllustrationProps {
   marker: string;
@@ -13,13 +16,35 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     getChapterById,
     generatedImages,
     handleRetryImage,
-    updateIllustrationPrompt
+    updateIllustrationPrompt,
+    steeringImages,
+    setSteeringImage,
+    negativePrompts,
+    setNegativePrompt,
+    guidanceScales,
+    setGuidanceScale,
+    loraModels,
+    setLoRAModel,
+    loraStrengths,
+    setLoRAStrength,
+    settings
   } = useAppStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
     getChapterById: s.getChapterById,
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
     updateIllustrationPrompt: s.updateIllustrationPrompt,
+    steeringImages: s.steeringImages,
+    setSteeringImage: s.setSteeringImage,
+    negativePrompts: s.negativePrompts,
+    setNegativePrompt: s.setNegativePrompt,
+    guidanceScales: s.guidanceScales,
+    setGuidanceScale: s.setGuidanceScale,
+    loraModels: s.loraModels,
+    setLoRAModel: s.setLoRAModel,
+    loraStrengths: s.loraStrengths,
+    setLoRAStrength: s.setLoRAStrength,
+    settings: s.settings,
   })));
 
   const chapter = currentChapterId ? getChapterById(currentChapterId) : null;
@@ -38,6 +63,17 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const [draftPrompt, setDraftPrompt] = React.useState<string>(illust?.imagePrompt || '');
   const [isSaving, setIsSaving] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
+  
+  // Advanced controls state
+  const controlsKey = chapter ? `${chapter.id}:${marker}` : `?:${marker}`;
+  const selectedSteeringImage = steeringImages[controlsKey] || null;
+  const currentNegativePrompt = negativePrompts[controlsKey] || settings.defaultNegativePrompt || '';
+  const currentGuidanceScale = guidanceScales[controlsKey] || settings.defaultGuidanceScale || 3.5;
+  const currentLoRAModel = loraModels[controlsKey] || null;
+  const currentLoRAStrength = loraStrengths[controlsKey] || 0.8;
+  
+  // Check if current image model supports advanced features
+  const supportsAdvancedFeatures = isFluxModel(settings.imageModel);
 
   React.useEffect(() => {
     setDraftPrompt(illust?.imagePrompt || '');
@@ -58,6 +94,36 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const startEditing = () => setIsEditing(true);
   const cancelEditing = () => { setDraftPrompt(illust?.imagePrompt || ''); setIsEditing(false); };
   const saveAndClose = async () => { await savePromptIfChanged(); setIsEditing(false); };
+
+  const handleSteeringImageChange = (imagePath: string | null) => {
+    if (chapter) {
+      setSteeringImage(chapter.id, marker, imagePath);
+    }
+  };
+
+  const handleNegativePromptChange = (negativePrompt: string) => {
+    if (chapter) {
+      setNegativePrompt(chapter.id, marker, negativePrompt);
+    }
+  };
+
+  const handleGuidanceScaleChange = (guidanceScale: number) => {
+    if (chapter) {
+      setGuidanceScale(chapter.id, marker, guidanceScale);
+    }
+  };
+
+  const handleLoRAChange = (loraType: string | null) => {
+    if (chapter) {
+      setLoRAModel(chapter.id, marker, loraType);
+    }
+  };
+
+  const handleLoRAStrengthChange = (strength: number) => {
+    if (chapter) {
+      setLoRAStrength(chapter.id, marker, strength);
+    }
+  };
 
   return (
     <div className="my-6 flex justify-center flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
@@ -112,6 +178,34 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
               <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Edit the prompt and retry to generate a new image.</p>
             </div>
           )}
+          
+          {/* Steering Image Selection - Only for Flux models */}
+          {supportsAdvancedFeatures && (
+            <div className="w-full max-w-xl mb-3">
+              <SteeringImageDropdown
+                value={selectedSteeringImage}
+                onChange={handleSteeringImageChange}
+              />
+            </div>
+          )}
+          
+          {/* Advanced Image Controls - Only for Flux models */}
+          {supportsAdvancedFeatures && (
+            <div className="w-full max-w-xl mb-3">
+              <AdvancedImageControls
+                negativePrompt={currentNegativePrompt}
+                guidanceScale={currentGuidanceScale}
+                selectedLoRA={currentLoRAModel}
+                loraStrength={currentLoRAStrength}
+                onNegativePromptChange={handleNegativePromptChange}
+                onGuidanceScaleChange={handleGuidanceScaleChange}
+                onLoRAChange={handleLoRAChange}
+                onLoRAStrengthChange={handleLoRAStrengthChange}
+                defaultNegativePrompt={settings.defaultNegativePrompt}
+                defaultGuidanceScale={settings.defaultGuidanceScale}
+              />
+            </div>
+          )}
           <div className="flex gap-2">
             {hasIllust && (
               <button
@@ -162,6 +256,35 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                   </div>
                 </div>
               )}
+              
+              {/* Steering Image Selection - Only for Flux models */}
+              {supportsAdvancedFeatures && (
+                <div className="mt-2 mb-2">
+                  <SteeringImageDropdown
+                    value={selectedSteeringImage}
+                    onChange={handleSteeringImageChange}
+                  />
+                </div>
+              )}
+              
+              {/* Advanced Image Controls - Only for Flux models */}
+              {supportsAdvancedFeatures && (
+                <div className="mt-2 mb-2">
+                  <AdvancedImageControls
+                    negativePrompt={currentNegativePrompt}
+                    guidanceScale={currentGuidanceScale}
+                    selectedLoRA={currentLoRAModel}
+                    loraStrength={currentLoRAStrength}
+                    onNegativePromptChange={handleNegativePromptChange}
+                    onGuidanceScaleChange={handleGuidanceScaleChange}
+                    onLoRAChange={handleLoRAChange}
+                    onLoRAStrengthChange={handleLoRAStrengthChange}
+                    defaultNegativePrompt={settings.defaultNegativePrompt}
+                    defaultGuidanceScale={settings.defaultGuidanceScale}
+                  />
+                </div>
+              )}
+              
               <div className="mt-2 flex items-center gap-2">
                 <button
                   onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}
@@ -210,6 +333,34 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
             )}
             <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Click the pencil to tweak before generating.</p>
           </div>
+          
+          {/* Steering Image Selection - Only for Flux models */}
+          {supportsAdvancedFeatures && (
+            <div className="w-full max-w-xl mb-3">
+              <SteeringImageDropdown
+                value={selectedSteeringImage}
+                onChange={handleSteeringImageChange}
+              />
+            </div>
+          )}
+          
+          {/* Advanced Image Controls - Only for Flux models */}
+          {supportsAdvancedFeatures && (
+            <div className="w-full max-w-xl mb-3">
+              <AdvancedImageControls
+                negativePrompt={currentNegativePrompt}
+                guidanceScale={currentGuidanceScale}
+                selectedLoRA={currentLoRAModel}
+                loraStrength={currentLoRAStrength}
+                onNegativePromptChange={handleNegativePromptChange}
+                onGuidanceScaleChange={handleGuidanceScaleChange}
+                onLoRAChange={handleLoRAChange}
+                onLoRAStrengthChange={handleLoRAStrengthChange}
+                defaultNegativePrompt={settings.defaultNegativePrompt}
+                defaultGuidanceScale={settings.defaultGuidanceScale}
+              />
+            </div>
+          )}
           <div className="flex gap-2">
             <button
               onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}

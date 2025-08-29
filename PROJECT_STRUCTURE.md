@@ -140,15 +140,50 @@ LexiconForge/
   - System prompt evolution
   - Rule change reasoning
 
+### **Advanced Image Generation System**
+
 #### **components/Illustration.tsx**
-- **Role**: Renders AI-generated illustrations within translated text
+- **Role**: Comprehensive AI-generated illustration system with advanced controls
 - **Architecture**: Looks up illustrations by placement marker from chapter's translationResult
-- **Features**:
+- **Key Features**:
   - Smart marker matching (`[ILLUSTRATION-1]`, `[ILLUSTRATION-2]`, etc.)
-  - Base64 image rendering with error handling
-  - Contextual captions from imagePrompt
-  - Graceful degradation when images aren't generated yet
+  - Base64 image rendering with error handling and retry functionality
+  - Contextual captions with inline editing (pencil icon)
+  - Conditional feature visibility (only shows advanced controls for Flux models)
+  - State management per illustration (steering images, LoRA, negative prompts)
 - **Integration**: Seamlessly embedded in parseAndRender() text processing pipeline
+
+#### **components/AdvancedImageControls.tsx**
+- **Role**: Collapsible advanced image generation parameter controls
+- **Key Features**:
+  - **Collapsible Interface**: Starts collapsed for distraction-free reading
+  - **Negative Prompt Control**: Textarea for specifying unwanted elements
+  - **Guidance Scale**: 1.5-5.0 slider balancing creativity vs prompt adherence
+  - **LoRA Integration**: Embedded LoRASelector component
+  - **Reset to Defaults**: One-click parameter reset functionality
+  - **Model-Aware**: Only appears for Flux models that support advanced features
+- **UI/UX**: Professional styling with dark mode support and animated expand/collapse
+
+#### **components/LoRASelector.tsx**
+- **Role**: LoRA (Low-Rank Adaptation) model selection and strength control
+- **Architecture**: 21 hardcoded models from XLabs (7) and CivitAI (14) collections
+- **Key Features**:
+  - **Category Organization**: Disabled headers with indented selectable options
+  - **Model Metadata**: Display names, descriptions, sources, and categories
+  - **Strength Control**: 0.1-2.0 slider for fine-tuning artistic influence
+  - **Collapsible Strength**: Show/hide advanced strength controls
+  - **Model Information**: Links to source repositories and detailed descriptions
+- **Browser Compatibility**: Uses disabled options instead of optgroups for better support
+
+#### **components/SteeringImageDropdown.tsx**
+- **Role**: img2img steering image selection for consistent character/scene styling  
+- **Architecture**: Dynamic loading from `/public/steering/` directory
+- **Key Features**:
+  - Image preview on hover/selection
+  - Base64 conversion for API transmission
+  - Graceful error handling for missing images
+  - "None" option for standard text2img generation
+- **Integration**: Seamlessly switches between text2img and img2img modes
 
 ### **Utility Components**
 
@@ -188,6 +223,35 @@ LexiconForge/
 - **Usage**: `npm run merge-fan-translations <session.json> <fan-translation-dir> [output.json]`
 - **Integration**: Enhanced sessions automatically enable 3-way toggle (Original | Fan | English) in UI and pass fan translations as contextual reference to all AI providers
 
+### **services/imageUtils.ts**
+- **Role**: Image processing utilities for advanced generation features
+- **Key Functions**:
+  - `imageFileToBase64()`: Browser-compatible image conversion using fetch() and FileReader
+  - `getSteeringImages()`: Dynamic steering image discovery from `/public/steering/` directory  
+- **Browser Compatibility**: Uses HTTP fetch instead of Node.js fs for client-side image processing
+
+### **utils/imageModelUtils.ts**  
+- **Role**: Image model capability detection and feature gating
+- **Key Functions**:
+  - `isFluxModel()`: Detects Flux models that support advanced features (Qubico/flux*)
+  - `supportsLoRA()`: LoRA model compatibility checking
+  - `supportsImg2Img()`: Steering image support detection
+  - `supportsNegativePrompt()`: Negative prompt capability detection
+  - `supportsGuidanceScale()`: Guidance scale parameter support
+- **Purpose**: Conditional UI rendering based on selected image model capabilities
+
+### **constants/loraModels.ts**
+- **Role**: Comprehensive LoRA model definitions and metadata
+- **Architecture**: 21 hardcoded models from XLabs (7) and CivitAI (14) collections
+- **Key Features**:
+  - **Model Metadata**: Display names, descriptions, sources, categories
+  - **Helper Functions**: `getLoRAModelsByCategory()`, `getLoRAModelById()`
+  - **Configuration Constants**: `DEFAULT_LORA_STRENGTH`, `MIN_LORA_STRENGTH`, `MAX_LORA_STRENGTH`
+- **Collections**:
+  - **XLabs Collection**: anime, art, disney, furry, mjv6, realism, scenery
+  - **CivitAI Collection**: collage-artstyle, creepcute, cyberpunk-anime, deco-pulse, deep-sea-particles, faetastic-details, fractal-geometry, galactixy-illustrations, geometric-woman, graphic-portrait, mat-miller-art, moebius-style, ob3d-isometric-3d-room, paper-quilling
+- **Integration**: TypeScript interfaces with strong typing for model selection and validation
+
 ## 🔌 **Services Layer**
 
 ### **services/aiService.ts**
@@ -208,9 +272,22 @@ LexiconForge/
 - **Notes**: Uses the same centralized prompts; includes local fallback validators for illustrations/footnotes
 
 ### **services/imageService.ts**
-- **Role**: Comprehensive AI image generation system with advanced validation and recovery
+- **Role**: Comprehensive multi-provider AI image generation system with advanced controls
+- **Provider Support**:
+  - **PiAPI (Flux Models)**: Qubico/flux1-dev, flux1-schnell, flux1-dev-advanced with full LoRA support
+  - **Google Imagen**: 3.0 and 4.0 models via Vertex AI
+  - **Gemini Vision**: Native image generation capabilities
+  - **OpenRouter**: Extended model access for specialized use cases
+- **Advanced Features**:
+  - **LoRA Integration**: 21 style models with strength control (0.1-2.0)
+  - **img2img Support**: Steering images for consistent character/scene styling
+  - **Negative Prompts**: Fine-grained control over unwanted elements
+  - **Guidance Scale**: Creativity vs prompt adherence balance (1.5-5.0)
+  - **Intelligent Fallback**: Automatic provider switching on failures
+  - **Cost Tracking**: Real-time pricing across all providers
 - **Core Functions**:
-  - `generateIllustration()`: Primary image generation with contextual prompts
+  - `generateImage()`: Multi-provider image generation with conditional parameters
+  - `calculateImageCost()`: Provider-specific cost calculation
   - `validateAndFixIllustrations()`: Smart validation system with 5 auto-recovery strategies
   - `dlog()` / `dlogFull()`: Debug utilities gated behind LF_AI_DEBUG flags
 - **Key Features**:
@@ -501,6 +578,12 @@ LexiconForge uses a **hybrid data management strategy** with two complementary s
 - **Hot Data Cache**: `sessionData` - frequently accessed chapters for instant UI updates
 - **Settings Management**: User preferences with localStorage persistence
 - **Translation Orchestration**: Managing active translation requests and abort controllers
+- **Advanced Image Controls**: Per-illustration state for LoRA models, steering images, negative prompts, guidance scales
+  - `steeringImages`: Record<string, string | null> - steering image paths by chapter:marker
+  - `negativePrompts`: Record<string, string> - negative prompt text by chapter:marker  
+  - `guidanceScales`: Record<string, number> - guidance scale values by chapter:marker
+  - `loraModels`: Record<string, string | null> - selected LoRA model by chapter:marker
+  - `loraStrengths`: Record<string, number> - LoRA strength values by chapter:marker
 
 **Performance Benefits**:
 - Instant UI reactivity through Zustand subscriptions
