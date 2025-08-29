@@ -1,6 +1,7 @@
 import React from 'react';
 import LoRASelector from './LoRASelector';
 import { DEFAULT_LORA_STRENGTH } from '../constants/loraModels';
+import { getDefaultNegativePrompt, getDefaultGuidanceScale, getGuidanceScaleLimits } from '../services/configService';
 
 interface AdvancedImageControlsProps {
   negativePrompt: string;
@@ -24,10 +25,11 @@ const AdvancedImageControls: React.FC<AdvancedImageControlsProps> = ({
   onGuidanceScaleChange,
   onLoRAChange,
   onLoRAStrengthChange,
-  defaultNegativePrompt = 'low quality, blurry, distorted, text, watermark',
-  defaultGuidanceScale = 3.5,
+  defaultNegativePrompt = getDefaultNegativePrompt(),
+  defaultGuidanceScale = getDefaultGuidanceScale(),
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const guidanceLimits = getGuidanceScaleLimits();
   const handleNegativePromptChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     onNegativePromptChange(event.target.value);
   };
@@ -95,16 +97,16 @@ const AdvancedImageControls: React.FC<AdvancedImageControlsProps> = ({
             </div>
             <input
               type="range"
-              min="1.5"
-              max="5.0"
-              step="0.1"
+              min={guidanceLimits.min}
+              max={guidanceLimits.max}
+              step={guidanceLimits.step}
               value={guidanceScale}
               onChange={handleGuidanceScaleChange}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 slider"
             />
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <span>1.5 (Creative)</span>
-              <span>5.0 (Precise)</span>
+              <span>{guidanceLimits.min} (Creative)</span>
+              <span>{guidanceLimits.max} (Precise)</span>
             </div>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Higher values follow the prompt more closely but may reduce creativity

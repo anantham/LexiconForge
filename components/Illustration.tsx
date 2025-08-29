@@ -1,10 +1,11 @@
 import React from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import PencilIcon from './icons/PencilIcon';
 import SteeringImageDropdown from './SteeringImageDropdown';
 import AdvancedImageControls from './AdvancedImageControls';
 import { isFluxModel } from '../utils/imageModelUtils';
+import { getDefaultNegativePrompt, getDefaultGuidanceScale, getDefaultLoRAStrength } from '../services/configService';
 
 interface IllustrationProps {
   marker: string;
@@ -67,10 +68,10 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   // Advanced controls state
   const controlsKey = chapter ? `${chapter.id}:${marker}` : `?:${marker}`;
   const selectedSteeringImage = steeringImages[controlsKey] || null;
-  const currentNegativePrompt = negativePrompts[controlsKey] || settings.defaultNegativePrompt || '';
-  const currentGuidanceScale = guidanceScales[controlsKey] || settings.defaultGuidanceScale || 3.5;
+  const currentNegativePrompt = negativePrompts[controlsKey] || settings.defaultNegativePrompt || getDefaultNegativePrompt();
+  const currentGuidanceScale = guidanceScales[controlsKey] || settings.defaultGuidanceScale || getDefaultGuidanceScale();
   const currentLoRAModel = loraModels[controlsKey] || null;
-  const currentLoRAStrength = loraStrengths[controlsKey] || 0.8;
+  const currentLoRAStrength = loraStrengths[controlsKey] || getDefaultLoRAStrength();
   
   // Check if current image model supports advanced features
   const supportsAdvancedFeatures = isFluxModel(settings.imageModel);
@@ -201,8 +202,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                 onGuidanceScaleChange={handleGuidanceScaleChange}
                 onLoRAChange={handleLoRAChange}
                 onLoRAStrengthChange={handleLoRAStrengthChange}
-                defaultNegativePrompt={settings.defaultNegativePrompt}
-                defaultGuidanceScale={settings.defaultGuidanceScale}
+                defaultNegativePrompt={settings.defaultNegativePrompt || getDefaultNegativePrompt()}
+                defaultGuidanceScale={settings.defaultGuidanceScale || getDefaultGuidanceScale()}
               />
             </div>
           )}
@@ -356,8 +357,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                 onGuidanceScaleChange={handleGuidanceScaleChange}
                 onLoRAChange={handleLoRAChange}
                 onLoRAStrengthChange={handleLoRAStrengthChange}
-                defaultNegativePrompt={settings.defaultNegativePrompt}
-                defaultGuidanceScale={settings.defaultGuidanceScale}
+                defaultNegativePrompt={settings.defaultNegativePrompt || getDefaultNegativePrompt()}
+                defaultGuidanceScale={settings.defaultGuidanceScale || getDefaultGuidanceScale()}
               />
             </div>
           )}

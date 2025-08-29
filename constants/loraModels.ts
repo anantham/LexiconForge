@@ -1,3 +1,5 @@
+import { getDefaultLoRAStrength, getLoRAStrengthLimits } from '../services/configService';
+
 export interface LoRAModel {
   id: string;
   name: string;
@@ -190,7 +192,9 @@ export const getLoRAModelsByCategory = (category: 'XLabs' | 'CivitAI'): LoRAMode
   return LORA_MODELS.filter(model => model.category === category);
 };
 
-// Default LoRA strength ranges
-export const DEFAULT_LORA_STRENGTH = 0.8;
-export const MIN_LORA_STRENGTH = 0.1;
-export const MAX_LORA_STRENGTH = 2.0;
+// Default LoRA strength ranges - imported from config
+const loraLimits = getLoRAStrengthLimits();
+
+export const DEFAULT_LORA_STRENGTH = getDefaultLoRAStrength();
+export const MIN_LORA_STRENGTH = loraLimits.min;
+export const MAX_LORA_STRENGTH = loraLimits.max;

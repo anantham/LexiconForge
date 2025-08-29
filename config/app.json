@@ -31,5 +31,28 @@
       "presence_penalty": "Penalizes new topics. Positive = more focused on topic",
       "seed": "For reproducible outputs. Leave empty for random generation"
     }
+  },
+  "imageGeneration": {
+    "defaults": {
+      "negativePrompt": "low quality, blurry, distorted, text, watermark",
+      "guidanceScale": 3.5,
+      "loraStrength": 0.8
+    },
+    "limits": {
+      "guidanceScale": { "min": 1.5, "max": 5.0, "step": 0.1 },
+      "loraStrength": { "min": 0.1, "max": 2.0, "step": 0.1 }
+    },
+    "descriptions": {
+      "negativePrompt": "Default text describing what you don't want in generated images",
+      "guidanceScale": "Balance between creativity (1.5) and prompt adherence (5.0)",
+      "loraStrength": "Strength of LoRA model influence on artistic style"
+    },
+    "negativePromptSuggestions": [
+      "low quality, blurry, distorted, text, watermark",
+      "cartoon, anime, illustration, drawing",
+      "dark, gloomy, scary, horror",
+      "oversaturated, bright colors, neon",
+      "monochrome, black and white, grayscale"
+    ]
   }
 }
