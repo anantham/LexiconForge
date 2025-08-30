@@ -367,7 +367,8 @@ const ChapterView: React.FC = () => {
             {displayTitle}
           </h1>
 
-          <div className="flex justify-between items-center">
+          {/* Desktop: Single row layout */}
+          <div className="hidden md:flex justify-between items-center">
             <button
                 onClick={() => chapter.prevUrl && handleNavigate(chapter.prevUrl)}
                 disabled={!chapter.prevUrl || isLoading.fetching}
@@ -382,13 +383,13 @@ const ChapterView: React.FC = () => {
                   href={chapter.originalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline font-semibold text-gray-600 dark:text-gray-300 hidden sm:inline"
+                  className="text-blue-500 hover:underline font-semibold text-gray-600 dark:text-gray-300"
                   title="View original source"
                 >
                   Source:
                 </a>
               )}
-              <span className="font-semibold text-gray-600 dark:text-gray-300 hidden sm:inline">Language:</span>
+              <span className="font-semibold text-gray-600 dark:text-gray-300">Language:</span>
               <div className="relative inline-flex items-center p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                 <button
                   onClick={() => handleToggleLanguage('original')}
@@ -434,8 +435,6 @@ const ChapterView: React.FC = () => {
                   <RefreshIcon className={`w-5 h-5 ${currentChapterId && isTranslationActive(currentChapterId) ? 'animate-spin' : ''}`} />
                 </button>
               )}
-
-              
             </div>
 
             <button
@@ -445,6 +444,78 @@ const ChapterView: React.FC = () => {
               >
                 Next &rarr;
             </button>
+          </div>
+
+          {/* Mobile: Two row layout */}
+          <div className="md:hidden space-y-3">
+            {/* Row 1: Prev/Next navigation */}
+            <div className="flex justify-between items-center">
+              <button
+                  onClick={() => chapter.prevUrl && handleNavigate(chapter.prevUrl)}
+                  disabled={!chapter.prevUrl || isLoading.fetching}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
+                >
+                  &larr; Prev
+              </button>
+
+              <button
+                  onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
+                  disabled={!chapter.nextUrl || isLoading.fetching}
+                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition text-sm"
+                >
+                  Next &rarr;
+              </button>
+            </div>
+
+            {/* Row 2: Language toggle and retranslate */}
+            <div className="flex justify-center items-center gap-3">
+              <div className="relative inline-flex items-center p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                <button
+                  onClick={() => handleToggleLanguage('original')}
+                  className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${viewMode === 'original' ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
+                >
+                  Original
+                </button>
+                {hasFanTranslation && (
+                  <button
+                    onClick={() => handleToggleLanguage('fan')}
+                    className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${viewMode === 'fan' ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
+                  >
+                    Fan
+                  </button>
+                )}
+                <button
+                  onClick={() => handleToggleLanguage('english')}
+                  className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${viewMode === 'english' ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'}`}
+                >
+                  {settings.targetLanguage || 'English'}
+                </button>
+              </div>
+              
+              {viewMode === 'english' && (
+                <button
+                  onClick={() => {
+                    if (!currentChapterId) return;
+                    if (isTranslationActive(currentChapterId)) {
+                      cancelTranslation(currentChapterId);
+                    } else {
+                      handleRetranslateCurrent();
+                    }
+                  }}
+                  disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isTranslationActive(currentChapterId))}
+                  className={`p-2 rounded-full border transition-all duration-200 ${
+                    currentChapterId && isTranslationActive(currentChapterId)
+                      ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
+                      : shouldEnableRetranslation(currentChapterId || '')
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
+                      : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                  }`}
+                  title={currentChapterId && isTranslationActive(currentChapterId) ? 'Cancel translation' : 'Retranslate chapter'}
+                >
+                  <RefreshIcon className={`w-4 h-4 ${currentChapterId && isTranslationActive(currentChapterId) ? 'animate-spin' : ''}`} />
+                </button>
+              )}
+            </div>
           </div>
           {currentChapterId && isTranslationActive(currentChapterId) && (
             <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
