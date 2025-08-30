@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store';
 
 const InputBar: React.FC = () => {
   const [url, setUrl] = useState('https://www.kanunu8.com/book3/7561/72829.html');

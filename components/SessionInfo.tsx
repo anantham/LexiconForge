@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store';
 import { MODEL_ABBREVIATIONS } from '../constants';
 import SettingsIcon from './icons/SettingsIcon';
 import { useShallow } from 'zustand/react/shallow';

@@ -25,8 +25,13 @@ export abstract class BaseAdapter {
 
 export interface FeedbackItem {
   id: string;
-  selection: string;
-  type: '👍' | '👎' | '?';
+  text: string;
+  category: string;
+  timestamp: number;
+  chapterId: string;
+  // Legacy fields for backward compatibility
+  selection?: string;
+  type?: '👍' | '👎' | '?';
   comment?: string;
 }
 

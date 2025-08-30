@@ -48,11 +48,10 @@
       "loraStrength": "Strength of LoRA model influence on artistic style"
     },
     "negativePromptSuggestions": [
-      "low quality, blurry, distorted, text, watermark",
-      "cartoon, anime, illustration, drawing",
-      "dark, gloomy, scary, horror",
-      "oversaturated, bright colors, neon",
-      "monochrome, black and white, grayscale"
+      "extra fingers, melted hands, flat lighting, photorealism, bright saturated colors, glossy anime eyes, background clutter",
+      "low-res, 3D CGI look, smooth digital airbrush, pastel kawaii style, watercolor softness, cartoony chibis",
+      "kawaii, pastel, soft airbrush, saturated colors, glossy eyes, photoreal",
+      "low contrast, distorted proportions, JPEG artifacts"
     ]
   }
 }

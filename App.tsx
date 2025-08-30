@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import useAppStore from './store/useAppStore';
+import { useAppStore } from './store';
 import InputBar from './components/InputBar';
 import ChapterView from './components/ChapterView';
 import AmendmentModal from './components/AmendmentModal';
@@ -34,7 +34,7 @@ const currentChapterId = useAppStore((s) => s.currentChapterId);
 const viewMode = useAppStore((s) => s.viewMode);
 const isLoading = useAppStore((s) => s.isLoading);
 const settings = useAppStore((s) => s.settings);
-const isChapterTranslating = useAppStore((s) => s.isChapterTranslating);
+const isTranslationActive = useAppStore((s) => s.isTranslationActive);
 const handleTranslate = useAppStore((s) => s.handleTranslate);
 const handleFetch = useAppStore((s) => s.handleFetch);
 const amendmentProposal = useAppStore((s) => s.amendmentProposal);
@@ -43,13 +43,14 @@ const rejectProposal = useAppStore((s) => s.rejectProposal);
 const showSettingsModal = useAppStore((s) => s.showSettingsModal);
 const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
 const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
-const getChapterById = useAppStore((s) => s.getChapterById);
-const hydrateIndicesOnBoot = useAppStore((s) => s.hydrateIndicesOnBoot);
+const getChapter = useAppStore((s) => s.getChapter);
+const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSettingsChanged);
+const handleNavigate = useAppStore((s) => s.handleNavigate);
 
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
   const id = state.currentChapterId;
-  const ch = id ? state.getChapterById(id) : null;
+  const ch = id ? state.getChapter(id) : null;
   return ch?.translationResult || null;
 });
 
@@ -74,16 +75,41 @@ const settingsFingerprint = React.useMemo(
         loadPromptTemplates();
     }, [loadPromptTemplates]);
 
-    // Boot-time index-only hydration (Option C)
+    // Initialize from URL parameters on startup
     useEffect(() => {
-      hydrateIndicesOnBoot();
-    }, [hydrateIndicesOnBoot]);
+      const urlParams = new URLSearchParams(window.location.search);
+      const chapterUrl = urlParams.get('chapter');
+      
+      console.log('[App] URL initialization effect running...');
+      console.log('[App] Current URL:', window.location.href);
+      console.log('[App] URL parameters:', Object.fromEntries(urlParams.entries()));
+      
+      if (chapterUrl) {
+        console.log(`[App] Found chapter URL parameter: ${chapterUrl}`);
+        console.log(`[App] Decoded chapter URL: ${decodeURIComponent(chapterUrl)}`);
+        handleNavigate(decodeURIComponent(chapterUrl));
+      } else {
+        console.log('[App] No chapter URL parameter found');
+        
+        // Try to load last active chapter if no URL parameter
+        const state = useAppStore.getState();
+        console.log(`[App] Current chapter ID in store: ${state.currentChapterId}`);
+        console.log(`[App] Total chapters in store: ${state.chapters.size}`);
+        if (state.currentChapterId) {
+          console.log(`[App] Found current chapter in store, no navigation needed`);
+        } else {
+          console.log(`[App] No current chapter, user needs to enter a URL`);
+        }
+      }
+    }, [handleNavigate]);
+
+    // Boot-time hydration is now handled automatically by the store initialization
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
       if (viewMode !== 'english' || !currentChapterId) return;
 
-      const translating = isChapterTranslating(currentChapterId) || isLoading.translating;
+      const translating = isTranslationActive(currentChapterId) || isLoading.translating;
       const hasResult  = !!currentChapterTranslationResult;
       const prevSig    = requestedRef.current.get(currentChapterId);
       const alreadyRequested = prevSig === settingsFingerprint;
@@ -107,7 +133,7 @@ const settingsFingerprint = React.useMemo(
       currentChapterTranslationResult,
       settingsFingerprint,
       isLoading.translating,
-      isChapterTranslating,
+      isTranslationActive,
       handleTranslate,
     ]);
 
@@ -163,7 +189,7 @@ const settingsFingerprint = React.useMemo(
           }
 
           // Skip if translating
-          if (s.isChapterTranslating(nextChapterId)) {
+          if (s.isTranslationActive(nextChapterId)) {
             console.log(`[Worker] Skipping ${url} - translation in progress`);
             nextUrlToPreload = s.chapters.get(nextChapterId)?.nextUrl || null;
             continue;

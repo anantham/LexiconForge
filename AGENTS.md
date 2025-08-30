@@ -139,6 +139,41 @@ INVESTIGATION_SUMMARY (attempts)
 
 ---
 
+## What to commit (granularity)
+
+One logical change per commit. Don’t mix formatting, refactors, and feature code.
+
+Small, consistent steps. Commit when tests pass and behavior is coherent.
+
+Stage intentionally: git add -p to include only the hunks you mean.
+
+Separate noise: run formatters in a dedicated “style” commit.
+
+
+### DO
+
+Write for a future teammate (or future you): clear, specific, searchable.
+
+Record intent and impact (why it’s safe; what it fixes; user-visible effects).
+
+Use scopes meaningfully: api, ui, parser, auth, infra.
+
+Point to issues/PRs/spec; include migration notes when needed.
+
+Mark breaking changes with ! in type or BREAKING CHANGE: in footer.
+
+### DON’T
+
+Don’t write “update stuff”, “WIP”, or pile many unrelated files.
+
+Don’t encode implementation trivia in tests/messaging.
+
+Don’t rely on CI logs to explain context—put essentials in the body.
+
+
+
+---
+
 COMMIT_MESSAGE_TEMPLATES  
 
 

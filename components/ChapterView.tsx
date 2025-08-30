@@ -6,7 +6,7 @@ import { useTextSelection } from '../hooks/useTextSelection';
 import FeedbackPopover from './FeedbackPopover';
 import FeedbackDisplay from './FeedbackDisplay';
 import RefreshIcon from './icons/RefreshIcon';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import Illustration from './Illustration';
 
@@ -32,7 +32,7 @@ const ChapterView: React.FC = () => {
     updateFeedbackComment,
     handleRetranslateCurrent,
     cancelTranslation,
-    isChapterTranslating,
+    isTranslationActive,
     shouldEnableRetranslation,
     hasTranslationSettingsChanged,
     imageGenerationMetrics,
@@ -50,7 +50,7 @@ const ChapterView: React.FC = () => {
     updateFeedbackComment: state.updateFeedbackComment,
     handleRetranslateCurrent: state.handleRetranslateCurrent,
     cancelTranslation: state.cancelTranslation,
-    isChapterTranslating: state.isChapterTranslating,
+    isTranslationActive: state.isTranslationActive,
     shouldEnableRetranslation: state.shouldEnableRetranslation,
     hasTranslationSettingsChanged: state.hasTranslationSettingsChanged,
     imageGenerationMetrics: state.imageGenerationMetrics,
@@ -60,6 +60,48 @@ const ChapterView: React.FC = () => {
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
   const translationResult = chapter?.translationResult;
   const feedbackForChapter = chapter?.feedback ?? [];
+
+  // Debug logging for chapter loading
+  React.useEffect(() => {
+    const fanTranslation = (chapter as any)?.fanTranslation;
+    const hasFanTranslation = !!fanTranslation;
+    
+    console.log('[ChapterView] State update:', {
+      currentChapterId,
+      hasChapter: !!chapter,
+      chaptersMapSize: chapters.size,
+      chapterTitle: chapter?.title,
+      chapterContent: chapter?.content ? `${chapter.content.length} chars` : 'no content',
+      hasTranslation: !!translationResult,
+      hasFanTranslation,
+      fanTranslationLength: fanTranslation ? `${fanTranslation.length} chars` : 'none',
+      isLoading: isLoading,
+      viewMode,
+      error,
+      // Content lengths by mode
+      contentLengths: {
+        original: chapter?.content?.length || 0,
+        fan: fanTranslation?.length || 0,
+        english: translationResult?.translation?.length || 0
+      }
+    });
+    
+    // Log fan translation status specifically
+    if (chapter) {
+      if (hasFanTranslation) {
+        console.log(`[ChapterView] ✅ Fan translation found: ${fanTranslation.length} characters`);
+      } else {
+        console.log(`[ChapterView] ❌ No fan translation for chapter: ${chapter.title}`);
+      }
+    }
+    
+    if (currentChapterId && !chapter) {
+      console.error('[ChapterView] Chapter ID exists but chapter not found in map:', {
+        currentChapterId,
+        availableChapterIds: Array.from(chapters.keys()).slice(0, 10) // First 10 IDs
+      });
+    }
+  }, [currentChapterId, chapter, chapters, translationResult, isLoading, viewMode, error]);
 
   const handleFeedbackSubmit = (feedback: Omit<FeedbackItem, 'id'>) => {
     if (!currentChapterId) return;
@@ -184,7 +226,7 @@ const ChapterView: React.FC = () => {
       );
     }
 
-    const currentChapterTranslating = currentChapterId ? isChapterTranslating(currentChapterId) : false;
+    const currentChapterTranslating = currentChapterId ? isTranslationActive(currentChapterId) : false;
     const isHydrating = currentChapterId ? !!hydratingMap[currentChapterId] : false;
     
     if (viewMode === 'english' && currentChapterTranslating && !translationResult) {
@@ -370,23 +412,23 @@ const ChapterView: React.FC = () => {
                 <button
                   onClick={() => {
                     if (!currentChapterId) return;
-                    if (isChapterTranslating(currentChapterId)) {
+                    if (isTranslationActive(currentChapterId)) {
                       cancelTranslation(currentChapterId);
                     } else {
                       handleRetranslateCurrent();
                     }
                   }}
-                  disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isChapterTranslating(currentChapterId))}
+                  disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isTranslationActive(currentChapterId))}
                   className={`p-2 rounded-full border transition-all duration-200 ${
-                    currentChapterId && isChapterTranslating(currentChapterId)
+                    currentChapterId && isTranslationActive(currentChapterId)
                       ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
                       : shouldEnableRetranslation(currentChapterId || '')
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
                       : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                   }`}
-                  title={currentChapterId && isChapterTranslating(currentChapterId) ? 'Cancel translation' : 'Retranslate chapter'}
+                  title={currentChapterId && isTranslationActive(currentChapterId) ? 'Cancel translation' : 'Retranslate chapter'}
                 >
-                  <RefreshIcon className={`w-5 h-5 ${currentChapterId && isChapterTranslating(currentChapterId) ? 'animate-spin' : ''}`} />
+                  <RefreshIcon className={`w-5 h-5 ${currentChapterId && isTranslationActive(currentChapterId) ? 'animate-spin' : ''}`} />
                 </button>
               )}
 
@@ -401,15 +443,15 @@ const ChapterView: React.FC = () => {
                 Next &rarr;
             </button>
           </div>
-          {currentChapterId && isChapterTranslating(currentChapterId) && (
+          {currentChapterId && isTranslationActive(currentChapterId) && (
             <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
               Translating: <span className="font-semibold">{settings.provider}</span>{settings.model ? ` — ${settings.model}` : ''}
             </div>
           )}
-          {viewMode === 'english' && translationResult?.usageMetrics && !isLoading.fetching && !(currentChapterId ? isChapterTranslating(currentChapterId) : false) && !(currentChapterId ? !!hydratingMap[currentChapterId] : false) && (
+          {viewMode === 'english' && translationResult?.usageMetrics && !isLoading.fetching && !(currentChapterId ? isTranslationActive(currentChapterId) : false) && !(currentChapterId ? !!hydratingMap[currentChapterId] : false) && (
             <MetricsDisplay metrics={translationResult.usageMetrics} />
           )}
-          {viewMode === 'english' && imageGenerationMetrics && !isLoading.fetching && !(currentChapterId ? isChapterTranslating(currentChapterId) : false) && !(currentChapterId ? !!hydratingMap[currentChapterId] : false) && (
+          {viewMode === 'english' && imageGenerationMetrics && !isLoading.fetching && !(currentChapterId ? isTranslationActive(currentChapterId) : false) && !(currentChapterId ? !!hydratingMap[currentChapterId] : false) && (
             <ImageMetricsDisplay metrics={imageGenerationMetrics} />
           )}
         </header>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { AppSettings, TranslationProvider } from '../types';
-import useAppStore from '../store/useAppStore';
+import { useAppStore } from '../store';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
 import appConfig from '../config/app.json';
 import { getDefaultTemplate } from '../services/epubService';

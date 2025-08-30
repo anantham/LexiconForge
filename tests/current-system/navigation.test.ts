@@ -51,7 +51,9 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import useAppStore, { isValidUrl, normalizeUrl } from '../../store/useAppStore';
+import { useAppStore } from '../../store';
+// TODO: These utility functions need to be exported from appropriate services
+// import { isValidUrl, normalizeUrl } from '../../services/navigationService';
 import {
   createMockChapter,
   createMockTranslationResult,

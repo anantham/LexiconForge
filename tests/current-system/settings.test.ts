@@ -51,7 +51,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import useAppStore from '../../store/useAppStore';
+import { useAppStore } from '../../store';
 import { createMockAppSettings } from '../utils/test-data';
 import { setupStorageMocks, simulateStorageFailure } from '../utils/storage-mocks';
 

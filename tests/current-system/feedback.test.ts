@@ -51,7 +51,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import useAppStore from '../../store/useAppStore';
+import { useAppStore } from ../../store
 import {
   createMockChapter,
   createMockTranslationResult,

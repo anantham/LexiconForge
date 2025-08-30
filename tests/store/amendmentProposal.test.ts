@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import useAppStore from '../../store/useAppStore'
+import { useAppStore } from '../../store'
 import { AmendmentProposal } from '../../types'
 import { INITIAL_SYSTEM_PROMPT } from '../../constants'
 

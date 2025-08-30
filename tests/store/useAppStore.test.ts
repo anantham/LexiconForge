@@ -1,7 +1,7 @@
 // tests/store/useAppStore.test.ts
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import useAppStore from '../../store/useAppStore';
+import { useAppStore } from '../../store';
 import * as aiService from '../../services/aiService';
 import * as adapters from '../../services/adapters';
 import { Chapter, FeedbackItem, TranslationResult } from '../../types';

@@ -14,7 +14,7 @@ interface IllustrationProps {
 const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const {
     currentChapterId,
-    getChapterById,
+    getChapter,
     generatedImages,
     handleRetryImage,
     updateIllustrationPrompt,
@@ -31,7 +31,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     settings
   } = useAppStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
-    getChapterById: s.getChapterById,
+    getChapter: s.getChapter,
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
     updateIllustrationPrompt: s.updateIllustrationPrompt,
@@ -48,7 +48,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     settings: s.settings,
   })));
 
-  const chapter = currentChapterId ? getChapterById(currentChapterId) : null;
+  const chapter = currentChapterId ? getChapter(currentChapterId) : null;
   const illust = chapter?.translationResult?.suggestedIllustrations?.find(
     (i) => i.placementMarker === marker
   );

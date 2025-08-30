@@ -1,0 +1,283 @@
+/**
+ * Composed Store - Combines all slices into a unified state management solution
+ * 
+ * This is the new modular store that replaces the monolithic useAppStore.ts.
+ * It combines:
+ * - UiSlice: UI state and display modes
+ * - SettingsSlice: Settings and prompt template management
+ * - ChaptersSlice: Chapter data and navigation
+ * - TranslationsSlice: Translation operations and feedback
+ * - ImageSlice: Image generation and advanced controls
+ */
+
+import { create } from 'zustand';
+import { createUiSlice, type UiSlice } from './slices/uiSlice';
+import { createSettingsSlice, type SettingsSlice } from './slices/settingsSlice';
+import { createChaptersSlice, type ChaptersSlice } from './slices/chaptersSlice';
+import { createTranslationsSlice, type TranslationsSlice } from './slices/translationsSlice';
+import { createImageSlice, type ImageSlice } from './slices/imageSlice';
+import { SessionManagementService } from '../services/sessionManagementService';
+import { indexedDBService } from '../services/indexeddb';
+import { normalizeUrlAggressively } from '../services/stableIdService';
+
+// Combined state type
+export type AppState = UiSlice & SettingsSlice & ChaptersSlice & TranslationsSlice & ImageSlice;
+
+// Session management actions (not part of slices but needed for store initialization)
+export interface SessionActions {
+  // Session management
+  clearSession: (options?: {
+    clearSettings?: boolean;
+    clearPromptTemplates?: boolean; 
+    clearIndexedDB?: boolean;
+    clearLocalStorage?: boolean;
+  }) => Promise<void>;
+  importSessionData: (payload: string | object) => Promise<void>;
+  
+  // Initialization
+  initializeStore: () => Promise<void>;
+}
+
+// Combined store with session management
+export const useAppStore = create<AppState & SessionActions>((set, get, store) => ({
+  // Combine all slices
+  ...createUiSlice(set, get, store),
+  ...createSettingsSlice(set, get, store),
+  ...createChaptersSlice(set, get, store),
+  ...createTranslationsSlice(set, get, store),
+  ...createImageSlice(set, get, store),
+  
+  // Session management actions
+  clearSession: async (options = {}) => {
+    try {
+      // Clear session data
+      await SessionManagementService.clearSession(options);
+      
+      // Reset all slices to initial state
+      const initialState = {
+        // UI slice - keep current viewMode (don't reset on session clear)
+        viewMode: get().viewMode || 'english' as const,
+        showSettingsModal: false,
+        showExportModal: false,
+        showDebugModal: false,
+        isLoading: { fetching: false, translating: false },
+        error: null,
+        notification: null,
+        urlLoadingStates: {},
+        hydratingChapters: {},
+        
+        // Settings slice
+        settings: SessionManagementService.loadSettings(),
+        promptTemplates: [],
+        activePromptTemplate: null,
+        settingsLoaded: false,
+        settingsError: null,
+        
+        // Chapters slice
+        chapters: new Map(),
+        novels: new Map(),
+        currentChapterId: null,
+        navigationHistory: [],
+        urlIndex: new Map(),
+        rawUrlIndex: new Map(),
+        
+        // Translations slice
+        activeTranslations: {},
+        feedbackHistory: {},
+        amendmentProposal: null,
+        translationProgress: {},
+        
+        // Image slice
+        generatedImages: {},
+        steeringImages: {},
+        negativePrompts: {},
+        guidanceScales: {},
+        loraModels: {},
+        loraStrengths: {},
+        imageGenerationMetrics: null,
+        imageGenerationProgress: {}
+      };
+      
+      set(initialState);
+      
+      // Reload session data if needed
+      if (!options.clearSettings) {
+        await get().loadPromptTemplates();
+      }
+      
+    } catch (error) {
+      console.error('[Store] Failed to clear session:', error);
+      const uiActions = get();
+      uiActions.setError(`Failed to clear session: ${error}`);
+    }
+  },
+
+  importSessionData: async (payload) => {
+    try {
+      const obj = typeof payload === 'string' ? JSON.parse(payload) : payload as any;
+      
+      // Full session format branch
+      if (obj?.metadata?.format === 'lexiconforge-full-1') {
+        console.log('[Import] Detected full session format. Importing into IndexedDB as ground truth.');
+        await indexedDBService.importFullSessionData(obj);
+        
+        // Hydrate store from IDB for UI
+        const rendering = await indexedDBService.getChaptersForReactRendering();
+        const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
+        const lastActive = await indexedDBService.getSetting<any>('lastActiveChapter').catch(() => null);
+        
+        set(state => {
+          const newChapters = new Map<string, any>();
+          const newUrlIndex = new Map<string, string>();
+          const newRawUrlIndex = new Map<string, string>();
+          
+          for (const ch of rendering) {
+            newChapters.set(ch.stableId, {
+              id: ch.stableId,
+              title: ch.data.chapter.title,
+              content: ch.data.chapter.content,
+              originalUrl: ch.url,
+              nextUrl: ch.data.chapter.nextUrl,
+              prevUrl: ch.data.chapter.prevUrl,
+              chapterNumber: ch.chapterNumber,
+              canonicalUrl: ch.url,
+              sourceUrls: [ch.url],
+              fanTranslation: (ch.data.chapter as any).fanTranslation ?? null,
+              translationResult: ch.data.translationResult || null,
+              feedback: [],
+            });
+            
+            const norm = normalizeUrlAggressively(ch.url);
+            if (norm) newUrlIndex.set(norm, ch.stableId);
+            newRawUrlIndex.set(ch.url, ch.stableId);
+          }
+          
+          return {
+            chapters: newChapters,
+            urlIndex: newUrlIndex,
+            rawUrlIndex: newRawUrlIndex,
+            navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
+            currentChapterId: (lastActive && lastActive.id) ? lastActive.id : state.currentChapterId,
+            error: null,
+          };
+        });
+        
+        console.log('[Import] Full session import completed successfully');
+        return;
+      }
+      
+      console.log('[Import] Processing legacy import format');
+      throw new Error('Legacy import format not implemented in new store structure');
+      
+    } catch (error) {
+      console.error('[Store] Failed to import session data:', error);
+      const uiActions = get();
+      uiActions.setError(`Failed to import session: ${error}`);
+      throw error;
+    }
+  },
+  
+  initializeStore: async () => {
+    try {
+      // Load settings
+      get().loadSettings();
+      
+      // Load prompt templates
+      await get().loadPromptTemplates();
+      
+      // Backfill URL mappings if needed (one-time operation)
+      try {
+        const already = await indexedDBService.getSetting<boolean>('urlMappingsBackfilled');
+        if (!already) {
+          await indexedDBService.backfillUrlMappingsFromChapters();
+        }
+      } catch (e) {
+        console.warn('[Store] Failed to backfill URL mappings:', e);
+      }
+      
+      // Load URL mappings from IndexedDB
+      try {
+        const mappings = await indexedDBService.getAllUrlMappings();
+        if (mappings && mappings.length > 0) {
+          set(state => {
+            const urlIndex = new Map(state.urlIndex);
+            const rawUrlIndex = new Map(state.rawUrlIndex);
+            for (const m of mappings) {
+              if (m.isCanonical) urlIndex.set(m.url, m.stableId);
+              else rawUrlIndex.set(m.url, m.stableId);
+            }
+            return { urlIndex, rawUrlIndex };
+          });
+        }
+      } catch (e) {
+        console.warn('[Store] Failed to load URL mappings:', e);
+      }
+      
+      // Load navigation history from IndexedDB
+      try {
+        const historyData = await indexedDBService.getSetting('navigation-history');
+        if (historyData?.stableIds && Array.isArray(historyData.stableIds)) {
+          set({ navigationHistory: historyData.stableIds });
+        }
+      } catch (e) {
+        console.warn('[Store] Failed to load navigation history:', e);
+      }
+      
+      // Load last active chapter
+      try {
+        const lastChapterData = await indexedDBService.getSetting('lastActiveChapter');
+        console.log('[Store] Last active chapter data:', lastChapterData);
+        
+        if (lastChapterData?.id) {
+          const currentState = get();
+          console.log(`[Store] Setting current chapter ID to: ${lastChapterData.id}`);
+          console.log(`[Store] Chapter already in memory: ${currentState.chapters.has(lastChapterData.id)}`);
+          
+          // Set as current chapter first
+          set(state => ({ 
+            currentChapterId: state.currentChapterId || lastChapterData.id 
+          }));
+          
+          // Try to load chapter content if not already in memory
+          if (!currentState.chapters.has(lastChapterData.id)) {
+            console.log(`[Store] Loading chapter ${lastChapterData.id} from IndexedDB...`);
+            // Fire and forget - UI can render once loaded
+            get().loadChapterFromIDB(lastChapterData.id).then(chapter => {
+              console.log(`[Store] Successfully loaded chapter from IDB:`, {
+                chapterId: lastChapterData.id,
+                title: chapter?.title,
+                hasContent: !!chapter?.content,
+                hasTranslation: !!chapter?.translationResult
+              });
+            }).catch(e => {
+              console.error(`[Store] Failed to load chapter ${lastChapterData.id} from IDB:`, e);
+            });
+          } else {
+            console.log(`[Store] Chapter ${lastChapterData.id} already in memory`);
+          }
+        } else {
+          console.log('[Store] No last active chapter found');
+        }
+      } catch (e) {
+        console.warn('[Store] Failed to load last active chapter:', e);
+      }
+      
+      console.log('[Store] Initialization complete');
+      
+    } catch (error) {
+      console.error('[Store] Failed to initialize:', error);
+      const uiActions = get();
+      uiActions.setError(`Failed to initialize store: ${error}`);
+    }
+  }
+}));
+
+// Initialize store on creation
+useAppStore.getState().initializeStore();
+
+// Export individual slice types for type checking
+export type { UiSlice } from './slices/uiSlice';
+export type { SettingsSlice } from './slices/settingsSlice';
+export type { ChaptersSlice } from './slices/chaptersSlice';
+export type { TranslationsSlice } from './slices/translationsSlice';
+export type { ImageSlice } from './slices/imageSlice';
