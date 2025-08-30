@@ -402,8 +402,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     .sort((a, b) => a.sortKey - b.sortKey);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" onClick={handleCancel}>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-2 sm:p-4" onClick={handleCancel}>
+      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md sm:max-w-2xl lg:max-w-3xl max-h-[95vh] sm:max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <header className="px-6 sm:px-8 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
             Settings
@@ -414,21 +414,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         </header>
 
         {/* Tabs */}
-        <div className="px-6 sm:px-8 pt-4 border-b border-gray-200 dark:border-gray-700 flex gap-2">
-          {[
-            { id: 'general', label: 'General' },
-            { id: 'export', label: 'Export' },
-            { id: 'templates', label: 'Templates' },
-            { id: 'advanced', label: 'Advanced' },
-          ].map(t => (
-            <button key={t.id}
-              onClick={() => setActiveTab(t.id as any)}
-              className={`px-3 py-2 text-sm rounded-t-md ${activeTab === t.id ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`}
-            >{t.label}</button>
-          ))}
+        <div className="px-4 sm:px-6 md:px-8 pt-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+            {[
+              { id: 'general', label: 'General' },
+              { id: 'export', label: 'Export' },
+              { id: 'templates', label: 'Templates' },
+              { id: 'advanced', label: 'Advanced' },
+            ].map(t => (
+              <button key={t.id}
+                onClick={() => setActiveTab(t.id as any)}
+                className={`px-3 py-2 text-xs sm:text-sm rounded-t-md whitespace-nowrap flex-shrink-0 ${activeTab === t.id ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`}
+              >{t.label}</button>
+            ))}
+          </div>
         </div>
 
-        <div className="p-6 sm:p-8 space-y-8 overflow-y-auto">
+        <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 overflow-y-auto">
           {activeTab === 'general' && (<>
           {/* Translation Engine Settings */}
           <fieldset>
@@ -1236,29 +1238,59 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           )}
 
         </div>
-        <footer className="px-6 sm:px-8 py-4 bg-gray-50 dark:bg-gray-700/50 mt-auto sticky bottom-0 flex justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-                 <input type="file" ref={fileInputRef} onChange={handleImportSession} style={{display: 'none'}} accept=".json" />
-                 <button
-                    onClick={handleImportClick}
-                    className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
-                >
-                    Import Session
-                </button>
-                 <button
-                    onClick={handleClear}
-                    className="px-4 py-2 bg-red-600 text-white font-semibold rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
-                >
-                    Clear Session
-                </button>
+        <footer className="px-4 sm:px-6 md:px-8 py-4 bg-gray-50 dark:bg-gray-700/50 mt-auto sticky bottom-0">
+            {/* Desktop: Horizontal layout */}
+            <div className="hidden md:flex justify-between items-center gap-4">
+              <div className="flex items-center gap-2">
+                   <input type="file" ref={fileInputRef} onChange={handleImportSession} style={{display: 'none'}} accept=".json" />
+                   <button
+                      onClick={handleImportClick}
+                      className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
+                  >
+                      Import Session
+                  </button>
+                   <button
+                      onClick={handleClear}
+                      className="px-4 py-2 bg-red-600 text-white font-semibold rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
+                  >
+                      Clear Session
+                  </button>
+              </div>
+              <div className="flex items-center gap-4">
+                  <button onClick={handleCancel} className="px-6 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition">
+                      Cancel
+                  </button>
+                  <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition">
+                      Save Changes
+                  </button>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-                <button onClick={handleCancel} className="px-6 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition">
-                    Cancel
-                </button>
-                <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition">
-                    Save Changes
-                </button>
+
+            {/* Mobile: Stacked layout */}
+            <div className="md:hidden space-y-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                   <input type="file" ref={fileInputRef} onChange={handleImportSession} style={{display: 'none'}} accept=".json" />
+                   <button
+                      onClick={handleImportClick}
+                      className="px-3 py-2 bg-indigo-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-indigo-700 transition duration-300 ease-in-out"
+                  >
+                      Import Session
+                  </button>
+                   <button
+                      onClick={handleClear}
+                      className="px-3 py-2 bg-red-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-red-700 transition duration-300 ease-in-out"
+                  >
+                      Clear Session
+                  </button>
+              </div>
+              <div className="flex gap-2">
+                  <button onClick={handleCancel} className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium text-sm rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition">
+                      Cancel
+                  </button>
+                  <button onClick={handleSave} className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-md hover:bg-blue-700 transition">
+                      Save Changes
+                  </button>
+              </div>
             </div>
         </footer>
       </div>
