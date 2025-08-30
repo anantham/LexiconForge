@@ -1,10 +1,111 @@
 /**
+ * Resizes an image to fit within maximum dimensions while maintaining aspect ratio
+ * @param imageBlob The image blob to resize
+ * @param maxWidth Maximum width (default: 1024)
+ * @param maxHeight Maximum height (default: 2048) 
+ * @param quality JPEG quality (0-1, default: 0.9)
+ * @returns Resized image blob
+ */
+export const resizeImage = async (
+  imageBlob: Blob, 
+  maxWidth: number = 1024, 
+  maxHeight: number = 2048, 
+  quality: number = 0.9
+): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      reject(new Error('Failed to get canvas context'));
+      return;
+    }
+    
+    img.onload = () => {
+      // Calculate new dimensions while maintaining aspect ratio
+      let { width, height } = img;
+      
+      // Check for invalid dimensions
+      if (width <= 0 || height <= 0) {
+        reject(new Error(`Invalid image dimensions: ${width}x${height}`));
+        return;
+      }
+      
+      if (width <= maxWidth && height <= maxHeight) {
+        // Image is already within limits, return original
+        console.log(`[ImageUtils] Image within limits: ${width}x${height}, no resizing needed`);
+        resolve(imageBlob);
+        return;
+      }
+      
+      // Calculate scaling factor
+      const widthRatio = maxWidth / width;
+      const heightRatio = maxHeight / height;
+      const scale = Math.min(widthRatio, heightRatio);
+      
+      const newWidth = Math.floor(width * scale);
+      const newHeight = Math.floor(height * scale);
+      
+      // Set canvas dimensions
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      
+      // Draw resized image
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+      
+      // Convert to blob
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            console.log(`[ImageUtils] Resized image: ${width}x${height} -> ${newWidth}x${newHeight} (${(blob.size / 1024).toFixed(1)}KB)`);
+            resolve(blob);
+          } else {
+            reject(new Error('Failed to create resized blob'));
+          }
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+    
+    const imageUrl = URL.createObjectURL(imageBlob);
+    
+    const cleanup = () => URL.revokeObjectURL(imageUrl);
+    
+    img.onerror = () => {
+      cleanup();
+      reject(new Error('Failed to load image for resizing'));
+    };
+    
+    // Store original onload handler
+    const originalOnload = img.onload;
+    img.onload = () => {
+      try {
+        originalOnload?.();
+      } finally {
+        cleanup();
+      }
+    };
+    
+    img.src = imageUrl;
+  });
+};
+
+/**
  * Converts an image file to base64 format using HTTP fetch
+ * Automatically resizes images that exceed PiAPI limits (1024x2048)
  * Works with both local file paths and HTTP URLs
  * @param imagePath Full path to the image file or HTTP URL
+ * @param maxWidth Maximum width for PiAPI (default: 1024)
+ * @param maxHeight Maximum height for PiAPI (default: 2048)
  * @returns Base64 encoded string with data URL format
  */
-export const imageFileToBase64 = async (imagePath: string): Promise<string> => {
+export const imageFileToBase64 = async (
+  imagePath: string, 
+  maxWidth: number = 1024, 
+  maxHeight: number = 2048
+): Promise<string> => {
   try {
     // Convert local file path to HTTP URL if needed
     let imageUrl = imagePath;
@@ -23,7 +124,10 @@ export const imageFileToBase64 = async (imagePath: string): Promise<string> => {
       throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
     }
     
-    const blob = await response.blob();
+    const originalBlob = await response.blob();
+    
+    // Resize image if it exceeds API limits
+    const resizedBlob = await resizeImage(originalBlob, maxWidth, maxHeight);
     
     // Convert blob to base64
     return new Promise((resolve, reject) => {
@@ -33,7 +137,7 @@ export const imageFileToBase64 = async (imagePath: string): Promise<string> => {
         resolve(result);
       };
       reader.onerror = () => reject(new Error('Failed to convert blob to base64'));
-      reader.readAsDataURL(blob);
+      reader.readAsDataURL(resizedBlob);
     });
   } catch (error) {
     throw new Error(`Failed to convert image to base64: ${error instanceof Error ? error.message : 'Unknown error'}`);
