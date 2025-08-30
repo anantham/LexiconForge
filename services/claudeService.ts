@@ -47,6 +47,7 @@ const formatHistory = (history: HistoricalChapter[]): string => {
     }).join('\n\n');
 };
 
+
 // --- CLAUDE TRANSLATION SERVICE ---
 
 /**
@@ -83,7 +84,7 @@ export const translateWithClaude = async (
       .replaceAll('{{targetLanguageVariant}}', settings.targetLanguage || 'English');
     const fullPrompt = `${sys}\n\n${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}
 
-IMPORTANT: You must respond with valid JSON in exactly this format:
+IMPORTANT: You must respond with valid JSON in exactly this format. Ensure all special characters (apostrophes, quotes, backslashes, newlines) are properly escaped in JSON strings:
 {
   "translatedTitle": "The translated chapter title",
   "translation": "Full translated chapter content using HTML formatting (<i>italics</i>, <b>bold</b> - never markdown). MUST include numbered markers [1], [2], [3] in the text for any footnotes. MUST include placement markers [ILLUSTRATION-1], [ILLUSTRATION-2], etc. in the text for any visual scenes you want illustrated. Every marker in this text must have a corresponding entry in the respective arrays below.",
@@ -109,7 +110,13 @@ IMPORTANT: You must respond with valid JSON in exactly this format:
 
 If there are no footnotes, use null or empty array for footnotes.
 If there are no illustrations, use null or empty array for suggestedIllustrations.
-If there is no proposal, use null for proposal.`;
+If there is no proposal, use null for proposal.
+
+CRITICAL JSON FORMATTING: Properly escape all special characters:
+- Apostrophes: "don't" → "don\\'t"  
+- Quotes: "she said \"hello\"" → "she said \\"hello\\""
+- Backslashes: "path\\file" → "path\\\\file"
+- Newlines: Use \\n instead of actual line breaks within JSON strings`;
 
     // Debug: what we're sending (sanitized)
     dlog('[Claude Debug] Request summary:', {
@@ -183,14 +190,39 @@ If there is no proposal, use null for proposal.`;
             throw new Error('Claude returned non-text response');
         }
 
-        // Since we prefilled with '{"translatedTitle":', we need to complete the JSON
-        const completeJsonText = '{"translatedTitle": "' + responseContent.text;
+        // Handle both complete JSON responses and prefilled partial responses
+        let completeJsonText: string;
+        const responseText = responseContent.text.trim();
+        
+        // Debug the actual response structure
+        dlog('[Claude Debug] Raw response text preview:', responseText.substring(0, 200));
+        
+        if (responseText.startsWith('{')) {
+            // Claude returned a complete JSON response (ignoring prefill)
+            completeJsonText = responseText;
+            dlog('[Claude Debug] Detected complete JSON response');
+        } else if (responseText.includes('"translation":') && responseText.endsWith('}')) {
+            // Claude returned partial response but it looks complete (missing opening brace)
+            completeJsonText = '{"translatedTitle": "' + responseText;
+            dlog('[Claude Debug] Detected partial response, completing JSON structure');
+        } else {
+            // Standard partial response from prefilling
+            completeJsonText = '{"translatedTitle": "' + responseText;
+            dlog('[Claude Debug] Standard prefilled response completion');
+        }
         
         try {
+            dlog('[Claude Debug] Attempting to parse JSON with length:', completeJsonText.length);
             const parsedJson = JSON.parse(completeJsonText);
+            dlog('[Claude Debug] JSON parsing successful');
             
             // Validate required fields
             if (typeof parsedJson.translatedTitle !== 'string' || typeof parsedJson.translation !== 'string') {
+                console.error('[Claude Debug] Invalid JSON structure:', {
+                    hasTranslatedTitle: typeof parsedJson.translatedTitle,
+                    hasTranslation: typeof parsedJson.translation,
+                    keys: Object.keys(parsedJson)
+                });
                 throw new Error('Invalid JSON structure in Claude response.');
             }
 
@@ -289,8 +321,26 @@ If there is no proposal, use null for proposal.`;
                 usageMetrics: usageMetrics,
             };
         } catch (parseError) {
-            console.error("Failed to parse JSON response from Claude:", completeJsonText, parseError);
-            throw new Error("Claude returned a malformed response. Could not parse translation.");
+            console.error('[Claude Debug] JSON parsing failed:', {
+                error: parseError,
+                originalResponseLength: responseText.length,
+                originalResponsePreview: responseText.substring(0, 300),
+                completeJsonLength: completeJsonText.length,
+                completeJsonPreview: completeJsonText.substring(0, 300),
+                startsWithBrace: responseText.startsWith('{'),
+                endsWithBrace: responseText.endsWith('}'),
+                hasTranslationKey: responseText.includes('"translation":'),
+                hasUnescapedApostrophes: completeJsonText.includes("'"),
+                errorLocation: parseError instanceof SyntaxError ? parseError.message : 'Unknown'
+            });
+            
+            // Try to provide more helpful error message
+            let errorMessage = "Claude returned a malformed response. Could not parse translation.";
+            if (parseError instanceof SyntaxError) {
+                errorMessage += ` JSON Syntax Error: ${parseError.message}`;
+            }
+            
+            throw new Error(errorMessage);
         }
     } catch (error: any) {
         console.error(`[Claude Service] Translation failed:`, error);

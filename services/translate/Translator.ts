@@ -63,6 +63,22 @@ export class Translator {
       } catch (error: any) {
         lastError = error;
         
+        // Handle abort errors first
+        if (error.name === 'AbortError' || request.abortSignal?.aborted) {
+          console.log(`[Translator] Translation aborted for ${request.settings.provider}`);
+          throw new DOMException('Translation was aborted by user', 'AbortError');
+        }
+
+        // Check if this is a JSON parsing error - don't retry these to avoid wasting API costs
+        const isJsonParsingError = error.message?.includes('Could not parse translation') || 
+                                 error.message?.includes('JSON Syntax Error') ||
+                                 error.message?.includes('malformed response');
+        
+        if (isJsonParsingError) {
+          console.error(`[Translator] JSON parsing error detected - failing immediately to avoid wasting API costs:`, error.message);
+          throw error;
+        }
+
         // Handle rate limiting
         const isRateLimitError = error.message?.includes('429') || error.status === 429;
         if (isRateLimitError && attempt < maxRetries - 1) {
@@ -70,12 +86,6 @@ export class Translator {
           console.warn(`[Translator] Rate limit hit for ${request.settings.provider}. Retrying in ${delay / 1000}s...`);
           await this.delay(delay);
           continue;
-        }
-
-        // Handle abort errors
-        if (error.name === 'AbortError' || request.abortSignal?.aborted) {
-          console.log(`[Translator] Translation aborted for ${request.settings.provider}`);
-          throw new DOMException('Translation was aborted by user', 'AbortError');
         }
 
         // If not retryable or max retries reached, throw

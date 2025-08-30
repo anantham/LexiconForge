@@ -78,37 +78,42 @@ export class NavigationService {
     context: NavigationContext,
     loadChapterFromIDB: (chapterId: string) => Promise<EnhancedChapter | null>
   ): Promise<NavigationResult> {
-    console.log(`[Nav] Navigating to: ${url}`);
+    // console.log(`[Nav] Navigating to: ${url} @${Date.now()}`);
     const { urlIndex, rawUrlIndex, chapters, navigationHistory } = context;
     const normalizedUrl = normalizeUrlAggressively(url);
     
-    console.log(`[Nav] URL normalization: ${url} -> ${normalizedUrl}`);
-    console.log(`[Nav] URL index size: ${urlIndex.size}, Raw URL index size: ${rawUrlIndex.size}`);
+    // console.log(`[Nav] URL normalization: ${url} -> ${normalizedUrl} @${Date.now()}`);
+    // console.log(`[Nav] URL index size: ${urlIndex.size}, Raw URL index size: ${rawUrlIndex.size} @${Date.now()}`);
 
     let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
-    console.log(`[Nav] Resolved chapterId: ${chapterId}`);
+    // console.log(`[Nav] Resolved chapterId: ${chapterId} @${Date.now()}`);
     
     if (chapterId) {
       const hasChapter = chapters.has(chapterId);
       const chapter = chapters.get(chapterId);
-      console.log(`[Nav] Chapter ${chapterId} status:`, {
-        inMemory: hasChapter,
-        hasContent: !!chapter?.content,
-        contentLength: chapter?.content?.length || 0,
-        hasTranslation: !!chapter?.translationResult,
-        title: chapter?.title
-      });
+      // Debug info about chapter status removed to reduce noise; enable via `store-debug` gate if needed
+      if (storeDebugEnabled()) {
+        console.log(`[Nav] Chapter ${chapterId} status @${Date.now()}:`, {
+          inMemory: hasChapter,
+          hasContent: !!chapter?.content,
+          contentLength: chapter?.content?.length || 0,
+          hasTranslation: !!chapter?.translationResult,
+          title: chapter?.title
+        });
+      }
     }
 
     // Chapter is already loaded in memory
     if (chapterId && chapters.has(chapterId)) {
-      console.log(`[Nav] Chapter found in memory, updating navigation history`);
+      // console.log(`[Nav] Chapter found in memory, updating navigation history @${Date.now()}`);
       const newHistory = [...new Set(navigationHistory.concat(chapterId))];
-      console.log(`[Nav] Navigation history update:`, {
-        before: navigationHistory,
-        after: newHistory,
-        currentChapter: chapterId
-      });
+      if (storeDebugEnabled()) {
+        console.log(`[Nav] Navigation history update @${Date.now()}:`, {
+          before: navigationHistory,
+          after: newHistory,
+          currentChapter: chapterId
+        });
+      }
       
       // Persist navigation state
       try { 
@@ -162,25 +167,29 @@ export class NavigationService {
     
     // Chapter mapping exists but content not in memory - lazy load
     if (chapterId && !chapters.has(chapterId)) {
-      console.log(`[Nav] Mapping found (${chapterId}) but not loaded. Hydrating from IndexedDB...`);
+      // console.log(`[Nav] Mapping found (${chapterId}) but not loaded. Hydrating from IndexedDB... @${Date.now()}`);
       
       try {
         const loaded = await loadChapterFromIDB(chapterId);
-        console.log(`[Nav] Lazy load result:`, {
-          success: !!loaded,
-          chapterId,
-          title: loaded?.title,
-          hasContent: !!loaded?.content,
-          contentLength: loaded?.content?.length || 0
-        });
+        if (storeDebugEnabled()) {
+          console.log(`[Nav] Lazy load result @${Date.now()}:`, {
+            success: !!loaded,
+            chapterId,
+            title: loaded?.title,
+            hasContent: !!loaded?.content,
+            contentLength: loaded?.content?.length || 0
+          });
+        }
         
         if (loaded) {
           const newHistory = [...new Set(navigationHistory.concat(chapterId))];
-          console.log(`[Nav] Post-lazy-load navigation history:`, {
-            before: navigationHistory,
-            after: newHistory,
-            currentChapter: chapterId
-          });
+          if (storeDebugEnabled()) {
+            console.log(`[Nav] Post-lazy-load navigation history @${Date.now()}:`, {
+              before: navigationHistory,
+              after: newHistory,
+              currentChapter: chapterId
+            });
+          }
           
           // Persist navigation state
           try { 
@@ -436,7 +445,7 @@ export class NavigationService {
       
       // Log fan translation status specifically
       if (rec.fanTranslation) {
-        console.log(`[IDB] ✅ Fan translation found in DB: ${rec.fanTranslation.length} characters`);
+        // console.log(`[IDB] ✅ Fan translation found in DB: ${rec.fanTranslation.length} characters`);
       } else {
         console.log(`[IDB] ❌ No fan translation in DB for chapter: ${rec.title}`);
       }
@@ -470,7 +479,7 @@ export class NavigationService {
       try {
         const activeTranslation = await indexedDBService.getActiveTranslationByStableId(chapterId);
         if (activeTranslation) {
-          console.log(`[IDB] ✅ Active translation found for chapter ${chapterId}: ${activeTranslation.translation?.length || 0} characters`);
+          // console.log(`[IDB] ✅ Active translation found for chapter ${chapterId}: ${activeTranslation.translation?.length || 0} characters`);
           
           const usageMetrics = {
             totalTokens: activeTranslation.totalTokens || 0,
@@ -491,7 +500,7 @@ export class NavigationService {
             usageMetrics,
           };
         } else {
-          console.log(`[IDB] ❌ No active translation found for chapter ${chapterId}`);
+          // console.log(`[IDB] ❌ No active translation found for chapter ${chapterId}`);
         }
       } catch (error) {
         console.warn(`[IDB] Failed to load active translation for ${chapterId}:`, error);
