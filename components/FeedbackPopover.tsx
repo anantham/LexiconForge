@@ -41,7 +41,7 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
 
   return (
     <div
-      className="absolute z-10 flex items-center gap-1 p-2 bg-gray-800 dark:bg-gray-900 text-white rounded-lg shadow-2xl transition-transform transform -translate-x-1/2"
+      className="absolute z-50 flex items-center gap-1 p-2 bg-gray-800 dark:bg-gray-900 text-white rounded-lg shadow-2xl transition-transform transform -translate-x-1/2"
       style={{ top: `${top}px`, left: `${left}px` }}
       onMouseDown={(e) => e.preventDefault()} // Prevents text deselection
     >

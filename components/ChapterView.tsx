@@ -1,5 +1,6 @@
 
 import React, { useRef, useMemo, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FeedbackItem, Footnote, UsageMetrics } from '../types';
 import Loader from './Loader';
 import { useTextSelection } from '../hooks/useTextSelection';
@@ -9,10 +10,66 @@ import RefreshIcon from './icons/RefreshIcon';
 import { useAppStore } from '../store';
 import Illustration from './Illustration';
 
+// Touch detection hook using media queries
+function useIsTouch() {
+  const [isTouch, setIsTouch] = React.useState(false);
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(hover: none) and (pointer: coarse)');
+    const on = (e: MediaQueryListEvent | MediaQueryList) =>
+      setIsTouch('matches' in e ? e.matches : (e as MediaQueryList).matches);
+    on(mq);
+    mq.addEventListener?.('change', on as any);
+    return () => mq.removeEventListener?.('change', on as any);
+  }, []);
+  return isTouch;
+}
+
+// Simple bottom sheet that never overlaps the OS selection bubble
+const SelectionSheet: React.FC<{
+  text: string;
+  onReact: (emoji: '👍' | '❤️' | '😂' | '🎨') => void;
+  onCopy: () => void;
+  onClose: () => void;
+}> = ({ onReact, onCopy, onClose }) => {
+  // Trap contextmenu only while visible (prevents Android long-press menu)
+  React.useEffect(() => {
+    const block = (e: Event) => e.preventDefault();
+    document.addEventListener('contextmenu', block, { passive: false });
+    return () => document.removeEventListener('contextmenu', block as any);
+  }, []);
+
+  return createPortal(
+    <div className="fixed inset-x-0 bottom-0 z-[70] pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto max-w-xl rounded-t-2xl bg-gray-900/95 text-white shadow-2xl p-3">
+        <div className="flex items-center gap-2">
+          <button className="p-3 text-xl" onClick={() => onReact('👍')}>👍</button>
+          <button className="p-3 text-xl" onClick={() => onReact('❤️')}>❤️</button>
+          <button className="p-3 text-xl" onClick={() => onReact('😂')}>😂</button>
+          <button className="p-3 text-xl" onClick={() => onReact('🎨')}>🎨</button>
+          <div className="grow" />
+          <button 
+            className="px-3 py-2 rounded bg-white/10" 
+            onClick={() => {
+              navigator.vibrate?.(10);
+              onCopy();
+            }}
+          >
+            Copy
+          </button>
+          <button className="px-3 py-2 rounded bg-white/10" onClick={onClose}>Done</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 const ChapterView: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<HTMLDivElement>(null);
   const { selection, clearSelection } = useTextSelection(contentRef);
+  const isTouch = useIsTouch();
   
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
@@ -269,7 +326,8 @@ const ChapterView: React.FC = () => {
     )
   };
   
-  const shouldShowPopover = viewMode === 'english' && selection;
+  const shouldShowPopover = viewMode === 'english' && selection && !isTouch;
+  const shouldShowSheet = viewMode === 'english' && selection && isTouch;
   // Version selector moved to SessionInfo top bar
 
   // Footnote navigation within the reader container
@@ -555,6 +613,19 @@ const ChapterView: React.FC = () => {
           position={selection.rect}
           positioningParentRef={viewRef}
           onFeedback={handleFeedbackSubmit}
+        />
+      )}
+
+      {shouldShowSheet && (
+        <SelectionSheet
+          text={selection.text}
+          onReact={(emoji) => handleFeedbackSubmit({ type: emoji, selection: selection.text })}
+          onCopy={async () => { 
+            try { 
+              await navigator.clipboard.writeText(selection.text); 
+            } catch {} 
+          }}
+          onClose={() => clearSelection()}
         />
       )}
 
