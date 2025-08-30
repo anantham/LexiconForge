@@ -28,6 +28,7 @@ const SessionInfo: React.FC = () => {
     const translationResult = currentChapter?.translationResult;
     
     const [showExportModal, setShowExportModal] = useState(false);
+    const [showVersionPicker, setShowVersionPicker] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [sortedChapters, setSortedChapters] = useState<StableChapterForRender[]>([]);
     const [versions, setVersions] = useState<any[]>([]);
@@ -96,13 +97,21 @@ const SessionInfo: React.FC = () => {
         }
     };
 
-    const handleDeleteVersion = async () => {
-        if (!currentChapterId || selectedVersion === '') return;
-        const versionToDelete = versions.find(v => v.version === selectedVersion);
-        if (!versionToDelete) return;
+    const handleVersionPickerSelect = async (version: number) => {
+        setSelectedVersion(version);
+        setShowVersionPicker(false);
+        if (currentChapterId) {
+            await setActiveTranslationVersion(currentChapterId, version);
+        }
+    };
 
-        if (confirm(`Are you sure you want to delete version ${selectedVersion}? This cannot be undone.`)) {
-            await deleteTranslationVersion(currentChapterId, versionToDelete.id);
+    const handleDeleteVersion = async (versionToDelete?: any) => {
+        if (!currentChapterId) return;
+        const target = versionToDelete || versions.find(v => v.version === selectedVersion);
+        if (!target) return;
+
+        if (confirm(`Are you sure you want to delete version ${target.version}? This cannot be undone.`)) {
+            await deleteTranslationVersion(currentChapterId, target.id);
             // Refresh the list after deletion
             const v = await fetchTranslationVersions(currentChapterId);
             setVersions(v);
@@ -168,27 +177,44 @@ const SessionInfo: React.FC = () => {
         {!sessionIsEmpty && versions.length > 0 && (
           <div className="flex items-center gap-2">
             <label className="text-sm font-semibold text-gray-600 dark:text-gray-300">Version:</label>
-            <select
-              value={selectedVersion}
-              onChange={handleVersionSelect}
-              className="px-2 py-1 text-xs text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded max-w-[22rem]"
-            >
-              {versions.sort((a: any,b: any)=>a.version-b.version).map((v: any) => {
-                const abbr = MODEL_ABBREVIATIONS[v.model] || v.model;
-                const ts = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, { month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
-                const label = ts ? `v${v.version} — ${abbr} • ${ts}` : `v${v.version} — ${abbr}`;
-                return (
-                  <option key={v.id} value={v.version} title={ts}>{label}</option>
-                );
-              })}
-            </select>
+            
+            {/* Desktop: Native select */}
+            <div className="hidden md:flex items-center gap-2">
+              <select
+                value={selectedVersion}
+                onChange={handleVersionSelect}
+                className="px-2 py-1 text-xs text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded max-w-[22rem]"
+              >
+                {versions.sort((a: any,b: any)=>a.version-b.version).map((v: any) => {
+                  const abbr = MODEL_ABBREVIATIONS[v.model] || v.model;
+                  const ts = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, { month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+                  const label = ts ? `v${v.version} — ${abbr} • ${ts}` : `v${v.version} — ${abbr}`;
+                  return (
+                    <option key={v.id} value={v.version} title={ts}>{label}</option>
+                  );
+                })}
+              </select>
+              <button
+                onClick={() => handleDeleteVersion()}
+                disabled={!selectedVersion}
+                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Delete selected version"
+              >
+                <TrashIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Mobile: Custom button */}
             <button
-              onClick={handleDeleteVersion}
-              disabled={!selectedVersion}
-              className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Delete selected version"
+              onClick={() => setShowVersionPicker(true)}
+              className="md:hidden px-2 py-1 text-xs text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded max-w-[12rem] truncate text-left"
             >
-              <TrashIcon className="w-4 h-4" />
+              {(() => {
+                const current = versions.find(v => v.version === selectedVersion);
+                if (!current) return 'Select version';
+                const abbr = MODEL_ABBREVIATIONS[current.model] || current.model;
+                return `v${current.version} — ${abbr}`;
+              })()}
             </button>
           </div>
         )}
@@ -242,6 +268,76 @@ const SessionInfo: React.FC = () => {
                     className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
                   >
                     Cancel
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+
+          {showVersionPicker && createPortal(
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end md:items-center justify-center z-50" onClick={() => setShowVersionPicker(false)}>
+              <div className="bg-white dark:bg-gray-800 rounded-t-lg md:rounded-lg shadow-xl w-full md:max-w-md md:mx-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Select Version</h3>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-4">
+                  <ul className="space-y-1">
+                    {versions.sort((a: any, b: any) => a.version - b.version).map((v: any) => {
+                      const abbr = MODEL_ABBREVIATIONS[v.model] || v.model;
+                      const tsLong = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, { 
+                        weekday: 'short',
+                        month: 'short', 
+                        day: '2-digit', 
+                        year: 'numeric', 
+                        hour: 'numeric', 
+                        minute: '2-digit', 
+                        hour12: true 
+                      }) : '';
+                      
+                      return (
+                        <li key={v.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                          <input 
+                            type="radio" 
+                            id={`version-${v.version}`}
+                            name="version" 
+                            checked={selectedVersion === v.version}
+                            onChange={() => handleVersionPickerSelect(v.version)}
+                            className="mt-1 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400"
+                          />
+                          <label htmlFor={`version-${v.version}`} className="flex-1 cursor-pointer">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              v{v.version} — {abbr}
+                            </div>
+                            {tsLong && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {tsLong}
+                              </div>
+                            )}
+                          </label>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteVersion(v);
+                            }}
+                            className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                            title={`Delete version ${v.version}`}
+                          >
+                            🗑️
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+                
+                <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => setShowVersionPicker(false)}
+                    className="w-full px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  >
+                    Close
                   </button>
                 </div>
               </div>
