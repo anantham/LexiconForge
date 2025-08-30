@@ -25,9 +25,9 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     guidanceScales,
     setGuidanceScale,
     loraModels,
-    setLoRAModel,
+    setLoraModel,
     loraStrengths,
-    setLoRAStrength,
+    setLoraStrength,
     settings
   } = useAppStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
@@ -42,9 +42,9 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     guidanceScales: s.guidanceScales,
     setGuidanceScale: s.setGuidanceScale,
     loraModels: s.loraModels,
-    setLoRAModel: s.setLoRAModel,
+    setLoraModel: s.setLoraModel,
     loraStrengths: s.loraStrengths,
-    setLoRAStrength: s.setLoRAStrength,
+    setLoraStrength: s.setLoraStrength,
     settings: s.settings,
   })));
 
@@ -117,13 +117,13 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   const handleLoRAChange = (loraType: string | null) => {
     if (chapter) {
-      setLoRAModel(chapter.id, marker, loraType);
+      setLoraModel(chapter.id, marker, loraType);
     }
   };
 
   const handleLoRAStrengthChange = (strength: number) => {
     if (chapter) {
-      setLoRAStrength(chapter.id, marker, strength);
+      setLoraStrength(chapter.id, marker, strength);
     }
   };
 
