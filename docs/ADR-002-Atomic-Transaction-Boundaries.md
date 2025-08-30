@@ -35,7 +35,230 @@ Based on business requirements, we identified 8 critical user actions that requi
 
 **Define explicit atomic transaction boundaries for each critical user action, optimizing for critical path performance while ensuring data consistency.**
 
+### Idempotency & Retry Strategy
+
+All atomic operations must be idempotent and include retry semantics for reliability:
+
+```typescript
+// Idempotency keys prevent double-insertion on retries
+export interface IdempotentOperation<T> {
+  operationId: string;        // Unique operation identifier (ULID)
+  requestSignature: string;   // Hash of request parameters
+  maxRetries: number;         // Maximum retry attempts
+  timeoutMs: number;          // Operation timeout
+  execute(): Promise<T>;
+}
+
+// Translation generation with idempotency
+export async function generateTranslationIdempotent(
+  chapterId: string,
+  settings: TranslationSettings
+): Promise<Translation> {
+  const settingsSignature = computeSettingsSignature(settings);
+  const operationId = `translate_${chapterId}_${settingsSignature}`;
+  
+  // Check if translation with same signature already exists
+  const existing = await findExistingTranslation(chapterId, settingsSignature);
+  if (existing) {
+    console.log(`Translation ${operationId} already exists - returning cached result`);
+    return existing;
+  }
+  
+  // Create deterministic translation_id from operation context
+  const translationId = `tl_${operationId}_${ulid()}`;
+  
+  return withRetry(async () => {
+    const apiResult = await translateChapter(chapterId, settings);
+    
+    return await transactionService.execute(
+      ['chapters', 'translations'],
+      'readwrite',
+      async (tx) => {
+        // Check again inside transaction to prevent race conditions
+        const existingInTx = await translationsService.findBySignature(
+          chapterId, settingsSignature, tx
+        );
+        if (existingInTx) {
+          return existingInTx; // Another tab/request created it
+        }
+        
+        const translation: Translation = {
+          ...apiResult.translation,
+          translation_id: translationId,
+          meta: {
+            ...apiResult.meta,
+            settings_signature: settingsSignature,
+            operation_id: operationId
+          }
+        };
+        
+        await translationsService.put(translation, tx);
+        
+        // Update chapter metadata atomically
+        const chapter = await chaptersService.get(chapterId, tx);
+        chapter.latest_version = Math.max(
+          chapter.latest_version ?? 0, 
+          translation.version_no
+        );
+        chapter.active_language_map = {
+          ...chapter.active_language_map,
+          [translation.language]: translation.version_no
+        };
+        await chaptersService.put(chapter, tx);
+        
+        return translation;
+      }
+    );
+  }, {
+    maxRetries: 3,
+    backoffMs: 1000,
+    retryableErrors: ['TransientError', 'NetworkError'],
+    operationId
+  });
+}
+
+// Image generation with deduplication
+export async function generateImageIdempotent(
+  prompt: ImagePrompt
+): Promise<Image> {
+  const promptHash = sha256(JSON.stringify({
+    text: prompt.text,
+    negative: prompt.negative,
+    steering_ref: prompt.steering_ref,
+    translation_id: prompt.translation_id
+  }));
+  const operationId = `image_${promptHash}`;
+  
+  // Check for existing image with same prompt
+  const existing = await findExistingImage(prompt.translation_id, promptHash);
+  if (existing) {
+    return existing;
+  }
+  
+  return withRetry(async () => {
+    const imageBlob = await generateImageFromPrompt(prompt);
+    const imageId = `img_${operationId}_${ulid()}`;
+    
+    return await transactionService.singleStore('images', async (tx) => {
+      // Final dedup check inside transaction
+      const existingInTx = await imagesService.findByPromptHash(
+        prompt.translation_id, promptHash, tx
+      );
+      if (existingInTx) {
+        return existingInTx;
+      }
+      
+      const image: Image = {
+        image_id: imageId,
+        chapter_id: prompt.chapter_id,
+        translation_id: prompt.translation_id,
+        kind: prompt.kind,
+        prompt: prompt.text,
+        negative: prompt.negative,
+        steering_ref: prompt.steering_ref,
+        prompt_hash: promptHash,
+        operation_id: operationId,
+        blob: imageBlob,
+        createdAt: getCurrentTimestamp()
+      };
+      
+      await imagesService.put(image, tx);
+      return image;
+    });
+  }, {
+    maxRetries: 3,
+    backoffMs: 2000, // Longer backoff for expensive image generation
+    retryableErrors: ['ApiError', 'NetworkError'],
+    operationId
+  });
+}
+
+// Generic retry wrapper with exponential backoff
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  options: {
+    maxRetries: number;
+    backoffMs: number;
+    retryableErrors: string[];
+    operationId: string;
+  }
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= options.maxRetries; attempt++) {
+    try {
+      const result = await Promise.race([
+        operation(),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Operation timeout')), 30000)
+        )
+      ]);
+      
+      if (attempt > 1) {
+        console.log(`Operation ${options.operationId} succeeded on attempt ${attempt}`);
+      }
+      
+      return result;
+    } catch (error) {
+      lastError = error;
+      
+      // Check if error is retryable
+      const isRetryable = options.retryableErrors.some(
+        errorType => error.name === errorType || error.message.includes(errorType)
+      );
+      
+      if (!isRetryable || attempt === options.maxRetries) {
+        console.error(`Operation ${options.operationId} failed permanently:`, error);
+        throw error;
+      }
+      
+      // Exponential backoff with jitter
+      const backoffMs = options.backoffMs * Math.pow(2, attempt - 1);
+      const jitter = Math.random() * 0.1 * backoffMs;
+      const delayMs = backoffMs + jitter;
+      
+      console.warn(
+        `Operation ${options.operationId} attempt ${attempt} failed, retrying in ${delayMs}ms:`, 
+        error.message
+      );
+      
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+  
+  throw lastError;
+}
+
+// Settings signature computation for deduplication
+function computeSettingsSignature(settings: TranslationSettings): string {
+  const sigData = {
+    model: settings.model,
+    temperature: settings.temperature,
+    max_tokens: settings.max_tokens,
+    presence_penalty: settings.presence_penalty,
+    frequency_penalty: settings.frequency_penalty,
+    system_prompt_title: settings.system_prompt_title,
+    schema_enforced: settings.schema_enforced,
+    seed: settings.seed
+  };
+  return sha256(JSON.stringify(sigData));
+}
+```
+
 ### Transaction Boundaries by Action
+
+**Key Principle**: Transactions span only the minimal affected stores; indexing/metrics always run out-of-band to avoid blocking critical path.
+
+```typescript
+// Standard transaction execution pattern
+await transactionService.execute(
+  ['store1', 'store2'], 
+  'readwrite', 
+  async (tx) => {
+    // Atomic operations here
+  }
+);
+```
 
 #### 1. Next Chapter Navigation
 ```typescript

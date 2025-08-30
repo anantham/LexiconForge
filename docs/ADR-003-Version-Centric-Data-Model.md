@@ -30,6 +30,141 @@
 
 **Implement a version-centric data model using `translation_id` as a stable anchor for all version-dependent data, with explicit cascade delete semantics and referential integrity guarantees.**
 
+### Data Integrity Invariants
+
+The following invariants must be maintained at all times:
+
+```typescript
+// Explicit invariants (I1-I7) enforced by validation layer
+export const DATA_INVARIANTS = {
+  // I1: Foreign Key Constraints
+  I1_FK_CHAPTERS_NOVELS: 'Every chapters.novel_id must exist in novels table',
+  I1_FK_TRANSLATIONS_CHAPTERS: 'Every translations.chapter_id must exist in chapters table', 
+  I1_FK_IMAGES_TRANSLATIONS: 'Every images.translation_id must exist in translations table',
+  I1_FK_FEEDBACK_TRANSLATIONS: 'Every feedback.translation_id must exist in translations table',
+
+  // I2: Unique Constraints
+  I2_UNIQUE_TRANSLATION_VERSION: 'Unique index on (chapter_id, language, version_no) in translations',
+  I2_UNIQUE_CHAPTER_INDEX: 'Unique index on (novel_id, index) in chapters',
+  I2_UNIQUE_URL_MAPPING: 'Unique index on source_url in url_mappings',
+
+  // I3: Version Consistency  
+  I3_LATEST_VERSION_ACCURACY: 'chapters.latest_version = max(version_no) for that chapter or null',
+  I3_VERSION_MONOTONIC: 'version_no values must be positive integers starting from 1',
+  
+  // I4: Active Language Map Integrity
+  I4_ACTIVE_LANGUAGE_CONSISTENCY: 'chapters.active_language_map[lang] points to existing translation',
+  I4_ACTIVE_VERSION_VALIDITY: 'All active_language_map values must be ≤ latest_version',
+
+  // I5: Cascade Anchor Integrity
+  I5_TRANSLATION_ID_REQUIRED: 'Every translation must have a valid translation_id (ULID format)',
+  I5_DEPENDENT_DATA_ANCHORED: 'All images and feedback must reference valid translation_id',
+
+  // I6: Settings Signature Consistency  
+  I6_SETTINGS_SIGNATURE_FORMAT: 'settings_signature = sha256(JSON.stringify(generation_context))',
+  I6_SETTINGS_SIGNATURE_REQUIRED: 'Every translation.meta.settings_signature must be present',
+
+  // I7: Temporal Consistency
+  I7_TIMESTAMP_UTC: 'All timestamps stored in UTC ISO 8601 format',
+  I7_CREATION_ORDER: 'Higher version_no must have createdAt >= lower version_no for same chapter'
+} as const;
+
+// Runtime invariant validator
+export class InvariantValidator {
+  async validateAll(db: IDBDatabase): Promise<InvariantCheckResult> {
+    const results = await Promise.all([
+      this.validateI1_ForeignKeys(db),
+      this.validateI2_UniqueConstraints(db), 
+      this.validateI3_VersionConsistency(db),
+      this.validateI4_ActiveLanguageMap(db),
+      this.validateI5_CascadeAnchors(db),
+      this.validateI6_SettingsSignatures(db),
+      this.validateI7_TemporalConsistency(db)
+    ]);
+
+    return {
+      allValid: results.every(r => r.valid),
+      violations: results.flatMap(r => r.violations),
+      checkedAt: new Date().toISOString()
+    };
+  }
+
+  private async validateI1_ForeignKeys(db: IDBDatabase): Promise<ValidationResult> {
+    const violations: string[] = [];
+
+    // Check chapters.novel_id references
+    const orphanedChapters = await this.findOrphanedReferences(
+      db, 'chapters', 'novel_id', 'novels', 'novel_id'
+    );
+    if (orphanedChapters.length > 0) {
+      violations.push(`I1 violation: ${orphanedChapters.length} chapters reference non-existent novels`);
+    }
+
+    // Check translations.chapter_id references  
+    const orphanedTranslations = await this.findOrphanedReferences(
+      db, 'translations', 'chapter_id', 'chapters', 'chapter_id'
+    );
+    if (orphanedTranslations.length > 0) {
+      violations.push(`I1 violation: ${orphanedTranslations.length} translations reference non-existent chapters`);
+    }
+
+    // Check images.translation_id references
+    const orphanedImages = await this.findOrphanedReferences(
+      db, 'images', 'translation_id', 'translations', 'translation_id'
+    );
+    if (orphanedImages.length > 0) {
+      violations.push(`I1 violation: ${orphanedImages.length} images reference non-existent translations`);
+    }
+
+    // Check feedback.translation_id references
+    const orphanedFeedback = await this.findOrphanedReferences(
+      db, 'feedback', 'translation_id', 'translations', 'translation_id'
+    );
+    if (orphanedFeedback.length > 0) {
+      violations.push(`I1 violation: ${orphanedFeedback.length} feedback entries reference non-existent translations`);
+    }
+
+    return { valid: violations.length === 0, violations };
+  }
+
+  private async validateI3_VersionConsistency(db: IDBDatabase): Promise<ValidationResult> {
+    const violations: string[] = [];
+
+    const tx = db.transaction(['chapters', 'translations'], 'readonly');
+    const chaptersStore = tx.objectStore('chapters');
+    const translationsStore = tx.objectStore('translations');
+
+    const chapters = await promisify(chaptersStore.getAll());
+
+    for (const chapter of chapters) {
+      // Get all translations for this chapter
+      const chapterTranslations = await promisify(
+        translationsStore.index('by_chapter').getAll(chapter.chapter_id)
+      );
+
+      if (chapterTranslations.length === 0) {
+        // No translations - latest_version should be null
+        if (chapter.latest_version !== null) {
+          violations.push(
+            `I3 violation: Chapter ${chapter.chapter_id} has no translations but latest_version=${chapter.latest_version}`
+          );
+        }
+      } else {
+        // Has translations - latest_version should equal max version_no
+        const maxVersion = Math.max(...chapterTranslations.map(t => t.version_no));
+        if (chapter.latest_version !== maxVersion) {
+          violations.push(
+            `I3 violation: Chapter ${chapter.chapter_id} latest_version=${chapter.latest_version} but max version_no=${maxVersion}`
+          );
+        }
+      }
+    }
+
+    return { valid: violations.length === 0, violations };
+  }
+}
+```
+
 ### Enhanced Schema Design
 
 ```typescript
