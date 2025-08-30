@@ -4,14 +4,9 @@
 
 LexiconForge is your gateway to the world of web novels. It's a powerful, AI-driven tool that lets you translate chapters from almost any source, in any language, and customize the reading experience to be *exactly* how you like it. Break down the language barriers and dive into the original stories.
 
-<video width="640" controls muted playsinline poster="media/demo.jpg">
-  <source src="media/demo.mp4"  type="video/mp4">   <!-- H.264/AAC -->
-  <source src="media/demo.webm" type="video/webm">  <!-- VP9/Opus -->
-  <!-- Fallback if the browser can't play any of the sources -->
-  <img src="media/demo_2x_24fps.gif" alt="Demo animation" width="640">
-  <!-- Extra belt-and-suspenders link -->
-  <a href="media/demo.mp4">Download the video</a>
-</video>
+![Demo gif](media/demo_2x_24fps.gif)
+
+[Watch full video here](https://youtu.be/KtzXbnZNLs8)
 
 ---
 
