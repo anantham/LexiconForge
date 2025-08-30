@@ -60,4 +60,6 @@ temp/
 # Local datasets (large Booktoki dumps) — do not version control
 booktoki_*.json
 
+# Steering images (user content) — do not version control
+public/steering/
 
