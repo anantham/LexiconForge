@@ -48,7 +48,7 @@ Attempt 1/3
 
 - hypothesis 1: what is causing this behaviour, trace the causal links. What if removed will remove this issue. Try to isolate the underlying 
     
-- test: run tests to falsify
+- test: run tests to falsify, make sure to explicitly state what you predict will be the results of your experiment because your beliefs must pay rent
     
 - result: confirmed | rejected | inconclusive
     

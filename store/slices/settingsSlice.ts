@@ -366,8 +366,8 @@ export const createSettingsSlice: StateCreator<
         let priceKey = null;
         
         if (input != null && output != null) {
-          label = `${m.name} — $${(input / 1_000_000).toFixed(2)}/$${(output / 1_000_000).toFixed(2)} per 1M`;
-          priceKey = (input + output) / 1_000_000;
+          label = `${m.name} — USD ${input.toFixed(2)}/${output.toFixed(2)} per 1M`;
+          priceKey = input + output;
         }
         
         return {

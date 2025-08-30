@@ -172,7 +172,7 @@ const formatHistory = (history: HistoricalChapter[]): string => {
   return history.map((h, index) => {
     // Derive structured-output hints from the previous translated text
     const illuCount = (h.translatedContent.match(/\[ILLUSTRATION-\d+\]/g) || []).length;
-    const footMarkerCount = (h.translatedContent.match(/\[(\d+)\]/g) || []).length;
+    const footMarkerCount = (h.footnotes || []).length;
     const feedbackCount = h.feedback?.length || 0;
     const feedbackStr = h.feedback.length > 0
         ? "Feedback on this chapter:\n" + h.feedback.map((f: FeedbackItem) => {
@@ -187,8 +187,11 @@ const formatHistory = (history: HistoricalChapter[]): string => {
            `CONTENT:\n${h.originalContent}\n\n` +
            `${prompts.historyPreviousHeader}\n` +
            `TITLE: ${h.translatedTitle}\n` +
-           `CONTENT:\n${h.translatedContent}\n\n` +
-           `${prompts.historyStructuredHeader}\n` +
+           `CONTENT:
+${h.translatedContent}
+
+` +           `${(h.footnotes && h.footnotes.length > 0) ? "FOOTNOTES:\n" + h.footnotes.map(f => `${f.marker}: ${f.text}`).join('\n') + "\n\n" : ""}` +           `${prompts.historyStructuredHeader}
+` +
            `${prompts.historyIllustrationMarkersLabel} ${illuCount}\n` +
            `${prompts.historyFootnoteMarkersLabel} ${footMarkerCount}\n` +
            `${prompts.historyFeedbackCountLabel} ${feedbackCount}\n\n` +
@@ -200,12 +203,34 @@ const formatHistory = (history: HistoricalChapter[]): string => {
 
 // --- COST CALCULATION ---
 
-export const calculateCost = (model: string, promptTokens: number, completionTokens: number): number => {
+export const calculateCost = async (model: string, promptTokens: number, completionTokens: number): Promise<number> => {
     // Validate input parameters
     if (promptTokens < 0 || completionTokens < 0) {
         throw new Error(`Invalid token counts: promptTokens=${promptTokens}, completionTokens=${completionTokens}. Token counts must be non-negative.`);
     }
+
+    // NEW: Check for OpenRouter dynamic pricing first
+    if (model.includes('/')) {
+        let pricing = await openrouterService.getPricingForModel(model);
+        // If pricing is not in cache, fetch all models and try again
+        if (!pricing) {
+            console.warn(`[Cost] Pricing for ${model} not found in cache. Fetching from OpenRouter...`);
+            await openrouterService.fetchModels();
+            pricing = await openrouterService.getPricingForModel(model);
+        }
+
+        if (pricing) {
+            const promptCost = (typeof pricing.prompt === 'string' ? parseFloat(pricing.prompt) : pricing.prompt) || 0;
+            const completionCost = (typeof pricing.completion === 'string' ? parseFloat(pricing.completion) : pricing.completion) || 0;
+            
+            // OpenRouter prices are per-token, not per-million
+            const inputCost = promptTokens * promptCost;
+            const outputCost = completionTokens * completionCost;
+            return inputCost + outputCost;
+        }
+    }
     
+    // FALLBACK: Use hardcoded price list
     let modelCosts = COSTS_PER_MILLION_TOKENS[model];
     
     // If exact model not found, try stripping date suffix (e.g., gpt-5-mini-2025-08-07 -> gpt-5-mini)
@@ -505,7 +530,7 @@ const translateWithGemini = async (title: string, content: string, settings: App
   const promptTokens = usage?.promptTokenCount ?? 0;
   const completionTokens = usage?.candidatesTokenCount ?? 0;
   const totalTokens = promptTokens + completionTokens;
-  const estimatedCost = calculateCost(settings.model, promptTokens, completionTokens);
+  const estimatedCost = await calculateCost(settings.model, promptTokens, completionTokens);
   
   // Track actual parameters that were sent to Gemini (for UI display)
   const actualParams: UsageMetrics['actualParams'] = {};
@@ -1091,7 +1116,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     const promptTokens = usage?.prompt_tokens ?? 0;
     const completionTokens = usage?.completion_tokens ?? 0;
     const totalTokens = usage?.total_tokens ?? (promptTokens + completionTokens);
-    let estimatedCost = calculateCost(settings.model, promptTokens, completionTokens);
+    let estimatedCost = await calculateCost(settings.model, promptTokens, completionTokens);
     // If using OpenRouter, prefer dynamic per-token pricing from the cached catalogue
     if (settings.provider === 'OpenRouter') {
       try {

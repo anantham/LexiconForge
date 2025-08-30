@@ -105,6 +105,13 @@ export const openrouterService = {
   async getLastUsedMap(): Promise<Record<string, string>> {
     return (await indexedDBService.getSetting<Record<string, string>>(LAST_USED_KEY)) || {};
   },
+
+  async getPricingForModel(modelId: string): Promise<ORPricing | null> {
+    const cache = await this.getCachedModels();
+    if (!cache || !cache.data) return null;
+    const model = cache.data.find(m => m.id === modelId);
+    return model?.pricing || null;
+  },
 };
 
 export const isTextCapable = (m: OpenRouterModelRec): boolean => {

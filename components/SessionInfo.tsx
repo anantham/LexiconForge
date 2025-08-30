@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import { useAppStore } from '../store';
 import { MODEL_ABBREVIATIONS } from '../constants';
 import SettingsIcon from './icons/SettingsIcon';
-import { useShallow } from 'zustand/react/shallow';
+import TrashIcon from './icons/TrashIcon';
+
 import { ImportTransformationService } from '../services/importTransformationService';
 
 interface StableChapterForRender {
@@ -15,24 +16,16 @@ interface StableChapterForRender {
 }
 
 const SessionInfo: React.FC = () => {
-    const {
-        currentChapterId,
-        chapters,
-        handleNavigate,
-        exportSessionData,
-        // exportEpub, // Assuming this will be refactored or removed
-        setShowSettingsModal,
-        fetchTranslationVersions,
-        setActiveTranslationVersion
-    } = useAppStore(useShallow(state => ({
-        currentChapterId: state.currentChapterId,
-        chapters: state.chapters,
-        handleNavigate: state.handleNavigate,
-        exportSessionData: state.exportSessionData,
-        setShowSettingsModal: state.setShowSettingsModal,
-        fetchTranslationVersions: state.fetchTranslationVersions,
-        setActiveTranslationVersion: state.setActiveTranslationVersion,
-    })));
+    const currentChapterId = useAppStore(s => s.currentChapterId);
+    const chapters = useAppStore(s => s.chapters);
+    const handleNavigate = useAppStore(s => s.handleNavigate);
+    const exportSessionData = useAppStore(s => s.exportSessionData);
+    const setShowSettingsModal = useAppStore(s => s.setShowSettingsModal);
+    const fetchTranslationVersions = useAppStore(s => s.fetchTranslationVersions);
+    const setActiveTranslationVersion = useAppStore(s => s.setActiveTranslationVersion);
+    const deleteTranslationVersion = useAppStore(s => s.deleteTranslationVersion);
+    const currentChapter = useAppStore(s => s.chapters.get(s.currentChapterId || ''));
+    const translationResult = currentChapter?.translationResult;
     
     const [showExportModal, setShowExportModal] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
@@ -93,13 +86,28 @@ const SessionInfo: React.FC = () => {
             }
         })();
         return () => { cancelled = true; };
-    }, [currentChapterId, fetchTranslationVersions]);
+    }, [currentChapterId, fetchTranslationVersions, translationResult]);
 
     const handleVersionSelect = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const v = parseInt(e.target.value, 10);
         setSelectedVersion(isNaN(v) ? '' : v);
         if (currentChapterId && !Number.isNaN(v)) {
             await setActiveTranslationVersion(currentChapterId, v);
+        }
+    };
+
+    const handleDeleteVersion = async () => {
+        if (!currentChapterId || selectedVersion === '') return;
+        const versionToDelete = versions.find(v => v.version === selectedVersion);
+        if (!versionToDelete) return;
+
+        if (confirm(`Are you sure you want to delete version ${selectedVersion}? This cannot be undone.`)) {
+            await deleteTranslationVersion(currentChapterId, versionToDelete.id);
+            // Refresh the list after deletion
+            const v = await fetchTranslationVersions(currentChapterId);
+            setVersions(v);
+            const active = v.find((x: any) => x.isActive);
+            setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
         }
     };
 
@@ -117,7 +125,7 @@ const SessionInfo: React.FC = () => {
             if (format === 'json') {
                 exportSessionData();
             } else {
-                await (useAppStore.getState().exportEpub());
+                // await (useAppStore.getState().exportEpub());
             }
             setShowExportModal(false);
         } catch (error: any) {
@@ -174,6 +182,14 @@ const SessionInfo: React.FC = () => {
                 );
               })}
             </select>
+            <button
+              onClick={handleDeleteVersion}
+              disabled={!selectedVersion}
+              className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Delete selected version"
+            >
+              <TrashIcon className="w-4 h-4" />
+            </button>
           </div>
         )}
       </div>

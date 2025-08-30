@@ -8,6 +8,8 @@
  * - ChaptersSlice: Chapter data and navigation
  * - TranslationsSlice: Translation operations and feedback
  * - ImageSlice: Image generation and advanced controls
+ * - ExportSlice: Session and EPUB export functionality
+ * - JobsSlice: Background job management
  */
 
 import { create } from 'zustand';
@@ -16,12 +18,14 @@ import { createSettingsSlice, type SettingsSlice } from './slices/settingsSlice'
 import { createChaptersSlice, type ChaptersSlice } from './slices/chaptersSlice';
 import { createTranslationsSlice, type TranslationsSlice } from './slices/translationsSlice';
 import { createImageSlice, type ImageSlice } from './slices/imageSlice';
+import { createExportSlice, type ExportSlice } from './slices/exportSlice';
+import { createJobsSlice, type JobsSlice } from './slices/jobsSlice';
 import { SessionManagementService } from '../services/sessionManagementService';
 import { indexedDBService } from '../services/indexeddb';
 import { normalizeUrlAggressively } from '../services/stableIdService';
 
 // Combined state type
-export type AppState = UiSlice & SettingsSlice & ChaptersSlice & TranslationsSlice & ImageSlice;
+export type AppState = UiSlice & SettingsSlice & ChaptersSlice & TranslationsSlice & ImageSlice & ExportSlice & JobsSlice;
 
 // Session management actions (not part of slices but needed for store initialization)
 export interface SessionActions {
@@ -46,6 +50,8 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
   ...createChaptersSlice(set, get, store),
   ...createTranslationsSlice(set, get, store),
   ...createImageSlice(set, get, store),
+  ...createExportSlice(set, get, store),
+  ...createJobsSlice(set, get, store),
   
   // Session management actions
   clearSession: async (options = {}) => {
@@ -95,7 +101,11 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         loraModels: {},
         loraStrengths: {},
         imageGenerationMetrics: null,
-        imageGenerationProgress: {}
+        imageGenerationProgress: {},
+        
+        // Jobs slice
+        jobs: {},
+        workers: {}
       };
       
       set(initialState);
@@ -118,7 +128,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
       
       // Full session format branch
       if (obj?.metadata?.format === 'lexiconforge-full-1') {
-        console.log('[Import] Detected full session format. Importing into IndexedDB as ground truth.');
+        // console.log('[Import] Detected full session format. Importing into IndexedDB as ground truth.');
         await indexedDBService.importFullSessionData(obj);
         
         // Hydrate store from IDB for UI
@@ -162,11 +172,11 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
           };
         });
         
-        console.log('[Import] Full session import completed successfully');
+        // console.log('[Import] Full session import completed successfully');
         return;
       }
       
-      console.log('[Import] Processing legacy import format');
+      // console.log('[Import] Processing legacy import format');
       throw new Error('Legacy import format not implemented in new store structure');
       
     } catch (error) {
@@ -178,6 +188,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
   },
   
   initializeStore: async () => {
+    get().setInitialized(false);
     try {
       // Load settings
       get().loadSettings();
@@ -226,12 +237,12 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
       // Load last active chapter
       try {
         const lastChapterData = await indexedDBService.getSetting('lastActiveChapter');
-        console.log('[Store] Last active chapter data:', lastChapterData);
+        // console.log('[Store] Last active chapter data:', lastChapterData);
         
         if (lastChapterData?.id) {
           const currentState = get();
-          console.log(`[Store] Setting current chapter ID to: ${lastChapterData.id}`);
-          console.log(`[Store] Chapter already in memory: ${currentState.chapters.has(lastChapterData.id)}`);
+          // console.log(`[Store] Setting current chapter ID to: ${lastChapterData.id}`);
+          // console.log(`[Store] Chapter already in memory: ${currentState.chapters.has(lastChapterData.id)}`);
           
           // Set as current chapter first
           set(state => ({ 
@@ -240,29 +251,30 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
           
           // Try to load chapter content if not already in memory
           if (!currentState.chapters.has(lastChapterData.id)) {
-            console.log(`[Store] Loading chapter ${lastChapterData.id} from IndexedDB...`);
+            // console.log(`[Store] Loading chapter ${lastChapterData.id} from IndexedDB...`);
             // Fire and forget - UI can render once loaded
             get().loadChapterFromIDB(lastChapterData.id).then(chapter => {
-              console.log(`[Store] Successfully loaded chapter from IDB:`, {
-                chapterId: lastChapterData.id,
-                title: chapter?.title,
-                hasContent: !!chapter?.content,
-                hasTranslation: !!chapter?.translationResult
-              });
+              // console.log(`[Store] Successfully loaded chapter from IDB:`, {
+              //   chapterId: lastChapterData.id,
+              //   title: chapter?.title,
+              //   hasContent: !!chapter?.content,
+              //   hasTranslation: !!chapter?.translationResult
+              // });
             }).catch(e => {
               console.error(`[Store] Failed to load chapter ${lastChapterData.id} from IDB:`, e);
             });
           } else {
-            console.log(`[Store] Chapter ${lastChapterData.id} already in memory`);
+            // console.log(`[Store] Chapter ${lastChapterData.id} already in memory`);
           }
         } else {
-          console.log('[Store] No last active chapter found');
+          // console.log('[Store] No last active chapter found');
         }
       } catch (e) {
         console.warn('[Store] Failed to load last active chapter:', e);
       }
       
-      console.log('[Store] Initialization complete');
+      // console.log('[Store] Initialization complete');
+      get().setInitialized(true);
       
     } catch (error) {
       console.error('[Store] Failed to initialize:', error);
@@ -272,8 +284,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
   }
 }));
 
-// Initialize store on creation
-useAppStore.getState().initializeStore();
+// Store is initialized by the App component
 
 // Export individual slice types for type checking
 export type { UiSlice } from './slices/uiSlice';
@@ -281,3 +292,5 @@ export type { SettingsSlice } from './slices/settingsSlice';
 export type { ChaptersSlice } from './slices/chaptersSlice';
 export type { TranslationsSlice } from './slices/translationsSlice';
 export type { ImageSlice } from './slices/imageSlice';
+export type { ExportSlice } from './slices/exportSlice';
+export type { JobsSlice } from './slices/jobsSlice';

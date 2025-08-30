@@ -52,6 +52,17 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
       // Ensure selection start and end are inside the container
       const startOk = within(root, (range as any).startContainer ?? null);
       const endOk = within(root, (range as any).endContainer ?? null);
+      
+      if (selDebugEnabled()) {
+        console.log('Selection check:', { 
+          startOk, 
+          endOk, 
+          startContainer: (range as any).startContainer,
+          endContainer: (range as any).endContainer,
+          rootElement: root
+        });
+      }
+
       if (!startOk || !endOk) {
         if (selDebugEnabled()) console.log('Selection crosses outside container. Clearing.');
         setSelection(null);

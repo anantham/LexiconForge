@@ -65,14 +65,22 @@ const getMimeTypeFromExtension = (filePath: string): string => {
 };
 
 /**
- * Gets list of available steering images from the public/steering directory
- * @param steeringDir Path to steering images directory (ignored, uses /steering/)
+ * Gets list of available steering images by fetching the manifest JSON file.
  * @returns Array of image filenames
  */
-export const getSteeringImages = async (steeringDir?: string): Promise<string[]> => {
-  // Return the known list of steering images available in public/steering/
-  // These correspond to the files moved to public/steering/
-  return ['hypno.jpg', 'train.jpg', 'waitinginline.jpg', 'white.jpg'];
+export const getSteeringImages = async (): Promise<string[]> => {
+  try {
+    const response = await fetch('/steering-images.json');
+    if (!response.ok) {
+      console.error('Failed to fetch steering images manifest:', response.statusText);
+      return [];
+    }
+    const imageList = await response.json();
+    return imageList;
+  } catch (error) {
+    console.error('Error fetching or parsing steering images manifest:', error);
+    return [];
+  }
 };
 
 /**

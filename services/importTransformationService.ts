@@ -151,7 +151,7 @@ export class ImportTransformationService {
     chapterNumber: number;
   }>> {
     try {
-      implog('[ImportTransformation] Using unified indexedDBService for chapter rendering');
+      // implog('[ImportTransformation] Using unified indexedDBService for chapter rendering');
       
       const renderingData = await indexedDBService.getChaptersForReactRendering();
       

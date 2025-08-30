@@ -5,6 +5,7 @@ import ChapterView from './components/ChapterView';
 import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';
 import SettingsModal from './components/SettingsModal';
+import Loader from './components/Loader';
 
 import { validateApiKey } from './services/aiService';
 import { Analytics } from '@vercel/analytics/react';
@@ -19,13 +20,13 @@ useEffect(() => {
       if (!k || typeof k !== 'string') return String(k ?? '');
       return '*'.repeat(Math.max(0, k.length - 4)) + k.slice(-4);
     };
-    console.log('[Env Diagnostic] Keys (masked):', {
-      GEMINI_API_KEY: mask((process as any).env?.GEMINI_API_KEY),
-      OPENAI_API_KEY: mask((process as any).env?.OPENAI_API_KEY),
-      DEEPSEEK_API_KEY: mask((process as any).env?.DEEPSEEK_API_KEY),
-      CLAUDE_API_KEY: mask((process as any).env?.CLAUDE_API_KEY),
-      OPENROUTER_API_KEY: mask((process as any).env?.OPENROUTER_API_KEY),
-    });
+    // console.log('[Env Diagnostic] Keys (masked):', {
+    //   GEMINI_API_KEY: mask((process as any).env?.GEMINI_API_KEY),
+    //   OPENAI_API_KEY: mask((process as any).env?.OPENAI_API_KEY),
+    //   DEEPSEEK_API_KEY: mask((process as any).env?.DEEPSEEK_API_KEY),
+    //   CLAUDE_API_KEY: mask((process as any).env?.CLAUDE_API_KEY),
+    //   OPENROUTER_API_KEY: mask((process as any).env?.OPENROUTER_API_KEY),
+    // });
   } catch {}
 }, []);
 // inside App component, near the top
@@ -46,6 +47,8 @@ const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
 const getChapter = useAppStore((s) => s.getChapter);
 const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSettingsChanged);
 const handleNavigate = useAppStore((s) => s.handleNavigate);
+const isInitialized = useAppStore((s) => s.isInitialized);
+const initializeStore = useAppStore((s) => s.initializeStore);
 
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
@@ -68,58 +71,32 @@ const settingsFingerprint = React.useMemo(
 );
 
 
-    // IndexedDB initializes automatically when first accessed
-
-    // Load prompt templates on app startup
+    // Initialize store on first render, then handle URL params
     useEffect(() => {
-        loadPromptTemplates();
-    }, [loadPromptTemplates]);
-
-    // Initialize from URL parameters on startup
-    useEffect(() => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const chapterUrl = urlParams.get('chapter');
-      
-      console.log('[App] URL initialization effect running...');
-      console.log('[App] Current URL:', window.location.href);
-      console.log('[App] URL parameters:', Object.fromEntries(urlParams.entries()));
-      
-      if (chapterUrl) {
-        console.log(`[App] Found chapter URL parameter: ${chapterUrl}`);
-        console.log(`[App] Decoded chapter URL: ${decodeURIComponent(chapterUrl)}`);
-        handleNavigate(decodeURIComponent(chapterUrl));
-      } else {
-        console.log('[App] No chapter URL parameter found');
-        
-        // Try to load last active chapter if no URL parameter
-        const state = useAppStore.getState();
-        console.log(`[App] Current chapter ID in store: ${state.currentChapterId}`);
-        console.log(`[App] Total chapters in store: ${state.chapters.size}`);
-        if (state.currentChapterId) {
-          console.log(`[App] Found current chapter in store, no navigation needed`);
-        } else {
-          console.log(`[App] No current chapter, user needs to enter a URL`);
+      const init = async () => {
+        await initializeStore();
+        // Now that the store is initialized, handle any URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const chapterUrl = urlParams.get('chapter');
+        if (chapterUrl) {
+          // Avoid noisy navigation logs in normal dev mode.
+          handleNavigate(decodeURIComponent(chapterUrl));
         }
-      }
-    }, [handleNavigate]);
+      };
+      init();
+    }, [initializeStore, handleNavigate]);
 
     // Boot-time hydration is now handled automatically by the store initialization
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-      if (viewMode !== 'english' || !currentChapterId) return;
+      const chapter = getChapter(currentChapterId || '');
+      if (viewMode !== 'english' || !currentChapterId || !chapter) return;
 
       const translating = isTranslationActive(currentChapterId) || isLoading.translating;
       const hasResult  = !!currentChapterTranslationResult;
       const prevSig    = requestedRef.current.get(currentChapterId);
       const alreadyRequested = prevSig === settingsFingerprint;
-
-      // console.log(`[UI Debug] Translation trigger check for ${currentUrl}:`);
-      // console.log(`[UI Debug] - isUrlTranslating(${currentUrl}): ${isUrlTranslating(currentUrl)}`);
-      // console.log(`[UI Debug] - isLoading.translating: ${isLoading.translating}`);
-      // console.log(`[UI Debug] - translating (combined): ${translating}`);
-      // console.log(`[UI Debug] - hasResult: ${hasResult}`);
-      // console.log(`[UI Debug] - alreadyRequested: ${alreadyRequested}`);
 
       if (!hasResult && !translating && !alreadyRequested) {
         requestedRef.current.set(currentChapterId, settingsFingerprint);
@@ -162,63 +139,21 @@ const settingsFingerprint = React.useMemo(
     //   return unsub;
     // }, []);
 
-    // Proactive Cache Worker effect also remains to orchestrate silent fetches/translations
+    // Proactive Cache Worker effect
     useEffect(() => {
-      if (!currentChapterId || settings.preloadCount === 0) return;
-
-      const worker = async () => {
-        const state = useAppStore.getState();
-        let nextUrlToPreload = state.chapters.get(currentChapterId)?.nextUrl || null;
-
-        for (let i = 0; i < settings.preloadCount && nextUrlToPreload; i++) {
-          const url = nextUrlToPreload;
-          let s = useAppStore.getState();
-          // Resolve chapterId via indices (try raw first, then canonical index)
-          let nextChapterId = s.rawUrlIndex.get(url) || s.urlIndex.get(url) || '';
-
-          if (!nextChapterId) {
-            // Fetch if unknown
-            await handleFetch(url);
-            s = useAppStore.getState();
-            nextChapterId = s.rawUrlIndex.get(url) || s.urlIndex.get(url) || '';
-          }
-
-          if (!nextChapterId) {
-            console.warn(`[Worker] Could not resolve chapterId for ${url}`);
-            break;
-          }
-
-          // Skip if translating
-          if (s.isTranslationActive(nextChapterId)) {
-            console.log(`[Worker] Skipping ${url} - translation in progress`);
-            nextUrlToPreload = s.chapters.get(nextChapterId)?.nextUrl || null;
-            continue;
-          }
-
-          const ch = s.chapters.get(nextChapterId);
-          const hasCurrentTranslation = !!ch?.translationResult && !s.hasTranslationSettingsChanged(nextChapterId);
-          if (hasCurrentTranslation) {
-            nextUrlToPreload = ch?.nextUrl || null;
-            continue;
-          }
-
-          const apiValidation = validateApiKey(s.settings);
-          if (!apiValidation.isValid) {
-            console.warn(`[Worker] Stopping preload - API key missing: ${apiValidation.errorMessage}`);
-            break;
-          }
-
-          console.log(`[Worker] Pre-translating chapter: ${url}`);
-          await handleTranslate(nextChapterId);
-          s = useAppStore.getState();
-          nextUrlToPreload = s.chapters.get(nextChapterId)?.nextUrl || null;
-        }
-      };
-
-      const timeoutId = setTimeout(worker, 1500);
-      return () => clearTimeout(timeoutId);
-
-    }, [currentChapterId, settings.preloadCount, settings.provider, settings.model, settings.temperature, handleFetch, handleTranslate]);
+      // The worker logic is now in the chaptersSlice.
+      // This effect simply triggers it when the user or settings change.
+      const { preloadNextChapters } = useAppStore.getState();
+      preloadNextChapters();
+    }, [currentChapterId, settings.preloadCount, settings.provider, settings.model, settings.temperature]);
+    
+    if (!isInitialized) {
+      return (
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+          <Loader text="Initializing Session..." />
+        </div>
+      );
+    }
     
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">

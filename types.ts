@@ -8,6 +8,16 @@ export interface Chapter {
   chapterNumber?: number;
 }
 
+// Legacy interface for backwards compatibility with tests
+export interface SessionChapterData {
+  chapter: Chapter;
+  translationResult: TranslationResult | null;
+  availableVersions?: TranslationRecord[];
+  activeVersion?: number;
+  feedback?: FeedbackItem[];
+  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
+}
+
 export abstract class BaseAdapter {
   protected url: string;
   protected doc: Document;
@@ -91,6 +101,7 @@ export interface HistoricalChapter {
   originalContent: string;
   translatedTitle: string;
   translatedContent: string;
+  footnotes: Footnote[];
   feedback: FeedbackItem[];
 }
 
@@ -121,6 +132,7 @@ export interface AppSettings {
     systemPrompt: string;          // Keep for backward compatibility
     activePromptId?: string;       // ID of currently selected prompt template
     // Localization target
+    sourceLanguage?: string;       // e.g., "Korean", "Japanese"
     targetLanguage?: string;       // e.g., "English", "Malayalam"
     provider: TranslationProvider;
     model: string; // The ID of the model, e.g., 'gemini-2.5-pro'

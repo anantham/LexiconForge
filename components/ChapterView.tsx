@@ -7,7 +7,6 @@ import FeedbackPopover from './FeedbackPopover';
 import FeedbackDisplay from './FeedbackDisplay';
 import RefreshIcon from './icons/RefreshIcon';
 import { useAppStore } from '../store';
-import { useShallow } from 'zustand/react/shallow';
 import Illustration from './Illustration';
 
 const ChapterView: React.FC = () => {
@@ -18,43 +17,23 @@ const ChapterView: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
 
-  const {
-    currentChapterId,
-    chapters,
-    isLoading,
-    viewMode,
-    settings,
-    error,
-    handleToggleLanguage,
-    handleNavigate,
-    addFeedback,
-    deleteFeedback,
-    updateFeedbackComment,
-    handleRetranslateCurrent,
-    cancelTranslation,
-    isTranslationActive,
-    shouldEnableRetranslation,
-    hasTranslationSettingsChanged,
-    imageGenerationMetrics,
-  } = useAppStore(useShallow(state => ({
-    currentChapterId: state.currentChapterId,
-    chapters: state.chapters,
-    isLoading: state.isLoading,
-    viewMode: state.viewMode,
-    settings: state.settings,
-    error: state.error,
-    handleToggleLanguage: state.handleToggleLanguage,
-    handleNavigate: state.handleNavigate,
-    addFeedback: state.addFeedback,
-    deleteFeedback: state.deleteFeedback,
-    updateFeedbackComment: state.updateFeedbackComment,
-    handleRetranslateCurrent: state.handleRetranslateCurrent,
-    cancelTranslation: state.cancelTranslation,
-    isTranslationActive: state.isTranslationActive,
-    shouldEnableRetranslation: state.shouldEnableRetranslation,
-    hasTranslationSettingsChanged: state.hasTranslationSettingsChanged,
-    imageGenerationMetrics: state.imageGenerationMetrics,
-  })));
+  // <-- REFACTOR: Use new individual selectors
+  const currentChapterId = useAppStore(s => s.currentChapterId);
+  const chapters = useAppStore(s => s.chapters);
+  const isLoading = useAppStore(s => s.isLoading);
+  const viewMode = useAppStore(s => s.viewMode);
+  const settings = useAppStore(s => s.settings);
+  const error = useAppStore(s => s.error);
+  const handleToggleLanguage = useAppStore(s => s.setViewMode);
+  const handleNavigate = useAppStore(s => s.handleNavigate);
+  const addFeedback = useAppStore(s => s.addFeedback);
+  const deleteFeedback = useAppStore(s => s.deleteFeedback);
+  const updateFeedbackComment = useAppStore(s => s.updateFeedbackComment);
+  const handleRetranslateCurrent = useAppStore(s => s.handleRetranslateCurrent);
+  const cancelTranslation = useAppStore(s => s.cancelTranslation);
+  const isTranslationActive = useAppStore(s => s.isTranslationActive);
+  const shouldEnableRetranslation = useAppStore(s => s.shouldEnableRetranslation);
+  const imageGenerationMetrics = useAppStore(s => s.imageGenerationMetrics);
   const hydratingMap = useAppStore(s => s.hydratingChapters);
 
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
@@ -66,6 +45,9 @@ const ChapterView: React.FC = () => {
     const fanTranslation = (chapter as any)?.fanTranslation;
     const hasFanTranslation = !!fanTranslation;
     
+    // Debug logging muted to reduce console noise during normal development.
+    // To enable detailed logs, uncomment the block below.
+    /*
     console.log('[ChapterView] State update:', {
       currentChapterId,
       hasChapter: !!chapter,
@@ -85,28 +67,49 @@ const ChapterView: React.FC = () => {
         english: translationResult?.translation?.length || 0
       }
     });
+    */
     
     // Log fan translation status specifically
     if (chapter) {
       if (hasFanTranslation) {
-        console.log(`[ChapterView] ✅ Fan translation found: ${fanTranslation.length} characters`);
+        // Fan translation exists; keep quiet unless debugging is required.
+        // console.log(`[ChapterView] ✅ Fan translation found: ${fanTranslation.length} characters`);
       } else {
-        console.log(`[ChapterView] ❌ No fan translation for chapter: ${chapter.title}`);
+        // console.log(`[ChapterView] ❌ No fan translation for chapter: ${chapter.title}`);
       }
     }
     
     if (currentChapterId && !chapter) {
-      console.error('[ChapterView] Chapter ID exists but chapter not found in map:', {
-        currentChapterId,
-        availableChapterIds: Array.from(chapters.keys()).slice(0, 10) // First 10 IDs
-      });
+      // Lightweight UI guard: suppress noisy error while chapter is being hydrated from cache.
+      // The `hydratingChapters` map is set by IDB loader to indicate in-flight hydration.
+      const isHydrating = !!hydratingMap?.[currentChapterId];
+      if (isHydrating) {
+        // Keep a low-verbosity debug entry so we can enable it during deeper diagnostics.
+        // console.debug('[ChapterView] Waiting for chapter hydration:', { currentChapterId });
+      } else {
+        console.error('[ChapterView] Chapter ID exists but chapter not found in map:', {
+          currentChapterId,
+          availableChapterIds: Array.from(chapters.keys()).slice(0, 10) // First 10 IDs
+        });
+      }
     }
   }, [currentChapterId, chapter, chapters, translationResult, isLoading, viewMode, error]);
 
   const handleFeedbackSubmit = (feedback: Omit<FeedbackItem, 'id'>) => {
     if (!currentChapterId) return;
-    addFeedback(currentChapterId, feedback);
+    if (feedback.type === '🎨') {
+      // Call a new handler for illustration requests
+      handleIllustrationRequest(feedback.selection);
+    } else {
+      addFeedback(currentChapterId, feedback);
+    }
     clearSelection();
+  };
+
+  const handleIllustrationRequest = (selection: string) => {
+    if (!currentChapterId) return;
+    // This will be a new action in the store
+    useAppStore.getState().generateIllustrationForSelection(currentChapterId, selection);
   };
 
   const handleScrollToText = (selectedText: string) => {
@@ -467,8 +470,8 @@ const ChapterView: React.FC = () => {
               </h3>
               <FeedbackDisplay 
                   feedback={feedbackForChapter}
-                  onDelete={(id) => currentChapterId && deleteFeedback(currentChapterId, id)}
-                  onUpdate={(id, comment) => currentChapterId && updateFeedbackComment(currentChapterId, id, comment)}
+                  onDelete={(id) => deleteFeedback(id)}
+                  onUpdate={(id, comment) => updateFeedbackComment(id, comment)}
                   onScrollToText={handleScrollToText}
               />
             </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import PencilIcon from './icons/PencilIcon';
-import SteeringImageDropdown from './SteeringImageDropdown';
+
 import AdvancedImageControls from './AdvancedImageControls';
 import { isFluxModel } from '../utils/imageModelUtils';
 import { getDefaultNegativePrompt, getDefaultGuidanceScale, getDefaultLoRAStrength } from '../services/configService';
@@ -14,7 +14,7 @@ interface IllustrationProps {
 const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const {
     currentChapterId,
-    getChapter,
+    chapter,
     generatedImages,
     handleRetryImage,
     updateIllustrationPrompt,
@@ -31,7 +31,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     settings
   } = useAppStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
-    getChapter: s.getChapter,
+    chapter: s.currentChapterId ? s.getChapter(s.currentChapterId) : null,
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
     updateIllustrationPrompt: s.updateIllustrationPrompt,
@@ -48,7 +48,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     settings: s.settings,
   })));
 
-  const chapter = currentChapterId ? getChapter(currentChapterId) : null;
+  // `chapter` is now selected from the store above; keep local reference for clarity
+  // const chapter = currentChapterId ? getChapter(currentChapterId) : null;
   const illust = chapter?.translationResult?.suggestedIllustrations?.find(
     (i) => i.placementMarker === marker
   );
@@ -180,20 +181,12 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
             </div>
           )}
           
-          {/* Steering Image Selection - Only for Flux models */}
-          {supportsAdvancedFeatures && (
-            <div className="w-full max-w-xl mb-3">
-              <SteeringImageDropdown
-                value={selectedSteeringImage}
-                onChange={handleSteeringImageChange}
-              />
-            </div>
-          )}
-          
           {/* Advanced Image Controls - Only for Flux models */}
           {supportsAdvancedFeatures && (
             <div className="w-full max-w-xl mb-3">
               <AdvancedImageControls
+                selectedSteeringImage={selectedSteeringImage}
+                onSteeringImageChange={handleSteeringImageChange}
                 negativePrompt={currentNegativePrompt}
                 guidanceScale={currentGuidanceScale}
                 selectedLoRA={currentLoRAModel}
@@ -258,20 +251,12 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                 </div>
               )}
               
-              {/* Steering Image Selection - Only for Flux models */}
-              {supportsAdvancedFeatures && (
-                <div className="mt-2 mb-2">
-                  <SteeringImageDropdown
-                    value={selectedSteeringImage}
-                    onChange={handleSteeringImageChange}
-                  />
-                </div>
-              )}
-              
               {/* Advanced Image Controls - Only for Flux models */}
               {supportsAdvancedFeatures && (
                 <div className="mt-2 mb-2">
                   <AdvancedImageControls
+                    selectedSteeringImage={selectedSteeringImage}
+                    onSteeringImageChange={handleSteeringImageChange}
                     negativePrompt={currentNegativePrompt}
                     guidanceScale={currentGuidanceScale}
                     selectedLoRA={currentLoRAModel}
@@ -335,20 +320,12 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
             <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Click the pencil to tweak before generating.</p>
           </div>
           
-          {/* Steering Image Selection - Only for Flux models */}
-          {supportsAdvancedFeatures && (
-            <div className="w-full max-w-xl mb-3">
-              <SteeringImageDropdown
-                value={selectedSteeringImage}
-                onChange={handleSteeringImageChange}
-              />
-            </div>
-          )}
-          
           {/* Advanced Image Controls - Only for Flux models */}
           {supportsAdvancedFeatures && (
             <div className="w-full max-w-xl mb-3">
               <AdvancedImageControls
+                selectedSteeringImage={selectedSteeringImage}
+                onSteeringImageChange={handleSteeringImageChange}
                 negativePrompt={currentNegativePrompt}
                 guidanceScale={currentGuidanceScale}
                 selectedLoRA={currentLoRAModel}

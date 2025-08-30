@@ -135,19 +135,16 @@ export async function supportsStructuredOutputs(providerName: string, modelId: s
     return true;
   }
 
-  // Fallback to conservative hardcoded detection for critical models
-  return (
-    (providerName === 'OpenAI' && (
-      modelId.startsWith('gpt-4o') || 
-      modelId.startsWith('gpt-5') ||
+  // Fallback for non-OpenRouter providers that don't have a capability API
+  if (providerName === 'OpenAI') {
+    return (
+      modelId.startsWith('gpt-4o') ||
       modelId.startsWith('gpt-4.1')
-    )) ||
-    (providerName === 'OpenRouter' && (
-      modelId.includes('gpt-4o') || 
-      modelId.includes('gpt-5') ||
-      modelId.includes('gpt-4.1')
-    ))
-  );
+    );
+  }
+
+  // For OpenRouter, we rely on the API check. If it fails, we assume no support.
+  return false;
 }
 
 /**

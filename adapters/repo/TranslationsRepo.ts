@@ -28,6 +28,8 @@ export interface TranslationsRepo {
   setActiveTranslation(chapterUrl: string, version: number): Promise<void>;
   setActiveTranslationByStableId(stableId: string, version: number): Promise<void>;
   getRecentActiveTranslationsByDomain(domain: string, limit?: number, excludeStableId?: string): Promise<Array<{ translation: TranslationRecord; chapter: any }>>;
+  deleteTranslationVersion(translationId: string): Promise<void>;
+  updateTranslation(translation: TranslationRecord): Promise<void>;
 }
 
 export const translationsRepo: TranslationsRepo = {
@@ -57,4 +59,10 @@ export const translationsRepo: TranslationsRepo = {
   
   getRecentActiveTranslationsByDomain: (domain, limit, excludeStableId) => 
     indexedDBService.getRecentActiveTranslationsByDomain(domain, limit, excludeStableId),
+
+  deleteTranslationVersion: (translationId) => 
+    indexedDBService.deleteTranslationVersion(translationId),
+
+  updateTranslation: (translation) => 
+    indexedDBService.updateTranslation(translation),
 };

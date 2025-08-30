@@ -1,5 +1,6 @@
 import React from 'react';
 import LoRASelector from './LoRASelector';
+import SteeringImageDropdown from './SteeringImageDropdown';
 import { DEFAULT_LORA_STRENGTH } from '../constants/loraModels';
 import { getDefaultNegativePrompt, getDefaultGuidanceScale, getGuidanceScaleLimits } from '../services/configService';
 
@@ -8,10 +9,12 @@ interface AdvancedImageControlsProps {
   guidanceScale: number;
   selectedLoRA: string | null;
   loraStrength: number;
+  selectedSteeringImage: string | null;
   onNegativePromptChange: (value: string) => void;
   onGuidanceScaleChange: (value: number) => void;
   onLoRAChange: (loraType: string | null) => void;
   onLoRAStrengthChange: (strength: number) => void;
+  onSteeringImageChange: (imagePath: string | null) => void;
   defaultNegativePrompt?: string;
   defaultGuidanceScale?: number;
 }
@@ -21,10 +24,12 @@ const AdvancedImageControls: React.FC<AdvancedImageControlsProps> = ({
   guidanceScale,
   selectedLoRA,
   loraStrength,
+  selectedSteeringImage,
   onNegativePromptChange,
   onGuidanceScaleChange,
   onLoRAChange,
   onLoRAStrengthChange,
+  onSteeringImageChange,
   defaultNegativePrompt = getDefaultNegativePrompt(),
   defaultGuidanceScale = getDefaultGuidanceScale(),
 }) => {
@@ -44,6 +49,7 @@ const AdvancedImageControls: React.FC<AdvancedImageControlsProps> = ({
     onGuidanceScaleChange(defaultGuidanceScale);
     onLoRAChange(null);
     onLoRAStrengthChange(DEFAULT_LORA_STRENGTH);
+    onSteeringImageChange(null);
   };
 
   return (
@@ -68,6 +74,14 @@ const AdvancedImageControls: React.FC<AdvancedImageControlsProps> = ({
 
       {isExpanded && (
         <div className="space-y-4 px-3 pb-3 border-t border-gray-200 dark:border-gray-600">
+          {/* Steering Image */}
+          <div className="pt-3">
+            <SteeringImageDropdown
+              value={selectedSteeringImage}
+              onChange={onSteeringImageChange}
+            />
+          </div>
+
           {/* Negative Prompt */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

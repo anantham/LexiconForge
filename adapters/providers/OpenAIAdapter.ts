@@ -7,42 +7,55 @@ import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 
-// OpenAI Response Schema for structured outputs
 const openaiResponseSchema = {
-  "type": "object",
-  "properties": {
-    "translatedTitle": { "type": "string" },
-    "translation": { "type": "string" },
-    "footnotes": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "suggestedIllustrations": {
-      "type": "array", 
-      "items": {
-        "type": "object",
-        "properties": {
-          "description": { "type": "string" },
-          "placement": { "type": "string" }
+    "type": "object",
+    "properties": {
+        "translatedTitle": {
+            "type": "string",
+            "description": "The translated chapter title."
         },
-        "required": ["description", "placement"],
-        "additionalProperties": false
-      }
+        "translation": { "type": "string", "description": "" + prompts.translationHtmlRules },
+        "footnotes": {
+            "type": ["array", "null"],
+            "description": "" + prompts.footnotesDescription,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "marker": {"type": "string", "description": "" + prompts.footnoteMarkerDescription},
+                    "text": {"type": "string", "description": "" + prompts.footnoteTextDescription}
+                },
+                "required": ["marker", "text"],
+                "additionalProperties": false
+            }
+        },
+        "suggestedIllustrations": {
+            "type": ["array", "null"],
+            "description": "" + prompts.illustrationsDescription,
+            "items": {
+                "type": "object", 
+                "properties": {
+                    "placementMarker": {"type": "string", "description": "" + prompts.illustrationPlacementMarkerDescription},
+                    "imagePrompt": {"type": "string", "description": "" + prompts.illustrationImagePromptDescription}
+                },
+                "required": ["placementMarker", "imagePrompt"],
+                "additionalProperties": false
+            }
+        },
+        "proposal": {
+            "type": ["object", "null"],
+            "description": "" + prompts.proposalDescription,
+            "properties": {
+                "observation": {"type": "string", "description": "" + prompts.proposalObservationDescription},
+                "currentRule": {"type": "string", "description": "" + prompts.proposalCurrentRuleDescription},
+                "proposedChange": {"type": "string", "description": "" + prompts.proposalProposedChangeDescription},
+                "reasoning": {"type": "string", "description": "" + prompts.proposalReasoningDescription}
+            },
+            "required": ["observation", "currentRule", "proposedChange", "reasoning"],
+            "additionalProperties": false
+        }
     },
-    "proposal": {
-      "type": "object",
-      "properties": {
-        "issue": { "type": "string" },
-        "currentTranslation": { "type": "string" },
-        "suggestedImprovement": { "type": "string" },
-        "reasoning": { "type": "string" }
-      },
-      "required": ["issue", "currentTranslation", "suggestedImprovement", "reasoning"],
-      "additionalProperties": false
-    }
-  },
-  "required": ["translatedTitle", "translation", "footnotes", "suggestedIllustrations", "proposal"],
-  "additionalProperties": false
+    "required": ["translatedTitle", "translation", "footnotes", "suggestedIllustrations", "proposal"],
+    "additionalProperties": false
 };
 
 // Parameter validation utility
@@ -78,9 +91,20 @@ const buildFanTranslationContext = (fanTranslation?: string | null): string => {
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[OpenAI] ${message}`, ...args);
-  }
+  try {
+    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+    if (lvl === 'summary' || lvl === 'full') {
+      console.log(`[OpenAI] ${message}`, ...args);
+    }
+  } catch {}
+};
+const dlogFull = (message: string, ...args: any[]) => {
+  try {
+    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
+    if (lvl === 'full') {
+      console.log(`[OpenAI] ${message}`, ...args);
+    }
+  } catch {}
 };
 
 export class OpenAIAdapter implements TranslationProvider {
@@ -102,6 +126,7 @@ export class OpenAIAdapter implements TranslationProvider {
     const requestOptions = await this.buildRequest(settings, title, content, history, fanTranslation);
     
     dlog('Making API request', { model: settings.model, provider: settings.provider });
+    dlogFull('Full request body:', JSON.stringify(requestOptions, null, 2));
 
     const startTime = performance.now();
     let response: OpenAI.Chat.Completions.ChatCompletion;
@@ -121,6 +146,7 @@ export class OpenAIAdapter implements TranslationProvider {
           ? client.chat.completions.create(simpleOptions, { signal: abortSignal })
           : client.chat.completions.create(simpleOptions));
       } else {
+        dlogFull('Full error response:', JSON.stringify(error, null, 2));
         throw error;
       }
     }
@@ -128,6 +154,7 @@ export class OpenAIAdapter implements TranslationProvider {
     const endTime = performance.now();
     
     // Process response
+    dlogFull('Full response body:', JSON.stringify(response, null, 2));
     return this.processResponse(response, settings, startTime, endTime);
   }
 
@@ -190,8 +217,16 @@ export class OpenAIAdapter implements TranslationProvider {
       }
     } else {
       requestOptions.response_format = { type: 'json_object' };
-      if (!systemPrompt.toLowerCase().includes('json')) {
-        systemPrompt += '\n\nYour response must be a single, valid JSON object.';
+      const schemaString = JSON.stringify(openaiResponseSchema, null, 2);
+      const schemaInjection = `
+
+Your response MUST be a single, valid JSON object that conforms to the following JSON schema:
+
+${schemaString}`;
+      
+      // Avoid duplicating the injection if the user's prompt already contains it
+      if (!systemPrompt.includes('Your response MUST be a single, valid JSON object')) {
+        systemPrompt += schemaInjection;
       }
     }
 
@@ -294,8 +329,7 @@ export class OpenAIAdapter implements TranslationProvider {
            error.message?.includes('frequency_penalty') ||
            error.message?.includes('presence_penalty') ||
            error.message?.includes('seed') ||
-           error.message?.includes('not supported') ||
-           error.status === 400;
+           error.message?.includes('not supported');
   }
 
   private removeAdvancedParameters(requestOptions: any): any {
@@ -306,12 +340,12 @@ export class OpenAIAdapter implements TranslationProvider {
     return cleaned;
   }
 
-  private processResponse(
+  private async processResponse(
     response: OpenAI.Chat.Completions.ChatCompletion,
     settings: AppSettings,
     startTime: number,
     endTime: number
-  ): TranslationResult {
+  ): Promise<TranslationResult> {
     const responseText = response.choices[0]?.message?.content;
     if (!responseText) {
       throw new Error('Empty response from OpenAI API');
@@ -324,32 +358,29 @@ export class OpenAIAdapter implements TranslationProvider {
       throw new Error(`Failed to parse JSON response: ${responseText.substring(0, 200)}...`);
     }
 
-    // Calculate cost
+    // Calculate cost and timing
     const promptTokens = response.usage?.prompt_tokens || 0;
     const completionTokens = response.usage?.completion_tokens || 0;
-    const costUsd = calculateCost(settings.model, promptTokens, completionTokens);
+    const costUsd = await calculateCost(settings.model, promptTokens, completionTokens);
+    const requestTime = (endTime - startTime) / 1000;
+
+    const usageMetrics: UsageMetrics = {
+        promptTokens,
+        completionTokens,
+        totalTokens: promptTokens + completionTokens,
+        estimatedCost: costUsd,
+        requestTime,
+        provider: settings.provider,
+        model: settings.model,
+    };
 
     return {
       translatedTitle: parsedResponse.translatedTitle || '',
       translation: parsedResponse.translation || '',
-      illustrations: parsedResponse.suggestedIllustrations || [],
-      amendments: parsedResponse.proposal ? [parsedResponse.proposal] : [],
-      costUsd,
-      tokensUsed: {
-        promptTokens,
-        completionTokens,
-        totalTokens: promptTokens + completionTokens
-      },
-      model: settings.model,
-      provider: settings.provider,
-      translationSettings: {
-        provider: settings.provider,
-        model: settings.model,
-        temperature: settings.temperature,
-        systemPrompt: settings.systemPrompt,
-        promptId: settings.promptId,
-        promptName: settings.promptName
-      }
+      suggestedIllustrations: parsedResponse.suggestedIllustrations || [],
+      proposal: parsedResponse.proposal || null,
+      footnotes: parsedResponse.footnotes || [],
+      usageMetrics: usageMetrics,
     };
   }
 }

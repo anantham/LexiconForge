@@ -34,8 +34,8 @@ const dbDebugFullEnabled = (): boolean => {
     return localStorage.getItem('LF_AI_DEBUG_FULL') === '1';
   } catch { return false; }
 };
-const dblog = (...args: any[]) => { if (dbDebugEnabled()) console.log(...args); };
-const dblogFull = (...args: any[]) => { if (dbDebugFullEnabled()) console.log(...args); };
+const dblog = (...args: any[]) => { /* disabled */ };
+const dblogFull = (...args: any[]) => { /* disabled */ };
 
 // Database configuration
 const DB_NAME = 'lexicon-forge';
@@ -171,23 +171,23 @@ class IndexedDBService {
     // Create new open promise with proper event handling
     dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
       const startTime = performance.now();
-      dblog('[IndexedDB] Opening database...', { DB_NAME, DB_VERSION });
+      // dblog('[IndexedDB] Opening database...', { DB_NAME, DB_VERSION });
       
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       // Warning timer (don't reject - let browser complete)
       const warnTimer = setTimeout(() => {
         const elapsed = Math.round(performance.now() - startTime);
-        if (dbDebugEnabled()) console.warn(`[IndexedDB] Open taking ${elapsed}ms. Possibly BLOCKED by another tab or slow I/O. Still waiting...`);
+        // if (dbDebugEnabled()) console.warn(`[IndexedDB] Open taking ${elapsed}ms. Possibly BLOCKED by another tab or slow I/O. Still waiting...`);
       }, 5000);
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
         const oldVersion = (event as IDBVersionChangeEvent).oldVersion || 0;
-        dblog(`[IndexedDB] Upgrade needed: v${oldVersion} → v${db.version}`);
+        // dblog(`[IndexedDB] Upgrade needed: v${oldVersion} → v${db.version}`);
         try {
           this.createSchema(db);
-          dblog('[IndexedDB] Schema creation completed');
+          // dblog('[IndexedDB] Schema creation completed');
         } catch (error) {
           console.error('[IndexedDB] Schema creation failed:', error);
           clearTimeout(warnTimer);
@@ -196,7 +196,7 @@ class IndexedDBService {
       };
 
       request.onblocked = () => {
-        if (dbDebugEnabled()) console.warn('[IndexedDB] Upgrade BLOCKED by another open connection. Close other tabs or reload to proceed.');
+        // if (dbDebugEnabled()) console.warn('[IndexedDB] Upgrade BLOCKED by another open connection. Close other tabs or reload to proceed.');
         // Don't reject - let browser handle when other connection closes
       };
 
@@ -211,11 +211,11 @@ class IndexedDBService {
         clearTimeout(warnTimer);
         const db = request.result;
         const elapsed = Math.round(performance.now() - startTime);
-        dblog(`[IndexedDB] Opened successfully v${db.version} in ${elapsed}ms`);
+        // dblog(`[IndexedDB] Opened successfully v${db.version} in ${elapsed}ms`);
         
         // Handle version changes from other tabs
         db.onversionchange = () => {
-          if (dbDebugEnabled()) console.warn('[IndexedDB] Version change detected - closing old connection');
+          // if (dbDebugEnabled()) console.warn('[IndexedDB] Version change detected - closing old connection');
           db.close();
           dbInstance = null;
           dbPromise = null;
@@ -251,12 +251,12 @@ class IndexedDBService {
     const missingStores = requiredStores.filter(store => !existingStores.includes(store));
     
     if (missingStores.length === 0) {
-      dblog('[IndexedDB] Schema verification passed - all stores present');
+      // dblog('[IndexedDB] Schema verification passed - all stores present');
       return;
     }
 
-    console.warn('[IndexedDB] Schema drift detected - missing stores:', missingStores);
-    console.log('[IndexedDB] Initiating auto-migration to fix schema drift');
+    // console.warn('[IndexedDB] Schema drift detected - missing stores:', missingStores);
+    // console.log('[IndexedDB] Initiating auto-migration to fix schema drift');
     
     // Close current connection for auto-migration
     db.close();
@@ -266,13 +266,13 @@ class IndexedDBService {
     // Open with incremented version to trigger onupgradeneeded
     await new Promise<void>((resolve, reject) => {
       const newVersion = db.version + 1;
-      console.log(`[IndexedDB] Auto-migration: upgrading to v${newVersion}`);
+      // console.log(`[IndexedDB] Auto-migration: upgrading to v${newVersion}`);
       
       const request = indexedDB.open(DB_NAME, newVersion);
       
       request.onupgradeneeded = (event) => {
         const upgradeDb = (event.target as IDBOpenDBRequest).result;
-        console.log('[IndexedDB] Auto-migration: creating missing stores');
+        // console.log('[IndexedDB] Auto-migration: creating missing stores');
         
         try {
           // Only create missing stores
@@ -281,7 +281,7 @@ class IndexedDBService {
             urlStore.createIndex('stableId', 'stableId');
             urlStore.createIndex('isCanonical', 'isCanonical');
             urlStore.createIndex('dateAdded', 'dateAdded');
-            console.log('[IndexedDB] Auto-migration: created url_mappings store');
+            // console.log('[IndexedDB] Auto-migration: created url_mappings store');
           }
           
           if (missingStores.includes('novels') && !upgradeDb.objectStoreNames.contains('novels')) {
@@ -290,7 +290,7 @@ class IndexedDBService {
             novelStore.createIndex('title', 'title');
             novelStore.createIndex('dateAdded', 'dateAdded');
             novelStore.createIndex('lastAccessed', 'lastAccessed');
-            console.log('[IndexedDB] Auto-migration: created novels store');
+            // console.log('[IndexedDB] Auto-migration: created novels store');
           }
         } catch (error) {
           console.error('[IndexedDB] Auto-migration failed:', error);
@@ -309,7 +309,7 @@ class IndexedDBService {
       
       request.onsuccess = () => {
         const migratedDb = request.result;
-        console.log(`[IndexedDB] Auto-migration completed successfully to v${migratedDb.version}`);
+        // console.log(`[IndexedDB] Auto-migration completed successfully to v${migratedDb.version}`);
         migratedDb.close(); // Close migration connection
         resolve();
       };
@@ -320,7 +320,7 @@ class IndexedDBService {
    * Create the database schema
    */
   private createSchema(db: IDBDatabase): void {
-    console.log('[IndexedDB] Creating database schema');
+    // console.log('[IndexedDB] Creating database schema');
     
     // Chapters store
     if (!db.objectStoreNames.contains(STORES.CHAPTERS)) {
@@ -329,7 +329,7 @@ class IndexedDBService {
       chaptersStore.createIndex('lastAccessed', 'lastAccessed');
       chaptersStore.createIndex('stableId', 'stableId'); // NEW: For stable ID lookups
       chaptersStore.createIndex('canonicalUrl', 'canonicalUrl'); // NEW: For canonical URL lookups
-      console.log('[IndexedDB] Created chapters store');
+      // console.log('[IndexedDB] Created chapters store');
     }
     
     // Translations store - supports multiple versions per chapter
@@ -344,13 +344,13 @@ class IndexedDBService {
       translationsStore.createIndex('model', 'model');
       translationsStore.createIndex('stableId', 'stableId'); // NEW: For stable ID lookups
       translationsStore.createIndex('stableId_version', ['stableId', 'version'], { unique: true }); // NEW: Stable ID version lookups
-      console.log('[IndexedDB] Created translations store');
+      // console.log('[IndexedDB] Created translations store');
     }
     
     // Settings store
     if (!db.objectStoreNames.contains(STORES.SETTINGS)) {
       db.createObjectStore(STORES.SETTINGS, { keyPath: 'key' });
-      console.log('[IndexedDB] Created settings store');
+      // console.log('[IndexedDB] Created settings store');
     }
     
     // Feedback store
@@ -360,7 +360,7 @@ class IndexedDBService {
       feedbackStore.createIndex('translationId', 'translationId');
       feedbackStore.createIndex('createdAt', 'createdAt');
       feedbackStore.createIndex('type', 'type');
-      console.log('[IndexedDB] Created feedback store');
+      // console.log('[IndexedDB] Created feedback store');
     }
     
     // Prompt Templates store
@@ -370,7 +370,7 @@ class IndexedDBService {
       promptStore.createIndex('isDefault', 'isDefault');
       promptStore.createIndex('createdAt', 'createdAt');
       promptStore.createIndex('lastUsed', 'lastUsed');
-      console.log('[IndexedDB] Created prompt templates store');
+      // console.log('[IndexedDB] Created prompt templates store');
     }
     
     // NEW: URL Mappings store for stable ID support
@@ -379,7 +379,7 @@ class IndexedDBService {
       urlStore.createIndex('stableId', 'stableId');
       urlStore.createIndex('isCanonical', 'isCanonical');
       urlStore.createIndex('dateAdded', 'dateAdded');
-      console.log('[IndexedDB] Created URL mappings store');
+      // console.log('[IndexedDB] Created URL mappings store');
     }
     
     // NEW: Novels store for organization (optional)
@@ -389,7 +389,7 @@ class IndexedDBService {
       novelStore.createIndex('title', 'title');
       novelStore.createIndex('dateAdded', 'dateAdded');
       novelStore.createIndex('lastAccessed', 'lastAccessed');
-      console.log('[IndexedDB] Created novels store');
+      // console.log('[IndexedDB] Created novels store');
     }
   }
 
@@ -410,7 +410,7 @@ class IndexedDBService {
         
         request.onsuccess = () => {
           if (request.result?.stableId) {
-            console.log('[IndexedDB] Found stable ID for URL:', url, '→', request.result.stableId);
+            // console.log('[IndexedDB] Found stable ID for URL:', url, '→', request.result.stableId);
             resolve(request.result.stableId);
             return;
           }
@@ -421,10 +421,10 @@ class IndexedDBService {
             const normalizedRequest = store.get(normalizedUrl);
             normalizedRequest.onsuccess = () => {
               if (normalizedRequest.result?.stableId) {
-                console.log('[IndexedDB] Found stable ID for normalized URL:', normalizedUrl, '→', normalizedRequest.result.stableId);
+                // console.log('[IndexedDB] Found stable ID for normalized URL:', normalizedUrl, '→', normalizedRequest.result.stableId);
                 resolve(normalizedRequest.result.stableId);
               } else {
-                console.log('[IndexedDB] No stable ID found for URL:', url);
+                // console.log('[IndexedDB] No stable ID found for URL:', url);
                 resolve(null);
               }
             };
@@ -433,7 +433,7 @@ class IndexedDBService {
               resolve(null);
             };
           } else {
-            console.log('[IndexedDB] No stable ID found for URL:', url);
+            // console.log('[IndexedDB] No stable ID found for URL:', url);
             resolve(null);
           }
         };
@@ -527,7 +527,7 @@ class IndexedDBService {
         tx.onerror = () => reject(tx.error);
       });
       await this.setSetting('urlMappingsBackfilled', true);
-      console.log('[IndexedDB] URL mappings backfill completed');
+      // console.log('[IndexedDB] URL mappings backfill completed');
     } catch (e) {
       console.warn('[IndexedDB] URL mappings backfill failed', e);
     }
@@ -556,18 +556,18 @@ class IndexedDBService {
    * Store chapter data
    */
   async storeChapter(chapter: Chapter): Promise<void> {
-    console.log('[INDEXEDDB-DEBUG] storeChapter() called with:', {
-      originalUrl: chapter.originalUrl,
-      title: chapter.title,
-      hasContent: !!chapter.content,
-      contentLength: chapter.content?.length || 0,
-      hasNextUrl: !!chapter.nextUrl,
-      hasPrevUrl: !!chapter.prevUrl,
-      allFields: Object.keys(chapter)
-    });
+    // console.log('[INDEXEDDB-DEBUG] storeChapter() called with:', {
+    //   originalUrl: chapter.originalUrl,
+    //   title: chapter.title,
+    //   hasContent: !!chapter.content,
+    //   contentLength: chapter.content?.length || 0,
+    //   hasNextUrl: !!chapter.nextUrl,
+    //   hasPrevUrl: !!chapter.prevUrl,
+    //   allFields: Object.keys(chapter)
+    // });
     
     const db = await this.openDatabase();
-    console.log('[INDEXEDDB-DEBUG] storeChapter() - database opened');
+    // console.log('[INDEXEDDB-DEBUG] storeChapter() - database opened');
     
     const chapterRecord: ChapterRecord = {
       url: chapter.originalUrl,
@@ -580,48 +580,48 @@ class IndexedDBService {
       lastAccessed: new Date().toISOString()
     };
     
-    console.log('[INDEXEDDB-DEBUG] storeChapter() - prepared chapterRecord:', {
-      url: chapterRecord.url,
-      title: chapterRecord.title,
-      hasContent: !!chapterRecord.content,
-      contentLength: chapterRecord.content?.length || 0,
-      originalUrl: chapterRecord.originalUrl,
-      dateAdded: chapterRecord.dateAdded,
-      allFields: Object.keys(chapterRecord)
-    });
+    // console.log('[INDEXEDDB-DEBUG] storeChapter() - prepared chapterRecord:', {
+    //   url: chapterRecord.url,
+    //   title: chapterRecord.title,
+    //   hasContent: !!chapterRecord.content,
+    //   contentLength: chapterRecord.content?.length || 0,
+    //   originalUrl: chapterRecord.originalUrl,
+    //   dateAdded: chapterRecord.dateAdded,
+    //   allFields: Object.keys(chapterRecord)
+    // });
     
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([STORES.CHAPTERS], 'readwrite');
       const store = transaction.objectStore(STORES.CHAPTERS);
-      console.log('[INDEXEDDB-DEBUG] storeChapter() - transaction and store created');
+      // console.log('[INDEXEDDB-DEBUG] storeChapter() - transaction and store created');
       
       // Update lastAccessed if chapter already exists
       const getRequest = store.get(chapter.originalUrl);
-      console.log('[INDEXEDDB-DEBUG] storeChapter() - checking for existing chapter:', chapter.originalUrl);
+      // console.log('[INDEXEDDB-DEBUG] storeChapter() - checking for existing chapter:', chapter.originalUrl);
       
       getRequest.onsuccess = () => {
         const existingChapter = getRequest.result;
-        console.log('[INDEXEDDB-DEBUG] storeChapter() - existing chapter check result:', {
-          chapterExists: !!existingChapter,
-          existingChapterData: existingChapter ? {
-            url: existingChapter.url,
-            title: existingChapter.title,
-            dateAdded: existingChapter.dateAdded,
-            lastAccessed: existingChapter.lastAccessed
-          } : null
-        });
+        // console.log('[INDEXEDDB-DEBUG] storeChapter() - existing chapter check result:', {
+        //   chapterExists: !!existingChapter,
+        //   existingChapterData: existingChapter ? {
+        //     url: existingChapter.url,
+        //     title: existingChapter.title,
+        //     dateAdded: existingChapter.dateAdded,
+        //     lastAccessed: existingChapter.lastAccessed
+        //   } : null
+        // });
         
         if (existingChapter) {
           chapterRecord.dateAdded = existingChapter.dateAdded; // Keep original date
-          console.log('[INDEXEDDB-DEBUG] storeChapter() - keeping original dateAdded:', existingChapter.dateAdded);
+          // console.log('[INDEXEDDB-DEBUG] storeChapter() - keeping original dateAdded:', existingChapter.dateAdded);
         }
         
         const putRequest = store.put(chapterRecord);
-        console.log('[INDEXEDDB-DEBUG] storeChapter() - put request created');
+        // console.log('[INDEXEDDB-DEBUG] storeChapter() - put request created');
         
         putRequest.onsuccess = () => {
-          console.log('[IndexedDB] Chapter stored:', chapter.originalUrl);
-          console.log('[INDEXEDDB-DEBUG] storeChapter() - put request succeeded for:', chapter.originalUrl);
+          // console.log('[IndexedDB] Chapter stored:', chapter.originalUrl);
+          // console.log('[INDEXEDDB-DEBUG] storeChapter() - put request succeeded for:', chapter.originalUrl);
           resolve();
         };
         putRequest.onerror = () => reject(putRequest.error);
@@ -721,7 +721,7 @@ class IndexedDBService {
           Promise.all(deactivatePromises).then(() => {
             const addRequest = store.add(translationRecord);
             addRequest.onsuccess = () => {
-              console.log(`[IndexedDB] Translation stored: ${chapterUrl} v${nextVersion}`);
+              // console.log(`[IndexedDB] Translation stored: ${chapterUrl} v${nextVersion}`);
               resolve(translationRecord);
             };
             addRequest.onerror = () => reject(addRequest.error);
@@ -766,33 +766,33 @@ class IndexedDBService {
    * Get all translation versions for a chapter
    */
   async getTranslationVersions(chapterUrl: string): Promise<TranslationRecord[]> {
-      dblogFull(`%c[IndexedDB DETAILED] getTranslationVersions called for: ${chapterUrl}`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] getTranslationVersions called for: ${chapterUrl}`, 'color: #ff6600; font-weight: bold;');
     
-      dblogFull(`%c[IndexedDB DETAILED] About to call openDatabase()...`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] About to call openDatabase()...`, 'color: #ff6600; font-weight: bold;');
     const db = await this.openDatabase();
-      dblogFull(`%c[IndexedDB DETAILED] openDatabase() completed successfully`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] openDatabase() completed successfully`, 'color: #ff6600; font-weight: bold;');
     
     return new Promise((resolve, reject) => {
-      dblogFull(`%c[IndexedDB DETAILED] Creating transaction...`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] Creating transaction...`, 'color: #ff6600; font-weight: bold;');
       const transaction = db.transaction([STORES.TRANSLATIONS], 'readonly');
-      dblogFull(`%c[IndexedDB DETAILED] Transaction created successfully`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] Transaction created successfully`, 'color: #ff6600; font-weight: bold;');
       
       transaction.onerror = (event) => {
         console.error(`%c[IndexedDB DETAILED] Transaction error:`, 'color: #ff0000; font-weight: bold;', event);
         reject(transaction.error);
       };
       
-      dblogFull(`%c[IndexedDB DETAILED] Getting object store...`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] Getting object store...`, 'color: #ff6600; font-weight: bold;');
       const store = transaction.objectStore(STORES.TRANSLATIONS);
-      dblogFull(`%c[IndexedDB DETAILED] Getting index...`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] Getting index...`, 'color: #ff6600; font-weight: bold;');
       const index = store.index('chapterUrl');
-      dblogFull(`%c[IndexedDB DETAILED] Calling getAll...`, 'color: #ff6600; font-weight: bold;');
+      // dblogFull(`%c[IndexedDB DETAILED] Calling getAll...`, 'color: #ff6600; font-weight: bold;');
       const request = index.getAll(IDBKeyRange.only(chapterUrl));
       
       request.onsuccess = () => {
-        dblogFull(`%c[IndexedDB DETAILED] getAll SUCCESS!`, 'color: #00ff00; font-weight: bold;');
+        // dblogFull(`%c[IndexedDB DETAILED] getAll SUCCESS!`, 'color: #00ff00; font-weight: bold;');
         const versions = request.result.sort((a, b) => b.version - a.version); // Latest first
-        dblogFull(`%c[IndexedDB DETAILED] Found ${versions.length} versions for ${chapterUrl}`, 'color: #00ff00; font-weight: bold;');
+        // dblogFull(`%c[IndexedDB DETAILED] Found ${versions.length} versions for ${chapterUrl}`, 'color: #00ff00; font-weight: bold;');
         resolve(versions);
       };
       
@@ -947,7 +947,7 @@ class IndexedDBService {
           cursor.continue();
         } else {
           Promise.all(updates).then(() => {
-            console.log(`[IndexedDB] Set active translation: ${chapterUrl} v${version}`);
+            // console.log(`[IndexedDB] Set active translation: ${chapterUrl} v${version}`);
             resolve();
           });
         }
@@ -969,7 +969,25 @@ class IndexedDBService {
       
       const request = store.delete(translationId);
       request.onsuccess = () => {
-        console.log('[IndexedDB] Translation version deleted:', translationId);
+        // console.log('[IndexedDB] Translation version deleted:', translationId);
+        resolve();
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /**
+   * Update an existing translation record.
+   * Uses put() which is an insert-or-update operation.
+   */
+  async updateTranslation(translation: TranslationRecord): Promise<void> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
+      const store = transaction.objectStore(STORES.TRANSLATIONS);
+      const request = store.put(translation);
+      request.onsuccess = () => {
+        // console.log('[IndexedDB] Translation version updated:', translation.id);
         resolve();
       };
       request.onerror = () => reject(request.error);
@@ -1027,7 +1045,7 @@ class IndexedDBService {
       
       const request = store.put(settingsRecord);
       request.onsuccess = () => {
-        console.log('[IndexedDB] Settings stored');
+        // console.log('[IndexedDB] Settings stored');
         resolve();
       };
       request.onerror = () => reject(request.error);
@@ -1103,7 +1121,7 @@ class IndexedDBService {
       
       const request = store.add(feedbackRecord);
       request.onsuccess = () => {
-        console.log('[IndexedDB] Feedback stored:', chapterUrl);
+        // console.log('[IndexedDB] Feedback stored:', chapterUrl);
         resolve();
       };
       request.onerror = () => reject(request.error);
@@ -1356,7 +1374,7 @@ class IndexedDBService {
       
       const request = store.put(record);
       request.onsuccess = () => {
-        console.log(`[IndexedDB] Prompt template stored: ${template.name}`);
+        // console.log(`[IndexedDB] Prompt template stored: ${template.name}`);
         resolve();
       };
       request.onerror = () => reject(request.error);
@@ -1449,7 +1467,7 @@ class IndexedDBService {
       
       const request = store.delete(id);
       request.onsuccess = () => {
-        console.log(`[IndexedDB] Prompt template deleted: ${id}`);
+        // console.log(`[IndexedDB] Prompt template deleted: ${id}`);
         resolve();
       };
       request.onerror = () => reject(request.error);
@@ -1485,7 +1503,7 @@ class IndexedDBService {
         });
         
         Promise.all(updates).then(() => {
-          console.log(`[IndexedDB] Set default prompt template: ${id}`);
+          // console.log(`[IndexedDB] Set default prompt template: ${id}`);
           resolve();
         });
       };
@@ -1497,7 +1515,7 @@ class IndexedDBService {
    * Close database connection (simplified - no state to manage)
    */
   close(): void {
-    console.log('[IndexedDB] No persistent connections to close');
+    // console.log('[IndexedDB] No persistent connections to close');
   }
 
   /**
@@ -1506,7 +1524,7 @@ class IndexedDBService {
    */
   async testStableIdSchema(): Promise<{ success: boolean; message: string; details: any }> {
     try {
-      console.log('[IndexedDB] Testing stable ID schema migration...');
+      // console.log('[IndexedDB] Testing stable ID schema migration...');
       
       const db = await this.openDatabase();
       
@@ -1907,7 +1925,7 @@ class IndexedDBService {
       ], 'readwrite');
 
       tx.oncomplete = () => {
-        console.log('[IndexedDB] importStableSessionData: write complete');
+        // console.log('[IndexedDB] importStableSessionData: write complete');
         resolve();
       };
       tx.onerror = () => {
@@ -2197,20 +2215,52 @@ class IndexedDBService {
     
     return `ch-${chapterNumber}-${contentHash}-${titleHash}`;
   }
+
+  /**
+   * Find a chapter by its chapter number
+   * Note: This is inefficient as it requires a full table scan.
+   * Use sparingly and in background tasks.
+   */
+  async findChapterByNumber(chapterNumber: number): Promise<ChapterRecord | null> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.CHAPTERS], 'readonly');
+      const store = transaction.objectStore(STORES.CHAPTERS);
+      const request = store.openCursor();
+      
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          if (cursor.value.chapterNumber === chapterNumber) {
+            resolve(cursor.value as ChapterRecord);
+            return; // Found it
+          }
+          cursor.continue();
+        } else {
+          resolve(null); // Not found
+        }
+      };
+      
+      request.onerror = () => reject(request.error);
+    });
+  }
 }
 
 // Export singleton instance
 export const indexedDBService = new IndexedDBService();
 
-// Migration mutex to prevent concurrent migrations
-let migrationInProgress = false;
+// Migration functions have been moved to dedicated services
 
 // Expose cleanup function globally for emergency use
 if (typeof window !== 'undefined') {
-  (window as any).cleanupDuplicateVersions = cleanupDuplicateVersions;
+  (window as any).cleanupDuplicateVersions = async () => {
+    const { cleanupDuplicateVersions } = await import('./db/maintenanceService');
+    return cleanupDuplicateVersions();
+  };
   
   // Expose integrated cleanup that refreshes UI
   (window as any).cleanupAndRefresh = async () => {
+    const { cleanupDuplicateVersions } = await import('./db/maintenanceService');
     await cleanupDuplicateVersions();
     // Trigger page refresh to reload all version data
     console.log('[Cleanup] Refreshing page to update UI...');
@@ -2233,195 +2283,6 @@ if (typeof window !== 'undefined') {
     dblog('[IndexedDB] Service loaded, window.testStableIdSchema() available');
 }
 
-/**
- * Helper function to migrate localStorage data to IndexedDB
- */
-/**
- * Emergency cleanup function to remove duplicate translation versions
- */
-export async function cleanupDuplicateVersions(): Promise<void> {
-  console.log('[Cleanup] Starting duplicate version cleanup');
-  
-  try {
-    // Open database for cleanup operation
-    const db = await indexedDBService.openDatabase();
-    
-    const transaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
-    const store = transaction.objectStore(STORES.TRANSLATIONS);
-    
-    return new Promise((resolve, reject) => {
-      const getAllRequest = store.getAll();
-      
-      getAllRequest.onsuccess = async () => {
-        const allTranslations = getAllRequest.result as TranslationRecord[];
-        console.log(`[Cleanup] Found ${allTranslations.length} total translations`);
-        
-        // Group by URL
-        const translationsByUrl: { [url: string]: TranslationRecord[] } = {};
-        allTranslations.forEach(t => {
-          if (!translationsByUrl[t.chapterUrl]) {
-            translationsByUrl[t.chapterUrl] = [];
-          }
-          translationsByUrl[t.chapterUrl].push(t);
-        });
-        
-        // For each URL, keep only the oldest translation (version 1)
-        for (const [url, translations] of Object.entries(translationsByUrl)) {
-          if (translations.length <= 1) continue;
-          
-          console.log(`[Cleanup] ${url}: Found ${translations.length} versions, cleaning up duplicates`);
-          
-          // Sort by creation date (oldest first)
-          translations.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-          
-          // Keep the first (oldest) one, delete the rest
-          const toKeep = translations[0];
-          const toDelete = translations.slice(1);
-          
-          console.log(`[Cleanup] ${url}: Keeping version ${toKeep.version} (${toKeep.createdAt})`);
-          console.log(`[Cleanup] ${url}: Deleting ${toDelete.length} duplicate versions`);
-          
-          // Delete duplicates
-          for (const duplicate of toDelete) {
-            const deleteTransaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
-            const deleteStore = deleteTransaction.objectStore(STORES.TRANSLATIONS);
-            deleteStore.delete(duplicate.id);
-            console.log(`[Cleanup] ${url}: Deleted version ${duplicate.version} (${duplicate.id})`);
-          }
-        }
-        
-        console.log('[Cleanup] Duplicate cleanup completed');
-        resolve();
-      };
-      
-      getAllRequest.onerror = () => reject(getAllRequest.error);
-    });
-  } catch (error) {
-    console.error('[Cleanup] Failed to cleanup duplicates:', error);
-    throw error;
-  }
-}
-
-export async function migrateFromLocalStorage(): Promise<void> {
-  const timestamp = new Date().toISOString();
-  console.log(`[Migration ${timestamp}] Starting localStorage to IndexedDB migration`);
-  
-  // Check if migration is already in progress
-  if (migrationInProgress) {
-    console.log('[Migration] Migration already in progress, skipping');
-    return;
-  }
-  
-  try {
-    // Set migration mutex
-    migrationInProgress = true;
-    console.log('[Migration] 🔒 Migration mutex acquired');
-    
-    // Set flag IMMEDIATELY to prevent race conditions
-    localStorage.setItem('indexeddb-migration-completed', 'true');
-    console.log('[Migration] 🔒 Migration flag set immediately to prevent duplicates');
-    
-    // Check if we actually need to migrate
-    const sessionDataStr = localStorage.getItem('novel-translator-storage-v2');
-    if (!sessionDataStr) {
-      console.log('[Migration] No localStorage data found to migrate');
-      return;
-    }
-    
-    // Check if IndexedDB already has data
-    try {
-      const db = await indexedDBService.openDatabase();
-      const chapterCount = await new Promise<number>((resolve, reject) => {
-        const transaction = db.transaction([STORES.CHAPTERS], 'readonly');
-        const store = transaction.objectStore(STORES.CHAPTERS);
-        const countRequest = store.count();
-        
-        countRequest.onsuccess = () => resolve(countRequest.result);
-        countRequest.onerror = () => reject(countRequest.error);
-      });
-      
-      if (chapterCount > 0) {
-        console.log(`[Migration] IndexedDB already has ${chapterCount} chapters, skipping migration`);
-        return;
-      }
-    } catch (error) {
-      console.log('[Migration] Could not check existing data, proceeding with migration');
-    }
-    
-    console.log('[Migration] Proceeding with migration of localStorage data');
-    
-    const sessionData = JSON.parse(sessionDataStr);
-    
-    // Migrate chapters and translations
-    if (sessionData.state?.sessionData) {
-      for (const [url, data] of Object.entries(sessionData.state.sessionData) as [string, any][]) {
-        // Check if chapter already exists to avoid duplicates
-        try {
-          const existingChapter = await indexedDBService.getChapter(url);
-          if (!existingChapter) {
-            // Store chapter only if it doesn't exist
-            await indexedDBService.storeChapter(data.chapter);
-          }
-        } catch (error) {
-          // Chapter doesn't exist, store it
-          await indexedDBService.storeChapter(data.chapter);
-        }
-        
-        // Store translation if it exists and no versions exist yet
-        if (data.translationResult) {
-          const existingVersions = await indexedDBService.getTranslationVersions(url);
-          console.log(`[Migration] ${url}: Found ${existingVersions.length} existing versions`);
-          
-          if (existingVersions.length === 0) {
-            console.log(`[Migration] ${url}: No versions exist, migrating translation`);
-            const settings = sessionData.state.settings || {};
-            await indexedDBService.storeTranslation(url, data.translationResult, {
-              provider: settings.provider || 'Gemini',
-              model: settings.model || 'gemini-2.5-flash',
-              temperature: settings.temperature || 0.3,
-              systemPrompt: settings.systemPrompt || ''
-            });
-            console.log(`[Migration] ${url}: Translation migrated successfully`);
-          } else {
-            console.log(`[Migration] ${url}: Skipping translation migration - ${existingVersions.length} versions already exist`);
-            existingVersions.forEach((v, i) => {
-              console.log(`[Migration] ${url}: Version ${v.version} - ${v.provider} ${v.model} - ${v.createdAt}`);
-            });
-          }
-        } else {
-          console.log(`[Migration] ${url}: No translation result to migrate`);
-        }
-      }
-    }
-    
-    // Migrate settings
-    if (sessionData.state?.settings) {
-      await indexedDBService.storeSettings(sessionData.state.settings);
-    }
-    
-    // Migrate feedback
-    if (sessionData.state?.feedbackHistory) {
-      for (const [url, feedbackItems] of Object.entries(sessionData.state.feedbackHistory) as [string, FeedbackItem[]][]) {
-        for (const feedback of feedbackItems) {
-          await indexedDBService.storeFeedback(url, feedback);
-        }
-      }
-    }
-    
-    console.log('[Migration] Successfully migrated localStorage data to IndexedDB');
-    
-    // Mark migration as completed
-    localStorage.setItem('indexeddb-migration-completed', 'true');
-    
-    // Optionally clear localStorage after successful migration
-    // localStorage.removeItem('novel-translator-storage-v2');
-    
-  } catch (error) {
-    console.error('[Migration] Failed to migrate localStorage data:', error);
-    throw error;
-  } finally {
-    // Always release the migration mutex
-    migrationInProgress = false;
-    console.log('[Migration] 🔓 Migration mutex released');
-  }
-}
+// Export utility functions from dedicated services for backward compatibility
+export { cleanupDuplicateVersions } from './db/maintenanceService';
+export { migrateFromLocalStorage } from './db/migrationService';

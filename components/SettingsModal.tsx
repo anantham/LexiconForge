@@ -153,11 +153,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     
     const checkOpenRouterModel = async (modelId: string) => {
       const key = `OpenRouter:${modelId}`;
-      if (structuredOutputSupport[key] !== null) return; // Already checked
+      console.log(`[Capability Check] Checking model: ${key}`);
+      if (structuredOutputSupport[key] !== undefined && structuredOutputSupport[key] !== null) {
+        console.log(`[Capability Check] Skipping ${key}, already checked. Result: ${structuredOutputSupport[key]}`);
+        return;
+      }
       
       try {
+        console.log(`[Capability Check] Calling supportsStructuredOutputs for ${key}`);
         const hasSupport = await supportsStructuredOutputs('OpenRouter', modelId);
-        setStructuredOutputSupport(prev => ({ ...prev, [key]: hasSupport }));
+        console.log(`[Capability Check] Result for ${key}: ${hasSupport}`);
+        setStructuredOutputSupport(prev => {
+          console.log(`[Capability Check] Updating state for ${key} to ${hasSupport}`);
+          return { ...prev, [key]: hasSupport };
+        });
       } catch (error) {
         console.warn(`Failed to check structured output support for OpenRouter:${modelId}`, error);
         setStructuredOutputSupport(prev => ({ ...prev, [key]: false }));
@@ -165,7 +174,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     };
     
     checkOpenRouterModel(currentSettings.model);
-  }, [currentSettings.provider, currentSettings.model, isOpen, structuredOutputSupport]);
+  }, [currentSettings.provider, currentSettings.model, isOpen]);
 
   // Load OpenRouter catalogue + credits when modal opens on OpenRouter, or when switching to OpenRouter
   useEffect(() => {
@@ -347,7 +356,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   };
 
   // Build priced, sorted text models for the selected provider
-  const rawTextModels = AVAILABLE_MODELS[currentSettings.provider] || [];
+  const rawTextModels = MODELS.filter(m => m.provider === currentSettings.provider) || [];
   const pricedTextModels = currentSettings.provider === 'OpenRouter'
     ? (() => {
         const options = getOpenRouterOptions(orSearch);
@@ -372,7 +381,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           const input = costs?.input;
           const output = costs?.output;
           const label = (input != null && output != null)
-            ? `${m.name} — $${input.toFixed(2)}/$${output.toFixed(2)} per 1M`
+            ? `${m.name} — USD ${input.toFixed(2)}/${output.toFixed(2)} per 1M`
             : m.name;
           const sortKey = (input != null && output != null) ? (input + output) : Number.POSITIVE_INFINITY;
           return { ...m, label, sortKey };
@@ -425,6 +434,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           <fieldset>
             <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Translation Engine</legend>
             <div className="space-y-4">
+              <div>
+                <label htmlFor="sourceLanguage" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Source Language</label>
+                <input
+                  id="sourceLanguage"
+                  type="text"
+                  value={(currentSettings as any).sourceLanguage || 'Korean'}
+                  onChange={(e) => handleSettingChange('sourceLanguage' as any, e.target.value)}
+                  placeholder="e.g., Korean, Japanese"
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+                />
+              </div>
               <div>
                 <label htmlFor="targetLanguage" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Language</label>
                 <input

@@ -13,6 +13,7 @@ import type { StateCreator } from 'zustand';
 import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService';
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
 import { indexedDBService } from '../../services/indexeddb';
+import { validateApiKey } from '../../services/aiService';
 
 export interface ChaptersState {
   // Core data
@@ -42,7 +43,7 @@ export interface ChaptersActions {
   
   // Navigation
   handleNavigate: (url: string) => Promise<void>;
-  handleFetch: (url: string) => Promise<void>;
+  handleFetch: (url: string) => Promise<string | undefined>;
   navigateToChapter: (chapterId: string) => void;
   
   // Navigation history
@@ -67,6 +68,9 @@ export interface ChaptersActions {
   getChapterCount: () => number;
   getNovelCount: () => number;
   getChapterStats: () => { total: number; withTranslations: number; withImages: number };
+
+  // Preloading
+  preloadNextChapters: () => void;
 }
 
 export type ChaptersSlice = ChaptersState & ChaptersActions;
@@ -96,6 +100,8 @@ export const createChaptersSlice: StateCreator<
   },
   
   setCurrentChapter: (chapterId) => {
+    // Diagnostic timestamped set for tracing navigation/hydration races
+    console.log(`[Chapters] setCurrentChapter -> ${chapterId} @${Date.now()}`);
     set({ currentChapterId: chapterId });
     
     // Add to history if it's a real chapter
@@ -306,6 +312,7 @@ export const createChaptersSlice: StateCreator<
         if (chapter) {
           NavigationService.updateBrowserHistory(chapter, result.currentChapterId!);
         }
+        return result.currentChapterId;
       }
       
     } finally {
@@ -429,5 +436,88 @@ export const createChaptersSlice: StateCreator<
         c.translationResult?.suggestedIllustrations?.some((ill: any) => ill.generatedImage)
       ).length
     };
-  }
+  },
+
+  // Preloading
+  preloadNextChapters: () => {
+    // This function just kicks off the worker.
+    // The worker itself should get the latest state.
+    const worker = async () => {
+      const {
+        currentChapterId,
+        chapters,
+        settings,
+        loadChapterFromIDB,
+        fetchTranslationVersions,
+        isTranslationActive,
+        handleTranslate,
+      } = get();
+
+      if (!currentChapterId || settings.preloadCount === 0) {
+        return;
+      }
+
+      const currentChapter = chapters.get(currentChapterId);
+
+      if (!currentChapter || typeof currentChapter.chapterNumber !== 'number') {
+        console.warn('[Worker] Cannot start preload: current chapter or its number is missing.');
+        return;
+      }
+
+      const numberToChapterMap = new Map<number, {id: string, chapter: any}>();
+      // Use the chapters map we just fetched with get()
+      for (const [id, chapter] of chapters.entries()) {
+        if (typeof chapter.chapterNumber === 'number') {
+          numberToChapterMap.set(chapter.chapterNumber, { id, chapter });
+        }
+      }
+
+      for (let i = 1; i <= settings.preloadCount; i++) {
+        const targetNumber = currentChapter.chapterNumber + i;
+        let nextChapterInfo = numberToChapterMap.get(targetNumber);
+
+        if (!nextChapterInfo) {
+          const chapterRecord = await indexedDBService.findChapterByNumber(targetNumber);
+          if (chapterRecord && chapterRecord.stableId) {
+            await loadChapterFromIDB(chapterRecord.stableId);
+            const loadedChapter = get().chapters.get(chapterRecord.stableId);
+            if (loadedChapter) {
+              nextChapterInfo = {
+                id: chapterRecord.stableId,
+                chapter: loadedChapter,
+              };
+            }
+          }
+        }
+
+        if (!nextChapterInfo) {
+          break;
+        }
+
+        const { id: nextChapterId } = nextChapterInfo;
+
+        const existingVersions = await fetchTranslationVersions(nextChapterId);
+        if (existingVersions.length > 0) {
+          console.log(`[Worker] Skipping chapter #${targetNumber} - ${existingVersions.length} version(s) already exist.`);
+          continue;
+        }
+
+        if (isTranslationActive(nextChapterId)) {
+          console.log(`[Worker] Skipping chapter #${targetNumber} - translation already in progress.`);
+          continue;
+        }
+
+        const apiValidation = validateApiKey(get().settings);
+        if (!apiValidation.isValid) {
+          console.warn(`[Worker] Stopping preload - API key missing: ${apiValidation.errorMessage}`);
+          break;
+        }
+
+        console.log(`[Worker] Pre-translating chapter #${targetNumber} (ID: ${nextChapterId})`);
+        await handleTranslate(nextChapterId);
+      }
+    };
+
+    setTimeout(worker, 1500);
+  },
 });

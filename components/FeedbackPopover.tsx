@@ -3,6 +3,7 @@ import { FeedbackItem } from '../types';
 import ThumbsUpIcon from './icons/ThumbsUpIcon';
 import ThumbsDownIcon from './icons/ThumbsDownIcon';
 import QuestionMarkIcon from './icons/QuestionMarkIcon';
+import PaintBrushIcon from './icons/PaintBrushIcon';
 
 interface FeedbackPopoverProps {
   selectionText: string;
@@ -33,7 +34,7 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
   console.log(`Calculated CSS - top: ${top}px, left: ${left}px`);
   console.groupEnd();
 
-  const handleFeedback = (type: '👍' | '👎' | '?') => {
+  const handleFeedback = (type: '👍' | '👎' | '?' | '🎨') => {
     console.log(`[FeedbackPopover] Button clicked: ${type}`);
     onFeedback({ selection: selectionText, type });
   };
@@ -52,6 +53,9 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
       </button>
       <button onClick={() => handleFeedback('?')} className="p-2 rounded-full hover:bg-blue-600 transition-colors duration-200">
         <QuestionMarkIcon className="w-5 h-5" />
+      </button>
+      <button onClick={() => handleFeedback('🎨')} className="p-2 rounded-full hover:bg-purple-600 transition-colors duration-200">
+        <PaintBrushIcon className="w-5 h-5" />
       </button>
     </div>
   );

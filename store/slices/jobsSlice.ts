@@ -230,37 +230,13 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
 
   // Worker management
   initializeWorkers: () => {
-    const state = get();
+    // Workers are not implemented yet - this is a placeholder for future functionality
+    console.log('[Jobs] Worker initialization is not yet implemented');
     
-    if (!state.workers.translation) {
-      const translationWorker = new Worker(
-        new URL('../workers/translate.worker.ts', import.meta.url),
-        { type: 'module' }
-      );
-      
-      translationWorker.addEventListener('message', (event) => {
-        get().handleWorkerMessage(event, 'translation');
-      });
-      
-      set((state) => ({
-        workers: { ...state.workers, translation: translationWorker }
-      }));
-    }
-
-    if (!state.workers.epub) {
-      const epubWorker = new Worker(
-        new URL('../workers/epub.worker.ts', import.meta.url),
-        { type: 'module' }
-      );
-      
-      epubWorker.addEventListener('message', (event) => {
-        get().handleWorkerMessage(event, 'epub');
-      });
-      
-      set((state) => ({
-        workers: { ...state.workers, epub: epubWorker }
-      }));
-    }
+    // TODO: Implement workers when needed
+    // - Translation worker for background translation jobs
+    // - EPUB worker for background EPUB generation
+    // - Image worker for background image generation
   },
 
   terminateWorkers: () => {
@@ -275,94 +251,20 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
     set({ workers: {} });
   },
 
-  // Worker communication (private methods)
+  // Worker communication (private methods) - Placeholder implementations
   startWorkerJob: (job: Job) => {
-    const { workers } = get();
-    
-    if (job.type === 'translation' && workers.translation) {
-      workers.translation.postMessage({
-        type: 'START_TRANSLATION_JOB',
-        payload: {
-          id: job.id,
-          chapters: (job as TranslationJob).chapterUrls.map(url => ({
-            url,
-            title: `Chapter ${url}`, // This would come from actual chapter data
-            content: `Content for ${url}` // This would come from actual chapter data
-          })),
-          settings: (job as TranslationJob).settings,
-          history: [], // This would come from context
-          fanTranslation: null
-        }
-      });
-    } else if (job.type === 'epub' && workers.epub) {
-      workers.epub.postMessage({
-        type: 'START_EPUB_JOB',
-        payload: {
-          id: job.id,
-          options: {
-            chapterUrls: (job as EpubJob).chapterUrls,
-            includeStatsPage: true
-            // Other options would be passed here
-          }
-        }
-      });
-    }
+    console.log(`[Jobs] Starting job ${job.id} - workers not yet implemented`);
+    // TODO: Implement actual worker communication when workers are available
   },
 
   cancelWorkerJob: (job: Job) => {
-    const { workers } = get();
-    
-    if (job.type === 'translation' && workers.translation) {
-      workers.translation.postMessage({
-        type: 'CANCEL_TRANSLATION_JOB',
-        payload: { jobId: job.id }
-      });
-    } else if (job.type === 'epub' && workers.epub) {
-      workers.epub.postMessage({
-        type: 'CANCEL_EPUB_JOB',
-        payload: { jobId: job.id }
-      });
-    }
+    console.log(`[Jobs] Cancelling job ${job.id} - workers not yet implemented`);
+    // TODO: Implement actual worker cancellation when workers are available
   },
 
   handleWorkerMessage: (event: MessageEvent, workerType: 'translation' | 'epub') => {
-    const { type, payload } = event.data;
-    
-    if (type === 'TRANSLATION_PROGRESS') {
-      const { jobId, completed, total, currentChapter, error, results } = payload;
-      
-      get().updateJob(jobId, {
-        progress: Math.round((completed / total) * 100),
-        message: currentChapter ? `Translating: ${currentChapter}` : undefined,
-        error,
-        ...(results && { 
-          status: 'completed' as JobStatus,
-          completedAt: Date.now(),
-          results 
-        })
-      });
-    } else if (type === 'EPUB_PROGRESS') {
-      const { jobId, stage, progress, message, error, result } = payload;
-      
-      const updates: Partial<Job> = {
-        progress,
-        message,
-        error
-      };
-
-      if (stage === 'completed' && result) {
-        updates.status = 'completed';
-        updates.completedAt = Date.now();
-        (updates as Partial<EpubJob>).result = result;
-      } else if (stage === 'error') {
-        updates.status = 'failed';
-        updates.completedAt = Date.now();
-      } else {
-        (updates as Partial<EpubJob>).stage = stage;
-      }
-
-      get().updateJob(jobId, updates);
-    }
+    console.log(`[Jobs] Received message from ${workerType} worker - not yet implemented`);
+    // TODO: Implement actual message handling when workers are available
   }
 });
 

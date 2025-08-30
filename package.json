@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "prepare": "node scripts/generate-steering-image-list.cjs",
     "preview": "vite preview",
     "test": "vitest",
     "test:watch": "vitest --watch",

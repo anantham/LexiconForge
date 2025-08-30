@@ -119,10 +119,7 @@ export class TranslationService {
         console.warn('[TranslationService] Failed to persist translation version', e);
       }
 
-      return {
-        translationResult: result,
-        proposal: result.proposal || null
-      };
+      return result;
 
     } catch (e: any) {
       if (e.name === 'AbortError') {
@@ -219,6 +216,7 @@ export class TranslationService {
           originalContent: chapter.content,
           translatedTitle: chapter.translationResult!.translatedTitle,
           translatedContent: chapter.translationResult!.translation,
+          footnotes: chapter.translationResult!.footnotes || [],
           feedback: (chapter as any).feedback ?? [],
         };
       });
@@ -275,6 +273,7 @@ export class TranslationService {
               originalContent: dbChapter.content,
               translatedTitle: activeTranslation.translatedTitle,
               translatedContent: activeTranslation.translation,
+              footnotes: activeTranslation.footnotes || [],
               feedback: [], // IndexedDB doesn't store feedback history
             });
           }

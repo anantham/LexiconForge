@@ -50,7 +50,7 @@ import {
   TranslationStats,
   EpubTemplate
 } from '../../services/epubService';
-import { SessionChapterData } from '../../store/useAppStore';
+import { SessionChapterData } from '../../types';
 
 // Mock data factory functions
 const createMockChapter = (overrides = {}) => ({

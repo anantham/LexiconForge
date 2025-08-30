@@ -39,6 +39,9 @@ export interface UiState {
   
   // Chapter-specific hydration states
   hydratingChapters: Record<string, boolean>;
+  
+  // Store initialization status
+  isInitialized: boolean;
 }
 
 export interface UiActions {
@@ -64,6 +67,7 @@ export interface UiActions {
   // Utility actions
   clearAllLoadingStates: () => void;
   isAnyLoading: () => boolean;
+  setInitialized: (initialized: boolean) => void;
 }
 
 export type UiSlice = UiState & UiActions;
@@ -73,13 +77,12 @@ const loadViewMode = (): 'original' | 'fan' | 'english' => {
   try {
     const saved = localStorage.getItem('LF_VIEW_MODE');
     if (saved && ['original', 'fan', 'english'].includes(saved)) {
-      console.log(`[UI] Loaded viewMode from localStorage: ${saved}`);
       return saved as 'original' | 'fan' | 'english';
     }
   } catch (e) {
     console.warn('[UI] Failed to load viewMode from localStorage:', e);
   }
-  console.log('[UI] No saved viewMode, using default: english');
+  // No explicit logging to avoid noisy console output during development
   return 'english'; // Default fallback
 };
 
@@ -107,6 +110,7 @@ export const createUiSlice: StateCreator<
   notification: null,
   urlLoadingStates: {},
   hydratingChapters: {},
+  isInitialized: false,
   
   // View mode actions
   setViewMode: (mode) => {
@@ -161,7 +165,13 @@ export const createUiSlice: StateCreator<
   }),
   
   // Error and notification actions
-  setError: (error) => set({ error }),
+  setError: (error) => {
+    if (error) {
+      console.error("An error was set in the store:", error);
+      console.trace("setError stack trace");
+    }
+    set({ error });
+  },
   
   showNotification: (message, type = 'info') => set({
     notification: {
@@ -179,6 +189,8 @@ export const createUiSlice: StateCreator<
     hydratingChapters: {},
     isLoading: { fetching: false, translating: false }
   }),
+  
+  setInitialized: (initialized) => set({ isInitialized: initialized }),
   
   isAnyLoading: () => {
     const state = get();
