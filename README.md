@@ -27,8 +27,10 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 *   🛑 **Cancelable Requests:** Click the red spinner to abort in‑flight translations instantly.
 *   ✅ **Structure Guarantees:** Built-in validation for illustration and footnote markers keeps body text and JSON aligned.
 
-### **🧠 Collaborative AI Training**
+### **🧠 Collaborative AI Training & Interactive Features**
 *   💬 **Text Selection Feedback:** Select any text and rate it 👍👎? to teach the AI your preferences.
+*   ❓ **Smart Explanations:** Click the **?** emoji on selected text to generate detailed footnotes explaining translation choices, cultural context, or literary techniques.
+*   🎨 **Illustration Generation:** Click the **🎨** emoji on selected passages to automatically generate contextual illustration prompts that capture key story moments.
 *   ✍️ **Prompt Template Library:** Create, save, and manage custom system prompts for different novel types (Wuxia, Romance, Technical, etc.).
 *   🔄 **Amendment Proposals:** AI suggests prompt improvements based on your feedback patterns.
 *   📝 **Inline Annotations:** Collaborative feedback system with comments and rating history.
@@ -52,6 +54,8 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 *   🗄️ **Dual-Tier Architecture:** Instant UI updates (Zustand) + unlimited persistent storage (IndexedDB) for the best of both worlds.
 *   🔄 **Session Persistence:** Survive browser crashes and restarts. Your progress is never lost.
 *   📊 **Professional Statistics:** Detailed breakdowns of token usage, costs, translation time, and model performance across your entire library.
+*   🚀 **Smart Preloading:** Configurable background fetching (0-10 chapters ahead) with intelligent rate limiting and deduplication.
+*   🎯 **Advanced Navigation:** Smart URL mapping, browser history integration, and cross-session chapter hydration.
 *   🔧 **Developer-Friendly Debugging:** Optional console logging system to monitor translation performance and troubleshoot issues.
 
 ---
@@ -95,6 +99,8 @@ LexiconForge uses a sophisticated **dual-tier data architecture**:
 - **Multi-Provider AI Integration**: Unified interface for 6 major AI providers with advanced illustration pipeline (Gemini, OpenAI, Claude, DeepSeek, PiAPI, OpenRouter)
 
 Prompts & JSON schema descriptions are centralized in `config/prompts.json`, so you can quickly change the HTML rules, footnote/illustration requirements, DeepSeek JSON guard, fan-translation preface, translate preface, and history labels without touching code.
+
+**🏗️ Architecture Evolution (2025)**: LexiconForge is currently undergoing modernization to implement agent-first development principles. See our [Architecture Decision Records](docs/) for the roadmap toward modular, maintainable services that work seamlessly with AI assistants.
 
 For detailed technical information, see the [Project Structure & Technical Details](./PROJECT_STRUCTURE.md).
 

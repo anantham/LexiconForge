@@ -12,8 +12,31 @@ LexiconForge/
 ├── 🪝 Custom Hooks
 ├── 🔌 Services (AI & Scraping)
 ├── 🗄️ State Management
-└── 📚 Documentation
+├── 📚 Documentation
+└── 🏗️ Architecture Evolution (2025)
 ```
+
+## 🚨 **Critical Architectural State (January 2025)**
+
+**REFACTORING IN PROGRESS**: LexiconForge is currently undergoing architectural modernization to implement agent-first development principles per [ADR-005](docs/ADR-005-Agent-First-Code-Organization.md).
+
+### **Immediate Blockers (Violate 200-250 LOC Limits)**
+1. **services/indexeddb.ts** (2,288 lines) - Database monolith blocking AI assistance
+2. **services/epubService.ts** (1,653 lines) - EPUB generation with mixed concerns
+3. **services/aiService.ts** (1,324 lines) - AI routing with multiple responsibilities
+4. **components/SettingsModal.tsx** (1,301 lines) - UI component exceeding maintainability threshold
+
+### **Decomposition Status**
+- ✅ **ADRs Created**: 7 comprehensive architecture decision records established
+- 🏗️ **Migration Strategy**: Service decomposition patterns defined in ADR-001
+- ⏳ **Implementation**: Pending completion of documentation updates
+- 🎯 **Target**: All services ≤200 LOC, components ≤250 LOC per ADR-005
+
+### **Agent-First Development Goals**
+- **File Size Compliance**: 100% of files under ADR-005 limits
+- **Context Window Optimization**: Enable reliable AI code review and modification
+- **Service Boundaries**: Clear single-responsibility services with explicit contracts
+- **Testing Isolation**: Independent service testing with mock dependencies
 
 ## 🔧 **Configuration & Setup Files**
 
@@ -100,19 +123,21 @@ LexiconForge/
 
 ### **Settings & Configuration**
 
-#### **components/SettingsModal.tsx**
+#### **components/SettingsModal.tsx** (1,301 lines - NEEDS DECOMPOSITION)
 - **Role**: Comprehensive settings interface
-- **Key Features**:
-  - Tabbed UI: General, Export, Templates, Advanced
-  - **Temperature Control**: 0.0-2.0 slider for AI creativity
-  - **Model Selection**: 22+ models across Gemini/OpenAI/DeepSeek/Claude
-  - **Context Depth**: Previous chapter context (0-5)
-  - **Preload Count**: Background fetching (0-10)
-  - **Typography**: Font, size, line height controls
-  - **API Keys**: Secure key management for all providers
-  - **Session Management**: Import/export functionality
-  - Export tab: chapter ordering and include special pages
-  - Templates tab: EPUB gratitude, project description, footer overrides
+- **Current State**: MONOLITHIC - Violates ADR-005's 250 LOC component limit by 5x
+- **Decomposition Priority**: HIGH - Blocking component maintainability
+- **Key Concerns Mixed Together**:
+  - General settings tab with model/temperature controls (lines 1-350)
+  - Export settings with chapter ordering and options (lines 350-650)
+  - Template management with EPUB customization (lines 650-950)
+  - Advanced settings with debug and API keys (lines 950-1301)
+- **Planned Decomposition** (per ADR-005):
+  - `components/settings/GeneralTab.tsx` (≤250 LOC)
+  - `components/settings/ExportTab.tsx` (≤250 LOC)  
+  - `components/settings/TemplatesTab.tsx` (≤250 LOC)
+  - `components/settings/AdvancedTab.tsx` (≤250 LOC)
+  - `components/SettingsModal.tsx` (≤150 LOC - tab orchestration only)
 
 ### **Feedback & Collaboration**
 
@@ -254,18 +279,105 @@ LexiconForge/
 
 ## 🔌 **Services Layer**
 
-### **services/aiService.ts**
+### **services/aiService.ts** (1,324 lines - NEEDS DECOMPOSITION)
 - **Role**: Unified AI translation router and coordinator
+- **Current State**: MONOLITHIC - Violates ADR-005's 200 LOC limit by 6x
+- **Decomposition Priority**: HIGH - Critical for agent-first development
+- **Key Concerns Mixed Together**:
+  - Multi-provider routing and fallback logic (lines 1-300)
+  - Context building and history management (lines 300-600)
+  - Request/response validation and sanitization (lines 600-900)
+  - Cost tracking and usage metrics (lines 900-1200)
+  - Error handling and retry mechanisms (lines 1200-1324)
+- **Planned Decomposition** (per ADR-005):
+  - `services/ai/ProviderRouter.ts` (≤200 LOC)
+  - `services/ai/ContextBuilder.ts` (≤200 LOC)
+  - `services/ai/ResponseValidator.ts` (≤200 LOC)
+  - `services/ai/CostTracker.ts` (≤200 LOC)
+  - `services/ai/RetryHandler.ts` (≤200 LOC)
+  - `services/ai/index.ts` (orchestration)
+
+### **services/explanationService.ts** 
+- **Role**: "?" emoji explanation footnote generation
 - **Key Features**:
-  - **Multi-provider Support**: Gemini, OpenAI, DeepSeek, Claude (via claudeService)
-  - **Temperature Control**: User-adjustable creativity (0.0-2.0)
-  - **Intelligent Fallback**: Handles models that don't support custom temperature
-  - **Context Management**: Previous chapter integration
-  - **Error Handling**: Retry logic with exponential backoff
-  - **Cost Tracking**: Real-time usage and pricing
-  - **Structured Output**: JSON-mode schemas with centralized prompts
-  - **Validation**: Illustration and footnote marker reconciliation with strict failure on missing anchors
-  - **Cancellation**: Abortable requests with immediate UI cleanup
+  - Generates contextual explanations for selected text passages
+  - Multi-provider support (OpenAI, DeepSeek, OpenRouter compatible APIs)
+  - Uses centralized `config/prompts.json` explanation templates
+  - Integrates with text selection feedback system
+- **Functions**: `generateExplanationFootnote()` - creates detailed translation choice explanations
+
+### **services/illustrationService.ts**
+- **Role**: "🎨" emoji illustration prompt generation  
+- **Key Features**:
+  - Converts selected text into detailed image generation prompts
+  - Context-aware scene description from surrounding chapter content
+  - Multi-provider AI support for prompt enhancement
+  - Integrates with advanced image generation pipeline
+- **Functions**: `generateIllustrationForSelection()` - creates contextual image prompts
+
+### **services/navigationService.ts** (520 lines)
+- **Role**: Chapter navigation, URL resolution, and preloading orchestration
+- **Key Features**:
+  - Smart URL mapping and normalization across novel sites
+  - Lazy chapter loading from IndexedDB with hydration
+  - Browser history management and navigation state
+  - In-flight fetch deduplication to prevent concurrent requests
+  - Chapter adapter detection for supported novel sites
+- **Functions**: `navigateToChapter()`, `preloadChapters()`, `hydrateChapterData()`
+
+### **services/sessionManagementService.ts** (364 lines)
+- **Role**: Session state, settings persistence, and prompt template management
+- **Key Features**:
+  - Settings persistence with localStorage integration
+  - Prompt template CRUD operations with IndexedDB storage
+  - Session clearing and initialization procedures
+  - Default settings bootstrapping and migration
+  - Advanced image generation defaults management
+- **Functions**: `loadSettings()`, `saveSettings()`, `managePromptTemplates()`
+
+### **services/rateLimitService.ts**
+- **Role**: API rate limiting and request queuing system
+- **Key Features**:
+  - Provider-specific rate limit enforcement (OpenRouter per_request_limits)
+  - Request queuing with backoff strategies
+  - Dynamic rate limit detection from model capabilities
+  - Prevents API throttling and ensures respectful usage
+- **Functions**: `canMakeRequest()`, `trackRequest()`, `processQueue()`
+
+### **services/importTransformationService.ts** (284 lines)
+- **Role**: Session JSON import processing and data transformation
+- **Key Features**:
+  - Backward compatibility for legacy session formats
+  - Chapter data normalization and validation
+  - URL mapping reconstruction from imported data
+  - Progressive enhancement of imported chapters
+- **Functions**: `transformImportedSession()`, `validateSessionData()`
+
+### **services/stableIdService.ts** (326 lines)  
+- **Role**: Stable ID generation and URL normalization
+- **Key Features**:
+  - Deterministic chapter ID generation from URLs
+  - Aggressive URL normalization for deduplication
+  - Enhanced chapter data structure management
+  - Cross-session stable identifier maintenance
+- **Functions**: `generateStableId()`, `normalizeUrlAggressively()`
+
+### **services/workerService.ts**
+- **Role**: Background processing and task management
+- **Key Features**:
+  - Preloading orchestration without blocking UI
+  - Background translation processing
+  - Task queuing and priority management
+- **Functions**: `scheduleBackgroundTask()`, `processTaskQueue()`
+
+### **services/capabilityService.ts** (251 lines)
+- **Role**: AI provider and model capability detection
+- **Key Features**:
+  - Dynamic model feature detection (temperature support, JSON mode, etc.)
+  - Provider-specific capability mapping
+  - Rate limit information extraction
+  - Model compatibility checking for advanced features
+- **Functions**: `getModelCapabilities()`, `getModelLimits()`, `supportsJsonMode()`
 
 ### **claudeService.ts**
 - **Role**: Claude API integration
@@ -316,21 +428,23 @@ LexiconForge/
   - Navigation link detection
   - Error handling and retry logic
 
-### **services/epubService.ts**
+### **services/epubService.ts** (1,653 lines - NEEDS DECOMPOSITION)
 - **Role**: Professional EPUB generation with comprehensive statistics
-- **Key Features**:
-  - **Statistics Aggregation**: Total cost, time, tokens across all chapters
-  - **Provider/Model Breakdown**: Detailed usage analytics by AI provider and model
-  - **Table of Contents**: Professional chapter listing with translation metadata
-  - **Customizable Templates**: User-configurable gratitude messages and project info
-  - **Image Integration**: Embedded AI-generated illustrations with proper formatting
-  - **Professional Styling**: Enhanced CSS with typography, tables, and gradient designs
-- **Functions**:
-  - `collectActiveVersions()`: Gathers chapters with usage metrics
-  - `calculateTranslationStats()`: Aggregates comprehensive statistics
-  - `generateEpub()`: Creates professional EPUB with all features
-  - `getDefaultTemplate()`: Provides customizable acknowledgment templates
-  - `createCustomTemplate()`: Easy template customization interface
+- **Current State**: MONOLITHIC - Violates ADR-005's 200 LOC limit by 8x
+- **Decomposition Priority**: HIGH - Blocking agent-friendly development
+- **Key Concerns Mixed Together**:
+  - XHTML/XML sanitization and conversion utilities (lines 1-240)
+  - Data collection and statistics aggregation (lines 240-500)  
+  - Template management and customization (lines 500-700)
+  - Chapter content processing and conversion (lines 700-1200)
+  - EPUB file generation with JSZip (lines 1200-1653)
+- **Planned Decomposition** (per ADR-005):
+  - `services/epub/XhtmlSanitizer.ts` (≤200 LOC)
+  - `services/epub/StatsCalculator.ts` (≤200 LOC)
+  - `services/epub/TemplateManager.ts` (≤200 LOC)
+  - `services/epub/ContentProcessor.ts` (≤200 LOC)
+  - `services/epub/EpubGenerator.ts` (≤200 LOC)
+  - `services/epub/index.ts` (clean re-exports)
 
 ## 🎨 **Comprehensive Illustration System Architecture**
 
@@ -782,6 +896,57 @@ const myTemplate = createCustomTemplate({
 ## 🔄 **Critical Feature Flows & File Interactions**
 
 Understanding how files work together to implement key features is essential for maintainers. Here are the most important workflows:
+
+### **❓ Smart Explanation Generation Flow**
+**User Journey**: Select text → Click ? emoji → Get detailed explanation footnote
+```
+ChapterView.tsx → FeedbackPopover.tsx → services/explanationService.ts → AI Provider → Display footnote
+       ↓                  ↓                         ↓                        ↓           ↓
+Text selection → ? emoji click → generateExplanationFootnote() → OpenAI/DeepSeek → Contextual explanation
+       ↓                  ↓                         ↓                        ↓           ↓
+useTextSelection → onReact('?') → Translation choice analysis → API request → Footnote rendering
+```
+
+**Key Files Involved**:
+- `components/ChapterView.tsx`: Text selection and emoji interface
+- `components/FeedbackPopover.tsx`: ? emoji button handling
+- `services/explanationService.ts`: Explanation generation logic
+- `config/prompts.json`: Explanation prompt templates
+- Provider services: OpenAI/DeepSeek API integration
+
+### **🎨 Illustration Prompt Generation Flow**
+**User Journey**: Select text → Click 🎨 emoji → Generate contextual image prompt
+```
+ChapterView.tsx → FeedbackPopover.tsx → services/illustrationService.ts → AI Provider → Image Generation
+       ↓                  ↓                         ↓                        ↓                ↓
+Text selection → 🎨 emoji click → generateIllustrationForSelection() → OpenAI/DeepSeek → Flux/Imagen models
+       ↓                  ↓                         ↓                        ↓                ↓
+Scene context → onReact('🎨') → Enhanced prompt creation → API request → Visual illustration
+```
+
+**Key Files Involved**:
+- `components/FeedbackPopover.tsx`: 🎨 emoji trigger
+- `services/illustrationService.ts`: Context-aware prompt generation  
+- `services/imageService.ts`: Multi-provider image generation
+- `components/Illustration.tsx`: Image rendering and display
+- `config/prompts.json`: Image prompt templates
+
+### **🚀 Smart Preloading System Flow**
+**User Journey**: Background fetching of upcoming chapters for seamless reading
+```
+App.tsx → services/navigationService.ts → services/workerService.ts → services/adapters.ts
+   ↓              ↓                             ↓                           ↓
+Preload trigger → preloadChapters() → scheduleBackgroundTask() → fetchAndParseUrl()
+   ↓              ↓                             ↓                           ↓
+Settings check → URL chain building → Task queuing → Silent scraping
+```
+
+**Key Files Involved**:
+- `App.tsx`: Preload orchestration and settings monitoring
+- `services/navigationService.ts`: Chapter URL chain building
+- `services/workerService.ts`: Background task management
+- `services/rateLimitService.ts`: API rate limiting during preload
+- `services/adapters.ts`: Site-specific content extraction
 
 ### **📖 Chapter Reading Flow**
 **User Journey**: Navigate to novel URL → Read translated content
