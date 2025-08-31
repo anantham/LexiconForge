@@ -9,6 +9,7 @@ import FeedbackDisplay from './FeedbackDisplay';
 import RefreshIcon from './icons/RefreshIcon';
 import { useAppStore } from '../store';
 import Illustration from './Illustration';
+import AudioControls from './AudioControls';
 
 // Touch detection hook using media queries
 function useIsTouch() {
@@ -435,7 +436,7 @@ const ChapterView: React.FC = () => {
                 &larr; Previous
             </button>
             
-            <div className="flex justify-center items-center gap-4">
+            <div className="flex justify-center items-center gap-4 ml-6">
               {chapter?.originalUrl && (
                 <a 
                   href={chapter.originalUrl}
@@ -481,7 +482,7 @@ const ChapterView: React.FC = () => {
                     }
                   }}
                   disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isTranslationActive(currentChapterId))}
-                  className={`p-2 rounded-full border transition-all duration-200 ${
+                  className={`p-2 rounded-full border transition-all duration-200 ml-4 ${
                     currentChapterId && isTranslationActive(currentChapterId)
                       ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
                       : shouldEnableRetranslation(currentChapterId || '')
@@ -495,13 +496,18 @@ const ChapterView: React.FC = () => {
               )}
             </div>
 
-            <button
-                onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
-                disabled={!chapter.nextUrl || isLoading.fetching}
-                className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition"
-              >
-                Next &rarr;
-            </button>
+            <div className="flex items-center gap-3">
+              <div className="ml-3">
+                <AudioControls chapterId={currentChapterId || ''} />
+              </div>
+              <button
+                  onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
+                  disabled={!chapter.nextUrl || isLoading.fetching}
+                  className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition"
+                >
+                  Next &rarr;
+              </button>
+            </div>
           </div>
 
           {/* Mobile: Two row layout */}
@@ -516,13 +522,18 @@ const ChapterView: React.FC = () => {
                   &larr; Prev
               </button>
 
-              <button
-                  onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
-                  disabled={!chapter.nextUrl || isLoading.fetching}
-                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition text-sm"
-                >
-                  Next &rarr;
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="ml-2">
+                  <AudioControls chapterId={currentChapterId || ''} className="scale-90" />
+                </div>
+                <button
+                    onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
+                    disabled={!chapter.nextUrl || isLoading.fetching}
+                    className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition text-sm"
+                  >
+                    Next &rarr;
+                </button>
+              </div>
             </div>
 
             {/* Row 2: Language toggle and retranslate */}
