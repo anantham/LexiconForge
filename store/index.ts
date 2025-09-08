@@ -222,6 +222,12 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
       } catch (e) {
         console.warn('[Store] Failed to backfill URL mappings:', e);
       }
+      // Normalize stableId format and ensure mappings
+      try {
+        await indexedDBService.normalizeStableIds();
+      } catch (e) {
+        console.warn('[Store] StableId normalization failed:', e);
+      }
       
       // Load URL mappings from IndexedDB
       try {

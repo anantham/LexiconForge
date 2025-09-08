@@ -251,7 +251,12 @@ class IndexedDBService {
     const missingStores = requiredStores.filter(store => !existingStores.includes(store));
     
     if (missingStores.length === 0) {
-      // dblog('[IndexedDB] Schema verification passed - all stores present');
+      // Ensure critical indexes exist (translations compound unique indexes)
+      try {
+        await this.ensureTranslationIndexes(db);
+      } catch (e) {
+        console.warn('[IndexedDB] Failed to ensure translation indexes:', e);
+      }
       return;
     }
 
@@ -292,6 +297,14 @@ class IndexedDBService {
             novelStore.createIndex('lastAccessed', 'lastAccessed');
             // console.log('[IndexedDB] Auto-migration: created novels store');
           }
+          // Ensure translations indexes exist (unique compound indexes)
+          if (upgradeDb.objectStoreNames.contains('translations')) {
+            const store = (upgradeDb as any).transaction.objectStore('translations');
+            const idxNames = Array.from(store.indexNames || []);
+            try { if (!idxNames.includes('chapterUrl_version')) store.createIndex('chapterUrl_version', ['chapterUrl', 'version'], { unique: true }); } catch {}
+            try { if (!idxNames.includes('stableId')) store.createIndex('stableId', 'stableId'); } catch {}
+            try { if (!idxNames.includes('stableId_version')) store.createIndex('stableId_version', ['stableId', 'version'], { unique: true }); } catch {}
+          }
         } catch (error) {
           console.error('[IndexedDB] Auto-migration failed:', error);
           reject(error);
@@ -314,6 +327,100 @@ class IndexedDBService {
         resolve();
       };
     });
+  }
+
+  /** Ensure translations store has expected indexes; if missing, perform a lightweight upgrade. */
+  private async ensureTranslationIndexes(db: IDBDatabase): Promise<void> {
+    try {
+      const tx = db.transaction([STORES.TRANSLATIONS], 'readonly');
+      const store = tx.objectStore(STORES.TRANSLATIONS);
+      const idxNames = Array.from(store.indexNames || []);
+      const need = [
+        !idxNames.includes('chapterUrl_version'),
+        !idxNames.includes('stableId'),
+        !idxNames.includes('stableId_version'),
+      ].some(Boolean);
+      if (!need) return;
+    } catch {
+      return;
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const newVersion = db.version + 1;
+      const req = indexedDB.open(DB_NAME, newVersion);
+      req.onupgradeneeded = (ev) => {
+        const udb = (ev.target as IDBOpenDBRequest).result;
+        try {
+          if (udb.objectStoreNames.contains(STORES.TRANSLATIONS)) {
+            const store = (udb as any).transaction.objectStore(STORES.TRANSLATIONS);
+            const idxNames = Array.from(store.indexNames || []);
+            try { if (!idxNames.includes('chapterUrl_version')) store.createIndex('chapterUrl_version', ['chapterUrl', 'version'], { unique: true }); } catch {}
+            try { if (!idxNames.includes('stableId')) store.createIndex('stableId', 'stableId'); } catch {}
+            try { if (!idxNames.includes('stableId_version')) store.createIndex('stableId_version', ['stableId', 'version'], { unique: true }); } catch {}
+          }
+        } catch (e) {
+          console.warn('[IndexedDB] ensureTranslationIndexes upgrade failed', e);
+        }
+      };
+      req.onsuccess = () => { req.result.close(); resolve(); };
+      req.onerror = () => reject(req.error as any);
+    });
+  }
+
+  /** Normalize stableId format (hyphen → underscore) and ensure URL mappings exist. */
+  async normalizeStableIds(): Promise<void> {
+    try {
+      const already = await this.getSetting<boolean>('stableIdNormalized');
+      if (already) return;
+      const db = await this.openDatabase();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction([STORES.CHAPTERS, STORES.URL_MAPPINGS, STORES.TRANSLATIONS], 'readwrite');
+        const chStore = tx.objectStore(STORES.CHAPTERS);
+        const mapStore = tx.objectStore(STORES.URL_MAPPINGS);
+        const trStore = tx.objectStore(STORES.TRANSLATIONS);
+
+        const getCh = chStore.getAll();
+        getCh.onsuccess = () => {
+          const chapters = (getCh.result || []) as ChapterRecord[];
+          chapters.forEach((rec) => {
+            if (!rec) return;
+            const oldId = rec.stableId;
+            const newId = oldId?.includes('-') ? oldId.replace(/-/g, '_') : oldId;
+            if (newId && newId !== oldId) {
+              rec.stableId = newId;
+              chStore.put(rec);
+              const idx = trStore.index('chapterUrl');
+              const curReq = idx.openCursor(IDBKeyRange.only(rec.url));
+              curReq.onsuccess = (ev) => {
+                const cursor = (ev.target as IDBRequest<IDBCursorWithValue>).result;
+                if (cursor) {
+                  const tr = cursor.value as TranslationRecord;
+                  tr.stableId = newId;
+                  cursor.update(tr);
+                  cursor.continue();
+                }
+              };
+            }
+
+            const canonical = rec.canonicalUrl || this.normalizeUrlAggressively(rec.originalUrl || rec.url) || rec.url;
+            const sid = rec.stableId || oldId || '';
+            if (canonical && sid) {
+              mapStore.put({ url: canonical, stableId: sid, isCanonical: true, dateAdded: new Date().toISOString() } as any);
+              const raw = rec.originalUrl || rec.url;
+              if (raw && raw !== canonical) {
+                mapStore.put({ url: raw, stableId: sid, isCanonical: false, dateAdded: new Date().toISOString() } as any);
+              }
+            }
+          });
+        };
+        getCh.onerror = () => reject(getCh.error as any);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error as any);
+      });
+      await this.setSetting('stableIdNormalized', true);
+    } catch (e) {
+      console.warn('[IndexedDB] StableId normalization failed', e);
+    }
   }
   
   /**
