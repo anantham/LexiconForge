@@ -11,6 +11,7 @@
 
 import { fetchAndParseUrl, isUrlSupported, getSupportedSiteInfo, SupportedSiteInfo } from './adapters';
 import { TranslationRecord, indexedDBService } from './indexeddb';
+import { getRepoForService } from './db/index';
 import { 
   EnhancedChapter, 
   normalizeUrlAggressively, 
@@ -209,14 +210,13 @@ export class NavigationService {
           }
           
           // Persist navigation state
-          try { 
-            indexedDBService.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {}); 
+          try {
+            const repo = getRepoForService('navigationService');
+            repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {} as any);
           } catch {}
-          try { 
-            indexedDBService.setSetting('lastActiveChapter', { 
-              id: chapterId, 
-              url: loaded.canonicalUrl 
-            }).catch(() => {}); 
+          try {
+            const repo = getRepoForService('navigationService');
+            repo.setSetting('lastActiveChapter', { id: chapterId, url: loaded.canonicalUrl }).catch(() => {} as any);
           } catch {}
           
           slog(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
@@ -234,8 +234,9 @@ export class NavigationService {
       // Lazy load failed - try URL mapping in IndexedDB before fetching
       try {
         const norm = normalizedUrl;
-        const mapping = (norm ? await indexedDBService.getUrlMappingForUrl(norm) : null) ||
-                        await indexedDBService.getUrlMappingForUrl(url);
+        const repo = getRepoForService('navigationService');
+        const mapping = (norm ? await repo.getUrlMappingForUrl(norm) : null) ||
+                        await repo.getUrlMappingForUrl(url);
         if (mapping?.stableId) {
           console.log('[Navigate] Found URL mapping in IndexedDB. Hydrating chapter instead of fetching.');
           const loaded = await loadChapterFromIDB(mapping.stableId);
@@ -278,7 +279,8 @@ export class NavigationService {
     } else {
       // Try direct IndexedDB lookup as last resort
       try {
-        const found = await indexedDBService.findChapterByUrl(url);
+        const repo = getRepoForService('navigationService');
+        const found = await repo.findChapterByUrl(url);
         if (found?.stableId) {
           const chapterIdFound = found.stableId;
           const c = found.data?.chapter || {};
@@ -306,13 +308,9 @@ export class NavigationService {
           
           // Persist navigation state
           try {
-            await indexedDBService.setSetting('lastActiveChapter', { 
-              id: chapterIdFound, 
-              url: canonicalUrl 
-            });
-            await indexedDBService.setSetting('navigation-history', { 
-              stableIds: newHistory 
-            });
+            const repo2 = getRepoForService('navigationService');
+            await repo2.setSetting('lastActiveChapter', { id: chapterIdFound, url: canonicalUrl });
+            await repo2.setSetting('navigation-history', { stableIds: newHistory });
           } catch {}
           
           slog(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);

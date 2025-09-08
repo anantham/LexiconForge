@@ -339,7 +339,7 @@ export const createChaptersSlice: StateCreator<
       
       // Persist to IndexedDB
       try {
-        indexedDBService.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {});
+        try { const { getRepoForService } = await import('../../services/db/index'); const repo = getRepoForService('chaptersSlice'); repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {} as any); } catch {}
       } catch {}
       
       return { navigationHistory: newHistory };
@@ -351,7 +351,7 @@ export const createChaptersSlice: StateCreator<
     
     // Persist to IndexedDB
     try {
-      indexedDBService.setSetting('navigation-history', { stableIds: [] }).catch(() => {});
+      try { const { getRepoForService } = await import('../../services/db/index'); const repo = getRepoForService('chaptersSlice'); repo.setSetting('navigation-history', { stableIds: [] }).catch(() => {} as any); } catch {}
     } catch {}
   },
   
