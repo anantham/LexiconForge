@@ -1026,6 +1026,36 @@ class IndexedDBService {
       req.onerror = () => reject(req.error);
     });
   }
+
+  /**
+   * Update chapterNumber by stableId (insert-or-update on existing chapter record)
+   */
+  async setChapterNumberByStableId(stableId: string, chapterNumber: number): Promise<void> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.CHAPTERS], 'readwrite');
+        const store = tx.objectStore(STORES.CHAPTERS);
+        const idx = store.index('stableId');
+        const req = idx.get(stableId);
+        req.onsuccess = () => {
+          const rec = (req.result as ChapterRecord) || null;
+          if (!rec) {
+            reject(new Error(`No chapter found for stableId=${stableId}`));
+            return;
+          }
+          rec.chapterNumber = chapterNumber;
+          rec.lastAccessed = new Date().toISOString();
+          const put = store.put(rec);
+          put.onsuccess = () => resolve();
+          put.onerror = () => reject(put.error);
+        };
+        req.onerror = () => reject(req.error);
+      } catch (e) {
+        reject(e as any);
+      }
+    });
+  }
   
   /**
    * Store settings
