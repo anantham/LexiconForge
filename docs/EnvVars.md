@@ -24,5 +24,4 @@ Set in `.env.local` for local dev or in Vercel Project → Settings → Environm
 
 ## Security Note
 
-- Client apps expose keys in the browser. See `DEPLOYMENT.md` for mitigation (proxies, serverless, quotas, rotation).
-
+ - Client apps expose keys in the browser. See `docs/DEPLOYMENT.md` for mitigation (proxies, serverless, quotas, rotation).

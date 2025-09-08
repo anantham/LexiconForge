@@ -17,7 +17,7 @@ Thanks for improving LexiconForge! This guide keeps changes safe and easy to rev
 ## Docs & ADRs
 
 - See `docs/` and `docs/adr/` for architecture.
-- Update `WORKLOG.md` with a timestamped summary for non‑trivial changes.
+- Update `docs/WORKLOG.md` with a timestamped summary for non‑trivial changes.
 
 ## Commit Style
 
@@ -31,10 +31,9 @@ Thanks for improving LexiconForge! This guide keeps changes safe and easy to rev
 
 ## Adding Site Adapters / Providers
 
-- Website adapters: follow `META_ADAPTER.md`
+- Website adapters: follow `docs/META_ADAPTER.md`
 - Translation providers: implement `TranslationProvider` and register with the `Translator`
 
 ## Debugging
 
 - See `docs/Debugging.md` for flags and safety notes
-

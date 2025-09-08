@@ -115,7 +115,7 @@ Prompts & JSON schema descriptions are centralized in `config/prompts.json`, so 
 
 **🏗️ Architecture Evolution (2025)**: LexiconForge is currently undergoing modernization to implement agent-first development principles. See our [Architecture Decision Records](docs/) for the roadmap toward modular, maintainable services that work seamlessly with AI assistants.
 
-For detailed technical information, see the [Project Structure & Technical Details](./PROJECT_STRUCTURE.md).
+For detailed technical information, see the [Project Structure & Technical Details](./docs/PROJECT_STRUCTURE.md).
 
 ---
 

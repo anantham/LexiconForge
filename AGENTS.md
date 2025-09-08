@@ -30,7 +30,7 @@ Below is the Bug Squashing protocol that might be invoked when we are dealing wi
 ---
 
 PRE‑FLIGHT_CHECKLIST (before ANY code changes)  
-- [ ] Read WORKLOG.md  
+- [ ] Read docs/WORKLOG.md  
 - [ ] Make sure to update it with time stamp with details about which files were modifed, line numbers and why
 - [ ] Read relevant files in full (no skimming)  
 - [ ] Write explicit hypotheses  
@@ -306,7 +306,7 @@ footers other than BREAKING CHANGE: <description> may be provided and follow a c
     
 - Unified Diff Format — GNU diffutils manual
     
-- Project docs — PROJECT_STRUCTURE.md, docs/adr/, recent WORKLOG.md
+- Project docs — docs/PROJECT_STRUCTURE.md, docs/adr/, recent docs/WORKLOG.md
     
 
 ---

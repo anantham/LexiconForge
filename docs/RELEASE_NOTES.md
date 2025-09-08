@@ -147,7 +147,7 @@ npm run dev
 2. `services/aiService.ts` - AI provider integration
 3. `components/SettingsModal.tsx` - User configuration
 4. `services/adapters.ts` - Web scraping system
-5. `PROJECT_STRUCTURE.md` - Complete architecture guide
+5. `docs/PROJECT_STRUCTURE.md` - Complete architecture guide
 
 ### **Adding New Features**
 - **New AI Provider**: Extend `aiService.ts` and add to `costs.ts`
