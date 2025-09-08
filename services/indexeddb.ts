@@ -2030,7 +2030,7 @@ class IndexedDBService {
         const request = store.getAll();
         dblogFull('[INDEXEDDB-DEBUG] getAll() request created');
         
-        request.onsuccess = () => {
+        request.onsuccess = async () => {
           const chapters = request.result as ChapterRecord[];
           
           dblogFull('[INDEXEDDB-DEBUG] Raw chapters from IndexedDB:', {
@@ -2049,24 +2049,33 @@ class IndexedDBService {
             }))
           });
           
-          const chaptersWithStableIds = chapters.map(chapter => {
+          const chaptersWithStableIds = await Promise.all(chapters.map(async (chapter) => {
             // Generate stable ID if not already present
             const stableId = chapter.stableId || this.generateStableId(chapter.content, chapter.chapterNumber || 0, chapter.title);
+            
+            // Load active translation for this chapter
+            let translationResult = null;
+            try {
+              translationResult = await this.getActiveTranslation(chapter.url);
+            } catch (error) {
+              // If translation loading fails, continue without translation
+              dblog('[IndexedDB] Failed to load translation for chapter:', chapter.url, error);
+            }
             
             const chapterData = {
               stableId,
               url: chapter.url,
               data: {
-              chapter: {
-                title: chapter.title,
-                content: chapter.content,
-                originalUrl: chapter.url,
-                nextUrl: chapter.nextUrl,
-                prevUrl: chapter.prevUrl,
-                chapterNumber: chapter.chapterNumber,
-                fanTranslation: chapter.fanTranslation,
-              },
-              translationResult: null // Will be loaded separately if needed
+                chapter: {
+                  title: chapter.title,
+                  content: chapter.content,
+                  originalUrl: chapter.url,
+                  nextUrl: chapter.nextUrl,
+                  prevUrl: chapter.prevUrl,
+                  chapterNumber: chapter.chapterNumber,
+                  fanTranslation: chapter.fanTranslation,
+                },
+                translationResult: translationResult // Now includes active translation
               },
               title: chapter.title,
               chapterNumber: chapter.chapterNumber || 0
@@ -2079,11 +2088,13 @@ class IndexedDBService {
             //   title: chapter.title,
             //   chapterNumber: chapter.chapterNumber || 0,
             //   hasChapterData: !!chapterData.data.chapter,
-            //   hasChapterContent: !!chapterData.data.chapter.content
+            //   hasChapterContent: !!chapterData.data.chapter.content,
+            //   hasTranslation: !!translationResult,
+            //   translatedTitle: translationResult?.translatedTitle
             // });
             
             return chapterData;
-          });
+          }));
 
           // Sort by chapter number
           chaptersWithStableIds.sort((a, b) => a.chapterNumber - b.chapterNumber);
@@ -2094,11 +2105,13 @@ class IndexedDBService {
           //     stableId: ch.stableId,
           //     url: ch.url,
           //     title: ch.title,
-          //     chapterNumber: ch.chapterNumber
+          //     chapterNumber: ch.chapterNumber,
+          //     hasTranslatedTitle: !!ch.data.translationResult?.translatedTitle,
+          //     translatedTitle: ch.data.translationResult?.translatedTitle
           //   }))
           // });
           
-          dblog('[IndexedDB] getChaptersForReactRendering:', chaptersWithStableIds.length, 'chapters');
+          dblog('[IndexedDB] getChaptersForReactRendering:', chaptersWithStableIds.length, 'chapters with translations loaded');
           resolve(chaptersWithStableIds);
         };
         request.onerror = () => {
