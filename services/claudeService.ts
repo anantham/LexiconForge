@@ -130,7 +130,7 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
     
     const requestPayload = {
         model: settings.model,
-        max_tokens: Math.max(1, Math.min((settings.maxOutputTokens ?? 8192), 200000)),
+        max_tokens: Math.max(1, Math.min((settings.maxOutputTokens ?? 16384), 200000)),
         temperature: Math.max(0, Math.min(1, settings.temperature)), // Clamp temperature to 0-1 range as UI max is 2
         messages: [
             {

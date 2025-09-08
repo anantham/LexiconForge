@@ -72,7 +72,7 @@ export class ExplanationService {
       const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
 
       // Use global settings.maxOutputTokens so explanation generation can utilize the global cap
-      const maxOutput = Math.max(1, Math.min((settings.maxOutputTokens ?? 8192), 200000));
+      const maxOutput = Math.max(1, Math.min((settings.maxOutputTokens ?? 16384), 200000));
       const requestBody = {
         model: settings.model,
         messages: [{ role: 'user', content: prompt }],

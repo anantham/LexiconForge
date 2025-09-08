@@ -46,8 +46,8 @@ export class IllustrationService {
 
       const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
 
-      // Use global maxOutputTokens from settings (fallback to 8192) and clamp to a safe upper bound.
-      const maxOutput = Math.max(1, Math.min((settings.maxOutputTokens ?? 8192), 200000));
+      // Use global maxOutputTokens from settings (fallback to 16384) and clamp to a safe upper bound.
+      const maxOutput = Math.max(1, Math.min((settings.maxOutputTokens ?? 16384), 200000));
 
       // Defensive prompt trimming: if the prompt is extremely long, truncate the leading content
       // to ensure the model has room to generate output. Keep a marker so generation is aware.
