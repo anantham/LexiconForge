@@ -32,6 +32,74 @@
       "seed": "For reproducible outputs. Leave empty for random generation"
     }
   },
+  "audioGeneration": {
+    "defaults": {
+      "provider": "ace-step",
+      "taskType": "txt2audio",
+      "duration": 240,
+      "negativePrompt": "noise, static, distortion",
+      "volume": 0.7
+    },
+    "providers": {
+      "ace-step": {
+        "taskTypes": ["txt2audio", "audio2audio"],
+        "defaultDuration": 240,
+        "maxDuration": 240,
+        "minDuration": 10,
+        "costPerSecond": 0.0005
+      },
+      "diffrhythm": {
+        "taskTypes": ["txt2audio-base", "txt2audio-full"],
+        "durations": {
+          "txt2audio-base": 81,
+          "txt2audio-full": 267
+        },
+        "costPerGeneration": 0.02
+      }
+    },
+    "stylePresets": [
+      {
+        "id": "dark-cinematic",
+        "name": "Dark Cinematic",
+        "description": "A dark, cinematic waltz perfect for tense, elegant scenes",
+        "stylePrompt": "A dark, cinematic waltz in 3/4 time, C# minor, 80 BPM. A blend of baroque chamber music and modern psychological thriller scoring. Elegant, tense, and unsettling. Lead melody with harpsichord and solo cello trading melancholic, ornate phrases. Small string section with sustained, dissonant chords creating wrongness. Deep plucked contrabass on waltz beat with subtle low sub-bass drone. Glass harmonica adds high, shimmering, eerie texture. Constantly holding breath with long pauses between phrases. Dynamics shift from pianissimo to mezzo-forte abruptly. Unresolved final chord.",
+        "negativePrompt": "cheerful, bright, major key, fast tempo, percussion, drums",
+        "suitableFor": ["dramatic", "mystery", "romance"],
+        "provider": "ace-step",
+        "taskType": "txt2audio"
+      },
+      {
+        "id": "strategist-gambit",
+        "name": "The Strategist's Gambit",
+        "description": "Cold, methodical electronic music for calculating, strategic moments",
+        "stylePrompt": "Minimalist dark electronic music, cinematic tension, E minor, 110 BPM. Rhythmic, methodical, and building to a silent, terrifying conclusion. A score for a political purge. Cold logic of ruthless planning clicking into place. Sparse, calculated beats with subtle synth layers building tension.",
+        "negativePrompt": "warm, organic, acoustic, emotional, chaotic",
+        "suitableFor": ["dramatic", "action", "mystery"],
+        "provider": "ace-step",
+        "taskType": "txt2audio"
+      },
+      {
+        "id": "peaceful-ambient",
+        "name": "Peaceful Ambient",
+        "description": "Gentle, atmospheric background music for quiet scenes",
+        "stylePrompt": "Ambient, peaceful, soft piano with subtle strings, warm pads, gentle nature sounds, flowing water, calm meditation music, 60 BPM, major key, serene and contemplative",
+        "negativePrompt": "aggressive, loud, distorted, fast tempo, percussion",
+        "suitableFor": ["peaceful", "romance", "ambient"],
+        "provider": "ace-step",
+        "taskType": "txt2audio"
+      },
+      {
+        "id": "epic-orchestral",
+        "name": "Epic Orchestral",
+        "description": "Grand, sweeping orchestral music for action and climactic scenes",
+        "stylePrompt": "Epic orchestral, full symphony, brass fanfares, soaring strings, powerful percussion, heroic theme, 120 BPM, major key, triumphant and inspiring, cinematic action score",
+        "negativePrompt": "quiet, minimal, sad, slow, electronic",
+        "suitableFor": ["action", "dramatic"],
+        "provider": "ace-step",
+        "taskType": "txt2audio"
+      }
+    ]
+  },
   "imageGeneration": {
     "defaults": {
       "negativePrompt": "low quality, blurry, distorted, text, watermark",

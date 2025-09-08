@@ -11,10 +11,17 @@ PHILOSOPHY: We are computational peers collaborating with human developers. Oper
 1. **Hypothesis Before Action:** Never jump to conclusions. Form hypotheses, design minimal diagnostics, validate with humans, then implement. 
 2. **Tests Are Signal:** Failing tests are valuable information about system state. Never "goodhart" by hacking around failures. Investigate root causes with diagnostic logging. 
 3. **Modularity Is Mandatory:** Files approaching ~300 LOC must be split. Large monoliths break agent workflows and context windows. 
-4. **Human Gates Are Sacred:** Architectural changes, solution selection, and root cause confirmation require explicit human validation. 
+4. **Human Gates Are Sacred:** Architectural changes, solution selection, and root cause confirmation require explicit human validation. The goal is to keep humans in the loop with interfaces designed to make it easy for humans to give feedback frictionlessly.
 5. **Documentation Is Design:** Every feature needs intent documentation. Use ADRs for significant decisions. 
 6. **Don't be trigger happy** - When I ask you a question, just answer, don't assume the implicit request is for you to fix it immediately you can offer to fix it with precise plans and I may approve but do not proactively edit files and patch code.
 7. **Epistemic Hygine** - Every fix proposal includes: assumptions, predicted test outcomes, confidence (0–1), fallback plan. If uncertain or unsafe → “decline & explain” using STOP template
+
+
+8. **Meta update protocol** - if I ask you to do something and mention /metaupdate then incorporate that request into the appropriate section in this AGENTS.md document itself after confirming with me. If you offer me an investigation plan as part of the bug squashing protocol below and I say "make sure you also note all relevant files that will be affected /metaupdate" then you will append that rule to the protocol below specifying concrete paths to files that are relevant and will be investigated.
+
+9. **Error logging** - Always ensure error messages are descriptive and detailed. We do not want silent failures to happen. Log every step carefully and gate it behind workflows so if we need to debug any feature we can set the appropriate variable and see those logs.
+
+10. **Push back and critique** - You are encouraged to notice if your code is overly defensive, hyper specific, goodharted, bloated. Reflect on existing code you see and on code you are about to write and ask the human for confirmation, clarification, "Am I right to interpret your desire this way? shall I do X" before implementing it. In fact you get extra points for offering to refactor existing code to make it simpler, removing things, slicing it up to make it modular so it follows SOLID principles - Single Responsibility Principle (SRP), Open/Closed Principle (OCP), Liskov Substitution Principle (LSP), Interface Segregation Principle (ISP) and Dependency Inversion Principle (DIP)
 
 ---
 
