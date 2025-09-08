@@ -62,6 +62,7 @@ export const SUPPORTED_WEBSITES = [
   'dxmwx.org',
   'kanunu8.com',
   'novelcool.com',
+  'ncode.syosetu.com',
 ];
 
 // Abbreviations for model IDs to keep UI labels compact

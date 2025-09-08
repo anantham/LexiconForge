@@ -97,11 +97,41 @@ class NovelcoolAdapter extends BaseAdapter {
     getNextLink = () => this.getLinkByText(/next/);
 }
 
+class SyosetuAdapter extends BaseAdapter {
+    extractTitle = () => {
+        const titleEl = this.doc.querySelector('h1.p-novel__title');
+        return titleEl?.textContent?.trim() ?? null;
+    };
+
+    extractContent = () => {
+        const contentEl = this.doc.querySelector('.js-novel-text.p-novel__text');
+        if (!contentEl) return null;
+        
+        // Remove any script tags and ads that might be embedded
+        contentEl.querySelectorAll('script, .c-ad').forEach(el => el.remove());
+        
+        return contentEl.textContent?.trim() ?? null;
+    };
+
+    getPrevLink = () => {
+        const prevLink = this.doc.querySelector('.c-pager__item--before');
+        const href = prevLink?.getAttribute('href');
+        return href ? new URL(href, this.url).href : null;
+    };
+
+    getNextLink = () => {
+        const nextLink = this.doc.querySelector('.c-pager__item--next');
+        const href = nextLink?.getAttribute('href');
+        return href ? new URL(href, this.url).href : null;
+    };
+}
+
 const getAdapter = (url: string, doc: Document): BaseAdapter | null => {
     if (url.includes('kakuyomu.jp')) return new KakuyomuAdapter(url, doc);
     if (url.includes('dxmwx.org')) return new DxmwxAdapter(url, doc);
     if (url.includes('kanunu8.com') || url.includes('kanunu.net')) return new KanunuAdapter(url, doc);
     if (url.includes('novelcool.com')) return new NovelcoolAdapter(url, doc);
+    if (url.includes('ncode.syosetu.com')) return new SyosetuAdapter(url, doc);
     return null;
 }
 
