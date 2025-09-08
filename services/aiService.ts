@@ -458,7 +458,7 @@ const translateWithGemini = async (title: string, content: string, settings: App
       temperature: settings.temperature,
       responseMimeType: 'application/json',
       responseSchema: geminiResponseSchema,
-      maxOutputTokens: Math.max(1, Math.min((settings.maxOutputTokens ?? 2048), 32768)),
+      maxOutputTokens: Math.max(1, Math.min((settings.maxOutputTokens ?? 16384), 32768)),
     },
   } as const;
 

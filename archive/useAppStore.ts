@@ -80,7 +80,7 @@ const defaultSettings: AppSettings = {
   apiKeyDeepSeek: '',
   apiKeyOpenRouter: '',
   // Advanced defaults
-  maxOutputTokens: 8192,
+  maxOutputTokens: 16384,
   retryMax: 3,
   retryInitialDelayMs: 2000,
   footnoteStrictMode: appConfig.footnoteStrictMode as 'append_missing' | 'fail',

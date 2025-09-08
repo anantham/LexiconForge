@@ -1450,8 +1450,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                       min={256}
                       max={200000}
                       step={256}
-                      value={(currentSettings as any).maxOutputTokens ?? 8192}
-                      onChange={(e) => handleSettingChange('maxOutputTokens' as any, Math.max(256, Math.min(200000, parseInt(e.target.value || '8192', 10))))}
+                      value={(currentSettings as any).maxOutputTokens ?? 16384}
+                      onChange={(e) => handleSettingChange('maxOutputTokens' as any, Math.max(256, Math.min(200000, parseInt(e.target.value || '16384', 10))))}
                       className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600"
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Hard cap for generated tokens. Applied where supported.</p>
