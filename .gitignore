@@ -66,3 +66,7 @@ public/steering/
 # Media assets - do not version control
 public/OSTs/
 
+# User data directories - do not version control
+data/Novels/
+data/sessions/
+
