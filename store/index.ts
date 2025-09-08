@@ -196,8 +196,22 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
       // Load settings
       get().loadSettings();
       
-      // Load prompt templates
-      await get().loadPromptTemplates();
+      // Load prompt templates; if missing, bootstrap a default via initializeSession()
+      try {
+        const { templates, activeTemplate } = await SessionManagementService.loadPromptTemplates();
+        if (templates.length === 0 || !activeTemplate) {
+          const init = await SessionManagementService.initializeSession();
+          set({
+            settings: init.settings,
+            promptTemplates: init.promptTemplates,
+            activePromptTemplate: init.activePromptTemplate,
+          });
+        } else {
+          set({ promptTemplates: templates, activePromptTemplate: activeTemplate });
+        }
+      } catch (e) {
+        console.warn('[Store] Failed to load/initialize prompt templates:', e);
+      }
       
       // Backfill URL mappings if needed (one-time operation)
       try {
