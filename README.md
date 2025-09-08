@@ -15,8 +15,14 @@ LexiconForge is your gateway to the world of web novels. It's a powerful, AI-dri
 LexiconForge is more than just a translator; it's a power tool for readers.
 
 ### **🌐 Universal Web Novel Access**
-*   📖 **Multi-Site Support:** Paste URLs from Kakuyomu, Dxmwx, Kanunu, NovelCool, and more. LexiconForge automatically adapts to each site's structure.
-*   ⚡ **Smart Preloading:** Background fetching of upcoming chapters for seamless reading (configurable 0-10 chapters ahead).
+*   📖 **Multi-Site Support:** Currently supports 5 major web novel platforms:
+    - **Kakuyomu** (kakuyomu.jp) - Japanese light novels
+    - **Syosetu** (ncode.syosetu.com) - User-generated Japanese fiction
+    - **Dxmwx** (dxmwx.org) - Chinese web novels
+    - **Kanunu** (kanunu8.com, kanunu.net) - Chinese literature archive
+    - **NovelCool** (novelcool.com) - Multi-language novel platform
+*   🌐 **Intelligent CORS Proxy System:** 10+ redundant proxy servers with automatic health monitoring and failover for reliable content fetching.
+*   ⚡ **Smart Preloading:** Background fetching of upcoming chapters for seamless reading (configurable 0-50 chapters ahead).
 *   🔗 **Navigation Memory:** Built-in chapter history and navigation breadcrumbs for easy browsing.
 
 ### **🤖 Advanced AI Translation**
@@ -49,6 +55,13 @@ LexiconForge is more than just a translator; it's a power tool for readers.
   - Embedded AI-generated illustrations with captions
   - Customizable acknowledgments and project descriptions
 *   💾 **Complete Data Ownership:** Export/import your entire session as JSON. Your reading history, translations, feedback, and settings belong to you.
+
+### **🎵 Audio Generation**
+*   🎧 **Scene Music & Cues:** Generate background music or ambient tracks from style prompts
+*   🧩 **Two Modes:** `txt2audio` (from text prompt) and `audio2audio` (style transfer)
+*   🎛️ **Style Presets:** Curated prompts (Dark Cinematic, Strategist’s Gambit, etc.)
+*   📈 **Cost Awareness:** Provider‑reported durations and simple cost estimates
+*   🔐 **Opt‑In:** Works with your PiAPI key; entirely client‑side
 
 ### **⚡ Performance & Storage**
 *   🗄️ **Dual-Tier Architecture:** Instant UI updates (Zustand) + unlimited persistent storage (IndexedDB) for the best of both worlds.
@@ -106,6 +119,21 @@ For detailed technical information, see the [Project Structure & Technical Detai
 
 ---
 
+## 📚 Documentation
+
+- Settings Reference: `docs/Settings.md`
+- Environment Variables: `docs/EnvVars.md`
+- Providers & Models: `docs/Providers.md`
+- Image/Illustrations: see Rich Media section above
+- Audio Generation: `docs/Audio.md`
+- Workers & Batch Jobs: `docs/Workers.md`
+- Data Schemas (Translation/Session): `docs/Schemas.md`
+- EPUB Export & Templates: `docs/EPUB.md`
+- Architecture Decisions (ADRs): `docs/` and `docs/adr/`
+- Chrome Extension (BookToki scraper): `chrome_extension/README.md`
+
+---
+
 ## 💬 Community & Support
 
 Have a question, a feature request, or want to see what's next?
@@ -121,3 +149,9 @@ LexiconForge is a passion project. If you find it useful, please consider suppor
 *   **Donate via Ethereum:** `adityaarpitha.eth`
 
 ---
+
+## 🔧 Developer Quick Links
+
+- Contributing Guide: `CONTRIBUTING.md`
+- Debugging Flags: `docs/Debugging.md`
+- Prompt Configuration: `config/PROMPT_DOCUMENTATION.md`
