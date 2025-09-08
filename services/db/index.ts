@@ -182,10 +182,54 @@ function makeMemoryRepo(): Repo {
  * New IndexedDB-based repository (placeholder for full implementation)
  */
 function makeIdbRepo(): Repo {
-  // TODO: Implement using the new operations modules
-  // For now, fallback to legacy for safety
-  console.warn('[DB] New IDB repo not fully implemented, falling back to legacy');
-  return makeLegacyRepo();
+  return {
+    // Chapters
+    getChapter: (url) => ChapterOps.getByUrl(url),
+    getChapterByStableId: (stableId) => ChapterOps.getByStableId(stableId),
+    storeChapter: (chapter) => ChapterOps.store(chapter as any),
+    storeEnhancedChapter: (enhanced) => ChapterOps.storeEnhanced(enhanced),
+    getAllChapters: () => ChapterOps.getAll(),
+    findChapterByUrl: (url) => ChapterOps.findByUrl(url),
+
+    // Translations
+    async storeTranslation(chapterUrl: string, translation: any, settings: any) {
+      return TranslationOps.store({ ref: { url: chapterUrl }, result: translation, settings });
+    },
+    async storeTranslationByStableId(stableId: string, translation: any, settings: any) {
+      return TranslationOps.storeByStableId(stableId, translation, settings);
+    },
+    getTranslationVersions: (chapterUrl) => TranslationOps.getVersionsByUrl(chapterUrl),
+    getTranslationVersionsByStableId: (stableId) => TranslationOps.getVersionsByStableId(stableId),
+    getActiveTranslation: (chapterUrl) => TranslationOps.getActiveByUrl(chapterUrl),
+    getActiveTranslationByStableId: (stableId) => TranslationOps.getActiveByStableId(stableId),
+    setActiveTranslation: (chapterUrl, version) => TranslationOps.setActiveByUrl(chapterUrl, version),
+    setActiveTranslationByStableId: (stableId, version) => TranslationOps.setActiveByStableId(stableId, version),
+
+    // Feedback
+    storeFeedback: (chapterUrl, feedback, translationId) => (require('./operations') as any).FeedbackOps.store(chapterUrl, feedback as any, translationId),
+    getFeedback: (chapterUrl) => (require('./operations') as any).FeedbackOps.get(chapterUrl),
+    getAllFeedback: () => (require('./operations') as any).FeedbackOps.getAll(),
+
+    // Settings & templates
+    storeSettings: (settings) => (require('./operations') as any).SettingsOps.store(settings as any),
+    getSettings: () => (require('./operations') as any).SettingsOps.get(),
+    setSetting: (key, value) => (require('./operations') as any).SettingsOps.set(key, value),
+    getSetting: (key) => (require('./operations') as any).SettingsOps.getKey(key),
+    storePromptTemplate: (t) => (require('./operations') as any).TemplatesOps.store(t),
+    getPromptTemplates: () => (require('./operations') as any).TemplatesOps.getAll(),
+    getDefaultPromptTemplate: () => (require('./operations') as any).TemplatesOps.getDefault(),
+    getPromptTemplate: (id) => (require('./operations') as any).TemplatesOps.get(id),
+    setDefaultPromptTemplate: (id) => (require('./operations') as any).TemplatesOps.setDefault(id),
+
+    // URL mappings / novels
+    getStableIdByUrl: (url) => (require('./operations') as any).MappingsOps.getStableIdByUrl(url),
+    getUrlMappingForUrl: (url) => (require('./operations') as any).MappingsOps.getUrlMappingForUrl(url),
+    getAllUrlMappings: () => (require('./operations') as any).MappingsOps.getAllUrlMappings(),
+    getAllNovels: () => (require('./operations') as any).MappingsOps.getAllNovels(),
+
+    // Export
+    exportFullSessionToJson: () => (require('./operations') as any).ExportOps.exportFullSessionToJson(),
+  } as unknown as Repo;
 }
 
 /**

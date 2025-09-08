@@ -49,6 +49,31 @@ export class TranslationOps {
     }
   }
 
+  static async setActiveByUrl(chapterUrl: string, version: number): Promise<void> {
+    return indexedDBService.setActiveTranslation(chapterUrl, version);
+  }
+
+  static async getVersionsByUrl(chapterUrl: string) {
+    return indexedDBService.getTranslationVersions(chapterUrl);
+  }
+
+  static async getVersionsByStableId(stableId: string) {
+    return indexedDBService.getTranslationVersionsByStableId(stableId);
+  }
+
+  static async getActiveByUrl(chapterUrl: string) {
+    return indexedDBService.getActiveTranslation(chapterUrl);
+  }
+
+  static async getActiveByStableId(stableId: string) {
+    return indexedDBService.getActiveTranslationByStableId(stableId);
+  }
+
+  static async storeByStableId(stableId: string, result: TranslationResult, settings: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & { promptId?: string; promptName?: string; }) {
+    const url = await StableIdManager.getUrlForStableId(stableId);
+    return indexedDBService.storeTranslationAtomic(url, result, settings);
+  }
+
   private static async resolveUrl(ref: ChapterRef): Promise<string> {
     if (ref.url) return ref.url;
     if (!ref.stableId) throw new Error('ChapterRef requires stableId or url');
