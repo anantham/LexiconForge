@@ -9,7 +9,7 @@ import FeedbackDisplay from './FeedbackDisplay';
 import RefreshIcon from './icons/RefreshIcon';
 import { useAppStore } from '../store';
 import Illustration from './Illustration';
-import AudioControls from './AudioControls';
+import AudioPlayer from './AudioPlayer';
 
 // Touch detection hook using media queries
 function useIsTouch() {
@@ -93,6 +93,7 @@ const ChapterView: React.FC = () => {
   const shouldEnableRetranslation = useAppStore(s => s.shouldEnableRetranslation);
   const imageGenerationMetrics = useAppStore(s => s.imageGenerationMetrics);
   const hydratingMap = useAppStore(s => s.hydratingChapters);
+  const chapterAudioMap = useAppStore(s => s.chapterAudioMap);
 
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
   const translationResult = chapter?.translationResult;
@@ -496,10 +497,7 @@ const ChapterView: React.FC = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="ml-3">
-                <AudioControls chapterId={currentChapterId || ''} />
-              </div>
+            <div className="flex items-center justify-end">
               <button
                   onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
                   disabled={!chapter.nextUrl || isLoading.fetching}
@@ -522,18 +520,13 @@ const ChapterView: React.FC = () => {
                   &larr; Prev
               </button>
 
-              <div className="flex items-center gap-2">
-                <div className="ml-2">
-                  <AudioControls chapterId={currentChapterId || ''} className="scale-90" />
-                </div>
-                <button
-                    onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
-                    disabled={!chapter.nextUrl || isLoading.fetching}
-                    className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition text-sm"
-                  >
-                    Next &rarr;
-                </button>
-              </div>
+              <button
+                  onClick={() => chapter.nextUrl && handleNavigate(chapter.nextUrl)}
+                  disabled={!chapter.nextUrl || isLoading.fetching}
+                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition text-sm"
+                >
+                  Next &rarr;
+              </button>
             </div>
 
             {/* Row 2: Language toggle and retranslate */}
@@ -645,6 +638,12 @@ const ChapterView: React.FC = () => {
           <NavigationControls />
         </footer>
       )}
+      
+      {/* Audio Player Section */}
+      <AudioPlayer 
+        chapterId={currentChapterId || ''} 
+        isVisible={!!currentChapterId && !!chapter} 
+      />
     </div>
   );
 };

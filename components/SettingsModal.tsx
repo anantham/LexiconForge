@@ -8,6 +8,9 @@ import { getDefaultTemplate } from '../services/epubService';
 import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../costs';
 import { supportsStructuredOutputs, supportsParameters } from '../services/capabilityService';
 import { useShallow } from 'zustand/react/shallow';
+import { formatBytes } from '../services/audio/storage/utils';
+import { ostLibraryService } from '../services/audio/OSTLibraryService';
+import type { OSTSample } from '../services/audio/OSTLibraryService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -32,6 +35,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     getOpenRouterOptions,
     openRouterModels,
     openRouterKeyUsage,
+    // Audio settings
+    selectedProvider,
+    selectedTaskType,
+    selectedPreset,
+    volume,
+    audioMetrics,
+    getAvailablePresets,
+    setProvider,
+    setTaskType,
+    setPreset,
+    setVolume,
+    selectedStyleAudio,
+    uploadedStyleAudio,
+    setStyleAudio,
+    setUploadedStyleAudio,
   } = useAppStore(useShallow(state => ({
       settings: state.settings,
       updateSettings: state.updateSettings,
@@ -49,10 +67,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       getOpenRouterOptions: state.getOpenRouterOptions,
       openRouterModels: state.openRouterModels,
       openRouterKeyUsage: state.openRouterKeyUsage,
+      // Audio settings
+      selectedProvider: state.selectedProvider,
+      selectedTaskType: state.selectedTaskType,
+      selectedPreset: state.selectedPreset,
+      volume: state.volume,
+      audioMetrics: state.audioMetrics,
+      getAvailablePresets: state.getAvailablePresets,
+      setProvider: state.setProvider,
+      setTaskType: state.setTaskType,
+      setPreset: state.setPreset,
+      setVolume: state.setVolume,
+      selectedStyleAudio: state.selectedStyleAudio,
+      uploadedStyleAudio: state.uploadedStyleAudio,
+      setStyleAudio: state.setStyleAudio,
+      setUploadedStyleAudio: state.setUploadedStyleAudio,
   })));
 
   const [currentSettings, setCurrentSettings] = useState(settings);
-  const [activeTab, setActiveTab] = useState<'general' | 'export' | 'templates' | 'advanced'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'export' | 'templates' | 'audio' | 'advanced'>('general');
   const defaultTpl = getDefaultTemplate();
   const [showCreatePrompt, setShowCreatePrompt] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<string | null>(null);
@@ -69,6 +102,56 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     presencePenalty: boolean | null;
     seed: boolean | null;
   }>>({});
+  const [ostSamples, setOstSamples] = useState<OSTSample[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadOSTSamples = async () => {
+      try {
+        const samples = await ostLibraryService.getSamples();
+        setOstSamples(samples);
+      } catch (error) {
+        console.error('Failed to load OST samples:', error);
+      }
+    };
+    
+    loadOSTSamples();
+  }, []);
+
+  const handleTaskTypeChange = (taskType: 'txt2audio' | 'audio2audio') => {
+    setTaskType(taskType);
+    if (taskType === 'txt2audio') {
+      // Clear style audio when switching to txt2audio
+      setStyleAudio(null);
+      setUploadedStyleAudio(null);
+    }
+  };
+  
+  const handleStyleAudioChange = (audioId: string) => {
+    setStyleAudio(audioId);
+    setUploadedStyleAudio(null); // Clear uploaded file
+  };
+  
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3'];
+      if (!validTypes.includes(file.type)) {
+        setError('Please upload a valid audio file (MP3, WAV, OGG)');
+        return;
+      }
+      
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File size must be less than 10MB');
+        return;
+      }
+      
+      setUploadedStyleAudio(file);
+      setStyleAudio(null); // Clear OST selection
+    }
+  };
 
   useEffect(() => {
     setCurrentSettings(settings);
@@ -420,6 +503,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               { id: 'general', label: 'General' },
               { id: 'export', label: 'Export' },
               { id: 'templates', label: 'Templates' },
+              { id: 'audio', label: 'Audio' },
               { id: 'advanced', label: 'Advanced' },
             ].map(t => (
               <button key={t.id}
@@ -965,6 +1049,174 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   <input type="text" value={(currentSettings as any).epubFooter ?? (defaultTpl.customFooter || '')}
                     onChange={(e) => handleSettingChange('epubFooter' as any, e.target.value)}
                     className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" />
+                </div>
+              </div>
+            </fieldset>
+          )}
+
+          {activeTab === 'audio' && (
+            <fieldset>
+              <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Audio Settings</legend>
+              
+              <div className="space-y-6">
+                {/* Provider Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Audio Provider</label>
+                  <select
+                    value={selectedProvider}
+                    onChange={(e) => setProvider(e.target.value as any)}
+                    className="block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="ace-step">Ace Step (Flexible durations)</option>
+                    <option value="diffrhythm">DiffRhythm (Fixed durations)</option>
+                  </select>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {selectedProvider === 'ace-step' 
+                      ? 'Variable length audio (10-240s) at $0.0005/second'
+                      : 'Fixed length audio: 1.35min or 4.45min at $0.02/generation'
+                    }
+                  </p>
+                </div>
+
+                {/* Task Type Selector */}
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Generation Mode
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleTaskTypeChange('txt2audio')}
+                      className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                        selectedTaskType === 'txt2audio'
+                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
+                          : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      Text → Audio
+                    </button>
+                    <button
+                      onClick={() => handleTaskTypeChange('audio2audio')}
+                      className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                        selectedTaskType === 'audio2audio'
+                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
+                          : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      Audio → Audio
+                    </button>
+                  </div>
+                </div>
+
+                {/* Style Audio Selection (only for audio2audio) */}
+                {selectedTaskType === 'audio2audio' && (
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Reference Audio Style
+                    </label>
+                    
+                    {/* OST Library Dropdown */}
+                    <select
+                      value={selectedStyleAudio || ''}
+                      onChange={(e) => handleStyleAudioChange(e.target.value)}
+                      className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                      <option value="">Select from OST Library...</option>
+                      {ostSamples.map(sample => (
+                        <option key={sample.id} value={sample.url}>
+                          {sample.name} ({sample.category})
+                        </option>
+                      ))}
+                    </select>
+                    
+                    {/* File Upload */}
+                    <div className="text-center text-xs text-gray-500 mb-2">or</div>
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleFileUpload}
+                      className="w-full text-xs text-gray-600 dark:text-gray-400"
+                    />
+                    
+                    {/* Current Selection Display */}
+                    {uploadedStyleAudio && (
+                      <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-xs">
+                        ✓ Uploaded: {uploadedStyleAudio.name}
+                      </div>
+                    )}
+                    {selectedStyleAudio && !uploadedStyleAudio && (
+                      <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded text-xs">
+                        ✓ OST Selected: {ostSamples.find(s => s.url === selectedStyleAudio)?.name}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Style Preset Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Music Style</label>
+                  <select
+                    value={selectedPreset || ''}
+                    onChange={(e) => setPreset(e.target.value || null)}
+                    className="block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">Auto-detect from content</option>
+                    {getAvailablePresets().map(preset => (
+                      <option key={preset.id} value={preset.id}>{preset.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Choose a specific style or let AI analyze chapter content for appropriate music
+                  </p>
+                </div>
+
+                {/* Volume Control */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Default Volume: {Math.round(volume * 100)}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={volume}
+                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                {/* Usage Statistics */}
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-md">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Usage Statistics</h3>
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Total Cost:</span>
+                      <span className="ml-2 font-mono">${audioMetrics.totalCost.toFixed(4)}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Generations:</span>
+                      <span className="ml-2 font-mono">{audioMetrics.generationCount}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Total Duration:</span>
+                      <span className="ml-2 font-mono">{Math.round(audioMetrics.totalDuration / 60)}m {Math.round(audioMetrics.totalDuration % 60)}s</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Avg Cost/Min:</span>
+                      <span className="ml-2 font-mono">${audioMetrics.totalDuration > 0 ? (audioMetrics.totalCost / (audioMetrics.totalDuration / 60)).toFixed(4) : '0.0000'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* How it Works */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md">
+                  <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">How It Works</h3>
+                  <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                    <li>• Click the music icon in any chapter header to generate OST</li>
+                    <li>• Audio is cached locally for offline playback</li>
+                    <li>• Content is analyzed to choose appropriate music style</li>
+                    <li>• Generated audio plays in background while reading</li>
+                  </ul>
                 </div>
               </div>
             </fieldset>

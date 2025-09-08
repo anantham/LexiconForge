@@ -196,3 +196,89 @@ export interface ImportedSession {
     urlHistory: string[];
     chapters: ImportedChapter[];
 }
+
+// Audio Generation Types
+export type AudioProvider = 'ace-step' | 'diffrhythm';
+export type AudioTaskType = 'txt2audio' | 'audio2audio' | 'txt2audio-base' | 'txt2audio-full';
+export type AudioJobStatus = 'queued' | 'generating' | 'completed' | 'failed' | 'cancelled';
+
+export interface AudioStylePreset {
+  id: string;
+  name: string;
+  description: string;
+  stylePrompt: string;
+  negativePrompt?: string;
+  suitableFor: ('action' | 'romance' | 'mystery' | 'peaceful' | 'dramatic' | 'ambient')[];
+  provider: AudioProvider;
+  taskType: AudioTaskType;
+  duration?: number; // in seconds
+}
+
+export interface AudioGenerationInput {
+  stylePrompt: string;
+  negativePrompt?: string;
+  lyrics?: string;
+  duration?: number;
+  styleAudio?: string; // base64 or URL for audio2audio
+}
+
+export interface GeneratedAudioResult {
+  audioUrl: string; // URL to generated audio (from API)
+  duration: number; // in seconds
+  requestTime: number; // in seconds
+  cost: number;
+  provider: AudioProvider;
+  taskType: AudioTaskType;
+}
+
+export interface AudioManifest {
+  id: string; // `${chapterId}:${hash}`
+  chapterId: string;
+  uri: string; // opfs://ost/... or cache://ost/...
+  mime: string; // e.g., 'audio/mpeg'
+  durationSec: number;
+  size: number;
+  hash: string;
+  pinned: boolean;
+  createdAt: number;
+  lastPlayedAt?: number;
+  expiresAt?: number; // remote expiry hint
+  provider: AudioProvider;
+  taskType: AudioTaskType;
+  cost: number;
+}
+
+export interface AudioJob {
+  id: string;
+  chapterId: string;
+  provider: AudioProvider;
+  taskType: AudioTaskType;
+  status: AudioJobStatus;
+  input: AudioGenerationInput;
+  result?: GeneratedAudioResult;
+  error?: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface AudioMetrics {
+  totalCost: number;
+  totalDuration: number; // total seconds of audio generated
+  generationCount: number;
+  lastGenerated?: string;
+  providerBreakdown: Record<AudioProvider, {
+    cost: number;
+    duration: number;
+    count: number;
+  }>;
+}
+
+export interface PlaybackState {
+  chapterId: string;
+  audioUrl: string;
+  isPlaying: boolean;
+  isPaused: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+}

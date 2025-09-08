@@ -20,12 +20,14 @@ import { createTranslationsSlice, type TranslationsSlice } from './slices/transl
 import { createImageSlice, type ImageSlice } from './slices/imageSlice';
 import { createExportSlice, type ExportSlice } from './slices/exportSlice';
 import { createJobsSlice, type JobsSlice } from './slices/jobsSlice';
+import { createAudioSlice, type AudioSlice } from './slices/audioSlice';
 import { SessionManagementService } from '../services/sessionManagementService';
 import { indexedDBService } from '../services/indexeddb';
 import { normalizeUrlAggressively } from '../services/stableIdService';
+import { audioServiceWorker } from '../services/audio/storage/serviceWorker';
 
 // Combined state type
-export type AppState = UiSlice & SettingsSlice & ChaptersSlice & TranslationsSlice & ImageSlice & ExportSlice & JobsSlice;
+export type AppState = UiSlice & SettingsSlice & ChaptersSlice & TranslationsSlice & ImageSlice & ExportSlice & JobsSlice & AudioSlice;
 
 // Session management actions (not part of slices but needed for store initialization)
 export interface SessionActions {
@@ -52,6 +54,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
   ...createImageSlice(set, get, store),
   ...createExportSlice(set, get, store),
   ...createJobsSlice(set, get, store),
+  ...createAudioSlice(set, get, store),
   
   // Session management actions
   clearSession: async (options = {}) => {
@@ -271,6 +274,20 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         }
       } catch (e) {
         console.warn('[Store] Failed to load last active chapter:', e);
+      }
+      // Initialize audio services
+      try {
+        const settings = get().settings;
+        
+        // Initialize audio service with current settings
+        get().initializeAudioService(settings);
+        
+        // Register service worker for transparent audio caching
+        await audioServiceWorker.register();
+        
+        console.log('[Store] Audio services initialized');
+      } catch (e) {
+        console.warn('[Store] Failed to initialize audio services:', e);
       }
       
       // console.log('[Store] Initialization complete');

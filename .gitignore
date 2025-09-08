@@ -63,3 +63,6 @@ booktoki_*.json
 # Steering images (user content) — do not version control
 public/steering/
 
+# Media assets - do not version control
+public/OSTs/
+
