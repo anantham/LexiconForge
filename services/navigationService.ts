@@ -9,7 +9,7 @@
  * - Chapter fetching for new URLs
  */
 
-import { fetchAndParseUrl } from './adapters';
+import { fetchAndParseUrl, isUrlSupported, getSupportedSiteInfo, SupportedSiteInfo } from './adapters';
 import { TranslationRecord, indexedDBService } from './indexeddb';
 import { 
   EnhancedChapter, 
@@ -27,19 +27,36 @@ const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...arg
 // In-flight fetch management
 const inflightFetches = new Map<string, Promise<void>>();
 
-// Adapter check function (from hasAdapter in useAppStore)
-const hasAdapter = (url: string): boolean => {
-  try {
-    const urlObj = new URL(url);
-    // Check for Kakuyomu
-    if (urlObj.hostname === 'kakuyomu.jp') {
-      return /^\/works\/\d+\/episodes\/\d+/.test(urlObj.pathname);
+// URL validation with helpful error messages
+const validateNavigation = (url: string): { valid: true } | { error: string; supportedSites: SupportedSiteInfo[] } => {
+  if (!isUrlSupported(url)) {
+    try {
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname;
+      const supportedSites = getSupportedSiteInfo();
+      
+      const errorMessage = `${domain} is not currently supported.
+
+Currently supported sites:
+${supportedSites.map(s => `• ${s.domain} (example: ${s.example})`).join('\n')}
+
+Want this site added? Please file an issue with:
+• The site URL you're trying to use  
+• Example chapter links from the site
+• Site name and description
+
+This helps us prioritize which sites to support next.`;
+
+      return { error: errorMessage, supportedSites };
+    } catch {
+      const supportedSites = getSupportedSiteInfo();
+      return { 
+        error: `Invalid URL format. Please provide a valid URL from one of these supported sites:\n${supportedSites.map(s => s.domain).join(', ')}`,
+        supportedSites 
+      };
     }
-    // Add other supported domains as needed
-    return false;
-  } catch {
-    return false;
   }
+  return { valid: true };
 };
 
 export interface NavigationContext {
@@ -241,6 +258,12 @@ export class NavigationService {
         slog(`[Navigate] Hydration failed; attempting fetch for ${url}...`);
         return { error: null }; // Signal that caller should handle fetch
       } else {
+        const validation = validateNavigation(url);
+        if ('error' in validation) {
+          console.error(`[Navigate] ${validation.error}`, { url });
+          return { error: validation.error };
+        }
+        // This shouldn't happen, but fallback just in case
         const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported.`;
         console.error(`[Navigate] ${errorMessage}`, { url });
         return { error: errorMessage };
@@ -304,6 +327,12 @@ export class NavigationService {
         swarn('[Navigate] IndexedDB direct lookup failed', e);
       }
 
+      const validation = validateNavigation(url);
+      if ('error' in validation) {
+        console.error(`[Navigate] ${validation.error}`, { url });
+        return { error: validation.error };
+      }
+      // This shouldn't happen, but fallback just in case
       const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported.`;
       console.error(`[Navigate] ${errorMessage}`, { url });
       return { error: errorMessage };
@@ -398,7 +427,7 @@ export class NavigationService {
    * Check if URL is from a supported source for fetching
    */
   static isValidUrl(url: string): boolean {
-    return hasAdapter(url);
+    return isUrlSupported(url);
   }
 
   /**
