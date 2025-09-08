@@ -490,7 +490,64 @@ export const createChaptersSlice: StateCreator<
           }
         }
 
+        // If still not found, try to fetch from web using current chapter's nextUrl or navigation logic
+        if (!nextChapterInfo && i === 1 && currentChapter.nextUrl) {
+          console.log(`[Worker] Chapter #${targetNumber} not found locally, attempting web fetch from: ${currentChapter.nextUrl}`);
+          try {
+            const fetchResult = await NavigationService.handleFetch(currentChapter.nextUrl);
+            if (fetchResult.chapters && fetchResult.currentChapterId) {
+              // Merge fetched chapter into store
+              const state = get();
+              const newChapters = new Map(state.chapters);
+              const newUrlIndex = new Map(state.urlIndex);
+              const newRawUrlIndex = new Map(state.rawUrlIndex);
+              
+              // Add fetched chapters to state
+              for (const [id, chapter] of fetchResult.chapters.entries()) {
+                newChapters.set(id, chapter);
+              }
+              if (fetchResult.urlIndex) {
+                for (const [url, id] of fetchResult.urlIndex.entries()) {
+                  newUrlIndex.set(url, id);
+                }
+              }
+              if (fetchResult.rawUrlIndex) {
+                for (const [url, id] of fetchResult.rawUrlIndex.entries()) {
+                  newRawUrlIndex.set(url, id);
+                }
+              }
+              
+              // Update store with fetched data
+              set(state => ({
+                chapters: newChapters,
+                urlIndex: newUrlIndex,
+                rawUrlIndex: newRawUrlIndex,
+              }));
+              
+              // Update local variables for continued preloading
+              const fetchedChapter = fetchResult.chapters.get(fetchResult.currentChapterId);
+              if (fetchedChapter) {
+                nextChapterInfo = {
+                  id: fetchResult.currentChapterId,
+                  chapter: fetchedChapter,
+                };
+                
+                // Update numberToChapterMap for future iterations
+                if (typeof fetchedChapter.chapterNumber === 'number') {
+                  numberToChapterMap.set(fetchedChapter.chapterNumber, nextChapterInfo);
+                }
+                
+                console.log(`[Worker] Successfully fetched chapter #${fetchedChapter.chapterNumber || 'unknown'} for preloading`);
+              }
+            }
+          } catch (error: any) {
+            console.warn(`[Worker] Failed to fetch next chapter from ${currentChapter.nextUrl}: ${error.message}`);
+            // Continue with the break below to stop preloading on fetch failure
+          }
+        }
+
         if (!nextChapterInfo) {
+          console.log(`[Worker] Stopping preload at chapter #${targetNumber} - chapter not found locally or via web fetch`);
           break;
         }
 
