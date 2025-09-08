@@ -34,8 +34,8 @@ const dbDebugFullEnabled = (): boolean => {
     return localStorage.getItem('LF_AI_DEBUG_FULL') === '1';
   } catch { return false; }
 };
-const dblog = (...args: any[]) => { /* disabled */ };
-const dblogFull = (...args: any[]) => { /* disabled */ };
+const dblog = (...args: any[]) => { if (dbDebugEnabled()) console.log('[IndexedDB]', ...args); };
+const dblogFull = (...args: any[]) => { if (dbDebugFullEnabled()) console.log('[IndexedDB][FULL]', ...args); };
 
 // Database configuration
 const DB_NAME = 'lexicon-forge';
@@ -651,6 +651,9 @@ class IndexedDBService {
     
     // Get next version number for this chapter
     const nextVersion = await this.getNextVersionNumber(chapterUrl);
+    if (dbDebugEnabled()) {
+      console.log('[IndexedDB][Versioning] nextVersion computed', { chapterUrl, nextVersion });
+    }
     
     // Generate unique ID
     const id = crypto.randomUUID();
@@ -721,7 +724,25 @@ class IndexedDBService {
           Promise.all(deactivatePromises).then(() => {
             const addRequest = store.add(translationRecord);
             addRequest.onsuccess = () => {
-              // console.log(`[IndexedDB] Translation stored: ${chapterUrl} v${nextVersion}`);
+              if (dbDebugEnabled()) {
+                console.log('[IndexedDB][Versioning] translation added', { chapterUrl, version: nextVersion, id });
+                // Diagnostic: count records for same version
+                let sameVersionCount = 0;
+                const cursorReq = index.openCursor(IDBKeyRange.only(chapterUrl));
+                cursorReq.onsuccess = (ev) => {
+                  const cur = (ev.target as IDBRequest<IDBCursorWithValue>).result;
+                  if (cur) {
+                    if (cur.value.version === nextVersion) sameVersionCount++;
+                    cur.continue();
+                  } else {
+                    if (sameVersionCount > 1) {
+                      console.warn('[IndexedDB][Versioning][DIAG] Duplicate version numbers detected', { chapterUrl, version: nextVersion, count: sameVersionCount });
+                    } else {
+                      console.log('[IndexedDB][Versioning][DIAG] Unique version confirmed', { chapterUrl, version: nextVersion });
+                    }
+                  }
+                };
+              }
               resolve(translationRecord);
             };
             addRequest.onerror = () => reject(addRequest.error);
@@ -731,6 +752,99 @@ class IndexedDBService {
       
       deactivateRequest.onerror = () => reject(deactivateRequest.error);
       transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  /**
+   * Store translation with version assignment performed inside a single transaction.
+   * Reduces race window for duplicate version numbers compared to the legacy path.
+   */
+  async storeTranslationAtomic(
+    chapterUrl: string,
+    translationResult: TranslationResult,
+    translationSettings: {
+      provider: string;
+      model: string;
+      temperature: number;
+      systemPrompt: string;
+      promptId?: string;
+      promptName?: string;
+    }
+  ): Promise<TranslationRecord> {
+    const db = await this.openDatabase();
+    
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.TRANSLATIONS], 'readwrite');
+        const store = tx.objectStore(STORES.TRANSLATIONS);
+        const idx = store.index('chapterUrl');
+
+        // First, read all versions for this chapter within this transaction
+        const getAll = idx.getAll(IDBKeyRange.only(chapterUrl));
+        getAll.onsuccess = () => {
+          try {
+            const records = (getAll.result || []) as TranslationRecord[];
+            const maxVersion = records.reduce((m, r) => Math.max(m, r.version || 0), 0);
+
+            // Deactivate all existing active versions
+            const updates: Promise<void>[] = [];
+            for (const rec of records) {
+              if (rec.isActive) {
+                rec.isActive = false;
+                updates.push(new Promise((resUpd) => {
+                  const req = store.put(rec);
+                  req.onsuccess = () => resUpd();
+                  req.onerror = () => resUpd();
+                }));
+              }
+            }
+
+            Promise.all(updates).then(() => {
+              const id = crypto.randomUUID();
+              const usageMetrics = translationResult.usageMetrics || {
+                totalTokens: 0, promptTokens: 0, completionTokens: 0,
+                estimatedCost: 0, requestTime: 0,
+                provider: translationSettings.provider,
+                model: translationSettings.model,
+              };
+              const newRecord: TranslationRecord = {
+                id,
+                chapterUrl,
+                version: maxVersion + 1,
+                translatedTitle: translationResult.translatedTitle,
+                translation: translationResult.translation,
+                footnotes: translationResult.footnotes || [],
+                suggestedIllustrations: translationResult.suggestedIllustrations || [],
+                provider: translationSettings.provider,
+                model: translationSettings.model,
+                temperature: translationSettings.temperature,
+                systemPrompt: translationSettings.systemPrompt,
+                promptId: translationSettings.promptId,
+                promptName: translationSettings.promptName,
+                totalTokens: usageMetrics.totalTokens,
+                promptTokens: usageMetrics.promptTokens,
+                completionTokens: usageMetrics.completionTokens,
+                estimatedCost: usageMetrics.estimatedCost,
+                requestTime: usageMetrics.requestTime,
+                createdAt: new Date().toISOString(),
+                isActive: true,
+                proposal: translationResult.proposal || undefined,
+              };
+
+              const addReq = store.add(newRecord);
+              addReq.onsuccess = () => resolve(newRecord);
+              addReq.onerror = () => reject(addReq.error);
+            });
+          } catch (err) {
+            reject(err);
+          }
+        };
+        getAll.onerror = () => reject(getAll.error);
+        
+        tx.onerror = () => reject(tx.error as any);
+      } catch (e) {
+        reject(e);
+      }
     });
   }
   
@@ -754,6 +868,9 @@ class IndexedDBService {
           maxVersion = Math.max(maxVersion, cursor.value.version);
           cursor.continue();
         } else {
+          if (dbDebugEnabled()) {
+            console.log('[IndexedDB][Versioning] getNextVersionNumber scan complete', { chapterUrl, maxVersion });
+          }
           resolve(maxVersion + 1);
         }
       };
@@ -1712,7 +1829,11 @@ class IndexedDBService {
         const req = idx.get(stableId);
         req.onsuccess = async () => {
           const mapping = req.result as UrlMappingRecord | undefined;
-          if (!mapping) { reject(new Error('No URL mapping for stableId')); return; }
+          if (!mapping) {
+            console.error('[IndexedDB][StableId][DIAG] No URL mapping for stableId', { stableId, hint: 'Mappings are written during session import. storeChapter() does not write mappings.' });
+            reject(new Error('No URL mapping for stableId'));
+            return;
+          }
           try {
             await this.setActiveTranslation(mapping.url, version);
             resolve();
