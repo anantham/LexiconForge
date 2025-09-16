@@ -15,11 +15,19 @@ interface StableChapterForRender {
     chapterNumber: number;
 }
 
+// Prefer a human-facing number if the title contains "Chapter 147", "Ch 147", etc.
+const numberFromTitle = (s?: string): number | undefined => {
+    if (!s) return undefined;
+    const m = s.match(/\b(?:Ch(?:apter)?\.?\s*)(\d{1,5})\b/i);
+    return m ? parseInt(m[1], 10) : undefined;
+};
+
 const SessionInfo: React.FC = () => {
     const currentChapterId = useAppStore(s => s.currentChapterId);
     const chapters = useAppStore(s => s.chapters);
     const handleNavigate = useAppStore(s => s.handleNavigate);
     const exportSessionData = useAppStore(s => s.exportSessionData);
+    const exportEpub = useAppStore(s => s.exportEpub);
     const setShowSettingsModal = useAppStore(s => s.setShowSettingsModal);
     const fetchTranslationVersions = useAppStore(s => s.fetchTranslationVersions);
     const setActiveTranslationVersion = useAppStore(s => s.setActiveTranslationVersion);
@@ -46,21 +54,48 @@ const SessionInfo: React.FC = () => {
                     byId.set(c.stableId, c);
                 }
 
-                // Overlay with in-memory chapters (so titles/translated titles are fresher)
+                // Overlay with in-memory chapters (merge to preserve DB-loaded translationResult)
                 if (chapters.size > 0) {
                     for (const [stableId, ch] of chapters.entries()) {
+                        const existing = byId.get(stableId);
+                        const mergedData = existing
+                          ? {
+                              ...existing.data,
+                              ...ch,
+                              // Preserve DB translationResult if in-memory lacks it
+                              translationResult: (ch as any).translationResult ?? existing.data?.translationResult ?? null,
+                            }
+                          : ch;
+
                         byId.set(stableId, {
                             stableId,
-                            url: (ch as any).canonicalUrl as string,
-                            data: ch,
-                            title: ch.title,
-                            chapterNumber: ch.chapterNumber || 0,
+                            url: (ch as any).canonicalUrl || existing?.url || '',
+                            data: mergedData,
+                            title: ch.title || existing?.title || 'Untitled Chapter',
+                            chapterNumber: ch.chapterNumber || existing?.chapterNumber || 0,
                         });
                     }
                 }
 
                 const list = Array.from(byId.values());
-                list.sort((a, b) => (a.chapterNumber - b.chapterNumber) || a.title.localeCompare(b.title));
+                // Sort by display number derived from translated title when available; fallback to DB number, then title
+                list.sort((a, b) => {
+                    const aTranslated = a.data?.translationResult?.translatedTitle as string | undefined;
+                    const bTranslated = b.data?.translationResult?.translatedTitle as string | undefined;
+                    const aNumFromTitle = numberFromTitle(aTranslated);
+                    const bNumFromTitle = numberFromTitle(bTranslated);
+                    const aDbNum = (a.data?.chapter?.chapterNumber ?? a.chapterNumber) as number | undefined;
+                    const bDbNum = (b.data?.chapter?.chapterNumber ?? b.chapterNumber) as number | undefined;
+                    const aDisplay = aNumFromTitle ?? aDbNum;
+                    const bDisplay = bNumFromTitle ?? bDbNum;
+
+                    if (Number.isFinite(aDisplay) && Number.isFinite(bDisplay)) {
+                        return (aDisplay as number) - (bDisplay as number);
+                    }
+                    if (Number.isFinite(aDisplay)) return -1;
+                    if (Number.isFinite(bDisplay)) return 1;
+                    return (a.title || '').localeCompare(b.title || '');
+                });
                 setSortedChapters(list);
             } catch (error) {
                 console.error('[SessionInfo] Failed to load chapters for rendering:', error);
@@ -134,7 +169,7 @@ const SessionInfo: React.FC = () => {
             if (format === 'json') {
                 exportSessionData();
             } else {
-                // await (useAppStore.getState().exportEpub());
+                await exportEpub();
             }
             setShowExportModal(false);
         } catch (error: any) {
@@ -164,10 +199,18 @@ const SessionInfo: React.FC = () => {
               aria-label="Select a chapter to navigate to"
             >
               {sortedChapters.map((chapter) => {
-                  const title = chapter.data?.translationResult?.translatedTitle || chapter.title || 'Untitled Chapter';
+                  const translatedTitle = chapter.data?.translationResult?.translatedTitle as string | undefined;
+                  const titleNum = numberFromTitle(translatedTitle);
+                  const dbNum = (chapter.data?.chapter?.chapterNumber ?? chapter.chapterNumber) as number | undefined;
+                  const displayNum = titleNum ?? dbNum;
+
+                  const numPrefix = Number.isFinite(displayNum) && (displayNum as number) > 0 ? `Ch ${displayNum}: ` : '';
+                  const title = translatedTitle || chapter.title || 'Untitled Chapter';
+                  const label = `${numPrefix}${title}`;
+
                   return (
                     <option key={chapter.stableId} value={chapter.stableId}>
-                      {title}
+                      {label}
                     </option>
                   );
               })}
@@ -188,7 +231,8 @@ const SessionInfo: React.FC = () => {
                 {versions.sort((a: any,b: any)=>a.version-b.version).map((v: any) => {
                   const abbr = MODEL_ABBREVIATIONS[v.model] || v.model;
                   const ts = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, { month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
-                  const label = ts ? `v${v.version} — ${abbr} • ${ts}` : `v${v.version} — ${abbr}`;
+                  const baseLabel = ts ? `v${v.version} — ${abbr} • ${ts}` : `v${v.version} — ${abbr}`;
+                  const label = v.customVersionLabel ? `${baseLabel} • ${v.customVersionLabel}` : baseLabel;
                   return (
                     <option key={v.id} value={v.version} title={ts}>{label}</option>
                   );
@@ -213,7 +257,8 @@ const SessionInfo: React.FC = () => {
                 const current = versions.find(v => v.version === selectedVersion);
                 if (!current) return 'Select version';
                 const abbr = MODEL_ABBREVIATIONS[current.model] || current.model;
-                return `v${current.version} — ${abbr}`;
+                const base = `v${current.version} — ${abbr}`;
+                return current.customVersionLabel ? `${base} • ${current.customVersionLabel}` : base;
               })()}
             </button>
           </div>

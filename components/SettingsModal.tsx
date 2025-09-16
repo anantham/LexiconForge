@@ -50,9 +50,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     uploadedStyleAudio,
     setStyleAudio,
     setUploadedStyleAudio,
+    setUIError,
   } = useAppStore(useShallow(state => ({
       settings: state.settings,
       updateSettings: state.updateSettings,
+      setUIError: state.setError,
       clearSession: state.clearSession,
       importSessionData: state.importSessionData,
       promptTemplates: state.promptTemplates,
@@ -340,6 +342,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
   const handleSave = () => {
     updateSettings(currentSettings);
+    
+    // Clear any existing API key errors since settings were updated
+    setUIError(null);
+    
     onClose();
   };
 

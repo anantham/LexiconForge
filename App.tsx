@@ -57,6 +57,13 @@ const currentChapterTranslationResult = useAppStore((state) => {
   return ch?.translationResult || null;
 });
 
+const hasCurrentChapter = useAppStore((state) => {
+  const id = state.currentChapterId;
+  if (!id) return false;
+  const chapter = state.getChapter(id);
+  return !!chapter;
+});
+
 // one-shot guard helpers
 const requestedRef = React.useRef(new Map<string, string>());
 
@@ -90,15 +97,18 @@ const settingsFingerprint = React.useMemo(
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-      const chapter = getChapter(currentChapterId || '');
-      if (viewMode !== 'english' || !currentChapterId || !chapter) return;
+      if (viewMode !== 'english' || !currentChapterId || !hasCurrentChapter) return;
+
+      const chapter = getChapter(currentChapterId);
+      if (!chapter) return;
 
       const translating = isTranslationActive(currentChapterId) || isLoading.translating;
+      const pending = useAppStore.getState().pendingTranslations.has(currentChapterId);
       const hasResult  = !!currentChapterTranslationResult;
       const prevSig    = requestedRef.current.get(currentChapterId);
       const alreadyRequested = prevSig === settingsFingerprint;
 
-      if (!hasResult && !translating && !alreadyRequested) {
+      if (!hasResult && !translating && !alreadyRequested && !pending) {
         requestedRef.current.set(currentChapterId, settingsFingerprint);
         handleTranslate(currentChapterId);
       } else {
@@ -112,6 +122,7 @@ const settingsFingerprint = React.useMemo(
       isLoading.translating,
       isTranslationActive,
       handleTranslate,
+      hasCurrentChapter,
     ]);
 
     // And clear the one-shot once a result lands (or when leaving English):

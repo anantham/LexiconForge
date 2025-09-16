@@ -11,6 +11,7 @@
 
 import type { StateCreator } from 'zustand';
 import { ImageGenerationService, type ImageGenerationContext, type ImageState, type ImageGenerationMetrics } from '../../services/imageGenerationService';
+import { TranslationPersistenceService } from '../../services/translationPersistenceService';
 
 export interface ImageSliceState {
   // Generated images state
@@ -506,16 +507,19 @@ export const createImageSlice: StateCreator<
         console.log(`[ImageSlice] ✅ Updated illustration prompt for ${placementMarker} in memory`);
       }
 
-      // Persist to IndexedDB by storing updated translation version
-      const { indexedDBService } = await import('../../services/indexeddb');
-      await indexedDBService.storeTranslationByStableId(chapterId, chapter.translationResult as any, {
-        provider: settings?.provider,
-        model: settings?.model,
-        temperature: settings?.temperature,
-        systemPrompt: settings?.systemPrompt,
-        promptId: activePromptTemplate?.id,
-        promptName: activePromptTemplate?.name,
-      });
+      // Persist to IndexedDB by updating existing translation record
+      await TranslationPersistenceService.persistUpdatedTranslation(
+        chapterId,
+        chapter.translationResult as any,
+        {
+          provider: settings?.provider,
+          model: settings?.model,
+          temperature: settings?.temperature,
+          systemPrompt: settings?.systemPrompt,
+          promptId: activePromptTemplate?.id,
+          promptName: activePromptTemplate?.name,
+        }
+      );
       
       console.log(`[ImageSlice] ✅ Updated illustration prompt persisted for ${placementMarker}`);
       

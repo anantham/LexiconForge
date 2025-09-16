@@ -94,6 +94,7 @@ export interface TranslationResult {
   footnotes: Footnote[];
   suggestedIllustrations: SuggestedIllustration[];
   usageMetrics: UsageMetrics;
+  customVersionLabel?: string;
 }
 
 export interface HistoricalChapter {

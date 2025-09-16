@@ -346,7 +346,14 @@ ${schemaString}`;
     startTime: number,
     endTime: number
   ): Promise<TranslationResult> {
-    const responseText = response.choices[0]?.message?.content;
+    const choice = response.choices?.[0];
+    const finishReason = choice?.finish_reason || (choice as any)?.native_finish_reason || null;
+    if (finishReason === 'length') {
+      // Signal to the translator that we hit the model output cap so it can retry with higher max tokens
+      throw new Error('length_cap: Model hit token limit. Increase max_tokens or reduce output size.');
+    }
+
+    const responseText = choice?.message?.content;
     if (!responseText) {
       throw new Error('Empty response from OpenAI API');
     }

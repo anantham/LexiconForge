@@ -11,7 +11,7 @@
  */
 
 import { generateImage } from './imageService';
-import { indexedDBService } from './indexeddb';
+import { TranslationPersistenceService } from './translationPersistenceService';
 import type { AppSettings, PromptTemplate } from '../types';
 import type { EnhancedChapter } from './stableIdService';
 
@@ -196,14 +196,18 @@ export class ImageGenerationService {
             
             // Persist to IndexedDB using stableId mapping
             try {
-              await indexedDBService.storeTranslationByStableId(chapter.id, chapter.translationResult as any, {
-                provider: settings.provider,
-                model: settings.model,
-                temperature: settings.temperature,
-                systemPrompt: settings.systemPrompt,
-                promptId: context.activePromptTemplate?.id,
-                promptName: context.activePromptTemplate?.name,
-              });
+              await TranslationPersistenceService.persistUpdatedTranslation(
+                chapter.id,
+                chapter.translationResult as any,
+                {
+                  provider: settings.provider,
+                  model: settings.model,
+                  temperature: settings.temperature,
+                  systemPrompt: settings.systemPrompt,
+                  promptId: context.activePromptTemplate?.id,
+                  promptName: context.activePromptTemplate?.name,
+                }
+              );
               slog(`[ImageGen] Persisted image for ${illust.placementMarker} to IndexedDB`);
             } catch (error) {
               swarn(`[ImageGen] Failed to persist image to IndexedDB:`, error);
@@ -319,14 +323,18 @@ export class ImageGenerationService {
           (target as any).url = result.imageData;
           
           try {
-            await indexedDBService.storeTranslationByStableId(chapter.id, chapter.translationResult as any, {
-              provider: settings.provider,
-              model: settings.model,
-              temperature: settings.temperature,
-              systemPrompt: settings.systemPrompt,
-              promptId: context.activePromptTemplate?.id,
-              promptName: context.activePromptTemplate?.name,
-            });
+            await TranslationPersistenceService.persistUpdatedTranslation(
+              chapter.id,
+              chapter.translationResult as any,
+              {
+                provider: settings.provider,
+                model: settings.model,
+                temperature: settings.temperature,
+                systemPrompt: settings.systemPrompt,
+                promptId: context.activePromptTemplate?.id,
+                promptName: context.activePromptTemplate?.name,
+              }
+            );
             slog(`[ImageGen] Persisted retry image for ${placementMarker} to IndexedDB`);
           } catch (e) {
             swarn('[ImageGen] Failed to persist retry image to IndexedDB', e);

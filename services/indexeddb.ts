@@ -87,6 +87,7 @@ export interface TranslationRecord {
   systemPrompt: string;           // Snapshot of prompt used
   promptId?: string;              // Reference to prompt template used
   promptName?: string;            // Snapshot of prompt name at time of translation
+  customVersionLabel?: string;    // Optional user-supplied label appended to display
   
   // Usage metrics
   totalTokens: number;
@@ -791,6 +792,7 @@ class IndexedDBService {
       systemPrompt: translationSettings.systemPrompt,
       promptId: translationSettings.promptId,
       promptName: translationSettings.promptName,
+      customVersionLabel: translationResult.customVersionLabel,
       
       totalTokens: usageMetrics.totalTokens,
       promptTokens: usageMetrics.promptTokens,
@@ -928,6 +930,7 @@ class IndexedDBService {
                 systemPrompt: translationSettings.systemPrompt,
                 promptId: translationSettings.promptId,
                 promptName: translationSettings.promptName,
+                customVersionLabel: translationResult.customVersionLabel,
                 totalTokens: usageMetrics.totalTokens,
                 promptTokens: usageMetrics.promptTokens,
                 completionTokens: usageMetrics.completionTokens,

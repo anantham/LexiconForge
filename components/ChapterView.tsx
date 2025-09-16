@@ -1,5 +1,5 @@
 
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { FeedbackItem, Footnote, UsageMetrics } from '../types';
 import Loader from './Loader';
@@ -10,6 +10,185 @@ import RefreshIcon from './icons/RefreshIcon';
 import { useAppStore } from '../store';
 import Illustration from './Illustration';
 import AudioPlayer from './AudioPlayer';
+import { TranslationPersistenceService } from '../services/translationPersistenceService';
+
+type TranslationToken =
+  | { type: 'text'; chunkId: string; text: string }
+  | { type: 'footnote'; marker: string; raw: string }
+  | { type: 'illustration'; marker: string; raw: string }
+  | { type: 'linebreak'; raw: string }
+  | { type: 'italic' | 'bold' | 'emphasis'; children: TranslationToken[] };
+
+interface TokenizationResult {
+  tokens: TranslationToken[];
+  nodes: React.ReactNode[];
+}
+
+const TOKEN_SPLIT_REGEX = /(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>)/g;
+const ILLUSTRATION_RE = /^\[(ILLUSTRATION-\d+)\]$/;
+const FOOTNOTE_RE = /^\[(\d+)\]$/;
+const ITALIC_HTML_RE = /^<i>[\s\S]*<\/i>$/;
+const BOLD_HTML_RE = /^<b>[\s\S]*<\/b>$/;
+const EMPHASIS_RE = /^\*[\s\S]*\*$/;
+const BR_RE = /^<br\s*\/?>$/i;
+
+const buildTranslationTokens = (text: string, baseId: string, counter: { value: number }): TranslationToken[] => {
+  if (!text) return [];
+  const parts = text.split(TOKEN_SPLIT_REGEX).filter(Boolean);
+  const tokens: TranslationToken[] = [];
+
+  for (const part of parts) {
+    const illustration = part.match(ILLUSTRATION_RE);
+    if (illustration) {
+      tokens.push({ type: 'illustration', marker: illustration[1], raw: part });
+      continue;
+    }
+
+    const footnote = part.match(FOOTNOTE_RE);
+    if (footnote) {
+      tokens.push({ type: 'footnote', marker: footnote[1], raw: part });
+      continue;
+    }
+
+    if (BR_RE.test(part)) {
+      tokens.push({ type: 'linebreak', raw: part });
+      continue;
+    }
+
+    if (ITALIC_HTML_RE.test(part)) {
+      const inner = part.slice(3, -4);
+      tokens.push({ type: 'italic', children: buildTranslationTokens(inner, baseId, counter) });
+      continue;
+    }
+
+    if (BOLD_HTML_RE.test(part)) {
+      const inner = part.slice(3, -4);
+      tokens.push({ type: 'bold', children: buildTranslationTokens(inner, baseId, counter) });
+      continue;
+    }
+
+    if (EMPHASIS_RE.test(part)) {
+      const inner = part.slice(1, -1);
+      tokens.push({ type: 'emphasis', children: buildTranslationTokens(inner, baseId, counter) });
+      continue;
+    }
+
+    const chunkId = `${baseId}-chunk-${counter.value++}`;
+    tokens.push({ type: 'text', chunkId, text: part });
+  }
+
+  return tokens;
+};
+
+const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = ''): React.ReactNode[] => {
+  return tokens.map((token, index) => {
+    const key = `${keyPrefix}-${index}`;
+    switch (token.type) {
+      case 'text':
+        return (
+          <span
+            key={key}
+            data-lf-type="text"
+            data-lf-chunk={token.chunkId}
+            className="inline"
+          >
+            {token.text}
+          </span>
+        );
+      case 'footnote':
+        return (
+          <sup key={key} id={`footnote-ref-${token.marker}`} data-lf-type="footnote" className="font-sans">
+            <a href={`#footnote-def-${token.marker}`} className="text-blue-500 hover:underline no-underline">[{token.marker}]</a>
+          </sup>
+        );
+      case 'illustration':
+        return <Illustration key={key} marker={token.marker} />;
+      case 'linebreak':
+        return <br key={key} />;
+      case 'italic':
+        return <i key={key}>{renderTranslationTokens(token.children, key)}</i>;
+      case 'bold':
+        return <b key={key}>{renderTranslationTokens(token.children, key)}</b>;
+      case 'emphasis':
+        return <i key={key}>{renderTranslationTokens(token.children, key)}</i>;
+      default:
+        return null;
+    }
+  });
+};
+
+const tokenizeTranslation = (text: string, baseId: string): TokenizationResult => {
+  const counter = { value: 0 };
+  const tokens = buildTranslationTokens(text, baseId, counter);
+  const nodes = renderTranslationTokens(tokens);
+  return { tokens, nodes };
+};
+
+const cloneTokens = (tokens: TranslationToken[]): TranslationToken[] =>
+  tokens.map((token) => {
+    if (token.type === 'italic' || token.type === 'bold' || token.type === 'emphasis') {
+      return { ...token, children: cloneTokens(token.children) };
+    }
+    return { ...token };
+  });
+
+const updateTokenText = (tokens: TranslationToken[], chunkId: string, newText: string): boolean => {
+  for (const token of tokens) {
+    if (token.type === 'text' && token.chunkId === chunkId) {
+      token.text = newText;
+      return true;
+    }
+    if ((token.type === 'italic' || token.type === 'bold' || token.type === 'emphasis') && updateTokenText(token.children, chunkId, newText)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const findTokenText = (tokens: TranslationToken[], chunkId: string): string | null => {
+  for (const token of tokens) {
+    if (token.type === 'text' && token.chunkId === chunkId) {
+      return token.text;
+    }
+    if (token.type === 'italic' || token.type === 'bold' || token.type === 'emphasis') {
+      const result = findTokenText(token.children, chunkId);
+      if (result !== null) return result;
+    }
+  }
+  return null;
+};
+
+const tokensToString = (tokens: TranslationToken[]): string => {
+  return tokens
+    .map((token) => {
+      switch (token.type) {
+        case 'text':
+          return token.text;
+        case 'footnote':
+          return `[${token.marker}]`;
+        case 'illustration':
+          return `[${token.marker}]`;
+        case 'linebreak':
+          return '<br />';
+        case 'italic':
+          return `<i>${tokensToString(token.children)}</i>`;
+        case 'bold':
+          return `<b>${tokensToString(token.children)}</b>`;
+        case 'emphasis':
+          return `*${tokensToString(token.children)}*`;
+        default:
+          return '';
+      }
+    })
+    .join('');
+};
+
+interface InlineEditState {
+  chunkId: string;
+  element: HTMLElement;
+  originalText: string;
+  saveAsNewVersion: boolean;
+}
 
 // Touch detection hook using media queries
 function useIsTouch() {
@@ -29,7 +208,7 @@ function useIsTouch() {
 // Simple bottom sheet that never overlaps the OS selection bubble
 const SelectionSheet: React.FC<{
   text: string;
-  onReact: (emoji: '👍' | '❤️' | '😂' | '🎨') => void;
+  onReact: (emoji: '👍' | '❤️' | '😂' | '🎨' | '✏️') => void;
   onCopy: () => void;
   onClose: () => void;
 }> = ({ onReact, onCopy, onClose }) => {
@@ -48,6 +227,7 @@ const SelectionSheet: React.FC<{
           <button className="p-3 text-xl" onClick={() => onReact('❤️')}>❤️</button>
           <button className="p-3 text-xl" onClick={() => onReact('😂')}>😂</button>
           <button className="p-3 text-xl" onClick={() => onReact('🎨')}>🎨</button>
+          <button className="p-3 text-xl" onClick={() => onReact('✏️')}>✏️</button>
           <div className="grow" />
           <button 
             className="px-3 py-2 rounded bg-white/10" 
@@ -81,6 +261,7 @@ const ChapterView: React.FC = () => {
   const isLoading = useAppStore(s => s.isLoading);
   const viewMode = useAppStore(s => s.viewMode);
   const settings = useAppStore(s => s.settings);
+  const activePromptTemplate = useAppStore(s => s.activePromptTemplate);
   const error = useAppStore(s => s.error);
   const handleToggleLanguage = useAppStore(s => s.setViewMode);
   const handleNavigate = useAppStore(s => s.handleNavigate);
@@ -94,10 +275,28 @@ const ChapterView: React.FC = () => {
   const imageGenerationMetrics = useAppStore(s => s.imageGenerationMetrics);
   const hydratingMap = useAppStore(s => s.hydratingChapters);
   const chapterAudioMap = useAppStore(s => s.chapterAudioMap);
+  const showNotification = useAppStore(s => s.showNotification);
+
+  const editableContainerRef = useRef<HTMLDivElement>(null);
+  const [inlineEditState, setInlineEditState] = useState<InlineEditState | null>(null);
+  const [toolbarCoords, setToolbarCoords] = useState<{ top: number; left: number } | null>(null);
 
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
   const translationResult = chapter?.translationResult;
   const feedbackForChapter = chapter?.feedback ?? [];
+
+  const translationTokensData = useMemo(() => {
+    if (viewMode !== 'english') {
+      return { tokens: [] as TranslationToken[], nodes: [] as React.ReactNode[] };
+    }
+    return tokenizeTranslation(translationResult?.translation ?? '', chapter?.id ?? 'chapter');
+  }, [viewMode, translationResult?.translation, chapter?.id]);
+
+  const translationTokensRef = useRef<TranslationToken[]>(translationTokensData.tokens);
+
+  useEffect(() => {
+    translationTokensRef.current = translationTokensData.tokens;
+  }, [translationTokensData.tokens]);
 
   // Debug logging for chapter loading
   React.useEffect(() => {
@@ -153,6 +352,227 @@ const ChapterView: React.FC = () => {
       }
     }
   }, [currentChapterId, chapter, chapters, translationResult, isLoading, viewMode, error]);
+
+  const resolveChunkElement = useCallback((node: Node | null): HTMLElement | null => {
+    if (!node) return null;
+    if (node instanceof HTMLElement && node.dataset.lfChunk) return node;
+    const baseElement = node instanceof HTMLElement ? node : (node as Text | null)?.parentElement;
+    if (!baseElement) return null;
+    const element = baseElement.closest('[data-lf-chunk]');
+    return element as HTMLElement | null;
+  }, []);
+
+  const cleanupInlineEdit = useCallback((restoreOriginal = false) => {
+    console.log('[InlineEdit] Cleanup called, restoreOriginal:', restoreOriginal);
+    setInlineEditState((current) => {
+      if (current) {
+        console.log('[InlineEdit] Restoring previous element state');
+        if (restoreOriginal) {
+          console.log('[InlineEdit] Restoring original text');
+          current.element.textContent = current.originalText;
+        }
+        current.element.removeAttribute('contentEditable');
+        current.element.classList.remove('outline', 'outline-2', 'outline-blue-500', 'rounded-sm', 'bg-blue-100', 'dark:bg-blue-900/40');
+      }
+      return null;
+    });
+    setToolbarCoords(null);
+    clearSelection();
+  }, [clearSelection]);
+
+  useEffect(() => () => cleanupInlineEdit(), [cleanupInlineEdit]);
+
+  const updateToolbarCoords = useCallback(() => {
+    if (!inlineEditState || !editableContainerRef.current) {
+      setToolbarCoords(null);
+      return;
+    }
+    const rect = inlineEditState.element.getBoundingClientRect();
+    const parentRect = editableContainerRef.current.getBoundingClientRect();
+    setToolbarCoords({
+      top: rect.bottom - parentRect.top + 8,
+      left: rect.left - parentRect.left + rect.width / 2,
+    });
+  }, [inlineEditState]);
+
+  useEffect(() => {
+    updateToolbarCoords();
+  }, [inlineEditState, updateToolbarCoords]);
+
+  useEffect(() => {
+    if (!inlineEditState) return;
+    const handler = () => updateToolbarCoords();
+    window.addEventListener('resize', handler);
+    window.addEventListener('scroll', handler, true);
+    return () => {
+      window.removeEventListener('resize', handler);
+      window.removeEventListener('scroll', handler, true);
+    };
+  }, [inlineEditState, updateToolbarCoords]);
+
+  const beginInlineEdit = useCallback(() => {
+    console.log('[InlineEdit] Attempting to start inline edit');
+    if (viewMode !== 'english' || !translationResult || !currentChapterId) return;
+    const selectionRange = window.getSelection && window.getSelection();
+    console.log('[InlineEdit] Selection object:', selectionRange);
+    if (!selectionRange || selectionRange.rangeCount === 0 || selectionRange.isCollapsed) {
+      console.log('[InlineEdit] Selection missing or collapsed');
+      showNotification?.('Select text within the translation to edit.', 'info');
+      return;
+    }
+
+    const anchorEl = resolveChunkElement(selectionRange.anchorNode);
+    const focusEl = resolveChunkElement(selectionRange.focusNode);
+
+    console.log('[InlineEdit] Anchor element:', anchorEl);
+    console.log('[InlineEdit] Focus element:', focusEl);
+
+    if (!anchorEl || !focusEl || anchorEl !== focusEl) {
+      console.log('[InlineEdit] Anchor and focus do not match or element not found');
+      showNotification?.('Inline edits must stay within a single paragraph for now.', 'warning');
+      return;
+    }
+
+    if (anchorEl.dataset.lfType !== 'text') {
+      console.log('[InlineEdit] Selected element type is not editable text', anchorEl.dataset.lfType);
+      showNotification?.('Footnotes and metadata are edited elsewhere.', 'warning');
+      return;
+    }
+
+    const chunkId = anchorEl.dataset.lfChunk;
+    console.log('[InlineEdit] Resolved chunk ID:', chunkId);
+    if (!chunkId) {
+      showNotification?.('Unable to edit this selection. Please try a different section.', 'error');
+      return;
+    }
+
+    const existingText = findTokenText(translationTokensRef.current, chunkId);
+    console.log('[InlineEdit] Existing chunk text:', existingText);
+    if (existingText === null) {
+      showNotification?.('Unable to map selection to translation chunk.', 'error');
+      return;
+    }
+
+    cleanupInlineEdit();
+
+    console.log('[InlineEdit] Applying contentEditable to element');
+    anchorEl.setAttribute('contentEditable', 'true');
+    anchorEl.classList.add('outline', 'outline-2', 'outline-blue-500', 'rounded-sm', 'bg-blue-100', 'dark:bg-blue-900/40');
+    const range = document.createRange();
+    range.selectNodeContents(anchorEl);
+    const selection = window.getSelection();
+    if (selection) {
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    anchorEl.focus();
+
+    console.log('[InlineEdit] Inline edit state initialized');
+
+    setInlineEditState({
+      chunkId,
+      element: anchorEl,
+      originalText: existingText,
+      saveAsNewVersion: false,
+    });
+    clearSelection();
+  }, [viewMode, translationResult, currentChapterId, resolveChunkElement, cleanupInlineEdit, clearSelection, translationTokensRef, showNotification]);
+
+  const toggleInlineNewVersion = useCallback(() => {
+    setInlineEditState((current) => {
+      if (!current) return current;
+      return { ...current, saveAsNewVersion: !current.saveAsNewVersion };
+    });
+  }, []);
+
+  const saveInlineEdit = useCallback(async () => {
+    console.log('[InlineEdit] Save triggered');
+    if (!inlineEditState || !translationResult || !currentChapterId) {
+      console.log('[InlineEdit] Missing state for save, cleaning up');
+      cleanupInlineEdit();
+      return;
+    }
+
+    const updatedText = inlineEditState.element.innerText;
+    console.log('[InlineEdit] Updated text:', updatedText);
+    if (updatedText === inlineEditState.originalText) {
+      console.log('[InlineEdit] Text unchanged, cleaning up');
+      cleanupInlineEdit();
+      return;
+    }
+
+    const tokens = cloneTokens(translationTokensRef.current);
+    console.log('[InlineEdit] Cloned tokens count:', tokens.length);
+    if (!updateTokenText(tokens, inlineEditState.chunkId, updatedText)) {
+      showNotification?.('Failed to apply edit to selection.', 'error');
+      cleanupInlineEdit(true);
+      return;
+    }
+
+    const updatedTranslation = tokensToString(tokens);
+    const baseResult = {
+      ...translationResult,
+      translation: updatedTranslation,
+    };
+
+    const snapshot = {
+      provider: settings.provider,
+      model: settings.model,
+      temperature: settings.temperature,
+      systemPrompt: settings.systemPrompt,
+      promptId: activePromptTemplate?.id,
+      promptName: activePromptTemplate?.name,
+    };
+
+    try {
+      if (inlineEditState.saveAsNewVersion) {
+        console.log('[InlineEdit] Saving as new version');
+        const rawLabel = window.prompt('Enter a name to append to this version (optional):');
+        if (rawLabel === null) {
+          console.log('[InlineEdit] New version prompt cancelled');
+          return;
+        }
+        const versionLabel = rawLabel.trim() || undefined;
+        const stored = await TranslationPersistenceService.createNewVersion(
+          currentChapterId,
+          { ...baseResult, customVersionLabel: versionLabel },
+          snapshot,
+          { versionLabel }
+        );
+        if (stored) {
+          console.log('[InlineEdit] New version stored', stored.id, stored.version);
+          const appState = useAppStore.getState();
+          appState.updateChapter(currentChapterId, {
+            translationResult: stored as any,
+            translationSettingsSnapshot: snapshot,
+          });
+        }
+      } else {
+        console.log('[InlineEdit] Persisting update in place');
+        const stored = await TranslationPersistenceService.persistUpdatedTranslation(
+          currentChapterId,
+          baseResult as any,
+          snapshot
+        );
+        if (stored) {
+          console.log('[InlineEdit] Update persisted, id:', stored.id);
+          const appState = useAppStore.getState();
+          appState.updateChapter(currentChapterId, {
+            translationResult: stored as any,
+            translationSettingsSnapshot: snapshot,
+          });
+        }
+      }
+      cleanupInlineEdit();
+    } catch (error) {
+      console.warn('[ChapterView] Failed to persist inline edit:', error);
+      showNotification?.('Failed to save edit. Please try again.', 'error');
+    }
+  }, [inlineEditState, translationResult, currentChapterId, cleanupInlineEdit, translationTokensRef, settings, activePromptTemplate, showNotification]);
+
+  const cancelInlineEdit = useCallback(() => {
+    cleanupInlineEdit(true);
+  }, [cleanupInlineEdit]);
 
   const handleFeedbackSubmit = (feedback: Omit<FeedbackItem, 'id'>) => {
     if (!currentChapterId) return;
@@ -214,6 +634,8 @@ const ChapterView: React.FC = () => {
     }
   }, [viewMode, chapter, translationResult]);
 
+  
+
   const hasFanTranslation = useMemo(() => {
     return !!(chapter as any)?.fanTranslation;
   }, [chapter]);
@@ -221,58 +643,34 @@ const ChapterView: React.FC = () => {
   const renderFootnotes = (footnotes: Footnote[] | undefined) => {
     if (!footnotes || footnotes.length === 0) return null;
     return (
-        <div className="mt-12 pt-6 border-t border-gray-300 dark:border-gray-600">
-            <h3 className="text-lg font-bold mb-4 font-sans">Notes</h3>
-            <ol className="list-decimal list-inside space-y-2 text-sm">
-                {footnotes.map((note) => {
-                    // Normalize marker to match inline refs which use digits-only (e.g., [1] -> 1)
-                    const raw = String(note.marker ?? '');
-                    const normalizedMarker = raw.replace(/^\[|\]$/g, '');
-                    return (
-                      <li key={raw} id={`footnote-def-${normalizedMarker}`} className="text-gray-600 dark:text-gray-400">
-                        {parseAndRender(note.text)}{' '}
-                        <a href={`#footnote-ref-${normalizedMarker}`} className="text-blue-500 hover:underline">↑</a>
-                      </li>
-                    );
-                })}
-            </ol>
-        </div>
+      <div className="mt-12 pt-6 border-t border-gray-300 dark:border-gray-600">
+        <h3 className="text-lg font-bold mb-4 font-sans">Notes</h3>
+        <ol className="list-decimal list-inside space-y-2 text-sm">
+          {footnotes.map((note) => {
+            const raw = String(note.marker ?? '');
+            const normalizedMarker = raw.replace(/^\[|\]$/g, '');
+            const baseId = `${chapter?.id ?? 'chapter'}-footnote-${normalizedMarker}`;
+            const rendered = tokenizeTranslation(note.text || '', baseId);
+            return (
+              <li key={raw} id={`footnote-def-${normalizedMarker}`} className="text-gray-600 dark:text-gray-400">
+                {rendered.nodes.map((node, idx) => {
+                  if (React.isValidElement(node)) {
+                    const props: Record<string, any> = {
+                      key: node.key ?? `${baseId}-node-${idx}`,
+                    };
+                    if (node.props['data-lf-chunk']) props['data-lf-chunk'] = undefined;
+                    if (node.props['data-lf-type'] === 'text') props['data-lf-type'] = 'static';
+                    return React.cloneElement(node, props);
+                  }
+                  return node;
+                })}{' '}
+                <a href={`#footnote-ref-${normalizedMarker}`} className="text-blue-500 hover:underline">↑</a>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     );
-  }
-  
-  const parseAndRender = (text: string): React.ReactNode[] => {
-    if (!text) return [];
-    const parts = text.split(/(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>)/g).filter(Boolean);
-
-    return parts.map((part, index) => {
-      const illustrationMatch = part.match(/^(\[ILLUSTRATION-\d+\])$/);
-      if (illustrationMatch) {
-        return <Illustration key={index} marker={illustrationMatch[1]} />;
-      }
-
-      const footnoteMatch = part.match(/^\[(\d+)\]$/);
-      if (footnoteMatch) {
-        const marker = footnoteMatch[1];
-        return (
-          <sup key={index} id={`footnote-ref-${marker}`} className="font-sans">
-            <a href={`#footnote-def-${marker}`} className="text-blue-500 hover:underline no-underline">[{marker}]</a>
-          </sup>
-        );
-      }
-      if (part.startsWith('<i>') && part.endsWith('</i>')) {
-        return <i key={index}>{parseAndRender(part.slice(3, -4))}</i>;
-      }
-      if (part.startsWith('<b>') && part.endsWith('</b>')) {
-        return <b key={index}>{parseAndRender(part.slice(3, -4))}</b>;
-      }
-      if (part.startsWith('*') && part.endsWith('*')) {
-        return <i key={index}>{parseAndRender(part.slice(1, -1))}</i>;
-      }
-      if (part.match(/^<br\s*\/?>$/)) {
-        return <br key={index} />;
-      }
-      return part;
-    });
   };
 
   const renderContent = () => {
@@ -305,31 +703,60 @@ const ChapterView: React.FC = () => {
     }
     
     return (
-       <div className="relative">
-         {isEditing ? (
-           <textarea
-             value={editedContent}
-             onChange={(e) => setEditedContent(e.target.value)}
-             className={`w-full min-h-[400px] p-4 border border-blue-300 dark:border-blue-600 rounded-lg bg-blue-50 dark:bg-blue-900/20 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 ${settings.fontStyle === 'serif' ? 'font-serif' : 'font-sans'}`}
-             style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
-             placeholder="Edit the translation..."
-             autoFocus
-           />
-         ) : (
-           <div 
-             ref={contentRef} 
-             className={`prose prose-lg dark:prose-invert max-w-none whitespace-pre-wrap ${settings.fontStyle === 'serif' ? 'font-serif' : 'font-sans'}`}
-             style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
-           >
-             {viewMode === 'english' ? parseAndRender(contentToDisplay) : contentToDisplay}
-           </div>
-         )}
-       </div>
-    )
+      <div className="relative" ref={editableContainerRef}>
+        {isEditing ? (
+          <textarea
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+            className={`w-full min-h-[400px] p-4 border border-blue-300 dark:border-blue-600 rounded-lg bg-blue-50 dark:bg-blue-900/20 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 ${settings.fontStyle === 'serif' ? 'font-serif' : 'font-sans'}`}
+            style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
+            placeholder="Edit the translation..."
+            autoFocus
+          />
+        ) : (
+          <div
+            ref={contentRef}
+            className={`prose prose-lg dark:prose-invert max-w-none whitespace-pre-wrap ${settings.fontStyle === 'serif' ? 'font-serif' : 'font-sans'}`}
+            style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
+          >
+            {viewMode === 'english' ? translationTokensData.nodes : contentToDisplay}
+          </div>
+        )}
+
+        {inlineEditState && toolbarCoords && (
+          <div
+            className="absolute z-50 flex items-center gap-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg px-3 py-2 text-xs -translate-x-1/2"
+            style={{ top: toolbarCoords.top, left: toolbarCoords.left }}
+          >
+            <button
+              onClick={saveInlineEdit}
+              className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Save
+            </button>
+            <button
+              onClick={cancelInlineEdit}
+              className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            >
+              Cancel
+            </button>
+            <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300">
+              <input
+                type="checkbox"
+                className="rounded border-gray-300 dark:border-gray-600"
+                checked={inlineEditState.saveAsNewVersion}
+                onChange={toggleInlineNewVersion}
+              />
+              New version
+            </label>
+          </div>
+        )}
+      </div>
+    );
   };
   
-  const shouldShowPopover = viewMode === 'english' && selection && !isTouch;
-  const shouldShowSheet = viewMode === 'english' && selection && isTouch;
+  const shouldShowPopover = viewMode === 'english' && selection && !isTouch && !inlineEditState;
+  const shouldShowSheet = viewMode === 'english' && selection && isTouch && !inlineEditState;
   // Version selector moved to SessionInfo top bar
 
   // Footnote navigation within the reader container
@@ -617,18 +1044,25 @@ const ChapterView: React.FC = () => {
           position={selection.rect}
           positioningParentRef={viewRef}
           onFeedback={handleFeedbackSubmit}
+          onEdit={beginInlineEdit}
         />
       )}
 
       {shouldShowSheet && (
-        <SelectionSheet
-          text={selection.text}
-          onReact={(emoji) => handleFeedbackSubmit({ type: emoji, selection: selection.text })}
-          onCopy={async () => { 
-            try { 
-              await navigator.clipboard.writeText(selection.text); 
-            } catch {} 
-          }}
+      <SelectionSheet
+        text={selection.text}
+        onReact={(emoji) => {
+          if (emoji === '✏️') {
+            beginInlineEdit();
+          } else {
+            handleFeedbackSubmit({ type: emoji, selection: selection.text });
+          }
+        }}
+        onCopy={async () => { 
+          try { 
+            await navigator.clipboard.writeText(selection.text); 
+          } catch {} 
+        }}
           onClose={() => clearSelection()}
         />
       )}

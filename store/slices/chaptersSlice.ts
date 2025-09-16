@@ -337,9 +337,15 @@ export const createChaptersSlice: StateCreator<
     set(state => {
       const newHistory = [...new Set(state.navigationHistory.concat(chapterId))];
       
-      // Persist to IndexedDB
+      // Persist to IndexedDB (fire-and-forget without await)
       try {
-        try { const { getRepoForService } = await import('../../services/db/index'); const repo = getRepoForService('chaptersSlice'); repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {} as any); } catch {}
+        Promise.resolve()
+          .then(() => import('../../services/db/index'))
+          .then(({ getRepoForService }) => {
+            const repo = getRepoForService('chaptersSlice');
+            return repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {});
+          })
+          .catch(() => {});
       } catch {}
       
       return { navigationHistory: newHistory };
@@ -349,9 +355,15 @@ export const createChaptersSlice: StateCreator<
   clearHistory: () => {
     set({ navigationHistory: [] });
     
-    // Persist to IndexedDB
+    // Persist to IndexedDB (fire-and-forget without await)
     try {
-      try { const { getRepoForService } = await import('../../services/db/index'); const repo = getRepoForService('chaptersSlice'); repo.setSetting('navigation-history', { stableIds: [] }).catch(() => {} as any); } catch {}
+      Promise.resolve()
+        .then(() => import('../../services/db/index'))
+        .then(({ getRepoForService }) => {
+          const repo = getRepoForService('chaptersSlice');
+          return repo.setSetting('navigation-history', { stableIds: [] }).catch(() => {});
+        })
+        .catch(() => {});
     } catch {}
   },
   
@@ -556,6 +568,11 @@ export const createChaptersSlice: StateCreator<
         const existingVersions = await fetchTranslationVersions(nextChapterId);
         if (existingVersions.length > 0) {
           console.log(`[Worker] Skipping chapter #${targetNumber} - ${existingVersions.length} version(s) already exist.`);
+          continue;
+        }
+
+        if (get().pendingTranslations?.has(nextChapterId)) {
+          console.log(`[Worker] Skipping chapter #${targetNumber} - translation already pending.`);
           continue;
         }
 

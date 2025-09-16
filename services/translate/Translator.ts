@@ -46,16 +46,19 @@ export class Translator {
     
     let lastError: Error | null = null;
 
+    // Work on a local copy of the request so we can adjust settings per-attempt without mutating caller state
+    const workingRequest: TranslationRequest = { ...request, settings: { ...request.settings } };
+
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
-        console.log(`[Translator] Attempt ${attempt + 1}/${maxRetries} with ${request.settings.provider} (${request.settings.model})...`);
+        console.log(`[Translator] Attempt ${attempt + 1}/${maxRetries} with ${workingRequest.settings.provider} (${workingRequest.settings.model})...`);
         
         // Early abort check
-        if (request.abortSignal?.aborted) {
+        if (workingRequest.abortSignal?.aborted) {
           throw new DOMException('Aborted', 'AbortError');
         }
 
-        const result = await provider.translate(request);
+        const result = await provider.translate(workingRequest);
         
         // Post-process translation result
         return this.sanitizeResult(result);
@@ -64,8 +67,8 @@ export class Translator {
         lastError = error;
         
         // Handle abort errors first
-        if (error.name === 'AbortError' || request.abortSignal?.aborted) {
-          console.log(`[Translator] Translation aborted for ${request.settings.provider}`);
+        if (error.name === 'AbortError' || workingRequest.abortSignal?.aborted) {
+          console.log(`[Translator] Translation aborted for ${workingRequest.settings.provider}`);
           throw new DOMException('Translation was aborted by user', 'AbortError');
         }
 
@@ -79,11 +82,27 @@ export class Translator {
           throw error;
         }
 
+        // Handle length-cap (model hit max tokens) by doubling maxOutputTokens for next attempt, if any
+        const isLengthCap = typeof error.message === 'string' && (
+          error.message.includes('length_cap') ||
+          error.message.includes('MAX_TOKENS') ||
+          error.message.includes('finish reason') && error.message.includes('length')
+        );
+        if (isLengthCap && attempt < maxRetries - 1) {
+          const currentMax = workingRequest.settings.maxOutputTokens ?? 16384;
+          const nextMax = Math.min(currentMax * 2, 32768);
+          if (nextMax > currentMax) {
+            console.warn(`[Translator] Hit model token cap. Increasing maxOutputTokens from ${currentMax} to ${nextMax} and retrying...`);
+            workingRequest.settings = { ...workingRequest.settings, maxOutputTokens: nextMax } as AppSettings;
+            continue;
+          }
+        }
+
         // Handle rate limiting
         const isRateLimitError = error.message?.includes('429') || error.status === 429;
         if (isRateLimitError && attempt < maxRetries - 1) {
           const delay = initialDelay * Math.pow(2, attempt);
-          console.warn(`[Translator] Rate limit hit for ${request.settings.provider}. Retrying in ${delay / 1000}s...`);
+          console.warn(`[Translator] Rate limit hit for ${workingRequest.settings.provider}. Retrying in ${delay / 1000}s...`);
           await this.delay(delay);
           continue;
         }

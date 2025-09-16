@@ -121,7 +121,7 @@ export class TranslationService {
 
       // Persist translation to IndexedDB
       try {
-        await indexedDBService.storeTranslationByStableId(chapterId, result as any, {
+        const storedRecord = await indexedDBService.storeTranslationByStableId(chapterId, result as any, {
           provider: settings.provider,
           model: settings.model,
           temperature: settings.temperature,
@@ -130,6 +130,11 @@ export class TranslationService {
           promptName: activePromptTemplate?.name,
         });
         slog('[Translate] Persisted translation to IndexedDB');
+
+        if (storedRecord?.id) {
+          (result as any).id = storedRecord.id;
+          (result as any).customVersionLabel = storedRecord.customVersionLabel;
+        }
       } catch (e) {
         console.warn('[TranslationService] Failed to persist translation version', e);
       }
@@ -337,6 +342,7 @@ export class TranslationService {
           feedback: (chapter as any).feedback ?? [],
         };
       });
+    console.log('[History][DIAG] Mapped translationResult.translation → translatedContent for history', { count: result.length });
     
     console.log(`[History] Built history with ${result.length} chapters using chapter-number-based selection`);
     return result;

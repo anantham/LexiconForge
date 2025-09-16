@@ -9,7 +9,15 @@ import type { Repo } from '../../adapters/repo/Repo';
 import { makeLegacyRepo } from '../../legacy/indexeddb-compat';
 import { migrationController, type Backend, type ServiceName } from './migration/phase-controller';
 import { isIndexedDBAvailable } from './core/connection';
-import { TranslationOps, ChapterOps } from './operations';
+import {
+  TranslationOps,
+  ChapterOps,
+  FeedbackOps,
+  SettingsOps,
+  TemplatesOps,
+  MappingsOps,
+  ExportOps,
+} from './operations';
 
 // Environment-based backend selection
 const DEFAULT_BACKEND: Backend = 
@@ -206,29 +214,29 @@ function makeIdbRepo(): Repo {
     setActiveTranslationByStableId: (stableId, version) => TranslationOps.setActiveByStableId(stableId, version),
 
     // Feedback
-    storeFeedback: (chapterUrl, feedback, translationId) => (require('./operations') as any).FeedbackOps.store(chapterUrl, feedback as any, translationId),
-    getFeedback: (chapterUrl) => (require('./operations') as any).FeedbackOps.get(chapterUrl),
-    getAllFeedback: () => (require('./operations') as any).FeedbackOps.getAll(),
+    storeFeedback: (chapterUrl, feedback, translationId) => FeedbackOps.store(chapterUrl, feedback as any, translationId),
+    getFeedback: (chapterUrl) => FeedbackOps.get(chapterUrl),
+    getAllFeedback: () => FeedbackOps.getAll(),
 
     // Settings & templates
-    storeSettings: (settings) => (require('./operations') as any).SettingsOps.store(settings as any),
-    getSettings: () => (require('./operations') as any).SettingsOps.get(),
-    setSetting: (key, value) => (require('./operations') as any).SettingsOps.set(key, value),
-    getSetting: (key) => (require('./operations') as any).SettingsOps.getKey(key),
-    storePromptTemplate: (t) => (require('./operations') as any).TemplatesOps.store(t),
-    getPromptTemplates: () => (require('./operations') as any).TemplatesOps.getAll(),
-    getDefaultPromptTemplate: () => (require('./operations') as any).TemplatesOps.getDefault(),
-    getPromptTemplate: (id) => (require('./operations') as any).TemplatesOps.get(id),
-    setDefaultPromptTemplate: (id) => (require('./operations') as any).TemplatesOps.setDefault(id),
+    storeSettings: (settings) => SettingsOps.store(settings as any),
+    getSettings: () => SettingsOps.get(),
+    setSetting: (key, value) => SettingsOps.set(key, value),
+    getSetting: (key) => SettingsOps.getKey(key),
+    storePromptTemplate: (t) => TemplatesOps.store(t),
+    getPromptTemplates: () => TemplatesOps.getAll(),
+    getDefaultPromptTemplate: () => TemplatesOps.getDefault(),
+    getPromptTemplate: (id) => TemplatesOps.get(id),
+    setDefaultPromptTemplate: (id) => TemplatesOps.setDefault(id),
 
     // URL mappings / novels
-    getStableIdByUrl: (url) => (require('./operations') as any).MappingsOps.getStableIdByUrl(url),
-    getUrlMappingForUrl: (url) => (require('./operations') as any).MappingsOps.getUrlMappingForUrl(url),
-    getAllUrlMappings: () => (require('./operations') as any).MappingsOps.getAllUrlMappings(),
-    getAllNovels: () => (require('./operations') as any).MappingsOps.getAllNovels(),
+    getStableIdByUrl: (url) => MappingsOps.getStableIdByUrl(url),
+    getUrlMappingForUrl: (url) => MappingsOps.getUrlMappingForUrl(url),
+    getAllUrlMappings: () => MappingsOps.getAllUrlMappings(),
+    getAllNovels: () => MappingsOps.getAllNovels(),
 
     // Export
-    exportFullSessionToJson: () => (require('./operations') as any).ExportOps.exportFullSessionToJson(),
+    exportFullSessionToJson: () => ExportOps.exportFullSessionToJson(),
   } as unknown as Repo;
 }
 

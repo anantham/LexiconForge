@@ -212,11 +212,11 @@ export class NavigationService {
           // Persist navigation state
           try {
             const repo = getRepoForService('navigationService');
-            repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {} as any);
+            repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {});
           } catch {}
           try {
             const repo = getRepoForService('navigationService');
-            repo.setSetting('lastActiveChapter', { id: chapterId, url: loaded.canonicalUrl }).catch(() => {} as any);
+            repo.setSetting('lastActiveChapter', { id: chapterId, url: loaded.canonicalUrl }).catch(() => {});
           } catch {}
           
           slog(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);

@@ -14,10 +14,13 @@ import type { FeedbackItem, AmendmentProposal, HistoricalChapter, TranslationRes
 import { ExplanationService } from '../../services/explanationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
+import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
+import { indexedDBService } from '../../services/indexeddb';
 
 export interface TranslationsState {
   // Active translations
   activeTranslations: Record<string, AbortController>;
+  pendingTranslations: Set<string>;
   
   // Feedback and amendments
   feedbackHistory: Record<string, FeedbackItem[]>;
@@ -81,6 +84,7 @@ export const createTranslationsSlice: StateCreator<
 > = (set, get) => ({
   // Initial state
   activeTranslations: {},
+  pendingTranslations: new Set(),
   feedbackHistory: {},
   amendmentProposal: null,
   translationProgress: {},
@@ -88,19 +92,26 @@ export const createTranslationsSlice: StateCreator<
   // Translation operations
   handleTranslate: async (chapterId) => {
     const state = get();
+    if (state.pendingTranslations.has(chapterId)) {
+      return;
+    }
     const context: TranslationContext = {
       chapters: (state as any).chapters || new Map(),
       settings: (state as any).settings,
       activePromptTemplate: (state as any).activePromptTemplate
     };
-    
-    // Set translation status
-    set(prevState => ({
-      translationProgress: {
-        ...prevState.translationProgress,
-        [chapterId]: { status: 'translating', progress: 0 }
-      }
-    }));
+
+    set(prevState => {
+      const nextPending = new Set(prevState.pendingTranslations);
+      nextPending.add(chapterId);
+      return {
+        pendingTranslations: nextPending,
+        translationProgress: {
+          ...prevState.translationProgress,
+          [chapterId]: { status: 'translating', progress: 0 }
+        }
+      };
+    });
     
     // Update UI loading state
     const uiActions = state as any;
@@ -109,6 +120,21 @@ export const createTranslationsSlice: StateCreator<
     }
     
     try {
+      const existingVersions = await indexedDBService.getTranslationVersionsByStableId(chapterId).catch(() => []);
+      if (Array.isArray(existingVersions) && existingVersions.length > 0) {
+        set(prev => {
+          const nextPending = new Set(prev.pendingTranslations);
+          nextPending.delete(chapterId);
+          const nextProgress = { ...prev.translationProgress };
+          delete nextProgress[chapterId];
+          return {
+            pendingTranslations: nextPending,
+            translationProgress: nextProgress,
+          };
+        });
+        return;
+      }
+
       const result = await TranslationService.translateChapter(
         chapterId,
         context,
@@ -183,6 +209,11 @@ export const createTranslationsSlice: StateCreator<
       }));
       
     } finally {
+      set(prev => {
+        const nextPending = new Set(prev.pendingTranslations);
+        nextPending.delete(chapterId);
+        return { pendingTranslations: nextPending };
+      });
       // Update loading states
       const stillTranslating = TranslationService.getActiveTranslationIds().length > 0;
       if (uiActions.setTranslatingState) {
@@ -306,48 +337,75 @@ export const createTranslationsSlice: StateCreator<
       const settings = state.settings;
 
       if (chapter && chapter.content && chapter.translationResult && newFeedback.selection) {
-        // Fire and forget the explanation generation
-        ExplanationService.generateExplanationFootnote(
-          chapter.content,
-          chapter.translationResult.translation,
-          newFeedback.selection,
-          settings
-        ).then(footnoteText => {
-          if (!footnoteText) return;
+        void (async () => {
+          try {
+            const footnoteText = await ExplanationService.generateExplanationFootnote(
+              chapter.content,
+              chapter.translationResult.translation,
+              newFeedback.selection,
+              settings
+            );
 
-          const chapterToUpdate = (get().chapters as Map<string, EnhancedChapter>).get(chapterId);
-          if (!chapterToUpdate || !chapterToUpdate.translationResult) return;
+            if (!footnoteText) return;
 
-          const existingFootnotes = chapterToUpdate.translationResult.footnotes || [];
-          const nextFootnoteNumber = existingFootnotes.length + 1;
-          const newMarker = `[${nextFootnoteNumber}]`;
+            const chapterToUpdate = (get().chapters as Map<string, EnhancedChapter>).get(chapterId);
+            if (!chapterToUpdate || !chapterToUpdate.translationResult) return;
 
-          const newFootnote: Footnote = {
-            marker: newMarker,
-            text: footnoteText,
-          };
+            const existingFootnotes = chapterToUpdate.translationResult.footnotes || [];
+            const nextFootnoteNumber = existingFootnotes.length + 1;
+            const newMarker = `[${nextFootnoteNumber}]`;
 
-          // Insert the marker into the text
-          const updatedTranslation = chapterToUpdate.translationResult.translation.replace(
-            newFeedback.selection!,
-            `${newFeedback.selection} ${newMarker}`
-          );
+            const newFootnote: Footnote = {
+              marker: newMarker,
+              text: footnoteText,
+            };
 
-          const updatedTranslationResult = {
-            ...chapterToUpdate.translationResult,
-            translation: updatedTranslation,
-            footnotes: [...existingFootnotes, newFootnote],
-          };
-          
-          (get() as any).updateChapter(chapterId, { translationResult: updatedTranslationResult });
+            // Insert the marker into the text
+            const updatedTranslation = chapterToUpdate.translationResult.translation.replace(
+              newFeedback.selection!,
+              `${newFeedback.selection} ${newMarker}`
+            );
 
-          // --- PERSISTENCE FIX ---
-          const updatedChapter = (get().chapters as Map<string, EnhancedChapter>).get(chapterId);
-          if (updatedChapter?.translationResult) {
-            const { translationsRepo } = require('../../adapters/repo');
-            translationsRepo.updateTranslation(updatedChapter.translationResult as any);
+            const updatedTranslationResult = {
+              ...chapterToUpdate.translationResult,
+              translation: updatedTranslation,
+              footnotes: [...existingFootnotes, newFootnote],
+            };
+
+            (get() as any).updateChapter(chapterId, { translationResult: updatedTranslationResult });
+
+            const updatedChapter = (get().chapters as Map<string, EnhancedChapter>).get(chapterId);
+            if (!updatedChapter?.translationResult) {
+              return;
+            }
+
+            const stateSnapshot = get() as any;
+            const persistenceSettings: TranslationSettingsSnapshot = {
+              provider: stateSnapshot.settings.provider,
+              model: stateSnapshot.settings.model,
+              temperature: stateSnapshot.settings.temperature,
+              systemPrompt: stateSnapshot.settings.systemPrompt,
+              promptId: stateSnapshot.activePromptTemplate?.id,
+              promptName: stateSnapshot.activePromptTemplate?.name,
+            };
+
+            try {
+              const stored = await TranslationPersistenceService.persistUpdatedTranslation(
+                chapterId,
+                updatedChapter.translationResult as any,
+                persistenceSettings
+              );
+
+              if (stored && !(updatedChapter.translationResult as any).id) {
+                (get() as any).updateChapter(chapterId, { translationResult: stored as any });
+              }
+            } catch (error) {
+              console.warn('[TranslationsSlice] Failed to persist translation after generating footnote:', error);
+            }
+          } catch (error) {
+            console.warn('[TranslationsSlice] Footnote generation workflow failed:', error);
           }
-        });
+        })();
       }
     }
   },
@@ -640,44 +698,34 @@ export const createTranslationsSlice: StateCreator<
     }
 
     const updatedChapter = (get().chapters as Map<string, EnhancedChapter>).get(chapterId);
-    if (updatedChapter?.translationResult) {
-      // Use dynamic ESM import to avoid `require` in browser environments
-      import('../../adapters/repo').then(({ translationsRepo }) => {
-        try {
-          // If the translation record already has an `id`, it's a full TranslationRecord and can be updated.
-          const tr = updatedChapter.translationResult as any;
-          if (tr && tr.id) {
-            translationsRepo.updateTranslation(tr).catch((e: any) => {
-              console.warn('[TranslationsSlice] Failed to update existing translation via translationsRepo:', e);
-            });
-            // Log persistence attempt for existing record
-            console.log('[TranslationsSlice] Persisted update for translation id:', tr.id);
-          } else {
-            // No id => create a new stored translation tied to the stableId
-            // Use minimal settings snapshot from the app settings
-            const state = get();
-            const settings = state.settings;
-            translationsRepo.storeTranslationByStableId(chapterId, tr, {
-              provider: settings.provider,
-              model: settings.model,
-              temperature: settings.temperature,
-              systemPrompt: settings.systemPrompt,
-            }).then((stored) => {
-              console.log('[TranslationsSlice] Stored new translation via translationsRepo:', stored?.id);
-              try {
-                // Update in-memory record with persisted id so future updates use updateTranslation
-                (get() as any).updateChapter(chapterId, { translationResult: stored as any });
-              } catch (e) { console.warn('[TranslationsSlice] Failed to merge persisted translation into state:', e); }
-            }).catch((e: any) => {
-              console.warn('[TranslationsSlice] Failed to store new translation via translationsRepo:', e);
-            });
-          }
-        } catch (e) {
-          console.warn('[TranslationsSlice] Failed to persist updated translation via translationsRepo:', e);
-        }
-      }).catch((e) => {
-        console.warn('[TranslationsSlice] Dynamic import of translationsRepo failed:', e);
-      });
+    if (!updatedChapter?.translationResult) {
+      return;
     }
+
+    const stateSnapshot = get() as any;
+    const persistenceSettings: TranslationSettingsSnapshot = {
+      provider: stateSnapshot.settings.provider,
+      model: stateSnapshot.settings.model,
+      temperature: stateSnapshot.settings.temperature,
+      systemPrompt: stateSnapshot.settings.systemPrompt,
+      promptId: stateSnapshot.activePromptTemplate?.id,
+      promptName: stateSnapshot.activePromptTemplate?.name,
+    };
+
+    TranslationPersistenceService.persistUpdatedTranslation(
+      chapterId,
+      updatedChapter.translationResult as any,
+      persistenceSettings
+    ).then((stored) => {
+      if (stored && !(updatedChapter.translationResult as any).id) {
+        try {
+          (get() as any).updateChapter(chapterId, { translationResult: stored as any });
+        } catch (e) {
+          console.warn('[TranslationsSlice] Failed to merge persisted translation after illustration update:', e);
+        }
+      }
+    }).catch((error) => {
+      console.warn('[TranslationsSlice] Failed to persist translation after illustration update:', error);
+    });
   }
 });

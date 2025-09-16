@@ -4,15 +4,17 @@ import ThumbsUpIcon from './icons/ThumbsUpIcon';
 import ThumbsDownIcon from './icons/ThumbsDownIcon';
 import QuestionMarkIcon from './icons/QuestionMarkIcon';
 import PaintBrushIcon from './icons/PaintBrushIcon';
+import PencilIcon from './icons/PencilIcon';
 
 interface FeedbackPopoverProps {
   selectionText: string;
   position: DOMRect;
   positioningParentRef: React.RefObject<HTMLElement>;
   onFeedback: (feedback: Omit<FeedbackItem, 'id'>) => void;
+  onEdit: () => void;
 }
 
-const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, position, positioningParentRef, onFeedback }) => {
+const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, position, positioningParentRef, onFeedback, onEdit }) => {
   console.groupCollapsed('[FeedbackPopover] Render');
   
   if (!positioningParentRef.current) {
@@ -56,6 +58,9 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
       </button>
       <button onClick={() => handleFeedback('🎨')} className="p-2 rounded-full hover:bg-purple-600 transition-colors duration-200">
         <PaintBrushIcon className="w-5 h-5" />
+      </button>
+      <button onClick={onEdit} className="p-2 rounded-full hover:bg-blue-500 transition-colors duration-200" title="Edit selection">
+        <PencilIcon className="w-5 h-5" />
       </button>
     </div>
   );

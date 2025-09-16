@@ -32,6 +32,34 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Change: `max_tokens` now set to `settings.maxOutputTokens` (clamped) for full-length footnotes.
 - Reason: User requested full global token budget for elaborate footnotes.
 
+2025-08-30 19:05 UTC - Centralize translation persistence
+- Files modified: services/translationPersistenceService.ts (new), store/slices/translationsSlice.ts:12,303-366,624-707
+- Purpose: Replace browser-only `require` usage with a service that handles repo loading and logs persistence results, ensuring footnote/illustration updates persist without runtime errors.
+
+2025-08-30 19:20 UTC - Ensure auto-translate triggers after hydration
+- Files modified: App.tsx:20-113
+- Purpose: Added a store selector tracking whether the current chapter is loaded so the translation effect runs once hydration completes instead of requiring manual retry.
+
+2025-08-30 19:28 UTC - Replace CommonJS requires in DB repo
+- Files modified: services/db/index.ts:9-93,204-238
+- Purpose: Hoisted operations imports to module scope so the IDB repo works in Vite’s ESM bundle instead of throwing `require is not defined` during persistence calls.
+
+2025-08-30 19:40 UTC - Keep translation versions stable for metadata edits
+- Files modified: services/translationService.ts:123-142, store/slices/imageSlice.ts:11,478-511, services/imageGenerationService.ts:15,189-214
+- Purpose: Capture stored translation IDs immediately and route footnote/image updates through the persistence helper so metadata changes mutate in place instead of spawning new versions.
+
+2025-08-30 20:10 UTC - Inline edit reaction for translations
+- Files modified: components/ChapterView.tsx:1-870, components/FeedbackPopover.tsx:1-52, components/SessionInfo.tsx:220-332, services/translationPersistenceService.ts:1-118, services/indexeddb.ts:73-1040, services/translationService.ts:120-142, store/slices/imageSlice.ts:1-520, services/imageGenerationService.ts:1-330
+- Purpose: Tokenize rendered translations into editable chunks, add an inline edit option in the reaction tray with save/new-version controls, and surface custom version labels across the UI.
+
+2025-08-30 20:25 UTC - Guard duplicate translations
+- Files modified: store/slices/translationsSlice.ts:80-220, store/slices/chaptersSlice.ts:520-620, App.tsx:70-140
+- Purpose: Track pending translation requests and short-circuit both the auto-translate effect and prefetch worker when a job or persisted version already exists, avoiding duplicate API calls.
+
+2025-08-30 20:35 UTC - Fix inline edit chunk resolution
+- Files modified: components/ChapterView.tsx:400-430
+- Purpose: Ensure text-node selections resolve to their enclosing chunk spans so inline editing activates correctly.
+
 2025-08-30 18:30 UTC - Diagnostic logging for illustration insertion
 - File modified: store/slices/translationsSlice.ts
 - Change: Add console logs after updating chapter to print `suggestedIllustrations` and whether the placement marker was inserted; log persistence results (stored id or update confirmation) and merge persisted translationResult into state.
