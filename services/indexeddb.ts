@@ -17,29 +17,21 @@
  * - Migration from localStorage data
  */
 
-import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate } from '../types';
+import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate, AlignmentResult } from '../types';
+import { debugPipelineEnabled } from '../utils/debug';
+import { generateStableChapterId } from './stableIdService';
+import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
 
-// Debug gates (reuse AI debug flags)
-const dbDebugEnabled = (): boolean => {
-  try {
-    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
-    if (lvl === 'summary') return true; if (lvl === 'full') return true;
-    return localStorage.getItem('LF_AI_DEBUG') === '1';
-  } catch { return false; }
+const dblog = (...args: any[]) => {
+  if (debugPipelineEnabled('indexeddb', 'summary')) console.log('[IndexedDB]', ...args);
 };
-const dbDebugFullEnabled = (): boolean => {
-  try {
-    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
-    if (lvl === 'full') return true;
-    return localStorage.getItem('LF_AI_DEBUG_FULL') === '1';
-  } catch { return false; }
+const dblogFull = (...args: any[]) => {
+  if (debugPipelineEnabled('indexeddb', 'full')) console.log('[IndexedDB][FULL]', ...args);
 };
-const dblog = (...args: any[]) => { if (dbDebugEnabled()) console.log('[IndexedDB]', ...args); };
-const dblogFull = (...args: any[]) => { if (dbDebugFullEnabled()) console.log('[IndexedDB][FULL]', ...args); };
 
 // Database configuration
 const DB_NAME = 'lexicon-forge';
-const DB_VERSION = 5; // Increment for stable ID support
+const DB_VERSION = 6; // Increment for chapter summaries support
 
 // Object store names
 const STORES = {
@@ -49,7 +41,8 @@ const STORES = {
   FEEDBACK: 'feedback',
   PROMPT_TEMPLATES: 'prompt_templates',
   URL_MAPPINGS: 'url_mappings',     // NEW: URL → Stable ID mapping
-  NOVELS: 'novels'                  // NEW: Novel organization (optional)
+  NOVELS: 'novels',                 // NEW: Novel organization (optional)
+  CHAPTER_SUMMARIES: 'chapter_summaries' // NEW: Lightweight metadata for listing
 } as const;
 
 // IndexedDB Schema Types
@@ -70,6 +63,18 @@ export interface ChapterRecord {
   canonicalUrl?: string;          // Normalized URL
 }
 
+export interface ChapterSummaryRecord {
+  stableId: string;               // Primary key
+  canonicalUrl?: string;          // Preferred navigation URL
+  title: string;                  // Original title (source language)
+  translatedTitle?: string;       // Active translation title if available
+  chapterNumber?: number;         // Numeric ordering if present
+  hasTranslation: boolean;        // Active translation exists
+  hasImages: boolean;             // Active translation includes generated images
+  lastAccessed?: string;          // ISO timestamp
+  lastTranslatedAt?: string;      // ISO timestamp of active translation creation
+}
+
 export interface TranslationRecord {
   id: string;                     // Generated UUID
   chapterUrl: string;             // Foreign key to chapters (legacy)
@@ -88,6 +93,7 @@ export interface TranslationRecord {
   promptId?: string;              // Reference to prompt template used
   promptName?: string;            // Snapshot of prompt name at time of translation
   customVersionLabel?: string;    // Optional user-supplied label appended to display
+  fanAlignment?: AlignmentResult;
   
   // Usage metrics
   totalTokens: number;
@@ -158,6 +164,9 @@ let dbPromise: Promise<IDBDatabase> | null = null;
 
 // Database service class
 class IndexedDBService {
+  private summariesInitialized = false;
+  private summariesInitPromise: Promise<void> | null = null;
+
   /**
    * Singleton database opener with proper event handling
    * Prevents thundering herd opens and handles blocked upgrades correctly
@@ -245,7 +254,7 @@ class IndexedDBService {
   private async verifySchemaOrAutoMigrate(db: IDBDatabase): Promise<void> {
     const requiredStores = [
       'chapters', 'translations', 'settings', 'feedback', 
-      'prompt_templates', 'url_mappings', 'novels'
+      'prompt_templates', 'url_mappings', 'novels', 'chapter_summaries'
     ];
     
     const existingStores = Array.from(db.objectStoreNames);
@@ -257,6 +266,16 @@ class IndexedDBService {
         await this.ensureTranslationIndexes(db);
       } catch (e) {
         console.warn('[IndexedDB] Failed to ensure translation indexes:', e);
+      }
+      try {
+        await this.ensureChapterIndexes(db);
+      } catch (e) {
+        console.warn('[IndexedDB] Failed to ensure chapter indexes:', e);
+      }
+      try {
+        await this.ensureChapterSummaries(db);
+      } catch (e) {
+        console.warn('[IndexedDB] Failed to ensure chapter summaries:', e);
       }
       return;
     }
@@ -297,6 +316,13 @@ class IndexedDBService {
             novelStore.createIndex('dateAdded', 'dateAdded');
             novelStore.createIndex('lastAccessed', 'lastAccessed');
             // console.log('[IndexedDB] Auto-migration: created novels store');
+          }
+          if (missingStores.includes('chapter_summaries') && !upgradeDb.objectStoreNames.contains('chapter_summaries')) {
+            const summaryStore = upgradeDb.createObjectStore('chapter_summaries', { keyPath: 'stableId' });
+            summaryStore.createIndex('chapterNumber', 'chapterNumber');
+            summaryStore.createIndex('lastAccessed', 'lastAccessed');
+            summaryStore.createIndex('hasTranslation', 'hasTranslation');
+            // console.log('[IndexedDB] Auto-migration: created chapter_summaries store');
           }
           // Ensure translations indexes exist (unique compound indexes)
           if (upgradeDb.objectStoreNames.contains('translations')) {
@@ -361,6 +387,44 @@ class IndexedDBService {
           }
         } catch (e) {
           console.warn('[IndexedDB] ensureTranslationIndexes upgrade failed', e);
+        }
+      };
+      req.onsuccess = () => { req.result.close(); resolve(); };
+      req.onerror = () => reject(req.error as any);
+    });
+  }
+
+  /**
+   * Ensure chapters store has chapterNumber index for efficient preload queries.
+   * Migration added to fix O(n) table scans in findChapterByNumber().
+   */
+  private async ensureChapterIndexes(db: IDBDatabase): Promise<void> {
+    try {
+      const tx = db.transaction([STORES.CHAPTERS], 'readonly');
+      const store = tx.objectStore(STORES.CHAPTERS);
+      const idxNames = Array.from(store.indexNames || []);
+      if (idxNames.includes('chapterNumber')) return; // Already exists
+    } catch {
+      return;
+    }
+
+    // Index missing - trigger migration
+    await new Promise<void>((resolve, reject) => {
+      const newVersion = db.version + 1;
+      const req = indexedDB.open(DB_NAME, newVersion);
+      req.onupgradeneeded = (ev) => {
+        const udb = (ev.target as IDBOpenDBRequest).result;
+        try {
+          if (udb.objectStoreNames.contains(STORES.CHAPTERS)) {
+            const store = (udb as any).transaction.objectStore(STORES.CHAPTERS);
+            const idxNames = Array.from(store.indexNames || []);
+            if (!idxNames.includes('chapterNumber')) {
+              store.createIndex('chapterNumber', 'chapterNumber');
+              console.log('[IndexedDB] ✅ Added chapterNumber index to chapters store');
+            }
+          }
+        } catch (e) {
+          console.warn('[IndexedDB] ensureChapterIndexes upgrade failed', e);
         }
       };
       req.onsuccess = () => { req.result.close(); resolve(); };
@@ -437,6 +501,7 @@ class IndexedDBService {
       chaptersStore.createIndex('lastAccessed', 'lastAccessed');
       chaptersStore.createIndex('stableId', 'stableId'); // NEW: For stable ID lookups
       chaptersStore.createIndex('canonicalUrl', 'canonicalUrl'); // NEW: For canonical URL lookups
+      chaptersStore.createIndex('chapterNumber', 'chapterNumber'); // NEW: For efficient preload worker queries
       // console.log('[IndexedDB] Created chapters store');
     }
     
@@ -498,6 +563,15 @@ class IndexedDBService {
       novelStore.createIndex('dateAdded', 'dateAdded');
       novelStore.createIndex('lastAccessed', 'lastAccessed');
       // console.log('[IndexedDB] Created novels store');
+    }
+
+    // NEW: Chapter summaries store for lightweight lookups
+    if (!db.objectStoreNames.contains(STORES.CHAPTER_SUMMARIES)) {
+      const summaryStore = db.createObjectStore(STORES.CHAPTER_SUMMARIES, { keyPath: 'stableId' });
+      summaryStore.createIndex('chapterNumber', 'chapterNumber');
+      summaryStore.createIndex('lastAccessed', 'lastAccessed');
+      summaryStore.createIndex('hasTranslation', 'hasTranslation');
+      // console.log('[IndexedDB] Created chapter summaries store');
     }
   }
 
@@ -598,7 +672,7 @@ class IndexedDBService {
               const content = rec.content || '';
               const number = rec.chapterNumber || 0;
               const title = rec.title || '';
-              stableId = this.generateStableId(content, number, title);
+              stableId = generateStableChapterId(content, number, title);
               rec.stableId = stableId;
             }
             // Ensure canonicalUrl
@@ -659,6 +733,205 @@ class IndexedDBService {
       return url; // Return as-is if invalid
     }
   }
+
+  private async ensureChapterSummaries(db: IDBDatabase): Promise<void> {
+    if (!db.objectStoreNames.contains(STORES.CHAPTER_SUMMARIES)) return;
+    if (this.summariesInitialized) return;
+    if (this.summariesInitPromise) {
+      await this.summariesInitPromise;
+      return;
+    }
+
+    this.summariesInitPromise = this.ensureChapterSummariesInternal(db)
+      .catch((error) => {
+        console.warn('[IndexedDB] Chapter summary initialization failed:', error);
+      })
+      .finally(() => {
+        this.summariesInitPromise = null;
+      });
+
+    await this.summariesInitPromise;
+    this.summariesInitialized = true;
+  }
+
+  private async ensureChapterSummariesInternal(db: IDBDatabase): Promise<void> {
+    const count = await this.countStoreRecords(db, STORES.CHAPTER_SUMMARIES);
+    if (count > 0) return;
+
+    const [chapters, activeTranslations] = await Promise.all([
+      this.getAllChapterRecords(db),
+      this.getActiveTranslationMap(db),
+    ]);
+
+    if (chapters.length === 0) return;
+
+    await new Promise<void>((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.CHAPTER_SUMMARIES, STORES.CHAPTERS], 'readwrite');
+        const summaryStore = tx.objectStore(STORES.CHAPTER_SUMMARIES);
+        const chaptersStore = tx.objectStore(STORES.CHAPTERS);
+
+        for (const chapter of chapters) {
+          const { summary, chapterChanged } = this.buildChapterSummaryRecord(chapter, activeTranslations.get(chapter.url) || null);
+          summaryStore.put(summary);
+          if (chapterChanged) {
+            chaptersStore.put(chapter);
+          }
+        }
+
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      } catch (error) {
+        reject(error as Error);
+      }
+    });
+  }
+
+  private async countStoreRecords(db: IDBDatabase, storeName: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([storeName], 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.count();
+        req.onsuccess = () => resolve(req.result || 0);
+        req.onerror = () => reject(req.error);
+      } catch (error) {
+        reject(error as Error);
+      }
+    });
+  }
+
+  private async getAllChapterRecords(db: IDBDatabase): Promise<ChapterRecord[]> {
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.CHAPTERS], 'readonly');
+        const store = tx.objectStore(STORES.CHAPTERS);
+        const req = store.getAll();
+        req.onsuccess = () => resolve((req.result as ChapterRecord[]) || []);
+        req.onerror = () => reject(req.error);
+      } catch (error) {
+        reject(error as Error);
+      }
+    });
+  }
+
+  private async getActiveTranslationMap(db: IDBDatabase): Promise<Map<string, TranslationRecord>> {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!db.objectStoreNames.contains(STORES.TRANSLATIONS)) {
+          resolve(new Map());
+          return;
+        }
+        const tx = db.transaction([STORES.TRANSLATIONS], 'readonly');
+        const store = tx.objectStore(STORES.TRANSLATIONS);
+        const req = store.openCursor();
+        const map = new Map<string, TranslationRecord>();
+        req.onsuccess = () => {
+          const cursor = req.result as IDBCursorWithValue | null;
+          if (!cursor) {
+            resolve(map);
+            return;
+          }
+          const record = cursor.value as TranslationRecord;
+          const activeFlag = record.isActive;
+          if (activeFlag === true || activeFlag === 1 || activeFlag === 'true') {
+            map.set(record.chapterUrl, record);
+          }
+          cursor.continue();
+        };
+        req.onerror = () => reject(req.error);
+      } catch (error) {
+        reject(error as Error);
+      }
+    });
+  }
+
+  private buildChapterSummaryRecord(chapter: ChapterRecord, translation: TranslationRecord | null): { summary: ChapterSummaryRecord; chapterChanged: boolean } {
+    let chapterChanged = false;
+    let stableId = chapter.stableId;
+    if (!stableId) {
+      stableId = generateStableChapterId(chapter.content || '', chapter.chapterNumber || 0, chapter.title || '');
+      chapter.stableId = stableId;
+      chapterChanged = true;
+    }
+
+    const canonical = chapter.canonicalUrl || this.normalizeUrlAggressively(chapter.originalUrl || chapter.url) || chapter.url;
+    if (chapter.canonicalUrl !== canonical) {
+      chapter.canonicalUrl = canonical;
+      chapterChanged = true;
+    }
+
+    const hasImages = Boolean(translation?.suggestedIllustrations?.some((ill: any) => !!ill?.url || !!ill?.generatedImage));
+    const summary: ChapterSummaryRecord = {
+      stableId,
+      canonicalUrl: canonical || undefined,
+      title: chapter.title,
+      translatedTitle: translation?.translatedTitle || undefined,
+      chapterNumber: chapter.chapterNumber,
+      hasTranslation: Boolean(translation),
+      hasImages,
+      lastAccessed: chapter.lastAccessed,
+      lastTranslatedAt: translation?.createdAt,
+    };
+
+    return { summary, chapterChanged };
+  }
+
+  private async recomputeChapterSummary(options: { chapterUrl?: string; stableId?: string }): Promise<void> {
+    const db = await this.openDatabase();
+    await this.ensureChapterSummaries(db);
+
+    const { chapterUrl, stableId } = options;
+    let chapter: ChapterRecord | null = null;
+    if (chapterUrl) {
+      chapter = await this.getChapter(chapterUrl);
+    }
+    if (!chapter && stableId) {
+      chapter = await this.getChapterByStableId(stableId);
+    }
+
+    if (!chapter) {
+      if (stableId) {
+        await this.deleteChapterSummary(stableId);
+      }
+      return;
+    }
+
+    const active = await this.getActiveTranslation(chapter.url).catch(() => null);
+    const { summary, chapterChanged } = this.buildChapterSummaryRecord(chapter, active || null);
+
+    await new Promise<void>((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.CHAPTER_SUMMARIES, STORES.CHAPTERS], 'readwrite');
+        const summaryStore = tx.objectStore(STORES.CHAPTER_SUMMARIES);
+        summaryStore.put(summary);
+        if (chapterChanged) {
+          const chaptersStore = tx.objectStore(STORES.CHAPTERS);
+          chaptersStore.put(chapter);
+        }
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      } catch (error) {
+        reject(error as Error);
+      }
+    });
+  }
+
+  private async deleteChapterSummary(stableId: string): Promise<void> {
+    const db = await this.openDatabase();
+    if (!db.objectStoreNames.contains(STORES.CHAPTER_SUMMARIES)) return;
+    await new Promise<void>((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.CHAPTER_SUMMARIES], 'readwrite');
+        const store = tx.objectStore(STORES.CHAPTER_SUMMARIES);
+        const req = store.delete(stableId);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      } catch (error) {
+        reject(error as Error);
+      }
+    });
+  }
   
   /**
    * Store chapter data
@@ -677,6 +950,10 @@ class IndexedDBService {
     const db = await this.openDatabase();
     // console.log('[INDEXEDDB-DEBUG] storeChapter() - database opened');
     
+    const nowIso = new Date().toISOString();
+    const canonical = this.normalizeUrlAggressively(chapter.originalUrl) || chapter.originalUrl;
+    const stableId = generateStableChapterId(chapter.content || '', chapter.chapterNumber || 0, chapter.title || '');
+
     const chapterRecord: ChapterRecord = {
       url: chapter.originalUrl,
       title: chapter.title,
@@ -684,8 +961,11 @@ class IndexedDBService {
       originalUrl: chapter.originalUrl,
       nextUrl: chapter.nextUrl,
       prevUrl: chapter.prevUrl,
-      dateAdded: new Date().toISOString(),
-      lastAccessed: new Date().toISOString()
+      chapterNumber: chapter.chapterNumber,
+      canonicalUrl: canonical || undefined,
+      stableId,
+      dateAdded: nowIso,
+      lastAccessed: nowIso
     };
     
     // console.log('[INDEXEDDB-DEBUG] storeChapter() - prepared chapterRecord:', {
@@ -721,21 +1001,26 @@ class IndexedDBService {
         
         if (existingChapter) {
           chapterRecord.dateAdded = existingChapter.dateAdded; // Keep original date
-          // console.log('[INDEXEDDB-DEBUG] storeChapter() - keeping original dateAdded:', existingChapter.dateAdded);
+          chapterRecord.stableId = existingChapter.stableId || chapterRecord.stableId;
+          chapterRecord.canonicalUrl = existingChapter.canonicalUrl || chapterRecord.canonicalUrl;
+          // Preserve fan translation, chapter number when missing
+          if (existingChapter.fanTranslation && !chapterRecord.fanTranslation) {
+            chapterRecord.fanTranslation = existingChapter.fanTranslation;
+          }
+          if (existingChapter.chapterNumber != null && chapterRecord.chapterNumber == null) {
+            chapterRecord.chapterNumber = existingChapter.chapterNumber;
+          }
         }
         
         const putRequest = store.put(chapterRecord);
         // console.log('[INDEXEDDB-DEBUG] storeChapter() - put request created');
-        
-        putRequest.onsuccess = () => {
-          // console.log('[IndexedDB] Chapter stored:', chapter.originalUrl);
-          // console.log('[INDEXEDDB-DEBUG] storeChapter() - put request succeeded for:', chapter.originalUrl);
-          resolve();
-        };
         putRequest.onerror = () => reject(putRequest.error);
       };
       getRequest.onerror = () => reject(getRequest.error);
       
+      transaction.oncomplete = () => {
+        this.recomputeChapterSummary({ chapterUrl: chapter.originalUrl }).then(() => resolve()).catch(reject);
+      };
       transaction.onerror = () => reject(transaction.error);
     });
   }
@@ -793,6 +1078,7 @@ class IndexedDBService {
       promptId: translationSettings.promptId,
       promptName: translationSettings.promptName,
       customVersionLabel: translationResult.customVersionLabel,
+      fanAlignment: translationResult.fanAlignment,
       
       totalTokens: usageMetrics.totalTokens,
       promptTokens: usageMetrics.promptTokens,
@@ -814,7 +1100,7 @@ class IndexedDBService {
       const index = store.index('chapterUrl');
       const deactivateRequest = index.openCursor(IDBKeyRange.only(chapterUrl));
       
-      const deactivatePromises: Promise<void>[] = [];
+      let addCompleted = false;
       
       deactivateRequest.onsuccess = (event) => {
         const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
@@ -822,44 +1108,30 @@ class IndexedDBService {
           const existingRecord = cursor.value;
           if (existingRecord.isActive) {
             existingRecord.isActive = false;
-            deactivatePromises.push(new Promise((resolveUpdate) => {
-              const updateRequest = cursor.update(existingRecord);
-              updateRequest.onsuccess = () => resolveUpdate();
-            }));
+            cursor.update(existingRecord);
           }
           cursor.continue();
         } else {
           // After deactivating existing versions, add the new one
-          Promise.all(deactivatePromises).then(() => {
-            const addRequest = store.add(translationRecord);
-            addRequest.onsuccess = () => {
-              if (dbDebugEnabled()) {
-                console.log('[IndexedDB][Versioning] translation added', { chapterUrl, version: nextVersion, id });
-                // Diagnostic: count records for same version
-                let sameVersionCount = 0;
-                const cursorReq = index.openCursor(IDBKeyRange.only(chapterUrl));
-                cursorReq.onsuccess = (ev) => {
-                  const cur = (ev.target as IDBRequest<IDBCursorWithValue>).result;
-                  if (cur) {
-                    if (cur.value.version === nextVersion) sameVersionCount++;
-                    cur.continue();
-                  } else {
-                    if (sameVersionCount > 1) {
-                      console.warn('[IndexedDB][Versioning][DIAG] Duplicate version numbers detected', { chapterUrl, version: nextVersion, count: sameVersionCount });
-                    } else {
-                      console.log('[IndexedDB][Versioning][DIAG] Unique version confirmed', { chapterUrl, version: nextVersion });
-                    }
-                  }
-                };
-              }
-              resolve(translationRecord);
-            };
-            addRequest.onerror = () => reject(addRequest.error);
-          });
+          const addRequest = store.add(translationRecord);
+          addRequest.onsuccess = () => {
+            addCompleted = true;
+            if (dbDebugEnabled()) {
+              console.log('[IndexedDB][Versioning] translation added', { chapterUrl, version: nextVersion, id });
+            }
+          };
+          addRequest.onerror = () => reject(addRequest.error);
         }
       };
       
       deactivateRequest.onerror = () => reject(deactivateRequest.error);
+      transaction.oncomplete = () => {
+        if (!addCompleted) {
+          resolve(translationRecord);
+          return;
+        }
+        this.recomputeChapterSummary({ chapterUrl }).then(() => resolve(translationRecord)).catch(reject);
+      };
       transaction.onerror = () => reject(transaction.error);
     });
   }
@@ -931,6 +1203,7 @@ class IndexedDBService {
                 promptId: translationSettings.promptId,
                 promptName: translationSettings.promptName,
                 customVersionLabel: translationResult.customVersionLabel,
+                fanAlignment: translationResult.fanAlignment,
                 totalTokens: usageMetrics.totalTokens,
                 promptTokens: usageMetrics.promptTokens,
                 completionTokens: usageMetrics.completionTokens,
@@ -941,8 +1214,11 @@ class IndexedDBService {
                 proposal: translationResult.proposal || undefined,
               };
 
+              tx.oncomplete = () => {
+                this.recomputeChapterSummary({ chapterUrl }).then(() => resolve(newRecord)).catch(reject);
+              };
               const addReq = store.add(newRecord);
-              addReq.onsuccess = () => resolve(newRecord);
+              addReq.onsuccess = () => {};
               addReq.onerror = () => reject(addReq.error);
             });
           } catch (err) {
@@ -1154,32 +1430,26 @@ class IndexedDBService {
       const transaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
       const store = transaction.objectStore(STORES.TRANSLATIONS);
       const index = store.index('chapterUrl');
-      
+
       const request = index.openCursor(IDBKeyRange.only(chapterUrl));
-      const updates: Promise<void>[] = [];
-      
+
       request.onsuccess = (event) => {
         const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
-        if (cursor) {
-          const record = cursor.value;
-          const shouldBeActive = record.version === version;
-          
-          if (record.isActive !== shouldBeActive) {
-            record.isActive = shouldBeActive;
-            updates.push(new Promise((resolveUpdate) => {
-              const updateRequest = cursor.update(record);
-              updateRequest.onsuccess = () => resolveUpdate();
-            }));
-          }
-          cursor.continue();
-        } else {
-          Promise.all(updates).then(() => {
-            // console.log(`[IndexedDB] Set active translation: ${chapterUrl} v${version}`);
-            resolve();
-          });
+        if (!cursor) return;
+
+        const record = cursor.value;
+        const shouldBeActive = record.version === version;
+        if (record.isActive !== shouldBeActive) {
+          record.isActive = shouldBeActive;
+          cursor.update(record);
         }
+        cursor.continue();
       };
-      
+
+      transaction.oncomplete = () => {
+        this.recomputeChapterSummary({ chapterUrl }).then(() => resolve()).catch(reject);
+      };
+      transaction.onerror = () => reject(transaction.error);
       request.onerror = () => reject(request.error);
     });
   }
@@ -1193,13 +1463,25 @@ class IndexedDBService {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
       const store = transaction.objectStore(STORES.TRANSLATIONS);
-      
-      const request = store.delete(translationId);
-      request.onsuccess = () => {
-        // console.log('[IndexedDB] Translation version deleted:', translationId);
-        resolve();
+      let chapterUrl: string | null = null;
+
+      const getReq = store.get(translationId);
+      getReq.onsuccess = () => {
+        const record = getReq.result as TranslationRecord | undefined;
+        chapterUrl = record?.chapterUrl || null;
+        const delReq = store.delete(translationId);
+        delReq.onerror = () => reject(delReq.error);
       };
-      request.onerror = () => reject(request.error);
+      getReq.onerror = () => reject(getReq.error);
+
+      transaction.oncomplete = () => {
+        if (chapterUrl) {
+          this.recomputeChapterSummary({ chapterUrl }).then(() => resolve()).catch(reject);
+        } else {
+          resolve();
+        }
+      };
+      transaction.onerror = () => reject(transaction.error);
     });
   }
 
@@ -1213,11 +1495,11 @@ class IndexedDBService {
       const transaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
       const store = transaction.objectStore(STORES.TRANSLATIONS);
       const request = store.put(translation);
-      request.onsuccess = () => {
-        // console.log('[IndexedDB] Translation version updated:', translation.id);
-        resolve();
-      };
       request.onerror = () => reject(request.error);
+      transaction.oncomplete = () => {
+        this.recomputeChapterSummary({ chapterUrl: translation.chapterUrl }).then(() => resolve()).catch(reject);
+      };
+      transaction.onerror = () => reject(transaction.error);
     });
   }
   
@@ -1926,6 +2208,23 @@ class IndexedDBService {
     });
   }
 
+  async ensureActiveTranslationByStableId(stableId: string): Promise<TranslationRecord | null> {
+    let active = await this.getActiveTranslationByStableId(stableId);
+    if (active) return active;
+
+    const versions = await this.getTranslationVersionsByStableId(stableId);
+    if (!versions.length) return null;
+
+    const latest = versions.slice().sort((a, b) => b.version - a.version)[0];
+    try {
+      await this.setActiveTranslationByStableId(stableId, latest.version);
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to set active translation during ensureActiveTranslationByStableId:', error);
+    }
+    active = await this.getActiveTranslationByStableId(stableId);
+    return active || latest;
+  }
+
   /**
    * Set active translation by stable ID (wrapper around URL-based method)
    */
@@ -2012,6 +2311,41 @@ class IndexedDBService {
    * Get chapters formatted for React rendering with stable IDs
    * Generates stable IDs from existing chapter data for UI consistency
    */
+  async getChapterSummaries(): Promise<ChapterSummaryRecord[]> {
+    const db = await this.openDatabase();
+    await this.ensureChapterSummaries(db);
+
+    if (!db.objectStoreNames.contains(STORES.CHAPTER_SUMMARIES)) {
+      memorySummary('Chapter summaries store missing despite initialization attempt');
+      return [];
+    }
+
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([STORES.CHAPTER_SUMMARIES], 'readonly');
+        const store = tx.objectStore(STORES.CHAPTER_SUMMARIES);
+        const req = store.getAll();
+        req.onsuccess = () => {
+          const summaries = ((req.result || []) as ChapterSummaryRecord[]).slice();
+          summaries.sort((a, b) => {
+            const aNum = a.chapterNumber ?? Number.POSITIVE_INFINITY;
+            const bNum = b.chapterNumber ?? Number.POSITIVE_INFINITY;
+            if (aNum !== bNum) return aNum - bNum;
+            return (a.title || '').localeCompare(b.title || '');
+          });
+          resolve(summaries);
+        };
+        req.onerror = () => reject(req.error);
+      } catch (error) {
+        reject(error as Error);
+      }
+    });
+  }
+
+  /**
+   * Get chapters formatted for React rendering with stable IDs
+   * Generates stable IDs from existing chapter data for UI consistency
+   */
   async getChaptersForReactRendering(): Promise<Array<{
     stableId: string;
     url: string;
@@ -2020,6 +2354,8 @@ class IndexedDBService {
     chapterNumber: number;
   }>> {
     try {
+      const opStart = memoryTimestamp();
+      memorySummary('IndexedDB getChaptersForReactRendering started');
       dblogFull('[INDEXEDDB-DEBUG] getChaptersForReactRendering() called');
       
       const db = await this.openDatabase();
@@ -2035,6 +2371,20 @@ class IndexedDBService {
         
         request.onsuccess = async () => {
           const chapters = request.result as ChapterRecord[];
+
+          if (chapters.length === 0) {
+            memorySummary('IndexedDB chapter fetch returned empty result');
+          } else {
+            memoryDetail('IndexedDB chapter fetch preview', {
+              total: chapters.length,
+              sample: chapters.slice(0, 3).map((ch) => ({
+                url: ch.url,
+                title: ch.title,
+                contentLength: ch.content?.length || 0,
+                hasStableId: Boolean(ch.stableId),
+              })),
+            });
+          }
           
           dblogFull('[INDEXEDDB-DEBUG] Raw chapters from IndexedDB:', {
             chaptersCount: chapters.length,
@@ -2054,7 +2404,7 @@ class IndexedDBService {
           
           const chaptersWithStableIds = await Promise.all(chapters.map(async (chapter) => {
             // Generate stable ID if not already present
-            const stableId = chapter.stableId || this.generateStableId(chapter.content, chapter.chapterNumber || 0, chapter.title);
+            const stableId = chapter.stableId || generateStableChapterId(chapter.content, chapter.chapterNumber || 0, chapter.title);
             
             // Load active translation for this chapter
             let translationResult = null;
@@ -2115,16 +2465,26 @@ class IndexedDBService {
           // });
           
           dblog('[IndexedDB] getChaptersForReactRendering:', chaptersWithStableIds.length, 'chapters with translations loaded');
+          memoryTiming('IndexedDB getChaptersForReactRendering', opStart, {
+            rawCount: chapters.length,
+            processedCount: chaptersWithStableIds.length,
+          });
           resolve(chaptersWithStableIds);
         };
         request.onerror = () => {
           console.error('[INDEXEDDB-DEBUG] getAll() request failed:', request.error);
+          memorySummary('IndexedDB getChaptersForReactRendering failed', {
+            error: request.error?.message || request.error,
+          });
           reject(request.error);
         };
       });
     } catch (error) {
       console.error('[IndexedDB] Failed to get chapters for rendering:', error);
       console.error('[INDEXEDDB-DEBUG] getChaptersForReactRendering() failed with error:', error);
+      memorySummary('IndexedDB getChaptersForReactRendering threw', {
+        error: (error as Error)?.message || error,
+      });
       return [];
     }
   }
@@ -2152,7 +2512,7 @@ class IndexedDBService {
           }
 
           // Generate stable ID if not already present
-          const stableId = chapter.stableId || this.generateStableId(chapter.content, chapter.chapterNumber || 0, chapter.title);
+          const stableId = chapter.stableId || generateStableChapterId(chapter.content, chapter.chapterNumber || 0, chapter.title);
           
           resolve({
             stableId,
@@ -2456,7 +2816,7 @@ class IndexedDBService {
           const cursor = cursorReq.result as IDBCursorWithValue | null;
           if (!cursor) { resolve(null); return; }
           const rec = cursor.value as ChapterRecord;
-          const stableId = rec.stableId || this.generateStableId(rec.content || '', rec.chapterNumber || 0, rec.title || '');
+          const stableId = rec.stableId || generateStableChapterId(rec.content || '', rec.chapterNumber || 0, rec.title || '');
           const canonicalUrl = rec.canonicalUrl || rec.url;
           resolve({ stableId, canonicalUrl });
         };
@@ -2469,28 +2829,6 @@ class IndexedDBService {
   }
 
   /**
-   * Generate stable ID from chapter content
-   * Simple hash function for browser compatibility
-   */
-  private generateStableId(content: string, chapterNumber: number, title: string): string {
-    // Simple hash function
-    const simpleHash = (str: string): string => {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32-bit integer
-      }
-      return Math.abs(hash).toString(16);
-    };
-
-    const contentHash = simpleHash(content).substring(0, 8);
-    const titleHash = simpleHash(title).substring(0, 4);
-    
-    return `ch-${chapterNumber}-${contentHash}-${titleHash}`;
-  }
-
-  /**
    * Find a chapter by its chapter number
    * Note: This is inefficient as it requires a full table scan.
    * Use sparingly and in background tasks.
@@ -2500,28 +2838,51 @@ class IndexedDBService {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([STORES.CHAPTERS], 'readonly');
       const store = transaction.objectStore(STORES.CHAPTERS);
-      const request = store.openCursor();
-      
-      request.onsuccess = (event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
-        if (cursor) {
-          if (cursor.value.chapterNumber === chapterNumber) {
-            resolve(cursor.value as ChapterRecord);
-            return; // Found it
+
+      // Use index for O(log n) lookup instead of O(n) cursor scan
+      try {
+        const index = store.index('chapterNumber');
+        const request = index.get(chapterNumber);
+
+        request.onsuccess = () => {
+          resolve(request.result as ChapterRecord || null);
+        };
+
+        request.onerror = () => {
+          console.error('[IndexedDB] Error finding chapter by number (index):', request.error);
+          reject(request.error);
+        };
+      } catch (e) {
+        // Fallback to cursor scan if index doesn't exist (during migration)
+        console.warn('[IndexedDB] chapterNumber index not found, falling back to cursor scan');
+        const request = store.openCursor();
+
+        request.onsuccess = (event) => {
+          const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+          if (cursor) {
+            if (cursor.value.chapterNumber === chapterNumber) {
+              resolve(cursor.value as ChapterRecord);
+              return;
+            }
+            cursor.continue();
+          } else {
+            resolve(null);
           }
-          cursor.continue();
-        } else {
-          resolve(null); // Not found
-        }
-      };
-      
-      request.onerror = () => reject(request.error);
+        };
+
+        request.onerror = () => {
+          console.error('[IndexedDB] Error finding chapter by number (cursor):', request.error);
+          reject(request.error);
+        };
+      }
     });
   }
 }
 
 // Export singleton instance
 export const indexedDBService = new IndexedDBService();
+
+export type { ChapterSummaryRecord };
 
 // Migration functions have been moved to dedicated services
 
