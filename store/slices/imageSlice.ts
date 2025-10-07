@@ -12,6 +12,7 @@
 import type { StateCreator } from 'zustand';
 import { ImageGenerationService, type ImageGenerationContext, type ImageState, type ImageGenerationMetrics } from '../../services/imageGenerationService';
 import { TranslationPersistenceService } from '../../services/translationPersistenceService';
+import { debugLog } from '../../utils/debug';
 
 export interface ImageSliceState {
   // Generated images state
@@ -107,10 +108,12 @@ export const createImageSlice: StateCreator<
     
     const chapter = context.chapters.get(chapterId);
     if (!chapter?.translationResult?.suggestedIllustrations) {
+      debugLog('image', 'summary', `[ImageSlice] No suggested illustrations for chapter ${chapterId}; skipping generation.`);
       return;
     }
-    
+
     const totalIllustrations = chapter.translationResult.suggestedIllustrations.length;
+    debugLog('image', 'summary', `[ImageSlice] Starting image generation for ${chapterId}. Illustrations: ${totalIllustrations}`);
     
     // Initialize progress tracking
     set(prevState => ({
@@ -125,6 +128,15 @@ export const createImageSlice: StateCreator<
       context,
       (imageStates) => {
         // Update image states and progress
+        const summary = Object.entries(imageStates).reduce<Record<string, { isLoading: boolean; hasData: boolean; error: string | null }>>((acc, [key, state]) => {
+          acc[key] = {
+            isLoading: state.isLoading,
+            hasData: !!state.data,
+            error: state.error,
+          };
+          return acc;
+        }, {});
+        debugLog('image', 'full', `[ImageSlice] Progress update for ${chapterId}`, summary);
         set(prevState => {
           const completed = Object.values(imageStates).filter(
             state => !state.isLoading && (state.data || state.error)
@@ -150,6 +162,8 @@ export const createImageSlice: StateCreator<
         [chapterId]: { completed: totalIllustrations, total: totalIllustrations }
       }
     }));
+
+    debugLog('image', 'summary', `[ImageSlice] Image generation finished for ${chapterId}`, result.metrics);
     
     // Clean up progress after a delay
     setTimeout(() => {
@@ -183,9 +197,11 @@ export const createImageSlice: StateCreator<
         [key]: { isLoading: true, data: null, error: null }
       }
     }));
-    
+
+    debugLog('image', 'summary', `[ImageSlice] Retrying image for ${key}`);
+
     const result = await ImageGenerationService.retryImage(chapterId, placementMarker, context);
-    
+
     // Update image state
     set(prevState => ({
       generatedImages: {
@@ -193,6 +209,8 @@ export const createImageSlice: StateCreator<
         [key]: result.imageState
       }
     }));
+
+    debugLog('image', 'summary', `[ImageSlice] Retry completed for ${key}`, result.metrics);
     
     // Update metrics if provided
     if (result.metrics) {
@@ -202,9 +220,33 @@ export const createImageSlice: StateCreator<
   
   loadExistingImages: (chapterId) => {
     const chapters = (get() as any).chapters || new Map();
+    const chapter = chapters.get(chapterId);
+
+    // DIAGNOSTIC: Log detailed information before loading
+    console.log('[ImageSlice:loadExistingImages] Called for chapter', {
+      chapterId,
+      hasChapter: !!chapter,
+      hasTranslationResult: !!chapter?.translationResult,
+      hasSuggestedIllustrations: !!chapter?.translationResult?.suggestedIllustrations,
+      suggestedIllustrationsCount: chapter?.translationResult?.suggestedIllustrations?.length || 0,
+      suggestedIllustrationsData: chapter?.translationResult?.suggestedIllustrations,
+      currentGeneratedImagesKeys: Object.keys(get().generatedImages)
+    });
+
     const existingImages = ImageGenerationService.loadExistingImages(chapterId, chapters);
-    
-    if (Object.keys(existingImages).length > 0) {
+    const count = Object.keys(existingImages).length;
+
+    // DIAGNOSTIC: Log what was loaded
+    console.log('[ImageSlice:loadExistingImages] Loaded existing images', {
+      chapterId,
+      loadedImageCount: count,
+      imageKeys: Object.keys(existingImages),
+      imageDetails: existingImages
+    });
+
+    debugLog('image', 'summary', `[ImageSlice] Hydrated ${count} existing images for ${chapterId}`);
+
+    if (count > 0) {
       set(prevState => ({
         generatedImages: { ...prevState.generatedImages, ...existingImages }
       }));
@@ -504,7 +546,7 @@ export const createImageSlice: StateCreator<
           }
         });
         
-        console.log(`[ImageSlice] ✅ Updated illustration prompt for ${placementMarker} in memory`);
+        debugLog('translation', 'summary', `[ImageSlice] ✅ Updated illustration prompt for ${placementMarker} in memory`);
       }
 
       // Persist to IndexedDB by updating existing translation record
@@ -521,7 +563,7 @@ export const createImageSlice: StateCreator<
         }
       );
       
-      console.log(`[ImageSlice] ✅ Updated illustration prompt persisted for ${placementMarker}`);
+      debugLog('translation', 'summary', `[ImageSlice] ✅ Updated illustration prompt persisted for ${placementMarker}`);
       
     } catch (error) {
       console.error(`[ImageSlice] Failed to update illustration prompt for ${placementMarker}:`, error);

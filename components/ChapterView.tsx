@@ -1,7 +1,7 @@
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { FeedbackItem, Footnote, UsageMetrics } from '../types';
+import { FeedbackItem, Footnote, UsageMetrics, AlignmentResult, AlignmentMatch } from '../types';
 import Loader from './Loader';
 import { useTextSelection } from '../hooks/useTextSelection';
 import FeedbackPopover from './FeedbackPopover';
@@ -11,6 +11,8 @@ import { useAppStore } from '../store';
 import Illustration from './Illustration';
 import AudioPlayer from './AudioPlayer';
 import { TranslationPersistenceService } from '../services/translationPersistenceService';
+import { ComparisonService } from '../services/comparisonService';
+import { debugLog } from '../utils/debug';
 
 type TranslationToken =
   | { type: 'text'; chunkId: string; text: string }
@@ -120,6 +122,19 @@ const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = ''): Re
 const tokenizeTranslation = (text: string, baseId: string): TokenizationResult => {
   const counter = { value: 0 };
   const tokens = buildTranslationTokens(text, baseId, counter);
+
+  // DIAGNOSTIC: Count token types
+  const footnoteTokens = tokens.filter(t => t.type === 'footnote');
+  const illustrationTokens = tokens.filter(t => t.type === 'illustration');
+  console.log(`[ChapterView:tokenizeTranslation] baseId=${baseId}`, {
+    totalTokens: tokens.length,
+    footnoteCount: footnoteTokens.length,
+    illustrationCount: illustrationTokens.length,
+    footnoteMarkers: footnoteTokens.map(t => t.type === 'footnote' ? t.marker : ''),
+    illustrationMarkers: illustrationTokens.map(t => t.type === 'illustration' ? t.marker : ''),
+    textSample: text.slice(0, 200)
+  });
+
   const nodes = renderTranslationTokens(tokens);
   return { tokens, nodes };
 };
@@ -183,6 +198,16 @@ const tokensToString = (tokens: TranslationToken[]): string => {
     .join('');
 };
 
+const collectTextTokens = (tokens: TranslationToken[], acc: Array<{ id: string; text: string }>) => {
+  for (const token of tokens) {
+    if (token.type === 'text') {
+      acc.push({ id: token.chunkId, text: token.text });
+    } else if (token.type === 'italic' || token.type === 'bold' || token.type === 'emphasis') {
+      collectTextTokens(token.children, acc);
+    }
+  }
+};
+
 interface InlineEditState {
   chunkId: string;
   element: HTMLElement;
@@ -208,10 +233,12 @@ function useIsTouch() {
 // Simple bottom sheet that never overlaps the OS selection bubble
 const SelectionSheet: React.FC<{
   text: string;
-  onReact: (emoji: '👍' | '❤️' | '😂' | '🎨' | '✏️') => void;
+  onReact: (emoji: '👍' | '❤️' | '😂' | '🎨' | '✏️' | '🔍') => void;
   onCopy: () => void;
   onClose: () => void;
-}> = ({ onReact, onCopy, onClose }) => {
+  canCompare: boolean;
+  isComparing: boolean;
+}> = ({ onReact, onCopy, onClose, canCompare, isComparing }) => {
   // Trap contextmenu only while visible (prevents Android long-press menu)
   React.useEffect(() => {
     const block = (e: Event) => e.preventDefault();
@@ -228,6 +255,13 @@ const SelectionSheet: React.FC<{
           <button className="p-3 text-xl" onClick={() => onReact('😂')}>😂</button>
           <button className="p-3 text-xl" onClick={() => onReact('🎨')}>🎨</button>
           <button className="p-3 text-xl" onClick={() => onReact('✏️')}>✏️</button>
+          <button
+            className={`p-3 text-xl ${canCompare && !isComparing ? '' : 'opacity-40 cursor-not-allowed'}`}
+            onClick={() => canCompare && !isComparing && onReact('🔍')}
+            disabled={!canCompare || isComparing}
+          >
+            🔍
+          </button>
           <div className="grow" />
           <button 
             className="px-3 py-2 rounded bg-white/10" 
@@ -280,10 +314,38 @@ const ChapterView: React.FC = () => {
   const editableContainerRef = useRef<HTMLDivElement>(null);
   const [inlineEditState, setInlineEditState] = useState<InlineEditState | null>(null);
   const [toolbarCoords, setToolbarCoords] = useState<{ top: number; left: number } | null>(null);
+  const [comparisonAlignment, setComparisonAlignment] = useState<AlignmentResult | null>(null);
+  const [comparisonChunk, setComparisonChunk] = useState<{
+    chunkId: string;
+    translationText: string;
+    matches: AlignmentMatch[];
+  } | null>(null);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
+  const [comparisonError, setComparisonError] = useState<string | null>(null);
 
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
   const translationResult = chapter?.translationResult;
   const feedbackForChapter = chapter?.feedback ?? [];
+  const fanTranslation = (chapter as any)?.fanTranslation as string | undefined;
+  const canCompare = viewMode === 'english' && !!fanTranslation;
+  const translationVersionId = (translationResult as any)?.id as string | undefined;
+
+  // DIAGNOSTIC: Log chapter data when it changes
+  useEffect(() => {
+    if (chapter && translationResult) {
+      console.log('[ChapterView] Chapter Data Update', {
+        chapterId: chapter.id,
+        chapterTitle: chapter.title,
+        hasTranslation: !!translationResult,
+        translationLength: translationResult.translation?.length || 0,
+        footnotes: translationResult.footnotes?.length || 0,
+        footnotesData: translationResult.footnotes,
+        suggestedIllustrations: translationResult.suggestedIllustrations?.length || 0,
+        illustrationsData: translationResult.suggestedIllustrations,
+        viewMode
+      });
+    }
+  }, [chapter?.id, translationResult, viewMode]);
 
   const translationTokensData = useMemo(() => {
     if (viewMode !== 'english') {
@@ -297,6 +359,44 @@ const ChapterView: React.FC = () => {
   useEffect(() => {
     translationTokensRef.current = translationTokensData.tokens;
   }, [translationTokensData.tokens]);
+
+  const fanTokensData = useMemo(() => {
+    if (!fanTranslation) return [] as TranslationToken[];
+    return tokenizeTranslation(fanTranslation, `${chapter?.id ?? 'chapter'}-fan`).tokens;
+  }, [fanTranslation, chapter?.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!canCompare || !currentChapterId || !translationVersionId) {
+      setComparisonAlignment(null);
+      setComparisonChunk(null);
+      setComparisonError(null);
+      setComparisonLoading(false);
+      return;
+    }
+
+    ComparisonService.getAlignmentCached(currentChapterId, translationVersionId)
+      .then((alignment) => {
+        if (!cancelled && alignment) {
+          setComparisonAlignment(alignment);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          console.warn('[Comparison] Failed to load cached alignment', error);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [canCompare, currentChapterId, translationVersionId]);
+
+  useEffect(() => {
+    if (translationResult?.fanAlignment) {
+      setComparisonAlignment(translationResult.fanAlignment);
+    }
+  }, [translationResult?.fanAlignment]);
 
   // Debug logging for chapter loading
   React.useEffect(() => {
@@ -363,12 +463,12 @@ const ChapterView: React.FC = () => {
   }, []);
 
   const cleanupInlineEdit = useCallback((restoreOriginal = false) => {
-    console.log('[InlineEdit] Cleanup called, restoreOriginal:', restoreOriginal);
+    debugLog('translation', 'summary', '[InlineEdit] Cleanup called', { restoreOriginal });
     setInlineEditState((current) => {
       if (current) {
-        console.log('[InlineEdit] Restoring previous element state');
+        debugLog('translation', 'summary', '[InlineEdit] Restoring previous element state');
         if (restoreOriginal) {
-          console.log('[InlineEdit] Restoring original text');
+          debugLog('translation', 'summary', '[InlineEdit] Restoring original text');
           current.element.textContent = current.originalText;
         }
         current.element.removeAttribute('contentEditable');
@@ -411,12 +511,12 @@ const ChapterView: React.FC = () => {
   }, [inlineEditState, updateToolbarCoords]);
 
   const beginInlineEdit = useCallback(() => {
-    console.log('[InlineEdit] Attempting to start inline edit');
+    debugLog('translation', 'summary', '[InlineEdit] Attempting to start inline edit');
     if (viewMode !== 'english' || !translationResult || !currentChapterId) return;
     const selectionRange = window.getSelection && window.getSelection();
-    console.log('[InlineEdit] Selection object:', selectionRange);
+    debugLog('translation', 'summary', '[InlineEdit] Selection object', selectionRange);
     if (!selectionRange || selectionRange.rangeCount === 0 || selectionRange.isCollapsed) {
-      console.log('[InlineEdit] Selection missing or collapsed');
+      debugLog('translation', 'summary', '[InlineEdit] Selection missing or collapsed');
       showNotification?.('Select text within the translation to edit.', 'info');
       return;
     }
@@ -424,30 +524,30 @@ const ChapterView: React.FC = () => {
     const anchorEl = resolveChunkElement(selectionRange.anchorNode);
     const focusEl = resolveChunkElement(selectionRange.focusNode);
 
-    console.log('[InlineEdit] Anchor element:', anchorEl);
-    console.log('[InlineEdit] Focus element:', focusEl);
+    debugLog('translation', 'summary', '[InlineEdit] Anchor element', anchorEl);
+    debugLog('translation', 'summary', '[InlineEdit] Focus element', focusEl);
 
     if (!anchorEl || !focusEl || anchorEl !== focusEl) {
-      console.log('[InlineEdit] Anchor and focus do not match or element not found');
+      debugLog('translation', 'summary', '[InlineEdit] Anchor and focus do not match or element not found');
       showNotification?.('Inline edits must stay within a single paragraph for now.', 'warning');
       return;
     }
 
     if (anchorEl.dataset.lfType !== 'text') {
-      console.log('[InlineEdit] Selected element type is not editable text', anchorEl.dataset.lfType);
+      debugLog('translation', 'summary', '[InlineEdit] Selected element type is not editable text', anchorEl.dataset.lfType);
       showNotification?.('Footnotes and metadata are edited elsewhere.', 'warning');
       return;
     }
 
     const chunkId = anchorEl.dataset.lfChunk;
-    console.log('[InlineEdit] Resolved chunk ID:', chunkId);
+    debugLog('translation', 'summary', '[InlineEdit] Resolved chunk ID', chunkId);
     if (!chunkId) {
       showNotification?.('Unable to edit this selection. Please try a different section.', 'error');
       return;
     }
 
     const existingText = findTokenText(translationTokensRef.current, chunkId);
-    console.log('[InlineEdit] Existing chunk text:', existingText);
+    debugLog('translation', 'summary', '[InlineEdit] Existing chunk text', existingText);
     if (existingText === null) {
       showNotification?.('Unable to map selection to translation chunk.', 'error');
       return;
@@ -455,7 +555,7 @@ const ChapterView: React.FC = () => {
 
     cleanupInlineEdit();
 
-    console.log('[InlineEdit] Applying contentEditable to element');
+    debugLog('translation', 'summary', '[InlineEdit] Applying contentEditable to element');
     anchorEl.setAttribute('contentEditable', 'true');
     anchorEl.classList.add('outline', 'outline-2', 'outline-blue-500', 'rounded-sm', 'bg-blue-100', 'dark:bg-blue-900/40');
     const range = document.createRange();
@@ -467,7 +567,7 @@ const ChapterView: React.FC = () => {
     }
     anchorEl.focus();
 
-    console.log('[InlineEdit] Inline edit state initialized');
+    debugLog('translation', 'summary', '[InlineEdit] Inline edit state initialized');
 
     setInlineEditState({
       chunkId,
@@ -485,24 +585,144 @@ const ChapterView: React.FC = () => {
     });
   }, []);
 
+  const translationTextChunks = useMemo(() => {
+    const acc: Array<{ id: string; text: string }> = [];
+    collectTextTokens(translationTokensData.tokens, acc);
+    return acc;
+  }, [translationTokensData.tokens]);
+
+  const fanTextChunks = useMemo(() => {
+    const acc: Array<{ id: string; text: string }> = [];
+    collectTextTokens(fanTokensData, acc);
+    return acc;
+  }, [fanTokensData]);
+
+  const handleCompareRequest = useCallback(async () => {
+    debugLog('comparison', 'summary', '[Comparison] Request triggered');
+    if (comparisonLoading) {
+      return;
+    }
+    if (!canCompare || !translationResult || !currentChapterId) {
+      debugLog('comparison', 'summary', '[Comparison] Cannot compare - prerequisites missing');
+      return;
+    }
+
+    const selectionRange = window.getSelection && window.getSelection();
+    const anchorEl = resolveChunkElement(selectionRange?.anchorNode ?? null);
+    if (!anchorEl?.dataset?.lfChunk) {
+      showNotification?.('Select a single paragraph to compare.', 'info');
+      return;
+    }
+
+    const chunkId = anchorEl.dataset.lfChunk;
+    const translationText = findTokenText(translationTokensRef.current, chunkId) ?? anchorEl.innerText;
+    if (!translationText) {
+      showNotification?.('Unable to read selected translation text.', 'error');
+      return;
+    }
+
+    const versionId = translationVersionId;
+    if (!versionId) {
+      showNotification?.('Comparison requires a persisted translation version.', 'warning');
+      return;
+    }
+
+    setComparisonChunk({ chunkId, translationText, matches: [] });
+    setComparisonError(null);
+
+    let alignment = comparisonAlignment;
+    if (!alignment || alignment.versionId !== versionId) {
+      if (fanTextChunks.length === 0) {
+        showNotification?.('Fan translation unavailable for this chapter.', 'info');
+        setComparisonChunk(null);
+        return;
+      }
+      setComparisonLoading(true);
+      try {
+        alignment = await ComparisonService.getAlignmentCached(currentChapterId, versionId);
+        if (!alignment) {
+          alignment = await ComparisonService.requestAlignment(
+            translationTextChunks,
+            fanTextChunks,
+            currentChapterId,
+            versionId,
+            settings
+          );
+          const snapshot = {
+            provider: settings.provider,
+            model: settings.model,
+            temperature: settings.temperature,
+            systemPrompt: settings.systemPrompt,
+            promptId: activePromptTemplate?.id,
+            promptName: activePromptTemplate?.name,
+          };
+          try {
+            await TranslationPersistenceService.persistUpdatedTranslation(
+              currentChapterId,
+              { ...translationResult, fanAlignment: alignment } as any,
+              snapshot
+            );
+            useAppStore.getState().updateChapter(currentChapterId, {
+              translationResult: { ...translationResult, fanAlignment: alignment } as any,
+              translationSettingsSnapshot: snapshot,
+            });
+          } catch (persistError) {
+            console.warn('[Comparison] Failed to persist alignment', persistError);
+          }
+        }
+        setComparisonAlignment(alignment);
+      } catch (error) {
+        console.warn('[Comparison] Failed to compute alignment', error);
+        setComparisonError('Comparison failed. Check console for details.');
+        setComparisonLoading(false);
+        return;
+      }
+      setComparisonLoading(false);
+    }
+
+    const entry = alignment?.entries.find((e) => e.translationChunkId === chunkId);
+    setComparisonChunk({
+      chunkId,
+      translationText,
+      matches: entry?.matches ?? [],
+    });
+  }, [
+    canCompare,
+    translationResult,
+    currentChapterId,
+    comparisonLoading,
+    resolveChunkElement,
+    showNotification,
+    translationVersionId,
+    comparisonAlignment,
+    fanTextChunks,
+    translationTextChunks,
+    settings.provider,
+    settings.model,
+    settings.temperature,
+    settings.systemPrompt,
+    activePromptTemplate?.id,
+    activePromptTemplate?.name,
+  ]);
+
   const saveInlineEdit = useCallback(async () => {
-    console.log('[InlineEdit] Save triggered');
+    debugLog('translation', 'summary', '[InlineEdit] Save triggered');
     if (!inlineEditState || !translationResult || !currentChapterId) {
-      console.log('[InlineEdit] Missing state for save, cleaning up');
+      debugLog('translation', 'summary', '[InlineEdit] Missing state for save, cleaning up');
       cleanupInlineEdit();
       return;
     }
 
     const updatedText = inlineEditState.element.innerText;
-    console.log('[InlineEdit] Updated text:', updatedText);
+    debugLog('translation', 'summary', '[InlineEdit] Updated text', updatedText);
     if (updatedText === inlineEditState.originalText) {
-      console.log('[InlineEdit] Text unchanged, cleaning up');
+      debugLog('translation', 'summary', '[InlineEdit] Text unchanged, cleaning up');
       cleanupInlineEdit();
       return;
     }
 
     const tokens = cloneTokens(translationTokensRef.current);
-    console.log('[InlineEdit] Cloned tokens count:', tokens.length);
+    debugLog('translation', 'summary', '[InlineEdit] Cloned tokens count', tokens.length);
     if (!updateTokenText(tokens, inlineEditState.chunkId, updatedText)) {
       showNotification?.('Failed to apply edit to selection.', 'error');
       cleanupInlineEdit(true);
@@ -526,10 +746,10 @@ const ChapterView: React.FC = () => {
 
     try {
       if (inlineEditState.saveAsNewVersion) {
-        console.log('[InlineEdit] Saving as new version');
+        debugLog('translation', 'summary', '[InlineEdit] Saving as new version');
         const rawLabel = window.prompt('Enter a name to append to this version (optional):');
         if (rawLabel === null) {
-          console.log('[InlineEdit] New version prompt cancelled');
+          debugLog('translation', 'summary', '[InlineEdit] New version prompt cancelled');
           return;
         }
         const versionLabel = rawLabel.trim() || undefined;
@@ -540,7 +760,7 @@ const ChapterView: React.FC = () => {
           { versionLabel }
         );
         if (stored) {
-          console.log('[InlineEdit] New version stored', stored.id, stored.version);
+          debugLog('translation', 'summary', '[InlineEdit] New version stored', { id: stored.id, version: stored.version });
           const appState = useAppStore.getState();
           appState.updateChapter(currentChapterId, {
             translationResult: stored as any,
@@ -548,14 +768,14 @@ const ChapterView: React.FC = () => {
           });
         }
       } else {
-        console.log('[InlineEdit] Persisting update in place');
+        debugLog('translation', 'summary', '[InlineEdit] Persisting update in place');
         const stored = await TranslationPersistenceService.persistUpdatedTranslation(
           currentChapterId,
           baseResult as any,
           snapshot
         );
         if (stored) {
-          console.log('[InlineEdit] Update persisted, id:', stored.id);
+          debugLog('translation', 'summary', '[InlineEdit] Update persisted', stored.id);
           const appState = useAppStore.getState();
           appState.updateChapter(currentChapterId, {
             translationResult: stored as any,
@@ -641,6 +861,13 @@ const ChapterView: React.FC = () => {
   }, [chapter]);
 
   const renderFootnotes = (footnotes: Footnote[] | undefined) => {
+    // DIAGNOSTIC: Log footnotes rendering
+    console.log('[ChapterView:renderFootnotes]', {
+      hasFootnotes: !!footnotes,
+      footnoteCount: footnotes?.length || 0,
+      footnotes: footnotes
+    });
+
     if (!footnotes || footnotes.length === 0) return null;
     return (
       <div className="mt-12 pt-6 border-t border-gray-300 dark:border-gray-600">
@@ -1022,6 +1249,44 @@ const ChapterView: React.FC = () => {
 
       <div className="min-h-[400px]">
         {renderContent()}
+        {viewMode === 'english' && comparisonChunk && (
+          <div className="mt-6 p-4 border border-teal-500/60 dark:border-teal-400/40 rounded-lg bg-teal-50 dark:bg-teal-900/20">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-teal-700 dark:text-teal-300">
+                Corresponding fan translation
+              </h3>
+              <button
+                className="text-xs text-teal-600 dark:text-teal-300 hover:underline"
+                onClick={() => setComparisonChunk(null)}
+              >
+                Close
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">
+              {comparisonChunk.translationText}
+            </p>
+            {comparisonLoading && (
+              <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">Loading comparison…</p>
+            )}
+            {comparisonError && (
+              <p className="mt-3 text-xs text-red-500">{comparisonError}</p>
+            )}
+            {!comparisonLoading && !comparisonError && (
+              <div className="mt-3 space-y-2">
+                {comparisonChunk.matches.length === 0 ? (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">No match found.</p>
+                ) : (
+                  comparisonChunk.matches.map((match) => (
+                    <div key={match.fanChunkId} className="text-sm text-gray-700 dark:text-gray-200">
+                      <p>{match.fanText}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Confidence {(match.confidence * 100).toFixed(0)}%</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
         {viewMode === 'english' && renderFootnotes(translationResult?.footnotes)}
         {viewMode === 'english' && feedbackForChapter.length > 0 && (
             <div className="mt-8">
@@ -1045,25 +1310,31 @@ const ChapterView: React.FC = () => {
           positioningParentRef={viewRef}
           onFeedback={handleFeedbackSubmit}
           onEdit={beginInlineEdit}
+          onCompare={handleCompareRequest}
+          canCompare={canCompare && !comparisonLoading}
         />
       )}
 
       {shouldShowSheet && (
-      <SelectionSheet
-        text={selection.text}
-        onReact={(emoji) => {
-          if (emoji === '✏️') {
-            beginInlineEdit();
-          } else {
-            handleFeedbackSubmit({ type: emoji, selection: selection.text });
-          }
-        }}
-        onCopy={async () => { 
-          try { 
-            await navigator.clipboard.writeText(selection.text); 
-          } catch {} 
-        }}
+        <SelectionSheet
+          text={selection.text}
+          onReact={(emoji) => {
+            if (emoji === '✏️') {
+              beginInlineEdit();
+            } else if (emoji === '🔍') {
+              handleCompareRequest();
+            } else {
+              handleFeedbackSubmit({ type: emoji, selection: selection.text });
+            }
+          }}
+          onCopy={async () => { 
+            try { 
+              await navigator.clipboard.writeText(selection.text); 
+            } catch {} 
+          }}
           onClose={() => clearSelection()}
+          canCompare={canCompare}
+          isComparing={comparisonLoading}
         />
       )}
 

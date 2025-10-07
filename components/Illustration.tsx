@@ -54,6 +54,20 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     (i) => i.placementMarker === marker
   );
 
+  // DIAGNOSTIC: Log illustration component mount and data
+  React.useEffect(() => {
+    console.log(`[Illustration] Component mounted/updated for marker: ${marker}`, {
+      chapterId: chapter?.id,
+      marker,
+      hasChapter: !!chapter,
+      hasTranslationResult: !!chapter?.translationResult,
+      totalSuggestedIllustrations: chapter?.translationResult?.suggestedIllustrations?.length || 0,
+      allMarkers: chapter?.translationResult?.suggestedIllustrations?.map(i => i.placementMarker) || [],
+      foundIllust: !!illust,
+      illustData: illust
+    });
+  }, [marker, chapter?.id, illust]);
+
   const key = chapter ? `${chapter.id}:${marker}` : `?:${marker}`;
   const imageState = generatedImages[key];
   const base64FromIllust = (illust as any)?.url as string | undefined;
