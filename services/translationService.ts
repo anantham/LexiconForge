@@ -13,14 +13,11 @@ import { translateChapter, validateApiKey } from './aiService';
 import { indexedDBService } from './indexeddb';
 import type { AppSettings, HistoricalChapter, TranslationResult, PromptTemplate } from '../types';
 import type { EnhancedChapter } from './stableIdService';
-import { normalizeUrlAggressively } from './stableIdService';
+import { normalizeUrlAggressively, generateStableChapterId } from './stableIdService';
+import { debugLog, debugWarn } from '../utils/debug';
 
-// Logging utilities matching the store pattern
-const storeDebugEnabled = () => {
-  return typeof window !== 'undefined' && window.localStorage?.getItem('store-debug') === 'true';
-};
-const slog = (...args: any[]) => { if (storeDebugEnabled()) console.log(...args); };
-const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...args); };
+const slog = (...args: any[]) => debugLog('translation', 'summary', ...args);
+const swarn = (...args: any[]) => debugWarn('translation', 'summary', ...args);
 
 export interface TranslationContext {
   chapters: Map<string, EnhancedChapter>;
@@ -43,6 +40,29 @@ export interface TranslationHistoryOptions {
 
 export class TranslationService {
   private static activeTranslations = new Map<string, AbortController>();
+  private static translationQueue: Promise<void> = Promise.resolve();
+
+  private static async runSequential<T>(task: () => Promise<T>): Promise<T> {
+    // Non-null assertion: Promise constructor executes synchronously, so release is always set
+    let release!: () => void;
+    const next = new Promise<void>((resolve) => { release = resolve; });
+    const prev = this.translationQueue;
+    this.translationQueue = prev.then(() => next);
+    await prev;
+    try {
+      return await task();
+    } finally {
+      release(); // Safe to call without check - guaranteed to be defined
+    }
+  }
+
+  static async translateChapterSequential(
+    chapterId: string,
+    context: TranslationContext,
+    buildHistoryFn?: (chapterId: string) => HistoricalChapter[] | Promise<HistoricalChapter[]>
+  ): Promise<TranslationResult> {
+    return this.runSequential(() => this.translateChapter(chapterId, context, buildHistoryFn));
+  }
 
   /**
    * Main translation handler - translates a chapter with context
@@ -76,20 +96,20 @@ export class TranslationService {
     try {
       // Build translation history for context
       const contextDepth = settings.contextDepth || 0;
-      console.log(`[Translation] Context depth setting: ${contextDepth}`);
+      debugLog('translation', 'summary', `[Translation] Context depth setting: ${contextDepth}`);
       
       let history: HistoricalChapter[] = [];
       if (buildHistoryFn) {
         const historyResult = buildHistoryFn(chapterId);
         history = historyResult instanceof Promise ? await historyResult : historyResult;
-        console.log(`[Translation] Built history via buildHistoryFn: ${history.length} chapters`);
+        debugLog('translation', 'summary', `[Translation] Built history via buildHistoryFn: ${history.length} chapters`);
       } else {
         history = this.buildTranslationHistory({
           contextDepth: contextDepth,
           currentChapter: chapterToTranslate,
           chapters
         });
-        console.log(`[Translation] Built history via buildTranslationHistory: ${history.length} chapters`);
+        debugLog('translation', 'summary', `[Translation] Built history via buildTranslationHistory: ${history.length} chapters`);
       }
 
       // Clear diagnostic when contextDepth > 0 but no history available
@@ -98,7 +118,7 @@ export class TranslationService {
         await TranslationService.logHistoryDiagnostics(contextDepth, chapterToTranslate, chapters);
         console.warn(`🟡 [Translation] Proceeding without prior context.`);
       } else {
-        console.log(`[Translation] ✅ Using ${history.length} historical chapters as context (contextDepth: ${contextDepth})`);
+        debugLog('translation', 'summary', `[Translation] ✅ Using ${history.length} historical chapters as context (contextDepth: ${contextDepth})`);
       }
 
       slog('[Translate] Using context items:', history.length);
@@ -115,7 +135,7 @@ export class TranslationService {
       );
 
       if (abortController.signal.aborted) {
-        console.log(`Translation for ${chapterId} was cancelled.`);
+        debugLog('translation', 'summary', `Translation for ${chapterId} was cancelled.`);
         return { aborted: true };
       }
 
@@ -134,6 +154,7 @@ export class TranslationService {
         if (storedRecord?.id) {
           (result as any).id = storedRecord.id;
           (result as any).customVersionLabel = storedRecord.customVersionLabel;
+          (result as any).fanAlignment = storedRecord.fanAlignment;
         }
       } catch (e) {
         console.warn('[TranslationService] Failed to persist translation version', e);
@@ -143,7 +164,7 @@ export class TranslationService {
 
     } catch (e: any) {
       if (e.name === 'AbortError') {
-        console.log(`Translation for ${chapterId} was aborted.`);
+        debugLog('translation', 'summary', `Translation for ${chapterId} was aborted.`);
         return { aborted: true };
       } else {
         return { error: String(e?.message ?? e ?? 'Translate failed') };
@@ -212,21 +233,26 @@ export class TranslationService {
 
       // IndexedDB scan (active translations only)
       try {
-        const allChapters = await indexedDBService.getAllChapters();
-        const dbByNumber: Record<number, { found: boolean; hasContent?: boolean; hasActiveTranslation?: boolean; stableId?: string; title?: string }> = {};
+        const dbByNumber: Record<number, { found: boolean; hasContent?: boolean; hasActiveTranslation?: boolean; stableId?: string }> = {};
         for (const t of targets) dbByNumber[t] = { found: false };
 
-        for (const dbCh of allChapters) {
-          const num = dbCh.chapterNumber || 0;
-          if (!targets.includes(num)) continue;
+        for (const num of targets) {
+          const dbCh = await indexedDBService.findChapterByNumber(num);
+          if (!dbCh) continue;
+
           dbByNumber[num].found = true;
           dbByNumber[num].hasContent = !!(dbCh.content && dbCh.content.trim().length > 0);
-          dbByNumber[num].stableId = dbCh.stableId;
-          dbByNumber[num].title = dbCh.title;
-          try {
-            const active = await indexedDBService.getActiveTranslationByStableId(dbCh.stableId);
-            dbByNumber[num].hasActiveTranslation = !!active;
-          } catch {}
+          const stableId = dbCh.stableId || generateStableChapterId(dbCh.content || '', dbCh.chapterNumber || 0, dbCh.title || '');
+          dbByNumber[num].stableId = stableId;
+
+          if (stableId) {
+            try {
+              const active = await indexedDBService.ensureActiveTranslationByStableId(stableId);
+              dbByNumber[num].hasActiveTranslation = !!active;
+            } catch {
+              dbByNumber[num].hasActiveTranslation = false;
+            }
+          }
         }
 
         Object.entries(dbByNumber).forEach(([num, info]) => {
@@ -292,59 +318,65 @@ export class TranslationService {
   /**
    * Build translation history from memory (synchronous version)
    */
-  static buildTranslationHistory(options: TranslationHistoryOptions): HistoricalChapter[] {
-    console.log(`[History] Building history for current chapter`);
+  private static collectMemoryHistoryCandidates(options: TranslationHistoryOptions): Array<{ number: number; history: HistoricalChapter }> {
     const { contextDepth, currentChapter, chapters } = options;
-    
-    console.log(`[History] Current chapter:`, {
-      title: currentChapter?.title,
-      chapterNumber: currentChapter?.chapterNumber
-    });
-    console.log(`[History] Total chapters in memory:`, chapters.size);
-    console.log(`[History] Context depth setting:`, contextDepth);
-    
+
     if (!currentChapter?.chapterNumber || contextDepth === 0) {
-      console.log(`[History] No context: missing chapter number (${currentChapter?.chapterNumber}) or contextDepth is 0`);
       return [];
     }
-    
-    // Find previous chapters by chapter number that have translations
-    const targetNumbers = [];
+
+    const targetNumbers: number[] = [];
     for (let i = 1; i <= contextDepth; i++) {
       const prevNumber = currentChapter.chapterNumber - i;
       if (prevNumber > 0) targetNumbers.push(prevNumber);
     }
-    console.log(`[History] Looking for chapters with numbers:`, targetNumbers);
-    
-    const candidateChapters: Array<{ chapter: EnhancedChapter, id: string }> = [];
-    for (const [chapterId, chapter] of chapters.entries()) {
-      if (targetNumbers.includes(chapter.chapterNumber || 0) && 
-          chapter.translationResult &&
-          chapter.content) {
-        candidateChapters.push({ chapter, id: chapterId });
-      }
-    }
-    
-    console.log(`[History] Found ${candidateChapters.length} candidate chapters with translations`);
-    
-    // Sort by chapter number ascending and build history
-    const result = candidateChapters
-      .sort((a, b) => (a.chapter.chapterNumber || 0) - (b.chapter.chapterNumber || 0))
-      .slice(-contextDepth)  // Take the most recent contextDepth chapters
-      .map(({ chapter, id }) => {
-        console.log(`[History] Including chapter ${id} (${chapter.chapterNumber}): ${chapter.title}`);
-        return {
+
+    debugLog('translation', 'summary', `[History] Looking for chapters with numbers:`, targetNumbers);
+
+    const candidates: Array<{ number: number; history: HistoricalChapter }> = [];
+
+    for (const [, chapter] of chapters.entries()) {
+      const num = chapter.chapterNumber || 0;
+      if (!targetNumbers.includes(num)) continue;
+      if (!chapter.translationResult || !chapter.content) continue;
+
+      candidates.push({
+        number: num,
+        history: {
           originalTitle: chapter.title,
           originalContent: chapter.content,
-          translatedTitle: chapter.translationResult!.translatedTitle,
-          translatedContent: chapter.translationResult!.translation,
-          footnotes: chapter.translationResult!.footnotes || [],
+          translatedTitle: chapter.translationResult.translatedTitle,
+          translatedContent: chapter.translationResult.translation,
+          footnotes: chapter.translationResult.footnotes || [],
           feedback: (chapter as any).feedback ?? [],
-        };
+        },
       });
-    console.log('[History][DIAG] Mapped translationResult.translation → translatedContent for history', { count: result.length });
-    
-    console.log(`[History] Built history with ${result.length} chapters using chapter-number-based selection`);
+    }
+
+    debugLog('translation', 'summary', `[History] Found ${candidates.length} candidate chapters with translations in memory`);
+    candidates.sort((a, b) => a.number - b.number);
+    return candidates;
+  }
+
+  static buildTranslationHistory(options: TranslationHistoryOptions): HistoricalChapter[] {
+    debugLog('translation', 'summary', `[History] Building history for current chapter`);
+    const candidates = this.collectMemoryHistoryCandidates(options);
+    debugLog('translation', 'summary', `[History] Memory candidates found: ${candidates.length}`);
+    const { contextDepth, currentChapter, chapters } = options;
+
+    debugLog('translation', 'summary', `[History] Current chapter:`, {
+      title: currentChapter?.title,
+      chapterNumber: currentChapter?.chapterNumber
+    });
+    debugLog('translation', 'summary', `[History] Total chapters in memory:`, chapters.size);
+    debugLog('translation', 'summary', `[History] Context depth setting:`, contextDepth);
+
+    const result = candidates
+      .slice(-contextDepth)
+      .map(({ history }) => history);
+
+    debugLog('translation', 'summary', '[History][DIAG] Mapped translationResult.translation → translatedContent for history', { count: result.length });
+    debugLog('translation', 'summary', `[History] Built history with ${result.length} chapters using chapter-number-based selection`);
     return result;
   }
 
@@ -364,86 +396,86 @@ export class TranslationService {
         return [];
       }
 
-      // First try the synchronous version with in-memory chapters
-      const memoryHistory = this.buildTranslationHistory(options);
-      
+      const memoryCandidates = this.collectMemoryHistoryCandidates(options);
+      const memoryHistory = memoryCandidates.slice(-contextDepth).map(({ history }) => history);
+
       if (memoryHistory.length >= contextDepth) {
         slog(`[HistoryAsync] Found sufficient context in memory (${memoryHistory.length}/${contextDepth})`);
         return memoryHistory;
       }
 
-      // Need to hydrate more context from IndexedDB
       slog(`[HistoryAsync] Need more context, hydrating from IndexedDB (have ${memoryHistory.length}/${contextDepth})`);
-      
-      const targetNumbers = [];
+
+      const targetNumbers: number[] = [];
       for (let i = 1; i <= contextDepth; i++) {
         const prevNumber = currentChapter.chapterNumber - i;
         if (prevNumber > 0) targetNumbers.push(prevNumber);
       }
 
-      // Get all chapters from IndexedDB that match target numbers
-      const allChapters = await indexedDBService.getAllChapters();
-      const candidatesFromDB: HistoricalChapter[] = [];
+      const presentNumbers = new Set(memoryCandidates.map((c) => c.number));
+      const missingNumbers = targetNumbers.filter((num) => !presentNumbers.has(num));
 
-      for (const dbChapter of allChapters) {
-        if (targetNumbers.includes(dbChapter.chapterNumber || 0)) {
-          // Get active translation for this chapter
-          const activeTranslation = await indexedDBService.getActiveTranslationByStableId(dbChapter.stableId);
-          
-          if (activeTranslation && dbChapter.content) {
-            candidatesFromDB.push({
-              originalTitle: dbChapter.title || 'Untitled',
-              originalContent: dbChapter.content,
-              translatedTitle: activeTranslation.translatedTitle,
-              translatedContent: activeTranslation.translation,
-              footnotes: activeTranslation.footnotes || [],
-              feedback: [], // IndexedDB doesn't store feedback history
-            });
+      const dbCandidates: Array<{ number: number; history: HistoricalChapter }> = [];
+
+      for (const num of missingNumbers) {
+        const chapterRecord = await indexedDBService.findChapterByNumber(num);
+        if (!chapterRecord || !chapterRecord.content) continue;
+
+        let stableId = chapterRecord.stableId;
+        if (!stableId) {
+          stableId = generateStableChapterId(chapterRecord.content || '', chapterRecord.chapterNumber || 0, chapterRecord.title || '');
+        }
+
+        if (!stableId) continue;
+
+        let activeTranslation = await indexedDBService.ensureActiveTranslationByStableId(stableId);
+        if (!activeTranslation) {
+          const fallbackVersions = await indexedDBService.getTranslationVersions(chapterRecord.url).catch(() => []);
+          if (fallbackVersions.length) {
+            fallbackVersions.sort((a, b) => b.version - a.version);
+            activeTranslation = fallbackVersions[0];
           }
         }
+        if (!activeTranslation) continue;
+
+        dbCandidates.push({
+          number: num,
+          history: {
+            originalTitle: chapterRecord.title || 'Untitled',
+            originalContent: chapterRecord.content,
+            translatedTitle: activeTranslation.translatedTitle,
+            translatedContent: activeTranslation.translation,
+            footnotes: activeTranslation.footnotes || [],
+            feedback: [],
+          },
+        });
       }
 
-      // Combine memory and DB results, deduplicate by content, and sort
-      const allCandidates = [...memoryHistory];
-      
-      for (const dbCandidate of candidatesFromDB) {
-        // Check if we already have this chapter from memory
-        const alreadyExists = memoryHistory.some(mem => 
-          mem.originalTitle === dbCandidate.originalTitle &&
-          mem.originalContent === dbCandidate.originalContent
-        );
-        
-        if (!alreadyExists) {
-          allCandidates.push(dbCandidate);
-        }
+      const combinedCandidates = [...memoryCandidates, ...dbCandidates].sort((a, b) => a.number - b.number);
+      let combinedHistory = combinedCandidates.slice(-contextDepth).map(({ history }) => history);
+
+      if (combinedHistory.length >= contextDepth) {
+        slog(`[HistoryAsync] Built extended history with ${combinedHistory.length} chapters (memory + IDB)`);
+        return combinedHistory;
       }
 
-      // Sort by finding the chapter numbers and take the most recent ones
-      let sortedCandidates = allCandidates.slice(-contextDepth);
-      
-      if (sortedCandidates.length >= contextDepth) {
-        slog(`[HistoryAsync] Built extended history with ${sortedCandidates.length} chapters`);
-        return sortedCandidates;
-      }
-
-      // Fallback: build via prevUrl chain when numbering/data is missing
-      slog(`[HistoryAsync] Falling back to prevUrl chain (have ${sortedCandidates.length}/${contextDepth})`);
+      // Need prevUrl chain fallback
+      slog(`[HistoryAsync] Falling back to prevUrl chain (have ${combinedHistory.length}/${contextDepth})`);
       const chainHistory = await this.buildHistoryByPrevUrlChain(options.currentChapter, contextDepth, options.chapters);
       if (chainHistory.length > 0) {
-        // Prefer DB/memory candidates first, then chain (dedupe by originalContent)
-        const combined = [...sortedCandidates];
-        for (const h of chainHistory) {
-          const exists = combined.some(x => x.originalContent === h.originalContent);
-          if (!exists) combined.push(h);
+        const merged = [...combinedHistory];
+        for (const entry of chainHistory) {
+          const exists = merged.some(h => h.originalContent === entry.originalContent);
+          if (!exists) merged.push(entry);
         }
-        sortedCandidates = combined.slice(-contextDepth);
-        slog(`[HistoryAsync] PrevUrl chain produced ${chainHistory.length}; using ${sortedCandidates.length} total.`);
-        return sortedCandidates;
+        combinedHistory = merged.slice(-contextDepth);
+        slog(`[HistoryAsync] PrevUrl chain produced ${chainHistory.length}; using ${combinedHistory.length} total.`);
+        return combinedHistory;
       }
-      
+
       slog('[HistoryAsync] PrevUrl chain produced no results; returning what we have');
-      return sortedCandidates;
-      
+      return combinedHistory;
+
     } catch (error) {
       swarn('[HistoryAsync] Failed to build async history, falling back to memory-only', error);
       return this.buildTranslationHistory(options);
@@ -471,20 +503,31 @@ export class TranslationService {
         if (!matched) {
           // Try IndexedDB lookup
           const dbRec = await indexedDBService.findChapterByUrl(cursorPrev);
-          if (dbRec && dbRec.stableId) {
-            const active = await indexedDBService.getActiveTranslationByStableId(dbRec.stableId);
-            if (active && dbRec.content) {
+          if (dbRec) {
+            const stableId = dbRec.stableId || generateStableChapterId(dbRec.data?.chapter?.content || dbRec.content || '', dbRec.data?.chapter?.chapterNumber || dbRec.chapterNumber || 0, dbRec.title || '');
+            let active = stableId ? await indexedDBService.ensureActiveTranslationByStableId(stableId) : null;
+            if (!active && dbRec.canonicalUrl) {
+              const versions = await indexedDBService.getTranslationVersions(dbRec.canonicalUrl).catch(() => []);
+              if (versions.length) {
+                versions.sort((a, b) => b.version - a.version);
+                active = versions[0];
+              }
+            }
+            const content = dbRec.data?.chapter?.content || dbRec.content;
+            const title = dbRec.data?.chapter?.title || dbRec.title;
+            if (active && content) {
               results.push({
-                originalTitle: dbRec.title || 'Untitled',
-                originalContent: dbRec.content,
+                originalTitle: title || 'Untitled',
+                originalContent: content,
                 translatedTitle: active.translatedTitle,
                 translatedContent: active.translation,
                 footnotes: active.footnotes || [],
                 feedback: [],
               });
-              links.push({ stableId: dbRec.stableId });
+              links.push({ stableId });
               // Continue chain using DB record's prevUrl
-              cursorPrev = dbRec.prevUrl || null;
+              const prev = (dbRec.data?.chapter?.prevUrl ?? dbRec.prevUrl) || null;
+              cursorPrev = prev;
               steps++;
               continue;
             }

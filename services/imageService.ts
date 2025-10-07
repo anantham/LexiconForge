@@ -393,28 +393,43 @@ export const generateImage = async (
                 throw new Error('PiAPI: missing task id in create response.');
             }
 
-            // 2) POLL TASK
+            // 2) POLL TASK (with timeout and exponential backoff)
             let taskData: any = null;
-            for (let tries = 0; tries < 60; tries++) { // up to ~60s
-                const poll = await fetch(`https://api.piapi.ai/api/v1/task/${taskId}`, {
-                    headers: {
-                        'X-API-Key': apiKeyPi,
-                        'Authorization': `Bearer ${apiKeyPi}`,
-                    },
-                });
-                const raw = await poll.text().catch(() => '');
-                let json: any = {};
-                try { json = raw ? JSON.parse(raw) : {}; } catch {}
-                if (!poll.ok) throw new Error(`PiAPI get-task failed (${poll.status}): ${raw}`);
-                // Some envelopes put status in different places
-                const status = String(json.status || json.state || json.data?.status || json.data?.state || '').toLowerCase();
-                if ((json && json.error) || (typeof json.code === 'number' && json.code >= 400)) {
-                    const msg = json?.error?.message || json?.message || 'Unknown PiAPI polling error';
-                    throw new Error(`PiAPI get-task returned error: ${msg}\nBody: ${raw}`);
+            const delays = [1000, 1000, 2000, 3000, 5000, 8000]; // Exponential backoff in ms
+            for (let tries = 0; tries < 60; tries++) {
+                try {
+                    // Add 8-second timeout to each fetch to prevent indefinite hangs
+                    const poll = await fetch(`https://api.piapi.ai/api/v1/task/${taskId}`, {
+                        headers: {
+                            'X-API-Key': apiKeyPi,
+                            'Authorization': `Bearer ${apiKeyPi}`,
+                        },
+                        signal: AbortSignal.timeout(8000) // 8 second timeout per request
+                    });
+                    const raw = await poll.text().catch(() => '');
+                    let json: any = {};
+                    try { json = raw ? JSON.parse(raw) : {}; } catch {}
+                    if (!poll.ok) throw new Error(`PiAPI get-task failed (${poll.status}): ${raw}`);
+                    // Some envelopes put status in different places
+                    const status = String(json.status || json.state || json.data?.status || json.data?.state || '').toLowerCase();
+                    if ((json && json.error) || (typeof json.code === 'number' && json.code >= 400)) {
+                        const msg = json?.error?.message || json?.message || 'Unknown PiAPI polling error';
+                        throw new Error(`PiAPI get-task returned error: ${msg}\nBody: ${raw}`);
+                    }
+                    if (/succeeded|completed|success/.test(status)) { taskData = json; break; }
+                    if (/failed|error/.test(status)) throw new Error(`PiAPI task failed: ${raw || JSON.stringify(json)}`);
+
+                    // Exponential backoff delay
+                    const delay = delays[Math.min(tries, delays.length - 1)];
+                    await new Promise(r => setTimeout(r, delay));
+                } catch (err: any) {
+                    // Retry on timeout, but re-throw other errors
+                    if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+                        console.warn(`[PiAPI] Poll timeout on attempt ${tries + 1}/60, retrying...`);
+                        continue; // Retry on timeout
+                    }
+                    throw err; // Re-throw non-timeout errors
                 }
-                if (/succeeded|completed|success/.test(status)) { taskData = json; break; }
-                if (/failed|error/.test(status)) throw new Error(`PiAPI task failed: ${raw || JSON.stringify(json)}`);
-                await new Promise(r => setTimeout(r, 1000));
             }
             if (!taskData) throw new Error('PiAPI: task did not complete in time.');
 

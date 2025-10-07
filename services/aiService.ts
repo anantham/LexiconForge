@@ -39,60 +39,26 @@ import { sanitizeHtml as sanitizeTranslationHTML } from './translate/HtmlSanitiz
 export const validateApiKey = (settings: AppSettings): { isValid: boolean; errorMessage?: string } => {
   let requiredApiKey: string | undefined;
   let providerName: string;
-  const mask = (k: any) => {
-    if (!k || typeof k !== 'string') return String(k ?? '');
-    return '*'.repeat(Math.max(0, k.length - 4)) + k.slice(-4);
-  };
 
   switch (settings.provider) {
     case 'Gemini':
       requiredApiKey = settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any);
-      dlog('[API Key Diagnostic][Gemini]', {
-        hasSettingsKey: !!settings.apiKeyGemini,
-        settingsKeyMasked: settings.apiKeyGemini ? mask(settings.apiKeyGemini) : null,
-        hasEnvKey: !!process.env.GEMINI_API_KEY,
-        envKeyMasked: process.env.GEMINI_API_KEY ? mask(process.env.GEMINI_API_KEY) : null,
-      });
       providerName = 'Google Gemini';
       break;
     case 'OpenAI':
       requiredApiKey = settings.apiKeyOpenAI || (process.env.OPENAI_API_KEY as any);
-      dlog('[API Key Diagnostic][OpenAI]', {
-        hasSettingsKey: !!settings.apiKeyOpenAI,
-        settingsKeyMasked: settings.apiKeyOpenAI ? mask(settings.apiKeyOpenAI) : null,
-        hasEnvKey: !!process.env.OPENAI_API_KEY,
-        envKeyMasked: process.env.OPENAI_API_KEY ? mask(process.env.OPENAI_API_KEY) : null,
-      });
       providerName = 'OpenAI';
       break;
     case 'DeepSeek':
       requiredApiKey = settings.apiKeyDeepSeek || (process.env.DEEPSEEK_API_KEY as any);
-      dlog('[API Key Diagnostic][DeepSeek]', {
-        hasSettingsKey: !!settings.apiKeyDeepSeek,
-        settingsKeyMasked: settings.apiKeyDeepSeek ? mask(settings.apiKeyDeepSeek) : null,
-        hasEnvKey: !!process.env.DEEPSEEK_API_KEY,
-        envKeyMasked: process.env.DEEPSEEK_API_KEY ? mask(process.env.DEEPSEEK_API_KEY) : null,
-      });
       providerName = 'DeepSeek';
       break;
     case 'OpenRouter':
       requiredApiKey = (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as any);
-      dlog('[API Key Diagnostic][OpenRouter]', {
-        hasSettingsKey: !!(settings as any).apiKeyOpenRouter,
-        settingsKeyMasked: (settings as any).apiKeyOpenRouter ? mask((settings as any).apiKeyOpenRouter) : null,
-        hasEnvKey: !!process.env.OPENROUTER_API_KEY,
-        envKeyMasked: process.env.OPENROUTER_API_KEY ? mask(process.env.OPENROUTER_API_KEY) : null,
-      });
       providerName = 'OpenRouter';
       break;
     case 'Claude':
       requiredApiKey = settings.apiKeyClaude || (process.env.CLAUDE_API_KEY as any);
-      dlog('[API Key Diagnostic][Claude]', {
-        hasSettingsKey: !!settings.apiKeyClaude,
-        settingsKeyMasked: settings.apiKeyClaude ? mask(settings.apiKeyClaude) : null,
-        hasEnvKey: !!process.env.CLAUDE_API_KEY,
-        envKeyMasked: process.env.CLAUDE_API_KEY ? mask(process.env.CLAUDE_API_KEY) : null,
-      });
       providerName = 'Claude (Anthropic)';
       break;
     default:
@@ -100,7 +66,12 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
   }
 
   if (!requiredApiKey?.trim()) {
-    dlog('[API Key Diagnostic] Missing key', { provider: providerName });
+    // Only log on validation failure, without key details
+    console.error('[API Key Validation Failed]', {
+      provider: providerName,
+      hasSettingsKey: !!settings[`apiKey${settings.provider}` as keyof typeof settings],
+      hasEnvKey: !!process.env[`${settings.provider.toUpperCase()}_API_KEY`]
+    });
     return { isValid: false, errorMessage: `${providerName} API key is missing. Add it in settings or .env file.` };
   }
 
