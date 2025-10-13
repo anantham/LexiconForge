@@ -70,3 +70,10 @@ public/OSTs/
 data/Novels/
 data/sessions/
 
+
+# User-generated exports (large session files)
+Exports/
+
+# Marketing and case study materials (not part of codebase)
+Case Studies/
+Marketing/
