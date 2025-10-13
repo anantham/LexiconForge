@@ -1768,7 +1768,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Exponential backoff starts with this delay.</p>
                   </div>
                 </div>
-                
+
+                {/* HTML Repair Toggle */}
+                <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+                  <label className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(currentSettings as any).enableHtmlRepair ?? true}
+                      onChange={(e) => handleSettingChange('enableHtmlRepair' as any, e.target.checked)}
+                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <div>
+                      <span className="block font-medium text-gray-800 dark:text-gray-100">Enable HTML Repair</span>
+                      <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Automatically fix common formatting mistakes from AI models (e.g., capital &lt;I&gt; tags, missing brackets on illustration markers, extra spaces in tags).
+                        When disabled, translation output is used exactly as received from the model.
+                      </span>
+                    </div>
+                  </label>
+                </div>
+
               </div>
             </fieldset>
           )}

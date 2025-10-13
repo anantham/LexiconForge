@@ -206,6 +206,7 @@ export interface AppSettings {
     retryMax?: number;                        // Max retries for rate-limit/backoff
     retryInitialDelayMs?: number;             // Initial backoff delay in ms
     footnoteStrictMode?: 'append_missing' | 'fail'; // Footnote validation behavior
+    enableHtmlRepair?: boolean;               // Enable graceful HTML formatting repairs
 }
 
 export interface ImportedChapter {

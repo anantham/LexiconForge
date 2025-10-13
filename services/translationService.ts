@@ -15,6 +15,7 @@ import type { AppSettings, HistoricalChapter, TranslationResult, PromptTemplate 
 import type { EnhancedChapter } from './stableIdService';
 import { normalizeUrlAggressively, generateStableChapterId } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
+import { HtmlRepairService } from './translate/HtmlRepairService';
 
 const slog = (...args: any[]) => debugLog('translation', 'summary', ...args);
 const swarn = (...args: any[]) => debugWarn('translation', 'summary', ...args);
@@ -137,6 +138,23 @@ export class TranslationService {
       if (abortController.signal.aborted) {
         debugLog('translation', 'summary', `Translation for ${chapterId} was cancelled.`);
         return { aborted: true };
+      }
+
+      // Apply HTML repairs if enabled
+      if (settings.enableHtmlRepair && result.translation) {
+        try {
+          const { html: repairedHtml, stats } = HtmlRepairService.repair(
+            result.translation,
+            { enabled: true, verbose: false }
+          );
+          result.translation = repairedHtml;
+
+          if (stats.applied.length > 0) {
+            debugLog('translation', 'summary', `[HtmlRepair] Applied ${stats.applied.length} repairs:`, stats.applied);
+          }
+        } catch (repairError) {
+          console.warn('[TranslationService] HTML repair failed, using original translation:', repairError);
+        }
       }
 
       // Persist translation to IndexedDB
