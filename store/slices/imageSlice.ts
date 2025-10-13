@@ -112,6 +112,13 @@ export const createImageSlice: StateCreator<
       return;
     }
 
+    const imageModel = context.settings?.imageModel;
+    if (!imageModel || imageModel.toLowerCase() === 'none') {
+      debugLog('image', 'summary', `[ImageSlice] Image generation disabled for ${chapterId}; clearing metrics.`);
+      set({ imageGenerationMetrics: null });
+      return;
+    }
+
     const totalIllustrations = chapter.translationResult.suggestedIllustrations.length;
     debugLog('image', 'summary', `[ImageSlice] Starting image generation for ${chapterId}. Illustrations: ${totalIllustrations}`);
     
