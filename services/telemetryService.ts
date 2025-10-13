@@ -89,15 +89,128 @@ class TelemetryService {
         const percentUsed = parseFloat(stats.percentUsed);
 
         if (percentUsed > 90) {
+          // Get detailed memory breakdown
+          const breakdown = this.getMemoryBreakdown();
+
           this.captureWarning('memory', 'High memory usage detected', {
             ...stats,
-            threshold: '90%'
+            threshold: '90%',
+            breakdown,
+            recommendations: this.getMemoryRecommendations(breakdown)
           });
         }
       } catch (error) {
         console.warn('[Telemetry] Memory check failed:', error);
       }
     }, 30000);
+  }
+
+  /**
+   * Get detailed breakdown of what's consuming memory
+   */
+  private getMemoryBreakdown(): any {
+    try {
+      // Access the store to check data sizes
+      const storeState = (window as any).__APP_STORE__?.getState?.();
+
+      if (!storeState) {
+        return { error: 'Store not accessible' };
+      }
+
+      const chapters = storeState.chapters || new Map();
+      const generatedImages = storeState.generatedImages || {};
+      const translationHistory = storeState.translationHistory || {};
+
+      // Count chapters and estimate size
+      const chapterCount = chapters instanceof Map ? chapters.size : Object.keys(chapters).length;
+      let chaptersWithTranslations = 0;
+      let chaptersWithImages = 0;
+      let totalTranslationSize = 0;
+
+      if (chapters instanceof Map) {
+        chapters.forEach((chapter: any) => {
+          if (chapter.translationResult) {
+            chaptersWithTranslations++;
+            // Rough estimate of translation size
+            totalTranslationSize += JSON.stringify(chapter.translationResult).length;
+          }
+          if (chapter.translationResult?.suggestedIllustrations) {
+            chaptersWithImages += chapter.translationResult.suggestedIllustrations.length;
+          }
+        });
+      }
+
+      // Count generated images (base64 strings are memory-heavy)
+      const imageCount = Object.keys(generatedImages).length;
+      let base64ImageCount = 0;
+      let totalImageDataSize = 0;
+
+      Object.values(generatedImages).forEach((img: any) => {
+        if (img?.data && typeof img.data === 'string' && img.data.startsWith('data:')) {
+          base64ImageCount++;
+          totalImageDataSize += img.data.length;
+        }
+      });
+
+      return {
+        chapters: {
+          total: chapterCount,
+          withTranslations: chaptersWithTranslations,
+          withImages: chaptersWithImages,
+          translationDataSizeKB: (totalTranslationSize / 1024).toFixed(1)
+        },
+        images: {
+          total: imageCount,
+          base64Stored: base64ImageCount,
+          base64DataSizeMB: (totalImageDataSize / 1024 / 1024).toFixed(2),
+          avgImageSizeKB: base64ImageCount > 0 ? ((totalImageDataSize / base64ImageCount) / 1024).toFixed(1) : 0
+        },
+        translationHistory: {
+          entriesCount: Object.keys(translationHistory).length
+        }
+      };
+    } catch (error) {
+      return { error: String(error) };
+    }
+  }
+
+  /**
+   * Generate actionable recommendations based on memory breakdown
+   */
+  private getMemoryRecommendations(breakdown: any): string[] {
+    const recommendations: string[] = [];
+
+    if (breakdown.error) {
+      return ['Unable to analyze memory usage'];
+    }
+
+    // Check for base64 images in memory
+    if (breakdown.images?.base64Stored > 0) {
+      const sizeMB = parseFloat(breakdown.images.base64DataSizeMB);
+      if (sizeMB > 50) {
+        recommendations.push(`⚠️ ${breakdown.images.base64Stored} base64 images consuming ${sizeMB}MB - consider clearing old chapters`);
+      } else if (sizeMB > 20) {
+        recommendations.push(`📊 ${breakdown.images.base64Stored} base64 images using ${sizeMB}MB of memory`);
+      }
+    }
+
+    // Check chapter count
+    if (breakdown.chapters?.total > 50) {
+      recommendations.push(`📚 ${breakdown.chapters.total} chapters loaded - consider clearing old chapters from session`);
+    }
+
+    // Check translation data size
+    const translationKB = parseFloat(breakdown.chapters?.translationDataSizeKB || '0');
+    if (translationKB > 5000) {
+      recommendations.push(`💬 Translation data: ${translationKB}KB - this is normal for many chapters`);
+    }
+
+    if (recommendations.length === 0) {
+      recommendations.push('Memory usage high but no obvious large consumers found');
+      recommendations.push('Try refreshing the page to clear memory');
+    }
+
+    return recommendations;
   }
 
   /**

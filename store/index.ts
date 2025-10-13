@@ -328,6 +328,8 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
 // Expose store to window for debugging
 if (typeof window !== 'undefined') {
   (window as any).useAppStore = useAppStore;
+  // Also expose for telemetry access
+  (window as any).__APP_STORE__ = useAppStore;
 }
 
 // Export individual slice types for type checking
