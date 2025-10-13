@@ -6,6 +6,12 @@ const outputFile = path.join(__dirname, '..', 'public', 'steering-images.json');
 const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 
 try {
+  if (!fs.existsSync(steeringDir)) {
+    console.log(`[SteeringImages] Directory ${steeringDir} not found. Writing empty list.`);
+    fs.writeFileSync(outputFile, '[]');
+    process.exit(0);
+  }
+
   const files = fs.readdirSync(steeringDir);
   const imageFiles = files.filter(file => {
     const ext = path.extname(file).toLowerCase();
