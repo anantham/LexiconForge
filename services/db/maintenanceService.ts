@@ -9,13 +9,14 @@
  */
 
 import { indexedDBService } from '../indexeddb';
+import { debugLog } from '../../utils/debug';
 
 /**
  * Clean up duplicate translation versions
  * Removes older versions when there are multiple translations for the same URL
  */
 export async function cleanupDuplicateVersions(): Promise<void> {
-  console.log('[Cleanup] Starting duplicate version cleanup');
+  debugLog('indexeddb', 'summary', '[Cleanup] Starting duplicate version cleanup');
   
   try {
     // Open database for cleanup operation  
@@ -29,7 +30,7 @@ export async function cleanupDuplicateVersions(): Promise<void> {
       
       getAllRequest.onsuccess = async () => {
         const allTranslations = getAllRequest.result as any[];
-        console.log(`[Cleanup] Found ${allTranslations.length} total translations`);
+        debugLog('indexeddb', 'summary', `[Cleanup] Found ${allTranslations.length} total translations`);
         
         // Group by URL
         const translationsByUrl: { [url: string]: any[] } = {};
@@ -46,7 +47,7 @@ export async function cleanupDuplicateVersions(): Promise<void> {
         // Process each URL group
         for (const [url, translations] of Object.entries(translationsByUrl)) {
           if (translations.length > 1) {
-            console.log(`[Cleanup] Found ${translations.length} translations for ${url}`);
+            debugLog('indexeddb', 'summary', `[Cleanup] Found ${translations.length} translations for ${url}`);
             
             // Sort by timestamp (keep newest)
             translations.sort((a, b) => 
@@ -59,14 +60,14 @@ export async function cleanupDuplicateVersions(): Promise<void> {
               const deleteRequest = store.delete(oldTranslation.id);
               deleteRequest.onsuccess = () => {
                 duplicatesRemoved++;
-                console.log(`[Cleanup] Removed duplicate translation: ${oldTranslation.id}`);
+                debugLog('indexeddb', 'summary', `[Cleanup] Removed duplicate translation: ${oldTranslation.id}`);
               };
             }
           }
         }
         
         transaction.oncomplete = () => {
-          console.log(`[Cleanup] Cleanup completed. Removed ${duplicatesRemoved} duplicate translations`);
+          debugLog('indexeddb', 'summary', `[Cleanup] Cleanup completed. Removed ${duplicatesRemoved} duplicate translations`);
           resolve();
         };
         

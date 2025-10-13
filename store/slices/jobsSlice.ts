@@ -1,4 +1,5 @@
 import { StateCreator } from 'zustand';
+import { debugLog } from '../../utils/debug';
 
 // Job types and statuses
 export type JobType = 'translation' | 'epub' | 'image';
@@ -231,7 +232,7 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
   // Worker management
   initializeWorkers: () => {
     // Workers are not implemented yet - this is a placeholder for future functionality
-    console.log('[Jobs] Worker initialization is not yet implemented');
+    debugLog('worker', 'summary', '[Jobs] Worker initialization is not yet implemented');
     
     // TODO: Implement workers when needed
     // - Translation worker for background translation jobs
@@ -253,17 +254,17 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
 
   // Worker communication (private methods) - Placeholder implementations
   startWorkerJob: (job: Job) => {
-    console.log(`[Jobs] Starting job ${job.id} - workers not yet implemented`);
+    debugLog('worker', 'summary', `[Jobs] Starting job ${job.id} - workers not yet implemented`);
     // TODO: Implement actual worker communication when workers are available
   },
 
   cancelWorkerJob: (job: Job) => {
-    console.log(`[Jobs] Cancelling job ${job.id} - workers not yet implemented`);
+    debugLog('worker', 'summary', `[Jobs] Cancelling job ${job.id} - workers not yet implemented`);
     // TODO: Implement actual worker cancellation when workers are available
   },
 
   handleWorkerMessage: (event: MessageEvent, workerType: 'translation' | 'epub') => {
-    console.log(`[Jobs] Received message from ${workerType} worker - not yet implemented`);
+    debugLog('worker', 'summary', `[Jobs] Received message from ${workerType} worker - not yet implemented`);
     // TODO: Implement actual message handling when workers are available
   }
 });

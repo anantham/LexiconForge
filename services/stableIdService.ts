@@ -8,6 +8,7 @@
  */
 
 import { Chapter, TranslationResult, AppSettings, FeedbackItem } from '../types';
+import { debugLog } from '../utils/debug';
 
 /**
  * Generates a stable chapter ID based on content characteristics
@@ -173,7 +174,7 @@ export const transformImportedChapters = (
   importedChapters: any[],
   importMetadata?: any
 ): StableSessionData => {
-  console.log('[StableID] Transforming imported chapters with stable IDs');
+  debugLog('indexeddb', 'summary', '[StableID] Transforming imported chapters with stable IDs');
   
   const novels = new Map<string, NovelInfo>();
   const chapters = new Map<string, EnhancedChapter>();
@@ -233,7 +234,7 @@ export const transformImportedChapters = (
     }
     rawUrlIndex.set(originalUrl, stableId);
     
-    console.log(`[StableID] Processed chapter: ${stableId} (${rawChapter.chapterNumber}) -> ${canonicalUrl}`);
+    debugLog('indexeddb', 'full', `[StableID] Processed chapter: ${stableId} (${rawChapter.chapterNumber}) -> ${canonicalUrl}`);
   }
   
   return {
