@@ -6,10 +6,18 @@ import PencilIcon from './icons/PencilIcon';
 import AdvancedImageControls from './AdvancedImageControls';
 import { isFluxModel } from '../utils/imageModelUtils';
 import { getDefaultNegativePrompt, getDefaultGuidanceScale, getDefaultLoRAStrength } from '../services/configService';
+import { useBlobUrl, isBase64DataUrl } from '../hooks/useBlobUrl';
+import type { ImageCacheKey } from '../types';
+import { debugLog } from '../utils/debug';
 
 interface IllustrationProps {
   marker: string;
 }
+
+const normalizeMarker = (value?: string | null): string | null => {
+  if (!value) return null;
+  return value.trim().replace(/^\[|\]$/g, '').toUpperCase();
+};
 
 const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const {
@@ -50,13 +58,54 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   // `chapter` is now selected from the store above; keep local reference for clarity
   // const chapter = currentChapterId ? getChapter(currentChapterId) : null;
-  const illust = chapter?.translationResult?.suggestedIllustrations?.find(
-    (i) => i.placementMarker === marker
+  const normalizedMarker = React.useMemo(
+    () => normalizeMarker(marker) ?? marker,
+    [marker]
   );
+  const illust = chapter?.translationResult?.suggestedIllustrations?.find(
+    (i) => normalizeMarker(i.placementMarker) === normalizedMarker
+  );
+  const canonicalChapterId = chapter?.id ?? null;
+  const candidateKeys = React.useMemo(() => {
+    if (!canonicalChapterId) return [] as string[];
+
+    const keys = new Set<string>();
+    const addKey = (raw: string | null | undefined) => {
+      if (!raw) return;
+      keys.add(`${canonicalChapterId}:${raw}`);
+      const normalized = normalizeMarker(raw);
+      if (normalized && normalized !== raw) {
+        keys.add(`${canonicalChapterId}:${normalized}`);
+      }
+      if (normalized && normalized !== marker) {
+        keys.add(`${canonicalChapterId}:[${normalized}]`);
+      }
+    };
+
+    addKey(marker);
+    addKey(normalizedMarker);
+    addKey(illust?.placementMarker);
+
+    return Array.from(keys);
+  }, [canonicalChapterId, marker, normalizedMarker, illust?.placementMarker]);
+
+  const pickValue = React.useCallback(
+    <T extends Record<string, any>>(map: T): T[keyof T] | undefined => {
+      for (const key of candidateKeys) {
+        if (key in map) {
+          return map[key];
+        }
+      }
+      return undefined;
+    },
+    [candidateKeys]
+  );
+
+  const canonicalMarkerForState = normalizedMarker ?? marker;
 
   // DIAGNOSTIC: Log illustration component mount and data
   React.useEffect(() => {
-    console.log(`[Illustration] Component mounted/updated for marker: ${marker}`, {
+    debugLog('image', 'full', `[Illustration] Component mounted/updated for marker: ${marker}`, {
       chapterId: chapter?.id,
       marker,
       hasChapter: !!chapter,
@@ -66,29 +115,68 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
       foundIllust: !!illust,
       illustData: illust
     });
-  }, [marker, chapter?.id, illust]);
+  }, [marker, chapter?.id, illust, normalizedMarker]);
 
-  const key = chapter ? `${chapter.id}:${marker}` : `?:${marker}`;
-  const imageState = generatedImages[key];
+  const imageState = React.useMemo(() => {
+    if (!canonicalChapterId) return undefined;
+    for (const key of candidateKeys) {
+      const state = generatedImages[key];
+      if (state) return state;
+    }
+    return undefined;
+  }, [candidateKeys, generatedImages, canonicalChapterId]);
   const base64FromIllust = (illust as any)?.url as string | undefined;
   const hasIllust = !!illust;
   const isLoading = imageState?.isLoading || false;
-  const base64 = imageState?.data || base64FromIllust || null;
   const error = imageState?.error || null;
+
+  // NEW: Support for Cache API - check if image has cache key
+  const imageCacheKey: ImageCacheKey | null = illust?.generatedImage?.imageCacheKey ||
+    (illust?.imageCacheKey as ImageCacheKey | undefined) || null;
+
+  // Use blob URL hook for cache keys (auto-cleanup on unmount)
+  const blobUrlFromCache = useBlobUrl(imageCacheKey);
+
+  // Determine final image URL (priority: generated state > cache > base64 fallback)
+  const imageUrl = imageState?.data || // Currently generating/just generated
+    blobUrlFromCache ||  // From Cache API (modern)
+    (illust?.generatedImage?.imageData && isBase64DataUrl(illust.generatedImage.imageData)
+      ? illust.generatedImage.imageData
+      : null) ||  // Legacy base64 from generatedImage
+    base64FromIllust ||  // Very old format (url field)
+    null;
+
+  const base64 = imageUrl; // Keep variable name for backwards compat with rest of component
 
   const [draftPrompt, setDraftPrompt] = React.useState<string>(illust?.imagePrompt || '');
   const [isSaving, setIsSaving] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const [captionControlsVisible, setCaptionControlsVisible] = React.useState(false);
-  
+
   // Advanced controls state
-  const controlsKey = chapter ? `${chapter.id}:${marker}` : `?:${marker}`;
-  const selectedSteeringImage = steeringImages[controlsKey] || null;
-  const currentNegativePrompt = negativePrompts[controlsKey] || settings.defaultNegativePrompt || getDefaultNegativePrompt();
-  const currentGuidanceScale = guidanceScales[controlsKey] || settings.defaultGuidanceScale || getDefaultGuidanceScale();
-  const currentLoRAModel = loraModels[controlsKey] || null;
-  const currentLoRAStrength = loraStrengths[controlsKey] || getDefaultLoRAStrength();
-  
+  const controlsKey = canonicalChapterId
+    ? `${canonicalChapterId}:${canonicalMarkerForState}`
+    : `?:${canonicalMarkerForState}`;
+  const selectedSteeringImage = (pickValue(steeringImages) as string | null | undefined) ?? null;
+  const currentNegativePrompt =
+    (pickValue(negativePrompts) as string | undefined) ||
+    negativePrompts[controlsKey] ||
+    settings.defaultNegativePrompt ||
+    getDefaultNegativePrompt();
+  const currentGuidanceScale =
+    (pickValue(guidanceScales) as number | undefined) ||
+    guidanceScales[controlsKey] ||
+    settings.defaultGuidanceScale ||
+    getDefaultGuidanceScale();
+  const currentLoRAModel =
+    (pickValue(loraModels) as string | null | undefined) ??
+    loraModels[controlsKey] ??
+    null;
+  const currentLoRAStrength =
+    (pickValue(loraStrengths) as number | undefined) ||
+    loraStrengths[controlsKey] ||
+    getDefaultLoRAStrength();
+
   // Check if current image model supports advanced features
   const supportsAdvancedFeatures = isFluxModel(settings.imageModel);
 
@@ -100,9 +188,10 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     if (!chapter || !illust) return;
     const trimmed = (draftPrompt || '').trim();
     if (trimmed === (illust.imagePrompt || '').trim()) return;
+    const targetMarker = illust.placementMarker || marker;
     try {
       setIsSaving(true);
-      await updateIllustrationPrompt(chapter.id, marker, trimmed);
+      await updateIllustrationPrompt(chapter.id, targetMarker, trimmed);
     } finally {
       setIsSaving(false);
     }
@@ -114,31 +203,31 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   const handleSteeringImageChange = (imagePath: string | null) => {
     if (chapter) {
-      setSteeringImage(chapter.id, marker, imagePath);
+      setSteeringImage(chapter.id, canonicalMarkerForState, imagePath);
     }
   };
 
   const handleNegativePromptChange = (negativePrompt: string) => {
     if (chapter) {
-      setNegativePrompt(chapter.id, marker, negativePrompt);
+      setNegativePrompt(chapter.id, canonicalMarkerForState, negativePrompt);
     }
   };
 
   const handleGuidanceScaleChange = (guidanceScale: number) => {
     if (chapter) {
-      setGuidanceScale(chapter.id, marker, guidanceScale);
+      setGuidanceScale(chapter.id, canonicalMarkerForState, guidanceScale);
     }
   };
 
   const handleLoRAChange = (loraType: string | null) => {
     if (chapter) {
-      setLoraModel(chapter.id, marker, loraType);
+      setLoraModel(chapter.id, canonicalMarkerForState, loraType);
     }
   };
 
   const handleLoRAStrengthChange = (strength: number) => {
     if (chapter) {
-      setLoraStrength(chapter.id, marker, strength);
+      setLoraStrength(chapter.id, canonicalMarkerForState, strength);
     }
   };
 
@@ -218,7 +307,14 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           <div className="flex gap-2">
             {hasIllust && (
               <button
-                onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}
+                onClick={async () => {
+                  await savePromptIfChanged();
+                  setIsEditing(false);
+                  if (chapter) {
+                    const retryMarker = illust?.placementMarker ?? marker;
+                    handleRetryImage(chapter.id, retryMarker);
+                  }
+                }}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60"
                 disabled={isSaving}
               >
@@ -297,15 +393,22 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                         onGuidanceScaleChange={handleGuidanceScaleChange}
                         onLoRAChange={handleLoRAChange}
                         onLoRAStrengthChange={handleLoRAStrengthChange}
-                        defaultNegativePrompt={settings.defaultNegativePrompt}
-                        defaultGuidanceScale={settings.defaultGuidanceScale}
+                        defaultNegativePrompt={settings.defaultNegativePrompt || getDefaultNegativePrompt()}
+                        defaultGuidanceScale={settings.defaultGuidanceScale || getDefaultGuidanceScale()}
                       />
                     </div>
                   )}
                   
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}
+                      onClick={async () => {
+                        await savePromptIfChanged();
+                        setIsEditing(false);
+                        if (chapter) {
+                          const retryMarker = illust?.placementMarker ?? marker;
+                          handleRetryImage(chapter.id, retryMarker);
+                        }
+                      }}
                       className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60"
                       disabled={isSaving}
                     >
@@ -340,11 +443,11 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
             {/* Collapsible generation controls */}
             {captionControlsVisible && (
-              <div className="mt-3 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
-                <div className="flex items-start justify-between gap-2">
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Illustration prompt</label>
-                  {!isEditing && (
-                    <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit prompt" aria-label="Edit prompt">
+                <div className="mt-3 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Illustration prompt</label>
+                    {!isEditing && (
+                      <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit prompt" aria-label="Edit prompt">
                       <PencilIcon className="w-4 h-4" />
                     </button>
                   )}
@@ -392,7 +495,14 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={async () => { await savePromptIfChanged(); setIsEditing(false); handleRetryImage(chapter!.id, marker); }}
+                    onClick={async () => {
+                      await savePromptIfChanged();
+                      setIsEditing(false);
+                      if (chapter) {
+                        const retryMarker = illust?.placementMarker ?? marker;
+                        handleRetryImage(chapter.id, retryMarker);
+                      }
+                    }}
                     className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60"
                     disabled={isSaving}
                   >

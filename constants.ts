@@ -57,13 +57,61 @@ export const AVAILABLE_IMAGE_MODELS = {
   ]
 };
 
-export const SUPPORTED_WEBSITES = [
-  'kakuyomu.jp',
-  'dxmwx.org',
-  'kanunu8.com',
-  'novelcool.com',
-  'ncode.syosetu.com',
+export interface SupportedWebsite {
+  domain: string;
+  name: string;
+  category: string; // e.g., "Japanese", "Chinese", "Fan translations"
+  homeUrl: string;
+  exampleUrl: string;
+}
+
+export const SUPPORTED_WEBSITES_CONFIG: SupportedWebsite[] = [
+  {
+    domain: 'kakuyomu.jp',
+    name: 'Kakuyomu',
+    category: 'Japanese',
+    homeUrl: 'https://kakuyomu.jp',
+    exampleUrl: 'https://kakuyomu.jp/works/16816927859418072361/episodes/16817330667519070884'
+  },
+  {
+    domain: 'ncode.syosetu.com',
+    name: 'Syosetu',
+    category: 'Japanese',
+    homeUrl: 'https://syosetu.com',
+    exampleUrl: 'https://ncode.syosetu.com/n9669bk/1/'
+  },
+  {
+    domain: 'dxmwx.org',
+    name: 'Dxmwx',
+    category: 'Chinese',
+    homeUrl: 'https://www.dxmwx.org',
+    exampleUrl: 'https://www.dxmwx.org/read/47693_37783373.html'
+  },
+  {
+    domain: 'kanunu8.com',
+    name: 'Kanunu8',
+    category: 'Chinese',
+    homeUrl: 'https://www.kanunu8.com',
+    exampleUrl: 'https://www.kanunu8.com/book3/7561/72829.html'
+  },
+  {
+    domain: 'kanunu.net',
+    name: 'Kanunu',
+    category: 'Chinese',
+    homeUrl: 'https://www.kanunu.net',
+    exampleUrl: 'https://www.kanunu.net'
+  },
+  {
+    domain: 'novelcool.com',
+    name: 'NovelCool',
+    category: 'Fan translations',
+    homeUrl: 'https://www.novelcool.com',
+    exampleUrl: 'https://www.novelcool.com/chapter/Lord-of-the-Mysteries-Chapter-1/'
+  },
 ];
+
+// Legacy array for backward compatibility
+export const SUPPORTED_WEBSITES = SUPPORTED_WEBSITES_CONFIG.map(site => site.domain);
 
 // Abbreviations for model IDs to keep UI labels compact
 export const MODEL_ABBREVIATIONS: Record<string, string> = {

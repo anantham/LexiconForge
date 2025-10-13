@@ -18,14 +18,7 @@ import { BaseAudioProvider } from './BaseAudioProvider';
 import { AceStepProvider } from './AceStepProvider';
 import { DiffRhythmProvider } from './DiffRhythmProvider';
 import appConfig from '../../config/app.json';
-
-// Debug utilities
-const audioDebugEnabled = (): boolean => {
-  try {
-    return typeof localStorage !== 'undefined' && localStorage.getItem('LF_AUDIO_DEBUG') === '1';
-  } catch { return false; }
-};
-const alog = (...args: any[]) => { if (audioDebugEnabled()) console.log('[AudioService]', ...args); };
+import { debugLog } from '../../utils/debug';
 
 export class AudioService {
   private providers = new Map<AudioProvider, BaseAudioProvider>();
@@ -44,8 +37,8 @@ export class AudioService {
     // Initialize providers
     this.providers.set('ace-step', new AceStepProvider(piApiKey));
     this.providers.set('diffrhythm', new DiffRhythmProvider(piApiKey));
-    
-    alog('Initialized with providers:', Array.from(this.providers.keys()));
+
+    debugLog('audio', 'summary', '[AudioService] Initialized with providers:', Array.from(this.providers.keys()));
   }
 
   /**

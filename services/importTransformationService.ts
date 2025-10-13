@@ -13,6 +13,7 @@ import {
   getSortedChaptersForRendering 
 } from './stableIdService';
 import { indexedDBService } from './indexeddb';
+import type { ChapterSummary } from '../types';
 
 // Light debug gate tied to AI debug level
 const impDebugEnabled = (): boolean => {
@@ -160,6 +161,19 @@ export class ImportTransformationService {
       
     } catch (error) {
       console.error('[ImportTransformation] Failed to get chapters for rendering:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Lightweight chapter summaries for dropdowns and list rendering
+   */
+  static async getChapterSummaries(): Promise<ChapterSummary[]> {
+    try {
+      const summaries = await indexedDBService.getChapterSummaries();
+      return summaries.map(summary => ({ ...summary }));
+    } catch (error) {
+      console.error('[ImportTransformation] Failed to load chapter summaries:', error);
       return [];
     }
   }

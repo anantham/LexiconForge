@@ -126,14 +126,14 @@ const tokenizeTranslation = (text: string, baseId: string): TokenizationResult =
   // DIAGNOSTIC: Count token types
   const footnoteTokens = tokens.filter(t => t.type === 'footnote');
   const illustrationTokens = tokens.filter(t => t.type === 'illustration');
-  console.log(`[ChapterView:tokenizeTranslation] baseId=${baseId}`, {
-    totalTokens: tokens.length,
-    footnoteCount: footnoteTokens.length,
-    illustrationCount: illustrationTokens.length,
-    footnoteMarkers: footnoteTokens.map(t => t.type === 'footnote' ? t.marker : ''),
-    illustrationMarkers: illustrationTokens.map(t => t.type === 'illustration' ? t.marker : ''),
-    textSample: text.slice(0, 200)
-  });
+  // console.log(`[ChapterView:tokenizeTranslation] baseId=${baseId}`, {
+  //   totalTokens: tokens.length,
+  //   footnoteCount: footnoteTokens.length,
+  //   illustrationCount: illustrationTokens.length,
+  //   footnoteMarkers: footnoteTokens.map(t => t.type === 'footnote' ? t.marker : ''),
+  //   illustrationMarkers: illustrationTokens.map(t => t.type === 'illustration' ? t.marker : ''),
+  //   textSample: text.slice(0, 200)
+  // });
 
   const nodes = renderTranslationTokens(tokens);
   return { tokens, nodes };
@@ -257,7 +257,13 @@ const SelectionSheet: React.FC<{
           <button className="p-3 text-xl" onClick={() => onReact('✏️')}>✏️</button>
           <button
             className={`p-3 text-xl ${canCompare && !isComparing ? '' : 'opacity-40 cursor-not-allowed'}`}
-            onClick={() => canCompare && !isComparing && onReact('🔍')}
+            onClick={() => {
+              debugLog('comparison', 'summary', '[SelectionSheet] Compare button clicked', { canCompare, isComparing });
+              if (canCompare && !isComparing) {
+                debugLog('comparison', 'summary', '[SelectionSheet] Invoking compare action');
+                onReact('🔍');
+              }
+            }}
             disabled={!canCompare || isComparing}
           >
             🔍
@@ -285,7 +291,20 @@ const ChapterView: React.FC = () => {
   const viewRef = useRef<HTMLDivElement>(null);
   const { selection, clearSelection } = useTextSelection(contentRef);
   const isTouch = useIsTouch();
-  
+
+  // Log selection state changes for comparison workflow
+  useEffect(() => {
+    if (selection) {
+      debugLog('comparison', 'summary', '[ChapterView] Selection state updated', {
+        text: selection.text.slice(0, 50) + (selection.text.length > 50 ? '...' : ''),
+        textLength: selection.text.length,
+        rectTop: selection.rect.top,
+        rectLeft: selection.rect.left
+      });
+    }
+    // Note: We don't log when selection is cleared to avoid noise
+  }, [selection]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
 
@@ -333,7 +352,7 @@ const ChapterView: React.FC = () => {
   // DIAGNOSTIC: Log chapter data when it changes
   useEffect(() => {
     if (chapter && translationResult) {
-      console.log('[ChapterView] Chapter Data Update', {
+      debugLog('translation', 'full', '[ChapterView] Chapter Data Update', {
         chapterId: chapter.id,
         chapterTitle: chapter.title,
         hasTranslation: !!translationResult,
@@ -600,47 +619,90 @@ const ChapterView: React.FC = () => {
   const handleCompareRequest = useCallback(async () => {
     debugLog('comparison', 'summary', '[Comparison] Request triggered');
     if (comparisonLoading) {
+      debugLog('comparison', 'summary', '[Comparison] Already loading, skipping');
       return;
     }
     if (!canCompare || !translationResult || !currentChapterId) {
-      debugLog('comparison', 'summary', '[Comparison] Cannot compare - prerequisites missing');
+      debugLog('comparison', 'summary', '[Comparison] Cannot compare - prerequisites missing', {
+        canCompare,
+        hasTranslationResult: !!translationResult,
+        currentChapterId
+      });
       return;
     }
 
     const selectionRange = window.getSelection && window.getSelection();
+    debugLog('comparison', 'summary', '[Comparison] Getting selection range', {
+      hasSelection: !!selectionRange,
+      isCollapsed: selectionRange?.isCollapsed,
+      anchorNode: selectionRange?.anchorNode?.nodeName
+    });
+
     const anchorEl = resolveChunkElement(selectionRange?.anchorNode ?? null);
+    debugLog('comparison', 'summary', '[Comparison] Resolved chunk element', {
+      found: !!anchorEl,
+      chunkId: anchorEl?.dataset?.lfChunk,
+      elementType: anchorEl?.dataset?.lfType,
+      tagName: anchorEl?.tagName
+    });
+
     if (!anchorEl?.dataset?.lfChunk) {
+      debugLog('comparison', 'summary', '[Comparison] No valid chunk found');
       showNotification?.('Select a single paragraph to compare.', 'info');
       return;
     }
 
     const chunkId = anchorEl.dataset.lfChunk;
     const translationText = findTokenText(translationTokensRef.current, chunkId) ?? anchorEl.innerText;
+    debugLog('comparison', 'summary', '[Comparison] Extracted translation text', {
+      chunkId,
+      textLength: translationText?.length,
+      textPreview: translationText?.slice(0, 50) + (translationText && translationText.length > 50 ? '...' : ''),
+      source: findTokenText(translationTokensRef.current, chunkId) ? 'token' : 'innerText'
+    });
+
     if (!translationText) {
+      debugLog('comparison', 'summary', '[Comparison] Failed to extract translation text');
       showNotification?.('Unable to read selected translation text.', 'error');
       return;
     }
 
     const versionId = translationVersionId;
     if (!versionId) {
+      debugLog('comparison', 'summary', '[Comparison] No version ID available');
       showNotification?.('Comparison requires a persisted translation version.', 'warning');
       return;
     }
 
+    debugLog('comparison', 'summary', '[Comparison] Setting comparison chunk (initial)', { chunkId });
     setComparisonChunk({ chunkId, translationText, matches: [] });
     setComparisonError(null);
 
     let alignment = comparisonAlignment;
+    debugLog('comparison', 'summary', '[Comparison] Checking alignment availability', {
+      hasExistingAlignment: !!alignment,
+      existingVersionId: alignment?.versionId,
+      currentVersionId: versionId,
+      needsNewAlignment: !alignment || alignment.versionId !== versionId
+    });
+
     if (!alignment || alignment.versionId !== versionId) {
       if (fanTextChunks.length === 0) {
+        debugLog('comparison', 'summary', '[Comparison] No fan text chunks available');
         showNotification?.('Fan translation unavailable for this chapter.', 'info');
         setComparisonChunk(null);
         return;
       }
+      debugLog('comparison', 'summary', '[Comparison] Starting alignment computation', {
+        fanChunkCount: fanTextChunks.length,
+        translationChunkCount: translationTextChunks.length
+      });
       setComparisonLoading(true);
       try {
+        debugLog('comparison', 'summary', '[Comparison] Checking cache for alignment');
         alignment = await ComparisonService.getAlignmentCached(currentChapterId, versionId);
         if (!alignment) {
+          debugLog('comparison', 'summary', '[Comparison] No cached alignment, requesting new alignment from API');
           alignment = await ComparisonService.requestAlignment(
             translationTextChunks,
             fanTextChunks,
@@ -648,6 +710,9 @@ const ChapterView: React.FC = () => {
             versionId,
             settings
           );
+          debugLog('comparison', 'summary', '[Comparison] Received alignment from API', {
+            entryCount: alignment.entries.length
+          });
           const snapshot = {
             provider: settings.provider,
             model: settings.model,
@@ -667,11 +732,17 @@ const ChapterView: React.FC = () => {
               translationSettingsSnapshot: snapshot,
             });
           } catch (persistError) {
+            debugLog('comparison', 'summary', '[Comparison] Failed to persist alignment', persistError);
             console.warn('[Comparison] Failed to persist alignment', persistError);
           }
+        } else {
+          debugLog('comparison', 'summary', '[Comparison] Using cached alignment', {
+            entryCount: alignment.entries.length
+          });
         }
         setComparisonAlignment(alignment);
       } catch (error) {
+        debugLog('comparison', 'summary', '[Comparison] Failed to compute alignment', error);
         console.warn('[Comparison] Failed to compute alignment', error);
         setComparisonError('Comparison failed. Check console for details.');
         setComparisonLoading(false);
@@ -680,7 +751,15 @@ const ChapterView: React.FC = () => {
       setComparisonLoading(false);
     }
 
+    debugLog('comparison', 'summary', '[Comparison] Finding matches for chunk', {
+      chunkId,
+      totalEntries: alignment?.entries.length
+    });
     const entry = alignment?.entries.find((e) => e.translationChunkId === chunkId);
+    debugLog('comparison', 'summary', '[Comparison] Match result', {
+      found: !!entry,
+      matchCount: entry?.matches?.length ?? 0
+    });
     setComparisonChunk({
       chunkId,
       translationText,
@@ -862,11 +941,11 @@ const ChapterView: React.FC = () => {
 
   const renderFootnotes = (footnotes: Footnote[] | undefined) => {
     // DIAGNOSTIC: Log footnotes rendering
-    console.log('[ChapterView:renderFootnotes]', {
-      hasFootnotes: !!footnotes,
-      footnoteCount: footnotes?.length || 0,
-      footnotes: footnotes
-    });
+    // console.log('[ChapterView:renderFootnotes]', {
+    //   hasFootnotes: !!footnotes,
+    //   footnoteCount: footnotes?.length || 0,
+    //   footnotes: footnotes
+    // });
 
     if (!footnotes || footnotes.length === 0) return null;
     return (
@@ -1093,17 +1172,16 @@ const ChapterView: React.FC = () => {
             
             <div className="flex justify-center items-center gap-4 ml-6">
               {chapter?.originalUrl && (
-                <a 
+                <a
                   href={chapter.originalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline font-semibold text-gray-600 dark:text-gray-300"
+                  className="text-blue-500 hover:underline font-semibold text-sm"
                   title="View original source"
                 >
-                  Source:
+                  Source
                 </a>
               )}
-              <span className="font-semibold text-gray-600 dark:text-gray-300">Language:</span>
               <div className="relative inline-flex items-center p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                 <button
                   onClick={() => handleToggleLanguage('original')}
@@ -1137,7 +1215,7 @@ const ChapterView: React.FC = () => {
                     }
                   }}
                   disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isTranslationActive(currentChapterId))}
-                  className={`p-2 rounded-full border transition-all duration-200 ml-4 ${
+                  className={`p-2 rounded-full border transition-all duration-200 ml-6 ${
                     currentChapterId && isTranslationActive(currentChapterId)
                       ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
                       : shouldEnableRetranslation(currentChapterId || '')

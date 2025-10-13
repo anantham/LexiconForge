@@ -5,6 +5,8 @@ import ThumbsDownIcon from './icons/ThumbsDownIcon';
 import QuestionMarkIcon from './icons/QuestionMarkIcon';
 import PaintBrushIcon from './icons/PaintBrushIcon';
 import PencilIcon from './icons/PencilIcon';
+import CompareIcon from './icons/CompareIcon';
+import { debugLog } from '../utils/debug';
 
 interface FeedbackPopoverProps {
   selectionText: string;
@@ -12,9 +14,11 @@ interface FeedbackPopoverProps {
   positioningParentRef: React.RefObject<HTMLElement>;
   onFeedback: (feedback: Omit<FeedbackItem, 'id'>) => void;
   onEdit: () => void;
+  onCompare: () => void;
+  canCompare: boolean;
 }
 
-const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, position, positioningParentRef, onFeedback, onEdit }) => {
+const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, position, positioningParentRef, onFeedback, onEdit, onCompare, canCompare }) => {
   console.groupCollapsed('[FeedbackPopover] Render');
   
   if (!positioningParentRef.current) {
@@ -61,6 +65,20 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
       </button>
       <button onClick={onEdit} className="p-2 rounded-full hover:bg-blue-500 transition-colors duration-200" title="Edit selection">
         <PencilIcon className="w-5 h-5" />
+      </button>
+      <button
+        onClick={() => {
+          debugLog('comparison', 'summary', '[FeedbackPopover] Compare button clicked', { selectionText, canCompare });
+          if (canCompare) {
+            debugLog('comparison', 'summary', '[FeedbackPopover] Invoking onCompare callback');
+            onCompare();
+          }
+        }}
+        className={`p-2 rounded-full transition-colors duration-200 ${canCompare ? 'hover:bg-teal-600' : 'opacity-40 cursor-not-allowed'}`}
+        title={canCompare ? 'Compare with fan translation' : 'Comparison unavailable'}
+        disabled={!canCompare}
+      >
+        <CompareIcon className="w-5 h-5" />
       </button>
     </div>
   );

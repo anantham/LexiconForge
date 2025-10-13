@@ -147,7 +147,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ chapterId, isVisible }) => {
   if (!isVisible) return null;
   
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 p-4">
+    <div className="mt-8 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 p-4">
       {/* Hidden audio element */}
       <audio ref={audioRef} preload="metadata" playsInline />
       

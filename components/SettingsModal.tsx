@@ -11,7 +11,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { formatBytes } from '../services/audio/storage/utils';
 import { ostLibraryService } from '../services/audio/OSTLibraryService';
 import type { OSTSample } from '../services/audio/OSTLibraryService';
-import { KNOWN_DEBUG_PIPELINES, DebugPipeline, getDebugPipelines as readDebugPipelines, setDebugPipelines as writeDebugPipelines, logCurrentDebugConfig } from '../utils/debug';
+import { KNOWN_DEBUG_PIPELINES, DebugPipeline, getDebugPipelines as readDebugPipelines, setDebugPipelines as writeDebugPipelines, logCurrentDebugConfig, debugLog } from '../utils/debug';
 
 const formatCurrencyValue = (value?: number | null, currency = 'USD'): string | null => {
   if (value === null || value === undefined || Number.isNaN(value)) return null;
@@ -335,18 +335,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     
     const checkOpenRouterModel = async (modelId: string) => {
       const key = `OpenRouter:${modelId}`;
-      console.log(`[Capability Check] Checking model: ${key}`);
+      debugLog('api', 'full', `[Capability Check] Checking model: ${key}`);
       if (structuredOutputSupport[key] !== undefined && structuredOutputSupport[key] !== null) {
-        console.log(`[Capability Check] Skipping ${key}, already checked. Result: ${structuredOutputSupport[key]}`);
+        debugLog('api', 'full', `[Capability Check] Skipping ${key}, already checked. Result: ${structuredOutputSupport[key]}`);
         return;
       }
-      
+
       try {
-        console.log(`[Capability Check] Calling supportsStructuredOutputs for ${key}`);
+        debugLog('api', 'full', `[Capability Check] Calling supportsStructuredOutputs for ${key}`);
         const hasSupport = await supportsStructuredOutputs('OpenRouter', modelId);
-        console.log(`[Capability Check] Result for ${key}: ${hasSupport}`);
+        debugLog('api', 'full', `[Capability Check] Result for ${key}: ${hasSupport}`);
         setStructuredOutputSupport(prev => {
-          console.log(`[Capability Check] Updating state for ${key} to ${hasSupport}`);
+          debugLog('api', 'full', `[Capability Check] Updating state for ${key} to ${hasSupport}`);
           return { ...prev, [key]: hasSupport };
         });
       } catch (error) {
