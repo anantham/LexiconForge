@@ -16,6 +16,7 @@ import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { indexedDBService } from '../../services/indexeddb';
+import { debugLog } from '../../utils/debug';
 
 export interface TranslationsState {
   // Active translations
@@ -135,7 +136,7 @@ export const createTranslationsSlice: StateCreator<
         return;
       }
 
-      const result = await TranslationService.translateChapter(
+      const result = await TranslationService.translateChapterSequential(
         chapterId,
         context,
         (id) => get().buildTranslationHistoryAsync(id)
@@ -175,9 +176,9 @@ export const createTranslationsSlice: StateCreator<
           translationResult: translationResult,
           translationSettingsSnapshot: relevantSettings
         });
-        console.log(`[Translation] Raw translationResult:`, translationResult);
+        debugLog('translation', 'summary', '[Translation] Raw translationResult:', translationResult);
         const metrics = translationResult.usageMetrics;
-        console.log(`[Translation] ✅ Success for chapter ${chapterId}. Model: ${metrics?.provider}/${metrics?.model}. Tokens: ${metrics?.totalTokens}.`);
+        debugLog('translation', 'summary', `[Translation] ✅ Success for chapter ${chapterId}. Model: ${metrics?.provider}/${metrics?.model}. Tokens: ${metrics?.totalTokens}.`);
       }
       
       // Set amendment proposal if provided
@@ -615,7 +616,7 @@ export const createTranslationsSlice: StateCreator<
 
       // Delete the version from IndexedDB
       await translationsRepo.deleteTranslationVersion(translationId);
-      console.log(`[TranslationsSlice] Deleted translation version ${translationId} for chapter ${chapterId}`);
+      debugLog('translation', 'summary', `[TranslationsSlice] Deleted translation version ${translationId} for chapter ${chapterId}`);
 
       // If the deleted version was the active one, we need to promote a new version
       if (activeTranslation && activeTranslation.id === translationId) {
@@ -624,7 +625,7 @@ export const createTranslationsSlice: StateCreator<
           // Set the latest remaining version as active (they are sorted by version descending)
           const latestVersion = remainingVersions[0];
           await get().setActiveTranslationVersion(chapterId, latestVersion.version);
-          console.log(`[TranslationsSlice] Promoted version ${latestVersion.version} to active for chapter ${chapterId}`);
+          debugLog('translation', 'summary', `[TranslationsSlice] Promoted version ${latestVersion.version} to active for chapter ${chapterId}`);
         } else {
           // No versions left, so we clear the translation result from the chapter
           const chaptersActions = get() as any;
@@ -634,7 +635,7 @@ export const createTranslationsSlice: StateCreator<
               translationSettingsSnapshot: null,
             });
           }
-          console.log(`[TranslationsSlice] No translations left for chapter ${chapterId}`);
+          debugLog('translation', 'summary', `[TranslationsSlice] No translations left for chapter ${chapterId}`);
         }
       }
       // If the deleted version was not active, no further action is needed here.
@@ -691,8 +692,8 @@ export const createTranslationsSlice: StateCreator<
     try {
       const stateAfter = get();
       const chAfter = (stateAfter.chapters as Map<string, any>).get(chapterId);
-      console.log('[TranslationsSlice] After update - suggestedIllustrations:', chAfter?.translationResult?.suggestedIllustrations || []);
-      console.log('[TranslationsSlice] After update - translation contains marker?', chAfter?.translationResult?.translation?.includes(newMarker));
+      debugLog('translation', 'summary', '[TranslationsSlice] After update - suggestedIllustrations:', chAfter?.translationResult?.suggestedIllustrations || []);
+      debugLog('translation', 'summary', '[TranslationsSlice] After update - translation contains marker?', chAfter?.translationResult?.translation?.includes(newMarker));
     } catch (e) {
       console.warn('[TranslationsSlice] Failed to log post-update diagnostics:', e);
     }
