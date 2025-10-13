@@ -14,7 +14,12 @@ export const SCHEMA_VERSIONS = {
   STABLE_IDS: 3,
   PROMPT_TEMPLATES: 4,
   URL_MAPPINGS: 5,
-  CURRENT: 6, // Enhanced schema for new architecture
+  ARCHITECTURE_ENHANCEMENTS: 6,
+  CANONICAL_DATA_STORES: 7,
+  INDEX_REPAIRS: 8,
+  AUTO_MIGRATION_CAP: 9,
+  CHAPTER_NUMBER_INDEX: 10,
+  CURRENT: 10,
 } as const;
 
 // Object store definitions
@@ -25,15 +30,18 @@ export const STORE_NAMES = {
   FEEDBACK: 'feedback',
   PROMPT_TEMPLATES: 'prompt_templates',
   URL_MAPPINGS: 'url_mappings',
+  NOVELS: 'novels',
+  CHAPTER_SUMMARIES: 'chapter_summaries',
 } as const;
 
 // Domain-to-stores mapping (for Claude's domain organization)
 export const DOMAIN_STORES = {
-  chapters: [STORE_NAMES.CHAPTERS, STORE_NAMES.URL_MAPPINGS],
+  chapters: [STORE_NAMES.CHAPTERS, STORE_NAMES.URL_MAPPINGS, STORE_NAMES.CHAPTER_SUMMARIES],
   translations: [STORE_NAMES.TRANSLATIONS],
   settings: [STORE_NAMES.SETTINGS, STORE_NAMES.PROMPT_TEMPLATES],
   feedback: [STORE_NAMES.FEEDBACK],
-  novels: [STORE_NAMES.URL_MAPPINGS],
+  novels: [STORE_NAMES.NOVELS, STORE_NAMES.URL_MAPPINGS],
+  summaries: [STORE_NAMES.CHAPTER_SUMMARIES],
 } as const;
 
 /**
@@ -56,6 +64,10 @@ export const MIGRATIONS: Record<number, MigrationFunction> = {
   4: migrateToV4,
   5: migrateToV5,
   6: migrateToV6,
+  7: migrateToV7,
+  8: migrateToV8,
+  9: migrateToV9,
+  10: migrateToV10,
 };
 
 /**
@@ -194,6 +206,92 @@ function migrateToV6(db: IDBDatabase, transaction: IDBTransaction): void {
   const urlMappingsStore = transaction.objectStore(STORE_NAMES.URL_MAPPINGS);
   if (!urlMappingsStore.indexNames.contains('novelChapter')) {
     urlMappingsStore.createIndex('novelChapter', ['novelId', 'chapterNumber'], { unique: false });
+  }
+}
+
+/**
+ * Migration to version 7: Add canonical data stores and indexes
+ */
+function migrateToV7(db: IDBDatabase, transaction: IDBTransaction): void {
+  // Ensure URL mappings has full canonical indexes
+  let urlStore: IDBObjectStore;
+  if (!db.objectStoreNames.contains(STORE_NAMES.URL_MAPPINGS)) {
+    urlStore = db.createObjectStore(STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+  } else {
+    urlStore = transaction.objectStore(STORE_NAMES.URL_MAPPINGS);
+  }
+
+  if (!urlStore.indexNames.contains('stableId')) {
+    urlStore.createIndex('stableId', 'stableId', { unique: false });
+  }
+  if (!urlStore.indexNames.contains('isCanonical')) {
+    urlStore.createIndex('isCanonical', 'isCanonical', { unique: false });
+  }
+  if (!urlStore.indexNames.contains('dateAdded')) {
+    urlStore.createIndex('dateAdded', 'dateAdded', { unique: false });
+  }
+  if (!urlStore.indexNames.contains('novelId')) {
+    urlStore.createIndex('novelId', 'novelId', { unique: false });
+  }
+
+  // Add novels store if missing
+  if (!db.objectStoreNames.contains(STORE_NAMES.NOVELS)) {
+    const novelStore = db.createObjectStore(STORE_NAMES.NOVELS, { keyPath: 'id' });
+    novelStore.createIndex('source', 'source', { unique: false });
+    novelStore.createIndex('title', 'title', { unique: false });
+    novelStore.createIndex('dateAdded', 'dateAdded', { unique: false });
+    novelStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
+  }
+
+  // Add chapter summaries store if missing
+  if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTER_SUMMARIES)) {
+    const summaryStore = db.createObjectStore(STORE_NAMES.CHAPTER_SUMMARIES, { keyPath: 'stableId' });
+    summaryStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
+    summaryStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
+    summaryStore.createIndex('hasTranslation', 'hasTranslation', { unique: false });
+  }
+}
+
+/**
+ * Migration to version 8: Ensure compound indexes exist for translations and chapters
+ */
+function migrateToV8(db: IDBDatabase, transaction: IDBTransaction): void {
+  // Ensure translations store has compound indexes
+  const translationsStore = transaction.objectStore(STORE_NAMES.TRANSLATIONS);
+  if (!translationsStore.indexNames.contains('chapterUrl_version')) {
+    translationsStore.createIndex('chapterUrl_version', ['chapterUrl', 'version'], { unique: true });
+  }
+  if (!translationsStore.indexNames.contains('stableId')) {
+    translationsStore.createIndex('stableId', 'stableId', { unique: false });
+  }
+  if (!translationsStore.indexNames.contains('stableId_version')) {
+    translationsStore.createIndex('stableId_version', ['stableId', 'version'], { unique: true });
+  }
+
+  // Ensure chapters store has chapterNumber index for navigation
+  const chaptersStore = transaction.objectStore(STORE_NAMES.CHAPTERS);
+  if (!chaptersStore.indexNames.contains('chapterNumber')) {
+    chaptersStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
+  }
+}
+
+/**
+ * Migration to version 9: Anchor legacy auto-upgrade ceiling (no-op)
+ *
+ * Some browsers auto-incremented the schema past 8 via the legacy `db.version + 1` helpers.
+ * This no-op migration allows those databases to open cleanly without further structural changes.
+ */
+function migrateToV9(): void {
+  // Intentional no-op: schema already matches v8 definitions.
+}
+
+/**
+ * Migration to version 10: Guarantee chapterNumber index exists even for legacy installations.
+ */
+function migrateToV10(db: IDBDatabase, transaction: IDBTransaction): void {
+  const chaptersStore = transaction.objectStore(STORE_NAMES.CHAPTERS);
+  if (!chaptersStore.indexNames.contains('chapterNumber')) {
+    chaptersStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
   }
 }
 

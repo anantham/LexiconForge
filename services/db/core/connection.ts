@@ -6,10 +6,11 @@
  */
 
 import { DbError, mapDomError } from './errors';
+import { SCHEMA_VERSIONS } from './schema';
 
 // Database configuration constants
 export const DB_NAME = 'lexicon-forge';
-export const DB_VERSION = 6; // Increment for new schema changes
+export const DB_VERSION = SCHEMA_VERSIONS.CURRENT;
 
 // IndexedDB availability check
 let _indexedDBAvailable: boolean | undefined;
