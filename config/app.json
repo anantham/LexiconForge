@@ -9,6 +9,11 @@
     "version": "1.0.0",
     "description": "AI-powered translation and content creation tool"
   },
+  "defaultModels": {
+    "provider": "OpenRouter",
+    "textModel": "google/gemini-2.5-pro",
+    "imageModel": "none"
+  },
   "aiParameters": {
     "defaults": {
       "temperature": 0.3,
