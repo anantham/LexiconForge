@@ -17,6 +17,7 @@ import {
   normalizeUrlAggressively, 
   transformImportedChapters 
 } from './stableIdService';
+import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
 
 // Logging utilities matching the store pattern
 const storeDebugEnabled = () => {
@@ -448,6 +449,8 @@ export class NavigationService {
     chapterId: string,
     updateHydratingState: (chapterId: string, hydrating: boolean) => void
   ): Promise<EnhancedChapter | null> {
+    const opStart = memoryTimestamp();
+    memorySummary('Chapter hydration requested', { chapterId });
     slog(`[IDB] Loading chapter from IndexedDB: ${chapterId}`);
     
     // Mark as hydrating
@@ -479,6 +482,7 @@ export class NavigationService {
       
       if (!rec) {
         swarn(`[IDB] No record found for ${chapterId}`);
+        memorySummary('Chapter hydration missing record', { chapterId });
         return null;
       }
 
@@ -501,6 +505,14 @@ export class NavigationService {
         fanTranslation: rec.fanTranslation || null, // Include fan translation from IndexedDB
         translationResult: null, // Will be loaded below
       };
+
+      memoryDetail('Chapter hydration record stats', {
+        chapterId,
+        contentLength: enhanced.content.length,
+        hasTranslation: Boolean(enhanced.translationResult),
+        hasFanTranslation: Boolean(enhanced.fanTranslation),
+        chapterNumber: enhanced.chapterNumber,
+      });
 
       // Load active translation if available
       try {
@@ -531,13 +543,26 @@ export class NavigationService {
         }
       } catch (error) {
         console.warn(`[IDB] Failed to load active translation for ${chapterId}:`, error);
+        memorySummary('Chapter hydration translation load failed', {
+          chapterId,
+          error: (error as Error)?.message || error,
+        });
       }
 
       slog(`[IDB] Successfully loaded chapter ${chapterId} with translation: ${!!enhanced.translationResult}`);
+      memoryTiming('Chapter hydration', opStart, {
+        chapterId,
+        contentLength: enhanced.content.length,
+        hasTranslation: Boolean(enhanced.translationResult),
+      });
       return enhanced;
       
     } catch (error) {
       console.error(`[IDB] Error loading chapter ${chapterId}:`, error);
+      memorySummary('Chapter hydration threw', {
+        chapterId,
+        error: (error as Error)?.message || error,
+      });
       return null;
     } finally {
       // Clear hydrating state
