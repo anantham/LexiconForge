@@ -10,7 +10,11 @@
 
 import type { StateCreator } from 'zustand';
 import type { AppSettings, PromptTemplate } from '../../types';
+import type { OpenRouterKeyUsageCache } from '../../services/openrouterService';
+import type { ProviderCreditSummary, SupportedCreditProvider } from '../../services/providerCreditCacheService';
 import { SessionManagementService, defaultSettings } from '../../services/sessionManagementService';
+import { debugLog } from '../../utils/debug';
+import { providerCreditCacheService } from '../../services/providerCreditCacheService';
 
 export interface SettingsState {
   // Core settings
@@ -26,7 +30,8 @@ export interface SettingsState {
   
   // OpenRouter dynamic catalogue state (cached)
   openRouterModels?: { data: any[]; fetchedAt: string } | null;
-  openRouterKeyUsage?: { usage: number | null; limit: number | null; remaining: number | null; fetchedAt: string } | null;
+  openRouterKeyUsage?: OpenRouterKeyUsageCache | null;
+  providerCredits: Partial<Record<SupportedCreditProvider, ProviderCreditSummary | null>>;
 }
 
 export interface SettingsActions {
@@ -47,6 +52,8 @@ export interface SettingsActions {
   refreshOpenRouterModels: () => Promise<void>;
   refreshOpenRouterCredits: () => Promise<void>;
   getOpenRouterOptions: (search?: string) => Array<{ id: string; label: string; lastUsed?: string; priceKey?: number | null }>;
+  refreshProviderCredits: (provider: SupportedCreditProvider) => Promise<void>;
+  loadProviderCreditsFromCache: () => Promise<void>;
   
   // Utility methods
   getPromptTemplate: (id: string) => PromptTemplate | null;
@@ -71,6 +78,7 @@ export const createSettingsSlice: StateCreator<
   settingsError: null,
   openRouterModels: null,
   openRouterKeyUsage: null,
+  providerCredits: {},
   
   // Settings management
   updateSettings: (partial) => {
@@ -311,7 +319,7 @@ export const createSettingsSlice: StateCreator<
         return;
       }
       
-      console.log('[SettingsSlice] Using OpenRouter API key from:', get().settings.apiKeyOpenRouter ? 'settings' : 'environment');
+      debugLog('translation', 'summary', '[SettingsSlice] Using OpenRouter API key from:', get().settings.apiKeyOpenRouter ? 'settings' : 'environment');
       
       const keyUsage = await openrouterService.fetchKeyUsage(apiKey);
       
@@ -328,6 +336,96 @@ export const createSettingsSlice: StateCreator<
     }
   },
 
+  refreshProviderCredits: async (provider) => {
+    try {
+      const state = get();
+      let apiKey: string | undefined | null;
+
+      if (provider === 'DeepSeek') {
+        apiKey = state.settings.apiKeyDeepSeek;
+        if (!apiKey) {
+          try {
+            apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY ||
+              (globalThis as any).process?.env?.DEEPSEEK_API_KEY ||
+              '';
+          } catch {
+            /* noop */
+          }
+        }
+      } else if (provider === 'PiAPI') {
+        apiKey = (state.settings as any).apiKeyPiAPI;
+        if (!apiKey) {
+          try {
+            apiKey = import.meta.env.VITE_PIAPI_API_KEY ||
+              (globalThis as any).process?.env?.PIAPI_API_KEY ||
+              '';
+          } catch {
+            /* noop */
+          }
+        }
+      }
+
+      if (!apiKey) {
+        console.warn(`[SettingsSlice] No ${provider} API key available for credit check (checked settings and env)`);
+        set(current => ({
+          providerCredits: {
+            ...current.providerCredits,
+            [provider]: null,
+          },
+        }));
+        return;
+      }
+
+      debugLog(
+        'translation',
+        'summary',
+        `[SettingsSlice] Refreshing ${provider} credits using`,
+        provider === 'PiAPI'
+          ? (state.settings as any).apiKeyPiAPI ? 'settings key' : 'environment key'
+          : state.settings.apiKeyDeepSeek ? 'settings key' : 'environment key'
+      );
+
+      const summary = provider === 'DeepSeek'
+        ? await providerCreditCacheService.fetchDeepSeekBalance(apiKey)
+        : await providerCreditCacheService.fetchPiApiBalance(apiKey);
+
+      set(current => ({
+        providerCredits: {
+          ...current.providerCredits,
+          [provider]: summary,
+        },
+        settingsError: null,
+      }));
+    } catch (error) {
+      console.error(`[SettingsSlice] Failed to refresh ${provider} credits:`, error);
+      set(current => ({
+        providerCredits: {
+          ...current.providerCredits,
+          [provider]: null,
+        },
+        settingsError: `Failed to refresh ${provider} credits: ${error}`,
+      }));
+    }
+  },
+
+  loadProviderCreditsFromCache: async () => {
+    try {
+      const [deepSeek, piapi] = await Promise.all([
+        providerCreditCacheService.getCachedSummary('DeepSeek').catch(() => null),
+        providerCreditCacheService.getCachedSummary('PiAPI').catch(() => null),
+      ]);
+
+      set(current => ({
+        providerCredits: {
+          ...current.providerCredits,
+          DeepSeek: deepSeek,
+          PiAPI: piapi,
+        },
+      }));
+    } catch (error) {
+      console.error('[SettingsSlice] Failed to load provider credit cache:', error);
+    }
+  },
   getOpenRouterOptions: (search = '') => {
     const { openRouterModels } = get();
     
