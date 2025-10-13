@@ -6,14 +6,7 @@ import SettingsIcon from './icons/SettingsIcon';
 import TrashIcon from './icons/TrashIcon';
 
 import { ImportTransformationService } from '../services/importTransformationService';
-
-interface StableChapterForRender {
-    stableId: string;
-    url: string;
-    data: any;
-    title: string;
-    chapterNumber: number;
-}
+import type { ChapterSummary } from '../types';
 
 // Prefer a human-facing number if the title contains "Chapter 147", "Ch 147", etc.
 const numberFromTitle = (s?: string): number | undefined => {
@@ -38,73 +31,89 @@ const SessionInfo: React.FC = () => {
     const [showExportModal, setShowExportModal] = useState(false);
     const [showVersionPicker, setShowVersionPicker] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
-    const [sortedChapters, setSortedChapters] = useState<StableChapterForRender[]>([]);
+    const [chapterOptions, setChapterOptions] = useState<ChapterSummary[]>([]);
+    const [summariesLoading, setSummariesLoading] = useState<boolean>(true);
     const [versions, setVersions] = useState<any[]>([]);
     const [selectedVersion, setSelectedVersion] = useState<number | ''>('');
 
     useEffect(() => {
+        let cancelled = false;
         (async () => {
             try {
-                // Read from IndexedDB
-                const fromDb = await ImportTransformationService.getChaptersForReactRendering();
-                const byId = new Map<string, StableChapterForRender>();
+                setSummariesLoading(true);
+                const summaries = await ImportTransformationService.getChapterSummaries();
+                if (cancelled) return;
 
-                // Seed with DB entries
-                for (const c of fromDb) {
-                    byId.set(c.stableId, c);
-                }
+                const byId = new Map<string, ChapterSummary>();
+                summaries.forEach(summary => byId.set(summary.stableId, { ...summary }));
 
-                // Overlay with in-memory chapters (merge to preserve DB-loaded translationResult)
                 if (chapters.size > 0) {
                     for (const [stableId, ch] of chapters.entries()) {
                         const existing = byId.get(stableId);
-                        const mergedData = existing
-                          ? {
-                              ...existing.data,
-                              ...ch,
-                              // Preserve DB translationResult if in-memory lacks it
-                              translationResult: (ch as any).translationResult ?? existing.data?.translationResult ?? null,
-                            }
-                          : ch;
-
-                        byId.set(stableId, {
+                        const candidate: ChapterSummary = existing ? { ...existing } : {
                             stableId,
-                            url: (ch as any).canonicalUrl || existing?.url || '',
-                            data: mergedData,
-                            title: ch.title || existing?.title || 'Untitled Chapter',
-                            chapterNumber: ch.chapterNumber || existing?.chapterNumber || 0,
-                        });
+                            canonicalUrl: (ch as any).canonicalUrl || ch.originalUrl,
+                            title: ch.title || 'Untitled Chapter',
+                            translatedTitle: ch.translationResult?.translatedTitle || undefined,
+                            chapterNumber: ch.chapterNumber,
+                            hasTranslation: Boolean(ch.translationResult),
+                            hasImages: Boolean(ch.translationResult?.suggestedIllustrations?.some((ill: any) => !!ill?.url || !!ill?.generatedImage)),
+                            lastAccessed: undefined,
+                            lastTranslatedAt: undefined,
+                        };
+
+                        if ((ch as any).canonicalUrl) {
+                            candidate.canonicalUrl = (ch as any).canonicalUrl;
+                        }
+                        if (ch.title && ch.title !== candidate.title) {
+                            candidate.title = ch.title;
+                        }
+                        if (typeof ch.chapterNumber === 'number') {
+                            candidate.chapterNumber = ch.chapterNumber;
+                        }
+                        if (ch.translationResult?.translatedTitle) {
+                            candidate.translatedTitle = ch.translationResult.translatedTitle;
+                        }
+                        if (ch.translationResult) {
+                            candidate.hasTranslation = true;
+                            const hasImages = ch.translationResult.suggestedIllustrations?.some((ill: any) => !!ill?.url || !!ill?.generatedImage) || false;
+                            candidate.hasImages = candidate.hasImages || hasImages;
+                            candidate.lastTranslatedAt = candidate.lastTranslatedAt || new Date().toISOString();
+                        }
+
+                        byId.set(stableId, candidate);
                     }
                 }
 
                 const list = Array.from(byId.values());
-                // Sort by display number derived from translated title when available; fallback to DB number, then title
                 list.sort((a, b) => {
-                    const aTranslated = a.data?.translationResult?.translatedTitle as string | undefined;
-                    const bTranslated = b.data?.translationResult?.translatedTitle as string | undefined;
+                    const aTranslated = a.translatedTitle;
+                    const bTranslated = b.translatedTitle;
                     const aNumFromTitle = numberFromTitle(aTranslated);
                     const bNumFromTitle = numberFromTitle(bTranslated);
-                    const aDbNum = (a.data?.chapter?.chapterNumber ?? a.chapterNumber) as number | undefined;
-                    const bDbNum = (b.data?.chapter?.chapterNumber ?? b.chapterNumber) as number | undefined;
-                    const aDisplay = aNumFromTitle ?? aDbNum;
-                    const bDisplay = bNumFromTitle ?? bDbNum;
+                    const aDisplay = aNumFromTitle ?? a.chapterNumber ?? Number.POSITIVE_INFINITY;
+                    const bDisplay = bNumFromTitle ?? b.chapterNumber ?? Number.POSITIVE_INFINITY;
 
-                    if (Number.isFinite(aDisplay) && Number.isFinite(bDisplay)) {
-                        return (aDisplay as number) - (bDisplay as number);
-                    }
-                    if (Number.isFinite(aDisplay)) return -1;
-                    if (Number.isFinite(bDisplay)) return 1;
+                    if (aDisplay !== bDisplay) return aDisplay - bDisplay;
                     return (a.title || '').localeCompare(b.title || '');
                 });
-                setSortedChapters(list);
+
+                setChapterOptions(list);
             } catch (error) {
-                console.error('[SessionInfo] Failed to load chapters for rendering:', error);
-                setSortedChapters([]);
+                if (!cancelled) {
+                    console.error('[SessionInfo] Failed to load chapters for rendering:', error);
+                    setChapterOptions([]);
+                }
+            } finally {
+                if (!cancelled) {
+                    setSummariesLoading(false);
+                }
             }
         })();
+        return () => { cancelled = true; };
     }, [chapters]);
 
-    const sessionIsEmpty = sortedChapters.length === 0;
+    const sessionIsEmpty = chapterOptions.length === 0;
 
     // Load translation versions for current chapter
     useEffect(() => {
@@ -156,12 +165,16 @@ const SessionInfo: React.FC = () => {
     };
 
     const handleChapterSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newUrl = e.target.value;
-        const selectedChapter = sortedChapters.find(c => c.stableId === newUrl);
-        if(selectedChapter) {
-            handleNavigate(selectedChapter.url);
+        const selectedId = e.target.value;
+        const selectedChapter = chapterOptions.find(c => c.stableId === selectedId);
+        if (selectedChapter) {
+            const fallback = chapters.get(selectedId || '');
+            const targetUrl = selectedChapter.canonicalUrl || fallback?.canonicalUrl || fallback?.originalUrl;
+            if (targetUrl) {
+                handleNavigate(targetUrl);
+            }
         }
-    }
+    };
 
     const handleExportFormat = async (format: 'json' | 'epub') => {
         setIsExporting(true);
@@ -187,25 +200,26 @@ const SessionInfo: React.FC = () => {
           <label htmlFor="chapter-select" className="font-semibold text-gray-600 dark:text-gray-300 flex-shrink-0">
             Chapter:
           </label>
-          {sessionIsEmpty ? (
+          {summariesLoading ? (
+            <span className="text-sm text-gray-500 dark:text-gray-400 animate-pulse">Loading chapters…</span>
+          ) : sessionIsEmpty ? (
             <span className="text-sm text-gray-500 dark:text-gray-400">No chapter loaded</span>
           ) : (
             <select
               id="chapter-select"
               value={currentChapterId || ''}
               onChange={handleChapterSelect}
-              disabled={sessionIsEmpty}
+              disabled={sessionIsEmpty || summariesLoading}
               className="flex-grow w-full sm:w-auto min-w-[12rem] px-3 py-2 text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               aria-label="Select a chapter to navigate to"
             >
-              {sortedChapters.map((chapter) => {
-                  const translatedTitle = chapter.data?.translationResult?.translatedTitle as string | undefined;
-                  const titleNum = numberFromTitle(translatedTitle);
-                  const dbNum = (chapter.data?.chapter?.chapterNumber ?? chapter.chapterNumber) as number | undefined;
+              {chapterOptions.map((chapter) => {
+                  const titleNum = numberFromTitle(chapter.translatedTitle);
+                  const dbNum = chapter.chapterNumber as number | undefined;
                   const displayNum = titleNum ?? dbNum;
 
                   const numPrefix = Number.isFinite(displayNum) && (displayNum as number) > 0 ? `Ch ${displayNum}: ` : '';
-                  const title = translatedTitle || chapter.title || 'Untitled Chapter';
+                  const title = chapter.translatedTitle || chapter.title || 'Untitled Chapter';
                   const label = `${numPrefix}${title}`;
 
                   return (
