@@ -14,13 +14,10 @@ import { generateImage } from './imageService';
 import { TranslationPersistenceService } from './translationPersistenceService';
 import type { AppSettings, PromptTemplate } from '../types';
 import type { EnhancedChapter } from './stableIdService';
+import { debugLog, debugWarn } from '../utils/debug';
 
-// Logging utilities matching the store pattern
-const storeDebugEnabled = () => {
-  return typeof window !== 'undefined' && window.localStorage?.getItem('store-debug') === 'true';
-};
-const slog = (...args: any[]) => { if (storeDebugEnabled()) console.log(...args); };
-const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...args); };
+const slog = (...args: any[]) => debugLog('image', 'summary', ...args);
+const swarn = (...args: any[]) => debugWarn('image', 'summary', ...args);
 
 export interface ImageGenerationContext {
   chapters: Map<string, EnhancedChapter>;
@@ -74,11 +71,15 @@ export class ImageGenerationService {
     let foundExistingImages = false;
 
     translationResult.suggestedIllustrations.forEach((illust: any) => {
-      if (illust.generatedImage) {
+      const generated = illust.generatedImage;
+      const url = (illust as any)?.url;
+      const payload = generated?.imageData || (typeof url === 'string' && url.trim().length > 0 ? url : null);
+
+      if (payload) {
         const key = `${chapterId}:${illust.placementMarker}`;
         imageStateUpdates[key] = {
           isLoading: false,
-          data: illust.generatedImage.imageData,
+          data: payload,
           error: null
         };
         foundExistingImages = true;
@@ -135,6 +136,13 @@ export class ImageGenerationService {
       (illust: any) => !illust.generatedImage
     );
 
+    debugLog('image', 'summary', '[ImageGen] Illustration breakdown', {
+      chapterId,
+      total: translationResult.suggestedIllustrations.length,
+      existing: translationResult.suggestedIllustrations.length - illustrationsNeedingGeneration.length,
+      generating: illustrationsNeedingGeneration.length,
+    });
+
     if (illustrationsNeedingGeneration.length === 0) {
       slog('[ImageGen] All illustrations already have generated images');
       return { 
@@ -166,8 +174,22 @@ export class ImageGenerationService {
           negativePrompt,
           guidanceScale,
           loraModel,
-          loraStrength
+          loraStrength,
+          chapterId,  // NEW: for Cache API storage
+          illust.placementMarker  // NEW: for Cache API storage
         );
+
+        debugLog('image', 'full', '[ImageGen] Generation prompt payload', {
+          chapterId,
+          placementMarker: illust.placementMarker,
+          prompt: illust.imagePrompt,
+          steeringImagePath,
+          negativePrompt,
+          guidanceScale,
+          loraModel,
+          loraStrength,
+          model: settings.imageModel,
+        });
 
         totalTime += result.requestTime;
         totalCost += result.cost;
@@ -191,8 +213,10 @@ export class ImageGenerationService {
           if (suggestionIndex >= 0) {
             const target = chapter.translationResult.suggestedIllustrations[suggestionIndex];
             target.generatedImage = result;
-            // Write base64 into url so UI/exports can embed images
-            (target as any).url = result.imageData;
+            // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
+            if (result.imageData && result.imageData.length > 0) {
+              (target as any).url = result.imageData;
+            }
             
             // Persist to IndexedDB using stableId mapping
             try {
@@ -308,8 +332,22 @@ export class ImageGenerationService {
         negativePrompt,
         guidanceScale,
         loraModel,
-        loraStrength
+        loraStrength,
+        chapterId,  // NEW: for Cache API storage
+        placementMarker  // NEW: for Cache API storage
       );
+
+      debugLog('image', 'full', '[ImageGen] Retry prompt payload', {
+        chapterId,
+        placementMarker,
+        prompt: illust.imagePrompt,
+        steeringImagePath,
+        negativePrompt,
+        guidanceScale,
+        loraModel,
+        loraStrength,
+        model: settings.imageModel,
+      });
 
       // Update chapter translation and persist
       if (chapter && chapter.translationResult) {
@@ -320,7 +358,10 @@ export class ImageGenerationService {
         if (suggestionIndex >= 0) {
           const target = chapter.translationResult.suggestedIllustrations[suggestionIndex];
           target.generatedImage = result;
-          (target as any).url = result.imageData;
+          // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
+          if (result.imageData && result.imageData.length > 0) {
+            (target as any).url = result.imageData;
+          }
           
           try {
             await TranslationPersistenceService.persistUpdatedTranslation(
