@@ -1,35 +1,56 @@
-import { AlignmentResult, AppSettings } from '../types';
-import { indexedDBService } from './indexeddb';
+import { AppSettings } from '../types';
 import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
 import { debugLog } from '../utils/debug';
 
-interface ComparisonResponse {
-  alignments: Array<{
-    translationChunkId: string;
-    matches: Array<{
-      fanChunkId: string;
-      text: string;
-      confidence: number;
-    }>;
-  }>;
-}
-
 const clog = (...args: any[]) => debugLog('comparison', 'summary', '[ComparisonService]', ...args);
 
+interface FocusedComparisonArgs {
+  chapterId: string;
+  selectedTranslation: string;
+  fullTranslation: string;
+  fullFanTranslation: string;
+  fullRawText?: string;
+  settings: AppSettings;
+}
+
+export interface FocusedComparisonResult {
+  fanExcerpt: string;
+  fanContextBefore: string | null;
+  fanContextAfter: string | null;
+  rawExcerpt: string | null;
+  rawContextBefore: string | null;
+  rawContextAfter: string | null;
+  confidence?: number;
+}
+
+const stripMarkdownFences = (text: string): string => {
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) return fence[1].trim();
+  return text.trim();
+};
+
 const extractJsonPayload = (text: string): string | null => {
-  if (!text) return null;
-  const start = text.indexOf('{');
+  const sanitized = stripMarkdownFences(text);
+  try {
+    JSON.parse(sanitized);
+    return sanitized;
+  } catch {
+    // Continue to substring extraction
+  }
+
+  const start = sanitized.indexOf('{');
   if (start < 0) return null;
+
   let depth = 0;
-  for (let i = start; i < text.length; i++) {
-    const ch = text[i];
+  for (let i = start; i < sanitized.length; i++) {
+    const ch = sanitized[i];
     if (ch === '"') {
       i++;
-      while (i < text.length) {
-        if (text[i] === '\\') {
+      while (i < sanitized.length) {
+        if (sanitized[i] === '\\') {
           i += 2;
-        } else if (text[i] === '"') {
+        } else if (sanitized[i] === '"') {
           break;
         } else {
           i++;
@@ -40,73 +61,77 @@ const extractJsonPayload = (text: string): string | null => {
     } else if (ch === '}') {
       depth--;
       if (depth === 0) {
-        return text.slice(start, i + 1);
+        return sanitized.slice(start, i + 1);
       }
     }
   }
   return null;
 };
 
-export class ComparisonService {
-  private static cache = new Map<string, AlignmentResult>();
+const applyTemplate = (template: string, values: Record<string, string>): string =>
+  Object.entries(values).reduce((acc, [key, value]) => acc.split(`{{${key}}}`).join(value), template);
 
-  static async getAlignmentCached(
-    chapterId: string,
-    translationVersionId: string
-  ): Promise<AlignmentResult | null> {
-    const key = `${chapterId}:${translationVersionId}`;
-    if (this.cache.has(key)) {
-      clog('Cache hit for alignment', key);
-      return this.cache.get(key)!;
+const toOptionalString = (value: unknown): string | null => {
+  if (typeof value === 'string') return value;
+  if (value == null) return null;
+  if (Array.isArray(value)) return value.map((item) => toOptionalString(item) ?? '').join(' ').trim() || null;
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
     }
-
-    const versions = await indexedDBService.getTranslationVersionsByStableId(chapterId).catch(() => []);
-    const match = Array.isArray(versions)
-      ? versions.find((v: any) => v.id === translationVersionId)
-      : null;
-    if (match?.fanAlignment) {
-      clog('Loaded alignment from IndexedDB', key);
-      this.cache.set(key, match.fanAlignment);
-      return match.fanAlignment;
-    }
-
-    return null;
   }
+  return String(value);
+};
 
-  static async requestAlignment(
-    translationChunks: Array<{ id: string; text: string }>,
-    fanChunks: Array<{ id: string; text: string }>,
-    chapterId: string,
-    translationVersionId: string,
-    settings: AppSettings
-  ): Promise<AlignmentResult> {
-    const translationText = translationChunks
-      .map((chunk, idx) => `Chunk ${idx + 1}\nID: ${chunk.id}\nTEXT: ${chunk.text}`)
-      .join('\n\n');
-    const fanText = fanChunks
-      .map((chunk, idx) => `Fan Chunk ${idx + 1}\nID: ${chunk.id}\nTEXT: ${chunk.text}`)
-      .join('\n\n');
+const toOptionalNumber = (value: unknown): number | undefined => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return undefined;
+};
 
-    clog('Comparison request sizes', {
-      translationChunkCount: translationChunks.length,
-      fanChunkCount: fanChunks.length,
-      translationChars: translationText.length,
-      fanChars: fanText.length,
+export class ComparisonService {
+  static async requestFocusedComparison(args: FocusedComparisonArgs): Promise<FocusedComparisonResult> {
+    const {
+      chapterId,
+      selectedTranslation,
+      fullTranslation,
+      fullFanTranslation,
+      fullRawText = '',
+      settings,
+    } = args;
+
+    if (!fullFanTranslation?.trim()) {
+      throw new Error('Fan translation is required for comparison.');
+    }
+
+    const prompt = applyTemplate(prompts.comparisonPrompt, {
+      selectedTranslation: selectedTranslation || '(empty selection)',
+      fullTranslation: fullTranslation || '(no translation text available)',
+      fanTranslation: fullFanTranslation || '(no fan translation available)',
+      rawText: fullRawText || '(no raw text available)',
     });
-
-    let prompt = prompts.comparisonPrompt;
-    prompt = prompt.replace('{{translationChunks}}', translationText || '(none)');
-    prompt = prompt.replace('{{fanChunks}}', fanText || '(none)');
 
     const { apiKey, baseURL } = resolveApiConfig(settings);
     if (!apiKey) {
       throw new Error(`API key for ${settings.provider} is missing.`);
     }
 
-    const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
-    const maxOutput = Math.max(1, Math.min((settings.maxOutputTokens ?? 16384), 200000));
+    clog('Focused comparison request', {
+      chapterId,
+      selectionLength: selectedTranslation?.length ?? 0,
+      translationLength: fullTranslation?.length ?? 0,
+      fanLength: fullFanTranslation?.length ?? 0,
+      rawLength: fullRawText?.length ?? 0,
+      model: settings.model,
+    });
 
-    clog('Comparison request -> model', settings.model);
+    const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
+    const maxOutput = Math.max(256, Math.min((settings.maxOutputTokens ?? 4096), 200000));
 
     const completion = await client.chat.completions.create({
       model: settings.model,
@@ -116,33 +141,40 @@ export class ComparisonService {
     });
 
     const content = completion.choices[0]?.message?.content ?? '';
-    const jsonPayload = extractJsonPayload(content) || content.trim();
-    let parsed: ComparisonResponse | null = null;
+    const jsonPayload = extractJsonPayload(content);
+    if (!jsonPayload) {
+      console.warn('[ComparisonService] Unable to locate JSON payload in response', { content });
+      throw new Error('Comparison response did not contain valid JSON.');
+    }
+
+    let parsed: any;
     try {
       parsed = JSON.parse(jsonPayload);
     } catch (error) {
-      console.warn('[ComparisonService] Failed to parse comparison JSON', { content });
+      console.warn('[ComparisonService] Failed to parse comparison JSON', { content, jsonPayload });
       throw error;
     }
 
-    const response = parsed;
+  const result: FocusedComparisonResult = {
+    fanExcerpt: (toOptionalString(parsed?.fanExcerpt) ?? '').trim(),
+    fanContextBefore: toOptionalString(parsed?.fanContextBefore),
+    fanContextAfter: toOptionalString(parsed?.fanContextAfter),
+    rawExcerpt: toOptionalString(parsed?.rawExcerpt),
+    rawContextBefore: toOptionalString(parsed?.rawContextBefore),
+    rawContextAfter: toOptionalString(parsed?.rawContextAfter),
+    confidence: toOptionalNumber(parsed?.confidence),
+  };
 
-    const alignment: AlignmentResult = {
-      versionId: translationVersionId,
-      generatedAt: new Date().toISOString(),
-      entries: response.alignments.map((entry) => ({
-        translationChunkId: entry.translationChunkId,
-        matches: entry.matches.map((m) => ({
-          fanChunkId: m.fanChunkId,
-          fanText: m.text,
-          confidence: m.confidence,
-        })),
-      })),
-    };
+    clog('Focused comparison response', {
+      chapterId,
+      fanExcerptLength: result.fanExcerpt.length,
+      fanContextBeforeLength: result.fanContextBefore?.length ?? 0,
+      fanContextAfterLength: result.fanContextAfter?.length ?? 0,
+      hasRawExcerpt: Boolean(result.rawExcerpt),
+      confidence: result.confidence,
+    });
 
-    const key = `${chapterId}:${translationVersionId}`;
-    this.cache.set(key, alignment);
-    return alignment;
+    return result;
   }
 }
 

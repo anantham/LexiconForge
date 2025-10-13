@@ -938,6 +938,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 />
               </div>
               <div>
+                {/* OpenAI API Key - Note: Usage dashboards require a backend proxy due to OpenAI CORS restrictions.
+                    Users should check their billing portal for spend details. No balance refresh endpoint available. */}
                 <label htmlFor="apiKeyOpenAI" className="block text-sm font-medium text-gray-700 dark:text-gray-300">OpenAI API Key</label>
                 <input
                   id="apiKeyOpenAI"
@@ -947,9 +949,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   placeholder="Enter your OpenAI API Key"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Usage dashboards require a backend proxy due to OpenAI CORS restrictions. Check your billing portal for spend details.
-                </p>
               </div>
               <div>
                 <label htmlFor="apiKeyDeepSeek" className="block text-sm font-medium text-gray-700 dark:text-gray-300">DeepSeek API Key</label>

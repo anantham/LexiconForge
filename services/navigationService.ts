@@ -26,6 +26,47 @@ const storeDebugEnabled = () => {
 const slog = (...args: any[]) => { if (storeDebugEnabled()) console.log(...args); };
 const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...args); }; 
 
+const adaptTranslationRecordToResult = (chapterId: string, record: TranslationRecord | null | undefined): any => {
+  if (!record) return null;
+
+  const usageMetrics = {
+    totalTokens: record.totalTokens || 0,
+    promptTokens: record.promptTokens || 0,
+    completionTokens: record.completionTokens || 0,
+    estimatedCost: record.estimatedCost || 0,
+    requestTime: record.requestTime || 0,
+    provider: record.provider || 'unknown',
+    model: record.model || 'unknown',
+  };
+
+  const fallbackId =
+    (record.version ? `${chapterId}-v${record.version}` : `${chapterId}-legacy-${record.createdAt || 'missing-id'}`) as string;
+  const translationId = record.id || fallbackId;
+
+  if (!record.id && typeof window !== 'undefined') {
+    console.warn('[Navigation] Hydrated translation is missing a persistent id. Using fallback key.', {
+      chapterId,
+      fallbackId: translationId,
+    });
+  }
+
+  return {
+    translatedTitle: record.translatedTitle,
+    translation: record.translation,
+    proposal: record.proposal || null,
+    footnotes: record.footnotes || [],
+    suggestedIllustrations: record.suggestedIllustrations || [],
+    usageMetrics,
+    id: translationId,
+    version: record.version,
+    customVersionLabel: record.customVersionLabel,
+    createdAt: record.createdAt,
+    isActive: record.isActive,
+    stableId: record.stableId,
+    chapterUrl: record.chapterUrl,
+  };
+};
+
 // In-flight fetch management
 const inflightFetches = new Map<string, Promise<void>>();
 
@@ -154,24 +195,10 @@ export class NavigationService {
         try {
           const active = await indexedDBService.getActiveTranslationByStableId(chapterId);
           if (active) {
-            const usageMetrics = {
-              totalTokens: active.totalTokens || 0,
-              promptTokens: active.promptTokens || 0,
-              completionTokens: active.completionTokens || 0,
-              estimatedCost: active.estimatedCost || 0,
-              requestTime: active.requestTime || 0,
-              provider: active.provider as any,
-              model: active.model,
-            } as any;
-            
-            chapter.translationResult = {
-              translatedTitle: active.translatedTitle,
-              translation: active.translation,
-              proposal: active.proposal || null,
-              footnotes: active.footnotes || [],
-              suggestedIllustrations: active.suggestedIllustrations || [],
-              usageMetrics,
-            } as any;
+            const hydrated = adaptTranslationRecordToResult(chapterId, active);
+            if (hydrated) {
+              chapter.translationResult = hydrated as any;
+            }
           }
         } catch {}
       }
@@ -520,24 +547,7 @@ export class NavigationService {
         if (activeTranslation) {
           // console.log(`[IDB] ✅ Active translation found for chapter ${chapterId}: ${activeTranslation.translation?.length || 0} characters`);
           
-          const usageMetrics = {
-            totalTokens: activeTranslation.totalTokens || 0,
-            promptTokens: activeTranslation.promptTokens || 0,
-            completionTokens: activeTranslation.completionTokens || 0,
-            estimatedCost: activeTranslation.estimatedCost || 0,
-            requestTime: activeTranslation.requestTime || 0,
-            provider: activeTranslation.provider || 'unknown',
-            model: activeTranslation.model || 'unknown',
-          };
-          
-          enhanced.translationResult = {
-            translatedTitle: activeTranslation.translatedTitle,
-            translation: activeTranslation.translation,
-            proposal: activeTranslation.proposal || null,
-            footnotes: activeTranslation.footnotes || [],
-            suggestedIllustrations: activeTranslation.suggestedIllustrations || [],
-            usageMetrics,
-          };
+          enhanced.translationResult = adaptTranslationRecordToResult(chapterId, activeTranslation);
         } else {
           // console.log(`[IDB] ❌ No active translation found for chapter ${chapterId}`);
         }

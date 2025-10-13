@@ -132,24 +132,6 @@ export interface TranslationResult {
   suggestedIllustrations: SuggestedIllustration[];
   usageMetrics: UsageMetrics;
   customVersionLabel?: string;
-  fanAlignment?: AlignmentResult;
-}
-
-export interface AlignmentMatch {
-  fanChunkId: string;
-  fanText: string;
-  confidence: number;
-}
-
-export interface AlignmentEntry {
-  translationChunkId: string;
-  matches: AlignmentMatch[];
-}
-
-export interface AlignmentResult {
-  versionId?: string;
-  generatedAt: string;
-  entries: AlignmentEntry[];
 }
 
 export interface HistoricalChapter {

@@ -17,7 +17,7 @@
  * - Migration from localStorage data
  */
 
-import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate, AlignmentResult } from '../types';
+import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate } from '../types';
 import { debugPipelineEnabled, dbDebugEnabled } from '../utils/debug';
 import { generateStableChapterId } from './stableIdService';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
@@ -94,7 +94,6 @@ export interface TranslationRecord {
   promptId?: string;              // Reference to prompt template used
   promptName?: string;            // Snapshot of prompt name at time of translation
   customVersionLabel?: string;    // Optional user-supplied label appended to display
-  fanAlignment?: AlignmentResult;
   
   // Usage metrics
   totalTokens: number;
@@ -975,7 +974,6 @@ class IndexedDBService {
       promptId: translationSettings.promptId,
       promptName: translationSettings.promptName,
       customVersionLabel: translationResult.customVersionLabel,
-      fanAlignment: translationResult.fanAlignment,
       
       totalTokens: usageMetrics.totalTokens,
       promptTokens: usageMetrics.promptTokens,
@@ -1100,7 +1098,6 @@ class IndexedDBService {
                 promptId: translationSettings.promptId,
                 promptName: translationSettings.promptName,
                 customVersionLabel: translationResult.customVersionLabel,
-                fanAlignment: translationResult.fanAlignment,
                 totalTokens: usageMetrics.totalTokens,
                 promptTokens: usageMetrics.promptTokens,
                 completionTokens: usageMetrics.completionTokens,

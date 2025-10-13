@@ -1,7 +1,7 @@
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { FeedbackItem, Footnote, UsageMetrics, AlignmentResult, AlignmentMatch } from '../types';
+import { FeedbackItem, Footnote, UsageMetrics } from '../types';
 import Loader from './Loader';
 import { useTextSelection } from '../hooks/useTextSelection';
 import FeedbackPopover from './FeedbackPopover';
@@ -198,16 +198,6 @@ const tokensToString = (tokens: TranslationToken[]): string => {
     .join('');
 };
 
-const collectTextTokens = (tokens: TranslationToken[], acc: Array<{ id: string; text: string }>) => {
-  for (const token of tokens) {
-    if (token.type === 'text') {
-      acc.push({ id: token.chunkId, text: token.text });
-    } else if (token.type === 'italic' || token.type === 'bold' || token.type === 'emphasis') {
-      collectTextTokens(token.children, acc);
-    }
-  }
-};
-
 interface InlineEditState {
   chunkId: string;
   element: HTMLElement;
@@ -333,21 +323,36 @@ const ChapterView: React.FC = () => {
   const editableContainerRef = useRef<HTMLDivElement>(null);
   const [inlineEditState, setInlineEditState] = useState<InlineEditState | null>(null);
   const [toolbarCoords, setToolbarCoords] = useState<{ top: number; left: number } | null>(null);
-  const [comparisonAlignment, setComparisonAlignment] = useState<AlignmentResult | null>(null);
   const [comparisonChunk, setComparisonChunk] = useState<{
-    chunkId: string;
-    translationText: string;
-    matches: AlignmentMatch[];
+    selection: string;
+    fanExcerpt: string;
+    fanContextBefore: string | null;
+    fanContextAfter: string | null;
+    rawExcerpt: string | null;
+    rawContextBefore: string | null;
+    rawContextAfter: string | null;
+    confidence?: number;
   } | null>(null);
   const [comparisonLoading, setComparisonLoading] = useState(false);
   const [comparisonError, setComparisonError] = useState<string | null>(null);
+  const [showRawComparison, setShowRawComparison] = useState(false);
+  const [comparisonExpanded, setComparisonExpanded] = useState(true);
+  const [comparisonPortalNode, setComparisonPortalNode] = useState<HTMLDivElement | null>(null);
+  const comparisonPortalRef = useRef<HTMLDivElement | null>(null);
+
+  const removeComparisonPortal = useCallback(() => {
+    if (comparisonPortalRef.current?.parentNode) {
+      comparisonPortalRef.current.parentNode.removeChild(comparisonPortalRef.current);
+    }
+    comparisonPortalRef.current = null;
+    setComparisonPortalNode(null);
+  }, []);
 
   const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
   const translationResult = chapter?.translationResult;
   const feedbackForChapter = chapter?.feedback ?? [];
   const fanTranslation = (chapter as any)?.fanTranslation as string | undefined;
   const canCompare = viewMode === 'english' && !!fanTranslation;
-  const translationVersionId = (translationResult as any)?.id as string | undefined;
 
   // DIAGNOSTIC: Log chapter data when it changes
   useEffect(() => {
@@ -379,43 +384,29 @@ const ChapterView: React.FC = () => {
     translationTokensRef.current = translationTokensData.tokens;
   }, [translationTokensData.tokens]);
 
-  const fanTokensData = useMemo(() => {
-    if (!fanTranslation) return [] as TranslationToken[];
-    return tokenizeTranslation(fanTranslation, `${chapter?.id ?? 'chapter'}-fan`).tokens;
-  }, [fanTranslation, chapter?.id]);
-
   useEffect(() => {
-    let cancelled = false;
-    if (!canCompare || !currentChapterId || !translationVersionId) {
-      setComparisonAlignment(null);
+    if (!canCompare) {
       setComparisonChunk(null);
       setComparisonError(null);
       setComparisonLoading(false);
-      return;
+      setShowRawComparison(false);
+      setComparisonExpanded(true);
+      removeComparisonPortal();
     }
-
-    ComparisonService.getAlignmentCached(currentChapterId, translationVersionId)
-      .then((alignment) => {
-        if (!cancelled && alignment) {
-          setComparisonAlignment(alignment);
-        }
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          console.warn('[Comparison] Failed to load cached alignment', error);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [canCompare, currentChapterId, translationVersionId]);
+  }, [canCompare, removeComparisonPortal]);
 
   useEffect(() => {
-    if (translationResult?.fanAlignment) {
-      setComparisonAlignment(translationResult.fanAlignment);
+    if (!comparisonChunk) {
+      setComparisonError(null);
+      setShowRawComparison(false);
+      setComparisonExpanded(true);
+      removeComparisonPortal();
     }
-  }, [translationResult?.fanAlignment]);
+  }, [comparisonChunk, removeComparisonPortal]);
+
+  useEffect(() => () => {
+    removeComparisonPortal();
+  }, [removeComparisonPortal]);
 
   // Debug logging for chapter loading
   React.useEffect(() => {
@@ -604,18 +595,6 @@ const ChapterView: React.FC = () => {
     });
   }, []);
 
-  const translationTextChunks = useMemo(() => {
-    const acc: Array<{ id: string; text: string }> = [];
-    collectTextTokens(translationTokensData.tokens, acc);
-    return acc;
-  }, [translationTokensData.tokens]);
-
-  const fanTextChunks = useMemo(() => {
-    const acc: Array<{ id: string; text: string }> = [];
-    collectTextTokens(fanTokensData, acc);
-    return acc;
-  }, [fanTokensData]);
-
   const handleCompareRequest = useCallback(async () => {
     debugLog('comparison', 'summary', '[Comparison] Request triggered');
     if (comparisonLoading) {
@@ -632,156 +611,122 @@ const ChapterView: React.FC = () => {
     }
 
     const selectionRange = window.getSelection && window.getSelection();
-    debugLog('comparison', 'summary', '[Comparison] Getting selection range', {
+    const selectedText = selectionRange?.toString()?.trim() ?? '';
+    debugLog('comparison', 'summary', '[Comparison] Selection info', {
       hasSelection: !!selectionRange,
       isCollapsed: selectionRange?.isCollapsed,
-      anchorNode: selectionRange?.anchorNode?.nodeName
+      selectedLength: selectedText.length,
     });
 
-    const anchorEl = resolveChunkElement(selectionRange?.anchorNode ?? null);
-    debugLog('comparison', 'summary', '[Comparison] Resolved chunk element', {
-      found: !!anchorEl,
-      chunkId: anchorEl?.dataset?.lfChunk,
-      elementType: anchorEl?.dataset?.lfType,
-      tagName: anchorEl?.tagName
-    });
-
-    if (!anchorEl?.dataset?.lfChunk) {
-      debugLog('comparison', 'summary', '[Comparison] No valid chunk found');
-      showNotification?.('Select a single paragraph to compare.', 'info');
+    if (!selectedText) {
+      showNotification?.('Select text to compare.', 'info');
       return;
     }
 
-    const chunkId = anchorEl.dataset.lfChunk;
-    const translationText = findTokenText(translationTokensRef.current, chunkId) ?? anchorEl.innerText;
-    debugLog('comparison', 'summary', '[Comparison] Extracted translation text', {
-      chunkId,
-      textLength: translationText?.length,
-      textPreview: translationText?.slice(0, 50) + (translationText && translationText.length > 50 ? '...' : ''),
-      source: findTokenText(translationTokensRef.current, chunkId) ? 'token' : 'innerText'
-    });
+    const anchorElement = resolveChunkElement(selectionRange?.anchorNode ?? null);
+    let insertionTarget: HTMLElement | null = null;
+    if (anchorElement) {
+      insertionTarget = anchorElement.closest('[data-lf-type="text"]') as HTMLElement | null ?? anchorElement;
+    } else if (selectionRange?.anchorNode instanceof HTMLElement) {
+      insertionTarget = selectionRange.anchorNode;
+    }
+    const parentElement = insertionTarget?.parentElement ?? contentRef.current;
 
-    if (!translationText) {
-      debugLog('comparison', 'summary', '[Comparison] Failed to extract translation text');
-      showNotification?.('Unable to read selected translation text.', 'error');
+    if (!parentElement) {
+      showNotification?.('Unable to place comparison card in the document.', 'warning');
       return;
     }
 
-    const versionId = translationVersionId;
-    if (!versionId) {
-      debugLog('comparison', 'summary', '[Comparison] No version ID available');
-      showNotification?.('Comparison requires a persisted translation version.', 'warning');
+    if (comparisonPortalRef.current && comparisonPortalRef.current.parentNode) {
+      comparisonPortalRef.current.parentNode.removeChild(comparisonPortalRef.current);
+    }
+
+    const marker = document.createElement('div');
+    marker.className = 'lf-comparison-card-container mt-4';
+    if (insertionTarget && insertionTarget.nextSibling) {
+      parentElement.insertBefore(marker, insertionTarget.nextSibling);
+    } else {
+      parentElement.appendChild(marker);
+    }
+    comparisonPortalRef.current = marker;
+    setComparisonPortalNode(marker);
+    setComparisonExpanded(true);
+    setShowRawComparison(false);
+
+    const fanFullText = fanTranslation ?? '';
+    if (!fanFullText.trim()) {
+      showNotification?.('Fan translation unavailable for this chapter.', 'info');
       return;
     }
 
-    debugLog('comparison', 'summary', '[Comparison] Setting comparison chunk (initial)', { chunkId });
-    setComparisonChunk({ chunkId, translationText, matches: [] });
+    setComparisonLoading(true);
     setComparisonError(null);
-
-    let alignment = comparisonAlignment;
-    debugLog('comparison', 'summary', '[Comparison] Checking alignment availability', {
-      hasExistingAlignment: !!alignment,
-      existingVersionId: alignment?.versionId,
-      currentVersionId: versionId,
-      needsNewAlignment: !alignment || alignment.versionId !== versionId
+    setComparisonChunk({
+      selection: selectedText,
+      fanExcerpt: '',
+      fanContextBefore: null,
+      fanContextAfter: null,
+      rawExcerpt: null,
+      rawContextBefore: null,
+      rawContextAfter: null,
+      confidence: undefined,
     });
 
-    if (!alignment || alignment.versionId !== versionId) {
-      if (fanTextChunks.length === 0) {
-        debugLog('comparison', 'summary', '[Comparison] No fan text chunks available');
-        showNotification?.('Fan translation unavailable for this chapter.', 'info');
-        setComparisonChunk(null);
-        return;
-      }
-      debugLog('comparison', 'summary', '[Comparison] Starting alignment computation', {
-        fanChunkCount: fanTextChunks.length,
-        translationChunkCount: translationTextChunks.length
+    try {
+      const response = await ComparisonService.requestFocusedComparison({
+        chapterId: currentChapterId,
+        selectedTranslation: selectedText,
+        fullTranslation: translationResult.translation ?? '',
+        fullFanTranslation: fanFullText,
+        fullRawText: chapter?.content ?? '',
+        settings,
       });
-      setComparisonLoading(true);
-      try {
-        debugLog('comparison', 'summary', '[Comparison] Checking cache for alignment');
-        alignment = await ComparisonService.getAlignmentCached(currentChapterId, versionId);
-        if (!alignment) {
-          debugLog('comparison', 'summary', '[Comparison] No cached alignment, requesting new alignment from API');
-          alignment = await ComparisonService.requestAlignment(
-            translationTextChunks,
-            fanTextChunks,
-            currentChapterId,
-            versionId,
-            settings
-          );
-          debugLog('comparison', 'summary', '[Comparison] Received alignment from API', {
-            entryCount: alignment.entries.length
-          });
-          const snapshot = {
-            provider: settings.provider,
-            model: settings.model,
-            temperature: settings.temperature,
-            systemPrompt: settings.systemPrompt,
-            promptId: activePromptTemplate?.id,
-            promptName: activePromptTemplate?.name,
-          };
-          try {
-            await TranslationPersistenceService.persistUpdatedTranslation(
-              currentChapterId,
-              { ...translationResult, fanAlignment: alignment } as any,
-              snapshot
-            );
-            useAppStore.getState().updateChapter(currentChapterId, {
-              translationResult: { ...translationResult, fanAlignment: alignment } as any,
-              translationSettingsSnapshot: snapshot,
-            });
-          } catch (persistError) {
-            debugLog('comparison', 'summary', '[Comparison] Failed to persist alignment', persistError);
-            console.warn('[Comparison] Failed to persist alignment', persistError);
-          }
-        } else {
-          debugLog('comparison', 'summary', '[Comparison] Using cached alignment', {
-            entryCount: alignment.entries.length
-          });
-        }
-        setComparisonAlignment(alignment);
-      } catch (error) {
-        debugLog('comparison', 'summary', '[Comparison] Failed to compute alignment', error);
-        console.warn('[Comparison] Failed to compute alignment', error);
-        setComparisonError('Comparison failed. Check console for details.');
-        setComparisonLoading(false);
-        return;
-      }
+
+      setComparisonChunk({
+        selection: selectedText,
+        fanExcerpt: response.fanExcerpt ?? '',
+        fanContextBefore: response.fanContextBefore ?? null,
+        fanContextAfter: response.fanContextAfter ?? null,
+        rawExcerpt: response.rawExcerpt ?? null,
+        rawContextBefore: response.rawContextBefore ?? null,
+        rawContextAfter: response.rawContextAfter ?? null,
+        confidence: response.confidence,
+      });
+      setShowRawComparison(false);
+    } catch (error) {
+      console.warn('[Comparison] Focused comparison failed', error);
+      setComparisonChunk((prev) =>
+        prev
+          ? {
+              ...prev,
+              fanExcerpt: '',
+              fanContextBefore: null,
+              fanContextAfter: null,
+              rawExcerpt: null,
+              rawContextBefore: null,
+              rawContextAfter: null,
+            }
+          : prev
+      );
+      const message = 'Comparison failed. Check console for details.';
+      setComparisonError(message);
+      showNotification?.(message, 'error');
+    } finally {
       setComparisonLoading(false);
     }
-
-    debugLog('comparison', 'summary', '[Comparison] Finding matches for chunk', {
-      chunkId,
-      totalEntries: alignment?.entries.length
-    });
-    const entry = alignment?.entries.find((e) => e.translationChunkId === chunkId);
-    debugLog('comparison', 'summary', '[Comparison] Match result', {
-      found: !!entry,
-      matchCount: entry?.matches?.length ?? 0
-    });
-    setComparisonChunk({
-      chunkId,
-      translationText,
-      matches: entry?.matches ?? [],
-    });
+    clearSelection();
   }, [
-    canCompare,
-    translationResult,
-    currentChapterId,
     comparisonLoading,
+    canCompare,
+    translationResult?.translation,
+    currentChapterId,
+    fanTranslation,
+    chapter?.content,
+    settings,
     resolveChunkElement,
     showNotification,
-    translationVersionId,
-    comparisonAlignment,
-    fanTextChunks,
-    translationTextChunks,
-    settings.provider,
-    settings.model,
-    settings.temperature,
-    settings.systemPrompt,
-    activePromptTemplate?.id,
-    activePromptTemplate?.name,
+    selection,
+    clearSelection,
   ]);
 
   const saveInlineEdit = useCallback(async () => {
@@ -1327,44 +1272,6 @@ const ChapterView: React.FC = () => {
 
       <div className="min-h-[400px]">
         {renderContent()}
-        {viewMode === 'english' && comparisonChunk && (
-          <div className="mt-6 p-4 border border-teal-500/60 dark:border-teal-400/40 rounded-lg bg-teal-50 dark:bg-teal-900/20">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-teal-700 dark:text-teal-300">
-                Corresponding fan translation
-              </h3>
-              <button
-                className="text-xs text-teal-600 dark:text-teal-300 hover:underline"
-                onClick={() => setComparisonChunk(null)}
-              >
-                Close
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">
-              {comparisonChunk.translationText}
-            </p>
-            {comparisonLoading && (
-              <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">Loading comparison…</p>
-            )}
-            {comparisonError && (
-              <p className="mt-3 text-xs text-red-500">{comparisonError}</p>
-            )}
-            {!comparisonLoading && !comparisonError && (
-              <div className="mt-3 space-y-2">
-                {comparisonChunk.matches.length === 0 ? (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">No match found.</p>
-                ) : (
-                  comparisonChunk.matches.map((match) => (
-                    <div key={match.fanChunkId} className="text-sm text-gray-700 dark:text-gray-200">
-                      <p>{match.fanText}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Confidence {(match.confidence * 100).toFixed(0)}%</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-        )}
         {viewMode === 'english' && renderFootnotes(translationResult?.footnotes)}
         {viewMode === 'english' && feedbackForChapter.length > 0 && (
             <div className="mt-8">
@@ -1414,6 +1321,113 @@ const ChapterView: React.FC = () => {
           canCompare={canCompare}
           isComparing={comparisonLoading}
         />
+      )}
+
+      {viewMode === 'english' && comparisonChunk && comparisonPortalNode && createPortal(
+        comparisonExpanded ? (
+          <div className="mt-4 rounded-xl border border-teal-500/60 dark:border-teal-400/40 bg-teal-100/70 dark:bg-teal-900/50 shadow-lg px-4 py-3 space-y-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-teal-700 dark:text-teal-300">
+                  Comparison with fan translation
+                </h3>
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  Selected:&nbsp;
+                  <span className="font-medium text-gray-800 dark:text-gray-100">{comparisonChunk.selection}</span>
+                </p>
+                {typeof comparisonChunk.confidence === 'number' && !Number.isNaN(comparisonChunk.confidence) && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Confidence {(Math.max(0, Math.min(1, comparisonChunk.confidence)) * 100).toFixed(0)}%
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {comparisonChunk.rawExcerpt && (
+                  <button
+                    onClick={() => setShowRawComparison((prev) => !prev)}
+                    className="flex items-center gap-1 text-xs px-3 py-1 rounded bg-amber-200 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200 hover:bg-amber-300 dark:hover:bg-amber-900/60 transition"
+                    title={showRawComparison ? 'Show fan translation' : 'Show raw text'}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-4 h-4"
+                    >
+                      <path d="M12 4a1 1 0 011 1v1.079A6.001 6.001 0 0118 12a1 1 0 11-2 0 4 4 0 10-4 4 1 1 0 010 2 6 6 0 01-5.917-5H4a1 1 0 110-2h2.083A6 6 0 0112 4zm7 8a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1zm-7 7a1 1 0 011-1h.917A6.001 6.001 0 0118 12a1 1 0 112 0 8 8 0 01-7.083 7.917V20a1 1 0 01-2 0v-1a7.963 7.963 0 01-3.535-.917A1 1 0 018.5 16.5a1 1 0 011.366.366A6 6 0 0011 19a1 1 0 011 1z" />
+                    </svg>
+                    <span>{showRawComparison ? 'Fan translation' : 'Raw text'}</span>
+                  </button>
+                )}
+                <button
+                  className="text-xs text-teal-600 dark:text-teal-300 hover:underline"
+                  onClick={() => setComparisonExpanded(false)}
+                >
+                  Collapse
+                </button>
+                <button
+                  className="text-xs text-red-500 dark:text-red-400 hover:underline"
+                  onClick={() => setComparisonChunk(null)}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+            {comparisonLoading && (
+              <p className="text-xs text-gray-500 dark:text-gray-300">Loading comparison…</p>
+            )}
+            {comparisonError && (
+              <p className="text-xs text-red-600 dark:text-red-400">{comparisonError}</p>
+            )}
+            {!comparisonLoading && !comparisonError && (
+              <div className="space-y-3 text-sm">
+                {(() => {
+                  const before = showRawComparison
+                    ? comparisonChunk.rawContextBefore ?? comparisonChunk.fanContextBefore
+                    : comparisonChunk.fanContextBefore;
+                  return before ? (
+                    <p className="text-gray-600 dark:text-gray-400">{before}</p>
+                  ) : null;
+                })()}
+                <div
+                  className={`rounded-lg px-3 py-2 ${
+                    showRawComparison
+                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100'
+                      : 'bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-100'
+                  }`}
+                >
+                  {showRawComparison
+                    ? comparisonChunk.rawExcerpt || 'Raw excerpt unavailable.'
+                    : comparisonChunk.fanExcerpt || 'Fan excerpt unavailable.'}
+                </div>
+                {(() => {
+                  const after = showRawComparison
+                    ? comparisonChunk.rawContextAfter ?? comparisonChunk.fanContextAfter
+                    : comparisonChunk.fanContextAfter;
+                  return after ? (
+                    <p className="text-gray-600 dark:text-gray-400">{after}</p>
+                  ) : null;
+                })()}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mt-4 flex items-center gap-3 rounded-full bg-teal-100/70 dark:bg-teal-900/40 px-3 py-2">
+            <button
+              className="text-xs font-medium text-teal-700 dark:text-teal-200 hover:underline"
+              onClick={() => setComparisonExpanded(true)}
+            >
+              Show fan comparison
+            </button>
+            <button
+              className="text-xs text-gray-500 dark:text-gray-400 hover:underline"
+              onClick={() => setComparisonChunk(null)}
+            >
+              Dismiss
+            </button>
+          </div>
+        ),
+        comparisonPortalNode
       )}
 
       {chapter && (

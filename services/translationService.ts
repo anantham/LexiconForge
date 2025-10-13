@@ -154,7 +154,6 @@ export class TranslationService {
         if (storedRecord?.id) {
           (result as any).id = storedRecord.id;
           (result as any).customVersionLabel = storedRecord.customVersionLabel;
-          (result as any).fanAlignment = storedRecord.fanAlignment;
         }
       } catch (e) {
         console.warn('[TranslationService] Failed to persist translation version', e);

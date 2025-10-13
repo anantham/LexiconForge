@@ -1,3 +1,15 @@
+2025-10-13 14:12 UTC - Switch comparison flow to contextual excerpts
+- Files modified: config/prompts.json:38-74, services/comparisonService.ts:1-177, components/ChapterView.tsx:1-1390, services/translationService.ts:133-150, services/navigationService.ts:26-95, services/indexeddb.ts:17-110, types.ts:124-142
+- Purpose: Replace chunk-based alignment caching with a focused compare API that returns fan translation context + raw snippet, simplifying the UI and avoiding brittle chunk maps.
+- Notes: Added markdown-fence stripping in the service, removed all `fanAlignment` plumbing, reworked the comparison UI into an inline collapsible card with raw/fan toggle, and left a persistent reopen affordance instead of a transient overlay.
+- Tests: Not run (API + UI wiring change)
+
+2025-10-13 13:24 UTC - Restore translation metadata during hydration
+- Files modified: services/navigationService.ts:26-85, services/navigationService.ts:154-176, services/navigationService.ts:520-572
+- Purpose: Ensure chapters loaded from IndexedDB keep their translation IDs/versions so comparison and versioned workflows can identify the active translation. Adds a helper to adapt `TranslationRecord` → `translationResult` while preserving metadata and providing a deterministic fallback ID if legacy data lacks one.
+- Notes: Console warns when relying on the fallback key, signaling legacy records that still need persistence repair.
+- Tests: Not run (logic wiring only)
+
 2025-10-13 12:19 UTC - Quiet ChapterView footnote diagnostics
 - Files modified: components/ChapterView.tsx:129-137, components/ChapterView.tsx:865-872
 - Purpose: Commented noisy footnote tokenization/render logs to keep the console readable during normal navigation while preserving the code for future diagnostics.
