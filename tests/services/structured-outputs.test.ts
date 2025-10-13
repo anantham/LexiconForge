@@ -6,7 +6,7 @@ const openaiResponseSchema = {
     "properties": {
         "translatedTitle": {
             "type": "string",
-            "description": "The translated chapter title."
+            "description": "Return a single-line English chapter title that keeps original numbering or structural cues (e.g., 'Chapter 147') and then adds an evocative subtitle separated by an em dash. Avoid trailing punctuation; make it vivid and specific to this chapter."
         },
         "translation": {
             "type": "string", 

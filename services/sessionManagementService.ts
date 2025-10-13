@@ -11,7 +11,7 @@
 
 import { indexedDBService } from './indexeddb';
 import { getRepoForService } from './db/index';
-import { INITIAL_SYSTEM_PROMPT } from '../constants';
+import { INITIAL_SYSTEM_PROMPT } from '../config/constants';
 import type { AppSettings, PromptTemplate } from '../types';
 import appConfig from '../config/app.json';
 
@@ -27,10 +27,10 @@ export const defaultSettings: AppSettings = {
   systemPrompt: INITIAL_SYSTEM_PROMPT,
   // Localization
   targetLanguage: 'English',
-  provider: 'Gemini',
-  model: 'gemini-2.5-flash',
-  imageModel: 'imagen-3.0-generate-001',
-  temperature: 0.3,
+  provider: (appConfig.defaultModels?.provider as any) || 'Gemini',
+  model: appConfig.defaultModels?.textModel || 'gemini-2.5-flash',
+  imageModel: appConfig.defaultModels?.imageModel || 'imagen-3.0-generate-001',
+  temperature: appConfig.aiParameters.defaults.temperature,
   apiKeyGemini: '',
   apiKeyOpenAI: '',
   apiKeyDeepSeek: '',

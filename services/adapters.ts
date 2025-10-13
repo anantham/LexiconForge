@@ -1,5 +1,5 @@
 import { Chapter } from '../types';
-import { SUPPORTED_WEBSITES } from '../constants';
+import { SUPPORTED_WEBSITES } from '../config/constants';
 
 // --- ADAPTERS ---
 

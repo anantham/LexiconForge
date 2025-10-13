@@ -12,7 +12,7 @@ const openaiResponseSchema = {
     "properties": {
         "translatedTitle": {
             "type": "string",
-            "description": "The translated chapter title."
+            "description": "" + prompts.translatedTitleDescription
         },
         "translation": { "type": "string", "description": "" + prompts.translationHtmlRules },
         "footnotes": {
@@ -255,7 +255,8 @@ ${schemaString}`;
     const fanTranslationContext = buildFanTranslationContext(fanTranslation);
     const preface = prompts.translatePrefix + 
       (fanTranslation ? prompts.translateFanSuffix : '') + 
-      prompts.translateInstruction;
+      prompts.translateInstruction +
+      prompts.translateTitleGuidance;
     
     const finalUserContent = `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
     messages.push({ role: 'user', content: finalUserContent });

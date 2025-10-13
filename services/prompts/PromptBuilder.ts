@@ -89,6 +89,7 @@ export class PromptBuilder {
       userPrompt += prompts.translateFanSuffix;
     }
     userPrompt += prompts.translateInstruction;
+    userPrompt += prompts.translateTitleGuidance;
     userPrompt += '\n\n';
 
     // Add the content to translate

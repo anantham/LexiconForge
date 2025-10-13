@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../store';
-import { SUPPORTED_WEBSITES_CONFIG } from '../constants';
+import { SUPPORTED_WEBSITES_CONFIG } from '../config/constants';
 
 const InputBar: React.FC = () => {
   const [url, setUrl] = useState('');

@@ -112,7 +112,8 @@ export class GeminiAdapter implements TranslationProvider {
     const fanTranslationContext = buildFanTranslationContext(fanTranslation);
     const preface = prompts.translatePrefix + 
       (fanTranslation ? prompts.translateFanSuffix : '') + 
-      prompts.translateInstruction;
+      prompts.translateInstruction +
+      prompts.translateTitleGuidance;
 
     fullPrompt += `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n`;
     fullPrompt += `${prompts.translateTitleLabel}\n${title}\n\n`;

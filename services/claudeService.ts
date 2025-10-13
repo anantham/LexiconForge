@@ -78,7 +78,7 @@ export const translateWithClaude = async (
     const fanTranslationContext = buildFanTranslationContext(fanTranslation);
     
     // Create comprehensive prompt with schema description
-    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
+    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction + prompts.translateTitleGuidance;
     const sys = (settings.systemPrompt || '')
       .replaceAll('{{targetLanguage}}', settings.targetLanguage || 'English')
       .replaceAll('{{targetLanguageVariant}}', settings.targetLanguage || 'English');
@@ -86,7 +86,7 @@ export const translateWithClaude = async (
 
 IMPORTANT: You must respond with valid JSON in exactly this format. Ensure all special characters (apostrophes, quotes, backslashes, newlines) are properly escaped in JSON strings:
 {
-  "translatedTitle": "The translated chapter title",
+  "translatedTitle": "${prompts.translatedTitleDescription.replace(/\"/g, '\\"')}",
   "translation": "Full translated chapter content using HTML formatting (<i>italics</i>, <b>bold</b> - never markdown). MUST include numbered markers [1], [2], [3] in the text for any footnotes. MUST include placement markers [ILLUSTRATION-1], [ILLUSTRATION-2], etc. in the text for any visual scenes you want illustrated. Every marker in this text must have a corresponding entry in the respective arrays below.",
   "footnotes": [
     {

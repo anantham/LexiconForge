@@ -9,6 +9,7 @@ vi.mock('../../../config/prompts.json', () => ({
     translatePrefix: 'Translate the following text:',
     translateFanSuffix: ' (Note: A fan translation is provided for reference)',
     translateInstruction: ' Maintain style and tone.',
+    translateTitleGuidance: ' Craft an evocative title.',
     translateTitleLabel: 'TITLE:',
     translateContentLabel: 'CONTENT:'
   }

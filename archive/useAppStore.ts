@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, PromptTemplate } from '../types';
-import { INITIAL_SYSTEM_PROMPT, SUPPORTED_WEBSITES } from '../constants';
+import { INITIAL_SYSTEM_PROMPT, SUPPORTED_WEBSITES } from '../config/constants';
 import { translateChapter, validateApiKey } from '../services/aiService';
 import { generateImage } from '../services/imageService';
 import { fetchAndParseUrl } from '../services/adapters';

@@ -2,10 +2,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { AppSettings, TranslationProvider } from '../types';
 import { useAppStore } from '../store';
-import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
+import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../config/constants';
 import appConfig from '../config/app.json';
 import { getDefaultTemplate } from '../services/epubService';
-import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../costs';
+import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../config/costs';
 import { supportsStructuredOutputs, supportsParameters } from '../services/capabilityService';
 import { useShallow } from 'zustand/react/shallow';
 import { formatBytes } from '../services/audio/storage/utils';
@@ -855,7 +855,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     onChange={(e) => handleSettingChange('imageModel', e.target.value)}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   >
-                    <option value="None">None (Disable Illustrations) — $0.000/image</option>
+                    <option value="none">None (Disable Illustrations) — $0.000/image</option>
                     {pricedImageModels.map(m => (
                       <option key={m.id} value={m.id}>{m.label}</option>
                     ))}

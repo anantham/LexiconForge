@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppStore } from '../store';
-import { MODEL_ABBREVIATIONS } from '../constants';
+import { MODEL_ABBREVIATIONS } from '../config/constants';
 import SettingsIcon from './icons/SettingsIcon';
 import TrashIcon from './icons/TrashIcon';
 

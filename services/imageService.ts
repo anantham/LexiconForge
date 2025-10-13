@@ -17,7 +17,7 @@ const imgDebugFullEnabled = (): boolean => {
 const ilog = (...args: any[]) => { if (imgDebugEnabled()) console.log(...args); };
 const iwarn = (...args: any[]) => { if (imgDebugEnabled()) console.warn(...args); };
 const ierror = (...args: any[]) => { console.error(...args); };
-import { IMAGE_COSTS } from '../costs';
+import { IMAGE_COSTS } from '../config/costs';
 
 // --- CONSTANTS ---
 // Using a cutting-edge model known for high-quality image generation.

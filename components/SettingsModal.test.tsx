@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import SettingsModal from './SettingsModal';
 import { AppSettings } from '../types';
-import { INITIAL_SYSTEM_PROMPT } from '../constants';
+import { INITIAL_SYSTEM_PROMPT } from '../config/constants';
 import type { ProviderCreditSummary } from '../services/providerCreditCacheService';
 
 const createStoreState = () => ({

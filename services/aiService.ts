@@ -6,7 +6,7 @@ import { openrouterService } from './openrouterService';
 import { supportsStructuredOutputs, supportsParameters } from './capabilityService';
 import { rateLimitService } from './rateLimitService';
 import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
-import { COSTS_PER_MILLION_TOKENS } from '../costs';
+import { COSTS_PER_MILLION_TOKENS } from '../config/costs';
 import appConfig from '../config/app.json';
 
 // Parameter validation using config limits
@@ -72,7 +72,25 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
       hasSettingsKey: !!settings[`apiKey${settings.provider}` as keyof typeof settings],
       hasEnvKey: !!process.env[`${settings.provider.toUpperCase()}_API_KEY`]
     });
-    return { isValid: false, errorMessage: `${providerName} API key is missing. Add it in settings or .env file.` };
+
+    // Provider-specific help messages with links
+    let helpMessage = '';
+    if (settings.provider === 'OpenRouter') {
+      helpMessage = '\n\nGet your API key at: https://openrouter.ai/keys\nOr request free credits at: https://t.me/webnovels';
+    } else if (settings.provider === 'Gemini') {
+      helpMessage = '\n\nGet your API key at: https://aistudio.google.com/app/apikey';
+    } else if (settings.provider === 'OpenAI') {
+      helpMessage = '\n\nGet your API key at: https://platform.openai.com/api-keys';
+    } else if (settings.provider === 'DeepSeek') {
+      helpMessage = '\n\nGet your API key at: https://platform.deepseek.com/api_keys';
+    } else if (settings.provider === 'Claude') {
+      helpMessage = '\n\nGet your API key at: https://console.anthropic.com/settings/keys';
+    }
+
+    return {
+      isValid: false,
+      errorMessage: `${providerName} API key is missing. Add it in settings or .env file.${helpMessage}`
+    };
   }
 
   return { isValid: true };
@@ -373,7 +391,7 @@ const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefin
 const geminiResponseSchema = {
     type: Type.OBJECT,
     properties: {
-        translatedTitle: { type: Type.STRING, description: "The translated chapter title." },
+        translatedTitle: { type: Type.STRING, description: prompts.translatedTitleDescription },
         translation: { type: Type.STRING, description: prompts.translationHtmlRules },
         footnotes: {
           type: Type.ARRAY, nullable: true, description: prompts.footnotesDescription,
@@ -406,7 +424,7 @@ const translateWithGemini = async (title: string, content: string, settings: App
   const ai = new GoogleGenAI({ apiKey });
   const historyPrompt = formatHistory(history);
   const fanTranslationContext = buildFanTranslationContext(fanTranslation);
-  const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
+  const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction + prompts.translateTitleGuidance;
   const fullPrompt = `${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
 
   // Debug: what we're sending (sanitized)
@@ -705,7 +723,7 @@ const openaiResponseSchema = {
     "properties": {
         "translatedTitle": {
             "type": "string",
-            "description": "The translated chapter title."
+            "description": "" + prompts.translatedTitleDescription
         },
         "translation": { "type": "string", "description": "" + prompts.translationHtmlRules },
         "footnotes": {
@@ -858,7 +876,7 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     }
 
     const fanTranslationContext = buildFanTranslationContext(fanTranslation);
-    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction;
+    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction + prompts.translateTitleGuidance;
     const finalUserContent = `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
     messages.push({ role: 'user', content: finalUserContent });
 

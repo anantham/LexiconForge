@@ -107,7 +107,7 @@ export class ImageGenerationService {
     const chapter = chapters.get(chapterId);
     const translationResult = chapter?.translationResult;
 
-    if (settings.imageModel === 'None') {
+    if (!settings.imageModel || settings.imageModel.toLowerCase() === 'none') {
       slog('[ImageGen] Image generation is disabled in settings.');
       return { generatedImages: {} };
     }
