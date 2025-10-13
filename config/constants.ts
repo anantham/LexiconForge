@@ -1,5 +1,5 @@
 
-import prompts from './config/prompts.json';
+import prompts from './prompts.json';
 export const INITIAL_SYSTEM_PROMPT = prompts.systemPrompt;
 
 // Available AI models by provider

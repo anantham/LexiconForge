@@ -1,5 +1,5 @@
 
-import { ModelInfo } from './types';
+import { ModelInfo } from '../types';
 
 export const MODELS: ModelInfo[] = [
     // Gemini Models - Latest generation first
