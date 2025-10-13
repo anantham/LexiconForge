@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IndexedDB Inspector</title>
+  <style>
+    body {
+      font-family: 'Monaco', 'Courier New', monospace;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    h1, h2 { color: #4ec9b0; }
+    .stats-box {
+      background: #252526;
+      border: 1px solid #3e3e42;
+      border-radius: 4px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+    th {
+      background: #2d2d30;
+      padding: 10px;
+      text-align: left;
+      border-bottom: 2px solid #3e3e42;
+      color: #4ec9b0;
+    }
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #3e3e42;
+    }
+    tr:hover { background: #2d2d30; }
+    .number { text-align: right; }
+    .checkmark { color: #4ec9b0; }
+    button {
+      background: #0e639c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: #1177bb; }
+    .loading { color: #ce9178; }
+    pre {
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 IndexedDB Inspector</h1>
+  <button onclick="loadStats()">Refresh Statistics</button>
+
+  <div id="loading" class="loading" style="display: none;">Loading...</div>
+  <div id="results"></div>
+
+  <script>
+    const DB_NAME = 'LexiconForgeDB';
+    const DB_VERSION = 9;
+
+    async function loadStats() {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results').innerHTML = '';
+
+      try {
+        const db = await openDB();
+        const data = await collectData(db);
+        db.close();
+
+        displayResults(data);
+      } catch (error) {
+        document.getElementById('results').innerHTML = `<div class="stats-box"><h2>❌ Error</h2><pre>${error.message}</pre></div>`;
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+      });
+    }
+
+    async function collectData(db) {
+      const tx = db.transaction(
+        ['chapters', 'translations', 'generatedImages', 'audioFiles'],
+        'readonly'
+      );
+
+      // Get all data
+      const chapters = await getAll(tx.objectStore('chapters'));
+      const translations = await getAll(tx.objectStore('translations'));
+      const images = await getAll(tx.objectStore('generatedImages'));
+      const audioFiles = await getAll(tx.objectStore('audioFiles'));
+
+      // Build chapter stats
+      const chapterStats = chapters.map(ch => {
+        const chapterTranslations = translations.filter(t => t.stableId === ch.stableId);
+        const activeTranslation = chapterTranslations.find(t => t.isActive);
+        const chapterImages = images.filter(img => img.chapterId === ch.stableId);
+        const chapterAudio = audioFiles.filter(a => a.chapterId === ch.stableId);
+
+        return {
+          stableId: ch.stableId,
+          number: ch.chapterNumber || 0,
+          title: ch.title || 'Untitled',
+          translations: chapterTranslations.length,
+          hasActive: !!activeTranslation,
+          footnotes: activeTranslation?.footnotes?.length || 0,
+          illustrations: activeTranslation?.suggestedIllustrations?.length || 0,
+          images: chapterImages.length,
+          imageSize: chapterImages.reduce((sum, img) => sum + (img.imageData?.length || 0), 0),
+          audio: chapterAudio.length,
+          audioSize: chapterAudio.reduce((sum, a) => sum + (a.audioData?.length || 0), 0),
+        };
+      });
+
+      chapterStats.sort((a, b) => (a.number || 0) - (b.number || 0));
+
+      // Totals
+      const totals = {
+        chapters: chapters.length,
+        translations: translations.length,
+        activeTranslations: translations.filter(t => t.isActive).length,
+        images: images.length,
+        totalImageSize: images.reduce((sum, img) => sum + (img.imageData?.length || 0), 0),
+        audio: audioFiles.length,
+        totalAudioSize: audioFiles.reduce((sum, a) => sum + (a.audioData?.length || 0), 0),
+        totalFootnotes: translations.reduce((sum, t) => sum + (t.footnotes?.length || 0), 0),
+        totalIllustrations: translations.reduce((sum, t) => sum + (t.suggestedIllustrations?.length || 0), 0),
+      };
+
+      return { chapterStats, totals };
+    }
+
+    function getAll(store) {
+      return new Promise((resolve) => {
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function displayResults(data) {
+      const { chapterStats, totals } = data;
+
+      let html = `
+        <div class="stats-box">
+          <h2>📈 Database Overview</h2>
+          <table>
+            <tr><td>Chapters</td><td class="number">${totals.chapters}</td></tr>
+            <tr><td>Translations</td><td class="number">${totals.translations} (${totals.activeTranslations} active)</td></tr>
+            <tr><td>Footnotes</td><td class="number">${totals.totalFootnotes}</td></tr>
+            <tr><td>Illustrations</td><td class="number">${totals.totalIllustrations}</td></tr>
+            <tr><td>Generated Images</td><td class="number">${totals.images} (${formatBytes(totals.totalImageSize)})</td></tr>
+            <tr><td>Audio Files</td><td class="number">${totals.audio} (${formatBytes(totals.totalAudioSize)})</td></tr>
+          </table>
+        </div>
+
+        <div class="stats-box">
+          <h2>📚 Chapter Details</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Versions</th>
+                <th>Active</th>
+                <th>Footnotes</th>
+                <th>Illustrations</th>
+                <th>Images</th>
+                <th>Image Size</th>
+                <th>Audio</th>
+                <th>Audio Size</th>
+                <th>Title</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      chapterStats.forEach(ch => {
+        html += `
+          <tr>
+            <td class="number">${ch.number}</td>
+            <td class="number">${ch.translations}</td>
+            <td>${ch.hasActive ? '<span class="checkmark">✓</span>' : ''}</td>
+            <td class="number">${ch.footnotes}</td>
+            <td class="number">${ch.illustrations}</td>
+            <td class="number">${ch.images}</td>
+            <td class="number">${formatBytes(ch.imageSize)}</td>
+            <td class="number">${ch.audio}</td>
+            <td class="number">${formatBytes(ch.audioSize)}</td>
+            <td>${ch.title}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+
+        <div class="stats-box">
+          <h2>📊 Summary Statistics</h2>
+          <table>
+            <tr>
+              <td>Chapters with translations</td>
+              <td class="number">${chapterStats.filter(ch => ch.translations > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.translations > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
+            </tr>
+            <tr>
+              <td>Chapters with footnotes</td>
+              <td class="number">${chapterStats.filter(ch => ch.footnotes > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.footnotes > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
+            </tr>
+            <tr>
+              <td>Chapters with illustrations</td>
+              <td class="number">${chapterStats.filter(ch => ch.illustrations > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.illustrations > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
+            </tr>
+            <tr>
+              <td>Chapters with images</td>
+              <td class="number">${chapterStats.filter(ch => ch.images > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.images > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
+            </tr>
+            <tr>
+              <td>Average footnotes/chapter</td>
+              <td class="number">${(totals.totalFootnotes/totals.chapters).toFixed(1)}</td>
+            </tr>
+            <tr>
+              <td>Average illustrations/chapter</td>
+              <td class="number">${(totals.totalIllustrations/totals.chapters).toFixed(1)}</td>
+            </tr>
+            <tr>
+              <td>Average images/chapter</td>
+              <td class="number">${(totals.images/totals.chapters).toFixed(1)}</td>
+            </tr>
+            <tr>
+              <td>Average image size</td>
+              <td class="number">${totals.images > 0 ? formatBytes(totals.totalImageSize/totals.images) : '0 B'}</td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('results').innerHTML = html;
+    }
+
+    // Auto-load on page load
+    window.addEventListener('DOMContentLoaded', loadStats);
+  </script>
+</body>
+</html>
