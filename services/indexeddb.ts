@@ -18,9 +18,10 @@
  */
 
 import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate, AlignmentResult } from '../types';
-import { debugPipelineEnabled } from '../utils/debug';
+import { debugPipelineEnabled, dbDebugEnabled } from '../utils/debug';
 import { generateStableChapterId } from './stableIdService';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
+import { applyMigrations, SCHEMA_VERSIONS } from './db/core/schema';
 
 const dblog = (...args: any[]) => {
   if (debugPipelineEnabled('indexeddb', 'summary')) console.log('[IndexedDB]', ...args);
@@ -31,7 +32,7 @@ const dblogFull = (...args: any[]) => {
 
 // Database configuration
 const DB_NAME = 'lexicon-forge';
-const DB_VERSION = 6; // Increment for chapter summaries support
+const DB_VERSION = SCHEMA_VERSIONS.CURRENT;
 
 // Object store names
 const STORES = {
@@ -194,12 +195,17 @@ class IndexedDBService {
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
         const oldVersion = (event as IDBVersionChangeEvent).oldVersion || 0;
+        const targetVersion = (event.target as IDBOpenDBRequest).result.version;
         // dblog(`[IndexedDB] Upgrade needed: v${oldVersion} → v${db.version}`);
         try {
           this.createSchema(db);
-          // dblog('[IndexedDB] Schema creation completed');
+          const transaction = request.transaction;
+          if (transaction) {
+            applyMigrations(db, transaction, oldVersion, targetVersion ?? DB_VERSION);
+          }
+          // dblog('[IndexedDB] Schema creation/migrations completed');
         } catch (error) {
-          console.error('[IndexedDB] Schema creation failed:', error);
+          console.error('[IndexedDB] Schema migration failed:', error);
           clearTimeout(warnTimer);
           reject(error);
         }
@@ -222,6 +228,16 @@ class IndexedDBService {
         const db = request.result;
         const elapsed = Math.round(performance.now() - startTime);
         // dblog(`[IndexedDB] Opened successfully v${db.version} in ${elapsed}ms`);
+
+        if (db.version > DB_VERSION) {
+          const message = `[IndexedDB] Database version ${db.version} is newer than runtime schema ${DB_VERSION}. Refresh the app (or clear IndexedDB) to align with the latest build.`;
+          console.error(message);
+          db.close();
+          dbInstance = null;
+          dbPromise = null;
+          reject(new Error(message));
+          return;
+        }
         
         // Handle version changes from other tabs
         db.onversionchange = () => {
@@ -260,100 +276,16 @@ class IndexedDBService {
     const existingStores = Array.from(db.objectStoreNames);
     const missingStores = requiredStores.filter(store => !existingStores.includes(store));
     
-    if (missingStores.length === 0) {
-      // Ensure critical indexes exist (translations compound unique indexes)
-      try {
-        await this.ensureTranslationIndexes(db);
-      } catch (e) {
-        console.warn('[IndexedDB] Failed to ensure translation indexes:', e);
-      }
-      try {
-        await this.ensureChapterIndexes(db);
-      } catch (e) {
-        console.warn('[IndexedDB] Failed to ensure chapter indexes:', e);
-      }
-      try {
-        await this.ensureChapterSummaries(db);
-      } catch (e) {
-        console.warn('[IndexedDB] Failed to ensure chapter summaries:', e);
-      }
-      return;
+    if (missingStores.length > 0) {
+      const message = `[IndexedDB] Schema drift detected - missing stores: ${missingStores.join(', ')}`;
+      console.error(message);
+      throw new Error(message);
     }
 
-    // console.warn('[IndexedDB] Schema drift detected - missing stores:', missingStores);
-    // console.log('[IndexedDB] Initiating auto-migration to fix schema drift');
-    
-    // Close current connection for auto-migration
-    db.close();
-    dbInstance = null;
-    dbPromise = null;
-    
-    // Open with incremented version to trigger onupgradeneeded
-    await new Promise<void>((resolve, reject) => {
-      const newVersion = db.version + 1;
-      // console.log(`[IndexedDB] Auto-migration: upgrading to v${newVersion}`);
-      
-      const request = indexedDB.open(DB_NAME, newVersion);
-      
-      request.onupgradeneeded = (event) => {
-        const upgradeDb = (event.target as IDBOpenDBRequest).result;
-        // console.log('[IndexedDB] Auto-migration: creating missing stores');
-        
-        try {
-          // Only create missing stores
-          if (missingStores.includes('url_mappings') && !upgradeDb.objectStoreNames.contains('url_mappings')) {
-            const urlStore = upgradeDb.createObjectStore('url_mappings', { keyPath: 'url' });
-            urlStore.createIndex('stableId', 'stableId');
-            urlStore.createIndex('isCanonical', 'isCanonical');
-            urlStore.createIndex('dateAdded', 'dateAdded');
-            // console.log('[IndexedDB] Auto-migration: created url_mappings store');
-          }
-          
-          if (missingStores.includes('novels') && !upgradeDb.objectStoreNames.contains('novels')) {
-            const novelStore = upgradeDb.createObjectStore('novels', { keyPath: 'id' });
-            novelStore.createIndex('source', 'source');
-            novelStore.createIndex('title', 'title');
-            novelStore.createIndex('dateAdded', 'dateAdded');
-            novelStore.createIndex('lastAccessed', 'lastAccessed');
-            // console.log('[IndexedDB] Auto-migration: created novels store');
-          }
-          if (missingStores.includes('chapter_summaries') && !upgradeDb.objectStoreNames.contains('chapter_summaries')) {
-            const summaryStore = upgradeDb.createObjectStore('chapter_summaries', { keyPath: 'stableId' });
-            summaryStore.createIndex('chapterNumber', 'chapterNumber');
-            summaryStore.createIndex('lastAccessed', 'lastAccessed');
-            summaryStore.createIndex('hasTranslation', 'hasTranslation');
-            // console.log('[IndexedDB] Auto-migration: created chapter_summaries store');
-          }
-          // Ensure translations indexes exist (unique compound indexes)
-          if (upgradeDb.objectStoreNames.contains('translations')) {
-            const store = (upgradeDb as any).transaction.objectStore('translations');
-            const idxNames = Array.from(store.indexNames || []);
-            try { if (!idxNames.includes('chapterUrl_version')) store.createIndex('chapterUrl_version', ['chapterUrl', 'version'], { unique: true }); } catch {}
-            try { if (!idxNames.includes('stableId')) store.createIndex('stableId', 'stableId'); } catch {}
-            try { if (!idxNames.includes('stableId_version')) store.createIndex('stableId_version', ['stableId', 'version'], { unique: true }); } catch {}
-          }
-        } catch (error) {
-          console.error('[IndexedDB] Auto-migration failed:', error);
-          reject(error);
-        }
-      };
-      
-      request.onblocked = () => {
-        console.warn('[IndexedDB] Auto-migration blocked by another connection. Close other tabs.');
-      };
-      
-      request.onerror = () => {
-        console.error('[IndexedDB] Auto-migration failed:', request.error);
-        reject(request.error);
-      };
-      
-      request.onsuccess = () => {
-        const migratedDb = request.result;
-        // console.log(`[IndexedDB] Auto-migration completed successfully to v${migratedDb.version}`);
-        migratedDb.close(); // Close migration connection
-        resolve();
-      };
-    });
+    // Ensure critical indexes exist (translations compound unique indexes)
+    await this.ensureTranslationIndexes(db);
+    await this.ensureChapterIndexes(db);
+    await this.ensureChapterSummaries(db);
   }
 
   /** Ensure translations store has expected indexes; if missing, perform a lightweight upgrade. */
@@ -372,26 +304,9 @@ class IndexedDBService {
       return;
     }
 
-    await new Promise<void>((resolve, reject) => {
-      const newVersion = db.version + 1;
-      const req = indexedDB.open(DB_NAME, newVersion);
-      req.onupgradeneeded = (ev) => {
-        const udb = (ev.target as IDBOpenDBRequest).result;
-        try {
-          if (udb.objectStoreNames.contains(STORES.TRANSLATIONS)) {
-            const store = (udb as any).transaction.objectStore(STORES.TRANSLATIONS);
-            const idxNames = Array.from(store.indexNames || []);
-            try { if (!idxNames.includes('chapterUrl_version')) store.createIndex('chapterUrl_version', ['chapterUrl', 'version'], { unique: true }); } catch {}
-            try { if (!idxNames.includes('stableId')) store.createIndex('stableId', 'stableId'); } catch {}
-            try { if (!idxNames.includes('stableId_version')) store.createIndex('stableId_version', ['stableId', 'version'], { unique: true }); } catch {}
-          }
-        } catch (e) {
-          console.warn('[IndexedDB] ensureTranslationIndexes upgrade failed', e);
-        }
-      };
-      req.onsuccess = () => { req.result.close(); resolve(); };
-      req.onerror = () => reject(req.error as any);
-    });
+    const message = '[IndexedDB] Missing translation indexes (chapterUrl_version / stableId / stableId_version) after migration';
+    console.error(message);
+    throw new Error(message);
   }
 
   /**
@@ -408,28 +323,9 @@ class IndexedDBService {
       return;
     }
 
-    // Index missing - trigger migration
-    await new Promise<void>((resolve, reject) => {
-      const newVersion = db.version + 1;
-      const req = indexedDB.open(DB_NAME, newVersion);
-      req.onupgradeneeded = (ev) => {
-        const udb = (ev.target as IDBOpenDBRequest).result;
-        try {
-          if (udb.objectStoreNames.contains(STORES.CHAPTERS)) {
-            const store = (udb as any).transaction.objectStore(STORES.CHAPTERS);
-            const idxNames = Array.from(store.indexNames || []);
-            if (!idxNames.includes('chapterNumber')) {
-              store.createIndex('chapterNumber', 'chapterNumber');
-              console.log('[IndexedDB] ✅ Added chapterNumber index to chapters store');
-            }
-          }
-        } catch (e) {
-          console.warn('[IndexedDB] ensureChapterIndexes upgrade failed', e);
-        }
-      };
-      req.onsuccess = () => { req.result.close(); resolve(); };
-      req.onerror = () => reject(req.error as any);
-    });
+    const message = '[IndexedDB] Missing chapterNumber index on chapters store after migration';
+    console.error(message);
+    throw new Error(message);
   }
 
   /** Normalize stableId format (hyphen → underscore) and ensure URL mappings exist. */
@@ -552,6 +448,7 @@ class IndexedDBService {
       urlStore.createIndex('stableId', 'stableId');
       urlStore.createIndex('isCanonical', 'isCanonical');
       urlStore.createIndex('dateAdded', 'dateAdded');
+      urlStore.createIndex('novelId', 'novelId');
       // console.log('[IndexedDB] Created URL mappings store');
     }
     
@@ -1767,6 +1664,34 @@ class IndexedDBService {
       const store = tx.objectStore(STORES.CHAPTERS);
       const req = store.getAll();
       req.onsuccess = () => resolve((req.result as ChapterRecord[]) || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /**
+   * Get all translations from IndexedDB (for migration purposes)
+   */
+  async getAllTranslations(): Promise<TranslationRecord[]> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STORES.TRANSLATIONS], 'readonly');
+      const store = tx.objectStore(STORES.TRANSLATIONS);
+      const req = store.getAll();
+      req.onsuccess = () => resolve((req.result as TranslationRecord[]) || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /**
+   * Update a translation record in IndexedDB (for migration purposes)
+   */
+  async updateTranslationRecord(translation: TranslationRecord): Promise<void> {
+    const db = await this.openDatabase();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STORES.TRANSLATIONS], 'readwrite');
+      const store = tx.objectStore(STORES.TRANSLATIONS);
+      const req = store.put(translation);
+      req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });
   }

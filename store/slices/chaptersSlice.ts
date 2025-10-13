@@ -14,6 +14,8 @@ import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService'
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
 import { indexedDBService } from '../../services/indexeddb';
 import { validateApiKey } from '../../services/aiService';
+import { debugLog, debugWarn } from '../../utils/debug';
+import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
 
 export interface ChaptersState {
   // Core data
@@ -68,12 +70,35 @@ export interface ChaptersActions {
   getChapterCount: () => number;
   getNovelCount: () => number;
   getChapterStats: () => { total: number; withTranslations: number; withImages: number };
+  getMemoryDiagnostics: () => MemoryDiagnostics;
 
   // Preloading
   preloadNextChapters: () => void;
 }
 
+export interface MemoryDiagnostics {
+  totalChapters: number;
+  chaptersWithTranslations: number;
+  chaptersWithImages: number;
+  imagesInRAM: number;
+  imagesInCache: number;
+  estimatedRAM: {
+    totalBytes: number;
+    chapterContentBytes: number;
+    base64ImageBytes: number;
+    totalMB: number;
+  };
+  warnings: string[];
+}
+
 export type ChaptersSlice = ChaptersState & ChaptersActions;
+
+const recordChapterCache = (context: string, size: number, extra?: Record<string, unknown>) => {
+  memoryCacheSnapshot(context, {
+    size,
+    ...(extra || {}),
+  });
+};
 
 export const createChaptersSlice: StateCreator<
   any,
@@ -101,7 +126,7 @@ export const createChaptersSlice: StateCreator<
   
   setCurrentChapter: (chapterId) => {
     // Diagnostic timestamped set for tracing navigation/hydration races
-    console.log(`[Chapters] setCurrentChapter -> ${chapterId} @${Date.now()}`);
+    debugLog('translation', 'summary', `[Chapters] setCurrentChapter -> ${chapterId} @${Date.now()}`);
     set({ currentChapterId: chapterId });
     
     // Add to history if it's a real chapter
@@ -124,9 +149,18 @@ export const createChaptersSlice: StateCreator<
     
     if (chapter) {
       // Add to chapters map
-      set(state => ({
-        chapters: new Map(state.chapters).set(chapterId, chapter)
-      }));
+      set(state => {
+        const newChapters = new Map(state.chapters);
+        const existed = newChapters.has(chapterId);
+        newChapters.set(chapterId, chapter);
+        recordChapterCache('chapters.loadFromIDB', newChapters.size, {
+          chapterId,
+          action: existed ? 'updated' : 'added',
+        });
+        return {
+          chapters: newChapters,
+        };
+      });
     }
     
     return chapter;
@@ -135,6 +169,7 @@ export const createChaptersSlice: StateCreator<
   importChapter: (chapter) => {
     set(state => {
       const newChapters = new Map(state.chapters);
+      const existed = newChapters.has(chapter.id);
       newChapters.set(chapter.id, chapter);
       
       // Update URL mappings
@@ -153,6 +188,12 @@ export const createChaptersSlice: StateCreator<
         newRawUrlIndex.set(url, chapter.id);
       });
       
+      recordChapterCache('chapters.import', newChapters.size, {
+        chapterId: chapter.id,
+        action: existed ? 'updated' : 'added',
+        sourceCount: chapter.sourceUrls?.length || 0,
+      });
+
       return {
         chapters: newChapters,
         urlIndex: newUrlIndex,
@@ -168,6 +209,10 @@ export const createChaptersSlice: StateCreator<
       
       const newChapters = new Map(state.chapters);
       newChapters.set(chapterId, { ...chapter, ...updates });
+      recordChapterCache('chapters.update', newChapters.size, {
+        chapterId,
+        fields: Object.keys(updates || {}),
+      });
       
       return { chapters: newChapters };
     });
@@ -199,6 +244,7 @@ export const createChaptersSlice: StateCreator<
       
       // Update current chapter if it was removed
       const newCurrentChapterId = state.currentChapterId === chapterId ? null : state.currentChapterId;
+      recordChapterCache('chapters.remove', newChapters.size, { chapterId });
       
       return {
         chapters: newChapters,
@@ -402,13 +448,16 @@ export const createChaptersSlice: StateCreator<
   },
   
   clearAllChapters: () => {
-    set({
-      chapters: new Map(),
-      novels: new Map(),
-      currentChapterId: null,
-      navigationHistory: [],
-      urlIndex: new Map(),
-      rawUrlIndex: new Map()
+    set(state => {
+      recordChapterCache('chapters.clearAll', 0, { previousSize: state.chapters.size });
+      return {
+        chapters: new Map(),
+        novels: new Map(),
+        currentChapterId: null,
+        navigationHistory: [],
+        urlIndex: new Map(),
+        rawUrlIndex: new Map()
+      };
     });
   },
   
@@ -440,13 +489,85 @@ export const createChaptersSlice: StateCreator<
   
   getChapterStats: () => {
     const chapters = Array.from(get().chapters.values());
-    
+
     return {
       total: chapters.length,
       withTranslations: chapters.filter(c => !!c.translationResult).length,
-      withImages: chapters.filter(c => 
+      withImages: chapters.filter(c =>
         c.translationResult?.suggestedIllustrations?.some((ill: any) => ill.generatedImage)
       ).length
+    };
+  },
+
+  getMemoryDiagnostics: (): MemoryDiagnostics => {
+    const chapters = Array.from(get().chapters.values());
+    const warnings: string[] = [];
+
+    // Count chapters with translations and images
+    const withTranslations = chapters.filter(c => !!c.translationResult).length;
+    const withImages = chapters.filter(c =>
+      c.translationResult?.suggestedIllustrations?.some((ill: any) => ill.generatedImage)
+    ).length;
+
+    // Analyze image storage patterns
+    let imagesInRAM = 0;
+    let imagesInCache = 0;
+    let base64ImageBytes = 0;
+    let chapterContentBytes = 0;
+
+    for (const chapter of chapters) {
+      // Calculate chapter content size (rough estimate)
+      if (chapter.content) {
+        chapterContentBytes += chapter.content.length * 2; // UTF-16 = 2 bytes per char
+      }
+      if (chapter.translationResult?.translatedContent) {
+        chapterContentBytes += chapter.translationResult.translatedContent.length * 2;
+      }
+
+      // Analyze image storage
+      const illustrations = chapter.translationResult?.suggestedIllustrations || [];
+      for (const illust of illustrations) {
+        if (illust.generatedImage) {
+          // Check if using legacy base64 storage (in RAM)
+          if (illust.generatedImage.imageData && illust.generatedImage.imageData.length > 0) {
+            imagesInRAM++;
+            // Base64 is ~4/3 the size of original binary + overhead
+            base64ImageBytes += illust.generatedImage.imageData.length;
+          }
+          // Check if using modern cache key storage
+          else if (illust.generatedImage.imageCacheKey) {
+            imagesInCache++;
+          }
+        }
+      }
+    }
+
+    // Calculate total RAM estimate
+    const totalBytes = chapterContentBytes + base64ImageBytes;
+    const totalMB = totalBytes / (1024 * 1024);
+
+    // Generate warnings
+    if (chapters.length > 50) {
+      warnings.push(`⚠️ ${chapters.length} chapters loaded (recommended max: 50 chapters for optimal performance)`);
+    }
+
+    if (imagesInRAM > 0) {
+      warnings.push(`⚠️ ${imagesInRAM} image(s) using legacy base64 storage in RAM (${(base64ImageBytes / 1024 / 1024).toFixed(2)} MB). Consider running migration script.`);
+    }
+
+    return {
+      totalChapters: chapters.length,
+      chaptersWithTranslations: withTranslations,
+      chaptersWithImages: withImages,
+      imagesInRAM,
+      imagesInCache,
+      estimatedRAM: {
+        totalBytes,
+        chapterContentBytes,
+        base64ImageBytes,
+        totalMB: Number(totalMB.toFixed(2))
+      },
+      warnings
     };
   },
 
@@ -504,7 +625,7 @@ export const createChaptersSlice: StateCreator<
 
         // If still not found, try to fetch from web using current chapter's nextUrl or navigation logic
         if (!nextChapterInfo && i === 1 && currentChapter.nextUrl) {
-          console.log(`[Worker] Chapter #${targetNumber} not found locally, attempting web fetch from: ${currentChapter.nextUrl}`);
+          debugLog('worker', 'summary', `[Worker] Chapter #${targetNumber} not found locally, attempting web fetch from: ${currentChapter.nextUrl}`);
           try {
             const fetchResult = await NavigationService.handleFetch(currentChapter.nextUrl);
             if (fetchResult.chapters && fetchResult.currentChapterId) {
@@ -549,17 +670,17 @@ export const createChaptersSlice: StateCreator<
                   numberToChapterMap.set(fetchedChapter.chapterNumber, nextChapterInfo);
                 }
                 
-                console.log(`[Worker] Successfully fetched chapter #${fetchedChapter.chapterNumber || 'unknown'} for preloading`);
+                debugLog('worker', 'summary', `[Worker] Successfully fetched chapter #${fetchedChapter.chapterNumber || 'unknown'} for preloading`);
               }
             }
           } catch (error: any) {
-            console.warn(`[Worker] Failed to fetch next chapter from ${currentChapter.nextUrl}: ${error.message}`);
+            debugWarn('worker', 'summary', `[Worker] Failed to fetch next chapter from ${currentChapter.nextUrl}: ${error.message}`);
             // Continue with the break below to stop preloading on fetch failure
           }
         }
 
         if (!nextChapterInfo) {
-          console.log(`[Worker] Stopping preload at chapter #${targetNumber} - chapter not found locally or via web fetch`);
+          debugLog('worker', 'summary', `[Worker] Stopping preload at chapter #${targetNumber} - chapter not found locally or via web fetch`);
           break;
         }
 
@@ -567,27 +688,27 @@ export const createChaptersSlice: StateCreator<
 
         const existingVersions = await fetchTranslationVersions(nextChapterId);
         if (existingVersions.length > 0) {
-          console.log(`[Worker] Skipping chapter #${targetNumber} - ${existingVersions.length} version(s) already exist.`);
+          debugLog('worker', 'summary', `[Worker] Skipping chapter #${targetNumber} - ${existingVersions.length} version(s) already exist.`);
           continue;
         }
 
         if (get().pendingTranslations?.has(nextChapterId)) {
-          console.log(`[Worker] Skipping chapter #${targetNumber} - translation already pending.`);
+          debugLog('worker', 'summary', `[Worker] Skipping chapter #${targetNumber} - translation already pending.`);
           continue;
         }
 
         if (isTranslationActive(nextChapterId)) {
-          console.log(`[Worker] Skipping chapter #${targetNumber} - translation already in progress.`);
+          debugLog('worker', 'summary', `[Worker] Skipping chapter #${targetNumber} - translation already in progress.`);
           continue;
         }
 
         const apiValidation = validateApiKey(get().settings);
         if (!apiValidation.isValid) {
-          console.warn(`[Worker] Stopping preload - API key missing: ${apiValidation.errorMessage}`);
+          debugWarn('worker', 'summary', `[Worker] Stopping preload - API key missing: ${apiValidation.errorMessage}`);
           break;
         }
 
-        console.log(`[Worker] Pre-translating chapter #${targetNumber} (ID: ${nextChapterId})`);
+        debugLog('worker', 'summary', `[Worker] Pre-translating chapter #${targetNumber} (ID: ${nextChapterId})`);
         await handleTranslate(nextChapterId);
       }
     };

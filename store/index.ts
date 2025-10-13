@@ -25,6 +25,8 @@ import { SessionManagementService } from '../services/sessionManagementService';
 import { indexedDBService } from '../services/indexeddb';
 import { normalizeUrlAggressively } from '../services/stableIdService';
 import { audioServiceWorker } from '../services/audio/storage/serviceWorker';
+import { debugLog } from '../utils/debug';
+import '../services/imageMigrationService'; // Import for window exposure
 
 // Combined state type
 export type AppState = UiSlice & SettingsSlice & ChaptersSlice & TranslationsSlice & ImageSlice & ExportSlice & JobsSlice & AudioSlice;
@@ -305,7 +307,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         // Register service worker for transparent audio caching
         await audioServiceWorker.register();
         
-        console.log('[Store] Audio services initialized');
+        debugLog('audio', 'summary', '[Store] Audio services initialized');
       } catch (e) {
         console.warn('[Store] Failed to initialize audio services:', e);
       }
@@ -322,6 +324,11 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
 }));
 
 // Store is initialized by the App component
+
+// Expose store to window for debugging
+if (typeof window !== 'undefined') {
+  (window as any).useAppStore = useAppStore;
+}
 
 // Export individual slice types for type checking
 export type { UiSlice } from './slices/uiSlice';

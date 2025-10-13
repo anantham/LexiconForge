@@ -8,6 +8,18 @@ export interface Chapter {
   chapterNumber?: number;
 }
 
+export interface ChapterSummary {
+  stableId: string;
+  canonicalUrl?: string;
+  title: string;
+  translatedTitle?: string;
+  chapterNumber?: number;
+  hasTranslation: boolean;
+  hasImages: boolean;
+  lastAccessed?: string;
+  lastTranslatedAt?: string;
+}
+
 // Legacy interface for backwards compatibility with tests
 export interface SessionChapterData {
   chapter: Chapter;
@@ -61,10 +73,35 @@ export interface SuggestedIllustration {
   placementMarker: string;
   imagePrompt: string;
   generatedImage?: GeneratedImageResult; // Stores the actual generated image data for persistence
+  imageCacheKey?: ImageCacheKey; // NEW: Cache key for images stored in Cache API
+}
+
+/**
+ * Cache key for retrieving images from Cache API
+ * Store this instead of blob URLs (which are session-scoped)
+ */
+export interface ImageCacheKey {
+  chapterId: string;
+  placementMarker: string;
 }
 
 export interface GeneratedImageResult {
-  imageData: string; // base64 string
+  /**
+   * Image data - supports two storage modes:
+   * 1. Legacy: base64 data URL (data:image/png;base64,...)
+   * 2. Modern: Cache API key (use imageCacheKey field instead)
+   *
+   * DEPRECATED: For new images, use imageCacheKey instead.
+   * This field kept for backwards compatibility with existing data.
+   */
+  imageData: string; // base64 string OR empty if using cache key
+
+  /**
+   * Cache key for retrieving image from Cache API
+   * When present, use ImageCacheStore.createBlobUrl(imageCacheKey) to render
+   */
+  imageCacheKey?: ImageCacheKey;
+
   requestTime: number; // in seconds
   cost: number;
 }
@@ -95,6 +132,24 @@ export interface TranslationResult {
   suggestedIllustrations: SuggestedIllustration[];
   usageMetrics: UsageMetrics;
   customVersionLabel?: string;
+  fanAlignment?: AlignmentResult;
+}
+
+export interface AlignmentMatch {
+  fanChunkId: string;
+  fanText: string;
+  confidence: number;
+}
+
+export interface AlignmentEntry {
+  translationChunkId: string;
+  matches: AlignmentMatch[];
+}
+
+export interface AlignmentResult {
+  versionId?: string;
+  generatedAt: string;
+  entries: AlignmentEntry[];
 }
 
 export interface HistoricalChapter {

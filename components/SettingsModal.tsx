@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { AppSettings, TranslationProvider } from '../types';
 import { useAppStore } from '../store';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../constants';
@@ -11,6 +11,20 @@ import { useShallow } from 'zustand/react/shallow';
 import { formatBytes } from '../services/audio/storage/utils';
 import { ostLibraryService } from '../services/audio/OSTLibraryService';
 import type { OSTSample } from '../services/audio/OSTLibraryService';
+import { KNOWN_DEBUG_PIPELINES, DebugPipeline, getDebugPipelines as readDebugPipelines, setDebugPipelines as writeDebugPipelines, logCurrentDebugConfig } from '../utils/debug';
+
+const formatCurrencyValue = (value?: number | null, currency = 'USD'): string | null => {
+  if (value === null || value === undefined || Number.isNaN(value)) return null;
+  const amount = value.toFixed(2);
+  return currency.toUpperCase() === 'USD' ? `$${amount}` : `${currency.toUpperCase()} ${amount}`;
+};
+
+const formatUpdatedAt = (iso?: string): string | null => {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleTimeString();
+};
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -35,6 +49,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     getOpenRouterOptions,
     openRouterModels,
     openRouterKeyUsage,
+    providerCredits,
+    refreshProviderCredits,
+    loadProviderCreditsFromCache,
     // Audio settings
     selectedProvider,
     selectedTaskType,
@@ -51,6 +68,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     setStyleAudio,
     setUploadedStyleAudio,
     setUIError,
+    getMemoryDiagnostics,
   } = useAppStore(useShallow(state => ({
       settings: state.settings,
       updateSettings: state.updateSettings,
@@ -69,6 +87,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       getOpenRouterOptions: state.getOpenRouterOptions,
       openRouterModels: state.openRouterModels,
       openRouterKeyUsage: state.openRouterKeyUsage,
+      providerCredits: state.providerCredits,
+      refreshProviderCredits: state.refreshProviderCredits,
+      loadProviderCreditsFromCache: state.loadProviderCreditsFromCache,
       // Audio settings
       selectedProvider: state.selectedProvider,
       selectedTaskType: state.selectedTaskType,
@@ -84,7 +105,83 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       uploadedStyleAudio: state.uploadedStyleAudio,
       setStyleAudio: state.setStyleAudio,
       setUploadedStyleAudio: state.setUploadedStyleAudio,
+      getMemoryDiagnostics: state.getMemoryDiagnostics,
   })));
+
+  const openRouterCreditLine = useMemo(() => {
+    if (!openRouterKeyUsage) return 'Credits remaining: —';
+
+    const remaining =
+      openRouterKeyUsage.remainingCredits ??
+      openRouterKeyUsage.remaining ??
+      null;
+    const total =
+      openRouterKeyUsage.totalCredits ??
+      openRouterKeyUsage.limit ??
+      null;
+    const fetchedAt = formatUpdatedAt(openRouterKeyUsage.fetchedAt);
+
+    if (remaining == null && total == null) {
+      return fetchedAt
+        ? `Credits remaining: ∞ (updated ${fetchedAt})`
+        : 'Credits remaining: ∞';
+    }
+
+    const parts: string[] = [];
+    const primary = formatCurrencyValue(remaining);
+    if (primary) {
+      const withTotal = total != null ? formatCurrencyValue(total) : null;
+      parts.push(`Credits remaining: ${primary}${withTotal ? ` of ${withTotal}` : ''}`);
+    } else if (total != null) {
+      parts.push(`Credits remaining: ${formatCurrencyValue(total) ?? '—'} total`);
+    } else {
+      parts.push('Credits remaining: —');
+    }
+
+    if (fetchedAt) {
+      parts.push(`(updated ${fetchedAt})`);
+    }
+
+    return parts.join(' ');
+  }, [openRouterKeyUsage]);
+
+  const deepSeekCreditLine = useMemo(() => {
+    const entry = providerCredits?.DeepSeek ?? null;
+    if (!entry) return 'Balance: —';
+
+    const balance = formatCurrencyValue(entry.remaining ?? entry.total, entry.currency) ?? '—';
+    const extras: string[] = [];
+    const granted = formatCurrencyValue(entry.granted, entry.currency);
+    const topped = formatCurrencyValue(entry.toppedUp, entry.currency);
+    if (granted) extras.push(`granted ${granted}`);
+    if (topped) extras.push(`topped-up ${topped}`);
+
+    let summary = `Balance: ${balance}`;
+    if (extras.length) summary += ` (${extras.join(', ')})`;
+    if (entry.note) summary += ` (${entry.note})`;
+
+    const fetchedAt = formatUpdatedAt(entry.fetchedAt);
+    if (fetchedAt) summary += ` (updated ${fetchedAt})`;
+    return summary;
+  }, [providerCredits]);
+
+  const piApiCreditLine = useMemo(() => {
+    const entry = providerCredits?.PiAPI ?? null;
+    if (!entry) return 'Balance: —';
+
+    const balance = formatCurrencyValue(entry.remaining ?? entry.total, entry.currency) ?? '—';
+    let summary = `Balance (USD): ${balance}`;
+    if (entry.note) summary += ` (${entry.note})`;
+    const fetchedAt = formatUpdatedAt(entry.fetchedAt);
+    if (fetchedAt) summary += ` (updated ${fetchedAt})`;
+
+    const metadata = entry.metadata || {};
+    const details: string[] = [];
+    if (typeof metadata?.account_name === 'string') details.push(`Account: ${metadata.account_name}`);
+    if (typeof metadata?.account_id === 'string') details.push(`ID: ${metadata.account_id}`);
+    if (details.length) summary += ` — ${details.join(' • ')}`;
+    return summary;
+  }, [providerCredits]);
 
   const [currentSettings, setCurrentSettings] = useState(settings);
   const [activeTab, setActiveTab] = useState<'general' | 'export' | 'templates' | 'audio' | 'advanced'>('general');
@@ -275,6 +372,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       } catch {}
     })();
   }, [isOpen, currentSettings.provider]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    loadProviderCreditsFromCache();
+  }, [isOpen, loadProviderCreditsFromCache]);
   // Developer settings hooks must be before early return to obey Rules of Hooks
   const [showDev, setShowDev] = useState(false);
   type DebugLevel = 'off' | 'summary' | 'full';
@@ -307,6 +409,92 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       }
     } catch {}
   };
+
+  const sortPipelineSelections = (values: DebugPipeline[]): DebugPipeline[] =>
+    KNOWN_DEBUG_PIPELINES.filter((pipeline) => values.includes(pipeline));
+
+  const getInitialPipelineSelection = (): DebugPipeline[] => {
+    const stored = readDebugPipelines();
+    if (stored.length === 0) {
+      return [...KNOWN_DEBUG_PIPELINES];
+    }
+    return sortPipelineSelections(stored);
+  };
+
+  const [debugPipelineSelections, setDebugPipelineSelections] = useState<DebugPipeline[]>(getInitialPipelineSelection);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const stored = readDebugPipelines();
+    if (stored.length === 0) {
+      setDebugPipelineSelections([...KNOWN_DEBUG_PIPELINES]);
+    } else {
+      setDebugPipelineSelections(sortPipelineSelections(stored));
+    }
+  }, [isOpen]);
+
+  const togglePipeline = (pipeline: DebugPipeline, checked: boolean) => {
+    setDebugPipelineSelections((prev) => {
+      const nextSet = new Set(prev);
+      if (checked) nextSet.add(pipeline);
+      else nextSet.delete(pipeline);
+      const next = sortPipelineSelections(Array.from(nextSet) as DebugPipeline[]);
+      writeDebugPipelines(next);
+      logCurrentDebugConfig();
+      return next;
+    });
+  };
+
+  const handleResetPipelines = () => {
+    const next = [...KNOWN_DEBUG_PIPELINES];
+    setDebugPipelineSelections(next);
+    writeDebugPipelines(next);
+    logCurrentDebugConfig();
+  };
+
+  const handleClearPipelines = () => {
+    setDebugPipelineSelections([]);
+    writeDebugPipelines([]);
+    logCurrentDebugConfig();
+  };
+
+  const pipelineOptions: Array<{ id: DebugPipeline; label: string; description: string }> = [
+    {
+      id: 'indexeddb',
+      label: 'IndexedDB / storage',
+      description: 'Hydration, migrations, schema updates, and persistence writes.',
+    },
+    {
+      id: 'comparison',
+      label: 'Comparison workflow',
+      description: 'Fan translation alignment requests and caching.',
+    },
+    {
+      id: 'worker',
+      label: 'Preload worker',
+      description: 'Background chapter prefetching and translation scheduling.',
+    },
+    {
+      id: 'audio',
+      label: 'Audio / OST',
+      description: 'Audio service initialization, generation, and caching.',
+    },
+    {
+      id: 'translation',
+      label: 'Translation pipeline',
+      description: 'Requests sent to the main translation provider and progress updates.',
+    },
+    {
+      id: 'image',
+      label: 'Illustration pipeline',
+      description: 'Image generation requests, retries, and prompt persistence.',
+    },
+    {
+      id: 'memory',
+      label: 'Memory / cache',
+      description: 'Chapter cache size, hydration timings, and eviction decisions.',
+    },
+  ];
   
 
   // Helpers for aspect ratio and size presets
@@ -759,6 +947,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   placeholder="Enter your OpenAI API Key"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Usage dashboards require a backend proxy due to OpenAI CORS restrictions. Check your billing portal for spend details.
+                </p>
               </div>
               <div>
                 <label htmlFor="apiKeyDeepSeek" className="block text-sm font-medium text-gray-700 dark:text-gray-300">DeepSeek API Key</label>
@@ -770,6 +961,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   placeholder="Enter your DeepSeek API Key"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => refreshProviderCredits('DeepSeek')}
+                    className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
+                  >
+                    Refresh balance
+                  </button>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {deepSeekCreditLine}
+                  </span>
+                </div>
               </div>
               <div>
                 <label htmlFor="apiKeyOpenRouter" className="block text-sm font-medium text-gray-700 dark:text-gray-300">OpenRouter API Key</label>
@@ -790,11 +993,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     Refresh credits
                   </button>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {openRouterKeyUsage ? (
-                      openRouterKeyUsage.limit == null
-                        ? 'Remaining: ∞'
-                        : `Remaining: $${(openRouterKeyUsage.remaining ?? 0).toFixed(2)} (updated ${new Date(openRouterKeyUsage.fetchedAt).toLocaleTimeString()})`
-                    ) : 'Remaining: —'}
+                    {openRouterCreditLine}
                   </span>
                 </div>
               </div>
@@ -819,6 +1018,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   placeholder="Enter your PiAPI API Key"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => refreshProviderCredits('PiAPI')}
+                    className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
+                  >
+                    Refresh balance
+                  </button>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {piApiCreditLine}
+                  </span>
+                </div>
               </div>
             </div>
           </fieldset>
@@ -1245,7 +1456,75 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </select>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full also attaches EPUB parse diagnostics to the export.</p>
                 </div>
-                
+
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowDev((prev) => !prev)}
+                    className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-sm rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                  >
+                    {showDev ? 'Hide developer logging options' : 'Show developer logging options'}
+                  </button>
+                </div>
+
+                {showDev && (
+                  <div className="mt-4 border border-gray-300 dark:border-gray-600 rounded-md p-4 bg-gray-50 dark:bg-gray-800/40">
+                    <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Verbose logging pipelines</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      Select which subsystems should emit detailed console logs. Selections apply when the logging level is set to Summary or Full.
+                    </p>
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {pipelineOptions.map((option) => {
+                        const checked = debugPipelineSelections.includes(option.id);
+                        return (
+                          <label
+                            key={option.id}
+                            className={`flex items-start gap-2 text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded p-2 ${apiDebugLevel === 'off' ? 'opacity-40 cursor-not-allowed' : ''}`}
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-1"
+                              checked={checked}
+                              disabled={apiDebugLevel === 'off'}
+                              onChange={(e) => togglePipeline(option.id, e.target.checked)}
+                            />
+                            <span>
+                              <span className="block font-medium text-gray-800 dark:text-gray-100">{option.label}</span>
+                              <span className="block text-gray-500 dark:text-gray-400 mt-0.5">{option.description}</span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleResetPipelines}
+                        className="px-2 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                        disabled={apiDebugLevel === 'off'}
+                      >
+                        Select all
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClearPipelines}
+                        className="px-2 py-1 text-xs bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 disabled:opacity-60"
+                        disabled={apiDebugLevel === 'off'}
+                      >
+                        Clear all
+                      </button>
+                    </div>
+                    {apiDebugLevel === 'off' && (
+                      <p className="mt-2 text-xs text-red-500">Enable Summary or Full logging to activate pipeline logs.</p>
+                    )}
+                    {apiDebugLevel !== 'off' && debugPipelineSelections.length === 0 && (
+                      <p className="mt-2 text-xs text-yellow-600 dark:text-yellow-300">
+                        No pipelines selected. Console will only show high-level events.
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* Image Dimensions */}
                 <fieldset>
                   <legend className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3 border-b border-gray-200 dark:border-gray-700 pb-1">Image Generation</legend>
@@ -1494,6 +1773,78 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               </div>
             </fieldset>
           )}
+
+          {/* Memory Diagnostics Section */}
+          <fieldset className="border border-gray-300 dark:border-gray-600 rounded-md p-4">
+            <legend className="text-lg font-semibold px-2 text-gray-900 dark:text-gray-100">Memory Diagnostics</legend>
+            <div className="space-y-4">
+              {(() => {
+                const diagnostics = getMemoryDiagnostics();
+
+                return (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase">Chapters Loaded</div>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{diagnostics.totalChapters}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                          {diagnostics.chaptersWithTranslations} translated • {diagnostics.chaptersWithImages} with images
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase">Estimated RAM Usage</div>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                          {diagnostics.estimatedRAM.totalMB.toFixed(2)} MB
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                          Content: {(diagnostics.estimatedRAM.chapterContentBytes / 1024 / 1024).toFixed(2)} MB
+                          {diagnostics.estimatedRAM.base64ImageBytes > 0 && (
+                            <> • Images: {(diagnostics.estimatedRAM.base64ImageBytes / 1024 / 1024).toFixed(2)} MB</>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase">Image Storage</div>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                          {diagnostics.imagesInCache + diagnostics.imagesInRAM}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                          {diagnostics.imagesInCache} in cache • {diagnostics.imagesInRAM} in RAM (legacy)
+                        </div>
+                      </div>
+                    </div>
+
+                    {diagnostics.warnings.length > 0 && (
+                      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-3">
+                        <div className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                          Warnings
+                        </div>
+                        <ul className="space-y-1">
+                          {diagnostics.warnings.map((warning, idx) => (
+                            <li key={idx} className="text-xs text-yellow-700 dark:text-yellow-300">
+                              {warning}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                      <p><strong>Tips:</strong></p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>For optimal performance, keep loaded chapters under 50</li>
+                        <li>Legacy base64 images use significantly more RAM than cache-stored images</li>
+                        <li>Run the migration script to move existing images to cache storage</li>
+                        <li>Clear session data to free up memory if experiencing performance issues</li>
+                      </ul>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </fieldset>
 
         </div>
         <footer className="px-4 sm:px-6 md:px-8 py-4 bg-gray-50 dark:bg-gray-700/50 mt-auto sticky bottom-0">
