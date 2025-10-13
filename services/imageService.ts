@@ -48,13 +48,15 @@ export const calculateImageCost = (model: string): number => {
  * @throws An error if the API key is missing or if the image generation fails.
  */
 export const generateImage = async (
-  prompt: string, 
-  settings: AppSettings, 
+  prompt: string,
+  settings: AppSettings,
   steeringImagePath?: string,
   negativePrompt?: string,
   guidanceScale?: number,
   loraModel?: string | null,
-  loraStrength?: number
+  loraStrength?: number,
+  chapterId?: string,  // NEW: for Cache API storage
+  placementMarker?: string  // NEW: for Cache API storage
 ): Promise<GeneratedImageResult> => {
     const imageModel = settings.imageModel || 'imagen-3.0-generate-001';
     const reqW = Math.max(256, Math.min(4096, (settings.imageWidth || 1024)));
@@ -464,10 +466,44 @@ export const generateImage = async (
 
         const requestTime = (performance.now() - startTime) / 1000; // in seconds
         const cost = calculateImageCost(imageModel);
+        const base64DataUrl = `data:${mimeTypeForReturn || 'image/png'};base64,${base64Data}`;
 
         console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s. Cost: ${cost.toFixed(5)}`);
+
+        // NEW: Store in Cache API if chapter/marker provided
+        if (chapterId && placementMarker) {
+            try {
+                const { ImageCacheStore } = await import('./imageCacheService');
+                const { telemetryService } = await import('./telemetryService');
+
+                if (ImageCacheStore.isSupported()) {
+                    const cacheKey = await ImageCacheStore.storeImage(chapterId, placementMarker, base64DataUrl);
+
+                    ilog('[ImageService] Image stored in Cache API', {
+                        chapterId,
+                        placementMarker,
+                        originalSizeKB: (base64DataUrl.length / 1024).toFixed(2)
+                    });
+
+                    // Return cache key (preferred) with empty imageData
+                    return {
+                        imageData: '',  // Empty - use cache key instead
+                        imageCacheKey: cacheKey,
+                        requestTime,
+                        cost
+                    };
+                } else {
+                    iwarn('[ImageService] Cache API not supported, falling back to base64');
+                }
+            } catch (error) {
+                ierror('[ImageService] Failed to store in cache, falling back to base64:', error);
+                // Fall through to base64 fallback below
+            }
+        }
+
+        // Fallback: Return base64 (backwards compatible)
         return {
-            imageData: `data:${mimeTypeForReturn || 'image/png'};base64,${base64Data}`,
+            imageData: base64DataUrl,
             requestTime,
             cost
         };
