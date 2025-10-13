@@ -37,9 +37,9 @@ The system works by assembling a large, context-rich prompt and pairing it with 
 - **Used In**: `services/aiService.ts` within the `buildFanTranslationContext` helper function.
 - **Notes**: The `fanRefImportant` key contains a potential **contradiction** with the creative freedom encouraged in the `systemPrompt`, as it demands that the AI not miss a single word from the fan translation.
 
-### `translatePrefix`, `translateFanSuffix`, `translateInstruction`, `translateTitleLabel`, `translateContentLabel`
-- **Purpose**: These are small snippets used to assemble the final instruction for the new chapter that needs to be translated.
-- **Used In**: `services/aiService.ts` within `translateWithGemini` and `translateWithOpenAI` to form the final user-facing prompt.
+### `translatePrefix`, `translateFanSuffix`, `translateInstruction`, `translateTitleGuidance`, `translateTitleLabel`, `translateContentLabel`
+- **Purpose**: These snippets assemble the final user prompt. `translateTitleGuidance` specifically reminds the model to craft an evocative English title that preserves numbering before translation begins.
+- **Used In**: `services/aiService.ts`, `services/claudeService.ts`, `adapters/providers/*.ts`, and `services/prompts/PromptBuilder.ts` when forming the user-facing prompt.
 
 ### `history...` (all keys starting with `history`)
 - **Purpose**: These keys are used to structure the historical context from previous chapters (original text, previous translation, feedback, etc.).
@@ -60,3 +60,7 @@ The system works by assembling a large, context-rich prompt and pairing it with 
 ### `footnoteMarkerDescription` & `footnoteTextDescription`
 - **Purpose**: These provide descriptions for the `marker` and `text` fields within each footnote object in the JSON output.
 - **Used In**: `services/aiService.ts`. Injected into the `items` of the `footnotes` part of the `responseSchema`.
+
+### `translatedTitleDescription`
+- **Purpose**: Tells the model what kind of chapter title to return in the structured JSON (preserve numbering, add an evocative subtitle, single line).
+- **Used In**: Applied as the `description` for the `translatedTitle` field in every response schema (Gemini, OpenAI, Claude) and surfaced in tests.
