@@ -158,7 +158,7 @@ function buildChapterXhtml(
   assets: any[]
 ): string {
   const title = chapter.translatedTitle || chapter.title;
-  let content = chapter.translatedContent || chapter.content;
+  let content = chapter.translatedContent || chapter.content || '';
 
   // Inject images at placement markers
   for (const imgRef of chapter.imageReferences) {
@@ -174,12 +174,31 @@ function buildChapterXhtml(
     }
   }
 
+  const footnotes = chapter.footnotes || [];
+
+  // Link footnote markers in content to footnote list
+  for (const fn of footnotes) {
+    if (!fn?.marker) continue;
+    const normalizedMarker = String(fn.marker).replace(/^[\[]|[\]]$/g, '');
+    if (!normalizedMarker) continue;
+
+    const markerPattern = new RegExp(escapeRegExp(`[${normalizedMarker}]`), 'g');
+    const refId = `fnref-${normalizedMarker}`;
+    const footnoteId = `fn-${normalizedMarker}`;
+    const replacement = `<sup id="${refId}"><a href="#${footnoteId}" epub:type="noteref">[${normalizedMarker}]</a></sup>`;
+    content = content.replace(markerPattern, replacement);
+  }
+
   // Build footnotes section
   let footnotesHtml = '';
-  if (chapter.footnotes && chapter.footnotes.length > 0) {
+  if (footnotes.length > 0) {
     footnotesHtml = '<section class="footnotes"><h2>Footnotes</h2><ol>';
-    for (const fn of chapter.footnotes) {
-      footnotesHtml += `<li id="fn-${fn.marker}">${escapeHtml(fn.text)}</li>`;
+    for (const fn of footnotes) {
+      const normalizedMarker = String(fn.marker || '').replace(/^[\[]|[\]]$/g, '');
+      const refId = normalizedMarker ? `fnref-${normalizedMarker}` : '';
+      const footnoteId = normalizedMarker ? `fn-${normalizedMarker}` : '';
+      const backlink = normalizedMarker ? ` <a href="#${refId}" class="footnote-back">↩</a>` : '';
+      footnotesHtml += `<li id="${footnoteId}">${escapeHtml(fn.text || '')}${backlink}</li>`;
     }
     footnotesHtml += '</ol></section>';
   }
@@ -194,7 +213,9 @@ function buildChapterXhtml(
 <body>
   <section epub:type="chapter">
     <h1>${escapeHtml(title)}</h1>
-    ${content}
+    <div class="chapter-body">
+      ${content}
+    </div>
     ${footnotesHtml}
   </section>
 </body>
@@ -282,6 +303,10 @@ function escapeHtml(text: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
