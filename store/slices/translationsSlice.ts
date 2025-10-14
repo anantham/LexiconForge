@@ -40,11 +40,11 @@ export interface TranslationsActions {
   handleTranslate: (chapterId: string) => Promise<void>;
   handleRetranslateCurrent: () => void;
   cancelTranslation: (chapterId: string) => void;
-  
+
   // Translation history and context
   buildTranslationHistory: (chapterId: string) => HistoricalChapter[];
   buildTranslationHistoryAsync: (chapterId: string) => Promise<HistoricalChapter[]>;
-  
+
   // Feedback management
   submitFeedback: (chapterId: string, feedbackData: Omit<FeedbackItem, 'id' | 'timestamp' | 'chapterId'>) => void;
   addFeedback: (chapterId: string, feedbackData: Omit<FeedbackItem, 'id' | 'timestamp' | 'chapterId'>) => void; // Alias for compatibility
@@ -95,6 +95,7 @@ export const createTranslationsSlice: StateCreator<
   handleTranslate: async (chapterId) => {
     const state = get();
     if (state.pendingTranslations.has(chapterId)) {
+      debugLog('translation', 'summary', '[Retranslate] Already translating, ignoring click', { chapterId });
       return;
     }
     const context: TranslationContext = {
@@ -102,6 +103,14 @@ export const createTranslationsSlice: StateCreator<
       settings: (state as any).settings,
       activePromptTemplate: (state as any).activePromptTemplate
     };
+
+    debugLog('translation', 'summary', '[Retranslate] Button clicked', {
+      chapterId,
+      provider: context.settings.provider,
+      model: context.settings.model,
+      temperature: context.settings.temperature,
+      promptId: context.activePromptTemplate?.id
+    });
 
     set(prevState => {
       const nextPending = new Set(prevState.pendingTranslations);
@@ -114,27 +123,82 @@ export const createTranslationsSlice: StateCreator<
         }
       };
     });
-    
+
     // Update UI loading state
     const uiActions = state as any;
     if (uiActions.setTranslatingState) {
       uiActions.setTranslatingState(true);
     }
-    
+
     try {
       const existingVersions = await indexedDBService.getTranslationVersionsByStableId(chapterId).catch(() => []);
+      debugLog('translation', 'summary', '[Retranslate] Found existing versions', {
+        chapterId,
+        count: existingVersions.length
+      });
+
       if (Array.isArray(existingVersions) && existingVersions.length > 0) {
-        set(prev => {
-          const nextPending = new Set(prev.pendingTranslations);
-          nextPending.delete(chapterId);
-          const nextProgress = { ...prev.translationProgress };
-          delete nextProgress[chapterId];
-          return {
-            pendingTranslations: nextPending,
-            translationProgress: nextProgress,
-          };
+        // Check if a version with EXACT matching settings already exists
+        const currentSettings = TranslationService.extractSettingsSnapshot(context.settings);
+        currentSettings.promptId = context.activePromptTemplate?.id;
+        currentSettings.promptName = context.activePromptTemplate?.name;
+
+        const matchingVersion = existingVersions.find(v => {
+          const snapshot = v.settingsSnapshot;
+          if (!snapshot) return false;
+
+          const providerMatch = snapshot.provider === currentSettings.provider;
+          const modelMatch = snapshot.model === currentSettings.model;
+          const promptMatch = snapshot.systemPrompt === currentSettings.systemPrompt;
+          const tempMatch = Math.abs((snapshot.temperature || 0.7) - (currentSettings.temperature || 0.7)) < 0.1;
+
+          return providerMatch && modelMatch && promptMatch && tempMatch;
         });
-        return;
+
+        if (matchingVersion) {
+          debugLog('translation', 'summary', '[Retranslate] Blocking: Version with identical settings exists', {
+            chapterId,
+            existingVersionId: matchingVersion.id,
+            version: matchingVersion.version,
+            settings: {
+              provider: matchingVersion.settingsSnapshot?.provider,
+              model: matchingVersion.settingsSnapshot?.model,
+              temperature: matchingVersion.settingsSnapshot?.temperature
+            }
+          });
+
+          // Show user notification
+          const showNotification = (state as any).showNotification;
+          if (showNotification) {
+            showNotification(
+              'A translation with these exact settings already exists. Change settings or use the version picker to switch versions.',
+              'info'
+            );
+          }
+
+          set(prev => {
+            const nextPending = new Set(prev.pendingTranslations);
+            nextPending.delete(chapterId);
+            const nextProgress = { ...prev.translationProgress };
+            delete nextProgress[chapterId];
+            return {
+              pendingTranslations: nextPending,
+              translationProgress: nextProgress,
+            };
+          });
+          return;
+        }
+
+        // No matching version found, proceed to create new version
+        debugLog('translation', 'summary', '[Retranslate] No matching settings version found, creating new version', {
+          chapterId,
+          existingVersionCount: existingVersions.length,
+          currentSettings: {
+            provider: currentSettings.provider,
+            model: currentSettings.model,
+            temperature: currentSettings.temperature
+          }
+        });
       }
 
       const result = await TranslationService.translateChapterSequential(

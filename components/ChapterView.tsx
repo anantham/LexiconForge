@@ -1153,9 +1153,14 @@ const ChapterView: React.FC = () => {
                 <button
                   onClick={() => {
                     if (!currentChapterId) return;
-                    if (isTranslationActive(currentChapterId)) {
+                    console.log('🔘 [ChapterView] Retranslate button clicked (desktop), chapterId:', currentChapterId);
+                    const isActive = isTranslationActive(currentChapterId);
+                    console.log('🔘 [ChapterView] isTranslationActive result:', isActive);
+                    if (isActive) {
+                      console.log('🔴 [ChapterView] Cancelling translation');
                       cancelTranslation(currentChapterId);
                     } else {
+                      console.log('🟢 [ChapterView] Starting retranslation');
                       handleRetranslateCurrent();
                     }
                   }}
@@ -1235,9 +1240,14 @@ const ChapterView: React.FC = () => {
                 <button
                   onClick={() => {
                     if (!currentChapterId) return;
-                    if (isTranslationActive(currentChapterId)) {
+                    console.log('🔘 [ChapterView] Retranslate button clicked (mobile), chapterId:', currentChapterId);
+                    const isActive = isTranslationActive(currentChapterId);
+                    console.log('🔘 [ChapterView] isTranslationActive result:', isActive);
+                    if (isActive) {
+                      console.log('🔴 [ChapterView] Cancelling translation');
                       cancelTranslation(currentChapterId);
                     } else {
+                      console.log('🟢 [ChapterView] Starting retranslation');
                       handleRetranslateCurrent();
                     }
                   }}

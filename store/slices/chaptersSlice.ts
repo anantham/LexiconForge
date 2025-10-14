@@ -127,8 +127,20 @@ export const createChaptersSlice: StateCreator<
   setCurrentChapter: (chapterId) => {
     // Diagnostic timestamped set for tracing navigation/hydration races
     debugLog('translation', 'summary', `[Chapters] setCurrentChapter -> ${chapterId} @${Date.now()}`);
+
+    // Cancel any active translation from the previous chapter when navigating away
+    const prevChapterId = get().currentChapterId;
+    if (prevChapterId && prevChapterId !== chapterId) {
+      console.log('🚫 [Chapters] Navigation detected, cancelling previous chapter translation:', prevChapterId);
+      const translationsActions = get() as any;
+      if (translationsActions.cancelTranslation) {
+        translationsActions.cancelTranslation(prevChapterId);
+        console.log('✅ [Chapters] Cancelled translation for:', prevChapterId);
+      }
+    }
+
     set({ currentChapterId: chapterId });
-    
+
     // Add to history if it's a real chapter
     if (chapterId) {
       get().addToHistory(chapterId);

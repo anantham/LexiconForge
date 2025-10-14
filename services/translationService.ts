@@ -93,6 +93,7 @@ export class TranslationService {
 
     const abortController = new AbortController();
     this.activeTranslations.set(chapterId, abortController);
+    console.log('🔵 [TranslationService] Translation started, activeTranslations.set:', chapterId, '| Active count:', this.activeTranslations.size);
 
     try {
       // Build translation history for context
@@ -188,6 +189,7 @@ export class TranslationService {
       }
     } finally {
       this.activeTranslations.delete(chapterId);
+      console.log('🟢 [TranslationService] Translation ended, activeTranslations.delete:', chapterId, '| Active count:', this.activeTranslations.size);
     }
   }
 
@@ -306,6 +308,7 @@ export class TranslationService {
     if (controller) {
       try {
         controller.abort();
+        console.log('🔴 [TranslationService] Translation abort() called for:', chapterId, '| Active count before delete:', this.activeTranslations.size);
         slog(`[Translate] Cancel requested for ${chapterId}`);
         return true;
       } catch (e) {
@@ -313,8 +316,10 @@ export class TranslationService {
         return false;
       } finally {
         this.activeTranslations.delete(chapterId);
+        console.log('🟢 [TranslationService] Translation cancelled and removed:', chapterId, '| Active count after delete:', this.activeTranslations.size);
       }
     }
+    console.log('⚠️ [TranslationService] Cancel requested but no active translation found for:', chapterId, '| Active IDs:', Array.from(this.activeTranslations.keys()));
     return false;
   }
 
@@ -322,7 +327,9 @@ export class TranslationService {
    * Check if a translation is currently active for a chapter
    */
   static isTranslationActive(chapterId: string): boolean {
-    return this.activeTranslations.has(chapterId);
+    const isActive = this.activeTranslations.has(chapterId);
+    console.log('🔍 [TranslationService] isTranslationActive check:', chapterId, '→', isActive, '| Active count:', this.activeTranslations.size, '| Active IDs:', Array.from(this.activeTranslations.keys()));
+    return isActive;
   }
 
   /**
@@ -626,22 +633,39 @@ export class TranslationService {
   ): boolean {
     const chapter = chapters.get(chapterId);
     if (!chapter || !chapter.translationResult) {
+      debugLog('translation', 'full', '[Retranslate] Button disabled: No chapter or translation', { chapterId });
       return false;
     }
 
     // Check if the translation settings have changed significantly
     const snapshot = (chapter as any).translationSettingsSnapshot;
     if (!snapshot) {
+      debugLog('translation', 'summary', '[Retranslate] Button enabled: No settings snapshot (old translation)', { chapterId });
       return true; // No snapshot means old translation, retranslation possible
     }
 
     // Compare key settings that would affect translation quality
     const currentRelevant = this.extractSettingsSnapshot(settings);
-    const hasSettingsChanged = 
-      snapshot.provider !== currentRelevant.provider ||
-      snapshot.model !== currentRelevant.model ||
-      snapshot.systemPrompt !== currentRelevant.systemPrompt ||
-      Math.abs((snapshot.temperature || 0.7) - (currentRelevant.temperature || 0.7)) > 0.1;
+    const providerChanged = snapshot.provider !== currentRelevant.provider;
+    const modelChanged = snapshot.model !== currentRelevant.model;
+    const promptChanged = snapshot.systemPrompt !== currentRelevant.systemPrompt;
+    const tempChanged = Math.abs((snapshot.temperature || 0.7) - (currentRelevant.temperature || 0.7)) > 0.1;
+
+    const hasSettingsChanged = providerChanged || modelChanged || promptChanged || tempChanged;
+
+    if (hasSettingsChanged) {
+      debugLog('translation', 'summary', '[Retranslate] Button enabled: Settings changed', {
+        chapterId,
+        changes: {
+          provider: providerChanged ? `${snapshot.provider} → ${currentRelevant.provider}` : 'unchanged',
+          model: modelChanged ? `${snapshot.model} → ${currentRelevant.model}` : 'unchanged',
+          prompt: promptChanged ? 'changed' : 'unchanged',
+          temperature: tempChanged ? `${snapshot.temperature} → ${currentRelevant.temperature}` : 'unchanged'
+        }
+      });
+    } else {
+      debugLog('translation', 'full', '[Retranslate] Button disabled: Settings unchanged', { chapterId });
+    }
 
     return hasSettingsChanged;
   }
