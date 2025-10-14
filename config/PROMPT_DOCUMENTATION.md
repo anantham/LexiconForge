@@ -39,7 +39,7 @@ The system works by assembling a large, context-rich prompt and pairing it with 
 
 ### `translatePrefix`, `translateFanSuffix`, `translateInstruction`, `translateTitleGuidance`, `translateTitleLabel`, `translateContentLabel`
 - **Purpose**: These snippets assemble the final user prompt. `translateTitleGuidance` specifically reminds the model to craft an evocative English title that preserves numbering before translation begins.
-- **Used In**: `services/aiService.ts`, `services/claudeService.ts`, `adapters/providers/*.ts`, and `services/prompts/PromptBuilder.ts` when forming the user-facing prompt.
+- **Used In**: `services/aiService.ts`, `services/claudeService.ts`, `adapters/providers/*.ts`, and `services/prompts.ts` when forming the user-facing prompt.
 
 ### `history...` (all keys starting with `history`)
 - **Purpose**: These keys are used to structure the historical context from previous chapters (original text, previous translation, feedback, etc.).

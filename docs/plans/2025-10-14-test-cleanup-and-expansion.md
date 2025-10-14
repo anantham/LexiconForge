@@ -346,96 +346,11 @@ TESTING:
 Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
-### Task 5: Fix PromptBuilder JSON Validation Tests
+### Task 5: PromptBuilder Legacy Follow-up (Retired)
 
-**Files:**
-- Modify: `tests/services/prompts/PromptBuilder.test.ts`
+**Status:** Superseded by `services/prompts.ts` on 2025-10-14.
 
-**Context:** Two failing tests:
-1. Test expects "valid JSON object" in system prompt but gets "Simple translation prompt without JSON mention"
-2. Test for unbalanced braces validation returns true instead of false
-
-**Step 1: RED - Understand current behavior**
-
-```bash
-npx vitest run tests/services/prompts/PromptBuilder.test.ts --reporter=verbose
-```
-
-Read the actual implementation:
-```bash
-cat services/prompts/PromptBuilder.ts | grep -A 20 "buildTranslationPrompt"
-cat services/prompts/PromptBuilder.ts | grep -A 20 "validatePromptTemplate"
-```
-
-**Step 2: Fix JSON requirement test**
-
-If PromptBuilder should include JSON instruction but doesn't:
-
-```typescript
-// tests/services/prompts/PromptBuilder.test.ts around line 165
-// Update assertion to match actual behavior OR fix implementation
-// Check if translateTitleGuidance or other fields should mention JSON
-
-// If test is wrong (prompt doesn't need JSON mention):
-expect(result.systemPrompt).toBeTruthy(); // Just verify it exists
-
-// If implementation is wrong (should mention JSON):
-// Update services/prompts/PromptBuilder.ts instead
-```
-
-**Step 3: Fix unbalanced braces validation**
-
-```typescript
-// tests/services/prompts/PromptBuilder.test.ts around line 314
-const template = 'Text with {{unbalanced}'; // Unbalanced
-const result = PromptBuilder.validatePromptTemplate(template);
-
-expect(result.isValid).toBe(false);
-expect(result.issues).toContain('unbalanced');
-```
-
-If validator doesn't catch unbalanced braces, fix the validator implementation (not test).
-
-**Step 4: Run tests**
-
-```bash
-npx vitest run tests/services/prompts/PromptBuilder.test.ts
-```
-
-Expected: Tests pass
-
-**Step 5: Commit fixes**
-
-```bash
-git add tests/services/prompts/PromptBuilder.test.ts services/prompts/PromptBuilder.ts
-git commit -m "test(prompts): fix JSON validation and brace checking tests
-
-MOTIVATION:
-- Test expected JSON instruction in prompt but implementation doesn't require it
-- Brace validation test was passing when it should fail
-- Tests were checking for old behavior after prompt refactoring
-
-APPROACH:
-- Verified current prompt structure doesn't mention JSON explicitly (schema handles it)
-- Fixed brace validation to actually catch unbalanced braces
-- Updated tests to match current expected behavior
-
-CHANGES:
-- tests/services/prompts/PromptBuilder.test.ts:165: Updated JSON assertion
-- tests/services/prompts/PromptBuilder.test.ts:314: Fixed brace validation test
-- services/prompts/PromptBuilder.ts: Enhanced validatePromptTemplate if needed
-
-IMPACT:
-- Tests accurately reflect current prompt structure
-- Brace validation now catches malformed templates
-
-TESTING:
-- npx vitest run tests/services/prompts/PromptBuilder.test.ts: All pass
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
-```
+The former PromptBuilder implementation and its tests were removed during the prompt helper refactor. All active adapters now consume the shared helpers in `services/prompts.ts`, so no further action is required here. Any remaining references to PromptBuilder in earlier notes can be ignored or treated as historical context.
 
 ### Task 6: Fix EPUB Template Default Template Test
 
