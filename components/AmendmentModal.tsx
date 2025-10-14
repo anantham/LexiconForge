@@ -1,14 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AmendmentProposal } from '../types';
 
 interface AmendmentModalProps {
   proposal: AmendmentProposal;
   onAccept: () => void;
   onReject: () => void;
+  onEdit?: (modifiedChange: string) => void;
 }
 
-const AmendmentModal: React.FC<AmendmentModalProps> = ({ proposal, onAccept, onReject }) => {
+const AmendmentModal: React.FC<AmendmentModalProps> = ({ proposal, onAccept, onReject, onEdit }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedChange, setEditedChange] = useState(proposal.proposedChange);
   const formatChange = (text: string) => {
     return text.split('\n').map((line, index) => {
       const lineClass = line.startsWith('+') ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 
@@ -48,10 +51,49 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({ proposal, onAccept, onR
               </pre>
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-2">Proposed Change</h3>
-              <pre className="bg-gray-100 dark:bg-gray-900/50 p-3 rounded-lg font-mono text-xs sm:text-sm whitespace-pre-wrap">
-                <code>{formatChange(proposal.proposedChange)}</code>
-              </pre>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Proposed Change</h3>
+                {onEdit && !isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="text-sm px-3 py-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition"
+                    title="Edit the proposed change"
+                  >
+                    ✏️ Edit
+                  </button>
+                )}
+              </div>
+              {isEditing ? (
+                <div className="space-y-2">
+                  <textarea
+                    value={editedChange}
+                    onChange={(e) => setEditedChange(e.target.value)}
+                    className="w-full h-48 p-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg font-mono text-xs sm:text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Edit the proposed prompt change..."
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => {
+                        setEditedChange(proposal.proposedChange);
+                        setIsEditing(false);
+                      }}
+                      className="text-sm px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="text-sm px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                    >
+                      Done Editing
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <pre className="bg-gray-100 dark:bg-gray-900/50 p-3 rounded-lg font-mono text-xs sm:text-sm whitespace-pre-wrap">
+                  <code>{formatChange(editedChange)}</code>
+                </pre>
+              )}
             </div>
             <div>
               <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-2">Reasoning</h3>
@@ -69,12 +111,21 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({ proposal, onAccept, onR
           >
             Reject
           </button>
-          <button
-            onClick={onAccept}
-            className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition"
-          >
-            Accept & Update Prompt
-          </button>
+          {editedChange !== proposal.proposedChange && onEdit ? (
+            <button
+              onClick={() => onEdit(editedChange)}
+              className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition"
+            >
+              Accept Modified
+            </button>
+          ) : (
+            <button
+              onClick={onAccept}
+              className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition"
+            >
+              Accept & Update Prompt
+            </button>
+          )}
         </footer>
       </div>
     </div>

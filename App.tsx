@@ -41,6 +41,7 @@ const handleFetch = useAppStore((s) => s.handleFetch);
 const amendmentProposal = useAppStore((s) => s.amendmentProposal);
 const acceptProposal = useAppStore((s) => s.acceptProposal);
 const rejectProposal = useAppStore((s) => s.rejectProposal);
+const editAndAcceptProposal = useAppStore((s) => s.editAndAcceptProposal);
 const showSettingsModal = useAppStore((s) => s.showSettingsModal);
 const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
 const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
@@ -185,6 +186,7 @@ const settingsFingerprint = React.useMemo(
                         proposal={amendmentProposal}
                         onAccept={acceptProposal}
                         onReject={rejectProposal}
+                        onEdit={editAndAcceptProposal}
                     />
                 )}
             </main>

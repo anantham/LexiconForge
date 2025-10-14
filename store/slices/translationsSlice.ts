@@ -52,10 +52,11 @@ export interface TranslationsActions {
   clearFeedback: (chapterId: string) => void;
   deleteFeedback: (feedbackId: string) => void;
   updateFeedbackComment: (feedbackId: string, comment: string) => void;
-  
+
   // Amendment proposals
-  acceptProposal: () => void;
-  rejectProposal: () => void;
+  acceptProposal: () => Promise<void>;
+  rejectProposal: () => Promise<void>;
+  editAndAcceptProposal: (modifiedChange: string) => Promise<void>;
   setAmendmentProposal: (proposal: AmendmentProposal | null) => void;
   
   // Translation validation and retry
@@ -481,25 +482,92 @@ export const createTranslationsSlice: StateCreator<
   },
   
   // Amendment proposals
-  acceptProposal: () => {
+  acceptProposal: async () => {
     const { amendmentProposal } = get();
     if (!amendmentProposal) return;
-    
-    const settingsActions = get() as any;
+
+    const state = get() as any;
+    const settingsActions = state;
+    const currentChapterId = state.currentChapterId;
+
     if (settingsActions.updateSettings && settingsActions.settings) {
       const currentSystemPrompt = settingsActions.settings.systemPrompt;
+      const cleanChange = amendmentProposal.proposedChange.replace(/^[+-]\s/gm, '');
       const newPrompt = currentSystemPrompt.replace(
         amendmentProposal.currentRule,
-        amendmentProposal.proposedChange.replace(/^[+-]\s/gm, '')
+        cleanChange
       );
-      
+
       settingsActions.updateSettings({ systemPrompt: newPrompt });
+
+      // Log the accepted amendment
+      try {
+        await indexedDBService.logAmendmentAction({
+          chapterId: currentChapterId,
+          proposal: amendmentProposal,
+          action: 'accepted',
+          finalPromptChange: cleanChange
+        });
+      } catch (error) {
+        console.warn('[TranslationsSlice] Failed to log amendment action:', error);
+      }
     }
-    
+
     set({ amendmentProposal: null });
   },
-  
-  rejectProposal: () => {
+
+  rejectProposal: async () => {
+    const { amendmentProposal } = get();
+    if (!amendmentProposal) return;
+
+    const state = get() as any;
+    const currentChapterId = state.currentChapterId;
+
+    // Log the rejected amendment
+    try {
+      await indexedDBService.logAmendmentAction({
+        chapterId: currentChapterId,
+        proposal: amendmentProposal,
+        action: 'rejected'
+      });
+    } catch (error) {
+      console.warn('[TranslationsSlice] Failed to log amendment action:', error);
+    }
+
+    set({ amendmentProposal: null });
+  },
+
+  editAndAcceptProposal: async (modifiedChange: string) => {
+    const { amendmentProposal } = get();
+    if (!amendmentProposal) return;
+
+    const state = get() as any;
+    const settingsActions = state;
+    const currentChapterId = state.currentChapterId;
+
+    if (settingsActions.updateSettings && settingsActions.settings) {
+      const currentSystemPrompt = settingsActions.settings.systemPrompt;
+      const cleanChange = modifiedChange.replace(/^[+-]\s/gm, '');
+      const newPrompt = currentSystemPrompt.replace(
+        amendmentProposal.currentRule,
+        cleanChange
+      );
+
+      settingsActions.updateSettings({ systemPrompt: newPrompt });
+
+      // Log the modified amendment
+      try {
+        await indexedDBService.logAmendmentAction({
+          chapterId: currentChapterId,
+          proposal: amendmentProposal,
+          action: 'modified',
+          finalPromptChange: cleanChange
+        });
+      } catch (error) {
+        console.warn('[TranslationsSlice] Failed to log amendment action:', error);
+      }
+    }
+
     set({ amendmentProposal: null });
   },
   

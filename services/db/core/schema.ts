@@ -19,7 +19,8 @@ export const SCHEMA_VERSIONS = {
   INDEX_REPAIRS: 8,
   AUTO_MIGRATION_CAP: 9,
   CHAPTER_NUMBER_INDEX: 10,
-  CURRENT: 10,
+  AMENDMENT_LOGS: 11,
+  CURRENT: 11,
 } as const;
 
 // Object store definitions
@@ -32,6 +33,7 @@ export const STORE_NAMES = {
   URL_MAPPINGS: 'url_mappings',
   NOVELS: 'novels',
   CHAPTER_SUMMARIES: 'chapter_summaries',
+  AMENDMENT_LOGS: 'amendment_logs',
 } as const;
 
 // Domain-to-stores mapping (for Claude's domain organization)
@@ -68,6 +70,7 @@ export const MIGRATIONS: Record<number, MigrationFunction> = {
   8: migrateToV8,
   9: migrateToV9,
   10: migrateToV10,
+  11: migrateToV11,
 };
 
 /**
@@ -292,6 +295,18 @@ function migrateToV10(db: IDBDatabase, transaction: IDBTransaction): void {
   const chaptersStore = transaction.objectStore(STORE_NAMES.CHAPTERS);
   if (!chaptersStore.indexNames.contains('chapterNumber')) {
     chaptersStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
+  }
+}
+
+/**
+ * Migration to version 11: Add amendment logs store for tracking prompt proposal actions
+ */
+function migrateToV11(db: IDBDatabase): void {
+  if (!db.objectStoreNames.contains(STORE_NAMES.AMENDMENT_LOGS)) {
+    const amendmentLogsStore = db.createObjectStore(STORE_NAMES.AMENDMENT_LOGS, { keyPath: 'id' });
+    amendmentLogsStore.createIndex('timestamp', 'timestamp', { unique: false });
+    amendmentLogsStore.createIndex('chapterId', 'chapterId', { unique: false });
+    amendmentLogsStore.createIndex('action', 'action', { unique: false });
   }
 }
 

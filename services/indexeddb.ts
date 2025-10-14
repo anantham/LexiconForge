@@ -37,13 +37,14 @@ const DB_VERSION = SCHEMA_VERSIONS.CURRENT;
 // Object store names
 const STORES = {
   CHAPTERS: 'chapters',
-  TRANSLATIONS: 'translations', 
+  TRANSLATIONS: 'translations',
   SETTINGS: 'settings',
   FEEDBACK: 'feedback',
   PROMPT_TEMPLATES: 'prompt_templates',
   URL_MAPPINGS: 'url_mappings',     // NEW: URL → Stable ID mapping
   NOVELS: 'novels',                 // NEW: Novel organization (optional)
-  CHAPTER_SUMMARIES: 'chapter_summaries' // NEW: Lightweight metadata for listing
+  CHAPTER_SUMMARIES: 'chapter_summaries', // NEW: Lightweight metadata for listing
+  AMENDMENT_LOGS: 'amendment_logs'  // NEW: Logs of amendment proposal actions
 } as const;
 
 // IndexedDB Schema Types
@@ -158,6 +159,21 @@ export interface NovelRecord {
   lastAccessed: string;          // ISO timestamp
 }
 
+export interface AmendmentLogRecord {
+  id: string;                    // UUID primary key
+  timestamp: number;             // Unix timestamp (ms)
+  chapterId?: string;            // Optional chapter stable ID
+  proposal: {
+    observation: string;
+    currentRule: string;
+    proposedChange: string;
+    reasoning: string;
+  };
+  action: 'accepted' | 'rejected' | 'modified';
+  finalPromptChange?: string;    // For 'modified': the actual change applied
+  notes?: string;                // Optional user notes
+}
+
 // Singleton pattern for database connection management
 let dbInstance: IDBDatabase | null = null;
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -268,8 +284,8 @@ class IndexedDBService {
    */
   private async verifySchemaOrAutoMigrate(db: IDBDatabase): Promise<void> {
     const requiredStores = [
-      'chapters', 'translations', 'settings', 'feedback', 
-      'prompt_templates', 'url_mappings', 'novels', 'chapter_summaries'
+      'chapters', 'translations', 'settings', 'feedback',
+      'prompt_templates', 'url_mappings', 'novels', 'chapter_summaries', 'amendment_logs'
     ];
     
     const existingStores = Array.from(db.objectStoreNames);
@@ -467,7 +483,15 @@ class IndexedDBService {
       summaryStore.createIndex('chapterNumber', 'chapterNumber');
       summaryStore.createIndex('lastAccessed', 'lastAccessed');
       summaryStore.createIndex('hasTranslation', 'hasTranslation');
-      // console.log('[IndexedDB] Created chapter summaries store');
+    }
+
+    // NEW: Amendment logs store for tracking proposal actions
+    if (!db.objectStoreNames.contains(STORES.AMENDMENT_LOGS)) {
+      const amendmentLogsStore = db.createObjectStore(STORES.AMENDMENT_LOGS, { keyPath: 'id' });
+      amendmentLogsStore.createIndex('timestamp', 'timestamp');
+      amendmentLogsStore.createIndex('chapterId', 'chapterId');
+      amendmentLogsStore.createIndex('action', 'action');
+      // console.log('[IndexedDB] Created amendment logs store');
     }
   }
 
@@ -2797,6 +2821,107 @@ class IndexedDBService {
           reject(request.error);
         };
       }
+    });
+  }
+
+  /**
+   * Log an amendment proposal action
+   */
+  async logAmendmentAction(log: Omit<AmendmentLogRecord, 'id' | 'timestamp'>): Promise<void> {
+    const db = await this.openDatabase();
+
+    const record: AmendmentLogRecord = {
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      ...log
+    };
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.AMENDMENT_LOGS], 'readwrite');
+      const store = transaction.objectStore(STORES.AMENDMENT_LOGS);
+
+      const request = store.add(record);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /**
+   * Get all amendment logs, optionally filtered by action type or chapter
+   */
+  async getAmendmentLogs(options?: {
+    action?: 'accepted' | 'rejected' | 'modified';
+    chapterId?: string;
+    limit?: number;
+  }): Promise<AmendmentLogRecord[]> {
+    const db = await this.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.AMENDMENT_LOGS], 'readonly');
+      const store = transaction.objectStore(STORES.AMENDMENT_LOGS);
+
+      let request: IDBRequest;
+
+      if (options?.action) {
+        const index = store.index('action');
+        request = index.getAll(IDBKeyRange.only(options.action));
+      } else if (options?.chapterId) {
+        const index = store.index('chapterId');
+        request = index.getAll(IDBKeyRange.only(options.chapterId));
+      } else {
+        request = store.getAll();
+      }
+
+      request.onsuccess = () => {
+        let logs = (request.result as AmendmentLogRecord[]) || [];
+
+        // Sort by timestamp descending (newest first)
+        logs.sort((a, b) => b.timestamp - a.timestamp);
+
+        // Apply limit if specified
+        if (options?.limit) {
+          logs = logs.slice(0, options.limit);
+        }
+
+        resolve(logs);
+      };
+
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  /**
+   * Get amendment log statistics
+   */
+  async getAmendmentStats(): Promise<{
+    total: number;
+    accepted: number;
+    rejected: number;
+    modified: number;
+  }> {
+    const logs = await this.getAmendmentLogs();
+
+    return {
+      total: logs.length,
+      accepted: logs.filter(l => l.action === 'accepted').length,
+      rejected: logs.filter(l => l.action === 'rejected').length,
+      modified: logs.filter(l => l.action === 'modified').length
+    };
+  }
+
+  /**
+   * Delete an amendment log by ID
+   */
+  async deleteAmendmentLog(logId: string): Promise<void> {
+    const db = await this.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORES.AMENDMENT_LOGS], 'readwrite');
+      const store = transaction.objectStore(STORES.AMENDMENT_LOGS);
+
+      const request = store.delete(logId);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
     });
   }
 }

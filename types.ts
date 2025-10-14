@@ -64,6 +64,18 @@ export interface AmendmentProposal {
   reasoning: string;
 }
 
+export type AmendmentAction = 'accepted' | 'rejected' | 'modified';
+
+export interface AmendmentActionLog {
+  id: string; // UUID
+  timestamp: number; // Unix timestamp
+  chapterId?: string; // Optional: chapter that triggered this proposal
+  proposal: AmendmentProposal;
+  action: AmendmentAction;
+  finalPromptChange?: string; // For 'modified' action: what the user actually applied
+  notes?: string; // Optional user notes about why they modified/rejected
+}
+
 export interface Footnote {
   marker: string;
   text: string;
