@@ -6,6 +6,7 @@ import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
+import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 
 const openaiResponseSchema = {
     "type": "object",
@@ -81,12 +82,6 @@ const replacePlaceholders = (template: string, settings: AppSettings): string =>
   return template.replace(/\{([^}]+)\}/g, (match, key) => {
     return (settings as any)[key] || match;
   });
-};
-
-// Fan translation context builder
-const buildFanTranslationContext = (fanTranslation?: string | null): string => {
-  if (!fanTranslation) return '';
-  return `EXISTING FAN TRANSLATION (for reference):\n${fanTranslation}`;
 };
 
 // Debug logging
@@ -240,25 +235,24 @@ ${schemaString}`;
     
     messages.push({ role: 'system', content: systemPrompt });
 
-    // Add history
-    history.forEach(h => {
-      if (h.originalTitle && h.originalContent && h.translatedContent) {
-        messages.push({ 
-          role: 'user', 
-          content: `TITLE: ${h.originalTitle}\n\nCONTENT:\n${h.originalContent}` 
-        });
-        messages.push({ role: 'assistant', content: h.translatedContent });
-      }
-    });
-
-    // Add current translation request
-    const fanTranslationContext = buildFanTranslationContext(fanTranslation);
-    const preface = prompts.translatePrefix + 
-      (fanTranslation ? prompts.translateFanSuffix : '') + 
+    const historyPrompt = history.length > 0 ? formatHistory(history).trim() : '';
+    const fanTranslationContext = buildFanTranslationContext(fanTranslation ?? null).trim();
+    const preface = (
+      prompts.translatePrefix +
+      (fanTranslation ? prompts.translateFanSuffix : '') +
       prompts.translateInstruction +
-      prompts.translateTitleGuidance;
-    
-    const finalUserContent = `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
+      prompts.translateTitleGuidance
+    ).trim();
+
+    const sections = [
+      historyPrompt,
+      fanTranslationContext,
+      preface,
+      `${prompts.translateTitleLabel}\n${title}`,
+      `${prompts.translateContentLabel}\n${content}`,
+    ].filter(Boolean);
+
+    const finalUserContent = sections.join('\n\n');
     messages.push({ role: 'user', content: finalUserContent });
 
     requestOptions.messages = messages;

@@ -4,18 +4,13 @@ import type { TranslationResult, AppSettings, HistoricalChapter } from '../../ty
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
+import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 
 // Placeholder replacement utility
 const replacePlaceholders = (template: string, settings: AppSettings): string => {
   return template.replace(/\{([^}]+)\}/g, (match, key) => {
     return (settings as any)[key] || match;
   });
-};
-
-// Fan translation context builder
-const buildFanTranslationContext = (fanTranslation?: string | null): string => {
-  if (!fanTranslation) return '';
-  return `EXISTING FAN TRANSLATION (for reference):\n${fanTranslation}`;
 };
 
 // Debug logging
@@ -96,30 +91,25 @@ export class GeminiAdapter implements TranslationProvider {
       systemPrompt += '\n\nYour response must be a single, valid JSON object.';
     }
 
-    let fullPrompt = systemPrompt + '\n\n';
-
-    // Add history
-    history.forEach((h, index) => {
-      if (h.originalTitle && h.originalContent && h.translatedContent) {
-        fullPrompt += `EXAMPLE ${index + 1}:\n`;
-        fullPrompt += `INPUT TITLE: ${h.originalTitle}\n`;
-        fullPrompt += `INPUT CONTENT: ${h.originalContent}\n`;
-        fullPrompt += `OUTPUT: ${h.translatedContent}\n\n`;
-      }
-    });
-
-    // Add current request
-    const fanTranslationContext = buildFanTranslationContext(fanTranslation);
-    const preface = prompts.translatePrefix + 
-      (fanTranslation ? prompts.translateFanSuffix : '') + 
+    const historyPrompt = history.length > 0 ? formatHistory(history).trim() : '';
+    const fanTranslationContext = buildFanTranslationContext(fanTranslation ?? null).trim();
+    const preface = (
+      prompts.translatePrefix +
+      (fanTranslation ? prompts.translateFanSuffix : '') +
       prompts.translateInstruction +
-      prompts.translateTitleGuidance;
+      prompts.translateTitleGuidance
+    ).trim();
 
-    fullPrompt += `${fanTranslationContext}${fanTranslationContext ? '\n\n' : ''}${preface}\n\n`;
-    fullPrompt += `${prompts.translateTitleLabel}\n${title}\n\n`;
-    fullPrompt += `${prompts.translateContentLabel}\n${content}`;
+    const sections = [
+      systemPrompt.trim(),
+      historyPrompt,
+      fanTranslationContext,
+      preface,
+      `${prompts.translateTitleLabel}\n${title}`,
+      `${prompts.translateContentLabel}\n${content}`,
+    ].filter(Boolean);
 
-    return fullPrompt;
+    return sections.join('\n\n');
   }
 
   private processResponse(
