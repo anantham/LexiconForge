@@ -13,6 +13,7 @@ import type {
   CollectedChapter
 } from './types';
 import type { EnhancedChapter } from '../stableIdService';
+import { HtmlRepairService } from '../translate/HtmlRepairService';
 
 interface StoreSnapshot {
   chapters: Map<string, EnhancedChapter>;
@@ -73,6 +74,14 @@ export async function collectExportData(
       text: fn.text
     })) || [];
 
+    // Apply HTML repair to translation content for export (Option 3: belt and suspenders)
+    const rawTranslation = chapter.translationResult?.translation;
+    let repairedTranslation: string | undefined = undefined;
+    if (rawTranslation && options.enableHtmlRepair !== false) {
+      const { html } = HtmlRepairService.repair(rawTranslation, { enabled: true, verbose: false });
+      repairedTranslation = html;
+    }
+
     // Build normalized chapter
     const collectedChapter: CollectedChapter = {
       id: chapter.id,
@@ -80,7 +89,7 @@ export async function collectExportData(
       title: chapter.title || '',
       content: chapter.content || '',
       translatedTitle: chapter.translationResult?.translatedTitle,
-      translatedContent: chapter.translationResult?.translatedContent,
+      translatedContent: repairedTranslation || rawTranslation, // Use repaired version if available
       footnotes,
       imageReferences,
       translationMeta: chapter.translationResult ? {

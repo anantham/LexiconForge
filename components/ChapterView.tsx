@@ -13,6 +13,7 @@ import AudioPlayer from './AudioPlayer';
 import { TranslationPersistenceService } from '../services/translationPersistenceService';
 import { ComparisonService } from '../services/comparisonService';
 import { debugLog } from '../utils/debug';
+import { HtmlRepairService } from '../services/translate/HtmlRepairService';
 
 type TranslationToken =
   | { type: 'text'; chunkId: string; text: string }
@@ -371,12 +372,33 @@ const ChapterView: React.FC = () => {
     }
   }, [chapter?.id, translationResult, viewMode]);
 
+  // Apply HTML repair on display (Option 3: belt and suspenders approach)
+  // This repairs old translations immediately without retranslation
+  // New translations are also repaired on save in translationService.ts
+  const repairedTranslation = useMemo(() => {
+    const rawTranslation = translationResult?.translation ?? '';
+    if (!rawTranslation || !settings.enableHtmlRepair) {
+      return rawTranslation;
+    }
+
+    const { html, stats } = HtmlRepairService.repair(rawTranslation, {
+      enabled: true,
+      verbose: false
+    });
+
+    if (stats.applied.length > 0) {
+      debugLog('translation', 'summary', `[ChapterView] Applied ${stats.applied.length} display-time HTML repairs:`, stats.applied);
+    }
+
+    return html;
+  }, [translationResult?.translation, settings.enableHtmlRepair]);
+
   const translationTokensData = useMemo(() => {
     if (viewMode !== 'english') {
       return { tokens: [] as TranslationToken[], nodes: [] as React.ReactNode[] };
     }
-    return tokenizeTranslation(translationResult?.translation ?? '', chapter?.id ?? 'chapter');
-  }, [viewMode, translationResult?.translation, chapter?.id]);
+    return tokenizeTranslation(repairedTranslation, chapter?.id ?? 'chapter');
+  }, [viewMode, repairedTranslation, chapter?.id]);
 
   const translationTokensRef = useRef<TranslationToken[]>(translationTokensData.tokens);
 
@@ -676,7 +698,7 @@ const ChapterView: React.FC = () => {
       const response = await ComparisonService.requestFocusedComparison({
         chapterId: currentChapterId,
         selectedTranslation: selectedText,
-        fullTranslation: translationResult.translation ?? '',
+        fullTranslation: repairedTranslation,
         fullFanTranslation: fanFullText,
         fullRawText: chapter?.content ?? '',
         settings,
