@@ -1,3 +1,111 @@
+2025-10-14 06:00 UTC - Archive legacy amendment proposal diagnostics
+- Files modified: archive/tests/store/amendmentProposal.legacy.test.ts:1-199, tests/store/amendmentProposal.test.ts:33-86
+- Purpose: Preserved the eight skipped legacy diagnostics in an archived suite while trimming the active amendment proposal tests down to the current slice-based coverage.
+- Notes: Archived suite sits behind `describe.skip` to keep history without polluting the run; active suite now focuses on accept/reject/edit plus IndexedDB logging behaviour.
+- Tests: Not run (legacy archive remains skipped)
+
+2025-10-13 17:59 UTC - Restore amendment logging test harness stability
+- Files modified: services/indexeddb.ts:482-493, tests/store/amendmentProposal.test.ts:1-14, 340-414
+- Purpose: Reinstated the `hasTranslation` index while wiring tests to use an in-memory fake IndexedDB so migration v11 can be exercised without schema drift blocking the suite.
+- Notes: Test setup now clears the fake database via `indexedDBService.clearAllData()` before each run to keep action logs isolated.
+- Tests: `npm run test -- tests/store/amendmentProposal.test.ts --run`
+
+2025-10-13 18:10 UTC - Refresh README marketing copy
+- Files modified: README.md:4-107
+- Purpose: Surface live hosted app link, Patreon concierge program, numbered feedback workflow, and inline feature imagery pulled from `Marketing/Features/`.
+- Notes: Added CTA block, image gallery (emoji toolbar, models, comparison, art), and consolidated Patreon references in community/support sections.
+- Tests: Not applicable
+
+2025-10-13 18:45 UTC - Test suite census groundwork
+- Files modified: docs/TEST_MANIFEST.md
+- Purpose: Catalogued every suite under `tests/`, annotated current health (pass/fail/unknown/obsolete), and flagged legacy specs tied to the pre-split store or deleted prompt helpers.
+- Notes: Marked critical failures (nullSafety, jobsSlice, translator, templates, cost-calculation, navigation) for rewrite; `tests/store/useAppStore.test.ts` and prompt builder suites recorded as obsolete.
+- Tests: Not applicable
+
+2025-10-13 19:05 UTC - Rewrite null safety regression suite
+- Files modified: tests/store/nullSafety.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Ported the null-safety tests to the slice-based store, verifying chaptersSlice/error handling, translation history filters, and export snapshots without relying on legacy `sessionData`.
+- Notes: Mocked NavigationService to exercise error paths; history expectations now require numbered chapters; manifest updated to reflect passing status.
+- Tests: `npm run test -- tests/store/nullSafety.test.ts --run`
+
+2025-10-13 19:20 UTC - Modernise jobs slice tests
+- Files modified: tests/store/slices/jobsSlice.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Replaced the legacy worker-heavy spec with coverage that matches the current slice (add/update/remove, clear helpers, control flow, selectors, and placeholder worker hooks).
+- Notes: Added a lightweight slice harness without mocking zustand internals; worker APIs now asserted to be no-ops rather than fabricating fake workers.
+- Tests: `npm run test -- tests/store/slices/jobsSlice.test.ts --run`
+
+2025-10-13 19:30 UTC - Align Translator tests with abort & retry behaviour
+- Files modified: tests/services/translate/Translator.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Updated the translator spec to match the current abort message and confirmed sanitization/retry flows with the new orchestrator.
+- Notes: The mock provider now respects the “Translation was aborted by user” contract while keeping sanitizer assertions intact.
+- Tests: `npm run test -- tests/services/translate/Translator.test.ts --run`
+
+2025-10-13 19:40 UTC - Refresh EPUB template expectations
+- Files modified: tests/services/epub/Templates.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Relaxed numeric assertions to tolerate locale-specific formatting and verified the modern footer/stats layout.
+- Notes: Added helper to accept `Intl` variations (en-US, en-IN, fr-FR, de-DE, ja-JP).
+- Tests: `npm run test -- tests/services/epub/Templates.test.ts --run`
+
+2025-10-13 19:42 UTC - Confirm structured-output schema coverage
+- Files modified: docs/TEST_MANIFEST.md
+- Purpose: Verified that the structured output tests still align with the generated prompt schema and marked the manifest entry as passing.
+- Notes: No code changes required; updated manifest only.
+- Tests: `npm run test -- tests/services/structured-outputs.test.ts --run`
+
+2025-10-13 19:55 UTC - Rebuild cost-calculation integration suite
+- Files modified: tests/current-system/cost-calculation.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Ported cost tests to the async `calculateCost` API, covering Gemini/OpenAI/DeepSeek pricing, OpenRouter dynamic rates, and image model pricing.
+- Notes: Added helper to reuse expected formulas and removed stale references to legacy pricing helpers.
+- Tests: `npm run test -- tests/current-system/cost-calculation.test.ts --run`
+
+2025-10-13 20:05 UTC - Simplify navigation integration tests
+- Files modified: tests/current-system/navigation.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Replaced brittle mocks with targeted assertions around `NavigationService.isValidUrl` and the store’s `handleFetch` integration (success/error cases).
+- Notes: Enhanced chapters are fabricated via helpers; error paths now assert on the UI slice state instead of expecting old logs.
+- Tests: `npm run test -- tests/current-system/navigation.test.ts --run`
+
+2025-10-13 20:15 UTC - Add HTML repair regression tests
+- Files modified: services/translate/HtmlRepairService.ts, tests/services/HtmlRepairService.test.ts
+- Purpose: Ensured the HTML repair pipeline covers the documented formatting issues (capital `<I>` tags, `<hr>` variants, illustration markers, scene breaks, and dangling closing italics).
+- Notes: Introduced a helper to fix leading closing tags before the existing unclosed-tag repair.
+- Tests: `npm run test -- tests/services/HtmlRepairService.test.ts --run`
+
+2025-10-14 07:13 UTC - Refresh settings persistence suite
+- Files modified: tests/current-system/settings.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Rebuilt the settings tests around the slice-based store, covering persistence, load, defaults, translation-change detection, and localStorage failure handling.
+- Notes: Added helper to fabricate chapters with snapshot metadata; storage mocks now applied per-test.
+- Tests: `npm run test -- tests/current-system/settings.test.ts --run`
+
+2025-10-14 07:17 UTC - Modernize translation flow tests
+- Files modified: tests/current-system/translation.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Stubbed `TranslationService` and IndexedDB calls to validate successful translations, early exits when versions exist, error reporting, and abort handling.
+- Notes: Simplified fixtures by injecting enhanced chapters into the store; translation progress assertions now follow slice behaviour.
+- Tests: `npm run test -- tests/current-system/translation.test.ts --run`
+
+2025-10-14 07:19 UTC - Rebuild export/import tests
+- Files modified: tests/current-system/export-import.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Covered JSON snapshot export and full-session import using mocked IndexedDB services; verified error handling for malformed payloads.
+- Notes: Export tests operate on the in-memory chapters map; import tests assert navigation history hydration.
+- Tests: `npm run test -- tests/current-system/export-import.test.ts --run`
+
+2025-10-14 07:21 UTC - Verify provider initialization
+- Files modified: tests/current-system/providers.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Added a lightweight check ensuring `initializeProviders` registers all adapters with the translator singleton.
+- Notes: Keeps provider coverage aligned with the refactored adapter architecture.
+- Tests: `npm run test -- tests/current-system/providers.test.ts --run`
+
+2025-10-14 07:23 UTC - Retire legacy DB contract suites
+- Files modified: docs/TEST_MANIFEST.md
+- Purpose: Marked the legacy IndexedDB contract tests as obsolete—they exercise the deprecated monolithic repo interface and no longer reflect the slice/IDB architecture.
+- Notes: Future persistence coverage will focus on the new schema/migration tooling instead.
+- Tests: Not applicable
+
+2025-10-14 07:28 UTC - Rewrite feedback integration tests
+- Files modified: tests/current-system/feedback.test.ts, docs/TEST_MANIFEST.md
+- Purpose: Simplified feedback tests to assert the modern slice API (submit/update/delete) against the chapters map and feedback history.
+- Notes: Removed dependencies on legacy `sessionData` and inline selectors.
+- Tests: `npm run test -- --run`
+
 2025-10-13 14:12 UTC - Switch comparison flow to contextual excerpts
 - Files modified: config/prompts.json:38-74, services/comparisonService.ts:1-177, components/ChapterView.tsx:1-1390, services/translationService.ts:133-150, services/navigationService.ts:26-95, services/indexeddb.ts:17-110, types.ts:124-142
 - Purpose: Replace chunk-based alignment caching with a focused compare API that returns fan translation context + raw snippet, simplifying the UI and avoiding brittle chunk maps.

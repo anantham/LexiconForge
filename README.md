@@ -1,8 +1,14 @@
-# LexiconForge: Your Personal AI-Powered Web Novel Translator
+# LexiconForge : Let the AI customize the translation for you!
 
 **Tired of waiting for official translations? Wish you could continue the story right after the anime or manga ends?**
 
-LexiconForge is your gateway to the world of web novels. It's a powerful, AI-driven tool that lets you translate chapters from almost any source, in any language, and customize the reading experience to be *exactly* how you like it. Break down the language barriers and dive into the original stories.
+LexiconForge is your gateway to the world of web novels. It is an interface that lets you translate chapters from almost any source (let me know and I can add support), in any language, to any language!
+
+This was a passion project because of how much I love going into these worlds.
+
+> 🎮 **Use it instantly:** [lexicon-forge.vercel.app](https://lexicon-forge.vercel.app/) is live for anyone to read and translate right now.  
+
+> 💎 **Patreon concierge:** Subscribers get 1:1 onboarding, priority feature requests, bug fixes, and a complimentary $10 API credit to start reading. [Join here](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link).
 
 ![Demo gif](media/demo_2x_24fps.gif)
 
@@ -14,20 +20,40 @@ LexiconForge is your gateway to the world of web novels. It's a powerful, AI-dri
 
 LexiconForge is more than just a translator; it's a power tool for readers.
 
+### **📚 Reader Feedback Loop Highlights**
+1. 👍 / 👎 on any line to teach the model your taste and steadily improve every chapter.
+2. 🔒 Privacy-first architecture keeps your API keys and translation history on-device.
+3. 🧠 Bring your own favorite model—Gemini, Claude, DeepSeek, OpenAI, Flux, more—all supported.
+4. ❓ Use the question emoji to generate cultural footnotes and etymology explanations on demand.
+5. 🎨 Summon bespoke illustrations by reacting to your favorite scene with the art emoji.
+6. ✏️ Tap the edit button to surgically refine the AI’s output before saving it.
+7. 📖 Compare against trusted fan translations inline, toggling between AI, raw, and fan versions.
+8. 📦 Export polished EPUBs for offline reading once you’ve curated the perfect translation.
+9. 🎛️ Experiment with prompts, OST generation, img2img steering, session analytics, and more quality-of-life tools built for deep reading.
+
+![Floating toolbar with emoji reactions](<Marketing/Features/Select any span of text to see floating toolbar of emojis to press.png>)
+![Footnotes explaining translation choices](<Marketing/Features/Footnotes elaborate on why that choice of english word was used to translate, etymology, context.png>)
+![Compare AI vs fan translation inline](<Marketing/Features/Insert comparison text inline for comparing AI translation with Human translation - toggle to see raw text.png>)
+![Hundreds of AI models to choose from](<Marketing/Features/Hundreds of AI models to chose from.png>)
+![Illustration generation example](<Marketing/Features/example illustration.png>)
+![Versioned translations snapshot](<Marketing/Features/version 6 english translation of DD ch 224 by grok.png>)
+
+
 ### **🌐 Universal Web Novel Access**
 *   📖 **Multi-Site Support:** Currently supports 5 major web novel platforms:
     - **Kakuyomu** (kakuyomu.jp) - Japanese light novels
-    - **Syosetu** (ncode.syosetu.com) - User-generated Japanese fiction
+    - **Syosetu** (ncode.syosetu.com) - Japanese web novels
     - **Dxmwx** (dxmwx.org) - Chinese web novels
     - **Kanunu** (kanunu8.com, kanunu.net) - Chinese literature archive
     - **NovelCool** (novelcool.com) - Multi-language novel platform
+
 *   🌐 **Intelligent CORS Proxy System:** 10+ redundant proxy servers with automatic health monitoring and failover for reliable content fetching.
 *   ⚡ **Smart Preloading:** Background fetching of upcoming chapters for seamless reading (configurable 0-50 chapters ahead).
-*   🔗 **Navigation Memory:** Built-in chapter history and navigation breadcrumbs for easy browsing.
+*   🔗 **Navigation Memory:** Intelligent usage of Disk and Ram to ensure the app does not slow your computer down.
 
 ### **🤖 Advanced AI Translation**
-*   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, OpenAI, DeepSeek, or Claude. You control your usage and data.
-*   📊 **22+ AI Models:** Access the latest generation of AI models across all providers (incl. DeepSeek V3.1 Chat/Reasoner) to find your perfect translator.
+*   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, OpenAI, DeepSeek, or Claude. You control your usage and data. If you need help contact admin in the [@webnovels](https://t.me/webnovels) group to get an API key that works!
+*   📊 **22+ AI Models:** Access the latest generation of AI models across all providers to find your perfect translator. Quality and style varies across models and prompt combinations.
 *   🎛️ **Fine-Tuned Control:** Adjust temperature (creativity), context depth (0-5 previous chapters), and model-specific settings.
 *   💰 **Real-Time Cost Tracking:** Obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent, with 2025 pricing.
 *   🛑 **Cancelable Requests:** Click the red spinner to abort in‑flight translations instantly.
@@ -80,6 +106,8 @@ The easiest way to start is with the official hosted version on Vercel. No insta
 
 **[➡️ Click here to launch LexiconForge](https://lexicon-forge.vercel.app/)**
 
+If you’d like a guided setup, tailored prompts, or bespoke feature development, hop onto the [Patreon](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link)—I’ll work with you directly to craft the perfect reading experience.
+
 ### For Developers: Self-Hosting
 Want to run your own instance? It's easy.
 
@@ -105,15 +133,7 @@ npm run merge-fan-translations path/to/session.json path/to/fan-translations/ [o
 The CLI matches files by chapter number, merges them as `fanTranslation`, and prints coverage.
 
 ### Technical Architecture
-LexiconForge uses a sophisticated **dual-tier data architecture**:
-- **Zustand Store**: Sub-millisecond UI reactivity for active session
-- **IndexedDB**: Unlimited persistent storage for chapter library and translations
-- **Professional Export System**: EPUB generation with comprehensive statistics and embedded illustrations
-- **Multi-Provider AI Integration**: Unified interface for 6 major AI providers with advanced illustration pipeline (Gemini, OpenAI, Claude, DeepSeek, PiAPI, OpenRouter)
 
-Prompts & JSON schema descriptions are centralized in `config/prompts.json`, so you can quickly change the HTML rules, footnote/illustration requirements, DeepSeek JSON guard, fan-translation preface, translate preface, and history labels without touching code.
-
-**🏗️ Architecture Evolution (2025)**: LexiconForge is currently undergoing modernization to implement agent-first development principles. See our [Architecture Decision Records](docs/) for the roadmap toward modular, maintainable services that work seamlessly with AI assistants.
 
 For detailed technical information, see the [Project Structure & Technical Details](./docs/PROJECT_STRUCTURE.md).
 
@@ -136,9 +156,11 @@ For detailed technical information, see the [Project Structure & Technical Detai
 
 ## 💬 Community & Support
 
-Have a question, a feature request, or want to see what's next?
+Have a question, a feature request, or want to see what's next? The project is fully open source—hack on it with me, or just hang out with other readers.
 
 *   **Join our Telegram Group:** Get help, suggest new site adapters, and chat with other users at [@webnovels](https://t.me/webnovels).
+*   **Patreon concierge:** [Become a patron](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link) for bespoke support, new feature prototypes, and API credits.
+* You can try [readomni](https://readomni.com/) and let me know if you like it more than LexiconForge and why! 
 
 ---
 
@@ -147,6 +169,7 @@ Have a question, a feature request, or want to see what's next?
 LexiconForge is a passion project. If you find it useful, please consider supporting its continued development.
 
 *   **Donate via Ethereum:** `adityaarpitha.eth`
+*   **Sponsor ongoing work:** [Patreon link](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link)
 
 ---
 
