@@ -1,253 +1,148 @@
-// tests/store/nullSafety.test.ts
-// Tests for null safety fixes to prevent TypeError crashes
-
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useAppStore } from '../../store';
-import * as aiService from '../../services/aiService';
-import * as adapters from '../../services/adapters';
-import { Chapter, TranslationResult } from '../../types';
+import { NavigationService } from '../../services/navigationService';
+import { defaultSettings } from '../../services/sessionManagementService';
+import type { EnhancedChapter } from '../../services/stableIdService';
+import type { TranslationResult } from '../../types';
 
-// Mock external services
-vi.mock('../../services/aiService');
-vi.mock('../../services/adapters');
-
-const mockTranslateChapter = vi.mocked(aiService.translateChapter);
-const mockFetchAndParseUrl = vi.mocked(adapters.fetchAndParseUrl);
-
-// Test data
-const testChapter: Chapter = {
-  title: 'Test Chapter',
-  content: 'This is the content.',
-  originalUrl: 'http://test.com/chapter/1',
-  prevUrl: null,
-  nextUrl: 'http://test.com/chapter/2',
-};
-
-const testTranslationResult: TranslationResult = {
+const makeTranslationResult = (overrides: Partial<TranslationResult> = {}): TranslationResult => ({
   translatedTitle: 'Translated Title',
-  translation: 'Translated content.',
-  provider: 'Gemini',
-  model: 'gemini-2.5-flash',
-  temperature: 0.7,
-  contextUsed: 0,
-  promptTokens: 100,
-  completionTokens: 150,
-  totalTokens: 250,
-  costUSD: 0.001,
-  amendmentProposal: null,
-};
+  translation: 'Translated content',
+  proposal: null,
+  footnotes: [],
+  suggestedIllustrations: [],
+  usageMetrics: {
+    totalTokens: 0,
+    promptTokens: 0,
+    completionTokens: 0,
+    estimatedCost: 0,
+    requestTime: 0,
+    provider: 'Gemini',
+    model: 'gemini-2.5-flash',
+  },
+  ...overrides,
+});
 
-describe('Null Safety Fixes', () => {
-  beforeEach(() => {
-    // Reset store state
+const makeChapter = (id: string, overrides: Partial<EnhancedChapter> = {}): EnhancedChapter => ({
+  id,
+  title: `Chapter ${id}`,
+  content: `Content for ${id}`,
+  originalUrl: `https://example.com/${id}`,
+  canonicalUrl: `https://example.com/${id}`,
+  nextUrl: null,
+  prevUrl: null,
+  sourceUrls: [`https://example.com/${id}`],
+  translationResult: makeTranslationResult(),
+  feedback: [],
+  ...overrides,
+});
+
+describe('Null safety regressions in modern slices', () => {
+  const handleFetchSpy = vi.spyOn(NavigationService, 'handleFetch');
+  vi.spyOn(NavigationService, 'updateBrowserHistory').mockImplementation(() => {});
+
+  const resetStoreState = () => {
     useAppStore.setState({
-      sessionData: {},
-      urlHistory: [],
-      isLoading: { fetching: false, translating: false },
+      chapters: new Map(),
+      novels: new Map(),
+      currentChapterId: null,
+      navigationHistory: [],
+      urlIndex: new Map(),
+      rawUrlIndex: new Map(),
+      activeTranslations: {},
+      pendingTranslations: new Set(),
+      feedbackHistory: {},
+      translationProgress: {},
       error: null,
-      currentUrl: null,
-      settings: {
-        provider: 'Gemini',
-        model: 'gemini-2.5-flash',
-        temperature: 0.7,
-        contextDepth: 2,
-        preloadCount: 1
-      }
+      isLoading: { fetching: false, translating: false },
+      urlLoadingStates: {},
+      hydratingChapters: {},
+      settings: { ...defaultSettings },
     });
-    
-    // Reset mocks
+  };
+
+  beforeEach(() => {
+    resetStoreState();
     vi.clearAllMocks();
   });
 
-  describe('handleFetch returning null', () => {
-    it('should not crash when handleFetch returns null', async () => {
-      // Simulate fetch failure returning null
-      mockFetchAndParseUrl.mockRejectedValue(new Error('Network error'));
-      
-      const result = await useAppStore.getState().handleFetch('http://test.com/failed', true);
-      
-      // Should return null without crashing
-      expect(result).toBeNull();
-      expect(mockFetchAndParseUrl).toHaveBeenCalledWith(
-        'http://test.com/failed',
-        expect.any(Object),
-        expect.any(Function)
-      );
+  afterEach(() => {
+    handleFetchSpy.mockReset();
+  });
+
+  describe('chaptersSlice.handleFetch()', () => {
+    it('records NavigationService errors and clears loading state', async () => {
+      handleFetchSpy.mockResolvedValue({ error: 'Network failure' });
+
+      const result = await useAppStore.getState().handleFetch('https://example.com/failure');
+      expect(result).toBeUndefined();
+      expect(useAppStore.getState().error).toBe('Network failure');
+      expect(useAppStore.getState().isLoading.fetching).toBe(false);
     });
 
-    it('should handle null chapter in worker logic safely', () => {
-      // Set up sessionData with valid chapter
-      useAppStore.setState({
-        sessionData: {
-          'http://test.com/chapter/1': {
-            chapter: testChapter,
-            translationResult: null
-          }
-        }
+    it('merges transformed chapter maps without throwing', async () => {
+      const chapter = makeChapter('ch-001');
+      const chapters = new Map<string, EnhancedChapter>([['ch-001', chapter]]);
+      handleFetchSpy.mockResolvedValue({
+        chapters,
+        currentChapterId: 'ch-001',
+        urlIndex: new Map(),
+        rawUrlIndex: new Map(),
+        novels: new Map(),
       });
 
-      // Simulate accessing nextUrl on null chapter (the fixed code should handle this)
-      const chapter = null; // This is what handleFetch returns on failure
-      const nextUrlToPreload = chapter?.nextUrl || null;
-      
-      // Should not crash and should be null
-      expect(nextUrlToPreload).toBeNull();
+      const result = await useAppStore.getState().handleFetch('https://example.com/ch-001');
+      expect(result).toBe('ch-001');
+      expect(useAppStore.getState().chapters.get('ch-001')).toBeDefined();
+      expect(useAppStore.getState().error).toBeNull();
     });
   });
 
-  describe('Translation context with incomplete sessionData', () => {
-    it('should not crash when sessionData has undefined chapter property', async () => {
-      // Set up malformed sessionData - data exists but chapter is undefined
-      useAppStore.setState({
-        sessionData: {
-          'http://test.com/chapter/1': {
-            chapter: undefined as any, // This simulates corrupted state
-            translationResult: testTranslationResult
-          } as any
-        },
-        urlHistory: ['http://test.com/chapter/1', 'http://test.com/chapter/2']
-      });
+  describe('translationsSlice.buildTranslationHistory()', () => {
+    it('skips navigation entries lacking loaded chapters', () => {
+      const previous = makeChapter('chapter-9', { chapterNumber: 9 });
+      const current = makeChapter('chapter-10', { chapterNumber: 10 });
+      useAppStore.setState(state => ({
+        chapters: new Map([
+          [previous.id, previous],
+          [current.id, current],
+        ]),
+        navigationHistory: [previous.id, 'missing-2', current.id],
+        currentChapterId: current.id,
+        settings: { ...state.settings, contextDepth: 5 },
+      }));
 
-      mockTranslateChapter.mockResolvedValue(testTranslationResult);
-
-      // This should not crash - the fix filters out entries with undefined chapter
-      const result = await useAppStore.getState().handleTranslate('http://test.com/chapter/2');
-      
-      expect(result).toBeUndefined(); // Translation completes without crashing
-    });
-
-    it('should build translation history safely with undefined chapter data', () => {
-      // Set up sessionData with mixed valid and invalid entries
-      useAppStore.setState({
-        sessionData: {
-          'http://test.com/chapter/1': {
-            chapter: testChapter,
-            translationResult: testTranslationResult
-          },
-          'http://test.com/chapter/invalid': {
-            chapter: undefined as any, // This should be filtered out
-            translationResult: testTranslationResult
-          } as any,
-          'http://test.com/chapter/2': {
-            chapter: { ...testChapter, originalUrl: 'http://test.com/chapter/2' },
-            translationResult: testTranslationResult
-          }
-        },
-        urlHistory: [
-          'http://test.com/chapter/1', 
-          'http://test.com/chapter/invalid',
-          'http://test.com/chapter/2',
-          'http://test.com/chapter/3'
-        ]
-      });
-
-      // Should build history without crashing, filtering out invalid entries
-      const history = useAppStore.getState().buildTranslationHistory('http://test.com/chapter/3');
-      
-      // Should have 2 valid entries, invalid one filtered out
-      expect(history).toHaveLength(2);
-      expect(history[0].originalTitle).toBe('Test Chapter');
-      expect(history[1].originalTitle).toBe('Test Chapter');
+      const history = useAppStore.getState().buildTranslationHistory(current.id);
+      expect(history).toHaveLength(1);
+      expect(history[0].translatedTitle).toBe(previous.translationResult?.translatedTitle);
+      expect(history.find(entry => entry.originalTitle.includes('missing-2'))).toBeUndefined();
     });
   });
 
-  describe('Export function with incomplete sessionData', () => {
-    it('should export chapters safely when some entries have undefined chapter', () => {
-      // Set up sessionData with mixed valid and invalid entries
+  describe('exportSlice.exportSessionData()', () => {
+    it('serialises chapters even when translation data is incomplete', () => {
+      const complete = makeChapter('complete');
+      const incomplete = makeChapter('incomplete', { translationResult: null });
+
       useAppStore.setState({
-        sessionData: {
-          'http://test.com/valid': {
-            chapter: testChapter,
-            translationResult: testTranslationResult
-          },
-          'http://test.com/invalid': {
-            chapter: undefined as any, // Should be filtered out
-            translationResult: null
-          } as any,
-          'http://test.com/another-valid': {
-            chapter: { ...testChapter, title: 'Another Chapter', originalUrl: 'http://test.com/another-valid' },
-            translationResult: null
-          }
-        },
-        urlHistory: ['http://test.com/valid', 'http://test.com/invalid', 'http://test.com/another-valid'],
-        feedbackHistory: {}
+        chapters: new Map([
+          [complete.id, complete],
+          [incomplete.id, incomplete],
+        ]),
       });
 
-      // Should export without crashing, filtering out invalid entries
-      const exported = useAppStore.getState().exportSession();
-      
-      expect(exported.chapters).toHaveLength(2); // Only valid entries
-      expect(exported.chapters[0].title).toBe('Test Chapter');
-      expect(exported.chapters[1].title).toBe('Another Chapter');
-      
-      // Should not include the invalid entry
-      const invalidEntry = exported.chapters.find(c => c.sourceUrl === 'http://test.com/invalid');
-      expect(invalidEntry).toBeUndefined();
+      const json = useAppStore.getState().exportSessionData();
+      const payload = JSON.parse(json);
+
+      expect(payload.chapters).toHaveLength(2);
+      const incompleteSnapshot = payload.chapters.find((entry: any) => entry.title === incomplete.title);
+      expect(incompleteSnapshot.translationResult).toBeNull();
     });
 
-    it('should handle completely empty sessionData in export', () => {
-      useAppStore.setState({
-        sessionData: {},
-        urlHistory: [],
-        feedbackHistory: {}
-      });
-
-      // Should export without crashing
-      const exported = useAppStore.getState().exportSession();
-      
-      expect(exported.chapters).toHaveLength(0);
-      expect(exported.urlHistory).toHaveLength(0);
-    });
-  });
-
-  describe('Edge cases for null safety', () => {
-    it('should handle sessionData entries with null values', () => {
-      useAppStore.setState({
-        sessionData: {
-          'http://test.com/null-entry': null as any,
-          'http://test.com/valid': {
-            chapter: testChapter,
-            translationResult: null
-          }
-        }
-      });
-
-      // Export should filter out null entries
-      const exported = useAppStore.getState().exportSession();
-      expect(exported.chapters).toHaveLength(1);
-      expect(exported.chapters[0].title).toBe('Test Chapter');
-    });
-
-    it('should handle chapters with null nextUrl/prevUrl safely', () => {
-      const chapterWithNullUrls: Chapter = {
-        title: 'Chapter With Nulls',
-        content: 'Content',
-        originalUrl: 'http://test.com/null-urls',
-        nextUrl: null,
-        prevUrl: null
-      };
-
-      useAppStore.setState({
-        sessionData: {
-          'http://test.com/null-urls': {
-            chapter: chapterWithNullUrls,
-            translationResult: null
-          }
-        }
-      });
-
-      // Should access nextUrl safely (this simulates the worker logic)
-      const sessionData = useAppStore.getState().sessionData;
-      const chapter = sessionData['http://test.com/null-urls']?.chapter;
-      const nextUrl = chapter?.nextUrl || null;
-      
-      expect(nextUrl).toBeNull();
-      
-      // Export should also handle this safely
-      const exported = useAppStore.getState().exportSession();
-      expect(exported.chapters).toHaveLength(1);
-      expect(exported.chapters[0].nextUrl).toBeNull();
-      expect(exported.chapters[0].prevUrl).toBeNull();
+    it('returns an empty snapshot when no chapters exist', () => {
+      const json = useAppStore.getState().exportSessionData();
+      const payload = JSON.parse(json);
+      expect(payload.chapters).toHaveLength(0);
     });
   });
 });

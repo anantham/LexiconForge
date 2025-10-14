@@ -39,6 +39,21 @@ const createStoreState = () => ({
       base64ImageBytes: 0,
     },
   })),
+  // Audio slice mocks
+  selectedProvider: 'ace-step',
+  selectedTaskType: 'txt2audio',
+  selectedPreset: null,
+  volume: 1,
+  audioMetrics: { totalCost: 0, generationCount: 0, totalDuration: 0 },
+  getAvailablePresets: vi.fn(() => []),
+  setProvider: vi.fn(),
+  setTaskType: vi.fn(),
+  setPreset: vi.fn(),
+  setVolume: vi.fn(),
+  selectedStyleAudio: null,
+  uploadedStyleAudio: null,
+  setStyleAudio: vi.fn(),
+  setUploadedStyleAudio: vi.fn(),
 });
 
 const mockSettings: AppSettings = {
