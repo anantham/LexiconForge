@@ -232,9 +232,9 @@ const SessionInfo: React.FC = () => {
           )}
         </div>
         {!sessionIsEmpty && versions.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <label className="text-sm font-semibold text-gray-600 dark:text-gray-300">Version:</label>
-            
+
             {/* Desktop: Native select */}
             <div className="hidden md:flex items-center gap-2">
               <select
@@ -275,6 +275,15 @@ const SessionInfo: React.FC = () => {
                 return current.customVersionLabel ? `${base} • ${current.customVersionLabel}` : base;
               })()}
             </button>
+
+            {/* Export button - moved to version row */}
+            <button
+              onClick={() => setShowExportModal(true)}
+              disabled={sessionIsEmpty || isExporting}
+              className="px-3 py-1.5 bg-green-600 text-white text-sm font-semibold rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+            >
+              {isExporting ? 'Exporting...' : 'Export Book'}
+            </button>
           </div>
         )}
       </div>
@@ -286,16 +295,10 @@ const SessionInfo: React.FC = () => {
         >
             <SettingsIcon className="w-5 h-5"/>
         </button>
-        <div className="relative">
-          <button
-              onClick={() => setShowExportModal(true)}
-              disabled={sessionIsEmpty || isExporting}
-              className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition duration-300 ease-in-out"
-          >
-              {isExporting ? 'Exporting...' : 'Export Session'}
-          </button>
-          
-          {showExportModal && createPortal(
+      </div>
+
+      {/* Export modal - moved outside button container */}
+      {showExportModal && createPortal(
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowExportModal(false)}>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Choose Export Format</h3>
@@ -332,9 +335,10 @@ const SessionInfo: React.FC = () => {
               </div>
             </div>,
             document.body
-          )}
+      )}
 
-          {showVersionPicker && createPortal(
+      {/* Version picker modal */}
+      {showVersionPicker && createPortal(
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end md:items-center justify-center z-50" onClick={() => setShowVersionPicker(false)}>
               <div className="bg-white dark:bg-gray-800 rounded-t-lg md:rounded-lg shadow-xl w-full md:max-w-md md:mx-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -402,9 +406,7 @@ const SessionInfo: React.FC = () => {
               </div>
             </div>,
             document.body
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 };
