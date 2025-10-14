@@ -1,10 +1,8 @@
 /**
  * HtmlRepairService - Gracefully repairs common HTML formatting mistakes from AI models
  *
- * Instead of trying to force models to follow strict rules through prompts,
- * this service adaptively fixes common mistakes in a forgiving way.
- *
- * Philosophy: Be liberal in what you accept, strict in what you output.
+ * PHILOSOPHY: Be conservative. Only fix unambiguous errors.
+ * Data-driven approach for easy auditing and toggling of rules.
  */
 
 export interface RepairStats {
@@ -15,12 +13,138 @@ export interface RepairStats {
 export interface RepairOptions {
   enabled: boolean;
   verbose?: boolean;      // Log each repair
+  disabledRules?: string[]; // Rules to skip by name
 }
 
-export class HtmlRepairService {
+/**
+ * Simple pattern-based repair rule
+ */
+interface SimpleRule {
+  name: string;
+  description: string;
+  pattern: RegExp;
+  replacement: string | ((match: string, ...groups: any[]) => string);
+  test?: (html: string) => boolean; // Optional pre-check to skip rule
+}
 
+/**
+ * Complex repair function for cases that need custom logic
+ */
+interface ComplexRule {
+  name: string;
+  description: string;
+  apply: (html: string, stats: RepairStats) => string;
+}
+
+type RepairRule = SimpleRule | ComplexRule;
+
+/**
+ * REPAIR RULES - Ordered list of fixes to apply
+ *
+ * SAFETY PRINCIPLE: Only fix patterns that are UNAMBIGUOUSLY wrong.
+ * Avoid "helpful" fixes that might break intentional formatting.
+ */
+const REPAIR_RULES: RepairRule[] = [
+  // Issue #1: Capital <I> tags (clearly wrong, AI never intends this)
+  {
+    name: 'lowercase-italic-tags',
+    description: 'Convert capital <I> to lowercase <i>',
+    pattern: /<I>(.*?)<\/I>/gi,
+    replacement: '<i>$1</i>'
+  },
+
+  // Issue #2: Self-closing or malformed <hr> tags
+  {
+    name: 'normalize-hr',
+    description: 'Normalize <hr /> and < hr > to <hr>',
+    pattern: /<hr\s*\/?>|<\s*hr\s*>/gi,
+    replacement: '<hr>'
+  },
+
+  // Issue #3: Bare illustration markers (missing brackets)
+  {
+    name: 'bracket-illustrations',
+    description: 'Wrap ILLUSTRATION-N in brackets',
+    pattern: /(?<!\[)(ILLUSTRATION-\d+)(?!\])/gi,
+    replacement: '[$1]'
+  },
+
+  // Issue #4: Triple dashes/asterisks for scene breaks
+  {
+    name: 'scene-break-dashes',
+    description: 'Convert --- or *** on own line to <hr>',
+    pattern: /^\s*([-*]{3,})\s*$/gm,
+    replacement: '<hr>'
+  },
+
+  // Issue #5: Extra spaces inside tags (< i > → <i>)
+  {
+    name: 'trim-tag-spaces',
+    description: 'Remove spaces from < i > and < /i >',
+    pattern: /<\s+([ibu])\s+>|<\s*\/\s*([ibu])\s*>/gi,
+    replacement: (match, openTag, closeTag) => openTag ? `<${openTag}>` : `</${closeTag}>`
+  },
+
+  // Issue #6: Multiple consecutive <br> tags (excessive line breaks)
+  {
+    name: 'limit-br-tags',
+    description: 'Reduce 3+ consecutive <br> to <br><br>',
+    pattern: /(<br\s*\/?>\s*){3,}/gi,
+    replacement: '<br><br>'
+  },
+
+  // Issue #7: Multiple consecutive <hr> tags (duplicates)
+  {
+    name: 'dedupe-hr-tags',
+    description: 'Remove duplicate <hr> tags',
+    pattern: /(<hr>\s*){2,}/gi,
+    replacement: '<hr>'
+  },
+
+  // DISABLED BY DEFAULT: HTML entity decoding
+  // This can be risky - might interfere with intentional escaping
+  // Enable by removing from disabledRules if needed
+  {
+    name: 'decode-html-entities',
+    description: 'Decode &lt; &gt; &amp; etc.',
+    apply: (html: string, stats: RepairStats) => {
+      const entities = [
+        { pattern: /&lt;/g, replacement: '<' },
+        { pattern: /&gt;/g, replacement: '>' },
+        { pattern: /&amp;/g, replacement: '&' },
+        { pattern: /&quot;/g, replacement: '"' },
+        { pattern: /&#39;|&apos;/g, replacement: "'" },
+      ];
+
+      let repaired = html;
+      let count = 0;
+
+      for (const entity of entities) {
+        const matches = repaired.match(entity.pattern);
+        if (matches) {
+          count += matches.length;
+          repaired = repaired.replace(entity.pattern, entity.replacement);
+        }
+      }
+
+      if (count > 0) {
+        stats.applied.push(`Decoded ${count} HTML entities`);
+      }
+
+      return repaired;
+    }
+  }
+];
+
+// REMOVED AGGRESSIVE RULES:
+// - repairDanglingClosingTags: Too aggressive, creates unwanted italics
+// - repairUnclosedTags: Risky pattern matching across content
+// - repairNestedSameTags: Edge case, might break intentional nesting
+// - repairBoldWithAsterisks: Conflicts with AI using * for emphasis
+
+export class HtmlRepairService {
   /**
-   * Main repair function - applies all repair rules to HTML content
+   * Main repair function - applies all enabled repair rules
    */
   static repair(html: string, options: RepairOptions = { enabled: true }): { html: string; stats: RepairStats } {
     if (!options.enabled) {
@@ -30,23 +154,32 @@ export class HtmlRepairService {
     const stats: RepairStats = { applied: [], warnings: [] };
     let repairedHtml = html;
 
-    // Apply each repair rule in sequence
-    const repairs = [
-      this.repairCapitalItalicTags,
-      this.repairSelfClosingHr,
-      this.repairIllustrationMarkers,
-      this.repairTripleDashes,
-      this.repairNestedSameTags,      // Fix nested tags BEFORE unclosed tags
-      this.repairDanglingClosingTags,
-      this.repairUnclosedTags,
-      this.repairExtraSpacesInTags,
-      this.repairBoldWithAsterisks,
-      this.repairMultipleBrTags,
-    ];
+    const disabledRules = new Set(options.disabledRules || []);
 
-    for (const repairFn of repairs) {
-      const result = repairFn.call(this, repairedHtml, stats, options);
-      repairedHtml = result;
+    for (const rule of REPAIR_RULES) {
+      if (disabledRules.has(rule.name)) {
+        continue;
+      }
+
+      // Complex rule with custom logic
+      if ('apply' in rule) {
+        repairedHtml = rule.apply(repairedHtml, stats);
+        continue;
+      }
+
+      // Simple pattern-based rule
+      const simpleRule = rule as SimpleRule;
+
+      // Skip if test function says so
+      if (simpleRule.test && !simpleRule.test(repairedHtml)) {
+        continue;
+      }
+
+      const matches = repairedHtml.match(simpleRule.pattern);
+      if (matches && matches.length > 0) {
+        stats.applied.push(`${simpleRule.description} (${matches.length} occurrences)`);
+        repairedHtml = repairedHtml.replace(simpleRule.pattern, simpleRule.replacement as any);
+      }
     }
 
     if (options.verbose && stats.applied.length > 0) {
@@ -57,248 +190,7 @@ export class HtmlRepairService {
   }
 
   /**
-   * Issue #1: Capital <I> tags instead of lowercase <i>
-   * Example: <I>text</I> → <i>text</i>
-   */
-  private static repairCapitalItalicTags(html: string, stats: RepairStats, options: RepairOptions): string {
-    const pattern = /<I>(.*?)<\/I>/gi;
-    const matches = html.match(pattern);
-
-    if (matches && matches.length > 0) {
-      stats.applied.push(`Fixed ${matches.length} capital <I> tags to lowercase <i>`);
-      return html.replace(pattern, '<i>$1</i>');
-    }
-
-    return html;
-  }
-
-  /**
-   * Issue #2: Self-closing <hr /> instead of just <hr>
-   * Also handles extra spaces: <hr />, <hr/>, < hr >
-   */
-  private static repairSelfClosingHr(html: string, stats: RepairStats, options: RepairOptions): string {
-    const patterns = [
-      /<hr\s*\/>/gi,      // <hr />, <hr/>
-      /<\s*hr\s*>/gi,     // < hr >
-    ];
-
-    let repaired = html;
-    let count = 0;
-
-    for (const pattern of patterns) {
-      const matches = repaired.match(pattern);
-      if (matches) {
-        count += matches.length;
-        repaired = repaired.replace(pattern, '<hr>');
-      }
-    }
-
-    if (count > 0) {
-      stats.applied.push(`Normalized ${count} <hr> tags`);
-    }
-
-    return repaired;
-  }
-
-  /**
-   * Issue #3: Illustration markers without brackets
-   * Example: ILLUSTRATION-1 → [ILLUSTRATION-1]
-   * Also handles: illustration-1, Illustration-1
-   */
-  private static repairIllustrationMarkers(html: string, stats: RepairStats, options: RepairOptions): string {
-    // Match ILLUSTRATION-N not already in brackets
-    const pattern = /(?<!\[)(ILLUSTRATION-\d+)(?!\])/gi;
-    const matches = html.match(pattern);
-
-    if (matches && matches.length > 0) {
-      stats.applied.push(`Wrapped ${matches.length} illustration markers in brackets`);
-      return html.replace(pattern, '[$1]');
-    }
-
-    return html;
-  }
-
-  /**
-   * Issue #4: Triple/multiple dashes for scene breaks
-   * Example: --- → <hr> or *** → <hr>
-   * Only converts when dashes/asterisks are on their own line
-   */
-  private static repairTripleDashes(html: string, stats: RepairStats, options: RepairOptions): string {
-    // Match 3+ dashes or asterisks on their own line (with optional whitespace)
-    const pattern = /^\s*([-*]{3,})\s*$/gm;
-    const matches = html.match(pattern);
-
-    if (matches && matches.length > 0) {
-      stats.applied.push(`Converted ${matches.length} dash/asterisk separators to <hr>`);
-      return html.replace(pattern, '<hr>');
-    }
-
-    return html;
-  }
-
-  /**
-   * Issue #5: Unclosed or mismatched tags
-   * Example: <i>text<i> → <i>text</i>
-   *
-   * IMPORTANT: Only match if there's NO closing tag in between.
-   * This prevents matching across properly closed tags like:
-   * <i>word</i> more '<i>other</i>' → should NOT match
-   */
-  private static repairUnclosedTags(html: string, stats: RepairStats, options: RepairOptions): string {
-    let repaired = html;
-    let fixCount = 0;
-
-    // Fix <i>text<i> where text doesn't contain </i>
-    // Use negative lookahead to prevent matching across closed tags
-    const iPattern = /<i>((?:(?!<\/?i>).)*?)<i>/gi;
-    const iMatches = repaired.match(iPattern);
-    if (iMatches) {
-      fixCount += iMatches.length;
-      repaired = repaired.replace(iPattern, '<i>$1</i>');
-    }
-
-    // Fix <b>text<b> where text doesn't contain </b>
-    const bPattern = /<b>((?:(?!<\/?b>).)*?)<b>/gi;
-    const bMatches = repaired.match(bPattern);
-    if (bMatches) {
-      fixCount += bMatches.length;
-      repaired = repaired.replace(bPattern, '<b>$1</b>');
-    }
-
-    if (fixCount > 0) {
-      stats.applied.push(`Fixed ${fixCount} unclosed/mismatched tags`);
-    }
-
-    return repaired;
-  }
-
-  /**
-   * Issue #6: Nested same tags (redundant)
-   * Example: <i><i>text</i></i> → <i>text</i>
-   */
-  private static repairNestedSameTags(html: string, stats: RepairStats, options: RepairOptions): string {
-    let repaired = html;
-    let fixCount = 0;
-
-    // Remove nested <i><i>...</i></i>
-    const iPattern = /<i>\s*<i>(.*?)<\/i>\s*<\/i>/gi;
-    const iMatches = repaired.match(iPattern);
-    if (iMatches) {
-      fixCount += iMatches.length;
-      repaired = repaired.replace(iPattern, '<i>$1</i>');
-    }
-
-    // Remove nested <b><b>...</b></b>
-    const bPattern = /<b>\s*<b>(.*?)<\/b>\s*<\/b>/gi;
-    const bMatches = repaired.match(bPattern);
-    if (bMatches) {
-      fixCount += bMatches.length;
-      repaired = repaired.replace(bPattern, '<b>$1</b>');
-    }
-
-    if (fixCount > 0) {
-      stats.applied.push(`Removed ${fixCount} redundant nested tags`);
-    }
-
-    return repaired;
-  }
-
-  /**
-   * Issue #6b: Dangling closing tags preceding text
-   * Example: </i>Text</i> → <i>Text</i>
-   *
-   * SIMPLIFIED APPROACH: The pattern already ensures content has no angle brackets,
-   * so it's safe to repair all matches. The conservative lookahead was too restrictive.
-   */
-  private static repairDanglingClosingTags(html: string, stats: RepairStats, options: RepairOptions): string {
-    // Match </TAG> content </TAG> where content has NO angle brackets at all
-    // The [^<]+ ensures we don't match across legitimate tags
-    const pattern = /<\/\s*(i|b|em|strong)\s*>\s*([^<]+?)\s*<\/\s*\1\s*>/gi;
-
-    let repaired = html;
-    const matches = html.match(pattern);
-
-    if (matches && matches.length > 0) {
-      stats.applied.push(`Fixed ${matches.length} dangling closing tags`);
-      // Replace all matches: </i>content</i> → <i>content</i>
-      repaired = html.replace(pattern, (_match, tag, content) => `<${tag}>${content.trim()}</${tag}>`);
-    }
-
-    return repaired;
-  }
-
-  /**
-   * Issue #7: Extra spaces inside tags
-   * Example: < i >text< /i > → <i>text</i>
-   */
-  private static repairExtraSpacesInTags(html: string, stats: RepairStats, options: RepairOptions): string {
-    let repaired = html;
-    let fixCount = 0;
-
-    // Fix spaces in opening tags: < i > → <i>
-    const openPattern = /<\s+([ibu])\s+>/gi;
-    const openMatches = repaired.match(openPattern);
-    if (openMatches) {
-      fixCount += openMatches.length;
-      repaired = repaired.replace(openPattern, '<$1>');
-    }
-
-    // Fix spaces in closing tags: < /i > → </i>
-    const closePattern = /<\s*\/\s*([ibu])\s*>/gi;
-    const closeMatches = repaired.match(closePattern);
-    if (closeMatches) {
-      fixCount += closeMatches.length;
-      repaired = repaired.replace(closePattern, '</$1>');
-    }
-
-    if (fixCount > 0) {
-      stats.applied.push(`Removed spaces from ${fixCount} tags`);
-    }
-
-    return repaired;
-  }
-
-  /**
-   * Issue #8: Bold text using **text** instead of <b>text</b>
-   * Only converts if not already inside HTML tags
-   */
-  private static repairBoldWithAsterisks(html: string, stats: RepairStats, options: RepairOptions): string {
-    // Match **text** but not if inside existing tags
-    // Negative lookbehind for < and positive lookahead for >
-    const pattern = /(?<!<[^>]*)\*\*([^*]+?)\*\*(?![^<]*>)/g;
-    const matches = html.match(pattern);
-
-    if (matches && matches.length > 0) {
-      stats.applied.push(`Converted ${matches.length} **bold** to <b>bold</b>`);
-      return html.replace(pattern, '<b>$1</b>');
-    }
-
-    return html;
-  }
-
-  /**
-   * Issue #9: Multiple consecutive <br> tags with varying formats
-   * Example: <br><br><br> → <br><br> (max 2 for paragraph breaks)
-   */
-  private static repairMultipleBrTags(html: string, stats: RepairStats, options: RepairOptions): string {
-    // Normalize all br variations first: <br/>, <br />, <BR> → <br>
-    let repaired = html.replace(/<br\s*\/?>/gi, '<br>');
-
-    // Replace 3+ consecutive <br> with just 2
-    const pattern = /(<br>\s*){3,}/gi;
-    const matches = repaired.match(pattern);
-
-    if (matches && matches.length > 0) {
-      stats.applied.push(`Normalized ${matches.length} excessive <br> sequences to <br><br>`);
-      repaired = repaired.replace(pattern, '<br><br>');
-    }
-
-    return repaired;
-  }
-
-  /**
    * Validate and report issues without fixing them
-   * Useful for debugging or understanding what would be fixed
    */
   static validate(html: string): RepairStats {
     const { stats } = this.repair(html, { enabled: true, verbose: false });
@@ -332,5 +224,22 @@ export class HtmlRepairService {
     }
 
     return report;
+  }
+
+  /**
+   * Get list of all available repair rules
+   */
+  static getAvailableRules(): Array<{ name: string; description: string }> {
+    return REPAIR_RULES.map(rule => ({
+      name: rule.name,
+      description: rule.description
+    }));
+  }
+
+  /**
+   * Apply repair with specific rules disabled
+   */
+  static repairWithDisabledRules(html: string, disabledRules: string[]): { html: string; stats: RepairStats } {
+    return this.repair(html, { enabled: true, disabledRules });
   }
 }

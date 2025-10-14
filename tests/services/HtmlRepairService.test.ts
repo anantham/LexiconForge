@@ -11,10 +11,11 @@ describe('HtmlRepairService.repair', () => {
     expect(output).not.toContain('<I>');
   });
 
-  it('normalizes hr variants (formatting issue #2)', () => {
+  it('normalizes and deduplicates hr tags (formatting issue #2)', () => {
     const input = '<hr /><hr /><hr><hr />';
     const output = repair(input);
-    expect(output).toBe('<hr><hr><hr><hr>');
+    // Should normalize variants AND remove duplicates
+    expect(output).toBe('<hr>');
   });
 
   it('wraps bare illustration markers in brackets (formatting issue #3)', () => {
@@ -29,10 +30,13 @@ describe('HtmlRepairService.repair', () => {
     expect(output.startsWith('<hr>')).toBe(true);
   });
 
-  it('fixes dangling closing italics (formatting issue #5)', () => {
+  it('does NOT fix dangling closing italics (too aggressive, removed)', () => {
+    // This repair was too aggressive and created unwanted italics
+    // We now preserve the original HTML to avoid breaking content
     const input = '</i>Status!</i> The crowd gasped.';
     const output = repair(input);
-    expect(output.startsWith('<i>Status!</i>')).toBe(true);
+    // Should be unchanged - let the AI fix this on retranslation
+    expect(output).toBe(input);
   });
 
   it('does not break properly formed italic tags after closing tag', () => {
