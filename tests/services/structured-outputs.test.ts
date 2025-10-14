@@ -1,25 +1,24 @@
 import { describe, it, expect } from 'vitest';
 
-// Mock OpenAI schema for testing (copy from aiService.ts)
+import prompts from '../../config/prompts.json';
+
+// Dynamically build the schema from the prompts file to stay in sync
 const openaiResponseSchema = {
     "type": "object",
     "properties": {
         "translatedTitle": {
             "type": "string",
-            "description": "Return a single-line English chapter title that keeps original numbering or structural cues (e.g., 'Chapter 147') and then adds an evocative subtitle separated by an em dash. Avoid trailing punctuation; make it vivid and specific to this chapter."
+            "description": prompts.translatedTitleDescription
         },
-        "translation": {
-            "type": "string", 
-            "description": "The full translated chapter content, with markers like [1] for footnotes and [ILLUSTRATION-X] for images."
-        },
+        "translation": { "type": "string", "description": prompts.translationHtmlRules },
         "footnotes": {
             "type": ["array", "null"],
-            "description": "Footnotes referenced in the text.",
+            "description": prompts.footnotesDescription,
             "items": {
                 "type": "object",
                 "properties": {
-                    "marker": {"type": "string"},
-                    "text": {"type": "string"}
+                    "marker": {"type": "string", "description": prompts.footnoteMarkerDescription},
+                    "text": {"type": "string", "description": prompts.footnoteTextDescription}
                 },
                 "required": ["marker", "text"],
                 "additionalProperties": false
@@ -27,12 +26,12 @@ const openaiResponseSchema = {
         },
         "suggestedIllustrations": {
             "type": ["array", "null"],
-            "description": "Suggested illustrations.",
+            "description": prompts.illustrationsDescription,
             "items": {
                 "type": "object", 
                 "properties": {
-                    "placementMarker": {"type": "string"},
-                    "imagePrompt": {"type": "string"}
+                    "placementMarker": {"type": "string", "description": prompts.illustrationPlacementMarkerDescription},
+                    "imagePrompt": {"type": "string", "description": prompts.illustrationImagePromptDescription}
                 },
                 "required": ["placementMarker", "imagePrompt"],
                 "additionalProperties": false
@@ -40,12 +39,12 @@ const openaiResponseSchema = {
         },
         "proposal": {
             "type": ["object", "null"],
-            "description": "A proposal to amend the system prompt.",
+            "description": prompts.proposalDescription,
             "properties": {
-                "observation": {"type": "string"},
-                "currentRule": {"type": "string"},
-                "proposedChange": {"type": "string"},
-                "reasoning": {"type": "string"}
+                "observation": {"type": "string", "description": prompts.proposalObservationDescription},
+                "currentRule": {"type": "string", "description": prompts.proposalCurrentRuleDescription},
+                "proposedChange": {"type": "string", "description": prompts.proposalProposedChangeDescription},
+                "reasoning": {"type": "string", "description": prompts.proposalReasoningDescription}
             },
             "required": ["observation", "currentRule", "proposedChange", "reasoning"],
             "additionalProperties": false

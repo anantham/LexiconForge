@@ -1,7 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
+import { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from '../types';
 import prompts from '../config/prompts.json';
 import { calculateCost } from './aiService';
+import { buildFanTranslationContext, formatHistory } from './prompts';
 
 // --- DEBUG UTILITIES ---
 const aiDebugEnabled = (): boolean => {
@@ -14,39 +15,6 @@ const aiDebugFullEnabled = (): boolean => {
   try { return typeof localStorage !== 'undefined' && localStorage.getItem('LF_AI_DEBUG_FULL') === '1'; } catch { return false; }
 };
 const dlogFull = (...args: any[]) => { if (aiDebugFullEnabled()) console.log(...args); };
-
-// --- SHARED PROMPT LOGIC ---
-
-const buildFanTranslationContext = (fanTranslation: string | null): string => {
-  if (!fanTranslation) return '';
-  return `\n${prompts.fanRefHeader}\n\n${prompts.fanRefBullets}\n\n${prompts.fanRefImportant}\n\nFAN TRANSLATION REFERENCE:\n${fanTranslation}\n\n${prompts.fanRefEnd}\n`;
-};
-
-const formatHistory = (history: HistoricalChapter[]): string => {
-    if (history.length === 0) {
-        return prompts.historyNoRecent;
-    }
-    return history.map((h, index) => {
-        const feedbackStr = h.feedback.length > 0
-            ? prompts.historyFeedbackOnThisChapter + "\n" + h.feedback.map((f: FeedbackItem) => {
-                const commentStr = f.comment ? ` (User comment: ${f.comment})` : '';
-                return `- ${f.type} on: "${f.selection}"${commentStr}`;
-            }).join('\n')
-            : prompts.historyNoFeedback;
-        
-        return `${prompts.historyHeaderTemplate.replace('{index}', String(index + 1))}\n\n` +
-               `${prompts.historyOriginalHeader}\n` +
-               `TITLE: ${h.originalTitle}\n` +
-               `CONTENT:\n${h.originalContent}\n\n` +
-               `${prompts.historyPreviousHeader}\n` +
-               `TITLE: ${h.translatedTitle}\n` +
-               `CONTENT:\n${h.translatedContent}\n\n` +
-               `${prompts.historyUserFeedbackHeader}\n` +
-               `${feedbackStr}\n\n` +
-               `--- END OF CONTEXT FOR PREVIOUS CHAPTER ${index + 1} ---`;
-    }).join('\n\n');
-};
-
 
 // --- CLAUDE TRANSLATION SERVICE ---
 

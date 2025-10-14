@@ -71,6 +71,7 @@ describe('validateApiKey', () => {
             
             expect(result.isValid).toBe(false);
             expect(result.errorMessage).toContain('Google Gemini API key is missing');
+            expect(result.errorMessage).toContain('Add it in settings or .env file.');
         });
 
         it('should fail when API key is whitespace only', () => {
@@ -88,6 +89,7 @@ describe('validateApiKey', () => {
             
             expect(result.isValid).toBe(false);
             expect(result.errorMessage).toContain('Google Gemini API key is missing');
+            expect(result.errorMessage).toContain('Add it in settings or .env file.');
         });
     });
 
@@ -143,6 +145,7 @@ describe('validateApiKey', () => {
             
             expect(result.isValid).toBe(false);
             expect(result.errorMessage).toContain('OpenAI API key is missing');
+            expect(result.errorMessage).toContain('Add it in settings or .env file.');
         });
     });
 
@@ -198,6 +201,7 @@ describe('validateApiKey', () => {
             
             expect(result.isValid).toBe(false);
             expect(result.errorMessage).toContain('DeepSeek API key is missing');
+            expect(result.errorMessage).toContain('Add it in settings or .env file.');
         });
     });
 
@@ -253,6 +257,7 @@ describe('validateApiKey', () => {
             
             expect(result.isValid).toBe(false);
             expect(result.errorMessage).toContain('OpenAI API key is missing');
+            expect(result.errorMessage).toContain('Add it in settings or .env file.');
         });
     });
 
@@ -280,7 +285,8 @@ describe('validateApiKey', () => {
                 const result = validateApiKey(settings);
                 
                 expect(result.isValid).toBe(false);
-                expect(result.errorMessage).toContain(`${expectedName} API key is missing. Please add it in the settings.`);
+                expect(result.errorMessage).toContain(`${expectedName} API key is missing`);
+                expect(result.errorMessage).toContain('Add it in settings or .env file.');
             });
         });
     });

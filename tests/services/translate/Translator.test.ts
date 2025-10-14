@@ -221,7 +221,7 @@ describe('Translator', () => {
       // Abort immediately
       abortController.abort();
 
-      await expect(translator.translate(request)).rejects.toThrow('Aborted');
+      await expect(translator.translate(request)).rejects.toThrow('Translation was aborted by user');
     });
 
     it('uses settings-based retry configuration', async () => {

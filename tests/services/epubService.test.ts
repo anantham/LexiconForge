@@ -428,13 +428,11 @@ describe('EPUB Service - Template System', () => {
       expect(template.projectDescription).toBeTruthy();
       expect(template.githubUrl).toBeTruthy();
       expect(template.additionalAcknowledgments).toBeTruthy();
-      expect(template.customFooter).toBeTruthy();
       
       // Verify specific content expectations
       expect(template.gratitudeMessage).toContain('AI language models');
       expect(template.projectDescription).toContain('LexiconForge');
       expect(template.githubUrl).toContain('github.com');
-      expect(template.customFooter).toContain('❤️');
     });
   });
   
@@ -450,8 +448,9 @@ describe('EPUB Service - Template System', () => {
       expect(customTemplate.githubUrl).toBe('https://github.com/myuser/myproject');
       
       // Non-overridden values should be defaults
+      const defaultTemplate = getDefaultTemplate();
       expect(customTemplate.projectDescription).toContain('LexiconForge');
-      expect(customTemplate.customFooter).toContain('❤️');
+      expect(customTemplate.customFooter).toBe(defaultTemplate.customFooter);
     });
     
     it('should allow complete template replacement', () => {

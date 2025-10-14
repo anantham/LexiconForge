@@ -341,6 +341,86 @@ ${schemaString}`;
     return cleaned;
   }
 
+  /**
+   * Strip markdown code fences from response text
+   * Handles cases where models wrap JSON in ```json ... ```
+   */
+  private stripMarkdownCodeFences(text: string): string {
+    let cleaned = text.trim();
+
+    // Remove opening fence with optional language identifier
+    if (cleaned.startsWith('```json')) {
+      cleaned = cleaned.slice(7);
+    } else if (cleaned.startsWith('```')) {
+      cleaned = cleaned.slice(3);
+    }
+
+    // Remove closing fence
+    if (cleaned.endsWith('```')) {
+      cleaned = cleaned.slice(0, -3);
+    }
+
+    return cleaned.trim();
+  }
+
+  /**
+   * Detect if JSON response appears truncated
+   * Checks for unbalanced braces and missing closing structures
+   */
+  private seemsTruncated(text: string): boolean {
+    const trimmed = text.trim();
+
+    // Check if ends with complete JSON
+    if (!trimmed.endsWith('}') && !trimmed.endsWith(']')) {
+      dlog('Truncation detected: Response does not end with } or ]');
+      return true;
+    }
+
+    // Check for balanced braces
+    const openBraces = (trimmed.match(/{/g) || []).length;
+    const closeBraces = (trimmed.match(/}/g) || []).length;
+
+    if (openBraces !== closeBraces) {
+      dlog('Truncation detected: Unbalanced braces', { openBraces, closeBraces });
+      return true;
+    }
+
+    // Check for balanced brackets
+    const openBrackets = (trimmed.match(/\[/g) || []).length;
+    const closeBrackets = (trimmed.match(/\]/g) || []).length;
+
+    if (openBrackets !== closeBrackets) {
+      dlog('Truncation detected: Unbalanced brackets', { openBrackets, closeBrackets });
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Extract first balanced JSON block from text
+   * Handles cases where response has preamble or postamble text
+   */
+  private extractBalancedJson(text: string): string | null {
+    const scan = (open: string, close: string): string | null => {
+      let depth = 0;
+      const start = text.indexOf(open);
+      if (start === -1) return null;
+
+      for (let i = start; i < text.length; i++) {
+        if (text[i] === open) depth++;
+        if (text[i] === close) depth--;
+        if (depth === 0) {
+          return text.substring(start, i + 1);
+        }
+      }
+      return null;
+    };
+
+    // Try object notation first, then array notation
+    return scan('{', '}') || scan('[', ']');
+  }
+
   private async processResponse(
     response: OpenAI.Chat.Completions.ChatCompletion,
     settings: AppSettings,
@@ -349,21 +429,55 @@ ${schemaString}`;
   ): Promise<TranslationResult> {
     const choice = response.choices?.[0];
     const finishReason = choice?.finish_reason || (choice as any)?.native_finish_reason || null;
-    if (finishReason === 'length') {
-      // Signal to the translator that we hit the model output cap so it can retry with higher max tokens
-      throw new Error('length_cap: Model hit token limit. Increase max_tokens or reduce output size.');
-    }
 
     const responseText = choice?.message?.content;
     if (!responseText) {
-      throw new Error('Empty response from OpenAI API');
+      throw new Error('Empty response from API');
+    }
+
+    dlogFull('Raw response text:', responseText.substring(0, 500));
+
+    // Check for truncation BEFORE parsing
+    if (finishReason === 'length' || this.seemsTruncated(responseText)) {
+      dlog('Response appears truncated', {
+        finishReason,
+        responseLength: responseText.length,
+        endsWithBrace: responseText.trim().endsWith('}')
+      });
+      throw new Error('length_cap: Model hit token limit. Increase max_tokens or reduce output size.');
+    }
+
+    // Strip markdown code fences if present
+    let cleanedText = this.stripMarkdownCodeFences(responseText);
+
+    if (cleanedText !== responseText) {
+      dlog('Stripped markdown code fences from response');
     }
 
     let parsedResponse: any;
+
+    // Try direct parse first
     try {
-      parsedResponse = JSON.parse(responseText);
-    } catch (error) {
-      throw new Error(`Failed to parse JSON response: ${responseText.substring(0, 200)}...`);
+      parsedResponse = JSON.parse(cleanedText);
+      dlog('Successfully parsed JSON on first attempt');
+    } catch (initialError) {
+      dlog('Initial parse failed, attempting balanced JSON extraction');
+
+      // Try extracting balanced JSON block
+      const extracted = this.extractBalancedJson(cleanedText);
+
+      if (extracted) {
+        try {
+          parsedResponse = JSON.parse(extracted);
+          dlog('Successfully parsed JSON after extraction');
+        } catch (extractError) {
+          dlogFull('Extraction also failed. Cleaned text:', cleanedText.substring(0, 500));
+          throw new Error(`Failed to parse JSON response after extraction: ${cleanedText.substring(0, 200)}...`);
+        }
+      } else {
+        dlogFull('Could not extract balanced JSON. Original text:', responseText.substring(0, 500));
+        throw new Error(`Failed to parse JSON response (no balanced JSON found): ${responseText.substring(0, 200)}...`);
+      }
     }
 
     // Calculate cost and timing

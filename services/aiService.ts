@@ -5,9 +5,10 @@ import OpenAI from 'openai';
 import { openrouterService } from './openrouterService';
 import { supportsStructuredOutputs, supportsParameters } from './capabilityService';
 import { rateLimitService } from './rateLimitService';
-import { AppSettings, HistoricalChapter, TranslationResult, FeedbackItem, UsageMetrics } from '../types';
+import { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from '../types';
 import { COSTS_PER_MILLION_TOKENS } from '../config/costs';
 import appConfig from '../config/app.json';
+import { buildFanTranslationContext, formatHistory } from './prompts';
 
 // Parameter validation using config limits
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -37,28 +38,31 @@ import { sanitizeHtml as sanitizeTranslationHTML } from './translate/HtmlSanitiz
  * wasted resources and provide immediate user feedback.
  */
 export const validateApiKey = (settings: AppSettings): { isValid: boolean; errorMessage?: string } => {
+  // Support environments without Node's process global
+  const env = (typeof process !== 'undefined' && process?.env) ? process.env : {};
+
   let requiredApiKey: string | undefined;
   let providerName: string;
 
   switch (settings.provider) {
     case 'Gemini':
-      requiredApiKey = settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any);
+      requiredApiKey = settings.apiKeyGemini || (env.GEMINI_API_KEY as any);
       providerName = 'Google Gemini';
       break;
     case 'OpenAI':
-      requiredApiKey = settings.apiKeyOpenAI || (process.env.OPENAI_API_KEY as any);
+      requiredApiKey = settings.apiKeyOpenAI || (env.OPENAI_API_KEY as any);
       providerName = 'OpenAI';
       break;
     case 'DeepSeek':
-      requiredApiKey = settings.apiKeyDeepSeek || (process.env.DEEPSEEK_API_KEY as any);
+      requiredApiKey = settings.apiKeyDeepSeek || (env.DEEPSEEK_API_KEY as any);
       providerName = 'DeepSeek';
       break;
     case 'OpenRouter':
-      requiredApiKey = (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as any);
+      requiredApiKey = (settings as any).apiKeyOpenRouter || (env.OPENROUTER_API_KEY as any);
       providerName = 'OpenRouter';
       break;
     case 'Claude':
-      requiredApiKey = settings.apiKeyClaude || (process.env.CLAUDE_API_KEY as any);
+      requiredApiKey = settings.apiKeyClaude || (env.CLAUDE_API_KEY as any);
       providerName = 'Claude (Anthropic)';
       break;
     default:
@@ -70,7 +74,7 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
     console.error('[API Key Validation Failed]', {
       provider: providerName,
       hasSettingsKey: !!settings[`apiKey${settings.provider}` as keyof typeof settings],
-      hasEnvKey: !!process.env[`${settings.provider.toUpperCase()}_API_KEY`]
+      hasEnvKey: !!env?.[`${settings.provider.toUpperCase()}_API_KEY`]
     });
 
     // Provider-specific help messages with links
@@ -149,46 +153,6 @@ function extractBalancedJson(text: string): string {
 // Normalize common scene break markers and stray tags in translation HTML
 // sanitizeTranslationHTML is imported from services/translate/HtmlSanitizer
 
-const buildFanTranslationContext = (fanTranslation: string | null): string => {
-  if (!fanTranslation) return '';
-  return `\n${prompts.fanRefHeader}\n\n${prompts.fanRefBullets}\n\n${prompts.fanRefImportant}\n\nFAN TRANSLATION REFERENCE:\n${fanTranslation}\n\n${prompts.fanRefEnd}\n`;
-};
-
-const formatHistory = (history: HistoricalChapter[]): string => {
-  if (history.length === 0) {
-    return prompts.historyNoRecent;
-  }
-  return history.map((h, index) => {
-    // Derive structured-output hints from the previous translated text
-    const illuCount = (h.translatedContent.match(/\[ILLUSTRATION-\d+\]/g) || []).length;
-    const footMarkerCount = (h.footnotes || []).length;
-    const feedbackCount = h.feedback?.length || 0;
-    const feedbackStr = h.feedback.length > 0
-        ? "Feedback on this chapter:\n" + h.feedback.map((f: FeedbackItem) => {
-            const commentStr = f.comment ? ` (User comment: ${f.comment})` : '';
-            return `- ${f.type} on: "${f.selection}"${commentStr}`;
-        }).join('\n')
-        : "No feedback was given on this chapter.";
-    
-    return `${prompts.historyHeaderTemplate.replace('{index}', String(index + 1))}\n\n` +
-           `${prompts.historyOriginalHeader}\n` +
-           `TITLE: ${h.originalTitle}\n` +
-           `CONTENT:\n${h.originalContent}\n\n` +
-           `${prompts.historyPreviousHeader}\n` +
-           `TITLE: ${h.translatedTitle}\n` +
-           `CONTENT:
-${h.translatedContent}
-
-` +           `${(h.footnotes && h.footnotes.length > 0) ? "FOOTNOTES:\n" + h.footnotes.map(f => `${f.marker}: ${f.text}`).join('\n') + "\n\n" : ""}` +           `${prompts.historyStructuredHeader}
-` +
-           `${prompts.historyIllustrationMarkersLabel} ${illuCount}\n` +
-           `${prompts.historyFootnoteMarkersLabel} ${footMarkerCount}\n` +
-           `${prompts.historyFeedbackCountLabel} ${feedbackCount}\n\n` +
-           `${prompts.historyUserFeedbackHeader}\n` +
-           `${feedbackStr}\n\n` +
-           `--- END OF CONTEXT FOR PREVIOUS CHAPTER ${index + 1} ---`;
-  }).join('\n\n');
-};
 
 // --- COST CALCULATION ---
 

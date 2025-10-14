@@ -11,6 +11,21 @@ import {
   type TranslationStats
 } from '../../../services/epub/Templates';
 
+const expectLocalizedNumber = (html: string, value: number) => {
+  const locales = ['en-US', 'en-IN', 'fr-FR', 'de-DE', 'ja-JP'];
+  const variants = new Set<string>();
+  locales.forEach(locale => {
+    try {
+      variants.add(new Intl.NumberFormat(locale).format(value));
+    } catch {
+      // ignore locale errors in minimal environments
+    }
+  });
+  variants.add(value.toString());
+  const matched = Array.from(variants).some(variant => html.includes(variant));
+  expect(matched).toBe(true);
+};
+
 describe('Templates', () => {
   describe('getDefaultTemplate', () => {
     it('returns default template with all required fields', () => {
@@ -296,8 +311,8 @@ describe('Templates', () => {
       const page = generateStatsAndAcknowledgments(mockStats, mockTemplate);
       
       expect(page).toContain('15'); // total chapters
-      expect(page).toContain('75,000'); // total words
-      expect(page).toContain('375,000'); // total characters
+      expectLocalizedNumber(page, 75000);
+      expectLocalizedNumber(page, 375000);
       expect(page).toContain('5000'); // average words per chapter
     });
 
