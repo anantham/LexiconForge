@@ -101,6 +101,16 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<hr>'
   },
 
+  // Issue #8: Dangling closing tags for short content (safe version with length limit)
+  // Fixes patterns like </i>'Ding!'</i> → <i>'Ding!'</i>
+  // Only matches content < 50 chars to avoid creating large unwanted italic chunks
+  {
+    name: 'fix-short-dangling-closers',
+    description: 'Fix dangling closing tags for short content (<50 chars)',
+    pattern: /<\/\s*(i|b|em|strong)\s*>([^<]{1,50}?)<\/\s*\1\s*>/gi,
+    replacement: '<$1>$2</$1>'
+  },
+
   // DISABLED BY DEFAULT: HTML entity decoding
   // This can be risky - might interfere with intentional escaping
   // Enable by removing from disabledRules if needed
@@ -137,7 +147,8 @@ const REPAIR_RULES: RepairRule[] = [
 ];
 
 // REMOVED AGGRESSIVE RULES:
-// - repairDanglingClosingTags: Too aggressive, creates unwanted italics
+// - repairDanglingClosingTags: Original version was too aggressive, created unwanted large italic chunks
+//   → Replaced with fix-short-dangling-closers (Issue #8) that uses 50-char length limit for safety
 // - repairUnclosedTags: Risky pattern matching across content
 // - repairNestedSameTags: Edge case, might break intentional nesting
 // - repairBoldWithAsterisks: Conflicts with AI using * for emphasis
