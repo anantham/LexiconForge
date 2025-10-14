@@ -131,11 +131,11 @@ export const createChaptersSlice: StateCreator<
     // Cancel any active translation from the previous chapter when navigating away
     const prevChapterId = get().currentChapterId;
     if (prevChapterId && prevChapterId !== chapterId) {
-      console.log('🚫 [Chapters] Navigation detected, cancelling previous chapter translation:', prevChapterId);
+      debugLog('translation', 'summary', '🚫 [Chapters] Navigation detected, cancelling previous chapter translation:', prevChapterId);
       const translationsActions = get() as any;
       if (translationsActions.cancelTranslation) {
         translationsActions.cancelTranslation(prevChapterId);
-        console.log('✅ [Chapters] Cancelled translation for:', prevChapterId);
+        debugLog('translation', 'summary', '✅ [Chapters] Cancelled translation for:', prevChapterId);
       }
     }
 
@@ -700,17 +700,17 @@ export const createChaptersSlice: StateCreator<
 
         const existingVersions = await fetchTranslationVersions(nextChapterId);
         if (existingVersions.length > 0) {
-          debugLog('worker', 'summary', `[Worker] Skipping chapter #${targetNumber} - ${existingVersions.length} version(s) already exist.`);
+          debugLog('worker', 'full', `[Worker] Skipping chapter #${targetNumber} - ${existingVersions.length} version(s) already exist.`);
           continue;
         }
 
         if (get().pendingTranslations?.has(nextChapterId)) {
-          debugLog('worker', 'summary', `[Worker] Skipping chapter #${targetNumber} - translation already pending.`);
+          debugLog('worker', 'full', `[Worker] Skipping chapter #${targetNumber} - translation already pending.`);
           continue;
         }
 
         if (isTranslationActive(nextChapterId)) {
-          debugLog('worker', 'summary', `[Worker] Skipping chapter #${targetNumber} - translation already in progress.`);
+          debugLog('worker', 'full', `[Worker] Skipping chapter #${targetNumber} - translation already in progress.`);
           continue;
         }
 

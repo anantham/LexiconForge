@@ -477,7 +477,7 @@ export class NavigationService {
     updateHydratingState: (chapterId: string, hydrating: boolean) => void
   ): Promise<EnhancedChapter | null> {
     const opStart = memoryTimestamp();
-    memorySummary('Chapter hydration requested', { chapterId });
+    memoryDetail('Chapter hydration requested', { chapterId });
     slog(`[IDB] Loading chapter from IndexedDB: ${chapterId}`);
     
     // Mark as hydrating
@@ -509,7 +509,7 @@ export class NavigationService {
       
       if (!rec) {
         swarn(`[IDB] No record found for ${chapterId}`);
-        memorySummary('Chapter hydration missing record', { chapterId });
+        memoryDetail('Chapter hydration missing record', { chapterId });
         return null;
       }
 
@@ -553,7 +553,7 @@ export class NavigationService {
         }
       } catch (error) {
         console.warn(`[IDB] Failed to load active translation for ${chapterId}:`, error);
-        memorySummary('Chapter hydration translation load failed', {
+        memoryDetail('Chapter hydration translation load failed', {
           chapterId,
           error: (error as Error)?.message || error,
         });
@@ -569,7 +569,7 @@ export class NavigationService {
       
     } catch (error) {
       console.error(`[IDB] Error loading chapter ${chapterId}:`, error);
-      memorySummary('Chapter hydration threw', {
+      memoryDetail('Chapter hydration threw', {
         chapterId,
         error: (error as Error)?.message || error,
       });

@@ -93,7 +93,7 @@ export class TranslationService {
 
     const abortController = new AbortController();
     this.activeTranslations.set(chapterId, abortController);
-    console.log('🔵 [TranslationService] Translation started, activeTranslations.set:', chapterId, '| Active count:', this.activeTranslations.size);
+    debugLog('translation', 'summary', '🔵 [TranslationService] Translation started, activeTranslations.set:', chapterId, '| Active count:', this.activeTranslations.size);
 
     try {
       // Build translation history for context
@@ -189,7 +189,7 @@ export class TranslationService {
       }
     } finally {
       this.activeTranslations.delete(chapterId);
-      console.log('🟢 [TranslationService] Translation ended, activeTranslations.delete:', chapterId, '| Active count:', this.activeTranslations.size);
+      debugLog('translation', 'summary', '🟢 [TranslationService] Translation ended, activeTranslations.delete:', chapterId, '| Active count:', this.activeTranslations.size);
     }
   }
 
@@ -308,7 +308,7 @@ export class TranslationService {
     if (controller) {
       try {
         controller.abort();
-        console.log('🔴 [TranslationService] Translation abort() called for:', chapterId, '| Active count before delete:', this.activeTranslations.size);
+        debugLog('translation', 'summary', '🔴 [TranslationService] Translation abort() called for:', chapterId, '| Active count before delete:', this.activeTranslations.size);
         slog(`[Translate] Cancel requested for ${chapterId}`);
         return true;
       } catch (e) {
@@ -316,10 +316,10 @@ export class TranslationService {
         return false;
       } finally {
         this.activeTranslations.delete(chapterId);
-        console.log('🟢 [TranslationService] Translation cancelled and removed:', chapterId, '| Active count after delete:', this.activeTranslations.size);
+        debugLog('translation', 'summary', '🟢 [TranslationService] Translation cancelled and removed:', chapterId, '| Active count after delete:', this.activeTranslations.size);
       }
     }
-    console.log('⚠️ [TranslationService] Cancel requested but no active translation found for:', chapterId, '| Active IDs:', Array.from(this.activeTranslations.keys()));
+    debugLog('translation', 'full', '⚠️ [TranslationService] Cancel requested but no active translation found for:', chapterId, '| Active IDs:', Array.from(this.activeTranslations.keys()));
     return false;
   }
 
@@ -328,7 +328,7 @@ export class TranslationService {
    */
   static isTranslationActive(chapterId: string): boolean {
     const isActive = this.activeTranslations.has(chapterId);
-    console.log('🔍 [TranslationService] isTranslationActive check:', chapterId, '→', isActive, '| Active count:', this.activeTranslations.size, '| Active IDs:', Array.from(this.activeTranslations.keys()));
+    debugLog('translation', 'full', '🔍 [TranslationService] isTranslationActive check:', chapterId, '→', isActive, '| Active count:', this.activeTranslations.size, '| Active IDs:', Array.from(this.activeTranslations.keys()));
     return isActive;
   }
 
