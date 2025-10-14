@@ -37,6 +37,62 @@ describe('HtmlSanitizer', () => {
       const input = '<b>bold</b> <i>italic</i> <em>em</em> <strong>strong</strong>';
       expect(sanitizeHtml(input)).toBe(input);
     });
+
+    it('escapes angle brackets in game title references', () => {
+      const input = 'In the original <Dungeon Attack> lore, monsters are common.';
+      const output = sanitizeHtml(input);
+
+      // The opening < before "Dungeon" should be escaped
+      expect(output).toContain('&lt;Dungeon Attack>');
+      expect(output).not.toContain('<Dungeon Attack>');
+
+      // This is INTENTIONAL - it prevents XSS while preserving text
+      // When rendered in browser, user will see: <Dungeon Attack>
+    });
+
+    it('escapes angle brackets in skill names', () => {
+      const input = 'He used <Two-Handed Attack> to strike.';
+      const output = sanitizeHtml(input);
+
+      expect(output).toContain('&lt;Two-Handed Attack>');
+    });
+
+    it('escapes partial/malformed tags', () => {
+      const input = 'Text <incomplete tag without closing';
+      const output = sanitizeHtml(input);
+
+      expect(output).toContain('&lt;incomplete');
+    });
+
+    it('handles mixed legitimate tags and angle brackets', () => {
+      const input = '<i>thought</i> about <Dungeon Attack> carefully';
+      const output = sanitizeHtml(input);
+
+      // Should preserve <i> tags
+      expect(output).toContain('<i>thought</i>');
+
+      // Should escape <Dungeon
+      expect(output).toContain('&lt;Dungeon Attack>');
+    });
+
+    it('handles consecutive angle bracket text', () => {
+      const input = 'Skills: <Attack>, <Defend>, <Heal>';
+      const output = sanitizeHtml(input);
+
+      expect(output).toContain('&lt;Attack>');
+      expect(output).toContain('&lt;Defend>');
+      expect(output).toContain('&lt;Heal>');
+    });
+
+    it('does not double-escape already escaped entities', () => {
+      // This tests if sanitizer is idempotent
+      const input = 'Text &lt;Already Escaped&gt; more';
+      const output = sanitizeHtml(input);
+
+      // Should NOT become &amp;lt;
+      expect(output).toBe(input);
+      expect(output).not.toContain('&amp;');
+    });
   });
 
   describe('toStrictXhtml (strict for EPUB)', () => {

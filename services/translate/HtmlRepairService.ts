@@ -37,6 +37,7 @@ export class HtmlRepairService {
       this.repairIllustrationMarkers,
       this.repairTripleDashes,
       this.repairNestedSameTags,      // Fix nested tags BEFORE unclosed tags
+      this.repairDanglingClosingTags,
       this.repairUnclosedTags,
       this.repairExtraSpacesInTags,
       this.repairBoldWithAsterisks,
@@ -138,21 +139,26 @@ export class HtmlRepairService {
   /**
    * Issue #5: Unclosed or mismatched tags
    * Example: <i>text<i> → <i>text</i>
+   *
+   * IMPORTANT: Only match if there's NO closing tag in between.
+   * This prevents matching across properly closed tags like:
+   * <i>word</i> more '<i>other</i>' → should NOT match
    */
   private static repairUnclosedTags(html: string, stats: RepairStats, options: RepairOptions): string {
     let repaired = html;
     let fixCount = 0;
 
-    // Fix <i>text<i> (opening tag used as closing)
-    const iPattern = /<i>(.*?)<i>/gi;
+    // Fix <i>text<i> where text doesn't contain </i>
+    // Use negative lookahead to prevent matching across closed tags
+    const iPattern = /<i>((?:(?!<\/?i>).)*?)<i>/gi;
     const iMatches = repaired.match(iPattern);
     if (iMatches) {
       fixCount += iMatches.length;
       repaired = repaired.replace(iPattern, '<i>$1</i>');
     }
 
-    // Fix <b>text<b> (opening tag used as closing)
-    const bPattern = /<b>(.*?)<b>/gi;
+    // Fix <b>text<b> where text doesn't contain </b>
+    const bPattern = /<b>((?:(?!<\/?b>).)*?)<b>/gi;
     const bMatches = repaired.match(bPattern);
     if (bMatches) {
       fixCount += bMatches.length;
@@ -192,6 +198,30 @@ export class HtmlRepairService {
 
     if (fixCount > 0) {
       stats.applied.push(`Removed ${fixCount} redundant nested tags`);
+    }
+
+    return repaired;
+  }
+
+  /**
+   * Issue #6b: Dangling closing tags preceding text
+   * Example: </i>Text</i> → <i>Text</i>
+   *
+   * SIMPLIFIED APPROACH: The pattern already ensures content has no angle brackets,
+   * so it's safe to repair all matches. The conservative lookahead was too restrictive.
+   */
+  private static repairDanglingClosingTags(html: string, stats: RepairStats, options: RepairOptions): string {
+    // Match </TAG> content </TAG> where content has NO angle brackets at all
+    // The [^<]+ ensures we don't match across legitimate tags
+    const pattern = /<\/\s*(i|b|em|strong)\s*>\s*([^<]+?)\s*<\/\s*\1\s*>/gi;
+
+    let repaired = html;
+    const matches = html.match(pattern);
+
+    if (matches && matches.length > 0) {
+      stats.applied.push(`Fixed ${matches.length} dangling closing tags`);
+      // Replace all matches: </i>content</i> → <i>content</i>
+      repaired = html.replace(pattern, (_match, tag, content) => `<${tag}>${content.trim()}</${tag}>`);
     }
 
     return repaired;
