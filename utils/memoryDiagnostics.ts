@@ -40,7 +40,7 @@ export const memoryTiming = (
     durationMs: Number.isFinite(durationMs) ? Number(durationMs.toFixed(2)) : durationMs,
     ...(extra || {}),
   };
-  memorySummary(`${label} completed`, payload);
+  memoryDetail(`${label} completed`, payload);
   return durationMs;
 };
 
@@ -48,5 +48,5 @@ export const memoryCacheSnapshot = (
   context: string,
   data: { size: number; pinned?: number; hydrated?: number; windowSize?: number; note?: string }
 ): void => {
-  memorySummary(`${context} cache state`, data);
+  memoryDetail(`${context} cache state`, data);
 };
