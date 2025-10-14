@@ -75,12 +75,16 @@ export async function collectExportData(
     })) || [];
 
     // Apply HTML repair to translation content for export (Option 3: belt and suspenders)
-    const rawTranslation = chapter.translationResult?.translation;
+    const originalTranslatedContent =
+      chapter.translationResult?.translatedContent ?? chapter.translationResult?.translation;
+
     let repairedTranslation: string | undefined = undefined;
-    if (rawTranslation && options.enableHtmlRepair !== false) {
-      const { html } = HtmlRepairService.repair(rawTranslation, { enabled: true, verbose: false });
+    if (originalTranslatedContent && options.enableHtmlRepair !== false) {
+      const { html } = HtmlRepairService.repair(originalTranslatedContent, { enabled: true, verbose: false });
       repairedTranslation = html;
     }
+
+    const exportedTranslatedContent = repairedTranslation ?? originalTranslatedContent;
 
     // Build normalized chapter
     const collectedChapter: CollectedChapter = {
@@ -89,7 +93,7 @@ export async function collectExportData(
       title: chapter.title || '',
       content: chapter.content || '',
       translatedTitle: chapter.translationResult?.translatedTitle,
-      translatedContent: repairedTranslation || rawTranslation, // Use repaired version if available
+      translatedContent: exportedTranslatedContent,
       footnotes,
       imageReferences,
       translationMeta: chapter.translationResult ? {
