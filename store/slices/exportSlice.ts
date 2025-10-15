@@ -1,5 +1,6 @@
 import { StateCreator } from 'zustand';
 import { indexedDBService } from '../../services/indexeddb';
+import type { ImageGenerationMetadata } from '../../types';
 
 // Export slice state
 export interface ExportSlice {
@@ -37,6 +38,38 @@ const blobToBase64DataUrl = (blob: Blob): Promise<string> => {
     reader.onerror = () => reject(new Error('Failed to convert blob to base64'));
     reader.readAsDataURL(blob);
   });
+};
+
+const buildImageCaption = (version: number, metadata: ImageGenerationMetadata | undefined, fallbackPrompt: string): string => {
+  if (!metadata) {
+    return `Version ${version}: ${fallbackPrompt}`;
+  }
+
+  const details: string[] = [];
+
+  if (metadata.negativePrompt) {
+    details.push(`Negative: ${metadata.negativePrompt}`);
+  }
+  if (typeof metadata.guidanceScale === 'number') {
+    details.push(`Guidance ${metadata.guidanceScale}`);
+  }
+  if (metadata.loraModel) {
+    const strength = typeof metadata.loraStrength === 'number' ? ` (${metadata.loraStrength})` : '';
+    details.push(`LoRA ${metadata.loraModel}${strength}`);
+  }
+  if (metadata.steeringImage) {
+    details.push(`Steering ${metadata.steeringImage}`);
+  }
+  const modelParts = [metadata.provider, metadata.model].filter(Boolean).join(' ');
+  if (modelParts) {
+    details.push(`Model ${modelParts}`);
+  }
+  if (metadata.generatedAt) {
+    details.push(`Generated ${new Date(metadata.generatedAt).toLocaleString()}`);
+  }
+
+  const suffix = details.length > 0 ? ` • ${details.join(' • ')}` : '';
+  return `Version ${version}: ${metadata.prompt}${suffix}`;
 };
 
 export const createExportSlice: StateCreator<
@@ -161,12 +194,16 @@ export const createExportSlice: StateCreator<
             try {
               // Check if this illustration has a cache key (modern versioned images)
               const imageCacheKey = illust.generatedImage?.imageCacheKey || illust.imageCacheKey;
+              const versionKey = ch.id && illust.placementMarker
+                ? `${ch.id}:${illust.placementMarker}`
+                : null;
+              const version = versionKey
+                ? activeImageVersion[versionKey] || imageVersions[versionKey] || 1
+                : 1;
+              const versionStateEntry = (active as any).imageVersionState?.[illust.placementMarker];
 
               if (imageCacheKey && ch.id) {
                 // Modern path: Retrieve from Cache API using active version
-                const key = `${ch.id}:${illust.placementMarker}`;
-                const version = activeImageVersion[key] || imageVersions[key] || 1;
-
                 const { ImageCacheStore } = await import('../../services/imageCacheService');
 
                 const versionedKey = {
@@ -179,10 +216,12 @@ export const createExportSlice: StateCreator<
 
                 if (blob) {
                   const base64DataUrl = await blobToBase64DataUrl(blob);
+                  const metadata: ImageGenerationMetadata | undefined = versionStateEntry?.versions?.[version];
+                  const caption = buildImageCaption(version, metadata, illust.imagePrompt);
                   return {
                     marker: illust.placementMarker,
                     imageData: base64DataUrl,
-                    prompt: illust.imagePrompt
+                    prompt: caption
                   };
                 }
               }
@@ -190,10 +229,12 @@ export const createExportSlice: StateCreator<
               // Legacy fallback: use .url field (base64 data URL)
               const legacyUrl = (illust as any).url;
               if (legacyUrl) {
+                const metadata: ImageGenerationMetadata | undefined = versionStateEntry?.versions?.[version];
+                const caption = buildImageCaption(version, metadata, illust.imagePrompt);
                 return {
                   marker: illust.placementMarker,
                   imageData: legacyUrl,
-                  prompt: illust.imagePrompt
+                  prompt: caption
                 };
               }
 
@@ -204,10 +245,12 @@ export const createExportSlice: StateCreator<
               // Try legacy fallback on error
               const legacyUrl = (illust as any).url;
               if (legacyUrl) {
+                const metadata: ImageGenerationMetadata | undefined = versionStateEntry?.versions?.[version];
+                const caption = buildImageCaption(version, metadata, illust.imagePrompt);
                 return {
                   marker: illust.placementMarker,
                   imageData: legacyUrl,
-                  prompt: illust.imagePrompt
+                  prompt: caption
                 };
               }
               return null;

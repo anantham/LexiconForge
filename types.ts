@@ -98,11 +98,6 @@ export interface ImageCacheKey {
   version: number;  // Version number for tracking multiple generations (1-indexed)
 }
 
-export interface ImageVersionStateEntry {
-  latestVersion: number;
-  activeVersion: number;
-}
-
 export interface GeneratedImageResult {
   /**
    * Image data - supports two storage modes:
@@ -122,6 +117,26 @@ export interface GeneratedImageResult {
 
   requestTime: number; // in seconds
   cost: number;
+  metadata?: ImageGenerationMetadata;
+}
+
+export interface ImageGenerationMetadata {
+  version: number;
+  prompt: string;
+  negativePrompt?: string;
+  guidanceScale?: number;
+  loraModel?: string | null;
+  loraStrength?: number;
+  steeringImage?: string | null;
+  provider?: string | null;
+  model?: string | null;
+  generatedAt: string;
+}
+
+export interface ImageVersionStateEntry {
+  latestVersion: number;
+  activeVersion: number;
+  versions: Record<number, ImageGenerationMetadata>;
 }
 
 export interface UsageMetrics {

@@ -12,7 +12,7 @@
 
 import { generateImage } from './imageService';
 import { TranslationPersistenceService } from './translationPersistenceService';
-import type { AppSettings, PromptTemplate } from '../types';
+import type { AppSettings, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
 import type { EnhancedChapter } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 
@@ -219,23 +219,47 @@ export class ImageGenerationService {
           
           if (suggestionIndex >= 0) {
             const target = chapter.translationResult.suggestedIllustrations[suggestionIndex];
-            target.generatedImage = result;
-            // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
-            if (result.imageData && result.imageData.length > 0) {
-              (target as any).url = result.imageData;
-            }
 
             const keyWithMarker = `${chapterId}:${illust.placementMarker}`;
             const latestVersion = result.imageCacheKey?.version
               ?? Math.max(context.imageVersions?.[keyWithMarker] ?? 0, 1);
             const activeVersion = context.activeImageVersion?.[keyWithMarker] ?? latestVersion;
 
+            const metadata: ImageGenerationMetadata = {
+              version: latestVersion,
+              prompt: illust.imagePrompt,
+              negativePrompt,
+              guidanceScale,
+              loraModel,
+              loraStrength,
+              steeringImage: steeringImagePath,
+              provider: settings.provider,
+              model: settings.imageModel,
+              generatedAt: new Date().toISOString()
+            };
+
+            const enrichedResult = {
+              ...result,
+              metadata
+            };
+
+            target.generatedImage = enrichedResult;
+            // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
+            if (enrichedResult.imageData && enrichedResult.imageData.length > 0) {
+              (target as any).url = enrichedResult.imageData;
+            }
+
             const currentState = (chapter.translationResult as any).imageVersionState ?? {};
+            const existingEntry = currentState[illust.placementMarker] as ImageVersionStateEntry | undefined;
+            const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
+            versions[latestVersion] = metadata;
+
             (chapter.translationResult as any).imageVersionState = {
               ...currentState,
               [illust.placementMarker]: {
                 latestVersion,
-                activeVersion
+                activeVersion,
+                versions
               }
             };
             
@@ -379,22 +403,46 @@ export class ImageGenerationService {
         
         if (suggestionIndex >= 0) {
           const target = chapter.translationResult.suggestedIllustrations[suggestionIndex];
-          target.generatedImage = result;
-          // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
-          if (result.imageData && result.imageData.length > 0) {
-            (target as any).url = result.imageData;
-          }
 
           const keyWithMarker = `${chapterId}:${placementMarker}`;
           const latestVersion = result.imageCacheKey?.version
             ?? Math.max(context.imageVersions?.[keyWithMarker] ?? 0, 1);
           const activeVersion = context.activeImageVersion?.[keyWithMarker] ?? latestVersion;
+          const metadata: ImageGenerationMetadata = {
+            version: latestVersion,
+            prompt: illust.imagePrompt,
+            negativePrompt,
+            guidanceScale,
+            loraModel,
+            loraStrength,
+            steeringImage: steeringImagePath,
+            provider: settings.provider,
+            model: settings.imageModel,
+            generatedAt: new Date().toISOString()
+          };
+
+          const enrichedResult = {
+            ...result,
+            metadata
+          };
+
+          target.generatedImage = enrichedResult;
+          // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
+          if (enrichedResult.imageData && enrichedResult.imageData.length > 0) {
+            (target as any).url = enrichedResult.imageData;
+          }
+
           const currentState = (chapter.translationResult as any).imageVersionState ?? {};
+          const existingEntry = currentState[placementMarker] as ImageVersionStateEntry | undefined;
+          const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
+          versions[latestVersion] = metadata;
+
           (chapter.translationResult as any).imageVersionState = {
             ...currentState,
             [placementMarker]: {
               latestVersion,
-              activeVersion
+              activeVersion,
+              versions
             }
           };
           

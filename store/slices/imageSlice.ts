@@ -14,7 +14,7 @@ import { ImageGenerationService, type ImageGenerationContext, type ImageState, t
 import { ImageCacheStore } from '../../services/imageCacheService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { debugLog } from '../../utils/debug';
-import type { GeneratedImageResult, ImageVersionStateEntry } from '../../types';
+import type { GeneratedImageResult, ImageGenerationMetadata, ImageVersionStateEntry } from '../../types';
 
 export interface ImageSliceState {
   // Generated images state
@@ -92,7 +92,74 @@ export const createImageSlice: StateCreator<
   [],
   [],
   ImageSlice
-> = (set, get) => ({
+> = (set, get) => {
+  const buildPersistenceSnapshot = (chapter: any): TranslationSettingsSnapshot | null => {
+    const storeState = get();
+    const settings = (storeState as any).settings;
+    const promptTemplate = (storeState as any).activePromptTemplate;
+    const chapterSnapshot = chapter?.translationSettingsSnapshot || {};
+
+    const provider = chapterSnapshot.provider ?? settings?.provider;
+    const model = chapterSnapshot.model ?? settings?.model;
+    const temperature = chapterSnapshot.temperature ?? settings?.temperature ?? 0.7;
+    const systemPrompt = chapterSnapshot.systemPrompt ?? settings?.systemPrompt ?? '';
+
+    if (!provider || !model) {
+      return null;
+    }
+
+    return {
+      provider,
+      model,
+      temperature,
+      systemPrompt,
+      promptId: promptTemplate?.id,
+      promptName: promptTemplate?.name
+    };
+  };
+
+  const persistImageVersionState = async (chapterId: string, placementMarker: string, activeVersion: number) => {
+    const storeState = get();
+    const chapters = (storeState as any).chapters || new Map();
+    const chapter = chapters.get(chapterId);
+    if (!chapter?.translationResult) return;
+
+    const versionStateMap = (chapter.translationResult as any).imageVersionState ?? {};
+    const existingEntry = versionStateMap[placementMarker] as ImageVersionStateEntry | undefined;
+    const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
+    const latestFromStore = storeState.imageVersions?.[`${chapterId}:${placementMarker}`] ?? 0;
+    const latestVersion = Math.max(
+      existingEntry?.latestVersion ?? 0,
+      latestFromStore,
+      activeVersion
+    );
+
+    versionStateMap[placementMarker] = {
+      latestVersion,
+      activeVersion,
+      versions
+    };
+    (chapter.translationResult as any).imageVersionState = versionStateMap;
+
+    const snapshot = buildPersistenceSnapshot(chapter);
+    if (!snapshot) return;
+
+    try {
+      await TranslationPersistenceService.persistUpdatedTranslation(
+        chapter.id,
+        chapter.translationResult as any,
+        snapshot
+      );
+    } catch (error) {
+      console.warn('[ImageSlice] Failed to persist image version state', {
+        chapterId,
+        placementMarker,
+        error
+      });
+    }
+  };
+
+  return ({
   // Initial state
   generatedImages: {},
   imageVersions: {},
@@ -307,26 +374,7 @@ export const createImageSlice: StateCreator<
 
     if (chapter?.translationResult?.suggestedIllustrations) {
       const currentState = get();
-      const settings = (currentState as any).settings;
-      const promptTemplate = (currentState as any).activePromptTemplate;
-      const chapterSnapshot = chapter.translationSettingsSnapshot || {};
-
-      const provider = chapterSnapshot.provider ?? settings?.provider;
-      const model = chapterSnapshot.model ?? settings?.model;
-      const temperature = chapterSnapshot.temperature ?? settings?.temperature ?? 0.7;
-      const systemPrompt = chapterSnapshot.systemPrompt ?? settings?.systemPrompt ?? '';
-
-      const persistenceSnapshot: TranslationSettingsSnapshot | null =
-        provider && model
-          ? {
-              provider,
-              model,
-              temperature,
-              systemPrompt,
-              promptId: promptTemplate?.id,
-              promptName: promptTemplate?.name
-            }
-          : null;
+      const persistenceSnapshot = buildPersistenceSnapshot(chapter);
 
       chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
         const legacyUrl = illust?.url;
@@ -362,11 +410,30 @@ export const createImageSlice: StateCreator<
 
               delete (illust as any).url;
 
-              const versionState: ImageVersionStateEntry = {
-                latestVersion: cacheKey.version,
-                activeVersion: get().activeImageVersion?.[`${chapterId}:${marker}`] ?? cacheKey.version
+              const metadata: ImageGenerationMetadata = {
+                version: cacheKey.version,
+                prompt: illust?.imagePrompt || `Illustration ${marker}`,
+                negativePrompt: currentState.negativePrompts?.[`${chapterId}:${marker}`],
+                guidanceScale: currentState.guidanceScales?.[`${chapterId}:${marker}`],
+                loraModel: currentState.loraModels?.[`${chapterId}:${marker}`] ?? null,
+                loraStrength: currentState.loraStrengths?.[`${chapterId}:${marker}`],
+                steeringImage: currentState.steeringImages?.[`${chapterId}:${marker}`] ?? null,
+                provider: (currentState as any).settings?.provider ?? null,
+                model: (currentState as any).settings?.imageModel ?? null,
+                generatedAt: new Date().toISOString()
               };
-              const currentVersionState = (chapter.translationResult as any).imageVersionState ?? {};
+
+              const existingState = (chapter.translationResult as any).imageVersionState ?? {};
+              const existingEntry = existingState[marker] as ImageVersionStateEntry | undefined;
+              const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
+              versions[cacheKey.version] = metadata;
+
+              const versionState: ImageVersionStateEntry = {
+                latestVersion: Math.max(cacheKey.version, existingEntry?.latestVersion ?? 0),
+                activeVersion: get().activeImageVersion?.[`${chapterId}:${marker}`] ?? cacheKey.version,
+                versions
+              };
+              const currentVersionState = existingState;
               (chapter.translationResult as any).imageVersionState = {
                 ...currentVersionState,
                 [marker]: versionState
@@ -708,41 +775,51 @@ export const createImageSlice: StateCreator<
   // Version navigation
   navigateToNextVersion: (chapterId, placementMarker) => {
     const key = `${chapterId}:${placementMarker}`;
+    let updatedVersion: number | null = null;
     set(state => {
       const currentVersion = state.activeImageVersion[key] || 1;
       const maxVersion = state.imageVersions[key] || 1;
 
       if (currentVersion < maxVersion) {
         debugLog('image', 'summary', `[ImageSlice] Navigate to next version: ${currentVersion} -> ${currentVersion + 1}`);
+        updatedVersion = currentVersion + 1;
         return {
           activeImageVersion: {
             ...state.activeImageVersion,
-            [key]: currentVersion + 1
+            [key]: updatedVersion
           }
         };
       }
 
       return state; // Already at latest version
     });
+    if (updatedVersion !== null) {
+      void persistImageVersionState(chapterId, placementMarker, updatedVersion);
+    }
   },
 
   navigateToPreviousVersion: (chapterId, placementMarker) => {
     const key = `${chapterId}:${placementMarker}`;
+    let updatedVersion: number | null = null;
     set(state => {
       const currentVersion = state.activeImageVersion[key] || 1;
 
       if (currentVersion > 1) {
         debugLog('image', 'summary', `[ImageSlice] Navigate to previous version: ${currentVersion} -> ${currentVersion - 1}`);
+        updatedVersion = currentVersion - 1;
         return {
           activeImageVersion: {
             ...state.activeImageVersion,
-            [key]: currentVersion - 1
+            [key]: updatedVersion
           }
         };
       }
 
       return state; // Already at first version
     });
+    if (updatedVersion !== null) {
+      void persistImageVersionState(chapterId, placementMarker, updatedVersion);
+    }
   },
 
   getVersionInfo: (chapterId, placementMarker) => {
@@ -824,3 +901,4 @@ export const createImageSlice: StateCreator<
     }
   }
 });
+};
