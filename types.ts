@@ -95,6 +95,7 @@ export interface SuggestedIllustration {
 export interface ImageCacheKey {
   chapterId: string;
   placementMarker: string;
+  version: number;  // Version number for tracking multiple generations (1-indexed)
 }
 
 export interface GeneratedImageResult {

@@ -17,6 +17,7 @@ import { telemetryService } from './telemetryService';
 export interface ImageCacheKey {
   chapterId: string;
   placementMarker: string;
+  version: number;  // Version number for tracking multiple generations (1-indexed)
 }
 
 export interface ImageCacheStats {
@@ -51,8 +52,8 @@ export class ImageCacheStore {
    * Note: Cache API requires HTTP/HTTPS URLs, not custom schemes.
    * This domain won't actually be fetched - it's just a unique identifier.
    */
-  static getCacheUrl(chapterId: string, placementMarker: string): string {
-    return `https://lexiconforge.local/images/${chapterId}/${encodeURIComponent(placementMarker)}`;
+  static getCacheUrl(chapterId: string, placementMarker: string, version: number = 1): string {
+    return `https://lexiconforge.local/images/${chapterId}/${encodeURIComponent(placementMarker)}/v${version}`;
   }
 
   /**
@@ -115,10 +116,11 @@ export class ImageCacheStore {
   static async storeImage(
     chapterId: string,
     placementMarker: string,
-    imageData: string // base64 data URL
+    imageData: string, // base64 data URL
+    version: number = 1 // Version number for this generation
   ): Promise<ImageCacheKey> {
     const startTime = performance.now();
-    const cacheUrl = this.getCacheUrl(chapterId, placementMarker);
+    const cacheUrl = this.getCacheUrl(chapterId, placementMarker, version);
 
     try {
       const cache = await this.openCache();
@@ -133,6 +135,7 @@ export class ImageCacheStore {
           'X-Cached-At': new Date().toISOString(),
           'X-Chapter-Id': chapterId,
           'X-Placement-Marker': placementMarker,
+          'X-Version': String(version),
           'X-Original-Size': String(imageData.length),
           'X-Blob-Size': String(blob.size)
         }
@@ -145,6 +148,7 @@ export class ImageCacheStore {
       telemetryService.captureMemorySnapshot('image-cached', {
         chapterId,
         placementMarker,
+        version,
         originalSizeKB: (imageData.length / 1024).toFixed(2),
         blobSizeKB: (blob.size / 1024).toFixed(2),
         compressionRatio: (imageData.length / blob.size).toFixed(2),
@@ -152,7 +156,7 @@ export class ImageCacheStore {
       });
 
       // Return cache key (NOT a blob URL - those are session-scoped)
-      return { chapterId, placementMarker };
+      return { chapterId, placementMarker, version };
 
     } catch (error) {
       telemetryService.captureError('image-cache-store', error, {
@@ -170,7 +174,7 @@ export class ImageCacheStore {
   static async createBlobUrl(cacheKey: ImageCacheKey): Promise<string | null> {
     try {
       const cache = await this.openCache();
-      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker);
+      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker, cacheKey.version);
       const response = await cache.match(cacheUrl);
 
       if (!response) {
@@ -197,7 +201,7 @@ export class ImageCacheStore {
   static async has(cacheKey: ImageCacheKey): Promise<boolean> {
     try {
       const cache = await this.openCache();
-      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker);
+      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker, cacheKey.version);
       const response = await cache.match(cacheUrl);
       return !!response;
     } catch {
@@ -212,7 +216,7 @@ export class ImageCacheStore {
   static async getImageBlob(cacheKey: ImageCacheKey): Promise<Blob | null> {
     try {
       const cache = await this.openCache();
-      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker);
+      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker, cacheKey.version);
       const response = await cache.match(cacheUrl);
 
       if (!response) {
@@ -236,7 +240,7 @@ export class ImageCacheStore {
   static async removeImage(cacheKey: ImageCacheKey): Promise<boolean> {
     try {
       const cache = await this.openCache();
-      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker);
+      const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker, cacheKey.version);
       return await cache.delete(cacheUrl);
     } catch (error) {
       telemetryService.captureError('cache-delete', error, cacheKey);

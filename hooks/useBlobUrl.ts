@@ -75,7 +75,7 @@ export function useBlobUrl(cacheKey: ImageCacheKey | null | undefined): string |
         URL.revokeObjectURL(currentBlobUrl);
       }
     };
-  }, [cacheKey?.chapterId, cacheKey?.placementMarker]);
+  }, [cacheKey?.chapterId, cacheKey?.placementMarker, cacheKey?.version]);
 
   return blobUrl;
 }

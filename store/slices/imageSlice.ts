@@ -17,14 +17,18 @@ import { debugLog } from '../../utils/debug';
 export interface ImageSliceState {
   // Generated images state
   generatedImages: Record<string, ImageState>; // chapterId:placementMarker -> ImageState
-  
+
+  // Version tracking (NEW)
+  imageVersions: Record<string, number>; // chapterId:placementMarker -> latest version number (1-indexed)
+  activeImageVersion: Record<string, number>; // chapterId:placementMarker -> currently displayed version
+
   // Advanced controls
   steeringImages: Record<string, string | null>; // chapterId:placementMarker -> steering image filename
   negativePrompts: Record<string, string>; // chapterId:placementMarker -> negative prompt
   guidanceScales: Record<string, number>; // chapterId:placementMarker -> guidance scale
   loraModels: Record<string, string | null>; // chapterId:placementMarker -> LoRA model name
   loraStrengths: Record<string, number>; // chapterId:placementMarker -> LoRA strength
-  
+
   // Metrics and status
   imageGenerationMetrics: ImageGenerationMetrics | null;
   imageGenerationProgress: Record<string, {
@@ -57,6 +61,11 @@ export interface ImageSliceActions {
   resetAdvancedControls: (chapterId: string, placementMarker: string) => void;
   resetAllAdvancedControls: (chapterId: string) => void;
   
+  // Version navigation (NEW)
+  navigateToNextVersion: (chapterId: string, placementMarker: string) => void;
+  navigateToPreviousVersion: (chapterId: string, placementMarker: string) => void;
+  getVersionInfo: (chapterId: string, placementMarker: string) => { current: number; total: number } | null;
+
   // Utilities
   getImageState: (chapterId: string, placementMarker: string) => ImageState | null;
   getImageProgress: (chapterId: string) => { completed: number; total: number } | null;
@@ -68,7 +77,7 @@ export interface ImageSliceActions {
     loraModel: string | null;
     loraStrength: number;
   };
-  
+
   // Metrics
   updateMetrics: (metrics: Partial<ImageGenerationMetrics>) => void;
   clearMetrics: () => void;
@@ -84,6 +93,8 @@ export const createImageSlice: StateCreator<
 > = (set, get) => ({
   // Initial state
   generatedImages: {},
+  imageVersions: {},
+  activeImageVersion: {},
   steeringImages: {},
   negativePrompts: {},
   guidanceScales: {},
@@ -91,7 +102,7 @@ export const createImageSlice: StateCreator<
   loraStrengths: {},
   imageGenerationMetrics: null,
   imageGenerationProgress: {},
-  
+
   // Image generation
   handleGenerateImages: async (chapterId) => {
     const state = get();
@@ -184,6 +195,12 @@ export const createImageSlice: StateCreator<
   
   handleRetryImage: async (chapterId, placementMarker) => {
     const state = get();
+    const key = `${chapterId}:${placementMarker}`;
+
+    // Get next version number
+    const currentMaxVersion = state.imageVersions[key] || 0;
+    const nextVersion = currentMaxVersion + 1;
+
     const context: ImageGenerationContext = {
       chapters: (state as any).chapters || new Map(),
       settings: (state as any).settings,
@@ -192,11 +209,10 @@ export const createImageSlice: StateCreator<
       negativePrompts: state.negativePrompts,
       guidanceScales: state.guidanceScales,
       loraModels: state.loraModels,
-      loraStrengths: state.loraStrengths
+      loraStrengths: state.loraStrengths,
+      nextVersion  // Pass version to generation service
     };
-    
-    const key = `${chapterId}:${placementMarker}`;
-    
+
     // Set loading state
     set(prevState => ({
       generatedImages: {
@@ -205,15 +221,23 @@ export const createImageSlice: StateCreator<
       }
     }));
 
-    debugLog('image', 'summary', `[ImageSlice] Retrying image for ${key}`);
+    debugLog('image', 'summary', `[ImageSlice] Retrying image for ${key} - creating version ${nextVersion}`);
 
     const result = await ImageGenerationService.retryImage(chapterId, placementMarker, context);
 
-    // Update image state
+    // Update image state AND version tracking
     set(prevState => ({
       generatedImages: {
         ...prevState.generatedImages,
         [key]: result.imageState
+      },
+      imageVersions: {
+        ...prevState.imageVersions,
+        [key]: nextVersion
+      },
+      activeImageVersion: {
+        ...prevState.activeImageVersion,
+        [key]: nextVersion  // Auto-navigate to the new version
       }
     }));
 
@@ -330,6 +354,8 @@ export const createImageSlice: StateCreator<
   clearAllImages: () => {
     set({
       generatedImages: {},
+      imageVersions: {},
+      activeImageVersion: {},
       steeringImages: {},
       negativePrompts: {},
       guidanceScales: {},
@@ -512,7 +538,62 @@ export const createImageSlice: StateCreator<
   clearMetrics: () => {
     set({ imageGenerationMetrics: null });
   },
-  
+
+  // Version navigation
+  navigateToNextVersion: (chapterId, placementMarker) => {
+    const key = `${chapterId}:${placementMarker}`;
+    set(state => {
+      const currentVersion = state.activeImageVersion[key] || 1;
+      const maxVersion = state.imageVersions[key] || 1;
+
+      if (currentVersion < maxVersion) {
+        debugLog('image', 'summary', `[ImageSlice] Navigate to next version: ${currentVersion} -> ${currentVersion + 1}`);
+        return {
+          activeImageVersion: {
+            ...state.activeImageVersion,
+            [key]: currentVersion + 1
+          }
+        };
+      }
+
+      return state; // Already at latest version
+    });
+  },
+
+  navigateToPreviousVersion: (chapterId, placementMarker) => {
+    const key = `${chapterId}:${placementMarker}`;
+    set(state => {
+      const currentVersion = state.activeImageVersion[key] || 1;
+
+      if (currentVersion > 1) {
+        debugLog('image', 'summary', `[ImageSlice] Navigate to previous version: ${currentVersion} -> ${currentVersion - 1}`);
+        return {
+          activeImageVersion: {
+            ...state.activeImageVersion,
+            [key]: currentVersion - 1
+          }
+        };
+      }
+
+      return state; // Already at first version
+    });
+  },
+
+  getVersionInfo: (chapterId, placementMarker) => {
+    const state = get();
+    const key = `${chapterId}:${placementMarker}`;
+    const totalVersions = state.imageVersions[key] || 0;
+
+    if (totalVersions === 0) return null;
+
+    const currentVersion = state.activeImageVersion[key] || totalVersions; // Default to latest
+
+    return {
+      current: currentVersion,
+      total: totalVersions
+    };
+  },
+
   // Update illustration prompt and persist to IndexedDB
   updateIllustrationPrompt: async (chapterId, placementMarker, newPrompt) => {
     try {
