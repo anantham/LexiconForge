@@ -429,19 +429,22 @@ export const createChaptersSlice: StateCreator<
   addToHistory: (chapterId) => {
     set(state => {
       const newHistory = [...new Set(state.navigationHistory.concat(chapterId))];
-      
+
+      // Cap at 500 entries, keeping most recent
+      const cappedHistory = newHistory.length > 500 ? newHistory.slice(-500) : newHistory;
+
       // Persist to IndexedDB (fire-and-forget without await)
       try {
         Promise.resolve()
           .then(() => import('../../services/db/index'))
           .then(({ getRepoForService }) => {
             const repo = getRepoForService('chaptersSlice');
-            return repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {});
+            return repo.setSetting('navigation-history', { stableIds: cappedHistory }).catch(() => {});
           })
           .catch(() => {});
       } catch {}
-      
-      return { navigationHistory: newHistory };
+
+      return { navigationHistory: cappedHistory };
     });
   },
   
