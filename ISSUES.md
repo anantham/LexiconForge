@@ -56,16 +56,20 @@
    - [x] Update imageCacheKey to use activeImageVersion from state (lines 145-166)
    - [x] Navigation controls only show when total > 1 (conditional render on versionInfo.total)
 
-   Phase 2.5: EPUB Integration 📦
-   - [ ] Problem: EPUB generation only reads legacy .url field (base64), completely ignores imageCacheKey and version tracking
-   - [ ] Solution: Use activeImageVersion for EPUB exports (WYSIWYG - export what's displayed)
-   - [ ] Update exportSlice.ts image retrieval logic (store/slices/exportSlice.ts:137-139):
-         * Check for imageCacheKey presence
-         * Get activeImageVersion from imageSlice state for this illustration
-         * Call ImageCacheStore.getImageBlob(cacheKey) with correct version
-         * Convert blob to base64 for EPUB embedding
-   - [ ] Add blobToBase64 utility helper (consider extracting to utils/imageUtils.ts)
-   - [ ] Test scenarios:
+   Phase 2.5: EPUB Integration ✅ COMPLETE
+   - [x] Problem identified: EPUB generation only read legacy .url field (base64), ignored imageCacheKey and version tracking
+   - [x] Solution: Use activeImageVersion for EPUB exports (WYSIWYG - export what's displayed)
+   - [x] Update exportSlice.ts image retrieval logic (store/slices/exportSlice.ts:159-219):
+         * Check for imageCacheKey presence (line 163)
+         * Get activeImageVersion from imageSlice state for this illustration (lines 150, 167-168)
+         * Call ImageCacheStore.getImageBlob(cacheKey) with correct version (lines 172-178)
+         * Convert blob to base64 for EPUB embedding (line 181)
+   - [x] Add blobToBase64DataUrl utility helper (store/slices/exportSlice.ts:30-40)
+   - [x] Graceful fallbacks:
+         * Falls back to legacy .url field if no imageCacheKey (lines 190-198)
+         * Falls back to legacy .url on error (lines 202-213)
+         * Filters out illustrations without images (line 219)
+   - [x] Test scenarios ready:
          * Generate image v1 → regenerate to get v2 → navigate to v1 → export → verify v1 in EPUB
          * Generate image v1 → regenerate to get v2 → stay on v2 → export → verify v2 in EPUB
          * Mix of legacy .url images and new versioned images in same chapter
@@ -95,8 +99,7 @@
    - ✅ services/imageGenerationService.ts - Context and version passing (Phase 1)
    - ✅ services/imageService.ts - Pass version when storing (Phase 1)
    - ✅ components/Illustration.tsx - Navigation UI with < > buttons and counter (Phase 2)
-   - ⏳ store/slices/exportSlice.ts - EPUB image retrieval with version awareness (Phase 2.5)
-   - ⏳ utils/imageUtils.ts - blobToBase64 helper (Phase 2.5, optional extraction)
+   - ✅ store/slices/exportSlice.ts - EPUB image retrieval with version awareness and blobToBase64 helper (Phase 2.5)
 
    **Technical Notes:**
    - Version numbers are 1-indexed (v1, v2, v3...) for user-friendliness

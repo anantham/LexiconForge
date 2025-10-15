@@ -18,8 +18,25 @@ const storeDebugEnabled = (): boolean => {
   }
 };
 
-const swarn = (...args: any[]) => { 
-  if (storeDebugEnabled()) console.warn(...args); 
+const swarn = (...args: any[]) => {
+  if (storeDebugEnabled()) console.warn(...args);
+};
+
+/**
+ * Converts a Blob to a base64 data URL
+ * @param blob The blob to convert
+ * @returns Promise resolving to base64 data URL (data:image/...;base64,...)
+ */
+const blobToBase64DataUrl = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result);
+    };
+    reader.onerror = () => reject(new Error('Failed to convert blob to base64'));
+    reader.readAsDataURL(blob);
+  });
 };
 
 export const createExportSlice: StateCreator<
@@ -128,15 +145,79 @@ export const createExportSlice: StateCreator<
 
       // Build ChapterForEpub list using active translation versions
       const chaptersForEpub: import('../../services/epubService').ChapterForEpub[] = [];
+
+      // Access image version tracking state
+      const { imageVersions, activeImageVersion } = get();
+
       for (const sid of ordered) {
         const ch = byStableId.get(sid);
         if (!ch) continue;
         const active = await indexedDBService.getActiveTranslationByStableId(sid);
         if (!active) continue;
-        // Compose chapter for EPUB
-        const images = (active.suggestedIllustrations || [])
-          .filter((i: any) => !!(i as any).url)
-          .map((i: any) => ({ marker: i.placementMarker, imageData: (i as any).url, prompt: i.imagePrompt }));
+
+        // Compose chapter for EPUB - process images with version awareness
+        const images = await Promise.all(
+          (active.suggestedIllustrations || []).map(async (illust: any) => {
+            try {
+              // Check if this illustration has a cache key (modern versioned images)
+              const imageCacheKey = illust.generatedImage?.imageCacheKey || illust.imageCacheKey;
+
+              if (imageCacheKey && ch.id) {
+                // Modern path: Retrieve from Cache API using active version
+                const key = `${ch.id}:${illust.placementMarker}`;
+                const version = activeImageVersion[key] || imageVersions[key] || 1;
+
+                const { ImageCacheStore } = await import('../../services/imageCacheService');
+
+                const versionedKey = {
+                  chapterId: ch.id,
+                  placementMarker: illust.placementMarker,
+                  version: version
+                };
+
+                const blob = await ImageCacheStore.getImageBlob(versionedKey);
+
+                if (blob) {
+                  const base64DataUrl = await blobToBase64DataUrl(blob);
+                  return {
+                    marker: illust.placementMarker,
+                    imageData: base64DataUrl,
+                    prompt: illust.imagePrompt
+                  };
+                }
+              }
+
+              // Legacy fallback: use .url field (base64 data URL)
+              const legacyUrl = (illust as any).url;
+              if (legacyUrl) {
+                return {
+                  marker: illust.placementMarker,
+                  imageData: legacyUrl,
+                  prompt: illust.imagePrompt
+                };
+              }
+
+              // No image available
+              return null;
+            } catch (error) {
+              console.error(`[Export] Failed to retrieve image for marker ${illust.placementMarker}:`, error);
+              // Try legacy fallback on error
+              const legacyUrl = (illust as any).url;
+              if (legacyUrl) {
+                return {
+                  marker: illust.placementMarker,
+                  imageData: legacyUrl,
+                  prompt: illust.imagePrompt
+                };
+              }
+              return null;
+            }
+          })
+        );
+
+        // Filter out null entries (illustrations without images)
+        const validImages = images.filter((img): img is NonNullable<typeof img> => img !== null);
+
         const footnotes = (active.footnotes || []).map((f: any) => ({ marker: f.marker, text: f.text }));
         chaptersForEpub.push({
           title: ch.title,
@@ -152,7 +233,7 @@ export const createExportSlice: StateCreator<
             provider: (active.provider as any) || get().settings.provider,
             model: active.model || get().settings.model,
           },
-          images,
+          images: validImages,  // Use validImages (filtered, version-aware)
           footnotes,
         });
       }
