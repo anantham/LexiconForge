@@ -20,6 +20,7 @@ type TranslationToken =
   | { type: 'footnote'; marker: string; raw: string }
   | { type: 'illustration'; marker: string; raw: string }
   | { type: 'linebreak'; raw: string }
+  | { type: 'hr'; raw: string }
   | { type: 'italic' | 'bold' | 'emphasis'; children: TranslationToken[] };
 
 interface TokenizationResult {
@@ -27,13 +28,14 @@ interface TokenizationResult {
   nodes: React.ReactNode[];
 }
 
-const TOKEN_SPLIT_REGEX = /(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>)/g;
+const TOKEN_SPLIT_REGEX = /(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>|<hr\s*\/?>)/g;
 const ILLUSTRATION_RE = /^\[(ILLUSTRATION-\d+)\]$/;
 const FOOTNOTE_RE = /^\[(\d+)\]$/;
 const ITALIC_HTML_RE = /^<i>[\s\S]*<\/i>$/;
 const BOLD_HTML_RE = /^<b>[\s\S]*<\/b>$/;
 const EMPHASIS_RE = /^\*[\s\S]*\*$/;
 const BR_RE = /^<br\s*\/?>$/i;
+const HR_RE = /^<hr\s*\/?>$/i;
 
 const buildTranslationTokens = (text: string, baseId: string, counter: { value: number }): TranslationToken[] => {
   if (!text) return [];
@@ -55,6 +57,11 @@ const buildTranslationTokens = (text: string, baseId: string, counter: { value: 
 
     if (BR_RE.test(part)) {
       tokens.push({ type: 'linebreak', raw: part });
+      continue;
+    }
+
+    if (HR_RE.test(part)) {
+      tokens.push({ type: 'hr', raw: part });
       continue;
     }
 
@@ -108,6 +115,8 @@ const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = ''): Re
         return <Illustration key={key} marker={token.marker} />;
       case 'linebreak':
         return <br key={key} />;
+      case 'hr':
+        return <hr key={key} className="my-6 border-t border-gray-300 dark:border-gray-600" />;
       case 'italic':
         return <i key={key}>{renderTranslationTokens(token.children, key)}</i>;
       case 'bold':
@@ -186,6 +195,8 @@ const tokensToString = (tokens: TranslationToken[]): string => {
           return `[${token.marker}]`;
         case 'linebreak':
           return '<br />';
+        case 'hr':
+          return '<hr />';
         case 'italic':
           return `<i>${tokensToString(token.children)}</i>`;
         case 'bold':

@@ -42,7 +42,7 @@ export const AVAILABLE_MODELS = {
 // Available AI models for Image Generation
 export const AVAILABLE_IMAGE_MODELS = {
   Gemini: [
-    { id: 'gemini-2.5-flash-image-preview', name: 'Gemini 2.5 Flash (Image Preview) [nano banana]', description: 'Native image generation, $0.039 per image' },
+    { id: 'gemini-2.5-flash-image-preview', name: 'Gemini 2.5 Flash (Image Preview) [Nano Banana]', description: 'Native image generation, $0.039 per image' },
     { id: 'gemini-2.0-flash-preview-image-generation', name: 'Gemini 2.0 Flash (Image Preview)', description: 'Native image generation, $0.039 per image' },
     { id: 'imagen-3.0-generate-002', name: 'Imagen 3.0', description: 'High-quality image generation' },
     { id: 'imagen-4.0-generate-preview-06-06', name: 'Imagen 4.0 (Preview)', description: 'Next-gen image model' },
@@ -52,8 +52,9 @@ export const AVAILABLE_IMAGE_MODELS = {
     { id: 'Qubico/flux1-dev', name: 'PiAPI Flux 1 Dev', description: 'Balanced flux text-to-image (PiAPI)' },
     { id: 'Qubico/flux1-dev-advanced', name: 'PiAPI Flux 1 Dev Advanced', description: 'Advanced flux text-to-image (PiAPI)' },
     // OpenRouter image models
-    { id: 'openrouter/google/gemini-2.5-flash-image-preview', name: 'OpenRouter Gemini 2.5 Flash (Image)', description: 'Gemini image generation via OpenRouter' },
-    { id: 'openrouter/google/gemini-2.5-flash-image-preview:free', name: 'OpenRouter Gemini 2.5 Flash (Image, Free)', description: 'Free Gemini image generation via OpenRouter' },
+    { id: 'openrouter/google/gemini-2.5-flash-image', name: 'OpenRouter Gemini 2.5 Flash Image [Nano Banana]', description: 'Gemini image generation via OpenRouter' },
+    { id: 'openrouter/google/gemini-2.5-flash-image-preview', name: 'OpenRouter Gemini 2.5 Flash (Image Preview) [Nano Banana]', description: 'Gemini image generation via OpenRouter (preview version)' },
+    { id: 'openrouter/google/gemini-2.5-flash-image-preview:free', name: 'OpenRouter Gemini 2.5 Flash (Image, Free) [Nano Banana]', description: 'Free Gemini image generation via OpenRouter' },
   ]
 };
 

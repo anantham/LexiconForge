@@ -361,7 +361,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           />
 
           {/* Version Navigation Controls */}
-          {versionInfo && versionInfo.total > 1 && canonicalChapterId && illust?.placementMarker && (
+          {versionInfo && versionInfo.total >= 1 && canonicalChapterId && illust?.placementMarker && (
             <div className="flex items-center gap-3 mt-3 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
               <button
                 onClick={() => navigateToPreviousVersion(canonicalChapterId, illust.placementMarker)}
