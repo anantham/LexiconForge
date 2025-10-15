@@ -23,7 +23,7 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 ### **📚 Reader Feedback Loop Highlights**
 1. 👍 / 👎 on any line to teach the model your taste and steadily improve every chapter.
 2. 🔒 Privacy-first architecture keeps your API keys and translation history on-device.
-3. 🧠 Bring your own favorite model—Gemini, Claude, DeepSeek, OpenAI, Flux, more—all supported.
+3. 🧠 Bring your own favorite model—Gemini, Claude, DeepSeek, OpenRouter, Flux, more—all supported.
 4. ❓ Use the question emoji to generate cultural footnotes and etymology explanations on demand.
 5. 🎨 Summon bespoke illustrations by reacting to your favorite scene with the art emoji.
 6. ✏️ Tap the edit button to surgically refine the AI’s output before saving it.
@@ -52,8 +52,9 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 *   🔗 **Navigation Memory:** Intelligent usage of Disk and Ram to ensure the app does not slow your computer down.
 
 ### **🤖 Advanced AI Translation**
-*   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, OpenAI, DeepSeek, or Claude. You control your usage and data. If you need help contact admin in the [@webnovels](https://t.me/webnovels) group to get an API key that works!
+*   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, Claude, DeepSeek, or OpenRouter. You control your usage and data. If you need help contact admin in the [@webnovels](https://t.me/webnovels) group to get an API key that works!
 *   📊 **22+ AI Models:** Access the latest generation of AI models across all providers to find your perfect translator. Quality and style varies across models and prompt combinations.
+*   🔮 **Coming Soon:** Direct OpenAI integration (requires backend proxy for security).
 *   🎛️ **Fine-Tuned Control:** Adjust temperature (creativity), context depth (0-5 previous chapters), and model-specific settings.
 *   💰 **Real-Time Cost Tracking:** Obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent, with 2025 pricing.
 *   🛑 **Cancelable Requests:** Click the red spinner to abort in‑flight translations instantly.
@@ -116,11 +117,11 @@ Want to run your own instance? It's easy.
 3.  **Add your API keys** to a new `.env.local` file:
     ```env
     VITE_GEMINI_API_KEY=your_gemini_key_here
-    VITE_OPENAI_API_KEY=your_openai_key_here
     VITE_DEEPSEEK_API_KEY=your_deepseek_key_here
     VITE_CLAUDE_API_KEY=your_claude_key_here
+    VITE_OPENROUTER_API_KEY=your_openrouter_key # Access to 100+ models including GPT-4o
     VITE_PIAPI_API_KEY=your_piapi_key_here      # For Flux models and LoRA
-    VITE_OPENROUTER_API_KEY=your_openrouter_key # Optional for additional models
+    # Note: Direct OpenAI support coming soon (requires backend proxy)
     ```
 4.  **Run the app:** `npm run dev`
 

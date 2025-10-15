@@ -746,7 +746,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   >
                     <option value="Gemini">Google Gemini</option>
-                    <option value="OpenAI">OpenAI</option>
                     <option value="DeepSeek">DeepSeek</option>
                     <option value="OpenRouter">OpenRouter</option>
                     <option value="Claude">Claude (Anthropic)</option>
@@ -917,7 +916,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     Your API keys are stored locally on your device. This is a static app with no backend; all data (including keys) lives in your browser’s storage.
                   </p>
                   <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                    Requests to providers (OpenAI, Gemini, OpenRouter, etc.) are sent directly from your current browser session, and your keys are never sent anywhere else. This project is open source - browse the
+                    Requests to providers (Gemini, Claude, DeepSeek, OpenRouter, etc.) are sent directly from your current browser session, and your keys are never sent anywhere else. This project is open source - browse the
                     {' '}
                     <a href="https://github.com/anantham/LexiconForge" target="_blank" rel="noopener noreferrer" className="underline font-medium">repo</a>
                     {' '}and see.
@@ -937,19 +936,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div>
-                {/* OpenAI API Key - Note: Usage dashboards require a backend proxy due to OpenAI CORS restrictions.
-                    Users should check their billing portal for spend details. No balance refresh endpoint available. */}
-                <label htmlFor="apiKeyOpenAI" className="block text-sm font-medium text-gray-700 dark:text-gray-300">OpenAI API Key</label>
-                <input
-                  id="apiKeyOpenAI"
-                  type="password"
-                  value={currentSettings.apiKeyOpenAI || ''}
-                  onChange={(e) => handleSettingChange('apiKeyOpenAI', e.target.value)}
-                  placeholder="Enter your OpenAI API Key"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              {/* OpenAI API Key removed - requires backend proxy to avoid CORS issues. Coming soon! */}
               <div>
                 <label htmlFor="apiKeyDeepSeek" className="block text-sm font-medium text-gray-700 dark:text-gray-300">DeepSeek API Key</label>
                 <input

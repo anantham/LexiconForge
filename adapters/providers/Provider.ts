@@ -1,4 +1,4 @@
-export type ProviderName = 'OpenAI' | 'Gemini' | 'DeepSeek' | 'OpenRouter' | 'Claude';
+export type ProviderName = 'Gemini' | 'DeepSeek' | 'OpenRouter' | 'Claude';
 
 export interface ChatRequest {
   system?: string;

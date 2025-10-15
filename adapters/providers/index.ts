@@ -10,7 +10,7 @@ import { GeminiAdapter } from './GeminiAdapter';
 import { ClaudeAdapter } from './ClaudeAdapter';
 
 // Register all providers
-translator.registerProvider('OpenAI', new OpenAIAdapter());
+// Note: OpenAI provider is not registered - requires backend proxy to avoid CORS issues
 translator.registerProvider('DeepSeek', new OpenAIAdapter()); // DeepSeek uses OpenAI-compatible API
 translator.registerProvider('OpenRouter', new OpenAIAdapter()); // OpenRouter uses OpenAI-compatible API
 translator.registerProvider('Gemini', new GeminiAdapter());
@@ -18,5 +18,5 @@ translator.registerProvider('Claude', new ClaudeAdapter());
 
 // Initialize providers
 export const initializeProviders = async () => {
-  console.log('[Providers] All providers registered:', ['OpenAI', 'DeepSeek', 'OpenRouter', 'Gemini', 'Claude']);
+  console.log('[Providers] All providers registered:', ['DeepSeek', 'OpenRouter', 'Gemini', 'Claude']);
 };
