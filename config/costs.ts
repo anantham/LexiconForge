@@ -93,16 +93,21 @@ export const IMAGE_COSTS: { [key: string]: number } = {
     // Google Gemini Image Models
     'gemini-2.0-flash-preview-image-generation': 0.039, // $0.039 per image
     'gemini-2.5-flash-image-preview': 0.039, // $0.039 per image
-    
+
     // Google Imagen Models (Official 2025 pricing)
     'imagen-3.0-generate-002': 0.03, // Imagen 3 - $0.03 per image
     'imagen-4.0-generate-preview-06-06': 0.04, // Imagen 4 Standard - $0.04 per image
     'imagen-4.0-ultra-generate-preview-06-06': 0.06, // Imagen 4 Ultra - $0.06 per image
-    
+
     // Aliases for shorter model names
     'imagen-3': 0.03,
     'imagen-4': 0.04,
     'imagen-4-ultra': 0.06,
+
+    // OpenRouter Gemini Image Models [Nano Banana]
+    'openrouter/google/gemini-2.5-flash-image': 0.039, // $0.039 per image
+    'openrouter/google/gemini-2.5-flash-image-preview': 0.039, // $0.039 per image
+    'openrouter/google/gemini-2.5-flash-image-preview:free': 0.00, // Free tier
 
     // PiAPI Flux models (pricing provided by user)
     // Flux.1-Schnell: $0.0015 per image (batch 1-4)
