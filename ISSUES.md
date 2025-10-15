@@ -37,11 +37,12 @@
 
    **Roadmap:**
 
-   Phase 1: Service Integration ⏳
-   - [ ] Update ImageGenerationContext type to include nextVersion field (services/imageGenerationService.ts:~15)
-   - [ ] Modify imageService.ts generateImage() to accept and pass version to ImageCacheStore.storeImage() (services/imageService.ts:~475-495)
-   - [ ] Update initial generation in ImageGenerationService to set version=1 for new images (services/imageGenerationService.ts:~150-180)
-   - [ ] Test: Verify version increments correctly on retry and cache entries don't overwrite
+   Phase 1: Service Integration ✅ COMPLETE
+   - [x] Update ImageGenerationContext type to include nextVersion field (services/imageGenerationService.ts:22-34)
+   - [x] Modify imageService.ts generateImage() to accept and pass version to ImageCacheStore.storeImage() (services/imageService.ts:51-62, 475-494)
+   - [x] Update initial generation in ImageGenerationService to set version=1 for new images (services/imageGenerationService.ts:172-183)
+   - [x] Update retry in ImageGenerationService to use context.nextVersion (services/imageGenerationService.ts:331-342)
+   - [x] Verified version increment logic: imageSlice calculates nextVersion → passes in context → generateImage stores with version → no overwrites
 
    Phase 2: UI Components 📱
    - [ ] Add version navigation controls to Illustration component:
@@ -52,6 +53,20 @@
    - [ ] Wire up buttons to imageSlice.navigateToNextVersion/navigateToPreviousVersion
    - [ ] Use imageSlice.getVersionInfo to populate counter and button states
    - [ ] Update imageCacheKey prop passed to useBlobUrl to use activeImageVersion
+
+   Phase 2.5: EPUB Integration 📦
+   - [ ] Problem: EPUB generation only reads legacy .url field (base64), completely ignores imageCacheKey and version tracking
+   - [ ] Solution: Use activeImageVersion for EPUB exports (WYSIWYG - export what's displayed)
+   - [ ] Update exportSlice.ts image retrieval logic (store/slices/exportSlice.ts:137-139):
+         * Check for imageCacheKey presence
+         * Get activeImageVersion from imageSlice state for this illustration
+         * Call ImageCacheStore.getImageBlob(cacheKey) with correct version
+         * Convert blob to base64 for EPUB embedding
+   - [ ] Add blobToBase64 utility helper (consider extracting to utils/imageUtils.ts)
+   - [ ] Test scenarios:
+         * Generate image v1 → regenerate to get v2 → navigate to v1 → export → verify v1 in EPUB
+         * Generate image v1 → regenerate to get v2 → stay on v2 → export → verify v2 in EPUB
+         * Mix of legacy .url images and new versioned images in same chapter
 
    Phase 3: Edge Cases & Polish 🔍
    - [ ] Handle navigation away and back: ensure activeImageVersion persists or resets to latest
@@ -75,9 +90,11 @@
    - ✅ services/imageCacheService.ts - Versioned cache URLs and operations
    - ✅ hooks/useBlobUrl.ts - Re-fetch on version change
    - ✅ store/slices/imageSlice.ts - Version tracking state and navigation
-   - ⏳ services/imageGenerationService.ts - Context and version passing
-   - ⏳ services/imageService.ts - Pass version when storing
-   - ⏳ components/Illustration.tsx - Navigation UI
+   - ⏳ services/imageGenerationService.ts - Context and version passing (Phase 1)
+   - ⏳ services/imageService.ts - Pass version when storing (Phase 1)
+   - ⏳ components/Illustration.tsx - Navigation UI (Phase 2)
+   - ⏳ store/slices/exportSlice.ts - EPUB image retrieval with version awareness (Phase 2.5)
+   - ⏳ utils/imageUtils.ts - blobToBase64 helper (Phase 2.5, optional extraction)
 
    **Technical Notes:**
    - Version numbers are 1-indexed (v1, v2, v3...) for user-friendliness

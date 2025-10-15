@@ -29,6 +29,8 @@ export interface ImageGenerationContext {
   guidanceScales: Record<string, number>;
   loraModels: Record<string, string | null>;
   loraStrengths: Record<string, number>;
+  // Version tracking for image regeneration
+  nextVersion?: number;
 }
 
 export interface ImageState {
@@ -176,7 +178,8 @@ export class ImageGenerationService {
           loraModel,
           loraStrength,
           chapterId,  // NEW: for Cache API storage
-          illust.placementMarker  // NEW: for Cache API storage
+          illust.placementMarker,  // NEW: for Cache API storage
+          1  // version: initial generation is always v1
         );
 
         debugLog('image', 'full', '[ImageGen] Generation prompt payload', {
@@ -334,7 +337,8 @@ export class ImageGenerationService {
         loraModel,
         loraStrength,
         chapterId,  // NEW: for Cache API storage
-        placementMarker  // NEW: for Cache API storage
+        placementMarker,  // NEW: for Cache API storage
+        context.nextVersion || 1  // version: use context.nextVersion or default to 1
       );
 
       debugLog('image', 'full', '[ImageGen] Retry prompt payload', {

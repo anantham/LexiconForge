@@ -57,7 +57,8 @@ export const generateImage = async (
   loraModel?: string | null,
   loraStrength?: number,
   chapterId?: string,  // NEW: for Cache API storage
-  placementMarker?: string  // NEW: for Cache API storage
+  placementMarker?: string,  // NEW: for Cache API storage
+  version?: number  // NEW: version number for Cache API storage (defaults to 1)
 ): Promise<GeneratedImageResult> => {
     const imageModel = settings.imageModel || 'imagen-3.0-generate-001';
     const reqW = Math.max(256, Math.min(4096, (settings.imageWidth || 1024)));
@@ -478,11 +479,17 @@ export const generateImage = async (
                 const { telemetryService } = await import('./telemetryService');
 
                 if (ImageCacheStore.isSupported()) {
-                    const cacheKey = await ImageCacheStore.storeImage(chapterId, placementMarker, base64DataUrl);
+                    const cacheKey = await ImageCacheStore.storeImage(
+                        chapterId,
+                        placementMarker,
+                        base64DataUrl,
+                        version || 1  // Pass version number, default to 1
+                    );
 
                     ilog('[ImageService] Image stored in Cache API', {
                         chapterId,
                         placementMarker,
+                        version: version || 1,
                         originalSizeKB: (base64DataUrl.length / 1024).toFixed(2)
                     });
 
