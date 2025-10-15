@@ -68,6 +68,9 @@ const hasCurrentChapter = useAppStore((state) => {
 // one-shot guard helpers
 const requestedRef = React.useRef(new Map<string, string>());
 
+// Memory optimization: Track previous chapter for cleanup
+const previousChapterIdRef = React.useRef<string | null>(null);
+
 const settingsFingerprint = React.useMemo(
   () =>
     JSON.stringify({
@@ -158,7 +161,19 @@ const settingsFingerprint = React.useMemo(
       const { preloadNextChapters } = useAppStore.getState();
       preloadNextChapters();
     }, [currentChapterId, settings.preloadCount, settings.provider, settings.model, settings.temperature]);
-    
+
+    // Memory optimization: Clean up image state when navigating away from a chapter
+    useEffect(() => {
+      // If we have a previous chapter and it's different from current, clean it up
+      if (previousChapterIdRef.current && previousChapterIdRef.current !== currentChapterId) {
+        const { clearImageState } = useAppStore.getState();
+        clearImageState(previousChapterIdRef.current);
+      }
+
+      // Update the ref to current chapter
+      previousChapterIdRef.current = currentChapterId;
+    }, [currentChapterId]);
+
     if (!isInitialized) {
       return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">

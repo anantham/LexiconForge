@@ -47,7 +47,8 @@ export interface ChaptersActions {
   handleNavigate: (url: string) => Promise<void>;
   handleFetch: (url: string) => Promise<string | undefined>;
   navigateToChapter: (chapterId: string) => void;
-  
+  lightenNonCurrentChapters: (currentChapterId: string) => void;
+
   // Navigation history
   addToHistory: (chapterId: string) => void;
   clearHistory: () => void;
@@ -300,32 +301,35 @@ export const createChaptersSlice: StateCreator<
         const updates: any = {
           currentChapterId: result.chapterId
         };
-        
+
         // Update chapter if provided
         if (result.chapter) {
           const newChapters = new Map(state.chapters);
           newChapters.set(result.chapterId!, result.chapter);
           updates.chapters = newChapters;
         }
-        
+
         // Update navigation history if provided
         if (result.navigationHistory) {
           updates.navigationHistory = result.navigationHistory;
         }
-        
+
         return updates;
       });
-      
+
       // Update browser history if needed
       if (result.shouldUpdateBrowserHistory && result.chapter) {
         NavigationService.updateBrowserHistory(result.chapter, result.chapterId);
       }
-      
+
       // Clear any error
       const uiActions = get() as any;
       if (uiActions.setError) {
         uiActions.setError(null);
       }
+
+      // Memory optimization: lighten previous chapters
+      get().lightenNonCurrentChapters(result.chapterId);
     }
   },
   
@@ -387,9 +391,40 @@ export const createChaptersSlice: StateCreator<
       set({ currentChapterId: chapterId });
       get().addToHistory(chapterId);
       NavigationService.updateBrowserHistory(chapter, chapterId);
+
+      // Memory optimization: lighten previous chapters
+      get().lightenNonCurrentChapters(chapterId);
     }
   },
-  
+
+  // Memory optimization: Drop translationResult from non-current chapters
+  lightenNonCurrentChapters: (currentChapterId) => {
+    set(state => {
+      const newChapters = new Map(state.chapters);
+      let lightenedCount = 0;
+
+      for (const [id, chapter] of newChapters.entries()) {
+        // Skip the current chapter - keep its translation in memory
+        if (id === currentChapterId) continue;
+
+        // If this chapter has a translationResult, drop it to save memory
+        if (chapter.translationResult) {
+          newChapters.set(id, {
+            ...chapter,
+            translationResult: null
+          });
+          lightenedCount++;
+        }
+      }
+
+      if (lightenedCount > 0) {
+        debugLog(`[Memory] Lightened ${lightenedCount} chapters (dropped translationResult)`);
+      }
+
+      return { chapters: newChapters };
+    });
+  },
+
   // Navigation history
   addToHistory: (chapterId) => {
     set(state => {
