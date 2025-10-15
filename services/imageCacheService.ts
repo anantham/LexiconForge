@@ -60,12 +60,13 @@ export class ImageCacheStore {
    * Parse cache URL back to key components
    */
   static parseCacheUrl(cacheUrl: string): ImageCacheKey | null {
-    const match = cacheUrl.match(/^https:\/\/lexiconforge\.local\/images\/([^/]+)\/(.+)$/);
+    const match = cacheUrl.match(/^https:\/\/lexiconforge\.local\/images\/([^/]+)\/([^/]+)(?:\/v(\d+))?$/);
     if (!match) return null;
 
     return {
       chapterId: match[1],
-      placementMarker: decodeURIComponent(match[2])
+      placementMarker: decodeURIComponent(match[2]),
+      version: match[3] ? parseInt(match[3], 10) : 1
     };
   }
 
@@ -162,6 +163,44 @@ export class ImageCacheStore {
       telemetryService.captureError('image-cache-store', error, {
         chapterId,
         placementMarker
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Migrate a legacy base64 image into the Cache API, reusing an existing entry when present.
+   *
+   * @returns Cache key + version information
+   */
+  static async migrateBase64Image(
+    chapterId: string,
+    placementMarker: string,
+    imageData: string,
+    existingVersion: number = 1
+  ): Promise<{ cacheKey: ImageCacheKey; migrated: boolean }> {
+    if (!this.isSupported()) {
+      return {
+        cacheKey: { chapterId, placementMarker, version: existingVersion },
+        migrated: false
+      };
+    }
+
+    const candidateKey: ImageCacheKey = { chapterId, placementMarker, version: existingVersion };
+
+    try {
+      const alreadyExists = await this.has(candidateKey);
+      if (alreadyExists) {
+        return { cacheKey: candidateKey, migrated: false };
+      }
+
+      const cacheKey = await this.storeImage(chapterId, placementMarker, imageData, existingVersion);
+      return { cacheKey, migrated: true };
+    } catch (error) {
+      telemetryService.captureError('image-cache-migrate', error, {
+        chapterId,
+        placementMarker,
+        existingVersion
       });
       throw error;
     }

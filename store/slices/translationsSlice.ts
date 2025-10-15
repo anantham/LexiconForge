@@ -255,7 +255,7 @@ export const createTranslationsSlice: StateCreator<
       if (translationResult.suggestedIllustrations?.length > 0) {
         const imageActions = state as any;
         if (imageActions.loadExistingImages) {
-          imageActions.loadExistingImages(chapterId);
+          await imageActions.loadExistingImages(chapterId);
         }
         
         const needsGeneration = translationResult.suggestedIllustrations.some(

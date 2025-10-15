@@ -77,13 +77,15 @@ export class ImageGenerationService {
     translationResult.suggestedIllustrations.forEach((illust: any) => {
       const generated = illust.generatedImage;
       const url = (illust as any)?.url;
-      const payload = generated?.imageData || (typeof url === 'string' && url.trim().length > 0 ? url : null);
+      const hasCacheKey = !!generated?.imageCacheKey;
+      const base64Data = generated?.imageData && generated.imageData.length > 0 ? generated.imageData : null;
+      const legacyData = typeof url === 'string' && url.trim().length > 0 ? url : null;
 
-      if (payload) {
+      if (hasCacheKey || base64Data || legacyData) {
         const key = `${chapterId}:${illust.placementMarker}`;
         imageStateUpdates[key] = {
           isLoading: false,
-          data: payload,
+          data: base64Data ?? (hasCacheKey ? '' : legacyData),
           error: null
         };
         foundExistingImages = true;

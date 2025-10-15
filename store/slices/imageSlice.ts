@@ -11,8 +11,10 @@
 
 import type { StateCreator } from 'zustand';
 import { ImageGenerationService, type ImageGenerationContext, type ImageState, type ImageGenerationMetrics } from '../../services/imageGenerationService';
-import { TranslationPersistenceService } from '../../services/translationPersistenceService';
+import { ImageCacheStore } from '../../services/imageCacheService';
+import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { debugLog } from '../../utils/debug';
+import type { GeneratedImageResult, ImageVersionStateEntry } from '../../types';
 
 export interface ImageSliceState {
   // Generated images state
@@ -42,7 +44,7 @@ export interface ImageSliceActions {
   // Image generation
   handleGenerateImages: (chapterId: string) => Promise<void>;
   handleRetryImage: (chapterId: string, placementMarker: string) => Promise<void>;
-  loadExistingImages: (chapterId: string) => void;
+  loadExistingImages: (chapterId: string) => Promise<void>;
   updateIllustrationPrompt: (chapterId: string, placementMarker: string, newPrompt: string) => Promise<void>;
   
   // Image state management
@@ -286,7 +288,7 @@ export const createImageSlice: StateCreator<
     }
   },
   
-  loadExistingImages: (chapterId) => {
+  loadExistingImages: async (chapterId) => {
     const chapters = (get() as any).chapters || new Map();
     const chapter = chapters.get(chapterId);
 
@@ -300,6 +302,98 @@ export const createImageSlice: StateCreator<
       suggestedIllustrationsData: chapter?.translationResult?.suggestedIllustrations,
       currentGeneratedImagesKeys: Object.keys(get().generatedImages)
     });
+
+    const legacyMigrations: Promise<void>[] = [];
+
+    if (chapter?.translationResult?.suggestedIllustrations) {
+      const currentState = get();
+      const settings = (currentState as any).settings;
+      const promptTemplate = (currentState as any).activePromptTemplate;
+      const chapterSnapshot = chapter.translationSettingsSnapshot || {};
+
+      const provider = chapterSnapshot.provider ?? settings?.provider;
+      const model = chapterSnapshot.model ?? settings?.model;
+      const temperature = chapterSnapshot.temperature ?? settings?.temperature ?? 0.7;
+      const systemPrompt = chapterSnapshot.systemPrompt ?? settings?.systemPrompt ?? '';
+
+      const persistenceSnapshot: TranslationSettingsSnapshot | null =
+        provider && model
+          ? {
+              provider,
+              model,
+              temperature,
+              systemPrompt,
+              promptId: promptTemplate?.id,
+              promptName: promptTemplate?.name
+            }
+          : null;
+
+      chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+        const legacyUrl = illust?.url;
+        const hasCacheKey = !!illust?.generatedImage?.imageCacheKey;
+        const marker = illust?.placementMarker;
+
+        if (!marker) {
+          return;
+        }
+
+        if (typeof legacyUrl === 'string' && legacyUrl.length > 0 && !hasCacheKey) {
+          legacyMigrations.push((async () => {
+            try {
+              const { cacheKey } = await ImageCacheStore.migrateBase64Image(
+                chapterId,
+                marker,
+                legacyUrl,
+                1
+              );
+
+              if (!illust.generatedImage) {
+                const migrated: GeneratedImageResult = {
+                  imageData: '',
+                  imageCacheKey: cacheKey,
+                  requestTime: 0,
+                  cost: 0
+                };
+                illust.generatedImage = migrated;
+              } else {
+                illust.generatedImage.imageCacheKey = cacheKey;
+                illust.generatedImage.imageData = '';
+              }
+
+              delete (illust as any).url;
+
+              const versionState: ImageVersionStateEntry = {
+                latestVersion: cacheKey.version,
+                activeVersion: get().activeImageVersion?.[`${chapterId}:${marker}`] ?? cacheKey.version
+              };
+              const currentVersionState = (chapter.translationResult as any).imageVersionState ?? {};
+              (chapter.translationResult as any).imageVersionState = {
+                ...currentVersionState,
+                [marker]: versionState
+              };
+
+              if (persistenceSnapshot) {
+                await TranslationPersistenceService.persistUpdatedTranslation(
+                  chapter.id,
+                  chapter.translationResult as any,
+                  persistenceSnapshot
+                );
+              }
+            } catch (migrationError) {
+              console.warn('[ImageSlice] Failed to migrate legacy base64 image', {
+                chapterId,
+                marker,
+                error: migrationError
+              });
+            }
+          })());
+        }
+      });
+    }
+
+    if (legacyMigrations.length > 0) {
+      await Promise.allSettled(legacyMigrations);
+    }
 
     const existingImages = ImageGenerationService.loadExistingImages(chapterId, chapters);
     const count = Object.keys(existingImages).length;
