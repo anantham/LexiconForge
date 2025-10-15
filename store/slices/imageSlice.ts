@@ -114,7 +114,9 @@ export const createImageSlice: StateCreator<
       negativePrompts: state.negativePrompts,
       guidanceScales: state.guidanceScales,
       loraModels: state.loraModels,
-      loraStrengths: state.loraStrengths
+      loraStrengths: state.loraStrengths,
+      imageVersions: state.imageVersions,
+      activeImageVersion: state.activeImageVersion
     };
     
     const chapter = context.chapters.get(chapterId);
@@ -171,15 +173,48 @@ export const createImageSlice: StateCreator<
       }
     );
     
-    // Update final states
-    set(prevState => ({
-      generatedImages: { ...prevState.generatedImages, ...result.generatedImages },
-      imageGenerationMetrics: result.metrics || prevState.imageGenerationMetrics,
-      imageGenerationProgress: {
-        ...prevState.imageGenerationProgress,
-        [chapterId]: { completed: totalIllustrations, total: totalIllustrations }
+    // Update final states+version tracking
+    set(prevState => {
+      const versionUpdates: Record<string, number> = {};
+      const activeUpdates: Record<string, number> = {};
+
+      if (chapter?.translationResult?.suggestedIllustrations) {
+        chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+          const marker = illust?.placementMarker;
+          if (!marker) return;
+          const key = `${chapterId}:${marker}`;
+          const versionState = (chapter.translationResult as any)?.imageVersionState?.[marker];
+          const version = versionState?.latestVersion ?? illust?.generatedImage?.imageCacheKey?.version ?? 1;
+
+          const previousVersion = prevState.imageVersions[key] ?? 0;
+          if (version > previousVersion) {
+            versionUpdates[key] = version;
+          } else if (!(key in prevState.imageVersions)) {
+            versionUpdates[key] = version;
+          }
+
+          if (!(key in prevState.activeImageVersion)) {
+            const activeVersion = versionState?.activeVersion ?? version;
+            activeUpdates[key] = activeVersion;
+          }
+        });
       }
-    }));
+
+      return {
+        generatedImages: { ...prevState.generatedImages, ...result.generatedImages },
+        imageGenerationMetrics: result.metrics || prevState.imageGenerationMetrics,
+        imageGenerationProgress: {
+          ...prevState.imageGenerationProgress,
+          [chapterId]: { completed: totalIllustrations, total: totalIllustrations }
+        },
+        imageVersions: Object.keys(versionUpdates).length > 0
+          ? { ...prevState.imageVersions, ...versionUpdates }
+          : prevState.imageVersions,
+        activeImageVersion: Object.keys(activeUpdates).length > 0
+          ? { ...prevState.activeImageVersion, ...activeUpdates }
+          : prevState.activeImageVersion
+      };
+    });
 
     debugLog('image', 'summary', `[ImageSlice] Image generation finished for ${chapterId}`, result.metrics);
     
@@ -210,6 +245,8 @@ export const createImageSlice: StateCreator<
       guidanceScales: state.guidanceScales,
       loraModels: state.loraModels,
       loraStrengths: state.loraStrengths,
+      imageVersions: state.imageVersions,
+      activeImageVersion: state.activeImageVersion,
       nextVersion  // Pass version to generation service
     };
 
@@ -278,8 +315,43 @@ export const createImageSlice: StateCreator<
     debugLog('image', 'summary', `[ImageSlice] Hydrated ${count} existing images for ${chapterId}`);
 
     if (count > 0) {
+      const currentState = get();
+      const versionUpdates: Record<string, number> = {};
+      const activeUpdates: Record<string, number> = {};
+
+      if (chapter?.translationResult?.suggestedIllustrations) {
+        chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+          const marker = illust?.placementMarker;
+          if (!marker) return;
+          const key = `${chapterId}:${marker}`;
+          const versionState = (chapter.translationResult as any)?.imageVersionState?.[marker];
+          const version =
+            versionState?.latestVersion ??
+            illust?.generatedImage?.imageCacheKey?.version ??
+            (typeof (illust as any)?.url === 'string' ? 1 : undefined);
+
+          if (!version) return;
+
+          const prevVersion = currentState.imageVersions?.[key] ?? 0;
+          if (version > prevVersion || !(key in currentState.imageVersions)) {
+            versionUpdates[key] = version;
+          }
+
+          if (!(key in currentState.activeImageVersion)) {
+            const activeVersion = versionState?.activeVersion ?? version;
+            activeUpdates[key] = activeVersion;
+          }
+        });
+      }
+
       set(prevState => ({
-        generatedImages: { ...prevState.generatedImages, ...existingImages }
+        generatedImages: { ...prevState.generatedImages, ...existingImages },
+        imageVersions: Object.keys(versionUpdates).length > 0
+          ? { ...prevState.imageVersions, ...versionUpdates }
+          : prevState.imageVersions,
+        activeImageVersion: Object.keys(activeUpdates).length > 0
+          ? { ...prevState.activeImageVersion, ...activeUpdates }
+          : prevState.activeImageVersion
       }));
     }
   },

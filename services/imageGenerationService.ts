@@ -29,6 +29,8 @@ export interface ImageGenerationContext {
   guidanceScales: Record<string, number>;
   loraModels: Record<string, string | null>;
   loraStrengths: Record<string, number>;
+  imageVersions: Record<string, number>;
+  activeImageVersion: Record<string, number>;
   // Version tracking for image regeneration
   nextVersion?: number;
 }
@@ -220,6 +222,20 @@ export class ImageGenerationService {
             if (result.imageData && result.imageData.length > 0) {
               (target as any).url = result.imageData;
             }
+
+            const keyWithMarker = `${chapterId}:${illust.placementMarker}`;
+            const latestVersion = result.imageCacheKey?.version
+              ?? Math.max(context.imageVersions?.[keyWithMarker] ?? 0, 1);
+            const activeVersion = context.activeImageVersion?.[keyWithMarker] ?? latestVersion;
+
+            const currentState = (chapter.translationResult as any).imageVersionState ?? {};
+            (chapter.translationResult as any).imageVersionState = {
+              ...currentState,
+              [illust.placementMarker]: {
+                latestVersion,
+                activeVersion
+              }
+            };
             
             // Persist to IndexedDB using stableId mapping
             try {
@@ -366,6 +382,19 @@ export class ImageGenerationService {
           if (result.imageData && result.imageData.length > 0) {
             (target as any).url = result.imageData;
           }
+
+          const keyWithMarker = `${chapterId}:${placementMarker}`;
+          const latestVersion = result.imageCacheKey?.version
+            ?? Math.max(context.imageVersions?.[keyWithMarker] ?? 0, 1);
+          const activeVersion = context.activeImageVersion?.[keyWithMarker] ?? latestVersion;
+          const currentState = (chapter.translationResult as any).imageVersionState ?? {};
+          (chapter.translationResult as any).imageVersionState = {
+            ...currentState,
+            [placementMarker]: {
+              latestVersion,
+              activeVersion
+            }
+          };
           
           try {
             await TranslationPersistenceService.persistUpdatedTranslation(

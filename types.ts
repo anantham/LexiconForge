@@ -98,6 +98,11 @@ export interface ImageCacheKey {
   version: number;  // Version number for tracking multiple generations (1-indexed)
 }
 
+export interface ImageVersionStateEntry {
+  latestVersion: number;
+  activeVersion: number;
+}
+
 export interface GeneratedImageResult {
   /**
    * Image data - supports two storage modes:
@@ -145,6 +150,7 @@ export interface TranslationResult {
   suggestedIllustrations: SuggestedIllustration[];
   usageMetrics: UsageMetrics;
   customVersionLabel?: string;
+  imageVersionState?: Record<string, ImageVersionStateEntry>;
 }
 
 export interface HistoricalChapter {
