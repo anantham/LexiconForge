@@ -27,4 +27,4 @@
 
 7) customize emojis in toolbar
 
-8) 
+8) WORKLOG.md rotation/archiving - Consider adding automatic log cycling when docs/WORKLOG.md grows too large (currently 25KB/273 lines). Could archive entries older than 3 months to dated files like docs/archive/WORKLOG-YYYY-QN.md to keep the main log manageable. 
