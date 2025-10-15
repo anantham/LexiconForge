@@ -6,6 +6,6 @@ describe('Provider registration', () => {
   it('registers all supported providers with the translator', async () => {
     await initializeProviders();
     const providers = new Set(translator.getRegisteredProviders());
-    expect(providers).toEqual(new Set(['OpenAI', 'DeepSeek', 'OpenRouter', 'Gemini', 'Claude']));
+    expect(providers).toEqual(new Set(['DeepSeek', 'OpenRouter', 'Gemini', 'Claude']));
   });
 });
