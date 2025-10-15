@@ -246,9 +246,15 @@ export const createTranslationsSlice: StateCreator<
         debugLog('translation', 'summary', `[Translation] ✅ Success for chapter ${chapterId}. Model: ${metrics?.provider}/${metrics?.model}. Tokens: ${metrics?.totalTokens}.`);
       }
       
-      // Set amendment proposal if provided
+      // Set amendment proposal if provided and enabled in settings
       if (translationResult.proposal) {
-        set({ amendmentProposal: translationResult.proposal });
+        const enableAmendments = (state as any).settings?.enableAmendments ?? false;
+        if (enableAmendments) {
+          set({ amendmentProposal: translationResult.proposal });
+        } else {
+          // Auto-reject if amendments are disabled
+          debugLog('translation', 'summary', '[Translation] Auto-rejecting amendment proposal (amendments disabled in settings)');
+        }
       }
       
       // Handle image generation if needed

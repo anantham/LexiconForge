@@ -241,6 +241,7 @@ export interface AppSettings {
     retryInitialDelayMs?: number;             // Initial backoff delay in ms
     footnoteStrictMode?: 'append_missing' | 'fail'; // Footnote validation behavior
     enableHtmlRepair?: boolean;               // Enable graceful HTML formatting repairs
+    enableAmendments?: boolean;               // Enable prompt amendment proposals from AI
 }
 
 export interface ImportedChapter {

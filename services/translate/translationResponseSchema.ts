@@ -1,6 +1,7 @@
 import type { Schema } from '@google/generative-ai';
 import { SchemaType } from '@google/generative-ai';
 import prompts from '../../config/prompts.json';
+import type { AppSettings } from '../../types';
 
 /**
  * Canonical translation response schema used for providers that support
@@ -128,3 +129,37 @@ export const translationResponseGeminiSchema: Schema = {
   },
   required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations', 'proposal']
 };
+
+/**
+ * Get the translation response schema with conditional proposal field
+ * based on enableAmendments setting
+ */
+export function getTranslationResponseJsonSchema(enableAmendments: boolean = false) {
+  if (!enableAmendments) {
+    // Return schema without proposal in required fields
+    const { proposal, ...propsWithoutProposal } = translationResponseJsonSchema.properties;
+    return {
+      ...translationResponseJsonSchema,
+      properties: propsWithoutProposal,
+      required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations']
+    };
+  }
+  return translationResponseJsonSchema;
+}
+
+/**
+ * Get the Gemini translation response schema with conditional proposal field
+ * based on enableAmendments setting
+ */
+export function getTranslationResponseGeminiSchema(enableAmendments: boolean = false): Schema {
+  if (!enableAmendments) {
+    // Return schema without proposal in required fields
+    const { proposal, ...propsWithoutProposal } = translationResponseGeminiSchema.properties;
+    return {
+      ...translationResponseGeminiSchema,
+      properties: propsWithoutProposal,
+      required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations']
+    };
+  }
+  return translationResponseGeminiSchema;
+}
