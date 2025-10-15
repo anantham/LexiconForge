@@ -36,7 +36,13 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     setLoraModel,
     loraStrengths,
     setLoraStrength,
-    settings
+    settings,
+    // Version navigation
+    imageVersions,
+    activeImageVersion,
+    navigateToNextVersion,
+    navigateToPreviousVersion,
+    getVersionInfo
   } = useAppStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
     chapter: s.currentChapterId ? s.getChapter(s.currentChapterId) : null,
@@ -54,6 +60,12 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     loraStrengths: s.loraStrengths,
     setLoraStrength: s.setLoraStrength,
     settings: s.settings,
+    // Version navigation
+    imageVersions: s.imageVersions,
+    activeImageVersion: s.activeImageVersion,
+    navigateToNextVersion: s.navigateToNextVersion,
+    navigateToPreviousVersion: s.navigateToPreviousVersion,
+    getVersionInfo: s.getVersionInfo
   })));
 
   // `chapter` is now selected from the store above; keep local reference for clarity
@@ -130,9 +142,25 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const isLoading = imageState?.isLoading || false;
   const error = imageState?.error || null;
 
-  // NEW: Support for Cache API - check if image has cache key
-  const imageCacheKey: ImageCacheKey | null = illust?.generatedImage?.imageCacheKey ||
+  // NEW: Support for Cache API with version tracking
+  const baseCacheKey = illust?.generatedImage?.imageCacheKey ||
     (illust?.imageCacheKey as ImageCacheKey | undefined) || null;
+
+  // Get version info for this illustration
+  const versionInfo = canonicalChapterId && illust?.placementMarker
+    ? getVersionInfo(canonicalChapterId, illust.placementMarker)
+    : null;
+
+  // Create cache key with active version (not latest)
+  const imageCacheKey: ImageCacheKey | null = baseCacheKey && canonicalChapterId && illust?.placementMarker
+    ? {
+        chapterId: canonicalChapterId,
+        placementMarker: illust.placementMarker,
+        version: activeImageVersion[`${canonicalChapterId}:${illust.placementMarker}`] ||
+                 imageVersions[`${canonicalChapterId}:${illust.placementMarker}`] ||
+                 1
+      }
+    : null;
 
   // Use blob URL hook for cache keys (auto-cleanup on unmount)
   const blobUrlFromCache = useBlobUrl(imageCacheKey);
@@ -331,6 +359,32 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
             alt={illust?.imagePrompt || `Illustration ${marker}`}
             className="rounded-lg shadow-lg max-w-full h-auto border-4 border-gray-200 dark:border-gray-700"
           />
+
+          {/* Version Navigation Controls */}
+          {versionInfo && versionInfo.total > 1 && canonicalChapterId && illust?.placementMarker && (
+            <div className="flex items-center gap-3 mt-3 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+              <button
+                onClick={() => navigateToPreviousVersion(canonicalChapterId, illust.placementMarker)}
+                disabled={versionInfo.current <= 1}
+                className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                title="Previous version"
+              >
+                &lt;
+              </button>
+              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium min-w-[100px] text-center">
+                Version {versionInfo.current} of {versionInfo.total}
+              </span>
+              <button
+                onClick={() => navigateToNextVersion(canonicalChapterId, illust.placementMarker)}
+                disabled={versionInfo.current >= versionInfo.total}
+                className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                title="Next version"
+              >
+                &gt;
+              </button>
+            </div>
+          )}
+
           {hasIllust && (
             <div className="w-full max-w-xl text-left mt-3">
               {/* Caption toggle button */}

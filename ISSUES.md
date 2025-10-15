@@ -44,15 +44,17 @@
    - [x] Update retry in ImageGenerationService to use context.nextVersion (services/imageGenerationService.ts:331-342)
    - [x] Verified version increment logic: imageSlice calculates nextVersion → passes in context → generateImage stores with version → no overwrites
 
-   Phase 2: UI Components 📱
-   - [ ] Add version navigation controls to Illustration component:
+   Phase 2: UI Components ✅ COMPLETE
+   - [x] Add version navigation controls to Illustration component (components/Illustration.tsx:363-386):
          * < > buttons to navigate between versions
          * Display "Version X of Y" counter
-         * Disable < on first version, disable > on latest version
-         * Style to match existing image controls aesthetic
-   - [ ] Wire up buttons to imageSlice.navigateToNextVersion/navigateToPreviousVersion
-   - [ ] Use imageSlice.getVersionInfo to populate counter and button states
-   - [ ] Update imageCacheKey prop passed to useBlobUrl to use activeImageVersion
+         * Disable < on first version (disabled when current <= 1)
+         * Disable > on latest version (disabled when current >= total)
+         * Style matches existing controls (gray bg, rounded, transitions)
+   - [x] Wire up buttons to imageSlice.navigateToNextVersion/navigateToPreviousVersion (lines 367, 378)
+   - [x] Use imageSlice.getVersionInfo to populate counter and button states (line 150-152, 364-385)
+   - [x] Update imageCacheKey to use activeImageVersion from state (lines 145-166)
+   - [x] Navigation controls only show when total > 1 (conditional render on versionInfo.total)
 
    Phase 2.5: EPUB Integration 📦
    - [ ] Problem: EPUB generation only reads legacy .url field (base64), completely ignores imageCacheKey and version tracking
@@ -85,14 +87,14 @@
    - [ ] Version labels: let users name/tag versions (e.g., "with LoRA", "darker mood")
    - [ ] Keyboard shortcuts: arrow keys to navigate versions when image focused
 
-   **Files Modified (Phase 1 complete):**
-   - ✅ types.ts - Added version to ImageCacheKey
-   - ✅ services/imageCacheService.ts - Versioned cache URLs and operations
-   - ✅ hooks/useBlobUrl.ts - Re-fetch on version change
-   - ✅ store/slices/imageSlice.ts - Version tracking state and navigation
-   - ⏳ services/imageGenerationService.ts - Context and version passing (Phase 1)
-   - ⏳ services/imageService.ts - Pass version when storing (Phase 1)
-   - ⏳ components/Illustration.tsx - Navigation UI (Phase 2)
+   **Files Modified:**
+   - ✅ types.ts - Added version to ImageCacheKey (Phase 0)
+   - ✅ services/imageCacheService.ts - Versioned cache URLs and operations (Phase 0)
+   - ✅ hooks/useBlobUrl.ts - Re-fetch on version change (Phase 0)
+   - ✅ store/slices/imageSlice.ts - Version tracking state and navigation (Phase 0)
+   - ✅ services/imageGenerationService.ts - Context and version passing (Phase 1)
+   - ✅ services/imageService.ts - Pass version when storing (Phase 1)
+   - ✅ components/Illustration.tsx - Navigation UI with < > buttons and counter (Phase 2)
    - ⏳ store/slices/exportSlice.ts - EPUB image retrieval with version awareness (Phase 2.5)
    - ⏳ utils/imageUtils.ts - blobToBase64 helper (Phase 2.5, optional extraction)
 
