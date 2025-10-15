@@ -1,3 +1,15 @@
+2025-10-15 08:07 UTC - Enforce structured Gemini JSON responses
+- Files modified: services/translate/translationResponseSchema.ts:1-150, adapters/providers/GeminiAdapter.ts:1-240, adapters/providers/OpenAIAdapter.ts:1-360, services/translate/Translator.ts:70-140
+- Purpose: Shared the translation response schema across adapters, required Gemini to emit `application/json` with the schema, and stopped retrying after schema parse failures.
+- Notes: Gemini adapter now mirrors OpenAI’s usage metrics fields and keeps legacy aliases (`illustrations`/`amendments`) for downstream compatibility.
+- Tests: Not run (manual validation required for SDK calls)
+
+2025-10-15 01:58 UTC - Add Gemini raw response debug logging
+- Files modified: adapters/providers/GeminiAdapter.ts:17-60, 125-180
+- Purpose: Gate Gemini adapter debug output on `LF_AI_DEBUG_LEVEL` and emit raw response previews/full dumps when JSON parsing fails so we can inspect malformed payloads.
+- Notes: Preview logs print first 500–800 chars by default; full body requires setting `LF_AI_DEBUG_LEVEL=full`.
+- Tests: Not run (logging only)
+
 2025-10-14 06:00 UTC - Archive legacy amendment proposal diagnostics
 - Files modified: archive/tests/store/amendmentProposal.legacy.test.ts:1-199, tests/store/amendmentProposal.test.ts:33-86
 - Purpose: Preserved the eight skipped legacy diagnostics in an archived suite while trimming the active amendment proposal tests down to the current slice-based coverage.

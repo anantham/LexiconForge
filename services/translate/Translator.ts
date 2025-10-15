@@ -75,7 +75,8 @@ export class Translator {
         // Check if this is a JSON parsing error - don't retry these to avoid wasting API costs
         const isJsonParsingError = error.message?.includes('Could not parse translation') || 
                                  error.message?.includes('JSON Syntax Error') ||
-                                 error.message?.includes('malformed response');
+                                 error.message?.includes('malformed response') ||
+                                 error.message?.includes('Failed to parse JSON response');
         
         if (isJsonParsingError) {
           console.error(`[Translator] JSON parsing error detected - failing immediately to avoid wasting API costs:`, error.message);

@@ -7,58 +7,8 @@ import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
-import { getEnvVar, hasEnvVar } from '../../services/env';
-
-const openaiResponseSchema = {
-    "type": "object",
-    "properties": {
-        "translatedTitle": {
-            "type": "string",
-            "description": "" + prompts.translatedTitleDescription
-        },
-        "translation": { "type": "string", "description": "" + prompts.translationHtmlRules },
-        "footnotes": {
-            "type": ["array", "null"],
-            "description": "" + prompts.footnotesDescription,
-            "items": {
-                "type": "object",
-                "properties": {
-                    "marker": {"type": "string", "description": "" + prompts.footnoteMarkerDescription},
-                    "text": {"type": "string", "description": "" + prompts.footnoteTextDescription}
-                },
-                "required": ["marker", "text"],
-                "additionalProperties": false
-            }
-        },
-        "suggestedIllustrations": {
-            "type": ["array", "null"],
-            "description": "" + prompts.illustrationsDescription,
-            "items": {
-                "type": "object", 
-                "properties": {
-                    "placementMarker": {"type": "string", "description": "" + prompts.illustrationPlacementMarkerDescription},
-                    "imagePrompt": {"type": "string", "description": "" + prompts.illustrationImagePromptDescription}
-                },
-                "required": ["placementMarker", "imagePrompt"],
-                "additionalProperties": false
-            }
-        },
-        "proposal": {
-            "type": ["object", "null"],
-            "description": "" + prompts.proposalDescription,
-            "properties": {
-                "observation": {"type": "string", "description": "" + prompts.proposalObservationDescription},
-                "currentRule": {"type": "string", "description": "" + prompts.proposalCurrentRuleDescription},
-                "proposedChange": {"type": "string", "description": "" + prompts.proposalProposedChangeDescription},
-                "reasoning": {"type": "string", "description": "" + prompts.proposalReasoningDescription}
-            },
-            "required": ["observation", "currentRule", "proposedChange", "reasoning"],
-            "additionalProperties": false
-        }
-    },
-    "required": ["translatedTitle", "translation", "footnotes", "suggestedIllustrations", "proposal"],
-    "additionalProperties": false
-};
+import { getEnvVar } from '../../services/env';
+import { translationResponseJsonSchema } from '../../services/translate/translationResponseSchema';
 
 // Parameter validation utility
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -204,7 +154,7 @@ export class OpenAIAdapter implements TranslationProvider {
         type: 'json_schema', 
         json_schema: { 
           name: 'translation_response', 
-          schema: openaiResponseSchema, 
+          schema: translationResponseJsonSchema, 
           strict: true 
         } 
       };
@@ -213,7 +163,7 @@ export class OpenAIAdapter implements TranslationProvider {
       }
     } else {
       requestOptions.response_format = { type: 'json_object' };
-      const schemaString = JSON.stringify(openaiResponseSchema, null, 2);
+      const schemaString = JSON.stringify(translationResponseJsonSchema, null, 2);
       const schemaInjection = `
 
 Your response MUST be a single, valid JSON object that conforms to the following JSON schema:

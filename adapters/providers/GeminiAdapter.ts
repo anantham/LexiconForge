@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
+import { GoogleGenerativeAI, GenerateContentResult, GenerateContentResponse } from '@google/generative-ai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
 import { rateLimitService } from '../../services/rateLimitService';
@@ -6,6 +6,7 @@ import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
+import { translationResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
 
 // Placeholder replacement utility
 const replacePlaceholders = (template: string, settings: AppSettings): string => {
@@ -15,8 +16,40 @@ const replacePlaceholders = (template: string, settings: AppSettings): string =>
 };
 
 // Debug logging
+const getDebugLevel = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem('LF_AI_DEBUG_LEVEL');
+  } catch {
+    return null;
+  }
+};
+
+const shouldLogSummary = (): boolean => {
+  if (process.env.NODE_ENV !== 'development') {
+    return false;
+  }
+  const level = getDebugLevel();
+  // Default to logging in development unless the level explicitly disables it
+  return level === null || level === 'summary' || level === 'full';
+};
+
+const shouldLogFull = (): boolean => {
+  if (process.env.NODE_ENV !== 'development') {
+    return false;
+  }
+  const level = getDebugLevel();
+  return level === 'full';
+};
+
 const dlog = (message: string, ...args: any[]) => {
-  if (process.env.NODE_ENV === 'development') {
+  if (shouldLogSummary()) {
+    console.log(`[Gemini] ${message}`, ...args);
+  }
+};
+
+const dlogFull = (message: string, ...args: any[]) => {
+  if (shouldLogFull()) {
     console.log(`[Gemini] ${message}`, ...args);
   }
 };
@@ -26,7 +59,10 @@ export class GeminiAdapter implements TranslationProvider {
     const { title, content, settings, history, fanTranslation, abortSignal } = request;
     
     // Get API key
-    const apiKey = settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY');
+    const envKey = getEnvVar('GEMINI_API_KEY');
+    const apiKey = settings.apiKeyGemini || envKey;
+    const keySource = settings.apiKeyGemini ? 'settings' : envKey ? 'env' : 'missing';
+    dlog(`Key source: ${keySource}, present: ${apiKey ? 'yes' : 'no'}, length: ${apiKey ? apiKey.length : 0}`);
     if (!apiKey) {
       throw new Error('Gemini API key is missing. Please add it in settings.');
     }
@@ -35,16 +71,16 @@ export class GeminiAdapter implements TranslationProvider {
     await rateLimitService.canMakeRequest(settings.model);
 
     // Initialize client
-    const genAI = new GoogleGenAI(apiKey);
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: settings.model });
 
     // Build prompt
     const fullPrompt = this.buildPrompt(settings, title, content, history, fanTranslation);
     
-    dlog('Making API request', { model: settings.model });
+      dlog('Making API request', { model: settings.model });
 
     const startTime = performance.now();
-    let response: GenerateContentResponse;
+    let response: GenerateContentResult;
 
     try {
       // Make API call
@@ -53,6 +89,8 @@ export class GeminiAdapter implements TranslationProvider {
         generationConfig: {
           temperature: settings.temperature,
           maxOutputTokens: settings.maxOutputTokens || undefined,
+          responseMimeType: 'application/json',
+          responseSchema: translationResponseGeminiSchema
         },
       });
 
@@ -113,50 +151,78 @@ export class GeminiAdapter implements TranslationProvider {
     return sections.join('\n\n');
   }
 
-  private processResponse(
+  private async processResponse(
     response: GenerateContentResponse,
     settings: AppSettings,
     startTime: number,
     endTime: number
-  ): TranslationResult {
+  ): Promise<TranslationResult> {
     const responseText = response.response.text();
     if (!responseText) {
       throw new Error('Empty response from Gemini API');
     }
 
+    dlog('Raw response preview (first 500 chars):', responseText.slice(0, 500));
+
     let parsedResponse: any;
     try {
       parsedResponse = JSON.parse(responseText);
+      dlog('Successfully parsed Gemini JSON response.');
     } catch (error) {
+      dlog('JSON parse failed. Preview of raw response (first 800 chars):', responseText.slice(0, 800));
+      dlogFull('JSON parse failed. Full raw response text:', responseText);
       throw new Error(`Failed to parse JSON response: ${responseText.substring(0, 200)}...`);
     }
+
+    const safeArray = (value: any): any[] => Array.isArray(value) ? value : [];
+    const safeFootnotes = safeArray(parsedResponse.footnotes);
+    const safeIllustrations = safeArray(parsedResponse.suggestedIllustrations);
 
     // Extract token usage (Gemini provides this in different format)
     const promptTokens = response.response.usageMetadata?.promptTokenCount || 0;
     const completionTokens = response.response.usageMetadata?.candidatesTokenCount || 0;
-    const costUsd = calculateCost(settings.model, promptTokens, completionTokens);
+    const totalTokens = promptTokens + completionTokens;
+    const costUsd = await calculateCost(settings.model, promptTokens, completionTokens);
+    const requestTime = (endTime - startTime) / 1000;
+
+    const usageMetrics = {
+      promptTokens,
+      completionTokens,
+      totalTokens,
+      estimatedCost: costUsd,
+      requestTime,
+      provider: settings.provider,
+      model: settings.model
+    };
+
+    const translationSettings = {
+      provider: settings.provider,
+      model: settings.model,
+      temperature: settings.temperature,
+      systemPrompt: settings.systemPrompt,
+      promptId: settings.promptId,
+      promptName: settings.promptName
+    };
 
     return {
       translatedTitle: parsedResponse.translatedTitle || '',
       translation: parsedResponse.translation || '',
-      illustrations: parsedResponse.suggestedIllustrations || [],
+      footnotes: safeFootnotes,
+      suggestedIllustrations: safeIllustrations,
+      proposal: parsedResponse.proposal || null,
+      usageMetrics,
+      // Legacy fields for backwards compatibility with translator sanitization/tests
+      illustrations: safeIllustrations,
       amendments: parsedResponse.proposal ? [parsedResponse.proposal] : [],
       costUsd,
       tokensUsed: {
         promptTokens,
         completionTokens,
-        totalTokens: promptTokens + completionTokens
+        totalTokens
       },
       model: settings.model,
       provider: settings.provider,
-      translationSettings: {
-        provider: settings.provider,
-        model: settings.model,
-        temperature: settings.temperature,
-        systemPrompt: settings.systemPrompt,
-        promptId: settings.promptId,
-        promptName: settings.promptName
-      }
+      translationSettings
     };
   }
 }
