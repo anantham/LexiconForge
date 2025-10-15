@@ -77,3 +77,6 @@ Exports/
 # Marketing and case study materials (not part of codebase)
 Case Studies/
 Marketing/
+
+# Git worktrees
+.worktrees/
