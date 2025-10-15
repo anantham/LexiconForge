@@ -43,6 +43,27 @@ export class TranslationService {
   private static activeTranslations = new Map<string, AbortController>();
   private static translationQueue: Promise<void> = Promise.resolve();
 
+  /**
+   * Convert FeedbackRecord from IndexedDB to FeedbackItem format
+   */
+  private static convertFeedbackRecordToItem(record: any): any {
+    const typeMap: Record<string, '👍' | '👎' | '?'> = {
+      'positive': '👍',
+      'negative': '👎',
+      'suggestion': '?'
+    };
+
+    return {
+      id: record.id,
+      text: record.comment,
+      category: record.type,
+      timestamp: new Date(record.createdAt).getTime(),
+      chapterId: record.chapterUrl,
+      selection: record.selection,
+      type: typeMap[record.type] || '?'
+    };
+  }
+
   private static async runSequential<T>(task: () => Promise<T>): Promise<T> {
     // Non-null assertion: Promise constructor executes synchronously, so release is always set
     let release!: () => void;
@@ -462,6 +483,10 @@ export class TranslationService {
         }
         if (!activeTranslation) continue;
 
+        // Load feedback from IndexedDB
+        const feedbackRecords = await indexedDBService.getFeedback(chapterRecord.url).catch(() => []);
+        const feedback = feedbackRecords.map(record => this.convertFeedbackRecordToItem(record));
+
         dbCandidates.push({
           number: num,
           history: {
@@ -470,7 +495,7 @@ export class TranslationService {
             translatedTitle: activeTranslation.translatedTitle,
             translatedContent: activeTranslation.translation,
             footnotes: activeTranslation.footnotes || [],
-            feedback: [],
+            feedback,
           },
         });
       }
@@ -540,13 +565,17 @@ export class TranslationService {
             const content = dbRec.data?.chapter?.content || dbRec.content;
             const title = dbRec.data?.chapter?.title || dbRec.title;
             if (active && content) {
+              // Load feedback from IndexedDB
+              const feedbackRecords = await indexedDBService.getFeedback(cursorPrev).catch(() => []);
+              const feedback = feedbackRecords.map(record => this.convertFeedbackRecordToItem(record));
+
               results.push({
                 originalTitle: title || 'Untitled',
                 originalContent: content,
                 translatedTitle: active.translatedTitle,
                 translatedContent: active.translation,
                 footnotes: active.footnotes || [],
-                feedback: [],
+                feedback,
               });
               links.push({ stableId });
               // Continue chain using DB record's prevUrl
