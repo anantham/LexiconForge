@@ -9,6 +9,7 @@ import { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from 
 import { COSTS_PER_MILLION_TOKENS } from '../config/costs';
 import appConfig from '../config/app.json';
 import { buildFanTranslationContext, formatHistory } from './prompts';
+import { getEnvVar, hasEnvVar } from './env';
 
 // Parameter validation using config limits
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -38,31 +39,35 @@ import { sanitizeHtml as sanitizeTranslationHTML } from './translate/HtmlSanitiz
  * wasted resources and provide immediate user feedback.
  */
 export const validateApiKey = (settings: AppSettings): { isValid: boolean; errorMessage?: string } => {
-  // Support environments without Node's process global
-  const env = (typeof process !== 'undefined' && process?.env) ? process.env : {};
 
   let requiredApiKey: string | undefined;
   let providerName: string;
+  let envKey: string;
 
   switch (settings.provider) {
     case 'Gemini':
-      requiredApiKey = settings.apiKeyGemini || (env.GEMINI_API_KEY as any);
+      envKey = 'GEMINI_API_KEY';
+      requiredApiKey = settings.apiKeyGemini || (getEnvVar(envKey) as any);
       providerName = 'Google Gemini';
       break;
     case 'OpenAI':
-      requiredApiKey = settings.apiKeyOpenAI || (env.OPENAI_API_KEY as any);
+      envKey = 'OPENAI_API_KEY';
+      requiredApiKey = settings.apiKeyOpenAI || (getEnvVar(envKey) as any);
       providerName = 'OpenAI';
       break;
     case 'DeepSeek':
-      requiredApiKey = settings.apiKeyDeepSeek || (env.DEEPSEEK_API_KEY as any);
+      envKey = 'DEEPSEEK_API_KEY';
+      requiredApiKey = settings.apiKeyDeepSeek || (getEnvVar(envKey) as any);
       providerName = 'DeepSeek';
       break;
     case 'OpenRouter':
-      requiredApiKey = (settings as any).apiKeyOpenRouter || (env.OPENROUTER_API_KEY as any);
+      envKey = 'OPENROUTER_API_KEY';
+      requiredApiKey = (settings as any).apiKeyOpenRouter || (getEnvVar(envKey) as any);
       providerName = 'OpenRouter';
       break;
     case 'Claude':
-      requiredApiKey = settings.apiKeyClaude || (env.CLAUDE_API_KEY as any);
+      envKey = 'CLAUDE_API_KEY';
+      requiredApiKey = settings.apiKeyClaude || (getEnvVar(envKey) as any);
       providerName = 'Claude (Anthropic)';
       break;
     default:
@@ -74,7 +79,7 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
     console.error('[API Key Validation Failed]', {
       provider: providerName,
       hasSettingsKey: !!settings[`apiKey${settings.provider}` as keyof typeof settings],
-      hasEnvKey: !!env?.[`${settings.provider.toUpperCase()}_API_KEY`]
+      hasEnvKey: envKey ? hasEnvVar(envKey) : false
     });
 
     // Provider-specific help messages with links
@@ -379,7 +384,7 @@ const geminiResponseSchema = {
 };
 
 const translateWithGemini = async (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null, abortSignal?: AbortSignal): Promise<TranslationResult> => {
-  const apiKey = settings.apiKeyGemini || (process.env.GEMINI_API_KEY as any);
+  const apiKey = settings.apiKeyGemini || (getEnvVar('GEMINI_API_KEY') as any);
   if (!apiKey) {
     throw new Error("Gemini API key is missing. Please add it in the settings.");
   }
@@ -738,22 +743,25 @@ const translateWithOpenAI = async (title: string, content: string, settings: App
     let baseURL: string | undefined;
 
     if (settings.provider === 'OpenAI') {
-        apiKey = settings.apiKeyOpenAI || (process.env.OPENAI_API_KEY as any);
+        apiKey = settings.apiKeyOpenAI || (getEnvVar('OPENAI_API_KEY') as any);
         baseURL = 'https://api.openai.com/v1';
     } else if (settings.provider === 'DeepSeek') {
-        apiKey = settings.apiKeyDeepSeek || (process.env.DEEPSEEK_API_KEY as any);
+        apiKey = settings.apiKeyDeepSeek || (getEnvVar('DEEPSEEK_API_KEY') as any);
         baseURL = 'https://api.deepseek.com/v1';
     } else if (settings.provider === 'OpenRouter') {
-        apiKey = (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as any);
+        apiKey = (settings as any).apiKeyOpenRouter || (getEnvVar('OPENROUTER_API_KEY') as any);
         baseURL = 'https://openrouter.ai/api/v1';
     }
 
     // Diagnostics: where did the key come from, what base URL
     try {
-      const src = settings.provider === 'OpenAI' ? (settings.apiKeyOpenAI ? 'settings' : (process.env.OPENAI_API_KEY ? '.env' : 'missing'))
-        : settings.provider === 'DeepSeek' ? (settings.apiKeyDeepSeek ? 'settings' : (process.env.DEEPSEEK_API_KEY ? '.env' : 'missing'))
-        : settings.provider === 'OpenRouter' ? ((settings as any).apiKeyOpenRouter ? 'settings' : (process.env.OPENROUTER_API_KEY ? '.env' : 'missing'))
-        : 'settings';
+      const src = settings.provider === 'OpenAI'
+        ? (settings.apiKeyOpenAI ? 'settings' : (hasEnvVar('OPENAI_API_KEY') ? '.env' : 'missing'))
+        : settings.provider === 'DeepSeek'
+          ? (settings.apiKeyDeepSeek ? 'settings' : (hasEnvVar('DEEPSEEK_API_KEY') ? '.env' : 'missing'))
+          : settings.provider === 'OpenRouter'
+            ? ((settings as any).apiKeyOpenRouter ? 'settings' : (hasEnvVar('OPENROUTER_API_KEY') ? '.env' : 'missing'))
+            : 'settings';
       const masked = apiKey ? ('*'.repeat(Math.max(0, (apiKey as string).length - 4)) + (apiKey as string).slice(-4)) : 'null';
       dlog('[OpenAI/Compatible Diagnostic]', { provider: settings.provider, baseURL, keySource: src, keyMasked: masked, model: settings.model });
     } catch {}

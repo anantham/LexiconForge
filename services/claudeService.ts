@@ -3,6 +3,7 @@ import { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from 
 import prompts from '../config/prompts.json';
 import { calculateCost } from './aiService';
 import { buildFanTranslationContext, formatHistory } from './prompts';
+import { getEnvVar } from './env';
 
 // --- DEBUG UTILITIES ---
 const aiDebugEnabled = (): boolean => {
@@ -30,7 +31,7 @@ export const translateWithClaude = async (
     fanTranslation?: string | null
 ): Promise<TranslationResult> => {
 
-    const apiKey = settings.apiKeyClaude || (process.env.CLAUDE_API_KEY as any);
+    const apiKey = settings.apiKeyClaude || (getEnvVar('CLAUDE_API_KEY') as any);
     if (!apiKey) {
         throw new Error("Claude API key is missing. Please add it in the settings.");
     }

@@ -1,22 +1,29 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { validateApiKey } from '../../services/aiService';
 import type { AppSettings } from '../../types';
+
+const mockEnv: Record<string, string | undefined> = {};
+const resetMockEnv = (entries: Record<string, string | undefined>) => {
+  Object.keys(mockEnv).forEach((key) => delete mockEnv[key]);
+  Object.assign(mockEnv, entries);
+};
+
+vi.mock('../../services/env', () => ({
+  getEnvVar: vi.fn((key: string) => mockEnv[key]),
+  hasEnvVar: vi.fn((key: string) => mockEnv[key] !== undefined),
+}));
 
 describe('validateApiKey', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Mock process.env
-        vi.stubGlobal('process', {
-            env: {
-                GEMINI_API_KEY: 'env-gemini-key',
-                OPENAI_API_KEY: 'env-openai-key',
-                DEEPSEEK_API_KEY: 'env-deepseek-key'
-            }
+        resetMockEnv({
+          GEMINI_API_KEY: 'env-gemini-key',
+          OPENAI_API_KEY: 'env-openai-key',
+          DEEPSEEK_API_KEY: 'env-deepseek-key',
+          OPENROUTER_API_KEY: 'env-openrouter-key',
+          CLAUDE_API_KEY: 'env-claude-key',
+          PIAPI_API_KEY: 'env-piapi-key',
         });
-    });
-
-    afterEach(() => {
-        vi.unstubAllGlobals();
     });
 
     describe('Gemini Provider', () => {
@@ -55,7 +62,7 @@ describe('validateApiKey', () => {
         });
 
         it('should fail when no API key is available', () => {
-            vi.stubGlobal('process', { env: {} });
+            resetMockEnv({});
             
             const settings: AppSettings = {
                 provider: 'Gemini',
@@ -129,7 +136,7 @@ describe('validateApiKey', () => {
         });
 
         it('should fail when no API key is available', () => {
-            vi.stubGlobal('process', { env: {} });
+            resetMockEnv({});
             
             const settings: AppSettings = {
                 provider: 'OpenAI',
@@ -185,7 +192,7 @@ describe('validateApiKey', () => {
         });
 
         it('should fail when no API key is available', () => {
-            vi.stubGlobal('process', { env: {} });
+            resetMockEnv({});
             
             const settings: AppSettings = {
                 provider: 'DeepSeek',
@@ -241,7 +248,7 @@ describe('validateApiKey', () => {
         });
 
         it('should handle missing process object gracefully', () => {
-            vi.stubGlobal('process', undefined);
+            resetMockEnv({});
             
             const settings: AppSettings = {
                 provider: 'OpenAI',
@@ -263,7 +270,7 @@ describe('validateApiKey', () => {
 
     describe('Integration with Translation Functions', () => {
         it('should provide consistent error messages across providers', () => {
-            vi.stubGlobal('process', { env: {} });
+            resetMockEnv({});
             
             const providers: Array<{ provider: AppSettings['provider'], expectedName: string }> = [
                 { provider: 'Gemini', expectedName: 'Google Gemini' },

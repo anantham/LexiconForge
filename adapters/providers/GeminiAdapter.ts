@@ -5,6 +5,7 @@ import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
+import { getEnvVar } from '../../services/env';
 
 // Placeholder replacement utility
 const replacePlaceholders = (template: string, settings: AppSettings): string => {
@@ -25,7 +26,7 @@ export class GeminiAdapter implements TranslationProvider {
     const { title, content, settings, history, fanTranslation, abortSignal } = request;
     
     // Get API key
-    const apiKey = settings.apiKeyGemini || process.env.GEMINI_API_KEY;
+    const apiKey = settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY');
     if (!apiKey) {
       throw new Error('Gemini API key is missing. Please add it in settings.');
     }

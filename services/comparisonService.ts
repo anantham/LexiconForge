@@ -2,6 +2,7 @@ import { AppSettings } from '../types';
 import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
 import { debugLog } from '../utils/debug';
+import { getEnvVar } from './env';
 
 const clog = (...args: any[]) => debugLog('comparison', 'summary', '[ComparisonService]', ...args);
 
@@ -182,30 +183,30 @@ function resolveApiConfig(settings: AppSettings): { apiKey?: string; baseURL?: s
   switch (settings.provider) {
     case 'OpenAI':
       return {
-        apiKey: settings.apiKeyOpenAI || (process.env.OPENAI_API_KEY as string | undefined),
+        apiKey: settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY'),
         baseURL: 'https://api.openai.com/v1',
       };
     case 'DeepSeek':
       return {
-        apiKey: settings.apiKeyDeepSeek || (process.env.DEEPSEEK_API_KEY as string | undefined),
+        apiKey: settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY'),
         baseURL: 'https://api.deepseek.com/v1',
       };
     case 'OpenRouter':
       return {
-        apiKey: (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as string | undefined),
+        apiKey: (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
     case 'Gemini':
     case 'Claude':
       console.warn('[ComparisonService] Provider not directly supported, defaulting to OpenRouter.');
       return {
-        apiKey: (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as string | undefined),
+        apiKey: (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
     default:
       console.warn('[ComparisonService] Unknown provider, defaulting to OpenRouter.');
       return {
-        apiKey: (settings as any).apiKeyOpenRouter || (process.env.OPENROUTER_API_KEY as string | undefined),
+        apiKey: (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
   }

@@ -19,6 +19,7 @@ import { AceStepProvider } from './AceStepProvider';
 import { DiffRhythmProvider } from './DiffRhythmProvider';
 import appConfig from '../../config/app.json';
 import { debugLog } from '../../utils/debug';
+import { getEnvVar } from '../env';
 
 export class AudioService {
   private providers = new Map<AudioProvider, BaseAudioProvider>();
@@ -27,7 +28,7 @@ export class AudioService {
    * Initialize the audio service with API keys from settings
    */
   initialize(settings: AppSettings) {
-    const piApiKey = settings.apiKeyPiAPI || (process.env.PIAPI_API_KEY as any);
+    const piApiKey = settings.apiKeyPiAPI || (getEnvVar('PIAPI_API_KEY') as any);
     
     if (!piApiKey) {
       console.warn('[AudioService] PiAPI key not found. Audio generation will not be available.');

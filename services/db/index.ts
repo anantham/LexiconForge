@@ -8,6 +8,7 @@
 import type { Repo } from '../../adapters/repo/Repo';
 import { makeLegacyRepo } from '../../legacy/indexeddb-compat';
 import { migrationController, type Backend, type ServiceName } from './migration/phase-controller';
+import { getEnvVar } from '../env';
 import { isIndexedDBAvailable } from './core/connection';
 import {
   TranslationOps,
@@ -20,10 +21,7 @@ import {
 } from './operations';
 
 // Environment-based backend selection
-const DEFAULT_BACKEND: Backend = 
-  (import.meta?.env?.VITE_DB_BACKEND as Backend) ?? 
-  (process.env?.VITE_DB_BACKEND as Backend) ?? 
-  'legacy';
+const DEFAULT_BACKEND: Backend = (getEnvVar('DB_BACKEND') as Backend) ?? 'legacy';
 
 /**
  * Memory-based repository for fallback scenarios

@@ -28,7 +28,19 @@ export default defineConfig(({ mode }) => {
         'process.env.DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
         'process.env.CLAUDE_API_KEY': JSON.stringify(env.CLAUDE_API_KEY),
         'process.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY),
-        'process.env.PIAPI_API_KEY': JSON.stringify(env.PIAPI_API_KEY)
+        'process.env.PIAPI_API_KEY': JSON.stringify(env.PIAPI_API_KEY),
+        'import.meta.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        'import.meta.env.VITE_OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
+        'import.meta.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
+        'import.meta.env.VITE_DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
+        'import.meta.env.DEEPSEEK_API_KEY': JSON.stringify(env.DEEPSEEK_API_KEY),
+        'import.meta.env.VITE_CLAUDE_API_KEY': JSON.stringify(env.CLAUDE_API_KEY),
+        'import.meta.env.CLAUDE_API_KEY': JSON.stringify(env.CLAUDE_API_KEY),
+        'import.meta.env.VITE_OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY),
+        'import.meta.env.OPENROUTER_API_KEY': JSON.stringify(env.OPENROUTER_API_KEY),
+        'import.meta.env.VITE_PIAPI_API_KEY': JSON.stringify(env.PIAPI_API_KEY),
+        'import.meta.env.PIAPI_API_KEY': JSON.stringify(env.PIAPI_API_KEY),
       },
       resolve: {
         alias: {

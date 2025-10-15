@@ -1,6 +1,7 @@
 import { AppSettings } from '../types';
 import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
+import { getEnvVar } from './env';
 
 const log = (message: string, ...args: any[]) => console.log(`[IllustrationService] ${message}`, ...args);
 const warn = (message: string, ...args: any[]) => console.warn(`[IllustrationService] ${message}`, ...args);
@@ -23,20 +24,20 @@ export class IllustrationService {
 
       switch (settings.provider) {
         case 'OpenAI':
-          apiKey = settings.apiKeyOpenAI || process.env.OPENAI_API_KEY;
+          apiKey = settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY');
           baseURL = 'https://api.openai.com/v1';
           break;
         case 'DeepSeek':
-          apiKey = settings.apiKeyDeepSeek || process.env.DEEPSEEK_API_KEY;
+          apiKey = settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY');
           baseURL = 'https://api.deepseek.com/v1';
           break;
         case 'OpenRouter':
-          apiKey = (settings as any).apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
+          apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
           baseURL = 'https://openrouter.ai/api/v1';
           break;
         default:
           warn(`Unsupported provider for illustration generation: ${settings.provider}. Using OpenRouter as fallback.`);
-          apiKey = (settings as any).apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
+          apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
           baseURL = 'https://openrouter.ai/api/v1';
       }
 
