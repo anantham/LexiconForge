@@ -8,7 +8,8 @@ import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
-import { translationResponseJsonSchema } from '../../services/translate/translationResponseSchema';
+import { getTranslationResponseJsonSchema } from '../../services/translate/translationResponseSchema';
+import { getEffectiveSystemPrompt } from '../../utils/promptUtils';
 
 // Parameter validation utility
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -140,36 +141,43 @@ export class OpenAIAdapter implements TranslationProvider {
     fanTranslation?: string | null
   ): Promise<any> {
     const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
-    let systemPrompt = replacePlaceholders(settings.systemPrompt, settings);
+
+    // Get effective system prompt (strips Part A if amendments disabled)
+    const enableAmendments = settings.enableAmendments ?? false;
+    let systemPrompt = getEffectiveSystemPrompt(settings.systemPrompt, enableAmendments);
+    systemPrompt = replacePlaceholders(systemPrompt, settings);
 
     if (!systemPrompt) {
       throw new Error('System prompt cannot be empty');
     }
 
+    // Get conditional schema based on enableAmendments setting
+    const schema = getTranslationResponseJsonSchema(enableAmendments);
+
     // Configure response format
     const requestOptions: any = { model: settings.model };
-    
+
     if (hasStructuredOutputs) {
-      requestOptions.response_format = { 
-        type: 'json_schema', 
-        json_schema: { 
-          name: 'translation_response', 
-          schema: translationResponseJsonSchema, 
-          strict: true 
-        } 
+      requestOptions.response_format = {
+        type: 'json_schema',
+        json_schema: {
+          name: 'translation_response',
+          schema: schema,
+          strict: true
+        }
       };
       if (settings.provider === 'OpenRouter') {
         requestOptions.provider = { require_parameters: true };
       }
     } else {
       requestOptions.response_format = { type: 'json_object' };
-      const schemaString = JSON.stringify(translationResponseJsonSchema, null, 2);
+      const schemaString = JSON.stringify(schema, null, 2);
       const schemaInjection = `
 
 Your response MUST be a single, valid JSON object that conforms to the following JSON schema:
 
 ${schemaString}`;
-      
+
       // Avoid duplicating the injection if the user's prompt already contains it
       if (!systemPrompt.includes('Your response MUST be a single, valid JSON object')) {
         systemPrompt += schemaInjection;

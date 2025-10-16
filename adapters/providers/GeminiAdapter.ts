@@ -6,7 +6,8 @@ import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
-import { translationResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
+import { getTranslationResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
+import { getEffectiveSystemPrompt } from '../../utils/promptUtils';
 
 // Placeholder replacement utility
 const replacePlaceholders = (template: string, settings: AppSettings): string => {
@@ -83,6 +84,10 @@ export class GeminiAdapter implements TranslationProvider {
     let response: GenerateContentResult;
 
     try {
+      // Get conditional schema based on enableAmendments setting
+      const enableAmendments = settings.enableAmendments ?? false;
+      const schema = getTranslationResponseGeminiSchema(enableAmendments);
+
       // Make API call
       response = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
@@ -90,7 +95,7 @@ export class GeminiAdapter implements TranslationProvider {
           temperature: settings.temperature,
           maxOutputTokens: settings.maxOutputTokens || undefined,
           responseMimeType: 'application/json',
-          responseSchema: translationResponseGeminiSchema
+          responseSchema: schema
         },
       });
 
@@ -119,8 +124,11 @@ export class GeminiAdapter implements TranslationProvider {
     history: HistoricalChapter[],
     fanTranslation?: string | null
   ): string {
-    let systemPrompt = replacePlaceholders(settings.systemPrompt, settings);
-    
+    // Get effective system prompt (strips Part A if amendments disabled)
+    const enableAmendments = settings.enableAmendments ?? false;
+    let systemPrompt = getEffectiveSystemPrompt(settings.systemPrompt, enableAmendments);
+    systemPrompt = replacePlaceholders(systemPrompt, settings);
+
     if (!systemPrompt) {
       throw new Error('System prompt cannot be empty');
     }
