@@ -1,0 +1,25 @@
+/* DiffGutter.module.css */
+.gutter {
+  position: fixed;
+  right: 12px;
+  top: 80px; /* Below header */
+  bottom: 40px;
+  width: 16px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.gutterMarker {
+  position: absolute;
+  right: 4px;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .gutter {
+    right: 4px;
+    width: 12px;
+  }
+}
