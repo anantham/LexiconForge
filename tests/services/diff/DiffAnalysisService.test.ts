@@ -32,5 +32,39 @@ describe('DiffAnalysisService', () => {
       expect(result.aiVersionId).toBeDefined();
       expect(result.analyzedAt).toBeGreaterThan(0);
     });
+
+    it('should call translator with correct prompt and parse response', async () => {
+      const mockTranslate = vi.fn().mockResolvedValue({
+        translatedText: JSON.stringify({
+          markers: [
+            {
+              chunkId: 'para-0-17c5',  // Matches hash of 'Test paragraph.'
+              colors: ['grey'],
+              reasons: ['stylistic-choice'],
+              confidence: 0.9
+            }
+          ]
+        }),
+        cost: 0.0011,
+        model: 'gpt-4o-mini'
+      });
+
+      // Inject mock translator
+      (service as any).translator = { translate: mockTranslate };
+
+      const request: DiffAnalysisRequest = {
+        chapterId: 'ch-002',
+        aiTranslation: 'Test paragraph.',
+        fanTranslation: 'Test para.',
+        rawText: 'テスト段落。'
+      };
+
+      const result = await service.analyzeDiff(request);
+
+      expect(mockTranslate).toHaveBeenCalledTimes(1);
+      expect(result.markers.length).toBe(1);
+      expect(result.markers[0].colors).toContain('grey');
+      expect(result.costUsd).toBe(0.0011);
+    });
   });
 });
