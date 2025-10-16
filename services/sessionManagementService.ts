@@ -41,6 +41,7 @@ export const defaultSettings: AppSettings = {
   retryInitialDelayMs: 2000,
   footnoteStrictMode: appConfig.footnoteStrictMode as 'append_missing' | 'fail',
   enableHtmlRepair: true,  // Enable graceful HTML repairs by default
+  enableAmendments: false, // Disable prompt amendment proposals by default
   imageWidth: 1024,
   imageHeight: 1024,
   imageAspectRatio: '1:1',

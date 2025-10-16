@@ -1775,6 +1775,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </label>
                 </div>
 
+                {/* Prompt Amendment Proposals Toggle */}
+                <div className="mt-4">
+                  <label className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(currentSettings as any).enableAmendments ?? false}
+                      onChange={(e) => handleSettingChange('enableAmendments' as any, e.target.checked)}
+                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <div>
+                      <span className="block font-medium text-gray-800 dark:text-gray-100">Enable Prompt Amendment Proposals</span>
+                      <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Allow the AI to suggest changes to the translation prompt based on feedback patterns.
+                        When disabled, no amendment protocol is sent to the AI, and any proposals are automatically rejected.
+                        Disabling this saves ~500 tokens per translation.
+                      </span>
+                    </div>
+                  </label>
+                </div>
+
               </div>
             </fieldset>
           )}
