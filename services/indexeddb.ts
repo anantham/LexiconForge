@@ -44,7 +44,8 @@ const STORES = {
   URL_MAPPINGS: 'url_mappings',     // NEW: URL → Stable ID mapping
   NOVELS: 'novels',                 // NEW: Novel organization (optional)
   CHAPTER_SUMMARIES: 'chapter_summaries', // NEW: Lightweight metadata for listing
-  AMENDMENT_LOGS: 'amendment_logs'  // NEW: Logs of amendment proposal actions
+  AMENDMENT_LOGS: 'amendment_logs', // NEW: Logs of amendment proposal actions
+  DIFF_RESULTS: 'diffResults'       // NEW: Semantic diff analysis results
 } as const;
 
 // IndexedDB Schema Types
