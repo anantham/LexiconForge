@@ -67,6 +67,7 @@ export interface ImageSliceActions {
   navigateToNextVersion: (chapterId: string, placementMarker: string) => void;
   navigateToPreviousVersion: (chapterId: string, placementMarker: string) => void;
   getVersionInfo: (chapterId: string, placementMarker: string) => { current: number; total: number } | null;
+  deleteVersion: (chapterId: string, placementMarker: string, version?: number) => Promise<void>;
 
   // Utilities
   getImageState: (chapterId: string, placementMarker: string) => ImageState | null;
@@ -835,6 +836,104 @@ export const createImageSlice: StateCreator<
       current: currentVersion,
       total: totalVersions
     };
+  },
+
+  deleteVersion: async (chapterId, placementMarker, version) => {
+    const state = get();
+    const key = `${chapterId}:${placementMarker}`;
+    const currentVersion = state.activeImageVersion[key] || state.imageVersions[key] || 1;
+    const versionToDelete = version ?? currentVersion;
+    const totalVersions = state.imageVersions[key] || 1;
+
+    debugLog('image', 'summary', `[ImageSlice] Deleting version ${versionToDelete} for ${placementMarker} in chapter ${chapterId}`);
+
+    try {
+      // Get chapter to access translation result
+      const chapter = (get() as any).getChapter(chapterId);
+      if (!chapter?.translationResult) {
+        throw new Error('Chapter or translation result not found');
+      }
+
+      // Delete from IndexedDB and cache
+      const { indexedDBService } = await import('../../services/indexeddb');
+      await indexedDBService.deleteImageVersion(chapterId, placementMarker, versionToDelete);
+
+      // Delete from cache
+      await ImageCacheStore.removeImage({
+        stableId: chapterId,
+        placementMarker,
+        version: versionToDelete
+      });
+
+      // If we deleted the only version, clear all image state for this marker
+      if (totalVersions === 1) {
+        debugLog('image', 'summary', `[ImageSlice] Deleted last version, clearing all state for ${placementMarker}`);
+        set(prevState => {
+          const newGeneratedImages = { ...prevState.generatedImages };
+          const newVersions = { ...prevState.imageVersions };
+          const newActiveVersions = { ...prevState.activeImageVersion };
+          const newSteeringImages = { ...prevState.steeringImages };
+          const newNegativePrompts = { ...prevState.negativePrompts };
+          const newGuidanceScales = { ...prevState.guidanceScales };
+          const newLoraModels = { ...prevState.loraModels };
+          const newLoraStrengths = { ...prevState.loraStrengths };
+
+          delete newGeneratedImages[key];
+          delete newVersions[key];
+          delete newActiveVersions[key];
+          delete newSteeringImages[key];
+          delete newNegativePrompts[key];
+          delete newGuidanceScales[key];
+          delete newLoraModels[key];
+          delete newLoraStrengths[key];
+
+          return {
+            generatedImages: newGeneratedImages,
+            imageVersions: newVersions,
+            activeImageVersion: newActiveVersions,
+            steeringImages: newSteeringImages,
+            negativePrompts: newNegativePrompts,
+            guidanceScales: newGuidanceScales,
+            loraModels: newLoraModels,
+            loraStrengths: newLoraStrengths
+          };
+        });
+      } else {
+        // Multiple versions exist - adjust active version if needed
+        let newActiveVersion = currentVersion;
+        if (versionToDelete === currentVersion) {
+          // If deleting current version, switch to latest remaining
+          if (versionToDelete === totalVersions) {
+            // Deleted the last version, go to previous
+            newActiveVersion = totalVersions - 1;
+          } else {
+            // Deleted middle version, stay at same number (which now points to next version)
+            newActiveVersion = versionToDelete;
+          }
+        }
+
+        debugLog('image', 'summary', `[ImageSlice] Adjusting version tracking: total ${totalVersions} -> ${totalVersions - 1}, active ${currentVersion} -> ${newActiveVersion}`);
+
+        set(prevState => ({
+          imageVersions: {
+            ...prevState.imageVersions,
+            [key]: totalVersions - 1
+          },
+          activeImageVersion: {
+            ...prevState.activeImageVersion,
+            [key]: newActiveVersion
+          }
+        }));
+
+        // Persist the new active version
+        await persistImageVersionState(chapterId, placementMarker, newActiveVersion);
+      }
+
+      debugLog('image', 'summary', `[ImageSlice] Successfully deleted version ${versionToDelete}`);
+    } catch (error) {
+      console.error(`[ImageSlice] Failed to delete version ${versionToDelete}:`, error);
+      throw error;
+    }
   },
 
   // Update illustration prompt and persist to IndexedDB

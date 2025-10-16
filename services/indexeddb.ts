@@ -2924,6 +2924,85 @@ class IndexedDBService {
       request.onerror = () => reject(request.error);
     });
   }
+
+  /**
+   * Delete a specific image version from a chapter's translation result
+   * Removes the version from imageVersionState and updates version tracking
+   */
+  async deleteImageVersion(chapterId: string, placementMarker: string, version: number): Promise<void> {
+    const db = await this.openDatabase();
+
+    // Get the chapter to find its active translation
+    const chapterRecord = await this.getChapter(chapterId);
+    if (!chapterRecord) {
+      throw new Error(`Chapter not found: ${chapterId}`);
+    }
+
+    // Get the active translation
+    const translation = chapterRecord.activeTranslationId
+      ? await this.getTranslationById(chapterRecord.activeTranslationId)
+      : null;
+
+    if (!translation?.data?.translationResult) {
+      throw new Error(`No active translation found for chapter: ${chapterId}`);
+    }
+
+    const versionState = translation.data.translationResult.imageVersionState || {};
+    const markerState = versionState[placementMarker];
+
+    if (!markerState) {
+      throw new Error(`No image version state found for marker: ${placementMarker}`);
+    }
+
+    // Remove the specified version
+    const updatedVersions = (markerState.versions || []).filter(v => v.version !== version);
+
+    // Determine new active and latest versions
+    let newActiveVersion = markerState.activeVersion;
+    let newLatestVersion = markerState.latestVersion;
+
+    if (updatedVersions.length === 0) {
+      // All versions deleted - remove the marker entirely
+      delete versionState[placementMarker];
+    } else {
+      // Update version tracking
+      newLatestVersion = Math.max(...updatedVersions.map(v => v.version));
+
+      // If we deleted the active version, switch to latest
+      if (newActiveVersion === version) {
+        newActiveVersion = newLatestVersion;
+      }
+
+      versionState[placementMarker] = {
+        ...markerState,
+        versions: updatedVersions,
+        activeVersion: newActiveVersion,
+        latestVersion: newLatestVersion
+      };
+    }
+
+    // Update the translation record
+    const updatedTranslation = {
+      ...translation,
+      data: {
+        ...translation.data,
+        translationResult: {
+          ...translation.data.translationResult,
+          imageVersionState: Object.keys(versionState).length > 0 ? versionState : undefined
+        }
+      }
+    };
+
+    // Store the updated translation
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction([STORES.TRANSLATIONS], 'readwrite');
+      const store = transaction.objectStore(STORES.TRANSLATIONS);
+
+      const request = store.put(updatedTranslation);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
 }
 
 // Export singleton instance

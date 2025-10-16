@@ -42,7 +42,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     activeImageVersion,
     navigateToNextVersion,
     navigateToPreviousVersion,
-    getVersionInfo
+    getVersionInfo,
+    deleteVersion
   } = useAppStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
     chapter: s.currentChapterId ? s.getChapter(s.currentChapterId) : null,
@@ -65,7 +66,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     activeImageVersion: s.activeImageVersion,
     navigateToNextVersion: s.navigateToNextVersion,
     navigateToPreviousVersion: s.navigateToPreviousVersion,
-    getVersionInfo: s.getVersionInfo
+    getVersionInfo: s.getVersionInfo,
+    deleteVersion: s.deleteVersion
   })));
 
   // `chapter` is now selected from the store above; keep local reference for clarity
@@ -452,27 +454,55 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
         </>
       )}
 
-      {/* Version Navigation Controls - Show when multiple versions exist regardless of image presence */}
-      {!isLoading && !error && versionInfo && versionInfo.total > 1 && canonicalChapterId && illust?.placementMarker && (
-        <div className="flex items-center gap-3 mt-3 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+      {/* Version Navigation Controls - Show when versions exist */}
+      {!isLoading && !error && versionInfo && versionInfo.total >= 1 && canonicalChapterId && illust?.placementMarker && (
+        <div className="flex items-center justify-between gap-3 mt-3 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+          <div className="flex items-center gap-3">
+            {versionInfo.total > 1 && (
+              <>
+                <button
+                  onClick={() => navigateToPreviousVersion(canonicalChapterId, illust.placementMarker)}
+                  disabled={versionInfo.current <= 1}
+                  className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Previous version"
+                >
+                  &lt;
+                </button>
+                <span className="text-sm text-gray-700 dark:text-gray-300 font-medium min-w-[100px] text-center">
+                  Version {versionInfo.current} of {versionInfo.total}
+                </span>
+                <button
+                  onClick={() => navigateToNextVersion(canonicalChapterId, illust.placementMarker)}
+                  disabled={versionInfo.current >= versionInfo.total}
+                  className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Next version"
+                >
+                  &gt;
+                </button>
+              </>
+            )}
+            {versionInfo.total === 1 && (
+              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                Version {versionInfo.current}
+              </span>
+            )}
+          </div>
           <button
-            onClick={() => navigateToPreviousVersion(canonicalChapterId, illust.placementMarker)}
-            disabled={versionInfo.current <= 1}
-            className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
-            title="Previous version"
+            onClick={async () => {
+              if (!confirm(`Delete version ${versionInfo.current}? This cannot be undone.`)) {
+                return;
+              }
+              try {
+                await deleteVersion(canonicalChapterId, illust.placementMarker);
+              } catch (error) {
+                console.error('Failed to delete version:', error);
+                alert('Failed to delete version. See console for details.');
+              }
+            }}
+            className="px-2 py-1 text-sm font-semibold rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition"
+            title="Delete this version"
           >
-            &lt;
-          </button>
-          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium min-w-[100px] text-center">
-            Version {versionInfo.current} of {versionInfo.total}
-          </span>
-          <button
-            onClick={() => navigateToNextVersion(canonicalChapterId, illust.placementMarker)}
-            disabled={versionInfo.current >= versionInfo.total}
-            className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
-            title="Next version"
-          >
-            &gt;
+            🗑️
           </button>
         </div>
       )}
