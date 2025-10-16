@@ -360,31 +360,6 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
             className="rounded-lg shadow-lg max-w-full h-auto border-4 border-gray-200 dark:border-gray-700"
           />
 
-          {/* Version Navigation Controls */}
-          {versionInfo && versionInfo.total >= 1 && canonicalChapterId && illust?.placementMarker && (
-            <div className="flex items-center gap-3 mt-3 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
-              <button
-                onClick={() => navigateToPreviousVersion(canonicalChapterId, illust.placementMarker)}
-                disabled={versionInfo.current <= 1}
-                className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Previous version"
-              >
-                &lt;
-              </button>
-              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium min-w-[100px] text-center">
-                Version {versionInfo.current} of {versionInfo.total}
-              </span>
-              <button
-                onClick={() => navigateToNextVersion(canonicalChapterId, illust.placementMarker)}
-                disabled={versionInfo.current >= versionInfo.total}
-                className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Next version"
-              >
-                &gt;
-              </button>
-            </div>
-          )}
-
           {hasIllust && (
             <div className="w-full max-w-xl text-left mt-3">
               {/* Caption toggle button */}
@@ -476,6 +451,32 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           )}
         </>
       )}
+
+      {/* Version Navigation Controls - Show when multiple versions exist regardless of image presence */}
+      {!isLoading && !error && versionInfo && versionInfo.total > 1 && canonicalChapterId && illust?.placementMarker && (
+        <div className="flex items-center gap-3 mt-3 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+          <button
+            onClick={() => navigateToPreviousVersion(canonicalChapterId, illust.placementMarker)}
+            disabled={versionInfo.current <= 1}
+            className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            title="Previous version"
+          >
+            &lt;
+          </button>
+          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium min-w-[100px] text-center">
+            Version {versionInfo.current} of {versionInfo.total}
+          </span>
+          <button
+            onClick={() => navigateToNextVersion(canonicalChapterId, illust.placementMarker)}
+            disabled={versionInfo.current >= versionInfo.total}
+            className="px-2 py-1 text-sm font-semibold rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            title="Next version"
+          >
+            &gt;
+          </button>
+        </div>
+      )}
+
       {!isLoading && !error && !base64 && hasIllust && (
         <div className="flex flex-col items-center justify-center w-full text-center p-2">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">No image yet for {marker}.</p>
