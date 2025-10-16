@@ -25,7 +25,7 @@ export interface TranslationsState {
   
   // Feedback and amendments
   feedbackHistory: Record<string, FeedbackItem[]>;
-  amendmentProposal: AmendmentProposal | null;
+  amendmentProposals: AmendmentProposal[]; // Queue of proposals from multiple translations
   
   // Translation status
   translationProgress: Record<string, {
@@ -53,11 +53,12 @@ export interface TranslationsActions {
   deleteFeedback: (feedbackId: string) => void;
   updateFeedbackComment: (feedbackId: string, comment: string) => void;
 
-  // Amendment proposals
-  acceptProposal: () => Promise<void>;
-  rejectProposal: () => Promise<void>;
-  editAndAcceptProposal: (modifiedChange: string) => Promise<void>;
-  setAmendmentProposal: (proposal: AmendmentProposal | null) => void;
+  // Amendment proposals (queue-based)
+  acceptProposal: (index?: number) => Promise<void>;
+  rejectProposal: (index?: number) => Promise<void>;
+  editAndAcceptProposal: (modifiedChange: string, index?: number) => Promise<void>;
+  addAmendmentProposal: (proposal: AmendmentProposal) => void;
+  clearAllProposals: () => void;
   
   // Translation validation and retry
   shouldEnableRetranslation: (chapterId: string) => boolean;
@@ -88,7 +89,7 @@ export const createTranslationsSlice: StateCreator<
   activeTranslations: {},
   pendingTranslations: new Set(),
   feedbackHistory: {},
-  amendmentProposal: null,
+  amendmentProposals: [],
   translationProgress: {},
   
   // Translation operations
@@ -246,11 +247,13 @@ export const createTranslationsSlice: StateCreator<
         debugLog('translation', 'summary', `[Translation] ✅ Success for chapter ${chapterId}. Model: ${metrics?.provider}/${metrics?.model}. Tokens: ${metrics?.totalTokens}.`);
       }
       
-      // Set amendment proposal if provided and enabled in settings
+      // Add amendment proposal to queue if provided and enabled in settings
       if (translationResult.proposal) {
         const enableAmendments = (state as any).settings?.enableAmendments ?? false;
         if (enableAmendments) {
-          set({ amendmentProposal: translationResult.proposal });
+          set((prevState) => ({
+            amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]
+          }));
         } else {
           // Auto-reject if amendments are disabled
           debugLog('translation', 'summary', '[Translation] Auto-rejecting amendment proposal (amendments disabled in settings)');
@@ -551,20 +554,21 @@ export const createTranslationsSlice: StateCreator<
     });
   },
   
-  // Amendment proposals
-  acceptProposal: async () => {
-    const { amendmentProposal } = get();
-    if (!amendmentProposal) return;
+  // Amendment proposals (queue-based)
+  acceptProposal: async (index = 0) => {
+    const { amendmentProposals } = get();
+    if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
+    const proposal = amendmentProposals[index];
     const state = get() as any;
     const settingsActions = state;
     const currentChapterId = state.currentChapterId;
 
     if (settingsActions.updateSettings && settingsActions.settings) {
       const currentSystemPrompt = settingsActions.settings.systemPrompt;
-      const cleanChange = amendmentProposal.proposedChange.replace(/^[+-]\s/gm, '');
+      const cleanChange = proposal.proposedChange.replace(/^[+-]\s/gm, '');
       const newPrompt = currentSystemPrompt.replace(
-        amendmentProposal.currentRule,
+        proposal.currentRule,
         cleanChange
       );
 
@@ -574,7 +578,7 @@ export const createTranslationsSlice: StateCreator<
       try {
         await indexedDBService.logAmendmentAction({
           chapterId: currentChapterId,
-          proposal: amendmentProposal,
+          proposal: proposal,
           action: 'accepted',
           finalPromptChange: cleanChange
         });
@@ -583,13 +587,17 @@ export const createTranslationsSlice: StateCreator<
       }
     }
 
-    set({ amendmentProposal: null });
+    // Remove proposal from queue
+    set((state) => ({
+      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
+    }));
   },
 
-  rejectProposal: async () => {
-    const { amendmentProposal } = get();
-    if (!amendmentProposal) return;
+  rejectProposal: async (index = 0) => {
+    const { amendmentProposals } = get();
+    if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
+    const proposal = amendmentProposals[index];
     const state = get() as any;
     const currentChapterId = state.currentChapterId;
 
@@ -597,20 +605,24 @@ export const createTranslationsSlice: StateCreator<
     try {
       await indexedDBService.logAmendmentAction({
         chapterId: currentChapterId,
-        proposal: amendmentProposal,
+        proposal: proposal,
         action: 'rejected'
       });
     } catch (error) {
       console.warn('[TranslationsSlice] Failed to log amendment action:', error);
     }
 
-    set({ amendmentProposal: null });
+    // Remove proposal from queue
+    set((state) => ({
+      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
+    }));
   },
 
-  editAndAcceptProposal: async (modifiedChange: string) => {
-    const { amendmentProposal } = get();
-    if (!amendmentProposal) return;
+  editAndAcceptProposal: async (modifiedChange: string, index = 0) => {
+    const { amendmentProposals } = get();
+    if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
+    const proposal = amendmentProposals[index];
     const state = get() as any;
     const settingsActions = state;
     const currentChapterId = state.currentChapterId;
@@ -619,7 +631,7 @@ export const createTranslationsSlice: StateCreator<
       const currentSystemPrompt = settingsActions.settings.systemPrompt;
       const cleanChange = modifiedChange.replace(/^[+-]\s/gm, '');
       const newPrompt = currentSystemPrompt.replace(
-        amendmentProposal.currentRule,
+        proposal.currentRule,
         cleanChange
       );
 
@@ -629,7 +641,7 @@ export const createTranslationsSlice: StateCreator<
       try {
         await indexedDBService.logAmendmentAction({
           chapterId: currentChapterId,
-          proposal: amendmentProposal,
+          proposal: proposal,
           action: 'modified',
           finalPromptChange: cleanChange
         });
@@ -638,11 +650,20 @@ export const createTranslationsSlice: StateCreator<
       }
     }
 
-    set({ amendmentProposal: null });
+    // Remove proposal from queue
+    set((state) => ({
+      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
+    }));
   },
-  
-  setAmendmentProposal: (proposal) => {
-    set({ amendmentProposal: proposal });
+
+  addAmendmentProposal: (proposal) => {
+    set((state) => ({
+      amendmentProposals: [...state.amendmentProposals, proposal]
+    }));
+  },
+
+  clearAllProposals: () => {
+    set({ amendmentProposals: [] });
   },
   
   // Translation validation and retry

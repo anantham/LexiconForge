@@ -1,17 +1,33 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AmendmentProposal } from '../types';
 
 interface AmendmentModalProps {
-  proposal: AmendmentProposal;
-  onAccept: () => void;
-  onReject: () => void;
-  onEdit?: (modifiedChange: string) => void;
+  proposals: AmendmentProposal[];
+  currentIndex: number;
+  onAccept: (index: number) => void;
+  onReject: (index: number) => void;
+  onEdit?: (modifiedChange: string, index: number) => void;
+  onNavigate?: (newIndex: number) => void;
 }
 
-const AmendmentModal: React.FC<AmendmentModalProps> = ({ proposal, onAccept, onReject, onEdit }) => {
+const AmendmentModal: React.FC<AmendmentModalProps> = ({
+  proposals,
+  currentIndex,
+  onAccept,
+  onReject,
+  onEdit,
+  onNavigate
+}) => {
+  const proposal = proposals[currentIndex];
   const [isEditing, setIsEditing] = useState(false);
   const [editedChange, setEditedChange] = useState(proposal.proposedChange);
+
+  // Reset edit state when navigating between proposals
+  useEffect(() => {
+    setEditedChange(proposal.proposedChange);
+    setIsEditing(false);
+  }, [currentIndex, proposal.proposedChange]);
   const formatChange = (text: string) => {
     return text.split('\n').map((line, index) => {
       const lineClass = line.startsWith('+') ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 
@@ -29,9 +45,34 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({ proposal, onAccept, onR
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-6 sm:p-8">
           <header className="mb-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Prompt Amendment Proposal
-            </h2>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Prompt Amendment Proposal
+              </h2>
+              {proposals.length > 1 && (
+                <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
+                  <button
+                    onClick={() => onNavigate?.(currentIndex - 1)}
+                    disabled={currentIndex === 0}
+                    className="text-lg font-bold text-gray-700 dark:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:text-blue-600 dark:hover:text-blue-400 transition"
+                    title="Previous proposal"
+                  >
+                    ←
+                  </button>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 min-w-[60px] text-center">
+                    {currentIndex + 1} of {proposals.length}
+                  </span>
+                  <button
+                    onClick={() => onNavigate?.(currentIndex + 1)}
+                    disabled={currentIndex >= proposals.length - 1}
+                    className="text-lg font-bold text-gray-700 dark:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:text-blue-600 dark:hover:text-blue-400 transition"
+                    title="Next proposal"
+                  >
+                    →
+                  </button>
+                </div>
+              )}
+            </div>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               The AI has suggested a change to the translation prompt based on recent feedback.
             </p>
@@ -106,21 +147,21 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({ proposal, onAccept, onR
 
         <footer className="px-6 sm:px-8 py-4 bg-gray-50 dark:bg-gray-700/50 sticky bottom-0 flex justify-end items-center gap-4">
           <button
-            onClick={onReject}
+            onClick={() => onReject(currentIndex)}
             className="px-6 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition"
           >
             Reject
           </button>
           {editedChange !== proposal.proposedChange && onEdit ? (
             <button
-              onClick={() => onEdit(editedChange)}
+              onClick={() => onEdit(editedChange, currentIndex)}
               className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 transition"
             >
               Accept Modified
             </button>
           ) : (
             <button
-              onClick={onAccept}
+              onClick={() => onAccept(currentIndex)}
               className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition"
             >
               Accept & Update Prompt

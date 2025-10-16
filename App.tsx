@@ -38,10 +38,22 @@ const settings = useAppStore((s) => s.settings);
 const isTranslationActive = useAppStore((s) => s.isTranslationActive);
 const handleTranslate = useAppStore((s) => s.handleTranslate);
 const handleFetch = useAppStore((s) => s.handleFetch);
-const amendmentProposal = useAppStore((s) => s.amendmentProposal);
+const amendmentProposals = useAppStore((s) => s.amendmentProposals);
 const acceptProposal = useAppStore((s) => s.acceptProposal);
 const rejectProposal = useAppStore((s) => s.rejectProposal);
 const editAndAcceptProposal = useAppStore((s) => s.editAndAcceptProposal);
+
+// Track current proposal index for queue navigation
+const [currentProposalIndex, setCurrentProposalIndex] = React.useState(0);
+
+// Reset index when queue changes
+React.useEffect(() => {
+  if (amendmentProposals.length === 0) {
+    setCurrentProposalIndex(0);
+  } else if (currentProposalIndex >= amendmentProposals.length) {
+    setCurrentProposalIndex(Math.max(0, amendmentProposals.length - 1));
+  }
+}, [amendmentProposals.length, currentProposalIndex]);
 const showSettingsModal = useAppStore((s) => s.showSettingsModal);
 const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
 const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
@@ -196,12 +208,26 @@ const settingsFingerprint = React.useMemo(
                   isOpen={showSettingsModal}
                   onClose={() => setShowSettingsModal(false)}
                 />
-                {amendmentProposal && (
+                {amendmentProposals.length > 0 && (
                     <AmendmentModal
-                        proposal={amendmentProposal}
-                        onAccept={acceptProposal}
-                        onReject={rejectProposal}
-                        onEdit={editAndAcceptProposal}
+                        proposals={amendmentProposals}
+                        currentIndex={currentProposalIndex}
+                        onAccept={(index) => {
+                          acceptProposal(index);
+                          // After accepting, reset to first proposal if queue still has items
+                          setCurrentProposalIndex(0);
+                        }}
+                        onReject={(index) => {
+                          rejectProposal(index);
+                          // After rejecting, reset to first proposal if queue still has items
+                          setCurrentProposalIndex(0);
+                        }}
+                        onEdit={(modifiedChange, index) => {
+                          editAndAcceptProposal(modifiedChange, index);
+                          // After editing and accepting, reset to first proposal if queue still has items
+                          setCurrentProposalIndex(0);
+                        }}
+                        onNavigate={setCurrentProposalIndex}
                     />
                 )}
             </main>

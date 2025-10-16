@@ -95,7 +95,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         // Translations slice
         activeTranslations: {},
         feedbackHistory: {},
-        amendmentProposal: null,
+        amendmentProposals: [],
         translationProgress: {},
         
         // Image slice
