@@ -1747,16 +1747,38 @@ class IndexedDBService {
   }
 
   /**
+   * Get all diff results from the database
+   */
+  async getAllDiffResults(): Promise<any[]> {
+    const db = await this.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = db.transaction([STORES.DIFF_RESULTS], 'readonly');
+        const store = transaction.objectStore(STORES.DIFF_RESULTS);
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      } catch (error) {
+        // Store might not exist in older DB versions
+        resolve([]);
+      }
+    });
+  }
+
+  /**
    * Export a full session JSON with everything stored in IndexedDB
    */
   async exportFullSessionToJson(): Promise<any> {
-    const [settings, urlMappings, novels, chapters, navHist, lastActive] = await Promise.all([
+    const [settings, urlMappings, novels, chapters, navHist, lastActive, diffResults] = await Promise.all([
       this.getSettings(),
       this.getAllUrlMappings(),
       this.getAllNovels().catch(() => []),
       this.getAllChapters(),
       this.getSetting<any>('navigation-history').catch(() => null),
       this.getSetting<any>('lastActiveChapter').catch(() => null),
+      this.getAllDiffResults().catch(() => []),
     ]);
 
     const chaptersOut: any[] = [];
@@ -1832,7 +1854,8 @@ class IndexedDBService {
       urlMappings,
       novels,
       chapters: chaptersOut,
-      promptTemplates
+      promptTemplates,
+      diffResults: diffResults || []
     };
 
     return out;
@@ -2571,18 +2594,26 @@ class IndexedDBService {
    */
   async importFullSessionData(payload: any): Promise<void> {
     const db = await this.openDatabase();
-    const { settings, urlMappings, novels, chapters, promptTemplates } = payload || {};
+    const { settings, urlMappings, novels, chapters, promptTemplates, diffResults } = payload || {};
+
+    // Build transaction store list, including DIFF_RESULTS if it exists
+    const stores = [
+      STORES.CHAPTERS,
+      STORES.URL_MAPPINGS,
+      STORES.TRANSLATIONS,
+      STORES.FEEDBACK,
+      STORES.SETTINGS,
+      STORES.NOVELS,
+      STORES.PROMPT_TEMPLATES
+    ];
+
+    // Check if diffResults store exists before adding it to transaction
+    if (db.objectStoreNames.contains(STORES.DIFF_RESULTS)) {
+      stores.push(STORES.DIFF_RESULTS);
+    }
 
     return new Promise<void>((resolve, reject) => {
-      const tx = db.transaction([
-        STORES.CHAPTERS,
-        STORES.URL_MAPPINGS,
-        STORES.TRANSLATIONS,
-        STORES.FEEDBACK,
-        STORES.SETTINGS,
-        STORES.NOVELS,
-        STORES.PROMPT_TEMPLATES
-      ], 'readwrite');
+      const tx = db.transaction(stores, 'readwrite');
 
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error as any);
@@ -2714,6 +2745,14 @@ class IndexedDBService {
               createdAt: p.createdAt || new Date().toISOString(),
               lastUsed: p.lastUsed || undefined
             } as PromptTemplateRecord);
+          }
+        }
+
+        // Diff results (if store exists and data is provided)
+        if (Array.isArray(diffResults) && db.objectStoreNames.contains(STORES.DIFF_RESULTS)) {
+          const diffStore = tx.objectStore(STORES.DIFF_RESULTS);
+          for (const d of diffResults) {
+            diffStore.put(d);
           }
         }
       } catch (e) {
