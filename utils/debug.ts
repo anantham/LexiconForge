@@ -1,5 +1,5 @@
 export type DebugLevel = 'off' | 'summary' | 'full';
-export type DebugPipeline = 'indexeddb' | 'comparison' | 'audio' | 'worker' | 'translation' | 'image' | 'memory' | 'api';
+export type DebugPipeline = 'indexeddb' | 'comparison' | 'audio' | 'worker' | 'translation' | 'image' | 'memory' | 'api' | 'diff';
 
 export const KNOWN_DEBUG_PIPELINES: DebugPipeline[] = [
   'indexeddb',
@@ -10,6 +10,7 @@ export const KNOWN_DEBUG_PIPELINES: DebugPipeline[] = [
   'image',
   'memory',
   'api',
+  'diff',
 ];
 
 const LEGACY_SUMMARY_FLAG = 'LF_AI_DEBUG';
