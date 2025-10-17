@@ -494,6 +494,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       label: 'Memory / cache',
       description: 'Chapter cache size, hydration timings, and eviction decisions.',
     },
+    {
+      id: 'diff',
+      label: 'Diff / semantic heatmap',
+      description: 'Semantic diff analysis triggers, LLM calls, marker generation, and storage.',
+    },
   ];
   
 
