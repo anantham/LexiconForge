@@ -14,6 +14,9 @@ import { TranslationPersistenceService } from '../services/translationPersistenc
 import { ComparisonService } from '../services/comparisonService';
 import { debugLog } from '../utils/debug';
 import { HtmlRepairService } from '../services/translate/HtmlRepairService';
+import { DiffGutter } from './diff/DiffGutter';
+import { useDiffMarkers } from '../hooks/useDiffMarkers';
+import type { DiffMarker } from '../services/diff/types';
 
 type TranslationToken =
   | { type: 'text'; chunkId: string; text: string }
@@ -293,6 +296,9 @@ const ChapterView: React.FC = () => {
   const viewRef = useRef<HTMLDivElement>(null);
   const { selection, clearSelection } = useTextSelection(contentRef);
   const isTouch = useIsTouch();
+
+  // Diff markers integration
+  const { markers: diffMarkers, loading: diffMarkersLoading } = useDiffMarkers(currentChapterId);
 
   // Log selection state changes for comparison workflow
   useEffect(() => {
@@ -868,6 +874,18 @@ const ChapterView: React.FC = () => {
     useAppStore.getState().generateIllustrationForSelection(currentChapterId, selection);
   };
 
+  const handleDiffMarkerClick = useCallback((marker: DiffMarker) => {
+    // Scroll to the paragraph containing this marker
+    const targetElement = document.querySelector(`[data-lf-chunk*="para-${marker.position}"]`);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Optionally highlight the element briefly
+      targetElement.classList.add('diff-highlight');
+      setTimeout(() => targetElement.classList.remove('diff-highlight'), 2000);
+    }
+  }, []);
+
   const handleScrollToText = (selectedText: string) => {
     if (!contentRef.current) return;
     const walker = document.createTreeWalker(contentRef.current, NodeFilter.SHOW_TEXT, null);
@@ -1000,6 +1018,7 @@ const ChapterView: React.FC = () => {
         ) : (
           <div
             ref={contentRef}
+            data-translation-content
             className={`prose prose-lg dark:prose-invert max-w-none whitespace-pre-wrap ${settings.fontStyle === 'serif' ? 'font-serif' : 'font-sans'}`}
             style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
           >
@@ -1478,12 +1497,17 @@ const ChapterView: React.FC = () => {
           <NavigationControls />
         </footer>
       )}
-      
+
       {/* Audio Player Section */}
-      <AudioPlayer 
-        chapterId={currentChapterId || ''} 
-        isVisible={!!currentChapterId && !!chapter} 
+      <AudioPlayer
+        chapterId={currentChapterId || ''}
+        isVisible={!!currentChapterId && !!chapter}
       />
+
+      {/* Diff Gutter - show when in English mode and markers are available */}
+      {viewMode === 'english' && !diffMarkersLoading && diffMarkers.length > 0 && (
+        <DiffGutter markers={diffMarkers} onMarkerClick={handleDiffMarkerClick} />
+      )}
     </div>
   );
 };
