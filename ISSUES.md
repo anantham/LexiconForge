@@ -106,3 +106,18 @@
    - activeImageVersion defaults to latest if not set
    - Cache keys now: {chapterId, placementMarker, version}
    - useBlobUrl dependency array includes version for automatic re-fetching
+
+
+10) We need to distiguish the role of ? - since it means something akin to curiosity, check if the feedback array being sent to the model with all the excerpts from the chapter include details of which parts the reader found interesting enough to create an illustration from, compare with, create footnotes for, and this legend should be editable in settings along with other schema details (letting reader or AI edit the schema itself should become part of the meta prompt)
+
+11) if word A appears multiple times in the body of the chapter and I click on 2nd or third occurence and ask for footnote, it gets inserted on the first occurence not on the one I clicked. The feature is fine if the reader selects a large enough section of text that it is unique.
+
+12) if I select text and summon the comparison, the new UI element is automatically selected 
+
+13) Feedback should be tied to each version of the text, it should not remain 
+
+14) I see V2 undefined in Ch 242, and v3 which I just generated using 2.5 pro vanished when I navigated to other versions, not seen in the drop down anymore
+
+15) aggregate inline comments from chappters to draft book review
+
+16) 

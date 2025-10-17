@@ -6,6 +6,7 @@ import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';
 import SettingsModal from './components/SettingsModal';
 import Loader from './components/Loader';
+import { LandingPage } from './components/LandingPage';
 
 import { validateApiKey } from './services/aiService';
 import { Analytics } from '@vercel/analytics/react';
@@ -62,6 +63,10 @@ const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSetting
 const handleNavigate = useAppStore((s) => s.handleNavigate);
 const isInitialized = useAppStore((s) => s.isInitialized);
 const initializeStore = useAppStore((s) => s.initializeStore);
+const chapters = useAppStore((s) => s.chapters);
+
+// Determine if we should show landing page or main app
+const hasSession = chapters.size > 0 || currentChapterId !== null;
 
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
@@ -193,7 +198,22 @@ const settingsFingerprint = React.useMemo(
         </div>
       );
     }
-    
+
+    // Show landing page if no session is loaded
+    if (!hasSession) {
+      return (
+        <>
+          <LandingPage />
+          <SettingsModal
+            isOpen={showSettingsModal}
+            onClose={() => setShowSettingsModal(false)}
+          />
+          {import.meta.env.PROD && <Analytics />}
+        </>
+      );
+    }
+
+    // Show main app when session is loaded
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
             <main className="container mx-auto">

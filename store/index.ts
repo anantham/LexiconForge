@@ -197,7 +197,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
     try {
       // Load settings
       get().loadSettings();
-      
+
       // Load prompt templates; if missing, bootstrap a default via initializeSession()
       try {
         const { templates, activeTemplate } = await SessionManagementService.loadPromptTemplates();
@@ -214,6 +214,81 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
       } catch (e) {
         console.warn('[Store] Failed to load/initialize prompt templates:', e);
       }
+
+      // ===== HANDLE URL PARAMETERS FOR DEEP LINKING =====
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // 1. Novel ID from registry (?novel=dungeon-defense)
+      const novelId = urlParams.get('novel');
+      if (novelId) {
+        const { getNovelById } = await import('../config/novelCatalog');
+        const novel = getNovelById(novelId);
+
+        if (novel) {
+          console.log(`[DeepLink] Loading novel: ${novel.title}`);
+
+          get().setNotification({
+            type: 'info',
+            message: `Loading ${novel.title}... (${novel.metadata.chapterCount} chapters)`
+          });
+
+          try {
+            const { ImportService } = await import('../services/importService');
+            await ImportService.importFromUrl(novel.sessionJsonUrl);
+
+            get().setNotification({
+              type: 'success',
+              message: `✅ Loaded ${novel.title} - ${novel.metadata.chapterCount} chapters ready!`
+            });
+
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+          } catch (error: any) {
+            console.error('[DeepLink] Failed to load novel:', error);
+            get().setNotification({
+              type: 'error',
+              message: `Failed to load ${novel.title}: ${error.message}`
+            });
+          }
+        } else {
+          console.warn(`[DeepLink] Unknown novel ID: ${novelId}`);
+          get().setNotification({
+            type: 'error',
+            message: `Unknown novel: ${novelId}`
+          });
+        }
+      }
+
+      // 2. Direct import URL (?import=https://...)
+      const importUrl = urlParams.get('import');
+      if (importUrl && !novelId) {
+        const decodedUrl = decodeURIComponent(importUrl);
+        console.log(`[DeepLink] Importing from custom URL: ${decodedUrl}`);
+
+        get().setNotification({
+          type: 'info',
+          message: 'Importing session from URL...'
+        });
+
+        try {
+          const { ImportService } = await import('../services/importService');
+          await ImportService.importFromUrl(decodedUrl);
+
+          get().setNotification({
+            type: 'success',
+            message: '✅ Session imported successfully!'
+          });
+
+          window.history.replaceState({}, '', window.location.pathname);
+        } catch (error: any) {
+          console.error('[DeepLink] Failed to import from URL:', error);
+          get().setNotification({
+            type: 'error',
+            message: `Import failed: ${error.message}`
+          });
+        }
+      }
+      // ===== END URL PARAMETER HANDLING =====
       
       // Backfill URL mappings if needed (one-time operation)
       try {

@@ -60,4 +60,13 @@ rendered due to
 
 DING — A holographic window briefly appeared. Due to low affection, only minimal information was displayed.<br><br><pre><code>━━━━━━━━━━━━━━━━━━━━<br>Name: Laura<br>HP: 6<br>Attack: 15<br>Defense: 7<br>━━━━━━━━━━━━━━━━━━━━</code></pre><br><br>Hmm…<br><br>Frankly, it was disappointing. She was far stronger tha
 
-7)
+7) is hr handled if its right next to text?
+
+
+Mm. I worked hard today, too.
+
+<hr>Author’s Afterword<hr>
+
+I dearly hope you never meet a bad man.
+
+8) 
