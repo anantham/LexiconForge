@@ -298,12 +298,6 @@ const ChapterView: React.FC = () => {
   const { selection, clearSelection } = useTextSelection(contentRef);
   const isTouch = useIsTouch();
 
-  // Diff markers integration
-  const { markers: diffMarkers, loading: diffMarkersLoading } = useDiffMarkers(currentChapterId);
-
-  // Keyboard navigation for diff markers (Alt+J/K)
-  useDiffNavigation(diffMarkers, settings.showDiffHeatmap !== false);
-
   // Log selection state changes for comparison workflow
   useEffect(() => {
     if (selection) {
@@ -375,6 +369,12 @@ const ChapterView: React.FC = () => {
   const feedbackForChapter = chapter?.feedback ?? [];
   const fanTranslation = (chapter as any)?.fanTranslation as string | undefined;
   const canCompare = viewMode === 'english' && !!fanTranslation;
+
+  // Diff markers integration (must come after currentChapterId and settings are defined)
+  const { markers: diffMarkers, loading: diffMarkersLoading } = useDiffMarkers(currentChapterId);
+
+  // Keyboard navigation for diff markers (Alt+J/K)
+  useDiffNavigation(diffMarkers, settings.showDiffHeatmap !== false);
 
   // DIAGNOSTIC: Log chapter data when it changes
   useEffect(() => {
