@@ -16,6 +16,7 @@ import { debugLog } from '../utils/debug';
 import { HtmlRepairService } from '../services/translate/HtmlRepairService';
 import { DiffGutter } from './diff/DiffGutter';
 import { useDiffMarkers } from '../hooks/useDiffMarkers';
+import { useDiffNavigation } from '../hooks/useDiffNavigation';
 import type { DiffMarker } from '../services/diff/types';
 
 type TranslationToken =
@@ -299,6 +300,9 @@ const ChapterView: React.FC = () => {
 
   // Diff markers integration
   const { markers: diffMarkers, loading: diffMarkersLoading } = useDiffMarkers(currentChapterId);
+
+  // Keyboard navigation for diff markers (Alt+J/K)
+  useDiffNavigation(diffMarkers, settings.showDiffHeatmap !== false);
 
   // Log selection state changes for comparison workflow
   useEffect(() => {
@@ -1504,8 +1508,8 @@ const ChapterView: React.FC = () => {
         isVisible={!!currentChapterId && !!chapter}
       />
 
-      {/* Diff Gutter - show when in English mode and markers are available */}
-      {viewMode === 'english' && !diffMarkersLoading && diffMarkers.length > 0 && (
+      {/* Diff Gutter - show when enabled in settings, in English mode, and markers are available */}
+      {(settings.showDiffHeatmap !== false) && viewMode === 'english' && !diffMarkersLoading && diffMarkers.length > 0 && (
         <DiffGutter markers={diffMarkers} onMarkerClick={handleDiffMarkerClick} />
       )}
     </div>

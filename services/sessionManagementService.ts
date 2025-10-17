@@ -50,6 +50,8 @@ export const defaultSettings: AppSettings = {
   defaultNegativePrompt: 'low quality, blurry, distorted, text, watermark',
   defaultGuidanceScale: 3.5,
   exportOrder: 'number',
+  // Diff heatmap
+  showDiffHeatmap: true,
 };
 
 export interface SessionData {

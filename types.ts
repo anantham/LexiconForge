@@ -242,6 +242,11 @@ export interface AppSettings {
     footnoteStrictMode?: 'append_missing' | 'fail'; // Footnote validation behavior
     enableHtmlRepair?: boolean;               // Enable graceful HTML formatting repairs
     enableAmendments?: boolean;               // Enable prompt amendment proposals from AI
+
+    // Diff heatmap display
+    showDiffHeatmap?: boolean;                // Show semantic diff markers in gutter (default: true)
+    diffMarkerVisibility?: DiffMarkerVisibilitySettings;
+    diffAnalysisPrompt?: string;
 }
 
 export interface ImportedChapter {

@@ -1225,6 +1225,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Ordering affects ToC and spine. When not all chapters have numbers, navigation order may give better results.</p>
               </div>
+
+              <div className="space-y-4 mt-6">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Diff Heatmap</h3>
+                <div className="space-y-2">
+                  <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={currentSettings.showDiffHeatmap !== false}
+                      onChange={(e) => handleSettingChange('showDiffHeatmap' as any, e.target.checked)}
+                    />
+                    Show semantic diff heatmap
+                  </label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">
+                    Display visual markers showing where AI translation differs from reference texts (fan translation and raw source).
+                    Uses gutter markers and keyboard navigation (Alt+J/K).
+                  </p>
+                </div>
+              </div>
             </fieldset>
           )}
 

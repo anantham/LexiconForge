@@ -1,0 +1,40 @@
+/* Semantic Diff Heatmap Color Variables */
+
+:root {
+  /* Diff color palette - light mode */
+  --diff-red: #ef4444;       /* Missing content (AI < fan) */
+  --diff-orange: #f97316;    /* Raw divergence */
+  --diff-green: #10b981;     /* Added detail (AI > source) */
+  --diff-grey: #9ca3af;      /* Stylistic only */
+
+  /* Diff UI colors */
+  --diff-gutter-bg: rgba(0, 0, 0, 0.05);
+  --diff-highlight-bg: rgba(251, 146, 60, 0.2);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --diff-red: #f87171;
+    --diff-orange: #fb923c;
+    --diff-green: #34d399;
+    --diff-grey: #6b7280;
+
+    --diff-gutter-bg: rgba(255, 255, 255, 0.08);
+    --diff-highlight-bg: rgba(251, 146, 60, 0.3);
+  }
+}
+
+/* Highlight animation for keyboard navigation */
+@keyframes diff-highlight-pulse {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: var(--diff-highlight-bg);
+  }
+}
+
+.diff-highlight {
+  animation: diff-highlight-pulse 2s ease-in-out;
+}

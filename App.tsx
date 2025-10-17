@@ -13,6 +13,9 @@ import { Analytics } from '@vercel/analytics/react';
 // Initialize diff trigger service for automatic semantic diff analysis
 import './services/diff/DiffTriggerService';
 
+// Import diff colors CSS
+import './styles/diff-colors.css';
+
 const App: React.FC = () => {
 // Browser-side env diagnostics (masked) when LF_AI_DEBUG=1
 useEffect(() => {
