@@ -675,6 +675,10 @@ export const createChaptersSlice: StateCreator<
 
         // If still not found, try to fetch from web using current chapter's nextUrl or navigation logic
         if (!nextChapterInfo && i === 1 && currentChapter.nextUrl) {
+          if (!NavigationService.isValidUrl(currentChapter.nextUrl)) {
+            debugLog('worker', 'summary', `[Worker] Skipping preload fetch for unsupported URL: ${currentChapter.nextUrl}`);
+            continue;
+          }
           debugLog('worker', 'summary', `[Worker] Chapter #${targetNumber} not found locally, attempting web fetch from: ${currentChapter.nextUrl}`);
           try {
             const fetchResult = await NavigationService.handleFetch(currentChapter.nextUrl);

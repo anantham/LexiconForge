@@ -1,5 +1,6 @@
 import { StateCreator } from 'zustand';
 import { indexedDBService } from '../../services/indexeddb';
+import { blobToBase64DataUrl } from '../../services/imageUtils';
 import type { ImageGenerationMetadata } from '../../types';
 
 // Export slice state
@@ -40,7 +41,7 @@ const blobToBase64DataUrl = (blob: Blob): Promise<string> => {
   });
 };
 
-const buildImageCaption = (version: number, metadata: ImageGenerationMetadata | undefined, fallbackPrompt: string): string => {
+export const buildImageCaption = (version: number, metadata: ImageGenerationMetadata | undefined, fallbackPrompt: string): string => {
   if (!metadata) {
     return `Version ${version}: ${fallbackPrompt}`;
   }
@@ -188,9 +189,15 @@ export const createExportSlice: StateCreator<
         const active = await indexedDBService.getActiveTranslationByStableId(sid);
         if (!active) continue;
 
+        const suggestedIllustrations = active.suggestedIllustrations || [];
+        const hasModernImages = suggestedIllustrations.some((illust: any) => illust.generatedImage?.imageCacheKey || illust.imageCacheKey);
+        const imageCacheModule = hasModernImages
+          ? await import('../../services/imageCacheService')
+          : null;
+
         // Compose chapter for EPUB - process images with version awareness
         const images = await Promise.all(
-          (active.suggestedIllustrations || []).map(async (illust: any) => {
+          suggestedIllustrations.map(async (illust: any) => {
             try {
               // Check if this illustration has a cache key (modern versioned images)
               const imageCacheKey = illust.generatedImage?.imageCacheKey || illust.imageCacheKey;
@@ -202,9 +209,9 @@ export const createExportSlice: StateCreator<
                 : 1;
               const versionStateEntry = (active as any).imageVersionState?.[illust.placementMarker];
 
-              if (imageCacheKey && ch.id) {
+              if (imageCacheKey && ch.id && imageCacheModule) {
                 // Modern path: Retrieve from Cache API using active version
-                const { ImageCacheStore } = await import('../../services/imageCacheService');
+                const { ImageCacheStore } = imageCacheModule;
 
                 const versionedKey = {
                   chapterId: ch.id,

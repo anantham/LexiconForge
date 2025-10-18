@@ -181,19 +181,34 @@ export const transformImportedChapters = (
   const urlIndex = new Map<string, string>();
   const rawUrlIndex = new Map<string, string>();
   
+  const assignedNumbers: number[] = [];
+
   // Extract novel information
   const novelInfo = extractNovelInfo(importedChapters);
   novels.set(novelInfo.id, novelInfo);
   
   // Process each chapter
-  for (const rawChapter of importedChapters) {
+  importedChapters.forEach((rawChapter, index) => {
     const originalUrl = rawChapter.url || rawChapter.sourceUrl;
-    if (!originalUrl) continue;
-    
+    if (!originalUrl) {
+      return;
+    }
+    let assignedChapterNumber = Number(rawChapter.chapterNumber) || 0;
+    if (!assignedChapterNumber) {
+      const slugMatch = originalUrl.match(/\/(\d+)(?:[/?]|$)/);
+      if (slugMatch) {
+        assignedChapterNumber = parseInt(slugMatch[1], 10);
+      }
+    }
+    if (!assignedChapterNumber) {
+      assignedChapterNumber = index + 1;
+    }
+    assignedNumbers[index] = assignedChapterNumber;
+
     // Generate stable chapter ID
     const stableId = generateStableChapterId(
       rawChapter.content || '',
-      rawChapter.chapterNumber || 0,
+      assignedChapterNumber,
       rawChapter.title || 'Untitled'
     );
     
@@ -213,14 +228,15 @@ export const transformImportedChapters = (
       originalUrl: canonicalUrl, // Use canonical URL
       nextUrl: rawChapter.nextUrl ? normalizeUrlAggressively(rawChapter.nextUrl) : undefined,
       prevUrl: rawChapter.prevUrl ? normalizeUrlAggressively(rawChapter.prevUrl) : undefined,
-      chapterNumber: rawChapter.chapterNumber || 0,
+      chapterNumber: assignedChapterNumber,
       canonicalUrl,
       sourceUrls: [originalUrl], // Store original URL as source
       fanTranslation: rawChapter.fanTranslation ?? null,
       importSource: {
         originalUrl,
         importDate: new Date(),
-        sourceFormat: 'json'
+        sourceFormat: 'json',
+        chapterIndex: index
       }
     };
     
@@ -234,8 +250,8 @@ export const transformImportedChapters = (
     }
     rawUrlIndex.set(originalUrl, stableId);
     
-    debugLog('indexeddb', 'full', `[StableID] Processed chapter: ${stableId} (${rawChapter.chapterNumber}) -> ${canonicalUrl}`);
-  }
+    debugLog('indexeddb', 'full', `[StableID] Processed chapter: ${stableId} (${assignedChapterNumber}) -> ${canonicalUrl}`);
+  });
   
   return {
     novels,
@@ -245,7 +261,7 @@ export const transformImportedChapters = (
     currentChapterId: importedChapters.length > 0 ? 
       generateStableChapterId(
         importedChapters[0].content || '',
-        importedChapters[0].chapterNumber || 0,
+        assignedNumbers[0] || 0,
         importedChapters[0].title || ''
       ) : null,
     navigationHistory: []
