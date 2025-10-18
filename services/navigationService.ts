@@ -374,6 +374,10 @@ export class NavigationService {
       return {}; // Return empty result since state was already updated
     }
 
+    if (!this.isValidUrl(url)) {
+      throw new Error(`Unsupported source: ${url}`);
+    }
+
     const fetchPromise = (async (): Promise<FetchResult> => {
       try {
         slog(`[Fetch] Fetching and parsing URL: ${url}`);

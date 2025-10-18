@@ -677,7 +677,7 @@ export const createChaptersSlice: StateCreator<
         if (!nextChapterInfo && i === 1 && currentChapter.nextUrl) {
           if (!NavigationService.isValidUrl(currentChapter.nextUrl)) {
             debugLog('worker', 'summary', `[Worker] Skipping preload fetch for unsupported URL: ${currentChapter.nextUrl}`);
-            continue;
+            break;
           }
           debugLog('worker', 'summary', `[Worker] Chapter #${targetNumber} not found locally, attempting web fetch from: ${currentChapter.nextUrl}`);
           try {
