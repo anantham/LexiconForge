@@ -1,3 +1,9 @@
+2025-10-18 09:30 UTC - Finalize image version system QA
+- Files modified: store/slices/exportSlice.ts:40-90, 186-246; tests/services/export/exportSlice.test.ts (new); docs/manual-tests/image-versioning.md (new)
+- Purpose: Added caption helper tests, recorded manual QA checklist, and exported `buildImageCaption` for verification so the versioned illustration workflow has documented coverage.
+- Notes: Manual checklist captures generate/retry/delete/export scenarios; helper test exercises metadata formatting.
+- Tests: `npm run test -- tests/services/export/exportSlice.test.ts`
+
 2025-10-15 08:07 UTC - Enforce structured Gemini JSON responses
 - Files modified: services/translate/translationResponseSchema.ts:1-150, adapters/providers/GeminiAdapter.ts:1-240, adapters/providers/OpenAIAdapter.ts:1-360, services/translate/Translator.ts:70-140
 - Purpose: Shared the translation response schema across adapters, required Gemini to emit `application/json` with the schema, and stopped retrying after schema parse failures.
