@@ -18,7 +18,7 @@ export const NOVEL_CATALOG: NovelCatalog = {
       metadata: {
         originalLanguage: 'Korean',
         targetLanguage: 'English',
-        chapterCount: 50,
+        chapterCount: 509,
         genres: ['Dark Fantasy', 'Strategy', 'Psychological', 'Demon Lord'],
         description: 'I reincarnated as a Demon Lord and now I have to save humanity from itself. Using wit, manipulation, and careful planning, I must survive in a world where everyone wants me dead. A dark psychological thriller that explores morality, strategy, and the price of survival.',
         coverImageUrl: '/dungeon-defense-cover.jpg',
