@@ -14,7 +14,7 @@ export const NOVEL_CATALOG: NovelCatalog = {
     {
       id: 'dungeon-defense',
       title: 'Dungeon Defense',
-      sessionJsonUrl: 'https://raw.githubusercontent.com/anantham/LexiconForge/main/session-files/dungeon-defense.json',
+      sessionJsonUrl: 'https://media.githubusercontent.com/media/anantham/LexiconForge/main/session-files/dungeon-defense.json',
       metadata: {
         originalLanguage: 'Korean',
         targetLanguage: 'English',
