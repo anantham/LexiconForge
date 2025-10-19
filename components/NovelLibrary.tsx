@@ -38,17 +38,59 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     setImportProgress(null);
 
     try {
-      await ImportService.importFromUrl(novel.sessionJsonUrl, (progress) => {
-        setImportProgress(progress);
-      });
+      // Check if novel is already loaded in IndexedDB (simple cache check)
+      const { indexedDBService } = await import('../services/indexeddb');
+      const existingChapters = await indexedDBService.getChaptersForReactRendering();
 
-      showNotification(`✅ Loaded ${novel.title} - ${novel.metadata.chapterCount} chapters ready!`, 'success');
+      if (existingChapters.length > 0) {
+        // Chapters already exist, just load them into store
+        setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
 
-      // Close the detail sheet
-      setSelectedNovel(null);
+        const { useAppStore } = await import('../store');
+        const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
+        const lastActive = await indexedDBService.getSetting<any>('lastActiveChapter').catch(() => null);
 
-      // Notify parent that session is loaded
-      onSessionLoaded?.();
+        useAppStore.setState(state => {
+          const newChapters = new Map<string, any>();
+          for (const ch of existingChapters) {
+            newChapters.set(ch.stableId, {
+              stableId: ch.stableId,
+              url: ch.url || ch.canonicalUrl,
+              title: ch.title,
+              content: ch.content,
+              nextUrl: ch.nextUrl,
+              prevUrl: ch.prevUrl,
+            });
+          }
+
+          return {
+            chapters: newChapters,
+            navigationHistory: nav?.stableIds || [],
+            currentChapterId: lastActive?.id || (existingChapters[0]?.stableId || null),
+          };
+        });
+
+        showNotification(`✅ Loaded ${novel.title} from cache - ${existingChapters.length} chapters!`, 'success');
+
+        // Close the detail sheet
+        setSelectedNovel(null);
+
+        // Notify parent that session is loaded
+        onSessionLoaded?.();
+      } else {
+        // No cached data, download from URL
+        await ImportService.importFromUrl(novel.sessionJsonUrl, (progress) => {
+          setImportProgress(progress);
+        });
+
+        showNotification(`✅ Loaded ${novel.title} - ${novel.metadata.chapterCount} chapters ready!`, 'success');
+
+        // Close the detail sheet
+        setSelectedNovel(null);
+
+        // Notify parent that session is loaded
+        onSessionLoaded?.();
+      }
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);
       showNotification(`Failed to load ${novel.title}: ${error.message}`, 'error');
