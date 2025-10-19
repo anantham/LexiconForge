@@ -1,3 +1,33 @@
+2025-10-19 06:18 UTC - Fix diff heatmap stylistic marker crash
+- Files modified: .worktrees/semantic-diff-heatmap/components/ChapterView.tsx:1270-1285
+- Purpose: Replaced stale `markerVisibility` guard with `markerVisibilitySettings` so grey-only markers no longer throw a ReferenceError when diff analysis completes.
+- Notes: Runtime crash occurred after the diff prompt refactor when JSX retained the old variable name while visibility logic moved into `resolveMarkerVisibility`.
+- Tests: `npx tsc --noEmit` *(fails: legacy audio storage + archived fixtures already contain invalid characters; unrelated to this change)*
+
+2025-10-18 12:30 UTC - Build telemetry export dashboard scaffold
+- Files modified: tools/telemetry-dashboard/index.html (new)
+- Purpose: Added standalone HTML/JS viewer that ingests `lexiconforge-full-1` export JSON, aggregates chapter/provider metrics, and flags duplicate translation runs for cost investigations.
+- Notes: Computes per-provider totals, per-chapter version tables, and duplicate fingerprints hashed on text+settings—all client-side with no build step.
+- Tests: Manual browser load (Chrome) with sample export payload
+
+2025-10-18 13:20 UTC - Instrument UX performance telemetry
+- Files modified: services/navigationService.ts; services/indexeddb.ts; services/telemetryService.ts; components/ChapterView.tsx; components/SessionInfo.tsx
+- Purpose: Captured navigation, hydration, fetch, and key UI readiness timings via `telemetryService`, persisted events into session exports for downstream analysis.
+- Notes: Emitted `ux:*` performance events for chapter hydration, fetch, component mount/ready states, and initial IndexedDB hydration; export JSON now includes telemetry snapshot.
+- Tests: Manual navigation + export in dev build to verify events appear in `window.exportTelemetry()` and JSON payload
+
+2025-10-18 14:05 UTC - Add export options UI and telemetry-aware EPUB stats
+- Files modified: components/SessionInfo.tsx; store/slices/exportSlice.ts; services/indexeddb.ts; services/epubService.ts; docs/EPUB.md; tests/current-system/export-import.test.ts; tests/store/nullSafety.test.ts
+- Purpose: Let users choose which data (chapters, telemetry, illustrations) to include in JSON exports, surface size estimates, capture export timings, embed Cache API images when requested, and surface session telemetry aggregates inside the EPUB acknowledgments page.
+- Notes: JSON export now waits for the IndexedDB snapshot, records `ux:export:*` telemetry, attaches image assets via `assets.images` when enabled, and the EPUB stats page highlights navigation/hydration/export durations recorded by telemetry. Modal UI disables illustration export unless chapters are included.
+- Tests: `npm run test -- tests/current-system/export-import.test.ts --run`; `npm run test -- tests/store/nullSafety.test.ts --run`
+
+2025-10-18 11:45 UTC - Diff heatmap alignment & model parity
+- Files modified: services/diff/DiffAnalysisService.ts; services/diff/DiffTriggerService.ts; services/diff/types.ts; services/diff/constants.ts (new); services/diff/hash.ts (new); adapters/repo/DiffResultsRepo.ts; tests/services/diff/DiffAnalysisService.test.ts; tests/adapters/repo/DiffResultsRepo.test.ts; tests/db/diffResults.test.ts; hooks/useDiffMarkers.ts; components/diff/DiffGutter.tsx; components/ChapterView.tsx; services/navigationService.ts; services/translationService.ts; store/slices/translationsSlice.ts; tests/hooks/useDiffMarkers.test.tsx; docs updated.
+- Purpose: Normalize paragraph chunking for diff markers, respect user-selected translation models with JSON fallback, allow manual diff reruns even when translation settings are unchanged, and add instrumentation for future diagnostics.
+- Notes: Diff analysis now hashes HTML paragraphs, falls back to `gpt-4o-mini` on parse failure, and caches both IDs and hashes to prevent stale hits. UI gutter positions markers proportionally and retranslate button stays available when a translation exists.
+- Tests: `npm run test -- --run`
+
 2025-10-18 09:30 UTC - Finalize image version system QA
 - Files modified: store/slices/exportSlice.ts:40-90, 186-246; tests/services/export/exportSlice.test.ts (new); docs/manual-tests/image-versioning.md (new)
 - Purpose: Added caption helper tests, recorded manual QA checklist, and exported `buildImageCaption` for verification so the versioned illustration workflow has documented coverage.
