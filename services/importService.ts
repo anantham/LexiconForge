@@ -68,8 +68,8 @@ export class ImportService {
         const contentLength = response.headers.get('content-length');
         const total = contentLength ? parseInt(contentLength) : 0;
 
-        if (total && total > 50 * 1024 * 1024) {
-          throw new Error('Session file too large (>50MB)');
+        if (total && total > 500 * 1024 * 1024) {
+          throw new Error('Session file too large (>500MB)');
         }
 
         // Read response with progress tracking
