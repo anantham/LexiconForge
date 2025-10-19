@@ -14,7 +14,7 @@ export function LandingPage({ onSessionLoaded }: LandingPageProps) {
         {/* Hero Section */}
         <header className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-            Collaborative Novel Translator
+            Lexicon Forge
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             Read web novels with AI-powered, user-refined translations.
