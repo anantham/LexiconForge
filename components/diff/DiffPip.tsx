@@ -5,30 +5,48 @@ import styles from './DiffPip.module.css';
 interface DiffPipProps {
   colors: DiffColor[];
   onClick: () => void;
+  confidence?: number;
   'aria-label'?: string;
 }
 
-const COLOR_PRIORITY: Record<DiffColor, number> = {
-  orange: 0,
-  red: 1,
-  green: 2,
-  grey: 3
+type DiffPipColor = DiffColor;
+
+const COLOR_PRIORITY: Record<DiffPipColor, number> = {
+  red: 0,
+  orange: 1,
+  purple: 2,
+  blue: 3,
+  grey: 4,
+  green: 5,
 };
 
-export function DiffPip({ colors, onClick, 'aria-label': ariaLabel }: DiffPipProps) {
+const normalizeColor = (color: DiffPipColor): DiffPipColor => {
+  if (color === 'green') {
+    return 'orange';
+  }
+  return color;
+};
+
+export function DiffPip({ colors, onClick, confidence, 'aria-label': ariaLabel }: DiffPipProps) {
+  const normalizedColors = Array.from(
+    new Set(colors.map(normalizeColor))
+  ) as DiffPipColor[];
+
   // Sort colors by priority
-  const sortedColors = [...colors].sort((a, b) => COLOR_PRIORITY[a] - COLOR_PRIORITY[b]);
+  const sortedColors = [...normalizedColors].sort((a, b) => COLOR_PRIORITY[a] - COLOR_PRIORITY[b]);
 
   // Stacking logic: max 2 visible + halo for 3+
   const visibleColors = sortedColors.slice(0, 2);
   const hasHalo = sortedColors.length > 2;
+  const clampedConfidence = typeof confidence === 'number' ? Math.min(Math.max(confidence, 0), 1) : 1;
+  const pipOpacity = 0.3 + clampedConfidence * 0.7;
 
   if (visibleColors.length === 1) {
     // Single color: solid pip
     return (
       <button
         className={styles.pip}
-        style={{ backgroundColor: `var(--diff-${visibleColors[0]})` }}
+        style={{ backgroundColor: `var(--diff-${visibleColors[0]})`, opacity: pipOpacity }}
         onClick={onClick}
         aria-label={ariaLabel || `Diff marker: ${visibleColors[0]}`}
       />
@@ -47,7 +65,8 @@ export function DiffPip({ colors, onClick, 'aria-label': ariaLabel }: DiffPipPro
           className={`${styles.pip} ${styles.stacked}`}
           style={{
             backgroundColor: `var(--diff-${color})`,
-            transform: `translateX(${index * 4}px)`
+            transform: `translateX(${index * 4}px)`,
+            opacity: pipOpacity,
           }}
           onClick={onClick}
           aria-label={ariaLabel || `Diff marker: ${sortedColors.join(', ')}`}

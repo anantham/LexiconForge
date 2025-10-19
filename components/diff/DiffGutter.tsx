@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { DiffPip } from './DiffPip';
 import type { DiffMarker } from '../../services/diff/types';
 import styles from './DiffGutter.module.css';
@@ -10,37 +10,25 @@ interface DiffGutterProps {
 
 export function DiffGutter({ markers, onMarkerClick }: DiffGutterProps) {
   const gutterRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState<number>(0);
-
-  useEffect(() => {
-    // Calculate total scrollable content height
-    const updateHeight = () => {
-      const content = document.querySelector('[data-translation-content]') as HTMLElement;
-      if (content) {
-        setContentHeight(content.scrollHeight);
-      }
-    };
-
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, [markers]);
+  const maxPosition = markers.reduce((max, marker) => Math.max(max, marker.position), 0);
 
   if (markers.length === 0) return null;
 
   return (
     <div ref={gutterRef} className={styles.gutter} aria-label="Diff markers">
-      {markers.map((marker) => {
-        // Calculate position as percentage of content height
-        const scrollPercentage = contentHeight > 0
-          ? (marker.aiRange.start / contentHeight) * 100
-          : marker.position * 10; // Fallback to position-based
+      {markers.map((marker, index) => {
+        const denominator = maxPosition > 0 ? maxPosition : 1;
+        const scrollPercentage = maxPosition > 0
+          ? (marker.position / denominator) * 100
+          : 0;
+        const clampedPercentage = Math.max(0, Math.min(scrollPercentage, 100));
+        const key = `${marker.chunkId}-${index}`;
 
         return (
           <div
-            key={marker.chunkId}
+            key={key}
             className={styles.gutterMarker}
-            style={{ top: `${scrollPercentage}%` }}
+            style={{ top: `${clampedPercentage}%` }}
             data-position={marker.position}
           >
             <DiffPip
