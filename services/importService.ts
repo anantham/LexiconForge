@@ -52,36 +52,35 @@ export class ImportService {
 
     // Retry loop with exponential backoff
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        // Convert GitHub URLs to raw format
-        let fetchUrl = url;
-        if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
-          fetchUrl = url
-            .replace('github.com', 'raw.githubusercontent.com')
-            .replace('/blob/', '/');
-        }
+      // Convert GitHub URLs to raw format
+      let fetchUrl = url;
+      if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
+        fetchUrl = url
+          .replace('github.com', 'raw.githubusercontent.com')
+          .replace('/blob/', '/');
+      }
 
-        // Convert Google Drive share links to Google Drive API endpoint
-        if (url.includes('drive.google.com/file/d/')) {
-          const fileId = url.match(/\/d\/([^/]+)/)?.[1];
-          if (fileId) {
-            // Use Google Drive API v3 endpoint which supports CORS
-            // Requires GOOGLE_DRIVE_API_KEY in environment variables
-            const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
+      // Convert Google Drive share links to Google Drive API endpoint
+      if (url.includes('drive.google.com/file/d/')) {
+        const fileId = url.match(/\/d\/([^/]+)/)?.[1];
+        if (fileId) {
+          // Use Google Drive API v3 endpoint which supports CORS
+          // Requires GOOGLE_DRIVE_API_KEY in environment variables
+          const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
 
-            if (apiKey) {
-              // Google Drive API v3 with API key (supports CORS)
-              fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${apiKey}`;
-            } else {
-              // Fallback to direct download (will fail with CORS error)
-              console.warn('[Import] GOOGLE_DRIVE_API_KEY not found. Set VITE_GOOGLE_DRIVE_API_KEY in .env.local to enable Google Drive downloads.');
-              fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-            }
+          if (apiKey) {
+            // Google Drive API v3 with API key (supports CORS)
+            fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${apiKey}`;
+          } else {
+            // Fallback to direct download (will fail with CORS error)
+            console.warn('[Import] GOOGLE_DRIVE_API_KEY not found. Set VITE_GOOGLE_DRIVE_API_KEY in .env.local to enable Google Drive downloads.');
+            fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
           }
         }
+      }
 
-        const attemptMsg = attempt > 0 ? ` (retry ${attempt}/${MAX_RETRIES})` : '';
-        console.log(`[Import] Fetching from: ${fetchUrl}${attemptMsg}`);
+      const attemptMsg = attempt > 0 ? ` (retry ${attempt}/${MAX_RETRIES})` : '';
+      console.log(`[Import] Fetching from: ${fetchUrl}${attemptMsg}`);
 
       // Fetch with timeout
       const controller = new AbortController();
