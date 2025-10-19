@@ -249,6 +249,14 @@ export interface AppSettings {
     diffAnalysisPrompt?: string;
 }
 
+export interface DiffMarkerVisibilitySettings {
+    fan: boolean;            // Blue - fan divergence
+    rawLoss: boolean;        // Red - missing vs raw
+    rawGain: boolean;        // Orange - added vs raw
+    sensitivity: boolean;    // Purple - sanitized vs fan
+    stylistic: boolean;      // Grey - stylistic / fallback
+}
+
 export interface ImportedChapter {
     sourceUrl: string;
     title: string;

@@ -2,10 +2,12 @@
 
 :root {
   /* Diff color palette - light mode */
-  --diff-red: #ef4444;       /* Missing content (AI < fan) */
-  --diff-orange: #f97316;    /* Raw divergence */
-  --diff-green: #10b981;     /* Added detail (AI > source) */
-  --diff-grey: #9ca3af;      /* Stylistic only */
+  --diff-red: #ef4444;       /* Missing content vs raw */
+  --diff-orange: #f97316;    /* Added content vs raw */
+  --diff-green: #10b981;     /* Legacy fallback */
+  --diff-blue: #2563eb;      /* Divergence vs fan translation */
+  --diff-purple: #8b5cf6;    /* Sensitive detail filtered */
+  --diff-grey: #9ca3af;      /* Stylistic / no-change */
 
   /* Diff UI colors */
   --diff-gutter-bg: rgba(0, 0, 0, 0.05);
@@ -18,6 +20,8 @@
     --diff-red: #f87171;
     --diff-orange: #fb923c;
     --diff-green: #34d399;
+    --diff-blue: #3b82f6;
+    --diff-purple: #a855f7;
     --diff-grey: #6b7280;
 
     --diff-gutter-bg: rgba(255, 255, 255, 0.08);

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DiffResultsRepo } from '../adapters/repo/DiffResultsRepo';
 import type { DiffMarker } from '../services/diff/types';
+import { debugLog } from '../utils/debug';
 
 const repo = new DiffResultsRepo();
 
@@ -8,34 +9,56 @@ export function useDiffMarkers(chapterId: string | null) {
   const [markers, setMarkers] = useState<DiffMarker[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (!chapterId) {
+  const loadMarkers = useCallback(async (activeChapterId: string | null, signal?: AbortSignal) => {
+    if (!activeChapterId) {
       setMarkers([]);
       setLoading(false);
       return;
     }
 
-    let cancelled = false;
-
-    (async () => {
-      setLoading(true);
-      try {
-        const results = await repo.getByChapter(chapterId);
-        if (cancelled) return;
-
-        // Use the most recent diff result
-        const latestResult = results[0];
-        setMarkers(latestResult?.markers || []);
-      } catch (error) {
-        console.error('[useDiffMarkers] Error loading markers:', error);
-        setMarkers([]);
-      } finally {
-        if (!cancelled) setLoading(false);
+    setLoading(true);
+    try {
+      const results = await repo.getByChapter(activeChapterId);
+      if (signal?.aborted) return;
+      const latestResult = results[0];
+      setMarkers(latestResult?.markers || []);
+      debugLog('diff', 'summary', '[useDiffMarkers] Loaded markers', {
+        chapterId: activeChapterId,
+        markerCount: latestResult?.markers?.length || 0,
+      });
+    } catch (error) {
+      console.error('[useDiffMarkers] Error loading markers:', error);
+      setMarkers([]);
+    } finally {
+      if (!signal?.aborted) {
+        setLoading(false);
       }
-    })();
+    }
+  }, []);
 
-    return () => { cancelled = true; };
-  }, [chapterId]);
+  useEffect(() => {
+    const controller = new AbortController();
+    loadMarkers(chapterId, controller.signal);
+    return () => controller.abort();
+  }, [chapterId, loadMarkers]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<{ chapterId?: string }>;
+      if (!customEvent.detail?.chapterId) return;
+      if (customEvent.detail.chapterId !== chapterId) return;
+      debugLog('diff', 'summary', '[useDiffMarkers] diff:updated received', {
+        chapterId,
+      });
+      loadMarkers(chapterId);
+    };
+
+    window.addEventListener('diff:updated', handler as EventListener);
+    return () => {
+      window.removeEventListener('diff:updated', handler as EventListener);
+    };
+  }, [chapterId, loadMarkers]);
 
   return { markers, loading };
 }

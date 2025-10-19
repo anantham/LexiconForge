@@ -35,7 +35,7 @@ export function useDiffNavigation(markers: DiffMarker[], enabled: boolean = true
 
   function jumpToMarker(marker: DiffMarker) {
     // Try to find the paragraph element by position
-    const targetElement = document.querySelector(`[data-lf-chunk*="para-${marker.position}"]`);
+    const targetElement = document.querySelector(`[data-diff-position="${marker.position}"]`);
 
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
