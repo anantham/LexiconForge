@@ -233,11 +233,11 @@ export const createTranslationsSlice: StateCreator<
       }
       
       const translationResult = result as TranslationResult;
+      const relevantSettings = TranslationService.extractSettingsSnapshot(context.settings);
 
       // Update chapter with translation result
       const chaptersActions = state as any;
       if (chaptersActions.updateChapter) {
-        const relevantSettings = TranslationService.extractSettingsSnapshot(context.settings);
         chaptersActions.updateChapter(chapterId, {
           translationResult: translationResult,
           translationSettingsSnapshot: relevantSettings
@@ -246,7 +246,6 @@ export const createTranslationsSlice: StateCreator<
         const metrics = translationResult.usageMetrics;
         debugLog('translation', 'summary', `[Translation] ✅ Success for chapter ${chapterId}. Model: ${metrics?.provider}/${metrics?.model}. Tokens: ${metrics?.totalTokens}.`);
       }
-      
       // Add amendment proposal to queue if provided and enabled in settings
       if (translationResult.proposal) {
         const enableAmendments = (state as any).settings?.enableAmendments ?? false;
@@ -258,6 +257,26 @@ export const createTranslationsSlice: StateCreator<
           // Auto-reject if amendments are disabled
           debugLog('translation', 'summary', '[Translation] Auto-rejecting amendment proposal (amendments disabled in settings)');
         }
+      }
+
+      // Dispatch translation:complete event for diff analysis
+      const chapter = context.chapters.get(chapterId);
+      if (chapter && typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('translation:complete', {
+          detail: {
+            chapterId,
+            aiTranslation: translationResult.translation || '',
+            aiTranslationId: (translationResult as any)?.id ?? null,
+            fanTranslation: (chapter as any).fanTranslation || null,
+            fanTranslationId: null,
+            rawText: chapter.content || '',
+            previousVersionFeedback: undefined, // TODO: Add feedback summary if available
+            preferredProvider: relevantSettings?.provider,
+            preferredModel: relevantSettings?.model,
+            preferredTemperature: relevantSettings?.temperature
+          }
+        }));
+        debugLog('translation', 'summary', '[Translation] Dispatched translation:complete event for diff analysis');
       }
       
       // Handle image generation if needed

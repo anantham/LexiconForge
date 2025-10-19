@@ -4,11 +4,11 @@
 - Notes: Runtime crash occurred after the diff prompt refactor when JSX retained the old variable name while visibility logic moved into `resolveMarkerVisibility`.
 - Tests: `npx tsc --noEmit` *(fails: legacy audio storage + archived fixtures already contain invalid characters; unrelated to this change)*
 
-2025-10-18 12:30 UTC - Build telemetry export dashboard scaffold
-- Files modified: tools/telemetry-dashboard/index.html (new)
-- Purpose: Added standalone HTML/JS viewer that ingests `lexiconforge-full-1` export JSON, aggregates chapter/provider metrics, and flags duplicate translation runs for cost investigations.
-- Notes: Computes per-provider totals, per-chapter version tables, and duplicate fingerprints hashed on text+settings—all client-side with no build step.
-- Tests: Manual browser load (Chrome) with sample export payload
+2025-10-18 14:05 UTC - Add export options UI and telemetry-aware EPUB stats
+- Files modified: components/SessionInfo.tsx; store/slices/exportSlice.ts; services/indexeddb.ts; services/epubService.ts; docs/EPUB.md; tests/current-system/export-import.test.ts; tests/store/nullSafety.test.ts
+- Purpose: Let users choose which data (chapters, telemetry, illustrations) to include in JSON exports, surface size estimates, capture export timings, embed Cache API images when requested, and surface session telemetry aggregates inside the EPUB acknowledgments page.
+- Notes: JSON export now waits for the IndexedDB snapshot, records `ux:export:*` telemetry, attaches image assets via `assets.images` when enabled, and the EPUB stats page highlights navigation/hydration/export durations recorded by telemetry. Modal UI disables illustration export unless chapters are included.
+- Tests: `npm run test -- tests/current-system/export-import.test.ts --run`; `npm run test -- tests/store/nullSafety.test.ts --run`
 
 2025-10-18 13:20 UTC - Instrument UX performance telemetry
 - Files modified: services/navigationService.ts; services/indexeddb.ts; services/telemetryService.ts; components/ChapterView.tsx; components/SessionInfo.tsx
@@ -16,11 +16,11 @@
 - Notes: Emitted `ux:*` performance events for chapter hydration, fetch, component mount/ready states, and initial IndexedDB hydration; export JSON now includes telemetry snapshot.
 - Tests: Manual navigation + export in dev build to verify events appear in `window.exportTelemetry()` and JSON payload
 
-2025-10-18 14:05 UTC - Add export options UI and telemetry-aware EPUB stats
-- Files modified: components/SessionInfo.tsx; store/slices/exportSlice.ts; services/indexeddb.ts; services/epubService.ts; docs/EPUB.md; tests/current-system/export-import.test.ts; tests/store/nullSafety.test.ts
-- Purpose: Let users choose which data (chapters, telemetry, illustrations) to include in JSON exports, surface size estimates, capture export timings, embed Cache API images when requested, and surface session telemetry aggregates inside the EPUB acknowledgments page.
-- Notes: JSON export now waits for the IndexedDB snapshot, records `ux:export:*` telemetry, attaches image assets via `assets.images` when enabled, and the EPUB stats page highlights navigation/hydration/export durations recorded by telemetry. Modal UI disables illustration export unless chapters are included.
-- Tests: `npm run test -- tests/current-system/export-import.test.ts --run`; `npm run test -- tests/store/nullSafety.test.ts --run`
+2025-10-18 12:30 UTC - Build telemetry export dashboard scaffold
+- Files modified: tools/telemetry-dashboard/index.html (new)
+- Purpose: Added standalone HTML/JS viewer that ingests `lexiconforge-full-1` export JSON, aggregates chapter/provider metrics, and flags duplicate translation runs for cost investigations.
+- Notes: Computes per-provider totals, per-chapter version tables, and duplicate fingerprints hashed on text+settings—all client-side with no build step.
+- Tests: Manual browser load (Chrome) with sample export payload
 
 2025-10-18 11:45 UTC - Diff heatmap alignment & model parity
 - Files modified: services/diff/DiffAnalysisService.ts; services/diff/DiffTriggerService.ts; services/diff/types.ts; services/diff/constants.ts (new); services/diff/hash.ts (new); adapters/repo/DiffResultsRepo.ts; tests/services/diff/DiffAnalysisService.test.ts; tests/adapters/repo/DiffResultsRepo.test.ts; tests/db/diffResults.test.ts; hooks/useDiffMarkers.ts; components/diff/DiffGutter.tsx; components/ChapterView.tsx; services/navigationService.ts; services/translationService.ts; store/slices/translationsSlice.ts; tests/hooks/useDiffMarkers.test.tsx; docs updated.
@@ -33,6 +33,48 @@
 - Purpose: Added caption helper tests, recorded manual QA checklist, and exported `buildImageCaption` for verification so the versioned illustration workflow has documented coverage.
 - Notes: Manual checklist captures generate/retry/delete/export scenarios; helper test exercises metadata formatting.
 - Tests: `npm run test -- tests/services/export/exportSlice.test.ts`
+
+2025-10-18 13:32 UTC - Diff fallback explanation cleanup
+- Files modified: services/diff/DiffAnalysisService.ts (lines ~30-320, ~420-480); components/ChapterView.tsx (lines ~140-200, ~1270-1290, export tail); services/diff/types.ts (lines ~15-25); tests/services/diff/DiffAnalysisService.test.ts (new fallback/explanation assertions); tests/components/diff/ChapterView.mapMarker.test.tsx (new); docs/WORKLOG.md.
+- Purpose: Stop injecting the “No differences reported” text into every fallback marker, trim explanation strings, salvage freeform reason text or single-field explanations when the model deviates from the schema, and block inline grey copy unless there’s a meaningful explanation.
+- Notes: Grey fallback markers now omit confidence values; hover tooltips continue to show “No explanation provided.” when empty. Added test exposure hook for mapMarkerForVisibility to assert trimming logic, service tests covering schema slip + single explanation field, wider LLM preview (2k chars), and a runtime warning when non-grey markers are missing explanations.
+- Tests: `npm run test -- tests/services/diff/DiffAnalysisService.test.ts --run`; `npm run test -- tests/components/diff/ChapterView.mapMarker.test.tsx --run`; `npm run test`
+
+2025-10-18 21:34 UTC - Diff prompt customization & color taxonomy overhaul
+- Files modified: config/prompts.json; services/diff/DiffAnalysisService.ts; services/diff/DiffTriggerService.ts; services/diff/types.ts; services/sessionManagementService.ts; components/ChapterView.tsx; components/SettingsModal.tsx; components/diff/DiffPip.tsx; styles/diff-colors.css; tests/components/diff/DiffPip.test.tsx; docs/WORKLOG.md.
+- Purpose: Encode the new red/orange/blue/purple schema, add grey fallbacks for every paragraph, surface the diff-analysis prompt in Settings with editing + reset controls, and ensure runtime honors customized prompts.
+- Notes: LLM now omits grey chunks; service fills them locally, logs coverage gaps, and persists normalized markers. Settings migrate legacy visibility flags and expose legend + manual rerun.
+- Tests: `npm run test -- tests/components/diff/DiffPip.test.tsx --run`; `npm run test -- tests/services/diff/DiffAnalysisService.test.ts --run`
+
+2025-10-18 21:12 UTC - Diff heatmap settings relocation & manual refresh
+- Files modified: components/SettingsModal.tsx (lines ~40-750); components/ChapterView.tsx (lines ~1030-1040); docs/WORKLOG.md.
+- Purpose: Move diff heatmap controls into a dedicated Settings “Features” tab, add a manual diff cache invalidation/re-run button, and remove paragraph highlight flashes when clicking markers.
+- Notes: Manual refresh deletes stored diff results then replays the `translation:complete` event so the trigger service recomputes markers.
+- Tests: Pending (UI change only; manual verification recommended)
+
+2025-10-18 20:57 UTC - Block unsupported fetch attempts
+- Files modified: services/navigationService.ts (guard added at line 403); docs/WORKLOG.md
+- Purpose: Reintroduce the supported-site check so `handleFetch` short-circuits on domains without adapters instead of hammering the proxy rotation.
+- Notes: Aligns worktree behaviour with mainline navigation flow; unsupported URLs now throw immediately.
+- Tests: `npm run test -- tests/current-system/navigation.test.ts --run`
+
+2025-10-18 20:34 UTC - Diff heatmap UI rail refactor
+- Files modified: components/ChapterView.tsx (paragraph layout & marker rail); components/diff/DiffPip.tsx (color normalization); styles/diff-colors.css (blue variable); docs/WORKLOG.md.
+- Purpose: Relocate diff markers to a right-aligned rail, add vertical spacing between paragraphs, and remove hover-based highlighting so the reading experience stays uncluttered.
+- Notes: Paragraph wrappers now provide padding and an absolute marker column; invisible placeholders maintain alignment when no markers are present.
+- Tests: `npm run test -- tests/components/diff/DiffPip.test.tsx --run`
+
+2025-10-18 20:26 UTC - Diff heatmap visibility controls & palette refresh
+- Files modified: types.ts (AppSettings + visibility type); services/sessionManagementService.ts (default settings); components/SettingsModal.tsx (new toggles); components/ChapterView.tsx (visibility filtering & new colors); components/diff/DiffPip.tsx, components/diff/DiffPip.module.css (color normalization); styles/diff-colors.css (blue palette); tests/components/diff/DiffPip.test.tsx.
+- Purpose: Add per-category visibility toggles (fan/raw/stylistic) defaulting grey off, remap raw differences to blue, and filter hidden categories ahead of rendering/navigation.
+- Notes: Visible markers now derive colors from reasons, ensuring cached results adopt the new orange/blue scheme even if stored colors differ.
+- Tests: `npm run test -- tests/components/diff/DiffPip.test.tsx --run`
+
+2025-10-18 20:12 UTC - Diff analysis logging instrumentation
+- Files modified: services/diff/DiffAnalysisService.ts (diagnostic helpers added around lines 20-120); docs/WORKLOG.md
+- Purpose: Gate prompt/response previews behind the diff debug pipeline, surface chunk/marker coverage summaries, and warn when markers reference missing or out-of-range chunks.
+- Notes: New logs emit start/end previews alongside payload length without altering existing console summaries.
+- Tests: `npm run test -- tests/services/diff/DiffAnalysisService.test.ts --run`
 
 2025-10-15 08:07 UTC - Enforce structured Gemini JSON responses
 - Files modified: services/translate/translationResponseSchema.ts:1-150, adapters/providers/GeminiAdapter.ts:1-240, adapters/providers/OpenAIAdapter.ts:1-360, services/translate/Translator.ts:70-140

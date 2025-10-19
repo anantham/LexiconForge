@@ -666,34 +666,30 @@ export class TranslationService {
       return false;
     }
 
-    // Check if the translation settings have changed significantly
     const snapshot = (chapter as any).translationSettingsSnapshot;
     if (!snapshot) {
-      debugLog('translation', 'summary', '[Retranslate] Button enabled: No settings snapshot (old translation)', { chapterId });
-      return true; // No snapshot means old translation, retranslation possible
+      debugLog('translation', 'summary', '[Retranslate] Button enabled: No settings snapshot (legacy translation)', { chapterId });
+      return true;
     }
 
-    // Compare key settings that would affect translation quality
     const currentRelevant = this.extractSettingsSnapshot(settings);
     const providerChanged = snapshot.provider !== currentRelevant.provider;
     const modelChanged = snapshot.model !== currentRelevant.model;
     const promptChanged = snapshot.systemPrompt !== currentRelevant.systemPrompt;
-    const tempChanged = Math.abs((snapshot.temperature || 0.7) - (currentRelevant.temperature || 0.7)) > 0.1;
+    const tempChanged = Math.abs((snapshot.temperature ?? 0.7) - (currentRelevant.temperature ?? 0.7)) > 0.1;
 
     const hasSettingsChanged = providerChanged || modelChanged || promptChanged || tempChanged;
 
     if (hasSettingsChanged) {
-      debugLog('translation', 'summary', '[Retranslate] Button enabled: Settings changed', {
+      debugLog('translation', 'summary', '[Retranslate] Button enabled: Translation settings changed', {
         chapterId,
-        changes: {
-          provider: providerChanged ? `${snapshot.provider} → ${currentRelevant.provider}` : 'unchanged',
-          model: modelChanged ? `${snapshot.model} → ${currentRelevant.model}` : 'unchanged',
-          prompt: promptChanged ? 'changed' : 'unchanged',
-          temperature: tempChanged ? `${snapshot.temperature} → ${currentRelevant.temperature}` : 'unchanged'
-        }
+        providerChanged,
+        modelChanged,
+        promptChanged,
+        tempChanged,
       });
     } else {
-      debugLog('translation', 'full', '[Retranslate] Button disabled: Settings unchanged', { chapterId });
+      debugLog('translation', 'full', '[Retranslate] Button disabled: Translation settings unchanged', { chapterId });
     }
 
     return hasSettingsChanged;

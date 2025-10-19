@@ -305,20 +305,31 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
       } catch (e) {
         console.warn('[Store] StableId normalization failed:', e);
       }
-      
-      // Load URL mappings from IndexedDB
+
+      // Backfill isActive flag on legacy translations
       try {
-        const mappings = await indexedDBService.getAllUrlMappings();
-        if (mappings && mappings.length > 0) {
-          set(state => {
-            const urlIndex = new Map(state.urlIndex);
-            const rawUrlIndex = new Map(state.rawUrlIndex);
-            for (const m of mappings) {
-              if (m.isCanonical) urlIndex.set(m.url, m.stableId);
-              else rawUrlIndex.set(m.url, m.stableId);
-            }
-            return { urlIndex, rawUrlIndex };
-          });
+        await indexedDBService.backfillActiveTranslations();
+      } catch (e) {
+        console.warn('[Store] Active translations backfill failed:', e);
+      }
+
+      // Load URL mappings from IndexedDB (only if not already populated)
+      // This allows us to skip re-loading on subsequent initializations
+      try {
+        const currentState = get();
+        if (currentState.urlIndex.size === 0 && currentState.rawUrlIndex.size === 0) {
+          const mappings = await indexedDBService.getAllUrlMappings();
+          if (mappings && mappings.length > 0) {
+            set(state => {
+              const urlIndex = new Map(state.urlIndex);
+              const rawUrlIndex = new Map(state.rawUrlIndex);
+              for (const m of mappings) {
+                if (m.isCanonical) urlIndex.set(m.url, m.stableId);
+                else rawUrlIndex.set(m.url, m.stableId);
+              }
+              return { urlIndex, rawUrlIndex };
+            });
+          }
         }
       } catch (e) {
         console.warn('[Store] Failed to load URL mappings:', e);

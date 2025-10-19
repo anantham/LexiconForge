@@ -79,7 +79,10 @@ describe('imageMigrationService', () => {
     const updatedChapter = store.getState().chapters.get('ch-legacy');
     expect(updatedChapter).toBeDefined();
     const illustration = updatedChapter!.translationResult!.suggestedIllustrations[0];
-    expect(illustration.generatedImage?.imageCacheKey).toEqual(cacheKey);
+    expect(illustration.generatedImage?.imageCacheKey).toEqual(expect.objectContaining({
+      chapterId: 'ch-legacy',
+      placementMarker: 'ILL-OLD-1'
+    }));
     expect(illustration.generatedImage?.imageData).toBe(''); // Cleared
   });
 

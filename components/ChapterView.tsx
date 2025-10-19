@@ -1,7 +1,7 @@
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { FeedbackItem, Footnote, UsageMetrics } from '../types';
+import { FeedbackItem, Footnote, UsageMetrics, DiffMarkerVisibilitySettings } from '../types';
 import Loader from './Loader';
 import { useTextSelection } from '../hooks/useTextSelection';
 import FeedbackPopover from './FeedbackPopover';
@@ -15,6 +15,11 @@ import { ComparisonService } from '../services/comparisonService';
 import { debugLog } from '../utils/debug';
 import { HtmlRepairService } from '../services/translate/HtmlRepairService';
 import { telemetryService } from '../services/telemetryService';
+import { useDiffMarkers } from '../hooks/useDiffMarkers';
+import { useDiffNavigation } from '../hooks/useDiffNavigation';
+import type { DiffMarker, DiffReason } from '../services/diff/types';
+import { computeDiffHash } from '../services/diff/hash';
+import { DiffPip } from './diff/DiffPip';
 
 type TranslationToken =
   | { type: 'text'; chunkId: string; text: string }
@@ -24,9 +29,17 @@ type TranslationToken =
   | { type: 'hr'; raw: string }
   | { type: 'italic' | 'bold' | 'emphasis'; children: TranslationToken[] };
 
+interface TranslationParagraph {
+  position: number;
+  diffChunkId: string;
+  chunkId: string;
+  nodes: React.ReactNode[];
+}
+
 interface TokenizationResult {
   tokens: TranslationToken[];
   nodes: React.ReactNode[];
+  paragraphs: TranslationParagraph[];
 }
 
 const TOKEN_SPLIT_REGEX = /(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>|<hr\s*\/?>)/g;
@@ -41,6 +54,170 @@ const getTimestamp = () =>
   (typeof performance !== 'undefined' && typeof performance.now === 'function'
     ? performance.now()
     : Date.now());
+const PARAGRAPH_BOUNDARY_REGEX = /(?:<br\s*\/?>\s*){2,}|<hr\s*\/?>|<\/p>\s*<p[^>]*>/gi;
+
+const DEFAULT_DIFF_MARKER_VISIBILITY: DiffMarkerVisibilitySettings = {
+  fan: true,
+  rawLoss: true,
+  rawGain: true,
+  sensitivity: true,
+  stylistic: true,
+};
+
+type DiffDisplayCategory = 'fan' | 'rawLoss' | 'rawGain' | 'sensitivity' | 'stylistic';
+type DiffDisplayColor = 'red' | 'orange' | 'blue' | 'purple' | 'grey';
+
+interface UiDiffMarker extends DiffMarker {
+  displayColors: DiffDisplayColor[];
+  displayReasons: DiffReason[];
+  displayExplanations: string[];
+}
+
+const COLOR_BY_CATEGORY: Record<DiffDisplayCategory, DiffDisplayColor> = {
+  fan: 'blue',
+  rawLoss: 'red',
+  rawGain: 'orange',
+  sensitivity: 'purple',
+  stylistic: 'grey',
+};
+
+const resolveMarkerVisibility = (
+  visibility?: DiffMarkerVisibilitySettings | Record<string, any>
+): DiffMarkerVisibilitySettings => {
+  const incoming = visibility ?? {};
+  const normalized: DiffMarkerVisibilitySettings = {
+    ...DEFAULT_DIFF_MARKER_VISIBILITY,
+    ...(incoming as Record<string, boolean>),
+  };
+
+  if (Object.prototype.hasOwnProperty.call(incoming, 'raw')) {
+    const legacyRaw = (incoming as Record<string, boolean>).raw;
+    if (typeof legacyRaw === 'boolean') {
+      normalized.rawLoss = legacyRaw;
+      normalized.rawGain = legacyRaw;
+    }
+  }
+
+  return normalized;
+};
+
+const reasonToCategory = (reason: DiffReason): DiffDisplayCategory => {
+  switch (reason) {
+    case 'missing-context':
+    case 'plot-omission':
+    case 'raw-divergence':
+      return 'rawLoss';
+    case 'added-detail':
+    case 'hallucination':
+      return 'rawGain';
+    case 'fan-divergence':
+      return 'fan';
+    case 'sensitivity-filter':
+      return 'sensitivity';
+    case 'stylistic-choice':
+    case 'no-change':
+      return 'stylistic';
+    default:
+      return 'fan';
+  }
+};
+
+const mapMarkerForVisibility = (
+  marker: DiffMarker,
+  visibility: DiffMarkerVisibilitySettings
+): UiDiffMarker | null => {
+  const displayColors: DiffDisplayColor[] = [];
+  const displayReasons: DiffReason[] = [];
+  const displayExplanations: string[] = [];
+  const seenColors = new Set<DiffDisplayColor>();
+
+  const reasons = marker.reasons || [];
+  const explanations = marker.explanations || [];
+
+  for (let index = 0; index < reasons.length; index++) {
+    const reason = reasons[index];
+    const category = reasonToCategory(reason);
+    let isEnabled = true;
+    switch (category) {
+      case 'fan':
+        isEnabled = visibility.fan !== false;
+        break;
+      case 'rawLoss':
+        isEnabled = visibility.rawLoss !== false;
+        break;
+      case 'rawGain':
+        isEnabled = visibility.rawGain !== false;
+        break;
+      case 'sensitivity':
+        isEnabled = visibility.sensitivity !== false;
+        break;
+      case 'stylistic':
+        isEnabled = visibility.stylistic === true;
+        break;
+      default:
+        isEnabled = true;
+    }
+
+    if (!isEnabled) {
+      continue;
+    }
+
+    const color = COLOR_BY_CATEGORY[category];
+    if (!seenColors.has(color)) {
+      displayColors.push(color);
+      seenColors.add(color);
+    }
+    displayReasons.push(reason);
+    const explanationRaw = explanations[index];
+    const normalizedExplanation = typeof explanationRaw === 'string' ? explanationRaw.trim() : '';
+    displayExplanations.push(normalizedExplanation);
+  }
+
+  if (displayColors.length === 0) {
+    return null;
+  }
+
+  return {
+    ...marker,
+    displayColors,
+    displayReasons,
+    displayExplanations,
+  };
+};
+
+const splitIntoParagraphSegments = (html: string): Array<{ raw: string }> => {
+  const segments: Array<{ raw: string }> = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = PARAGRAPH_BOUNDARY_REGEX.exec(html)) !== null) {
+    const rawSegment = html.slice(lastIndex, match.index);
+    segments.push({ raw: rawSegment });
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < html.length) {
+    segments.push({ raw: html.slice(lastIndex) });
+  }
+
+  return segments;
+};
+
+const normalizeParagraphText = (html: string): string => {
+  let output = html;
+  output = output.replace(/(<br\s*\/?>\s*){2,}/gi, '\n\n');
+  output = output.replace(/<br\s*\/?>/gi, '\n');
+  output = output.replace(/<hr\s*\/?>/gi, '\n\n');
+  output = output.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
+  output = output.replace(/<\/?p[^>]*>/gi, '');
+  output = output.replace(/<\/?[^>]+>/g, '');
+  output = output.replace(/&nbsp;/gi, ' ');
+  output = output.replace(/\r\n/g, '\n');
+  output = output.replace(/\n{3,}/g, '\n\n');
+  output = output.replace(/[ \t]+\n/g, '\n');
+  return output;
+};
+>>>>>>> feature/semantic-diff-heatmap
 
 const buildTranslationTokens = (text: string, baseId: string, counter: { value: number }): TranslationToken[] => {
   if (!text) return [];
@@ -135,23 +312,37 @@ const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = ''): Re
 };
 
 const tokenizeTranslation = (text: string, baseId: string): TokenizationResult => {
-  const counter = { value: 0 };
-  const tokens = buildTranslationTokens(text, baseId, counter);
+  const segments = splitIntoParagraphSegments(text);
+  const tokens: TranslationToken[] = [];
+  const paragraphs: TranslationParagraph[] = [];
 
-  // DIAGNOSTIC: Count token types
-  const footnoteTokens = tokens.filter(t => t.type === 'footnote');
-  const illustrationTokens = tokens.filter(t => t.type === 'illustration');
-  // console.log(`[ChapterView:tokenizeTranslation] baseId=${baseId}`, {
-  //   totalTokens: tokens.length,
-  //   footnoteCount: footnoteTokens.length,
-  //   illustrationCount: illustrationTokens.length,
-  //   footnoteMarkers: footnoteTokens.map(t => t.type === 'footnote' ? t.marker : ''),
-  //   illustrationMarkers: illustrationTokens.map(t => t.type === 'illustration' ? t.marker : ''),
-  //   textSample: text.slice(0, 200)
-  // });
+  for (const segment of segments) {
+    const normalized = normalizeParagraphText(segment.raw);
+    if (!normalized.trim()) {
+      continue;
+    }
 
-  const nodes = renderTranslationTokens(tokens);
-  return { tokens, nodes };
+    const hash = computeDiffHash(normalized).substring(0, 4);
+    const position = paragraphs.length;
+    const diffChunkId = `para-${position}-${hash}`;
+    const chunkIdPrefix = `${baseId}-${diffChunkId}`;
+    const counter = { value: 0 };
+    const paragraphTokens = buildTranslationTokens(segment.raw, chunkIdPrefix, counter);
+    tokens.push(...paragraphTokens);
+    const nodes = renderTranslationTokens(paragraphTokens, chunkIdPrefix);
+    paragraphs.push({
+      position,
+      diffChunkId,
+      chunkId: chunkIdPrefix,
+      nodes,
+    });
+  }
+
+  return {
+    tokens,
+    nodes: paragraphs.flatMap((paragraph) => paragraph.nodes),
+    paragraphs,
+  };
 };
 
 const cloneTokens = (tokens: TranslationToken[]): TranslationToken[] =>
@@ -417,6 +608,42 @@ const ChapterView: React.FC = () => {
     feedbackForChapter.length,
   ]);
 
+  const retranslateSettingsChanged = currentChapterId ? shouldEnableRetranslation(currentChapterId) : false;
+  const isRetranslationActive = currentChapterId ? isTranslationActive(currentChapterId) : false;
+  const canManualRetranslate = !!translationResult;
+
+  // Diff markers integration (must come after currentChapterId and settings are defined)
+  const { markers: diffMarkers, loading: diffMarkersLoading } = useDiffMarkers(currentChapterId);
+
+  const markerVisibilitySettings = useMemo(
+    () => resolveMarkerVisibility(settings.diffMarkerVisibility),
+    [settings.diffMarkerVisibility]
+  );
+
+  const visibleDiffMarkers = useMemo(
+    () =>
+      diffMarkers
+        .map((marker) => mapMarkerForVisibility(marker, markerVisibilitySettings))
+        .filter((marker): marker is UiDiffMarker => marker !== null),
+    [diffMarkers, markerVisibilitySettings]
+  );
+
+  // Keyboard navigation for diff markers (Alt+J/K)
+  useDiffNavigation(visibleDiffMarkers, settings.showDiffHeatmap !== false);
+
+  const markersByPosition = useMemo(() => {
+    const map = new Map<number, UiDiffMarker[]>();
+    for (const marker of visibleDiffMarkers) {
+      const list = map.get(marker.position);
+      if (list) {
+        list.push(marker);
+      } else {
+        map.set(marker.position, [marker]);
+      }
+    }
+    return map;
+  }, [visibleDiffMarkers]);
+
   // DIAGNOSTIC: Log chapter data when it changes
   useEffect(() => {
     if (chapter && translationResult) {
@@ -457,7 +684,7 @@ const ChapterView: React.FC = () => {
 
   const translationTokensData = useMemo(() => {
     if (viewMode !== 'english') {
-      return { tokens: [] as TranslationToken[], nodes: [] as React.ReactNode[] };
+      return { tokens: [] as TranslationToken[], nodes: [] as React.ReactNode[], paragraphs: [] as TranslationParagraph[] };
     }
     return tokenizeTranslation(repairedTranslation, chapter?.id ?? 'chapter');
   }, [viewMode, repairedTranslation, chapter?.id]);
@@ -919,6 +1146,11 @@ const ChapterView: React.FC = () => {
     useAppStore.getState().generateIllustrationForSelection(currentChapterId, selection);
   };
 
+  const handleDiffMarkerClick = useCallback((marker: UiDiffMarker) => {
+    const targetElement = document.querySelector<HTMLElement>(`[data-diff-position="${marker.position}"]`);
+    targetElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, []);
+
   const handleScrollToText = (selectedText: string) => {
     if (!contentRef.current) return;
     const walker = document.createTreeWalker(contentRef.current, NodeFilter.SHOW_TEXT, null);
@@ -1051,10 +1283,80 @@ const ChapterView: React.FC = () => {
         ) : (
           <div
             ref={contentRef}
+            data-translation-content
             className={`prose prose-lg dark:prose-invert max-w-none whitespace-pre-wrap ${settings.fontStyle === 'serif' ? 'font-serif' : 'font-sans'}`}
             style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
           >
-            {viewMode === 'english' ? translationTokensData.nodes : contentToDisplay}
+            {viewMode === 'english'
+              ? (
+                <div className="space-y-6">
+                  {translationTokensData.paragraphs.map((paragraph) => {
+                    const markersForParagraph = (!diffMarkersLoading && markersByPosition.get(paragraph.position)) || [];
+                    const showHeatmap = settings.showDiffHeatmap !== false;
+                    const hasMarkers = showHeatmap && markersForParagraph.length > 0;
+                    const primaryGreyExplanation =
+                      markersForParagraph[0]?.displayExplanations?.[0]?.trim() || '';
+                    return (
+                      <div
+                        key={paragraph.chunkId}
+                        data-lf-chunk={paragraph.chunkId}
+                        data-diff-position={paragraph.position}
+                        className={`relative scroll-mt-32 ${showHeatmap ? 'pr-12' : ''}`}
+                      >
+                        {showHeatmap && (
+                          <div className="pointer-events-none absolute top-1 right-0 flex flex-col items-end gap-2">
+                            {hasMarkers ? (
+                              markersForParagraph.map((marker, markerIdx) => (
+                                <div
+                                  key={`${paragraph.chunkId}-marker-${markerIdx}`}
+                                  className="pointer-events-auto group/marker"
+                                >
+                                  <DiffPip
+                                    colors={marker.displayColors}
+                                    onClick={() => handleDiffMarkerClick(marker)}
+                                    confidence={marker.confidence}
+                                    aria-label={`Diff marker for paragraph ${paragraph.position + 1}`}
+                                  />
+                                  {marker.displayExplanations.length > 0 && (
+                                    <div className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/marker:opacity-100 transition-opacity duration-150 bg-gray-900 text-white text-xs leading-relaxed rounded-md px-3 py-2 shadow-lg max-w-xs">
+                                      {marker.displayReasons.map((reason, reasonIdx) => (
+                                        <div key={`${marker.chunkId}-reason-${reasonIdx}`} className="mt-1 first:mt-0">
+                                          <span className="font-semibold capitalize">{reason.replace(/-/g, ' ')}:</span>
+                                          <span className="ml-1">{marker.displayExplanations[reasonIdx] || 'No explanation provided.'}</span>
+                                        </div>
+                                      ))}
+                                      {typeof marker.confidence === 'number' && (
+                                        <div className="mt-2 text-xs text-gray-300">
+                                          Confidence {(Math.round((marker.confidence || 0) * 100))}%
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                            ) : (
+                              <span className="block w-2 h-2 rounded-full opacity-0" />
+                            )}
+                          </div>
+                        )}
+                        <div className="whitespace-pre-wrap leading-relaxed">
+                          {paragraph.nodes}
+                          {hasMarkers &&
+                            markerVisibilitySettings.stylistic &&
+                            markersForParagraph.length === 1 &&
+                            markersForParagraph[0].displayColors.includes('grey') &&
+                            primaryGreyExplanation && (
+                            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                              {primaryGreyExplanation}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
+              : contentToDisplay}
           </div>
         )}
 
@@ -1248,17 +1550,19 @@ const ChapterView: React.FC = () => {
                       handleRetranslateCurrent();
                     }
                   }}
-                  disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isTranslationActive(currentChapterId))}
+                  disabled={!canManualRetranslate && !isRetranslationActive}
                   className={`p-2 rounded-full border transition-all duration-200 ml-6 ${
-                    currentChapterId && isTranslationActive(currentChapterId)
+                    isRetranslationActive
                       ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
-                      : shouldEnableRetranslation(currentChapterId || '')
+                      : canManualRetranslate && retranslateSettingsChanged
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
-                      : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                      : canManualRetranslate
+                        ? 'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                   }`}
                   title={currentChapterId && isTranslationActive(currentChapterId) ? 'Cancel translation' : 'Retranslate chapter'}
                 >
-                  <RefreshIcon className={`w-5 h-5 ${currentChapterId && isTranslationActive(currentChapterId) ? 'animate-spin' : ''}`} />
+                  <RefreshIcon className={`w-5 h-5 ${isRetranslationActive ? 'animate-spin' : ''}`} />
                 </button>
               )}
             </div>
@@ -1335,17 +1639,19 @@ const ChapterView: React.FC = () => {
                       handleRetranslateCurrent();
                     }
                   }}
-                  disabled={!shouldEnableRetranslation(currentChapterId || '') && !(currentChapterId && isTranslationActive(currentChapterId))}
+                  disabled={!canManualRetranslate && !isRetranslationActive}
                   className={`p-2 rounded-full border transition-all duration-200 ${
-                    currentChapterId && isTranslationActive(currentChapterId)
+                    isRetranslationActive
                       ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
-                      : shouldEnableRetranslation(currentChapterId || '')
+                      : canManualRetranslate && retranslateSettingsChanged
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
-                      : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                      : canManualRetranslate
+                        ? 'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                   }`}
                   title={currentChapterId && isTranslationActive(currentChapterId) ? 'Cancel translation' : 'Retranslate chapter'}
                 >
-                  <RefreshIcon className={`w-4 h-4 ${currentChapterId && isTranslationActive(currentChapterId) ? 'animate-spin' : ''}`} />
+                  <RefreshIcon className={`w-4 h-4 ${isRetranslationActive ? 'animate-spin' : ''}`} />
                 </button>
               )}
             </div>
@@ -1529,14 +1835,20 @@ const ChapterView: React.FC = () => {
           <NavigationControls />
         </footer>
       )}
-      
+
       {/* Audio Player Section */}
-      <AudioPlayer 
-        chapterId={currentChapterId || ''} 
-        isVisible={!!currentChapterId && !!chapter} 
+      <AudioPlayer
+        chapterId={currentChapterId || ''}
+        isVisible={!!currentChapterId && !!chapter}
       />
+
+      {/* Diff Gutter - show when enabled in settings, in English mode, and markers are available */}
     </div>
   );
 };
 
 export default ChapterView;
+
+export const __testables = {
+  mapMarkerForVisibility,
+};

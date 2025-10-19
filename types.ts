@@ -243,6 +243,18 @@ export interface AppSettings {
     enableHtmlRepair?: boolean;               // Enable graceful HTML formatting repairs
     enableAmendments?: boolean;               // Enable prompt amendment proposals from AI
     includeFanTranslationInPrompt?: boolean;  // Include fan translation as reference in API calls
+    // Diff heatmap display
+    showDiffHeatmap?: boolean;                // Show semantic diff markers in gutter (default: true)
+    diffMarkerVisibility?: DiffMarkerVisibilitySettings;
+    diffAnalysisPrompt?: string;
+}
+
+export interface DiffMarkerVisibilitySettings {
+    fan: boolean;            // Blue - fan divergence
+    rawLoss: boolean;        // Red - missing vs raw
+    rawGain: boolean;        // Orange - added vs raw
+    sensitivity: boolean;    // Purple - sanitized vs fan
+    stylistic: boolean;      // Grey - stylistic / fallback
 }
 
 export interface ImportedChapter {

@@ -12,8 +12,9 @@
 import { indexedDBService } from './indexeddb';
 import { getRepoForService } from './db/index';
 import { INITIAL_SYSTEM_PROMPT } from '../config/constants';
-import type { AppSettings, PromptTemplate } from '../types';
+import type { AppSettings, PromptTemplate, DiffMarkerVisibilitySettings } from '../types';
 import appConfig from '../config/app.json';
+import { getDefaultDiffPrompt } from './diff/promptUtils';
 
 const settingsStorageKey = 'app-settings';
 
@@ -51,6 +52,16 @@ export const defaultSettings: AppSettings = {
   defaultNegativePrompt: 'low quality, blurry, distorted, text, watermark',
   defaultGuidanceScale: 3.5,
   exportOrder: 'number',
+  // Diff heatmap
+  showDiffHeatmap: true,
+  diffMarkerVisibility: {
+    fan: true,
+    rawLoss: true,
+    rawGain: true,
+    sensitivity: true,
+    stylistic: true,
+  },
+  diffAnalysisPrompt: getDefaultDiffPrompt(),
 };
 
 export interface SessionData {
@@ -66,6 +77,34 @@ export interface SessionClearOptions {
   clearLocalStorage?: boolean;
 }
 
+const normalizeDiffVisibility = (
+  visibility?: Partial<AppSettings['diffMarkerVisibility']> | Record<string, any>
+): DiffMarkerVisibilitySettings => {
+  const incoming = visibility ?? {};
+  const normalized = {
+    fan: true,
+    rawLoss: true,
+    rawGain: true,
+    sensitivity: true,
+    stylistic: true,
+    ...(incoming as Record<string, boolean>),
+  } as DiffMarkerVisibilitySettings;
+
+  if (Object.prototype.hasOwnProperty.call(incoming, 'raw')) {
+    const legacyRaw = (incoming as Record<string, boolean>).raw;
+    if (typeof legacyRaw === 'boolean') {
+      normalized.rawLoss = legacyRaw;
+      normalized.rawGain = legacyRaw;
+    }
+  }
+
+  if (typeof (incoming as Record<string, boolean>).stylistic === 'boolean') {
+    normalized.stylistic = (incoming as Record<string, boolean>).stylistic;
+  }
+
+  return normalized;
+};
+
 export class SessionManagementService {
   
   /**
@@ -76,8 +115,12 @@ export class SessionManagementService {
       const raw = localStorage.getItem(settingsStorageKey);
       if (raw) {
         const parsed = JSON.parse(raw);
-        // Ensure all required properties exist by merging with defaults
-        return { ...defaultSettings, ...parsed } as AppSettings;
+        const merged = { ...defaultSettings, ...parsed } as AppSettings;
+        merged.diffMarkerVisibility = normalizeDiffVisibility(merged.diffMarkerVisibility);
+        if (!merged.diffAnalysisPrompt) {
+          merged.diffAnalysisPrompt = getDefaultDiffPrompt();
+        }
+        return merged;
       }
     } catch (e) {
       console.warn('[SessionManagement] Failed to load settings from localStorage:', e);
@@ -90,7 +133,12 @@ export class SessionManagementService {
    */
   static saveSettings(settings: AppSettings): void {
     try {
-      localStorage.setItem(settingsStorageKey, JSON.stringify(settings));
+      const normalized: AppSettings = {
+        ...settings,
+        diffMarkerVisibility: normalizeDiffVisibility(settings.diffMarkerVisibility),
+        diffAnalysisPrompt: settings.diffAnalysisPrompt || getDefaultDiffPrompt(),
+      };
+      localStorage.setItem(settingsStorageKey, JSON.stringify(normalized));
     } catch (e) {
       console.warn('[SessionManagement] Failed to save settings to localStorage:', e);
     }
@@ -100,7 +148,14 @@ export class SessionManagementService {
    * Update settings with partial changes
    */
   static updateSettings(currentSettings: AppSettings, partialSettings: Partial<AppSettings>): AppSettings {
-    const newSettings = { ...currentSettings, ...partialSettings };
+    const newSettings = {
+      ...currentSettings,
+      ...partialSettings,
+    } as AppSettings;
+    newSettings.diffMarkerVisibility = normalizeDiffVisibility(newSettings.diffMarkerVisibility);
+    if (!newSettings.diffAnalysisPrompt) {
+      newSettings.diffAnalysisPrompt = getDefaultDiffPrompt();
+    }
     this.saveSettings(newSettings);
     return newSettings;
   }

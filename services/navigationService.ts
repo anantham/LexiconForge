@@ -19,6 +19,10 @@ import {
 } from './stableIdService';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
 import { telemetryService } from './telemetryService';
+import { debugLog } from '../utils/debug';
+import { DiffResultsRepo } from '../adapters/repo/DiffResultsRepo';
+import { computeDiffHash } from './diff/hash';
+import { DIFF_ALGO_VERSION } from './diff/constants';
 
 // Logging utilities matching the store pattern
 const storeDebugEnabled = () => {
@@ -26,6 +30,8 @@ const storeDebugEnabled = () => {
 };
 const slog = (...args: any[]) => { if (storeDebugEnabled()) console.log(...args); };
 const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...args); }; 
+
+const diffResultsRepo = new DiffResultsRepo();
 
 const adaptTranslationRecordToResult = (chapterId: string, record: TranslationRecord | null | undefined): any => {
   if (!record) return null;
@@ -669,18 +675,87 @@ export class NavigationService {
         chapterNumber: enhanced.chapterNumber,
       });
 
-      // Load active translation if available
+      // Load active translation if available (ensure fixes legacy data without isActive flag)
       try {
-        const activeTranslation = await indexedDBService.getActiveTranslationByStableId(chapterId);
+        console.log(`🔍 [TranslationLoad] Starting load for chapter: ${chapterId}`);
+        console.log(`🔍 [TranslationLoad] Chapter URL: ${rec.url}, Canonical: ${rec.canonicalUrl}`);
+
+        const activeTranslation = await indexedDBService.ensureActiveTranslationByStableId(chapterId);
+
         if (activeTranslation) {
-          // console.log(`[IDB] ✅ Active translation found for chapter ${chapterId}: ${activeTranslation.translation?.length || 0} characters`);
-          
+          console.log(`✅ [TranslationLoad] Active translation found for ${chapterId}:`, {
+            translationId: activeTranslation.id,
+            version: activeTranslation.version,
+            isActive: activeTranslation.isActive,
+            translationLength: activeTranslation.translation?.length || 0,
+            provider: activeTranslation.provider,
+            model: activeTranslation.model,
+            createdAt: activeTranslation.createdAt,
+            chapterUrl: activeTranslation.chapterUrl,
+            stableId: activeTranslation.stableId
+          });
+
           enhanced.translationResult = adaptTranslationRecordToResult(chapterId, activeTranslation);
+          console.log(`✅ [TranslationLoad] Translation adapted to result format`);
+
+          try {
+            if (typeof window !== 'undefined' && enhanced.translationResult?.translation) {
+              const aiTranslationId = (enhanced.translationResult as any)?.id || activeTranslation.id || null;
+              const aiTranslation = enhanced.translationResult.translation || '';
+              const rawText = enhanced.content || '';
+              const fanText = enhanced.fanTranslation || null;
+
+              const aiHash = computeDiffHash(aiTranslation);
+              const rawHash = computeDiffHash(rawText);
+              const fanHash = fanText ? computeDiffHash(fanText) : null;
+              let cachedDiff = null;
+              const normalizedFanId = '';
+
+              if (aiTranslationId) {
+                cachedDiff = await diffResultsRepo.get(
+                  chapterId,
+                  aiTranslationId,
+                  normalizedFanId,
+                  rawHash,
+                  DIFF_ALGO_VERSION
+                );
+              }
+
+              if (!cachedDiff) {
+                cachedDiff = await diffResultsRepo.findByHashes(
+                  chapterId,
+                  aiHash,
+                  fanHash,
+                  rawHash,
+                  DIFF_ALGO_VERSION
+                );
+              }
+
+              if (cachedDiff) {
+                debugLog('diff', 'summary', '[DiffCache] Hydration cache hit', {
+                  chapterId,
+                  aiTranslationId,
+                  aiHash,
+                  algoVersion: DIFF_ALGO_VERSION,
+                });
+                window.dispatchEvent(new CustomEvent('diff:updated', {
+                  detail: { chapterId, cacheHit: true }
+                }));
+              }
+            }
+          } catch (diffError) {
+            console.warn('[DiffCache] Failed to hydrate diff markers from cache:', diffError);
+          }
         } else {
-          // console.log(`[IDB] ❌ No active translation found for chapter ${chapterId}`);
+          console.warn(`❌ [TranslationLoad] No active translation found for ${chapterId}`);
+          console.warn(`❌ [TranslationLoad] This chapter will appear untranslated and may trigger auto-translate`);
         }
       } catch (error) {
-        console.warn(`[IDB] Failed to load active translation for ${chapterId}:`, error);
+        console.error(`🚨 [TranslationLoad] FAILED to load active translation for ${chapterId}:`, error);
+        console.error(`🚨 [TranslationLoad] Error details:`, {
+          message: (error as Error)?.message || error,
+          stack: (error as Error)?.stack
+        });
         memoryDetail('Chapter hydration translation load failed', {
           chapterId,
           error: (error as Error)?.message || error,

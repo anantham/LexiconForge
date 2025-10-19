@@ -45,7 +45,8 @@ const STORES = {
   URL_MAPPINGS: 'url_mappings',     // NEW: URL → Stable ID mapping
   NOVELS: 'novels',                 // NEW: Novel organization (optional)
   CHAPTER_SUMMARIES: 'chapter_summaries', // NEW: Lightweight metadata for listing
-  AMENDMENT_LOGS: 'amendment_logs'  // NEW: Logs of amendment proposal actions
+  AMENDMENT_LOGS: 'amendment_logs', // NEW: Logs of amendment proposal actions
+  DIFF_RESULTS: 'diffResults'       // NEW: Semantic diff analysis results
 } as const;
 
 // IndexedDB Schema Types
@@ -434,6 +435,137 @@ class IndexedDBService {
       await this.setSetting('stableIdNormalized', true);
     } catch (e) {
       console.warn('[IndexedDB] StableId normalization failed', e);
+    }
+  }
+
+  /** Backfill isActive flag and stableId on legacy translations (one-time migration) */
+  async backfillActiveTranslations(): Promise<void> {
+    try {
+      const already = await this.getSetting<boolean>('activeTranslationsBackfilledV2');
+      if (already) return;
+
+      console.log('[IndexedDB] Starting active translations backfill migration...');
+      const db = await this.openDatabase();
+
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction([STORES.CHAPTERS, STORES.TRANSLATIONS], 'readwrite');
+        const chaptersStore = tx.objectStore(STORES.CHAPTERS);
+        const translationsStore = tx.objectStore(STORES.TRANSLATIONS);
+
+        // First, get all chapters to build URL -> stableId mapping
+        const getChaptersReq = chaptersStore.getAll();
+
+        getChaptersReq.onsuccess = () => {
+          const chapters = (getChaptersReq.result || []) as ChapterRecord[];
+
+          // Build URL -> stableId map
+          const urlToStableId = new Map<string, string>();
+          for (const ch of chapters) {
+            if (ch.url && ch.stableId) {
+              urlToStableId.set(ch.url, ch.stableId);
+            }
+            if (ch.canonicalUrl && ch.stableId && ch.canonicalUrl !== ch.url) {
+              urlToStableId.set(ch.canonicalUrl, ch.stableId);
+            }
+          }
+
+          console.log(`[IndexedDB] Built URL->StableId map with ${urlToStableId.size} entries`);
+
+          // Now get all translations
+          const getAllReq = translationsStore.getAll();
+
+          getAllReq.onsuccess = () => {
+            const allTranslations = (getAllReq.result || []) as TranslationRecord[];
+
+            console.log(`[IndexedDB] Found ${allTranslations.length} translation records to process`);
+
+            // Group translations by chapterUrl
+            const byChapter = new Map<string, TranslationRecord[]>();
+            for (const tr of allTranslations) {
+              if (!tr.chapterUrl) continue;
+              if (!byChapter.has(tr.chapterUrl)) {
+                byChapter.set(tr.chapterUrl, []);
+              }
+              byChapter.get(tr.chapterUrl)!.push(tr);
+            }
+
+            let activeUpdated = 0;
+            let stableIdUpdated = 0;
+
+            // For each chapter, ensure exactly one translation is active AND stableId is set
+            let processedCount = 0;
+            for (const [chapterUrl, translations] of byChapter) {
+              const stableId = urlToStableId.get(chapterUrl);
+              const hasActive = translations.some(t => t.isActive);
+
+              // DIAGNOSTIC: Log first few chapters in detail
+              if (processedCount < 3) {
+                console.log(`[IndexedDB] 🔍 Processing chapter ${processedCount + 1}:`);
+                console.log(`   chapterUrl: ${chapterUrl}`);
+                console.log(`   stableId lookup result: ${stableId || 'NOT FOUND'}`);
+                console.log(`   translation count: ${translations.length}`);
+                console.log(`   first translation:`, {
+                  id: translations[0]?.id,
+                  version: translations[0]?.version,
+                  stableId: translations[0]?.stableId,
+                  stableIdType: typeof translations[0]?.stableId,
+                  isActive: translations[0]?.isActive
+                });
+                processedCount++;
+              }
+
+              for (const tr of translations) {
+                let needsUpdate = false;
+
+                // Backfill stableId if missing
+                if (!tr.stableId && stableId) {
+                  tr.stableId = stableId;
+                  needsUpdate = true;
+                  stableIdUpdated++;
+                  console.log(`[IndexedDB] Backfilled stableId for translation ${tr.id}: ${stableId}`);
+                }
+
+                // Set isActive if no translation is active
+                if (!hasActive && translations.length > 0) {
+                  // Find latest version
+                  const latest = translations.reduce((max, t) =>
+                    (t.version > max.version) ? t : max
+                  );
+
+                  if (tr === latest) {
+                    tr.isActive = true;
+                    needsUpdate = true;
+                    activeUpdated++;
+                    console.log(`[IndexedDB] Set translation v${tr.version} as active for ${chapterUrl}`);
+                  } else if (tr.isActive) {
+                    tr.isActive = false;
+                    needsUpdate = true;
+                  }
+                }
+
+                // Write updates
+                if (needsUpdate) {
+                  translationsStore.put(tr);
+                }
+              }
+            }
+
+            console.log(`[IndexedDB] ✅ Active translations backfill complete:`);
+            console.log(`   - ${activeUpdated} chapters with isActive set`);
+            console.log(`   - ${stableIdUpdated} translations with stableId backfilled`);
+          };
+
+          getAllReq.onerror = () => reject(getAllReq.error);
+        };
+
+        getChaptersReq.onerror = () => reject(getChaptersReq.error);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+
+      await this.setSetting('activeTranslationsBackfilledV2', true);
+    } catch (e) {
+      console.error('[IndexedDB] Active translations backfill failed:', e);
     }
   }
   
@@ -1109,8 +1241,11 @@ class IndexedDBService {
       promptName?: string;
     }
   ): Promise<TranslationRecord> {
+    console.log(`💾 [StoreAtomic] Starting atomic store for chapter URL: ${chapterUrl}`);
+    console.log(`💾 [StoreAtomic] Provider: ${translationSettings.provider}, Model: ${translationSettings.model}`);
+
     const db = await this.openDatabase();
-    
+
     return new Promise((resolve, reject) => {
       try {
         const tx = db.transaction([STORES.TRANSLATIONS], 'readwrite');
@@ -1124,10 +1259,16 @@ class IndexedDBService {
             const records = (getAll.result || []) as TranslationRecord[];
             const maxVersion = records.reduce((m, r) => Math.max(m, r.version || 0), 0);
 
+            console.log(`🔍 [StoreAtomic] Found ${records.length} existing version(s) for ${chapterUrl}:`,
+              records.map(r => ({ version: r.version, isActive: r.isActive, id: r.id }))
+            );
+            console.log(`➕ [StoreAtomic] Will create version ${maxVersion + 1}`);
+
             // Deactivate all existing active versions
             const updates: Promise<void>[] = [];
             for (const rec of records) {
               if (rec.isActive) {
+                console.log(`🔄 [StoreAtomic] Deactivating version ${rec.version} (was active)`);
                 rec.isActive = false;
                 updates.push(new Promise((resUpd) => {
                   const req = store.put(rec);
@@ -1170,12 +1311,26 @@ class IndexedDBService {
                 proposal: translationResult.proposal || undefined,
               };
 
+              console.log(`✅ [StoreAtomic] Created translation record v${newRecord.version} with isActive=true:`, {
+                id: newRecord.id,
+                version: newRecord.version,
+                isActive: newRecord.isActive,
+                chapterUrl: newRecord.chapterUrl
+              });
+
               tx.oncomplete = () => {
-                this.recomputeChapterSummary({ chapterUrl }).then(() => resolve(newRecord)).catch(reject);
+                console.log(`✅ [StoreAtomic] Transaction complete, recomputing chapter summary...`);
+                this.recomputeChapterSummary({ chapterUrl }).then(() => {
+                  console.log(`✅ [StoreAtomic] Chapter summary updated, translation fully saved`);
+                  resolve(newRecord);
+                }).catch(reject);
               };
               const addReq = store.add(newRecord);
               addReq.onsuccess = () => {};
-              addReq.onerror = () => reject(addReq.error);
+              addReq.onerror = () => {
+                console.error(`🚨 [StoreAtomic] Failed to add translation record:`, addReq.error);
+                reject(addReq.error);
+              };
             });
           } catch (err) {
             reject(err);
@@ -1784,18 +1939,40 @@ class IndexedDBService {
   }
 
   /**
+   * Get all diff results from the database
+   */
+  async getAllDiffResults(): Promise<any[]> {
+    const db = await this.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = db.transaction([STORES.DIFF_RESULTS], 'readonly');
+        const store = transaction.objectStore(STORES.DIFF_RESULTS);
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      } catch (error) {
+        // Store might not exist in older DB versions
+        resolve([]);
+      }
+    });
+  }
+
+  /**
    * Export a full session JSON with everything stored in IndexedDB
    */
   async exportFullSessionToJson(options: ExportSessionOptions = {}): Promise<any> {
     const exportOptions = { ...DEFAULT_EXPORT_OPTIONS, ...options };
 
-    const [settings, urlMappings, novels, chapters, navHist, lastActive] = await Promise.all([
+    const [settings, urlMappings, novels, chapters, navHist, lastActive, diffResults] = await Promise.all([
       this.getSettings(),
       this.getAllUrlMappings(),
       this.getAllNovels().catch(() => []),
       this.getAllChapters(),
       this.getSetting<any>('navigation-history').catch(() => null),
       this.getSetting<any>('lastActiveChapter').catch(() => null),
+      this.getAllDiffResults().catch(() => []),
     ]);
 
     const chaptersOut: any[] = [];
@@ -1992,8 +2169,10 @@ class IndexedDBService {
       urlMappings,
       novels,
       chapters: exportOptions.includeChapters ? chaptersOut : [],
-      promptTemplates
+      promptTemplates,
     };
+
+    out.diffResults = exportOptions.includeChapters ? (diffResults || []) : [];
 
     if (exportOptions.includeTelemetry && telemetrySnapshot) {
       out.telemetry = telemetrySnapshot;
@@ -2332,19 +2511,46 @@ class IndexedDBService {
   }
 
   async ensureActiveTranslationByStableId(stableId: string): Promise<TranslationRecord | null> {
-    let active = await this.getActiveTranslationByStableId(stableId);
-    if (active) return active;
+    console.log(`🔍 [EnsureActive] Starting for stableId: ${stableId}`);
 
+    let active = await this.getActiveTranslationByStableId(stableId);
+    if (active) {
+      console.log(`✅ [EnsureActive] Found existing active translation v${active.version} for ${stableId}`);
+      return active;
+    }
+
+    console.log(`⚠️ [EnsureActive] No active translation found, checking for any versions...`);
     const versions = await this.getTranslationVersionsByStableId(stableId);
-    if (!versions.length) return null;
+    console.log(`🔍 [EnsureActive] Found ${versions.length} translation version(s) for ${stableId}:`,
+      versions.map(v => ({ version: v.version, isActive: v.isActive, id: v.id, createdAt: v.createdAt }))
+    );
+
+    if (!versions.length) {
+      console.warn(`❌ [EnsureActive] No translations exist for ${stableId}`);
+      return null;
+    }
 
     const latest = versions.slice().sort((a, b) => b.version - a.version)[0];
+    console.log(`🔧 [EnsureActive] Setting v${latest.version} as active for ${stableId}...`);
+
     try {
       await this.setActiveTranslationByStableId(stableId, latest.version);
+      console.log(`✅ [EnsureActive] Successfully set v${latest.version} as active`);
     } catch (error) {
-      console.warn('[IndexedDB] Failed to set active translation during ensureActiveTranslationByStableId:', error);
+      console.error(`🚨 [EnsureActive] Failed to set active translation:`, error);
+      console.error(`🚨 [EnsureActive] Error details:`, {
+        stableId,
+        latestVersion: latest.version,
+        error: (error as Error)?.message || error
+      });
     }
+
     active = await this.getActiveTranslationByStableId(stableId);
+    if (active) {
+      console.log(`✅ [EnsureActive] Verified active translation is now set`);
+    } else {
+      console.warn(`⚠️ [EnsureActive] Could not verify active translation, returning latest anyway`);
+    }
     return active || latest;
   }
 
@@ -2751,18 +2957,26 @@ class IndexedDBService {
    */
   async importFullSessionData(payload: any): Promise<void> {
     const db = await this.openDatabase();
-    const { settings, urlMappings, novels, chapters, promptTemplates } = payload || {};
+    const { settings, urlMappings, novels, chapters, promptTemplates, diffResults } = payload || {};
+
+    // Build transaction store list, including DIFF_RESULTS if it exists
+    const stores = [
+      STORES.CHAPTERS,
+      STORES.URL_MAPPINGS,
+      STORES.TRANSLATIONS,
+      STORES.FEEDBACK,
+      STORES.SETTINGS,
+      STORES.NOVELS,
+      STORES.PROMPT_TEMPLATES
+    ];
+
+    // Check if diffResults store exists before adding it to transaction
+    if (db.objectStoreNames.contains(STORES.DIFF_RESULTS)) {
+      stores.push(STORES.DIFF_RESULTS);
+    }
 
     return new Promise<void>((resolve, reject) => {
-      const tx = db.transaction([
-        STORES.CHAPTERS,
-        STORES.URL_MAPPINGS,
-        STORES.TRANSLATIONS,
-        STORES.FEEDBACK,
-        STORES.SETTINGS,
-        STORES.NOVELS,
-        STORES.PROMPT_TEMPLATES
-      ], 'readwrite');
+      const tx = db.transaction(stores, 'readwrite');
 
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error as any);
@@ -2894,6 +3108,14 @@ class IndexedDBService {
               createdAt: p.createdAt || new Date().toISOString(),
               lastUsed: p.lastUsed || undefined
             } as PromptTemplateRecord);
+          }
+        }
+
+        // Diff results (if store exists and data is provided)
+        if (Array.isArray(diffResults) && db.objectStoreNames.contains(STORES.DIFF_RESULTS)) {
+          const diffStore = tx.objectStore(STORES.DIFF_RESULTS);
+          for (const d of diffResults) {
+            diffStore.put(d);
           }
         }
       } catch (e) {

@@ -20,7 +20,8 @@ export const SCHEMA_VERSIONS = {
   AUTO_MIGRATION_CAP: 9,
   CHAPTER_NUMBER_INDEX: 10,
   AMENDMENT_LOGS: 11,
-  CURRENT: 11,
+  DIFF_RESULTS: 12,
+  CURRENT: 12,
 } as const;
 
 // Object store definitions
@@ -34,12 +35,13 @@ export const STORE_NAMES = {
   NOVELS: 'novels',
   CHAPTER_SUMMARIES: 'chapter_summaries',
   AMENDMENT_LOGS: 'amendment_logs',
+  DIFF_RESULTS: 'diffResults',
 } as const;
 
 // Domain-to-stores mapping (for Claude's domain organization)
 export const DOMAIN_STORES = {
   chapters: [STORE_NAMES.CHAPTERS, STORE_NAMES.URL_MAPPINGS, STORE_NAMES.CHAPTER_SUMMARIES],
-  translations: [STORE_NAMES.TRANSLATIONS],
+  translations: [STORE_NAMES.TRANSLATIONS, STORE_NAMES.DIFF_RESULTS],
   settings: [STORE_NAMES.SETTINGS, STORE_NAMES.PROMPT_TEMPLATES],
   feedback: [STORE_NAMES.FEEDBACK],
   novels: [STORE_NAMES.NOVELS, STORE_NAMES.URL_MAPPINGS],
@@ -71,6 +73,7 @@ export const MIGRATIONS: Record<number, MigrationFunction> = {
   9: migrateToV9,
   10: migrateToV10,
   11: migrateToV11,
+  12: migrateToV12,
 };
 
 /**
@@ -307,6 +310,19 @@ function migrateToV11(db: IDBDatabase): void {
     amendmentLogsStore.createIndex('timestamp', 'timestamp', { unique: false });
     amendmentLogsStore.createIndex('chapterId', 'chapterId', { unique: false });
     amendmentLogsStore.createIndex('action', 'action', { unique: false });
+  }
+}
+
+/**
+ * Migration to version 12: Add diffResults store for semantic diff analysis
+ */
+function migrateToV12(db: IDBDatabase): void {
+  if (!db.objectStoreNames.contains(STORE_NAMES.DIFF_RESULTS)) {
+    const diffResultsStore = db.createObjectStore(STORE_NAMES.DIFF_RESULTS, {
+      keyPath: ['chapterId', 'aiVersionId', 'fanVersionId', 'rawVersionId', 'algoVersion']
+    });
+    diffResultsStore.createIndex('by_chapter', 'chapterId', { unique: false });
+    diffResultsStore.createIndex('by_analyzed_at', 'analyzedAt', { unique: false });
   }
 }
 
