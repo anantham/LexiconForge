@@ -23,7 +23,7 @@ interface MemoryStats {
 class TelemetryService {
   private sessionId: string;
   private events: TelemetryEvent[] = [];
-  private maxEvents = 100;
+  private maxEvents = 500;
   private isInitialized = false;
   private memoryCheckInterval?: number;
 

@@ -14,6 +14,7 @@ import { TranslationPersistenceService } from '../services/translationPersistenc
 import { ComparisonService } from '../services/comparisonService';
 import { debugLog } from '../utils/debug';
 import { HtmlRepairService } from '../services/translate/HtmlRepairService';
+import { telemetryService } from '../services/telemetryService';
 
 type TranslationToken =
   | { type: 'text'; chunkId: string; text: string }
@@ -36,6 +37,10 @@ const BOLD_HTML_RE = /^<b>[\s\S]*<\/b>$/;
 const EMPHASIS_RE = /^\*[\s\S]*\*$/;
 const BR_RE = /^<br\s*\/?>$/i;
 const HR_RE = /^<hr\s*\/?>$/i;
+const getTimestamp = () =>
+  (typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now());
 
 const buildTranslationTokens = (text: string, baseId: string, counter: { value: number }): TranslationToken[] => {
   if (!text) return [];
@@ -365,6 +370,52 @@ const ChapterView: React.FC = () => {
   const feedbackForChapter = chapter?.feedback ?? [];
   const fanTranslation = (chapter as any)?.fanTranslation as string | undefined;
   const canCompare = viewMode === 'english' && !!fanTranslation;
+  const navigationRenderStartRef = useRef<number | null>(null);
+  const mountStartRef = useRef<number>(getTimestamp());
+  const initialChapterIdRef = useRef<string | null>(currentChapterId);
+  const initialHasChapterRef = useRef<boolean>(currentChapterId ? chapters.has(currentChapterId) : false);
+  const translationInProgress = currentChapterId ? isTranslationActive(currentChapterId) : false;
+  const isHydratingCurrent = currentChapterId ? !!hydratingMap[currentChapterId] : false;
+
+  useEffect(() => {
+    const end = getTimestamp();
+    telemetryService.capturePerformance('ux:component:ChapterView:mount', end - mountStartRef.current, {
+      chapterId: initialChapterIdRef.current,
+      hasChapter: initialHasChapterRef.current,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!currentChapterId) return;
+    navigationRenderStartRef.current = getTimestamp();
+  }, [currentChapterId]);
+
+  useEffect(() => {
+    const activeChapterId = currentChapterId;
+    if (!activeChapterId) return;
+    if (navigationRenderStartRef.current == null) return;
+    if (isLoading.fetching || translationInProgress || isHydratingCurrent) return;
+    if (!chapter) return;
+    const end = getTimestamp();
+    const duration = end - navigationRenderStartRef.current;
+    telemetryService.capturePerformance('ux:component:ChapterView:ready', duration, {
+      chapterId: activeChapterId,
+      hasTranslation: Boolean(translationResult),
+      viewMode,
+      feedbackCount: feedbackForChapter.length,
+    });
+    navigationRenderStartRef.current = null;
+  }, [
+    chapter,
+    translationResult,
+    isLoading.fetching,
+    translationInProgress,
+    isHydratingCurrent,
+    currentChapterId,
+    viewMode,
+    feedbackForChapter.length,
+  ]);
 
   // DIAGNOSTIC: Log chapter data when it changes
   useEffect(() => {

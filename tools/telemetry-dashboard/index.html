@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LexiconForge Telemetry Explorer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7fafc;
+      --bg-alt: #ffffff;
+      --fg: #1a202c;
+      --muted: #4a5568;
+      --accent: #2b6cb0;
+      --border: #e2e8f0;
+      --danger: #c53030;
+      --success: #2f855a;
+      --warning: #b7791f;
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+      color: var(--fg);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--bg-alt);
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px -20px rgba(15, 23, 42, 0.4);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid.stats {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .stat-card {
+      background: linear-gradient(160deg, rgba(66, 153, 225, 0.12), rgba(66, 153, 225, 0.02));
+      border: 1px solid rgba(66, 153, 225, 0.2);
+      border-radius: 0.85rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .section {
+      margin-top: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+
+    table thead tr {
+      background: rgba(43, 108, 176, 0.08);
+    }
+
+    table th, table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    table th {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(43, 108, 176, 0.12);
+      color: var(--accent);
+    }
+
+    .badge.warn {
+      background: rgba(183, 121, 31, 0.12);
+      color: var(--warning);
+    }
+
+    .badge.danger {
+      background: rgba(197, 48, 48, 0.12);
+      color: var(--danger);
+    }
+
+    .badge.success {
+      background: rgba(47, 133, 90, 0.12);
+      color: var(--success);
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-alt);
+    }
+
+    details:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .summary-title {
+      flex: 1;
+    }
+
+    .pill {
+      background: rgba(15, 23, 42, 0.08);
+      color: inherit;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .error {
+      color: var(--danger);
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="section">
+      <h1>LexiconForge Telemetry Explorer</h1>
+      <p class="muted">
+        Load a <code>lexiconforge-full-1</code> export JSON to review per-chapter translation activity, provider breakdowns, costs, and duplicate runs.
+      </p>
+      <div class="card" style="margin-top: 1.5rem;">
+        <label for="json-input" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Select export JSON</label>
+        <input type="file" id="json-input" accept="application/json,.json">
+        <p id="load-status" class="muted" style="margin-top: 0.5rem;"></p>
+      </div>
+    </header>
+
+    <section id="summary-section" class="section" style="display: none;">
+      <h2>Session Summary</h2>
+      <div class="grid stats" id="summary-grid"></div>
+    </section>
+
+    <section id="provider-section" class="section" style="display: none;">
+      <h2>Provider Breakdown</h2>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Chapters</th>
+              <th>Translations</th>
+              <th>Total Tokens</th>
+              <th>Total Cost (USD)</th>
+            </tr>
+          </thead>
+          <tbody id="provider-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="duplicates-section" class="section" style="display: none;">
+      <h2>Duplicate Translation Runs</h2>
+      <div class="card">
+        <p class="muted" id="duplicate-hint"></p>
+        <div id="duplicate-list"></div>
+      </div>
+    </section>
+
+    <section id="chapters-section" class="section" style="display: none;">
+      <h2>Chapters</h2>
+      <div id="chapter-list" class="grid"></div>
+    </section>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('json-input');
+    const statusEl = document.getElementById('load-status');
+    const summarySection = document.getElementById('summary-section');
+    const summaryGrid = document.getElementById('summary-grid');
+    const providerSection = document.getElementById('provider-section');
+    const providerBody = document.getElementById('provider-table-body');
+    const duplicatesSection = document.getElementById('duplicates-section');
+    const duplicateHint = document.getElementById('duplicate-hint');
+    const duplicateList = document.getElementById('duplicate-list');
+    const chaptersSection = document.getElementById('chapters-section');
+    const chapterList = document.getElementById('chapter-list');
+
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      statusEl.textContent = 'Loading…';
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const telemetry = extractTelemetry(data);
+        renderTelemetry(telemetry);
+        statusEl.textContent = `Loaded ${file.name} (${formatNumber(telemetry.chapterCount)} chapters)`;
+      } catch (error) {
+        console.error(error);
+        statusEl.textContent = '';
+        showError('Failed to parse file. Ensure this is a LexiconForge export JSON.');
+      }
+    });
+
+    function showError(message) {
+      const err = document.createElement('div');
+      err.className = 'error';
+      err.textContent = message;
+      statusEl.parentElement.appendChild(err);
+      setTimeout(() => err.remove(), 8000);
+    }
+
+    function extractTelemetry(data) {
+      if (data?.metadata?.format !== 'lexiconforge-full-1') {
+        throw new Error('Unexpected export format');
+      }
+
+      const chapters = Array.isArray(data.chapters) ? data.chapters : [];
+      const chapterSummaries = [];
+
+      let translationCount = 0;
+      let totalTokens = 0;
+      let totalCost = 0;
+      let totalRequestTime = 0;
+
+      const providerMap = new Map();
+      const duplicateBuckets = [];
+
+      const safeNumber = (value) => (typeof value === 'number' && isFinite(value)) ? value : 0;
+
+      chapters.forEach((chapter) => {
+        const stableId = chapter.stableId || chapter.canonicalUrl || chapter.title || 'unknown';
+        const title = chapter.translations?.find(tr => tr.isActive)?.translatedTitle || chapter.title || '(untitled)';
+        const translations = Array.isArray(chapter.translations) ? chapter.translations : [];
+        const versionSummaries = [];
+        const seenFingerprints = new Map();
+
+        translations.forEach((tr) => {
+          translationCount += 1;
+
+          const usage = tr.usageMetrics || {};
+          const tokens = safeNumber(usage.totalTokens || usage.promptTokens + usage.completionTokens);
+          const cost = safeNumber(usage.estimatedCost);
+          const requestTime = safeNumber(usage.requestTime);
+
+          totalTokens += tokens;
+          totalCost += cost;
+          totalRequestTime += requestTime;
+
+          if (tr.provider) {
+            const providerKey = tr.provider;
+            if (!providerMap.has(providerKey)) {
+              providerMap.set(providerKey, {
+                provider: providerKey,
+                chapters: new Set(),
+                translations: 0,
+                tokens: 0,
+                cost: 0,
+              });
+            }
+            const providerStats = providerMap.get(providerKey);
+            providerStats.chapters.add(stableId);
+            providerStats.translations += 1;
+            providerStats.tokens += tokens;
+            providerStats.cost += cost;
+          }
+
+          const fingerprint = buildFingerprint(tr);
+          if (!seenFingerprints.has(fingerprint)) {
+            seenFingerprints.set(fingerprint, []);
+          }
+          seenFingerprints.get(fingerprint).push(tr);
+
+          versionSummaries.push({
+            version: tr.version,
+            isActive: Boolean(tr.isActive),
+            createdAt: tr.createdAt,
+            provider: tr.provider,
+            model: tr.model,
+            temperature: tr.temperature,
+            systemPrompt: tr.systemPrompt,
+            promptRef: tr.promptName || tr.promptId || null,
+            tokens,
+            cost,
+            requestTime,
+            usage,
+          });
+        });
+
+        const duplicateGroups = [];
+        seenFingerprints.forEach((group, key) => {
+          if (group.length > 1) {
+            const aggregateCost = group.reduce((sum, tr) => sum + safeNumber(tr.usageMetrics?.estimatedCost), 0);
+            duplicateGroups.push({
+              fingerprint: key,
+              count: group.length,
+              cost: aggregateCost,
+              models: Array.from(new Set(group.map((tr) => tr.model || 'unknown'))),
+              providers: Array.from(new Set(group.map((tr) => tr.provider || 'unknown'))),
+              versions: group.map((tr) => ({ version: tr.version, createdAt: tr.createdAt, isActive: tr.isActive })),
+            });
+          }
+        });
+
+        if (duplicateGroups.length > 0) {
+          duplicateBuckets.push({
+            chapterId: stableId,
+            title,
+            groups: duplicateGroups,
+          });
+        }
+
+        chapterSummaries.push({
+          stableId,
+          title,
+          canonicalUrl: chapter.canonicalUrl,
+          translationCount: translations.length,
+          versionSummaries,
+          duplicateGroups,
+        });
+      });
+
+      const providers = Array.from(providerMap.values()).map((stats) => ({
+        provider: stats.provider,
+        chapters: stats.chapters.size,
+        translations: stats.translations,
+        tokens: stats.tokens,
+        cost: stats.cost,
+      })).sort((a, b) => b.cost - a.cost);
+
+      return {
+        chapterCount: chapters.length,
+        translationCount,
+        totalTokens,
+        totalCost,
+        totalRequestTime,
+        providers,
+        chapterSummaries,
+        duplicateBuckets,
+      };
+    }
+
+    function buildFingerprint(translation) {
+      const usage = translation.usageMetrics || {};
+      const settings = {
+        provider: translation.provider || null,
+        model: translation.model || null,
+        temperature: translation.temperature ?? null,
+        systemPrompt: translation.systemPrompt || null,
+        promptId: translation.promptId || null,
+        promptName: translation.promptName || null,
+        totalTokens: usage.totalTokens ?? null,
+      };
+      const base = JSON.stringify(settings);
+      const text = typeof translation.translation === 'string' ? translation.translation : '';
+      return `${base}::${hashText(text)}`;
+    }
+
+    function hashText(text) {
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash |= 0;
+      }
+      return hash;
+    }
+
+    function renderTelemetry(data) {
+      renderSummary(data);
+      renderProviders(data.providers);
+      renderDuplicates(data.duplicateBuckets);
+      renderChapters(data.chapterSummaries);
+    }
+
+    function renderSummary(data) {
+      summaryGrid.innerHTML = '';
+      summarySection.style.display = 'block';
+
+      const items = [
+        { label: 'Chapters', value: formatNumber(data.chapterCount) },
+        { label: 'Total Translations', value: formatNumber(data.translationCount) },
+        { label: 'Total Tokens', value: formatNumber(data.totalTokens) },
+        { label: 'Total Cost (USD)', value: formatCurrency(data.totalCost) },
+        { label: 'Total Request Time', value: `${data.totalRequestTime.toFixed(1)}s` },
+      ];
+
+      items.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        card.innerHTML = `
+          <div class="stat-label">${item.label}</div>
+          <div class="stat-value">${item.value}</div>
+        `;
+        summaryGrid.appendChild(card);
+      });
+    }
+
+    function renderProviders(providers) {
+      providerBody.innerHTML = '';
+      providerSection.style.display = providers.length > 0 ? 'block' : 'none';
+
+      providers.forEach((provider) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${provider.provider}</td>
+          <td>${formatNumber(provider.chapters)}</td>
+          <td>${formatNumber(provider.translations)}</td>
+          <td>${formatNumber(provider.tokens)}</td>
+          <td>${formatCurrency(provider.cost)}</td>
+        `;
+        providerBody.appendChild(tr);
+      });
+    }
+
+    function renderDuplicates(duplicateBuckets) {
+      duplicateList.innerHTML = '';
+
+      if (duplicateBuckets.length === 0) {
+        duplicatesSection.style.display = 'none';
+        return;
+      }
+
+      duplicatesSection.style.display = 'block';
+      duplicateHint.textContent = 'Groups below share identical translation text and settings. Review whether all runs were necessary.';
+
+      duplicateBuckets.forEach((bucket) => {
+        const container = document.createElement('div');
+        container.className = 'card';
+        container.style.marginTop = '1rem';
+        container.innerHTML = `
+          <h3 style="margin-top: 0;">${bucket.title}</h3>
+          <p class="muted">Chapter ID: <code>${bucket.chapterId}</code></p>
+        `;
+
+        const groupsList = document.createElement('div');
+        groupsList.className = 'grid';
+
+        bucket.groups.forEach((group) => {
+          const groupCard = document.createElement('div');
+          groupCard.className = 'card';
+          groupCard.style.border = '1px dashed rgba(183, 121, 31, 0.4)';
+          groupCard.innerHTML = `
+            <div class="badge warn">Duplicate set · ${group.count} runs</div>
+            <p style="margin-top: 0.75rem;">
+              Providers: ${group.providers.join(', ')}<br>
+              Models: ${group.models.join(', ')}<br>
+              Total Cost: ${formatCurrency(group.cost)}
+            </p>
+            <ul style="margin: 0.75rem 0 0 1.25rem;">
+              ${group.versions.map((v) => `
+                <li>
+                  v${v.version} ${v.isActive ? '<span class="badge success">Active</span>' : ''}
+                  <span class="muted">${v.createdAt ? ` · ${formatDate(v.createdAt)}` : ''}</span>
+                </li>
+              `).join('')}
+            </ul>
+          `;
+          groupsList.appendChild(groupCard);
+        });
+
+        container.appendChild(groupsList);
+        duplicateList.appendChild(container);
+      });
+    }
+
+    function renderChapters(chapterSummaries) {
+      chapterList.innerHTML = '';
+      chaptersSection.style.display = 'block';
+
+      chapterSummaries.sort((a, b) => a.title.localeCompare(b.title));
+
+      chapterSummaries.forEach((chapter) => {
+        const details = document.createElement('details');
+        const openByDefault = chapter.duplicateGroups.length > 0;
+        if (openByDefault) details.open = true;
+
+        const duplicatesBadge = chapter.duplicateGroups.length > 0
+          ? `<span class="badge danger">${chapter.duplicateGroups.length} duplicate sets</span>`
+          : '';
+
+        details.innerHTML = `
+          <summary>
+            <span class="summary-title">${chapter.title}</span>
+            ${duplicatesBadge}
+            <span class="pill">${formatNumber(chapter.translationCount)} versions</span>
+          </summary>
+          <div style="margin-top: 1rem;">
+            <p class="muted">
+              Stable ID: <code>${chapter.stableId}</code>
+              ${chapter.canonicalUrl ? ` · <a href="${chapter.canonicalUrl}" target="_blank" rel="noopener">Source</a>` : ''}
+            </p>
+            ${renderVersionTable(chapter.versionSummaries)}
+          </div>
+        `;
+
+        chapterList.appendChild(details);
+      });
+    }
+
+    function renderVersionTable(versions) {
+      if (!versions.length) {
+        return '<p class="muted">No translations recorded.</p>';
+      }
+
+      const rows = versions
+        .sort((a, b) => b.version - a.version)
+        .map((version) => `
+          <tr>
+            <td>${version.version}</td>
+            <td>${version.isActive ? '<span class="badge success">Active</span>' : ''}</td>
+            <td>${version.provider || '—'}<br><span class="muted">${version.model || ''}</span></td>
+            <td>${version.temperature != null ? version.temperature : '—'}</td>
+            <td>${version.promptRef ? `<span class="pill">${version.promptRef}</span>` : '—'}</td>
+            <td>${version.createdAt ? formatDate(version.createdAt) : '—'}</td>
+            <td>${formatNumber(version.tokens)}</td>
+            <td>${formatCurrency(version.cost)}</td>
+            <td>${version.requestTime ? `${version.requestTime.toFixed(2)}s` : '—'}</td>
+          </tr>
+        `).join('');
+
+      return `
+        <div class="card" style="padding: 0; overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Status</th>
+                <th>Provider</th>
+                <th>Temp</th>
+                <th>Prompt</th>
+                <th>Created</th>
+                <th>Tokens</th>
+                <th>Cost</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function formatNumber(value) {
+      if (value == null || isNaN(value)) return '0';
+      return Intl.NumberFormat().format(Math.round(value));
+    }
+
+    function formatCurrency(value) {
+      if (!isFinite(value)) return '$0.00';
+      return '$' + value.toFixed(4);
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+  </script>
+</body>
+</html>

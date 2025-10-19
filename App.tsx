@@ -72,7 +72,24 @@ const hasSession = chapters.size > 0 || currentChapterId !== null;
 const currentChapterTranslationResult = useAppStore((state) => {
   const id = state.currentChapterId;
   const ch = id ? state.getChapter(id) : null;
-  return ch?.translationResult || null;
+  const result = ch?.translationResult || null;
+
+  // Diagnostic logging to track selector updates
+  if (typeof window !== 'undefined' && (window as any).LF_DEBUG_SELECTOR) {
+    console.log(`🔎 [Selector] currentChapterTranslationResult evaluated @${Date.now()}`, {
+      chapterId: id,
+      hasChapter: !!ch,
+      hasTranslationResult: !!result,
+      translationMetadata: result ? {
+        hasId: !!(result as any).id,
+        provider: result.usageMetrics?.provider,
+        model: result.usageMetrics?.model,
+        cost: result.usageMetrics?.estimatedCost
+      } : null
+    });
+  }
+
+  return result;
 });
 
 const hasCurrentChapter = useAppStore((state) => {
@@ -118,10 +135,24 @@ const settingsFingerprint = React.useMemo(
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-      if (viewMode !== 'english' || !currentChapterId || !hasCurrentChapter) return;
+      console.log(`🔍 [AutoTranslate] Effect triggered @${Date.now()}`, {
+        viewMode,
+        currentChapterId,
+        hasCurrentChapter,
+        hasTranslationResult: !!currentChapterTranslationResult,
+        translationResultValue: currentChapterTranslationResult ? 'exists' : 'null/undefined'
+      });
+
+      if (viewMode !== 'english' || !currentChapterId || !hasCurrentChapter) {
+        console.log(`🔍 [AutoTranslate] Early exit - preconditions not met`);
+        return;
+      }
 
       const chapter = getChapter(currentChapterId);
-      if (!chapter) return;
+      if (!chapter) {
+        console.log(`🔍 [AutoTranslate] Early exit - chapter not found in map`);
+        return;
+      }
 
       const translating = isTranslationActive(currentChapterId) || isLoading.translating;
       const pending = useAppStore.getState().pendingTranslations.has(currentChapterId);
@@ -129,11 +160,30 @@ const settingsFingerprint = React.useMemo(
       const prevSig    = requestedRef.current.get(currentChapterId);
       const alreadyRequested = prevSig === settingsFingerprint;
 
+      console.log(`🔍 [AutoTranslate] Conditions check for ${currentChapterId}:`, {
+        hasResult,
+        translating,
+        alreadyRequested,
+        pending,
+        prevSig: prevSig ? 'exists' : 'none',
+        currentSig: settingsFingerprint,
+        chapterHasTranslationResult: !!chapter.translationResult,
+        chapterTranslationMetadata: chapter.translationResult ? {
+          hasId: !!(chapter.translationResult as any).id,
+          hasUsageMetrics: !!chapter.translationResult.usageMetrics,
+          provider: chapter.translationResult.usageMetrics?.provider,
+          model: chapter.translationResult.usageMetrics?.model,
+          cost: chapter.translationResult.usageMetrics?.estimatedCost
+        } : null
+      });
+
       if (!hasResult && !translating && !alreadyRequested && !pending) {
+        console.warn(`🚨 [AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
+        console.warn(`🚨 [AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
         requestedRef.current.set(currentChapterId, settingsFingerprint);
         handleTranslate(currentChapterId);
       } else {
-        // console.log(`[UI Debug] NOT triggering handleTranslate - conditions not met`);
+        console.log(`✅ [AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
       }
     }, [
       viewMode,
@@ -144,6 +194,7 @@ const settingsFingerprint = React.useMemo(
       isTranslationActive,
       handleTranslate,
       hasCurrentChapter,
+      getChapter,
     ]);
 
     // And clear the one-shot once a result lands (or when leaving English):

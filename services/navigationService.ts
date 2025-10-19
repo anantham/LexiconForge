@@ -18,6 +18,7 @@ import {
   transformImportedChapters 
 } from './stableIdService';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
+import { telemetryService } from './telemetryService';
 
 // Logging utilities matching the store pattern
 const storeDebugEnabled = () => {
@@ -138,9 +139,15 @@ export class NavigationService {
     context: NavigationContext,
     loadChapterFromIDB: (chapterId: string) => Promise<EnhancedChapter | null>
   ): Promise<NavigationResult> {
+    const telemetryStart = typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
+    const telemetryMeta: Record<string, any> = { url };
+    try {
     // console.log(`[Nav] Navigating to: ${url} @${Date.now()}`);
     const { urlIndex, rawUrlIndex, chapters, navigationHistory } = context;
     const normalizedUrl = normalizeUrlAggressively(url);
+    telemetryMeta.normalizedUrl = normalizedUrl || null;
     
     // console.log(`[Nav] URL normalization: ${url} -> ${normalizedUrl} @${Date.now()}`);
     // console.log(`[Nav] URL index size: ${urlIndex.size}, Raw URL index size: ${rawUrlIndex.size} @${Date.now()}`);
@@ -192,17 +199,41 @@ export class NavigationService {
       
       // Hydrate translation result if missing
       if (chapter && !chapter.translationResult) {
+        console.log(`🔧 [Navigation] Chapter ${chapterId} in memory but missing translationResult, attempting hydration @${Date.now()}`);
         try {
           const active = await indexedDBService.getActiveTranslationByStableId(chapterId);
           if (active) {
+            console.log(`🔧 [Navigation] Found active translation in IDB, hydrating @${Date.now()}`, {
+              provider: active.provider,
+              model: active.model,
+              cost: active.estimatedCost,
+              hasId: !!active.id,
+              version: active.version
+            });
             const hydrated = adaptTranslationRecordToResult(chapterId, active);
             if (hydrated) {
               chapter.translationResult = hydrated as any;
+              console.log(`✅ [Navigation] Hydration successful @${Date.now()}`);
+            } else {
+              console.warn(`⚠️ [Navigation] Hydration returned null @${Date.now()}`);
             }
+          } else {
+            console.log(`⚠️ [Navigation] No active translation found in IDB for ${chapterId} @${Date.now()}`);
           }
-        } catch {}
+        } catch (err) {
+          console.error(`❌ [Navigation] Hydration error @${Date.now()}:`, err);
+        }
+      } else if (chapter && chapter.translationResult) {
+        console.log(`✅ [Navigation] Chapter ${chapterId} already has translationResult in memory @${Date.now()}`, {
+          provider: chapter.translationResult.usageMetrics?.provider,
+          model: chapter.translationResult.usageMetrics?.model,
+          cost: chapter.translationResult.usageMetrics?.estimatedCost
+        });
       }
 
+      telemetryMeta.outcome = 'memory_hit';
+      telemetryMeta.chapterId = chapterId;
+      telemetryMeta.hydratedTranslation = Boolean(chapter?.translationResult);
       return {
         chapterId,
         chapter,
@@ -248,6 +279,9 @@ export class NavigationService {
           } catch {}
           
           slog(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
+          telemetryMeta.outcome = 'idb_hydrated';
+          telemetryMeta.chapterId = chapterId;
+          telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
           return {
             chapterId,
             chapter: loaded,
@@ -270,6 +304,9 @@ export class NavigationService {
           const loaded = await loadChapterFromIDB(mapping.stableId);
           if (loaded) {
             const newHistory = [...new Set(navigationHistory.concat(mapping.stableId))];
+            telemetryMeta.outcome = 'idb_hydrated_via_mapping';
+            telemetryMeta.chapterId = mapping.stableId;
+            telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
             return {
               chapterId: mapping.stableId,
               chapter: loaded,
@@ -285,16 +322,22 @@ export class NavigationService {
       // Try to fetch if supported URL
       if (this.isValidUrl(url)) {
         slog(`[Navigate] Hydration failed; attempting fetch for ${url}...`);
+        telemetryMeta.outcome = 'fetch_required_after_hydration';
+        telemetryMeta.chapterId = chapterId;
         return { error: null }; // Signal that caller should handle fetch
       } else {
         const validation = validateNavigation(url);
         if ('error' in validation) {
           console.error(`[Navigate] ${validation.error}`, { url });
+          telemetryMeta.outcome = 'unsupported_url';
+          telemetryMeta.reason = validation.error;
           return { error: validation.error };
         }
         // This shouldn't happen, but fallback just in case
         const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported.`;
         console.error(`[Navigate] ${errorMessage}`, { url });
+        telemetryMeta.outcome = 'unsupported_url';
+        telemetryMeta.reason = 'no_mapping';
         return { error: errorMessage };
       }
     }
@@ -303,6 +346,7 @@ export class NavigationService {
     if (this.isValidUrl(url)) {
       // Supported URL - signal caller to fetch
       slog(`[Navigate] No chapter found for ${url}. Attempting to fetch...`);
+      telemetryMeta.outcome = 'fetch_required';
       return { error: null }; // Signal that caller should handle fetch
     } else {
       // Try direct IndexedDB lookup as last resort
@@ -342,6 +386,9 @@ export class NavigationService {
           } catch {}
           
           slog(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);
+          telemetryMeta.outcome = 'idb_direct_lookup';
+          telemetryMeta.chapterId = chapterIdFound;
+          telemetryMeta.hydratedTranslation = Boolean(enhanced.translationResult);
           return {
             chapterId: chapterIdFound,
             chapter: enhanced,
@@ -356,12 +403,31 @@ export class NavigationService {
       const validation = validateNavigation(url);
       if ('error' in validation) {
         console.error(`[Navigate] ${validation.error}`, { url });
+        telemetryMeta.outcome = 'unsupported_url';
+        telemetryMeta.reason = validation.error;
         return { error: validation.error };
       }
       // This shouldn't happen, but fallback just in case
       const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported.`;
       console.error(`[Navigate] ${errorMessage}`, { url });
+      telemetryMeta.outcome = 'unsupported_url';
+      telemetryMeta.reason = 'no_mapping';
       return { error: errorMessage };
+    }
+    } catch (error) {
+      telemetryMeta.outcome = 'error';
+      telemetryMeta.error = error instanceof Error ? error.message : String(error);
+      telemetryMeta.stack = error instanceof Error ? error.stack : undefined;
+      throw error;
+    } finally {
+      const telemetryEnd = typeof performance !== 'undefined' && typeof performance.now === 'function'
+        ? performance.now()
+        : Date.now();
+      telemetryService.capturePerformance(
+        'ux:navigation:handleNavigate',
+        telemetryEnd - telemetryStart,
+        telemetryMeta
+      );
     }
   }
 
@@ -369,12 +435,19 @@ export class NavigationService {
    * Fetch and parse a new chapter from URL
    */
   static async handleFetch(url: string): Promise<FetchResult> {
+    const telemetryStart = typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
+    const telemetryMeta: Record<string, any> = { url };
+    try {
     if (inflightFetches.has(url)) {
       await inflightFetches.get(url);
+      telemetryMeta.outcome = 'cache_inflight';
       return {}; // Return empty result since state was already updated
     }
 
     if (!this.isValidUrl(url)) {
+      telemetryMeta.outcome = 'unsupported_url';
       throw new Error(`Unsupported source: ${url}`);
     }
 
@@ -432,6 +505,12 @@ export class NavigationService {
           console.warn('[DB] Failed to persist fetched chapter to IndexedDB', e);
         }
 
+        telemetryMeta.outcome = 'success';
+        telemetryMeta.chapterId = stableData.currentChapterId || null;
+        telemetryMeta.chapterCount = stableData.chapters.size;
+        telemetryMeta.contentLength = stableData.currentChapterId
+          ? stableData.chapters.get(stableData.currentChapterId)?.content?.length || 0
+          : 0;
         return {
           chapters: stableData.chapters,
           urlIndex: stableData.urlIndex,
@@ -442,6 +521,8 @@ export class NavigationService {
 
       } catch (e: any) {
         console.error('[FETCH-ERROR]', e);
+        telemetryMeta.outcome = 'error';
+        telemetryMeta.error = e?.message ?? String(e);
         return { error: String(e?.message ?? e ?? 'Fetch failed') };
       }
     })();
@@ -450,7 +531,37 @@ export class NavigationService {
     const result = await fetchPromise;
     inflightFetches.delete(url);
     
+    if (!telemetryMeta.outcome) {
+      if (result.error) {
+        telemetryMeta.outcome = 'error';
+        telemetryMeta.error = result.error;
+      } else {
+        telemetryMeta.outcome = 'success';
+        telemetryMeta.chapterId = result.currentChapterId ?? null;
+        const chaptersMap = result.chapters ?? null;
+        telemetryMeta.chapterCount = chaptersMap instanceof Map ? chaptersMap.size : 0;
+        if (chaptersMap instanceof Map && result.currentChapterId) {
+          const content = chaptersMap.get(result.currentChapterId)?.content || '';
+          telemetryMeta.contentLength = content.length;
+        }
+      }
+    }
     return result;
+    } catch (error) {
+      telemetryMeta.outcome = 'error';
+      telemetryMeta.error = error instanceof Error ? error.message : String(error);
+      telemetryMeta.stack = error instanceof Error ? error.stack : undefined;
+      throw error;
+    } finally {
+      const telemetryEnd = typeof performance !== 'undefined' && typeof performance.now === 'function'
+        ? performance.now()
+        : Date.now();
+      telemetryService.capturePerformance(
+        'ux:navigation:handleFetch',
+        telemetryEnd - telemetryStart,
+        telemetryMeta
+      );
+    }
   }
 
   /**
@@ -486,6 +597,19 @@ export class NavigationService {
     
     // Mark as hydrating
     updateHydratingState(chapterId, true);
+    const complete = (outcome: string, extra: Record<string, unknown>, result: EnhancedChapter | null) => {
+      const durationMs = memoryTiming('Chapter hydration', opStart, {
+        chapterId,
+        outcome,
+        ...extra,
+      });
+      telemetryService.capturePerformance('ux:navigation:hydrateChapter', durationMs, {
+        chapterId,
+        outcome,
+        ...extra,
+      });
+      return result;
+    };
     
     try {
       const rec = await indexedDBService.getChapterByStableId(chapterId);
@@ -514,7 +638,7 @@ export class NavigationService {
       if (!rec) {
         swarn(`[IDB] No record found for ${chapterId}`);
         memoryDetail('Chapter hydration missing record', { chapterId });
-        return null;
+        return complete('missing_record', {}, null);
       }
 
       // Transform IndexedDB record to EnhancedChapter format
@@ -564,12 +688,10 @@ export class NavigationService {
       }
 
       slog(`[IDB] Successfully loaded chapter ${chapterId} with translation: ${!!enhanced.translationResult}`);
-      memoryTiming('Chapter hydration', opStart, {
-        chapterId,
+      return complete('success', {
         contentLength: enhanced.content.length,
         hasTranslation: Boolean(enhanced.translationResult),
-      });
-      return enhanced;
+      }, enhanced);
       
     } catch (error) {
       console.error(`[IDB] Error loading chapter ${chapterId}:`, error);
@@ -577,7 +699,9 @@ export class NavigationService {
         chapterId,
         error: (error as Error)?.message || error,
       });
-      return null;
+      return complete('error', {
+        error: error instanceof Error ? error.message : String(error),
+      }, null);
     } finally {
       // Clear hydrating state
       updateHydratingState(chapterId, false);
