@@ -26,9 +26,9 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 3. 🧠 Bring your own favorite model—Gemini, Claude, DeepSeek, OpenRouter, Flux, more—all supported.
 4. ❓ Use the question emoji to generate cultural footnotes and etymology explanations on demand.
 5. 🎨 Summon bespoke illustrations by reacting to your favorite scene with the art emoji.
-6. ✏️ Tap the edit button to surgically refine the AI’s output before saving it.
-7. 📖 Compare against trusted fan translations inline, toggling between AI, raw, and fan versions.
-8. 📦 Export polished EPUBs for offline reading once you’ve curated the perfect translation.
+6. ✏️ Tap the edit button to surgically refine the AI's output before saving it.
+7. 📖 Compare against trusted fan translations inline, toggling between AI, raw, and fan versions—use Settings to control whether fan translations are sent as reference to the AI or kept purely for comparison.
+8. 📦 Export polished EPUBs for offline reading once you've curated the perfect translation.
 9. 🎛️ Experiment with prompts, OST generation, img2img steering, session analytics, and more quality-of-life tools built for deep reading.
 
 ![Floating toolbar with emoji reactions](<Marketing/Features/Select any span of text to see floating toolbar of emojis to press.png>)
@@ -59,6 +59,7 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 *   💰 **Real-Time Cost Tracking:** Obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent, with 2025 pricing.
 *   🛑 **Cancelable Requests:** Click the red spinner to abort in‑flight translations instantly.
 *   ✅ **Structure Guarantees:** Built-in validation for illustration and footnote markers keeps body text and JSON aligned.
+*   🎯 **Fan Translation Control:** Toggle whether fan translations are sent to the AI as reference (Settings → General → "Include Fan Translation as Reference"). When enabled (default), the AI uses fan translations as ground truth to improve quality. When disabled, test pure translation quality with only raw text and previous chapters—fan translations remain available for side-by-side comparison.
 
 ### **🧠 Collaborative AI Training & Interactive Features**
 *   💬 **Text Selection Feedback:** Select any text and rate it 👍👎? to teach the AI your preferences.
@@ -125,13 +126,22 @@ Want to run your own instance? It's easy.
     ```
 4.  **Run the app:** `npm run dev`
 
-#### Fan Translation Merge (optional)
-If you have reference fan translations, you can merge them into an exported session JSON to enable Fan view and provide better context to AI:
+#### Fan Translation Merge (Optional)
+If you have reference fan translations (e.g., from human translators), you can merge them into an exported session JSON:
 
-```
+```bash
 npm run merge-fan-translations path/to/session.json path/to/fan-translations/ [output.json]
 ```
-The CLI matches files by chapter number, merges them as `fanTranslation`, and prints coverage.
+
+**What this does:**
+- Matches fan translation files by chapter number (e.g., `chapter-256.txt` → chapter 256)
+- Adds them to the session as `fanTranslation` field for each chapter
+- Prints merge coverage statistics (how many chapters got fan translations)
+
+**Fan translations unlock:**
+- **Side-by-side comparison:** Toggle between AI, raw, and fan versions while reading
+- **AI reference mode:** When "Include Fan Translation as Reference" is enabled (Settings → General), the AI uses fan translations as ground truth to improve quality
+- **Quality benchmarking:** Disable the reference mode to test how well the AI translates from raw text alone, using fan translations purely for comparison
 
 ### Technical Architecture
 

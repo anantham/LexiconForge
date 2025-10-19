@@ -44,10 +44,12 @@ export const translateWithClaude = async (
 
     // Format history for Claude
     const historyPrompt = formatHistory(history);
-    const fanTranslationContext = buildFanTranslationContext(fanTranslation);
-    
+    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? true;
+    const effectiveFanTranslation = includeFanTranslation ? (fanTranslation ?? null) : null;
+    const fanTranslationContext = buildFanTranslationContext(effectiveFanTranslation);
+
     // Create comprehensive prompt with schema description
-    const preface = prompts.translatePrefix + (fanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction + prompts.translateTitleGuidance;
+    const preface = prompts.translatePrefix + (effectiveFanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction + prompts.translateTitleGuidance;
     const sys = (settings.systemPrompt || '')
       .replaceAll('{{targetLanguage}}', settings.targetLanguage || 'English')
       .replaceAll('{{targetLanguageVariant}}', settings.targetLanguage || 'English');

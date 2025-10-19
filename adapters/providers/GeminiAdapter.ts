@@ -139,10 +139,12 @@ export class GeminiAdapter implements TranslationProvider {
     }
 
     const historyPrompt = history.length > 0 ? formatHistory(history).trim() : '';
-    const fanTranslationContext = buildFanTranslationContext(fanTranslation ?? null).trim();
+    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? true;
+    const effectiveFanTranslation = includeFanTranslation ? (fanTranslation ?? null) : null;
+    const fanTranslationContext = buildFanTranslationContext(effectiveFanTranslation).trim();
     const preface = (
       prompts.translatePrefix +
-      (fanTranslation ? prompts.translateFanSuffix : '') +
+      (effectiveFanTranslation ? prompts.translateFanSuffix : '') +
       prompts.translateInstruction +
       prompts.translateTitleGuidance
     ).trim();
