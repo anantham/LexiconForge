@@ -10,6 +10,12 @@ import { COSTS_PER_MILLION_TOKENS } from '../config/costs';
 import appConfig from '../config/app.json';
 import { buildFanTranslationContext, formatHistory } from './prompts';
 import { getEnvVar, hasEnvVar } from './env';
+import {
+  getDefaultApiKey,
+  incrementDefaultKeyUsage,
+  canUseDefaultKey,
+  getDefaultKeyStatus
+} from './defaultApiKeyService';
 
 // Parameter validation using config limits
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -62,8 +68,14 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
       break;
     case 'OpenRouter':
       envKey = 'OPENROUTER_API_KEY';
-      requiredApiKey = (settings as any).apiKeyOpenRouter || (getEnvVar(envKey) as any);
+      requiredApiKey = (settings as any).apiKeyOpenRouter || (getEnvVar(envKey) as any) || getDefaultApiKey();
       providerName = 'OpenRouter';
+
+      // Check if using default key
+      if (!settings.apiKeyOpenRouter && !getEnvVar(envKey) && requiredApiKey) {
+        const status = getDefaultKeyStatus();
+        console.log(`[DefaultKey] Using trial key - ${status.remainingUses} requests remaining`);
+      }
       break;
     case 'Claude':
       envKey = 'CLAUDE_API_KEY';
@@ -1264,13 +1276,24 @@ export const translateChapter = async (
   initialDelay: number = 2000,
   abortSignal?: AbortSignal
 ): Promise<TranslationResult> => {
+    // Track default key usage for OpenRouter
+    const isUsingDefaultKey = settings.provider === 'OpenRouter' &&
+      !settings.apiKeyOpenRouter &&
+      !getEnvVar('OPENROUTER_API_KEY');
+
+    if (isUsingDefaultKey) {
+      // Increment usage before translation
+      const newUsage = incrementDefaultKeyUsage();
+      console.log(`[Translation] Using default trial key (${newUsage}/10 requests used)`);
+    }
+
     // Initialize providers if not already done
     const { initializeProviders } = await import('../adapters/providers');
     await initializeProviders();
-    
+
     // Use the new Translator with provider adapters
     const { translator } = await import('./translate/Translator');
-    
+
     return translator.translate({
       title,
       content,

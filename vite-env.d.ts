@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_OPENROUTER_API_KEY: string;
   readonly VITE_PIAPI_API_KEY: string;
   readonly VITE_GOOGLE_DRIVE_API_KEY: string;
+  readonly VITE_DEFAULT_OPENROUTER_KEY: string;
 }
 
 interface ImportMeta {

@@ -7,6 +7,7 @@ import SessionInfo from './components/SessionInfo';
 import SettingsModal from './components/SettingsModal';
 import Loader from './components/Loader';
 import { LandingPage } from './components/LandingPage';
+import { DefaultKeyBanner } from './components/DefaultKeyBanner';
 
 import { validateApiKey } from './services/aiService';
 import { Analytics } from '@vercel/analytics/react';
@@ -278,6 +279,7 @@ const settingsFingerprint = React.useMemo(
                     <h1 className="text-4xl sm:text-5xl font-bold text-gray-800 dark:text-white">Lexicon Forge</h1>
                     <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">Read web novels with AI-powered, user-refined translations.</p>
                 </header>
+                <DefaultKeyBanner />
                 <InputBar />
                 <SessionInfo />
                 <ChapterView />
