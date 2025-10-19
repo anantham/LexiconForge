@@ -217,7 +217,6 @@ const normalizeParagraphText = (html: string): string => {
   output = output.replace(/[ \t]+\n/g, '\n');
   return output;
 };
->>>>>>> feature/semantic-diff-heatmap
 
 const buildTranslationTokens = (text: string, baseId: string, counter: { value: number }): TranslationToken[] => {
   if (!text) return [];
