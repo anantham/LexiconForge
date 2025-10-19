@@ -3,7 +3,7 @@ import { BookOpen } from 'lucide-react';
 import { NovelGrid } from './NovelGrid';
 import { NovelDetailSheet } from './NovelDetailSheet';
 import { getAllNovels } from '../config/novelCatalog';
-import { ImportService } from '../services/importService';
+import { ImportService, ImportProgress } from '../services/importService';
 import { useAppStore } from '../store';
 import type { NovelEntry } from '../types/novel';
 
@@ -14,7 +14,8 @@ interface NovelLibraryProps {
 export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const [selectedNovel, setSelectedNovel] = useState<NovelEntry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const setNotification = useAppStore(s => s.setNotification);
+  const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
+  const showNotification = useAppStore(s => s.showNotification);
 
   const novels = getAllNovels();
 
@@ -29,26 +30,19 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const handleStartReading = async (novel: NovelEntry) => {
     // Check if session URL exists
     if (!novel.sessionJsonUrl) {
-      setNotification({
-        type: 'error',
-        message: `${novel.title} is not yet available. Check back soon!`
-      });
+      showNotification(`${novel.title} is not yet available. Check back soon!`, 'error');
       return;
     }
 
     setIsLoading(true);
-    setNotification({
-      type: 'info',
-      message: `Loading ${novel.title}... (${novel.metadata.chapterCount} chapters)`
-    });
+    setImportProgress(null);
 
     try {
-      await ImportService.importFromUrl(novel.sessionJsonUrl);
-
-      setNotification({
-        type: 'success',
-        message: `✅ Loaded ${novel.title} - ${novel.metadata.chapterCount} chapters ready!`
+      await ImportService.importFromUrl(novel.sessionJsonUrl, (progress) => {
+        setImportProgress(progress);
       });
+
+      showNotification(`✅ Loaded ${novel.title} - ${novel.metadata.chapterCount} chapters ready!`, 'success');
 
       // Close the detail sheet
       setSelectedNovel(null);
@@ -57,12 +51,10 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       onSessionLoaded?.();
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);
-      setNotification({
-        type: 'error',
-        message: `Failed to load ${novel.title}: ${error.message}`
-      });
+      showNotification(`Failed to load ${novel.title}: ${error.message}`, 'error');
     } finally {
       setIsLoading(false);
+      setImportProgress(null);
     }
   };
 
@@ -85,18 +77,52 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       {/* Novel Grid */}
       <NovelGrid novels={novels} onViewDetails={handleViewDetails} />
 
-      {/* Loading Overlay */}
+      {/* Loading Overlay with Progress */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
             <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-              <p className="text-gray-900 dark:text-gray-100 font-semibold">
-                Loading novel session...
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                This may take a few moments
-              </p>
+              {/* Progress Bar */}
+              {importProgress ? (
+                <div className="w-full">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-gray-900 dark:text-gray-100 font-semibold">
+                      {importProgress.stage === 'downloading' && '📥 Downloading'}
+                      {importProgress.stage === 'parsing' && '📄 Parsing'}
+                      {importProgress.stage === 'importing' && '💾 Importing'}
+                      {importProgress.stage === 'complete' && '✅ Complete'}
+                    </p>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {importProgress.progress.toFixed(0)}%
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-3 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 h-full rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${importProgress.progress}%` }}
+                    />
+                  </div>
+
+                  {/* Message */}
+                  {importProgress.message && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                      {importProgress.message}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">
+                    Loading novel session...
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    This may take a few moments
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

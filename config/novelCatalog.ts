@@ -14,21 +14,21 @@ export const NOVEL_CATALOG: NovelCatalog = {
     {
       id: 'dungeon-defense',
       title: 'Dungeon Defense',
-      sessionJsonUrl: 'https://raw.githubusercontent.com/YOUR_ORG/lexiconforge-novels/main/sessions/dungeon-defense.json',
+      sessionJsonUrl: 'https://raw.githubusercontent.com/anantham/LexiconForge/main/session-files/dungeon-defense.json',
       metadata: {
         originalLanguage: 'Korean',
         targetLanguage: 'English',
         chapterCount: 50,
         genres: ['Dark Fantasy', 'Strategy', 'Psychological', 'Demon Lord'],
         description: 'I reincarnated as a Demon Lord and now I have to save humanity from itself. Using wit, manipulation, and careful planning, I must survive in a world where everyone wants me dead. A dark psychological thriller that explores morality, strategy, and the price of survival.',
-        coverImageUrl: 'https://i.imgur.com/9vYqYfZ.jpg',
+        coverImageUrl: '/dungeon-defense-cover.jpg',
         author: 'Yoo Heonhwa',
         rating: 4.5,
         sourceUrl: 'https://www.novelupdates.com/series/dungeon-defense/',
         sourceName: 'Novel Updates',
         translator: 'Community',
         tags: ['Anti-Hero', 'Cunning Protagonist', 'Dark', 'Game Elements', 'Gore'],
-        lastUpdated: '2025-10-17'
+        lastUpdated: '2025-10-19'
       }
     },
     {

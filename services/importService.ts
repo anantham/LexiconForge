@@ -4,11 +4,22 @@
 
 import { indexedDBService } from './indexeddb';
 
+export interface ImportProgress {
+  stage: 'downloading' | 'parsing' | 'importing' | 'complete';
+  progress: number; // 0-100
+  loaded?: number;
+  total?: number;
+  message?: string;
+}
+
 export class ImportService {
   /**
-   * Import session from URL with CORS handling
+   * Import session from URL with CORS handling and progress tracking
    */
-  static async importFromUrl(url: string): Promise<any> {
+  static async importFromUrl(
+    url: string,
+    onProgress?: (progress: ImportProgress) => void
+  ): Promise<any> {
     try {
       // Convert GitHub URLs to raw format
       let fetchUrl = url;
@@ -18,11 +29,22 @@ export class ImportService {
           .replace('/blob/', '/');
       }
 
-      // Convert Google Drive share links to direct download
+      // Convert Google Drive share links to Google Drive API endpoint
       if (url.includes('drive.google.com/file/d/')) {
         const fileId = url.match(/\/d\/([^/]+)/)?.[1];
         if (fileId) {
-          fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          // Use Google Drive API v3 endpoint which supports CORS
+          // Requires GOOGLE_DRIVE_API_KEY in environment variables
+          const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
+
+          if (apiKey) {
+            // Google Drive API v3 with API key (supports CORS)
+            fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${apiKey}`;
+          } else {
+            // Fallback to direct download (will fail with CORS error)
+            console.warn('[Import] GOOGLE_DRIVE_API_KEY not found. Set VITE_GOOGLE_DRIVE_API_KEY in .env.local to enable Google Drive downloads.');
+            fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          }
         }
       }
 
@@ -30,9 +52,11 @@ export class ImportService {
 
       // Fetch with timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
 
       try {
+        onProgress?.({ stage: 'downloading', progress: 0, message: 'Starting download...' });
+
         const response = await fetch(fetchUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
 
@@ -42,19 +66,66 @@ export class ImportService {
 
         // Check file size
         const contentLength = response.headers.get('content-length');
-        if (contentLength && parseInt(contentLength) > 50 * 1024 * 1024) {
+        const total = contentLength ? parseInt(contentLength) : 0;
+
+        if (total && total > 50 * 1024 * 1024) {
           throw new Error('Session file too large (>50MB)');
         }
 
-        const sessionData = await response.json();
+        // Read response with progress tracking
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('Response body is not readable');
+        }
+
+        let receivedLength = 0;
+        const chunks: Uint8Array[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) break;
+
+          chunks.push(value);
+          receivedLength += value.length;
+
+          if (total) {
+            const downloadProgress = Math.min((receivedLength / total) * 100, 99);
+            onProgress?.({
+              stage: 'downloading',
+              progress: downloadProgress,
+              loaded: receivedLength,
+              total,
+              message: `Downloading... ${(receivedLength / 1024 / 1024).toFixed(1)}MB / ${(total / 1024 / 1024).toFixed(1)}MB`
+            });
+          } else {
+            onProgress?.({
+              stage: 'downloading',
+              progress: 50,
+              loaded: receivedLength,
+              message: `Downloading... ${(receivedLength / 1024 / 1024).toFixed(1)}MB`
+            });
+          }
+        }
+
+        onProgress?.({ stage: 'parsing', progress: 0, message: 'Parsing session data...' });
+
+        // Convert chunks to text
+        const blob = new Blob(chunks);
+        const text = await blob.text();
+        const sessionData = JSON.parse(text);
 
         // Validate format
         if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
           throw new Error('Invalid session format. Expected lexiconforge export.');
         }
 
+        onProgress?.({ stage: 'importing', progress: 0, message: 'Importing to database...' });
+
         // Use existing import logic
         await indexedDBService.importFullSessionData(sessionData);
+
+        onProgress?.({ stage: 'complete', progress: 100, message: 'Import complete!' });
 
         console.log(`[Import] Successfully imported ${sessionData.chapters?.length || 0} chapters`);
 

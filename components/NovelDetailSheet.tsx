@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BookOpen, Star, X, ExternalLink, Globe, User } from 'lucide-react';
 import type { NovelEntry } from '../types/novel';
 

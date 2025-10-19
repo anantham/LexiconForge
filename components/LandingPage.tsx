@@ -48,19 +48,6 @@ export function LandingPage({ onSessionLoaded }: LandingPageProps) {
               Paste a URL from supported sites (Kakuyomu, Syosetu, Novel Updates, etc.)
             </p>
             <InputBar />
-
-            {/* Supported Sites Help */}
-            <details className="mt-6">
-              <summary className="cursor-pointer text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
-                View supported websites →
-              </summary>
-              <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 space-y-2 pl-4">
-                <p>✅ Japanese: Kakuyomu, Syosetu, Alphapolis</p>
-                <p>✅ Korean: Kakao Page, Naver Series, Munpia</p>
-                <p>✅ Chinese: Qidian, JJWXC</p>
-                <p>✅ English translations: Novel Updates, Wuxiaworld</p>
-              </div>
-            </details>
           </div>
         </section>
 
