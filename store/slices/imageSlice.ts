@@ -332,21 +332,29 @@ export const createImageSlice: StateCreator<
 
     const result = await ImageGenerationService.retryImage(chapterId, placementMarker, context);
 
-    // Update image state AND version tracking
-    set(prevState => ({
-      generatedImages: {
-        ...prevState.generatedImages,
-        [key]: result.imageState
-      },
-      imageVersions: {
-        ...prevState.imageVersions,
-        [key]: nextVersion
-      },
-      activeImageVersion: {
-        ...prevState.activeImageVersion,
-        [key]: nextVersion  // Auto-navigate to the new version
+    const generationSucceeded = !result.imageState?.error;
+
+    set(prevState => {
+      const updates: Partial<ImageSliceState> = {
+        generatedImages: {
+          ...prevState.generatedImages,
+          [key]: result.imageState
+        }
+      };
+
+      if (generationSucceeded) {
+        updates.imageVersions = {
+          ...prevState.imageVersions,
+          [key]: nextVersion
+        };
+        updates.activeImageVersion = {
+          ...prevState.activeImageVersion,
+          [key]: nextVersion
+        };
       }
-    }));
+
+      return updates;
+    });
 
     debugLog('image', 'summary', `[ImageSlice] Retry completed for ${key}`, result.metrics);
     
@@ -848,22 +856,35 @@ export const createImageSlice: StateCreator<
     debugLog('image', 'summary', `[ImageSlice] Deleting version ${versionToDelete} for ${placementMarker} in chapter ${chapterId}`);
 
     try {
-      // Get chapter to access translation result
-      const chapter = (get() as any).getChapter(chapterId);
-      if (!chapter?.translationResult) {
-        throw new Error('Chapter or translation result not found');
+      const { indexedDBService } = await import('../../services/indexeddb');
+      let skippedIndexedDbCleanup = false;
+
+      try {
+        await indexedDBService.deleteImageVersion(chapterId, placementMarker, versionToDelete);
+      } catch (error: any) {
+        const message = typeof error?.message === 'string' ? error.message : '';
+        const isMissingChapter =
+          message.includes('Chapter not found') ||
+          message.includes('No active translation') ||
+          message.includes('No image version state');
+
+        if (isMissingChapter) {
+          console.warn(`[ImageSlice] IndexedDB record missing while deleting ${placementMarker} v${versionToDelete}; continuing with UI cleanup.`);
+          skippedIndexedDbCleanup = true;
+        } else {
+          throw error;
+        }
       }
 
-      // Delete from IndexedDB and cache
-      const { indexedDBService } = await import('../../services/indexeddb');
-      await indexedDBService.deleteImageVersion(chapterId, placementMarker, versionToDelete);
-
-      // Delete from cache
-      await ImageCacheStore.removeImage({
-        stableId: chapterId,
-        placementMarker,
-        version: versionToDelete
-      });
+      try {
+        await ImageCacheStore.removeImage({
+          stableId: chapterId,
+          placementMarker,
+          version: versionToDelete
+        });
+      } catch (cacheError) {
+        console.warn('[ImageSlice] Failed to remove image from cache, continuing cleanup', cacheError);
+      }
 
       // If we deleted the only version, clear all image state for this marker
       if (totalVersions === 1) {
@@ -926,7 +947,9 @@ export const createImageSlice: StateCreator<
         }));
 
         // Persist the new active version
-        await persistImageVersionState(chapterId, placementMarker, newActiveVersion);
+        if (!skippedIndexedDbCleanup) {
+          await persistImageVersionState(chapterId, placementMarker, newActiveVersion);
+        }
       }
 
       debugLog('image', 'summary', `[ImageSlice] Successfully deleted version ${versionToDelete}`);

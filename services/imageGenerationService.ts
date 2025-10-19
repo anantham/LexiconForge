@@ -405,9 +405,9 @@ export class ImageGenerationService {
           const target = chapter.translationResult.suggestedIllustrations[suggestionIndex];
 
           const keyWithMarker = `${chapterId}:${placementMarker}`;
-          const latestVersion = result.imageCacheKey?.version
-            ?? Math.max(context.imageVersions?.[keyWithMarker] ?? 0, 1);
-          const activeVersion = context.activeImageVersion?.[keyWithMarker] ?? latestVersion;
+          const requestedVersion = context.nextVersion ?? ((context.imageVersions?.[keyWithMarker] ?? 0) + 1);
+          const latestVersion = requestedVersion;
+          const activeVersion = requestedVersion;
           const metadata: ImageGenerationMetadata = {
             version: latestVersion,
             prompt: illust.imagePrompt,
