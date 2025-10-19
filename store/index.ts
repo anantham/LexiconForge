@@ -154,7 +154,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
               originalUrl: ch.url,
               nextUrl: ch.data.chapter.nextUrl,
               prevUrl: ch.data.chapter.prevUrl,
-              chapterNumber: ch.chapterNumber,
+              chapterNumber: typeof ch.chapterNumber === 'number' ? ch.chapterNumber : 0,
               canonicalUrl: ch.url,
               sourceUrls: [ch.url],
               fanTranslation: (ch.data.chapter as any).fanTranslation ?? null,
