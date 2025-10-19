@@ -116,4 +116,11 @@ export const IMAGE_COSTS: { [key: string]: number } = {
     'Qubico/flux1-dev': 0.015,
     // Flux.1-Dev-Advanced: $0.02 per generation
     'Qubico/flux1-dev-advanced': 0.02,
+
+    // OpenRouter OpenAI Image Models (token-based pricing converted to per-image estimate)
+    // Assuming ~1000 tokens per image generation (typical for image models)
+    // gpt-5-image: $10/1M tokens = $0.01 per 1000 tokens
+    'openrouter/openai/gpt-5-image': 0.01,
+    // gpt-5-image-mini: $2.5/1M tokens = $0.0025 per 1000 tokens
+    'openrouter/openai/gpt-5-image-mini': 0.0025,
 };

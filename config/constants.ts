@@ -55,6 +55,8 @@ export const AVAILABLE_IMAGE_MODELS = {
     { id: 'openrouter/google/gemini-2.5-flash-image', name: 'OpenRouter Gemini 2.5 Flash Image [Nano Banana]', description: 'Gemini image generation via OpenRouter' },
     { id: 'openrouter/google/gemini-2.5-flash-image-preview', name: 'OpenRouter Gemini 2.5 Flash (Image Preview) [Nano Banana]', description: 'Gemini image generation via OpenRouter (preview version)' },
     { id: 'openrouter/google/gemini-2.5-flash-image-preview:free', name: 'OpenRouter Gemini 2.5 Flash (Image, Free) [Nano Banana]', description: 'Free Gemini image generation via OpenRouter' },
+    { id: 'openrouter/openai/gpt-5-image', name: 'OpenRouter GPT-5 Image', description: 'OpenAI GPT-5 image generation via OpenRouter, $0.01/image' },
+    { id: 'openrouter/openai/gpt-5-image-mini', name: 'OpenRouter GPT-5 Image Mini', description: 'OpenAI GPT-5 Mini image generation via OpenRouter, $0.0025/image' },
   ]
 };
 
