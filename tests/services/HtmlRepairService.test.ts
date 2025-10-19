@@ -78,4 +78,38 @@ describe('HtmlRepairService.repair', () => {
     expect(output).toContain("<b>boldly</b>");
     expect(output).toContain("<em>emphasized</em>");
   });
+
+  it('adds spacing around hr tags touching text on both sides', () => {
+    const input = '"…Haa." Somehow Laura sighed.<hr>The battle ended in defeat.';
+    const output = repair(input);
+    // Should add <br><br> before and after the <hr>
+    expect(output).toContain('sighed.<br><br><hr><br><br>The battle');
+  });
+
+  it('adds spacing around hr tag touching text at start', () => {
+    const input = 'beyond my comprehension.<hr>The work of Laura';
+    const output = repair(input);
+    expect(output).toContain('comprehension.<br><br><hr>');
+    // Should have spacing after the period
+  });
+
+  it('adds spacing around hr tag touching text at end', () => {
+    const input = 'Laura sighed.<hr>Now the only potential';
+    const output = repair(input);
+    expect(output).toContain('.<br><br><hr><br><br>Now');
+  });
+
+  it('handles hr tags with surrounding whitespace gracefully', () => {
+    const input = 'Text before.  <hr>  Text after.';
+    const output = repair(input);
+    // Should still add spacing even if there's already some whitespace
+    expect(output).toContain('<hr>');
+  });
+
+  it('normalizes hr variants and adds spacing in one pass', () => {
+    const input = 'Laura sighed.<hr />The battle ended.';
+    const output = repair(input);
+    // First normalizes <hr /> to <hr>, then adds spacing
+    expect(output).toContain('sighed.<br><br><hr><br><br>The battle');
+  });
 });

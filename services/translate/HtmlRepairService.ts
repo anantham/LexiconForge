@@ -101,7 +101,27 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<hr>'
   },
 
-  // Issue #8: Dangling closing tags for short content (safe version with length limit)
+  // Issue #8: Add spacing around <hr> tags that are touching text
+  {
+    name: 'space-hr-tags',
+    description: 'Add line breaks before and after <hr> tags',
+    pattern: /([^\s>])\s*<hr>\s*([^\s<])/gi,
+    replacement: '$1<br><br><hr><br><br>$2'
+  },
+
+  // Issue #9: Add spacing when <hr> is at start/end of line
+  {
+    name: 'space-hr-edges',
+    description: 'Add line breaks around <hr> at line edges',
+    pattern: /([^\s>])\s*<hr>|<hr>\s*([^\s<])/gi,
+    replacement: (match, before, after) => {
+      if (before) return `${before}<br><br><hr>`;
+      if (after) return `<hr><br><br>${after}`;
+      return match;
+    }
+  },
+
+  // Issue #10: Dangling closing tags for short content (safe version with length limit)
   // Fixes patterns like </i>'Ding!'</i> → <i>'Ding!'</i>
   // Only matches content < 50 chars to avoid creating large unwanted italic chunks
   {
