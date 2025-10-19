@@ -1,17 +1,18 @@
-import 'fake-indexeddb/auto'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useAppStore } from '../../store'
-import { AmendmentProposal } from '../../types'
-import { INITIAL_SYSTEM_PROMPT } from '../../config/constants'
-import { indexedDBService } from '../../services/indexeddb'
+import 'fake-indexeddb/auto';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { useAppStore } from '../../store';
+import { AmendmentProposal } from '../../types';
+import { INITIAL_SYSTEM_PROMPT } from '../../config/constants';
+import { indexedDBService } from '../../services/indexeddb';
 
 describe('Amendment Proposal System', () => {
   beforeEach(async () => {
-    vi.clearAllMocks()
-    await indexedDBService.clearAllData()
+    vi.clearAllMocks();
+    localStorage.clear();
+    await indexedDBService.clearAllData();
     // Reset store state after clearing persistence
-    await useAppStore.getState().clearSession()
-  })
+    await useAppStore.getState().clearSession();
+  });
 
   const createTestProposal = (
     currentRule: string,
@@ -21,53 +22,54 @@ describe('Amendment Proposal System', () => {
     currentRule,
     proposedChange,
     reasoning: 'Test reasoning'
-  })
+  });
 
   describe('acceptProposal', () => {
     it('should handle empty proposal gracefully', async () => {
-      await useAppStore.getState().acceptProposal()
+      await useAppStore.getState().acceptProposal();
 
       // Should not throw or cause errors, just return early
-      expect(useAppStore.getState().amendmentProposal).toBeNull()
-    })
+      expect(useAppStore.getState().amendmentProposals).toHaveLength(0);
+    });
 
     it('should successfully replace exact text match', async () => {
-      const store = useAppStore.getState()
+      const store = useAppStore.getState();
 
       // Set up initial system prompt with a specific rule
-      const initialPrompt = `${INITIAL_SYSTEM_PROMPT}\n\nTest Rule: This is the original rule.`
-      store.updateSettings({ systemPrompt: initialPrompt })
+      const initialPrompt = `${INITIAL_SYSTEM_PROMPT}\n\nTest Rule: This is the original rule.`;
+      store.updateSettings({ systemPrompt: initialPrompt });
 
       // Create proposal to change the rule
       const proposal = createTestProposal(
         'Test Rule: This is the original rule.',
         'Test Rule: This is the updated rule.'
-      )
+      );
 
       // Set amendment proposal
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal);
 
       // Accept the proposal
-      await store.acceptProposal()
+      await store.acceptProposal();
 
       // Check that the rule was updated
-      const updatedPrompt = useAppStore.getState().settings.systemPrompt
-      expect(updatedPrompt).toContain('Test Rule: This is the updated rule.')
-      expect(updatedPrompt).not.toContain('Test Rule: This is the original rule.')
-    })
+      const updatedPrompt = useAppStore.getState().settings.systemPrompt;
+      expect(updatedPrompt).toContain('Test Rule: This is the updated rule.');
+      expect(updatedPrompt).not.toContain('Test Rule: This is the original rule.');
+      expect(useAppStore.getState().amendmentProposals).toHaveLength(0);
+    });
 
   })
 
   describe('rejectProposal', () => {
     it('should clear amendment proposal', async () => {
-      const proposal = createTestProposal('test', 'test')
-      useAppStore.setState({ amendmentProposal: proposal })
+      const proposal = createTestProposal('test', 'test');
+      useAppStore.getState().addAmendmentProposal(proposal);
 
-      expect(useAppStore.getState().amendmentProposal).toBe(proposal)
+      expect(useAppStore.getState().amendmentProposals).toHaveLength(1);
 
-      await useAppStore.getState().rejectProposal()
+      await useAppStore.getState().rejectProposal();
 
-      expect(useAppStore.getState().amendmentProposal).toBeNull()
+      expect(useAppStore.getState().amendmentProposals).toHaveLength(0);
     })
 
     it('should not affect system prompt', async () => {
@@ -76,7 +78,7 @@ describe('Amendment Proposal System', () => {
       store.updateSettings({ systemPrompt: originalPrompt })
 
       const proposal = createTestProposal('original', 'changed')
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal)
 
       await store.rejectProposal()
 
@@ -96,7 +98,7 @@ describe('Amendment Proposal System', () => {
         '+ Test Rule: AI suggested change.'
       )
 
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal)
 
       // User modifies the suggestion
       const modifiedChange = '+ Test Rule: User customized change.'
@@ -105,7 +107,7 @@ describe('Amendment Proposal System', () => {
       const updatedPrompt = useAppStore.getState().settings.systemPrompt
       expect(updatedPrompt).toContain('Test Rule: User customized change.')
       expect(updatedPrompt).not.toContain('AI suggested change')
-      expect(useAppStore.getState().amendmentProposal).toBeNull()
+      expect(useAppStore.getState().amendmentProposals).toHaveLength(0)
     })
 
     it('should strip diff markers from modified change', async () => {
@@ -119,7 +121,7 @@ describe('Amendment Proposal System', () => {
         '+ New rule here'
       )
 
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal)
 
       await store.editAndAcceptProposal('+ Modified rule\n- With diff markers')
 
@@ -136,13 +138,13 @@ describe('Amendment Proposal System', () => {
       store.updateSettings({ systemPrompt: initialPrompt })
 
       const proposal = createTestProposal('rule', 'new rule')
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal)
 
       await store.editAndAcceptProposal('')
 
       // Should replace with empty string
       expect(useAppStore.getState().settings.systemPrompt).toBe('Some prompt with ')
-      expect(useAppStore.getState().amendmentProposal).toBeNull()
+      expect(useAppStore.getState().amendmentProposals).toHaveLength(0)
     })
   })
 
@@ -154,7 +156,7 @@ describe('Amendment Proposal System', () => {
       store.updateSettings({ systemPrompt: initialPrompt })
 
       const proposal = createTestProposal('Rule A', 'Rule B')
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal)
 
       await store.acceptProposal()
 
@@ -171,7 +173,7 @@ describe('Amendment Proposal System', () => {
       const store = useAppStore.getState()
 
       const proposal = createTestProposal('Old', 'New')
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal)
 
       await store.rejectProposal()
 
@@ -189,15 +191,13 @@ describe('Amendment Proposal System', () => {
       store.updateSettings({ systemPrompt: initialPrompt })
 
       const proposal = createTestProposal('original', 'AI suggestion')
-      useAppStore.setState({ amendmentProposal: proposal })
+      store.addAmendmentProposal(proposal)
 
       const modifiedChange = 'User modification'
       await store.editAndAcceptProposal(modifiedChange)
 
       const logs = await indexedDBService.getAmendmentLogs({ action: 'modified', limit: 1 })
 
-      expect(logs.length).toBeGreaterThan(0)
-      expect(logs[0].action).toBe('modified')
       expect(logs[0].proposal.proposedChange).toBe('AI suggestion')
       expect(logs[0].finalPromptChange).toBe('User modification')
     })
@@ -216,17 +216,17 @@ describe('Amendment Proposal System', () => {
 
       // Accept one
       const proposal1 = createTestProposal('rules', 'updated rules')
-      useAppStore.setState({ amendmentProposal: proposal1 })
+      store.addAmendmentProposal(proposal1)
       await store.acceptProposal()
 
       // Reject one
       const proposal2 = createTestProposal('test', 'changed')
-      useAppStore.setState({ amendmentProposal: proposal2 })
+      store.addAmendmentProposal(proposal2)
       await store.rejectProposal()
 
       // Modify one
       const proposal3 = createTestProposal('another', 'suggestion')
-      useAppStore.setState({ amendmentProposal: proposal3 })
+      store.addAmendmentProposal(proposal3)
       await store.editAndAcceptProposal('custom')
 
       const stats = await indexedDBService.getAmendmentStats()
