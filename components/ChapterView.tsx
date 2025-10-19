@@ -162,8 +162,9 @@ const mapMarkerForVisibility = (
       seenColors.add(color);
     }
     displayReasons.push(reason);
-    const explanation = explanations[index] ?? '';
-    displayExplanations.push(explanation);
+    const explanationRaw = explanations[index];
+    const normalizedExplanation = typeof explanationRaw === 'string' ? explanationRaw.trim() : '';
+    displayExplanations.push(normalizedExplanation);
   }
 
   if (displayColors.length === 0) {
@@ -1241,6 +1242,8 @@ const ChapterView: React.FC = () => {
                     const markersForParagraph = (!diffMarkersLoading && markersByPosition.get(paragraph.position)) || [];
                     const showHeatmap = settings.showDiffHeatmap !== false;
                     const hasMarkers = showHeatmap && markersForParagraph.length > 0;
+                    const primaryGreyExplanation =
+                      markersForParagraph[0]?.displayExplanations?.[0]?.trim() || '';
                     return (
                       <div
                         key={paragraph.chunkId}
@@ -1286,9 +1289,13 @@ const ChapterView: React.FC = () => {
                         )}
                         <div className="whitespace-pre-wrap leading-relaxed">
                           {paragraph.nodes}
-                          {hasMarkers && markerVisibilitySettings.stylistic && markersForParagraph.length === 1 && markersForParagraph[0].displayColors.includes('grey') && markersForParagraph[0].displayExplanations.length > 0 && (
+                          {hasMarkers &&
+                            markerVisibilitySettings.stylistic &&
+                            markersForParagraph.length === 1 &&
+                            markersForParagraph[0].displayColors.includes('grey') &&
+                            primaryGreyExplanation && (
                             <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              {markersForParagraph[0].displayExplanations[0]}
+                              {primaryGreyExplanation}
                             </div>
                           )}
                         </div>
@@ -1789,3 +1796,7 @@ const ChapterView: React.FC = () => {
 };
 
 export default ChapterView;
+
+export const __testables = {
+  mapMarkerForVisibility,
+};

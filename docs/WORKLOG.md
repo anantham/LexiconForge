@@ -1,3 +1,45 @@
+2025-10-18 13:32 UTC - Diff fallback explanation cleanup
+- Files modified: services/diff/DiffAnalysisService.ts (lines ~30-320, ~420-480); components/ChapterView.tsx (lines ~140-200, ~1270-1290, export tail); services/diff/types.ts (lines ~15-25); tests/services/diff/DiffAnalysisService.test.ts (new fallback/explanation assertions); tests/components/diff/ChapterView.mapMarker.test.tsx (new); docs/WORKLOG.md.
+- Purpose: Stop injecting the “No differences reported” text into every fallback marker, trim explanation strings, salvage freeform reason text or single-field explanations when the model deviates from the schema, and block inline grey copy unless there’s a meaningful explanation.
+- Notes: Grey fallback markers now omit confidence values; hover tooltips continue to show “No explanation provided.” when empty. Added test exposure hook for mapMarkerForVisibility to assert trimming logic, service tests covering schema slip + single explanation field, wider LLM preview (2k chars), and a runtime warning when non-grey markers are missing explanations.
+- Tests: `npm run test -- tests/services/diff/DiffAnalysisService.test.ts --run`; `npm run test -- tests/components/diff/ChapterView.mapMarker.test.tsx --run`; `npm run test`
+
+2025-10-18 21:34 UTC - Diff prompt customization & color taxonomy overhaul
+- Files modified: config/prompts.json; services/diff/DiffAnalysisService.ts; services/diff/DiffTriggerService.ts; services/diff/types.ts; services/sessionManagementService.ts; components/ChapterView.tsx; components/SettingsModal.tsx; components/diff/DiffPip.tsx; styles/diff-colors.css; tests/components/diff/DiffPip.test.tsx; docs/WORKLOG.md.
+- Purpose: Encode the new red/orange/blue/purple schema, add grey fallbacks for every paragraph, surface the diff-analysis prompt in Settings with editing + reset controls, and ensure runtime honors customized prompts.
+- Notes: LLM now omits grey chunks; service fills them locally, logs coverage gaps, and persists normalized markers. Settings migrate legacy visibility flags and expose legend + manual rerun.
+- Tests: `npm run test -- tests/components/diff/DiffPip.test.tsx --run`; `npm run test -- tests/services/diff/DiffAnalysisService.test.ts --run`
+
+2025-10-18 21:12 UTC - Diff heatmap settings relocation & manual refresh
+- Files modified: components/SettingsModal.tsx (lines ~40-750); components/ChapterView.tsx (lines ~1030-1040); docs/WORKLOG.md.
+- Purpose: Move diff heatmap controls into a dedicated Settings “Features” tab, add a manual diff cache invalidation/re-run button, and remove paragraph highlight flashes when clicking markers.
+- Notes: Manual refresh deletes stored diff results then replays the `translation:complete` event so the trigger service recomputes markers.
+- Tests: Pending (UI change only; manual verification recommended)
+
+2025-10-18 20:57 UTC - Block unsupported fetch attempts
+- Files modified: services/navigationService.ts (guard added at line 403); docs/WORKLOG.md
+- Purpose: Reintroduce the supported-site check so `handleFetch` short-circuits on domains without adapters instead of hammering the proxy rotation.
+- Notes: Aligns worktree behaviour with mainline navigation flow; unsupported URLs now throw immediately.
+- Tests: `npm run test -- tests/current-system/navigation.test.ts --run`
+
+2025-10-18 20:34 UTC - Diff heatmap UI rail refactor
+- Files modified: components/ChapterView.tsx (paragraph layout & marker rail); components/diff/DiffPip.tsx (color normalization); styles/diff-colors.css (blue variable); docs/WORKLOG.md.
+- Purpose: Relocate diff markers to a right-aligned rail, add vertical spacing between paragraphs, and remove hover-based highlighting so the reading experience stays uncluttered.
+- Notes: Paragraph wrappers now provide padding and an absolute marker column; invisible placeholders maintain alignment when no markers are present.
+- Tests: `npm run test -- tests/components/diff/DiffPip.test.tsx --run`
+
+2025-10-18 20:26 UTC - Diff heatmap visibility controls & palette refresh
+- Files modified: types.ts (AppSettings + visibility type); services/sessionManagementService.ts (default settings); components/SettingsModal.tsx (new toggles); components/ChapterView.tsx (visibility filtering & new colors); components/diff/DiffPip.tsx, components/diff/DiffPip.module.css (color normalization); styles/diff-colors.css (blue palette); tests/components/diff/DiffPip.test.tsx.
+- Purpose: Add per-category visibility toggles (fan/raw/stylistic) defaulting grey off, remap raw differences to blue, and filter hidden categories ahead of rendering/navigation.
+- Notes: Visible markers now derive colors from reasons, ensuring cached results adopt the new orange/blue scheme even if stored colors differ.
+- Tests: `npm run test -- tests/components/diff/DiffPip.test.tsx --run`
+
+2025-10-18 20:12 UTC - Diff analysis logging instrumentation
+- Files modified: services/diff/DiffAnalysisService.ts (diagnostic helpers added around lines 20-120); docs/WORKLOG.md
+- Purpose: Gate prompt/response previews behind the diff debug pipeline, surface chunk/marker coverage summaries, and warn when markers reference missing or out-of-range chunks.
+- Notes: New logs emit start/end previews alongside payload length without altering existing console summaries.
+- Tests: `npm run test -- tests/services/diff/DiffAnalysisService.test.ts --run`
+
 2025-10-15 08:07 UTC - Enforce structured Gemini JSON responses
 - Files modified: services/translate/translationResponseSchema.ts:1-150, adapters/providers/GeminiAdapter.ts:1-240, adapters/providers/OpenAIAdapter.ts:1-360, services/translate/Translator.ts:70-140
 - Purpose: Shared the translation response schema across adapters, required Gemini to emit `application/json` with the schema, and stopped retrying after schema parse failures.
