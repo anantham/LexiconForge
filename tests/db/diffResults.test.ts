@@ -1,5 +1,5 @@
 // tests/db/diffResults.test.ts
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { DiffResult } from '../../services/diff/types';
 
 const DB_NAME = 'test-diff-results';
@@ -45,6 +45,7 @@ describe('DiffResults IndexedDB store', () => {
       aiVersionId: '1234567890',
       fanVersionId: '0987654321',
       rawVersionId: 'abc12345',
+      rawHash: 'abc12345',
       algoVersion: '1.0.0',
       markers: [],
       analyzedAt: Date.now(),
@@ -74,7 +75,9 @@ describe('DiffResults IndexedDB store', () => {
       request.onerror = () => reject(request.error);
     });
 
-    expect(retrieved).toEqual(diffResult);
+    expect(retrieved).toMatchObject(diffResult);
+    expect(retrieved?.aiHash ?? null).toBeNull();
+    expect(retrieved?.rawHash).toBe(diffResult.rawVersionId);
   });
 
   it('should store and retrieve diff results with null fanVersionId', async () => {
@@ -83,6 +86,7 @@ describe('DiffResults IndexedDB store', () => {
       aiVersionId: '1111111111',
       fanVersionId: null,
       rawVersionId: 'xyz98765',
+      rawHash: 'xyz98765',
       algoVersion: '1.0.0',
       markers: [{
         chunkId: 'para-0-test',
@@ -129,7 +133,7 @@ describe('DiffResults IndexedDB store', () => {
       fanVersionId: retrieved.fanVersionId === '' ? null : retrieved.fanVersionId
     } : undefined;
 
-    expect(retrievedWithNull).toEqual(diffResult);
+    expect(retrievedWithNull).toMatchObject(diffResult);
   });
 
   it('should query diff results by chapter using by_chapter index', async () => {
@@ -139,6 +143,8 @@ describe('DiffResults IndexedDB store', () => {
       fanVersionId: null,
       rawVersionId: 'raw1',
       algoVersion: '1.0.0',
+      aiHash: 'hash-ai-1',
+      rawHash: 'hash-raw-1',
       markers: [],
       analyzedAt: Date.now(),
       costUsd: 0.001,
@@ -151,6 +157,8 @@ describe('DiffResults IndexedDB store', () => {
       fanVersionId: null,
       rawVersionId: 'raw2',
       algoVersion: '1.0.0',
+      aiHash: 'hash-ai-2',
+      rawHash: 'hash-raw-2',
       markers: [],
       analyzedAt: Date.now() + 1000,
       costUsd: 0.002,
@@ -186,5 +194,31 @@ describe('DiffResults IndexedDB store', () => {
     expect(results).toHaveLength(2);
     expect(results[0].chapterId).toBe('ch-003');
     expect(results[1].chapterId).toBe('ch-003');
+  });
+
+  it('should support hash-based lookup fallback via repository helper', async () => {
+    const { DiffResultsRepo } = await import('../../adapters/repo/DiffResultsRepo');
+    const repo = new DiffResultsRepo();
+
+    const diffResult: DiffResult = {
+      chapterId: 'ch-004',
+      aiVersionId: '3000',
+      fanVersionId: null,
+      rawVersionId: 'raw-hash',
+      algoVersion: '1.0.0',
+      aiHash: 'ai-hash',
+      rawHash: 'raw-hash',
+      markers: [],
+      analyzedAt: Date.now(),
+      costUsd: 0.003,
+      model: 'gpt-4o-mini'
+    };
+
+    // Monkey patch getByChapter to avoid touching IndexedDB
+    (repo as any).getByChapter = vi.fn(async () => [diffResult]);
+
+    const hit = await repo.findByHashes('ch-004', 'ai-hash', null, 'raw-hash', '1.0.0');
+    expect(hit).not.toBeNull();
+    expect(hit?.chapterId).toBe('ch-004');
   });
 });

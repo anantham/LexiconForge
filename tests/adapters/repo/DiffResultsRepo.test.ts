@@ -50,7 +50,13 @@ describe('DiffResultsRepo', () => {
     setImmediate(() => mockRequest.onsuccess());
     await savePromise;
 
-    expect(mockStore.put).toHaveBeenCalledWith(diffResult);
+    expect(mockStore.put).toHaveBeenCalledWith(expect.objectContaining({
+      chapterId: diffResult.chapterId,
+      fanVersionId: diffResult.fanVersionId,
+      aiHash: null,
+      fanHash: null,
+      rawHash: diffResult.rawVersionId,
+    }));
   });
 
   it('should retrieve diff result by composite key', async () => {
@@ -76,7 +82,15 @@ describe('DiffResultsRepo', () => {
     const result = await getPromise;
 
     expect(mockStore.get).toHaveBeenCalledWith(['ch-test', '111', '222', 'aaa', '1.0.0']);
-    expect(result).toEqual(diffResult);
+    expect(result).toMatchObject({
+      chapterId: diffResult.chapterId,
+      aiVersionId: diffResult.aiVersionId,
+      fanVersionId: diffResult.fanVersionId,
+      rawVersionId: diffResult.rawVersionId,
+      aiHash: null,
+      fanHash: null,
+      rawHash: diffResult.rawVersionId,
+    });
   });
 
   it('should return null for non-existent diff result', async () => {
@@ -114,8 +128,14 @@ describe('DiffResultsRepo', () => {
     setImmediate(() => mockRequest.onsuccess());
     const result = await getPromise;
 
-    expect(mockStore.get).toHaveBeenCalledWith(['ch-no-fan', '999', null, 'bbb', '1.0.0']);
-    expect(result).toEqual(diffResult);
+    expect(mockStore.get).toHaveBeenCalledWith(['ch-no-fan', '999', '', 'bbb', '1.0.0']);
+    expect(result).toMatchObject({
+      chapterId: diffResult.chapterId,
+      fanVersionId: null,
+      aiHash: null,
+      fanHash: null,
+      rawHash: diffResult.rawVersionId,
+    });
   });
 
   it('should get all diff results for a chapter sorted by analyzedAt desc', async () => {
