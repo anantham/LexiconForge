@@ -55,17 +55,41 @@ export class TranslationPersistenceService {
     settings: TranslationSettingsSnapshot
   ): Promise<TranslationRecord | null> {
     try {
+      console.log(`💾 [TranslationSave] Starting save for chapter: ${chapterId}`);
+      console.log(`💾 [TranslationSave] Settings:`, { provider: settings.provider, model: settings.model });
+
       const candidate = translationResult as TranslationRecord;
 
       if (candidate?.id) {
+        console.log(`🔄 [TranslationSave] Updating EXISTING translation record:`, {
+          chapterId,
+          translationId: candidate.id,
+          version: candidate.version
+        });
         const repo = await this.getTranslationsRepo();
         await repo.updateTranslation(candidate);
         log('Updated existing translation record', { chapterId, translationId: candidate.id });
+        console.log(`✅ [TranslationSave] Successfully updated existing translation`);
         return candidate;
       }
 
+      console.log(`➕ [TranslationSave] Creating NEW translation for chapter: ${chapterId}`);
       const repo = await this.getServiceAwareRepo();
       const stored = await repo.storeTranslationByStableId(chapterId, translationResult, settings);
+
+      if (stored) {
+        console.log(`✅ [TranslationSave] Successfully stored NEW translation:`, {
+          chapterId,
+          translationId: stored.id,
+          version: stored.version,
+          isActive: stored.isActive,
+          chapterUrl: stored.chapterUrl,
+          stableId: stored.stableId
+        });
+      } else {
+        console.warn(`⚠️ [TranslationSave] Store operation returned null for ${chapterId}`);
+      }
+
       log('Stored translation result to obtain persistent ID', {
         chapterId,
         translationId: stored?.id,
@@ -73,6 +97,11 @@ export class TranslationPersistenceService {
       });
       return stored;
     } catch (error) {
+      console.error(`🚨 [TranslationSave] FAILED to persist translation:`, {
+        chapterId,
+        error: (error as Error)?.message || error,
+        stack: (error as Error)?.stack
+      });
       warn('Failed to persist translation result', { chapterId, error });
       throw error;
     }
