@@ -3,6 +3,7 @@
  */
 
 import { indexedDBService } from './indexeddb';
+import { useAppStore } from '../store';
 
 export interface ImportProgress {
   stage: 'downloading' | 'parsing' | 'importing' | 'complete';
@@ -122,8 +123,8 @@ export class ImportService {
 
         onProgress?.({ stage: 'importing', progress: 0, message: 'Importing to database...' });
 
-        // Use existing import logic
-        await indexedDBService.importFullSessionData(sessionData);
+        // Use store's import method which handles both IndexedDB AND store updates
+        await useAppStore.getState().importSessionData(sessionData);
 
         onProgress?.({ stage: 'complete', progress: 100, message: 'Import complete!' });
 
@@ -156,7 +157,8 @@ export class ImportService {
         throw new Error('Invalid session format');
       }
 
-      await indexedDBService.importFullSessionData(sessionData);
+      // Use store's import method which handles both IndexedDB AND store updates
+      await useAppStore.getState().importSessionData(sessionData);
 
       console.log(`[Import] Successfully imported from file: ${file.name}`);
 
