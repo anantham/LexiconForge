@@ -56,17 +56,25 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
             newChapters.set(ch.stableId, {
               stableId: ch.stableId,
               url: ch.url || ch.canonicalUrl,
-              title: ch.title,
-              content: ch.content,
-              nextUrl: ch.nextUrl,
-              prevUrl: ch.prevUrl,
+              title: ch.data?.chapter?.title || ch.title,
+              content: ch.data?.chapter?.content || ch.content,
+              nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
+              prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
+              chapterNumber: ch.chapterNumber || 0,
+              canonicalUrl: ch.url,
+              originalUrl: ch.url,
+              sourceUrls: [ch.url],
+              fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
+              translationResult: ch.data?.translationResult || null,
+              feedback: [],
             });
           }
 
           return {
             chapters: newChapters,
             navigationHistory: nav?.stableIds || [],
-            currentChapterId: lastActive?.id || (existingChapters[0]?.stableId || null),
+            // Always start at first chapter when loading from Novel Library (new reader)
+            currentChapterId: existingChapters[0]?.stableId || null,
           };
         });
 
@@ -82,6 +90,19 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         await ImportService.importFromUrl(novel.sessionJsonUrl, (progress) => {
           setImportProgress(progress);
         });
+
+        // After import, navigate to first chapter (ignore lastActive from exported session)
+        const { useAppStore } = await import('../store');
+        const chapters = useAppStore.getState().chapters;
+        const sortedChapters = Array.from(chapters.entries()).sort((a, b) => {
+          const numA = a[1].chapterNumber || 0;
+          const numB = b[1].chapterNumber || 0;
+          return numA - numB;
+        });
+        const firstChapterId = sortedChapters[0]?.[0];
+        if (firstChapterId) {
+          useAppStore.setState({ currentChapterId: firstChapterId });
+        }
 
         showNotification(`✅ Loaded ${novel.title} - ${novel.metadata.chapterCount} chapters ready!`, 'success');
 
