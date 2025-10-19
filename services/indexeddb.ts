@@ -404,8 +404,7 @@ class IndexedDBService {
   async backfillActiveTranslations(): Promise<void> {
     try {
       const already = await this.getSetting<boolean>('activeTranslationsBackfilledV2');
-      // DIAGNOSTIC: Temporarily disable flag check to re-run migration with logging
-      // if (already) return;
+      if (already) return;
 
       console.log('[IndexedDB] Starting active translations backfill migration...');
       const db = await this.openDatabase();
