@@ -21,6 +21,7 @@ import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate }
 import { debugPipelineEnabled, dbDebugEnabled } from '../utils/debug';
 import { generateStableChapterId } from './stableIdService';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
+import { telemetryService } from './telemetryService';
 import { applyMigrations, SCHEMA_VERSIONS } from './db/core/schema';
 
 const dblog = (...args: any[]) => {
@@ -76,6 +77,43 @@ export interface ChapterSummaryRecord {
   lastAccessed?: string;          // ISO timestamp
   lastTranslatedAt?: string;      // ISO timestamp of active translation creation
 }
+
+export interface ExportSessionOptions {
+  includeChapters?: boolean;
+  includeTelemetry?: boolean;
+  includeImages?: boolean;
+}
+
+export interface ExportedImageAsset {
+  chapterId: string | null;
+  chapterUrl?: string | null;
+  translationVersion: number;
+  marker: string;
+  dataUrl: string;
+  mimeType: string;
+  sizeBytes: number;
+  source: 'cache' | 'legacy';
+  cacheKey?: { chapterId: string; placementMarker: string; version: number };
+}
+
+const DEFAULT_EXPORT_OPTIONS: Required<ExportSessionOptions> = {
+  includeChapters: true,
+  includeTelemetry: true,
+  includeImages: false
+};
+
+const getMimeTypeFromDataUrl = (dataUrl: string): string => {
+  const match = dataUrl.match(/^data:([^;]+);base64,/);
+  return match ? match[1] : 'image/png';
+};
+
+const estimateBase64SizeBytes = (dataUrl: string): number => {
+  const commaIndex = dataUrl.indexOf(',');
+  if (commaIndex === -1) return 0;
+  const base64 = dataUrl.slice(commaIndex + 1);
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+  return Math.max((base64.length * 3) / 4 - padding, 0);
+};
 
 export interface TranslationRecord {
   id: string;                     // Generated UUID
@@ -1748,7 +1786,9 @@ class IndexedDBService {
   /**
    * Export a full session JSON with everything stored in IndexedDB
    */
-  async exportFullSessionToJson(): Promise<any> {
+  async exportFullSessionToJson(options: ExportSessionOptions = {}): Promise<any> {
+    const exportOptions = { ...DEFAULT_EXPORT_OPTIONS, ...options };
+
     const [settings, urlMappings, novels, chapters, navHist, lastActive] = await Promise.all([
       this.getSettings(),
       this.getAllUrlMappings(),
@@ -1759,16 +1799,14 @@ class IndexedDBService {
     ]);
 
     const chaptersOut: any[] = [];
+    const chapterImageSources: Array<{ stableId?: string; canonicalUrl: string; versions: TranslationRecord[] }> = [];
 
     for (const ch of chapters) {
-      // Resolve stableId and canonicalUrl
       const stableId = ch.stableId || (await this.getUrlMappingForUrl(ch.url))?.stableId || undefined;
       const canonicalUrl = ch.canonicalUrl || ch.url;
-
-      // Pull translations for this chapter (all versions)
-      const versions = stableId ? await this.getTranslationVersionsByStableId(stableId) : await this.getTranslationVersions(canonicalUrl);
-
-      // Pull feedback for this chapter URL
+      const versions = stableId
+        ? await this.getTranslationVersionsByStableId(stableId)
+        : await this.getTranslationVersions(canonicalUrl);
       const feedback = await this.getFeedback(canonicalUrl).catch(() => []);
 
       chaptersOut.push({
@@ -1807,14 +1845,137 @@ class IndexedDBService {
         })),
         feedback: feedback.map(f => ({ id: f.id, type: f.type, selection: f.selection, comment: f.comment, createdAt: f.createdAt }))
       });
+
+      chapterImageSources.push({ stableId, canonicalUrl, versions });
     }
 
     const promptTemplates = await this.getPromptTemplates().catch(() => []);
 
-    const out = {
+    let telemetrySnapshot: any = null;
+    if (exportOptions.includeTelemetry) {
+      try {
+        telemetrySnapshot = JSON.parse(telemetryService.exportTelemetry());
+      } catch {
+        telemetrySnapshot = null;
+      }
+    }
+
+    const collectImageAssets = async (): Promise<{ assets: ExportedImageAsset[]; totalBytes: number }> => {
+      try {
+        const [{ ImageCacheStore }, imageUtils] = await Promise.all([
+          import('./imageCacheService'),
+          import('./imageUtils')
+        ]);
+
+        const blobToBase64DataUrl = imageUtils.blobToBase64DataUrl;
+        const assets: ExportedImageAsset[] = [];
+        let totalBytes = 0;
+        const seen = new Set<string>();
+        const cacheSupported = typeof window !== 'undefined' && ImageCacheStore.isSupported();
+
+        for (const source of chapterImageSources) {
+          for (const tr of source.versions) {
+            const translationVersion = tr.version ?? 1;
+            const illustrations: any[] = Array.isArray((tr as any).suggestedIllustrations)
+              ? (tr as any).suggestedIllustrations
+              : [];
+
+            for (const illust of illustrations) {
+              const marker = illust?.placementMarker || illust?.marker;
+              if (!marker) continue;
+
+              const recordChapterId = source.stableId || null;
+              let assetPushed = false;
+
+              if (cacheSupported && illust?.generatedImage?.imageCacheKey) {
+                const rawKey = illust.generatedImage.imageCacheKey;
+                const cacheKey = {
+                  chapterId: rawKey.chapterId || recordChapterId || '',
+                  placementMarker: rawKey.placementMarker || marker,
+                  version: rawKey.version || 1
+                };
+                const keyId = `${cacheKey.chapterId}:${cacheKey.placementMarker}:v${cacheKey.version}`;
+
+                if (cacheKey.chapterId && !seen.has(keyId)) {
+                  try {
+                    const blob = await ImageCacheStore.getImageBlob(cacheKey);
+                    if (blob) {
+                      const dataUrl = await blobToBase64DataUrl(blob);
+                      const mimeType = blob.type || getMimeTypeFromDataUrl(dataUrl);
+                      const sizeBytes = typeof blob.size === 'number' ? blob.size : estimateBase64SizeBytes(dataUrl);
+
+                      assets.push({
+                        chapterId: recordChapterId,
+                        chapterUrl: source.canonicalUrl,
+                        translationVersion,
+                        marker,
+                        dataUrl,
+                        mimeType,
+                        sizeBytes,
+                        source: 'cache',
+                        cacheKey
+                      });
+                      totalBytes += sizeBytes;
+                      seen.add(keyId);
+                      assetPushed = true;
+                    }
+                  } catch (error) {
+                    telemetryService.captureWarning('export-images-cache-miss', 'Failed to read image from cache', {
+                      chapterId: cacheKey.chapterId,
+                      marker: cacheKey.placementMarker,
+                      error: error instanceof Error ? error.message : String(error)
+                    });
+                  }
+                }
+              }
+
+              if (!assetPushed && typeof illust?.url === 'string' && illust.url.startsWith('data:')) {
+                const keyId = `legacy:${recordChapterId || source.canonicalUrl}:${marker}:${translationVersion}`;
+                if (!seen.has(keyId)) {
+                  const dataUrl = illust.url;
+                  const mimeType = getMimeTypeFromDataUrl(dataUrl);
+                  const sizeBytes = estimateBase64SizeBytes(dataUrl);
+
+                  assets.push({
+                    chapterId: recordChapterId,
+                    chapterUrl: source.canonicalUrl,
+                    translationVersion,
+                    marker,
+                    dataUrl,
+                    mimeType,
+                    sizeBytes,
+                    source: 'legacy'
+                  });
+                  totalBytes += sizeBytes;
+                  seen.add(keyId);
+                }
+              }
+            }
+          }
+        }
+
+        return { assets, totalBytes };
+      } catch (error) {
+        telemetryService.captureWarning('export-images', 'Failed to gather image assets for export', {
+          error: error instanceof Error ? error.message : String(error)
+        });
+        return { assets: [], totalBytes: 0 };
+      }
+    };
+
+    let imageAssets: ExportedImageAsset[] = [];
+    let imageAssetsTotalBytes = 0;
+    if (exportOptions.includeImages) {
+      const result = await collectImageAssets();
+      imageAssets = result.assets;
+      imageAssetsTotalBytes = result.totalBytes;
+    }
+
+    const out: any = {
       metadata: {
         exportedAt: new Date().toISOString(),
-        format: 'lexiconforge-full-1'
+        format: 'lexiconforge-full-1',
+        exportOptions
       },
       settings: settings ? {
         ...settings,
@@ -1830,9 +1991,25 @@ class IndexedDBService {
       },
       urlMappings,
       novels,
-      chapters: chaptersOut,
+      chapters: exportOptions.includeChapters ? chaptersOut : [],
       promptTemplates
     };
+
+    if (exportOptions.includeTelemetry && telemetrySnapshot) {
+      out.telemetry = telemetrySnapshot;
+    }
+
+    if (exportOptions.includeImages && imageAssets.length > 0) {
+      out.assets = {
+        images: imageAssets
+      };
+      out.assetMetadata = {
+        images: {
+          count: imageAssets.length,
+          totalSizeBytes: imageAssetsTotalBytes
+        }
+      };
+    }
 
     return out;
   }
@@ -2411,7 +2588,11 @@ class IndexedDBService {
           // });
           
           dblog('[IndexedDB] getChaptersForReactRendering:', chaptersWithStableIds.length, 'chapters with translations loaded');
-          memoryTiming('IndexedDB getChaptersForReactRendering', opStart, {
+          const durationMs = memoryTiming('IndexedDB getChaptersForReactRendering', opStart, {
+            rawCount: chapters.length,
+            processedCount: chaptersWithStableIds.length,
+          });
+          telemetryService.capturePerformance('ux:indexeddb:getChaptersForReactRendering', durationMs, {
             rawCount: chapters.length,
             processedCount: chaptersWithStableIds.length,
           });
@@ -3002,6 +3183,94 @@ class IndexedDBService {
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
+  }
+
+  /**
+   * Get comprehensive storage diagnostics for IndexedDB
+   * Returns statistics about chapters, translations, and images stored on disk
+   */
+  async getStorageDiagnostics(): Promise<{
+    disk: {
+      totalChapters: number;
+      totalTranslations: number;
+      totalImages: number;
+      imagesInCache: number;
+      imagesLegacy: number;
+    };
+    quota: {
+      usedMB: number;
+      quotaMB: number;
+      percentUsed: number;
+    } | null;
+  }> {
+    try {
+      // Get all data from IndexedDB
+      const [chapters, translations] = await Promise.all([
+        this.getAllChapters(),
+        this.getAllTranslations()
+      ]);
+
+      // Count images by type
+      let imagesInCache = 0;
+      let imagesLegacy = 0;
+
+      for (const translation of translations) {
+        const illustrations = translation.suggestedIllustrations || [];
+        for (const illust of illustrations) {
+          if ((illust as any).generatedImage) {
+            const genImg = (illust as any).generatedImage;
+            // Check if using cache key (modern) or base64 (legacy)
+            if (genImg.imageCacheKey) {
+              imagesInCache++;
+            } else if (genImg.imageData) {
+              imagesLegacy++;
+            }
+          }
+        }
+      }
+
+      // Get storage quota estimate
+      let quota: { usedMB: number; quotaMB: number; percentUsed: number } | null = null;
+      if ('storage' in navigator && 'estimate' in navigator.storage) {
+        try {
+          const estimate = await navigator.storage.estimate();
+          const usedMB = (estimate.usage || 0) / 1024 / 1024;
+          const quotaMB = (estimate.quota || 0) / 1024 / 1024;
+          const percentUsed = quotaMB > 0 ? (usedMB / quotaMB) * 100 : 0;
+
+          quota = {
+            usedMB: parseFloat(usedMB.toFixed(2)),
+            quotaMB: parseFloat(quotaMB.toFixed(2)),
+            percentUsed: parseFloat(percentUsed.toFixed(1))
+          };
+        } catch (error) {
+          console.warn('[IndexedDB] Failed to estimate storage quota:', error);
+        }
+      }
+
+      return {
+        disk: {
+          totalChapters: chapters.length,
+          totalTranslations: translations.length,
+          totalImages: imagesInCache + imagesLegacy,
+          imagesInCache,
+          imagesLegacy
+        },
+        quota
+      };
+    } catch (error) {
+      console.error('[IndexedDB] Failed to get storage diagnostics:', error);
+      return {
+        disk: {
+          totalChapters: 0,
+          totalTranslations: 0,
+          totalImages: 0,
+          imagesInCache: 0,
+          imagesLegacy: 0
+        },
+        quota: null
+      };
+    }
   }
 }
 

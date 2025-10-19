@@ -145,6 +145,22 @@ export const imageFileToBase64 = async (
 };
 
 /**
+ * Convert a Blob to a base64 data URL string.
+ * Shared utility so callers avoid duplicating FileReader code.
+ */
+export const blobToBase64DataUrl = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result);
+    };
+    reader.onerror = () => reject(new Error('Failed to convert blob to base64 data URL'));
+    reader.readAsDataURL(blob);
+  });
+};
+
+/**
  * Gets MIME type from file extension
  * @param filePath Path to the file
  * @returns MIME type string

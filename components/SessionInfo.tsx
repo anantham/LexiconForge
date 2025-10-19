@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppStore } from '../store';
 import { MODEL_ABBREVIATIONS } from '../config/constants';
@@ -7,12 +7,35 @@ import TrashIcon from './icons/TrashIcon';
 
 import { ImportTransformationService } from '../services/importTransformationService';
 import type { ChapterSummary } from '../types';
+import { telemetryService } from '../services/telemetryService';
 
 // Prefer a human-facing number if the title contains "Chapter 147", "Ch 147", etc.
 const numberFromTitle = (s?: string): number | undefined => {
     if (!s) return undefined;
     const m = s.match(/\b(?:Ch(?:apter)?\.?\s*)(\d{1,5})\b/i);
     return m ? parseInt(m[1], 10) : undefined;
+};
+
+const getTimestamp = () =>
+    (typeof performance !== 'undefined' && typeof performance.now === 'function'
+        ? performance.now()
+        : Date.now());
+
+const formatSize = (bytes?: number | null): string => {
+    if (bytes == null || Number.isNaN(bytes)) return '—';
+    if (bytes < 1024) return `${Math.max(bytes, 0).toFixed(0)} B`;
+    const kb = bytes / 1024;
+    if (kb < 1024) return `${kb.toFixed(kb >= 10 ? 0 : 1)} KB`;
+    const mb = kb / 1024;
+    if (mb < 1024) return `${mb.toFixed(mb >= 10 ? 1 : 2)} MB`;
+    const gb = mb / 1024;
+    return `${gb.toFixed(2)} GB`;
+};
+
+const DEFAULT_EXPORT_OPTIONS = {
+    includeChapters: true,
+    includeTelemetry: true,
+    includeImages: false,
 };
 
 const SessionInfo: React.FC = () => {
@@ -27,7 +50,57 @@ const SessionInfo: React.FC = () => {
     const deleteTranslationVersion = useAppStore(s => s.deleteTranslationVersion);
     const currentChapter = useAppStore(s => s.chapters.get(s.currentChapterId || ''));
     const translationResult = currentChapter?.translationResult;
-    
+
+    const [exportOptions, setExportOptions] = useState(() => ({ ...DEFAULT_EXPORT_OPTIONS }));
+    const [imageUsage, setImageUsage] = useState<{ images: number; totalSizeMB: number } | null>(null);
+    const [telemetrySizeBytes, setTelemetrySizeBytes] = useState<number | null>(null);
+
+    const approxChapterSizeBytes = useMemo(() => {
+        try {
+            if (typeof TextEncoder === 'undefined') {
+                return null;
+            }
+            const encoder = new TextEncoder();
+            let total = 0;
+            chapters.forEach((chapter: any) => {
+                total += encoder.encode(chapter?.title || '').length;
+                total += encoder.encode(chapter?.content || '').length;
+
+                if (chapter?.translationResult?.translation) {
+                    total += encoder.encode(chapter.translationResult.translation).length;
+                }
+                if (chapter?.translationResult?.footnotes) {
+                    total += encoder.encode(JSON.stringify(chapter.translationResult.footnotes)).length;
+                }
+                if (Array.isArray(chapter?.feedback)) {
+                    total += encoder.encode(JSON.stringify(chapter.feedback)).length;
+                }
+            });
+            return total;
+        } catch {
+            return null;
+        }
+    }, [chapters]);
+
+    const imageSizeBytes = imageUsage ? imageUsage.totalSizeMB * 1024 * 1024 : null;
+    const imageUsageLabel = imageUsage
+        ? `${formatSize(imageSizeBytes)} • ${imageUsage.images} asset${imageUsage.images === 1 ? '' : 's'}`
+        : 'calculating…';
+    const telemetrySizeLabel = formatSize(telemetrySizeBytes);
+    const chapterSizeLabel = formatSize(approxChapterSizeBytes);
+    const imagesDisabled = !exportOptions.includeChapters;
+    const hasJsonContent = exportOptions.includeChapters || exportOptions.includeTelemetry || exportOptions.includeImages;
+
+    const mountStartRef = useRef<number>(getTimestamp());
+    const initialChapterCountRef = useRef<number>(chapters.size);
+
+    useEffect(() => {
+        telemetryService.capturePerformance('ux:component:SessionInfo:mount', getTimestamp() - mountStartRef.current, {
+            chaptersInStore: initialChapterCountRef.current,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const [showExportModal, setShowExportModal] = useState(false);
     const [showVersionPicker, setShowVersionPicker] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
@@ -37,7 +110,56 @@ const SessionInfo: React.FC = () => {
     const [selectedVersion, setSelectedVersion] = useState<number | ''>('');
 
     useEffect(() => {
+        if (!showExportModal) {
+            return;
+        }
+
         let cancelled = false;
+        setImageUsage(null);
+        setTelemetrySizeBytes(null);
+
+        (async () => {
+            try {
+                const telemetryJson = telemetryService.exportTelemetry();
+                if (!cancelled) {
+                    let bytes: number;
+                    try {
+                        bytes = new TextEncoder().encode(telemetryJson ?? '').length;
+                    } catch {
+                        bytes = telemetryJson ? telemetryJson.length : 0;
+                    }
+                    setTelemetrySizeBytes(bytes);
+                }
+            } catch {
+                if (!cancelled) setTelemetrySizeBytes(null);
+            }
+
+            try {
+                const imageCache = await import('../services/imageCacheService');
+                if (cancelled) return;
+                if (typeof window !== 'undefined' && imageCache.ImageCacheStore.isSupported()) {
+                    const stats = await imageCache.ImageCacheStore.getUsage();
+                    if (!cancelled) {
+                        setImageUsage(stats);
+                    }
+                } else if (!cancelled) {
+                    setImageUsage({ images: 0, totalSizeMB: 0 });
+                }
+            } catch (error) {
+                console.warn('[Export] Failed to inspect image cache usage', error);
+                if (!cancelled) setImageUsage(null);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [showExportModal]);
+
+    useEffect(() => {
+        let cancelled = false;
+        const summaryLoadStart = getTimestamp();
+        let resolvedCount = 0;
         (async () => {
             try {
                 setSummariesLoading(true);
@@ -99,6 +221,7 @@ const SessionInfo: React.FC = () => {
                 });
 
                 setChapterOptions(list);
+                resolvedCount = list.length;
             } catch (error) {
                 if (!cancelled) {
                     console.error('[SessionInfo] Failed to load chapters for rendering:', error);
@@ -107,6 +230,10 @@ const SessionInfo: React.FC = () => {
             } finally {
                 if (!cancelled) {
                     setSummariesLoading(false);
+                    telemetryService.capturePerformance('ux:component:SessionInfo:summariesLoad', getTimestamp() - summaryLoadStart, {
+                        resultCount: resolvedCount,
+                        chaptersInStore: chapters.size,
+                    });
                 }
             }
         })();
@@ -118,16 +245,39 @@ const SessionInfo: React.FC = () => {
     // Load translation versions for current chapter
     useEffect(() => {
         let cancelled = false;
+        if (!currentChapterId) {
+            setVersions([]);
+            setSelectedVersion('');
+            telemetryService.capturePerformance('ux:component:SessionInfo:versionsLoad', 0, {
+                outcome: 'no_chapter',
+            });
+            return () => { cancelled = true; };
+        }
+        const versionLoadStart = getTimestamp();
+        let resolvedCount = 0;
+        let outcome: 'success' | 'error' = 'success';
+        let errorMessage: string | undefined;
         (async () => {
-            if (!currentChapterId) { setVersions([]); setSelectedVersion(''); return; }
             try {
                 const v = await fetchTranslationVersions(currentChapterId);
                 if (cancelled) return;
+                resolvedCount = Array.isArray(v) ? v.length : 0;
                 setVersions(v);
                 const active = v.find((x: any) => x.isActive);
                 setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
-            } catch {
+            } catch (error) {
+                outcome = 'error';
+                errorMessage = error instanceof Error ? error.message : String(error);
                 if (!cancelled) { setVersions([]); setSelectedVersion(''); }
+            } finally {
+                if (!cancelled) {
+                    telemetryService.capturePerformance('ux:component:SessionInfo:versionsLoad', getTimestamp() - versionLoadStart, {
+                        chapterId: currentChapterId,
+                        versionCount: resolvedCount,
+                        outcome,
+                        error: outcome === 'error' ? errorMessage : undefined,
+                    });
+                }
             }
         })();
         return () => { cancelled = true; };
@@ -155,12 +305,22 @@ const SessionInfo: React.FC = () => {
         if (!target) return;
 
         if (confirm(`Are you sure you want to delete version ${target.version}? This cannot be undone.`)) {
-            await deleteTranslationVersion(currentChapterId, target.id);
-            // Refresh the list after deletion
-            const v = await fetchTranslationVersions(currentChapterId);
-            setVersions(v);
-            const active = v.find((x: any) => x.isActive);
-            setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
+            const refreshStart = getTimestamp();
+            let resolvedCount = 0;
+            try {
+                await deleteTranslationVersion(currentChapterId, target.id);
+                // Refresh the list after deletion
+                const v = await fetchTranslationVersions(currentChapterId);
+                resolvedCount = Array.isArray(v) ? v.length : 0;
+                setVersions(v);
+                const active = v.find((x: any) => x.isActive);
+                setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
+            } finally {
+                telemetryService.capturePerformance('ux:component:SessionInfo:versionsRefreshAfterDelete', getTimestamp() - refreshStart, {
+                    chapterId: currentChapterId,
+                    versionCount: resolvedCount,
+                });
+            }
         }
     };
 
@@ -176,11 +336,30 @@ const SessionInfo: React.FC = () => {
         }
     };
 
+    const handleExportOptionChange = (key: keyof typeof exportOptions) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const checked = event.target.checked;
+        setExportOptions(prev => {
+            const next = { ...prev, [key]: checked };
+            if (key === 'includeChapters' && !checked) {
+                next.includeImages = false;
+            }
+            if (key === 'includeImages' && checked) {
+                next.includeChapters = true;
+            }
+            return next;
+        });
+    };
+
     const handleExportFormat = async (format: 'json' | 'epub') => {
         setIsExporting(true);
         try {
             if (format === 'json') {
-                exportSessionData();
+                const hasContent = exportOptions.includeChapters || exportOptions.includeTelemetry || exportOptions.includeImages;
+                if (!hasContent) {
+                    alert('Select at least one data type to include in the JSON export.');
+                    return;
+                }
+                await exportSessionData(exportOptions);
             } else {
                 await exportEpub();
             }
@@ -303,23 +482,69 @@ const SessionInfo: React.FC = () => {
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Choose Export Format</h3>
                 
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  <fieldset className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
+                    <legend className="text-sm font-semibold text-gray-700 dark:text-gray-200 px-1">JSON contents</legend>
+                    <label className="flex items-start gap-3 text-sm text-gray-800 dark:text-gray-200">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4"
+                        checked={exportOptions.includeChapters}
+                        onChange={handleExportOptionChange('includeChapters')}
+                      />
+                      <span className="flex-1">
+                        Chapters & versions
+                        <span className="block text-xs text-gray-500 dark:text-gray-400">~{chapterSizeLabel}</span>
+                      </span>
+                    </label>
+                    <label className="flex items-start gap-3 text-sm text-gray-800 dark:text-gray-200">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4"
+                        checked={exportOptions.includeTelemetry}
+                        onChange={handleExportOptionChange('includeTelemetry')}
+                      />
+                      <span className="flex-1">
+                        Telemetry events
+                        <span className="block text-xs text-gray-500 dark:text-gray-400">~{telemetrySizeLabel}</span>
+                      </span>
+                    </label>
+                    <label className={`flex items-start gap-3 text-sm ${imagesDisabled ? 'opacity-60 cursor-not-allowed' : 'text-gray-800 dark:text-gray-200'}`}>
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4"
+                        checked={exportOptions.includeImages}
+                        onChange={handleExportOptionChange('includeImages')}
+                        disabled={imagesDisabled}
+                      />
+                      <span className="flex-1">
+                        Illustrations (Cache API)
+                        <span className="block text-xs text-gray-500 dark:text-gray-400">{imageUsageLabel}</span>
+                        {imagesDisabled && (
+                          <span className="block text-xs text-amber-600 dark:text-amber-400 mt-1">Enable chapters to attach illustrations.</span>
+                        )}
+                      </span>
+                    </label>
+                  </fieldset>
+
                   <button
                     onClick={() => handleExportFormat('json')}
-                    disabled={isExporting}
+                    disabled={isExporting || !hasJsonContent}
                     className="w-full p-4 text-left border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <div className="font-medium text-gray-900 dark:text-gray-100">JSON Format</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Export session data as JSON file for backup or sharing</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">Export JSON</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {hasJsonContent ? 'Download a session snapshot with your selected data.' : 'Select at least one data type to enable JSON export.'}
+                    </div>
                   </button>
-                  
+
                   <button
                     onClick={() => handleExportFormat('epub')}
                     disabled={isExporting}
                     className="w-full p-4 text-left border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <div className="font-medium text-gray-900 dark:text-gray-100">EPUB Format</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Generate readable e-book with active translations and images</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">Export EPUB</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Generate a readable e-book with the active translations and images</div>
                   </button>
                 </div>
                 

@@ -24,8 +24,13 @@ Generate professional EPUBs with embedded illustrations and stats.
 ## Statistics
 
 - Costs, token usage, provider/model breakdowns, generation times, illustration counts.
+- Session insights aggregate navigation/hydration/export timings captured by the telemetry service.
 
 ## Workers
 
 - Export runs in a worker with progress events. See `docs/Workers.md`.
 
+## Future Enhancements
+
+- Incremental export caching/hashing so repeated downloads skip unchanged chapters and assets.
+- Optional gzip/zip packaging for asset-heavy exports to keep multi-chapter sessions manageable.

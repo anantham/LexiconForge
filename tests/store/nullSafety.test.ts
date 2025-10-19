@@ -120,7 +120,7 @@ describe('Null safety regressions in modern slices', () => {
   });
 
   describe('exportSlice.exportSessionData()', () => {
-    it('serialises chapters even when translation data is incomplete', () => {
+    it('serialises chapters even when translation data is incomplete', async () => {
       const complete = makeChapter('complete');
       const incomplete = makeChapter('incomplete', { translationResult: null });
 
@@ -131,16 +131,17 @@ describe('Null safety regressions in modern slices', () => {
         ]),
       });
 
-      const json = useAppStore.getState().exportSessionData();
+      const json = await useAppStore.getState().exportSessionData();
       const payload = JSON.parse(json);
 
       expect(payload.chapters).toHaveLength(2);
       const incompleteSnapshot = payload.chapters.find((entry: any) => entry.title === incomplete.title);
-      expect(incompleteSnapshot.translationResult).toBeNull();
+      expect(Array.isArray(incompleteSnapshot?.translations)).toBe(true);
+      expect(incompleteSnapshot.translations.length).toBe(0);
     });
 
-    it('returns an empty snapshot when no chapters exist', () => {
-      const json = useAppStore.getState().exportSessionData();
+    it('returns an empty snapshot when no chapters exist', async () => {
+      const json = await useAppStore.getState().exportSessionData();
       const payload = JSON.parse(json);
       expect(payload.chapters).toHaveLength(0);
     });

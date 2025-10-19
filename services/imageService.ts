@@ -239,10 +239,33 @@ export const generateImage = async (
             
             // Enhanced debugging: log the actual response structure
             ilog('[OpenRouter Debug] Full response structure:', JSON.stringify(parsed, null, 2));
-            
+
             const choice = parsed?.choices?.[0];
-            const images = choice?.message?.images;
-            
+
+            // Check for error in response
+            if (choice?.error) {
+              const errorMsg = choice.error.message || 'Unknown error from provider';
+              const errorCode = choice.error.code || 'UNKNOWN';
+              throw new Error(`OpenRouter provider error (${errorCode}): ${errorMsg}`);
+            }
+
+            // Try multiple possible locations for image data
+            // 1. message.images (custom OpenRouter field)
+            let images = choice?.message?.images;
+
+            // 2. message.content as array (OpenAI format)
+            if (!images && Array.isArray(choice?.message?.content)) {
+              images = choice.message.content.filter((item: any) =>
+                item.type === 'image' || item.type === 'image_url' || item.image_url
+              );
+            }
+
+            // 3. message.content as single object with image_url
+            if (!images && choice?.message?.content && typeof choice.message.content === 'object' &&
+                (choice.message.content.type === 'image' || choice.message.content.image_url)) {
+              images = [choice.message.content];
+            }
+
             // Detailed diagnostic logging
             ilog('[OpenRouter Debug] Response analysis:', {
               hasChoices: !!parsed?.choices,
@@ -250,11 +273,13 @@ export const generateImage = async (
               firstChoice: choice ? Object.keys(choice) : 'null',
               hasMessage: !!choice?.message,
               messageKeys: choice?.message ? Object.keys(choice.message) : 'null',
+              contentType: typeof choice?.message?.content,
+              isContentArray: Array.isArray(choice?.message?.content),
               hasImages: !!images,
               imagesType: Array.isArray(images) ? 'array' : typeof images,
               imagesLength: Array.isArray(images) ? images.length : 'n/a'
             });
-            
+
             if (!Array.isArray(images) || images.length === 0) {
               // Enhanced error with actual response structure
               const errorDetails = {
@@ -262,10 +287,11 @@ export const generateImage = async (
                 responseKeys: Object.keys(parsed),
                 choiceStructure: choice ? Object.keys(choice) : null,
                 messageStructure: choice?.message ? Object.keys(choice.message) : null,
+                messageContent: choice?.message?.content,
                 actualImages: images,
                 fullResponse: parsed
               };
-              
+
               console.error('[OpenRouter Debug] Missing image data. Full diagnostic:', errorDetails);
               throw new Error(`OpenRouter response missing image data. Model: ${modelSlug}. Response structure: ${JSON.stringify(errorDetails, null, 2)}`);
             }
