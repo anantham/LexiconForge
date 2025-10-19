@@ -79,7 +79,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
       {/* Loading Overlay with Progress */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
             <div className="flex flex-col items-center">
               {/* Progress Bar */}
