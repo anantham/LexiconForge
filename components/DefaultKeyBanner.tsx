@@ -52,16 +52,22 @@ export function DefaultKeyBanner() {
             )}
           </p>
           <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
-            Add your own <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                useAppStore.getState().setShowSettingsModal(true);
-              }}
+            Get your own free <a
+              href="https://openrouter.ai/settings/keys"
+              target="_blank"
+              rel="noopener noreferrer"
               className="underline hover:text-amber-900 dark:hover:text-amber-100 font-medium"
             >
               OpenRouter API key
-            </a> in Settings for unlimited translations.
+            </a> for unlimited translations, or contact{' '}
+            <a
+              href="https://t.me/everythingisrelative"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-amber-900 dark:hover:text-amber-100 font-medium"
+            >
+              @everythingisrelative
+            </a> for more trial credits in exchange for user testing.
           </p>
         </div>
       </div>
