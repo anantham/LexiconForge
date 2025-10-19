@@ -211,7 +211,6 @@ const normalizeParagraphText = (html: string): string => {
   output = output.replace(/[ \t]+\n/g, '\n');
   return output;
 };
->>>>>>> c412948 (fix(diagnostics): add collapsible storage diagnostics with RAM/disk separation)
 
 const buildTranslationTokens = (text: string, baseId: string, counter: { value: number }): TranslationToken[] => {
   if (!text) return [];
