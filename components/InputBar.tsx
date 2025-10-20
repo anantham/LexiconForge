@@ -130,102 +130,32 @@ const InputBar: React.FC = () => {
     setError(null);
 
     try {
-      const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
+      // For local files, always use regular import
+      // Streaming from Blob URL doesn't help (file already in memory) and hits buffer limits
+      console.log('[InputBar] Importing file:', file.name, `(${(file.size / 1024 / 1024).toFixed(1)}MB)`);
 
-      if (file.size > LARGE_FILE_THRESHOLD) {
-        // Large file - use streaming import with Blob URL
-        console.log('[InputBar] Large file detected, using streaming import');
+      setImportProgress({
+        stage: 'importing',
+        progress: 50,
+        message: 'Importing from file...',
+      });
 
-        const blobUrl = URL.createObjectURL(file);
-        let hasNavigatedToFirstChapter = false;
+      await ImportService.importFromFile(file);
 
-        try {
-          await ImportService.streamImportFromUrl(
-            blobUrl,
-            (progress) => {
-              setImportProgress(progress);
-            },
-            // Callback when first 10 chapters are ready
-            async () => {
-              if (hasNavigatedToFirstChapter) return;
-              hasNavigatedToFirstChapter = true;
-
-              console.log('[InputBar] First 10 chapters ready from file');
-
-              const { indexedDBService } = await import('../services/indexeddb');
-              const { useAppStore } = await import('../store');
-              const chapters = await indexedDBService.getChaptersForReactRendering();
-
-              // Hydrate store with first chapters
-              const firstChapters = chapters.slice(0, Math.min(10, chapters.length));
-              const newChapters = new Map<string, any>();
-              for (const ch of firstChapters) {
-                newChapters.set(ch.stableId, {
-                  stableId: ch.stableId,
-                  url: ch.url || ch.canonicalUrl,
-                  title: ch.data?.chapter?.title || ch.title,
-                  content: ch.data?.chapter?.content || ch.content,
-                  nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
-                  prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
-                  chapterNumber: ch.chapterNumber || 0,
-                  canonicalUrl: ch.url,
-                  originalUrl: ch.url,
-                  sourceUrls: [ch.url],
-                  fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
-                  translationResult: ch.data?.translationResult || null,
-                  feedback: [],
-                });
-              }
-
-              // Sort and navigate to first
-              const sortedChapters = Array.from(newChapters.entries()).sort((a, b) => {
-                const numA = a[1].chapterNumber || 0;
-                const numB = b[1].chapterNumber || 0;
-                return numA - numB;
-              });
-              const firstChapterId = sortedChapters[0]?.[0];
-
-              useAppStore.setState({
-                chapters: newChapters,
-                currentChapterId: firstChapterId,
-                error: null,
-              });
-
-              console.log('[InputBar] File import successful - user can start reading');
-            }
-          );
-        } finally {
-          URL.revokeObjectURL(blobUrl);
-        }
-
-        console.log('[InputBar] All chapters from file loaded successfully');
-      } else {
-        // Small file - use regular import
-        console.log('[InputBar] Small file, using regular import');
-
-        setImportProgress({
-          stage: 'importing',
-          progress: 50,
-          message: 'Importing from file...',
-        });
-
-        await ImportService.importFromFile(file);
-
-        // Navigate to first chapter
-        const { useAppStore } = await import('../store');
-        const chapters = useAppStore.getState().chapters;
-        const sortedChapters = Array.from(chapters.entries()).sort((a, b) => {
-          const numA = a[1].chapterNumber || 0;
-          const numB = b[1].chapterNumber || 0;
-          return numA - numB;
-        });
-        const firstChapterId = sortedChapters[0]?.[0];
-        if (firstChapterId) {
-          useAppStore.setState({ currentChapterId: firstChapterId });
-        }
-
-        console.log('[InputBar] File import successful');
+      // Navigate to first chapter
+      const { useAppStore } = await import('../store');
+      const chapters = useAppStore.getState().chapters;
+      const sortedChapters = Array.from(chapters.entries()).sort((a, b) => {
+        const numA = a[1].chapterNumber || 0;
+        const numB = b[1].chapterNumber || 0;
+        return numA - numB;
+      });
+      const firstChapterId = sortedChapters[0]?.[0];
+      if (firstChapterId) {
+        useAppStore.setState({ currentChapterId: firstChapterId });
       }
+
+      console.log('[InputBar] File import successful');
 
       // Clear input
       setUrl('');
