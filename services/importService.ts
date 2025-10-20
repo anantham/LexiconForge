@@ -277,7 +277,8 @@ export class ImportService {
           .node('chapters.*', async function(chapter) {
             try {
               // Import chapter to IndexedDB immediately
-              await indexedDBService.saveChapter(chapter.url || chapter.canonicalUrl, {
+              await indexedDBService.storeChapter({
+                originalUrl: chapter.url || chapter.canonicalUrl,
                 title: chapter.title,
                 content: chapter.content,
                 nextUrl: chapter.nextUrl,
@@ -288,9 +289,15 @@ export class ImportService {
 
               // If there's a translation, save it too
               if (chapter.translationResult) {
-                await indexedDBService.saveTranslation(
+                await indexedDBService.storeTranslation(
                   chapter.url || chapter.canonicalUrl,
-                  chapter.translationResult
+                  chapter.translationResult,
+                  {
+                    provider: chapter.translationResult.usageMetrics?.provider || 'Unknown',
+                    model: chapter.translationResult.usageMetrics?.model || 'Unknown',
+                    temperature: 0.7,
+                    systemPrompt: '',
+                  }
                 );
               }
 
