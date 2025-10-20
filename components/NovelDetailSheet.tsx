@@ -1,7 +1,8 @@
 import React from 'react';
 import { BookOpen, Star, X, ExternalLink, Globe, User } from 'lucide-react';
-import type { NovelEntry, NovelVersion } from '../types/novel';
+import type { NovelEntry, NovelVersion, ChapterCoverageStats } from '../types/novel';
 import { VersionPicker } from './VersionPicker';
+import { CoverageDistribution } from './CoverageDistribution';
 
 interface NovelDetailSheetProps {
   novel: NovelEntry | null;
@@ -10,8 +11,49 @@ interface NovelDetailSheetProps {
   onStartReading: (novel: NovelEntry, version?: NovelVersion) => void;
 }
 
+function computeCoverageStats(versions: NovelVersion[]): ChapterCoverageStats | null {
+  if (!versions || versions.length <= 1) return null;
+
+  // Build a map of chapter -> version count
+  const coverageMap: { [chapter: number]: number } = {};
+
+  versions.forEach(version => {
+    const { from, to } = version.chapterRange;
+    for (let ch = from; ch <= to; ch++) {
+      coverageMap[ch] = (coverageMap[ch] || 0) + 1;
+    }
+  });
+
+  const versionCounts = Object.values(coverageMap);
+  const totalChapters = Object.keys(coverageMap).length;
+
+  if (totalChapters === 0) return null;
+
+  const chaptersWithMultipleVersions = versionCounts.filter(count => count > 1).length;
+  const avgVersionsPerChapter = versionCounts.reduce((sum, count) => sum + count, 0) / totalChapters;
+
+  const sortedCounts = [...versionCounts].sort((a, b) => a - b);
+  const medianVersionsPerChapter = totalChapters % 2 === 0
+    ? (sortedCounts[totalChapters / 2 - 1] + sortedCounts[totalChapters / 2]) / 2
+    : sortedCounts[Math.floor(totalChapters / 2)];
+
+  const maxVersionsForAnyChapter = Math.max(...versionCounts);
+
+  return {
+    chaptersWithMultipleVersions,
+    avgVersionsPerChapter,
+    medianVersionsPerChapter,
+    maxVersionsForAnyChapter,
+    coverageDistribution: coverageMap
+  };
+}
+
 export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: NovelDetailSheetProps) {
   if (!novel || !isOpen) return null;
+
+  const coverageStats = novel.versions ? computeCoverageStats(novel.versions) : null;
+  const totalChapters = novel.metadata.chapterCount ||
+    (novel.versions ? Math.max(...novel.versions.map(v => v.chapterRange.to)) : 0);
 
   return (
     <>
@@ -127,6 +169,16 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
             >
               Start Reading
             </button>
+          )}
+
+          {/* Coverage Distribution - show when novel has multiple versions */}
+          {coverageStats && (
+            <div className="mt-6">
+              <CoverageDistribution
+                stats={coverageStats}
+                totalChapters={totalChapters}
+              />
+            </div>
           )}
 
           {/* Description */}
