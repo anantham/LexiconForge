@@ -25,7 +25,9 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
     originalPublicationDate: initialData?.originalPublicationDate || '',
     coverImageUrl: initialData?.coverImageUrl || '',
     novelUpdatesUrl: initialData?.sourceLinks?.novelUpdates || '',
+    bestTranslationUrl: initialData?.sourceLinks?.bestTranslation || '',
     rawSourceUrl: initialData?.sourceLinks?.rawSource || '',
+    lnAdaptationUrl: initialData?.sourceLinks?.lnAdaptation || '',
     mangaUrl: initialData?.sourceLinks?.manga || '',
     animeUrl: initialData?.sourceLinks?.anime || ''
   });
@@ -58,7 +60,9 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
       tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
       sourceLinks: {
         novelUpdates: formData.novelUpdatesUrl || undefined,
+        bestTranslation: formData.bestTranslationUrl || undefined,
         rawSource: formData.rawSourceUrl || undefined,
+        lnAdaptation: formData.lnAdaptationUrl || undefined,
         manga: formData.mangaUrl || undefined,
         anime: formData.animeUrl || undefined
       },
@@ -252,14 +256,40 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="bestTranslationUrl">
+              Best human/fan translation URL (optional)
+            </label>
+            <input
+              id="bestTranslationUrl"
+              type="url"
+              value={formData.bestTranslationUrl}
+              onChange={(e) => setFormData({ ...formData, bestTranslationUrl: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+            />
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="rawSourceUrl">
-              Raw Source URL
+              Raw WN Source URL
             </label>
             <input
               id="rawSourceUrl"
               type="url"
               value={formData.rawSourceUrl}
               onChange={(e) => setFormData({ ...formData, rawSourceUrl: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="lnAdaptationUrl">
+              LN Adaptation URL (optional)
+            </label>
+            <input
+              id="lnAdaptationUrl"
+              type="url"
+              value={formData.lnAdaptationUrl}
+              onChange={(e) => setFormData({ ...formData, lnAdaptationUrl: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
           </div>

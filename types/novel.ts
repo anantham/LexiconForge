@@ -64,6 +64,8 @@ export interface NovelVersion {
 export interface SourceLinks {
   novelUpdates?: string;
   rawSource?: string;
+  lnAdaptation?: string;
+  bestTranslation?: string;
   manga?: string;
   anime?: string;
 }
