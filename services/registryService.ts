@@ -1,6 +1,10 @@
 import type { Registry, NovelEntry } from '../types/novel';
 
-const DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/lexiconforge/lexiconforge-novels/main/registry.json';
+// For local development: use local registry in public folder
+// For production: point to actual GitHub registry
+const DEFAULT_REGISTRY_URL = import.meta.env.DEV
+  ? '/registry/registry.json'
+  : 'https://raw.githubusercontent.com/lexiconforge/lexiconforge-novels/main/registry.json';
 
 export class RegistryService {
   /**

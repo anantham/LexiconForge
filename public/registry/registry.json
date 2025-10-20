@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-10-20",
+  "novels": [
+    {
+      "id": "dungeon-defense",
+      "metadataUrl": "/registry/dungeon-defense-metadata.json"
+    }
+  ]
+}
