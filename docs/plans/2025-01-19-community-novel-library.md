@@ -57,10 +57,27 @@ describe('Novel Types', () => {
       chapterRange: { from: 1, to: 50 },
       completionStatus: 'Complete',
       lastUpdated: '2025-01-19',
-      stats: { downloads: 100, fileSize: '5 MB' }
+      stats: {
+        downloads: 100,
+        fileSize: '5 MB',
+        content: {
+          totalImages: 25,
+          totalFootnotes: 150,
+          totalRawChapters: 50,
+          totalTranslatedChapters: 50,
+          avgImagesPerChapter: 0.5,
+          avgFootnotesPerChapter: 3
+        },
+        translation: {
+          translationType: 'human',
+          qualityRating: 4.5,
+          feedbackCount: 42
+        }
+      }
     };
 
     expect(version.versionId).toBe('test-v1');
+    expect(version.stats.content.totalImages).toBe(25);
   });
 
   it('should accept version with basedOn for forks', () => {
@@ -133,9 +150,36 @@ export interface ChapterRange {
   to: number;
 }
 
+export interface VersionContentStats {
+  totalImages: number;
+  totalFootnotes: number;
+  totalRawChapters: number;
+  totalTranslatedChapters: number;
+  avgImagesPerChapter: number;
+  avgFootnotesPerChapter: number;
+}
+
+export interface VersionTranslationStats {
+  translationType: 'human' | 'ai' | 'hybrid';
+  aiPercentage?: number;  // If hybrid
+  qualityRating?: number; // Community rating 1-5
+  feedbackCount: number;
+}
+
+export interface ChapterCoverageStats {
+  chaptersWithMultipleVersions: number;
+  avgVersionsPerChapter: number;
+  medianVersionsPerChapter: number;
+  maxVersionsForAnyChapter: number;
+  coverageDistribution: { [chapterNumber: number]: number }; // chapter -> version count
+}
+
 export interface VersionStats {
   downloads: number;
   fileSize: string;
+  content: VersionContentStats;
+  translation: VersionTranslationStats;
+  coverage?: ChapterCoverageStats; // Optional: for aggregate view
 }
 
 export interface NovelVersion {
@@ -1860,7 +1904,38 @@ export function VersionPicker({ versions, onSelect }: VersionPickerProps) {
             </span>
           </div>
 
-          {/* Details */}
+          {/* Translation Type Badge */}
+          <div className="mb-3">
+            <span className={`px-2 py-1 text-xs rounded ${
+              version.stats.translation.translationType === 'human'
+                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                : version.stats.translation.translationType === 'ai'
+                ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200'
+                : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
+            }`}>
+              {version.stats.translation.translationType === 'human' && '👤 Human Translation'}
+              {version.stats.translation.translationType === 'ai' && '🤖 AI Translation'}
+              {version.stats.translation.translationType === 'hybrid' && `🤝 Hybrid (${version.stats.translation.aiPercentage}% AI)`}
+            </span>
+          </div>
+
+          {/* Quality Rating & Feedback */}
+          {version.stats.translation.qualityRating && (
+            <div className="flex items-center gap-2 mb-3 text-sm">
+              <div className="flex items-center">
+                {'⭐'.repeat(Math.floor(version.stats.translation.qualityRating))}
+                <span className="ml-1 text-gray-600 dark:text-gray-400">
+                  {version.stats.translation.qualityRating.toFixed(1)}
+                </span>
+              </div>
+              <span className="text-gray-400">•</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                {version.stats.translation.feedbackCount} reviews
+              </span>
+            </div>
+          )}
+
+          {/* Basic Stats */}
           <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
             <div className="flex items-center gap-1">
               <BookOpen className="h-4 w-4" />
@@ -1878,6 +1953,46 @@ export function VersionPicker({ versions, onSelect }: VersionPickerProps) {
 
             <div>
               <span>{version.stats.fileSize}</span>
+            </div>
+          </div>
+
+          {/* Content Statistics Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+            <div className="text-center">
+              <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                {version.stats.content.totalImages}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Images</div>
+              <div className="text-xs text-gray-500">
+                ({version.stats.content.avgImagesPerChapter.toFixed(1)}/ch)
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="text-lg font-semibold text-purple-600 dark:text-purple-400">
+                {version.stats.content.totalFootnotes}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Footnotes</div>
+              <div className="text-xs text-gray-500">
+                ({version.stats.content.avgFootnotesPerChapter.toFixed(1)}/ch)
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+                {version.stats.content.totalTranslatedChapters}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Translated</div>
+              <div className="text-xs text-gray-500">
+                of {version.stats.content.totalRawChapters}
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                {Math.round((version.stats.content.totalTranslatedChapters / version.stats.content.totalRawChapters) * 100)}%
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Complete</div>
             </div>
           </div>
 

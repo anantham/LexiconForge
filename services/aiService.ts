@@ -68,11 +68,26 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
       break;
     case 'OpenRouter':
       envKey = 'OPENROUTER_API_KEY';
-      requiredApiKey = (settings as any).apiKeyOpenRouter || (getEnvVar(envKey) as any) || getDefaultApiKey();
+
+      // Priority: 1. User's key in settings, 2. Env var, 3. Default trial key
+      const userKey = (settings as any).apiKeyOpenRouter;
+      const envVarKey = getEnvVar(envKey) as any;
+      const trialKey = getDefaultApiKey();
+
+      requiredApiKey = userKey || envVarKey || trialKey;
       providerName = 'OpenRouter';
 
+      // Log key source for debugging production issues
+      console.log('[OpenRouter] API Key Priority Check:', {
+        hasUserKey: !!userKey,
+        hasEnvKey: !!envVarKey,
+        hasTrialKey: !!trialKey,
+        usingSource: userKey ? 'user_settings' : envVarKey ? 'environment_var' : trialKey ? 'trial_key' : 'none',
+        finalKeyAvailable: !!requiredApiKey,
+      });
+
       // Check if using default key
-      if (!settings.apiKeyOpenRouter && !getEnvVar(envKey) && requiredApiKey) {
+      if (!userKey && !envVarKey && requiredApiKey) {
         const status = getDefaultKeyStatus();
         console.log(`[DefaultKey] Using trial key - ${status.remainingUses} requests remaining`);
       }

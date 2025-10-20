@@ -83,16 +83,31 @@ export function resetDefaultKeyUsage(): void {
 export function getDefaultApiKey(): string | null {
   // Check if we've exceeded the limit
   if (!canUseDefaultKey()) {
+    console.log('[DefaultKey] Trial limit exceeded. Usage:', getDefaultKeyUsage(), '/', MAX_DEFAULT_KEY_USES);
     return null;
   }
 
   // Get from environment variable
   const defaultKey = import.meta.env.VITE_DEFAULT_OPENROUTER_KEY;
 
+  // Log detailed environment info for debugging production issues
+  console.log('[DefaultKey] Environment check:', {
+    hasDefaultKey: !!defaultKey,
+    keyLength: defaultKey?.length || 0,
+    keyPrefix: defaultKey ? `${defaultKey.slice(0, 8)}...` : 'none',
+    usageCount: getDefaultKeyUsage(),
+    remainingUses: MAX_DEFAULT_KEY_USES - getDefaultKeyUsage(),
+    env: import.meta.env.MODE,
+    isDev: import.meta.env.DEV,
+    isProd: import.meta.env.PROD,
+  });
+
   if (!defaultKey) {
-    console.warn('[DefaultKey] Default API key not configured in environment');
+    console.warn('[DefaultKey] VITE_DEFAULT_OPENROUTER_KEY not found in environment variables');
+    console.warn('[DefaultKey] Make sure VITE_DEFAULT_OPENROUTER_KEY is set in Vercel environment variables');
     return null;
   }
 
+  console.log('[DefaultKey] Providing trial key for request');
   return defaultKey;
 }
