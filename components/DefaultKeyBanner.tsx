@@ -7,6 +7,7 @@ export function DefaultKeyBanner() {
   const [isDismissed, setIsDismissed] = useState(false);
   const [status, setStatus] = useState(getDefaultKeyStatus());
   const settings = useAppStore(s => s.settings);
+  const [lastLoggedState, setLastLoggedState] = useState<string>('');
 
   // Update status periodically
   useEffect(() => {
@@ -21,6 +22,32 @@ export function DefaultKeyBanner() {
   const isUsingDefaultKey = settings.provider === 'OpenRouter' &&
     !settings.apiKeyOpenRouter &&
     status.usageCount < 10;
+
+  // Debug logging to understand banner visibility (only log when state changes)
+  useEffect(() => {
+    const currentState = JSON.stringify({
+      provider: settings.provider,
+      hasUserKey: !!settings.apiKeyOpenRouter,
+      usageCount: status.usageCount,
+      isUsingDefaultKey,
+      isDismissed,
+    });
+
+    if (currentState !== lastLoggedState) {
+      console.log('[DefaultKeyBanner] Visibility state changed:', {
+        provider: settings.provider,
+        hasUserKey: !!settings.apiKeyOpenRouter,
+        userKeyPrefix: settings.apiKeyOpenRouter ? `${settings.apiKeyOpenRouter.slice(0, 8)}...` : 'none',
+        usageCount: status.usageCount,
+        usageLimit: 10,
+        remainingUses: status.remainingUses,
+        isUsingDefaultKey,
+        isDismissed,
+        willShow: isUsingDefaultKey && !isDismissed,
+      });
+      setLastLoggedState(currentState);
+    }
+  }, [settings.provider, settings.apiKeyOpenRouter, status.usageCount, isUsingDefaultKey, isDismissed, lastLoggedState]);
 
   if (!isUsingDefaultKey || isDismissed) {
     return null;

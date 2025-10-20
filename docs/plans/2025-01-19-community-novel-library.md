@@ -2068,6 +2068,178 @@ git commit -m "feat(ui): add version picker to novel detail sheet"
 
 ---
 
+### Task 7.2: Add Coverage Distribution Visualization
+
+**Files:**
+- Create: `components/CoverageDistribution.tsx`
+- Create: `tests/components/CoverageDistribution.test.tsx`
+
+**Step 1: Write tests for coverage visualization**
+
+Create `tests/components/CoverageDistribution.test.tsx`:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { CoverageDistribution } from '../../components/CoverageDistribution';
+import type { ChapterCoverageStats } from '../../types/novel';
+
+describe('CoverageDistribution', () => {
+  it('should show aggregate stats', () => {
+    const stats: ChapterCoverageStats = {
+      chaptersWithMultipleVersions: 25,
+      avgVersionsPerChapter: 2.5,
+      medianVersionsPerChapter: 2,
+      maxVersionsForAnyChapter: 5,
+      coverageDistribution: {
+        1: 3, 2: 2, 3: 2, 5: 3, 10: 5  // chapter -> version count
+      }
+    };
+
+    render(<CoverageDistribution stats={stats} totalChapters={50} />);
+
+    expect(screen.getByText(/25 chapters/i)).toBeInTheDocument();
+    expect(screen.getByText(/2.5.*avg/i)).toBeInTheDocument();
+  });
+});
+```
+
+**Step 2: Create CoverageDistribution component**
+
+Create `components/CoverageDistribution.tsx`:
+
+```typescript
+import React from 'react';
+import type { ChapterCoverageStats } from '../types/novel';
+
+interface CoverageDistributionProps {
+  stats: ChapterCoverageStats;
+  totalChapters: number;
+}
+
+export function CoverageDistribution({ stats, totalChapters }: CoverageDistributionProps) {
+  // Calculate distribution histogram
+  const versionCounts = Object.values(stats.coverageDistribution);
+  const maxCount = Math.max(...versionCounts, 1);
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-4">
+      <h4 className="font-semibold text-gray-900 dark:text-white">
+        Version Coverage Across Chapters
+      </h4>
+
+      {/* Aggregate Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="text-center">
+          <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+            {stats.chaptersWithMultipleVersions}
+          </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400">
+            Chapters with multiple versions
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="text-xl font-bold text-purple-600 dark:text-purple-400">
+            {stats.avgVersionsPerChapter.toFixed(1)}
+          </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400">
+            Avg versions per chapter
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="text-xl font-bold text-green-600 dark:text-green-400">
+            {stats.medianVersionsPerChapter}
+          </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400">
+            Median versions
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="text-xl font-bold text-orange-600 dark:text-orange-400">
+            {stats.maxVersionsForAnyChapter}
+          </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400">
+            Max versions (any chapter)
+          </div>
+        </div>
+      </div>
+
+      {/* Simple Bar Chart Visualization */}
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Chapters by Version Count
+        </div>
+
+        {/* Group chapters by version count */}
+        {Array.from({ length: stats.maxVersionsForAnyChapter }, (_, i) => i + 1).map(versionCount => {
+          const chaptersWithThisCount = Object.entries(stats.coverageDistribution)
+            .filter(([_, count]) => count === versionCount)
+            .length;
+
+          if (chaptersWithThisCount === 0) return null;
+
+          const percentage = (chaptersWithThisCount / totalChapters) * 100;
+
+          return (
+            <div key={versionCount} className="flex items-center gap-2">
+              <div className="w-16 text-xs text-gray-600 dark:text-gray-400">
+                {versionCount} {versionCount === 1 ? 'version' : 'versions'}
+              </div>
+
+              <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6 relative">
+                <div
+                  className="bg-blue-600 dark:bg-blue-500 h-6 rounded-full transition-all flex items-center justify-end pr-2"
+                  style={{ width: `${percentage}%` }}
+                >
+                  <span className="text-xs text-white font-medium">
+                    {chaptersWithThisCount} ch
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-12 text-xs text-gray-600 dark:text-gray-400 text-right">
+                {percentage.toFixed(0)}%
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+```
+
+**Step 3: Run tests**
+
+```bash
+npm test tests/components/CoverageDistribution.test.tsx
+```
+
+**Step 4: Integrate into NovelDetailSheet**
+
+Modify `components/NovelDetailSheet.tsx` to show coverage when novel has multiple versions:
+
+```typescript
+{novel.versions && novel.versions.length > 1 && coverageStats && (
+  <CoverageDistribution
+    stats={coverageStats}
+    totalChapters={/* calculate from versions */}
+  />
+)}
+```
+
+**Step 5: Commit**
+
+```bash
+git add components/CoverageDistribution.tsx tests/components/CoverageDistribution.test.tsx components/NovelDetailSheet.tsx
+git commit -m "feat(ui): add chapter coverage distribution visualization"
+```
+
+---
+
 ## Phase 8: Integration & Registry Loading
 
 ### Task 8.1: Update NovelLibrary to Use Registry
