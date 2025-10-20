@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { BookOpen } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Loader2 } from 'lucide-react';
 import { NovelGrid } from './NovelGrid';
 import { NovelDetailSheet } from './NovelDetailSheet';
-import { getAllNovels } from '../config/novelCatalog';
+import { RegistryService } from '../services/registryService';
 import { ImportService, ImportProgress } from '../services/importService';
 import { useAppStore } from '../store';
-import type { NovelEntry } from '../types/novel';
+import type { NovelEntry, NovelVersion } from '../types/novel';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -13,11 +13,30 @@ interface NovelLibraryProps {
 
 export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const [selectedNovel, setSelectedNovel] = useState<NovelEntry | null>(null);
+  const [novels, setNovels] = useState<NovelEntry[]>([]);
+  const [isLoadingRegistry, setIsLoadingRegistry] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
   const showNotification = useAppStore(s => s.showNotification);
 
-  const novels = getAllNovels();
+  // Fetch novels from registry on mount
+  useEffect(() => {
+    const loadNovels = async () => {
+      setIsLoadingRegistry(true);
+      try {
+        const fetchedNovels = await RegistryService.fetchAllNovelMetadata();
+        setNovels(fetchedNovels);
+      } catch (error: any) {
+        console.error('[NovelLibrary] Failed to load registry:', error);
+        showNotification('Failed to load novel library. Please try again later.', 'error');
+        setNovels([]);
+      } finally {
+        setIsLoadingRegistry(false);
+      }
+    };
+
+    loadNovels();
+  }, [showNotification]);
 
   const handleViewDetails = (novel: NovelEntry) => {
     setSelectedNovel(novel);
@@ -27,10 +46,14 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     setSelectedNovel(null);
   };
 
-  const handleStartReading = async (novel: NovelEntry) => {
+  const handleStartReading = async (novel: NovelEntry, version?: NovelVersion) => {
+    // Determine which session URL to use
+    const sessionJsonUrl = version?.sessionJsonUrl || novel.sessionJsonUrl;
+    const versionLabel = version ? ` (${version.displayName})` : '';
+
     // Check if session URL exists
-    if (!novel.sessionJsonUrl) {
-      showNotification(`${novel.title} is not yet available. Check back soon!`, 'error');
+    if (!sessionJsonUrl) {
+      showNotification(`${novel.title}${versionLabel} is not yet available. Check back soon!`, 'error');
       return;
     }
 
@@ -78,7 +101,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           };
         });
 
-        showNotification(`✅ Loaded ${novel.title} from cache - ${existingChapters.length} chapters!`, 'success');
+        showNotification(`✅ Loaded ${novel.title}${versionLabel} from cache - ${existingChapters.length} chapters!`, 'success');
 
         // Close the detail sheet
         setSelectedNovel(null);
@@ -90,7 +113,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         let hasNavigatedToFirstChapter = false;
 
         await ImportService.streamImportFromUrl(
-          novel.sessionJsonUrl,
+          sessionJsonUrl,
           (progress) => {
             setImportProgress(progress);
           },
@@ -141,15 +164,15 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
             setSelectedNovel(null);
             onSessionLoaded?.();
 
-            showNotification(`✅ First chapters ready! Loading ${novel.metadata.chapterCount} total chapters in background...`, 'success');
+            showNotification(`✅ First chapters ready! Loading ${novel.metadata.chapterCount} total chapters in background...${versionLabel}`, 'success');
           }
         );
 
-        showNotification(`✅ All ${novel.metadata.chapterCount} chapters loaded!`, 'success');
+        showNotification(`✅ All ${novel.metadata.chapterCount} chapters loaded!${versionLabel}`, 'success');
       }
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);
-      showNotification(`Failed to load ${novel.title}: ${error.message}`, 'error');
+      showNotification(`Failed to load ${novel.title}${versionLabel}: ${error.message}`, 'error');
     } finally {
       setIsLoading(false);
       setImportProgress(null);
@@ -167,13 +190,25 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           </h2>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Browse our curated collection of web novels. Each novel comes pre-loaded with chapters
-          ready for AI translation, illustration generation, and EPUB export.
+          Browse our community-driven collection of web novels. Each novel can have multiple versions
+          with different translations, enhancements, and styles to choose from.
         </p>
       </div>
 
-      {/* Novel Grid */}
-      <NovelGrid novels={novels} onViewDetails={handleViewDetails} />
+      {/* Loading State */}
+      {isLoadingRegistry ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <Loader2 className="h-12 w-12 text-blue-600 dark:text-blue-400 animate-spin mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Loading novel library...</p>
+        </div>
+      ) : novels.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <BookOpen className="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">No novels available at the moment.</p>
+        </div>
+      ) : (
+        <NovelGrid novels={novels} onViewDetails={handleViewDetails} />
+      )}
 
       {/* Loading Overlay with Progress */}
       {isLoading && (

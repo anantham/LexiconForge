@@ -1,8 +1,13 @@
 /**
  * Novel Catalog - Curated collection of web novels
  *
- * This is the registry of available novels for the library browser.
- * Each novel entry contains metadata and a link to its session JSON.
+ * @deprecated This static catalog is deprecated in favor of the dynamic registry system.
+ * The NovelLibrary component now fetches novels from a remote registry via RegistryService.
+ * This file is kept for backwards compatibility and reference.
+ *
+ * For the new system, see:
+ * - services/registryService.ts (fetches from remote registry)
+ * - components/NovelLibrary.tsx (uses RegistryService)
  */
 
 import type { NovelEntry, NovelCatalog } from '../types/novel';
