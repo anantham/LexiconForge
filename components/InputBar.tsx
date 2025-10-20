@@ -20,6 +20,7 @@ const InputBar: React.FC = () => {
   const [url, setUrl] = useState('');
   const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFetch = useAppStore(state => state.handleFetch);
   const isLoading = useAppStore(state => state.isLoading.fetching);
@@ -118,6 +119,129 @@ const InputBar: React.FC = () => {
     handleFetch(exampleUrl);
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    console.log('[InputBar] File selected:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(1), 'MB');
+
+    setIsImporting(true);
+    setImportProgress(null);
+    setError(null);
+
+    try {
+      const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
+
+      if (file.size > LARGE_FILE_THRESHOLD) {
+        // Large file - use streaming import with Blob URL
+        console.log('[InputBar] Large file detected, using streaming import');
+
+        const blobUrl = URL.createObjectURL(file);
+        let hasNavigatedToFirstChapter = false;
+
+        try {
+          await ImportService.streamImportFromUrl(
+            blobUrl,
+            (progress) => {
+              setImportProgress(progress);
+            },
+            // Callback when first 10 chapters are ready
+            async () => {
+              if (hasNavigatedToFirstChapter) return;
+              hasNavigatedToFirstChapter = true;
+
+              console.log('[InputBar] First 10 chapters ready from file');
+
+              const { indexedDBService } = await import('../services/indexeddb');
+              const { useAppStore } = await import('../store');
+              const chapters = await indexedDBService.getChaptersForReactRendering();
+
+              // Hydrate store with first chapters
+              const firstChapters = chapters.slice(0, Math.min(10, chapters.length));
+              const newChapters = new Map<string, any>();
+              for (const ch of firstChapters) {
+                newChapters.set(ch.stableId, {
+                  stableId: ch.stableId,
+                  url: ch.url || ch.canonicalUrl,
+                  title: ch.data?.chapter?.title || ch.title,
+                  content: ch.data?.chapter?.content || ch.content,
+                  nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
+                  prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
+                  chapterNumber: ch.chapterNumber || 0,
+                  canonicalUrl: ch.url,
+                  originalUrl: ch.url,
+                  sourceUrls: [ch.url],
+                  fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
+                  translationResult: ch.data?.translationResult || null,
+                  feedback: [],
+                });
+              }
+
+              // Sort and navigate to first
+              const sortedChapters = Array.from(newChapters.entries()).sort((a, b) => {
+                const numA = a[1].chapterNumber || 0;
+                const numB = b[1].chapterNumber || 0;
+                return numA - numB;
+              });
+              const firstChapterId = sortedChapters[0]?.[0];
+
+              useAppStore.setState({
+                chapters: newChapters,
+                currentChapterId: firstChapterId,
+                error: null,
+              });
+
+              console.log('[InputBar] File import successful - user can start reading');
+            }
+          );
+        } finally {
+          URL.revokeObjectURL(blobUrl);
+        }
+
+        console.log('[InputBar] All chapters from file loaded successfully');
+      } else {
+        // Small file - use regular import
+        console.log('[InputBar] Small file, using regular import');
+
+        setImportProgress({
+          stage: 'importing',
+          progress: 50,
+          message: 'Importing from file...',
+        });
+
+        await ImportService.importFromFile(file);
+
+        // Navigate to first chapter
+        const { useAppStore } = await import('../store');
+        const chapters = useAppStore.getState().chapters;
+        const sortedChapters = Array.from(chapters.entries()).sort((a, b) => {
+          const numA = a[1].chapterNumber || 0;
+          const numB = b[1].chapterNumber || 0;
+          return numA - numB;
+        });
+        const firstChapterId = sortedChapters[0]?.[0];
+        if (firstChapterId) {
+          useAppStore.setState({ currentChapterId: firstChapterId });
+        }
+
+        console.log('[InputBar] File import successful');
+      }
+
+      // Clear input
+      setUrl('');
+    } catch (err: any) {
+      console.error('[InputBar] File import failed:', err);
+      setError(`Failed to import file: ${err.message}`);
+    } finally {
+      setIsImporting(false);
+      setImportProgress(null);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const isAnyLoading = isLoading || isImporting;
 
   return (
@@ -132,15 +256,35 @@ const InputBar: React.FC = () => {
             className="flex-grow w-full px-4 py-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder:text-gray-400 dark:placeholder:text-gray-500"
             disabled={isAnyLoading}
           />
-          <button
-            type="submit"
-            disabled={isAnyLoading}
-            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
-          >
-            {isImporting ? 'Importing...' : isLoading ? 'Fetching...' : 'Load'}
-          </button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isAnyLoading}
+              className="px-4 py-2 bg-gray-600 text-white font-semibold rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+              title="Select session JSON file from disk"
+            >
+              📁 File
+            </button>
+            <button
+              type="submit"
+              disabled={isAnyLoading}
+              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+            >
+              {isImporting ? 'Importing...' : isLoading ? 'Fetching...' : 'Load'}
+            </button>
+          </div>
         </div>
       </form>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,application/json"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
 
       {/* Import Progress Bar */}
       {importProgress && (

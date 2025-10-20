@@ -26,6 +26,7 @@ import { indexedDBService } from '../services/indexeddb';
 import { normalizeUrlAggressively } from '../services/stableIdService';
 import { audioServiceWorker } from '../services/audio/storage/serviceWorker';
 import { debugLog } from '../utils/debug';
+import type { SessionProvenance, SessionVersion } from '../types/session';
 import '../services/imageMigrationService'; // Import for window exposure
 
 // Combined state type
@@ -33,15 +34,21 @@ export type AppState = UiSlice & SettingsSlice & ChaptersSlice & TranslationsSli
 
 // Session management actions (not part of slices but needed for store initialization)
 export interface SessionActions {
+  // Session provenance and version tracking
+  sessionProvenance: SessionProvenance | null;
+  sessionVersion: SessionVersion | null;
+  setSessionProvenance: (provenance: SessionProvenance | null) => void;
+  setSessionVersion: (version: SessionVersion | null) => void;
+
   // Session management
   clearSession: (options?: {
     clearSettings?: boolean;
-    clearPromptTemplates?: boolean; 
+    clearPromptTemplates?: boolean;
     clearIndexedDB?: boolean;
     clearLocalStorage?: boolean;
   }) => Promise<void>;
   importSessionData: (payload: string | object) => Promise<void>;
-  
+
   // Initialization
   initializeStore: () => Promise<void>;
 }
@@ -57,7 +64,15 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
   ...createExportSlice(set, get, store),
   ...createJobsSlice(set, get, store),
   ...createAudioSlice(set, get, store),
-  
+
+  // Session provenance and version state
+  sessionProvenance: null,
+  sessionVersion: null,
+
+  // Session provenance and version actions
+  setSessionProvenance: (provenance) => set({ sessionProvenance: provenance }),
+  setSessionVersion: (version) => set({ sessionVersion: version }),
+
   // Session management actions
   clearSession: async (options = {}) => {
     try {
@@ -76,14 +91,14 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         notification: null,
         urlLoadingStates: {},
         hydratingChapters: {},
-        
+
         // Settings slice
         settings: SessionManagementService.loadSettings(),
         promptTemplates: [],
         activePromptTemplate: null,
         settingsLoaded: false,
         settingsError: null,
-        
+
         // Chapters slice
         chapters: new Map(),
         novels: new Map(),
@@ -91,13 +106,13 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         navigationHistory: [],
         urlIndex: new Map(),
         rawUrlIndex: new Map(),
-        
+
         // Translations slice
         activeTranslations: {},
         feedbackHistory: {},
         amendmentProposals: [],
         translationProgress: {},
-        
+
         // Image slice
         generatedImages: {},
         steeringImages: {},
@@ -107,10 +122,14 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         loraStrengths: {},
         imageGenerationMetrics: null,
         imageGenerationProgress: {},
-        
+
         // Jobs slice
         jobs: {},
-        workers: {}
+        workers: {},
+
+        // Session provenance
+        sessionProvenance: null,
+        sessionVersion: null
       };
       
       set(initialState);
