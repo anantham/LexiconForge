@@ -30,7 +30,7 @@ export interface SessionData {
   metadata: SessionMetadata;
   novel: SessionNovelInfo;
   version: SessionVersion;
-  provenance: SessionProvenance;
+  provenance?: SessionProvenance;
   chapters: any[];  // Will be defined by existing chapter types
   settings?: any;    // EPUB and other settings
 }
