@@ -14,6 +14,8 @@ import type { OSTSample } from '../services/audio/OSTLibraryService';
 import { KNOWN_DEBUG_PIPELINES, DebugPipeline, getDebugPipelines as readDebugPipelines, setDebugPipelines as writeDebugPipelines, logCurrentDebugConfig, debugLog } from '../utils/debug';
 import { DiffResultsRepo } from '../adapters/repo/DiffResultsRepo';
 import { COLOR_EXAMPLES, getDefaultDiffPrompt } from '../services/diff/promptUtils';
+import { NovelMetadataForm } from './NovelMetadataForm';
+import { ExportService } from '../services/exportService';
 
 const formatCurrencyValue = (value?: number | null, currency = 'USD'): string | null => {
   if (value === null || value === undefined || Number.isNaN(value)) return null;
@@ -200,7 +202,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   }, [providerCredits]);
 
   const [currentSettings, setCurrentSettings] = useState(settings);
-  const [activeTab, setActiveTab] = useState<'general' | 'features' | 'export' | 'templates' | 'audio' | 'advanced'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'features' | 'export' | 'templates' | 'audio' | 'advanced' | 'metadata'>('general');
   const defaultDiffPrompt = useMemo(() => getDefaultDiffPrompt(), []);
   const defaultTpl = getDefaultTemplate();
   const [showCreatePrompt, setShowCreatePrompt] = useState(false);
@@ -853,6 +855,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               { id: 'general', label: 'General' },
               { id: 'features', label: 'Features' },
               { id: 'export', label: 'Export' },
+              { id: 'metadata', label: 'Metadata' },
               { id: 'templates', label: 'Templates' },
               { id: 'audio', label: 'Audio' },
               { id: 'advanced', label: 'Advanced' },
@@ -1522,8 +1525,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Ordering affects ToC and spine. When not all chapters have numbers, navigation order may give better results.</p>
+
+                {/* Export Actions */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Export Actions</h3>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const sessionData = ExportService.generateQuickExport();
+                        ExportService.downloadJSON(sessionData, 'session.json');
+                      }}
+                      className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    >
+                      Quick Export (Session Only)
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Switch to metadata tab for user to fill in details
+                        setActiveTab('metadata');
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      Publish to Library
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Quick Export downloads just the session data. Publish to Library requires filling out metadata and generates both metadata.json and session.json for the community registry.
+                  </p>
+                </div>
               </div>
 
+            </fieldset>
+          )}
+
+          {activeTab === 'metadata' && (
+            <fieldset>
+              <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Novel Metadata</legend>
+              <NovelMetadataForm />
             </fieldset>
           )}
 

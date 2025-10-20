@@ -72,11 +72,11 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Info */}
       <section>
-        <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Basic Information</h3>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="title">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="title">
               Title *
             </label>
             <input
@@ -84,13 +84,13 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
             {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="alternateTitles">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="alternateTitles">
               Alternate Titles (comma-separated)
             </label>
             <input
@@ -98,13 +98,13 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="text"
               value={formData.alternateTitles}
               onChange={(e) => setFormData({ ...formData, alternateTitles: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               placeholder="e.g., 던전 디펜스, DD"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="author">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="author">
               Author *
             </label>
             <input
@@ -112,20 +112,20 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="text"
               value={formData.author}
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
             {errors.author && <p className="text-red-600 text-sm mt-1">{errors.author}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="description">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="description">
               Description *
             </label>
             <textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               rows={4}
             />
             {errors.description && <p className="text-red-600 text-sm mt-1">{errors.description}</p>}
@@ -135,11 +135,11 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
 
       {/* Publication Info */}
       <section>
-        <h3 className="text-lg font-semibold mb-4">Publication Information</h3>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Publication Information</h3>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="originalLanguage">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="originalLanguage">
               Original Language
             </label>
             <input
@@ -147,20 +147,20 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="text"
               value={formData.originalLanguage}
               onChange={(e) => setFormData({ ...formData, originalLanguage: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               placeholder="e.g., Korean, Japanese"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="publicationStatus">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="publicationStatus">
               Publication Status
             </label>
             <select
               id="publicationStatus"
               value={formData.publicationStatus}
               onChange={(e) => setFormData({ ...formData, publicationStatus: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             >
               <option value="Ongoing">Ongoing</option>
               <option value="Completed">Completed</option>
@@ -170,7 +170,7 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="originalPublicationDate">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="originalPublicationDate">
               Original Publication Date
             </label>
             <input
@@ -178,7 +178,7 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="date"
               value={formData.originalPublicationDate}
               onChange={(e) => setFormData({ ...formData, originalPublicationDate: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
           </div>
         </div>
@@ -186,11 +186,11 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
 
       {/* Categories */}
       <section>
-        <h3 className="text-lg font-semibold mb-4">Categories</h3>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Categories</h3>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="genres">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="genres">
               Genres (comma-separated)
             </label>
             <input
@@ -198,13 +198,13 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="text"
               value={formData.genres}
               onChange={(e) => setFormData({ ...formData, genres: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               placeholder="e.g., Dark Fantasy, Strategy, Psychological"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="tags">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="tags">
               Tags (comma-separated)
             </label>
             <input
@@ -212,7 +212,7 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="text"
               value={formData.tags}
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               placeholder="e.g., Anti-Hero, Cunning Protagonist, Dark"
             />
           </div>
@@ -221,11 +221,11 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
 
       {/* Links */}
       <section>
-        <h3 className="text-lg font-semibold mb-4">External Links</h3>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">External Links</h3>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="coverImageUrl">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="coverImageUrl">
               Cover Image URL
             </label>
             <input
@@ -233,13 +233,13 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="url"
               value={formData.coverImageUrl}
               onChange={(e) => setFormData({ ...formData, coverImageUrl: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               placeholder="https://i.imgur.com/..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="novelUpdatesUrl">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="novelUpdatesUrl">
               Novel Updates URL
             </label>
             <input
@@ -247,12 +247,12 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="url"
               value={formData.novelUpdatesUrl}
               onChange={(e) => setFormData({ ...formData, novelUpdatesUrl: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="rawSourceUrl">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="rawSourceUrl">
               Raw Source URL
             </label>
             <input
@@ -260,12 +260,12 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="url"
               value={formData.rawSourceUrl}
               onChange={(e) => setFormData({ ...formData, rawSourceUrl: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="mangaUrl">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="mangaUrl">
               Manga Adaptation URL (optional)
             </label>
             <input
@@ -273,12 +273,12 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="url"
               value={formData.mangaUrl}
               onChange={(e) => setFormData({ ...formData, mangaUrl: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="animeUrl">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="animeUrl">
               Anime Adaptation URL (optional)
             </label>
             <input
@@ -286,7 +286,7 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               type="url"
               value={formData.animeUrl}
               onChange={(e) => setFormData({ ...formData, animeUrl: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
           </div>
         </div>
