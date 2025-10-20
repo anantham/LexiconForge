@@ -86,31 +86,66 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         // Notify parent that session is loaded
         onSessionLoaded?.();
       } else {
-        // No cached data, download from URL
-        await ImportService.importFromUrl(novel.sessionJsonUrl, (progress) => {
-          setImportProgress(progress);
-        });
+        // No cached data, use streaming import
+        let hasNavigatedToFirstChapter = false;
 
-        // After import, navigate to first chapter (ignore lastActive from exported session)
-        const { useAppStore } = await import('../store');
-        const chapters = useAppStore.getState().chapters;
-        const sortedChapters = Array.from(chapters.entries()).sort((a, b) => {
-          const numA = a[1].chapterNumber || 0;
-          const numB = b[1].chapterNumber || 0;
-          return numA - numB;
-        });
-        const firstChapterId = sortedChapters[0]?.[0];
-        if (firstChapterId) {
-          useAppStore.setState({ currentChapterId: firstChapterId });
-        }
+        await ImportService.streamImportFromUrl(
+          novel.sessionJsonUrl,
+          (progress) => {
+            setImportProgress(progress);
+          },
+          // Callback when first 10 chapters are ready
+          async () => {
+            if (hasNavigatedToFirstChapter) return;
+            hasNavigatedToFirstChapter = true;
 
-        showNotification(`✅ Loaded ${novel.title} - ${novel.metadata.chapterCount} chapters ready!`, 'success');
+            // Navigate to first chapter after first 10 load
+            const { useAppStore } = await import('../store');
+            const chapters = await indexedDBService.getChaptersForReactRendering();
 
-        // Close the detail sheet
-        setSelectedNovel(null);
+            // Hydrate store with first 10 chapters
+            const firstChapters = chapters.slice(0, 10);
+            const newChapters = new Map<string, any>();
+            for (const ch of firstChapters) {
+              newChapters.set(ch.stableId, {
+                stableId: ch.stableId,
+                url: ch.url || ch.canonicalUrl,
+                title: ch.data?.chapter?.title || ch.title,
+                content: ch.data?.chapter?.content || ch.content,
+                nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
+                prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
+                chapterNumber: ch.chapterNumber || 0,
+                canonicalUrl: ch.url,
+                originalUrl: ch.url,
+                sourceUrls: [ch.url],
+                fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
+                translationResult: ch.data?.translationResult || null,
+                feedback: [],
+              });
+            }
 
-        // Notify parent that session is loaded
-        onSessionLoaded?.();
+            // Sort by chapter number and navigate to first
+            const sortedChapters = Array.from(newChapters.entries()).sort((a, b) => {
+              const numA = a[1].chapterNumber || 0;
+              const numB = b[1].chapterNumber || 0;
+              return numA - numB;
+            });
+            const firstChapterId = sortedChapters[0]?.[0];
+
+            useAppStore.setState({
+              chapters: newChapters,
+              currentChapterId: firstChapterId,
+            });
+
+            // Close the detail sheet and notify
+            setSelectedNovel(null);
+            onSessionLoaded?.();
+
+            showNotification(`✅ First chapters ready! Loading ${novel.metadata.chapterCount} total chapters in background...`, 'success');
+          }
+        );
+
+        showNotification(`✅ All ${novel.metadata.chapterCount} chapters loaded!`, 'success');
       }
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);

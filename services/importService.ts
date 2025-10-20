@@ -6,13 +6,16 @@ import { indexedDBService } from './indexeddb';
 import { useAppStore } from '../store';
 
 export interface ImportProgress {
-  stage: 'downloading' | 'parsing' | 'importing' | 'complete';
+  stage: 'downloading' | 'parsing' | 'importing' | 'streaming' | 'complete';
   progress: number; // 0-100
   loaded?: number;
   total?: number;
   message?: string;
   retryAttempt?: number;
   maxRetries?: number;
+  chaptersLoaded?: number;
+  totalChapters?: number;
+  canStartReading?: boolean;
 }
 
 // Retry configuration
@@ -204,6 +207,185 @@ export class ImportService {
     // If we get here, all retries failed
     console.error('[Import] Failed to import from URL after all retries:', lastError);
     throw new Error(`Failed to import after ${MAX_RETRIES} retries: ${lastError.message}`);
+  }
+
+  /**
+   * Stream import session from URL - loads chapters progressively
+   * Allows users to start reading after first 10 chapters load
+   */
+  static async streamImportFromUrl(
+    url: string,
+    onProgress?: (progress: ImportProgress) => void,
+    onFirstChaptersReady?: () => void
+  ): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      console.log('[StreamImport] Starting streaming import from:', url);
+
+      // Convert GitHub URLs to raw format
+      let fetchUrl = url;
+      if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
+        fetchUrl = url
+          .replace('github.com', 'raw.githubusercontent.com')
+          .replace('/blob/', '/');
+      }
+
+      // Convert Google Drive share links
+      if (url.includes('drive.google.com/file/d/')) {
+        const fileId = url.match(/\/d\/([^/]+)/)?.[1];
+        if (fileId) {
+          const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
+          if (apiKey) {
+            fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${apiKey}`;
+          } else {
+            fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          }
+        }
+      }
+
+      console.log('[StreamImport] Fetching from:', fetchUrl);
+
+      try {
+        // Dynamic import oboe
+        const oboe = (await import('oboe')).default;
+
+        let chaptersLoaded = 0;
+        let totalChapters = 0;
+        let metadata: any = null;
+        let firstChaptersReadyCalled = false;
+        const loadedChapterIds = new Set<string>();
+
+        oboe(fetchUrl)
+          // Extract metadata first
+          .node('metadata', function(meta) {
+            metadata = meta;
+            totalChapters = meta.chapterCount || 0;
+            console.log('[StreamImport] Metadata loaded:', { totalChapters });
+
+            onProgress?.({
+              stage: 'streaming',
+              progress: 0,
+              chaptersLoaded: 0,
+              totalChapters,
+              message: `Starting stream... (${totalChapters} chapters total)`,
+              canStartReading: false,
+            });
+
+            return oboe.drop; // Don't keep in memory
+          })
+
+          // Process each chapter as it arrives
+          .node('chapters.*', async function(chapter) {
+            try {
+              // Import chapter to IndexedDB immediately
+              await indexedDBService.saveChapter(chapter.url || chapter.canonicalUrl, {
+                title: chapter.title,
+                content: chapter.content,
+                nextUrl: chapter.nextUrl,
+                prevUrl: chapter.prevUrl,
+                chapterNumber: chapter.chapterNumber,
+                fanTranslation: chapter.fanTranslation,
+              });
+
+              // If there's a translation, save it too
+              if (chapter.translationResult) {
+                await indexedDBService.saveTranslation(
+                  chapter.url || chapter.canonicalUrl,
+                  chapter.translationResult
+                );
+              }
+
+              chaptersLoaded++;
+              loadedChapterIds.add(chapter.stableId || chapter.url);
+
+              const progress = totalChapters > 0
+                ? (chaptersLoaded / totalChapters) * 100
+                : (chaptersLoaded / 500) * 100; // Estimate if unknown
+
+              onProgress?.({
+                stage: 'streaming',
+                progress,
+                chaptersLoaded,
+                totalChapters,
+                message: `Loaded ${chaptersLoaded}${totalChapters > 0 ? `/${totalChapters}` : ''} chapters...`,
+                canStartReading: chaptersLoaded >= 10,
+              });
+
+              // After 10 chapters, notify that reading can start
+              if (chaptersLoaded === 10 && !firstChaptersReadyCalled) {
+                firstChaptersReadyCalled = true;
+                console.log('[StreamImport] First 10 chapters ready - user can start reading');
+                onFirstChaptersReady?.();
+              }
+
+              // Log progress every 50 chapters
+              if (chaptersLoaded % 50 === 0) {
+                console.log(`[StreamImport] Progress: ${chaptersLoaded}/${totalChapters} chapters loaded`);
+              }
+            } catch (err) {
+              console.error('[StreamImport] Failed to import chapter:', err);
+            }
+
+            return oboe.drop; // Don't keep in memory - critical for large files!
+          })
+
+          // Stream complete
+          .done(async function(fullData) {
+            console.log('[StreamImport] Stream complete:', { chaptersLoaded, totalChapters });
+
+            onProgress?.({
+              stage: 'complete',
+              progress: 100,
+              chaptersLoaded,
+              totalChapters,
+              message: `All ${chaptersLoaded} chapters loaded!`,
+              canStartReading: true,
+            });
+
+            // Hydrate store from IndexedDB
+            const rendering = await indexedDBService.getChaptersForReactRendering();
+            const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
+
+            useAppStore.setState(state => {
+              const newChapters = new Map<string, any>();
+              for (const ch of rendering) {
+                newChapters.set(ch.stableId, {
+                  id: ch.stableId,
+                  stableId: ch.stableId,
+                  title: ch.data.chapter.title,
+                  content: ch.data.chapter.content,
+                  originalUrl: ch.url,
+                  canonicalUrl: ch.url,
+                  nextUrl: ch.data.chapter.nextUrl,
+                  prevUrl: ch.data.chapter.prevUrl,
+                  chapterNumber: ch.chapterNumber || 0,
+                  sourceUrls: [ch.url],
+                  fanTranslation: ch.data.chapter.fanTranslation ?? null,
+                  translationResult: ch.data.translationResult || null,
+                  feedback: [],
+                });
+              }
+
+              return {
+                chapters: newChapters,
+                navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
+                error: null,
+              };
+            });
+
+            resolve(fullData);
+          })
+
+          // Handle errors
+          .fail(function(error) {
+            console.error('[StreamImport] Stream failed:', error);
+            reject(new Error(`Streaming import failed: ${error.message || error}`));
+          });
+
+      } catch (error: any) {
+        console.error('[StreamImport] Failed to start stream:', error);
+        reject(new Error(`Failed to start streaming: ${error.message}`));
+      }
+    });
   }
 
   /**
