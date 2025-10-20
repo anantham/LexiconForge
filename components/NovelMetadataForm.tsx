@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import type { NovelMetadata } from '../types/novel';
 
+// Extended metadata interface that includes title and alternate titles
+interface NovelMetadataFormData extends NovelMetadata {
+  title?: string;
+  alternateTitles?: string[];
+}
+
 interface NovelMetadataFormProps {
-  initialData?: Partial<NovelMetadata>;
-  onSave: (metadata: NovelMetadata) => void;
+  initialData?: Partial<NovelMetadataFormData>;
+  onSave: (metadata: NovelMetadataFormData) => void;
 }
 
 interface FormErrors {
@@ -49,7 +55,9 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
     }
 
     // Build metadata object
-    const metadata: NovelMetadata = {
+    const metadata: NovelMetadataFormData = {
+      title: formData.title,
+      alternateTitles: formData.alternateTitles.split(',').map(t => t.trim()).filter(Boolean),
       originalLanguage: formData.originalLanguage,
       genres: formData.genres.split(',').map(g => g.trim()).filter(Boolean),
       description: formData.description,

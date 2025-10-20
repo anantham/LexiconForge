@@ -16,6 +16,7 @@ import { DiffResultsRepo } from '../adapters/repo/DiffResultsRepo';
 import { COLOR_EXAMPLES, getDefaultDiffPrompt } from '../services/diff/promptUtils';
 import { NovelMetadataForm } from './NovelMetadataForm';
 import { ExportService } from '../services/exportService';
+import type { NovelMetadata } from '../types/novel';
 
 const formatCurrencyValue = (value?: number | null, currency = 'USD'): string | null => {
   if (value === null || value === undefined || Number.isNaN(value)) return null;
@@ -239,6 +240,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [loadingDiskStats, setLoadingDiskStats] = useState(false);
   const [diagnosticsExpanded, setDiagnosticsExpanded] = useState(false);
   const [diffInvalidatePending, setDiffInvalidatePending] = useState(false);
+  const [novelMetadata, setNovelMetadata] = useState<NovelMetadata | null>(null);
 
   useEffect(() => {
     const loadOSTSamples = async () => {
@@ -273,6 +275,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
     loadDiskDiagnostics();
   }, [isOpen, activeTab, diagnosticsExpanded]);
+
+  // Load novel metadata from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('novelMetadata');
+    if (saved) {
+      try {
+        setNovelMetadata(JSON.parse(saved));
+      } catch (error) {
+        console.error('Failed to load novel metadata:', error);
+      }
+    }
+  }, []);
+
+  // Save novel metadata handler
+  const handleSaveNovelMetadata = (metadata: NovelMetadata) => {
+    setNovelMetadata(metadata);
+    localStorage.setItem('novelMetadata', JSON.stringify(metadata));
+    showNotification?.('Novel metadata saved successfully');
+  };
 
   const handleTaskTypeChange = (taskType: 'txt2audio' | 'audio2audio') => {
     setTaskType(taskType);
@@ -1564,7 +1585,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           {activeTab === 'metadata' && (
             <fieldset>
               <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Novel Metadata</legend>
-              <NovelMetadataForm />
+              <NovelMetadataForm
+                initialData={novelMetadata || undefined}
+                onSave={handleSaveNovelMetadata}
+              />
             </fieldset>
           )}
 
