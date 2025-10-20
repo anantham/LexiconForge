@@ -1,25 +1,84 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { SUPPORTED_WEBSITES_CONFIG } from '../config/constants';
+import { ImportService, ImportProgress } from '../services/importService';
+
+/**
+ * Detect if URL points to a session JSON file
+ */
+const isSessionJsonUrl = (url: string): boolean => {
+  const lowerUrl = url.toLowerCase();
+  return (
+    lowerUrl.endsWith('.json') ||
+    lowerUrl.includes('/session') ||
+    lowerUrl.includes('lexiconforge') ||
+    lowerUrl.includes('session-files/')
+  );
+};
 
 const InputBar: React.FC = () => {
   const [url, setUrl] = useState('');
+  const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+
   const handleFetch = useAppStore(state => state.handleFetch);
   const isLoading = useAppStore(state => state.isLoading.fetching);
   const error = useAppStore(state => state.error);
+  const setError = useAppStore(state => state.setError);
 
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (url.trim()) {
-      handleFetch(url.trim());
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) return;
+
+    // Detect if this is a session JSON URL
+    if (isSessionJsonUrl(trimmedUrl)) {
+      console.log('[InputBar] Detected session JSON URL, importing...');
+      setIsImporting(true);
+      setImportProgress(null);
+      setError(null);
+
+      try {
+        await ImportService.importFromUrl(trimmedUrl, (progress) => {
+          setImportProgress(progress);
+        });
+
+        // After successful import, navigate to first chapter
+        const { useAppStore } = await import('../store');
+        const chapters = useAppStore.getState().chapters;
+        const sortedChapters = Array.from(chapters.entries()).sort((a, b) => {
+          const numA = a[1].chapterNumber || 0;
+          const numB = b[1].chapterNumber || 0;
+          return numA - numB;
+        });
+        const firstChapterId = sortedChapters[0]?.[0];
+        if (firstChapterId) {
+          useAppStore.setState({ currentChapterId: firstChapterId });
+        }
+
+        // Clear the input
+        setUrl('');
+        console.log('[InputBar] Session import successful');
+      } catch (err: any) {
+        console.error('[InputBar] Session import failed:', err);
+        setError(`Failed to import session: ${err.message}`);
+      } finally {
+        setIsImporting(false);
+        setImportProgress(null);
+      }
+    } else {
+      // Regular chapter URL
+      console.log('[InputBar] Detected chapter URL, fetching...');
+      handleFetch(trimmedUrl);
     }
   };
-  
+
   const handleExampleClick = (exampleUrl: string) => {
     setUrl(exampleUrl);
     handleFetch(exampleUrl);
-  }
+  };
+
+  const isAnyLoading = isLoading || isImporting;
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
@@ -29,19 +88,47 @@ const InputBar: React.FC = () => {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste link to the chapter of the novel you want to start translating..."
+            placeholder="Paste chapter URL or session JSON file URL to start reading..."
             className="flex-grow w-full px-4 py-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder:text-gray-400 dark:placeholder:text-gray-500"
-            disabled={isLoading}
+            disabled={isAnyLoading}
           />
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isAnyLoading}
             className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
           >
-            {isLoading ? 'Fetching...' : 'Fetch Chapter'}
+            {isImporting ? 'Importing...' : isLoading ? 'Fetching...' : 'Load'}
           </button>
         </div>
       </form>
+
+      {/* Import Progress Bar */}
+      {importProgress && (
+        <div className="mt-3 bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {importProgress.stage === 'downloading' && '📥 Downloading'}
+              {importProgress.stage === 'parsing' && '📋 Parsing'}
+              {importProgress.stage === 'importing' && '💾 Importing'}
+              {importProgress.stage === 'complete' && '✅ Complete'}
+            </span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {importProgress.progress.toFixed(0)}%
+            </span>
+          </div>
+          <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${importProgress.progress}%` }}
+            />
+          </div>
+          {importProgress.message && (
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+              {importProgress.message}
+            </p>
+          )}
+        </div>
+      )}
        <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
         <span className="font-semibold">Find the novel you want to read from these supported websites:</span>
         {' '}
