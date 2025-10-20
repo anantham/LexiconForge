@@ -1,12 +1,13 @@
 import React from 'react';
 import { BookOpen, Star, X, ExternalLink, Globe, User } from 'lucide-react';
-import type { NovelEntry } from '../types/novel';
+import type { NovelEntry, NovelVersion } from '../types/novel';
+import { VersionPicker } from './VersionPicker';
 
 interface NovelDetailSheetProps {
   novel: NovelEntry | null;
   isOpen: boolean;
   onClose: () => void;
-  onStartReading: (novel: NovelEntry) => void;
+  onStartReading: (novel: NovelEntry, version?: NovelVersion) => void;
 }
 
 export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: NovelDetailSheetProps) {
@@ -110,15 +111,23 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
                 )}
               </div>
 
-              {/* Start Reading Button */}
-              <button
-                onClick={() => onStartReading(novel)}
-                className="w-full sm:w-auto mt-6 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
-              >
-                Start Reading
-              </button>
             </div>
           </div>
+
+          {/* Version Picker or Single Start Reading Button */}
+          {novel.versions && novel.versions.length > 0 ? (
+            <VersionPicker
+              versions={novel.versions}
+              onSelect={(version) => onStartReading(novel, version)}
+            />
+          ) : (
+            <button
+              onClick={() => onStartReading(novel)}
+              className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
+            >
+              Start Reading
+            </button>
+          )}
 
           {/* Description */}
           <div className="mb-6">
