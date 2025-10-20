@@ -4,6 +4,7 @@
 
 import { indexedDBService } from './indexeddb';
 import { useAppStore } from '../store';
+import type { SessionData } from '../types/session';
 
 export interface ImportProgress {
   stage: 'downloading' | 'parsing' | 'importing' | 'streaming' | 'complete';
@@ -160,6 +161,16 @@ export class ImportService {
         // Validate format
         if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
           throw new Error('Invalid session format. Expected lexiconforge export.');
+        }
+
+        // NEW: Extract and store provenance if present
+        if (sessionData.provenance) {
+          useAppStore.getState().setSessionProvenance(sessionData.provenance);
+        }
+
+        // NEW: Extract and store version info if present
+        if (sessionData.version) {
+          useAppStore.getState().setSessionVersion(sessionData.version);
         }
 
         onProgress?.({ stage: 'importing', progress: 0, message: 'Importing to database...' });
@@ -406,6 +417,16 @@ export class ImportService {
       // Validate format
       if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
         throw new Error('Invalid session format');
+      }
+
+      // Extract and store provenance if present
+      if (sessionData.provenance) {
+        useAppStore.getState().setSessionProvenance(sessionData.provenance);
+      }
+
+      // Extract and store version info if present
+      if (sessionData.version) {
+        useAppStore.getState().setSessionVersion(sessionData.version);
       }
 
       // Use store's import method which handles both IndexedDB AND store updates
