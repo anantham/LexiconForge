@@ -288,11 +288,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     }
   }, []);
 
-  // Save novel metadata handler
-  const handleSaveNovelMetadata = (metadata: NovelMetadata) => {
+  // Update novel metadata state (called on every change)
+  const handleNovelMetadataChange = (metadata: NovelMetadata) => {
     setNovelMetadata(metadata);
-    localStorage.setItem('novelMetadata', JSON.stringify(metadata));
-    showNotification?.('Novel metadata saved successfully');
   };
 
   const handleTaskTypeChange = (taskType: 'txt2audio' | 'audio2audio') => {
@@ -707,10 +705,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
   const handleSave = () => {
     updateSettings(currentSettings);
-    
+
+    // Save novel metadata to localStorage
+    if (novelMetadata) {
+      localStorage.setItem('novelMetadata', JSON.stringify(novelMetadata));
+    }
+
     // Clear any existing API key errors since settings were updated
     setUIError(null);
-    
+
+    showNotification?.('Settings saved successfully');
     onClose();
   };
 
@@ -1587,7 +1591,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Novel Metadata</legend>
               <NovelMetadataForm
                 initialData={novelMetadata || undefined}
-                onSave={handleSaveNovelMetadata}
+                onChange={handleNovelMetadataChange}
               />
             </fieldset>
           )}

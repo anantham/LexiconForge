@@ -9,16 +9,10 @@ interface NovelMetadataFormData extends NovelMetadata {
 
 interface NovelMetadataFormProps {
   initialData?: Partial<NovelMetadataFormData>;
-  onSave: (metadata: NovelMetadataFormData) => void;
+  onChange: (metadata: NovelMetadataFormData) => void;
 }
 
-interface FormErrors {
-  title?: string;
-  author?: string;
-  description?: string;
-}
-
-export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProps) {
+export function NovelMetadataForm({ initialData, onChange }: NovelMetadataFormProps) {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     alternateTitles: initialData?.alternateTitles?.join(', ') || '',
@@ -38,23 +32,8 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
     animeUrl: initialData?.sourceLinks?.anime || ''
   });
 
-  const [errors, setErrors] = useState<FormErrors>({});
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validation
-    const newErrors: FormErrors = {};
-    if (!formData.title) newErrors.title = 'Title is required';
-    if (!formData.author) newErrors.author = 'Author is required';
-    if (!formData.description) newErrors.description = 'Description is required';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    // Build metadata object
+  // Call onChange whenever formData changes
+  React.useEffect(() => {
     const metadata: NovelMetadataFormData = {
       title: formData.title,
       alternateTitles: formData.alternateTitles.split(',').map(t => t.trim()).filter(Boolean),
@@ -76,12 +55,11 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
       },
       lastUpdated: new Date().toISOString().split('T')[0]
     };
-
-    onSave(metadata);
-  };
+    onChange(metadata);
+  }, [formData, onChange]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       {/* Basic Info */}
       <section>
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Basic Information</h3>
@@ -98,7 +76,6 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
-            {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
           </div>
 
           <div>
@@ -126,7 +103,6 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             />
-            {errors.author && <p className="text-red-600 text-sm mt-1">{errors.author}</p>}
           </div>
 
           <div>
@@ -140,7 +116,6 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
               className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               rows={4}
             />
-            {errors.description && <p className="text-red-600 text-sm mt-1">{errors.description}</p>}
           </div>
         </div>
       </section>
@@ -329,16 +304,6 @@ export function NovelMetadataForm({ initialData, onSave }: NovelMetadataFormProp
           </div>
         </div>
       </section>
-
-      {/* Submit */}
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Save Metadata
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }
