@@ -294,7 +294,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   }, []);
 
   // Handle publish to library - generate and download both metadata.json and session.json
-  const handlePublishToLibrary = () => {
+  const handlePublishToLibrary = async () => {
     if (!novelMetadata) {
       setActiveTab('metadata');
       showNotification?.('Please fill in the novel metadata first');
@@ -310,11 +310,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     }
 
     try {
-      // Generate metadata.json
-      const metadataFile = ExportService.generateMetadataFile(metadata);
+      showNotification?.('Preparing export from IndexedDB...');
 
-      // Generate session.json using the same novel info
-      const sessionData = ExportService.generatePublishExport(
+      // Generate metadata.json (now async)
+      const metadataFile = await ExportService.generateMetadataFile(metadata);
+
+      // Generate session.json using the same novel info (now async)
+      const sessionData = await ExportService.generatePublishExport(
         {
           id: metadataFile.id,
           title: metadata.title,
@@ -333,18 +335,94 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         }
       );
 
-      // Download both files
-      ExportService.downloadJSON(metadataFile, 'metadata.json');
-      setTimeout(() => {
-        ExportService.downloadJSON(sessionData, 'session.json');
-      }, 500); // Small delay so downloads don't conflict
+      // Try to use the simpler directory picker workflow
+      try {
+        showNotification?.(
+          `Select the "novels" folder\n` +
+          `(Navigate to: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/)\n\n` +
+          `The app will create a "${metadataFile.id}" subfolder and save both files there.`
+        );
 
-      showNotification?.(
-        'Files downloaded! Next steps:\n' +
-        '1. Upload session.json to GitHub releases or LFS\n' +
-        '2. Update sessionJsonUrl in metadata.json\n' +
-        '3. Submit PR to lexiconforge-novels repository'
-      );
+        await ExportService.saveToDirectory(metadataFile, sessionData, metadataFile.id);
+
+        // Optionally update registry.json
+        showNotification?.(
+          `Files saved! Now select registry.json to update it\n` +
+          `(or Cancel to skip this step)`
+        );
+
+        try {
+          await ExportService.updateRegistry(metadataFile);
+          showNotification?.(
+            'All done! Files saved and registry updated!\n' +
+            'Next steps:\n' +
+            `1. Verify files in: novels/${metadataFile.id}/\n` +
+            '2. Commit and push to lexiconforge-novels repository'
+          );
+        } catch (registryError: any) {
+          if (registryError.message?.includes('cancelled')) {
+            showNotification?.(
+              'Files saved! Registry not updated.\n' +
+              'Next steps:\n' +
+              '1. Manually update registry.json\n' +
+              '2. Commit and push to lexiconforge-novels repository'
+            );
+          } else {
+            console.error('Registry update failed:', registryError);
+            showNotification?.(
+              'Files saved but registry update failed!\n' +
+              'You\'ll need to manually update registry.json.\n' +
+              'Error: ' + registryError.message
+            );
+          }
+        }
+      } catch (dirError: any) {
+        // Fallback to individual file saves
+        console.warn('[Export] Directory picker failed, falling back to individual saves:', dirError);
+
+        const novelFolder = `/Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/${metadataFile.id}`;
+
+        showNotification?.(
+          `Step 1: Save metadata.json\n` +
+          `Navigate to: ${novelFolder}\n` +
+          `(Create the folder if it doesn't exist)`
+        );
+        await ExportService.downloadJSON(metadataFile, 'metadata.json');
+
+        showNotification?.(
+          `Step 2: Save session.json\n` +
+          `Save in the same folder: ${novelFolder}`
+        );
+        await ExportService.downloadJSON(sessionData, 'session.json');
+
+        showNotification?.(
+          `Step 3 (Optional): Update registry.json\n` +
+          `Navigate to: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/\n` +
+          `Select registry.json (or Cancel to skip)`
+        );
+
+        try {
+          await ExportService.updateRegistry(metadataFile);
+          showNotification?.(
+            'All done! Files saved and registry updated!\n' +
+            'Next steps:\n' +
+            '1. Verify the files\n' +
+            '2. Commit and push to lexiconforge-novels repository'
+          );
+        } catch (registryError: any) {
+          if (registryError.message?.includes('cancelled')) {
+            showNotification?.(
+              'Files saved! Registry not updated.\n' +
+              'Next steps:\n' +
+              '1. Manually update registry.json\n' +
+              '2. Commit and push'
+            );
+          } else {
+            console.error('Registry update failed:', registryError);
+            showNotification?.('Files saved but registry update failed!');
+          }
+        }
+      }
     } catch (error) {
       console.error('Failed to generate library files:', error);
       showNotification?.('Error generating files. Check console for details.');
@@ -1615,9 +1693,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       type="button"
-                      onClick={() => {
-                        const sessionData = ExportService.generateQuickExport();
-                        ExportService.downloadJSON(sessionData, 'session.json');
+                      onClick={async () => {
+                        try {
+                          showNotification?.('Preparing export from IndexedDB...');
+                          const sessionData = await ExportService.generateQuickExport();
+                          await ExportService.downloadJSON(sessionData, 'session.json');
+                          showNotification?.('Session exported successfully!');
+                        } catch (error) {
+                          console.error('Quick export failed:', error);
+                          showNotification?.('Error: Failed to export session');
+                        }
                       }}
                       className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     >
