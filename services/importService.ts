@@ -287,6 +287,12 @@ export class ImportService {
           // Process each chapter as it arrives
           .node('chapters.*', async function(chapter) {
             try {
+              console.log(`[📥 IMPORT] Storing chapter #${chapter.chapterNumber}: "${chapter.title}"`, {
+                url: chapter.url,
+                hasTranslation: !!chapter.translationResult,
+                translatedTitle: chapter.translationResult?.translatedTitle
+              });
+
               // Import chapter to IndexedDB immediately
               await indexedDBService.storeChapter({
                 originalUrl: chapter.url || chapter.canonicalUrl,
@@ -297,6 +303,7 @@ export class ImportService {
                 chapterNumber: chapter.chapterNumber,
                 fanTranslation: chapter.fanTranslation,
               });
+              console.log(`[✅ IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
 
               // If there's a translation, save it too
               if (chapter.translationResult) {
@@ -310,6 +317,7 @@ export class ImportService {
                     systemPrompt: '',
                   }
                 );
+                console.log(`[✅ IMPORT] Translation #${chapter.chapterNumber} stored: "${chapter.translationResult.translatedTitle}"`);
               }
 
               chaptersLoaded++;

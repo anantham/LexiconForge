@@ -108,6 +108,9 @@ const SessionInfo: React.FC = () => {
     const [summariesLoading, setSummariesLoading] = useState<boolean>(true);
     const [versions, setVersions] = useState<any[]>([]);
     const [selectedVersion, setSelectedVersion] = useState<number | ''>('');
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleteMode, setDeleteMode] = useState<'translation-only' | 'chapter'>('translation-only');
+    const [pendingDeleteTarget, setPendingDeleteTarget] = useState<any>(null);
 
     useEffect(() => {
         if (!showExportModal) {
@@ -163,11 +166,17 @@ const SessionInfo: React.FC = () => {
         (async () => {
             try {
                 setSummariesLoading(true);
+                console.log(`[🎯 DROPDOWN] Starting dropdown population, chapters in store: ${chapters.size}`);
+
                 const summaries = await ImportTransformationService.getChapterSummaries();
                 if (cancelled) return;
 
+                console.log(`[📊 DROPDOWN] Received ${summaries.length} summaries from IndexedDB`);
+
                 const byId = new Map<string, ChapterSummary>();
                 summaries.forEach(summary => byId.set(summary.stableId, { ...summary }));
+
+                console.log(`[🔍 DROPDOWN] Merging with Zustand store (${chapters.size} chapters)`);
 
                 if (chapters.size > 0) {
                     for (const [stableId, ch] of chapters.entries()) {
@@ -183,6 +192,10 @@ const SessionInfo: React.FC = () => {
                             lastAccessed: undefined,
                             lastTranslatedAt: undefined,
                         };
+
+                        if (!existing) {
+                            console.log(`[⚠️ DROPDOWN] Chapter in store but NO SUMMARY in IndexedDB: #${ch.chapterNumber} "${ch.title}"`);
+                        }
 
                         if ((ch as any).canonicalUrl) {
                             candidate.canonicalUrl = (ch as any).canonicalUrl;
@@ -208,6 +221,8 @@ const SessionInfo: React.FC = () => {
                 }
 
                 const list = Array.from(byId.values());
+                console.log(`[📝 DROPDOWN] Final merged list has ${list.length} items`);
+
                 list.sort((a, b) => {
                     const aTranslated = a.translatedTitle;
                     const bTranslated = b.translatedTitle;
@@ -218,6 +233,11 @@ const SessionInfo: React.FC = () => {
 
                     if (aDisplay !== bDisplay) return aDisplay - bDisplay;
                     return (a.title || '').localeCompare(b.title || '');
+                });
+
+                console.log(`[🔢 DROPDOWN] Sorted dropdown list:`);
+                list.forEach((item, idx) => {
+                    console.log(`[📌 DROPDOWN]   ${idx + 1}. Ch #${item.chapterNumber}: "${item.translatedTitle || item.title}"`);
                 });
 
                 setChapterOptions(list);
@@ -304,24 +324,80 @@ const SessionInfo: React.FC = () => {
         const target = versionToDelete || versions.find(v => v.version === selectedVersion);
         if (!target) return;
 
-        if (confirm(`Are you sure you want to delete version ${target.version}? This cannot be undone.`)) {
-            const refreshStart = getTimestamp();
-            let resolvedCount = 0;
-            try {
-                await deleteTranslationVersion(currentChapterId, target.id);
-                // Refresh the list after deletion
-                const v = await fetchTranslationVersions(currentChapterId);
-                resolvedCount = Array.isArray(v) ? v.length : 0;
-                setVersions(v);
-                const active = v.find((x: any) => x.isActive);
-                setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
-            } finally {
-                telemetryService.capturePerformance('ux:component:SessionInfo:versionsRefreshAfterDelete', getTimestamp() - refreshStart, {
-                    chapterId: currentChapterId,
-                    versionCount: resolvedCount,
-                });
+        // Check if this is the last translation version
+        const isLastVersion = versions.length === 1;
+
+        if (isLastVersion) {
+            // Show dialog for last translation
+            setPendingDeleteTarget(target);
+            setDeleteMode('translation-only'); // Default to translation-only
+            setShowDeleteDialog(true);
+        } else {
+            // Normal deletion with simple confirm
+            if (confirm(`Are you sure you want to delete version ${target.version}? This cannot be undone.`)) {
+                await performDeleteTranslation(target);
             }
         }
+    };
+
+    const performDeleteTranslation = async (target: any) => {
+        if (!currentChapterId) return;
+
+        const refreshStart = getTimestamp();
+        let resolvedCount = 0;
+        try {
+            await deleteTranslationVersion(currentChapterId, target.id);
+            // Refresh the list after deletion
+            const v = await fetchTranslationVersions(currentChapterId);
+            resolvedCount = Array.isArray(v) ? v.length : 0;
+            setVersions(v);
+            const active = v.find((x: any) => x.isActive);
+            setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
+        } finally {
+            telemetryService.capturePerformance('ux:component:SessionInfo:versionsRefreshAfterDelete', getTimestamp() - refreshStart, {
+                chapterId: currentChapterId,
+                versionCount: resolvedCount,
+            });
+        }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!pendingDeleteTarget || !currentChapterId) return;
+
+        setShowDeleteDialog(false);
+
+        if (deleteMode === 'chapter') {
+            // Delete chapter completely from IndexedDB + store
+            try {
+                const { indexedDBService } = await import('../services/indexeddb');
+                const currentChapter = chapters.get(currentChapterId);
+                if (!currentChapter) return;
+
+                // Delete from IndexedDB
+                await indexedDBService.deleteChapter(currentChapter.originalUrl);
+
+                // Remove from store
+                const removeChapter = useAppStore.getState().removeChapter;
+                if (removeChapter) {
+                    removeChapter(currentChapterId);
+                }
+
+                console.log(`[SessionInfo] Deleted chapter completely: ${currentChapterId}`);
+
+                // Navigate away (will be handled by store update)
+            } catch (error) {
+                console.error('[SessionInfo] Failed to delete chapter:', error);
+                const setError = useAppStore.getState().setError;
+                if (setError) {
+                    setError('Failed to delete chapter');
+                }
+            }
+        } else {
+            // Delete translation only (normal path)
+            await performDeleteTranslation(pendingDeleteTarget);
+        }
+
+        setPendingDeleteTarget(null);
     };
 
     const handleChapterSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -631,6 +707,93 @@ const SessionInfo: React.FC = () => {
               </div>
             </div>,
             document.body
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Delete Last Translation?
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                This is the last translation for this chapter. What would you like to do?
+              </p>
+
+              <div className="space-y-3 mb-6">
+                <label className="flex items-start p-3 border-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  style={{
+                    borderColor: deleteMode === 'translation-only'
+                      ? 'rgb(59, 130, 246)'
+                      : 'rgb(229, 231, 235)'
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="deleteMode"
+                    value="translation-only"
+                    checked={deleteMode === 'translation-only'}
+                    onChange={(e) => setDeleteMode(e.target.value as any)}
+                    className="mt-1 mr-3"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      Delete translation only
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Keeps the raw chapter in database. Auto-translate will create a new translation.
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-start p-3 border-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  style={{
+                    borderColor: deleteMode === 'chapter'
+                      ? 'rgb(59, 130, 246)'
+                      : 'rgb(229, 231, 235)'
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="deleteMode"
+                    value="chapter"
+                    checked={deleteMode === 'chapter'}
+                    onChange={(e) => setDeleteMode(e.target.value as any)}
+                    className="mt-1 mr-3"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      Delete chapter from database
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Removes chapter completely. Use this to clean up accidentally fetched chapters.
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteDialog(false);
+                    setPendingDeleteTarget(null);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

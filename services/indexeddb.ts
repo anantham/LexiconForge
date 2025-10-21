@@ -972,6 +972,8 @@ class IndexedDBService {
     await this.ensureChapterSummaries(db);
 
     const { chapterUrl, stableId } = options;
+    console.log(`[🔍 SUMMARY] Starting recompute for:`, { chapterUrl, stableId });
+
     let chapter: ChapterRecord | null = null;
     if (chapterUrl) {
       chapter = await this.getChapter(chapterUrl);
@@ -981,14 +983,34 @@ class IndexedDBService {
     }
 
     if (!chapter) {
+      console.log(`[⚠️ SUMMARY] Chapter not found, deleting summary if exists:`, { chapterUrl, stableId });
       if (stableId) {
         await this.deleteChapterSummary(stableId);
       }
       return;
     }
 
+    console.log(`[📖 SUMMARY] Chapter found:`, {
+      url: chapter.url,
+      title: chapter.title,
+      chapterNumber: chapter.chapterNumber,
+      stableId: chapter.stableId
+    });
+
     const active = await this.getActiveTranslation(chapter.url).catch(() => null);
+    console.log(`[🔤 SUMMARY] Active translation:`, active ? {
+      translatedTitle: active.translatedTitle,
+      version: active.version
+    } : 'none');
+
     const { summary, chapterChanged } = this.buildChapterSummaryRecord(chapter, active || null);
+    console.log(`[📝 SUMMARY] Built summary record:`, {
+      stableId: summary.stableId,
+      title: summary.title,
+      translatedTitle: summary.translatedTitle,
+      chapterNumber: summary.chapterNumber,
+      hasTranslation: summary.hasTranslation
+    });
 
     await new Promise<void>((resolve, reject) => {
       try {
@@ -999,9 +1021,20 @@ class IndexedDBService {
           const chaptersStore = tx.objectStore(STORES.CHAPTERS);
           chaptersStore.put(chapter);
         }
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
+        tx.oncomplete = () => {
+          console.log(`[💾 SUMMARY] Summary saved to CHAPTER_SUMMARIES:`, {
+            stableId: summary.stableId,
+            chapterNumber: summary.chapterNumber,
+            translatedTitle: summary.translatedTitle
+          });
+          resolve();
+        };
+        tx.onerror = () => {
+          console.error(`[❌ SUMMARY] Transaction error saving summary:`, tx.error);
+          reject(tx.error);
+        };
       } catch (error) {
+        console.error(`[❌ SUMMARY] Exception in recomputeChapterSummary:`, error);
         reject(error as Error);
       }
     });
@@ -1109,12 +1142,116 @@ class IndexedDBService {
       getRequest.onerror = () => reject(getRequest.error);
       
       transaction.oncomplete = () => {
-        this.recomputeChapterSummary({ chapterUrl: chapter.originalUrl }).then(() => resolve()).catch(reject);
+        console.log(`[🔄 STORE] Chapter transaction complete, starting summary recompute for: ${chapter.originalUrl}`);
+        this.recomputeChapterSummary({ chapterUrl: chapter.originalUrl })
+          .then(() => {
+            console.log(`[✅ SUMMARY] Summary computed successfully for: ${chapter.originalUrl}`);
+            resolve();
+          })
+          .catch((err) => {
+            console.error(`[❌ SUMMARY] Summary computation FAILED for: ${chapter.originalUrl}`, err);
+            reject(err);
+          });
       };
-      transaction.onerror = () => reject(transaction.error);
+      transaction.onerror = () => {
+        console.error(`[❌ STORE] Chapter transaction ERROR for: ${chapter.originalUrl}`, transaction.error);
+        reject(transaction.error);
+      };
     });
   }
-  
+
+  /**
+   * Delete a chapter completely from IndexedDB
+   * Removes chapter, all translations, feedback, and summaries
+   */
+  async deleteChapter(chapterUrl: string): Promise<void> {
+    const db = await this.openDatabase();
+
+    return new Promise((resolve, reject) => {
+      try {
+        // Get all stores that might contain chapter data
+        const storeNames = [
+          STORES.CHAPTERS,
+          STORES.TRANSLATIONS,
+          STORES.CHAPTER_SUMMARIES,
+          STORES.FEEDBACK,
+          STORES.URL_MAPPINGS
+        ].filter(name => db.objectStoreNames.contains(name));
+
+        const transaction = db.transaction(storeNames, 'readwrite');
+
+        // Delete from chapters store
+        if (db.objectStoreNames.contains(STORES.CHAPTERS)) {
+          const chaptersStore = transaction.objectStore(STORES.CHAPTERS);
+          chaptersStore.delete(chapterUrl);
+        }
+
+        // Delete all translations for this chapter
+        if (db.objectStoreNames.contains(STORES.TRANSLATIONS)) {
+          const translationsStore = transaction.objectStore(STORES.TRANSLATIONS);
+          const chapterUrlIndex = translationsStore.index('chapterUrl');
+          const translationsRequest = chapterUrlIndex.getAll(chapterUrl);
+
+          translationsRequest.onsuccess = () => {
+            const translations = translationsRequest.result;
+            translations.forEach(translation => {
+              translationsStore.delete(translation.id);
+            });
+          };
+        }
+
+        // Delete chapter summary
+        if (db.objectStoreNames.contains(STORES.CHAPTER_SUMMARIES)) {
+          // Need to find summary by chapterUrl since stableId is the key
+          const summariesStore = transaction.objectStore(STORES.CHAPTER_SUMMARIES);
+          const summariesRequest = summariesStore.openCursor();
+
+          summariesRequest.onsuccess = () => {
+            const cursor = summariesRequest.result;
+            if (cursor) {
+              if (cursor.value.canonicalUrl === chapterUrl || cursor.value.url === chapterUrl) {
+                cursor.delete();
+              }
+              cursor.continue();
+            }
+          };
+        }
+
+        // Delete feedback for this chapter
+        if (db.objectStoreNames.contains(STORES.FEEDBACK)) {
+          const feedbackStore = transaction.objectStore(STORES.FEEDBACK);
+          const chapterUrlIndex = feedbackStore.index('chapterUrl');
+          const feedbackRequest = chapterUrlIndex.getAll(chapterUrl);
+
+          feedbackRequest.onsuccess = () => {
+            const feedbackItems = feedbackRequest.result;
+            feedbackItems.forEach(feedback => {
+              feedbackStore.delete(feedback.id);
+            });
+          };
+        }
+
+        // Delete URL mappings
+        if (db.objectStoreNames.contains(STORES.URL_MAPPINGS)) {
+          const mappingsStore = transaction.objectStore(STORES.URL_MAPPINGS);
+          mappingsStore.delete(chapterUrl);
+        }
+
+        transaction.oncomplete = () => {
+          console.log(`[IndexedDB] Successfully deleted chapter: ${chapterUrl}`);
+          resolve();
+        };
+
+        transaction.onerror = () => {
+          console.error('[IndexedDB] Failed to delete chapter:', transaction.error);
+          reject(transaction.error);
+        };
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   /**
    * Store translation version
    */
@@ -2646,6 +2783,7 @@ class IndexedDBService {
 
     if (!db.objectStoreNames.contains(STORES.CHAPTER_SUMMARIES)) {
       memorySummary('Chapter summaries store missing despite initialization attempt');
+      console.warn(`[⚠️ RETRIEVE] CHAPTER_SUMMARIES store doesn't exist!`);
       return [];
     }
 
@@ -2656,19 +2794,110 @@ class IndexedDBService {
         const req = store.getAll();
         req.onsuccess = () => {
           const summaries = ((req.result || []) as ChapterSummaryRecord[]).slice();
+          console.log(`[📚 RETRIEVE] Retrieved ${summaries.length} summaries from CHAPTER_SUMMARIES`);
+
+          summaries.forEach(s => {
+            console.log(`[📄 RETRIEVE]   Ch #${s.chapterNumber}: "${s.translatedTitle || s.title}" (stableId: ${s.stableId})`);
+          });
+
           summaries.sort((a, b) => {
             const aNum = a.chapterNumber ?? Number.POSITIVE_INFINITY;
             const bNum = b.chapterNumber ?? Number.POSITIVE_INFINITY;
             if (aNum !== bNum) return aNum - bNum;
             return (a.title || '').localeCompare(b.title || '');
           });
+
+          console.log(`[🔢 RETRIEVE] Sorted ${summaries.length} summaries by chapterNumber`);
+
+          // DIAGNOSTIC: Compare CHAPTERS vs CHAPTER_SUMMARIES
+          this.compareChaptersVsSummaries().catch(err => {
+            console.error('[🔍 DIAGNOSTIC] Failed to run comparison:', err);
+          });
+
           resolve(summaries);
         };
-        req.onerror = () => reject(req.error);
+        req.onerror = () => {
+          console.error(`[❌ RETRIEVE] Error retrieving summaries:`, req.error);
+          reject(req.error);
+        };
       } catch (error) {
+        console.error(`[❌ RETRIEVE] Exception in getChapterSummaries:`, error);
         reject(error as Error);
       }
     });
+  }
+
+  /**
+   * DIAGNOSTIC: Compare CHAPTERS vs CHAPTER_SUMMARIES to identify missing summaries
+   */
+  private async compareChaptersVsSummaries(): Promise<void> {
+    try {
+      const db = await this.openDatabase();
+
+      // Get all chapters
+      const chaptersPromise = new Promise<ChapterRecord[]>((resolve, reject) => {
+        const tx = db.transaction([STORES.CHAPTERS], 'readonly');
+        const store = tx.objectStore(STORES.CHAPTERS);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+
+      // Get all summaries
+      const summariesPromise = new Promise<ChapterSummaryRecord[]>((resolve, reject) => {
+        const tx = db.transaction([STORES.CHAPTER_SUMMARIES], 'readonly');
+        const store = tx.objectStore(STORES.CHAPTER_SUMMARIES);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+
+      const [chapters, summaries] = await Promise.all([chaptersPromise, summariesPromise]);
+
+      console.log(`[🔍 DIAGNOSTIC] ========== CHAPTERS vs SUMMARIES COMPARISON ==========`);
+      console.log(`[🔍 DIAGNOSTIC] Total in CHAPTERS store: ${chapters.length}`);
+      console.log(`[🔍 DIAGNOSTIC] Total in CHAPTER_SUMMARIES store: ${summaries.length}`);
+
+      const summariesByStableId = new Map<string, ChapterSummaryRecord>();
+      summaries.forEach(s => summariesByStableId.set(s.stableId, s));
+
+      const chaptersWithoutSummaries: ChapterRecord[] = [];
+      const chaptersWithSummaries: ChapterRecord[] = [];
+
+      chapters.forEach(ch => {
+        if (ch.stableId && summariesByStableId.has(ch.stableId)) {
+          chaptersWithSummaries.push(ch);
+        } else {
+          chaptersWithoutSummaries.push(ch);
+        }
+      });
+
+      console.log(`[🔍 DIAGNOSTIC] Chapters WITH summaries: ${chaptersWithSummaries.length}`);
+      console.log(`[🔍 DIAGNOSTIC] Chapters WITHOUT summaries: ${chaptersWithoutSummaries.length}`);
+
+      if (chaptersWithoutSummaries.length > 0) {
+        console.log(`[⚠️ DIAGNOSTIC] ===== MISSING SUMMARIES =====`);
+        chaptersWithoutSummaries.forEach(ch => {
+          console.log(`[⚠️ DIAGNOSTIC]   Ch #${ch.chapterNumber}: "${ch.title}" (stableId: ${ch.stableId}, url: ${ch.url})`);
+        });
+      }
+
+      // Check for orphaned summaries (summaries without chapters)
+      const chaptersById = new Map<string, ChapterRecord>();
+      chapters.forEach(ch => { if (ch.stableId) chaptersById.set(ch.stableId, ch); });
+
+      const orphanedSummaries = summaries.filter(s => !chaptersById.has(s.stableId));
+      if (orphanedSummaries.length > 0) {
+        console.log(`[⚠️ DIAGNOSTIC] ===== ORPHANED SUMMARIES (no matching chapter) =====`);
+        orphanedSummaries.forEach(s => {
+          console.log(`[⚠️ DIAGNOSTIC]   Summary stableId: ${s.stableId}, Ch #${s.chapterNumber}: "${s.title}"`);
+        });
+      }
+
+      console.log(`[🔍 DIAGNOSTIC] ===== END COMPARISON =====`);
+    } catch (error) {
+      console.error('[❌ DIAGNOSTIC] Exception in compareChaptersVsSummaries:', error);
+    }
   }
 
   /**
