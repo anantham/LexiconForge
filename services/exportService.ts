@@ -1,5 +1,6 @@
 import { useAppStore } from '../store';
 import type { SessionData, SessionProvenance } from '../types/session';
+import type { NovelEntry, NovelMetadata } from '../types/novel';
 
 export class ExportService {
   /**
@@ -142,6 +143,73 @@ export class ExportService {
       provenance: newProvenance,
       chapters: chapters as any[],
       settings: {}
+    };
+  }
+
+  /**
+   * Generate metadata.json for publishing to community library
+   */
+  static generateMetadataFile(novelMetadata: NovelMetadata & { title: string; alternateTitles?: string[] }): NovelEntry {
+    const state = useAppStore.getState();
+    const chapters = Array.from(state.chapters.values());
+
+    // Generate a URL-safe ID from the title
+    const id = novelMetadata.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    // Calculate chapter statistics
+    const chapterCount = chapters.length;
+    const translatedChapters = chapters.filter(ch => ch.translations?.length > 0).length;
+    const totalImages = chapters.reduce((sum, ch) => {
+      const images = ch.translations?.[0]?.images?.length || 0;
+      return sum + images;
+    }, 0);
+    const totalFootnotes = chapters.reduce((sum, ch) => {
+      const footnotes = ch.translations?.[0]?.footnotes?.length || 0;
+      return sum + footnotes;
+    }, 0);
+
+    return {
+      id,
+      title: novelMetadata.title,
+      alternateTitles: novelMetadata.alternateTitles,
+      metadata: novelMetadata,
+      versions: [
+        {
+          versionId: 'v1-primary',
+          displayName: 'Primary Translation',
+          translator: {
+            name: novelMetadata.author || 'Unknown',
+            link: novelMetadata.sourceLinks?.bestTranslation
+          },
+          sessionJsonUrl: `https://example.com/${id}/session.json`, // User will update this
+          targetLanguage: 'English',
+          style: 'faithful',
+          features: [],
+          chapterRange: {
+            from: 1,
+            to: chapterCount
+          },
+          completionStatus: 'In Progress',
+          lastUpdated: new Date().toISOString().split('T')[0],
+          stats: {
+            downloads: 0,
+            fileSize: '0MB',
+            content: {
+              totalImages,
+              totalFootnotes,
+              totalRawChapters: chapterCount,
+              totalTranslatedChapters: translatedChapters,
+              avgImagesPerChapter: chapterCount > 0 ? totalImages / chapterCount : 0,
+              avgFootnotesPerChapter: chapterCount > 0 ? totalFootnotes / chapterCount : 0
+            },
+            translation: {
+              translationType: 'human',
+              feedbackCount: 0,
+              qualityRating: 0
+            }
+          }
+        }
+      ]
     };
   }
 

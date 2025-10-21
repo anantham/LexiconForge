@@ -289,8 +289,66 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   }, []);
 
   // Update novel metadata state (called on every change)
-  const handleNovelMetadataChange = (metadata: NovelMetadata) => {
+  const handleNovelMetadataChange = useCallback((metadata: NovelMetadata) => {
     setNovelMetadata(metadata);
+  }, []);
+
+  // Handle publish to library - generate and download both metadata.json and session.json
+  const handlePublishToLibrary = () => {
+    if (!novelMetadata) {
+      setActiveTab('metadata');
+      showNotification?.('Please fill in the novel metadata first');
+      return;
+    }
+
+    // Validate required fields
+    const metadata = novelMetadata as any;
+    if (!metadata.title || !metadata.author || !metadata.description) {
+      setActiveTab('metadata');
+      showNotification?.('Please fill in required fields: Title, Author, and Description');
+      return;
+    }
+
+    try {
+      // Generate metadata.json
+      const metadataFile = ExportService.generateMetadataFile(metadata);
+
+      // Generate session.json using the same novel info
+      const sessionData = ExportService.generatePublishExport(
+        {
+          id: metadataFile.id,
+          title: metadata.title,
+          author: metadata.author,
+          originalLanguage: metadata.originalLanguage || 'Unknown'
+        },
+        {
+          versionId: 'v1-primary',
+          displayName: 'Primary Translation',
+          translator: {
+            name: metadata.author || 'Unknown',
+            link: metadata.sourceLinks?.bestTranslation
+          },
+          style: 'faithful',
+          features: []
+        }
+      );
+
+      // Download both files
+      ExportService.downloadJSON(metadataFile, 'metadata.json');
+      setTimeout(() => {
+        ExportService.downloadJSON(sessionData, 'session.json');
+      }, 500); // Small delay so downloads don't conflict
+
+      showNotification?.(
+        'Files downloaded! Next steps:\n' +
+        '1. Upload session.json to GitHub releases or LFS\n' +
+        '2. Update sessionJsonUrl in metadata.json\n' +
+        '3. Submit PR to lexiconforge-novels repository'
+      );
+    } catch (error) {
+      console.error('Failed to generate library files:', error);
+      showNotification?.('Error generating files. Check console for details.');
+    }
   };
 
   const handleTaskTypeChange = (taskType: 'txt2audio' | 'audio2audio') => {
@@ -1568,10 +1626,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
                     <button
                       type="button"
-                      onClick={() => {
-                        // Switch to metadata tab for user to fill in details
-                        setActiveTab('metadata');
-                      }}
+                      onClick={handlePublishToLibrary}
                       className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       Publish to Library
