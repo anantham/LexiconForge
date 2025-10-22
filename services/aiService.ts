@@ -109,23 +109,33 @@ export const validateApiKey = (settings: AppSettings): { isValid: boolean; error
       hasEnvKey: envKey ? hasEnvVar(envKey) : false
     });
 
-    // Provider-specific help messages with links
-    let helpMessage = '';
+    // Check if this is a trial limit issue for OpenRouter
+    let errorMessage = '';
     if (settings.provider === 'OpenRouter') {
-      helpMessage = '\n\nGet your API key at: https://openrouter.ai/keys\nOr request free credits at: https://t.me/webnovels';
-    } else if (settings.provider === 'Gemini') {
-      helpMessage = '\n\nGet your API key at: https://aistudio.google.com/app/apikey';
-    } else if (settings.provider === 'OpenAI') {
-      helpMessage = '\n\nGet your API key at: https://platform.openai.com/api-keys';
-    } else if (settings.provider === 'DeepSeek') {
-      helpMessage = '\n\nGet your API key at: https://platform.deepseek.com/api_keys';
-    } else if (settings.provider === 'Claude') {
-      helpMessage = '\n\nGet your API key at: https://console.anthropic.com/settings/keys';
+      const trialStatus = getDefaultKeyStatus();
+      if (trialStatus.hasExceeded) {
+        errorMessage = `Trial limit reached (${trialStatus.usageCount}/10 free requests used).\n\nGet your own free OpenRouter API key at: https://openrouter.ai/keys\nOr request more trial credits at: https://t.me/everythingisrelative`;
+      } else {
+        errorMessage = `${providerName} API key is missing. Add it in settings or .env file.\n\nGet your API key at: https://openrouter.ai/keys\nOr request free credits at: https://t.me/webnovels`;
+      }
+    } else {
+      // Provider-specific help messages with links
+      let helpMessage = '';
+      if (settings.provider === 'Gemini') {
+        helpMessage = '\n\nGet your API key at: https://aistudio.google.com/app/apikey';
+      } else if (settings.provider === 'OpenAI') {
+        helpMessage = '\n\nGet your API key at: https://platform.openai.com/api-keys';
+      } else if (settings.provider === 'DeepSeek') {
+        helpMessage = '\n\nGet your API key at: https://platform.deepseek.com/api_keys';
+      } else if (settings.provider === 'Claude') {
+        helpMessage = '\n\nGet your API key at: https://console.anthropic.com/settings/keys';
+      }
+      errorMessage = `${providerName} API key is missing. Add it in settings or .env file.${helpMessage}`;
     }
 
     return {
       isValid: false,
-      errorMessage: `${providerName} API key is missing. Add it in settings or .env file.${helpMessage}`
+      errorMessage
     };
   }
 
