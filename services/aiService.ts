@@ -1296,12 +1296,6 @@ export const translateChapter = async (
       !settings.apiKeyOpenRouter &&
       !getEnvVar('OPENROUTER_API_KEY');
 
-    if (isUsingDefaultKey) {
-      // Increment usage before translation
-      const newUsage = incrementDefaultKeyUsage();
-      console.log(`[Translation] Using default trial key (${newUsage}/10 requests used)`);
-    }
-
     // Initialize providers if not already done
     const { initializeProviders } = await import('../adapters/providers');
     await initializeProviders();
@@ -1309,15 +1303,31 @@ export const translateChapter = async (
     // Use the new Translator with provider adapters
     const { translator } = await import('./translate/Translator');
 
-    return translator.translate({
-      title,
-      content,
-      settings,
-      history,
-      fanTranslation,
-      abortSignal
-    }, {
-      maxRetries,
-      initialDelay
-    });
+    try {
+      const result = await translator.translate({
+        title,
+        content,
+        settings,
+        history,
+        fanTranslation,
+        abortSignal
+      }, {
+        maxRetries,
+        initialDelay
+      });
+
+      // Only increment usage AFTER successful translation
+      if (isUsingDefaultKey) {
+        const newUsage = incrementDefaultKeyUsage();
+        console.log(`[Translation] Using default trial key (${newUsage}/10 requests used)`);
+      }
+
+      return result;
+    } catch (error) {
+      // Don't increment counter on failure
+      if (isUsingDefaultKey) {
+        console.log('[Translation] Request failed, trial counter not incremented');
+      }
+      throw error;
+    }
 };
