@@ -5,6 +5,7 @@ import { AppSettings, GeneratedImageResult } from '../types';
 import { getModelMetadata } from './capabilityService';
 import { imageFileToBase64 } from './imageUtils';
 import { getEnvVar } from './env';
+import { apiMetricsService } from './apiMetricsService';
 
 const imgDebugEnabled = (): boolean => {
   try {
@@ -498,6 +499,23 @@ export const generateImage = async (
 
         console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s. Cost: ${cost.toFixed(5)}`);
 
+        // Determine provider from model name
+        const provider = imageModel.startsWith('imagen') ? 'Imagen' :
+                        imageModel.startsWith('gemini') ? 'Gemini' :
+                        imageModel.startsWith('Qubico/') ? 'PiAPI' :
+                        imageModel.startsWith('openrouter/') ? 'OpenRouter' : 'Unknown';
+
+        // Record successful image generation in metrics
+        await apiMetricsService.recordMetric({
+            apiType: 'image',
+            provider,
+            model: imageModel,
+            costUsd: cost,
+            imageCount: 1,
+            chapterId,
+            success: true,
+        });
+
         // NEW: Store in Cache API if chapter/marker provided
         if (chapterId && placementMarker) {
             try {
@@ -544,11 +562,11 @@ export const generateImage = async (
 
     } catch (error: any) {
         console.error(`[ImageService] Image generation failed for prompt: "${prompt}"`, error);
-        
+
         // Enhanced error handling with specific detection for common issues
         let message = error.message || 'Unknown error occurred';
         let errorType = 'GENERIC_ERROR';
-        
+
         if (message.includes('API key')) {
             errorType = 'INVALID_API_KEY';
             if (imageModel.startsWith('Qubico/')) {
@@ -573,7 +591,25 @@ export const generateImage = async (
         } else {
             message = `Image generation failed: ${message}`;
         }
-        
+
+        // Determine provider from model name
+        const provider = imageModel.startsWith('imagen') ? 'Imagen' :
+                        imageModel.startsWith('gemini') ? 'Gemini' :
+                        imageModel.startsWith('Qubico/') ? 'PiAPI' :
+                        imageModel.startsWith('openrouter/') ? 'OpenRouter' : 'Unknown';
+
+        // Record failed image generation in metrics
+        await apiMetricsService.recordMetric({
+            apiType: 'image',
+            provider,
+            model: imageModel,
+            costUsd: 0,
+            imageCount: 0,
+            chapterId,
+            success: false,
+            errorMessage: message,
+        });
+
         // Add error metadata for fallback logic
         const enhancedError = new Error(message) as any;
         enhancedError.errorType = errorType;
@@ -581,7 +617,7 @@ export const generateImage = async (
         enhancedError.model = imageModel;
         enhancedError.canRetry = ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType);
         enhancedError.suggestedActions = getSuggestedActions(errorType, imageModel);
-        
+
         throw enhancedError;
     }
 }

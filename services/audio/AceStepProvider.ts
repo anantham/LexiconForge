@@ -7,6 +7,7 @@
 
 import { BaseAudioProvider, type AudioProviderCapabilities } from './BaseAudioProvider';
 import type { AudioGenerationInput, GeneratedAudioResult, AudioTaskType } from '../../types';
+import { apiMetricsService } from '../apiMetricsService';
 
 // Debug logging for AceStep provider
 const aceDebugEnabled = (): boolean => {
@@ -180,19 +181,42 @@ export class AceStepProvider extends BaseAudioProvider {
         audioUrl: finalResult.audioUrl.substring(0, 50) + '...',
       });
 
+      // Record successful audio generation in metrics
+      await apiMetricsService.recordMetric({
+        apiType: 'audio',
+        provider: 'PiAPI',
+        model: 'Qubico/ace-step',
+        costUsd: cost,
+        duration: duration,
+        chapterId: (input as any).chapterId, // Optional - may not always be present
+        success: true,
+      });
+
       return finalResult;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         alog('🚫 Generation aborted by user');
         throw error;
       }
-      
+
       alog('❌ Generation error:', {
         message: error.message,
         name: error.name,
         stack: error.stack,
       });
-      
+
+      // Record failed audio generation in metrics
+      await apiMetricsService.recordMetric({
+        apiType: 'audio',
+        provider: 'PiAPI',
+        model: 'Qubico/ace-step',
+        costUsd: 0,
+        duration: input.duration || 0,
+        chapterId: (input as any).chapterId,
+        success: false,
+        errorMessage: error.message || 'Unknown error',
+      });
+
       throw new Error(`Ace Step generation failed: ${error.message}`);
     }
   }

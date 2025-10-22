@@ -8,6 +8,7 @@
 import OpenAI from 'openai';
 import { getEnvVar } from '../env';
 import { calculateCost } from '../aiService';
+import { apiMetricsService } from '../apiMetricsService';
 
 interface SimpleLLMResponse {
   translatedText: string;
@@ -93,6 +94,20 @@ export function createSimpleLLMAdapter(apiKey?: string): SimpleLLMProvider {
           }
         }
 
+        // Record successful diff analysis API call in metrics
+        await apiMetricsService.recordMetric({
+          apiType: 'diff_analysis',
+          provider: options.provider,
+          model: options.model,
+          costUsd: cost,
+          tokens: response.usage ? {
+            prompt: response.usage.prompt_tokens || 0,
+            completion: response.usage.completion_tokens || 0,
+            total: (response.usage.prompt_tokens || 0) + (response.usage.completion_tokens || 0),
+          } : undefined,
+          success: true,
+        });
+
         return {
           translatedText: responseText,
           cost,
@@ -100,6 +115,22 @@ export function createSimpleLLMAdapter(apiKey?: string): SimpleLLMProvider {
         };
       } catch (error) {
         console.error(`🚨 [SimpleLLMAdapter] API call failed:`, error);
+
+        // Record failed diff analysis API call in metrics
+        await apiMetricsService.recordMetric({
+          apiType: 'diff_analysis',
+          provider: options.provider,
+          model: options.model,
+          costUsd: 0,
+          tokens: {
+            prompt: 0,
+            completion: 0,
+            total: 0,
+          },
+          success: false,
+          errorMessage: error.message || 'Unknown error',
+        });
+
         throw error;
       }
     }

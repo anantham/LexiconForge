@@ -7,6 +7,7 @@
 
 import { BaseAudioProvider, type AudioProviderCapabilities } from './BaseAudioProvider';
 import type { AudioGenerationInput, GeneratedAudioResult, AudioTaskType } from '../../types';
+import { apiMetricsService } from '../apiMetricsService';
 
 // Debug logging for DiffRhythm provider
 const diffDebugEnabled = (): boolean => {
@@ -159,19 +160,43 @@ export class DiffRhythmProvider extends BaseAudioProvider {
         audioUrl: finalResult.audioUrl.substring(0, 50) + '...',
       });
 
+      // Record successful audio generation in metrics
+      await apiMetricsService.recordMetric({
+        apiType: 'audio',
+        provider: 'PiAPI',
+        model: 'Qubico/diffrhythm',
+        costUsd: cost,
+        duration: duration,
+        chapterId: (input as any).chapterId,
+        success: true,
+      });
+
       return finalResult;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         dlog('🚫 Generation aborted by user');
         throw error;
       }
-      
+
       dlog('❌ Generation error:', {
         message: error.message,
         name: error.name,
         stack: error.stack,
       });
-      
+
+      // Record failed audio generation in metrics
+      const duration = this.getDuration(taskType);
+      await apiMetricsService.recordMetric({
+        apiType: 'audio',
+        provider: 'PiAPI',
+        model: 'Qubico/diffrhythm',
+        costUsd: 0,
+        duration: duration,
+        chapterId: (input as any).chapterId,
+        success: false,
+        errorMessage: error.message || 'Unknown error',
+      });
+
       throw new Error(`DiffRhythm generation failed: ${error.message}`);
     }
   }
