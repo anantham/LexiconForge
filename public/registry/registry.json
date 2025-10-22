@@ -1,15 +1,15 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-10-21",
+  "lastUpdated": "2025-10-22",
   "description": "Community registry for LexiconForge novel translations",
   "novels": [
     {
-      "id": "dungeon-defense",
-      "metadataUrl": "/registry/dungeon-defense-metadata.json"
-    },
-    {
       "id": "dungeon-defense-wn",
       "metadataUrl": "/registry/dungeon-defense-wn-metadata.json"
+    },
+    {
+      "id": "eternal-life",
+      "metadataUrl": "/registry/eternal-life-metadata.json"
     }
   ]
 }
