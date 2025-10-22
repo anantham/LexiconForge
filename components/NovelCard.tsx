@@ -46,18 +46,8 @@ export function NovelCard({ novel, onViewDetails }: NovelCardProps) {
 
         {/* Language Info */}
         <p className="text-gray-500 dark:text-gray-500 text-xs mb-3">
-          {novel.metadata.originalLanguage} → {novel.metadata.targetLanguage}
+          {novel.metadata.originalLanguage}
         </p>
-
-        {/* Rating */}
-        {novel.metadata.rating && (
-          <div className="flex items-center mb-3">
-            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-            <span className="text-xs ml-1.5 font-medium text-gray-900 dark:text-gray-100">
-              {novel.metadata.rating.toFixed(1)}
-            </span>
-          </div>
-        )}
 
         {/* Chapter Count */}
         <div className="flex items-center mb-3 text-xs text-gray-600 dark:text-gray-400">

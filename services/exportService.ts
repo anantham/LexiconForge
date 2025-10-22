@@ -331,17 +331,81 @@ export class ExportService {
     // Generate a URL-safe ID from the title
     const id = novelMetadata.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-    // Calculate chapter statistics
+    // Helper function to calculate median
+    const calculateMedian = (values: number[]): number => {
+      if (values.length === 0) return 0;
+      const sorted = values.slice().sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+    };
+
+    // Helper function to calculate mean
+    const calculateMean = (values: number[]): number => {
+      if (values.length === 0) return 0;
+      return values.reduce((sum, v) => sum + v, 0) / values.length;
+    };
+
+    // Calculate chapter statistics with both median and mean
     const chapterCount = chaptersWithTranslations.length;
     const translatedChapters = chaptersWithTranslations.filter(ch => ch.translations.length > 0).length;
-    const totalImages = chaptersWithTranslations.reduce((sum, ch) => {
-      const images = ch.translations[0]?.suggestedIllustrations?.length || 0;
-      return sum + images;
-    }, 0);
-    const totalFootnotes = chaptersWithTranslations.reduce((sum, ch) => {
-      const footnotes = ch.translations[0]?.footnotes?.length || 0;
-      return sum + footnotes;
-    }, 0);
+
+    // Collect per-chapter metrics
+    const imagesPerChapter = chaptersWithTranslations.map(ch =>
+      ch.translations[0]?.suggestedIllustrations?.length || 0
+    );
+    const footnotesPerChapter = chaptersWithTranslations.map(ch =>
+      ch.translations[0]?.footnotes?.length || 0
+    );
+    const chapterLengths = chaptersWithTranslations.map(ch =>
+      ch.translations[0]?.translation?.length || 0
+    );
+
+    const totalImages = imagesPerChapter.reduce((sum, v) => sum + v, 0);
+    const totalFootnotes = footnotesPerChapter.reduce((sum, v) => sum + v, 0);
+
+    // Calculate aggregate analytics from translation records
+    let totalCost = 0;
+    let totalTokens = 0;
+    let modelUsage: Record<string, number> = {};
+    let feedbackCount = 0;
+    let amendmentCount = 0;
+    let earliestDate: string | null = null;
+    let latestDate: string | null = null;
+
+    for (const ch of chaptersWithTranslations) {
+      for (const translation of ch.translations) {
+        // Aggregate costs and tokens
+        totalCost += translation.estimatedCost || 0;
+        totalTokens += translation.totalTokens || 0;
+
+        // Track model usage
+        const modelKey = `${translation.provider}/${translation.model}`;
+        modelUsage[modelKey] = (modelUsage[modelKey] || 0) + 1;
+
+        // Count amendments
+        if (translation.proposal) {
+          amendmentCount++;
+        }
+
+        // Track date range
+        if (translation.createdAt) {
+          if (!earliestDate || translation.createdAt < earliestDate) {
+            earliestDate = translation.createdAt;
+          }
+          if (!latestDate || translation.createdAt > latestDate) {
+            latestDate = translation.createdAt;
+          }
+        }
+      }
+    }
+
+    // Find most commonly used model
+    const mostUsedModel = Object.entries(modelUsage).reduce(
+      (max, [model, count]) => count > max.count ? { model, count } : max,
+      { model: 'Unknown', count: 0 }
+    ).model;
 
     return {
       id,
@@ -353,13 +417,17 @@ export class ExportService {
           versionId: 'v1-primary',
           displayName: 'Primary Translation',
           translator: {
-            name: novelMetadata.author || 'Unknown',
-            link: novelMetadata.sourceLinks?.bestTranslation
+            name: (novelMetadata as any).translatorName || 'Unknown',
+            link: (novelMetadata as any).translatorWebsite || novelMetadata.sourceLinks?.bestTranslation,
+            bio: (novelMetadata as any).translatorBio
           },
           sessionJsonUrl: `https://example.com/${id}/session.json`, // User will update this
-          targetLanguage: 'English',
-          style: 'faithful',
+          targetLanguage: (novelMetadata as any).targetLanguage || 'English',
+          style: 'faithful', // Could be derived from translationApproach if needed
           features: [],
+          description: (novelMetadata as any).versionDescription,
+          translationPhilosophy: (novelMetadata as any).translationApproach,
+          contentNotes: (novelMetadata as any).contentNotes,
           chapterRange: {
             from: 1,
             to: chapterCount
@@ -374,13 +442,25 @@ export class ExportService {
               totalFootnotes,
               totalRawChapters: chapterCount,
               totalTranslatedChapters: translatedChapters,
-              avgImagesPerChapter: chapterCount > 0 ? totalImages / chapterCount : 0,
-              avgFootnotesPerChapter: chapterCount > 0 ? totalFootnotes / chapterCount : 0
+              avgImagesPerChapter: calculateMean(imagesPerChapter),
+              medianImagesPerChapter: calculateMedian(imagesPerChapter),
+              avgFootnotesPerChapter: calculateMean(footnotesPerChapter),
+              medianFootnotesPerChapter: calculateMedian(footnotesPerChapter),
+              avgChapterLength: calculateMean(chapterLengths),
+              medianChapterLength: calculateMedian(chapterLengths)
             },
             translation: {
               translationType: 'human',
-              feedbackCount: 0,
-              qualityRating: 0
+              feedbackCount: 0, // TODO: Track feedback submissions
+              qualityRating: (novelMetadata as any).translatorRating || undefined,
+              amendmentCount,
+              totalCost,
+              totalTokens,
+              mostUsedModel,
+              dateRange: earliestDate && latestDate ? {
+                start: earliestDate.split('T')[0],
+                end: latestDate.split('T')[0]
+              } : undefined
             }
           }
         }

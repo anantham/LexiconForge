@@ -47,7 +47,10 @@ export interface SessionActions {
     clearIndexedDB?: boolean;
     clearLocalStorage?: boolean;
   }) => Promise<void>;
-  importSessionData: (payload: string | object) => Promise<void>;
+  importSessionData: (
+    payload: string | object,
+    onProgress?: (stage: 'settings' | 'chapters' | 'translations' | 'complete', current: number, total: number, message: string) => void
+  ) => Promise<void>;
 
   // Initialization
   initializeStore: () => Promise<void>;
@@ -146,14 +149,14 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
     }
   },
 
-  importSessionData: async (payload) => {
+  importSessionData: async (payload, onProgress) => {
     try {
       const obj = typeof payload === 'string' ? JSON.parse(payload) : payload as any;
-      
+
       // Full session format branch
       if (obj?.metadata?.format === 'lexiconforge-full-1') {
         // console.log('[Import] Detected full session format. Importing into IndexedDB as ground truth.');
-        await indexedDBService.importFullSessionData(obj);
+        await indexedDBService.importFullSessionData(obj, onProgress);
         
         // Hydrate store from IDB for UI
         const rendering = await indexedDBService.getChaptersForReactRendering();
@@ -330,6 +333,20 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         await indexedDBService.backfillActiveTranslations();
       } catch (e) {
         console.warn('[Store] Active translations backfill failed:', e);
+      }
+
+      // Backfill missing chapter numbers from titles (one-time operation)
+      try {
+        const chapterNumbersBackfilled = await indexedDBService.getSetting<boolean>('chapterNumbersBackfilled');
+        if (!chapterNumbersBackfilled) {
+          const { backfillChapterNumbers } = await import('../scripts/backfillChapterNumbers');
+          console.log('[Store] Running chapter numbers backfill migration...');
+          await backfillChapterNumbers();
+          await indexedDBService.setSetting('chapterNumbersBackfilled', true);
+          console.log('[Store] Chapter numbers backfill complete');
+        }
+      } catch (e) {
+        console.warn('[Store] Chapter numbers backfill failed:', e);
       }
 
       // Load URL mappings from IndexedDB (only if not already populated)

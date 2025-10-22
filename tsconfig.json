@@ -23,5 +23,15 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "archive",
+    "**/*.legacy.ts",
+    "services/audio/storage/cache.ts",
+    "services/audio/storage/opfs.ts",
+    "services/audio/storage/pinning.ts"
+  ]
 }

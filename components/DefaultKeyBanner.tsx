@@ -19,8 +19,11 @@ export function DefaultKeyBanner() {
   }, []);
 
   // Check if we should show the banner
+  // Only show if using the trial key system (not env var or user key)
+  const hasEnvKey = import.meta.env.VITE_DEFAULT_OPENROUTER_KEY;
   const isUsingDefaultKey = settings.provider === 'OpenRouter' &&
     !settings.apiKeyOpenRouter &&
+    !hasEnvKey &&
     status.usageCount < 10;
 
   // Debug logging to understand banner visibility (only log when state changes)
@@ -28,6 +31,7 @@ export function DefaultKeyBanner() {
     const currentState = JSON.stringify({
       provider: settings.provider,
       hasUserKey: !!settings.apiKeyOpenRouter,
+      hasEnvKey: !!hasEnvKey,
       usageCount: status.usageCount,
       isUsingDefaultKey,
       isDismissed,
@@ -37,6 +41,7 @@ export function DefaultKeyBanner() {
       console.log('[DefaultKeyBanner] Visibility state changed:', {
         provider: settings.provider,
         hasUserKey: !!settings.apiKeyOpenRouter,
+        hasEnvKey: !!hasEnvKey,
         userKeyPrefix: settings.apiKeyOpenRouter ? `${settings.apiKeyOpenRouter.slice(0, 8)}...` : 'none',
         usageCount: status.usageCount,
         usageLimit: 10,
@@ -47,7 +52,7 @@ export function DefaultKeyBanner() {
       });
       setLastLoggedState(currentState);
     }
-  }, [settings.provider, settings.apiKeyOpenRouter, status.usageCount, isUsingDefaultKey, isDismissed, lastLoggedState]);
+  }, [settings.provider, settings.apiKeyOpenRouter, hasEnvKey, status.usageCount, isUsingDefaultKey, isDismissed, lastLoggedState]);
 
   if (!isUsingDefaultKey || isDismissed) {
     return null;

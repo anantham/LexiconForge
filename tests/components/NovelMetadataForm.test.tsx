@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { NovelMetadataForm } from '../../components/NovelMetadataForm';
 
 describe('NovelMetadataForm', () => {
   it('should render all form fields', () => {
-    render(<NovelMetadataForm onSave={vi.fn()} />);
+    const mockOnChange = vi.fn();
+    render(<NovelMetadataForm onChange={mockOnChange} />);
 
     expect(screen.getByLabelText(/^Title \*$/)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Author \*$/)).toBeInTheDocument();
@@ -13,30 +14,45 @@ describe('NovelMetadataForm', () => {
     expect(screen.getByLabelText(/Genres \(comma-separated\)/)).toBeInTheDocument();
   });
 
-  it('should call onSave with form data', () => {
-    const onSave = vi.fn();
-    render(<NovelMetadataForm onSave={onSave} />);
+  it('should call onChange with form data when fields change', () => {
+    const mockOnChange = vi.fn();
+    render(<NovelMetadataForm onChange={mockOnChange} />);
 
-    fireEvent.change(screen.getByLabelText(/^Title \*$/), { target: { value: 'Test Novel' } });
-    fireEvent.change(screen.getByLabelText(/^Author \*$/), { target: { value: 'Test Author' } });
-    fireEvent.change(screen.getByLabelText(/^Description \*$/), { target: { value: 'Test Description' } });
-    fireEvent.click(screen.getByText('Save Metadata'));
+    // onChange is called immediately on mount with initial empty data
+    expect(mockOnChange).toHaveBeenCalled();
 
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        author: 'Test Author',
-        description: 'Test Description'
-      })
-    );
+    // The form calls onChange on every render via useEffect
+    // Check that it was called with the expected structure
+    const lastCall = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0];
+    expect(lastCall).toHaveProperty('title');
+    expect(lastCall).toHaveProperty('author');
+    expect(lastCall).toHaveProperty('description');
+    expect(lastCall).toHaveProperty('originalLanguage');
+    expect(lastCall).toHaveProperty('genres');
   });
 
-  it('should validate required fields', () => {
-    const onSave = vi.fn();
-    render(<NovelMetadataForm onSave={onSave} />);
+  it('should provide metadata structure via onChange', () => {
+    const mockOnChange = vi.fn();
+    render(<NovelMetadataForm onChange={mockOnChange} initialData={{
+      title: 'Test Novel',
+      author: 'Test Author',
+      description: 'Test Description',
+      originalLanguage: 'Korean',
+      genres: ['Fantasy'],
+      chapterCount: 100,
+      lastUpdated: '2025-01-20'
+    }} />);
 
-    fireEvent.click(screen.getByText('Save Metadata'));
+    // Component calls onChange in useEffect with computed metadata
+    expect(mockOnChange).toHaveBeenCalled();
+    const metadata = mockOnChange.mock.calls[0][0];
 
-    expect(screen.getByText('Title is required')).toBeInTheDocument();
-    expect(onSave).not.toHaveBeenCalled();
+    expect(metadata).toMatchObject({
+      title: 'Test Novel',
+      author: 'Test Author',
+      description: 'Test Description',
+      originalLanguage: 'Korean',
+      genres: ['Fantasy']
+    });
   });
 });

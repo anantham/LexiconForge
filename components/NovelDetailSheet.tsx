@@ -1,6 +1,6 @@
 import React from 'react';
 import { BookOpen, Star, X, ExternalLink, Globe, User } from 'lucide-react';
-import type { NovelEntry, NovelVersion, ChapterCoverageStats } from '../types/novel';
+import type { NovelEntry, NovelVersion, ChapterCoverageStats, MediaCorrespondenceAnchor, MediaReference } from '../types/novel';
 import { VersionPicker } from './VersionPicker';
 import { CoverageDistribution } from './CoverageDistribution';
 
@@ -48,6 +48,81 @@ function computeCoverageStats(versions: NovelVersion[]): ChapterCoverageStats | 
   };
 }
 
+// Helper functions for checking if any anchor has data for a given medium
+function hasAnyAnime(anchors: MediaCorrespondenceAnchor[]): boolean {
+  return anchors.some(a => a.anime);
+}
+
+function hasAnyWebNovel(anchors: MediaCorrespondenceAnchor[]): boolean {
+  return anchors.some(a => a.webNovel);
+}
+
+function hasAnyLightNovel(anchors: MediaCorrespondenceAnchor[]): boolean {
+  return anchors.some(a => a.lightNovel);
+}
+
+function hasAnyManga(anchors: MediaCorrespondenceAnchor[]): boolean {
+  return anchors.some(a => a.manga);
+}
+
+function hasAnyManhua(anchors: MediaCorrespondenceAnchor[]): boolean {
+  return anchors.some(a => a.manhua);
+}
+
+function hasAnyDonghua(anchors: MediaCorrespondenceAnchor[]): boolean {
+  return anchors.some(a => a.donghua);
+}
+
+// Component for rendering individual media cells
+function MediaCell({ reference, type }: { reference: MediaReference; type: 'anime' | 'donghua' | 'chapters' | 'lightNovel' }) {
+  return (
+    <div>
+      {(type === 'anime' || type === 'donghua') && reference.episodes && (
+        <div>
+          {reference.episodes.season && `S${reference.episodes.season} `}
+          Ep {reference.episodes.from}
+          {reference.episodes.to !== reference.episodes.from && `–${reference.episodes.to}`}
+        </div>
+      )}
+
+      {type === 'chapters' && reference.chapters && (
+        <div>
+          Ch {reference.chapters.from}
+          {reference.chapters.to !== reference.chapters.from && `–${reference.chapters.to}`}
+        </div>
+      )}
+
+      {type === 'lightNovel' && (
+        <div>
+          Vol {reference.volume}
+          {reference.chapters && (
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {' '}(Ch {reference.chapters.from}–{reference.chapters.to})
+            </span>
+          )}
+        </div>
+      )}
+
+      {reference.notes && (
+        <div className="text-xs text-gray-500 dark:text-gray-400 italic mt-1">
+          {reference.notes}
+        </div>
+      )}
+
+      {reference.startUrl && (
+        <a
+          href={reference.startUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1 inline-block"
+        >
+          Start here →
+        </a>
+      )}
+    </div>
+  );
+}
+
 export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: NovelDetailSheetProps) {
   if (!novel || !isOpen) return null;
 
@@ -68,9 +143,16 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
         {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-start z-10">
           <div className="flex-1 pr-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
-              {novel.title}
-            </h2>
+            <div className="flex items-baseline gap-3 mb-1">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {novel.title}
+              </h2>
+              {totalChapters > 0 && (
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                  {totalChapters} chapters
+                </span>
+              )}
+            </div>
             {novel.metadata.author && (
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 by {novel.metadata.author}
@@ -107,16 +189,6 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
             {/* Quick Metadata */}
             <div className="flex-1">
               <div className="space-y-3">
-                {/* Rating */}
-                {novel.metadata.rating && (
-                  <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {novel.metadata.rating.toFixed(1)}
-                    </span>
-                  </div>
-                )}
-
                 {/* Chapter Count */}
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                   <BookOpen className="h-5 w-5 text-gray-500 dark:text-gray-400" />
@@ -127,28 +199,20 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                   <Globe className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   <span>
-                    {novel.metadata.originalLanguage} → {novel.metadata.targetLanguage}
+                    {novel.metadata.originalLanguage} → {novel.metadata.targetLanguage || (novel.versions && novel.versions.length > 0 ? novel.versions[0].targetLanguage : 'Multiple Languages')}
                   </span>
                 </div>
 
-                {/* Translator */}
-                {novel.metadata.translator && (
-                  <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                    <User className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                    <span>Translated by {novel.metadata.translator}</span>
-                  </div>
-                )}
-
-                {/* Source Link */}
-                {novel.metadata.sourceUrl && (
+                {/* Novel Updates Link */}
+                {novel.metadata.sourceLinks?.novelUpdates && (
                   <a
-                    href={novel.metadata.sourceUrl}
+                    href={novel.metadata.sourceLinks.novelUpdates}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    View on {novel.metadata.sourceName || 'source site'}
+                    View on Novel Updates
                   </a>
                 )}
               </div>
@@ -160,6 +224,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
           {novel.versions && novel.versions.length > 0 ? (
             <VersionPicker
               versions={novel.versions}
+              totalNovelChapters={novel.metadata.chapterCount}
               onSelect={(version) => onStartReading(novel, version)}
             />
           ) : (
@@ -178,6 +243,136 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
                 stats={coverageStats}
                 totalChapters={totalChapters}
               />
+            </div>
+          )}
+
+          {/* Cross-Media Correspondence Table */}
+          {novel.metadata.mediaCorrespondence && novel.metadata.mediaCorrespondence.length > 0 && (
+            <div className="mt-6">
+              <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
+                Cross-Media Guide
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                See how different versions align at key story points
+              </p>
+
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-gray-100 dark:bg-gray-800">
+                      <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
+                        Milestone
+                      </th>
+                      {hasAnyAnime(novel.metadata.mediaCorrespondence) && (
+                        <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
+                          📺 Anime
+                        </th>
+                      )}
+                      {hasAnyDonghua(novel.metadata.mediaCorrespondence) && (
+                        <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
+                          📺 Donghua
+                        </th>
+                      )}
+                      {hasAnyWebNovel(novel.metadata.mediaCorrespondence) && (
+                        <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
+                          📖 Web Novel
+                        </th>
+                      )}
+                      {hasAnyLightNovel(novel.metadata.mediaCorrespondence) && (
+                        <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
+                          📚 Light Novel
+                        </th>
+                      )}
+                      {hasAnyManga(novel.metadata.mediaCorrespondence) && (
+                        <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
+                          🎨 Manga
+                        </th>
+                      )}
+                      {hasAnyManhua(novel.metadata.mediaCorrespondence) && (
+                        <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
+                          🎨 Manhua
+                        </th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {novel.metadata.mediaCorrespondence.map((anchor) => (
+                      <tr key={anchor.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td className="border border-gray-300 dark:border-gray-700 px-3 py-2">
+                          <div className="font-medium text-gray-900 dark:text-gray-100">
+                            {anchor.label}
+                          </div>
+                          {anchor.description && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {anchor.description}
+                            </div>
+                          )}
+                        </td>
+
+                        {hasAnyAnime(novel.metadata.mediaCorrespondence) && (
+                          <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {anchor.anime ? (
+                              <MediaCell reference={anchor.anime} type="anime" />
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-600">—</span>
+                            )}
+                          </td>
+                        )}
+
+                        {hasAnyDonghua(novel.metadata.mediaCorrespondence) && (
+                          <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {anchor.donghua ? (
+                              <MediaCell reference={anchor.donghua} type="donghua" />
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-600">—</span>
+                            )}
+                          </td>
+                        )}
+
+                        {hasAnyWebNovel(novel.metadata.mediaCorrespondence) && (
+                          <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {anchor.webNovel ? (
+                              <MediaCell reference={anchor.webNovel} type="chapters" />
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-600">—</span>
+                            )}
+                          </td>
+                        )}
+
+                        {hasAnyLightNovel(novel.metadata.mediaCorrespondence) && (
+                          <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {anchor.lightNovel ? (
+                              <MediaCell reference={anchor.lightNovel} type="lightNovel" />
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-600">—</span>
+                            )}
+                          </td>
+                        )}
+
+                        {hasAnyManga(novel.metadata.mediaCorrespondence) && (
+                          <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {anchor.manga ? (
+                              <MediaCell reference={anchor.manga} type="chapters" />
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-600">—</span>
+                            )}
+                          </td>
+                        )}
+
+                        {hasAnyManhua(novel.metadata.mediaCorrespondence) && (
+                          <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
+                            {anchor.manhua ? (
+                              <MediaCell reference={anchor.manhua} type="chapters" />
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-600">—</span>
+                            )}
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 

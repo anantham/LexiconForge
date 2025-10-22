@@ -4,10 +4,33 @@ import type { NovelVersion } from '../types/novel';
 
 interface VersionPickerProps {
   versions: NovelVersion[];
+  totalNovelChapters: number;  // Total chapters in the complete novel
   onSelect: (version: NovelVersion) => void;
 }
 
-export function VersionPicker({ versions, onSelect }: VersionPickerProps) {
+/**
+ * Calculate absolute coverage percentage for a version
+ * @param version - The novel version
+ * @param totalChapters - Total chapters in the complete novel
+ * @returns Absolute coverage percentage (0-100)
+ */
+function calculateAbsoluteCoverage(version: NovelVersion, totalChapters: number): number {
+  const versionChapters = version.chapterRange.to - version.chapterRange.from + 1;
+  return (versionChapters / totalChapters) * 100;
+}
+
+/**
+ * Calculate translation progress within this version
+ * @param version - The novel version
+ * @returns Translation progress percentage (0-100)
+ */
+function calculateTranslationProgress(version: NovelVersion): number {
+  const totalInVersion = version.stats.content.totalRawChapters;
+  const translated = version.stats.content.totalTranslatedChapters;
+  return totalInVersion > 0 ? (translated / totalInVersion) * 100 : 0;
+}
+
+export function VersionPicker({ versions, totalNovelChapters, onSelect }: VersionPickerProps) {
   if (!versions || versions.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -109,6 +132,37 @@ export function VersionPicker({ versions, onSelect }: VersionPickerProps) {
             </div>
           </div>
 
+          {/* Coverage Progress Bars */}
+          <div className="mb-4 space-y-2">
+            {/* Absolute Coverage */}
+            <div>
+              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                <span>Novel Coverage</span>
+                <span>{calculateAbsoluteCoverage(version, totalNovelChapters).toFixed(1)}% ({version.chapterRange.to - version.chapterRange.from + 1}/{totalNovelChapters} chapters)</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all"
+                  style={{ width: `${calculateAbsoluteCoverage(version, totalNovelChapters)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Translation Progress */}
+            <div>
+              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                <span>Translation Progress</span>
+                <span>{calculateTranslationProgress(version).toFixed(1)}% ({version.stats.content.totalTranslatedChapters}/{version.stats.content.totalRawChapters} translated)</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-green-600 dark:bg-green-500 h-2 rounded-full transition-all"
+                  style={{ width: `${calculateTranslationProgress(version)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Content Statistics Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
             <div className="text-center">
@@ -160,6 +214,18 @@ export function VersionPicker({ versions, onSelect }: VersionPickerProps) {
                   {feature}
                 </span>
               ))}
+            </div>
+          )}
+
+          {/* Translator's Description/Notes */}
+          {version.description && (
+            <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+              <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Translator's Notes
+              </h5>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                {version.description}
+              </p>
             </div>
           )}
 

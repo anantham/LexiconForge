@@ -20,7 +20,7 @@ const settingsStorageKey = 'app-settings';
 
 // Default settings configuration
 export const defaultSettings: AppSettings = {
-  contextDepth: 3,
+  contextDepth: 2,  // Reduced from 3 to save on context/costs
   preloadCount: 0,
   fontSize: 18,
   fontStyle: 'serif',
@@ -52,8 +52,8 @@ export const defaultSettings: AppSettings = {
   defaultNegativePrompt: 'low quality, blurry, distorted, text, watermark',
   defaultGuidanceScale: 3.5,
   exportOrder: 'number',
-  // Diff heatmap
-  showDiffHeatmap: true,
+  // Diff heatmap - OFF by default to save API costs
+  showDiffHeatmap: false,  // Disabled by default - costs API calls
   diffMarkerVisibility: {
     fan: true,
     rawLoss: true,

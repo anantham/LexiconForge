@@ -29,6 +29,7 @@ describe('RegistryService', () => {
       title: 'Test Novel',
       metadata: {
         originalLanguage: 'Korean',
+        chapterCount: 50,
         genres: ['Fantasy'],
         description: 'Test description',
         lastUpdated: '2025-01-19'
@@ -45,7 +46,23 @@ describe('RegistryService', () => {
           chapterRange: { from: 1, to: 50 },
           completionStatus: 'Complete',
           lastUpdated: '2025-01-19',
-          stats: { downloads: 100, fileSize: '5 MB' }
+          stats: {
+            downloads: 100,
+            fileSize: '5 MB',
+            content: {
+              totalImages: 0,
+              totalFootnotes: 0,
+              totalRawChapters: 50,
+              totalTranslatedChapters: 50,
+              avgImagesPerChapter: 0,
+              avgFootnotesPerChapter: 0
+            },
+            translation: {
+              translationType: 'human',
+              feedbackCount: 0,
+              qualityRating: 4.5
+            }
+          }
         }
       ]
     };

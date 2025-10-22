@@ -6,11 +6,14 @@ describe('SettingsModal Tabs', () => {
   it('should render all tabs', () => {
     render(<SettingsModal isOpen={true} onClose={() => {}} />);
 
-    expect(screen.getByText('Translation')).toBeInTheDocument();
-    expect(screen.getByText('EPUB')).toBeInTheDocument();
-    expect(screen.getByText('Metadata')).toBeInTheDocument();
+    // Check for current tab names (updated UI)
+    expect(screen.getByText('General')).toBeInTheDocument();
+    expect(screen.getByText('Features')).toBeInTheDocument();
     expect(screen.getByText('Export')).toBeInTheDocument();
-    expect(screen.getByText('Preferences')).toBeInTheDocument();
+    expect(screen.getByText('Metadata')).toBeInTheDocument();
+    expect(screen.getByText('Templates')).toBeInTheDocument();
+    expect(screen.getByText('Audio')).toBeInTheDocument();
+    expect(screen.getByText('Advanced')).toBeInTheDocument();
   });
 
   it('should switch to Metadata tab on click', () => {
@@ -19,8 +22,9 @@ describe('SettingsModal Tabs', () => {
     const metadataTab = screen.getByText('Metadata');
     fireEvent.click(metadataTab);
 
-    // Should show metadata form
-    expect(screen.getByText('Novel Information')).toBeInTheDocument();
+    // Should show metadata form header (updated text)
+    expect(screen.getByText('Novel Metadata')).toBeInTheDocument();
+    expect(screen.getByText('Basic Information')).toBeInTheDocument();
   });
 
   it('should show Export tab with action buttons', () => {
@@ -29,7 +33,8 @@ describe('SettingsModal Tabs', () => {
     const exportTab = screen.getByText('Export');
     fireEvent.click(exportTab);
 
-    expect(screen.getByText('Export Session JSON')).toBeInTheDocument();
+    // Check for current button text (updated UI)
+    expect(screen.getByText('Quick Export (Session Only)')).toBeInTheDocument();
     expect(screen.getByText('Publish to Library')).toBeInTheDocument();
   });
 });

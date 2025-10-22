@@ -68,14 +68,14 @@ describe('VersionPicker', () => {
   ];
 
   it('should render all versions', () => {
-    render(<VersionPicker versions={mockVersions} onSelect={vi.fn()} />);
+    render(<VersionPicker versions={mockVersions} totalNovelChapters={100} onSelect={vi.fn()} />);
 
     expect(screen.getByText('Alice Community Translation')).toBeInTheDocument();
     expect(screen.getByText('Bob Illustrated Edition')).toBeInTheDocument();
   });
 
   it('should show fork lineage', () => {
-    render(<VersionPicker versions={mockVersions} onSelect={vi.fn()} />);
+    render(<VersionPicker versions={mockVersions} totalNovelChapters={100} onSelect={vi.fn()} />);
 
     expect(screen.getByText(/Based on:/i)).toBeInTheDocument();
     expect(screen.getByText('alice-v1')).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('VersionPicker', () => {
 
   it('should call onSelect when Start Reading clicked', () => {
     const onSelect = vi.fn();
-    render(<VersionPicker versions={mockVersions} onSelect={onSelect} />);
+    render(<VersionPicker versions={mockVersions} totalNovelChapters={100} onSelect={onSelect} />);
 
     const buttons = screen.getAllByText('Start Reading');
     fireEvent.click(buttons[0]);

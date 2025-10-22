@@ -22,18 +22,41 @@ export const NOVEL_CATALOG: NovelCatalog = {
       sessionJsonUrl: 'https://media.githubusercontent.com/media/anantham/LexiconForge/main/session-files/dungeon-defense.json',
       metadata: {
         originalLanguage: 'Korean',
-        targetLanguage: 'English',
         chapterCount: 509,
         genres: ['Dark Fantasy', 'Strategy', 'Psychological', 'Demon Lord'],
         description: 'I reincarnated as a Demon Lord and now I have to save humanity from itself. Using wit, manipulation, and careful planning, I must survive in a world where everyone wants me dead. A dark psychological thriller that explores morality, strategy, and the price of survival.',
         coverImageUrl: '/dungeon-defense-cover.jpg',
         author: 'Yoo Heonhwa',
-        rating: 4.5,
-        sourceUrl: 'https://www.novelupdates.com/series/dungeon-defense/',
-        sourceName: 'Novel Updates',
-        translator: 'Community',
+        sourceLinks: {
+          novelUpdates: 'https://www.novelupdates.com/series/dungeon-defense/'
+        },
         tags: ['Anti-Hero', 'Cunning Protagonist', 'Dark', 'Game Elements', 'Gore'],
-        lastUpdated: '2025-10-19'
+        lastUpdated: '2025-10-19',
+        mediaCorrespondence: [
+          {
+            id: 'volume-1-end',
+            label: 'Volume 1 Complete',
+            description: 'Dantalian establishes his position in the demon world',
+            webNovel: {
+              chapters: { from: 1, to: 45 }
+            },
+            manhua: {
+              chapters: { from: 1, to: 28 },
+              notes: 'Manhwa adaptation includes additional artwork'
+            }
+          },
+          {
+            id: 'volume-2-end',
+            label: 'Volume 2 Complete',
+            description: 'The first major war arc concludes',
+            webNovel: {
+              chapters: { from: 46, to: 120 }
+            },
+            manhua: {
+              chapters: { from: 29, to: 67 }
+            }
+          }
+        ]
       }
     },
     {
@@ -42,16 +65,14 @@ export const NOVEL_CATALOG: NovelCatalog = {
       sessionJsonUrl: 'https://raw.githubusercontent.com/YOUR_ORG/lexiconforge-novels/main/sessions/strongest-exorcist.json',
       metadata: {
         originalLanguage: 'Japanese',
-        targetLanguage: 'English',
         chapterCount: 35,
         genres: ['Fantasy', 'Isekai', 'Magic', 'Reincarnation'],
         description: 'The strongest exorcist in the world failed to save it from destruction. Reincarnated 1000 years later, he must use his knowledge of the past to prevent the same catastrophe. But in this peaceful world, will his dark methods be accepted?',
         coverImageUrl: 'https://i.imgur.com/placeholder.jpg',
         author: 'Kisetsu Morita',
-        rating: 4.2,
-        sourceUrl: 'https://www.novelupdates.com/series/the-exorcist-who-failed-to-save-the-world/',
-        sourceName: 'Novel Updates',
-        translator: 'Community',
+        sourceLinks: {
+          novelUpdates: 'https://www.novelupdates.com/series/the-exorcist-who-failed-to-save-the-world/'
+        },
         tags: ['Overpowered Protagonist', 'Magic', 'Reincarnation', 'Fantasy World'],
         lastUpdated: '2025-10-15'
       }
@@ -62,16 +83,14 @@ export const NOVEL_CATALOG: NovelCatalog = {
       sessionJsonUrl: 'https://raw.githubusercontent.com/YOUR_ORG/lexiconforge-novels/main/sessions/orv.json',
       metadata: {
         originalLanguage: 'Korean',
-        targetLanguage: 'English',
         chapterCount: 25,
         genres: ['Action', 'Adventure', 'Fantasy', 'Apocalypse'],
         description: 'The novel he had been reading for 10 years suddenly becomes reality. Kim Dokja, the sole reader who finished the story, must use his unique knowledge to survive the apocalypse. A meta-narrative masterpiece about stories, readers, and reality.',
         coverImageUrl: 'https://i.imgur.com/placeholder2.jpg',
         author: 'Sing Shong',
-        rating: 4.8,
-        sourceUrl: 'https://www.novelupdates.com/series/omniscient-readers-viewpoint/',
-        sourceName: 'Novel Updates',
-        translator: 'Community',
+        sourceLinks: {
+          novelUpdates: 'https://www.novelupdates.com/series/omniscient-readers-viewpoint/'
+        },
         tags: ['Clever Protagonist', 'Apocalypse', 'System', 'Survival', 'Breaking the Fourth Wall'],
         lastUpdated: '2025-10-16'
       }
@@ -83,11 +102,9 @@ export const NOVEL_CATALOG: NovelCatalog = {
       sessionJsonUrl: '', // Empty for now
       metadata: {
         originalLanguage: 'Chinese',
-        targetLanguage: 'English',
         chapterCount: 100,
         genres: ['Xuanhuan', 'Cultivation', 'Action'],
         description: 'A young disciple rises from obscurity to challenge the heavens. Classic cultivation journey with face-slapping and pill refinement.',
-        rating: 3.8,
         tags: ['Cultivation', 'Revenge', 'Harem'],
         lastUpdated: '2025-10-10'
       }
@@ -98,11 +115,9 @@ export const NOVEL_CATALOG: NovelCatalog = {
       sessionJsonUrl: '',
       metadata: {
         originalLanguage: 'Japanese',
-        targetLanguage: 'English',
         chapterCount: 45,
         genres: ['Fantasy', 'Romance', 'Comedy'],
         description: 'A wholesome story about adventurers in a fantasy world. Slice of life meets dungeon exploration.',
-        rating: 4.0,
         tags: ['Slice of Life', 'Fantasy', 'Guild'],
         lastUpdated: '2025-10-12'
       }

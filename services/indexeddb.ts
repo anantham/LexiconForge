@@ -3183,8 +3183,12 @@ class IndexedDBService {
 
   /**
    * Import a full-session JSON produced by exportFullSessionToJson()
+   * WITH PROGRESS TRACKING - Batched import for better UX
    */
-  async importFullSessionData(payload: any): Promise<void> {
+  async importFullSessionData(
+    payload: any,
+    onProgress?: (stage: 'settings' | 'chapters' | 'translations' | 'complete', current: number, total: number, message: string) => void
+  ): Promise<void> {
     const db = await this.openDatabase();
     const { settings, urlMappings, novels, chapters, promptTemplates, diffResults } = payload || {};
 
@@ -3204,13 +3208,18 @@ class IndexedDBService {
       stores.push(STORES.DIFF_RESULTS);
     }
 
-    return new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(stores, 'readwrite');
+    // BATCHED IMPORT WITH PROGRESS TRACKING
+    const BATCH_SIZE = 50; // Process 50 chapters per batch
 
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error as any);
+    try {
+      // Step 1: Import settings, novels, URL mappings (fast, no batching needed)
+      onProgress?.('settings', 0, 1, 'Importing settings and metadata...');
 
-      try {
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction([STORES.SETTINGS, STORES.URL_MAPPINGS, STORES.NOVELS, STORES.PROMPT_TEMPLATES], 'readwrite');
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+
         // Settings
         if (settings) {
           const setStore = tx.objectStore(STORES.SETTINGS);
@@ -3228,13 +3237,12 @@ class IndexedDBService {
         if (Array.isArray(urlMappings)) {
           const mapStore = tx.objectStore(STORES.URL_MAPPINGS);
           for (const m of urlMappings) {
-            const rec: UrlMappingRecord = {
+            mapStore.put({
               url: m.url,
               stableId: m.stableId,
               isCanonical: !!m.isCanonical,
               dateAdded: m.dateAdded || new Date().toISOString()
-            };
-            mapStore.put(rec);
+            } as UrlMappingRecord);
           }
         }
 
@@ -3242,85 +3250,14 @@ class IndexedDBService {
         if (Array.isArray(novels)) {
           const novelStore = tx.objectStore(STORES.NOVELS);
           for (const n of novels) {
-            const rec: NovelRecord = {
+            novelStore.put({
               id: n.id,
               title: n.title,
               source: n.source,
               chapterCount: n.chapterCount || 0,
               dateAdded: n.dateAdded || new Date().toISOString(),
               lastAccessed: n.lastAccessed || new Date().toISOString()
-            };
-            novelStore.put(rec);
-          }
-        }
-
-        // Chapters + Translations + Feedback
-        const chStore = tx.objectStore(STORES.CHAPTERS);
-        const trStore = tx.objectStore(STORES.TRANSLATIONS);
-        const fbStore = tx.objectStore(STORES.FEEDBACK);
-
-        if (Array.isArray(chapters)) {
-          for (const c of chapters) {
-            const chapterRec: ChapterRecord = {
-              url: c.canonicalUrl,
-              stableId: c.stableId,
-              title: c.title,
-              content: c.content,
-              fanTranslation: c.fanTranslation || undefined,
-              originalUrl: c.canonicalUrl,
-              nextUrl: c.nextUrl || undefined,
-              prevUrl: c.prevUrl || undefined,
-              dateAdded: new Date().toISOString(),
-              lastAccessed: new Date().toISOString(),
-              chapterNumber: c.chapterNumber || undefined,
-              canonicalUrl: c.canonicalUrl
-            };
-            chStore.put(chapterRec);
-
-            if (Array.isArray(c.translations)) {
-              // Clear isActive first by setting while we import; we'll respect flags on records
-              for (const t of c.translations) {
-                const v: TranslationRecord = {
-                  id: t.id || crypto.randomUUID(),
-                  chapterUrl: c.canonicalUrl,
-                  stableId: c.stableId,
-                  version: t.version || 1,
-                  translatedTitle: t.translatedTitle,
-                  translation: t.translation,
-                  footnotes: t.footnotes || [],
-                  suggestedIllustrations: t.suggestedIllustrations || [],
-                  provider: t.provider,
-                  model: t.model,
-                  temperature: t.temperature,
-                  systemPrompt: t.systemPrompt,
-                  promptId: t.promptId,
-                  promptName: t.promptName,
-                  totalTokens: t.usageMetrics?.totalTokens || 0,
-                  promptTokens: t.usageMetrics?.promptTokens || 0,
-                  completionTokens: t.usageMetrics?.completionTokens || 0,
-                  estimatedCost: t.usageMetrics?.estimatedCost || 0,
-                  requestTime: t.usageMetrics?.requestTime || 0,
-                  createdAt: t.createdAt || new Date().toISOString(),
-                  isActive: !!t.isActive
-                };
-                trStore.put(v);
-              }
-            }
-
-            if (Array.isArray(c.feedback)) {
-              for (const f of c.feedback) {
-                const fb: FeedbackRecord = {
-                  id: f.id || crypto.randomUUID(),
-                  chapterUrl: c.canonicalUrl,
-                  translationId: undefined,
-                  type: f.type,
-                  selection: f.selection,
-                  comment: f.comment || '',
-                  createdAt: f.createdAt || new Date().toISOString()
-                };
-                fbStore.put(fb);
-              }
-            }
+            } as NovelRecord);
           }
         }
 
@@ -3339,18 +3276,114 @@ class IndexedDBService {
             } as PromptTemplateRecord);
           }
         }
+      });
 
-        // Diff results (if store exists and data is provided)
-        if (Array.isArray(diffResults) && db.objectStoreNames.contains(STORES.DIFF_RESULTS)) {
+      // Step 2: Import chapters in batches
+      if (Array.isArray(chapters) && chapters.length > 0) {
+        const totalChapters = chapters.length;
+
+        for (let i = 0; i < chapters.length; i += BATCH_SIZE) {
+          const batch = chapters.slice(i, i + BATCH_SIZE);
+          const current = Math.min(i + BATCH_SIZE, totalChapters);
+
+          onProgress?.('chapters', current, totalChapters, `Importing chapters ${current}/${totalChapters}...`);
+
+          await new Promise<void>((resolve, reject) => {
+            const tx = db.transaction([STORES.CHAPTERS, STORES.TRANSLATIONS, STORES.FEEDBACK], 'readwrite');
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+
+            const chStore = tx.objectStore(STORES.CHAPTERS);
+            const trStore = tx.objectStore(STORES.TRANSLATIONS);
+            const fbStore = tx.objectStore(STORES.FEEDBACK);
+
+            for (const c of batch) {
+              // Store chapter
+              chStore.put({
+                url: c.canonicalUrl,
+                stableId: c.stableId,
+                title: c.title,
+                content: c.content,
+                fanTranslation: c.fanTranslation || undefined,
+                originalUrl: c.canonicalUrl,
+                nextUrl: c.nextUrl || undefined,
+                prevUrl: c.prevUrl || undefined,
+                dateAdded: new Date().toISOString(),
+                lastAccessed: new Date().toISOString(),
+                chapterNumber: c.chapterNumber || undefined,
+                canonicalUrl: c.canonicalUrl
+              } as ChapterRecord);
+
+              // Store translations
+              if (Array.isArray(c.translations)) {
+                for (const t of c.translations) {
+                  trStore.put({
+                    id: t.id || crypto.randomUUID(),
+                    chapterUrl: c.canonicalUrl,
+                    stableId: c.stableId,
+                    version: t.version || 1,
+                    translatedTitle: t.translatedTitle,
+                    translation: t.translation,
+                    footnotes: t.footnotes || [],
+                    suggestedIllustrations: t.suggestedIllustrations || [],
+                    provider: t.provider,
+                    model: t.model,
+                    temperature: t.temperature,
+                    systemPrompt: t.systemPrompt,
+                    promptId: t.promptId,
+                    promptName: t.promptName,
+                    totalTokens: t.usageMetrics?.totalTokens || 0,
+                    promptTokens: t.usageMetrics?.promptTokens || 0,
+                    completionTokens: t.usageMetrics?.completionTokens || 0,
+                    estimatedCost: t.usageMetrics?.estimatedCost || 0,
+                    requestTime: t.usageMetrics?.requestTime || 0,
+                    createdAt: t.createdAt || new Date().toISOString(),
+                    isActive: !!t.isActive
+                  } as TranslationRecord);
+                }
+              }
+
+              // Store feedback
+              if (Array.isArray(c.feedback)) {
+                for (const f of c.feedback) {
+                  fbStore.put({
+                    id: f.id || crypto.randomUUID(),
+                    chapterUrl: c.canonicalUrl,
+                    translationId: undefined,
+                    type: f.type,
+                    selection: f.selection,
+                    comment: f.comment || '',
+                    createdAt: f.createdAt || new Date().toISOString()
+                  } as FeedbackRecord);
+                }
+              }
+            }
+          });
+
+          // Allow UI to update between batches
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+
+      // Step 3: Import diff results if available
+      if (Array.isArray(diffResults) && db.objectStoreNames.contains(STORES.DIFF_RESULTS)) {
+        await new Promise<void>((resolve, reject) => {
+          const tx = db.transaction([STORES.DIFF_RESULTS], 'readwrite');
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+
           const diffStore = tx.objectStore(STORES.DIFF_RESULTS);
           for (const d of diffResults) {
             diffStore.put(d);
           }
-        }
-      } catch (e) {
-        reject(e);
+        });
       }
-    });
+
+      onProgress?.('complete', 100, 100, 'Import complete!');
+    } catch (error) {
+      console.error('[IndexedDB] Import failed:', error);
+      throw error;
+    }
   }
 
   /**

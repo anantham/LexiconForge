@@ -6,6 +6,7 @@
 export interface TranslatorInfo {
   name: string;
   link?: string;
+  bio?: string;  // Optional translator bio/introduction
 }
 
 export interface ChapterRange {
@@ -19,7 +20,11 @@ export interface VersionContentStats {
   totalRawChapters: number;
   totalTranslatedChapters: number;
   avgImagesPerChapter: number;
+  medianImagesPerChapter?: number;  // New: better centrality measure
   avgFootnotesPerChapter: number;
+  medianFootnotesPerChapter?: number;  // New: better centrality measure
+  avgChapterLength?: number;  // New: mean chapter length in characters
+  medianChapterLength?: number;  // New: median chapter length
 }
 
 export interface VersionTranslationStats {
@@ -27,6 +32,15 @@ export interface VersionTranslationStats {
   aiPercentage?: number;  // If hybrid
   qualityRating?: number; // Community rating 1-5
   feedbackCount: number;
+  // Auto-computed analytics from session.json
+  amendmentCount?: number;  // Number of amendment proposals
+  totalCost?: number;  // Total translation cost in USD
+  totalTokens?: number;  // Total tokens used
+  mostUsedModel?: string;  // Most frequently used model (format: "provider/model")
+  dateRange?: {  // Translation date range
+    start: string;  // ISO date
+    end: string;    // ISO date
+  };
 }
 
 export interface ChapterCoverageStats {
@@ -58,7 +72,9 @@ export interface NovelVersion {
   lastUpdated: string;
   basedOn?: string;  // Parent version ID for forks
   stats: VersionStats;
-  description?: string;
+  description?: string;  // What makes this version unique/special
+  translationPhilosophy?: string;  // Translator's approach and philosophy
+  contentNotes?: string;  // Additional notes about content/style
 }
 
 export interface SourceLinks {
@@ -73,18 +89,17 @@ export interface SourceLinks {
 export interface NovelMetadata {
   originalLanguage: string;
   targetLanguage?: string;  // Make optional since versions have this
-  chapterCount?: number;     // Make optional since versions have ranges
+  chapterCount: number;      // Total chapters published for this novel (required)
   genres: string[];
   description: string;
   coverImageUrl?: string;
   author?: string;
-  rating?: number;
   sourceLinks?: SourceLinks;
-  translator?: string;       // Deprecated: use version.translator
   tags?: string[];
   publicationStatus?: 'Ongoing' | 'Completed' | 'Hiatus' | 'Cancelled';
   originalPublicationDate?: string;
   lastUpdated: string;
+  mediaCorrespondence?: MediaCorrespondenceAnchor[];  // Cross-media alignment anchors
 }
 
 export interface NovelEntry {
@@ -136,4 +151,36 @@ export interface NovelProvenance {
     forkedAt: string;
   };
   contributors: VersionContributor[];
+}
+
+// Cross-Media Correspondence Types
+export interface MediaReference {
+  // Range of content at this anchor point
+  chapters?: { from: number; to: number };
+  volume?: number;
+  episodes?: {
+    season?: number;
+    from: number;
+    to: number;
+  };
+
+  // Optional: Direct link to start reading/watching from here
+  startUrl?: string;
+
+  // Optional: Notes about this specific medium's coverage
+  notes?: string;
+}
+
+export interface MediaCorrespondenceAnchor {
+  id: string;
+  label: string; // e.g., "Season 1 End", "Volume 3 Complete"
+  description?: string;
+
+  // References to each medium at this anchor point
+  webNovel?: MediaReference;
+  lightNovel?: MediaReference;
+  manga?: MediaReference;
+  manhua?: MediaReference;
+  anime?: MediaReference;
+  donghua?: MediaReference;
 }

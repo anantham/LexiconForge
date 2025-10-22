@@ -39,8 +39,8 @@ describe('Novel Library E2E Flow', () => {
         genres: ['Fantasy', 'Adventure'],
         description: 'An epic tale of unit tests and integration tests coming together.',
         author: 'Test Author',
-        rating: 4.5,
-        coverImageUrl: 'https://example.com/cover.jpg'
+        coverImageUrl: 'https://example.com/cover.jpg',
+        lastUpdated: '2025-10-21'
       },
       versions: [
         {
@@ -249,10 +249,10 @@ describe('Novel Library E2E Flow', () => {
         sessionJsonUrl: 'https://example.com/legacy.json',
         metadata: {
           originalLanguage: 'Korean',
-          targetLanguage: 'English',
           chapterCount: 50,
           genres: ['Fantasy'],
-          description: 'A novel without versions'
+          description: 'A novel without versions',
+          lastUpdated: '2025-10-21'
         }
       }
     ];
