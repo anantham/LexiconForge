@@ -9,6 +9,7 @@ export interface TranslationJob {
     url: string;
     title: string;
     content: string;
+    chapterId?: string;
   }>;
   settings: AppSettings;
   history: HistoricalChapter[];
@@ -77,7 +78,8 @@ async function handleTranslationJob(job: TranslationJob) {
           settings,
           history,
           fanTranslation,
-          abortController.signal
+          abortController.signal,
+          chapter.chapterId
         );
 
         results.push(result);
@@ -196,17 +198,19 @@ async function translateChapter(
   settings: AppSettings,
   history: HistoricalChapter[],
   fanTranslation?: string | null,
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
+  chapterId?: string
 ): Promise<TranslationResult> {
   const { translator } = await import('../services/translate/Translator');
-  
+
   return translator.translate({
     title,
     content,
     settings,
     history,
     fanTranslation,
-    abortSignal
+    abortSignal,
+    chapterId
   }, {
     maxRetries: settings.retryMax ?? 3,
     initialDelay: settings.retryInitialDelayMs ?? 2000

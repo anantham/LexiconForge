@@ -154,7 +154,8 @@ export class TranslationService {
         (chapterToTranslate as any).fanTranslation || null,
         3, // maxRetries
         2000, // timeout
-        abortController.signal
+        abortController.signal,
+        chapterId // For API metrics tracking
       );
 
       if (abortController.signal.aborted) {

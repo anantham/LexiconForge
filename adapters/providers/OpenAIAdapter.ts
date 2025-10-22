@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
-import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
+import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
 import { supportsStructuredOutputs, supportsParameters } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
@@ -11,6 +11,7 @@ import { getEnvVar } from '../../services/env';
 import { getTranslationResponseJsonSchema } from '../../services/translate/translationResponseSchema';
 import { getEffectiveSystemPrompt } from '../../utils/promptUtils';
 import { getDefaultApiKey } from '../../services/defaultApiKeyService';
+import { apiMetricsService } from '../../services/apiMetricsService';
 
 // Parameter validation utility
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -57,14 +58,14 @@ const dlogFull = (message: string, ...args: any[]) => {
 
 export class OpenAIAdapter implements TranslationProvider {
   async translate(request: TranslationRequest): Promise<TranslationResult> {
-    const { title, content, settings, history, fanTranslation, abortSignal } = request;
-    
+    const { title, content, settings, history, fanTranslation, abortSignal, chapterId } = request;
+
     // Configure API client
     const apiConfig = this.getApiConfig(settings);
-    const client = new OpenAI({ 
-      apiKey: apiConfig.apiKey, 
-      baseURL: apiConfig.baseURL, 
-      dangerouslyAllowBrowser: true 
+    const client = new OpenAI({
+      apiKey: apiConfig.apiKey,
+      baseURL: apiConfig.baseURL,
+      dangerouslyAllowBrowser: true
     });
 
     // Check rate limits
@@ -72,7 +73,7 @@ export class OpenAIAdapter implements TranslationProvider {
 
     // Build request
     const requestOptions = await this.buildRequest(settings, title, content, history, fanTranslation);
-    
+
     dlog('Making API request', { model: settings.model, provider: settings.provider });
     dlogFull('Full request body:', JSON.stringify(requestOptions, null, 2));
 
@@ -84,7 +85,7 @@ export class OpenAIAdapter implements TranslationProvider {
       response = await (abortSignal
         ? client.chat.completions.create(requestOptions, { signal: abortSignal })
         : client.chat.completions.create(requestOptions));
-        
+
     } catch (error: any) {
       // Handle parameter errors by retrying without unsupported parameters
       if (this.isParameterError(error)) {
@@ -95,15 +96,37 @@ export class OpenAIAdapter implements TranslationProvider {
           : client.chat.completions.create(simpleOptions));
       } else {
         dlogFull('Full error response:', JSON.stringify(error, null, 2));
+
+        // Record failed API call
+        const endTime = performance.now();
+        const promptTokens = 0; // Unknown on failure
+        const completionTokens = 0;
+        const costUsd = 0;
+
+        await apiMetricsService.recordMetric({
+          apiType: 'translation',
+          provider: settings.provider,
+          model: settings.model,
+          costUsd,
+          tokens: {
+            prompt: promptTokens,
+            completion: completionTokens,
+            total: promptTokens + completionTokens,
+          },
+          chapterId,
+          success: false,
+          errorMessage: error.message || 'Unknown error',
+        });
+
         throw error;
       }
     }
 
     const endTime = performance.now();
-    
+
     // Process response
     dlogFull('Full response body:', JSON.stringify(response, null, 2));
-    return this.processResponse(response, settings, startTime, endTime);
+    return this.processResponse(response, settings, startTime, endTime, chapterId);
   }
 
   private getApiConfig(settings: AppSettings): { apiKey: string; baseURL: string } {
@@ -391,7 +414,8 @@ ${schemaString}`;
     response: OpenAI.Chat.Completions.ChatCompletion,
     settings: AppSettings,
     startTime: number,
-    endTime: number
+    endTime: number,
+    chapterId?: string
   ): Promise<TranslationResult> {
     const choice = response.choices?.[0];
     const finishReason = choice?.finish_reason || (choice as any)?.native_finish_reason || null;
@@ -461,6 +485,21 @@ ${schemaString}`;
         provider: settings.provider,
         model: settings.model,
     };
+
+    // Record successful API call in metrics
+    await apiMetricsService.recordMetric({
+      apiType: 'translation',
+      provider: settings.provider,
+      model: settings.model,
+      costUsd,
+      tokens: {
+        prompt: promptTokens,
+        completion: completionTokens,
+        total: promptTokens + completionTokens,
+      },
+      chapterId,
+      success: true,
+    });
 
     return {
       translatedTitle: parsedResponse.translatedTitle || '',

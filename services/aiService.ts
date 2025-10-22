@@ -1299,7 +1299,8 @@ export const translateChapter = async (
   fanTranslation?: string | null,
   maxRetries: number = 3,
   initialDelay: number = 2000,
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
+  chapterId?: string
 ): Promise<TranslationResult> => {
     // Track default key usage for OpenRouter
     const isUsingDefaultKey = settings.provider === 'OpenRouter' &&
@@ -1320,7 +1321,8 @@ export const translateChapter = async (
         settings,
         history,
         fanTranslation,
-        abortSignal
+        abortSignal,
+        chapterId
       }, {
         maxRetries,
         initialDelay

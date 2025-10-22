@@ -10,6 +10,7 @@ export interface TranslationRequest {
   history: HistoricalChapter[];
   fanTranslation?: string | null;
   abortSignal?: AbortSignal;
+  chapterId?: string;
 }
 
 export interface TranslationProvider {
