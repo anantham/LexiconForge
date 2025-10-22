@@ -10,6 +10,7 @@ import { buildFanTranslationContext, formatHistory } from '../../services/prompt
 import { getEnvVar } from '../../services/env';
 import { getTranslationResponseJsonSchema } from '../../services/translate/translationResponseSchema';
 import { getEffectiveSystemPrompt } from '../../utils/promptUtils';
+import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 
 // Parameter validation utility
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -119,7 +120,17 @@ export class OpenAIAdapter implements TranslationProvider {
         baseURL = 'https://api.deepseek.com/v1';
         break;
       case 'OpenRouter':
-        apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+        // Try user key first, then env var, then trial key
+        apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey() || undefined;
+        console.log('[OpenRouter] API Key Priority Check:', {
+          hasUserKey: !!(settings as any).apiKeyOpenRouter,
+          hasEnvKey: !!getEnvVar('OPENROUTER_API_KEY'),
+          hasTrialKey: !!getDefaultApiKey(),
+          usingSource: (settings as any).apiKeyOpenRouter ? 'user_settings' :
+                       getEnvVar('OPENROUTER_API_KEY') ? 'env_var' :
+                       getDefaultApiKey() ? 'trial_key' : 'none',
+          finalKeyAvailable: !!apiKey
+        });
         baseURL = 'https://openrouter.ai/api/v1';
         break;
       default:
