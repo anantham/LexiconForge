@@ -15,6 +15,9 @@ interface VersionPickerProps {
  * @returns Absolute coverage percentage (0-100)
  */
 function calculateAbsoluteCoverage(version: NovelVersion, totalChapters: number): number {
+  if (!totalChapters || totalChapters <= 0) {
+    return 0;
+  }
   const versionChapters = version.chapterRange.to - version.chapterRange.from + 1;
   return (versionChapters / totalChapters) * 100;
 }
