@@ -608,7 +608,9 @@ const ChapterView: React.FC = () => {
   ]);
 
   const retranslateSettingsChanged = currentChapterId ? shouldEnableRetranslation(currentChapterId) : false;
-  const isRetranslationActive = currentChapterId ? isTranslationActive(currentChapterId) : false;
+  // Subscribe to activeTranslations state for reactive updates
+  const activeTranslations = useAppStore(s => s.activeTranslations);
+  const isRetranslationActive = currentChapterId ? (currentChapterId in activeTranslations || isTranslationActive(currentChapterId)) : false;
   const canManualRetranslate = !!translationResult;
 
   // Diff markers integration (must come after currentChapterId and settings are defined)

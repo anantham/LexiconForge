@@ -113,11 +113,18 @@ export const createTranslationsSlice: StateCreator<
       promptId: context.activePromptTemplate?.id
     });
 
+    // Create abort controller for this translation
+    const abortController = new AbortController();
+
     set(prevState => {
       const nextPending = new Set(prevState.pendingTranslations);
       nextPending.add(chapterId);
       return {
         pendingTranslations: nextPending,
+        activeTranslations: {
+          ...prevState.activeTranslations,
+          [chapterId]: abortController
+        },
         translationProgress: {
           ...prevState.translationProgress,
           [chapterId]: { status: 'translating', progress: 0 }
@@ -695,7 +702,10 @@ export const createTranslationsSlice: StateCreator<
   },
   
   isTranslationActive: (chapterId) => {
-    return TranslationService.isTranslationActive(chapterId);
+    // Use Zustand's reactive state instead of TranslationService's internal state
+    // This ensures UI updates when translation status changes
+    const state = get();
+    return chapterId in state.activeTranslations || TranslationService.isTranslationActive(chapterId);
   },
   
   getActiveTranslationIds: () => {
