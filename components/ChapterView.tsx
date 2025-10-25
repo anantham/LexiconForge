@@ -185,6 +185,89 @@ const mapMarkerForVisibility = (
   };
 };
 
+/**
+ * Find all opening tags (<i>, <b>) in a segment
+ */
+const findOpenedTags = (html: string): string[] => {
+  const opened: string[] = [];
+  const openTagRegex = /<(i|b)>/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = openTagRegex.exec(html)) !== null) {
+    opened.push(match[1]);
+  }
+
+  return opened;
+};
+
+/**
+ * Find all closing tags (</i>, </b>) in a segment
+ */
+const findClosedTags = (html: string): string[] => {
+  const closed: string[] = [];
+  const closeTagRegex = /<\/(i|b)>/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = closeTagRegex.exec(html)) !== null) {
+    closed.push(match[1]);
+  }
+
+  return closed;
+};
+
+/**
+ * Balance HTML formatting tags across paragraph segments.
+ * Ensures that if a tag spans multiple paragraphs, each paragraph
+ * gets properly opened and closed tags.
+ *
+ * Example:
+ *   Input:  ["<i>Para 1", "Para 2", "Para 3</i>"]
+ *   Output: ["<i>Para 1</i>", "<i>Para 2</i>", "<i>Para 3</i>"]
+ */
+const balanceTagsAcrossSegments = (segments: Array<{ raw: string }>): Array<{ raw: string }> => {
+  const openTags: string[] = []; // Stack of currently open tags (innermost last)
+
+  return segments.map(segment => {
+    const original = segment.raw;
+
+    // Find what tags are opened and closed in the ORIGINAL segment text
+    // (before we prepend inherited tags)
+    const originallyOpened = findOpenedTags(original);
+    const originallyClosed = findClosedTags(original);
+
+    // Start building the balanced segment
+    let balanced = original;
+
+    // Prepend any tags that were left open from previous paragraphs
+    // Prepend in reverse order so outermost tags are added last
+    for (let i = openTags.length - 1; i >= 0; i--) {
+      balanced = `<${openTags[i]}>${balanced}`;
+    }
+
+    // Update the open tags stack based on the ORIGINAL segment
+    // Add newly opened tags
+    for (const tag of originallyOpened) {
+      openTags.push(tag);
+    }
+
+    // Remove closed tags (from the end, as they should be properly nested)
+    for (const tag of originallyClosed) {
+      const lastIndex = openTags.lastIndexOf(tag);
+      if (lastIndex !== -1) {
+        openTags.splice(lastIndex, 1);
+      }
+    }
+
+    // Close any tags still open at end of this segment
+    // Close in reverse order (innermost first)
+    for (let i = openTags.length - 1; i >= 0; i--) {
+      balanced = `${balanced}</${openTags[i]}>`;
+    }
+
+    return { raw: balanced };
+  });
+};
+
 const splitIntoParagraphSegments = (html: string): Array<{ raw: string }> => {
   const segments: Array<{ raw: string }> = [];
   let lastIndex = 0;
@@ -200,7 +283,8 @@ const splitIntoParagraphSegments = (html: string): Array<{ raw: string }> => {
     segments.push({ raw: html.slice(lastIndex) });
   }
 
-  return segments;
+  // Balance formatting tags across segments
+  return balanceTagsAcrossSegments(segments);
 };
 
 const normalizeParagraphText = (html: string): string => {

@@ -266,9 +266,10 @@ export const createTranslationsSlice: StateCreator<
         }
       }
 
-      // Dispatch translation:complete event for diff analysis
+      // Dispatch translation:complete event for diff analysis (only if diff heatmap is enabled)
       const chapter = context.chapters.get(chapterId);
-      if (chapter && typeof window !== 'undefined') {
+      const isDiffHeatmapEnabled = context.settings?.showDiffHeatmap ?? true; // Default to true for backward compatibility
+      if (chapter && typeof window !== 'undefined' && isDiffHeatmapEnabled) {
         window.dispatchEvent(new CustomEvent('translation:complete', {
           detail: {
             chapterId,
@@ -284,6 +285,8 @@ export const createTranslationsSlice: StateCreator<
           }
         }));
         debugLog('translation', 'summary', '[Translation] Dispatched translation:complete event for diff analysis');
+      } else if (!isDiffHeatmapEnabled) {
+        debugLog('translation', 'summary', '[Translation] Skipped diff analysis event (showDiffHeatmap is disabled)');
       }
       
       // Handle image generation if needed

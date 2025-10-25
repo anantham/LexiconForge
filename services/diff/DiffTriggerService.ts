@@ -89,6 +89,14 @@ async function handleTranslationComplete(event: Event): Promise<void> {
     preferredModel,
     preferredTemperature
   } = customEvent.detail;
+
+  // Defense-in-depth: Check if diff heatmap is enabled in settings
+  const isDiffHeatmapEnabled = useAppStore.getState().settings.showDiffHeatmap ?? true; // Default to true for backward compatibility
+  if (!isDiffHeatmapEnabled) {
+    debugLog('diff', 'summary', '[DiffTrigger] Diff analysis skipped (showDiffHeatmap is disabled in settings)');
+    return;
+  }
+
   const diffPrompt = useAppStore.getState().settings.diffAnalysisPrompt ?? null;
 
   try {

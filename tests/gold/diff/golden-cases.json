@@ -1,0 +1,119 @@
+[
+  {
+    "id": "case-001-exact-match",
+    "description": "AI and fan translations are identical - should produce no-change markers",
+    "aiTranslation": "The hero arrived at the village gate. He drew his sword.",
+    "fanTranslation": "The hero arrived at the village gate. He drew his sword.",
+    "rawText": "勇者は村の門に到着した。彼は剣を抜いた。",
+    "expectedMarkers": [
+      {
+        "chunkId": "para-0-.*",
+        "reasons": ["no-change"],
+        "colors": ["grey"],
+        "explanationPattern": null
+      },
+      {
+        "chunkId": "para-1-.*",
+        "reasons": ["no-change"],
+        "colors": ["grey"],
+        "explanationPattern": null
+      }
+    ]
+  },
+  {
+    "id": "case-002-terminology-choice",
+    "description": "Different terminology but same meaning",
+    "aiTranslation": "The warrior entered the fortress.",
+    "fanTranslation": "The hero went into the castle.",
+    "rawText": "勇者は城に入った。",
+    "expectedMarkers": [
+      {
+        "chunkId": "para-0-.*",
+        "reasons": ["fan-divergence", "stylistic-choice"],
+        "colors": ["blue", "grey"],
+        "explanationPattern": "terminology|word choice|phrasing"
+      }
+    ]
+  },
+  {
+    "id": "case-003-missing-detail",
+    "description": "AI omits important detail present in raw",
+    "aiTranslation": "She spoke quietly.",
+    "fanTranslation": "She spoke in a barely audible whisper, her voice trembling with fear.",
+    "rawText": "彼女は恐怖で震える声で、ほとんど聞こえないほど静かに話した。",
+    "expectedMarkers": [
+      {
+        "chunkId": "para-0-.*",
+        "reasons": ["missing-context", "raw-divergence"],
+        "colors": ["red", "orange"],
+        "explanationPattern": "omits|missing|detail"
+      }
+    ]
+  },
+  {
+    "id": "case-004-added-detail",
+    "description": "AI adds detail not in raw text (hallucination)",
+    "aiTranslation": "The ancient castle, built over 500 years ago by the legendary King Arthur, stood majestically on the hill.",
+    "fanTranslation": "The old castle stood on the hill.",
+    "rawText": "古い城が丘の上に立っていた。",
+    "expectedMarkers": [
+      {
+        "chunkId": "para-0-.*",
+        "reasons": ["added-detail", "hallucination"],
+        "colors": ["orange"],
+        "explanationPattern": "adds|hallucination|not present"
+      }
+    ]
+  },
+  {
+    "id": "case-005-sensitivity-filter",
+    "description": "AI sanitizes violent/sexual content",
+    "aiTranslation": "The battle ended.",
+    "fanTranslation": "He decapitated the enemy in a spray of blood, the corpse convulsing on the ground.",
+    "rawText": "彼は敵の首を斬り落とし、血しぶきが飛び散った。死体は地面で痙攣していた。",
+    "expectedMarkers": [
+      {
+        "chunkId": "para-0-.*",
+        "reasons": ["sensitivity-filter", "missing-context"],
+        "colors": ["purple", "red"],
+        "explanationPattern": "sanitized|filtered|censored|toned down"
+      }
+    ]
+  },
+  {
+    "id": "case-006-plot-critical-omission",
+    "description": "AI omits plot-critical information",
+    "aiTranslation": "She handed him a letter.",
+    "fanTranslation": "She handed him the sealed letter from the Emperor, the one that would determine his fate.",
+    "rawText": "彼女は彼に、彼の運命を決める皇帝からの封印された手紙を渡した。",
+    "expectedMarkers": [
+      {
+        "chunkId": "para-0-.*",
+        "reasons": ["plot-omission", "missing-context"],
+        "colors": ["red"],
+        "explanationPattern": "plot|critical|important.*omit"
+      }
+    ]
+  },
+  {
+    "id": "case-007-multi-paragraph-formatting",
+    "description": "AI correctly translates multi-paragraph content",
+    "aiTranslation": "<i>In the beginning, there was darkness.\n\nThen came the light.</i>",
+    "fanTranslation": "<i>At first it was dark.\n\nAfter that, light appeared.</i>",
+    "rawText": "最初は暗闇だった。\n\nそして光が現れた。",
+    "expectedMarkers": [
+      {
+        "chunkId": "para-0-.*",
+        "reasons": ["fan-divergence", "stylistic-choice"],
+        "colors": ["blue", "grey"],
+        "explanationPattern": "phrasing|wording"
+      },
+      {
+        "chunkId": "para-1-.*",
+        "reasons": ["fan-divergence", "stylistic-choice"],
+        "colors": ["blue", "grey"],
+        "explanationPattern": "phrasing|wording"
+      }
+    ]
+  }
+]

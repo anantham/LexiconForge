@@ -267,6 +267,16 @@ export const generateImage = async (
               images = [choice.message.content];
             }
 
+            // 4. message.content as string (might be base64 or data URL directly)
+            if (!images && typeof choice?.message?.content === 'string' && choice.message.content.startsWith('data:image/')) {
+              images = [{ image_url: { url: choice.message.content } }];
+            }
+
+            // 5. Check if content is directly an image object (no array wrapper)
+            if (!images && choice?.message?.content?.image_url) {
+              images = [choice.message.content];
+            }
+
             // Detailed diagnostic logging
             ilog('[OpenRouter Debug] Response analysis:', {
               hasChoices: !!parsed?.choices,
