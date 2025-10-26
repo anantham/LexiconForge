@@ -1,0 +1,91 @@
+{
+  "testCase": "case-005-sensitivity-filter",
+  "expected": [
+    {
+      "chunkId": "para-0-.*",
+      "reasons": [
+        "sensitivity-filter",
+        "missing-context"
+      ],
+      "colors": [
+        "purple",
+        "red"
+      ],
+      "explanationPattern": "sanitized|filtered|censored|toned down"
+    }
+  ],
+  "actual": [
+    {
+      "chunkId": "para-0-03bc",
+      "colors": [
+        "red",
+        "purple"
+      ],
+      "reasons": [
+        "missing-context",
+        "sensitivity-filter"
+      ],
+      "explanations": [
+        "The AI translation omits significant details about the violent act of decapitation and the aftermath, which are present in the raw text.",
+        "The AI translation sanitizes the explicit violence described in the fan translation."
+      ],
+      "confidence": 0.9,
+      "aiRange": {
+        "start": 0,
+        "end": 17
+      },
+      "position": 0
+    }
+  ],
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "truePositives": 1,
+    "falsePositives": 0,
+    "falseNegatives": 0
+  },
+  "details": {
+    "matched": [
+      {
+        "expected": {
+          "chunkId": "para-0-.*",
+          "reasons": [
+            "sensitivity-filter",
+            "missing-context"
+          ],
+          "colors": [
+            "purple",
+            "red"
+          ],
+          "explanationPattern": "sanitized|filtered|censored|toned down"
+        },
+        "actual": {
+          "chunkId": "para-0-03bc",
+          "colors": [
+            "red",
+            "purple"
+          ],
+          "reasons": [
+            "missing-context",
+            "sensitivity-filter"
+          ],
+          "explanations": [
+            "The AI translation omits significant details about the violent act of decapitation and the aftermath, which are present in the raw text.",
+            "The AI translation sanitizes the explicit violence described in the fan translation."
+          ],
+          "confidence": 0.9,
+          "aiRange": {
+            "start": 0,
+            "end": 17
+          },
+          "position": 0
+        },
+        "reasonMatch": true,
+        "explanationMatch": false
+      }
+    ],
+    "missing": [],
+    "spurious": []
+  }
+}

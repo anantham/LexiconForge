@@ -1,0 +1,91 @@
+{
+  "testCase": "case-002-terminology-choice",
+  "expected": [
+    {
+      "chunkId": "para-0-.*",
+      "reasons": [
+        "fan-divergence",
+        "stylistic-choice"
+      ],
+      "colors": [
+        "blue",
+        "grey"
+      ],
+      "explanationPattern": "terminology|word choice|phrasing"
+    }
+  ],
+  "actual": [
+    {
+      "chunkId": "para-0-76a0",
+      "colors": [
+        "red",
+        "blue"
+      ],
+      "reasons": [
+        "missing-context",
+        "fan-divergence"
+      ],
+      "explanations": [
+        "The AI translation uses 'warrior' instead of 'hero', which alters the character's portrayal.",
+        "The AI translation omits the specific term 'castle', which is more accurate than the general 'fortress'."
+      ],
+      "confidence": 0.85,
+      "aiRange": {
+        "start": 0,
+        "end": 33
+      },
+      "position": 0
+    }
+  ],
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "truePositives": 1,
+    "falsePositives": 0,
+    "falseNegatives": 0
+  },
+  "details": {
+    "matched": [
+      {
+        "expected": {
+          "chunkId": "para-0-.*",
+          "reasons": [
+            "fan-divergence",
+            "stylistic-choice"
+          ],
+          "colors": [
+            "blue",
+            "grey"
+          ],
+          "explanationPattern": "terminology|word choice|phrasing"
+        },
+        "actual": {
+          "chunkId": "para-0-76a0",
+          "colors": [
+            "red",
+            "blue"
+          ],
+          "reasons": [
+            "missing-context",
+            "fan-divergence"
+          ],
+          "explanations": [
+            "The AI translation uses 'warrior' instead of 'hero', which alters the character's portrayal.",
+            "The AI translation omits the specific term 'castle', which is more accurate than the general 'fortress'."
+          ],
+          "confidence": 0.85,
+          "aiRange": {
+            "start": 0,
+            "end": 33
+          },
+          "position": 0
+        },
+        "reasonMatch": true,
+        "explanationMatch": false
+      }
+    ],
+    "missing": [],
+    "spurious": []
+  }
+}

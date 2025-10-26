@@ -1,0 +1,89 @@
+{
+  "testCase": "case-006-plot-critical-omission",
+  "expected": [
+    {
+      "chunkId": "para-0-.*",
+      "reasons": [
+        "plot-omission",
+        "missing-context"
+      ],
+      "colors": [
+        "red"
+      ],
+      "explanationPattern": "plot|critical|important.*omit"
+    }
+  ],
+  "actual": [
+    {
+      "chunkId": "para-0-0357",
+      "colors": [
+        "red",
+        "blue"
+      ],
+      "reasons": [
+        "missing-context",
+        "fan-divergence"
+      ],
+      "explanations": [
+        "The AI translation omits the detail that the letter is sealed and from the Emperor, which is crucial for understanding its significance.",
+        "The fan translation emphasizes the letter's importance in determining his fate, which the AI translation does not convey."
+      ],
+      "confidence": 0.85,
+      "aiRange": {
+        "start": 0,
+        "end": 24
+      },
+      "position": 0
+    }
+  ],
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "truePositives": 1,
+    "falsePositives": 0,
+    "falseNegatives": 0
+  },
+  "details": {
+    "matched": [
+      {
+        "expected": {
+          "chunkId": "para-0-.*",
+          "reasons": [
+            "plot-omission",
+            "missing-context"
+          ],
+          "colors": [
+            "red"
+          ],
+          "explanationPattern": "plot|critical|important.*omit"
+        },
+        "actual": {
+          "chunkId": "para-0-0357",
+          "colors": [
+            "red",
+            "blue"
+          ],
+          "reasons": [
+            "missing-context",
+            "fan-divergence"
+          ],
+          "explanations": [
+            "The AI translation omits the detail that the letter is sealed and from the Emperor, which is crucial for understanding its significance.",
+            "The fan translation emphasizes the letter's importance in determining his fate, which the AI translation does not convey."
+          ],
+          "confidence": 0.85,
+          "aiRange": {
+            "start": 0,
+            "end": 24
+          },
+          "position": 0
+        },
+        "reasonMatch": true,
+        "explanationMatch": false
+      }
+    ],
+    "missing": [],
+    "spurious": []
+  }
+}

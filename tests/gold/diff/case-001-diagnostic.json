@@ -1,0 +1,125 @@
+{
+  "testCase": "case-001-exact-match",
+  "expected": [
+    {
+      "chunkId": "para-0-.*",
+      "reasons": [
+        "no-change"
+      ],
+      "colors": [
+        "grey"
+      ],
+      "explanationPattern": null
+    },
+    {
+      "chunkId": "para-1-.*",
+      "reasons": [
+        "no-change"
+      ],
+      "colors": [
+        "grey"
+      ],
+      "explanationPattern": null
+    }
+  ],
+  "actual": [
+    {
+      "chunkId": "para-0-54c8",
+      "colors": [
+        "grey"
+      ],
+      "reasons": [
+        "no-change"
+      ],
+      "aiRange": {
+        "start": 0,
+        "end": 37
+      },
+      "position": 0
+    },
+    {
+      "chunkId": "para-1-6671",
+      "colors": [
+        "grey"
+      ],
+      "reasons": [
+        "no-change"
+      ],
+      "aiRange": {
+        "start": 39,
+        "end": 57
+      },
+      "position": 1
+    }
+  ],
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "truePositives": 2,
+    "falsePositives": 0,
+    "falseNegatives": 0
+  },
+  "details": {
+    "matched": [
+      {
+        "expected": {
+          "chunkId": "para-0-.*",
+          "reasons": [
+            "no-change"
+          ],
+          "colors": [
+            "grey"
+          ],
+          "explanationPattern": null
+        },
+        "actual": {
+          "chunkId": "para-0-54c8",
+          "colors": [
+            "grey"
+          ],
+          "reasons": [
+            "no-change"
+          ],
+          "aiRange": {
+            "start": 0,
+            "end": 37
+          },
+          "position": 0
+        },
+        "reasonMatch": true,
+        "explanationMatch": true
+      },
+      {
+        "expected": {
+          "chunkId": "para-1-.*",
+          "reasons": [
+            "no-change"
+          ],
+          "colors": [
+            "grey"
+          ],
+          "explanationPattern": null
+        },
+        "actual": {
+          "chunkId": "para-1-6671",
+          "colors": [
+            "grey"
+          ],
+          "reasons": [
+            "no-change"
+          ],
+          "aiRange": {
+            "start": 39,
+            "end": 57
+          },
+          "position": 1
+        },
+        "reasonMatch": true,
+        "explanationMatch": true
+      }
+    ],
+    "missing": [],
+    "spurious": []
+  }
+}

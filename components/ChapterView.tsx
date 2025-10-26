@@ -1386,15 +1386,21 @@ const ChapterView: React.FC = () => {
                         key={paragraph.chunkId}
                         data-lf-chunk={paragraph.chunkId}
                         data-diff-position={paragraph.position}
+                        data-testid={`diff-paragraph-${paragraph.chunkId}`}
                         className={`relative scroll-mt-32 ${showHeatmap ? 'pr-12' : ''}`}
                       >
                         {showHeatmap && (
-                          <div className="pointer-events-none absolute top-1 right-0 flex flex-col items-end gap-2">
+                          <div
+                            className="pointer-events-none absolute top-1 right-0 flex flex-col items-end gap-2"
+                            data-testid="diff-gutter"
+                          >
                             {hasMarkers ? (
                               markersForParagraph.map((marker, markerIdx) => (
                                 <div
                                   key={`${paragraph.chunkId}-marker-${markerIdx}`}
                                   className="pointer-events-auto group/marker"
+                                  data-testid={`diff-pip-${marker.chunkId}`}
+                                  data-diff-position={marker.position}
                                 >
                                   <DiffPip
                                     colors={marker.displayColors}

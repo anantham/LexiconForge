@@ -18,6 +18,21 @@
 
 ## Current State Audit
 
+### Monolith Watchlist (files exceeding LOC thresholds)
+
+| Path | LOC | Issue | Next Step |
+|------|-----|-------|-----------|
+| `services/aiService.ts` | 1,354 | Provider orchestration, validation, and utilities tangled together. | Split into `core/router`, `providers/*`, `validation/*`. Leverage new unit suites to enforce seams. |
+| `store/slices/translationsSlice.ts` | 884 | State + effects + persistence + event dispatch in one module. | Extract selectors/reducers from async effects, route persistence via `services/db/operations/translations`. |
+| `store/slices/imageSlice.ts` | 904 | Image cache, job orchestration, and persistence combined. | Create `imageCacheSlice` + `imageJobsSlice`; isolate DB calls. |
+| `store/slices/chaptersSlice.ts` | 768 | Fetch, hydration, and navigation coupling. | Introduce `chaptersState.ts` + service layer using new ChapterOps. |
+| `store/slices/exportSlice.ts` | 438 | Export/import logic mixed with UI state. | Move IO helpers into `services/export`, keep slice lean. |
+| `services/navigationService.ts` | 661 | URL mapping + DB lookup + queue management. | Break into `navigation/db`, `navigation/cache`, `navigation/prefetch`. |
+| `services/translationService.ts` | 697 | Translation queue + persistence + data shaping. | Offload persistence to operations layer; ensure translator focuses on orchestration. |
+| `components/ChapterView.tsx` | 1,933 | Rendering, diff gutters, edit mode, media handling. | Continue Flow-based extraction (`ChapterView/Gutter`, `ChapterView/Editor`, etc.). |
+
+> ⚠️ Requirement: any file listed above must be split before new features land (per ADR-005).
+
 ### services/db/ Structure (Modern Architecture)
 
 **Status:** Scaffolding complete, operations still delegate to legacy monolith
@@ -249,9 +264,25 @@ tests/
 
 ## Migration Checklist
 
+### Pre-flight ✅ (2025-10-13 status)
+
+- Golden diff tests deterministic (cassettes recorded; replay verified).
+- aiService/provider coverage in place (new unit suites guard translation router).
+- ChapterView Flow #1 integration test active.
+
 ### Phase 1: Core Operations Implementation (2-3 weeks)
 
 **Goal:** Make `services/db/operations/*` classes independent
+
+#### 1.0 Parallel Decomposition Track
+
+- [ ] Extract `services/aiService` into `translatorRouter`, `providerAdapters`, `responseValidators`. Unit coverage already in place (see `tests/services/aiService.*`).
+- [ ] Split `store/slices/translationsSlice.ts` into:
+  - `translationsState.ts` (reducers/selectors only)
+  - `translationsEffects.ts` (async logic using new operations layer)
+  - `translationsEvents.ts` (window events, diff dispatch)
+- [ ] Create `store/slices/imageCacheSlice.ts` + `imageJobsSlice.ts`; move persistence into operations layer.
+- [ ] Draft RFC for `components/ChapterView` extraction (gutter, editor, metadata panes) referencing Flow #1 tests.
 
 #### 1.1 ChapterOps → Direct IndexedDB ✅ Can Start Now
 ```

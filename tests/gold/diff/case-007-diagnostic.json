@@ -1,0 +1,161 @@
+{
+  "testCase": "case-007-multi-paragraph-formatting",
+  "expected": [
+    {
+      "chunkId": "para-0-.*",
+      "reasons": [
+        "fan-divergence",
+        "stylistic-choice"
+      ],
+      "colors": [
+        "blue",
+        "grey"
+      ],
+      "explanationPattern": "phrasing|wording"
+    },
+    {
+      "chunkId": "para-1-.*",
+      "reasons": [
+        "fan-divergence",
+        "stylistic-choice"
+      ],
+      "colors": [
+        "blue",
+        "grey"
+      ],
+      "explanationPattern": "phrasing|wording"
+    }
+  ],
+  "actual": [
+    {
+      "chunkId": "para-0-65f0",
+      "colors": [
+        "red",
+        "blue"
+      ],
+      "reasons": [
+        "missing-context",
+        "fan-divergence"
+      ],
+      "explanations": [
+        "The AI translation simplifies the phrase '最初は暗闇だった' to 'In the beginning, there was darkness,' which loses the nuance of '最初' (at first) that suggests a transition.",
+        "The fan translation uses 'At first it was dark,' which aligns more closely with the raw text's emphasis on the initial state."
+      ],
+      "confidence": 0.85,
+      "aiRange": {
+        "start": 0,
+        "end": 37
+      },
+      "position": 0
+    },
+    {
+      "chunkId": "para-1-3c96",
+      "colors": [
+        "red",
+        "blue"
+      ],
+      "reasons": [
+        "missing-context",
+        "fan-divergence"
+      ],
+      "explanations": [
+        "The AI translation states 'Then came the light,' which lacks the explicit mention of '光が現れた' (light appeared) that conveys a sense of emergence.",
+        "The fan translation uses 'light appeared,' which is a more direct translation of the raw text."
+      ],
+      "confidence": 0.88,
+      "aiRange": {
+        "start": 39,
+        "end": 59
+      },
+      "position": 1
+    }
+  ],
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "truePositives": 2,
+    "falsePositives": 0,
+    "falseNegatives": 0
+  },
+  "details": {
+    "matched": [
+      {
+        "expected": {
+          "chunkId": "para-0-.*",
+          "reasons": [
+            "fan-divergence",
+            "stylistic-choice"
+          ],
+          "colors": [
+            "blue",
+            "grey"
+          ],
+          "explanationPattern": "phrasing|wording"
+        },
+        "actual": {
+          "chunkId": "para-0-65f0",
+          "colors": [
+            "red",
+            "blue"
+          ],
+          "reasons": [
+            "missing-context",
+            "fan-divergence"
+          ],
+          "explanations": [
+            "The AI translation simplifies the phrase '最初は暗闇だった' to 'In the beginning, there was darkness,' which loses the nuance of '最初' (at first) that suggests a transition.",
+            "The fan translation uses 'At first it was dark,' which aligns more closely with the raw text's emphasis on the initial state."
+          ],
+          "confidence": 0.85,
+          "aiRange": {
+            "start": 0,
+            "end": 37
+          },
+          "position": 0
+        },
+        "reasonMatch": true,
+        "explanationMatch": false
+      },
+      {
+        "expected": {
+          "chunkId": "para-1-.*",
+          "reasons": [
+            "fan-divergence",
+            "stylistic-choice"
+          ],
+          "colors": [
+            "blue",
+            "grey"
+          ],
+          "explanationPattern": "phrasing|wording"
+        },
+        "actual": {
+          "chunkId": "para-1-3c96",
+          "colors": [
+            "red",
+            "blue"
+          ],
+          "reasons": [
+            "missing-context",
+            "fan-divergence"
+          ],
+          "explanations": [
+            "The AI translation states 'Then came the light,' which lacks the explicit mention of '光が現れた' (light appeared) that conveys a sense of emergence.",
+            "The fan translation uses 'light appeared,' which is a more direct translation of the raw text."
+          ],
+          "confidence": 0.88,
+          "aiRange": {
+            "start": 39,
+            "end": 59
+          },
+          "position": 1
+        },
+        "reasonMatch": true,
+        "explanationMatch": false
+      }
+    ],
+    "missing": [],
+    "spurious": []
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "testCase": "case-003-missing-detail",
+  "expected": [
+    {
+      "chunkId": "para-0-.*",
+      "reasons": [
+        "missing-context",
+        "raw-divergence"
+      ],
+      "colors": [
+        "red",
+        "orange"
+      ],
+      "explanationPattern": "omits|missing|detail"
+    }
+  ],
+  "actual": [
+    {
+      "chunkId": "para-0-3a0d",
+      "colors": [
+        "red",
+        "blue"
+      ],
+      "reasons": [
+        "missing-context",
+        "fan-divergence"
+      ],
+      "explanations": [
+        "The AI translation omits the emotional context of the character's fear and trembling voice, which is significant in the raw text.",
+        "The fan translation provides a more vivid description of the whisper, emphasizing the character's fear, which the AI translation does not capture."
+      ],
+      "confidence": 0.85,
+      "aiRange": {
+        "start": 0,
+        "end": 18
+      },
+      "position": 0
+    }
+  ],
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "truePositives": 1,
+    "falsePositives": 0,
+    "falseNegatives": 0
+  },
+  "details": {
+    "matched": [
+      {
+        "expected": {
+          "chunkId": "para-0-.*",
+          "reasons": [
+            "missing-context",
+            "raw-divergence"
+          ],
+          "colors": [
+            "red",
+            "orange"
+          ],
+          "explanationPattern": "omits|missing|detail"
+        },
+        "actual": {
+          "chunkId": "para-0-3a0d",
+          "colors": [
+            "red",
+            "blue"
+          ],
+          "reasons": [
+            "missing-context",
+            "fan-divergence"
+          ],
+          "explanations": [
+            "The AI translation omits the emotional context of the character's fear and trembling voice, which is significant in the raw text.",
+            "The fan translation provides a more vivid description of the whisper, emphasizing the character's fear, which the AI translation does not capture."
+          ],
+          "confidence": 0.85,
+          "aiRange": {
+            "start": 0,
+            "end": 18
+          },
+          "position": 0
+        },
+        "reasonMatch": true,
+        "explanationMatch": true
+      }
+    ],
+    "missing": [],
+    "spurious": []
+  }
+}

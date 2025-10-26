@@ -1338,8 +1338,18 @@ export const translateChapter = async (
     } catch (error) {
       // Don't increment counter on failure
       if (isUsingDefaultKey) {
-        console.log('[Translation] Request failed, trial counter not incremented');
-      }
-      throw error;
+      console.log('[Translation] Request failed, trial counter not incremented');
     }
+    throw error;
+  }
+};
+
+// Expose selected internals for focused unit tests (avoid leaking broadly)
+export const __testUtils = {
+  extractBalancedJson,
+  validateAndFixIllustrations,
+  validateAndFixFootnotes,
+  validateAndClampParameter,
+  translateWithGemini,
+  translateWithOpenAI,
 };

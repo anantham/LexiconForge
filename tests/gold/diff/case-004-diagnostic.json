@@ -1,0 +1,95 @@
+{
+  "testCase": "case-004-added-detail",
+  "expected": [
+    {
+      "chunkId": "para-0-.*",
+      "reasons": [
+        "added-detail",
+        "hallucination"
+      ],
+      "colors": [
+        "orange"
+      ],
+      "explanationPattern": "adds|hallucination|not present"
+    }
+  ],
+  "actual": [
+    {
+      "chunkId": "para-0-6cec",
+      "colors": [
+        "red",
+        "orange",
+        "blue"
+      ],
+      "reasons": [
+        "missing-context",
+        "added-detail",
+        "fan-divergence"
+      ],
+      "explanations": [
+        "The AI translation omits the detail that the castle was built by King Arthur, which adds significant historical context.",
+        "The AI embellishes the description by using 'majestic' and 'legendary', which are not present in the raw text.",
+        "The fan translation simplifies the description significantly, focusing only on the castle's location without additional context."
+      ],
+      "confidence": 0.85,
+      "aiRange": {
+        "start": 0,
+        "end": 106
+      },
+      "position": 0
+    }
+  ],
+  "metrics": {
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "truePositives": 1,
+    "falsePositives": 0,
+    "falseNegatives": 0
+  },
+  "details": {
+    "matched": [
+      {
+        "expected": {
+          "chunkId": "para-0-.*",
+          "reasons": [
+            "added-detail",
+            "hallucination"
+          ],
+          "colors": [
+            "orange"
+          ],
+          "explanationPattern": "adds|hallucination|not present"
+        },
+        "actual": {
+          "chunkId": "para-0-6cec",
+          "colors": [
+            "red",
+            "orange",
+            "blue"
+          ],
+          "reasons": [
+            "missing-context",
+            "added-detail",
+            "fan-divergence"
+          ],
+          "explanations": [
+            "The AI translation omits the detail that the castle was built by King Arthur, which adds significant historical context.",
+            "The AI embellishes the description by using 'majestic' and 'legendary', which are not present in the raw text.",
+            "The fan translation simplifies the description significantly, focusing only on the castle's location without additional context."
+          ],
+          "confidence": 0.85,
+          "aiRange": {
+            "start": 0,
+            "end": 106
+          },
+          "position": 0
+        },
+        "reasonMatch": true,
+        "explanationMatch": true
+      }
+    ],
+    "missing": [],
+    "spurious": []
+  }
+}

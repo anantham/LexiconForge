@@ -2,8 +2,8 @@
   {
     "id": "case-001-exact-match",
     "description": "AI and fan translations are identical - should produce no-change markers",
-    "aiTranslation": "The hero arrived at the village gate. He drew his sword.",
-    "fanTranslation": "The hero arrived at the village gate. He drew his sword.",
+    "aiTranslation": "The hero arrived at the village gate.<br><br>He drew his sword.",
+    "fanTranslation": "The hero arrived at the village gate.<br><br>He drew his sword.",
     "rawText": "勇者は村の門に到着した。彼は剣を抜いた。",
     "expectedMarkers": [
       {
@@ -98,9 +98,9 @@
   {
     "id": "case-007-multi-paragraph-formatting",
     "description": "AI correctly translates multi-paragraph content",
-    "aiTranslation": "<i>In the beginning, there was darkness.\n\nThen came the light.</i>",
-    "fanTranslation": "<i>At first it was dark.\n\nAfter that, light appeared.</i>",
-    "rawText": "最初は暗闇だった。\n\nそして光が現れた。",
+    "aiTranslation": "<i>In the beginning, there was darkness.<br><br>Then came the light.</i>",
+    "fanTranslation": "<i>At first it was dark.<br><br>After that, light appeared.</i>",
+    "rawText": "最初は暗闇だった。<br><br>そして光が現れた。",
     "expectedMarkers": [
       {
         "chunkId": "para-0-.*",

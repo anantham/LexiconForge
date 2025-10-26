@@ -361,3 +361,18 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files modified: services/db/core/schema.ts, services/db/core/connection.ts, services/indexeddb.ts, utils/debug.ts
 - Summary: Codified schema versions 7–9 (canonical stores + index backfills + no-op legacy cap), aligned SCHEMA_VERSIONS.CURRENT with the highest legacy auto-migrated version (9), routed DB version constants through the shared schema module, and restored the IndexedDB debug helper.
 - Notes: Existing browsers auto-migrate on next load; if someone somehow landed above v9 in earlier dev builds, have them reload or clear the `lexicon-forge` DB once. Follow-up: revisit legacy store-based tests that still assume pre-refactor APIs.
+
+2025-10-13 09:30 UTC - Golden test harness cassette replay
+- Files modified: tests/gold/diff/diff-golden.test.ts, tests/gold/diff/SimpleLLMAdapter.ts
+- Purpose: Allow golden tests to run in replay mode without `OPENROUTER_API_KEY` by always wiring the SimpleLLMAdapter (with placeholder key) and removing the skip guards. Added a protective check so live recording (`LIVE_API_TEST=1`) still demands a real API key.
+- Next steps: Record cassettes for cases 002–007 with `LIVE_API_TEST=1 OPENROUTER_API_KEY=…`, regenerate diagnostics, and rerun the suite in replay mode to confirm the aggregate F1 gate.
+
+2025-10-13 09:40 UTC - Golden dataset live run + replay verification
+- Files modified: tests/gold/diff/diff-golden.test.ts (timeouts), PHASE_2_GOLDEN_TEST_LEARNINGS.md
+- Purpose: Recorded OpenRouter cassettes for cases 001–007, regenerated diagnostics, expanded the learnings doc with per-case metrics, and raised golden test timeouts to accommodate live calls (aggregate gate now 60s).
+- Validation: `LIVE_API_TEST=1 OPENROUTER_API_KEY=… npm test tests/gold/diff/diff-golden.test.ts -- --run` (records) followed by `npm test tests/gold/diff/diff-golden.test.ts -- --run` (replay) both succeed; aggregate F1 = 1.0.
+
+2025-10-13 10:00 UTC - aiService + adapter coverage lift
+- Files modified: services/aiService.ts, tests/services/aiService.internal.test.ts (new), tests/services/aiService.translateChapter.test.ts (new), tests/services/aiService.providers.test.ts (new), tests/adapters/providers/{ClaudeAdapter,GeminiAdapter,OpenAIAdapter}.test.ts (new)
+- Purpose: Exposed internal helpers for focused testing, added unit suites covering illustration/footnote reconciliation, translateChapter default-key accounting, and legacy provider flows. Added adapter-level mocks to exercise JSON parsing, parameter retry, and metrics recording.
+- Result: `npm test -- --coverage --run` now passes provider thresholds (aiService lines 43% vs. 16% prior; each adapter ≥50% lines / ≥40% funcs).
