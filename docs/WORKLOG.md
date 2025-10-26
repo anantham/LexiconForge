@@ -376,3 +376,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files modified: services/aiService.ts, tests/services/aiService.internal.test.ts (new), tests/services/aiService.translateChapter.test.ts (new), tests/services/aiService.providers.test.ts (new), tests/adapters/providers/{ClaudeAdapter,GeminiAdapter,OpenAIAdapter}.test.ts (new)
 - Purpose: Exposed internal helpers for focused testing, added unit suites covering illustration/footnote reconciliation, translateChapter default-key accounting, and legacy provider flows. Added adapter-level mocks to exercise JSON parsing, parameter retry, and metrics recording.
 - Result: `npm test -- --coverage --run` now passes provider thresholds (aiService lines 43% vs. 16% prior; each adapter ≥50% lines / ≥40% funcs).
+
+2025-10-13 11:30 UTC - aiService decomposition kickoff
+- Files modified: services/aiService.ts (refactored to aggregator), services/ai/* (new modules), services/ai/providers/{gemini,openai}.ts (new), services/ai/translatorRouter.ts (new), tests/services/aiService.* (updated via aggregator)
+- Purpose: Split aiService into modular helpers (debug, params, text utils, cost), provider-specific translators, and a dedicated translation router; align with refactoring plan thresholds (<200 LOC per service).
+- Tests: `npm test -- --coverage --run`

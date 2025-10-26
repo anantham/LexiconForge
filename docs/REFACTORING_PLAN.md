@@ -276,7 +276,7 @@ tests/
 
 #### 1.0 Parallel Decomposition Track
 
-- [ ] Extract `services/aiService` into `translatorRouter`, `providerAdapters`, `responseValidators`. Unit coverage already in place (see `tests/services/aiService.*`).
+- [x] Extract `services/aiService` into `translatorRouter`, `providerAdapters`, `responseValidators`. (Completed 2025-10-13 – see new modules under `services/ai/` and passing coverage suites.)
 - [ ] Split `store/slices/translationsSlice.ts` into:
   - `translationsState.ts` (reducers/selectors only)
   - `translationsEffects.ts` (async logic using new operations layer)
