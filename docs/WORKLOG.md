@@ -386,3 +386,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files modified: services/db/operations/chapters.ts (rewritten), services/db/utils/featureFlags.ts (new)
 - Purpose: Implement direct IndexedDB reads/writes for chapter operations while keeping legacy `indexedDBService` path behind a runtime flag (`LF_DB_V2_DOMAINS`, localStorage overrides). Writes canonical URL mappings and chapter summaries in the new path.
 - Tests: `npm test -- --coverage --run`
+
+2025-10-13 12:40 UTC - TranslationOps IndexedDB path (feature-flagged)
+- Files modified: services/db/operations/translations.ts (rewritten), services/db/operations/chapters.ts (exports for shared helpers)
+- Purpose: Add modern translation persistence (versioning, active flag) using direct IndexedDB transactions with capability flag gating; summary recalculation and URL mapping updates now run without touching legacy pathways unless flag disabled.
+- Tests: `npm test -- --coverage --run`

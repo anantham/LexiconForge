@@ -322,6 +322,8 @@ Tasks:
 [ ] Port existing tests
 [ ] Shadow validate
 
+Update 2025-10-13: Direct translation ops implemented behind `LF_DB_V2` flag (`services/db/operations/translations.ts`). Enable flag alongside ChapterOps for side-by-side validation before defaulting.
+
 Dependencies: ChapterOps complete (for URL resolution)
 Estimate: 4-5 hours
 ```

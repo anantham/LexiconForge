@@ -23,6 +23,8 @@ type ChapterRecord = {
   lastAccessed: string;
 };
 
+export type ChapterStoreRecord = ChapterRecord;
+
 type TranslationRecord = {
   chapterUrl: string;
   translatedTitle?: string;
@@ -45,7 +47,7 @@ type ChapterSummaryRecord = {
 
 const shouldUseLegacy = () => !isModernDbEnabled(CHAPTER_DOMAIN);
 
-const ensureUrlMappings = async (originalUrl: string, stableId: string) => {
+export const ensureChapterUrlMappings = async (originalUrl: string, stableId: string) => {
   const canonical = normalizeUrlAggressively(originalUrl) || originalUrl;
   const nowIso = new Date().toISOString();
 
@@ -97,7 +99,7 @@ const getActiveTranslation = async (chapterUrl: string): Promise<TranslationReco
   ).catch(() => null);
 };
 
-const recomputeChapterSummary = async (chapter: ChapterRecord): Promise<void> => {
+export const recomputeChapterSummary = async (chapter: ChapterRecord): Promise<void> => {
   const stableId = chapter.stableId;
   if (!stableId) return;
 
@@ -174,7 +176,7 @@ const storeChapterModern = async (chapter: Chapter & { stableId?: string }) => {
   );
 
   if (record.stableId) {
-    await ensureUrlMappings(originalUrl, record.stableId);
+    await ensureChapterUrlMappings(originalUrl, record.stableId);
   }
 
   await recomputeChapterSummary(record);
