@@ -300,6 +300,8 @@ Tasks:
 [ ] Port existing tests
 [ ] Shadow validate against legacy
 
+Update 2025-10-13: Direct chapter ops implemented behind `LF_DB_V2` feature flag (`services/db/operations/chapters.ts`). Enable flag + compare against legacy before flipping default.
+
 Dependencies: None (core infrastructure ready)
 Estimate: 3-4 hours
 ```

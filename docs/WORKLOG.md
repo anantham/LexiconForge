@@ -381,3 +381,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files modified: services/aiService.ts (refactored to aggregator), services/ai/* (new modules), services/ai/providers/{gemini,openai}.ts (new), services/ai/translatorRouter.ts (new), tests/services/aiService.* (updated via aggregator)
 - Purpose: Split aiService into modular helpers (debug, params, text utils, cost), provider-specific translators, and a dedicated translation router; align with refactoring plan thresholds (<200 LOC per service).
 - Tests: `npm test -- --coverage --run`
+
+2025-10-13 12:05 UTC - ChapterOps IndexedDB path (feature-flagged)
+- Files modified: services/db/operations/chapters.ts (rewritten), services/db/utils/featureFlags.ts (new)
+- Purpose: Implement direct IndexedDB reads/writes for chapter operations while keeping legacy `indexedDBService` path behind a runtime flag (`LF_DB_V2_DOMAINS`, localStorage overrides). Writes canonical URL mappings and chapter summaries in the new path.
+- Tests: `npm test -- --coverage --run`
