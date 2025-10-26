@@ -5,6 +5,9 @@
 import { indexedDBService } from './indexeddb';
 import { useAppStore } from '../store';
 import type { SessionData } from '../types/session';
+import type { TranslationResult, UsageMetrics, TranslationProvider } from '../types';
+import { ChapterOps } from './db/operations/chapters';
+import { TranslationOps } from './db/operations/translations';
 
 export interface ImportProgress {
   stage: 'downloading' | 'parsing' | 'importing' | 'streaming' | 'complete';
@@ -265,6 +268,102 @@ export class ImportService {
         let firstChaptersReadyCalled = false;
         const loadedChapterIds = new Set<string>();
 
+        const normalizeUsageMetrics = (
+          metrics: Partial<UsageMetrics> | undefined,
+          fallbackProvider?: string,
+          fallbackModel?: string
+        ): UsageMetrics => {
+          const provider = (metrics?.provider || fallbackProvider || 'OpenRouter') as TranslationProvider;
+          return {
+            totalTokens: metrics?.totalTokens ?? 0,
+            promptTokens: metrics?.promptTokens ?? 0,
+            completionTokens: metrics?.completionTokens ?? 0,
+            estimatedCost: metrics?.estimatedCost ?? 0,
+            requestTime: metrics?.requestTime ?? 0,
+            provider,
+            model: metrics?.model || fallbackModel || 'unknown-model',
+          };
+        };
+
+        const buildTranslationInputs = (chapter: any) => {
+          const inputs: Array<{
+            result: TranslationResult;
+            settings: {
+              provider: string;
+              model: string;
+              temperature: number;
+              systemPrompt: string;
+              promptId?: string;
+              promptName?: string;
+            };
+            isActive: boolean;
+          }> = [];
+
+          if (Array.isArray(chapter.translations) && chapter.translations.length > 0) {
+            for (const translation of chapter.translations) {
+              const usage = normalizeUsageMetrics(
+                translation.usageMetrics,
+                translation.provider,
+                translation.model
+              );
+
+              const result: TranslationResult = {
+                translatedTitle: translation.translatedTitle || chapter.title || 'Untitled Chapter',
+                translation: translation.translation || '',
+                footnotes: translation.footnotes || [],
+                suggestedIllustrations: translation.suggestedIllustrations || [],
+                usageMetrics: usage,
+                proposal: translation.proposal ?? null,
+                customVersionLabel: translation.customVersionLabel,
+                imageVersionState: translation.imageVersionState,
+              };
+
+              inputs.push({
+                result,
+                settings: {
+                  provider: usage.provider,
+                  model: usage.model,
+                  temperature: typeof translation.temperature === 'number' ? translation.temperature : 0.7,
+                  systemPrompt: translation.systemPrompt || '',
+                  promptId: translation.promptId,
+                  promptName: translation.promptName,
+                },
+                isActive: Boolean(translation.isActive),
+              });
+            }
+          } else if (chapter.translationResult) {
+            const usage = normalizeUsageMetrics(
+              chapter.translationResult.usageMetrics,
+              chapter.translationResult.usageMetrics?.provider,
+              chapter.translationResult.usageMetrics?.model
+            );
+
+            const result: TranslationResult = {
+              translatedTitle: chapter.translationResult.translatedTitle || chapter.title || 'Untitled Chapter',
+              translation: chapter.translationResult.translation || '',
+              footnotes: chapter.translationResult.footnotes || [],
+              suggestedIllustrations: chapter.translationResult.suggestedIllustrations || [],
+              proposal: chapter.translationResult.proposal ?? null,
+              usageMetrics: usage,
+              customVersionLabel: chapter.translationResult.customVersionLabel,
+              imageVersionState: chapter.translationResult.imageVersionState,
+            };
+
+            inputs.push({
+              result,
+              settings: {
+                provider: usage.provider,
+                model: usage.model,
+                temperature: 0.7,
+                systemPrompt: '',
+              },
+              isActive: true,
+            });
+          }
+
+          return inputs;
+        };
+
         oboe(fetchUrl)
           // Extract metadata first
           .node('metadata', function(meta) {
@@ -287,15 +386,23 @@ export class ImportService {
           // Process each chapter as it arrives
           .node('chapters.*', async function(chapter) {
             try {
+              const chapterUrl: string | undefined = chapter.url || chapter.canonicalUrl;
+              if (!chapterUrl) {
+                console.warn('[StreamImport] Skipping chapter without URL:', chapter);
+                return oboe.drop;
+              }
+
+              const translationInputs = buildTranslationInputs(chapter);
+
               console.log(`[📥 IMPORT] Storing chapter #${chapter.chapterNumber}: "${chapter.title}"`, {
-                url: chapter.url,
-                hasTranslation: !!chapter.translationResult,
-                translatedTitle: chapter.translationResult?.translatedTitle
+                url: chapterUrl,
+                translationsFound: translationInputs.length,
               });
 
               // Import chapter to IndexedDB immediately
-              await indexedDBService.storeChapter({
-                originalUrl: chapter.url || chapter.canonicalUrl,
+              await ChapterOps.store({
+                stableId: chapter.stableId,
+                originalUrl: chapterUrl,
                 title: chapter.title,
                 content: chapter.content,
                 nextUrl: chapter.nextUrl,
@@ -305,23 +412,33 @@ export class ImportService {
               });
               console.log(`[✅ IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
 
-              // If there's a translation, save it too
-              if (chapter.translationResult) {
-                await indexedDBService.storeTranslation(
-                  chapter.url || chapter.canonicalUrl,
-                  chapter.translationResult,
-                  {
-                    provider: chapter.translationResult.usageMetrics?.provider || 'Unknown',
-                    model: chapter.translationResult.usageMetrics?.model || 'Unknown',
-                    temperature: 0.7,
-                    systemPrompt: '',
-                  }
+              let activeVersion: number | null = null;
+
+              for (const translation of translationInputs) {
+                const stored = await TranslationOps.store({
+                  ref: { url: chapterUrl, stableId: chapter.stableId },
+                  result: translation.result,
+                  settings: translation.settings,
+                });
+
+                if (
+                  translation.isActive ||
+                  (translationInputs.length === 1 && activeVersion === null)
+                ) {
+                  activeVersion = stored.version;
+                }
+
+                console.log(
+                  `[✅ IMPORT] Translation stored for chapter #${chapter.chapterNumber}: "${translation.result.translatedTitle}" (version ${stored.version})`
                 );
-                console.log(`[✅ IMPORT] Translation #${chapter.chapterNumber} stored: "${chapter.translationResult.translatedTitle}"`);
+              }
+
+              if (activeVersion !== null && translationInputs.length > 1) {
+                await TranslationOps.setActiveByUrl(chapterUrl, activeVersion);
               }
 
               chaptersLoaded++;
-              loadedChapterIds.add(chapter.stableId || chapter.url);
+              loadedChapterIds.add(chapter.stableId || chapterUrl);
 
               const progress = totalChapters > 0
                 ? (chaptersLoaded / totalChapters) * 100

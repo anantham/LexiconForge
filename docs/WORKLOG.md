@@ -391,3 +391,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files modified: services/db/operations/translations.ts (rewritten), services/db/operations/chapters.ts (exports for shared helpers)
 - Purpose: Add modern translation persistence (versioning, active flag) using direct IndexedDB transactions with capability flag gating; summary recalculation and URL mapping updates now run without touching legacy pathways unless flag disabled.
 - Tests: `npm test -- --coverage --run`
+
+2025-10-13 13:05 UTC - Stream importer loads exported translations
+- Files modified: services/importService.ts
+- Purpose: Recognize the v2 export format (`chapters[].translations`) during streamed imports, store chapters via ChapterOps, persist each translation via TranslationOps, and reactivate the original active version so English text populates after loading GitHub sessions.
+- Tests: `npm test -- --coverage --run`
