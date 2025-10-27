@@ -10,6 +10,13 @@ describe('HtmlSanitizer', () => {
       expect(sanitizeHtml('text -  - more')).toContain('<hr />');
     });
 
+    it('can strip horizontal rules when disallowed', () => {
+      const sanitized = sanitizeHtml('top<hr>bottom', { allowHr: false });
+      expect(sanitized).not.toContain('<hr');
+      expect(sanitized).toContain('<br /><br />');
+      expect(sanitizeHtml('text *** more', { allowHr: false })).not.toContain('<hr />');
+    });
+
     it('strips <p> tags', () => {
       expect(sanitizeHtml('<p>hello</p>')).toBe('hello');
       expect(sanitizeHtml('<p class="x">hello</p>')).toBe('hello');
