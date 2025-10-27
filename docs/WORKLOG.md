@@ -1,3 +1,9 @@
+2025-10-27 09:45 UTC - Capture TypeScript debt inventory & ADR
+- Files modified: diagnostics/tsc-errors-2025-10-27.txt; diagnostics/tsc-error-codes-2025-10-27.txt; diagnostics/tsc-error-top-level-2025-10-27.txt; diagnostics/tsc-error-top-files-2025-10-27.txt; docs/TypeScript-Debt-Inventory-2025-10-27.md; docs/adr/002-typescript-debt-remediation.md
+- Purpose: Snapshot compiler diagnostics, categorize error clusters, and document the phased remediation strategy.
+- Notes: Inventory tables surface top error codes/directories and map them into remediation buckets; ADR codifies canonical DTO plans, per-domain TS gates, and an allowlist ledger for remaining exceptions.
+- Tests: `npx tsc --noEmit --pretty false` *(fails: 301 existing diagnostics captured in inventory)*
+
 2025-10-27 08:15 UTC - Backfill comparison workflow coverage & refresh manifest
 - Files modified: tests/services/comparisonService.test.ts; docs/TEST_MANIFEST.md
 - Purpose: Add focused comparison service regression coverage and update the coverage manifest after rerunning the EPUB + hook suites flagged as unknown.
