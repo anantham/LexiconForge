@@ -112,6 +112,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
 
         // Translations slice
         activeTranslations: {},
+        pendingTranslations: new Set(),
         feedbackHistory: {},
         amendmentProposals: [],
         translationProgress: {},
@@ -140,6 +141,21 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
       // Reload session data if needed
       if (!options.clearSettings) {
         await get().loadPromptTemplates();
+      }
+
+      // Ensure URL query params don't resurrect old chapters on refresh
+      if (typeof window !== 'undefined' && typeof window.history?.replaceState === 'function') {
+        try {
+          const url = new URL(window.location.href);
+          if (url.searchParams.has('chapter')) {
+            url.searchParams.delete('chapter');
+            const search = url.searchParams.toString();
+            const newHref = `${url.pathname}${search ? `?${search}` : ''}${url.hash}`;
+            window.history.replaceState({}, '', newHref);
+          }
+        } catch (err) {
+          console.warn('[Store] Failed to scrub chapter query param during clearSession:', err);
+        }
       }
       
     } catch (error) {

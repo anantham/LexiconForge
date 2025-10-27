@@ -11,6 +11,7 @@
 
 import type { StateCreator } from 'zustand';
 import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService';
+import { normalizeUrlAggressively } from '../../services/stableIdService';
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
 import { indexedDBService } from '../../services/indexeddb';
 import { validateApiKey } from '../../services/aiService';
@@ -279,8 +280,35 @@ export const createChaptersSlice: StateCreator<
       navigationHistory: state.navigationHistory,
       hydratingChapters: (state as any).hydratingChapters || {}
     };
+    const normalized = normalizeUrlAggressively(url);
+    debugLog(
+      'navigation',
+      'summary',
+      '[ChaptersSlice] handleNavigate start',
+      {
+        url,
+        normalized,
+        chaptersInMemory: state.chapters.size,
+        hasNormalizedMapping: normalized ? state.urlIndex.has(normalized) : false,
+        hasRawMapping: state.rawUrlIndex.has(url),
+        currentChapterId: state.currentChapterId,
+      }
+    );
     
     const result = await NavigationService.handleNavigate(url, context, get().loadChapterFromIDB);
+    debugLog(
+      'navigation',
+      'summary',
+      '[ChaptersSlice] handleNavigate result',
+      {
+        url,
+        chapterId: result.chapterId ?? null,
+        hadError: result.error !== undefined ? result.error : undefined,
+        shouldUpdateBrowserHistory: result.shouldUpdateBrowserHistory ?? false,
+        navigationHistoryLength: result.navigationHistory?.length ?? state.navigationHistory.length,
+        chapterHasTranslation: result.chapter ? Boolean(result.chapter.translationResult) : null,
+      }
+    );
     
     if (result.error !== undefined) {
       // Set error in UI
@@ -291,6 +319,12 @@ export const createChaptersSlice: StateCreator<
       
       // Handle fetch if needed
       if (result.error === null && NavigationService.isValidUrl(url)) {
+        debugLog(
+          'navigation',
+          'summary',
+          '[ChaptersSlice] Delegating to handleFetch after navigation error-null',
+          { url }
+        );
         await get().handleFetch(url);
       }
       return;
@@ -339,9 +373,29 @@ export const createChaptersSlice: StateCreator<
     if (uiActions.setFetchingState) {
       uiActions.setFetchingState(url, true);
     }
+    debugLog(
+      'navigation',
+      'summary',
+      '[ChaptersSlice] handleFetch start',
+      {
+        url,
+        chaptersInMemory: get().chapters.size,
+      }
+    );
     
     try {
       const result = await NavigationService.handleFetch(url);
+      debugLog(
+        'navigation',
+        'summary',
+        '[ChaptersSlice] handleFetch result',
+        {
+          url,
+          hadError: !!result.error,
+          returnedChapterId: result.currentChapterId ?? null,
+          returnedChapterCount: result.chapters instanceof Map ? result.chapters.size : 0,
+        }
+      );
       
       if (result.error) {
         if (uiActions.setError) {
@@ -368,6 +422,16 @@ export const createChaptersSlice: StateCreator<
             navigationHistory: newHistory
           };
         });
+        debugLog(
+          'navigation',
+          'summary',
+          '[ChaptersSlice] handleFetch merged chapters into store',
+          {
+            url,
+            newChapterId: result.currentChapterId,
+            mergedChapterCount: get().chapters.size,
+          }
+        );
         
         // Update browser history
         const chapter = result.chapters!.get(result.currentChapterId!);
@@ -398,31 +462,8 @@ export const createChaptersSlice: StateCreator<
   },
 
   // Memory optimization: Drop translationResult from non-current chapters
-  lightenNonCurrentChapters: (currentChapterId) => {
-    set(state => {
-      const newChapters = new Map(state.chapters);
-      let lightenedCount = 0;
-
-      for (const [id, chapter] of newChapters.entries()) {
-        // Skip the current chapter - keep its translation in memory
-        if (id === currentChapterId) continue;
-
-        // If this chapter has a translationResult, drop it to save memory
-        if (chapter.translationResult) {
-          newChapters.set(id, {
-            ...chapter,
-            translationResult: null
-          });
-          lightenedCount++;
-        }
-      }
-
-      if (lightenedCount > 0) {
-        debugLog(`[Memory] Lightened ${lightenedCount} chapters (dropped translationResult)`);
-      }
-
-      return { chapters: newChapters };
-    });
+  lightenNonCurrentChapters: (_currentChapterId) => {
+    // Temporarily disabled: keeping translationResult in memory avoids unnecessary rehydration/inflight retranslations.
   },
 
   // Navigation history

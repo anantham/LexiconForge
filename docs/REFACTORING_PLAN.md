@@ -276,7 +276,7 @@ tests/
 
 #### 1.0 Parallel Decomposition Track
 
-- [ ] Extract `services/aiService` into `translatorRouter`, `providerAdapters`, `responseValidators`. Unit coverage already in place (see `tests/services/aiService.*`).
+- [x] Extract `services/aiService` into `translatorRouter`, `providerAdapters`, `responseValidators`. (Completed 2025-10-13 – see new modules under `services/ai/` and passing coverage suites.)
 - [ ] Split `store/slices/translationsSlice.ts` into:
   - `translationsState.ts` (reducers/selectors only)
   - `translationsEffects.ts` (async logic using new operations layer)
@@ -300,6 +300,8 @@ Tasks:
 [ ] Port existing tests
 [ ] Shadow validate against legacy
 
+Update 2025-10-13: Direct chapter ops implemented behind `LF_DB_V2` feature flag (`services/db/operations/chapters.ts`). Enable flag + compare against legacy before flipping default.
+
 Dependencies: None (core infrastructure ready)
 Estimate: 3-4 hours
 ```
@@ -319,6 +321,8 @@ Tasks:
 [ ] Add proper error handling
 [ ] Port existing tests
 [ ] Shadow validate
+
+Update 2025-10-13: Direct translation ops implemented behind `LF_DB_V2` flag (`services/db/operations/translations.ts`). Enable flag alongside ChapterOps for side-by-side validation before defaulting.
 
 Dependencies: ChapterOps complete (for URL resolution)
 Estimate: 4-5 hours

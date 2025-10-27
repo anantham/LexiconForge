@@ -1,0 +1,9 @@
+    115 services
+     96 tests
+     37 store
+     22 components
+     15 workers
+      7 adapters
+      2 hooks
+      1 types.ts
+      1 types

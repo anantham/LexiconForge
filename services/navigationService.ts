@@ -154,6 +154,19 @@ export class NavigationService {
     const { urlIndex, rawUrlIndex, chapters, navigationHistory } = context;
     const normalizedUrl = normalizeUrlAggressively(url);
     telemetryMeta.normalizedUrl = normalizedUrl || null;
+    debugLog(
+      'navigation',
+      'summary',
+      '[Navigation] handleNavigate entry',
+      {
+        url,
+        normalizedUrl,
+        urlIndexHas: normalizedUrl ? urlIndex.has(normalizedUrl) : false,
+        rawUrlIndexHas: rawUrlIndex.has(url),
+        chaptersInMemory: chapters.size,
+        navigationHistoryLength: navigationHistory.length,
+      }
+    );
     
     // console.log(`[Nav] URL normalization: ${url} -> ${normalizedUrl} @${Date.now()}`);
     // console.log(`[Nav] URL index size: ${urlIndex.size}, Raw URL index size: ${rawUrlIndex.size} @${Date.now()}`);
@@ -240,6 +253,15 @@ export class NavigationService {
       telemetryMeta.outcome = 'memory_hit';
       telemetryMeta.chapterId = chapterId;
       telemetryMeta.hydratedTranslation = Boolean(chapter?.translationResult);
+      debugLog(
+        'navigation',
+        'summary',
+        '[Navigation] Returning chapter from memory',
+        {
+          chapterId,
+          hasTranslation: Boolean(chapter?.translationResult),
+        }
+      );
       return {
         chapterId,
         chapter,
@@ -288,6 +310,15 @@ export class NavigationService {
           telemetryMeta.outcome = 'idb_hydrated';
           telemetryMeta.chapterId = chapterId;
           telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
+          debugLog(
+            'navigation',
+            'summary',
+            '[Navigation] Hydrated chapter from IndexedDB',
+            {
+              chapterId,
+              hasTranslation: Boolean(loaded.translationResult),
+            }
+          );
           return {
             chapterId,
             chapter: loaded,
@@ -313,6 +344,15 @@ export class NavigationService {
             telemetryMeta.outcome = 'idb_hydrated_via_mapping';
             telemetryMeta.chapterId = mapping.stableId;
             telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
+            debugLog(
+              'navigation',
+              'summary',
+              '[Navigation] Hydrated via mapping from IndexedDB',
+              {
+                chapterId: mapping.stableId,
+                hasTranslation: Boolean(loaded.translationResult),
+              }
+            );
             return {
               chapterId: mapping.stableId,
               chapter: loaded,
@@ -328,6 +368,16 @@ export class NavigationService {
       // Try to fetch if supported URL
       if (this.isValidUrl(url)) {
         slog(`[Navigate] Hydration failed; attempting fetch for ${url}...`);
+        debugLog(
+          'navigation',
+          'summary',
+          '[Navigation] Hydration failed, requesting fetch',
+          {
+            url,
+            normalizedUrl,
+            chapterIdHint: chapterId ?? null,
+          }
+        );
         telemetryMeta.outcome = 'fetch_required_after_hydration';
         telemetryMeta.chapterId = chapterId;
         return { error: null }; // Signal that caller should handle fetch
@@ -349,9 +399,18 @@ export class NavigationService {
     }
     
     // No chapter mapping found
-    if (this.isValidUrl(url)) {
+  if (this.isValidUrl(url)) {
       // Supported URL - signal caller to fetch
       slog(`[Navigate] No chapter found for ${url}. Attempting to fetch...`);
+      debugLog(
+        'navigation',
+        'summary',
+        '[Navigation] No chapter mapping found; requesting fetch',
+        {
+          url,
+          normalizedUrl,
+        }
+      );
       telemetryMeta.outcome = 'fetch_required';
       return { error: null }; // Signal that caller should handle fetch
     } else {
@@ -517,6 +576,18 @@ export class NavigationService {
         telemetryMeta.contentLength = stableData.currentChapterId
           ? stableData.chapters.get(stableData.currentChapterId)?.content?.length || 0
           : 0;
+        debugLog(
+          'navigation',
+          'summary',
+          '[Navigation] handleFetch transformed chapter',
+          {
+            url,
+            currentChapterId: stableData.currentChapterId ?? null,
+            hasTranslation: stableData.currentChapterId
+              ? Boolean(stableData.chapters.get(stableData.currentChapterId)?.translationResult)
+              : null,
+          }
+        );
         return {
           chapters: stableData.chapters,
           urlIndex: stableData.urlIndex,
@@ -552,6 +623,21 @@ export class NavigationService {
         }
       }
     }
+    debugLog(
+      'navigation',
+      'summary',
+      '[Navigation] handleFetch final result',
+      {
+        url,
+        chapterId: result.currentChapterId ?? null,
+        chapterCount: result.chapters instanceof Map ? result.chapters.size : 0,
+        hasTranslation:
+          result.currentChapterId && result.chapters instanceof Map
+            ? Boolean(result.chapters.get(result.currentChapterId)?.translationResult)
+            : null,
+        hadError: Boolean(result.error),
+      }
+    );
     return result;
     } catch (error) {
       telemetryMeta.outcome = 'error';
@@ -697,6 +783,17 @@ export class NavigationService {
 
           enhanced.translationResult = adaptTranslationRecordToResult(chapterId, activeTranslation);
           console.log(`✅ [TranslationLoad] Translation adapted to result format`);
+          debugLog(
+            'navigation',
+            'summary',
+            '[Navigation] IDB hydration loaded active translation',
+            {
+              chapterId,
+              provider: activeTranslation.provider,
+              model: activeTranslation.model,
+              version: activeTranslation.version,
+            }
+          );
 
           try {
             if (typeof window !== 'undefined' && enhanced.translationResult?.translation) {
@@ -749,6 +846,14 @@ export class NavigationService {
         } else {
           console.warn(`❌ [TranslationLoad] No active translation found for ${chapterId}`);
           console.warn(`❌ [TranslationLoad] This chapter will appear untranslated and may trigger auto-translate`);
+          debugLog(
+            'navigation',
+            'summary',
+            '[Navigation] No active translation found during hydration',
+            {
+              chapterId,
+            }
+          );
         }
       } catch (error) {
         console.error(`🚨 [TranslationLoad] FAILED to load active translation for ${chapterId}:`, error);

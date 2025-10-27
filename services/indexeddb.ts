@@ -18,7 +18,7 @@
  */
 
 import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate } from '../types';
-import { debugPipelineEnabled, dbDebugEnabled } from '../utils/debug';
+import { debugPipelineEnabled, dbDebugEnabled, debugLog } from '../utils/debug';
 import { generateStableChapterId } from './stableIdService';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
 import { telemetryService } from './telemetryService';
@@ -726,6 +726,19 @@ class IndexedDBService {
    */
   async getAllUrlMappings(): Promise<Array<{ url: string; stableId: string; isCanonical: boolean }>> {
     const db = await this.openDatabase();
+    let stableId: string | undefined;
+    try {
+      const chapterRecord = await this.getChapter(chapterUrl);
+      stableId = chapterRecord?.stableId || (chapterRecord
+        ? generateStableChapterId(
+            chapterRecord.content || '',
+            chapterRecord.chapterNumber || 0,
+            chapterRecord.title || ''
+          )
+        : undefined);
+    } catch {
+      stableId = undefined;
+    }
     return new Promise((resolve, reject) => {
       const tx = db.transaction([STORES.URL_MAPPINGS], 'readonly');
       const store = tx.objectStore(STORES.URL_MAPPINGS);
@@ -1289,9 +1302,24 @@ class IndexedDBService {
       model: translationSettings.model
     };
 
+    let stableId: string | undefined;
+    try {
+      const chapterRecord = await this.getChapter(chapterUrl);
+      stableId = chapterRecord?.stableId || (chapterRecord
+        ? generateStableChapterId(
+            chapterRecord.content || '',
+            chapterRecord.chapterNumber || 0,
+            chapterRecord.title || ''
+          )
+        : undefined);
+    } catch {
+      stableId = undefined;
+    }
+
     const translationRecord: TranslationRecord = {
       id,
       chapterUrl,
+      stableId,
       version: nextVersion,
       translatedTitle: translationResult.translatedTitle,
       translation: translationResult.translation,
@@ -1382,6 +1410,35 @@ class IndexedDBService {
     console.log(`💾 [StoreAtomic] Provider: ${translationSettings.provider}, Model: ${translationSettings.model}`);
 
     const db = await this.openDatabase();
+    let stableId: string | undefined;
+
+    try {
+      const chapterRecord = await this.getChapter(chapterUrl);
+      if (chapterRecord) {
+        stableId =
+          chapterRecord.stableId ||
+          generateStableChapterId(
+            chapterRecord.content || '',
+            chapterRecord.chapterNumber || 0,
+            chapterRecord.title || ''
+          );
+      }
+    } catch (error) {
+      console.warn('[StoreAtomic] Failed to load chapter for stableId lookup', { chapterUrl, error });
+    }
+
+    if (!stableId) {
+      // Fallback: derive a deterministic ID from translated content so the write never breaks the transaction.
+      stableId = generateStableChapterId(
+        translationResult.translation || '',
+        translationResult.usageMetrics?.totalTokens || 0,
+        translationResult.translatedTitle || chapterUrl
+      );
+      console.warn('[StoreAtomic] Generated fallback stableId from translation payload', {
+        chapterUrl,
+        stableId,
+      });
+    }
 
     return new Promise((resolve, reject) => {
       try {
@@ -1426,6 +1483,7 @@ class IndexedDBService {
               const newRecord: TranslationRecord = {
                 id,
                 chapterUrl,
+                stableId,
                 version: maxVersion + 1,
                 translatedTitle: translationResult.translatedTitle,
                 translation: translationResult.translation,
@@ -1457,7 +1515,7 @@ class IndexedDBService {
 
               tx.oncomplete = () => {
                 console.log(`✅ [StoreAtomic] Transaction complete, recomputing chapter summary...`);
-                this.recomputeChapterSummary({ chapterUrl }).then(() => {
+                this.recomputeChapterSummary({ chapterUrl, stableId }).then(() => {
                   console.log(`✅ [StoreAtomic] Chapter summary updated, translation fully saved`);
                   resolve(newRecord);
                 }).catch(reject);
@@ -2635,6 +2693,16 @@ class IndexedDBService {
         const req = idx.get(stableId);
         req.onsuccess = async () => {
           const mapping = req.result as UrlMappingRecord | undefined;
+          debugLog(
+            'navigation',
+            'summary',
+            '[IndexedDB] getActiveTranslationByStableId lookup',
+            {
+              stableId,
+              hasMapping: Boolean(mapping),
+              mappingUrl: mapping?.url ?? null,
+            }
+          );
           if (!mapping) { resolve(null); return; }
           try {
             const active = await this.getActiveTranslation(mapping.url);

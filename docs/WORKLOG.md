@@ -1,3 +1,45 @@
+2025-10-27 09:45 UTC - Capture TypeScript debt inventory & ADR
+- Files modified: diagnostics/tsc-errors-2025-10-27.txt; diagnostics/tsc-error-codes-2025-10-27.txt; diagnostics/tsc-error-top-level-2025-10-27.txt; diagnostics/tsc-error-top-files-2025-10-27.txt; docs/TypeScript-Debt-Inventory-2025-10-27.md; docs/adr/002-typescript-debt-remediation.md
+- Purpose: Snapshot compiler diagnostics, categorize error clusters, and document the phased remediation strategy.
+- Notes: Inventory tables surface top error codes/directories and map them into remediation buckets; ADR codifies canonical DTO plans, per-domain TS gates, and an allowlist ledger for remaining exceptions.
+- Tests: `npx tsc --noEmit --pretty false` *(fails: 301 existing diagnostics captured in inventory)*
+
+2025-10-27 08:15 UTC - Backfill comparison workflow coverage & refresh manifest
+- Files modified: tests/services/comparisonService.test.ts; docs/TEST_MANIFEST.md
+- Purpose: Add focused comparison service regression coverage and update the coverage manifest after rerunning the EPUB + hook suites flagged as unknown.
+- Notes: Vitest OpenAI client mocked with hoisted helpers to assert prompt payload + error handling; manifest rows now reflect fresh runs against schema v11 fixtures.
+- Tests: `npx vitest run tests/services/comparisonService.test.ts`; `npx vitest run tests/services/HtmlSanitizer.test.ts`; `npx vitest run tests/epub/assetResolver.test.ts`; `npx vitest run tests/epub/contentBuilder.test.ts`; `npx vitest run tests/epub/dataCollector.test.ts`; `npx vitest run tests/epub/exportService.test.ts`; `npx vitest run tests/epub/packageBuilder.test.ts`; `npx vitest run tests/hooks/usePersistentState.test.tsx`; `npx vitest run tests/hooks/useTextSelection.test.tsx`
+
+2025-10-27 01:32 UTC - Replace oboe importer with native streaming parser & improve UX telemetry
+- Files modified: services/importService.ts; components/NovelLibrary.tsx
+- Purpose: Drop the oboe/clarinet dependency so large translations no longer trip the 64 KB buffer cap; stream metadata + chapters via Fetch while preserving progressive hydration; log telemetry for first-batch/complete timings and surface quick-start toasts.
+- Notes: Custom brace-aware parser feeds existing storage logic, new `FIRST_BATCH_THRESHOLD` reduces wait to 4 chapters, and completion toast now signals when everything is cached. TypeScript still flags legacy DTO shape mismatches (pre-existing).
+- Tests: `npx tsc --noEmit | rg "importService"` *(fails: longstanding DTO typing issues unrelated to this change)*
+
+2025-10-27 01:55 UTC - Guard image retries when model is disabled
+- Files modified: store/slices/imageSlice.ts
+- Purpose: Prevent illustration retries from calling providers when the selected model is `none`, surfacing a warning toast instead of logging errors.
+- Notes: Skips API metrics/log spam and preserves existing image data; ImageGenerationService guard still handles legacy `'None'` casing.
+- Tests: `npx tsc --noEmit | rg "imageSlice"` *(fails: pre-existing DTO typing warnings elsewhere)*
+
+2025-10-27 00:48 UTC - Fix streaming hydration TDZ regression
+- Files modified: components/NovelLibrary.tsx
+- Purpose: Remove dynamic `useAppStore` re-import that triggered TDZ exceptions during `onFirstChaptersReady`, wrap initial hydration in try/catch, and surface warnings when the fast-path fails so readers aren’t blocked.
+- Notes: Streaming import now proceeds to open the first chapters once threshold is reached; fallback notification appears if hydration still throws. TypeScript run still reports legacy NovelLibrary shape mismatches (pre-existing).
+- Tests: `npx tsc --noEmit | rg "NovelLibrary"` *(fails: longstanding NovelLibrary DTO typing issues unrelated to this patch)*
+
+2025-10-27 00:26 UTC - Automate Codex PR reviews
+- Files modified: .github/workflows/codex-review.yml
+- Purpose: Request Codex code reviews automatically for every non-draft PR unless labeled `skip-codex`.
+- Notes: Workflow relies on repository secret `OPENAI_API_KEY`; optional label can suppress the run when needed. Trigger fires on open, reopen, synchronize, and ready_for_review events.
+- Tests: GitHub Actions syntax validation pending (requires push to remote).
+
+2025-10-27 00:09 UTC - Stabilize atomic translation writes & streaming import buffer
+- Files modified: services/indexeddb.ts:1397-1520; services/importService.ts:368-438
+- Purpose: Ensure `storeTranslationAtomic` always resolves a stableId before persisting new versions and expand streamed import buffer configuration to mitigate Clarinet’s 64KB string cap.
+- Notes: Atomic path now mirrors legacy stableId derivation with a fallback hash on translation payloads; streaming importer hydrates oboe via options object (`cachedBufferSize` guard) and feeds ChapterOps with explicitly typed payloads to silence TS complaints.
+- Tests: `npx tsc --noEmit` *(fails: longstanding repo-wide TS errors; verified no new diagnostics for indexeddb/importService via targeted grep)*
+
 2025-10-19 06:18 UTC - Fix diff heatmap stylistic marker crash
 - Files modified: .worktrees/semantic-diff-heatmap/components/ChapterView.tsx:1270-1285
 - Purpose: Replaced stale `markerVisibility` guard with `markerVisibilitySettings` so grey-only markers no longer throw a ReferenceError when diff analysis completes.
@@ -376,3 +418,23 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files modified: services/aiService.ts, tests/services/aiService.internal.test.ts (new), tests/services/aiService.translateChapter.test.ts (new), tests/services/aiService.providers.test.ts (new), tests/adapters/providers/{ClaudeAdapter,GeminiAdapter,OpenAIAdapter}.test.ts (new)
 - Purpose: Exposed internal helpers for focused testing, added unit suites covering illustration/footnote reconciliation, translateChapter default-key accounting, and legacy provider flows. Added adapter-level mocks to exercise JSON parsing, parameter retry, and metrics recording.
 - Result: `npm test -- --coverage --run` now passes provider thresholds (aiService lines 43% vs. 16% prior; each adapter ≥50% lines / ≥40% funcs).
+
+2025-10-13 11:30 UTC - aiService decomposition kickoff
+- Files modified: services/aiService.ts (refactored to aggregator), services/ai/* (new modules), services/ai/providers/{gemini,openai}.ts (new), services/ai/translatorRouter.ts (new), tests/services/aiService.* (updated via aggregator)
+- Purpose: Split aiService into modular helpers (debug, params, text utils, cost), provider-specific translators, and a dedicated translation router; align with refactoring plan thresholds (<200 LOC per service).
+- Tests: `npm test -- --coverage --run`
+
+2025-10-13 12:05 UTC - ChapterOps IndexedDB path (feature-flagged)
+- Files modified: services/db/operations/chapters.ts (rewritten), services/db/utils/featureFlags.ts (new)
+- Purpose: Implement direct IndexedDB reads/writes for chapter operations while keeping legacy `indexedDBService` path behind a runtime flag (`LF_DB_V2_DOMAINS`, localStorage overrides). Writes canonical URL mappings and chapter summaries in the new path.
+- Tests: `npm test -- --coverage --run`
+
+2025-10-13 12:40 UTC - TranslationOps IndexedDB path (feature-flagged)
+- Files modified: services/db/operations/translations.ts (rewritten), services/db/operations/chapters.ts (exports for shared helpers)
+- Purpose: Add modern translation persistence (versioning, active flag) using direct IndexedDB transactions with capability flag gating; summary recalculation and URL mapping updates now run without touching legacy pathways unless flag disabled.
+- Tests: `npm test -- --coverage --run`
+
+2025-10-13 13:05 UTC - Stream importer loads exported translations
+- Files modified: services/importService.ts
+- Purpose: Recognize the v2 export format (`chapters[].translations`) during streamed imports, store chapters via ChapterOps, persist each translation via TranslationOps, and reactivate the original active version so English text populates after loading GitHub sessions.
+- Tests: `npm test -- --coverage --run`

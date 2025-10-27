@@ -1,0 +1,20 @@
+name: Codex Review
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  codex-review:
+    if: ${{ github.event.pull_request.draft == false && !contains(github.event.pull_request.labels.*.name, 'skip-codex') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request Codex review
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          review-comment: "@codex review"

@@ -6,6 +6,8 @@ import { RegistryService } from '../services/registryService';
 import { ImportService, ImportProgress } from '../services/importService';
 import { useAppStore } from '../store';
 import type { NovelEntry, NovelVersion } from '../types/novel';
+import { debugLog } from '../utils/debug';
+import { normalizeUrlAggressively } from '../services/stableIdService';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -75,6 +77,8 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
         useAppStore.setState(state => {
           const newChapters = new Map<string, any>();
+          const newUrlIndex = new Map<string, string>();
+          const newRawUrlIndex = new Map<string, string>();
           for (const ch of existingChapters) {
             newChapters.set(ch.stableId, {
               stableId: ch.stableId,
@@ -91,10 +95,30 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
               translationResult: ch.data?.translationResult || null,
               feedback: [],
             });
+
+            const canonicalUrl = ch.url;
+            if (canonicalUrl) {
+              newRawUrlIndex.set(canonicalUrl, ch.stableId);
+              const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
+              if (normalizedCanonical) {
+                newUrlIndex.set(normalizedCanonical, ch.stableId);
+              }
+            }
+
+            const originalUrl = ch.data?.chapter?.originalUrl || ch.originalUrl;
+            if (originalUrl) {
+              newRawUrlIndex.set(originalUrl, ch.stableId);
+              const normalizedOriginal = normalizeUrlAggressively(originalUrl);
+              if (normalizedOriginal) {
+                newUrlIndex.set(normalizedOriginal, ch.stableId);
+              }
+            }
           }
 
           return {
             chapters: newChapters,
+            urlIndex: newUrlIndex,
+            rawUrlIndex: newRawUrlIndex,
             navigationHistory: nav?.stableIds || [],
             // Always start at first chapter when loading from Novel Library (new reader)
             currentChapterId: existingChapters[0]?.stableId || null,
@@ -122,53 +146,123 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
             if (hasNavigatedToFirstChapter) return;
             hasNavigatedToFirstChapter = true;
 
-            // Navigate to first chapter after first 10 load
-            const { useAppStore } = await import('../store');
-            const chapters = await indexedDBService.getChaptersForReactRendering();
+            try {
+              const preHydrationState = useAppStore.getState();
+              debugLog(
+                'import',
+                'summary',
+                '[NovelLibrary] onFirstChaptersReady invoked',
+                {
+                  hasNavigatedToFirstChapter,
+                  currentChapterId: preHydrationState.currentChapterId,
+                  chaptersInStore: preHydrationState.chapters?.size ?? 0,
+                }
+              );
 
-            // Hydrate store with first 10 chapters
-            const firstChapters = chapters.slice(0, 10);
-            const newChapters = new Map<string, any>();
-            for (const ch of firstChapters) {
-              newChapters.set(ch.stableId, {
-                stableId: ch.stableId,
-                url: ch.url || ch.canonicalUrl,
-                title: ch.data?.chapter?.title || ch.title,
-                content: ch.data?.chapter?.content || ch.content,
-                nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
-                prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
-                chapterNumber: ch.chapterNumber || 0,
-                canonicalUrl: ch.url,
-                originalUrl: ch.url,
-                sourceUrls: [ch.url],
-                fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
-                translationResult: ch.data?.translationResult || null,
-                feedback: [],
+              const chapters = await indexedDBService.getChaptersForReactRendering();
+
+              // Hydrate store with first 10 chapters
+              const threshold = Math.min(chapters.length, 10);
+              const firstChapters = chapters.slice(0, threshold);
+              const newChapters = new Map<string, any>();
+              const newUrlIndex = new Map<string, string>();
+              const newRawUrlIndex = new Map<string, string>();
+              for (const ch of firstChapters) {
+                newChapters.set(ch.stableId, {
+                  stableId: ch.stableId,
+                  url: ch.url || ch.canonicalUrl,
+                  title: ch.data?.chapter?.title || ch.title,
+                  content: ch.data?.chapter?.content || ch.content,
+                  nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
+                  prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
+                  chapterNumber: ch.chapterNumber || 0,
+                  canonicalUrl: ch.url,
+                  originalUrl: ch.url,
+                  sourceUrls: [ch.url],
+                  fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
+                  translationResult: ch.data?.translationResult || null,
+                  feedback: [],
+                });
+
+                const canonicalUrl = ch.url;
+                if (canonicalUrl) {
+                  newRawUrlIndex.set(canonicalUrl, ch.stableId);
+                  const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
+                  if (normalizedCanonical) {
+                    newUrlIndex.set(normalizedCanonical, ch.stableId);
+                  }
+                }
+
+                const originalUrl = ch.data?.chapter?.originalUrl || ch.originalUrl;
+                if (originalUrl) {
+                  newRawUrlIndex.set(originalUrl, ch.stableId);
+                  const normalizedOriginal = normalizeUrlAggressively(originalUrl);
+                  if (normalizedOriginal) {
+                    newUrlIndex.set(normalizedOriginal, ch.stableId);
+                  }
+                }
+              }
+
+              debugLog(
+                'import',
+                'summary',
+                '[NovelLibrary] Hydrating initial chapters from stream',
+                {
+                  hydratedCount: firstChapters.length,
+                  availableTotal: chapters.length,
+                }
+              );
+
+              // Sort by chapter number and navigate to first
+              const sortedChapters = Array.from(newChapters.entries()).sort((a, b) => {
+                const numA = a[1].chapterNumber || 0;
+                const numB = b[1].chapterNumber || 0;
+                return numA - numB;
               });
+              const firstChapterId = sortedChapters[0]?.[0];
+
+              useAppStore.setState({
+                chapters: newChapters,
+                urlIndex: newUrlIndex,
+                rawUrlIndex: newRawUrlIndex,
+                currentChapterId: firstChapterId,
+              });
+
+              const postHydrationState = useAppStore.getState();
+              debugLog(
+                'import',
+                'summary',
+                '[NovelLibrary] Post hydration state',
+                {
+                  hydratedChapters: postHydrationState.chapters?.size ?? 0,
+                  currentChapterId: postHydrationState.currentChapterId,
+                }
+              );
+
+              // Close the detail sheet and notify
+              setSelectedNovel(null);
+              onSessionLoaded?.();
+
+              showNotification(`First chapters are ready. Loading the rest in the background…${versionLabel}`, 'info');
+            } catch (error) {
+              console.error('[NovelLibrary] Failed to hydrate initial chapters from stream:', error);
+              debugLog(
+                'import',
+                'summary',
+                '[NovelLibrary] Hydration failed',
+                {
+                  error: error instanceof Error ? error.message : String(error),
+                }
+              );
+              showNotification(
+                `First chapters are taking longer than expected to prepare. We'll keep loading in the background—please try opening the chapter list shortly.`,
+                'warning'
+              );
             }
-
-            // Sort by chapter number and navigate to first
-            const sortedChapters = Array.from(newChapters.entries()).sort((a, b) => {
-              const numA = a[1].chapterNumber || 0;
-              const numB = b[1].chapterNumber || 0;
-              return numA - numB;
-            });
-            const firstChapterId = sortedChapters[0]?.[0];
-
-            useAppStore.setState({
-              chapters: newChapters,
-              currentChapterId: firstChapterId,
-            });
-
-            // Close the detail sheet and notify
-            setSelectedNovel(null);
-            onSessionLoaded?.();
-
-            showNotification(`✅ First chapters ready! Loading ${novel.metadata.chapterCount} total chapters in background...${versionLabel}`, 'success');
           }
         );
 
-        showNotification(`✅ All ${novel.metadata.chapterCount} chapters loaded!${versionLabel}`, 'success');
+        showNotification(`All chapters are now cached and ready to read.${versionLabel}`, 'info');
       }
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);
