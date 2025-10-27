@@ -1,3 +1,9 @@
+2025-10-27 08:15 UTC - Backfill comparison workflow coverage & refresh manifest
+- Files modified: tests/services/comparisonService.test.ts; docs/TEST_MANIFEST.md
+- Purpose: Add focused comparison service regression coverage and update the coverage manifest after rerunning the EPUB + hook suites flagged as unknown.
+- Notes: Vitest OpenAI client mocked with hoisted helpers to assert prompt payload + error handling; manifest rows now reflect fresh runs against schema v11 fixtures.
+- Tests: `npx vitest run tests/services/comparisonService.test.ts`; `npx vitest run tests/services/HtmlSanitizer.test.ts`; `npx vitest run tests/epub/assetResolver.test.ts`; `npx vitest run tests/epub/contentBuilder.test.ts`; `npx vitest run tests/epub/dataCollector.test.ts`; `npx vitest run tests/epub/exportService.test.ts`; `npx vitest run tests/epub/packageBuilder.test.ts`; `npx vitest run tests/hooks/usePersistentState.test.tsx`; `npx vitest run tests/hooks/useTextSelection.test.tsx`
+
 2025-10-27 01:32 UTC - Replace oboe importer with native streaming parser & improve UX telemetry
 - Files modified: services/importService.ts; components/NovelLibrary.tsx
 - Purpose: Drop the oboe/clarinet dependency so large translations no longer trip the 64 KB buffer cap; stream metadata + chapters via Fetch while preserving progressive hydration; log telemetry for first-batch/complete timings and surface quick-start toasts.
