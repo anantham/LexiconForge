@@ -76,7 +76,10 @@ Exports/
 
 # Marketing and case study materials (not part of codebase)
 Case Studies/
-Marketing/
+Marketing/DD/
+Marketing/Mynoghra/
+Marketing/.DS_Store
+# Note: Marketing/Features/ is tracked for feature screenshots
 
 # Git worktrees
 .worktrees/
