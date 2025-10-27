@@ -320,6 +320,34 @@ export const createImageSlice: StateCreator<
       nextVersion  // Pass version to generation service
     };
 
+    const imageModel = context.settings?.imageModel;
+    if (!imageModel || imageModel.toLowerCase() === 'none') {
+      const message = 'Image generation is disabled. Pick an image model in Settings to generate illustrations.';
+      const showNotification = (state as any).showNotification;
+      if (typeof showNotification === 'function') {
+        showNotification(message, 'warning');
+      }
+
+      debugLog(
+        'image',
+        'summary',
+        `[ImageSlice] Retry skipped for ${key} (imageModel="${imageModel ?? 'undefined'}")`
+      );
+
+      set(prevState => ({
+        generatedImages: {
+          ...prevState.generatedImages,
+          [key]: {
+            isLoading: false,
+            data: prevState.generatedImages[key]?.data ?? null,
+            error: message,
+          },
+        },
+      }));
+
+      return;
+    }
+
     // Set loading state
     set(prevState => ({
       generatedImages: {

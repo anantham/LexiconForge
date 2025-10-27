@@ -18,6 +18,124 @@ import { NovelMetadataForm } from './NovelMetadataForm';
 import { ExportService } from '../services/exportService';
 import type { NovelMetadata } from '../types/novel';
 
+type PublisherMetadata = NovelMetadata & {
+  title?: string;
+  alternateTitles?: string[];
+  translatorName?: string;
+  translatorWebsite?: string;
+  translatorBio?: string;
+  translatorRating?: number;
+  translationApproach?: string;
+  versionDescription?: string;
+  contentNotes?: string;
+};
+
+const pickFirstNonEmpty = (...values: (string | undefined | null)[]): string | undefined => {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value;
+    }
+  }
+  return undefined;
+};
+
+const ensureArray = (value: any): string[] => {
+  if (Array.isArray(value)) {
+    return value.map((item) => (typeof item === 'string' ? item : '')).filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value.split(',').map((item) => item.trim()).filter(Boolean);
+  }
+  return [];
+};
+
+const normalizeMetadataDefaults = (metadata: PublisherMetadata, chapterFallbackCount: number): PublisherMetadata => {
+  const today = new Date().toISOString().split('T')[0];
+  const coercedCount = (() => {
+    if (typeof metadata.chapterCount === 'number' && Number.isFinite(metadata.chapterCount)) {
+      return metadata.chapterCount;
+    }
+    const parsed = parseInt(String(metadata.chapterCount ?? ''), 10);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+    return chapterFallbackCount || 1;
+  })();
+
+  return {
+    ...metadata,
+    title: metadata.title || 'Untitled Novel',
+    description: metadata.description || 'Please provide a description for this novel.',
+    originalLanguage: metadata.originalLanguage || 'Unknown',
+    targetLanguage: metadata.targetLanguage || 'English',
+    chapterCount: coercedCount,
+    genres: ensureArray(metadata.genres),
+    tags: ensureArray(metadata.tags),
+    alternateTitles: ensureArray(metadata.alternateTitles),
+    publicationStatus: metadata.publicationStatus || 'Ongoing',
+    lastUpdated: metadata.lastUpdated || today,
+  };
+};
+
+const buildMetadataFromSessionInfo = (sessionInfo: any, chapters: any[]): PublisherMetadata | null => {
+  if (!sessionInfo) return null;
+  const meta = sessionInfo.metadata ?? {};
+  const novel = sessionInfo.novel ?? {};
+  const version = sessionInfo.version ?? {};
+  const provenance = sessionInfo.provenance?.originalCreator ?? null;
+  const firstChapter = chapters[0] || {};
+
+  const metadata: PublisherMetadata = {
+    title: pickFirstNonEmpty(novel.title, meta.title, firstChapter?.data?.chapter?.novelTitle, firstChapter?.title),
+    alternateTitles: ensureArray(novel.alternateTitles || meta.alternateTitles),
+    author: meta.author || provenance?.name || undefined,
+    description: pickFirstNonEmpty(meta.description, firstChapter?.data?.chapter?.description, firstChapter?.translationResult?.summary),
+    originalLanguage: meta.originalLanguage || firstChapter?.data?.chapter?.originalLanguage || 'Unknown',
+    targetLanguage: meta.targetLanguage || version.targetLanguage || firstChapter?.translationResult?.targetLanguage || 'English',
+    chapterCount: meta.chapterCount || chapters.length,
+    genres: ensureArray(meta.genres),
+    coverImageUrl: meta.coverImageUrl || firstChapter?.data?.chapter?.coverImageUrl,
+    publicationStatus: meta.publicationStatus || firstChapter?.data?.chapter?.publicationStatus || 'Ongoing',
+    originalPublicationDate: meta.originalPublicationDate || firstChapter?.data?.chapter?.originalPublicationDate,
+    tags: ensureArray(meta.tags || firstChapter?.data?.chapter?.tags),
+    sourceLinks: meta.sourceLinks || firstChapter?.data?.chapter?.sourceLinks,
+    lastUpdated: meta.lastUpdated || (sessionInfo.metadata?.exportedAt ? sessionInfo.metadata.exportedAt.split('T')[0] : undefined),
+    translatorName: version.translator?.name || provenance?.name,
+    translatorWebsite: version.translator?.link || provenance?.link,
+    translationApproach: meta.translationApproach,
+    versionDescription: version.description || meta.versionDescription,
+    contentNotes: meta.contentNotes,
+  };
+
+  return normalizeMetadataDefaults(metadata, chapters.length);
+};
+
+const buildMetadataFromChapters = (chapters: any[]): PublisherMetadata | null => {
+  if (!chapters.length) return null;
+  const first = chapters[0] || {};
+  const chapterData = first.data?.chapter ?? {};
+  const translation = first.data?.translationResult ?? first.translationResult ?? {};
+
+  const metadata: PublisherMetadata = {
+    title: pickFirstNonEmpty(chapterData.novelTitle, chapterData.title, first.title),
+    alternateTitles: ensureArray(chapterData.alternateTitles),
+    author: chapterData.author,
+    description: pickFirstNonEmpty(chapterData.description, translation.summary),
+    originalLanguage: chapterData.originalLanguage || 'Unknown',
+    targetLanguage: translation.targetLanguage || 'English',
+    chapterCount: chapterData.totalChapters || chapters.length,
+    genres: ensureArray(chapterData.genres),
+    coverImageUrl: chapterData.coverImageUrl,
+    publicationStatus: chapterData.publicationStatus || 'Ongoing',
+    originalPublicationDate: chapterData.originalPublicationDate,
+    tags: ensureArray(chapterData.tags),
+    sourceLinks: chapterData.sourceLinks,
+    lastUpdated: chapterData.lastUpdated,
+  };
+
+  return normalizeMetadataDefaults(metadata, chapters.length);
+};
+
 const formatCurrencyValue = (value?: number | null, currency = 'USD'): string | null => {
   if (value === null || value === undefined || Number.isNaN(value)) return null;
   const amount = value.toFixed(2);
@@ -240,7 +358,75 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [loadingDiskStats, setLoadingDiskStats] = useState(false);
   const [diagnosticsExpanded, setDiagnosticsExpanded] = useState(false);
   const [diffInvalidatePending, setDiffInvalidatePending] = useState(false);
-  const [novelMetadata, setNovelMetadata] = useState<NovelMetadata | null>(null);
+  const chaptersMap = useAppStore(s => s.chapters);
+  const [novelMetadata, setNovelMetadata] = useState<PublisherMetadata | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('novelMetadata');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setNovelMetadata(normalizeMetadataDefaults(parsed, parsed?.chapterCount ?? 1));
+      } catch (error) {
+        console.error('Failed to load novel metadata:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const loadMetadataFromSession = async () => {
+      if (novelMetadata) return;
+      const chaptersArray = Array.from(chaptersMap.values());
+      if (chaptersArray.length === 0) {
+        return;
+      }
+      try {
+        const { indexedDBService } = await import('../services/indexeddb');
+        const savedMetadata = await indexedDBService.getSetting('novelMetadata');
+        if (savedMetadata && typeof savedMetadata === 'object') {
+          const normalized = normalizeMetadataDefaults(savedMetadata as PublisherMetadata, chaptersArray.length);
+          setNovelMetadata(normalized);
+          localStorage.setItem('novelMetadata', JSON.stringify(normalized));
+          await indexedDBService.setSetting('novelMetadata', normalized);
+          debugLog('ui', 'summary', '[SettingsModal] Loaded novel metadata from IndexedDB setting', {
+            title: normalized.title,
+            source: 'indexeddb'
+          });
+          return;
+        }
+
+        const sessionInfo = await indexedDBService.getSetting('sessionInfo');
+        if (sessionInfo && typeof sessionInfo === 'object') {
+          const generated = buildMetadataFromSessionInfo(sessionInfo as any, chaptersArray);
+          if (generated) {
+            setNovelMetadata(generated);
+            localStorage.setItem('novelMetadata', JSON.stringify(generated));
+            await indexedDBService.setSetting('novelMetadata', generated);
+            debugLog('ui', 'summary', '[SettingsModal] Prefilled novel metadata from session info', {
+              title: generated.title,
+              source: 'sessionInfo'
+            });
+            return;
+          }
+        }
+
+        const generated = buildMetadataFromChapters(chaptersArray);
+        if (generated) {
+          setNovelMetadata(generated);
+          localStorage.setItem('novelMetadata', JSON.stringify(generated));
+          await indexedDBService.setSetting('novelMetadata', generated);
+          debugLog('ui', 'summary', '[SettingsModal] Prefilled novel metadata from chapter fallback', {
+            title: generated.title,
+            source: 'chapterFallback'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to hydrate novel metadata from session:', error);
+      }
+    };
+
+    loadMetadataFromSession();
+  }, [chaptersMap, novelMetadata]);
 
   useEffect(() => {
     const loadOSTSamples = async () => {
@@ -289,9 +475,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   }, []);
 
   // Update novel metadata state (called on every change)
-  const handleNovelMetadataChange = useCallback((metadata: NovelMetadata) => {
-    setNovelMetadata(metadata);
+  const persistNovelMetadata = useCallback(async (metadata: PublisherMetadata) => {
+    try {
+      const { indexedDBService } = await import('../services/indexeddb');
+      await indexedDBService.setSetting('novelMetadata', metadata);
+    } catch (error) {
+      console.error('Failed to persist novel metadata to IndexedDB:', error);
+    }
   }, []);
+
+  const handleNovelMetadataChange = useCallback((metadata: PublisherMetadata) => {
+    const normalized = normalizeMetadataDefaults(metadata, metadata.chapterCount ?? 1);
+    setNovelMetadata(normalized);
+    localStorage.setItem('novelMetadata', JSON.stringify(normalized));
+    persistNovelMetadata(normalized);
+  }, [persistNovelMetadata]);
 
   // Handle publish to library - generate and download both metadata.json and session.json
   const handlePublishToLibrary = async () => {
@@ -601,8 +799,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       const summary = localStorage.getItem('LF_AI_DEBUG') === '1';
       if (full) return 'full';
       if (summary) return 'summary';
-      return 'off';
-    } catch { return 'off'; }
+      return 'full';
+    } catch { return 'full'; }
   });
   const setDebugLevel = (level: DebugLevel) => {
     setApiDebugLevel(level);
@@ -1938,7 +2136,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Advanced</legend>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">API logging level</label>
+                  <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">Diagnostics logging level</label>
                   <select
                     value={apiDebugLevel}
                     onChange={(e) => setDebugLevel(e.target.value as DebugLevel)}
@@ -1965,7 +2163,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   <div className="mt-4 border border-gray-300 dark:border-gray-600 rounded-md p-4 bg-gray-50 dark:bg-gray-800/40">
                     <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Verbose logging pipelines</h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      Select which subsystems should emit detailed console logs. Selections apply when the logging level is set to Summary or Full.
+                      Select which subsystems should emit detailed console logs. Selections apply when the diagnostics logging level is set to Summary or Full.
                     </p>
                     <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                       {pipelineOptions.map((option) => {

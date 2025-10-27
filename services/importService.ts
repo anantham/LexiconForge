@@ -5,9 +5,18 @@
 import { indexedDBService } from './indexeddb';
 import { useAppStore } from '../store';
 import type { SessionData } from '../types/session';
-import type { TranslationResult, UsageMetrics, TranslationProvider } from '../types';
+import type {
+  AppSettings,
+  Chapter,
+  TranslationResult,
+  UsageMetrics,
+  TranslationProvider,
+} from '../types';
 import { ChapterOps } from './db/operations/chapters';
 import { TranslationOps } from './db/operations/translations';
+import { debugLog } from '../utils/debug';
+import { normalizeUrlAggressively } from './stableIdService';
+import { telemetryService } from './telemetryService';
 
 export interface ImportProgress {
   stage: 'downloading' | 'parsing' | 'importing' | 'streaming' | 'complete';
@@ -25,6 +34,7 @@ export interface ImportProgress {
 // Retry configuration
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 2000; // 2 seconds
+const FIRST_BATCH_THRESHOLD = 4;
 
 /**
  * Sleep for a given duration
@@ -258,15 +268,18 @@ export class ImportService {
 
       console.log('[StreamImport] Fetching from:', fetchUrl);
 
-      try {
-        // Dynamic import oboe
-        const oboe = (await import('oboe')).default;
+      const now = () =>
+        typeof performance !== 'undefined' && typeof performance.now === 'function'
+          ? performance.now()
+          : Date.now();
+      const streamStart = now();
+      let firstBatchTelemetrySent = false;
 
+      try {
         let chaptersLoaded = 0;
         let totalChapters = 0;
         let metadata: any = null;
         let firstChaptersReadyCalled = false;
-        const loadedChapterIds = new Set<string>();
 
         const normalizeUsageMetrics = (
           metrics: Partial<UsageMetrics> | undefined,
@@ -288,11 +301,7 @@ export class ImportService {
         const buildTranslationInputs = (chapter: any) => {
           const inputs: Array<{
             result: TranslationResult;
-            settings: {
-              provider: string;
-              model: string;
-              temperature: number;
-              systemPrompt: string;
+            settings: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
               promptId?: string;
               promptName?: string;
             };
@@ -364,169 +373,483 @@ export class ImportService {
           return inputs;
         };
 
-        oboe(fetchUrl)
-          // Extract metadata first
-          .node('metadata', function(meta) {
-            metadata = meta;
-            totalChapters = meta.chapterCount || 0;
-            console.log('[StreamImport] Metadata loaded:', { totalChapters });
+        const response = await fetch(fetchUrl, {
+          headers: {
+            Accept: 'application/json',
+          },
+        });
 
-            onProgress?.({
-              stage: 'streaming',
-              progress: 0,
-              chaptersLoaded: 0,
-              totalChapters,
-              message: `Starting stream... (${totalChapters} chapters total)`,
-              canStartReading: false,
-            });
+        if (!response.ok || !response.body) {
+          throw new Error(`Failed to fetch session (${response.status} ${response.statusText})`);
+        }
 
-            return oboe.drop; // Don't keep in memory
-          })
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
 
-          // Process each chapter as it arrives
-          .node('chapters.*', async function(chapter) {
-            try {
-              const chapterUrl: string | undefined = chapter.url || chapter.canonicalUrl;
-              if (!chapterUrl) {
-                console.warn('[StreamImport] Skipping chapter without URL:', chapter);
-                return oboe.drop;
-              }
+        let buffer = '';
+        let metadataEmitted = false;
+        let chaptersStarted = false;
+        let chaptersCompleted = false;
 
-              const translationInputs = buildTranslationInputs(chapter);
+        const findMatchingBrace = (source: string, start: number): number => {
+          let depth = 0;
+          let inString = false;
+          let escaped = false;
 
-              console.log(`[📥 IMPORT] Storing chapter #${chapter.chapterNumber}: "${chapter.title}"`, {
-                url: chapterUrl,
-                translationsFound: translationInputs.length,
-              });
+          for (let i = start; i < source.length; i++) {
+            const char = source[i];
 
-              // Import chapter to IndexedDB immediately
-              await ChapterOps.store({
-                stableId: chapter.stableId,
-                originalUrl: chapterUrl,
-                title: chapter.title,
-                content: chapter.content,
-                nextUrl: chapter.nextUrl,
-                prevUrl: chapter.prevUrl,
-                chapterNumber: chapter.chapterNumber,
-                fanTranslation: chapter.fanTranslation,
-              });
-              console.log(`[✅ IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
-
-              let activeVersion: number | null = null;
-
-              for (const translation of translationInputs) {
-                const stored = await TranslationOps.store({
-                  ref: { url: chapterUrl, stableId: chapter.stableId },
-                  result: translation.result,
-                  settings: translation.settings,
-                });
-
-                if (
-                  translation.isActive ||
-                  (translationInputs.length === 1 && activeVersion === null)
-                ) {
-                  activeVersion = stored.version;
-                }
-
-                console.log(
-                  `[✅ IMPORT] Translation stored for chapter #${chapter.chapterNumber}: "${translation.result.translatedTitle}" (version ${stored.version})`
-                );
-              }
-
-              if (activeVersion !== null && translationInputs.length > 1) {
-                await TranslationOps.setActiveByUrl(chapterUrl, activeVersion);
-              }
-
-              chaptersLoaded++;
-              loadedChapterIds.add(chapter.stableId || chapterUrl);
-
-              const progress = totalChapters > 0
-                ? (chaptersLoaded / totalChapters) * 100
-                : (chaptersLoaded / 500) * 100; // Estimate if unknown
-
-              onProgress?.({
-                stage: 'streaming',
-                progress,
-                chaptersLoaded,
-                totalChapters,
-                message: `Loaded ${chaptersLoaded}${totalChapters > 0 ? `/${totalChapters}` : ''} chapters...`,
-                canStartReading: chaptersLoaded >= 10,
-              });
-
-              // After 10 chapters, notify that reading can start
-              if (chaptersLoaded === 10 && !firstChaptersReadyCalled) {
-                firstChaptersReadyCalled = true;
-                console.log('[StreamImport] First 10 chapters ready - user can start reading');
-                onFirstChaptersReady?.();
-              }
-
-              // Log progress every 50 chapters
-              if (chaptersLoaded % 50 === 0) {
-                console.log(`[StreamImport] Progress: ${chaptersLoaded}/${totalChapters} chapters loaded`);
-              }
-            } catch (err) {
-              console.error('[StreamImport] Failed to import chapter:', err);
+            if (escaped) {
+              escaped = false;
+              continue;
             }
 
-            return oboe.drop; // Don't keep in memory - critical for large files!
-          })
+            if (char === '\\') {
+              escaped = true;
+              continue;
+            }
 
-          // Stream complete
-          .done(async function(fullData) {
-            console.log('[StreamImport] Stream complete:', { chaptersLoaded, totalChapters });
+            if (char === '"') {
+              inString = !inString;
+              continue;
+            }
 
-            onProgress?.({
-              stage: 'complete',
-              progress: 100,
-              chaptersLoaded,
-              totalChapters,
-              message: `All ${chaptersLoaded} chapters loaded!`,
-              canStartReading: true,
-            });
+            if (inString) continue;
 
-            // Hydrate store from IndexedDB
-            const rendering = await indexedDBService.getChaptersForReactRendering();
-            const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
-
-            useAppStore.setState(state => {
-              const newChapters = new Map<string, any>();
-              for (const ch of rendering) {
-                newChapters.set(ch.stableId, {
-                  id: ch.stableId,
-                  stableId: ch.stableId,
-                  title: ch.data.chapter.title,
-                  content: ch.data.chapter.content,
-                  originalUrl: ch.url,
-                  canonicalUrl: ch.url,
-                  nextUrl: ch.data.chapter.nextUrl,
-                  prevUrl: ch.data.chapter.prevUrl,
-                  chapterNumber: ch.chapterNumber || 0,
-                  sourceUrls: [ch.url],
-                  fanTranslation: ch.data.chapter.fanTranslation ?? null,
-                  translationResult: ch.data.translationResult || null,
-                  feedback: [],
-                });
+            if (char === '{') depth++;
+            if (char === '}') {
+              depth--;
+              if (depth === 0) {
+                return i;
               }
+            }
+          }
 
-              return {
-                chapters: newChapters,
-                navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
-                error: null,
-              };
-            });
+          return -1;
+        };
 
-            resolve(fullData);
-          })
+        const trimLeadingSeparators = () => {
+          let index = 0;
+          while (index < buffer.length) {
+            const char = buffer[index];
+            if (char === ',' || char === '\n' || char === '\r' || char === '\t' || char === ' ') {
+              index++;
+              continue;
+            }
+            break;
+          }
+          if (index > 0) {
+            buffer = buffer.slice(index);
+          }
+        };
 
-          // Handle errors
-          .fail(function(error) {
-            console.error('[StreamImport] Stream failed:', error);
-            reject(new Error(`Streaming import failed: ${error.message || error}`));
+        const emitMetadataIfReady = () => {
+          if (metadataEmitted) return;
+
+          const metadataKey = buffer.indexOf('"metadata"');
+          if (metadataKey === -1) return;
+
+          const objectStart = buffer.indexOf('{', metadataKey);
+          if (objectStart === -1) return;
+
+          const objectEnd = findMatchingBrace(buffer, objectStart);
+          if (objectEnd === -1) return;
+
+          const metadataJson = buffer.slice(objectStart, objectEnd + 1);
+          try {
+            metadata = JSON.parse(metadataJson);
+          } catch (error) {
+            console.error('[StreamImport] Failed to parse metadata chunk', error);
+            throw error;
+          }
+          metadataEmitted = true;
+          totalChapters = metadata.chapterCount || 0;
+          console.log('[StreamImport] Metadata loaded:', { totalChapters });
+
+          onProgress?.({
+            stage: 'streaming',
+            progress: 0,
+            chaptersLoaded: 0,
+            totalChapters,
+            message: `Starting stream... (${totalChapters || 'unknown'} chapters total)`,
+            canStartReading: false,
           });
 
+          buffer = buffer.slice(objectEnd + 1);
+        };
+
+        const ensureChaptersArrayStarted = () => {
+          if (!metadataEmitted || chaptersStarted) return;
+
+          const chaptersKey = buffer.indexOf('"chapters"');
+          if (chaptersKey === -1) return;
+
+          const arrayStart = buffer.indexOf('[', chaptersKey);
+          if (arrayStart === -1) return;
+
+          buffer = buffer.slice(arrayStart + 1);
+          chaptersStarted = true;
+        };
+
+        const extractNextChapter = (): any | null => {
+          trimLeadingSeparators();
+
+          if (!buffer.length) return 'incomplete';
+
+          const firstChar = buffer[0];
+
+          if (firstChar === ']') {
+            chaptersCompleted = true;
+            buffer = buffer.slice(1);
+            return null;
+          }
+
+          if (firstChar !== '{') {
+            buffer = buffer.slice(1);
+            return 'incomplete';
+          }
+
+          const endIndex = findMatchingBrace(buffer, 0);
+          if (endIndex === -1) {
+            return 'incomplete';
+          }
+
+          const chapterJson = buffer.slice(0, endIndex + 1);
+          buffer = buffer.slice(endIndex + 1);
+
+          try {
+            return JSON.parse(chapterJson);
+          } catch (error) {
+            console.error('[StreamImport] Failed to parse chapter JSON', error);
+            throw error;
+          }
+        };
+
+        const processChapter = async (chapter: any) => {
+          const chapterUrl: string | undefined = chapter.url || chapter.canonicalUrl;
+          if (!chapterUrl) {
+            console.warn('[StreamImport] Skipping chapter without URL:', chapter);
+            return;
+          }
+
+          const translationInputs = buildTranslationInputs(chapter);
+
+          console.log(`[📥 IMPORT] Storing chapter #${chapter.chapterNumber}: "${chapter.title}"`, {
+            url: chapterUrl,
+            translationsFound: translationInputs.length,
+          });
+
+          const chapterPayload: Chapter & { stableId?: string; fanTranslation?: string | null } = {
+            stableId: chapter.stableId,
+            originalUrl: chapterUrl,
+            title: chapter.title,
+            content: chapter.content,
+            nextUrl: chapter.nextUrl ?? null,
+            prevUrl: chapter.prevUrl ?? null,
+            chapterNumber: chapter.chapterNumber,
+            fanTranslation: chapter.fanTranslation ?? null,
+          };
+          await ChapterOps.store(chapterPayload);
+          console.log(`[✅ IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
+
+          let activeVersion: number | null = null;
+
+          for (const translation of translationInputs) {
+            const stored = await TranslationOps.store({
+              ref: { url: chapterUrl, stableId: chapter.stableId },
+              result: translation.result,
+              settings: translation.settings,
+            });
+
+            if (
+              translation.isActive ||
+              (translationInputs.length === 1 && activeVersion === null)
+            ) {
+              activeVersion = stored.version;
+            }
+
+            console.log(
+              `[✅ IMPORT] Translation stored for chapter #${chapter.chapterNumber}: "${translation.result.translatedTitle}" (version ${stored.version})`
+            );
+          }
+
+          if (activeVersion !== null && translationInputs.length > 1) {
+            await TranslationOps.setActiveByUrl(chapterUrl, activeVersion);
+          }
+
+          chaptersLoaded++;
+
+          if (totalChapters === 0 && metadata?.chapterCount) {
+            totalChapters = metadata.chapterCount;
+          }
+
+          const progress = totalChapters > 0
+            ? (chaptersLoaded / totalChapters) * 100
+            : Math.min(100, (chaptersLoaded / 500) * 100);
+          const readyThreshold = totalChapters > 0 ? Math.min(totalChapters, FIRST_BATCH_THRESHOLD) : FIRST_BATCH_THRESHOLD;
+
+          debugLog(
+            'import',
+            'summary',
+            '[StreamImport] Progress tick',
+            {
+              chaptersLoaded,
+              totalChapters,
+              readyThreshold,
+              firstChaptersReadyCalled,
+            }
+          );
+
+          onProgress?.({
+            stage: 'streaming',
+            progress,
+            chaptersLoaded,
+            totalChapters,
+            message: totalChapters > 0
+              ? `Loaded ${chaptersLoaded}/${totalChapters} chapters...`
+              : `Loaded ${chaptersLoaded} chapters...`,
+            canStartReading: chaptersLoaded >= readyThreshold,
+          });
+
+          const shouldTriggerFirstChapters =
+            !firstChaptersReadyCalled && chaptersLoaded >= readyThreshold;
+
+          debugLog(
+            'import',
+            'summary',
+            '[StreamImport] Evaluating first chapter hydration trigger',
+            {
+              chaptersLoaded,
+              totalChapters,
+              readyThreshold,
+              firstChaptersReadyCalled,
+              conditionMet: shouldTriggerFirstChapters,
+            }
+          );
+
+          if (shouldTriggerFirstChapters) {
+            debugLog(
+              'import',
+              'summary',
+              '[StreamImport] Triggering onFirstChaptersReady callback',
+              {
+                chaptersLoaded,
+                totalChapters,
+                readyThreshold,
+              }
+            );
+            firstChaptersReadyCalled = true;
+            if (!firstBatchTelemetrySent) {
+              const durationMs = now() - streamStart;
+              telemetryService.capturePerformance('import:stream:firstBatchReady', durationMs, {
+                chaptersLoaded,
+                totalChapters: totalChapters || null,
+                threshold: readyThreshold,
+              });
+              firstBatchTelemetrySent = true;
+            }
+            console.log('[StreamImport] First batch of chapters ready - user can start reading');
+            onFirstChaptersReady?.();
+          }
+
+          if (chaptersLoaded % 50 === 0) {
+            console.log(`[StreamImport] Progress: ${chaptersLoaded}/${totalChapters || 'unknown'} chapters loaded`);
+          }
+        };
+
+        try {
+          let done = false;
+          while (!done) {
+            const { value, done: chunkDone } = await reader.read();
+            done = chunkDone;
+            buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+
+            emitMetadataIfReady();
+            ensureChaptersArrayStarted();
+
+            while (chaptersStarted && !chaptersCompleted) {
+              const nextChapter = extractNextChapter();
+              if (nextChapter === 'incomplete') break;
+              if (nextChapter === null) break;
+              await processChapter(nextChapter);
+            }
+          }
+
+          buffer += decoder.decode();
+
+          emitMetadataIfReady();
+          ensureChaptersArrayStarted();
+
+          while (chaptersStarted && !chaptersCompleted) {
+            const nextChapter = extractNextChapter();
+            if (nextChapter === 'incomplete') break;
+            if (nextChapter === null) break;
+            await processChapter(nextChapter);
+          }
+        } catch (error) {
+          console.error('[StreamImport] Stream failed:', error);
+          reject(new Error(`Streaming import failed: ${error instanceof Error ? error.message : String(error)}`));
+          telemetryService.capturePerformance('import:stream:error', now() - streamStart, {
+            chaptersLoaded,
+            totalChapters: totalChapters || null,
+            reason: error instanceof Error ? error.message : String(error),
+          });
+          return;
+        } finally {
+          reader.releaseLock();
+        }
+
+        if (!totalChapters) {
+          totalChapters = chaptersLoaded;
+        }
+
+        console.log('[StreamImport] Stream complete:', { chaptersLoaded, totalChapters });
+
+        onProgress?.({
+          stage: 'complete',
+          progress: 100,
+          chaptersLoaded,
+          totalChapters,
+          message: `All ${totalChapters} chapters loaded!`,
+          canStartReading: true,
+        });
+
+        telemetryService.capturePerformance('import:stream:complete', now() - streamStart, {
+          chaptersLoaded,
+          totalChapters: totalChapters || null,
+        });
+
+        debugLog(
+          'import',
+          'summary',
+          '[StreamImport] Hydrating store after streaming import',
+          {
+            chaptersLoaded,
+            totalChapters,
+          }
+        );
+
+        const rendering = await indexedDBService.getChaptersForReactRendering();
+        const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
+
+        useAppStore.setState(state => {
+          const newChapters = new Map<string, any>();
+          const newUrlIndex = new Map<string, string>();
+          const newRawUrlIndex = new Map<string, string>();
+          for (const ch of rendering) {
+            const chapterData = ch.data?.chapter ?? {};
+            const canonicalUrl = ch.url ?? chapterData.originalUrl ?? null;
+            const originalUrl = chapterData.originalUrl ?? canonicalUrl ?? null;
+            const title = chapterData.title ?? ch.title ?? 'Untitled Chapter';
+            const content = chapterData.content ?? '';
+            const nextUrl = chapterData.nextUrl ?? null;
+            const prevUrl = chapterData.prevUrl ?? null;
+            const chapterNumber = ch.chapterNumber ?? chapterData.chapterNumber ?? 0;
+
+            newChapters.set(ch.stableId, {
+              id: ch.stableId,
+              stableId: ch.stableId,
+              url: canonicalUrl,
+              canonicalUrl,
+              title,
+              content,
+              nextUrl,
+              prevUrl,
+              chapterNumber,
+              fanTranslation: chapterData.fanTranslation ?? null,
+              translationResult: ch.data?.translationResult || null,
+              feedback: [],
+            });
+
+            if (canonicalUrl) {
+              newRawUrlIndex.set(canonicalUrl, ch.stableId);
+              const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
+              if (normalizedCanonical) {
+                newUrlIndex.set(normalizedCanonical, ch.stableId);
+              }
+            }
+
+            if (originalUrl) {
+              newRawUrlIndex.set(originalUrl, ch.stableId);
+              const normalizedOriginal = normalizeUrlAggressively(originalUrl);
+              if (normalizedOriginal) {
+                newUrlIndex.set(normalizedOriginal, ch.stableId);
+              }
+            }
+          }
+
+          return {
+            chapters: newChapters,
+            urlIndex: newUrlIndex,
+            rawUrlIndex: newRawUrlIndex,
+            navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
+            error: null,
+          };
+        });
+
+        const postHydrationState = useAppStore.getState();
+        debugLog(
+          'import',
+          'summary',
+          '[StreamImport] Post-hydration state snapshot',
+          {
+            hydratedChapters: rendering.length,
+            currentChapterId: postHydrationState.currentChapterId,
+          }
+        );
+
+        if (!postHydrationState.currentChapterId && rendering.length > 0) {
+          const first = rendering[0];
+          const firstUrl = first.url ?? first.data?.chapter?.originalUrl ?? null;
+          debugLog(
+            'import',
+            'summary',
+            '[StreamImport] Selecting first chapter after hydration fallback',
+            {
+              firstStableId: first.stableId,
+              firstTitle: first.title,
+              totalHydrated: rendering.length,
+            }
+          );
+          useAppStore.setState(state => {
+            const existing = state.currentChapterId;
+            if (existing) {
+              return state;
+            }
+            const updatedUrlIndex = state.urlIndex instanceof Map ? new Map(state.urlIndex) : new Map<string, string>();
+            const updatedRawUrlIndex = state.rawUrlIndex instanceof Map ? new Map(state.rawUrlIndex) : new Map<string, string>();
+            if (firstUrl) {
+              updatedRawUrlIndex.set(firstUrl, first.stableId);
+              const normalized = normalizeUrlAggressively(firstUrl);
+              if (normalized) {
+                updatedUrlIndex.set(normalized, first.stableId);
+              }
+            }
+            const originalUrl = first.data?.chapter?.originalUrl;
+            if (originalUrl) {
+              updatedRawUrlIndex.set(originalUrl, first.stableId);
+              const normalizedOriginal = normalizeUrlAggressively(originalUrl);
+              if (normalizedOriginal) {
+                updatedUrlIndex.set(normalizedOriginal, first.stableId);
+              }
+            }
+            return {
+              currentChapterId: first.stableId,
+              urlIndex: updatedUrlIndex,
+              rawUrlIndex: updatedRawUrlIndex,
+            };
+          });
+        }
+
+        resolve({ metadata, chaptersLoaded });
       } catch (error: any) {
         console.error('[StreamImport] Failed to start stream:', error);
-        reject(new Error(`Failed to start streaming: ${error.message}`));
+        telemetryService.capturePerformance('import:stream:error', now() - streamStart, {
+          chaptersLoaded: 0,
+          totalChapters: null,
+          reason: error?.message || String(error),
+        });
+        reject(new Error(`Failed to start streaming: ${error.message || error}`));
       }
     });
   }

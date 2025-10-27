@@ -2,7 +2,7 @@
 
 2) FAQ for features, getting API keys, contacting for support
 
-3) fan translation scrape
+3) fan translation scrape and incorporate interleaving
 
 4) extend comparison between translations
 
@@ -214,3 +214,79 @@
   3. Fix gradually - Address them file-by-file in future PRs
   Would you like me to help fix any specific subset of these errors, or shall we proceed with testing the new
   feature in the browser?
+
+17) fine grained reroll, not just retranslate the chapter but retranslate specific para's after feedback is given? or even with no feedback - implicit thumbs down - try again
+
+18) add new colors in diff feature - or edit existing colors, Track chapters with most semantic drift over time. part of metrics in library
+
+19) complexity unfolds in a careful slow way - default is simple
+
+20) some way to track prompt changes, model changes on feedback, diff metrics, navigate the space of possible tweaks, ideally we can have such low latency generation that we can see the diff in real time with some prototypical examples so Bookmarking would help save such segments for use in testing.. edit and feedback on pips themselves
+
+21) Persist a user-editable YAML/JSON "TranslationValues" profile (e.g., avoid florid prose, prefer short sentences, retain idioms).
+
+22) —we can tame the TypeScript backlog systematically without hacking around it. Here’s how I’d approach it:
+
+  - Map the landscape first. Run npx tsc --pretty false (or capture the JSON output via --project tsconfig.json --incremental false
+    --extendedDiagnostics false) and dump the errors into a shared log. Group them by top-level directory (components/, services/audio/, etc.). Most of
+    what I’ve seen so far falls into ~5 buckets: stale third-party typings (e.g., Gemini/OpenAI client changes), legacy state slices that outgrew their
+    inferred shapes, IndexedDB DTO drift, chapter feedback enums, and worker interfaces.
+  - Establish a clean baseline per domain. For each bucket, identify the “source of truth” types we want (e.g., create/update types/translation.ts with
+    canonical TranslationResult, UsageMetrics, etc.). Then fix the domain in isolation—update the types, refactor the code to match, add regression
+    tests if possible, and mark that module as “TS clean” in a tracker (WORKLOG or a small ADR). Rinse and repeat. Keeping patches narrowly scoped
+    prevents one fix from re-breaking another area.
+  - Put guards in place so the debt doesn’t regress. Once a domain compiles, add a targeted script like npx tsc --noEmit --project tsconfig.json
+    --pretty false --skipLibCheck false --types <subset> wired into CI for just that folder, or adopt path-based ESLint overrides (overrides with
+    parserOptions.project). That way we fail fast when someone re-introduces any churn.
+  - Use temporary “allow lists” rather than blanket ignores. For example, add a types/ts-errors-allowlist.json keyed by file/line and have a lint rule
+    that only passes if the error is already documented there. As you fix a file, remove its entry. This makes progress measurable while keeping the
+    bar explicit.
+  - Shore up external typings. Several errors stem from SDK drift (GenerateContentResponse vs GenerateContentResult). Capture those fixes once, ideally
+    upstream in a adapters/providers/* shim module so the rest of the codebase consumes our stable interfaces. Same story for IndexedDB records—define
+    ChapterRecord, TranslationRecord, etc. centrally and reuse them everywhere.
+  - Expect to touch tests. Some TS errors point to fixtures (tests/utils/test-data.ts) missing required fields. Bring the fixtures up to the new
+    canonical shapes so tests remain truthful rather than loosening runtime code.
+  - Document the clean-up as you go. Each sweep should get a short WORKLOG entry (date, domain, errors fixed, tests run). If any architectural decision
+    is noteworthy (e.g., “Workers now consume TranslationStats-v2 schema”), add an ADR.
+  - Fallback if time-boxed: if a domain refuses to stabilize quickly, isolate it by extracting the legacy code into legacy/ with its own tsconfig and
+    treat it as opt-in tech debt. That keeps the main build green while you plan a deeper refactor.
+
+  Assumptions: we’re willing to allocate time per module, not attempt a single mega-fix. Predicted tests after each domain is cleaned: npx tsc --noEmit
+  stays noisy overall, but the per-domain script returns 0. Confidence this yields a clean repo if we follow through: ~0.7. Fallback: if TypeScript
+  strictly blocks shipping, consider temporarily gating tsconfig via exclude for the dir we’re actively rewriting, but document it and set a deadline
+  to remove.
+
+  If you’re good with that approach, I can start by building the shared error inventory and sketching an ADR (or fixing one domain end-to-end) so we
+  have a template.
+
+  DTO Cleanup Roadmap
+
+  - Inventory & Canonicalize
+      - Pull every place we read/write IndexedDB (services/indexeddb.ts, services/db/operations/**, workers, tests) and list the record shapes in use.
+        Confirm what a “chapter”, “translation”, “summary”, URL mapping, etc. actually look like in storage today.
+      - Decide the single source of truth: likely a types/db.ts (or services/db/core/types.ts) that exports ChapterRecord, TranslationRecord,
+        ChapterSummaryRecord, UrlMappingRecord, etc., plus codec helpers for migrations.
+  - Refactor Core Service
+      - Update services/indexeddb.ts to consume those shared types instead of ad‑hoc declarations; swap any for the canonical interfaces; add narrow
+        helpers (e.g., assertChapterRecord) so runtime schema drift surfaces early.
+      - While there, separate legacy “v1” aliasing from modern operations to keep the typed path clean.
+  - Modern Ops & Feature Flags
+      - services/db/operations/*.ts should import the canonical records, not redefine them. Replace the temporary types inside chapters.ts /
+        translations.ts with shared ones, and ensure all read/write code returns typed promises.
+  - Surface to Consumers
+      - Update thin wrappers (e.g., ImportService, NovelLibrary, workers) to use the canonical DTOs; convert any to the new interfaces so the compiler
+        forces valid field access. Add migration helpers for anything serialized outside IndexedDB (exports/tests).
+  - Tests & Fixtures
+      - Fix fixtures in tests/utils/test-data.ts, tests/store/…, workers’ mock data to match the canonical shapes. Add a small suite that loads records
+        via the service and ensures keys exist (type-level tests + runtime assertions).
+  - Migrations & Validation
+      - For schema versions ≥ current, add runtime validators (lightweight zod or manual) when reading legacy stores to guard against malformed data.
+        Document in ADR/WORKLOG how to extend DTOs going forward.
+  - CI Enforcement
+      - Add focused scripts (npx tsc --noEmit --project tsconfig.json --pretty false --types ./services/indexeddb.ts) or ESLint rules so future DTO
+        changes must compile cleanly. Optionally build a tsc --noEmit --project tsconfig.tsbuildinfo dedicated to the db layer.
+  - Documentation
+      - Capture the final structure in an ADR or docs/db-schema.md explaining fields, relations, and migration expectations so future changes stay
+        aligned.
+
+

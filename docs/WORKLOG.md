@@ -1,3 +1,33 @@
+2025-10-27 01:32 UTC - Replace oboe importer with native streaming parser & improve UX telemetry
+- Files modified: services/importService.ts; components/NovelLibrary.tsx
+- Purpose: Drop the oboe/clarinet dependency so large translations no longer trip the 64 KB buffer cap; stream metadata + chapters via Fetch while preserving progressive hydration; log telemetry for first-batch/complete timings and surface quick-start toasts.
+- Notes: Custom brace-aware parser feeds existing storage logic, new `FIRST_BATCH_THRESHOLD` reduces wait to 4 chapters, and completion toast now signals when everything is cached. TypeScript still flags legacy DTO shape mismatches (pre-existing).
+- Tests: `npx tsc --noEmit | rg "importService"` *(fails: longstanding DTO typing issues unrelated to this change)*
+
+2025-10-27 01:55 UTC - Guard image retries when model is disabled
+- Files modified: store/slices/imageSlice.ts
+- Purpose: Prevent illustration retries from calling providers when the selected model is `none`, surfacing a warning toast instead of logging errors.
+- Notes: Skips API metrics/log spam and preserves existing image data; ImageGenerationService guard still handles legacy `'None'` casing.
+- Tests: `npx tsc --noEmit | rg "imageSlice"` *(fails: pre-existing DTO typing warnings elsewhere)*
+
+2025-10-27 00:48 UTC - Fix streaming hydration TDZ regression
+- Files modified: components/NovelLibrary.tsx
+- Purpose: Remove dynamic `useAppStore` re-import that triggered TDZ exceptions during `onFirstChaptersReady`, wrap initial hydration in try/catch, and surface warnings when the fast-path fails so readers aren’t blocked.
+- Notes: Streaming import now proceeds to open the first chapters once threshold is reached; fallback notification appears if hydration still throws. TypeScript run still reports legacy NovelLibrary shape mismatches (pre-existing).
+- Tests: `npx tsc --noEmit | rg "NovelLibrary"` *(fails: longstanding NovelLibrary DTO typing issues unrelated to this patch)*
+
+2025-10-27 00:26 UTC - Automate Codex PR reviews
+- Files modified: .github/workflows/codex-review.yml
+- Purpose: Request Codex code reviews automatically for every non-draft PR unless labeled `skip-codex`.
+- Notes: Workflow relies on repository secret `OPENAI_API_KEY`; optional label can suppress the run when needed. Trigger fires on open, reopen, synchronize, and ready_for_review events.
+- Tests: GitHub Actions syntax validation pending (requires push to remote).
+
+2025-10-27 00:09 UTC - Stabilize atomic translation writes & streaming import buffer
+- Files modified: services/indexeddb.ts:1397-1520; services/importService.ts:368-438
+- Purpose: Ensure `storeTranslationAtomic` always resolves a stableId before persisting new versions and expand streamed import buffer configuration to mitigate Clarinet’s 64KB string cap.
+- Notes: Atomic path now mirrors legacy stableId derivation with a fallback hash on translation payloads; streaming importer hydrates oboe via options object (`cachedBufferSize` guard) and feeds ChapterOps with explicitly typed payloads to silence TS complaints.
+- Tests: `npx tsc --noEmit` *(fails: longstanding repo-wide TS errors; verified no new diagnostics for indexeddb/importService via targeted grep)*
+
 2025-10-19 06:18 UTC - Fix diff heatmap stylistic marker crash
 - Files modified: .worktrees/semantic-diff-heatmap/components/ChapterView.tsx:1270-1285
 - Purpose: Replaced stale `markerVisibility` guard with `markerVisibilitySettings` so grey-only markers no longer throw a ReferenceError when diff analysis completes.

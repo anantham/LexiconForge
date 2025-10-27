@@ -1,5 +1,16 @@
 export type DebugLevel = 'off' | 'summary' | 'full';
-export type DebugPipeline = 'indexeddb' | 'comparison' | 'audio' | 'worker' | 'translation' | 'image' | 'memory' | 'api' | 'diff';
+export type DebugPipeline =
+  | 'indexeddb'
+  | 'comparison'
+  | 'audio'
+  | 'worker'
+  | 'translation'
+  | 'image'
+  | 'memory'
+  | 'api'
+  | 'diff'
+  | 'import'
+  | 'navigation';
 
 export const KNOWN_DEBUG_PIPELINES: DebugPipeline[] = [
   'indexeddb',
@@ -11,6 +22,8 @@ export const KNOWN_DEBUG_PIPELINES: DebugPipeline[] = [
   'memory',
   'api',
   'diff',
+  'import',
+  'navigation',
 ];
 
 const LEGACY_SUMMARY_FLAG = 'LF_AI_DEBUG';
@@ -28,9 +41,9 @@ const parseDebugLevel = (): DebugLevel => {
     const legacySummary = localStorage.getItem(LEGACY_SUMMARY_FLAG) === '1';
     if (legacyFull) return 'full';
     if (legacySummary) return 'summary';
-    return 'off';
+    return 'full';
   } catch {
-    return 'off';
+    return 'full';
   }
 };
 

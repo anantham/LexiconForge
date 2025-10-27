@@ -1043,7 +1043,7 @@ export const useAppStore = create<Store>()((set, get) => ({
 
       // Generate EPUB via service
       const { generateEpub, getDefaultTemplate } = await import('../services/epubService');
-      // Enable EPUB debug artifacts only when API logging level is FULL
+      // Enable EPUB debug artifacts only when diagnostics logging level is FULL
       let epubDebug = false;
       try {
         const level = localStorage.getItem('LF_AI_DEBUG_LEVEL');
