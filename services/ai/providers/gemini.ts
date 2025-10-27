@@ -104,7 +104,7 @@ const extractFirstBalancedJson = (text: string): string | null => {
 const sanitiseTranslation = (translation: string) => {
   const trimmed = translation.trim();
   if (trimmed.length === 0) return trimmed;
-  return sanitizeTranslationHTML(trimmed, { allowHr: true });
+  return sanitizeTranslationHTML(trimmed);
 };
 
 export const translateWithGemini = async (
