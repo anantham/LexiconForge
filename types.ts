@@ -3,9 +3,14 @@ export interface Chapter {
   title: string;
   content: string;
   originalUrl: string;
-  nextUrl: string | null;
-  prevUrl: string | null;
+  url?: string;
+  canonicalUrl?: string;
+  stableId?: string;
+  nextUrl?: string | null;
+  prevUrl?: string | null;
   chapterNumber?: number;
+  fanTranslation?: string | null;
+  translationResult?: TranslationResult | null;
 }
 
 export interface ChapterSummary {

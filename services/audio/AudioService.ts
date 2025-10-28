@@ -21,8 +21,38 @@ import appConfig from '../../config/app.json';
 import { debugLog } from '../../utils/debug';
 import { getEnvVar } from '../env';
 
+const AUDIO_PROVIDERS: readonly AudioProvider[] = ['ace-step', 'diffrhythm'] as const;
+const AUDIO_TASK_TYPES: readonly AudioTaskType[] = ['txt2audio', 'audio2audio', 'txt2audio-base', 'txt2audio-full'] as const;
+const STYLE_CATEGORIES: readonly AudioStylePreset['suitableFor'][number][] = [
+  'action',
+  'romance',
+  'mystery',
+  'peaceful',
+  'dramatic',
+  'ambient',
+] as const;
+
+const isAudioProvider = (value: string | undefined): value is AudioProvider =>
+  typeof value === 'string' && (AUDIO_PROVIDERS as readonly string[]).includes(value);
+
+const isAudioTaskType = (value: string | undefined): value is AudioTaskType =>
+  typeof value === 'string' && (AUDIO_TASK_TYPES as readonly string[]).includes(value);
+
+const normalizeSuitableFor = (candidates: unknown): AudioStylePreset['suitableFor'] => {
+  if (!Array.isArray(candidates)) return [];
+  return candidates
+    .filter((candidate): candidate is string => typeof candidate === 'string')
+    .map(candidate => candidate.trim())
+    .filter((candidate): candidate is AudioStylePreset['suitableFor'][number] =>
+      (STYLE_CATEGORIES as readonly string[]).includes(candidate)
+    );
+};
+
 export class AudioService {
   private providers = new Map<AudioProvider, BaseAudioProvider>();
+  private logSummary(message: string, details?: unknown) {
+    debugLog('audio', 'summary', `[AudioService] ${message}`, details ?? {});
+  }
 
   /**
    * Initialize the audio service with API keys from settings
@@ -39,7 +69,7 @@ export class AudioService {
     this.providers.set('ace-step', new AceStepProvider(piApiKey));
     this.providers.set('diffrhythm', new DiffRhythmProvider(piApiKey));
 
-    debugLog('audio', 'summary', '[AudioService] Initialized with providers:', Array.from(this.providers.keys()));
+    this.logSummary('Initialized providers', { providers: Array.from(this.providers.keys()) });
   }
 
   /**
@@ -67,19 +97,40 @@ export class AudioService {
    * Get style presets from config
    */
   getStylePresets(): AudioStylePreset[] {
-    return appConfig.audioGeneration?.stylePresets || [];
+    const presets = appConfig.audioGeneration?.stylePresets ?? [];
+    return presets
+      .map((preset: any): AudioStylePreset | null => {
+        if (!isAudioProvider(preset?.provider)) return null;
+        if (!isAudioTaskType(preset?.taskType)) return null;
+        return {
+          id: String(preset.id ?? ''),
+          name: String(preset.name ?? ''),
+          description: String(preset.description ?? ''),
+          stylePrompt: String(preset.stylePrompt ?? ''),
+          negativePrompt: typeof preset.negativePrompt === 'string' ? preset.negativePrompt : undefined,
+          suitableFor: normalizeSuitableFor(preset.suitableFor),
+          provider: preset.provider,
+          taskType: preset.taskType,
+        };
+      })
+      .filter((preset): preset is AudioStylePreset => Boolean(preset && preset.id && preset.stylePrompt));
   }
 
   /**
    * Get default settings for audio generation
    */
   getDefaults() {
-    return appConfig.audioGeneration?.defaults || {
-      provider: 'ace-step' as AudioProvider,
-      taskType: 'txt2audio' as AudioTaskType,
-      duration: 240,
-      negativePrompt: 'noise, static, distortion',
-      volume: 0.7,
+    const rawDefaults = (appConfig.audioGeneration?.defaults ?? {}) as Partial<Record<string, unknown>>;
+    const providerCandidate = typeof rawDefaults.provider === 'string' ? rawDefaults.provider : undefined;
+    const taskTypeCandidate = typeof rawDefaults.taskType === 'string' ? rawDefaults.taskType : undefined;
+    const provider = isAudioProvider(providerCandidate) ? providerCandidate : 'ace-step';
+    const taskType = isAudioTaskType(taskTypeCandidate) ? taskTypeCandidate : 'txt2audio';
+    return {
+      provider,
+      taskType,
+      duration: typeof rawDefaults.duration === 'number' ? rawDefaults.duration : 240,
+      negativePrompt: typeof rawDefaults.negativePrompt === 'string' ? rawDefaults.negativePrompt : 'noise, static, distortion',
+      volume: typeof rawDefaults.volume === 'number' ? rawDefaults.volume : 0.7,
     };
   }
 
@@ -98,7 +149,7 @@ export class AudioService {
       throw new Error(`Audio provider '${provider}' is not available`);
     }
 
-    alog(`Generating audio with ${provider}:`, {
+    this.logSummary(`Generating audio with ${provider}`, {
       taskType,
       stylePrompt: input.stylePrompt?.substring(0, 100) + '...',
       duration: input.duration,
@@ -107,7 +158,7 @@ export class AudioService {
 
     const result = await providerInstance.generateAudio(input, taskType, abortSignal);
     
-    alog('Generation completed:', {
+    this.logSummary('Generation completed', {
       provider: result.provider,
       duration: result.duration,
       cost: result.cost,
