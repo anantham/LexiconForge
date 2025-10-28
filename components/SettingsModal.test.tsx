@@ -61,11 +61,17 @@ const mockSettings: AppSettings = {
   model: 'gemini-2.5-flash',
   temperature: 0.5,
   contextDepth: 3,
-  maxSessionSize: 10,
+  preloadCount: 0,
+  fontSize: 16,
+  fontStyle: 'serif',
+  lineHeight: 1.6,
   systemPrompt: INITIAL_SYSTEM_PROMPT,
   apiKeyGemini: 'existing-gemini-key',
   apiKeyOpenAI: '',
   apiKeyDeepSeek: '',
+  imageModel: 'imagen-test',
+  maxSessionSize: 10,
+  showDiffHeatmap: false,
 };
 
 type StoreState = ReturnType<typeof createStoreState>;

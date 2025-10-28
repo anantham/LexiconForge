@@ -39,6 +39,27 @@ vi.mock('../../services/prompts', () => ({
   formatHistory: vi.fn(() => 'Formatted history'),
 }));
 
+const createSettings = (overrides: Partial<AppSettings>): AppSettings => ({
+  contextDepth: 2,
+  preloadCount: 0,
+  fontSize: 16,
+  fontStyle: 'serif',
+  lineHeight: 1.6,
+  systemPrompt: '',
+  provider: 'Gemini',
+  model: 'gemini-2.0-flash',
+  temperature: 0.7,
+  apiKeyGemini: '',
+  apiKeyOpenAI: '',
+  apiKeyDeepSeek: '',
+  apiKeyClaude: '',
+  apiKeyOpenRouter: '',
+  imageModel: 'imagen-test-model',
+  includeFanTranslationInPrompt: true,
+  showDiffHeatmap: false,
+  ...overrides,
+});
+
 const openAiMocks = vi.hoisted(() => {
   const create = vi.fn();
   const ctor = vi.fn(() => ({
@@ -61,13 +82,12 @@ describe('legacy provider helpers in aiService', () => {
     envMocks.getEnvVar.mockReturnValueOnce(undefined);
     const { __testUtils } = await import('../../services/aiService');
 
-    const settings = {
+    const settings = createSettings({
       provider: 'Gemini',
       apiKeyGemini: '',
       model: 'gemini-2.0-flash',
-      systemPrompt: '',
       temperature: 0.8,
-    } as AppSettings;
+    });
 
     await expect(__testUtils.translateWithGemini('T', 'Body', settings, [])).rejects.toThrow(/Gemini API key is missing/);
   });
@@ -96,13 +116,13 @@ describe('legacy provider helpers in aiService', () => {
 
     it('throws when API key missing', async () => {
       const { __testUtils } = await import('../../services/aiService');
-      const settings = {
+      const settings = createSettings({
         provider: 'OpenAI',
         apiKeyOpenAI: '',
         model: 'gpt-4o',
         systemPrompt: 'Translate to English.',
         temperature: 0.7,
-      } as AppSettings;
+      });
 
       await expect(__testUtils.translateWithOpenAI('T', 'Body', settings, [], null)).rejects.toThrow(/API key is missing/);
     });
@@ -122,7 +142,7 @@ describe('legacy provider helpers in aiService', () => {
       });
 
       const { __testUtils } = await import('../../services/aiService');
-      const settings: AppSettings = {
+      const settings = createSettings({
         provider: 'OpenAI',
         apiKeyOpenAI: 'user-key',
         model: 'gpt-4o',
@@ -134,7 +154,7 @@ describe('legacy provider helpers in aiService', () => {
         seed: 42,
         maxOutputTokens: 256,
         targetLanguage: 'English',
-      } as AppSettings;
+      });
 
       const history: HistoricalChapter[] = [
         {

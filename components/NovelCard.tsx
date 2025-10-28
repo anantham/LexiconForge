@@ -7,7 +7,7 @@ interface NovelCardProps {
   onViewDetails: (novel: NovelEntry) => void;
 }
 
-export function NovelCard({ novel, onViewDetails }: NovelCardProps) {
+export const NovelCard: React.FC<NovelCardProps> = ({ novel, onViewDetails }) => {
   const genres = novel.metadata.genres.slice(0, 2);
 
   return (
@@ -69,4 +69,4 @@ export function NovelCard({ novel, onViewDetails }: NovelCardProps) {
       </div>
     </div>
   );
-}
+};

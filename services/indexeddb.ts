@@ -2974,10 +2974,30 @@ class IndexedDBService {
    */
   async getChaptersForReactRendering(): Promise<Array<{
     stableId: string;
+    id: string;
     url: string;
-    data: any;
+    canonicalUrl: string;
+    originalUrl: string;
+    sourceUrls: string[];
     title: string;
+    content: string;
+    nextUrl: string | null;
+    prevUrl: string | null;
     chapterNumber: number;
+    fanTranslation: string | null;
+    translationResult: TranslationResult | null;
+    data: {
+      chapter: {
+        title: string;
+        content: string;
+        originalUrl: string;
+        nextUrl: string | null;
+        prevUrl: string | null;
+        chapterNumber: number;
+        fanTranslation: string | null;
+      };
+      translationResult: TranslationResult | null;
+    };
   }>> {
     try {
       const opStart = memoryTimestamp();
@@ -3040,24 +3060,39 @@ class IndexedDBService {
               // If translation loading fails, continue without translation
               dblog('[IndexedDB] Failed to load translation for chapter:', chapter.url, error);
             }
-            
+
+            const canonicalUrl = chapter.canonicalUrl || chapter.url;
+            const originalUrl = chapter.originalUrl || chapter.url;
+            const nextUrl = chapter.nextUrl ?? null;
+            const prevUrl = chapter.prevUrl ?? null;
+            const fanTranslation = chapter.fanTranslation ?? null;
+
             const chapterData = {
               stableId,
+              id: stableId,
               url: chapter.url,
+              canonicalUrl,
+              originalUrl,
+              sourceUrls: Array.from(new Set([chapter.url, canonicalUrl, originalUrl].filter(Boolean) as string[])),
+              title: chapter.title,
+              content: chapter.content,
+              nextUrl,
+              prevUrl,
+              chapterNumber: chapter.chapterNumber || 0,
+              fanTranslation,
+              translationResult,
               data: {
                 chapter: {
                   title: chapter.title,
                   content: chapter.content,
-                  originalUrl: chapter.url,
-                  nextUrl: chapter.nextUrl,
-                  prevUrl: chapter.prevUrl,
+                  originalUrl,
+                  nextUrl,
+                  prevUrl,
                   chapterNumber: chapter.chapterNumber,
-                  fanTranslation: chapter.fanTranslation,
+                  fanTranslation,
                 },
-                translationResult: translationResult // Now includes active translation
+                translationResult, // Active translation if available
               },
-              title: chapter.title,
-              chapterNumber: chapter.chapterNumber || 0
             };
             
             // console.log('[INDEXEDDB-DEBUG] Processed chapter for rendering:', {

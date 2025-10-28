@@ -105,18 +105,30 @@ export const createMockAmendmentProposal = (overrides: Partial<AmendmentProposal
 export const createMockFeedbackItems = (): FeedbackItem[] => [
   {
     id: '2023-12-01T10:30:00.000Z',
+    chapterId: 'chapter-1',
+    text: 'Too generic - maybe "Dark Lord" or keep "Maō"?',
+    category: 'negative',
+    timestamp: Date.parse('2023-12-01T10:30:00.000Z'),
     selection: 'Demon King',
     type: '👎',
     comment: 'Too generic - maybe "Dark Lord" or keep "Maō"?',
   },
   {
-    id: '2023-12-01T10:35:00.000Z', 
+    id: '2023-12-01T10:35:00.000Z',
+    chapterId: 'chapter-1',
+    text: 'Perfect translation of the emperor\'s aura!',
+    category: 'positive',
+    timestamp: Date.parse('2023-12-01T10:35:00.000Z'),
     selection: 'overwhelming presence',
     type: '👍',
     comment: 'Perfect translation of the emperor\'s aura!',
   },
   {
     id: '2023-12-01T10:40:00.000Z',
+    chapterId: 'chapter-1',
+    text: 'Is this the best way to convey the paralysis?',
+    category: 'suggestion',
+    timestamp: Date.parse('2023-12-01T10:40:00.000Z'),
     selection: 'stood frozen',
     type: '?',
     comment: 'Is this the best way to convey the paralysis?',
@@ -136,6 +148,9 @@ export const createMockAppSettings = (overrides: Partial<AppSettings> = {}): App
   apiKeyGemini: 'test-gemini-key',
   apiKeyOpenAI: 'test-openai-key',
   apiKeyDeepSeek: 'test-deepseek-key',
+  imageModel: 'imagen-3.0-generate-001',
+  includeFanTranslationInPrompt: true,
+  showDiffHeatmap: false,
   ...overrides,
 });
 
@@ -155,6 +170,9 @@ export const createMockImportedSession = (): ImportedSession => {
         provider: 'OpenAI',
         model: 'gpt-5',
         temperature: 0.5,
+        imageModel: 'dall-e-mini',
+        includeFanTranslationInPrompt: true,
+        showDiffHeatmap: false,
       },
     },
     urlHistory: [

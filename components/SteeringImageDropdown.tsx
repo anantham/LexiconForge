@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { getSteeringImages, imageFileToBase64 } from '../services/imageUtils';
+import { getSteeringImages } from '../services/imageUtils';
 
 interface SteeringImageDropdownProps {
   value?: string;
   onChange: (imagePath: string | null) => void;
-  steeringDir?: string;
 }
 
 const SteeringImageDropdown: React.FC<SteeringImageDropdownProps> = ({
   value,
-  onChange,
-  steeringDir = '/Users/aditya/Documents/Ongoing Local/LexiconForge/data/Illustrations/steering'
+  onChange
 }) => {
   const [images, setImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -19,14 +17,14 @@ const SteeringImageDropdown: React.FC<SteeringImageDropdownProps> = ({
   useEffect(() => {
     const loadImages = async () => {
       try {
-        const imageList = await getSteeringImages(steeringDir);
+        const imageList = await getSteeringImages();
         setImages(imageList);
       } catch (error) {
         console.error('Failed to load steering images:', error);
       }
     };
     loadImages();
-  }, [steeringDir]);
+  }, []);
 
   useEffect(() => {
     const loadPreview = async () => {
@@ -60,7 +58,7 @@ const SteeringImageDropdown: React.FC<SteeringImageDropdownProps> = ({
     };
 
     loadPreview();
-  }, [value, steeringDir]);
+  }, [value]);
 
   const handleSelectionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;

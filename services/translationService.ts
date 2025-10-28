@@ -11,7 +11,7 @@
 
 import { translateChapter, validateApiKey } from './aiService';
 import { indexedDBService } from './indexeddb';
-import type { AppSettings, HistoricalChapter, TranslationResult, PromptTemplate } from '../types';
+import type { AppSettings, HistoricalChapter, TranslationResult, PromptTemplate, TranslationSettingsSnapshot } from '../types';
 import type { EnhancedChapter } from './stableIdService';
 import { normalizeUrlAggressively, generateStableChapterId } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
@@ -26,9 +26,8 @@ export interface TranslationContext {
   activePromptTemplate?: PromptTemplate;
 }
 
-export interface TranslationResult {
-  translationResult?: any; // TranslationResult type
-  proposal?: any; // AmendmentProposal type
+export interface TranslateChapterResponse {
+  translationResult?: TranslationResult;
   error?: string;
   aborted?: boolean;
 }
@@ -82,7 +81,7 @@ export class TranslationService {
     chapterId: string,
     context: TranslationContext,
     buildHistoryFn?: (chapterId: string) => HistoricalChapter[] | Promise<HistoricalChapter[]>
-  ): Promise<TranslationResult> {
+  ): Promise<TranslateChapterResponse> {
     return this.runSequential(() => this.translateChapter(chapterId, context, buildHistoryFn));
   }
 
@@ -93,7 +92,7 @@ export class TranslationService {
     chapterId: string,
     context: TranslationContext,
     buildHistoryFn?: (chapterId: string) => HistoricalChapter[] | Promise<HistoricalChapter[]>
-  ): Promise<TranslationResult> {
+  ): Promise<TranslateChapterResponse> {
     const { chapters, settings, activePromptTemplate } = context;
     const chapterToTranslate = chapters.get(chapterId);
 
@@ -200,7 +199,7 @@ export class TranslationService {
         console.warn('[TranslationService] Failed to persist translation version', e);
       }
 
-      return result;
+      return { translationResult: result };
 
     } catch (e: any) {
       if (e.name === 'AbortError') {
@@ -648,9 +647,33 @@ export class TranslationService {
   /**
    * Extract relevant settings snapshot for translation persistence
    */
-  static extractSettingsSnapshot(settings: AppSettings): Partial<AppSettings> {
-    const { provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt } = settings;
-    return { provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt };
+  static extractSettingsSnapshot(settings: AppSettings): TranslationSettingsSnapshot {
+    const {
+      provider,
+      model,
+      temperature,
+      topP,
+      frequencyPenalty,
+      presencePenalty,
+      seed,
+      contextDepth,
+      systemPrompt,
+      promptId,
+      promptName,
+    } = settings;
+    return {
+      provider,
+      model,
+      temperature,
+      topP,
+      frequencyPenalty,
+      presencePenalty,
+      seed,
+      contextDepth,
+      systemPrompt,
+      promptId,
+      promptName,
+    };
   }
 
   /**
