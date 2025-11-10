@@ -17,7 +17,15 @@
  * - Migration from localStorage data
  */
 
-import { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate } from '../types';
+import {
+  Chapter,
+  TranslationResult,
+  AppSettings,
+  FeedbackItem,
+  PromptTemplate,
+  GeneratedImageResult,
+  ImageCacheKey,
+} from '../types';
 import { debugPipelineEnabled, dbDebugEnabled, debugLog } from '../utils/debug';
 import { generateStableChapterId } from './stableIdService';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
@@ -124,7 +132,13 @@ export interface TranslationRecord {
   translatedTitle: string;
   translation: string;
   footnotes: Array<{ marker: string; text: string }>;
-  suggestedIllustrations: Array<{ placementMarker: string; imagePrompt: string; url?: string; }>; // Added url field
+  suggestedIllustrations: Array<{
+    placementMarker: string;
+    imagePrompt: string;
+    url?: string;
+    generatedImage?: string | GeneratedImageResult;
+    imageCacheKey?: ImageCacheKey;
+  }>;
   
   // Translation metadata
   provider: string;               // 'Gemini', 'OpenAI', 'DeepSeek'
@@ -152,6 +166,28 @@ export interface TranslationRecord {
     currentRule: string;
     proposedChange: string;
     reasoning: string;
+  };
+}
+
+export interface ChapterLookupResult {
+  stableId: string;
+  canonicalUrl: string;
+  title: string;
+  content: string;
+  nextUrl?: string;
+  prevUrl?: string;
+  chapterNumber?: number;
+  fanTranslation?: string;
+  data: {
+    chapter: {
+      title: string;
+      content: string;
+      originalUrl: string;
+      nextUrl?: string;
+      prevUrl?: string;
+      chapterNumber?: number;
+    };
+    translationResult: TranslationRecord | null;
   };
 }
 
@@ -724,28 +760,22 @@ class IndexedDBService {
   /**
    * Return all URL → stableId mappings for boot-time index hydration
    */
-  async getAllUrlMappings(): Promise<Array<{ url: string; stableId: string; isCanonical: boolean }>> {
+  async getAllUrlMappings(): Promise<UrlMappingRecord[]> {
     const db = await this.openDatabase();
-    let stableId: string | undefined;
-    try {
-      const chapterRecord = await this.getChapter(chapterUrl);
-      stableId = chapterRecord?.stableId || (chapterRecord
-        ? generateStableChapterId(
-            chapterRecord.content || '',
-            chapterRecord.chapterNumber || 0,
-            chapterRecord.title || ''
-          )
-        : undefined);
-    } catch {
-      stableId = undefined;
-    }
     return new Promise((resolve, reject) => {
       const tx = db.transaction([STORES.URL_MAPPINGS], 'readonly');
       const store = tx.objectStore(STORES.URL_MAPPINGS);
       const req = store.getAll();
       req.onsuccess = () => {
         const rows = (req.result || []) as UrlMappingRecord[];
-        resolve(rows.map(r => ({ url: r.url, stableId: r.stableId, isCanonical: !!r.isCanonical })));
+        resolve(
+          rows.map(row => ({
+            url: row.url,
+            stableId: row.stableId,
+            isCanonical: !!row.isCanonical,
+            dateAdded: row.dateAdded,
+          }))
+        );
       };
       req.onerror = () => reject(req.error);
     });
@@ -3157,11 +3187,7 @@ class IndexedDBService {
   /**
    * Find chapter by URL and return with stable ID
    */
-  async findChapterByUrl(url: string): Promise<{
-    stableId: string;
-    canonicalUrl: string;
-    data: any;
-  } | null> {
+  async findChapterByUrl(url: string): Promise<ChapterLookupResult | null> {
     try {
       const db = await this.openDatabase();
       const transaction = db.transaction(['chapters'], 'readonly');
@@ -3181,7 +3207,13 @@ class IndexedDBService {
           
           resolve({
             stableId,
-            canonicalUrl: chapter.url,
+            canonicalUrl: chapter.canonicalUrl || chapter.url,
+            title: chapter.title,
+            content: chapter.content,
+            nextUrl: chapter.nextUrl,
+            prevUrl: chapter.prevUrl,
+            chapterNumber: chapter.chapterNumber,
+            fanTranslation: chapter.fanTranslation,
             data: {
               chapter: {
                 title: chapter.title,

@@ -1,4 +1,5 @@
 import type { Chapter } from '../../../types';
+import type { ChapterLookupResult, ChapterRecord, ChapterSummaryRecord, TranslationRecord } from '../../indexeddb';
 import { indexedDBService } from '../../indexeddb';
 import { StableIdManager } from '../core/stable-ids';
 import { STORE_NAMES } from '../core/schema';
@@ -8,46 +9,11 @@ import { generateStableChapterId, normalizeUrlAggressively } from '../../stableI
 
 const CHAPTER_DOMAIN = 'chapters';
 
-type ChapterRecord = {
-  url: string;
-  title: string;
-  content: string;
-  originalUrl: string;
-  nextUrl?: string;
-  prevUrl?: string;
-  fanTranslation?: string;
-  chapterNumber?: number;
-  canonicalUrl?: string;
-  stableId?: string;
-  dateAdded: string;
-  lastAccessed: string;
-};
-
 export type ChapterStoreRecord = ChapterRecord;
-
-type TranslationRecord = {
-  chapterUrl: string;
-  translatedTitle?: string;
-  suggestedIllustrations?: Array<{ url?: string; generatedImage?: string }>;
-  createdAt?: string;
-  isActive?: boolean;
-};
-
-type ChapterSummaryRecord = {
-  stableId: string;
-  canonicalUrl?: string;
-  title: string;
-  translatedTitle?: string;
-  chapterNumber?: number;
-  hasTranslation: boolean;
-  hasImages: boolean;
-  lastAccessed?: string;
-  lastTranslatedAt?: string;
-};
 
 const shouldUseLegacy = () => !isModernDbEnabled(CHAPTER_DOMAIN);
 
-export const ensureChapterUrlMappings = async (originalUrl: string, stableId: string) => {
+export const ensureChapterUrlMappings = async (originalUrl: string, stableId: string): Promise<void> => {
   const canonical = normalizeUrlAggressively(originalUrl) || originalUrl;
   const nowIso = new Date().toISOString();
 
@@ -230,7 +196,7 @@ const getAllChaptersModern = async (): Promise<ChapterRecord[]> => {
   );
 };
 
-const findChapterModernByUrl = async (url: string) => {
+const findChapterModernByUrl = async (url: string): Promise<ChapterLookupResult | null> => {
   const record = await getChapterModernByUrl(url);
   if (!record) return null;
 
@@ -239,6 +205,12 @@ const findChapterModernByUrl = async (url: string) => {
   return {
     stableId,
     canonicalUrl: record.canonicalUrl || record.url,
+    title: record.title,
+    content: record.content,
+    nextUrl: record.nextUrl,
+    prevUrl: record.prevUrl,
+    chapterNumber: record.chapterNumber,
+    fanTranslation: record.fanTranslation,
     data: {
       chapter: {
         title: record.title,
@@ -266,7 +238,7 @@ export class ChapterOps {
     await storeChapterModern(chapter);
   }
 
-  static async getByUrl(url: string) {
+  static async getByUrl(url: string): Promise<ChapterRecord | null> {
     if (shouldUseLegacy()) {
       return indexedDBService.getChapter(url);
     }
@@ -274,7 +246,7 @@ export class ChapterOps {
     return getChapterModernByUrl(url);
   }
 
-  static async getByStableId(stableId: string) {
+  static async getByStableId(stableId: string): Promise<ChapterRecord | null> {
     if (shouldUseLegacy()) {
       return indexedDBService.getChapterByStableId(stableId);
     }
@@ -282,7 +254,7 @@ export class ChapterOps {
     return getChapterModernByStableId(stableId);
   }
 
-  static async getAll() {
+  static async getAll(): Promise<ChapterRecord[]> {
     if (shouldUseLegacy()) {
       return indexedDBService.getAllChapters();
     }
@@ -290,15 +262,15 @@ export class ChapterOps {
     return getAllChaptersModern();
   }
 
-  static async findByUrl(pattern: string) {
+  static async findByUrl(pattern: string): Promise<ChapterLookupResult | null> {
     if (shouldUseLegacy()) {
-      return indexedDBService.findChapterByUrl(pattern as any);
+      return indexedDBService.findChapterByUrl(pattern);
     }
 
     return findChapterModernByUrl(pattern);
   }
 
-  static async storeEnhanced(enhanced: any) {
+  static async storeEnhanced(enhanced: any): Promise<void> {
     if (shouldUseLegacy()) {
       return indexedDBService.storeEnhancedChapter(enhanced);
     }
@@ -307,9 +279,11 @@ export class ChapterOps {
       title: enhanced.title,
       content: enhanced.content,
       originalUrl: enhanced.canonicalUrl || enhanced.originalUrl,
+      canonicalUrl: enhanced.canonicalUrl,
       nextUrl: enhanced.nextUrl,
       prevUrl: enhanced.prevUrl,
       chapterNumber: enhanced.chapterNumber,
+      fanTranslation: enhanced.fanTranslation ?? null,
     };
 
     await storeChapterModern({ ...chapter, stableId: enhanced.id });

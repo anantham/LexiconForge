@@ -1,4 +1,5 @@
 import type { AppSettings, TranslationResult } from '../../../types';
+import type { TranslationRecord } from '../../indexeddb';
 import { indexedDBService } from '../../indexeddb';
 import { StableIdManager } from '../core/stable-ids';
 import { STORE_NAMES } from '../core/schema';
@@ -16,36 +17,7 @@ export interface ChapterRef {
   url?: string;
 }
 
-type TranslationStoreRecord = {
-  id: string;
-  chapterUrl: string;
-  stableId?: string;
-  version: number;
-  translatedTitle: string;
-  translation: string;
-  footnotes: Array<{ marker: string; text: string }>;
-  suggestedIllustrations: Array<{ placementMarker: string; imagePrompt: string; url?: string; generatedImage?: string }>;
-  provider: string;
-  model: string;
-  temperature: number;
-  systemPrompt: string;
-  promptId?: string;
-  promptName?: string;
-  customVersionLabel?: string;
-  totalTokens: number;
-  promptTokens: number;
-  completionTokens: number;
-  estimatedCost: number;
-  requestTime: number;
-  createdAt: string;
-  isActive: boolean;
-  proposal?: {
-    observation: string;
-    currentRule: string;
-    proposedChange: string;
-    reasoning: string;
-  };
-};
+type TranslationStoreRecord = TranslationRecord;
 
 const TRANSLATION_DOMAIN = 'translations';
 const shouldUseLegacy = () => !isModernDbEnabled(TRANSLATION_DOMAIN);
@@ -84,7 +56,7 @@ const recomputeSummaryForUrl = async (chapterUrl: string) => {
   }
 };
 
-const getVersionsByUrlModern = async (chapterUrl: string): Promise<TranslationStoreRecord[]> => {
+const getVersionsByUrlModern = async (chapterUrl: string): Promise<TranslationRecord[]> => {
   return withReadTxn(
     STORE_NAMES.TRANSLATIONS,
     async (_txn, stores) => {
@@ -101,7 +73,7 @@ const getVersionsByUrlModern = async (chapterUrl: string): Promise<TranslationSt
   );
 };
 
-const getVersionsByStableIdModern = async (stableId: string): Promise<TranslationStoreRecord[]> => {
+const getVersionsByStableIdModern = async (stableId: string): Promise<TranslationRecord[]> => {
   return withReadTxn(
     [STORE_NAMES.URL_MAPPINGS, STORE_NAMES.TRANSLATIONS],
     async (_txn, stores) => {
@@ -126,7 +98,7 @@ const storeTranslationModern = async (
     promptId?: string;
     promptName?: string;
   }
-): Promise<TranslationStoreRecord> => {
+): Promise<TranslationRecord> => {
   const chapterRecord = await loadChapterRecord(chapterUrl);
   const stableId =
     chapterRecord?.stableId ||
@@ -257,12 +229,12 @@ const setActiveByStableIdModern = async (stableId: string, version: number): Pro
   await setActiveByUrlModern(url, version);
 };
 
-const getActiveByUrlModern = async (chapterUrl: string): Promise<TranslationStoreRecord | null> => {
+const getActiveByUrlModern = async (chapterUrl: string): Promise<TranslationRecord | null> => {
   const versions = await getVersionsByUrlModern(chapterUrl);
   return versions.find(record => record.isActive) || null;
 };
 
-const getActiveByStableIdModern = async (stableId: string): Promise<TranslationStoreRecord | null> => {
+const getActiveByStableIdModern = async (stableId: string): Promise<TranslationRecord | null> => {
   const versions = await getVersionsByStableIdModern(stableId);
   return versions.find(record => record.isActive) || null;
 };
@@ -279,7 +251,7 @@ export class TranslationOps {
       promptId?: string;
       promptName?: string;
     };
-  }) {
+  }): Promise<TranslationRecord> {
     const url = await resolveUrl(ref);
     if (shouldUseLegacy()) {
       return indexedDBService.storeTranslationAtomic(url, result, settings);
@@ -315,28 +287,28 @@ export class TranslationOps {
     await setActiveByUrlModern(chapterUrl, version);
   }
 
-  static async getVersionsByUrl(chapterUrl: string) {
+  static async getVersionsByUrl(chapterUrl: string): Promise<TranslationRecord[]> {
     if (shouldUseLegacy()) {
       return indexedDBService.getTranslationVersions(chapterUrl);
     }
     return getVersionsByUrlModern(chapterUrl);
   }
 
-  static async getVersionsByStableId(stableId: string) {
+  static async getVersionsByStableId(stableId: string): Promise<TranslationRecord[]> {
     if (shouldUseLegacy()) {
       return indexedDBService.getTranslationVersionsByStableId(stableId);
     }
     return getVersionsByStableIdModern(stableId);
   }
 
-  static async getActiveByUrl(chapterUrl: string) {
+  static async getActiveByUrl(chapterUrl: string): Promise<TranslationRecord | null> {
     if (shouldUseLegacy()) {
       return indexedDBService.getActiveTranslation(chapterUrl);
     }
     return getActiveByUrlModern(chapterUrl);
   }
 
-  static async getActiveByStableId(stableId: string) {
+  static async getActiveByStableId(stableId: string): Promise<TranslationRecord | null> {
     if (shouldUseLegacy()) {
       return indexedDBService.getActiveTranslationByStableId(stableId);
     }
@@ -350,7 +322,7 @@ export class TranslationOps {
       promptId?: string;
       promptName?: string;
     }
-  ) {
+  ): Promise<TranslationRecord> {
     const url = await StableIdManager.getUrlForStableId(stableId);
     if (shouldUseLegacy()) {
       return indexedDBService.storeTranslationAtomic(url, result, settings);

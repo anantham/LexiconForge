@@ -1,5 +1,13 @@
-import type { ChapterRecord, TranslationRecord, SettingsRecord, UrlMappingRecord, PromptTemplateRecord, NovelRecord } from '../../services/indexeddb';
-import type { Chapter, TranslationResult, AppSettings, FeedbackItem } from '../../types';
+import type {
+  ChapterLookupResult,
+  ChapterRecord,
+  TranslationRecord,
+  SettingsRecord,
+  UrlMappingRecord,
+  PromptTemplateRecord,
+  NovelRecord,
+} from '../../services/indexeddb';
+import type { Chapter, TranslationResult, AppSettings, FeedbackItem, PromptTemplate } from '../../types';
 
 export interface Repo {
   // Chapters
@@ -8,11 +16,25 @@ export interface Repo {
   storeChapter(chapter: Chapter): Promise<void>;
   storeEnhancedChapter(enhanced: any): Promise<void>;
   getAllChapters(): Promise<ChapterRecord[]>;
-  findChapterByUrl(url: string): Promise<{ stableId: string; canonicalUrl: string; data: any } | null>;
+  findChapterByUrl(url: string): Promise<ChapterLookupResult | null>;
 
   // Translations (by URL and by stableId)
-  storeTranslation(chapterUrl: string, translation: TranslationResult, settings: { provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }): Promise<TranslationRecord>;
-  storeTranslationByStableId(stableId: string, translation: TranslationResult, settings: { provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }): Promise<TranslationRecord>;
+  storeTranslation(
+    chapterUrl: string,
+    translation: TranslationResult,
+    settings: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+      promptId?: string;
+      promptName?: string;
+    }
+  ): Promise<TranslationRecord>;
+  storeTranslationByStableId(
+    stableId: string,
+    translation: TranslationResult,
+    settings: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+      promptId?: string;
+      promptName?: string;
+    }
+  ): Promise<TranslationRecord>;
   getTranslationVersions(chapterUrl: string): Promise<TranslationRecord[]>;
   getTranslationVersionsByStableId(stableId: string): Promise<TranslationRecord[]>;
   getActiveTranslation(chapterUrl: string): Promise<TranslationRecord | null>;
@@ -30,7 +52,7 @@ export interface Repo {
   getSettings(): Promise<AppSettings | null>;
   setSetting<T = any>(key: string, value: T): Promise<void>;
   getSetting<T = any>(key: string): Promise<T | null>;
-  storePromptTemplate(t: any): Promise<void>;
+  storePromptTemplate(t: PromptTemplate): Promise<void>;
   getPromptTemplates(): Promise<PromptTemplateRecord[]>;
   getDefaultPromptTemplate(): Promise<PromptTemplateRecord | null>;
   getPromptTemplate(id: string): Promise<PromptTemplateRecord | null>;
@@ -39,10 +61,9 @@ export interface Repo {
   // URL mappings / novels
   getStableIdByUrl(url: string): Promise<string | null>;
   getUrlMappingForUrl(url: string): Promise<UrlMappingRecord | null>;
-  getAllUrlMappings(): Promise<Array<{ url: string; stableId: string; isCanonical: boolean }>>;
+  getAllUrlMappings(): Promise<UrlMappingRecord[]>;
   getAllNovels(): Promise<NovelRecord[]>;
 
   // Export helpers
   exportFullSessionToJson(): Promise<any>;
 }
-
