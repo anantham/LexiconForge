@@ -1,3 +1,18 @@
+2025-11-10 14:29 UTC - Technical debt analysis: OpenAI SDK type errors diagnosed
+- Files analyzed: services/explanationService.ts:77-88; services/illustrationService.ts:62-83; services/ai/providers/openai.ts:235-240
+- Purpose: Identified root cause of 2 critical TypeScript errors (TS2769) blocking clean builds; formed hypotheses following AGENTS.md protocol
+- Findings:
+  - **138 total TypeScript errors** (down from 296 after previous fixes)
+  - **Root cause**: Type inference failure - messages array inferred as `{ role: string; content: string; }[]` instead of `ChatCompletionMessageParam[]`
+  - **Evidence**: Working adapter (services/ai/providers/openai.ts:235) explicitly types messages array
+  - **Hypothesis validation**: H1 (type inference, confidence: 0.85), H2 (missing imports, 0.75), H3 (empty object fallback, 0.90)
+- Proposed fix:
+  - Add explicit type: `const messages: ChatCompletionMessageParam[] = [{ role: 'user', content: prompt }]`
+  - Fix finish_reason access: Replace `|| {}` fallback with optional chaining
+  - Import: `import type { ChatCompletionMessageParam } from 'openai/resources/chat'`
+- Status: **Analysis complete, ready for implementation** (awaiting approval)
+- Tests: `npx tsc --noEmit` should drop to ~136 errors after fix
+
 2025-10-27 01:32 UTC - Replace oboe importer with native streaming parser & improve UX telemetry
 - Files modified: services/importService.ts; components/NovelLibrary.tsx
 - Purpose: Drop the oboe/clarinet dependency so large translations no longer trip the 64 KB buffer cap; stream metadata + chapters via Fetch while preserving progressive hydration; log telemetry for first-batch/complete timings and surface quick-start toasts.
