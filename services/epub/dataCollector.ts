@@ -14,6 +14,7 @@ import type {
 } from './types';
 import type { EnhancedChapter } from '../stableIdService';
 import { HtmlRepairService } from '../translate/HtmlRepairService';
+import type { GeneratedImageResult, TranslationResult } from '../../types';
 
 interface StoreSnapshot {
   chapters: Map<string, EnhancedChapter>;
@@ -56,17 +57,32 @@ export async function collectExportData(
     }
 
     // Extract image references from suggested illustrations
-    const imageReferences = chapter.translationResult?.suggestedIllustrations?.map(illust => ({
-      placementMarker: illust.placementMarker,
-      prompt: illust.imagePrompt,
-      cacheKey: illust.generatedImage?.imageCacheKey
+    const imageReferences = chapter.translationResult?.suggestedIllustrations?.map(illust => {
+      const generatedImage = illust.generatedImage as GeneratedImageResult | string | undefined;
+      const cacheKeySource =
+        illust.imageCacheKey ||
+        (typeof generatedImage === 'object' && generatedImage?.imageCacheKey);
+
+      const normalizedCacheKey = cacheKeySource
         ? {
-            chapterId: illust.generatedImage.imageCacheKey.chapterId,
-            placementMarker: illust.generatedImage.imageCacheKey.placementMarker
+            chapterId: cacheKeySource.chapterId,
+            placementMarker: cacheKeySource.placementMarker,
+            version: typeof cacheKeySource.version === 'number' ? cacheKeySource.version : 1,
           }
-        : undefined,
-      base64Fallback: illust.generatedImage?.imageData || (illust as any).url
-    })) || [];
+        : undefined;
+
+      const base64Fallback =
+        typeof generatedImage === 'string'
+          ? generatedImage
+          : generatedImage?.imageData || (illust as any).url;
+
+      return {
+        placementMarker: illust.placementMarker,
+        prompt: illust.imagePrompt,
+        cacheKey: normalizedCacheKey,
+        base64Fallback,
+      };
+    }) || [];
 
     // Extract footnotes
     const footnotes = chapter.translationResult?.footnotes?.map(fn => ({
@@ -96,13 +112,15 @@ export async function collectExportData(
       translatedContent: exportedTranslatedContent,
       footnotes,
       imageReferences,
-      translationMeta: chapter.translationResult ? {
-        provider: chapter.translationResult.provider,
-        model: chapter.translationResult.model,
-        cost: chapter.translationResult.cost,
-        tokens: chapter.translationResult.tokens,
-        requestTime: chapter.translationResult.requestTime
-      } : undefined,
+      translationMeta: chapter.translationResult
+        ? {
+            provider: resolveProvider(chapter.translationResult),
+            model: resolveModel(chapter.translationResult),
+            cost: resolveCost(chapter.translationResult),
+            tokens: chapter.translationResult.usageMetrics?.totalTokens ?? 0,
+            requestTime: chapter.translationResult.usageMetrics?.requestTime ?? 0,
+          }
+        : undefined,
       prevUrl: chapter.prevUrl,
       nextUrl: chapter.nextUrl
     };
@@ -140,4 +158,23 @@ export async function collectExportData(
     metadata,
     warnings
   };
+}
+
+function resolveProvider(result: TranslationResult): string {
+  if (typeof result.provider === 'string') {
+    return result.provider;
+  }
+  return result.translationSettings?.provider ?? 'unknown';
+}
+
+function resolveModel(result: TranslationResult): string {
+  if (result.model) {
+    return result.model;
+  }
+  return result.translationSettings?.model ?? 'unknown';
+}
+
+function resolveCost(result: TranslationResult): number {
+  if (typeof result.costUsd === 'number') return result.costUsd;
+  return result.usageMetrics?.estimatedCost ?? 0;
 }

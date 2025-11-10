@@ -82,6 +82,7 @@ export interface SuggestedIllustration {
   imagePrompt: string;
   generatedImage?: GeneratedImageResult; // Stores the actual generated image data for persistence
   imageCacheKey?: ImageCacheKey; // NEW: Cache key for images stored in Cache API
+  url?: string; // Legacy base64 field (deprecated)
 }
 
 /**
@@ -257,6 +258,7 @@ export interface AppSettings {
     lineHeight: number;
     systemPrompt: string;          // Keep for backward compatibility
     activePromptId?: string;       // ID of currently selected prompt template
+    novelTitle?: string;           // Optional: user-provided novel title override
     // Localization target
     sourceLanguage?: string;       // e.g., "Korean", "Japanese"
     targetLanguage?: string;       // e.g., "English", "Malayalam"
