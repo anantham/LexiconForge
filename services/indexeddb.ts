@@ -2578,10 +2578,16 @@ class IndexedDBService {
   }
   
   /**
-   * Close database connection (simplified - no state to manage)
+   * Close database connection and reset singleton state
+   * Useful for testing scenarios where database needs to be deleted/recreated
    */
   close(): void {
-    // console.log('[IndexedDB] No persistent connections to close');
+    if (dbInstance) {
+      dbInstance.close();
+      dbInstance = null;
+      dbPromise = null;
+      dblog('[IndexedDB] Database connection closed and singleton reset');
+    }
   }
 
   /**
@@ -3928,8 +3934,14 @@ if (typeof window !== 'undefined') {
     console.log('[Schema Test] Details:', result.details);
     return result;
   };
-  
-    dblog('[IndexedDB] Service loaded, window.testStableIdSchema() available');
+
+  // Expose close function for E2E tests to properly clean up before deleteDatabase
+  (window as any).closeIndexedDB = () => {
+    indexedDBService.close();
+    console.log('[TEST] IndexedDB connection closed - safe to delete database');
+  };
+
+    dblog('[IndexedDB] Service loaded, window.testStableIdSchema() and window.closeIndexedDB() available');
 }
 
 // Export utility functions from dedicated services for backward compatibility

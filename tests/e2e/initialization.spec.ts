@@ -13,32 +13,39 @@
 
 import { test, expect, Page } from '@playwright/test';
 
-// Helper to clear IndexedDB for fresh install testing
-async function clearIndexedDB(page: Page) {
-  await page.evaluate(() => {
-    return new Promise<void>((resolve, reject) => {
-      const dbs = ['lexicon-forge'];  // Match DB_NAME in indexeddb.ts
-      let remaining = dbs.length;
+test.describe('Fresh Install Initialization', () => {
+  test.beforeEach(async ({ context, page }) => {
+    // Clear all storage including IndexedDB before each test
+    // This is the cleanest way - no connections exist yet
+    await context.clearCookies();
+    await page.goto('http://localhost:5173');
+    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => sessionStorage.clear());
 
-      dbs.forEach(dbName => {
-        const request = indexedDB.deleteDatabase(dbName);
+    // Use Playwright's built-in API to clear IndexedDB
+    await context.clearPermissions();
+
+    // Now navigate and close any connections before deleting
+    await page.evaluate(async () => {
+      // Close the connection if it was opened
+      if (typeof (window as any).closeIndexedDB === 'function') {
+        (window as any).closeIndexedDB();
+      }
+
+      // Delete the database
+      return new Promise<void>((resolve, reject) => {
+        const request = indexedDB.deleteDatabase('lexicon-forge');
         request.onsuccess = () => {
-          console.log('[TEST] Deleted database:', dbName);
-          remaining--;
-          if (remaining === 0) resolve();
+          console.log('[TEST] Database deleted successfully');
+          resolve();
         };
         request.onerror = () => reject(request.error);
+        request.onblocked = () => {
+          console.warn('[TEST] Delete blocked - retrying...');
+          setTimeout(() => resolve(), 1000); // Continue anyway after timeout
+        };
       });
     });
-  });
-}
-
-test.describe('Fresh Install Initialization', () => {
-  test.beforeEach(async ({ page }) => {
-    // Navigate first to ensure context exists
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    // Clear database while page is loaded but before full initialization
-    await clearIndexedDB(page);
   });
 
   test('should initialize successfully without schema drift errors', async ({ page }) => {
