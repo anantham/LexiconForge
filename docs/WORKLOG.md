@@ -1,3 +1,31 @@
+2025-11-13 09:36 UTC - E2E Test Infrastructure Investigation
+- Files analyzed: playwright.config.ts, tests/e2e/*.spec.ts, services/indexeddb.ts, services/db/operations/export.ts
+- Purpose: Verify E2E test setup can run after pulling latest commits with Playwright infrastructure
+- Status: ⚠️ **BLOCKED** - Critical issues prevent E2E tests from running
+- Findings:
+  - **Playwright setup:** ✅ Correctly installed and configured (v1.56.0)
+  - **Test infrastructure:** ✅ Well-structured with 6 tests (5 init + 1 debug)
+  - **Critical blocker #1:** 🔴 Circular dependency in export operations
+    - `services/indexeddb.ts:47` imports `db/operations/export.ts`
+    - `export.ts:1` imports back to `indexeddb.ts` creating cycle
+    - Build fails: "No matching export for exportFullSessionToJson"
+    - **Temporary workaround:** Commented out import, disabled export function
+  - **Critical blocker #2:** 🔴 Tailwind runtime error crashes page
+    - Error: "Uncaught ReferenceError: tailwind is not defined"
+    - Page crashes in Playwright browser before any tests can run
+    - Likely Vite/Tailwind plugin configuration issue
+  - **Fixed issue #3:** 🟡 Port mismatch in config (5176→5174)
+- Changes made (temporary workarounds):
+  - `playwright.config.ts`: Updated baseURL to match actual dev server port
+  - `tests/e2e/debug-console.spec.ts`: Use relative URL instead of hardcoded
+  - `services/indexeddb.ts`: Disabled circular import, export function throws error
+- Recommendations:
+  1. Fix circular dependency (Option A: inline, B: standalone module, C: DI)
+  2. Fix Tailwind configuration issue
+  3. Validate E2E tests pass (estimated 3-4 hours total)
+- Comprehensive report: Created `docs/E2E-TEST-INVESTIGATION.md` with full analysis
+- Next steps: Fix both blockers before E2E tests can be validated
+
 2025-11-10 14:29 UTC - Technical debt analysis: OpenAI SDK type errors diagnosed
 - Files analyzed: services/explanationService.ts:77-88; services/illustrationService.ts:62-83; services/ai/providers/openai.ts:235-240
 - Purpose: Identified root cause of 2 critical TypeScript errors (TS2769) blocking clean builds; formed hypotheses following AGENTS.md protocol

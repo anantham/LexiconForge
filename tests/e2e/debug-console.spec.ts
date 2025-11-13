@@ -15,10 +15,10 @@ test('capture console logs on page load', async ({ page }) => {
     console.log(text);
   });
 
-  console.log('Navigating to http://localhost:5176/...');
+  console.log('Navigating to /...');
 
   try {
-    await page.goto('http://localhost:5176/', {
+    await page.goto('/', {
       waitUntil: 'domcontentloaded',
       timeout: 10000
     });

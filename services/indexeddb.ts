@@ -44,8 +44,9 @@ import {
   feedbackRepository as sharedFeedbackRepository,
   promptTemplatesRepository as sharedPromptTemplatesRepository,
 } from './db/repositories/instances';
-import { exportFullSessionToJson as exportSessionOperation } from './db/operations/export';
-import type { ExportOpsDeps } from './db/operations/export';
+// FIXME: Circular dependency - ExportOps imports indexedDBService
+// import { exportFullSessionToJson as exportSessionOperation } from './db/operations/export';
+// import type { ExportOpsDeps } from './db/operations/export';
 import {
   getChaptersForReactRendering as renderingOperation,
   type RenderingOpsDeps,
@@ -1191,10 +1192,12 @@ class IndexedDBService {
    * Export a full session JSON with everything stored in IndexedDB
   */
   async exportFullSessionToJson(options: ExportSessionOptions = {}): Promise<any> {
-    return exportSessionOperation(this.getExportDeps(), options);
+    // FIXME: Circular dependency with ExportOps - need to inline implementation
+    // return exportSessionOperation(this.getExportDeps(), options);
+    throw new Error('exportFullSessionToJson temporarily disabled due to circular dependency');
   }
 
-  private getExportDeps(): ExportOpsDeps {
+  private getExportDeps(): any { // ExportOpsDeps {
     return {
       getSettings: () => this.getSettings(),
       getAllUrlMappings: () => this.getAllUrlMappings(),
