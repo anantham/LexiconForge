@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IndexedDB Connection Test</title>
+</head>
+<body>
+    <h1>IndexedDB Connection Test</h1>
+    <button onclick="testClose()">Test Close & Delete</button>
+    <button onclick="testWithDelay()">Test with 5s Delay</button>
+    <pre id="output"></pre>
+
+    <script>
+        const log = (msg) => {
+            const output = document.getElementById('output');
+            output.textContent += msg + '\n';
+            console.log(msg);
+        };
+
+        let db = null;
+
+        // Open the database
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                log('[TEST] Opening database...');
+                const request = indexedDB.open('test-db', 1);
+
+                request.onerror = () => {
+                    log('[ERROR] Failed to open database');
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    log('[SUCCESS] Database opened');
+                    db = request.result;
+                    resolve(db);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    log('[UPGRADE] Creating object store');
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('test-store')) {
+                        db.createObjectStore('test-store', { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        // Test immediate close and delete
+        async function testClose() {
+            document.getElementById('output').textContent = '';
+
+            try {
+                // Open database
+                await openDB();
+                log('[TEST] Database is open');
+
+                // Immediately close it
+                log('[TEST] Closing database...');
+                db.close();
+                db = null;
+                log('[SUCCESS] Database closed');
+
+                // Try to delete immediately
+                log('[TEST] Attempting to delete database...');
+                const deleteRequest = indexedDB.deleteDatabase('test-db');
+
+                deleteRequest.onsuccess = () => {
+                    log('[SUCCESS] ✅ Database deleted successfully!');
+                };
+
+                deleteRequest.onerror = () => {
+                    log('[ERROR] ❌ Failed to delete database');
+                };
+
+                deleteRequest.onblocked = () => {
+                    log('[BLOCKED] ⚠️ Delete is BLOCKED - a connection is still open!');
+                };
+
+            } catch (error) {
+                log('[ERROR] ' + error.message);
+            }
+        }
+
+        // Test with delay after close
+        async function testWithDelay() {
+            document.getElementById('output').textContent = '';
+
+            try {
+                // Open database
+                await openDB();
+                log('[TEST] Database is open');
+
+                // Close it
+                log('[TEST] Closing database...');
+                db.close();
+                db = null;
+                log('[SUCCESS] Database closed');
+
+                // Wait 5 seconds
+                log('[TEST] Waiting 5 seconds before delete...');
+                await new Promise(resolve => setTimeout(resolve, 5000));
+
+                // Try to delete after delay
+                log('[TEST] Attempting to delete database...');
+                const deleteRequest = indexedDB.deleteDatabase('test-db');
+
+                deleteRequest.onsuccess = () => {
+                    log('[SUCCESS] ✅ Database deleted successfully after delay!');
+                };
+
+                deleteRequest.onerror = () => {
+                    log('[ERROR] ❌ Failed to delete database');
+                };
+
+                deleteRequest.onblocked = () => {
+                    log('[BLOCKED] ⚠️ Delete is STILL BLOCKED even after 5s delay!');
+                };
+
+            } catch (error) {
+                log('[ERROR] ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
