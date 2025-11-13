@@ -1,4 +1,4 @@
-import basePrompts from '../../config/prompts.json';
+import basePrompts from '../../config/prompts.json' with { type: 'json' };
 import colorExamplesRaw from '../../Features/Diff/colorExamples.md?raw';
 
 export const COLOR_EXAMPLES = colorExamplesRaw.trim();

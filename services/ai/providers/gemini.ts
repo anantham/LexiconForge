@@ -1,6 +1,6 @@
 import { GoogleGenAI, GenerateContentResponse, Type } from '@google/genai';
-import prompts from '@/config/prompts.json';
-import appConfig from '@/config/app.json';
+import prompts from '@/config/prompts.json' with { type: 'json' };
+import appConfig from '@/config/app.json' with { type: 'json' };
 import { buildFanTranslationContext, formatHistory } from '@/services/prompts';
 import { getEnvVar } from '@/services/env';
 import type { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from '@/types';

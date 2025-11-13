@@ -1,4 +1,4 @@
-import prompts from '../config/prompts.json';
+import prompts from '../config/prompts.json' with { type: 'json' };
 import { HistoricalChapter, FeedbackItem } from '../types';
 
 export const buildFanTranslationContext = (fanTranslation: string | null): string => {

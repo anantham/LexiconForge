@@ -2,7 +2,7 @@
  * Configuration service for reading app.json settings
  */
 
-import appConfig from '../config/app.json';
+import appConfig from '../config/app.json' with { type: 'json' };
 
 export interface ImageGenerationConfig {
   defaults: {

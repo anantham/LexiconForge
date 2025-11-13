@@ -235,14 +235,19 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
   },
   
   initializeStore: async () => {
+    console.log('[Store:init] initializeStore START');
     get().setInitialized(false);
     try {
       // Load settings
+      console.log('[Store:init] Loading settings...');
       get().loadSettings();
+      console.log('[Store:init] Settings loaded');
 
       // Load prompt templates; if missing, bootstrap a default via initializeSession()
       try {
+        console.log('[Store:init] Loading prompt templates...');
         const { templates, activeTemplate } = await SessionManagementService.loadPromptTemplates();
+        console.log('[Store:init] Prompt templates loaded, count:', templates.length);
         if (templates.length === 0 || !activeTemplate) {
           const init = await SessionManagementService.initializeSession();
           set({
@@ -250,8 +255,10 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
             promptTemplates: init.promptTemplates,
             activePromptTemplate: init.activePromptTemplate,
           });
+          console.log('[Store:init] Initialized prompt templates (fresh install)');
         } else {
           set({ promptTemplates: templates, activePromptTemplate: activeTemplate });
+          console.log('[Store:init] Using existing prompt templates');
         }
       } catch (e) {
         console.warn('[Store] Failed to load/initialize prompt templates:', e);
@@ -454,7 +461,7 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
         console.warn('[Store] Failed to initialize audio services:', e);
       }
       
-      // console.log('[Store] Initialization complete');
+      console.log('[Store:init] initializeStore complete - isInitialized true');
       get().setInitialized(true);
       
     } catch (error) {

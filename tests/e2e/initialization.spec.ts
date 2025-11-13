@@ -9,50 +9,28 @@
  * This test guards against regressions of the following fixes:
  * - 2025-11-12: createSchema removal (schema drift fix)
  * - 2025-11-12: Re-entrant openDatabase deadlock fix
+ *
+ * TESTING STRATEGY:
+ * These tests use Playwright's built-in context isolation instead of manually
+ * calling deleteDatabase(). Each test gets a fresh browser context which provides
+ * clean storage without the connection lifecycle issues caused by React.StrictMode
+ * double-rendering + async transaction commits.
+ *
+ * See: docs/E2E-DELETE-DATABASE-ROOT-CAUSE.md for full technical analysis
+ * See: tests/e2e/examples/indexeddb-test-strategies.spec.ts for all solution options
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 test.describe('Fresh Install Initialization', () => {
-  test.beforeEach(async ({ context, page }) => {
-    // Clear all storage including IndexedDB before each test
-    // This is the cleanest way - no connections exist yet
-    await context.clearCookies();
-    await page.goto('http://localhost:5173');
-    await page.evaluate(() => localStorage.clear());
-    await page.evaluate(() => sessionStorage.clear());
-
-    // Use Playwright's built-in API to clear IndexedDB
-    await context.clearPermissions();
-
-    // Now navigate and close any connections before deleting
-    await page.evaluate(async () => {
-      // Close the connection if it was opened
-      if (typeof (window as any).closeIndexedDB === 'function') {
-        (window as any).closeIndexedDB();
-      }
-
-      // Delete the database
-      return new Promise<void>((resolve, reject) => {
-        const request = indexedDB.deleteDatabase('lexicon-forge');
-        request.onsuccess = () => {
-          console.log('[TEST] Database deleted successfully');
-          resolve();
-        };
-        request.onerror = () => reject(request.error);
-        request.onblocked = () => {
-          console.warn('[TEST] Delete blocked - retrying...');
-          setTimeout(() => resolve(), 1000); // Continue anyway after timeout
-        };
-      });
-    });
-  });
+  // Note: These tests share storage state within the describe block
+  // For true isolation, each test would need its own browser context
 
   test('should initialize successfully without schema drift errors', async ({ page }) => {
     const consoleMessages: string[] = [];
     const errorMessages: string[] = [];
 
-    // Capture console logs
+    // Set up listeners BEFORE navigation
     page.on('console', msg => {
       const text = msg.text();
       consoleMessages.push(text);
@@ -72,8 +50,8 @@ test.describe('Fresh Install Initialization', () => {
       errorMessages.push(error.message);
     });
 
-    // Reload to trigger fresh initialization
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    // Navigate to trigger initialization (with listeners already set up)
+    await page.goto('/');
 
     // Wait for initialization to complete by checking captured console messages
     let attempts = 0;
@@ -122,7 +100,8 @@ test.describe('Fresh Install Initialization', () => {
   });
 
   test('should create all required IndexedDB stores', async ({ page }) => {
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    // Navigate to app
+    await page.goto('/');
 
     // Wait for initialization
     await page.waitForTimeout(5000);
@@ -168,11 +147,13 @@ test.describe('Fresh Install Initialization', () => {
   test('should not deadlock on initialization', async ({ page }) => {
     const consoleMessages: string[] = [];
 
+    // Set up listener before navigation
     page.on('console', msg => {
       consoleMessages.push(msg.text());
     });
 
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    // Navigate to trigger initialization
+    await page.goto('/');
 
     // Wait for initialization by checking console messages
     let attempts = 0;
@@ -200,6 +181,7 @@ test.describe('Fresh Install Initialization', () => {
   test('should initialize prompt templates', async ({ page }) => {
     const consoleMessages: string[] = [];
 
+    // Set up listener before navigation
     page.on('console', msg => {
       const text = msg.text();
       if (text.includes('[Store:init]')) {
@@ -208,7 +190,8 @@ test.describe('Fresh Install Initialization', () => {
       }
     });
 
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    // Navigate to trigger initialization
+    await page.goto('/');
     await page.waitForTimeout(5000);
 
     // Check that prompt templates were loaded or initialized
@@ -229,7 +212,7 @@ test.describe('Existing Database Upgrade', () => {
     // First visit - creates database
     await page.waitForTimeout(5000);
 
-    // Clear console and visit again
+    // Clear console and navigate again to test reinitialization
     const consoleMessages: string[] = [];
     page.on('console', msg => {
       const text = msg.text();
@@ -238,7 +221,8 @@ test.describe('Existing Database Upgrade', () => {
       }
     });
 
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    // Navigate again (context persists within this test)
+    await page.goto('/');
     await page.waitForTimeout(5000);
 
     // Should not trigger schema drift on already-initialized DB

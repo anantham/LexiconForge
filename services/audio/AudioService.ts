@@ -17,7 +17,7 @@ import type {
 import { BaseAudioProvider } from './BaseAudioProvider';
 import { AceStepProvider } from './AceStepProvider';
 import { DiffRhythmProvider } from './DiffRhythmProvider';
-import appConfig from '../../config/app.json';
+import appConfig from '../../config/app.json' with { type: 'json' };
 import { debugLog } from '../../utils/debug';
 import { getEnvVar } from '../env';
 

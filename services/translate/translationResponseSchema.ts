@@ -1,6 +1,6 @@
 import type { Schema } from '@google/generative-ai';
 import { SchemaType } from '@google/generative-ai';
-import prompts from '../../config/prompts.json';
+import prompts from '../../config/prompts.json' with { type: 'json' };
 import type { AppSettings } from '../../types';
 
 /**

@@ -126,13 +126,19 @@ const settingsFingerprint = React.useMemo(
     // Initialize store on first render, then handle URL params
     useEffect(() => {
       const init = async () => {
-        await initializeStore();
-        // Now that the store is initialized, handle any URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const chapterUrl = urlParams.get('chapter');
-        if (chapterUrl) {
-          // Avoid noisy navigation logs in normal dev mode.
-          handleNavigate(decodeURIComponent(chapterUrl));
+        try {
+          console.log('[App] About to call initializeStore()');
+          await initializeStore();
+          console.log('[App] initializeStore() completed');
+          // Now that the store is initialized, handle any URL parameters
+          const urlParams = new URLSearchParams(window.location.search);
+          const chapterUrl = urlParams.get('chapter');
+          if (chapterUrl) {
+            // Avoid noisy navigation logs in normal dev mode.
+            handleNavigate(decodeURIComponent(chapterUrl));
+          }
+        } catch (error) {
+          console.error('[App] Error during initialization:', error);
         }
       };
       init();

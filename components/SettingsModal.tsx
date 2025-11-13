@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { AppSettings, TranslationProvider, DiffMarkerVisibilitySettings } from '../types';
 import { useAppStore } from '../store';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../config/constants';
-import appConfig from '../config/app.json';
+import appConfig from '../config/app.json' with { type: 'json' };
 import { getDefaultTemplate } from '../services/epubService';
 import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../config/costs';
 import { supportsStructuredOutputs, supportsParameters } from '../services/capabilityService';

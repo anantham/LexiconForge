@@ -13,7 +13,7 @@ import { indexedDBService } from './indexeddb';
 import { getRepoForService } from './db/index';
 import { INITIAL_SYSTEM_PROMPT } from '../config/constants';
 import type { AppSettings, PromptTemplate, DiffMarkerVisibilitySettings } from '../types';
-import appConfig from '../config/app.json';
+import appConfig from '../config/app.json' with { type: 'json' };
 import { getDefaultDiffPrompt } from './diff/promptUtils';
 
 const settingsStorageKey = 'app-settings';

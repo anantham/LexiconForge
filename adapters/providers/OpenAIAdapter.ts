@@ -4,8 +4,8 @@ import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } 
 import { supportsStructuredOutputs, supportsParameters } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
-import prompts from '../../config/prompts.json';
-import appConfig from '../../config/app.json';
+import prompts from '../../config/prompts.json' with { type: 'json' };
+import appConfig from '../../config/app.json' with { type: 'json' };
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
 import { getTranslationResponseJsonSchema } from '../../services/translate/translationResponseSchema';

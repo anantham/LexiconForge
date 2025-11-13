@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import type { ChatCompletion } from 'openai/resources/chat/completions';
-import prompts from '@/config/prompts.json';
-import appConfig from '@/config/app.json';
+import prompts from '@/config/prompts.json' with { type: 'json' };
+import appConfig from '@/config/app.json' with { type: 'json' };
 import { buildFanTranslationContext, formatHistory } from '@/services/prompts';
 import { getEnvVar } from '@/services/env';
 import { rateLimitService } from '@/services/rateLimitService';

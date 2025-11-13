@@ -1,4 +1,4 @@
-import appConfig from '../../config/app.json';
+import appConfig from '../../config/app.json' with { type: 'json' };
 
 export const validateAndClampParameter = (value: any, paramName: string): any => {
   if (value === undefined || value === null) return value;

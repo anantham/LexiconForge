@@ -1,5 +1,5 @@
 import { AppSettings } from '../types';
-import prompts from '../config/prompts.json';
+import prompts from '../config/prompts.json' with { type: 'json' };
 import { OpenAI } from 'openai';
 import { debugLog } from '../utils/debug';
 import { getEnvVar } from './env';

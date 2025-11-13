@@ -3,7 +3,7 @@ import type { TranslationProvider, TranslationRequest } from '../../services/tra
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
-import prompts from '../../config/prompts.json';
+import prompts from '../../config/prompts.json' with { type: 'json' };
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
 import { getTranslationResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
