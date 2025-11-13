@@ -1,5 +1,5 @@
 // services/diff/DiffAnalysisService.ts
-import type { DiffAnalysisRequest, DiffResult, DiffMarker } from './types';
+import type { DiffAnalysisRequest, DiffResult, DiffMarker, DiffReason, DiffColor } from './types';
 import { DIFF_ALGO_VERSION, DIFF_DEFAULT_MODEL, DIFF_DEFAULT_PROVIDER, DIFF_TEMPERATURE } from './constants';
 import { computeDiffHash } from './hash';
 import { debugLog, debugWarn } from '../../utils/debug';

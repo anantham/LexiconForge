@@ -165,12 +165,12 @@ export class AceStepProvider extends BaseAudioProvider {
       const requestTime = (performance.now() - startTime) / 1000;
       const cost = this.calculateCost(taskType, duration);
 
-      const finalResult = {
+      const finalResult: GeneratedAudioResult = {
         audioUrl: audioUrl,
         duration: duration,
         requestTime: requestTime,
         cost: cost,
-        provider: 'ace-step',
+        provider: this.provider,
         taskType: taskType,
       };
 

@@ -7,7 +7,7 @@
 
 import { DbError } from '../core/errors';
 
-export type Backend = 'legacy' | 'idb' | 'memory';
+export type Backend = 'legacy' | 'idb' | 'memory' | 'shadow';
 export type MigrationPhase = 'shadow' | 'reads' | 'dualwrite' | 'writes' | 'complete';
 export type ServiceName = 
   | 'translationService'

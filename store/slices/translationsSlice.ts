@@ -16,7 +16,7 @@ import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { indexedDBService } from '../../services/indexeddb';
-import { debugLog } from '../../utils/debug';
+import { debugLog, debugWarn } from '../../utils/debug';
 
 export interface TranslationsState {
   // Active translations
@@ -209,13 +209,13 @@ export const createTranslationsSlice: StateCreator<
         });
       }
 
-      const result = await TranslationService.translateChapterSequential(
+      const response = await TranslationService.translateChapterSequential(
         chapterId,
         context,
         (id) => get().buildTranslationHistoryAsync(id)
       );
       
-      if ('aborted' in result && result.aborted) {
+      if (response?.aborted) {
         set(prevState => ({
           translationProgress: {
             ...prevState.translationProgress,
@@ -225,21 +225,31 @@ export const createTranslationsSlice: StateCreator<
         return;
       }
       
-      if ('error' in result && result.error) {
+      if (response?.error) {
         set(prevState => ({
           translationProgress: {
             ...prevState.translationProgress,
-            [chapterId]: { status: 'failed', error: result.error }
+            [chapterId]: { status: 'failed', error: response.error }
           }
         }));
         
         if (uiActions.setError) {
-          uiActions.setError(result.error);
+          uiActions.setError(response.error);
         }
         return;
       }
       
-      const translationResult = result as TranslationResult;
+      const translationResult = response?.translationResult as TranslationResult | undefined;
+      if (!translationResult) {
+        debugWarn('translation', 'summary', '[Translation] Missing translationResult payload from translateChapterSequential response', response);
+        set(prevState => ({
+          translationProgress: {
+            ...prevState.translationProgress,
+            [chapterId]: { status: 'failed', error: 'Translation finished without a result.' }
+          }
+        }));
+        return;
+      }
       const relevantSettings = TranslationService.extractSettingsSnapshot(context.settings);
 
       // Update chapter with translation result
@@ -404,10 +414,25 @@ export const createTranslationsSlice: StateCreator<
   
   // Feedback management
   submitFeedback: (chapterId: string, feedbackData: Omit<FeedbackItem, 'id' | 'timestamp' | 'chapterId'>) => {
+    const mapTypeToCategory = (type?: FeedbackItem['type']): string => {
+      switch (type) {
+        case '👍':
+          return 'positive';
+        case '👎':
+          return 'negative';
+        case '?':
+          return 'question';
+        case '🎨':
+          return 'illustration';
+        default:
+          return 'unknown';
+      }
+    };
+
     const newFeedback: FeedbackItem = {
       id: crypto.randomUUID(),
       text: feedbackData.selection || '',
-      category: feedbackData.type || '?',
+      category: mapTypeToCategory(feedbackData.type),
       timestamp: Date.now(),
       chapterId,
       selection: feedbackData.selection,
@@ -435,7 +460,7 @@ export const createTranslationsSlice: StateCreator<
     }
 
     // --- NEW FEATURE: EXPLANATION FOOTNOTE ---
-    if (newFeedback.category === '?') {
+    if (newFeedback.type === '?') {
       const state = get();
       const chapter = (state.chapters as Map<string, EnhancedChapter>).get(chapterId);
       const settings = state.settings;

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, GenerateContentResult, GenerateContentResponse } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
 import { rateLimitService } from '../../services/rateLimitService';
@@ -81,7 +81,7 @@ export class GeminiAdapter implements TranslationProvider {
       dlog('Making API request', { model: settings.model });
 
     const startTime = performance.now();
-    let response: GenerateContentResult;
+    let result: GenerateContentResult;
 
     try {
       // Get conditional schema based on enableAmendments setting
@@ -89,7 +89,7 @@ export class GeminiAdapter implements TranslationProvider {
       const schema = getTranslationResponseGeminiSchema(enableAmendments);
 
       // Make API call
-      response = await model.generateContent({
+      result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
         generationConfig: {
           temperature: settings.temperature,
@@ -114,7 +114,7 @@ export class GeminiAdapter implements TranslationProvider {
     const endTime = performance.now();
     
     // Process response
-    return this.processResponse(response, settings, startTime, endTime);
+    return this.processResponse(result, settings, startTime, endTime);
   }
 
   private buildPrompt(
@@ -162,12 +162,12 @@ export class GeminiAdapter implements TranslationProvider {
   }
 
   private async processResponse(
-    response: GenerateContentResponse,
+    result: GenerateContentResult,
     settings: AppSettings,
     startTime: number,
     endTime: number
   ): Promise<TranslationResult> {
-    const responseText = response.response.text();
+    const responseText = result.response.text();
     if (!responseText) {
       throw new Error('Empty response from Gemini API');
     }
@@ -189,8 +189,8 @@ export class GeminiAdapter implements TranslationProvider {
     const safeIllustrations = safeArray(parsedResponse.suggestedIllustrations);
 
     // Extract token usage (Gemini provides this in different format)
-    const promptTokens = response.response.usageMetadata?.promptTokenCount || 0;
-    const completionTokens = response.response.usageMetadata?.candidatesTokenCount || 0;
+    const promptTokens = result.response.usageMetadata?.promptTokenCount || 0;
+    const completionTokens = result.response.usageMetadata?.candidatesTokenCount || 0;
     const totalTokens = promptTokens + completionTokens;
     const costUsd = await calculateCost(settings.model, promptTokens, completionTokens);
     const requestTime = (endTime - startTime) / 1000;

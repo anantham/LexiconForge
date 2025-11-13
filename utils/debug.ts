@@ -10,7 +10,8 @@ export type DebugPipeline =
   | 'api'
   | 'diff'
   | 'import'
-  | 'navigation';
+  | 'navigation'
+  | 'ui';
 
 export const KNOWN_DEBUG_PIPELINES: DebugPipeline[] = [
   'indexeddb',
@@ -24,6 +25,7 @@ export const KNOWN_DEBUG_PIPELINES: DebugPipeline[] = [
   'diff',
   'import',
   'navigation',
+  'ui',
 ];
 
 const LEGACY_SUMMARY_FLAG = 'LF_AI_DEBUG';

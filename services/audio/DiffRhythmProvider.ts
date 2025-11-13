@@ -144,12 +144,12 @@ export class DiffRhythmProvider extends BaseAudioProvider {
       const requestTime = (performance.now() - startTime) / 1000;
       const cost = this.calculateCost(taskType);
 
-      const finalResult = {
+      const finalResult: GeneratedAudioResult = {
         audioUrl: audioUrl,
         duration: duration,
         requestTime: requestTime,
         cost: cost,
-        provider: 'diffrhythm',
+        provider: this.provider,
         taskType: taskType,
       };
 

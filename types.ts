@@ -3,9 +3,14 @@ export interface Chapter {
   title: string;
   content: string;
   originalUrl: string;
-  nextUrl: string | null;
-  prevUrl: string | null;
+  url?: string;
+  canonicalUrl?: string;
+  stableId?: string;
+  nextUrl?: string | null;
+  prevUrl?: string | null;
   chapterNumber?: number;
+  fanTranslation?: string | null;
+  translationResult?: TranslationResult | null;
 }
 
 export interface ChapterSummary {
@@ -21,15 +26,6 @@ export interface ChapterSummary {
 }
 
 // Legacy interface for backwards compatibility with tests
-export interface SessionChapterData {
-  chapter: Chapter;
-  translationResult: TranslationResult | null;
-  availableVersions?: TranslationRecord[];
-  activeVersion?: number;
-  feedback?: FeedbackItem[];
-  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
-}
-
 export abstract class BaseAdapter {
   protected url: string;
   protected doc: Document;
@@ -53,7 +49,7 @@ export interface FeedbackItem {
   chapterId: string;
   // Legacy fields for backward compatibility
   selection?: string;
-  type?: '👍' | '👎' | '?';
+  type?: '👍' | '👎' | '?' | '🎨';
   comment?: string;
 }
 
@@ -86,6 +82,7 @@ export interface SuggestedIllustration {
   imagePrompt: string;
   generatedImage?: GeneratedImageResult; // Stores the actual generated image data for persistence
   imageCacheKey?: ImageCacheKey; // NEW: Cache key for images stored in Cache API
+  url?: string; // Legacy base64 field (deprecated)
 }
 
 /**
@@ -154,8 +151,49 @@ export interface UsageMetrics {
     frequencyPenalty?: number;
     presencePenalty?: number;
     seed?: number | null;
+    maxOutputTokens?: number;
   };
 }
+
+export interface TranslationTokensUsed {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+export interface TranslationIllustration {
+  description?: string;
+  placement: string;
+  imagePrompt?: string;
+  generatedImage?: string;
+  url?: string;
+  [key: string]: any;
+}
+
+export interface TranslationAmendment {
+  issue?: string;
+  currentTranslation?: string;
+  suggestedImprovement?: string;
+  reasoning?: string;
+  notes?: string;
+  [key: string]: any;
+}
+
+export type TranslationSettingsSnapshot = Partial<Pick<
+  AppSettings,
+  | 'provider'
+  | 'model'
+  | 'temperature'
+  | 'topP'
+  | 'frequencyPenalty'
+  | 'presencePenalty'
+  | 'seed'
+  | 'contextDepth'
+  | 'systemPrompt'
+>> & {
+  promptId?: string;
+  promptName?: string;
+};
 
 export interface TranslationResult {
   translatedTitle: string;
@@ -166,6 +204,23 @@ export interface TranslationResult {
   usageMetrics: UsageMetrics;
   customVersionLabel?: string;
   imageVersionState?: Record<string, ImageVersionStateEntry>;
+  // Persistent metadata
+  id?: string;
+  version?: number;
+  provider?: TranslationProvider | string;
+  model?: string;
+  temperature?: number;
+  tokensUsed?: TranslationTokensUsed;
+  costUsd?: number;
+  requestTime?: number;
+  translationSettings?: TranslationSettingsSnapshot | null;
+  promptId?: string;
+  promptName?: string;
+  // Optional illustration/amendment payloads emitted by providers
+  illustrations?: TranslationIllustration[];
+  amendments?: TranslationAmendment[];
+  // Legacy compatibility fields
+  translatedContent?: string;
 }
 
 export interface HistoricalChapter {
@@ -203,6 +258,7 @@ export interface AppSettings {
     lineHeight: number;
     systemPrompt: string;          // Keep for backward compatibility
     activePromptId?: string;       // ID of currently selected prompt template
+    novelTitle?: string;           // Optional: user-provided novel title override
     // Localization target
     sourceLanguage?: string;       // e.g., "Korean", "Japanese"
     targetLanguage?: string;       // e.g., "English", "Malayalam"
@@ -223,6 +279,8 @@ export interface AppSettings {
     apiKeyPiAPI?: string;
     imageWidth?: number;
     imageHeight?: number;
+    imageAspectRatio?: string;
+    imageSizePreset?: string;
     // Image generation advanced controls
     defaultNegativePrompt?: string;
     defaultGuidanceScale?: number;
@@ -234,6 +292,7 @@ export interface AppSettings {
     epubGratitudeMessage?: string;
     epubProjectDescription?: string;
     epubFooter?: string | null;
+    maxSessionSize?: number;
 
     // Advanced AI controls
     maxOutputTokens?: number;                 // Optional hard cap on generated tokens
@@ -247,6 +306,9 @@ export interface AppSettings {
     showDiffHeatmap?: boolean;                // Show semantic diff markers in gutter (default: true)
     diffMarkerVisibility?: DiffMarkerVisibilitySettings;
     diffAnalysisPrompt?: string;
+    // Prompt snapshot metadata
+    promptId?: string;
+    promptName?: string;
 }
 
 export interface DiffMarkerVisibilitySettings {
@@ -273,6 +335,8 @@ export interface SessionChapterData {
   translationResult: TranslationResult | null;
   availableVersions?: any[]; // All available translation versions
   activeVersion?: number; // Currently selected version number
+  feedback?: FeedbackItem[];
+  translationSettingsSnapshot?: TranslationSettingsSnapshot | null;
 }
 
 export interface ImportedSession {

@@ -83,3 +83,5 @@ Marketing/.DS_Store
 
 # Git worktrees
 .worktrees/
+playwright-report/
+test-results/

@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import type { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages/messages';
 import { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from '../types';
 import prompts from '../config/prompts.json';
 import { calculateCost } from './aiService';
@@ -99,20 +100,20 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
       fullPromptPreview: fullPrompt.slice(0, 400)
     });
     
-    const requestPayload = {
+    const requestPayload: MessageCreateParamsNonStreaming = {
         model: settings.model,
         max_tokens: Math.max(1, Math.min((settings.maxOutputTokens ?? 16384), 200000)),
         temperature: Math.max(0, Math.min(1, settings.temperature)), // Clamp temperature to 0-1 range as UI max is 2
         messages: [
             {
                 role: 'user',
-                content: fullPrompt
+                content: [{ type: 'text', text: fullPrompt }]
             },
             {
                 // Response prefilling - starts the JSON structure for Claude
-                role: 'assistant', 
-                content: `{
-  "translatedTitle": "`
+                role: 'assistant',
+                content: [{ type: 'text', text: `{
+  "translatedTitle": "` }]
             }
         ]
     };
@@ -143,7 +144,7 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
         const promptTokens = usage?.input_tokens ?? 0;
         const completionTokens = usage?.output_tokens ?? 0;
         const totalTokens = promptTokens + completionTokens;
-        const estimatedCost = calculateCost(settings.model, promptTokens, completionTokens);
+        const estimatedCost = await calculateCost(settings.model, promptTokens, completionTokens);
 
         const usageMetrics: UsageMetrics = {
             totalTokens, 
@@ -281,7 +282,10 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
                 throw new Error(errorMessage);
             };
 
-            const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(fixedTranslation_1, parsedJson.footnotes, (settings as any).footnoteStrictMode || 'append_missing');
+            const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(
+              fixedTranslation_1,
+              parsedJson.footnotes
+            );
 
             return {
                 translatedTitle: parsedJson.translatedTitle,

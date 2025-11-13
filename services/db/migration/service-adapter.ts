@@ -10,6 +10,7 @@ import { getRepoForService } from '../index';
 import { withShadowValidation, shadowValidator } from './shadow-validator';
 import { migrationController, type ServiceName } from './phase-controller';
 import type { TranslationResult, AppSettings, Chapter } from '../../../types';
+import type { ChapterLookupResult } from '../../indexeddb';
 
 /**
  * Service-aware database adapter that handles migration phases
@@ -109,7 +110,7 @@ export class ServiceAdapter {
   /**
    * Find chapter by URL with shadow validation
    */
-  async findChapterByUrl(url: string): Promise<Chapter[]> {
+  async findChapterByUrl(url: string): Promise<ChapterLookupResult | null> {
     if (shadowValidator.enabled) {
       return withShadowValidation(
         'findChapterByUrl',
@@ -196,6 +197,7 @@ export class ServiceAdapter {
     settings: Partial<AppSettings>
   ): Promise<void> {
     const phase = migrationController.getServicePhase(this.serviceName);
+    const normalizedSettings = this.normalizeTranslationSettings(settings);
 
     if (phase === 'dualwrite') {
       // Dual write phase - write to both backends
@@ -204,8 +206,8 @@ export class ServiceAdapter {
 
       try {
         await Promise.all([
-          legacyRepo.storeTranslationByStableId(stableId, translation, settings),
-          newRepo.storeTranslationByStableId(stableId, translation, settings),
+          legacyRepo.storeTranslationByStableId(stableId, translation, normalizedSettings),
+          newRepo.storeTranslationByStableId(stableId, translation, normalizedSettings),
         ]);
         
         console.log(`[ServiceAdapter] Dual write successful for ${this.serviceName}.storeTranslationByStableId`);
@@ -213,7 +215,7 @@ export class ServiceAdapter {
         console.error(`[ServiceAdapter] Dual write failed for ${this.serviceName}.storeTranslationByStableId:`, error);
         
         // Fallback to legacy only on failure
-        await legacyRepo.storeTranslationByStableId(stableId, translation, settings);
+        await legacyRepo.storeTranslationByStableId(stableId, translation, normalizedSettings);
         
         // Report failure to migration controller
         migrationController.recordError(this.serviceName, 'storeTranslationByStableId', error);
@@ -221,7 +223,7 @@ export class ServiceAdapter {
       }
     } else {
       // Single write to appropriate backend
-      await this.repo.storeTranslationByStableId(stableId, translation, settings);
+      await this.repo.storeTranslationByStableId(stableId, translation, normalizedSettings);
     }
   }
 
@@ -234,6 +236,7 @@ export class ServiceAdapter {
     settings: Partial<AppSettings>
   ): Promise<void> {
     const phase = migrationController.getServicePhase(this.serviceName);
+    const normalizedSettings = this.normalizeTranslationSettings(settings);
 
     if (phase === 'dualwrite') {
       const legacyRepo = getRepoForService(this.serviceName);
@@ -241,17 +244,17 @@ export class ServiceAdapter {
 
       try {
         await Promise.all([
-          legacyRepo.storeTranslation(chapterUrl, translation, settings),
-          newRepo.storeTranslation(chapterUrl, translation, settings),
+          legacyRepo.storeTranslation(chapterUrl, translation, normalizedSettings),
+          newRepo.storeTranslation(chapterUrl, translation, normalizedSettings),
         ]);
       } catch (error) {
         console.error(`[ServiceAdapter] Dual write failed for ${this.serviceName}.storeTranslation:`, error);
-        await legacyRepo.storeTranslation(chapterUrl, translation, settings);
+        await legacyRepo.storeTranslation(chapterUrl, translation, normalizedSettings);
         migrationController.recordError(this.serviceName, 'storeTranslation', error);
         throw error;
       }
     } else {
-      await this.repo.storeTranslation(chapterUrl, translation, settings);
+      await this.repo.storeTranslation(chapterUrl, translation, normalizedSettings);
     }
   }
 
@@ -267,6 +270,22 @@ export class ServiceAdapter {
    */
   isShadowValidationEnabled(): boolean {
     return shadowValidator.enabled;
+  }
+
+  private normalizeTranslationSettings(
+    settings: Partial<AppSettings>
+  ): Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+    promptId?: string;
+    promptName?: string;
+  } {
+    return {
+      provider: (settings.provider ?? 'OpenAI') as AppSettings['provider'],
+      model: settings.model ?? 'gpt-4o-mini',
+      temperature: settings.temperature ?? 0.2,
+      systemPrompt: settings.systemPrompt ?? '',
+      promptId: (settings as any).promptId ?? settings.activePromptId,
+      promptName: (settings as any).promptName,
+    };
   }
 
   /**

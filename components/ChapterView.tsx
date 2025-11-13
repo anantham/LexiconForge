@@ -1214,13 +1214,37 @@ const ChapterView: React.FC = () => {
     cleanupInlineEdit(true);
   }, [cleanupInlineEdit]);
 
-  const handleFeedbackSubmit = (feedback: Omit<FeedbackItem, 'id'>) => {
+  type FeedbackSubmission = Omit<FeedbackItem, 'id' | 'timestamp' | 'chapterId'>;
+
+  const mapFeedbackTypeToCategory = useCallback((type?: FeedbackItem['type']): FeedbackSubmission['category'] => {
+    switch (type) {
+      case '👍':
+        return 'positive';
+      case '👎':
+        return 'negative';
+      case '?':
+        return 'question';
+      case '🎨':
+        return 'illustration';
+      default:
+        return 'unknown';
+    }
+  }, []);
+
+  const handleFeedbackSubmit = (feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => {
     if (!currentChapterId) return;
     if (feedback.type === '🎨') {
       // Call a new handler for illustration requests
       handleIllustrationRequest(feedback.selection);
     } else {
-      addFeedback(currentChapterId, feedback);
+      const submission: FeedbackSubmission = {
+        type: feedback.type,
+        selection: feedback.selection,
+        comment: feedback.comment,
+        text: feedback.selection,
+        category: mapFeedbackTypeToCategory(feedback.type),
+      };
+      addFeedback(currentChapterId, submission);
     }
     clearSelection();
   };

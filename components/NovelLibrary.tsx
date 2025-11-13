@@ -79,38 +79,30 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           const newChapters = new Map<string, any>();
           const newUrlIndex = new Map<string, string>();
           const newRawUrlIndex = new Map<string, string>();
+
           for (const ch of existingChapters) {
+            const sourceUrls = ch.sourceUrls ?? [ch.url];
             newChapters.set(ch.stableId, {
-              stableId: ch.stableId,
-              url: ch.url || ch.canonicalUrl,
-              title: ch.data?.chapter?.title || ch.title,
-              content: ch.data?.chapter?.content || ch.content,
-              nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
-              prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
-              chapterNumber: ch.chapterNumber || 0,
-              canonicalUrl: ch.url,
-              originalUrl: ch.url,
-              sourceUrls: [ch.url],
-              fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
-              translationResult: ch.data?.translationResult || null,
+              id: ch.stableId,
+              title: ch.title,
+              content: ch.content,
+              originalUrl: ch.originalUrl,
+              nextUrl: ch.nextUrl ?? null,
+              prevUrl: ch.prevUrl ?? null,
+              chapterNumber: ch.chapterNumber ?? 0,
+              canonicalUrl: ch.canonicalUrl ?? ch.url,
+              sourceUrls,
+              fanTranslation: ch.fanTranslation ?? null,
+              translationResult: ch.translationResult || null,
               feedback: [],
             });
 
-            const canonicalUrl = ch.url;
-            if (canonicalUrl) {
-              newRawUrlIndex.set(canonicalUrl, ch.stableId);
-              const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
-              if (normalizedCanonical) {
-                newUrlIndex.set(normalizedCanonical, ch.stableId);
-              }
-            }
-
-            const originalUrl = ch.data?.chapter?.originalUrl || ch.originalUrl;
-            if (originalUrl) {
-              newRawUrlIndex.set(originalUrl, ch.stableId);
-              const normalizedOriginal = normalizeUrlAggressively(originalUrl);
-              if (normalizedOriginal) {
-                newUrlIndex.set(normalizedOriginal, ch.stableId);
+            for (const rawUrl of sourceUrls) {
+              if (!rawUrl) continue;
+              newRawUrlIndex.set(rawUrl, ch.stableId);
+              const normalized = normalizeUrlAggressively(rawUrl);
+              if (normalized) {
+                newUrlIndex.set(normalized, ch.stableId);
               }
             }
           }
@@ -167,38 +159,30 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
               const newChapters = new Map<string, any>();
               const newUrlIndex = new Map<string, string>();
               const newRawUrlIndex = new Map<string, string>();
+
               for (const ch of firstChapters) {
+                const sourceUrls = ch.sourceUrls ?? [ch.url];
                 newChapters.set(ch.stableId, {
-                  stableId: ch.stableId,
-                  url: ch.url || ch.canonicalUrl,
-                  title: ch.data?.chapter?.title || ch.title,
-                  content: ch.data?.chapter?.content || ch.content,
-                  nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
-                  prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
-                  chapterNumber: ch.chapterNumber || 0,
-                  canonicalUrl: ch.url,
-                  originalUrl: ch.url,
-                  sourceUrls: [ch.url],
-                  fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
-                  translationResult: ch.data?.translationResult || null,
+                  id: ch.stableId,
+                  title: ch.title,
+                  content: ch.content,
+                  originalUrl: ch.originalUrl,
+                  nextUrl: ch.nextUrl ?? null,
+                  prevUrl: ch.prevUrl ?? null,
+                  chapterNumber: ch.chapterNumber ?? 0,
+                  canonicalUrl: ch.canonicalUrl ?? ch.url,
+                  sourceUrls,
+                  fanTranslation: ch.fanTranslation ?? null,
+                  translationResult: ch.translationResult || null,
                   feedback: [],
                 });
 
-                const canonicalUrl = ch.url;
-                if (canonicalUrl) {
-                  newRawUrlIndex.set(canonicalUrl, ch.stableId);
-                  const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
-                  if (normalizedCanonical) {
-                    newUrlIndex.set(normalizedCanonical, ch.stableId);
-                  }
-                }
-
-                const originalUrl = ch.data?.chapter?.originalUrl || ch.originalUrl;
-                if (originalUrl) {
-                  newRawUrlIndex.set(originalUrl, ch.stableId);
-                  const normalizedOriginal = normalizeUrlAggressively(originalUrl);
-                  if (normalizedOriginal) {
-                    newUrlIndex.set(normalizedOriginal, ch.stableId);
+                for (const rawUrl of sourceUrls) {
+                  if (!rawUrl) continue;
+                  newRawUrlIndex.set(rawUrl, ch.stableId);
+                  const normalized = normalizeUrlAggressively(rawUrl);
+                  if (normalized) {
+                    newUrlIndex.set(normalized, ch.stableId);
                   }
                 }
               }

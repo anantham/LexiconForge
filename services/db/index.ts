@@ -6,6 +6,22 @@
  */
 
 import type { Repo } from '../../adapters/repo/Repo';
+import type {
+  ChapterLookupResult,
+  ChapterRecord,
+  NovelRecord,
+  PromptTemplateRecord,
+  TranslationRecord,
+  UrlMappingRecord,
+} from '../indexeddb';
+import type {
+  AppSettings,
+  Chapter,
+  FeedbackItem,
+  GeneratedImageResult,
+  PromptTemplate,
+  TranslationResult,
+} from '../../types';
 import { makeLegacyRepo } from '../../legacy/indexeddb-compat';
 import { migrationController, type Backend, type ServiceName } from './migration/phase-controller';
 import { getEnvVar } from '../env';
@@ -19,6 +35,7 @@ import {
   MappingsOps,
   ExportOps,
 } from './operations';
+import { generateStableChapterId, normalizeUrlAggressively } from '../stableIdService';
 
 // Environment-based backend selection
 const DEFAULT_BACKEND: Backend = (getEnvVar('DB_BACKEND') as Backend) ?? 'legacy';
@@ -27,160 +44,445 @@ const DEFAULT_BACKEND: Backend = (getEnvVar('DB_BACKEND') as Backend) ?? 'legacy
  * Memory-based repository for fallback scenarios
  */
 function makeMemoryRepo(): Repo {
-  // Simple in-memory storage for when IndexedDB is unavailable
-  const storage = {
-    chapters: new Map<string, any>(),
-    translations: new Map<string, any>(),
-    settings: new Map<string, any>(),
-    feedback: new Map<string, any>(),
-    promptTemplates: new Map<string, any>(),
-    urlMappings: new Map<string, any>(),
+  const chapters = new Map<string, ChapterRecord>();
+  const translations = new Map<string, TranslationRecord>();
+  const feedback = new Map<string, { id: string; chapterUrl: string; translationId?: string; item: FeedbackItem; createdAt: string }>();
+  let settings: AppSettings | null = null;
+  const promptTemplates = new Map<string, PromptTemplateRecord>();
+  const urlMappings = new Map<string, UrlMappingRecord>();
+  const novels = new Map<string, NovelRecord>();
+
+  const cloneChapterRecord = (record: ChapterRecord): ChapterRecord => ({ ...record });
+  const cloneTranslationRecord = (record: TranslationRecord): TranslationRecord => ({
+    ...record,
+    footnotes: record.footnotes.map(footnote => ({ ...footnote })),
+    suggestedIllustrations: record.suggestedIllustrations.map(illustration => ({ ...illustration })),
+  });
+
+  const resolveStableId = (record: ChapterRecord): string => {
+    if (!record.stableId) {
+      record.stableId = generateStableChapterId(
+        record.content || '',
+        record.chapterNumber || 0,
+        record.title || ''
+      );
+    }
+    return record.stableId;
   };
+
+  const upsertUrlMapping = (url: string, stableId: string, isCanonical: boolean) => {
+    const existing = urlMappings.get(url);
+    const nowIso = new Date().toISOString();
+    urlMappings.set(url, {
+      url,
+      stableId,
+      isCanonical,
+      dateAdded: existing?.dateAdded ?? nowIso,
+    });
+  };
+
+  const registerChapterMappings = (record: ChapterRecord) => {
+    const stableId = resolveStableId(record);
+    const canonical = record.canonicalUrl || normalizeUrlAggressively(record.url) || record.url;
+    upsertUrlMapping(canonical, stableId, true);
+    if (canonical !== record.url) {
+      upsertUrlMapping(record.url, stableId, false);
+    }
+  };
+
+  const findChapterByStableIdInternal = (stableId: string): ChapterRecord | null => {
+    for (const record of chapters.values()) {
+      if (record.stableId === stableId) {
+        return record;
+      }
+    }
+    return null;
+  };
+
+  const resolveChapterUrlByStableId = (stableId: string): string => {
+    const chapterRecord = findChapterByStableIdInternal(stableId);
+    if (chapterRecord) {
+      return chapterRecord.url;
+    }
+    for (const mapping of urlMappings.values()) {
+      if (mapping.stableId === stableId) {
+        return mapping.url;
+      }
+    }
+    throw new Error(`No chapter found for stableId ${stableId}`);
+  };
+
+  const getTranslationsForUrl = (chapterUrl: string): TranslationRecord[] => {
+    return Array.from(translations.values())
+      .filter(record => record.chapterUrl === chapterUrl)
+      .sort((a, b) => b.version - a.version);
+  };
+
+  const getTranslationsForStableId = (stableId: string): TranslationRecord[] => {
+    return Array.from(translations.values())
+      .filter(record => record.stableId === stableId)
+      .sort((a, b) => b.version - a.version);
+  };
+
+  const getActiveTranslationForUrl = (chapterUrl: string): TranslationRecord | null => {
+    return getTranslationsForUrl(chapterUrl).find(record => record.isActive) || null;
+  };
+
+  const toChapterRecord = (chapter: Chapter): ChapterRecord => {
+    const originalUrl = chapter.originalUrl || chapter.url;
+    if (!originalUrl) {
+      throw new Error('[memory repo] Chapter must include originalUrl');
+    }
+
+    const existing = chapters.get(originalUrl);
+    const nowIso = new Date().toISOString();
+    const canonical = chapter.canonicalUrl || existing?.canonicalUrl || normalizeUrlAggressively(originalUrl) || originalUrl;
+
+    const record: ChapterRecord = {
+      url: originalUrl,
+      title: chapter.title ?? existing?.title ?? '',
+      content: chapter.content ?? existing?.content ?? '',
+      originalUrl,
+      nextUrl: chapter.nextUrl ?? existing?.nextUrl,
+      prevUrl: chapter.prevUrl ?? existing?.prevUrl,
+      fanTranslation: chapter.fanTranslation ?? existing?.fanTranslation,
+      chapterNumber: chapter.chapterNumber ?? existing?.chapterNumber,
+      canonicalUrl: canonical,
+      stableId: chapter.stableId ?? existing?.stableId,
+      dateAdded: existing?.dateAdded ?? nowIso,
+      lastAccessed: nowIso,
+    };
+
+    resolveStableId(record);
+    return record;
+  };
+
+  const toSuggestedIllustrationRecord = (
+    illustration: TranslationResult['suggestedIllustrations'][number]
+  ): TranslationRecord['suggestedIllustrations'][number] => {
+    const legacy = illustration as unknown as { url?: string; generatedImage?: string };
+    const record: TranslationRecord['suggestedIllustrations'][number] = {
+      placementMarker: illustration.placementMarker,
+      imagePrompt: illustration.imagePrompt,
+    };
+
+    if (legacy.url) {
+      record.url = legacy.url;
+    }
+
+    if (illustration.generatedImage) {
+      record.generatedImage = illustration.generatedImage as unknown as string | GeneratedImageResult;
+      if (illustration.generatedImage && 'imageCacheKey' in illustration.generatedImage && illustration.generatedImage.imageCacheKey) {
+        record.imageCacheKey = illustration.generatedImage.imageCacheKey;
+      }
+    } else if ((legacy as any).generatedImage) {
+      record.generatedImage = (legacy as any).generatedImage;
+    }
+
+    if (illustration.imageCacheKey) {
+      record.imageCacheKey = illustration.imageCacheKey;
+    }
+
+    return record;
+  };
+
+  const toTranslationRecord = (
+    chapterUrl: string,
+    stableId: string | undefined,
+    result: TranslationResult,
+    settingsInput: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+      promptId?: string;
+      promptName?: string;
+    }
+  ): TranslationRecord => {
+    const usage = result.usageMetrics ?? {
+      totalTokens: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      estimatedCost: result.costUsd ?? 0,
+      requestTime: result.requestTime ?? 0,
+      provider: settingsInput.provider,
+      model: settingsInput.model,
+    };
+
+    const existing = getTranslationsForUrl(chapterUrl);
+    const maxVersion = existing.reduce((max, record) => Math.max(max, record.version || 0), 0);
+
+    for (const record of existing) {
+      if (record.isActive) {
+        record.isActive = false;
+        translations.set(record.id, record);
+      }
+    }
+
+    const id =
+      result.id ||
+      (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `mem-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+
+    const createdAt = new Date().toISOString();
+
+    return {
+      id,
+      chapterUrl,
+      stableId,
+      version: maxVersion + 1,
+      translatedTitle: result.translatedTitle,
+      translation: result.translation,
+      footnotes: (result.footnotes || []).map(footnote => ({ ...footnote })),
+      suggestedIllustrations: (result.suggestedIllustrations || []).map(toSuggestedIllustrationRecord),
+      provider: result.provider || settingsInput.provider,
+      model: result.model || settingsInput.model,
+      temperature: result.temperature ?? settingsInput.temperature,
+      systemPrompt: settingsInput.systemPrompt,
+      promptId: result.promptId ?? settingsInput.promptId,
+      promptName: result.promptName ?? settingsInput.promptName,
+      customVersionLabel: result.customVersionLabel,
+      totalTokens: usage.totalTokens ?? 0,
+      promptTokens: usage.promptTokens ?? 0,
+      completionTokens: usage.completionTokens ?? 0,
+      estimatedCost: result.costUsd ?? usage.estimatedCost ?? 0,
+      requestTime: result.requestTime ?? usage.requestTime ?? 0,
+      createdAt,
+      isActive: true,
+      proposal: result.proposal ?? undefined,
+    };
+  };
+
+  const toChapterLookup = (record: ChapterRecord): ChapterLookupResult => {
+    const stableId = resolveStableId(record);
+    const canonical = record.canonicalUrl || normalizeUrlAggressively(record.url) || record.url;
+    const activeTranslation = getActiveTranslationForUrl(record.url);
+
+    return {
+      stableId,
+      canonicalUrl: canonical,
+      title: record.title,
+      content: record.content,
+      nextUrl: record.nextUrl,
+      prevUrl: record.prevUrl,
+      chapterNumber: record.chapterNumber,
+      fanTranslation: record.fanTranslation,
+      data: {
+        chapter: {
+          title: record.title,
+          content: record.content,
+          originalUrl: record.url,
+          nextUrl: record.nextUrl,
+          prevUrl: record.prevUrl,
+          chapterNumber: record.chapterNumber,
+        },
+        translationResult: activeTranslation ? cloneTranslationRecord(activeTranslation) : null,
+      },
+    };
+  };
+
+  const toPromptTemplateRecord = (template: PromptTemplate): PromptTemplateRecord => ({
+    id: template.id,
+    name: template.name,
+    description: template.description,
+    content: template.content,
+    isDefault: template.isDefault,
+    createdAt: template.createdAt ?? new Date().toISOString(),
+    lastUsed: template.lastUsed,
+  });
 
   return {
     // Chapters
-    getChapter: async (url) => storage.chapters.get(url) || null,
-    getChapterByStableId: async (stableId) => {
-      for (const chapter of storage.chapters.values()) {
-        if (chapter.stableId === stableId) return chapter;
-      }
-      return null;
+    getChapter: async (url) => {
+      const record = chapters.get(url);
+      return record ? cloneChapterRecord(record) : null;
     },
-    storeChapter: async (chapter) => {
-      storage.chapters.set(chapter.url, chapter);
+    getChapterByStableId: async (stableId) => {
+      const record = findChapterByStableIdInternal(stableId);
+      return record ? cloneChapterRecord(record) : null;
+    },
+    storeChapter: async (chapter: Chapter) => {
+      const record = toChapterRecord(chapter);
+      chapters.set(record.url, record);
+      registerChapterMappings(record);
     },
     storeEnhancedChapter: async (enhanced) => {
-      storage.chapters.set(enhanced.url, enhanced);
+      const chapter: Chapter = {
+        title: enhanced.title,
+        content: enhanced.content,
+        originalUrl: enhanced.originalUrl ?? enhanced.canonicalUrl ?? enhanced.url,
+        canonicalUrl: enhanced.canonicalUrl,
+        nextUrl: enhanced.nextUrl,
+        prevUrl: enhanced.prevUrl,
+        chapterNumber: enhanced.chapterNumber,
+        fanTranslation: enhanced.fanTranslation ?? null,
+        stableId: enhanced.id ?? enhanced.stableId,
+      };
+      const record = toChapterRecord(chapter);
+      chapters.set(record.url, record);
+      registerChapterMappings(record);
     },
-    getAllChapters: async () => Array.from(storage.chapters.values()),
+    getAllChapters: async () => Array.from(chapters.values()).map(cloneChapterRecord),
     findChapterByUrl: async (urlPattern) => {
-      return Array.from(storage.chapters.values()).filter(ch => 
-        ch.url.includes(urlPattern)
-      );
+      const normalized = normalizeUrlAggressively(urlPattern) || urlPattern;
+      const direct =
+        chapters.get(urlPattern) ||
+        chapters.get(normalized) ||
+        Array.from(chapters.values()).find(
+          record =>
+            record.url === urlPattern ||
+            record.canonicalUrl === urlPattern ||
+            record.url.includes(urlPattern) ||
+            (record.canonicalUrl && normalized.includes(record.canonicalUrl))
+        );
+      if (!direct) {
+        return null;
+      }
+      return toChapterLookup(direct);
     },
 
-    // Translations (simplified implementations)
-    storeTranslation: async (chapterUrl, translation, settings) => {
-      const key = `${chapterUrl}:${translation.version}`;
-      storage.translations.set(key, { chapterUrl, ...translation });
+    // Translations
+    storeTranslation: async (chapterUrl, translation, settingsInput) => {
+      const chapter = chapters.get(chapterUrl);
+      const stableId = chapter ? resolveStableId(chapter) : undefined;
+      const record = toTranslationRecord(chapterUrl, stableId, translation, settingsInput);
+      translations.set(record.id, record);
+      return cloneTranslationRecord(record);
     },
-    storeTranslationByStableId: async (stableId, translation, settings) => {
-      const key = `${stableId}:${translation.version}`;
-      storage.translations.set(key, { stableId, ...translation });
+    storeTranslationByStableId: async (stableId, translation, settingsInput) => {
+      const chapterUrl = resolveChapterUrlByStableId(stableId);
+      const record = toTranslationRecord(chapterUrl, stableId, translation, settingsInput);
+      translations.set(record.id, record);
+      return cloneTranslationRecord(record);
     },
-    getTranslationVersions: async (chapterUrl) => {
-      return Array.from(storage.translations.values()).filter(t => 
-        t.chapterUrl === chapterUrl
-      );
-    },
-    getTranslationVersionsByStableId: async (stableId) => {
-      return Array.from(storage.translations.values()).filter(t => 
-        t.stableId === stableId
-      );
-    },
+    getTranslationVersions: async (chapterUrl) =>
+      getTranslationsForUrl(chapterUrl).map(cloneTranslationRecord),
+    getTranslationVersionsByStableId: async (stableId) =>
+      getTranslationsForStableId(stableId).map(cloneTranslationRecord),
     getActiveTranslation: async (chapterUrl) => {
-      const versions = Array.from(storage.translations.values()).filter(t => 
-        t.chapterUrl === chapterUrl && t.isActive
-      );
-      return versions[0] || null;
+      const record = getActiveTranslationForUrl(chapterUrl);
+      return record ? cloneTranslationRecord(record) : null;
     },
     getActiveTranslationByStableId: async (stableId) => {
-      const versions = Array.from(storage.translations.values()).filter(t => 
-        t.stableId === stableId && t.isActive
-      );
-      return versions[0] || null;
+      const record = getTranslationsForStableId(stableId).find(r => r.isActive) || null;
+      return record ? cloneTranslationRecord(record) : null;
     },
     setActiveTranslation: async (chapterUrl, version) => {
-      for (const translation of storage.translations.values()) {
-        if (translation.chapterUrl === chapterUrl) {
-          translation.isActive = translation.version === version;
+      let found = false;
+      for (const record of translations.values()) {
+        if (record.chapterUrl === chapterUrl) {
+          record.isActive = record.version === version;
+          if (record.isActive) {
+            found = true;
+          }
         }
+      }
+      if (!found) {
+        throw new Error(`No translation version ${version} found for ${chapterUrl}`);
       }
     },
     setActiveTranslationByStableId: async (stableId, version) => {
-      for (const translation of storage.translations.values()) {
-        if (translation.stableId === stableId) {
-          translation.isActive = translation.version === version;
+      let found = false;
+      for (const record of translations.values()) {
+        if (record.stableId === stableId) {
+          record.isActive = record.version === version;
+          if (record.isActive) {
+            found = true;
+          }
         }
+      }
+      if (!found) {
+        throw new Error(`No translation version ${version} found for stableId ${stableId}`);
       }
     },
 
     // Feedback
-    storeFeedback: async (chapterUrl, feedback, translationId) => {
-      const key = `${chapterUrl}:${translationId}:${Date.now()}`;
-      storage.feedback.set(key, { chapterUrl, translationId, ...feedback });
+    storeFeedback: async (chapterUrl, item, translationId) => {
+      const id = item.id || `feedback-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const stored: FeedbackItem = {
+        ...item,
+        id,
+        chapterId: item.chapterId ?? chapterUrl,
+      };
+      feedback.set(id, {
+        id,
+        chapterUrl,
+        translationId,
+        item: stored,
+        createdAt: new Date().toISOString(),
+      });
     },
     getFeedback: async (chapterUrl) => {
-      return Array.from(storage.feedback.values()).filter(f => 
-        f.chapterUrl === chapterUrl
-      );
+      return Array.from(feedback.values())
+        .filter(entry => entry.chapterUrl === chapterUrl)
+        .map(entry => ({ ...entry.item }));
     },
-    getAllFeedback: async () => Array.from(storage.feedback.values()),
+    getAllFeedback: async () => Array.from(feedback.values()).map(entry => ({ ...entry.item })),
 
-    // Settings
-    storeSettings: async (settings) => {
-      for (const [key, value] of Object.entries(settings)) {
-        storage.settings.set(key, value);
-      }
+    // Settings & templates
+    storeSettings: async (nextSettings) => {
+      settings = { ...(nextSettings as AppSettings) };
     },
-    getSettings: async () => {
-      const settings: any = {};
-      for (const [key, value] of storage.settings.entries()) {
-        settings[key] = value;
-      }
-      return settings;
-    },
+    getSettings: async () => (settings ? { ...settings } : null),
     setSetting: async (key, value) => {
-      storage.settings.set(key, value);
+      settings = { ...(settings ?? ({} as AppSettings)), [key]: value } as AppSettings;
     },
-    getSetting: async (key) => storage.settings.get(key),
-
-    // Prompt Templates
+    getSetting: async (key) => {
+      if (!settings) {
+        return null;
+      }
+      const record = settings as unknown as Record<string, unknown>;
+      return (record[key] ?? null) as any;
+    },
     storePromptTemplate: async (template) => {
-      storage.promptTemplates.set(template.id, template);
+      const record = toPromptTemplateRecord(template);
+      promptTemplates.set(record.id, record);
     },
-    getPromptTemplates: async () => Array.from(storage.promptTemplates.values()),
+    getPromptTemplates: async () => Array.from(promptTemplates.values()).map(t => ({ ...t })),
     getDefaultPromptTemplate: async () => {
-      for (const template of storage.promptTemplates.values()) {
-        if (template.isDefault) return template;
+      for (const template of promptTemplates.values()) {
+        if (template.isDefault) {
+          return { ...template };
+        }
       }
       return null;
     },
-    getPromptTemplate: async (id) => storage.promptTemplates.get(id) || null,
+    getPromptTemplate: async (id) => {
+      const template = promptTemplates.get(id);
+      return template ? { ...template } : null;
+    },
     setDefaultPromptTemplate: async (id) => {
-      for (const template of storage.promptTemplates.values()) {
+      for (const template of promptTemplates.values()) {
         template.isDefault = template.id === id;
       }
     },
 
-    // URL Mappings / Novels
+    // URL mappings / novels
     getStableIdByUrl: async (url) => {
-      const mapping = storage.urlMappings.get(url);
-      return mapping?.stableId || null;
-    },
-    getUrlMappingForUrl: async (url) => storage.urlMappings.get(url) || null,
-    getAllUrlMappings: async () => Array.from(storage.urlMappings.values()),
-    getAllNovels: async () => {
-      const novels = new Map();
-      for (const mapping of storage.urlMappings.values()) {
-        if (mapping.novelId && !novels.has(mapping.novelId)) {
-          novels.set(mapping.novelId, mapping);
-        }
+      const mapping = urlMappings.get(url);
+      if (mapping) {
+        return mapping.stableId;
       }
-      return Array.from(novels.values());
+      const chapter = chapters.get(url);
+      return chapter ? resolveStableId(chapter) : null;
     },
+    getUrlMappingForUrl: async (url) => {
+      const mapping = urlMappings.get(url);
+      return mapping ? { ...mapping } : null;
+    },
+    getAllUrlMappings: async () => Array.from(urlMappings.values()).map(mapping => ({ ...mapping })),
+    getAllNovels: async () => Array.from(novels.values()).map(novel => ({ ...novel })),
 
     // Export
-    exportFullSessionToJson: async () => {
-      return {
-        chapters: Array.from(storage.chapters.values()),
-        translations: Array.from(storage.translations.values()),
-        settings: Object.fromEntries(storage.settings.entries()),
-        feedback: Array.from(storage.feedback.values()),
-        promptTemplates: Array.from(storage.promptTemplates.values()),
-        urlMappings: Array.from(storage.urlMappings.values()),
-      };
-    },
+    exportFullSessionToJson: async () => ({
+      chapters: Array.from(chapters.values()).map(cloneChapterRecord),
+      translations: Array.from(translations.values()).map(cloneTranslationRecord),
+      settings: settings ? { ...settings } : null,
+      feedback: Array.from(feedback.values()).map(entry => ({
+        ...entry.item,
+        chapterId: entry.chapterUrl,
+      })),
+      promptTemplates: Array.from(promptTemplates.values()).map(t => ({ ...t })),
+      urlMappings: Array.from(urlMappings.values()).map(mapping => ({ ...mapping })),
+      novels: Array.from(novels.values()).map(novel => ({ ...novel })),
+    }),
   };
 }
 
@@ -192,18 +494,16 @@ function makeIdbRepo(): Repo {
     // Chapters
     getChapter: (url) => ChapterOps.getByUrl(url),
     getChapterByStableId: (stableId) => ChapterOps.getByStableId(stableId),
-    storeChapter: (chapter) => ChapterOps.store(chapter as any),
+    storeChapter: (chapter) => ChapterOps.store(chapter),
     storeEnhancedChapter: (enhanced) => ChapterOps.storeEnhanced(enhanced),
     getAllChapters: () => ChapterOps.getAll(),
     findChapterByUrl: (url) => ChapterOps.findByUrl(url),
 
     // Translations
-    async storeTranslation(chapterUrl: string, translation: any, settings: any) {
-      return TranslationOps.store({ ref: { url: chapterUrl }, result: translation, settings });
-    },
-    async storeTranslationByStableId(stableId: string, translation: any, settings: any) {
-      return TranslationOps.storeByStableId(stableId, translation, settings);
-    },
+    storeTranslation: (chapterUrl, translation, settings) =>
+      TranslationOps.store({ ref: { url: chapterUrl }, result: translation, settings }),
+    storeTranslationByStableId: (stableId, translation, settings) =>
+      TranslationOps.storeByStableId(stableId, translation, settings),
     getTranslationVersions: (chapterUrl) => TranslationOps.getVersionsByUrl(chapterUrl),
     getTranslationVersionsByStableId: (stableId) => TranslationOps.getVersionsByStableId(stableId),
     getActiveTranslation: (chapterUrl) => TranslationOps.getActiveByUrl(chapterUrl),
@@ -212,16 +512,17 @@ function makeIdbRepo(): Repo {
     setActiveTranslationByStableId: (stableId, version) => TranslationOps.setActiveByStableId(stableId, version),
 
     // Feedback
-    storeFeedback: (chapterUrl, feedback, translationId) => FeedbackOps.store(chapterUrl, feedback as any, translationId),
+    storeFeedback: (chapterUrl, feedback, translationId) =>
+      FeedbackOps.store(chapterUrl, feedback, translationId),
     getFeedback: (chapterUrl) => FeedbackOps.get(chapterUrl),
     getAllFeedback: () => FeedbackOps.getAll(),
 
     // Settings & templates
-    storeSettings: (settings) => SettingsOps.store(settings as any),
+    storeSettings: (settings) => SettingsOps.store(settings),
     getSettings: () => SettingsOps.get(),
     setSetting: (key, value) => SettingsOps.set(key, value),
     getSetting: (key) => SettingsOps.getKey(key),
-    storePromptTemplate: (t) => TemplatesOps.store(t),
+    storePromptTemplate: (template) => TemplatesOps.store(template),
     getPromptTemplates: () => TemplatesOps.getAll(),
     getDefaultPromptTemplate: () => TemplatesOps.getDefault(),
     getPromptTemplate: (id) => TemplatesOps.get(id),
@@ -235,7 +536,7 @@ function makeIdbRepo(): Repo {
 
     // Export
     exportFullSessionToJson: () => ExportOps.exportFullSessionToJson(),
-  } as unknown as Repo;
+  };
 }
 
 /**

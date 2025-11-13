@@ -90,21 +90,17 @@ export class ShadowValidator {
       };
     }
 
-    const startTime = performance.now();
-
     try {
       // Run both operations concurrently
-      const [legacyResult, legacyTime, newResult, newTime] = await Promise.all([
+      const [legacyMeasurement, newMeasurement] = await Promise.all([
         this.timeOperation(legacyOp),
-        Promise.resolve(0), // Placeholder
         this.timeOperation(newOp),
-        Promise.resolve(0), // Placeholder
-      ]).then(results => [
-        results[0].result,
-        results[0].duration,
-        results[2].result,
-        results[2].duration,
       ]);
+
+      const legacyResult = legacyMeasurement.result;
+      const legacyTime = legacyMeasurement.duration;
+      const newResult = newMeasurement.result;
+      const newTime = newMeasurement.duration;
 
       // Compare results
       const comparison = compareFn 

@@ -16,6 +16,7 @@ export interface BaseJob {
   message?: string;
   error?: string;
   cancellationRequested?: boolean;
+  chapterUrls?: string[]; // Legacy support for tests expecting this field
 }
 
 export interface TranslationJob extends BaseJob {
@@ -76,6 +77,9 @@ export interface JobsSlice {
   };
   initializeWorkers: () => void;
   terminateWorkers: () => void;
+  startWorkerJob: (job: Job) => void;
+  cancelWorkerJob: (job: Job) => void;
+  handleWorkerMessage: (event: MessageEvent, workerType: 'translation' | 'epub') => void;
 }
 
 export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({

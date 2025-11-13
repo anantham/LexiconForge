@@ -12,26 +12,31 @@
     <script>
       // Early error capture before anything else loads
       window.__earlyErrors = [];
-      window.onerror = (m,s,l,c,e) => { 
-        console.error('🚨 EARLY ERROR:', {message: m, source: s, line: l, col: c, error: e}); 
-        window.__earlyErrors.push({type:'error',m,s,l,c,e}); 
+      window.onerror = (m,s,l,c,e) => {
+        console.error('🚨 EARLY ERROR:', {message: m, source: s, line: l, col: c, error: e});
+        window.__earlyErrors.push({type:'error',m,s,l,c,e});
       };
-      window.onunhandledrejection = (ev) => { 
-        console.error('🚨 EARLY UNHANDLED REJECTION:', ev.reason); 
-        window.__earlyErrors.push({type:'unhandledrejection', reason: String(ev.reason)}); 
+      window.onunhandledrejection = (ev) => {
+        console.error('🚨 EARLY UNHANDLED REJECTION:', ev.reason);
+        window.__earlyErrors.push({type:'unhandledrejection', reason: String(ev.reason)});
       };
-      
-      // Tailwind CSS configuration
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              serif: ['Lora', 'serif'],
+    </script>
+    <script>
+      // Tailwind CSS configuration - wait for tailwind to be defined
+      window.addEventListener('DOMContentLoaded', () => {
+        if (typeof tailwind !== 'undefined') {
+          tailwind.config = {
+            theme: {
+              extend: {
+                fontFamily: {
+                  sans: ['Inter', 'sans-serif'],
+                  serif: ['Lora', 'serif'],
+                },
+              },
             },
-          },
-        },
-      }
+          }
+        }
+      });
     </script>
   <script type="importmap">
 {

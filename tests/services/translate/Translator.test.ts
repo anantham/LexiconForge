@@ -2,25 +2,45 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Translator, type TranslationProvider, type TranslationRequest } from '../../../services/translate/Translator';
 import type { TranslationResult, AppSettings } from '../../../types';
 
+const baseUsageMetrics = {
+  promptTokens: 100,
+  completionTokens: 50,
+  totalTokens: 150,
+  estimatedCost: 0.01,
+  requestTime: 1.2,
+  provider: 'Mock',
+  model: 'mock-model',
+} as const;
+
+const baseTranslationResult = (): TranslationResult => ({
+  translatedTitle: 'Mock Title',
+  translation: 'Mock translation content',
+  proposal: null,
+  footnotes: [],
+  suggestedIllustrations: [],
+  usageMetrics: { ...baseUsageMetrics },
+  illustrations: [],
+  amendments: [],
+  costUsd: 0.01,
+  tokensUsed: {
+    promptTokens: baseUsageMetrics.promptTokens,
+    completionTokens: baseUsageMetrics.completionTokens,
+    totalTokens: baseUsageMetrics.totalTokens,
+  },
+  model: 'mock-model',
+  provider: 'Mock',
+  translationSettings: {
+    provider: 'Mock',
+    model: 'mock-model',
+    temperature: 0.7,
+    systemPrompt: 'Mock prompt',
+  },
+});
+
 // Mock provider for testing
 class MockTranslationProvider implements TranslationProvider {
   public translateCalls: TranslationRequest[] = [];
-  public mockResult: TranslationResult | Error = {
-    translatedTitle: 'Mock Title',
-    translation: 'Mock translation content',
-    illustrations: [],
-    amendments: [],
-    costUsd: 0.01,
-    tokensUsed: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
-    model: 'mock-model',
-    provider: 'Mock',
-    translationSettings: {
-      provider: 'Mock',
-      model: 'mock-model',
-      temperature: 0.7,
-      systemPrompt: 'Mock prompt',
-    }
-  };
+  public mockResult: TranslationResult | Error = baseTranslationResult();
 
   async translate(request: TranslationRequest): Promise<TranslationResult> {
     this.translateCalls.push(request);
@@ -34,22 +54,7 @@ class MockTranslationProvider implements TranslationProvider {
 
   reset() {
     this.translateCalls = [];
-    this.mockResult = {
-      translatedTitle: 'Mock Title',
-      translation: 'Mock translation content',
-      illustrations: [],
-      amendments: [],
-      costUsd: 0.01,
-      tokensUsed: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
-      model: 'mock-model',
-      provider: 'Mock',
-      translationSettings: {
-        provider: 'Mock',
-        model: 'mock-model',
-        temperature: 0.7,
-        systemPrompt: 'Mock prompt',
-      }
-    };
+    this.mockResult = baseTranslationResult();
   }
 }
 
@@ -75,10 +80,17 @@ describe('Translator', () => {
       provider: 'Mock',
       model: 'mock-model',
       temperature: 0.7,
+      contextDepth: 2,
+      preloadCount: 0,
+      fontSize: 16,
+      fontStyle: 'serif',
+      lineHeight: 1.6,
+      imageModel: 'mock-image-model',
       systemPrompt: 'Test system prompt',
       apiKeyOpenAI: 'mock-key',
       retryMax: 3,
       retryInitialDelayMs: 1000,
+      showDiffHeatmap: false,
     } as AppSettings;
 
     mockRequest = {
@@ -174,22 +186,12 @@ describe('Translator', () => {
         if (callCount === 1) {
           throw rateLimitError;
         }
-        return mockProvider.mockResult = {
+        mockProvider.mockResult = {
+          ...baseTranslationResult(),
           translatedTitle: 'Retry Success',
           translation: 'Succeeded after retry',
-          illustrations: [],
-          amendments: [],
-          costUsd: 0.01,
-          tokensUsed: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
-          model: 'mock-model',
-          provider: 'Mock',
-          translationSettings: {
-            provider: 'Mock',
-            model: 'mock-model',
-            temperature: 0.7,
-            systemPrompt: 'Mock prompt',
-          }
         };
+        return mockProvider.mockResult;
       });
 
       const result = await translator.translate(mockRequest, { 
@@ -268,9 +270,17 @@ describe('Translator', () => {
   describe('result processing', () => {
     it('preserves all result fields', async () => {
       const complexResult: TranslationResult = {
+        ...baseTranslationResult(),
         translatedTitle: 'Complex Title',
         translation: 'Complex translation',
-        illustrations: [{ description: 'Test illustration', placement: 'top' }],
+        suggestedIllustrations: [{ placementMarker: 'marker', imagePrompt: 'prompt' }],
+        usageMetrics: {
+          ...baseUsageMetrics,
+          totalTokens: 300,
+          promptTokens: 200,
+          completionTokens: 100,
+        },
+        illustrations: [{ placement: 'top', description: 'Test illustration' }],
         amendments: [{ issue: 'Test issue', currentTranslation: 'Current', suggestedImprovement: 'Improved', reasoning: 'Better' }],
         costUsd: 0.05,
         tokensUsed: { promptTokens: 200, completionTokens: 100, totalTokens: 300 },
@@ -300,18 +310,12 @@ describe('Translator', () => {
 
     it('handles missing optional fields gracefully', async () => {
       const minimalResult: TranslationResult = {
+        ...baseTranslationResult(),
         translatedTitle: 'Minimal Title',
         translation: 'Minimal translation',
+        suggestedIllustrations: [],
         illustrations: [],
         amendments: [],
-        model: 'mock-model',
-        provider: 'Mock',
-        translationSettings: {
-          provider: 'Mock',
-          model: 'mock-model',
-          temperature: 0.7,
-          systemPrompt: 'Mock prompt',
-        }
       };
 
       mockProvider.mockResult = minimalResult;

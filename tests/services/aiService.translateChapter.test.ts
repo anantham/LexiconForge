@@ -36,6 +36,14 @@ const baseSettings: AppSettings = {
   systemPrompt: 'System prompt',
   model: 'openai/gpt-4o',
   temperature: 0.5,
+  contextDepth: 2,
+  preloadCount: 0,
+  fontSize: 16,
+  fontStyle: 'serif',
+  lineHeight: 1.6,
+  imageModel: 'openrouter-image-model',
+  includeFanTranslationInPrompt: true,
+  showDiffHeatmap: false,
 };
 
 const baseResult: TranslationResult = {

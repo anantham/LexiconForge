@@ -242,9 +242,14 @@ function convertNewlinesToBrInElement(root: Element) {
 
 export interface ChapterForEpub {
   title: string;
+  originalTitle?: string;
   content: string;
   originalUrl: string;
+  url?: string;
   translatedTitle: string;
+  translatedContent?: string;
+  prevUrl?: string | null;
+  nextUrl?: string | null;
   usageMetrics: {
     totalTokens: number;
     promptTokens: number;
@@ -327,6 +332,10 @@ export interface EpubExportOptions {
   template?: EpubTemplate;
   novelConfig?: NovelConfig;
   telemetryInsights?: TelemetryInsights;
+  includeStatsPage?: boolean;
+  customTemplate?: any;
+  manualConfig?: any;
+  chapterUrls?: string[];
 }
 
 /**
@@ -429,11 +438,18 @@ const createChapterForEpub = (data: any, url: string): ChapterForEpub => {
     text: footnote.text
   })) || [];
   
+  const translatedContent = data.translationResult.translation || '';
+
   return {
     title: data.chapter.title,
-    content: data.translationResult.translation || data.chapter.content, // Use translation, fallback to original
+    originalTitle: data.chapter.originalTitle || data.chapter.title,
+    content: data.chapter.content,
     originalUrl: url,
+    url,
     translatedTitle: data.translationResult.translatedTitle,
+    translatedContent,
+    prevUrl: data.chapter.prevUrl ?? null,
+    nextUrl: data.chapter.nextUrl ?? null,
     usageMetrics: {
       totalTokens: metrics.totalTokens,
       promptTokens: metrics.promptTokens,

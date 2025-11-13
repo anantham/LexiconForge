@@ -51,6 +51,7 @@ import {
   EpubTemplate
 } from '../../services/epubService';
 import { SessionChapterData } from '../../types';
+import type { TranslationResult, UsageMetrics } from '../../types';
 
 // Mock data factory functions
 const createMockChapter = (overrides = {}) => ({
@@ -62,7 +63,7 @@ const createMockChapter = (overrides = {}) => ({
   ...overrides
 });
 
-const createMockUsageMetrics = (overrides = {}) => ({
+const createMockUsageMetrics = (overrides: Partial<UsageMetrics> = {}): UsageMetrics => ({
   totalTokens: 1000,
   promptTokens: 600,
   completionTokens: 400,
@@ -70,10 +71,10 @@ const createMockUsageMetrics = (overrides = {}) => ({
   requestTime: 2.5,
   provider: 'Gemini',
   model: 'gemini-2.5-flash',
-  ...overrides
-});
+  ...overrides,
+} as UsageMetrics);
 
-const createMockTranslationResult = (overrides = {}) => ({
+const createMockTranslationResult = (overrides: Partial<TranslationResult> = {}): TranslationResult => ({
   translatedTitle: 'Translated Chapter 1: The Beginning',
   translation: 'This is the translated content.',
   proposal: null,
@@ -86,8 +87,8 @@ const createMockTranslationResult = (overrides = {}) => ({
     }
   ],
   usageMetrics: createMockUsageMetrics(),
-  ...overrides
-});
+  ...overrides,
+} as TranslationResult);
 
 const createMockSessionData = (chapterCount = 3): Record<string, SessionChapterData> => {
   const sessionData: Record<string, SessionChapterData> = {};

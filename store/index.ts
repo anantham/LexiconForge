@@ -185,24 +185,28 @@ export const useAppStore = create<AppState & SessionActions>((set, get, store) =
           const newRawUrlIndex = new Map<string, string>();
           
           for (const ch of rendering) {
+            const sourceUrls = ch.sourceUrls ?? [ch.url];
             newChapters.set(ch.stableId, {
               id: ch.stableId,
-              title: ch.data.chapter.title,
-              content: ch.data.chapter.content,
-              originalUrl: ch.url,
-              nextUrl: ch.data.chapter.nextUrl,
-              prevUrl: ch.data.chapter.prevUrl,
+              title: ch.title,
+              content: ch.content,
+              originalUrl: ch.originalUrl,
+              nextUrl: ch.nextUrl ?? null,
+              prevUrl: ch.prevUrl ?? null,
               chapterNumber: typeof ch.chapterNumber === 'number' ? ch.chapterNumber : 0,
-              canonicalUrl: ch.url,
-              sourceUrls: [ch.url],
-              fanTranslation: (ch.data.chapter as any).fanTranslation ?? null,
-              translationResult: ch.data.translationResult || null,
+              canonicalUrl: ch.canonicalUrl ?? ch.url,
+              sourceUrls,
+              fanTranslation: ch.fanTranslation ?? null,
+              translationResult: ch.translationResult || null,
               feedback: [],
             });
             
-            const norm = normalizeUrlAggressively(ch.url);
-            if (norm) newUrlIndex.set(norm, ch.stableId);
-            newRawUrlIndex.set(ch.url, ch.stableId);
+            for (const rawUrl of sourceUrls) {
+              if (!rawUrl) continue;
+              newRawUrlIndex.set(rawUrl, ch.stableId);
+              const norm = normalizeUrlAggressively(rawUrl);
+              if (norm) newUrlIndex.set(norm, ch.stableId);
+            }
           }
           
           return {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 
 type PersistOpts<T> = {
   version?: number;
@@ -12,7 +12,7 @@ function usePersistentState<T>(
   storageKey: string,
   defaultValue: T,
   opts: PersistOpts<T> = {}
-): [T, React.Dispatch<React.SetStateAction<T>>] {
+): [T, Dispatch<SetStateAction<T>>] {
   const { version = 1, migrate, decode, encode, syncAcrossTabs } = opts;
 
   const [value, setValue] = useState<T>(() => {
