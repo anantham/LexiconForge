@@ -165,10 +165,15 @@ export class SessionManagementService {
    */
   static async loadPromptTemplates(): Promise<{ templates: PromptTemplate[], activeTemplate: PromptTemplate | null }> {
     try {
+      console.log('[SessionManagement] Getting repository...');
       const repo = getRepoForService('sessionManagementService');
+      console.log('[SessionManagement] Repository obtained, fetching prompt templates...');
       const templates = await repo.getPromptTemplates();
+      console.log('[SessionManagement] Templates fetched:', templates.length, 'templates');
+      console.log('[SessionManagement] Fetching default template...');
       const activeTemplate = await repo.getDefaultPromptTemplate();
-      
+      console.log('[SessionManagement] Default template fetched');
+
       return {
         templates,
         activeTemplate

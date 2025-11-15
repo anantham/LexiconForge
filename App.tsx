@@ -19,6 +19,8 @@ import './services/diff/DiffTriggerService';
 import './styles/diff-colors.css';
 
 const App: React.FC = () => {
+console.log('[App.tsx] App component rendering');
+
 // Browser-side env diagnostics (masked) when LF_AI_DEBUG=1
 useEffect(() => {
   try {
