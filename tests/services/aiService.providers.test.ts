@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { AppSettings, HistoricalChapter } from '../../types';
+import { createMockAppSettings } from '../utils/test-data';
 
 const envMocks = vi.hoisted(() => ({
   getEnvVar: vi.fn(() => undefined),
@@ -18,7 +19,7 @@ vi.mock('../../services/capabilityService', () => capabilityMocks);
 const rateLimitMock = vi.hoisted(() => vi.fn(async () => undefined));
 vi.mock('../../services/rateLimitService', () => ({
   rateLimitService: {
-    canMakeRequest: (...args: any[]) => rateLimitMock(...args),
+    canMakeRequest: rateLimitMock,
   },
 }));
 
@@ -33,30 +34,34 @@ vi.mock('../../services/openrouterService', () => ({
   openrouterService: openrouterMocks,
 }));
 
-const fanContextMock = vi.hoisted(() => vi.fn(() => 'Fan translation context'));
+const fanContextMock = vi.hoisted(() => vi.fn((..._args: unknown[]) => 'Fan translation context'));
 vi.mock('../../services/prompts', () => ({
-  buildFanTranslationContext: (...args: any[]) => fanContextMock(...args),
+  buildFanTranslationContext: fanContextMock,
   formatHistory: vi.fn(() => 'Formatted history'),
 }));
 
-const createSettings = (overrides: Partial<AppSettings>): AppSettings => ({
-  contextDepth: 2,
-  preloadCount: 0,
-  fontSize: 16,
-  fontStyle: 'serif',
-  lineHeight: 1.6,
-  systemPrompt: '',
-  provider: 'Gemini',
-  model: 'gemini-2.0-flash',
-  temperature: 0.7,
-  apiKeyGemini: '',
-  apiKeyOpenAI: '',
-  apiKeyDeepSeek: '',
-  apiKeyClaude: '',
-  apiKeyOpenRouter: '',
-  imageModel: 'imagen-test-model',
-  includeFanTranslationInPrompt: true,
-  showDiffHeatmap: false,
+const createSettings = (overrides: Partial<AppSettings> = {}): AppSettings =>
+  createMockAppSettings({
+    provider: 'Gemini',
+    model: 'gemini-2.0-flash',
+    temperature: 0.7,
+    apiKeyGemini: '',
+    apiKeyOpenAI: '',
+    apiKeyDeepSeek: '',
+    apiKeyClaude: '',
+    apiKeyOpenRouter: '',
+    includeFanTranslationInPrompt: true,
+    showDiffHeatmap: false,
+    ...overrides,
+  });
+
+const createHistoricalChapter = (overrides: Partial<HistoricalChapter> = {}): HistoricalChapter => ({
+  originalTitle: 'Prev',
+  originalContent: 'Original body',
+  translatedTitle: 'Translated',
+  translatedContent: 'Translated body',
+  footnotes: [],
+  feedback: [],
   ...overrides,
 });
 
@@ -156,16 +161,7 @@ describe('legacy provider helpers in aiService', () => {
         targetLanguage: 'English',
       });
 
-      const history: HistoricalChapter[] = [
-        {
-          originalTitle: 'Prev',
-          originalContent: 'Original body',
-          translatedTitle: 'Translated',
-          translatedContent: 'Translated body',
-          footnotes: [],
-          feedback: [],
-        } as any,
-      ];
+      const history: HistoricalChapter[] = [createHistoricalChapter()];
 
       const result = await __testUtils.translateWithOpenAI('Chapter', 'Current content', settings, history, 'fan text');
 

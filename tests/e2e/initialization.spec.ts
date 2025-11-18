@@ -123,7 +123,7 @@ test.describe('Fresh Install Initialization', () => {
     // Check IndexedDB stores
     const stores = await page.evaluate(() => {
       return new Promise<string[]>((resolve, reject) => {
-        const request = indexedDB.open('LexiconForge');
+        const request = indexedDB.open('lexicon-forge');
         request.onsuccess = () => {
           const db = request.result;
           const storeNames = Array.from(db.objectStoreNames);
@@ -206,9 +206,9 @@ test.describe('Fresh Install Initialization', () => {
 
     // Check that prompt templates were loaded or initialized
     const promptTemplateLog = consoleMessages.find(msg =>
-      msg.includes('prompt templates') ||
-      msg.includes('Using existing prompt templates') ||
-      msg.includes('Initialized prompt templates')
+      msg.includes('loadPromptTemplates') ||
+      msg.includes('initializeSession provided defaults') ||
+      msg.includes('Using existing prompt templates')
     );
 
     expect(promptTemplateLog, 'Prompt templates should be initialized').toBeDefined();

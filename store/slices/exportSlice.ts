@@ -1,9 +1,11 @@
 import { StateCreator } from 'zustand';
-import { indexedDBService } from '../../services/indexeddb';
-import type { ExportSessionOptions, TelemetryInsights } from '../../services/indexeddb';
+import type { ExportSessionOptions } from '../../services/db/types';
+import type { TelemetryInsights } from '../../services/epubService';
 import { blobToBase64DataUrl } from '../../services/imageUtils';
 import { telemetryService } from '../../services/telemetryService';
 import type { ImageGenerationMetadata } from '../../types';
+import { SessionExportOps, SettingsOps, TranslationOps } from '../../services/db/operations';
+import { fetchChaptersForReactRendering } from '../../services/db/operations/rendering';
 
 // Export slice state
 export interface ExportSlice {
@@ -109,7 +111,7 @@ export const createExportSlice: StateCreator<
       : Date.now();
 
     try {
-      const jsonObj = await indexedDBService.exportFullSessionToJson(options);
+      const jsonObj = await SessionExportOps.exportFullSession(options);
       const finalOptions: Required<ExportSessionOptions> = {
         includeChapters: true,
         includeTelemetry: true,
@@ -231,8 +233,8 @@ export const createExportSlice: StateCreator<
     try {
       // Gather chapters in order using IndexedDB as ground truth
       const [rendering, navHistSetting] = await Promise.all([
-        indexedDBService.getChaptersForReactRendering(),
-        indexedDBService.getSetting<any>('navigation-history').catch(() => null),
+        fetchChaptersForReactRendering(),
+        SettingsOps.getKey<any>('navigation-history').catch(() => null),
       ]);
 
       const navOrder: string[] = Array.isArray(navHistSetting?.stableIds) ? navHistSetting.stableIds : [];
@@ -280,7 +282,7 @@ export const createExportSlice: StateCreator<
       for (const sid of ordered) {
         const ch = byStableId.get(sid);
         if (!ch) continue;
-        const active = await indexedDBService.getActiveTranslationByStableId(sid);
+        const active = await TranslationOps.getActiveByStableId(sid);
         if (!active) continue;
 
         const suggestedIllustrations = active.suggestedIllustrations || [];
@@ -292,17 +294,16 @@ export const createExportSlice: StateCreator<
         // Compose chapter for EPUB - process images with version awareness
         const images = await Promise.all(
           suggestedIllustrations.map(async (illust: any) => {
+            // Check if this illustration has a cache key (modern versioned images)
+            const imageCacheKey = illust.generatedImage?.imageCacheKey || illust.imageCacheKey;
+            const versionKey = ch.id && illust.placementMarker
+              ? `${ch.id}:${illust.placementMarker}`
+              : null;
+            const version = versionKey
+              ? activeImageVersion[versionKey] || imageVersions[versionKey] || 1
+              : 1;
+            const versionStateEntry = (active as any).imageVersionState?.[illust.placementMarker];
             try {
-              // Check if this illustration has a cache key (modern versioned images)
-              const imageCacheKey = illust.generatedImage?.imageCacheKey || illust.imageCacheKey;
-              const versionKey = ch.id && illust.placementMarker
-                ? `${ch.id}:${illust.placementMarker}`
-                : null;
-              const version = versionKey
-                ? activeImageVersion[versionKey] || imageVersions[versionKey] || 1
-                : 1;
-              const versionStateEntry = (active as any).imageVersionState?.[illust.placementMarker];
-
               if (imageCacheKey && ch.id && imageCacheModule) {
                 // Modern path: Retrieve from Cache API using active version
                 const { ImageCacheStore } = imageCacheModule;
@@ -414,7 +415,9 @@ export const createExportSlice: StateCreator<
         includeTitlePage: !!settings.includeTitlePage,
         includeStatsPage: !!settings.includeStatsPage,
         telemetryInsights: telemetryInsights || undefined,
-        debug: epubDebug,
+        customTemplate: undefined,
+        manualConfig: undefined,
+        chapterUrls: undefined,
       });
 
       const end = typeof performance !== 'undefined' && typeof performance.now === 'function'

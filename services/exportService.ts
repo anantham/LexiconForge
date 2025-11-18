@@ -1,7 +1,7 @@
 import { useAppStore } from '../store';
-import { indexedDBService } from './indexeddb';
 import type { SessionData, SessionProvenance } from '../types/session';
 import type { NovelEntry, NovelMetadata } from '../types/novel';
+import { ChapterOps, TranslationOps } from './db/operations';
 
 export class ExportService {
   /**
@@ -10,7 +10,7 @@ export class ExportService {
    */
   static async generateQuickExport(): Promise<SessionData> {
     // Load full chapter data from IndexedDB
-    const chapters = await indexedDBService.getAllChapters();
+    const chapters = await ChapterOps.getAll();
 
     // For each chapter, load its translations
     const chaptersWithTranslations = await Promise.all(
@@ -18,8 +18,8 @@ export class ExportService {
         const stableId = ch.stableId || undefined;
         const canonicalUrl = ch.canonicalUrl || ch.url;
         const versions = stableId
-          ? await indexedDBService.getTranslationVersionsByStableId(stableId)
-          : await indexedDBService.getTranslationVersions(canonicalUrl);
+          ? await TranslationOps.getVersionsByStableId(stableId)
+          : await TranslationOps.getVersionsByUrl(canonicalUrl);
 
         return {
           stableId,
@@ -105,7 +105,7 @@ export class ExportService {
     }
   ): Promise<SessionData> {
     // Load full chapter data from IndexedDB
-    const chapters = await indexedDBService.getAllChapters();
+    const chapters = await ChapterOps.getAll();
 
     // For each chapter, load its translations
     const chaptersWithTranslations = await Promise.all(
@@ -113,8 +113,8 @@ export class ExportService {
         const stableId = ch.stableId || undefined;
         const canonicalUrl = ch.canonicalUrl || ch.url;
         const versions = stableId
-          ? await indexedDBService.getTranslationVersionsByStableId(stableId)
-          : await indexedDBService.getTranslationVersions(canonicalUrl);
+          ? await TranslationOps.getVersionsByStableId(stableId)
+          : await TranslationOps.getVersionsByUrl(canonicalUrl);
 
         return {
           stableId,
@@ -219,7 +219,7 @@ export class ExportService {
     }
 
     // Load full chapter data from IndexedDB
-    const chapters = await indexedDBService.getAllChapters();
+    const chapters = await ChapterOps.getAll();
 
     // For each chapter, load its translations
     const chaptersWithTranslations = await Promise.all(
@@ -227,8 +227,8 @@ export class ExportService {
         const stableId = ch.stableId || undefined;
         const canonicalUrl = ch.canonicalUrl || ch.url;
         const versions = stableId
-          ? await indexedDBService.getTranslationVersionsByStableId(stableId)
-          : await indexedDBService.getTranslationVersions(canonicalUrl);
+          ? await TranslationOps.getVersionsByStableId(stableId)
+          : await TranslationOps.getVersionsByUrl(canonicalUrl);
 
         return {
           stableId,
@@ -314,7 +314,7 @@ export class ExportService {
    */
   static async generateMetadataFile(novelMetadata: NovelMetadata & { title: string; alternateTitles?: string[] }): Promise<NovelEntry> {
     // Load full chapter data from IndexedDB
-    const chapters = await indexedDBService.getAllChapters();
+    const chapters = await ChapterOps.getAll();
 
     // For each chapter, load its translations
     const chaptersWithTranslations = await Promise.all(
@@ -322,8 +322,8 @@ export class ExportService {
         const stableId = ch.stableId || undefined;
         const canonicalUrl = ch.canonicalUrl || ch.url;
         const versions = stableId
-          ? await indexedDBService.getTranslationVersionsByStableId(stableId)
-          : await indexedDBService.getTranslationVersions(canonicalUrl);
+          ? await TranslationOps.getVersionsByStableId(stableId)
+          : await TranslationOps.getVersionsByUrl(canonicalUrl);
         return { ...ch, translations: versions };
       })
     );

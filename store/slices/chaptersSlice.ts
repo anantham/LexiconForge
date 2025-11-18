@@ -13,7 +13,7 @@ import type { StateCreator } from 'zustand';
 import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService';
 import { normalizeUrlAggressively } from '../../services/stableIdService';
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
-import { indexedDBService } from '../../services/indexeddb';
+import { ChapterOps } from '../../services/db/operations';
 import { validateApiKey } from '../../services/aiService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
@@ -109,12 +109,12 @@ export const createChaptersSlice: StateCreator<
   ChaptersSlice
 > = (set, get) => ({
   // Initial state
-  chapters: new Map(),
-  novels: new Map(),
+  chapters: new Map<string, EnhancedChapter>(),
+  novels: new Map<string, NovelInfo>(),
   currentChapterId: null,
   navigationHistory: [],
-  urlIndex: new Map(),
-  rawUrlIndex: new Map(),
+  urlIndex: new Map<string, string>(),
+  rawUrlIndex: new Map<string, string>(),
   
   // Chapter management
   getChapter: (chapterId) => {
@@ -542,12 +542,12 @@ export const createChaptersSlice: StateCreator<
     set(state => {
       recordChapterCache('chapters.clearAll', 0, { previousSize: state.chapters.size });
       return {
-        chapters: new Map(),
-        novels: new Map(),
+        chapters: new Map<string, EnhancedChapter>(),
+        novels: new Map<string, NovelInfo>(),
         currentChapterId: null,
         navigationHistory: [],
-        urlIndex: new Map(),
-        rawUrlIndex: new Map()
+        urlIndex: new Map<string, string>(),
+        rawUrlIndex: new Map<string, string>()
       };
     });
   },
@@ -579,7 +579,7 @@ export const createChaptersSlice: StateCreator<
   },
   
   getChapterStats: () => {
-    const chapters = Array.from(get().chapters.values());
+    const chapters = Array.from(get().chapters.values()) as EnhancedChapter[];
 
     return {
       total: chapters.length,
@@ -591,7 +591,7 @@ export const createChaptersSlice: StateCreator<
   },
 
   getMemoryDiagnostics: (): MemoryDiagnostics => {
-    const chapters = Array.from(get().chapters.values());
+    const chapters = Array.from(get().chapters.values()) as EnhancedChapter[];
     const warnings: string[] = [];
 
     // Count chapters with translations and images
@@ -701,7 +701,7 @@ export const createChaptersSlice: StateCreator<
         let nextChapterInfo = numberToChapterMap.get(targetNumber);
 
         if (!nextChapterInfo) {
-          const chapterRecord = await indexedDBService.findChapterByNumber(targetNumber);
+          const chapterRecord = await ChapterOps.findByNumber(targetNumber);
           if (chapterRecord && chapterRecord.stableId) {
             await loadChapterFromIDB(chapterRecord.stableId);
             const loadedChapter = get().chapters.get(chapterRecord.stableId);

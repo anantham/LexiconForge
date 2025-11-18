@@ -5,11 +5,90 @@
  * for debugging without external dependencies.
  */
 
+type TelemetryPayload = Record<string, unknown>;
+
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface StoreChapter {
+  translationResult?: {
+    suggestedIllustrations?: unknown[];
+  } & Record<string, unknown>;
+  fanTranslation?: string | null;
+  [key: string]: unknown;
+}
+
+type ChapterCollection = Map<string, StoreChapter> | Record<string, StoreChapter>;
+
+interface GeneratedImageEntry {
+  data?: string;
+  [key: string]: unknown;
+}
+
+interface StoreState {
+  chapters?: ChapterCollection;
+  generatedImages?: Record<string, GeneratedImageEntry>;
+  translationHistory?: Record<string, unknown>;
+}
+
+interface WindowAugments {
+  __APP_STORE__?: {
+    getState?: () => StoreState;
+  };
+  exportTelemetry?: () => string;
+  telemetrySummary?: () => unknown;
+}
+
+interface ImagesBreakdown {
+  total: number;
+  base64Stored: number;
+  base64DataSizeMB: string;
+  avgImageSizeKB: string | number;
+}
+
+interface ChaptersBreakdown {
+  total: number;
+  withTranslations: number;
+  withImages: number;
+  translationDataSizeKB: string;
+}
+
+interface MemoryBreakdown {
+  chapters: ChaptersBreakdown;
+  images: ImagesBreakdown;
+  translationHistory: {
+    entriesCount: number;
+  };
+}
+
+type MemoryBreakdownResult = MemoryBreakdown | { error: string };
+
+const getPerformanceMemory = (): PerformanceMemory | undefined => {
+  if (typeof performance === 'undefined') return undefined;
+  const perf = performance as Performance & { memory?: PerformanceMemory };
+  return perf.memory;
+};
+
+const toRecord = <T>(collection: Map<string, T> | Record<string, T> | undefined): Record<string, T> | undefined => {
+  if (!collection) return undefined;
+  if (collection instanceof Map) {
+    return Object.fromEntries(collection.entries());
+  }
+  return collection;
+};
+
+declare global {
+  interface Window extends WindowAugments {}
+}
+
 interface TelemetryEvent {
   type: 'error' | 'warning' | 'memory' | 'performance';
   category: string;
   message: string;
-  data?: any;
+  data?: TelemetryPayload;
   timestamp: number;
   sessionId: string;
 }
@@ -26,6 +105,8 @@ class TelemetryService {
   private maxEvents = 500;
   private isInitialized = false;
   private memoryCheckInterval?: number;
+  private errorHandler?: (event: ErrorEvent) => void;
+  private rejectionHandler?: (event: PromiseRejectionEvent) => void;
 
   constructor() {
     this.sessionId = crypto.randomUUID();
@@ -49,33 +130,27 @@ class TelemetryService {
   }
 
   private setupGlobalHandlers() {
-    // Capture unhandled errors
-    const errorHandler = (event: ErrorEvent) => {
-      this.captureError('uncaught', event.error || event.message, {
+    this.errorHandler = (event: ErrorEvent) => {
+      const context: TelemetryPayload = {
         filename: event.filename,
         lineno: event.lineno,
-        colno: event.colno
-      });
+        colno: event.colno,
+      };
+      this.captureError('uncaught', event.error ?? event.message, context);
     };
 
-    // Capture unhandled promise rejections
-    const rejectionHandler = (event: PromiseRejectionEvent) => {
+    this.rejectionHandler = (event: PromiseRejectionEvent) => {
       this.captureError('unhandledRejection', event.reason, {
-        promise: String(event.promise)
+        promise: String(event.promise),
       });
     };
 
-    window.addEventListener('error', errorHandler);
-    window.addEventListener('unhandledrejection', rejectionHandler);
-
-    // Store handlers for potential cleanup
-    (this as any)._errorHandler = errorHandler;
-    (this as any)._rejectionHandler = rejectionHandler;
+    window.addEventListener('error', this.errorHandler);
+    window.addEventListener('unhandledrejection', this.rejectionHandler);
   }
 
   private setupMemoryMonitoring() {
-    // Feature detection: performance.memory only exists in Chromium
-    const perfMemory = (performance as any).memory;
+    const perfMemory = getPerformanceMemory();
 
     if (!perfMemory) {
       console.log('[Telemetry] performance.memory not available (not Chromium)');
@@ -108,47 +183,60 @@ class TelemetryService {
   /**
    * Get detailed breakdown of what's consuming memory
    */
-  private getMemoryBreakdown(): any {
-    try {
-      // Access the store to check data sizes
-      const storeState = (window as any).__APP_STORE__?.getState?.();
+  private getMemoryBreakdown(): MemoryBreakdownResult {
+    if (typeof window === 'undefined') {
+      return { error: 'Window not available' };
+    }
 
+    try {
+      const storeState = (window as WindowAugments).__APP_STORE__?.getState?.();
       if (!storeState) {
         return { error: 'Store not accessible' };
       }
 
-      const chapters = storeState.chapters || new Map();
-      const generatedImages = storeState.generatedImages || {};
-      const translationHistory = storeState.translationHistory || {};
+      const chapters = storeState.chapters;
+      const generatedImages = storeState.generatedImages ?? {};
+      const translationHistory = storeState.translationHistory ?? {};
 
-      // Count chapters and estimate size
-      const chapterCount = chapters instanceof Map ? chapters.size : Object.keys(chapters).length;
+      let chapterCount = 0;
       let chaptersWithTranslations = 0;
       let chaptersWithImages = 0;
       let totalTranslationSize = 0;
 
       if (chapters instanceof Map) {
-        chapters.forEach((chapter: any) => {
+        chapterCount = chapters.size;
+        chapters.forEach((chapter) => {
           if (chapter.translationResult) {
-            chaptersWithTranslations++;
-            // Rough estimate of translation size
+            chaptersWithTranslations += 1;
             totalTranslationSize += JSON.stringify(chapter.translationResult).length;
+            if (Array.isArray(chapter.translationResult.suggestedIllustrations)) {
+              chaptersWithImages += chapter.translationResult.suggestedIllustrations.length;
+            }
           }
-          if (chapter.translationResult?.suggestedIllustrations) {
-            chaptersWithImages += chapter.translationResult.suggestedIllustrations.length;
+        });
+      } else if (chapters) {
+        const chapterEntries = Object.values(chapters);
+        chapterCount = chapterEntries.length;
+        chapterEntries.forEach((chapter) => {
+          if (chapter.translationResult) {
+            chaptersWithTranslations += 1;
+            totalTranslationSize += JSON.stringify(chapter.translationResult).length;
+            if (Array.isArray(chapter.translationResult.suggestedIllustrations)) {
+              chaptersWithImages += chapter.translationResult.suggestedIllustrations.length;
+            }
           }
         });
       }
 
-      // Count generated images (base64 strings are memory-heavy)
-      const imageCount = Object.keys(generatedImages).length;
+      const imageEntries = Object.values(generatedImages);
+      const imageCount = imageEntries.length;
       let base64ImageCount = 0;
       let totalImageDataSize = 0;
 
-      Object.values(generatedImages).forEach((img: any) => {
-        if (img?.data && typeof img.data === 'string' && img.data.startsWith('data:')) {
-          base64ImageCount++;
-          totalImageDataSize += img.data.length;
+      imageEntries.forEach((image) => {
+        if (typeof image?.data === 'string' && image.data.startsWith('data:')) {
+          base64ImageCount += 1;
+          totalImageDataSize += image.data.length;
         }
       });
 
@@ -157,17 +245,20 @@ class TelemetryService {
           total: chapterCount,
           withTranslations: chaptersWithTranslations,
           withImages: chaptersWithImages,
-          translationDataSizeKB: (totalTranslationSize / 1024).toFixed(1)
+          translationDataSizeKB: (totalTranslationSize / 1024).toFixed(1),
         },
         images: {
           total: imageCount,
           base64Stored: base64ImageCount,
           base64DataSizeMB: (totalImageDataSize / 1024 / 1024).toFixed(2),
-          avgImageSizeKB: base64ImageCount > 0 ? ((totalImageDataSize / base64ImageCount) / 1024).toFixed(1) : 0
+          avgImageSizeKB:
+            base64ImageCount > 0
+              ? ((totalImageDataSize / base64ImageCount) / 1024).toFixed(1)
+              : '0',
         },
         translationHistory: {
-          entriesCount: Object.keys(translationHistory).length
-        }
+          entriesCount: Object.keys(translationHistory).length,
+        },
       };
     } catch (error) {
       return { error: String(error) };
@@ -177,32 +268,40 @@ class TelemetryService {
   /**
    * Generate actionable recommendations based on memory breakdown
    */
-  private getMemoryRecommendations(breakdown: any): string[] {
+  private getMemoryRecommendations(breakdown: MemoryBreakdownResult): string[] {
     const recommendations: string[] = [];
 
-    if (breakdown.error) {
+    if ('error' in breakdown) {
       return ['Unable to analyze memory usage'];
     }
 
     // Check for base64 images in memory
-    if (breakdown.images?.base64Stored > 0) {
+    if (breakdown.images.base64Stored > 0) {
       const sizeMB = parseFloat(breakdown.images.base64DataSizeMB);
       if (sizeMB > 50) {
-        recommendations.push(`⚠️ ${breakdown.images.base64Stored} base64 images consuming ${sizeMB}MB - consider clearing old chapters`);
+        recommendations.push(
+          `⚠️ ${breakdown.images.base64Stored} base64 images consuming ${sizeMB}MB - consider clearing old chapters`
+        );
       } else if (sizeMB > 20) {
-        recommendations.push(`📊 ${breakdown.images.base64Stored} base64 images using ${sizeMB}MB of memory`);
+        recommendations.push(
+          `📊 ${breakdown.images.base64Stored} base64 images using ${sizeMB}MB of memory`
+        );
       }
     }
 
     // Check chapter count
-    if (breakdown.chapters?.total > 50) {
-      recommendations.push(`📚 ${breakdown.chapters.total} chapters loaded - consider clearing old chapters from session`);
+    if (breakdown.chapters.total > 50) {
+      recommendations.push(
+        `📚 ${breakdown.chapters.total} chapters loaded - consider clearing old chapters from session`
+      );
     }
 
     // Check translation data size
-    const translationKB = parseFloat(breakdown.chapters?.translationDataSizeKB || '0');
+    const translationKB = parseFloat(breakdown.chapters.translationDataSizeKB || '0');
     if (translationKB > 5000) {
-      recommendations.push(`💬 Translation data: ${translationKB}KB - this is normal for many chapters`);
+      recommendations.push(
+        `💬 Translation data: ${translationKB}KB - this is normal for many chapters`
+      );
     }
 
     if (recommendations.length === 0) {
@@ -217,7 +316,7 @@ class TelemetryService {
    * Get current memory stats (Chromium only)
    */
   private getMemoryStats(): MemoryStats {
-    const perfMemory = (performance as any).memory;
+    const perfMemory = getPerformanceMemory();
 
     if (!perfMemory) {
       return {
@@ -237,15 +336,19 @@ class TelemetryService {
   /**
    * Capture an error with context
    */
-  captureError(category: string, error: any, data?: any) {
+  captureError(category: string, error: unknown, data?: TelemetryPayload) {
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    const name = error instanceof Error ? error.name : undefined;
+
     const event: TelemetryEvent = {
       type: 'error',
       category,
-      message: error?.message || String(error),
+      message,
       data: {
         ...data,
-        stack: error?.stack,
-        name: error?.name
+        stack,
+        name,
       },
       timestamp: Date.now(),
       sessionId: this.sessionId
@@ -258,7 +361,7 @@ class TelemetryService {
   /**
    * Capture a warning
    */
-  captureWarning(category: string, message: string, data?: any) {
+  captureWarning(category: string, message: string, data?: TelemetryPayload) {
     const event: TelemetryEvent = {
       type: 'warning',
       category,
@@ -275,7 +378,7 @@ class TelemetryService {
   /**
    * Capture a memory snapshot with custom data
    */
-  captureMemorySnapshot(label: string, data: any) {
+  captureMemorySnapshot(label: string, data: TelemetryPayload) {
     const event: TelemetryEvent = {
       type: 'memory',
       category: 'snapshot',
@@ -294,7 +397,7 @@ class TelemetryService {
   /**
    * Capture a performance metric
    */
-  capturePerformance(label: string, durationMs: number, data?: any) {
+  capturePerformance(label: string, durationMs: number, data?: TelemetryPayload) {
     const event: TelemetryEvent = {
       type: 'performance',
       category: 'timing',
@@ -378,11 +481,13 @@ class TelemetryService {
     }
 
     // Remove event listeners if we stored them
-    if ((this as any)._errorHandler) {
-      window.removeEventListener('error', (this as any)._errorHandler);
+    if (this.errorHandler) {
+      window.removeEventListener('error', this.errorHandler);
+      this.errorHandler = undefined;
     }
-    if ((this as any)._rejectionHandler) {
-      window.removeEventListener('unhandledrejection', (this as any)._rejectionHandler);
+    if (this.rejectionHandler) {
+      window.removeEventListener('unhandledrejection', this.rejectionHandler);
+      this.rejectionHandler = undefined;
     }
 
     this.isInitialized = false;
@@ -395,6 +500,7 @@ export const telemetryService = new TelemetryService();
 // Auto-initialize and expose debugging tools (only in browser)
 if (typeof window !== 'undefined') {
   telemetryService.initialize();
-  (window as any).exportTelemetry = () => telemetryService.exportTelemetry();
-  (window as any).telemetrySummary = () => telemetryService.getSummary();
+  const browserWindow = window as Window & WindowAugments;
+  browserWindow.exportTelemetry = () => telemetryService.exportTelemetry();
+  browserWindow.telemetrySummary = () => telemetryService.getSummary();
 }

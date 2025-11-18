@@ -1,16 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExportService } from '../../services/exportService';
 import { useAppStore } from '../../store';
-import { indexedDBService } from '../../services/indexeddb';
+import type { TranslationRecord } from '../../services/db/types';
 import type { SessionProvenance } from '../../types/session';
 
-// Mock IndexedDB service
-vi.mock('../../services/indexeddb', () => ({
-  indexedDBService: {
-    getAllChapters: vi.fn(),
-    getTranslationVersions: vi.fn(),
-    getTranslationVersionsByStableId: vi.fn()
-  }
+const chapterOpsMock = vi.hoisted(() => ({
+  getAll: vi.fn(),
+}));
+
+const translationOpsMock = vi.hoisted(() => ({
+  getVersionsByStableId: vi.fn(),
+  getVersionsByUrl: vi.fn(),
+}));
+
+vi.mock('../../services/db/operations', () => ({
+  ChapterOps: chapterOpsMock,
+  TranslationOps: translationOpsMock,
 }));
 
 describe('ExportService', () => {
@@ -24,29 +29,36 @@ describe('ExportService', () => {
 
     // Reset all mocks
     vi.clearAllMocks();
+    chapterOpsMock.getAll.mockReset();
+    translationOpsMock.getVersionsByStableId.mockReset();
+    translationOpsMock.getVersionsByUrl.mockReset();
 
     // Setup default mock implementations
-    vi.mocked(indexedDBService.getAllChapters).mockResolvedValue([
+    const timestamp = '2025-01-20T00:00:00Z';
+    chapterOpsMock.getAll.mockResolvedValue([
       {
-        id: 'ch1',
+        url: 'http://example.com/ch1',
+        originalUrl: 'http://example.com/ch1',
         title: 'Chapter 1',
         content: 'Test content',
-        url: 'http://example.com/ch1',
         canonicalUrl: 'http://example.com/ch1',
-        stableId: null,
+        stableId: 'stable-ch1',
         chapterNumber: 1,
         nextUrl: null,
         prevUrl: null,
-        fanTranslation: null
-      }
+        fanTranslation: null,
+        dateAdded: timestamp,
+        lastAccessed: timestamp,
+      },
     ]);
 
-    vi.mocked(indexedDBService.getTranslationVersions).mockResolvedValue([
+    const translationRecords: TranslationRecord[] = [
       {
         id: 'trans1',
+        chapterUrl: 'http://example.com/ch1',
         version: 1,
         isActive: true,
-        createdAt: '2025-01-20T00:00:00Z',
+        createdAt: timestamp,
         translatedTitle: 'Chapter 1',
         translation: 'Translated content',
         footnotes: [],
@@ -62,9 +74,18 @@ describe('ExportService', () => {
         promptTokens: 50,
         completionTokens: 50,
         estimatedCost: 0.001,
-        requestTime: 1000
-      }
-    ]);
+        requestTime: 1000,
+        stableId: 'stable-ch1',
+        settingsSnapshot: {
+          provider: 'Gemini',
+          model: 'gemini-2.0-flash',
+          temperature: 0.7,
+          systemPrompt: 'Test prompt',
+        },
+      },
+    ];
+    translationOpsMock.getVersionsByUrl.mockResolvedValue(translationRecords);
+    translationOpsMock.getVersionsByStableId.mockResolvedValue(translationRecords);
   });
 
   it('should generate quick export without provenance', async () => {
@@ -77,7 +98,7 @@ describe('ExportService', () => {
     expect(exportData.provenance).toBeUndefined();
 
     // Verify IndexedDB was called
-    expect(indexedDBService.getAllChapters).toHaveBeenCalled();
+    expect(chapterOpsMock.getAll).toHaveBeenCalled();
   });
 
   it('should generate publish export with metadata and provenance', async () => {
@@ -107,7 +128,7 @@ describe('ExportService', () => {
     expect(exportData.provenance?.contributors[0].role).toBe('original-translator');
 
     // Verify IndexedDB was called
-    expect(indexedDBService.getAllChapters).toHaveBeenCalled();
+    expect(chapterOpsMock.getAll).toHaveBeenCalled();
   });
 
   it('should generate fork export with parent lineage', async () => {
@@ -152,6 +173,6 @@ describe('ExportService', () => {
     expect(exportData.provenance.contributors[1].changes).toBe('Added illustrations');
 
     // Verify IndexedDB was called
-    expect(indexedDBService.getAllChapters).toHaveBeenCalled();
+    expect(chapterOpsMock.getAll).toHaveBeenCalled();
   });
 });

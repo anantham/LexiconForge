@@ -2,7 +2,6 @@
  * Import Service - Handle session imports from URLs and files
  */
 
-import { indexedDBService } from './indexeddb';
 import { useAppStore } from '../store';
 import type { SessionData } from '../types/session';
 import type {
@@ -14,6 +13,8 @@ import type {
 } from '../types';
 import { ChapterOps } from './db/operations/chapters';
 import { TranslationOps } from './db/operations/translations';
+import { SettingsOps } from './db/operations';
+import { fetchChaptersForReactRendering } from './db/operations/rendering';
 import { debugLog } from '../utils/debug';
 import { normalizeUrlAggressively } from './stableIdService';
 import { telemetryService } from './telemetryService';
@@ -729,22 +730,22 @@ export class ImportService {
           }
         );
 
-        const rendering = await indexedDBService.getChaptersForReactRendering();
-        const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
+        const rendering = await fetchChaptersForReactRendering();
+        const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
 
         useAppStore.setState(state => {
           const newChapters = new Map<string, any>();
           const newUrlIndex = new Map<string, string>();
           const newRawUrlIndex = new Map<string, string>();
           for (const ch of rendering) {
-            const chapterData = ch.data?.chapter ?? {};
-            const canonicalUrl = ch.url ?? chapterData.originalUrl ?? null;
-            const originalUrl = chapterData.originalUrl ?? canonicalUrl ?? null;
-            const title = chapterData.title ?? ch.title ?? 'Untitled Chapter';
-            const content = chapterData.content ?? '';
-            const nextUrl = chapterData.nextUrl ?? null;
-            const prevUrl = chapterData.prevUrl ?? null;
-            const chapterNumber = ch.chapterNumber ?? chapterData.chapterNumber ?? 0;
+            const chapterData = ch.data?.chapter;
+            const canonicalUrl = ch.url ?? chapterData?.originalUrl ?? null;
+            const originalUrl = chapterData?.originalUrl ?? canonicalUrl ?? null;
+            const title = chapterData?.title ?? ch.title ?? 'Untitled Chapter';
+            const content = chapterData?.content ?? '';
+            const nextUrl = chapterData?.nextUrl ?? null;
+            const prevUrl = chapterData?.prevUrl ?? null;
+            const chapterNumber = ch.chapterNumber ?? chapterData?.chapterNumber ?? 0;
 
             newChapters.set(ch.stableId, {
               id: ch.stableId,
@@ -756,7 +757,7 @@ export class ImportService {
               nextUrl,
               prevUrl,
               chapterNumber,
-              fanTranslation: chapterData.fanTranslation ?? null,
+              fanTranslation: chapterData?.fanTranslation ?? null,
               translationResult: ch.data?.translationResult || null,
               feedback: [],
             });

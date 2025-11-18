@@ -60,7 +60,7 @@ class ApiMetricsService {
    * Initialize IndexedDB store for metrics
    */
   async initialize(): Promise<void> {
-    // IndexedDB is already initialized by indexedDBService
+    // IndexedDB is already initialized by the bootstrap service
     // We just need to ensure the store exists
     console.log('[ApiMetrics] Service initialized');
   }

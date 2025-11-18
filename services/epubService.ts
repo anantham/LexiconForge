@@ -332,6 +332,7 @@ export interface EpubExportOptions {
   template?: EpubTemplate;
   novelConfig?: NovelConfig;
   telemetryInsights?: TelemetryInsights;
+  includeTitlePage?: boolean;
   includeStatsPage?: boolean;
   customTemplate?: any;
   manualConfig?: any;

@@ -8,6 +8,7 @@ import TrashIcon from './icons/TrashIcon';
 import { ImportTransformationService } from '../services/importTransformationService';
 import type { ChapterSummary } from '../types';
 import { telemetryService } from '../services/telemetryService';
+import { ChapterOps } from '../services/db/operations';
 
 // Prefer a human-facing number if the title contains "Chapter 147", "Ch 147", etc.
 const numberFromTitle = (s?: string): number | undefined => {
@@ -369,12 +370,10 @@ const SessionInfo: React.FC = () => {
         if (deleteMode === 'chapter') {
             // Delete chapter completely from IndexedDB + store
             try {
-                const { indexedDBService } = await import('../services/indexeddb');
                 const currentChapter = chapters.get(currentChapterId);
                 if (!currentChapter) return;
 
-                // Delete from IndexedDB
-                await indexedDBService.deleteChapter(currentChapter.originalUrl);
+                await ChapterOps.deleteByUrl(currentChapter.originalUrl);
 
                 // Remove from store
                 const removeChapter = useAppStore.getState().removeChapter;

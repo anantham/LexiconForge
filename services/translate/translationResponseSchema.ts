@@ -151,15 +151,24 @@ export function getTranslationResponseJsonSchema(enableAmendments: boolean = fal
  * Get the Gemini translation response schema with conditional proposal field
  * based on enableAmendments setting
  */
+type GeminiObjectSchema = Schema & {
+  type: SchemaType.OBJECT;
+  properties?: Record<string, Schema>;
+  required?: string[];
+};
+
 export function getTranslationResponseGeminiSchema(enableAmendments: boolean = false): Schema {
   if (!enableAmendments) {
-    // Return schema without proposal in required fields
-    const { proposal, ...propsWithoutProposal } = translationResponseGeminiSchema.properties;
-    return {
-      ...translationResponseGeminiSchema,
-      properties: propsWithoutProposal,
-      required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations']
-    };
+    const clone = JSON.parse(JSON.stringify(translationResponseGeminiSchema)) as Schema;
+    if (clone.type === SchemaType.OBJECT) {
+      const objectClone = clone as GeminiObjectSchema;
+      const props = { ...(objectClone.properties || {}) };
+      delete props.proposal;
+      objectClone.properties = props;
+      objectClone.required = ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations'];
+      return objectClone;
+    }
+    return clone;
   }
   return translationResponseGeminiSchema;
 }

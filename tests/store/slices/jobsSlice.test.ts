@@ -1,9 +1,23 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { createJobsSlice, generateJobId, type JobsSlice, type TranslationJob } from '../../../store/slices/jobsSlice';
+import type { AppSettings } from '../../../types';
 
 vi.mock('../../../utils/debug', () => ({
   debugLog: vi.fn(),
 }));
+
+const mockSettings: AppSettings = {
+  contextDepth: 0,
+  preloadCount: 0,
+  fontSize: 16,
+  fontStyle: 'sans',
+  lineHeight: 1.4,
+  systemPrompt: '',
+  provider: 'OpenAI',
+  model: 'gpt-4o-mini',
+  imageModel: 'imagen-3.0',
+  temperature: 0.7,
+};
 
 const createSlice = (): JobsSlice => {
   const state: Partial<JobsSlice> = {};
@@ -13,7 +27,13 @@ const createSlice = (): JobsSlice => {
     Object.assign(state, next);
   };
   const get = () => state as JobsSlice;
-  Object.assign(state, createJobsSlice(set as any, get as any));
+  const api = {
+    setState: set,
+    getState: get,
+    subscribe: () => () => {},
+    destroy: () => {},
+  };
+  Object.assign(state, createJobsSlice(set as any, get as any, api as any));
   return state as JobsSlice;
 };
 
@@ -37,7 +57,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'pending',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 0,
         completedChapters: 0,
       });
@@ -54,7 +74,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'pending',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 0,
         completedChapters: 0,
       });
@@ -79,7 +99,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'pending',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 0,
         completedChapters: 0,
       });
@@ -95,7 +115,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'completed',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 1,
         completedChapters: 1,
       });
@@ -104,7 +124,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'failed',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 1,
         completedChapters: 0,
       });
@@ -113,7 +133,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'running',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 1,
         completedChapters: 0,
       });
@@ -139,7 +159,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'pending',
         chapterUrls: ['url-1'],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 1,
         completedChapters: 0,
       });
@@ -197,7 +217,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'running',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 1,
         completedChapters: 0,
       });
@@ -206,7 +226,7 @@ describe('jobsSlice', () => {
         type: 'translation',
         status: 'pending',
         chapterUrls: [],
-        settings: {},
+        settings: mockSettings,
         totalChapters: 1,
         completedChapters: 0,
       });
@@ -265,7 +285,7 @@ describe('jobsSlice', () => {
         createdAt: Date.now(),
         progress: 50,
         chapterUrls: [],
-        settings: {},
+         settings: mockSettings,
         totalChapters: 1,
         completedChapters: 0,
       };

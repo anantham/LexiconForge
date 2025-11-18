@@ -262,7 +262,7 @@
   DTO Cleanup Roadmap
 
   - Inventory & Canonicalize
-      - Pull every place we read/write IndexedDB (services/indexeddb.ts, services/db/operations/**, workers, tests) and list the record shapes in use.
+      - Pull every place we read/write IndexedDB (services/db/operations/**, workers, tests) and list the record shapes in use.
         Confirm what a “chapter”, “translation”, “summary”, URL mapping, etc. actually look like in storage today.
       - Decide the single source of truth: likely a types/db.ts (or services/db/core/types.ts) that exports ChapterRecord, TranslationRecord,
         ChapterSummaryRecord, UrlMappingRecord, etc., plus codec helpers for migrations.
@@ -283,10 +283,14 @@
       - For schema versions ≥ current, add runtime validators (lightweight zod or manual) when reading legacy stores to guard against malformed data.
         Document in ADR/WORKLOG how to extend DTOs going forward.
   - CI Enforcement
-      - Add focused scripts (npx tsc --noEmit --project tsconfig.json --pretty false --types ./services/indexeddb.ts) or ESLint rules so future DTO
+      - Add focused scripts (npx tsc --noEmit --project tsconfig.json --pretty false --types ./services/db/types.ts) or ESLint rules so future DTO
         changes must compile cleanly. Optionally build a tsc --noEmit --project tsconfig.tsbuildinfo dedicated to the db layer.
   - Documentation
-      - Capture the final structure in an ADR or docs/db-schema.md explaining fields, relations, and migration expectations so future changes stay
-        aligned.
+ - Capture the final structure in an ADR or docs/db-schema.md explaining fields, relations, and migration expectations so future changes stay
+   aligned.
 
+10) Navigation metadata still relies on source URLs
 
+  - Even after importing chapters, we keep the scraped `nextUrl` / `prevUrl` fields unchanged. The preload worker and navigation fallback therefore keep trying to fetch those external URLs, leading to unnecessary proxy churn whenever a chapter already exists locally.
+  - **Plan:** Introduce internal navigation links (rewrite next/prev to stable IDs or add dedicated fields) so the app never attempts to crawl the remote site unless the user explicitly pastes a new URL. Requires DTO/ops updates plus a backfill.
+  - **Status:** Short-term cache guard added (Nov 13) to skip redundant fetches, but the structural cleanup remains open.

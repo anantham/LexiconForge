@@ -3,7 +3,7 @@ import { useAppStore } from '../../store';
 import { defaultSettings } from '../../services/sessionManagementService';
 import { createMockStorage, applyStorageMock } from '../utils/storage-mocks';
 import type { EnhancedChapter } from '../../services/stableIdService';
-import type { TranslationResult } from '../../types';
+import type { AppSettings, TranslationResult } from '../../types';
 
 const resetStoreState = () => {
   useAppStore.setState({
@@ -17,7 +17,9 @@ const resetStoreState = () => {
   });
 };
 
-const makeChapter = (id: string, url: string, snapshot: any): EnhancedChapter => ({
+type Snapshot = Pick<AppSettings, 'provider' | 'model' | 'systemPrompt' | 'temperature'>;
+
+const makeChapter = (id: string, url: string, snapshot: Snapshot): EnhancedChapter => ({
   id,
   title: `Chapter ${id}`,
   content: 'Translated text',
@@ -124,15 +126,17 @@ describe('Settings slice integration', () => {
   it('detects translation-relevant setting changes', () => {
     const chapterId = 'stable-1';
     const url = 'https://example.com/ch1';
-    const snapshot = {
+    const snapshot: Snapshot = {
       provider: 'Gemini',
       model: 'gemini-2.5-flash',
       systemPrompt: defaultSettings.systemPrompt,
       temperature: 0.3,
     };
 
-    useAppStore.setState(state => ({
+    useAppStore.setState({
       chapters: new Map([[chapterId, makeChapter(chapterId, url, snapshot)]]),
+    });
+    useAppStore.setState(state => ({
       settings: { ...state.settings, ...snapshot },
     }));
 
@@ -141,9 +145,18 @@ describe('Settings slice integration', () => {
     useAppStore.getState().updateSettings({ provider: 'OpenAI' });
     expect(useAppStore.getState().hasTranslationSettingsChanged(chapterId)).toBe(true);
 
+    const updatedSnapshot: Snapshot = { ...snapshot, provider: 'OpenAI', model: 'gpt-5-mini' };
+    useAppStore.setState({
+      chapters: new Map([[chapterId, makeChapter(chapterId, url, updatedSnapshot)]]),
+    });
     useAppStore.setState(state => ({
-      chapters: new Map([[chapterId, makeChapter(chapterId, url, { ...snapshot, provider: 'OpenAI', model: 'gpt-5-mini' })]]),
-      settings: { ...state.settings, provider: 'OpenAI', model: 'gpt-5-mini', systemPrompt: snapshot.systemPrompt, temperature: 0.3 },
+      settings: {
+        ...state.settings,
+        provider: 'OpenAI',
+        model: 'gpt-5-mini',
+        systemPrompt: snapshot.systemPrompt,
+        temperature: 0.3,
+      },
     }));
     expect(useAppStore.getState().hasTranslationSettingsChanged(chapterId)).toBe(false);
 

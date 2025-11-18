@@ -1,19 +1,19 @@
 /**
- * Database Service Factory - Hybrid Approach
- * 
- * Single entry point combining GPT-5's backend abstraction 
- * with Claude's service-aware migration control.
+ * Database Service Factory
+ *
+ * Single entry point for the repository-backed persistence layer with a
+ * simple backend toggle (modern ops by default, or memory fallback when IndexedDB is unavailable).
  */
-
-import type { Repo } from '../../adapters/repo/Repo';
 import type {
   ChapterLookupResult,
   ChapterRecord,
+  ExportSessionOptions,
+  FeedbackRecord,
   NovelRecord,
   PromptTemplateRecord,
   TranslationRecord,
   UrlMappingRecord,
-} from '../indexeddb';
+} from './types';
 import type {
   AppSettings,
   Chapter,
@@ -22,8 +22,6 @@ import type {
   PromptTemplate,
   TranslationResult,
 } from '../../types';
-import { makeLegacyRepo } from '../../legacy/indexeddb-compat';
-import { migrationController, type Backend, type ServiceName } from './migration/phase-controller';
 import { getEnvVar } from '../env';
 import { isIndexedDBAvailable } from './core/connection';
 import {
@@ -33,12 +31,106 @@ import {
   SettingsOps,
   TemplatesOps,
   MappingsOps,
-  ExportOps,
+  SessionExportOps,
 } from './operations';
 import { generateStableChapterId, normalizeUrlAggressively } from '../stableIdService';
 
-// Environment-based backend selection
-const DEFAULT_BACKEND: Backend = (getEnvVar('DB_BACKEND') as Backend) ?? 'legacy';
+type TranslationSettingsInput = Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+  promptId?: string;
+  promptName?: string;
+};
+
+interface Repo {
+  // Chapters
+  getChapter(url: string): Promise<ChapterRecord | null>;
+  getChapterByStableId(stableId: string): Promise<ChapterRecord | null>;
+  storeChapter(chapter: Chapter): Promise<void>;
+  storeEnhancedChapter(enhanced: any): Promise<void>;
+  getAllChapters(): Promise<ChapterRecord[]>;
+  findChapterByUrl(url: string): Promise<ChapterLookupResult | null>;
+
+  // Translations
+  storeTranslation(
+    chapterUrl: string,
+    translation: TranslationResult,
+    settings: TranslationSettingsInput
+  ): Promise<TranslationRecord>;
+  storeTranslationByStableId(
+    stableId: string,
+    translation: TranslationResult,
+    settings: TranslationSettingsInput
+  ): Promise<TranslationRecord>;
+  getTranslationVersions(chapterUrl: string): Promise<TranslationRecord[]>;
+  getTranslationVersionsByStableId(stableId: string): Promise<TranslationRecord[]>;
+  getActiveTranslation(chapterUrl: string): Promise<TranslationRecord | null>;
+  getActiveTranslationByStableId(stableId: string): Promise<TranslationRecord | null>;
+  setActiveTranslation(chapterUrl: string, version: number): Promise<void>;
+  setActiveTranslationByStableId(stableId: string, version: number): Promise<void>;
+
+  // Feedback
+  storeFeedback(chapterUrl: string, feedback: FeedbackItem, translationId?: string): Promise<void>;
+  getFeedback(chapterUrl: string): Promise<FeedbackRecord[]>;
+  getAllFeedback(): Promise<FeedbackRecord[]>;
+
+  // Settings / templates
+  storeSettings(settings: AppSettings): Promise<void>;
+  getSettings(): Promise<AppSettings | null>;
+  setSetting<T = unknown>(key: string, value: T): Promise<void>;
+  getSetting<T = unknown>(key: string): Promise<T | null>;
+  storePromptTemplate(template: PromptTemplate): Promise<void>;
+  getPromptTemplates(): Promise<PromptTemplateRecord[]>;
+  getDefaultPromptTemplate(): Promise<PromptTemplateRecord | null>;
+  getPromptTemplate(id: string): Promise<PromptTemplateRecord | null>;
+  setDefaultPromptTemplate(id: string): Promise<void>;
+
+  // URL mappings / novels
+  getStableIdByUrl(url: string): Promise<string | null>;
+  getUrlMappingForUrl(url: string): Promise<UrlMappingRecord | null>;
+  getAllUrlMappings(): Promise<UrlMappingRecord[]>;
+  getAllNovels(): Promise<NovelRecord[]>;
+
+  // Export helpers
+  exportFullSessionToJson(options?: ExportSessionOptions): Promise<any>;
+}
+
+export type Backend = 'modern' | 'memory';
+type BackendInput = Backend | 'idb';
+
+const SERVICE_NAMES = [
+  'translationService',
+  'navigationService',
+  'translationsSlice',
+  'chaptersSlice',
+  'exportSlice',
+  'imageGenerationService',
+  'sessionManagementService',
+  'importTransformationService',
+  'openrouterService',
+] as const;
+
+export type ServiceName = typeof SERVICE_NAMES[number];
+
+const BACKEND_STORAGE_KEY = 'lf:db-backend';
+const LEGACY_BACKEND_VALUE = 'legacy';
+let legacyBackendWarningLogged = false;
+
+const rawEnvBackend = getEnvVar('DB_BACKEND');
+if (rawEnvBackend && rawEnvBackend.toLowerCase() === LEGACY_BACKEND_VALUE) {
+  warnLegacyPreference('env');
+}
+const DEFAULT_BACKEND: Backend = normalizeBackend(rawEnvBackend);
+let preferredBackend: Backend = resolveBackendPreference();
+const repoCache = new Map<Backend, Repo>();
+
+function warnLegacyPreference(source: 'env' | 'storage' | 'runtime'): void {
+  if (legacyBackendWarningLogged) {
+    return;
+  }
+  console.warn(
+    `[DB] Legacy backend support has been removed (${source}); defaulting to the modern repository.`
+  );
+  legacyBackendWarningLogged = true;
+}
 
 /**
  * Memory-based repository for fallback scenarios
@@ -46,7 +138,7 @@ const DEFAULT_BACKEND: Backend = (getEnvVar('DB_BACKEND') as Backend) ?? 'legacy
 function makeMemoryRepo(): Repo {
   const chapters = new Map<string, ChapterRecord>();
   const translations = new Map<string, TranslationRecord>();
-  const feedback = new Map<string, { id: string; chapterUrl: string; translationId?: string; item: FeedbackItem; createdAt: string }>();
+  const feedback = new Map<string, FeedbackRecord>();
   let settings: AppSettings | null = null;
   const promptTemplates = new Map<string, PromptTemplateRecord>();
   const urlMappings = new Map<string, UrlMappingRecord>();
@@ -184,6 +276,42 @@ function makeMemoryRepo(): Repo {
     }
 
     return record;
+  };
+
+  const mapLegacyFeedbackType = (item: FeedbackItem): FeedbackRecord['type'] => {
+    const normalizedCategory = (item.category || '').toLowerCase();
+    if (normalizedCategory === 'positive' || normalizedCategory === 'negative' || normalizedCategory === 'suggestion') {
+      return normalizedCategory as FeedbackRecord['type'];
+    }
+    switch (item.type) {
+      case '👍':
+        return 'positive';
+      case '👎':
+        return 'negative';
+      default:
+        return 'suggestion';
+    }
+  };
+
+  const createFeedbackRecord = (
+    chapterUrl: string,
+    item: FeedbackItem,
+    translationId?: string
+  ): FeedbackRecord => {
+    const createdAt =
+      typeof item.timestamp === 'number'
+        ? new Date(item.timestamp).toISOString()
+        : new Date().toISOString();
+
+    return {
+      id: item.id || `feedback-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      chapterUrl,
+      translationId,
+      type: mapLegacyFeedbackType(item),
+      selection: item.selection ?? item.text ?? '',
+      comment: item.comment ?? item.text ?? '',
+      createdAt,
+    };
   };
 
   const toTranslationRecord = (
@@ -395,26 +523,15 @@ function makeMemoryRepo(): Repo {
 
     // Feedback
     storeFeedback: async (chapterUrl, item, translationId) => {
-      const id = item.id || `feedback-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const stored: FeedbackItem = {
-        ...item,
-        id,
-        chapterId: item.chapterId ?? chapterUrl,
-      };
-      feedback.set(id, {
-        id,
-        chapterUrl,
-        translationId,
-        item: stored,
-        createdAt: new Date().toISOString(),
-      });
+      const record = createFeedbackRecord(chapterUrl, item, translationId);
+      feedback.set(record.id, record);
     },
     getFeedback: async (chapterUrl) => {
       return Array.from(feedback.values())
-        .filter(entry => entry.chapterUrl === chapterUrl)
-        .map(entry => ({ ...entry.item }));
+        .filter(record => record.chapterUrl === chapterUrl)
+        .map(record => ({ ...record }));
     },
-    getAllFeedback: async () => Array.from(feedback.values()).map(entry => ({ ...entry.item })),
+    getAllFeedback: async () => Array.from(feedback.values()).map(record => ({ ...record })),
 
     // Settings & templates
     storeSettings: async (nextSettings) => {
@@ -475,15 +592,108 @@ function makeMemoryRepo(): Repo {
       chapters: Array.from(chapters.values()).map(cloneChapterRecord),
       translations: Array.from(translations.values()).map(cloneTranslationRecord),
       settings: settings ? { ...settings } : null,
-      feedback: Array.from(feedback.values()).map(entry => ({
-        ...entry.item,
-        chapterId: entry.chapterUrl,
+      feedback: Array.from(feedback.values()).map(record => ({
+        ...record,
+        chapterId: record.chapterUrl,
       })),
       promptTemplates: Array.from(promptTemplates.values()).map(t => ({ ...t })),
       urlMappings: Array.from(urlMappings.values()).map(mapping => ({ ...mapping })),
       novels: Array.from(novels.values()).map(novel => ({ ...novel })),
     }),
   };
+}
+
+function normalizeBackend(value?: BackendInput | string | null): Backend {
+  switch ((value ?? '').toString().toLowerCase()) {
+    case 'memory':
+      return 'memory';
+    case 'modern':
+    case 'idb':
+    case LEGACY_BACKEND_VALUE:
+    default:
+      return 'modern';
+  }
+}
+
+function resolveBackendPreference(): Backend {
+  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+    try {
+      const stored = window.localStorage.getItem(BACKEND_STORAGE_KEY);
+      if (stored) {
+        const normalized = stored.toLowerCase();
+        if (normalized === LEGACY_BACKEND_VALUE) {
+          warnLegacyPreference('storage');
+          persistBackendPreference('modern');
+          return 'modern';
+        }
+        return normalizeBackend(stored);
+      }
+    } catch {
+      // Ignore storage access failures (private mode, quota exceeded, etc.)
+    }
+  }
+  return DEFAULT_BACKEND;
+}
+
+function persistBackendPreference(backend: Backend): void {
+  if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+    return;
+  }
+  try {
+    window.localStorage.setItem(BACKEND_STORAGE_KEY, backend);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function clearStoredBackendPreference(): void {
+  if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+    return;
+  }
+  try {
+    window.localStorage.removeItem(BACKEND_STORAGE_KEY);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function updatePreferredBackend(next: Backend): void {
+  preferredBackend = next;
+  persistBackendPreference(next);
+  repoCache.clear();
+}
+
+function getEffectiveBackend(): Backend {
+  const normalized = preferredBackend;
+  if (normalized !== 'memory' && !isIndexedDBAvailable()) {
+    return 'memory';
+  }
+  return normalized;
+}
+
+function getRepoForBackend(backendInput?: BackendInput): Repo {
+  const normalized = normalizeBackend(backendInput ?? getEffectiveBackend());
+  const needsFallback = normalized !== 'memory' && !isIndexedDBAvailable();
+  const safeBackend = needsFallback ? 'memory' : normalized;
+
+  if (needsFallback) {
+    console.warn(`[DB] IndexedDB not available, using memory backend instead of ${normalized}`);
+  }
+
+  if (!repoCache.has(safeBackend)) {
+    repoCache.set(safeBackend, instantiateRepo(safeBackend));
+  }
+  return repoCache.get(safeBackend)!;
+}
+
+function instantiateRepo(backend: Backend): Repo {
+  switch (backend) {
+    case 'memory':
+      return makeMemoryRepo();
+    case 'modern':
+    default:
+      return makeIdbRepo();
+  }
 }
 
 /**
@@ -534,158 +744,61 @@ function makeIdbRepo(): Repo {
     getAllUrlMappings: () => MappingsOps.getAllUrlMappings(),
     getAllNovels: () => MappingsOps.getAllNovels(),
 
-    // Export
-    exportFullSessionToJson: () => ExportOps.exportFullSessionToJson(),
+    // Export helpers
+    exportFullSessionToJson: (options?: ExportSessionOptions) =>
+      SessionExportOps.exportFullSession(options),
   };
 }
 
 /**
- * Factory function to create appropriate repository based on backend and availability
+ * Factory function to create appropriate repository based on backend preference.
  */
-export function makeRepo(backend: Backend = DEFAULT_BACKEND): Repo {
-  // Check IndexedDB availability first
-  if (!isIndexedDBAvailable() && (backend === 'idb' || backend === 'legacy')) {
-    console.warn('[DB] IndexedDB not available, using memory fallback');
-    return makeMemoryRepo();
-  }
-
-  switch (backend) {
-    case 'shadow':
-      return makeShadowRepo();
-    case 'idb':
-      return makeIdbRepo();
-    case 'memory':
-      return makeMemoryRepo();
-    case 'legacy':
-    default:
-      return makeLegacyRepo();
-  }
+export function makeRepo(backend?: BackendInput): Repo {
+  return getRepoForBackend(backend);
 }
 
 /**
- * Service-aware repository factory (Hybrid innovation)
+ * Utility to get repo for specific service (compatibility shim).
+ * Services all share the same backend preference now, but the signature
+ * remains for future per-service overrides.
  */
-export function makeServiceAwareRepo(service: ServiceName): Repo {
-  const shouldUseNew = migrationController.shouldUseNewBackend(service);
-  const backend = shouldUseNew ? migrationController.getBackend() : 'legacy';
-  
-  return makeRepo(backend);
-}
-
-/**
- * Global repository singleton (for backward compatibility)
- */
-export const repo = makeRepo(DEFAULT_BACKEND);
-
-/**
- * Export migration controller for manual control
- */
-export { migrationController } from './migration/phase-controller';
-export type { Backend, ServiceName, MigrationPhase } from './migration/phase-controller';
-
-/**
- * Utility to get repo for specific service (Hybrid approach)
- */
-export function getRepoForService(service: ServiceName): Repo {
-  return makeServiceAwareRepo(service);
+export function getRepoForService(_service: ServiceName): Repo {
+  return makeRepo();
 }
 
 /**
  * Development/testing utilities
  */
 export const dbUtils = {
-  switchBackend: (backend: Backend) => {
-    migrationController.setBackend(backend);
-    return makeRepo(backend);
+  switchBackend: (backend: BackendInput) => {
+    if (`${backend}`.toLowerCase() === LEGACY_BACKEND_VALUE) {
+      warnLegacyPreference('runtime');
+    }
+    updatePreferredBackend(normalizeBackend(backend));
+    return makeRepo();
   },
-  
+
   resetMigrationState: () => {
-    migrationController.setBackend('legacy');
+    clearStoredBackendPreference();
+    preferredBackend = DEFAULT_BACKEND;
+    repoCache.clear();
   },
-  
+
   getMigrationStatus: () => {
-    return migrationController.getMigrationStatus();
+    return {
+      preferredBackend,
+      effectiveBackend: getEffectiveBackend(),
+    };
   },
-  
+
   emergencyRollback: () => {
-    return migrationController.emergencyRollback();
-  }
+    warnLegacyPreference('runtime');
+    updatePreferredBackend('modern');
+    return makeRepo();
+  },
 };
 
 // Export core modules for advanced usage
 export * from './core/errors';
 export * from './core/connection';
 export * from './core/schema';
-
-/**
- * Shadow repo: reads from legacy, writes through both legacy and new ops (best effort).
- * This allows validating the new path without impacting user-visible reads.
- */
-function makeShadowRepo(): Repo {
-  const legacy = makeLegacyRepo();
-
-  return {
-    // Chapters
-    getChapter: (url) => legacy.getChapter(url),
-    getChapterByStableId: (stableId) => legacy.getChapterByStableId(stableId),
-    storeChapter: async (chapter) => {
-      // Prefer new path to ensure URL mappings are written; legacy path inside ChapterOps.store
-      await ChapterOps.store(chapter as any);
-    },
-    storeEnhancedChapter: (enhanced) => legacy.storeEnhancedChapter(enhanced),
-    getAllChapters: () => legacy.getAllChapters(),
-    findChapterByUrl: (url) => legacy.findChapterByUrl(url),
-
-    // Translations: dual write (legacy + new atomic)
-    storeTranslation: async (chapterUrl, translation, settings) => {
-      const [legacyResult] = await Promise.all([
-        legacy.storeTranslation(chapterUrl, translation, settings),
-        TranslationOps.store({ ref: { url: chapterUrl }, result: translation, settings })
-      ]);
-      return legacyResult;
-    },
-    storeTranslationByStableId: async (stableId, translation, settings) => {
-      const urlResolver = TranslationOps.store({ ref: { stableId }, result: translation, settings });
-      const legacyResult = await legacy.storeTranslationByStableId(stableId, translation, settings);
-      // Fire-and-forget new path if legacy succeeded first
-      urlResolver.catch(() => {});
-      return legacyResult;
-    },
-    getTranslationVersions: (chapterUrl) => legacy.getTranslationVersions(chapterUrl),
-    getTranslationVersionsByStableId: (stableId) => legacy.getTranslationVersionsByStableId(stableId),
-    getActiveTranslation: (chapterUrl) => legacy.getActiveTranslation(chapterUrl),
-    getActiveTranslationByStableId: (stableId) => legacy.getActiveTranslationByStableId(stableId),
-    setActiveTranslation: (chapterUrl, version) => legacy.setActiveTranslation(chapterUrl, version),
-    setActiveTranslationByStableId: async (stableId, version) => {
-      // Try legacy first for user-visible effect
-      await legacy.setActiveTranslationByStableId(stableId, version).catch(() => {});
-      // New path with auto-repair
-      await TranslationOps.setActiveByStableId(stableId, version);
-    },
-
-    // Feedback
-    storeFeedback: (chapterUrl, feedback, translationId) => legacy.storeFeedback(chapterUrl, feedback, translationId),
-    getFeedback: (chapterUrl) => legacy.getFeedback(chapterUrl),
-    getAllFeedback: () => legacy.getAllFeedback(),
-
-    // Settings & templates
-    storeSettings: (settings) => legacy.storeSettings(settings),
-    getSettings: () => legacy.getSettings(),
-    setSetting: (key, value) => legacy.setSetting(key, value),
-    getSetting: (key) => legacy.getSetting(key),
-    storePromptTemplate: (t) => legacy.storePromptTemplate(t),
-    getPromptTemplates: () => legacy.getPromptTemplates(),
-    getDefaultPromptTemplate: () => legacy.getDefaultPromptTemplate(),
-    getPromptTemplate: (id) => legacy.getPromptTemplate(id),
-    setDefaultPromptTemplate: (id) => legacy.setDefaultPromptTemplate(id),
-
-    // URL mappings / novels (read-only in shadow)
-    getStableIdByUrl: (url) => legacy.getStableIdByUrl(url),
-    getUrlMappingForUrl: (url) => legacy.getUrlMappingForUrl(url),
-    getAllUrlMappings: () => legacy.getAllUrlMappings(),
-    getAllNovels: () => legacy.getAllNovels(),
-
-    // Export
-    exportFullSessionToJson: () => legacy.exportFullSessionToJson(),
-  };
-}

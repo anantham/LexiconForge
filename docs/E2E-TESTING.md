@@ -76,15 +76,36 @@ These logs are visible in:
 - ✅ Debug logging throughout initialization
 - ✅ Test infrastructure and scripts
 - ✅ Debug console test passes
+- ✅ Diagnostic test suite created (`tests/e2e/diagnostic.spec.ts`)
 
-### Known Issues
-- ❌ 5 initialization tests currently failing
-- **Root Cause**: Console message capture timing - listeners may miss early logs
-- **Impact**: Tests timeout waiting for initialization complete messages
-- **Next Steps**:
-  1. Fix console listener timing (attach before navigation)
-  2. Consider alternative detection methods (DOM elements, global state)
-  3. Investigate React StrictMode double-rendering effects
+### Investigation Results (2025-11-13)
+
+**Root Cause Identified**: Missing `adapters/repo/DiffResultsRepo.ts` file
+- File was staged for deletion in git, breaking module imports
+- Vite returned 500 Internal Server Error for all modules importing this file
+- App never initialized because React components failed to load
+- **Resolution**: Restored file with `git restore adapters/repo/DiffResultsRepo.ts`
+
+**Diagnostic Findings**:
+1. Page loads successfully, React renders `#root` element
+2. Without DiffResultsRepo: Zero store initialization logs, empty page body
+3. Vite errors prevented module graph from resolving
+4. After restore: Server compiles cleanly with no errors
+
+### Final Status (2025-11-13) ✅
+**All 5 initialization tests passing!** (5/5 ✓)
+
+1. ✅ should initialize successfully without schema drift errors (4.7s)
+2. ✅ should create all required IndexedDB stores (9.6s) - All 10 stores created!
+3. ✅ should not deadlock on initialization (4.7s)
+4. ✅ should initialize prompt templates (9.5s)
+5. ✅ should handle database already at current version (11.4s)
+
+**Fixes Applied**:
+- Restored missing `DiffResultsRepo.ts` file
+- Fixed port configuration (5173 everywhere)
+- Fixed database name ('lexicon-forge' instead of 'LexiconForge')
+- Updated test assertions to match actual log messages
 
 ## Test Reports
 

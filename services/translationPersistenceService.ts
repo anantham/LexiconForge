@@ -1,7 +1,6 @@
 import type { AppSettings, TranslationResult } from '../types';
-import type { TranslationRecord } from './indexeddb';
-import type { TranslationsRepo } from '../adapters/repo/TranslationsRepo';
-import type { Repo } from '../adapters/repo/Repo';
+import type { TranslationRecord } from './db/types';
+import { TranslationOps } from './db/operations';
 
 const log = (message: string, details?: Record<string, unknown>) => {
   console.log('[TranslationPersistence]', message, details ?? '');
@@ -25,25 +24,6 @@ export type TranslationSettingsSnapshot = Pick<
  * about CommonJS vs ESM boundaries or migration state.
  */
 export class TranslationPersistenceService {
-  private static translationsRepoPromise: Promise<TranslationsRepo> | null = null;
-  private static serviceAwareRepoPromise: Promise<Repo> | null = null;
-
-  private static async getTranslationsRepo(): Promise<TranslationsRepo> {
-    if (!this.translationsRepoPromise) {
-      this.translationsRepoPromise = import('../adapters/repo').then(({ translationsRepo }) => translationsRepo);
-    }
-    return this.translationsRepoPromise;
-  }
-
-  private static async getServiceAwareRepo(): Promise<Repo> {
-    if (!this.serviceAwareRepoPromise) {
-      this.serviceAwareRepoPromise = import('./db/index').then(({ getRepoForService }) =>
-        getRepoForService('translationsSlice')
-      );
-    }
-    return this.serviceAwareRepoPromise;
-  }
-
   /**
    * Persist an updated translation. If the translation already has an ID we
    * update that specific record; otherwise we store a new version keyed by the
@@ -54,28 +34,29 @@ export class TranslationPersistenceService {
     translationResult: (TranslationResult & { id?: string }) | TranslationRecord,
     settings: TranslationSettingsSnapshot
   ): Promise<TranslationRecord | null> {
+    const isTranslationRecord = (value: TranslationResult | TranslationRecord): value is TranslationRecord => {
+      return typeof (value as TranslationRecord)?.chapterUrl === 'string';
+    };
+
     try {
       console.log(`💾 [TranslationSave] Starting save for chapter: ${chapterId}`);
       console.log(`💾 [TranslationSave] Settings:`, { provider: settings.provider, model: settings.model });
 
-      const candidate = translationResult as TranslationRecord;
-
-      if (candidate?.id) {
+      if (isTranslationRecord(translationResult) && translationResult.id) {
         console.log(`🔄 [TranslationSave] Updating EXISTING translation record:`, {
           chapterId,
-          translationId: candidate.id,
-          version: candidate.version
+          translationId: translationResult.id,
+          version: translationResult.version
         });
-        const repo = await this.getTranslationsRepo();
-        await repo.updateTranslation(candidate);
-        log('Updated existing translation record', { chapterId, translationId: candidate.id });
+        await TranslationOps.update(translationResult);
+        log('Updated existing translation record', { chapterId, translationId: translationResult.id });
         console.log(`✅ [TranslationSave] Successfully updated existing translation`);
-        return candidate;
+        return translationResult;
       }
 
       console.log(`➕ [TranslationSave] Creating NEW translation for chapter: ${chapterId}`);
-      const repo = await this.getServiceAwareRepo();
-      const stored = await repo.storeTranslationByStableId(chapterId, translationResult, settings);
+      const payload = translationResult as TranslationResult;
+      const stored = await TranslationOps.storeByStableId(chapterId, payload, settings);
 
       if (stored) {
         console.log(`✅ [TranslationSave] Successfully stored NEW translation:`, {
@@ -114,15 +95,14 @@ export class TranslationPersistenceService {
     options?: { versionLabel?: string }
   ): Promise<TranslationRecord | null> {
     try {
-      const repo = await this.getServiceAwareRepo();
       const payload: TranslationResult = {
         ...translationResult,
         customVersionLabel: options?.versionLabel,
       };
-      const stored = await repo.storeTranslationByStableId(chapterId, payload, settings);
+      const stored = await TranslationOps.storeByStableId(chapterId, payload, settings);
       if (stored) {
         stored.customVersionLabel = options?.versionLabel;
-        await repo.setActiveTranslationByStableId(chapterId, stored.version);
+        await TranslationOps.setActiveByStableId(chapterId, stored.version);
         log('Created new translation version', {
           chapterId,
           translationId: stored.id,

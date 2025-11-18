@@ -8,6 +8,8 @@ import { useAppStore } from '../store';
 import type { NovelEntry, NovelVersion } from '../types/novel';
 import { debugLog } from '../utils/debug';
 import { normalizeUrlAggressively } from '../services/stableIdService';
+import { SettingsOps } from '../services/db/operations';
+import { fetchChaptersForReactRendering } from '../services/db/operations/rendering';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -64,16 +66,15 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
     try {
       // Check if novel is already loaded in IndexedDB (simple cache check)
-      const { indexedDBService } = await import('../services/indexeddb');
-      const existingChapters = await indexedDBService.getChaptersForReactRendering();
+      const existingChapters = await fetchChaptersForReactRendering();
 
       if (existingChapters.length > 0) {
         // Chapters already exist, just load them into store
         setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
 
         const { useAppStore } = await import('../store');
-        const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
-        const lastActive = await indexedDBService.getSetting<any>('lastActiveChapter').catch(() => null);
+        const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+        const lastActive = await SettingsOps.getKey<any>('lastActiveChapter').catch(() => null);
 
         useAppStore.setState(state => {
           const newChapters = new Map<string, any>();
@@ -151,7 +152,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                 }
               );
 
-              const chapters = await indexedDBService.getChaptersForReactRendering();
+              const chapters = await fetchChaptersForReactRendering();
 
               // Hydrate store with first 10 chapters
               const threshold = Math.min(chapters.length, 10);

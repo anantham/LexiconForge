@@ -1,22 +1,21 @@
-type EnvSource = Record<string, string | undefined> | undefined;
+type EnvRecord = Record<string, string | undefined>;
+type EnvSource = EnvRecord | undefined;
 
 const normalizeKey = (key: string): string => (key.startsWith('VITE_') ? key : `VITE_${key}`);
 
 const readFromImportMeta = (key: string): string | undefined => {
-  try {
-    const env = (typeof import.meta !== 'undefined' && (import.meta as any)?.env) as EnvSource;
-    if (!env) return undefined;
-    return env[normalizeKey(key)] ?? env[key];
-  } catch {
-    return undefined;
-  }
+  const env = import.meta.env as EnvRecord | undefined;
+  return env ? env[normalizeKey(key)] ?? env[key] : undefined;
 };
 
 const readFromProcess = (key: string): string | undefined => {
+  if (typeof process === 'undefined') {
+    return undefined;
+  }
+
   try {
-    const env = (typeof process !== 'undefined' && (process as any)?.env) as EnvSource;
-    if (!env) return undefined;
-    return env[normalizeKey(key)] ?? env[key];
+    const env = process.env as EnvSource;
+    return env ? env[normalizeKey(key)] ?? env[key] : undefined;
   } catch {
     return undefined;
   }

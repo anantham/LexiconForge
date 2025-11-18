@@ -69,6 +69,7 @@ const getChapter = useAppStore((s) => s.getChapter);
 const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSettingsChanged);
 const handleNavigate = useAppStore((s) => s.handleNavigate);
 const isInitialized = useAppStore((s) => s.isInitialized);
+console.log('[App:init] isInitialized selector', { isInitialized });
 const initializeStore = useAppStore((s) => s.initializeStore);
 const chapters = useAppStore((s) => s.chapters);
 

@@ -6,7 +6,7 @@
  */
 
 import { DbError, mapDomError } from './errors';
-import { SCHEMA_VERSIONS } from './schema';
+import { applyMigrations, SCHEMA_VERSIONS, STORE_NAMES } from './schema';
 
 // Database configuration constants
 export const DB_NAME = 'lexicon-forge';
@@ -48,6 +48,18 @@ export function isIndexedDBAvailable(): boolean {
 // Connection singleton
 let _dbConnection: IDBDatabase | null = null;
 let _connectionPromise: Promise<IDBDatabase> | null = null;
+
+export function resetConnection(): void {
+  if (_dbConnection) {
+    try {
+      _dbConnection.close();
+    } catch {
+      // ignore close errors
+    }
+  }
+  _dbConnection = null;
+  _connectionPromise = null;
+}
 
 /**
  * Get or create the database connection
@@ -128,80 +140,98 @@ async function openDatabase(): Promise<IDBDatabase> {
  * Handle database schema upgrades
  */
 function upgradeDatabase(
-  db: IDBDatabase, 
-  transaction: IDBTransaction, 
-  oldVersion: number, 
-  newVersion: number
+  db: IDBDatabase,
+  transaction: IDBTransaction,
+  oldVersion: number,
+  newVersion: number | null
 ): void {
   console.log(`Upgrading database from version ${oldVersion} to ${newVersion}`);
 
-  // Import schema definitions to avoid circular dependency
-  // Note: This will be implemented when we create schema.ts
-  // For now, we'll handle basic store creation inline
-
-  // Version 1: Initial schema
-  if (oldVersion < 1) {
-    createInitialStores(db);
+  createInitialStores(db);
+  if (transaction) {
+    applyMigrations(db, transaction, oldVersion, newVersion ?? DB_VERSION);
   }
-
-  // Version 2: Add indexes
-  if (oldVersion < 2) {
-    addInitialIndexes(db, transaction);
-  }
-
-  // Future versions will be handled in schema.ts
-  // This allows for clean, testable migration functions
 }
 
 /**
  * Create initial object stores
  */
 function createInitialStores(db: IDBDatabase): void {
-  // Chapters store
-  if (!db.objectStoreNames.contains('chapters')) {
-    const chaptersStore = db.createObjectStore('chapters', { keyPath: 'url' });
+  if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTERS)) {
+    const chaptersStore = db.createObjectStore(STORE_NAMES.CHAPTERS, { keyPath: 'url' });
     chaptersStore.createIndex('stableId', 'stableId', { unique: false });
     chaptersStore.createIndex('title', 'title', { unique: false });
+    chaptersStore.createIndex('canonicalUrl', 'canonicalUrl', { unique: false });
+    chaptersStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
+    chaptersStore.createIndex('dateAdded', 'dateAdded', { unique: false });
+    chaptersStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
   }
 
-  // Translations store
-  if (!db.objectStoreNames.contains('translations')) {
-    const translationsStore = db.createObjectStore('translations', { keyPath: 'id' });
+  if (!db.objectStoreNames.contains(STORE_NAMES.TRANSLATIONS)) {
+    const translationsStore = db.createObjectStore(STORE_NAMES.TRANSLATIONS, { keyPath: 'id' });
     translationsStore.createIndex('chapterUrl', 'chapterUrl', { unique: false });
     translationsStore.createIndex('stableId', 'stableId', { unique: false });
     translationsStore.createIndex('version', ['chapterUrl', 'version'], { unique: true });
+    translationsStore.createIndex('chapterUrl_version', ['chapterUrl', 'version'], { unique: true });
+    translationsStore.createIndex('stableId_version', ['stableId', 'version'], { unique: true });
+    translationsStore.createIndex('isActive', 'isActive', { unique: false });
+    translationsStore.createIndex('createdAt', 'createdAt', { unique: false });
   }
 
-  // Settings store
-  if (!db.objectStoreNames.contains('settings')) {
-    db.createObjectStore('settings', { keyPath: 'key' });
+  if (!db.objectStoreNames.contains(STORE_NAMES.SETTINGS)) {
+    db.createObjectStore(STORE_NAMES.SETTINGS, { keyPath: 'key' });
   }
 
-  // Feedback store
-  if (!db.objectStoreNames.contains('feedback')) {
-    const feedbackStore = db.createObjectStore('feedback', { keyPath: 'id' });
+  if (!db.objectStoreNames.contains(STORE_NAMES.FEEDBACK)) {
+    const feedbackStore = db.createObjectStore(STORE_NAMES.FEEDBACK, { keyPath: 'id' });
     feedbackStore.createIndex('chapterUrl', 'chapterUrl', { unique: false });
     feedbackStore.createIndex('translationId', 'translationId', { unique: false });
+    feedbackStore.createIndex('createdAt', 'createdAt', { unique: false });
   }
 
-  // Prompt templates store
-  if (!db.objectStoreNames.contains('prompt_templates')) {
-    db.createObjectStore('prompt_templates', { keyPath: 'id' });
+  if (!db.objectStoreNames.contains(STORE_NAMES.PROMPT_TEMPLATES)) {
+    const promptStore = db.createObjectStore(STORE_NAMES.PROMPT_TEMPLATES, { keyPath: 'id' });
+    promptStore.createIndex('name', 'name', { unique: true });
+    promptStore.createIndex('isDefault', 'isDefault', { unique: false });
+    promptStore.createIndex('createdAt', 'createdAt', { unique: false });
   }
 
-  // URL mappings store (for stable IDs)
-  if (!db.objectStoreNames.contains('url_mappings')) {
-    const urlMappingsStore = db.createObjectStore('url_mappings', { keyPath: 'url' });
-    urlMappingsStore.createIndex('stableId', 'stableId', { unique: false });
+  if (!db.objectStoreNames.contains(STORE_NAMES.URL_MAPPINGS)) {
+    const urlStore = db.createObjectStore(STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+    urlStore.createIndex('stableId', 'stableId', { unique: false });
+    urlStore.createIndex('isCanonical', 'isCanonical', { unique: false });
+    urlStore.createIndex('dateAdded', 'dateAdded', { unique: false });
   }
-}
 
-/**
- * Add initial indexes for performance
- */
-function addInitialIndexes(db: IDBDatabase, transaction: IDBTransaction): void {
-  // Add any additional indexes needed for version 2
-  // This is where we'd add composite indexes for complex queries
+  if (!db.objectStoreNames.contains(STORE_NAMES.NOVELS)) {
+    const novelStore = db.createObjectStore(STORE_NAMES.NOVELS, { keyPath: 'id' });
+    novelStore.createIndex('source', 'source', { unique: false });
+    novelStore.createIndex('title', 'title', { unique: false });
+    novelStore.createIndex('dateAdded', 'dateAdded', { unique: false });
+    novelStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
+  }
+
+  if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTER_SUMMARIES)) {
+    const summaryStore = db.createObjectStore(STORE_NAMES.CHAPTER_SUMMARIES, { keyPath: 'stableId' });
+    summaryStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
+    summaryStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
+    summaryStore.createIndex('hasTranslation', 'hasTranslation', { unique: false });
+  }
+
+  if (!db.objectStoreNames.contains(STORE_NAMES.AMENDMENT_LOGS)) {
+    const amendmentStore = db.createObjectStore(STORE_NAMES.AMENDMENT_LOGS, { keyPath: 'id' });
+    amendmentStore.createIndex('timestamp', 'timestamp', { unique: false });
+    amendmentStore.createIndex('chapterId', 'chapterId', { unique: false });
+    amendmentStore.createIndex('action', 'action', { unique: false });
+  }
+
+  if (!db.objectStoreNames.contains(STORE_NAMES.DIFF_RESULTS)) {
+    const diffStore = db.createObjectStore(STORE_NAMES.DIFF_RESULTS, {
+      keyPath: ['chapterId', 'aiVersionId', 'fanVersionId', 'rawVersionId', 'algoVersion'],
+    });
+    diffStore.createIndex('by_chapter', 'chapterId', { unique: false });
+    diffStore.createIndex('by_analyzed_at', 'analyzedAt', { unique: false });
+  }
 }
 
 /**

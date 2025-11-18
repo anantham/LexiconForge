@@ -12,11 +12,11 @@ import { formatBytes } from '../services/audio/storage/utils';
 import { ostLibraryService } from '../services/audio/OSTLibraryService';
 import type { OSTSample } from '../services/audio/OSTLibraryService';
 import { KNOWN_DEBUG_PIPELINES, DebugPipeline, getDebugPipelines as readDebugPipelines, setDebugPipelines as writeDebugPipelines, logCurrentDebugConfig, debugLog } from '../utils/debug';
-import { DiffResultsRepo } from '../adapters/repo/DiffResultsRepo';
 import { COLOR_EXAMPLES, getDefaultDiffPrompt } from '../services/diff/promptUtils';
 import { NovelMetadataForm } from './NovelMetadataForm';
 import { ExportService } from '../services/exportService';
 import type { NovelMetadata } from '../types/novel';
+import { SettingsOps, ImageOps, DiffOps } from '../services/db/operations';
 
 type PublisherMetadata = NovelMetadata & {
   title?: string;
@@ -381,13 +381,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         return;
       }
       try {
-        const { indexedDBService } = await import('../services/indexeddb');
-        const savedMetadata = await indexedDBService.getSetting('novelMetadata');
+        const savedMetadata = await SettingsOps.getKey<PublisherMetadata>('novelMetadata');
         if (savedMetadata && typeof savedMetadata === 'object') {
           const normalized = normalizeMetadataDefaults(savedMetadata as PublisherMetadata, chaptersArray.length);
           setNovelMetadata(normalized);
           localStorage.setItem('novelMetadata', JSON.stringify(normalized));
-          await indexedDBService.setSetting('novelMetadata', normalized);
+          await SettingsOps.set('novelMetadata', normalized);
           debugLog('ui', 'summary', '[SettingsModal] Loaded novel metadata from IndexedDB setting', {
             title: normalized.title,
             source: 'indexeddb'
@@ -395,13 +394,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           return;
         }
 
-        const sessionInfo = await indexedDBService.getSetting('sessionInfo');
+        const sessionInfo = await SettingsOps.getKey<any>('sessionInfo');
         if (sessionInfo && typeof sessionInfo === 'object') {
           const generated = buildMetadataFromSessionInfo(sessionInfo as any, chaptersArray);
           if (generated) {
             setNovelMetadata(generated);
             localStorage.setItem('novelMetadata', JSON.stringify(generated));
-            await indexedDBService.setSetting('novelMetadata', generated);
+            await SettingsOps.set('novelMetadata', generated);
             debugLog('ui', 'summary', '[SettingsModal] Prefilled novel metadata from session info', {
               title: generated.title,
               source: 'sessionInfo'
@@ -414,7 +413,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         if (generated) {
           setNovelMetadata(generated);
           localStorage.setItem('novelMetadata', JSON.stringify(generated));
-          await indexedDBService.setSetting('novelMetadata', generated);
+          await SettingsOps.set('novelMetadata', generated);
           debugLog('ui', 'summary', '[SettingsModal] Prefilled novel metadata from chapter fallback', {
             title: generated.title,
             source: 'chapterFallback'
@@ -448,8 +447,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const loadDiskDiagnostics = async () => {
       setLoadingDiskStats(true);
       try {
-        const { indexedDBService } = await import('../services/indexeddb');
-        const stats = await indexedDBService.getStorageDiagnostics();
+        const stats = await ImageOps.getStorageDiagnostics();
         setDiskDiagnostics(stats);
       } catch (error) {
         console.error('Failed to load disk diagnostics:', error);
@@ -477,8 +475,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   // Update novel metadata state (called on every change)
   const persistNovelMetadata = useCallback(async (metadata: PublisherMetadata) => {
     try {
-      const { indexedDBService } = await import('../services/indexeddb');
-      await indexedDBService.setSetting('novelMetadata', metadata);
+      await SettingsOps.set('novelMetadata', metadata);
     } catch (error) {
       console.error('Failed to persist novel metadata to IndexedDB:', error);
     }
@@ -999,8 +996,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
     try {
       setDiffInvalidatePending(true);
-      const repo = new DiffResultsRepo();
-      await repo.deleteByChapter(currentChapterId);
+      await DiffOps.deleteByChapter(currentChapterId);
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('diff:updated', {

@@ -8,8 +8,9 @@
  * - Data transformation and compatibility
  */
 
-import { indexedDBService } from '../indexeddb';
-import type { AppSettings, TranslationResult } from '../../types';
+import { translationFacade } from './repositories/translationFacade';
+import type { AppSettings, TranslationResult, FeedbackItem } from '../../types';
+import { ChapterOps, FeedbackOps, SettingsOps } from './operations';
 
 // Migration state tracking
 let migrationInProgress = false;
@@ -85,13 +86,13 @@ export async function migrateFromLocalStorage(): Promise<void> {
           if (data && typeof data === 'object') {
             // Store chapter data
             if ((data as any).chapter) {
-              await indexedDBService.storeChapter((data as any).chapter);
+              await ChapterOps.store((data as any).chapter as any);
             }
             
             // Store translation data
             if ((data as any).translationResult) {
               const migrationSettings = resolveMigrationSettings((data as any).translationResult);
-              await indexedDBService.storeTranslationAtomic(
+              await translationFacade.storeByUrl(
                 url,
                 (data as any).translationResult,
                 migrationSettings
@@ -110,7 +111,7 @@ export async function migrateFromLocalStorage(): Promise<void> {
       const settingsStr = localStorage.getItem('app-settings');
       if (settingsStr) {
         const settings = JSON.parse(settingsStr);
-        await indexedDBService.storeSettings(settings);
+        await SettingsOps.store(settings as AppSettings);
         console.log('[Migration] ✅ Settings migration completed');
       }
     } catch (error) {
@@ -127,7 +128,7 @@ export async function migrateFromLocalStorage(): Promise<void> {
         for (const [url, feedbackList] of Object.entries(feedbackHistory as any)) {
           if (Array.isArray(feedbackList)) {
             for (const feedback of feedbackList) {
-              await indexedDBService.storeFeedback(url, feedback);
+              await FeedbackOps.store(url, feedback as FeedbackItem);
             }
           }
         }

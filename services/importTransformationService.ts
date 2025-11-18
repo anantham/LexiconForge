@@ -12,8 +12,13 @@ import {
   StableSessionData,
   getSortedChaptersForRendering 
 } from './stableIdService';
-import { indexedDBService } from './indexeddb';
 import type { ChapterSummary } from '../types';
+import {
+  ChapterOps,
+  ImportOps,
+  fetchChaptersForReactRendering,
+  fetchChapterSummaries,
+} from './db/operations';
 
 // Light debug gate tied to AI debug level
 const impDebugEnabled = (): boolean => {
@@ -83,7 +88,7 @@ export class ImportTransformationService {
       const conflicts = await this.detectConflicts(stableData, existingSessionData);
       
       // Store in IndexedDB
-      await indexedDBService.importStableSessionData(stableData);
+      await ImportOps.importStableSessionData(stableData);
       
       return {
         success: true,
@@ -152,9 +157,9 @@ export class ImportTransformationService {
     chapterNumber: number;
   }>> {
     try {
-      // implog('[ImportTransformation] Using unified indexedDBService for chapter rendering');
+      // implog('[ImportTransformation] Using ChapterOps-backed rendering helper');
       
-      const renderingData = await indexedDBService.getChaptersForReactRendering();
+      const renderingData = await fetchChaptersForReactRendering();
       
       // The unified service already returns the correct format
       return renderingData;
@@ -170,8 +175,18 @@ export class ImportTransformationService {
    */
   static async getChapterSummaries(): Promise<ChapterSummary[]> {
     try {
-      const summaries = await indexedDBService.getChapterSummaries();
-      return summaries.map(summary => ({ ...summary }));
+      const summaries = await fetchChapterSummaries();
+      return summaries.map(summary => ({
+        stableId: summary.stableId,
+        canonicalUrl: summary.canonicalUrl,
+        title: summary.title,
+        translatedTitle: summary.translatedTitle,
+        chapterNumber: summary.chapterNumber,
+        hasTranslation: summary.hasTranslation,
+        hasImages: summary.hasImages,
+        lastAccessed: summary.lastAccessed,
+        lastTranslatedAt: summary.lastTranslatedAt,
+      }));
     } catch (error) {
       console.error('[ImportTransformation] Failed to load chapter summaries:', error);
       return [];
@@ -187,12 +202,16 @@ export class ImportTransformationService {
     data: any;
   } | null> {
     try {
-      implog('[ImportTransformation] Using unified indexedDBService for chapter lookup');
+      implog('[ImportTransformation] Using ChapterOps-backed chapter lookup');
       
-      const chapter = await indexedDBService.findChapterByUrl(url);
-      
-      // The unified service already returns the correct format
-      return chapter;
+      const chapter = await ChapterOps.findByUrl(url);
+
+      if (!chapter) return null;
+      return {
+        stableId: chapter.stableId,
+        canonicalUrl: chapter.canonicalUrl,
+        data: chapter.data,
+      };
       
     } catch (error) {
       console.error('[ImportTransformation] Failed to find chapter by URL:', error);

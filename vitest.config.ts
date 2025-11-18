@@ -27,7 +27,6 @@ export default defineConfig({
       thresholds: {
         // High-quality modules (prevent regression)
         'services/aiService.ts': { lines: 40, functions: 40 },
-        'adapters/repo/**': { lines: 75, functions: 25 },
         'components/diff/**': { lines: 95, functions: 95 },
 
         // Critical path (raise gradually)

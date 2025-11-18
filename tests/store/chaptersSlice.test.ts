@@ -7,7 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import { create } from 'zustand';
 import { createChaptersSlice, type ChaptersSlice } from '../../store/slices/chaptersSlice';
-import type { EnhancedChapter } from '../../services/stableIdService';
+import { createMockEnhancedChapter, createMockImageCacheKey, createMockTranslationResult, createMockUsageMetrics } from '../utils/test-data';
 
 // Create a test store
 const createTestStore = () => {
@@ -19,71 +19,84 @@ describe('chaptersSlice - getMemoryDiagnostics', () => {
     const store = createTestStore();
 
     // Create test chapters with different image storage patterns
-    const chapter1: EnhancedChapter = {
+    const chapter1Translation = createMockTranslationResult({
+      translatedTitle: 'Capítulo 1',
+      translation: '<p>Contenido traducido</p>',
+      translatedContent: '<p>Contenido traducido</p>',
+      suggestedIllustrations: [
+        {
+          placementMarker: 'ILL-1',
+          imagePrompt: 'A scene',
+          generatedImage: {
+            imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+            requestTime: 1.5,
+            cost: 0.04
+          }
+        }
+      ],
+      usageMetrics: createMockUsageMetrics({
+        estimatedCost: 0.001,
+        provider: 'Gemini',
+        model: 'gemini-2.0-flash-exp',
+        requestTime: 2.5,
+        totalTokens: 1000,
+        promptTokens: 600,
+        completionTokens: 400
+      })
+    });
+
+    const chapter2Translation = createMockTranslationResult({
+      translatedTitle: 'Capítulo 2',
+      translation: '<p>Otro contenido</p>',
+      translatedContent: '<p>Otro contenido</p>',
+      suggestedIllustrations: [
+        {
+          placementMarker: 'ILL-2',
+          imagePrompt: 'Another scene',
+          generatedImage: {
+            imageData: '',
+            imageCacheKey: createMockImageCacheKey({ chapterId: 'ch-2', placementMarker: 'ILL-2' }),
+            requestTime: 1.2,
+            cost: 0.03
+          }
+        }
+      ],
+      usageMetrics: createMockUsageMetrics({
+        estimatedCost: 0.002,
+        provider: 'Gemini',
+        model: 'gemini-2.0-flash-exp',
+        requestTime: 3.0,
+        totalTokens: 1500,
+        promptTokens: 900,
+        completionTokens: 600
+      })
+    });
+
+    const chapter1 = createMockEnhancedChapter({
       id: 'ch-1',
       chapterNumber: 1,
       title: 'Chapter 1',
-      content: '<p>Short content</p>', // ~20 bytes
-      translationResult: {
-        translatedTitle: 'Capítulo 1',
-        translatedContent: '<p>Contenido traducido</p>', // ~27 bytes
-        footnotes: [],
-        suggestedIllustrations: [
-          {
-            placementMarker: 'ILL-1',
-            imagePrompt: 'A scene',
-            generatedImage: {
-              imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', // ~150 bytes base64
-              requestTime: 1.5,
-              cost: 0.04
-            }
-          }
-        ],
-        provider: 'google',
-        model: 'gemini-2.0-flash-exp',
-        cost: 0.001,
-        tokens: 1000,
-        requestTime: 2.5
-      },
+      content: '<p>Short content</p>',
+      translationResult: chapter1Translation,
       url: 'https://example.com/ch1',
+      originalUrl: 'https://example.com/ch1',
+      canonicalUrl: 'https://example.com/ch1',
       prevUrl: null,
       nextUrl: 'https://example.com/ch2'
-    };
+    });
 
-    const chapter2: EnhancedChapter = {
+    const chapter2 = createMockEnhancedChapter({
       id: 'ch-2',
       chapterNumber: 2,
       title: 'Chapter 2',
       content: '<p>Another chapter</p>',
-      translationResult: {
-        translatedTitle: 'Capítulo 2',
-        translatedContent: '<p>Otro contenido</p>',
-        footnotes: [],
-        suggestedIllustrations: [
-          {
-            placementMarker: 'ILL-2',
-            imagePrompt: 'Another scene',
-            generatedImage: {
-              imageData: '', // Empty - using cache key
-              imageCacheKey: {
-                chapterId: 'ch-2',
-                placementMarker: 'ILL-2'
-              },
-              requestTime: 1.2,
-              cost: 0.03
-            }
-          }
-        ],
-        provider: 'google',
-        model: 'gemini-2.0-flash-exp',
-        cost: 0.002,
-        tokens: 1500,
-        requestTime: 3.0
-      },
+      translationResult: chapter2Translation,
       url: 'https://example.com/ch2',
+      originalUrl: 'https://example.com/ch2',
+      canonicalUrl: 'https://example.com/ch2',
       prevUrl: 'https://example.com/ch1',
       nextUrl: null
-    };
+    });
 
     // Import chapters into store
     store.getState().importChapter(chapter1);
@@ -123,15 +136,17 @@ describe('chaptersSlice - getMemoryDiagnostics', () => {
 
     // Create 55 chapters
     for (let i = 1; i <= 55; i++) {
-      const chapter: EnhancedChapter = {
+      const chapter = createMockEnhancedChapter({
         id: `ch-${i}`,
         chapterNumber: i,
         title: `Chapter ${i}`,
         content: '<p>Content</p>',
         url: `https://example.com/ch${i}`,
-        prevUrl: i > 1 ? `https://example.com/ch${i-1}` : null,
-        nextUrl: i < 55 ? `https://example.com/ch${i+1}` : null
-      };
+        originalUrl: `https://example.com/ch${i}`,
+        canonicalUrl: `https://example.com/ch${i}`,
+        prevUrl: i > 1 ? `https://example.com/ch${i - 1}` : null,
+        nextUrl: i < 55 ? `https://example.com/ch${i + 1}` : null
+      });
       store.getState().importChapter(chapter);
     }
 
@@ -146,15 +161,18 @@ describe('chaptersSlice - getMemoryDiagnostics', () => {
   it('handles chapters without translations', () => {
     const store = createTestStore();
 
-    const chapterNoTranslation: EnhancedChapter = {
+    const chapterNoTranslation = createMockEnhancedChapter({
       id: 'ch-no-trans',
       chapterNumber: 1,
       title: 'Untranslated',
       content: '<p>Original only</p>',
       url: 'https://example.com/ch1',
+      originalUrl: 'https://example.com/ch1',
+      canonicalUrl: 'https://example.com/ch1',
       prevUrl: null,
-      nextUrl: null
-    };
+      nextUrl: null,
+      translationResult: null
+    });
 
     store.getState().importChapter(chapterNoTranslation);
 

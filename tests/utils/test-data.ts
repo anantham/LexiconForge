@@ -8,8 +8,10 @@ import {
   Footnote,
   SuggestedIllustration,
   AppSettings,
-  ImportedSession
+  ImportedSession,
+  ImageCacheKey
 } from '../../types';
+import type { EnhancedChapter } from '../../services/stableIdService';
 
 export const MOCK_KAKUYOMU_URLS = {
   chapter1: 'https://kakuyomu.jp/works/16816927859418072361/episodes/16818093085877625597',
@@ -93,6 +95,27 @@ Before I knew it, the throne room had fallen under the dominion of an inexplicab
   usageMetrics: createMockUsageMetrics(),
   ...overrides,
 });
+
+export const createMockImageCacheKey = (overrides: Partial<ImageCacheKey> = {}): ImageCacheKey => ({
+  chapterId: overrides.chapterId ?? 'chapter-1',
+  placementMarker: overrides.placementMarker ?? '[ILLUSTRATION-1]',
+  version: overrides.version ?? 1,
+});
+
+export const createMockEnhancedChapter = (overrides: Partial<EnhancedChapter> = {}): EnhancedChapter => {
+  const chapter = createMockChapter(overrides);
+  return {
+    id: overrides.id ?? 'stable-chapter-1',
+    canonicalUrl: overrides.canonicalUrl ?? chapter.originalUrl,
+    sourceUrls: overrides.sourceUrls ?? [chapter.originalUrl],
+    translationResult: overrides.translationResult ?? null,
+    translationSettingsSnapshot: overrides.translationSettingsSnapshot,
+    feedback: overrides.feedback ?? [],
+    ...chapter,
+    url: overrides.url ?? chapter.originalUrl,
+    ...overrides,
+  };
+};
 
 export const createMockAmendmentProposal = (overrides: Partial<AmendmentProposal> = {}): AmendmentProposal => ({
   observation: 'This chapter introduces recurring terminology that should be standardized.',

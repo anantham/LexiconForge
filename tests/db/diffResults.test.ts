@@ -1,224 +1,154 @@
-// tests/db/diffResults.test.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { DiffResult } from '../../services/diff/types';
+import { DiffOps } from '../../services/db/operations/diffResults';
+import * as connectionModule from '../../services/db/core/connection';
 
-const DB_NAME = 'test-diff-results';
+const DB_NAME = 'diff-results-ops-test';
 const DB_VERSION = 1;
 
-describe('DiffResults IndexedDB store', () => {
+const openTestDatabase = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains('diffResults')) {
+        const store = db.createObjectStore('diffResults', {
+          keyPath: ['chapterId', 'aiVersionId', 'fanVersionId', 'rawVersionId', 'algoVersion'],
+        });
+        store.createIndex('by_chapter', 'chapterId');
+        store.createIndex('by_analyzed_at', 'analyzedAt');
+      }
+    };
+  });
+};
+
+const closeAndDeleteDatabase = async (db: IDBDatabase) => {
+  db.close();
+  await new Promise<void>((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(DB_NAME);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+};
+
+const buildDiffResult = (overrides: Partial<DiffResult> = {}): DiffResult => ({
+  chapterId: 'chapter-1',
+  aiVersionId: 'ai-v1',
+  fanVersionId: null,
+  rawVersionId: 'raw-v1',
+  rawHash: 'raw-hash',
+  algoVersion: '1.0.0',
+  markers: [],
+  analyzedAt: Date.now(),
+  costUsd: 0.001,
+  model: 'gpt-4o-mini',
+  ...overrides,
+});
+
+describe('DiffOps', () => {
   let db: IDBDatabase;
+  let getConnectionSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
-    // Open test database with diffResults store
-    db = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-
-        if (!db.objectStoreNames.contains('diffResults')) {
-          const store = db.createObjectStore('diffResults', {
-            keyPath: ['chapterId', 'aiVersionId', 'fanVersionId', 'rawVersionId', 'algoVersion']
-          });
-          store.createIndex('by_chapter', 'chapterId');
-          store.createIndex('by_analyzed_at', 'analyzedAt');
-        }
-      };
-    });
+    db = await openTestDatabase();
+    getConnectionSpy = vi
+      .spyOn(connectionModule, 'getConnection')
+      .mockImplementation(async () => db);
   });
 
   afterEach(async () => {
-    db.close();
-    await new Promise<void>((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(DB_NAME);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
+    getConnectionSpy.mockRestore();
+    await closeAndDeleteDatabase(db);
   });
 
-  it('should store and retrieve diff results by composite key', async () => {
-    const diffResult: DiffResult = {
+  it('saves and retrieves a diff result by composite key', async () => {
+    const diffResult = buildDiffResult({
       chapterId: 'ch-001',
-      aiVersionId: '1234567890',
-      fanVersionId: '0987654321',
-      rawVersionId: 'abc12345',
-      rawHash: 'abc12345',
+      aiVersionId: 'ai-1',
+      rawVersionId: 'raw-1',
+    });
+
+    await DiffOps.save(diffResult);
+
+    const retrieved = await DiffOps.get({
+      chapterId: 'ch-001',
+      aiVersionId: 'ai-1',
+      fanVersionId: null,
+      rawVersionId: 'raw-1',
       algoVersion: '1.0.0',
-      markers: [],
-      analyzedAt: Date.now(),
-      costUsd: 0.0011,
-      model: 'gpt-4o-mini'
-    };
-
-    // Store the diff result
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(['diffResults'], 'readwrite');
-      const store = transaction.objectStore('diffResults');
-      const request = store.put(diffResult);
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
     });
 
-    // Retrieve the diff result
-    const retrieved = await new Promise<DiffResult | undefined>((resolve, reject) => {
-      const transaction = db.transaction(['diffResults'], 'readonly');
-      const store = transaction.objectStore('diffResults');
-      const request = store.get([
-        'ch-001', '1234567890', '0987654321', 'abc12345', '1.0.0'
-      ]);
-
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+    expect(retrieved).toMatchObject({
+      chapterId: 'ch-001',
+      aiVersionId: 'ai-1',
+      fanVersionId: null,
+      rawVersionId: 'raw-1',
     });
-
-    expect(retrieved).toMatchObject(diffResult);
-    expect(retrieved?.aiHash ?? null).toBeNull();
-    expect(retrieved?.rawHash).toBe(diffResult.rawVersionId);
   });
 
-  it('should store and retrieve diff results with null fanVersionId', async () => {
-    const diffResult: DiffResult = {
-      chapterId: 'ch-002',
-      aiVersionId: '1111111111',
+  it('normalizes null fanVersionId for storage and retrieval', async () => {
+    const diffResult = buildDiffResult({
+      chapterId: 'ch-null-fan',
       fanVersionId: null,
-      rawVersionId: 'xyz98765',
-      rawHash: 'xyz98765',
-      algoVersion: '1.0.0',
-      markers: [{
-        chunkId: 'para-0-test',
-        colors: ['orange'],
-        reasons: ['raw-divergence'],
-        aiRange: { start: 0, end: 20 },
-        position: 0
-      }],
-      analyzedAt: Date.now(),
-      costUsd: 0.0015,
-      model: 'gpt-4o-mini'
-    };
-
-    // Store the diff result (convert null to empty string for composite key)
-    const diffResultForStorage = {
-      ...diffResult,
-      fanVersionId: diffResult.fanVersionId ?? ''
-    };
-
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(['diffResults'], 'readwrite');
-      const store = transaction.objectStore('diffResults');
-      const request = store.put(diffResultForStorage);
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      rawVersionId: 'raw-null',
     });
 
-    // Retrieve the diff result (use empty string in key for null fanVersionId)
-    const retrieved = await new Promise<DiffResult | undefined>((resolve, reject) => {
-      const transaction = db.transaction(['diffResults'], 'readonly');
-      const store = transaction.objectStore('diffResults');
-      const request = store.get([
-        'ch-002', '1111111111', '', 'xyz98765', '1.0.0'
-      ]);
+    await DiffOps.save(diffResult);
 
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+    const retrieved = await DiffOps.get({
+      chapterId: 'ch-null-fan',
+      aiVersionId: diffResult.aiVersionId,
+      fanVersionId: null,
+      rawVersionId: 'raw-null',
+      algoVersion: diffResult.algoVersion,
     });
 
-    // Convert empty string back to null for comparison
-    const retrievedWithNull = retrieved ? {
-      ...retrieved,
-      fanVersionId: retrieved.fanVersionId === '' ? null : retrieved.fanVersionId
-    } : undefined;
-
-    expect(retrievedWithNull).toMatchObject(diffResult);
+    expect(retrieved?.fanVersionId).toBeNull();
   });
 
-  it('should query diff results by chapter using by_chapter index', async () => {
-    const diffResult1: DiffResult = {
-      chapterId: 'ch-003',
-      aiVersionId: '1000',
-      fanVersionId: null,
-      rawVersionId: 'raw1',
-      algoVersion: '1.0.0',
-      aiHash: 'hash-ai-1',
-      rawHash: 'hash-raw-1',
-      markers: [],
+  it('returns diff results ordered by analyzedAt in getByChapter', async () => {
+    const older = buildDiffResult({
+      chapterId: 'ch-ordered',
+      aiVersionId: 'ai-old',
       analyzedAt: Date.now(),
-      costUsd: 0.001,
-      model: 'gpt-4o-mini'
-    };
-
-    const diffResult2: DiffResult = {
-      chapterId: 'ch-003',
-      aiVersionId: '2000',
-      fanVersionId: null,
-      rawVersionId: 'raw2',
-      algoVersion: '1.0.0',
-      aiHash: 'hash-ai-2',
-      rawHash: 'hash-raw-2',
-      markers: [],
+    });
+    const newer = buildDiffResult({
+      chapterId: 'ch-ordered',
+      aiVersionId: 'ai-new',
       analyzedAt: Date.now() + 1000,
-      costUsd: 0.002,
-      model: 'gpt-4o-mini'
-    };
-
-    // Store both diff results (convert null to empty string for composite key)
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(['diffResults'], 'readwrite');
-      const store = transaction.objectStore('diffResults');
-
-      const storage1 = { ...diffResult1, fanVersionId: diffResult1.fanVersionId ?? '' };
-      const storage2 = { ...diffResult2, fanVersionId: diffResult2.fanVersionId ?? '' };
-
-      store.put(storage1);
-      const request = store.put(storage2);
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
     });
 
-    // Query by chapter
-    const results = await new Promise<DiffResult[]>((resolve, reject) => {
-      const transaction = db.transaction(['diffResults'], 'readonly');
-      const store = transaction.objectStore('diffResults');
-      const index = store.index('by_chapter');
-      const request = index.getAll('ch-003');
+    await DiffOps.save(older);
+    await DiffOps.save(newer);
 
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-
+    const results = await DiffOps.getByChapter('ch-ordered');
     expect(results).toHaveLength(2);
-    expect(results[0].chapterId).toBe('ch-003');
-    expect(results[1].chapterId).toBe('ch-003');
+    expect(results[0].aiVersionId).toBe('ai-new');
+    expect(results[1].aiVersionId).toBe('ai-old');
   });
 
-  it('should support hash-based lookup fallback via repository helper', async () => {
-    const { DiffResultsRepo } = await import('../../adapters/repo/DiffResultsRepo');
-    const repo = new DiffResultsRepo();
-
-    const diffResult: DiffResult = {
-      chapterId: 'ch-004',
-      aiVersionId: '3000',
-      fanVersionId: null,
-      rawVersionId: 'raw-hash',
-      algoVersion: '1.0.0',
+  it('finds a diff result via hash fallback', async () => {
+    const target = buildDiffResult({
+      chapterId: 'ch-hash',
       aiHash: 'ai-hash',
       rawHash: 'raw-hash',
-      markers: [],
-      analyzedAt: Date.now(),
-      costUsd: 0.003,
-      model: 'gpt-4o-mini'
-    };
+      fanHash: null,
+    });
+    await DiffOps.save(target);
 
-    // Monkey patch getByChapter to avoid touching IndexedDB
-    (repo as any).getByChapter = vi.fn(async () => [diffResult]);
+    const match = await DiffOps.findByHashes(
+      'ch-hash',
+      'ai-hash',
+      null,
+      'raw-hash',
+      '1.0.0'
+    );
 
-    const hit = await repo.findByHashes('ch-004', 'ai-hash', null, 'raw-hash', '1.0.0');
-    expect(hit).not.toBeNull();
-    expect(hit?.chapterId).toBe('ch-004');
+    expect(match).not.toBeNull();
+    expect(match?.chapterId).toBe('ch-hash');
   });
 });

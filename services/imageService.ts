@@ -135,10 +135,18 @@ export const generateImage = async (
             const model = genAI.getGenerativeModel({ model: imageModel });
             try {
                 const needsModalities = imageModel.includes('gemini-2.0') && imageModel.includes('image-generation');
-                const result = await model.generateContent({
-                    contents: [{ role: 'user', parts: [{ text: `Generate an image based on this description: ${prompt}. Target size approximately ${reqW}x${reqH} with a matching aspect ratio. Style: dark, atmospheric, highly detailed.` }]}],
-                    generationConfig: needsModalities ? { responseModalities: ['TEXT','IMAGE'] as any } : undefined,
-                });
+                const requestPayload: any = {
+                    contents: [{
+                        role: 'user',
+                        parts: [{
+                            text: `Generate an image based on this description: ${prompt}. Target size approximately ${reqW}x${reqH} with a matching aspect ratio. Style: dark, atmospheric, highly detailed.`
+                        }]
+                    }],
+                };
+                if (needsModalities) {
+                    requestPayload.responseModalities = ['TEXT', 'IMAGE'];
+                }
+                const result = await model.generateContent(requestPayload);
                 const response = result.response;
                 let foundImageData = null as string | null;
                 const parts = response.candidates?.[0]?.content?.parts || [];

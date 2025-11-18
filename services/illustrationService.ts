@@ -59,9 +59,12 @@ export class IllustrationService {
         finalPrompt = '[TRUNCATED]\n' + finalPrompt.slice(-MAX_PROMPT_CHARS);
       }
 
-      const requestBody = {
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: 'user', content: finalPrompt },
+      ];
+      const requestBody: OpenAI.Chat.Completions.ChatCompletionCreateParams = {
         model: settings.model,
-        messages: [{ role: 'user', content: finalPrompt }],
+        messages,
         temperature: 0.7, // Higher temperature for more creative prompts
         max_tokens: maxOutput,
       };
@@ -91,8 +94,10 @@ export class IllustrationService {
         console.warn('[IllustrationService] Received empty image prompt from model. Full response:', response);
         // Also surface finish reason and usage if available
         try {
-          const choice = response?.choices?.[0] || {};
-          const finish = choice.finish_reason || choice.native_finish_reason || null;
+          const choice = response?.choices?.[0];
+          const fallbackFinish =
+            choice && (choice as unknown as Record<string, unknown>)['native_finish_reason'];
+          const finish = choice?.finish_reason ?? fallbackFinish ?? null;
           console.warn('[IllustrationService] Model finish reason:', finish, 'usage:', response?.usage || null);
         } catch {}
         return null;

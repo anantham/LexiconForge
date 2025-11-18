@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { AppSettings } from '../../../types';
 import { GeminiAdapter } from '../../../adapters/providers/GeminiAdapter';
+import { createMockAppSettings } from '../../utils/test-data';
 
 const calculateCostMock = vi.fn().mockResolvedValue(0.25);
 
@@ -29,13 +30,13 @@ const makeResponse = (payload: object) => ({
   },
 });
 
-const settings: AppSettings = {
+const settings: AppSettings = createMockAppSettings({
   provider: 'Gemini',
   model: 'gemini-2.0-flash',
   systemPrompt: 'Translate to English.',
   temperature: 0.8,
   apiKeyGemini: 'key',
-};
+});
 
 describe('GeminiAdapter internals', () => {
   beforeEach(() => {

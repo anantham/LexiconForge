@@ -55,7 +55,23 @@ describe('Novel Types', () => {
       chapterRange: { from: 1, to: 10 },
       completionStatus: 'In Progress',
       lastUpdated: '2025-01-19',
-      stats: { downloads: 10, fileSize: '10 MB' }
+      stats: {
+        downloads: 10,
+        fileSize: '10 MB',
+        content: {
+          totalImages: 5,
+          totalFootnotes: 20,
+          totalRawChapters: 10,
+          totalTranslatedChapters: 4,
+          avgImagesPerChapter: 0.5,
+          avgFootnotesPerChapter: 2
+        },
+        translation: {
+          translationType: 'ai',
+          qualityRating: 3.8,
+          feedbackCount: 5
+        }
+      }
     };
 
     expect(fork.basedOn).toBe('test-v1');

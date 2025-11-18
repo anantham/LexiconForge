@@ -1,6 +1,6 @@
 // PromptRegistry - Versioned, cached system prompts management
 
-import type { PromptTemplateRecord } from '../indexeddb';
+import type { PromptTemplateRecord } from '../db/types';
 
 export interface PromptTemplate {
   id: string;
@@ -111,20 +111,21 @@ Response format: JSON object with:
         
         // Convert stored prompts to our format
         storedPrompts.forEach((stored: PromptTemplateRecord) => {
+          const createdAtTimestamp = stored.createdAt ? new Date(stored.createdAt).getTime() : Date.now();
           const template: PromptTemplate = {
             id: stored.id,
             name: stored.name,
-            version: stored.version || 1,
-            systemPrompt: stored.systemPrompt,
+            version: 1, // Database doesn't track version, default to 1
+            systemPrompt: stored.content, // Map content → systemPrompt
             description: stored.description,
-            tags: stored.tags || [],
+            tags: [], // Database doesn't store tags
             isDefault: defaultTemplate?.id === stored.id,
             isBuiltin: false,
-            createdAt: stored.createdAt || Date.now(),
-            updatedAt: stored.updatedAt || Date.now(),
-            parameters: stored.parameters
+            createdAt: createdAtTimestamp,
+            updatedAt: stored.lastUsed ? new Date(stored.lastUsed).getTime() : createdAtTimestamp,
+            parameters: undefined // Database doesn't store parameters
           };
-          
+
           this.cache.set(template.id, template);
         });
 

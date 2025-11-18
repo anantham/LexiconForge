@@ -5,12 +5,12 @@ import type { Provider } from '../../../adapters/providers/Provider';
 describe('Provider registry', () => {
   it('registers and retrieves providers', async () => {
     const dummy: Provider = {
-      name: 'OpenAI',
+      name: 'Claude',
       async chatJSON() { return { text: 'ok' }; }
     };
     registerProvider(dummy);
-    expect(getRegisteredProviders()).toContain('OpenAI');
-    const p = getProvider('OpenAI');
+    expect(getRegisteredProviders()).toContain('Claude');
+    const p = getProvider('Claude');
     const res = await p.chatJSON({ user: 'hi', model: 'm' });
     expect(res.text).toBe('ok');
   });
@@ -19,4 +19,3 @@ describe('Provider registry', () => {
     expect(() => getProvider('Gemini')).toThrowError(/not registered/i);
   });
 });
-

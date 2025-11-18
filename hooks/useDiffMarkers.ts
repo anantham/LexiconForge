@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DiffResultsRepo } from '../adapters/repo/DiffResultsRepo';
 import type { DiffMarker } from '../services/diff/types';
 import { debugLog } from '../utils/debug';
-
-const repo = new DiffResultsRepo();
+import { DiffOps } from '../services/db/operations';
 
 export function useDiffMarkers(chapterId: string | null) {
   const [markers, setMarkers] = useState<DiffMarker[]>([]);
@@ -18,7 +16,7 @@ export function useDiffMarkers(chapterId: string | null) {
 
     setLoading(true);
     try {
-      const results = await repo.getByChapter(activeChapterId);
+      const results = await DiffOps.getByChapter(activeChapterId);
       if (signal?.aborted) return;
       const latestResult = results[0];
       setMarkers(latestResult?.markers || []);

@@ -405,7 +405,8 @@ export const createAudioSlice: StateCreator<AudioSlice> = (set, get) => ({
   },
 
   getChapterAudio: (chapterId: string) => {
-    return get().chapterAudioMap.get(chapterId) ?? EMPTY_AUDIO_LIST;
+    const list = get().chapterAudioMap.get(chapterId) ?? EMPTY_AUDIO_LIST;
+    return Array.from(list);
   },
 
   getAvailablePresets: () => {

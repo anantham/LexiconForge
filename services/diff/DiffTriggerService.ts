@@ -6,16 +6,15 @@
  */
 
 import { DiffAnalysisService, DiffAnalysisJsonParseError } from './DiffAnalysisService';
-import { DiffResultsRepo } from '../../adapters/repo/DiffResultsRepo';
 import { debugLog } from '../../utils/debug';
 import { createSimpleLLMAdapter } from './SimpleLLMAdapter';
 import { getEnvVar } from '../env';
 import { computeDiffHash } from './hash';
 import { DIFF_ALGO_VERSION, DIFF_DEFAULT_PROVIDER } from './constants';
 import { useAppStore } from '../../store';
+import { DiffOps } from '../db/operations';
 
 const diffService = new DiffAnalysisService();
-const diffRepo = new DiffResultsRepo();
 
 // Initialize translator adapter with OpenRouter API key
 try {
@@ -109,17 +108,17 @@ async function handleTranslationComplete(event: Event): Promise<void> {
 
     let cachedResult = null;
     if (aiTranslationId) {
-      cachedResult = await diffRepo.get(
+      cachedResult = await DiffOps.get({
         chapterId,
-        aiTranslationId,
-        normalizedFanId,
-        rawHash,
-        DIFF_ALGO_VERSION
-      );
+        aiVersionId: aiTranslationId,
+        fanVersionId: fanTranslationId ?? null,
+        rawVersionId: rawHash,
+        algoVersion: DIFF_ALGO_VERSION,
+      });
     }
 
     if (!cachedResult) {
-      cachedResult = await diffRepo.findByHashes(
+      cachedResult = await DiffOps.findByHashes(
         chapterId,
         aiHash,
         fanHash,
@@ -187,7 +186,7 @@ async function handleTranslationComplete(event: Event): Promise<void> {
       }
     }
 
-    await diffRepo.save(result);
+    await DiffOps.save(result);
 
     debugLog('diff', 'summary', '[DiffTrigger] Diff analysis complete:', {
       chapterId,

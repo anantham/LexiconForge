@@ -9,8 +9,7 @@
  * - Default settings and bootstrapping
  */
 
-import { indexedDBService } from './indexeddb';
-import { getRepoForService } from './db/index';
+import { TemplatesOps, MaintenanceOps } from './db/operations';
 import { INITIAL_SYSTEM_PROMPT } from '../config/constants';
 import type { AppSettings, PromptTemplate, DiffMarkerVisibilitySettings } from '../types';
 import appConfig from '../config/app.json';
@@ -165,13 +164,45 @@ export class SessionManagementService {
    */
   static async loadPromptTemplates(): Promise<{ templates: PromptTemplate[], activeTemplate: PromptTemplate | null }> {
     try {
-      const repo = getRepoForService('sessionManagementService');
-      const templates = await repo.getPromptTemplates();
-      const activeTemplate = await repo.getDefaultPromptTemplate();
+      const templates = await TemplatesOps.getAll();
+      const activeTemplateRecord = await TemplatesOps.getDefault();
+      const activeTemplate = activeTemplateRecord
+        ? {
+            id: activeTemplateRecord.id,
+            name: activeTemplateRecord.name,
+            description: activeTemplateRecord.description,
+            content: activeTemplateRecord.content,
+            isDefault: activeTemplateRecord.isDefault,
+            createdAt: activeTemplateRecord.createdAt,
+            lastUsed: activeTemplateRecord.lastUsed,
+          }
+        : null;
       
+      const normalizedTemplates = templates.map(template => ({
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        content: template.content,
+        isDefault: template.isDefault,
+        createdAt: template.createdAt,
+        lastUsed: template.lastUsed,
+      }));
+
+      const normalizedActive = activeTemplate
+        ? {
+            id: activeTemplate.id,
+            name: activeTemplate.name,
+            description: activeTemplate.description,
+            content: activeTemplate.content,
+            isDefault: activeTemplate.isDefault,
+            createdAt: activeTemplate.createdAt,
+            lastUsed: activeTemplate.lastUsed,
+          }
+        : null;
+
       return {
-        templates,
-        activeTemplate
+        templates: normalizedTemplates,
+        activeTemplate: normalizedActive,
       };
     } catch (error) {
       console.error('[SessionManagement] Failed to load prompt templates:', error);
@@ -193,8 +224,7 @@ export class SessionManagementService {
     };
 
     try {
-      const repo = getRepoForService('sessionManagementService');
-      await repo.storePromptTemplate(template);
+      await TemplatesOps.store(template);
       return template;
     } catch (error) {
       console.error('[SessionManagement] Failed to create prompt template:', error);
@@ -207,8 +237,7 @@ export class SessionManagementService {
    */
   static async updatePromptTemplate(template: PromptTemplate): Promise<void> {
     try {
-      const repo = getRepoForService('sessionManagementService');
-      await repo.storePromptTemplate(template);
+      await TemplatesOps.store(template);
     } catch (error) {
       console.error('[SessionManagement] Failed to update prompt template:', error);
       throw error;
@@ -220,9 +249,7 @@ export class SessionManagementService {
    */
   static async deletePromptTemplate(id: string): Promise<void> {
     try {
-      const repo = getRepoForService('sessionManagementService');
-      // deletePromptTemplate not in Repo; fallback to indexedDBService for now
-      await indexedDBService.deletePromptTemplate(id);
+      await TemplatesOps.delete(id);
     } catch (error) {
       console.error('[SessionManagement] Failed to delete prompt template:', error);
       throw error;
@@ -234,8 +261,7 @@ export class SessionManagementService {
    */
   static async setActivePromptTemplate(id: string): Promise<void> {
     try {
-      const repo = getRepoForService('sessionManagementService');
-      await repo.setDefaultPromptTemplate(id);
+      await TemplatesOps.setDefault(id);
     } catch (error) {
       console.error('[SessionManagement] Failed to set active prompt template:', error);
       throw error;
@@ -263,7 +289,7 @@ export class SessionManagementService {
     try {
       // Clear IndexedDB data if requested
       if (clearIndexedDB) {
-        await indexedDBService.clearAllData();
+        await MaintenanceOps.clearAllData();
       }
 
       // Bootstrap a default prompt template if we cleared everything
@@ -279,9 +305,8 @@ export class SessionManagementService {
         };
 
         try {
-          const repo = getRepoForService('sessionManagementService');
-          await repo.storePromptTemplate(defaultTemplate as any);
-          await repo.setDefaultPromptTemplate(defaultTemplate.id);
+          await TemplatesOps.store(defaultTemplate as any);
+          await TemplatesOps.setDefault(defaultTemplate.id);
         } catch (e) {
           console.warn('[SessionManagement] Failed to bootstrap default prompt template', e);
         }
@@ -328,7 +353,7 @@ export class SessionManagementService {
       // If no templates exist, create a default one
       if (templates.length === 0) {
         const defaultTemplate = await this.createPromptTemplate({
-          name: 'Default',
+          name: `Default-${crypto.randomUUID().slice(0, 8)}`,
           description: 'Initial system prompt',
           content: INITIAL_SYSTEM_PROMPT,
           isDefault: true,
@@ -383,14 +408,6 @@ export class SessionManagementService {
       
       if (!activeTemplate) {
         issues.push('No active prompt template');
-      }
-
-      // Check IndexedDB connectivity
-      try {
-        const repo = getRepoForService('sessionManagementService');
-        await repo.getAllChapters();
-      } catch (e) {
-        issues.push('IndexedDB connection failed');
       }
 
     } catch (error) {

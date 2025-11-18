@@ -1,41 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Translator, type TranslationProvider, type TranslationRequest } from '../../../services/translate/Translator';
 import type { TranslationResult, AppSettings } from '../../../types';
+import { createMockAppSettings, createMockTranslationResult, createMockUsageMetrics } from '../../utils/test-data';
 
-const baseUsageMetrics = {
+const baseUsageMetrics = createMockUsageMetrics({
   promptTokens: 100,
   completionTokens: 50,
   totalTokens: 150,
   estimatedCost: 0.01,
   requestTime: 1.2,
-  provider: 'Mock',
-  model: 'mock-model',
-} as const;
-
-const baseTranslationResult = (): TranslationResult => ({
-  translatedTitle: 'Mock Title',
-  translation: 'Mock translation content',
-  proposal: null,
-  footnotes: [],
-  suggestedIllustrations: [],
-  usageMetrics: { ...baseUsageMetrics },
-  illustrations: [],
-  amendments: [],
-  costUsd: 0.01,
-  tokensUsed: {
-    promptTokens: baseUsageMetrics.promptTokens,
-    completionTokens: baseUsageMetrics.completionTokens,
-    totalTokens: baseUsageMetrics.totalTokens,
-  },
-  model: 'mock-model',
-  provider: 'Mock',
-  translationSettings: {
-    provider: 'Mock',
-    model: 'mock-model',
-    temperature: 0.7,
-    systemPrompt: 'Mock prompt',
-  },
+  provider: 'Claude',
+  model: 'claude-3-opus',
 });
+
+const baseTranslationResult = (): TranslationResult =>
+  createMockTranslationResult({
+    translatedTitle: 'Mock Title',
+    translation: 'Mock translation content',
+    usageMetrics: { ...baseUsageMetrics },
+    model: 'claude-3-opus',
+    provider: 'Claude',
+    translationSettings: {
+      provider: 'Claude',
+      model: 'claude-3-opus',
+      temperature: 0.7,
+      systemPrompt: 'Mock prompt',
+    },
+  });
 
 // Mock provider for testing
 class MockTranslationProvider implements TranslationProvider {
@@ -74,24 +65,19 @@ describe('Translator', () => {
     mockProvider = new MockTranslationProvider();
     mockProvider.reset();
     
-    translator.registerProvider('Mock', mockProvider);
+    translator.registerProvider('Claude', mockProvider);
 
-    mockSettings = {
-      provider: 'Mock',
-      model: 'mock-model',
+    mockSettings = createMockAppSettings({
+      provider: 'Claude',
+      model: 'claude-3-opus',
       temperature: 0.7,
-      contextDepth: 2,
-      preloadCount: 0,
-      fontSize: 16,
-      fontStyle: 'serif',
-      lineHeight: 1.6,
-      imageModel: 'mock-image-model',
       systemPrompt: 'Test system prompt',
-      apiKeyOpenAI: 'mock-key',
+      apiKeyClaude: 'mock-key',
+      imageModel: 'mock-image-model',
       retryMax: 3,
       retryInitialDelayMs: 1000,
       showDiffHeatmap: false,
-    } as AppSettings;
+    });
 
     mockRequest = {
       title: 'Test Title',
@@ -133,18 +119,22 @@ describe('Translator', () => {
 
       expect(result.translatedTitle).toBe('Mock Title');
       expect(result.translation).toBe('Mock translation content [sanitized]');
-      expect(result.provider).toBe('Mock');
+      expect(result.provider).toBe('Claude');
       expect(mockProvider.translateCalls).toHaveLength(1);
       expect(mockProvider.translateCalls[0]).toMatchObject(mockRequest);
     });
 
     it('throws error for unregistered provider', async () => {
-      const request = {
+      const request: TranslationRequest = {
         ...mockRequest,
-        settings: { ...mockSettings, provider: 'Unknown' }
+        settings: createMockAppSettings({
+          provider: 'OpenAI',
+          model: 'gpt-4o-mini',
+          systemPrompt: mockSettings.systemPrompt,
+        }),
       };
 
-      await expect(translator.translate(request)).rejects.toThrow('Provider not registered: Unknown');
+      await expect(translator.translate(request)).rejects.toThrow('Provider not registered: OpenAI');
     });
 
     it('sanitizes translation results', async () => {
@@ -285,9 +275,9 @@ describe('Translator', () => {
         costUsd: 0.05,
         tokensUsed: { promptTokens: 200, completionTokens: 100, totalTokens: 300 },
         model: 'advanced-model',
-        provider: 'Mock',
+        provider: 'Claude',
         translationSettings: {
-          provider: 'Mock',
+          provider: 'Claude',
           model: 'advanced-model',
           temperature: 0.8,
           systemPrompt: 'Advanced prompt',

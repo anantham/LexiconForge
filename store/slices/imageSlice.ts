@@ -15,6 +15,7 @@ import { ImageCacheStore } from '../../services/imageCacheService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { debugLog } from '../../utils/debug';
 import type { GeneratedImageResult, ImageGenerationMetadata, ImageVersionStateEntry } from '../../types';
+import { ImageOps } from '../../services/db/operations';
 
 export interface ImageSliceState {
   // Generated images state
@@ -761,7 +762,8 @@ export const createImageSlice: StateCreator<
   
   hasImagesInProgress: () => {
     const { generatedImages } = get();
-    return Object.values(generatedImages).some(state => state.isLoading);
+    const states = Object.values(generatedImages) as ImageState[];
+    return states.some(state => state?.isLoading);
   },
   
   getAdvancedControls: (chapterId, placementMarker) => {
@@ -884,11 +886,10 @@ export const createImageSlice: StateCreator<
     debugLog('image', 'summary', `[ImageSlice] Deleting version ${versionToDelete} for ${placementMarker} in chapter ${chapterId}`);
 
     try {
-      const { indexedDBService } = await import('../../services/indexeddb');
       let skippedIndexedDbCleanup = false;
 
       try {
-        await indexedDBService.deleteImageVersion(chapterId, placementMarker, versionToDelete);
+        await ImageOps.deleteImageVersion(chapterId, placementMarker, versionToDelete);
       } catch (error: any) {
         const message = typeof error?.message === 'string' ? error.message : '';
         const isMissingChapter =
@@ -897,7 +898,7 @@ export const createImageSlice: StateCreator<
           message.includes('No image version state');
 
         if (isMissingChapter) {
-          console.warn(`[ImageSlice] IndexedDB record missing while deleting ${placementMarker} v${versionToDelete}; continuing with UI cleanup.`);
+          console.warn(`[ImageSlice] Record missing while deleting ${placementMarker} v${versionToDelete}; continuing with UI cleanup.`);
           skippedIndexedDbCleanup = true;
         } else {
           throw error;
@@ -906,7 +907,7 @@ export const createImageSlice: StateCreator<
 
       try {
         await ImageCacheStore.removeImage({
-          stableId: chapterId,
+          chapterId,
           placementMarker,
           version: versionToDelete
         });

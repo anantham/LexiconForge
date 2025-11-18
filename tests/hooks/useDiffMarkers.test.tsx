@@ -5,13 +5,13 @@ import type { DiffResult } from '../../services/diff/types';
 
 const diffResultsByChapter: Record<string, DiffResult[]> = {};
 
-vi.mock('../../adapters/repo/DiffResultsRepo', () => {
+const mockGetByChapter = vi.fn(async (chapterId: string) => diffResultsByChapter[chapterId] || []);
+
+vi.mock('../../services/db/operations', () => {
   return {
-    DiffResultsRepo: class {
-      async getByChapter(chapterId: string) {
-        return diffResultsByChapter[chapterId] || [];
-      }
-    }
+    DiffOps: {
+      getByChapter: (chapterId: string) => mockGetByChapter(chapterId),
+    },
   };
 });
 
@@ -67,7 +67,7 @@ describe('useDiffMarkers', () => {
       algoVersion: '1.0.0',
       markers: [{
         chunkId: 'para-0-xyz',
-        colors: ['gray'],
+        colors: ['grey'],
         reasons: ['stylistic-choice'],
         aiRange: { start: 0, end: 10 },
         position: 0

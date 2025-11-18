@@ -8,8 +8,9 @@
  * - Performance optimization tasks
  */
 
-import { indexedDBService } from '../indexeddb';
+import type { TranslationRecord } from './types';
 import { debugLog } from '../../utils/debug';
+import { TranslationOps } from './operations';
 
 /**
  * Clean up duplicate translation versions
@@ -19,67 +20,40 @@ export async function cleanupDuplicateVersions(): Promise<void> {
   debugLog('indexeddb', 'summary', '[Cleanup] Starting duplicate version cleanup');
   
   try {
-    // Open database for cleanup operation  
-    const db = await indexedDBService.openDatabase();
-    
-    const transaction = db.transaction(['translations'], 'readwrite');
-    const store = transaction.objectStore('translations');
-    
-    return new Promise((resolve, reject) => {
-      const getAllRequest = store.getAll();
-      
-      getAllRequest.onsuccess = async () => {
-        const allTranslations = getAllRequest.result as any[];
-        debugLog('indexeddb', 'summary', `[Cleanup] Found ${allTranslations.length} total translations`);
-        
-        // Group by URL
-        const translationsByUrl: { [url: string]: any[] } = {};
-        for (const translation of allTranslations) {
-          const url = translation.url || '';
-          if (!translationsByUrl[url]) {
-            translationsByUrl[url] = [];
-          }
-          translationsByUrl[url].push(translation);
-        }
-        
-        let duplicatesRemoved = 0;
-        
-        // Process each URL group
-        for (const [url, translations] of Object.entries(translationsByUrl)) {
-          if (translations.length > 1) {
-            debugLog('indexeddb', 'summary', `[Cleanup] Found ${translations.length} translations for ${url}`);
-            
-            // Sort by timestamp (keep newest)
-            translations.sort((a, b) => 
-              new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime()
-            );
-            
-            // Remove older versions (keep first/newest)
-            const toRemove = translations.slice(1);
-            for (const oldTranslation of toRemove) {
-              const deleteRequest = store.delete(oldTranslation.id);
-              deleteRequest.onsuccess = () => {
-                duplicatesRemoved++;
-                debugLog('indexeddb', 'summary', `[Cleanup] Removed duplicate translation: ${oldTranslation.id}`);
-              };
-            }
-          }
-        }
-        
-        transaction.oncomplete = () => {
-          debugLog('indexeddb', 'summary', `[Cleanup] Cleanup completed. Removed ${duplicatesRemoved} duplicate translations`);
-          resolve();
-        };
-        
-        transaction.onerror = () => {
-          reject(new Error('Cleanup transaction failed'));
-        };
-      };
-      
-      getAllRequest.onerror = () => {
-        reject(new Error('Failed to retrieve translations for cleanup'));
-      };
-    });
+    const translations = await TranslationOps.getAll();
+    debugLog('indexeddb', 'summary', `[Cleanup] Found ${translations.length} total translations`);
+
+    const translationsByUrl = new Map<string, TranslationRecord[]>();
+    for (const record of translations) {
+      const url = record.chapterUrl || '';
+      if (!translationsByUrl.has(url)) {
+        translationsByUrl.set(url, []);
+      }
+      translationsByUrl.get(url)!.push(record);
+    }
+
+    let duplicatesRemoved = 0;
+
+    for (const [url, records] of translationsByUrl.entries()) {
+      if (records.length <= 1) continue;
+
+      debugLog('indexeddb', 'summary', `[Cleanup] Found ${records.length} translations for ${url}`);
+      const sorted = records.slice().sort((a, b) => {
+        const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        if (createdA !== createdB) return createdB - createdA;
+        return (b.version || 0) - (a.version || 0);
+      });
+
+      const toRemove = sorted.slice(1);
+      for (const duplicate of toRemove) {
+        await TranslationOps.deleteVersion(duplicate.id);
+        duplicatesRemoved++;
+        debugLog('indexeddb', 'summary', `[Cleanup] Removed duplicate translation: ${duplicate.id}`);
+      }
+    }
+
+    debugLog('indexeddb', 'summary', `[Cleanup] Cleanup completed. Removed ${duplicatesRemoved} duplicate translations`);
   } catch (error) {
     console.error('[Cleanup] Cleanup failed:', error);
     throw error;

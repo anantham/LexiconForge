@@ -1,11 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ClaudeAdapter } from '../../../adapters/providers/ClaudeAdapter';
-import type { TranslationResult } from '../../../types';
+import type { AppSettings, HistoricalChapter, TranslationResult } from '../../../types';
+import type { TranslationRequest } from '../../../services/translate/Translator';
+import { createMockAppSettings } from '../../utils/test-data';
 
-const translateWithClaudeMock = vi.fn<[], Promise<TranslationResult>>();
+const translateWithClaudeMock = vi.fn<
+  (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null) => Promise<TranslationResult>
+>();
 
 vi.mock('../../../services/claudeService', () => ({
-  translateWithClaude: (...args: any[]) => translateWithClaudeMock(...args),
+  translateWithClaude: translateWithClaudeMock,
 }));
 
 const mockResult: TranslationResult = {
@@ -29,13 +33,14 @@ describe('ClaudeAdapter', () => {
   it('delegates to translateWithClaude', async () => {
     translateWithClaudeMock.mockResolvedValueOnce(mockResult);
     const adapter = new ClaudeAdapter();
+    const settings = createMockAppSettings({ provider: 'Claude', model: 'claude-3' });
 
-    const request = {
+    const request: TranslationRequest = {
       title: 'T',
       content: 'C',
-      settings: { provider: 'Claude', model: 'claude-3', systemPrompt: '', temperature: 0.7 },
+      settings,
       history: [],
-    } as any;
+    };
 
     const result = await adapter.translate(request);
 
