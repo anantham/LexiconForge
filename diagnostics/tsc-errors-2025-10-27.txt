@@ -1,0 +1,440 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+adapters/providers/GeminiAdapter.ts(117,33): error TS2559: Type 'GenerateContentResult' has no properties in common with type 'GenerateContentResponse'.
+adapters/providers/GeminiAdapter.ts(170,35): error TS2339: Property 'response' does not exist on type 'GenerateContentResponse'.
+adapters/providers/GeminiAdapter.ts(192,35): error TS2339: Property 'response' does not exist on type 'GenerateContentResponse'.
+adapters/providers/GeminiAdapter.ts(193,39): error TS2339: Property 'response' does not exist on type 'GenerateContentResponse'.
+adapters/providers/GeminiAdapter.ts(213,26): error TS2339: Property 'promptId' does not exist on type 'AppSettings'.
+adapters/providers/GeminiAdapter.ts(214,28): error TS2339: Property 'promptName' does not exist on type 'AppSettings'.
+adapters/providers/GeminiAdapter.ts(225,7): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult'.
+components/ChapterView.tsx(1219,9): error TS2367: This comparison appears to be unintentional because the types '"👍" | "👎" | "?"' and '"🎨"' have no overlap.
+components/ChapterView.tsx(1803,36): error TS2345: Argument of type '{ type: any; selection: any; }' is not assignable to parameter of type 'Omit<FeedbackItem, "id">'.
+  Type '{ type: any; selection: any; }' is missing the following properties from type 'Omit<FeedbackItem, "id">': chapterId, timestamp, text, category
+components/InputBar.tsx(67,35): error TS2339: Property 'canonicalUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/InputBar.tsx(69,58): error TS2339: Property 'content' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/InputBar.tsx(70,58): error TS2339: Property 'nextUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/InputBar.tsx(71,58): error TS2339: Property 'prevUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelGrid.tsx(23,20): error TS2322: Type '{ key: string; novel: NovelEntry; onViewDetails: (novel: NovelEntry) => void; }' is not assignable to type 'NovelCardProps'.
+  Property 'key' does not exist on type 'NovelCardProps'.
+components/NovelLibrary.tsx(85,33): error TS2339: Property 'canonicalUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(87,56): error TS2339: Property 'content' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(88,56): error TS2339: Property 'nextUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(89,56): error TS2339: Property 'prevUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(108,69): error TS2339: Property 'originalUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(173,37): error TS2339: Property 'canonicalUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(175,60): error TS2339: Property 'content' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(176,60): error TS2339: Property 'nextUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(177,60): error TS2339: Property 'prevUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/NovelLibrary.tsx(196,73): error TS2339: Property 'originalUrl' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+components/SettingsModal.test.tsx(64,3): error TS2353: Object literal may only specify known properties, and 'maxSessionSize' does not exist in type 'AppSettings'.
+components/SettingsModal.tsx(391,20): error TS2345: Argument of type '"ui"' is not assignable to parameter of type 'DebugPipeline'.
+components/SettingsModal.tsx(405,22): error TS2345: Argument of type '"ui"' is not assignable to parameter of type 'DebugPipeline'.
+components/SettingsModal.tsx(418,20): error TS2345: Argument of type '"ui"' is not assignable to parameter of type 'DebugPipeline'.
+components/SteeringImageDropdown.tsx(22,51): error TS2554: Expected 0 arguments, but got 1.
+hooks/usePersistentState.ts(15,8): error TS2503: Cannot find namespace 'React'.
+hooks/usePersistentState.ts(15,23): error TS2503: Cannot find namespace 'React'.
+services/ai/providers/openai.ts(2,37): error TS2307: Cannot find module 'openai/resources' or its corresponding type declarations.
+services/ai/providers/openai.ts(175,18): error TS2339: Property 'maxOutputTokens' does not exist on type '{ temperature?: number; topP?: number; frequencyPenalty?: number; presencePenalty?: number; seed?: number; }'.
+services/audio/AceStepProvider.ts(195,7): error TS2322: Type '{ audioUrl: any; duration: number; requestTime: number; cost: number; provider: string; taskType: AudioTaskType; }' is not assignable to type 'GeneratedAudioResult'.
+  Types of property 'provider' are incompatible.
+    Type 'string' is not assignable to type 'AudioProvider'.
+services/audio/AudioService.ts(70,5): error TS2322: Type '{ id: string; name: string; description: string; stylePrompt: string; negativePrompt: string; suitableFor: string[]; provider: string; taskType: string; }[]' is not assignable to type 'AudioStylePreset[]'.
+  Type '{ id: string; name: string; description: string; stylePrompt: string; negativePrompt: string; suitableFor: string[]; provider: string; taskType: string; }' is not assignable to type 'AudioStylePreset'.
+    Types of property 'suitableFor' are incompatible.
+      Type 'string[]' is not assignable to type '("action" | "romance" | "mystery" | "peaceful" | "dramatic" | "ambient")[]'.
+        Type 'string' is not assignable to type '"action" | "romance" | "mystery" | "peaceful" | "dramatic" | "ambient"'.
+services/audio/AudioService.ts(101,5): error TS2304: Cannot find name 'alog'.
+services/audio/AudioService.ts(110,5): error TS2304: Cannot find name 'alog'.
+services/audio/DiffRhythmProvider.ts(174,7): error TS2322: Type '{ audioUrl: any; duration: number; requestTime: number; cost: number; provider: string; taskType: AudioTaskType; }' is not assignable to type 'GeneratedAudioResult'.
+  Types of property 'provider' are incompatible.
+    Type 'string' is not assignable to type 'AudioProvider'.
+services/claudeService.ts(125,55): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(body: MessageCreateParamsNonStreaming, options?: RequestOptions): APIPromise<Message>', gave the following error.
+    Argument of type '{ model: string; max_tokens: number; temperature: number; messages: { role: string; content: string; }[]; }' is not assignable to parameter of type 'MessageCreateParamsNonStreaming'.
+      Types of property 'messages' are incompatible.
+        Type '{ role: string; content: string; }[]' is not assignable to type 'MessageParam[]'.
+          Type '{ role: string; content: string; }' is not assignable to type 'MessageParam'.
+            Types of property 'role' are incompatible.
+              Type 'string' is not assignable to type '"user" | "assistant"'.
+  Overload 2 of 3, '(body: MessageCreateParamsStreaming, options?: RequestOptions): APIPromise<Stream<RawMessageStreamEvent>>', gave the following error.
+    Argument of type '{ model: string; max_tokens: number; temperature: number; messages: { role: string; content: string; }[]; }' is not assignable to parameter of type 'MessageCreateParamsStreaming'.
+      Property 'stream' is missing in type '{ model: string; max_tokens: number; temperature: number; messages: { role: string; content: string; }[]; }' but required in type 'MessageCreateParamsStreaming'.
+  Overload 3 of 3, '(body: MessageCreateParamsBase, options?: RequestOptions): APIPromise<Message | Stream<RawMessageStreamEvent>>', gave the following error.
+    Argument of type '{ model: string; max_tokens: number; temperature: number; messages: { role: string; content: string; }[]; }' is not assignable to parameter of type 'MessageCreateParamsBase'.
+      Types of property 'messages' are incompatible.
+        Type '{ role: string; content: string; }[]' is not assignable to type 'MessageParam[]'.
+          Type '{ role: string; content: string; }' is not assignable to type 'MessageParam'.
+            Types of property 'role' are incompatible.
+              Type 'string' is not assignable to type '"user" | "assistant"'.
+services/claudeService.ts(152,13): error TS2322: Type 'Promise<number>' is not assignable to type 'number'.
+services/claudeService.ts(284,148): error TS2554: Expected 2 arguments, but got 3.
+services/db/index.ts(50,36): error TS2339: Property 'url' does not exist on type 'Chapter'.
+services/db/index.ts(56,5): error TS2322: Type '(urlPattern: string) => Promise<any[]>' is not assignable to type '(url: string) => Promise<{ stableId: string; canonicalUrl: string; data: any; }>'.
+  Type 'Promise<any[]>' is not assignable to type 'Promise<{ stableId: string; canonicalUrl: string; data: any; }>'.
+    Type 'any[]' is missing the following properties from type '{ stableId: string; canonicalUrl: string; data: any; }': stableId, canonicalUrl, data
+services/db/index.ts(63,5): error TS2719: Type '(chapterUrl: string, translation: import("/workspace/LexiconForge/types").TranslationResult, settings: { provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }) => Promise<...>' is not assignable to type '(chapterUrl: string, translation: import("/workspace/LexiconForge/types").TranslationResult, settings: { provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }) => Promise<...>'. Two different types with this name exist, but they are unrelated.
+  Type 'Promise<void>' is not assignable to type 'Promise<TranslationRecord>'.
+    Type 'void' is not assignable to type 'TranslationRecord'.
+services/db/index.ts(64,48): error TS2339: Property 'version' does not exist on type 'TranslationResult'.
+services/db/index.ts(67,5): error TS2719: Type '(stableId: string, translation: import("/workspace/LexiconForge/types").TranslationResult, settings: { provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }) => Promise<...>' is not assignable to type '(stableId: string, translation: import("/workspace/LexiconForge/types").TranslationResult, settings: { provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }) => Promise<...>'. Two different types with this name exist, but they are unrelated.
+  Type 'Promise<void>' is not assignable to type 'Promise<TranslationRecord>'.
+    Type 'void' is not assignable to type 'TranslationRecord'.
+services/db/index.ts(68,46): error TS2339: Property 'version' does not exist on type 'TranslationResult'.
+services/db/index.ts(252,10): error TS2678: Type '"shadow"' is not comparable to type 'Backend'.
+services/db/index.ts(342,79): error TS2322: Type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }' is not assignable to type 'Pick<AppSettings, "provider" | "model" | "temperature" | "systemPrompt"> & { promptId?: string; promptName?: string; }'.
+  Type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }' is not assignable to type 'Pick<AppSettings, "provider" | "model" | "temperature" | "systemPrompt">'.
+    Types of property 'provider' are incompatible.
+      Type 'string' is not assignable to type 'TranslationProvider'.
+services/db/index.ts(347,90): error TS2322: Type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }' is not assignable to type 'Pick<AppSettings, "provider" | "model" | "temperature" | "systemPrompt"> & { promptId?: string; promptName?: string; }'.
+  Type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }' is not assignable to type 'Pick<AppSettings, "provider" | "model" | "temperature" | "systemPrompt">'.
+    Types of property 'provider' are incompatible.
+      Type 'string' is not assignable to type 'TranslationProvider'.
+services/db/migration/service-adapter.ts(31,7): error TS2322: Type 'ChapterRecord' is not assignable to type 'Chapter'.
+  Property 'nextUrl' is optional in type 'ChapterRecord' but required in type 'Chapter'.
+services/db/migration/service-adapter.ts(43,5): error TS2322: Type 'ChapterRecord' is not assignable to type 'Chapter'.
+  Property 'nextUrl' is optional in type 'ChapterRecord' but required in type 'Chapter'.
+services/db/migration/service-adapter.ts(51,7): error TS2322: Type 'ChapterRecord' is not assignable to type 'Chapter'.
+  Property 'nextUrl' is optional in type 'ChapterRecord' but required in type 'Chapter'.
+services/db/migration/service-adapter.ts(62,5): error TS2322: Type 'ChapterRecord' is not assignable to type 'Chapter'.
+  Property 'nextUrl' is optional in type 'ChapterRecord' but required in type 'Chapter'.
+services/db/migration/service-adapter.ts(70,7): error TS2322: Type 'ChapterRecord[]' is not assignable to type 'Chapter[]'.
+  Type 'ChapterRecord' is not assignable to type 'Chapter'.
+    Property 'nextUrl' is optional in type 'ChapterRecord' but required in type 'Chapter'.
+services/db/migration/service-adapter.ts(106,5): error TS2322: Type 'ChapterRecord[]' is not assignable to type 'Chapter[]'.
+  Type 'ChapterRecord' is not assignable to type 'Chapter'.
+    Property 'nextUrl' is optional in type 'ChapterRecord' but required in type 'Chapter'.
+services/db/migration/service-adapter.ts(114,7): error TS2740: Type '{ stableId: string; canonicalUrl: string; data: any; }' is missing the following properties from type 'Chapter[]': length, pop, push, concat, and 29 more.
+services/db/migration/service-adapter.ts(125,5): error TS2740: Type '{ stableId: string; canonicalUrl: string; data: any; }' is missing the following properties from type 'Chapter[]': length, pop, push, concat, and 29 more.
+services/db/migration/service-adapter.ts(207,72): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/service-adapter.ts(208,69): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/service-adapter.ts(216,76): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/service-adapter.ts(224,73): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/service-adapter.ts(244,64): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/service-adapter.ts(245,61): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/service-adapter.ts(249,68): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/service-adapter.ts(254,65): error TS2345: Argument of type 'Partial<AppSettings>' is not assignable to parameter of type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+  Property 'provider' is optional in type 'Partial<AppSettings>' but required in type '{ provider: string; model: string; temperature: number; systemPrompt: string; promptId?: string; promptName?: string; }'.
+services/db/migration/shadow-validator.ts(111,21): error TS2345: Argument of type 'number | T' is not assignable to parameter of type 'T'.
+  'T' could be instantiated with an arbitrary type which could be unrelated to 'number | T'.
+services/db/migration/shadow-validator.ts(115,9): error TS2322: Type 'number | T' is not assignable to type 'T'.
+  'T' could be instantiated with an arbitrary type which could be unrelated to 'number | T'.
+services/db/migration/shadow-validator.ts(116,9): error TS2322: Type 'number | T' is not assignable to type 'T'.
+  'T' could be instantiated with an arbitrary type which could be unrelated to 'number | T'.
+services/db/migration/shadow-validator.ts(120,11): error TS2322: Type 'number | T' is not assignable to type 'number'.
+  Type 'T' is not assignable to type 'number'.
+services/db/migration/shadow-validator.ts(121,11): error TS2322: Type 'number | T' is not assignable to type 'number'.
+  Type 'T' is not assignable to type 'number'.
+services/db/migrationService.ts(62,74): error TS2554: Expected 1 arguments, but got 2.
+services/db/migrationService.ts(67,38): error TS2551: Property 'storeTranslationVersion' does not exist on type 'IndexedDBService'. Did you mean 'storeTranslation'?
+services/db/migrationService.ts(89,32): error TS2551: Property 'storeAppSettings' does not exist on type 'IndexedDBService'. Did you mean 'storeSettings'?
+services/db/migrationService.ts(106,38): error TS2551: Property 'storeFeedbackItem' does not exist on type 'IndexedDBService'. Did you mean 'storeFeedback'?
+services/db/operations/chapters.ts(162,33): error TS2339: Property 'fanTranslation' does not exist on type 'Chapter & { stableId?: string; }'.
+services/db/operations/translations.ts(173,9): error TS2322: Type 'SuggestedIllustration[]' is not assignable to type '{ placementMarker: string; imagePrompt: string; url?: string; generatedImage?: string; }[]'.
+  Type 'SuggestedIllustration' is not assignable to type '{ placementMarker: string; imagePrompt: string; url?: string; generatedImage?: string; }'.
+    Types of property 'generatedImage' are incompatible.
+      Type 'GeneratedImageResult' is not assignable to type 'string'.
+services/diff/DiffAnalysisService.ts(138,42): error TS2304: Cannot find name 'DiffReason'.
+services/diff/DiffAnalysisService.ts(166,33): error TS2304: Cannot find name 'DiffReason'.
+services/diff/DiffAnalysisService.ts(166,46): error TS2304: Cannot find name 'DiffColor'.
+services/diff/DiffAnalysisService.ts(187,50): error TS2304: Cannot find name 'DiffReason'.
+services/diff/DiffAnalysisService.ts(212,30): error TS2304: Cannot find name 'DiffReason'.
+services/epub/assetResolver.ts(44,61): error TS2345: Argument of type '{ chapterId: string; placementMarker: string; }' is not assignable to parameter of type 'ImageCacheKey'.
+  Property 'version' is missing in type '{ chapterId: string; placementMarker: string; }' but required in type 'ImageCacheKey'.
+services/epub/contentBuilder.ts(136,29): error TS2339: Property 'novelTitle' does not exist on type 'AppSettings'.
+services/epub/contentBuilder.ts(240,39): error TS2339: Property 'novelTitle' does not exist on type 'AppSettings'.
+services/epub/dataCollector.ts(79,34): error TS2339: Property 'translatedContent' does not exist on type 'TranslationResult'.
+services/epub/dataCollector.ts(82,46): error TS2339: Property 'enableHtmlRepair' does not exist on type 'EpubExportOptions'.
+services/epub/dataCollector.ts(100,45): error TS2339: Property 'provider' does not exist on type 'TranslationResult'.
+services/epub/dataCollector.ts(101,42): error TS2339: Property 'model' does not exist on type 'TranslationResult'.
+services/epub/dataCollector.ts(102,41): error TS2339: Property 'cost' does not exist on type 'TranslationResult'.
+services/epub/dataCollector.ts(103,43): error TS2339: Property 'tokens' does not exist on type 'TranslationResult'.
+services/epub/dataCollector.ts(104,48): error TS2339: Property 'requestTime' does not exist on type 'TranslationResult'.
+services/explanationService.ts(88,61): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(body: ChatCompletionCreateParamsNonStreaming, options?: RequestOptions<unknown>): APIPromise<ChatCompletion>', gave the following error.
+    Argument of type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'ChatCompletionCreateParamsNonStreaming'.
+      Types of property 'messages' are incompatible.
+        Type '{ role: string; content: string; }[]' is not assignable to type 'ChatCompletionMessageParam[]'.
+          Type '{ role: string; content: string; }' is not assignable to type 'ChatCompletionMessageParam'.
+            Property 'name' is missing in type '{ role: string; content: string; }' but required in type 'ChatCompletionFunctionMessageParam'.
+  Overload 2 of 3, '(body: ChatCompletionCreateParamsStreaming, options?: RequestOptions<unknown>): APIPromise<Stream<ChatCompletionChunk>>', gave the following error.
+    Argument of type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'ChatCompletionCreateParamsStreaming'.
+      Property 'stream' is missing in type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' but required in type 'ChatCompletionCreateParamsStreaming'.
+  Overload 3 of 3, '(body: ChatCompletionCreateParamsBase, options?: RequestOptions<unknown>): APIPromise<ChatCompletion | Stream<ChatCompletionChunk>>', gave the following error.
+    Argument of type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'ChatCompletionCreateParamsBase'.
+      Types of property 'messages' are incompatible.
+        Type '{ role: string; content: string; }[]' is not assignable to type 'ChatCompletionMessageParam[]'.
+          Type '{ role: string; content: string; }' is not assignable to type 'ChatCompletionMessageParam'.
+            Property 'name' is missing in type '{ role: string; content: string; }' but required in type 'ChatCompletionFunctionMessageParam'.
+services/illustrationService.ts(83,61): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(body: ChatCompletionCreateParamsNonStreaming, options?: RequestOptions<unknown>): APIPromise<ChatCompletion>', gave the following error.
+    Argument of type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'ChatCompletionCreateParamsNonStreaming'.
+      Types of property 'messages' are incompatible.
+        Type '{ role: string; content: string; }[]' is not assignable to type 'ChatCompletionMessageParam[]'.
+          Type '{ role: string; content: string; }' is not assignable to type 'ChatCompletionMessageParam'.
+            Property 'name' is missing in type '{ role: string; content: string; }' but required in type 'ChatCompletionFunctionMessageParam'.
+  Overload 2 of 3, '(body: ChatCompletionCreateParamsStreaming, options?: RequestOptions<unknown>): APIPromise<Stream<ChatCompletionChunk>>', gave the following error.
+    Argument of type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'ChatCompletionCreateParamsStreaming'.
+      Property 'stream' is missing in type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' but required in type 'ChatCompletionCreateParamsStreaming'.
+  Overload 3 of 3, '(body: ChatCompletionCreateParamsBase, options?: RequestOptions<unknown>): APIPromise<ChatCompletion | Stream<ChatCompletionChunk>>', gave the following error.
+    Argument of type '{ model: string; messages: { role: string; content: string; }[]; temperature: number; max_tokens: number; }' is not assignable to parameter of type 'ChatCompletionCreateParamsBase'.
+      Types of property 'messages' are incompatible.
+        Type '{ role: string; content: string; }[]' is not assignable to type 'ChatCompletionMessageParam[]'.
+          Type '{ role: string; content: string; }' is not assignable to type 'ChatCompletionMessageParam'.
+            Property 'name' is missing in type '{ role: string; content: string; }' but required in type 'ChatCompletionFunctionMessageParam'.
+services/illustrationService.ts(95,33): error TS2339: Property 'finish_reason' does not exist on type '{}'.
+services/illustrationService.ts(95,57): error TS2339: Property 'native_finish_reason' does not exist on type '{}'.
+services/imageGenerationService.ts(19,63): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+services/imageGenerationService.ts(20,65): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+services/imageService.ts(140,59): error TS2345: Argument of type '{ contents: { role: string; parts: { text: string; }[]; }[]; generationConfig: { responseModalities: any; }; }' is not assignable to parameter of type 'string | GenerateContentRequest | (string | Part)[]'.
+  Types of property 'generationConfig' are incompatible.
+    Object literal may only specify known properties, and 'responseModalities' does not exist in type 'GenerationConfig'.
+services/imageUtils.ts(85,9): error TS2554: Expected 1 arguments, but got 0.
+services/indexeddb.ts(731,51): error TS2304: Cannot find name 'chapterUrl'.
+services/indexeddb.ts(940,38): error TS2367: This comparison appears to be unintentional because the types 'boolean' and 'number' have no overlap.
+services/indexeddb.ts(940,58): error TS2367: This comparison appears to be unintentional because the types 'boolean' and 'string' have no overlap.
+services/indexeddb.ts(1957,7): error TS2322: Type '"👍" | "👎" | "?"' is not assignable to type '"positive" | "negative" | "suggestion"'.
+  Type '"👍"' is not assignable to type '"positive" | "negative" | "suggestion"'.
+services/indexeddb.ts(2402,7): error TS2322: Type 'number' is not assignable to type 'boolean'.
+services/indexeddb.ts(3276,19): error TS2345: Argument of type '"diffResults"' is not assignable to parameter of type '"chapters" | "translations" | "settings" | "feedback" | "prompt_templates" | "url_mappings" | "novels"'.
+services/indexeddb.ts(3336,29): error TS2352: Conversion of type '{ id: any; name: any; description: any; content: any; isDefault: number; createdAt: any; lastUsed: any; }' to type 'PromptTemplateRecord' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'isDefault' are incompatible.
+    Type 'number' is not comparable to type 'boolean'.
+services/indexeddb.ts(3675,39): error TS2339: Property 'activeTranslationId' does not exist on type 'ChapterRecord'.
+services/indexeddb.ts(3676,20): error TS2339: Property 'getTranslationById' does not exist on type 'IndexedDBService'.
+services/indexeddb.ts(3676,53): error TS2339: Property 'activeTranslationId' does not exist on type 'ChapterRecord'.
+services/indexeddb.ts(3832,15): error TS2484: Export declaration conflicts with exported declaration of 'ChapterSummaryRecord'.
+services/navigationService.ts(749,36): error TS2339: Property 'createdAt' does not exist on type 'ChapterRecord'.
+services/prompts/PromptRegistry.ts(117,29): error TS2339: Property 'version' does not exist on type 'PromptTemplateRecord'.
+services/prompts/PromptRegistry.ts(118,34): error TS2339: Property 'systemPrompt' does not exist on type 'PromptTemplateRecord'.
+services/prompts/PromptRegistry.ts(120,26): error TS2339: Property 'tags' does not exist on type 'PromptTemplateRecord'.
+services/prompts/PromptRegistry.ts(123,13): error TS2322: Type 'string | number' is not assignable to type 'number'.
+  Type 'string' is not assignable to type 'number'.
+services/prompts/PromptRegistry.ts(124,31): error TS2339: Property 'updatedAt' does not exist on type 'PromptTemplateRecord'.
+services/prompts/PromptRegistry.ts(125,32): error TS2339: Property 'parameters' does not exist on type 'PromptTemplateRecord'.
+services/sessionManagementService.ts(49,3): error TS2353: Object literal may only specify known properties, and 'imageAspectRatio' does not exist in type 'AppSettings'.
+services/stableIdService.ts(239,9): error TS2353: Object literal may only specify known properties, and 'chapterIndex' does not exist in type '{ originalUrl: string; importDate: Date; sourceFormat: "json" | "scraping" | "manual"; }'.
+services/translate/Translator.ts(133,7): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult'.
+services/translate/Translator.ts(133,29): error TS2339: Property 'illustrations' does not exist on type 'TranslationResult'.
+services/translate/Translator.ts(134,26): error TS2339: Property 'amendments' does not exist on type 'TranslationResult'.
+services/translate/Translator.ts(135,23): error TS2339: Property 'costUsd' does not exist on type 'TranslationResult'.
+services/translate/Translator.ts(136,26): error TS2339: Property 'tokensUsed' does not exist on type 'TranslationResult'.
+services/translate/Translator.ts(137,21): error TS2339: Property 'model' does not exist on type 'TranslationResult'.
+services/translate/Translator.ts(138,24): error TS2339: Property 'provider' does not exist on type 'TranslationResult'.
+services/translate/Translator.ts(139,35): error TS2339: Property 'translationSettings' does not exist on type 'TranslationResult'.
+services/translate/translationResponseSchema.ts(157,83): error TS2339: Property 'properties' does not exist on type 'Schema'.
+  Property 'properties' does not exist on type 'SimpleStringSchema'.
+services/translate/translationResponseSchema.ts(160,7): error TS2322: Type '{ properties: any; required: string[]; type: SchemaType.STRING; format?: "date-time"; enum?: never; description?: string; nullable?: boolean; } | { properties: any; required: string[]; type: SchemaType.STRING; format: "enum"; enum: string[]; description?: string; nullable?: boolean; } | ... 4 more ... | { ...; }' is not assignable to type 'Schema'.
+  Object literal may only specify known properties, and 'properties' does not exist in type 'SimpleStringSchema'.
+services/translationPersistenceService.ts(41,27): error TS2345: Argument of type '"translationsSlice"' is not assignable to parameter of type 'ServiceName'.
+services/translationPersistenceService.ts(78,71): error TS2345: Argument of type 'TranslationRecord | (TranslationResult & { id?: string; })' is not assignable to parameter of type 'TranslationResult'.
+  Property 'usageMetrics' is missing in type 'TranslationRecord' but required in type 'TranslationResult'.
+services/translationService.ts(14,47): error TS2440: Import declaration conflicts with local declaration of 'TranslationResult'.
+services/translationService.ts(20,69): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+services/translationService.ts(21,71): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+services/translationService.ts(101,16): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'TranslationResult'.
+services/translationService.ts(107,16): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'TranslationResult'.
+services/translationService.ts(163,18): error TS2353: Object literal may only specify known properties, and 'aborted' does not exist in type 'TranslationResult'.
+services/translationService.ts(208,18): error TS2353: Object literal may only specify known properties, and 'aborted' does not exist in type 'TranslationResult'.
+services/translationService.ts(210,18): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'TranslationResult'.
+services/translationService.ts(557,110): error TS2339: Property 'content' does not exist on type '{ stableId: string; canonicalUrl: string; data: any; }'.
+services/translationService.ts(557,169): error TS2339: Property 'chapterNumber' does not exist on type '{ stableId: string; canonicalUrl: string; data: any; }'.
+services/translationService.ts(557,195): error TS2339: Property 'title' does not exist on type '{ stableId: string; canonicalUrl: string; data: any; }'.
+services/translationService.ts(566,67): error TS2339: Property 'content' does not exist on type '{ stableId: string; canonicalUrl: string; data: any; }'.
+services/translationService.ts(567,63): error TS2339: Property 'title' does not exist on type '{ stableId: string; canonicalUrl: string; data: any; }'.
+services/translationService.ts(583,67): error TS2339: Property 'prevUrl' does not exist on type '{ stableId: string; canonicalUrl: string; data: any; }'.
+store/index.ts(139,11): error TS2345: Argument of type '{ viewMode: "original" | "fan" | "english"; showSettingsModal: boolean; showExportModal: boolean; showDebugModal: boolean; isLoading: { fetching: boolean; translating: boolean; }; error: any; ... 30 more ...; sessionVersion: any; }' is not assignable to parameter of type '(UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions) | Partial<...> | ((state: UiState & ... 13 more ... & SessionActions) => (UiState & ... 13 more ... & SessionActions) | Partial<...>)'.
+  Type '{ viewMode: "original" | "fan" | "english"; showSettingsModal: boolean; showExportModal: boolean; showDebugModal: boolean; isLoading: { fetching: boolean; translating: boolean; }; error: any; ... 30 more ...; sessionVersion: any; }' is not assignable to type 'Partial<UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions>'.
+    Types of property 'pendingTranslations' are incompatible.
+      Type 'Set<unknown>' is not assignable to type 'Set<string>'.
+        Type 'unknown' is not assignable to type 'string'.
+store/index.ts(268,17): error TS2551: Property 'setNotification' does not exist on type 'UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions'. Did you mean 'notification'?
+store/index.ts(277,19): error TS2551: Property 'setNotification' does not exist on type 'UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions'. Did you mean 'notification'?
+store/index.ts(286,19): error TS2551: Property 'setNotification' does not exist on type 'UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions'. Did you mean 'notification'?
+store/index.ts(293,17): error TS2551: Property 'setNotification' does not exist on type 'UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions'. Did you mean 'notification'?
+store/index.ts(306,15): error TS2551: Property 'setNotification' does not exist on type 'UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions'. Did you mean 'notification'?
+store/index.ts(315,17): error TS2551: Property 'setNotification' does not exist on type 'UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions'. Did you mean 'notification'?
+store/index.ts(323,17): error TS2551: Property 'setNotification' does not exist on type 'UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions'. Did you mean 'notification'?
+store/slices/audioSlice.ts(407,3): error TS2322: Type '(chapterId: string) => readonly string[]' is not assignable to type '(chapterId: string) => string[]'.
+  The type 'readonly string[]' is 'readonly' and cannot be assigned to the mutable type 'string[]'.
+store/slices/chaptersSlice.ts(586,50): error TS2339: Property 'translationResult' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(588,11): error TS2339: Property 'translationResult' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(598,55): error TS2339: Property 'translationResult' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(600,9): error TS2339: Property 'translationResult' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(611,19): error TS2339: Property 'content' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(612,40): error TS2339: Property 'content' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(614,19): error TS2339: Property 'translationResult' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(615,40): error TS2339: Property 'translationResult' does not exist on type 'unknown'.
+store/slices/chaptersSlice.ts(619,37): error TS2339: Property 'translationResult' does not exist on type 'unknown'.
+store/slices/exportSlice.ts(3,37): error TS2305: Module '"../../services/indexeddb"' has no exported member 'TelemetryInsights'.
+store/slices/exportSlice.ts(298,37): error TS2339: Property 'id' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+store/slices/exportSlice.ts(299,25): error TS2339: Property 'id' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+store/slices/exportSlice.ts(306,39): error TS2339: Property 'id' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+store/slices/exportSlice.ts(311,33): error TS2339: Property 'id' does not exist on type '{ stableId: string; url: string; data: any; title: string; chapterNumber: number; }'.
+store/slices/exportSlice.ts(349,71): error TS2304: Cannot find name 'versionStateEntry'.
+store/slices/exportSlice.ts(349,101): error TS2304: Cannot find name 'version'.
+store/slices/exportSlice.ts(350,51): error TS2304: Cannot find name 'version'.
+store/slices/exportSlice.ts(414,9): error TS2353: Object literal may only specify known properties, and 'includeTitlePage' does not exist in type 'EpubExportOptions'.
+store/slices/imageSlice.ts(764,63): error TS2339: Property 'isLoading' does not exist on type 'unknown'.
+store/slices/imageSlice.ts(909,11): error TS2353: Object literal may only specify known properties, and 'stableId' does not exist in type 'ImageCacheKey'.
+store/slices/jobsSlice.ts(87,11): error TS2322: Type '{ createdAt: number; progress: number; error?: string; id: string; message?: string; type: "translation" | "image" | "epub"; status: JobStatus; startedAt?: number; completedAt?: number; cancellationRequested?: boolean; }' is not assignable to type 'Job'.
+  Type '{ createdAt: number; progress: number; error?: string; id: string; message?: string; type: "translation" | "image" | "epub"; status: JobStatus; startedAt?: number; completedAt?: number; cancellationRequested?: boolean; }' is missing the following properties from type 'ImageJob': prompt, settings
+store/slices/jobsSlice.ts(99,9): error TS2345: Argument of type '(state: JobsSlice) => JobsSlice | { jobs: { [x: string]: TranslationJob | EpubJob | ImageJob | { type: "translation"; chapterUrls: string[]; ... 13 more ...; cancellationRequested?: boolean; } | ... 7 more ... | { ...; }; }; }' is not assignable to parameter of type 'JobsSlice | Partial<JobsSlice> | ((state: JobsSlice) => JobsSlice | Partial<JobsSlice>)'.
+  Type '(state: JobsSlice) => JobsSlice | { jobs: { [x: string]: TranslationJob | EpubJob | ImageJob | { type: "translation"; chapterUrls: string[]; ... 13 more ...; cancellationRequested?: boolean; } | ... 7 more ... | { ...; }; }; }' is not assignable to type '(state: JobsSlice) => JobsSlice | Partial<JobsSlice>'.
+    Type 'JobsSlice | { jobs: { [x: string]: TranslationJob | EpubJob | ImageJob | { type: "translation"; chapterUrls: string[]; settings: any; totalChapters: number; ... 11 more ...; cancellationRequested?: boolean; } | ... 7 more ... | { ...; }; }; }' is not assignable to type 'JobsSlice | Partial<JobsSlice>'.
+      Type '{ jobs: { [x: string]: TranslationJob | EpubJob | ImageJob | { type: "translation"; chapterUrls: string[]; settings: any; totalChapters: number; completedChapters: number; ... 10 more ...; cancellationRequested?: boolean; } | ... 7 more ... | { ...; }; }; }' is not assignable to type 'JobsSlice | Partial<JobsSlice>'.
+        Type '{ jobs: { [x: string]: TranslationJob | EpubJob | ImageJob | { type: "translation"; chapterUrls: string[]; settings: any; totalChapters: number; completedChapters: number; ... 10 more ...; cancellationRequested?: boolean; } | ... 7 more ... | { ...; }; }; }' is not assignable to type 'Partial<JobsSlice>'.
+          Types of property 'jobs' are incompatible.
+            Type '{ [x: string]: TranslationJob | EpubJob | ImageJob | { type: "translation"; chapterUrls: string[]; settings: any; totalChapters: number; completedChapters: number; ... 10 more ...; cancellationRequested?: boolean; } | ... 7 more ... | { ...; }; }' is not assignable to type 'Record<string, Job>'.
+              'string' index signatures are incompatible.
+                Type 'TranslationJob | EpubJob | ImageJob | { type: "translation"; chapterUrls: string[]; settings: any; totalChapters: number; completedChapters: number; ... 10 more ...; cancellationRequested?: boolean; } | ... 7 more ... | { ...; }' is not assignable to type 'Job'.
+                  Type '{ type: "translation" | "epub"; chapterUrls: string[]; filename?: string; stage?: "collecting" | "processing" | "packaging" | "completed"; result?: ArrayBuffer; id: string; status: JobStatus; ... 11 more ...; results?: any[]; }' is not assignable to type 'Job'.
+                    Type '{ type: "translation" | "epub"; chapterUrls: string[]; filename?: string; stage?: "collecting" | "processing" | "packaging" | "completed"; result?: ArrayBuffer; id: string; status: JobStatus; ... 11 more ...; results?: any[]; }' is not assignable to type 'TranslationJob | EpubJob'.
+                      Type '{ type: "translation" | "epub"; chapterUrls: string[]; filename?: string; stage?: "collecting" | "processing" | "packaging" | "completed"; result?: ArrayBuffer; id: string; status: JobStatus; ... 11 more ...; results?: any[]; }' is not assignable to type 'TranslationJob'.
+                        Types of property 'type' are incompatible.
+                          Type '"translation" | "epub"' is not assignable to type '"translation"'.
+                            Type '"epub"' is not assignable to type '"translation"'.
+store/slices/jobsSlice.ts(155,11): error TS2339: Property 'startWorkerJob' does not exist on type 'JobsSlice'.
+store/slices/jobsSlice.ts(184,11): error TS2339: Property 'startWorkerJob' does not exist on type 'JobsSlice'.
+store/slices/jobsSlice.ts(200,11): error TS2339: Property 'cancelWorkerJob' does not exist on type 'JobsSlice'.
+store/slices/translationsSlice.ts(151,25): error TS2339: Property 'promptId' does not exist on type 'Partial<AppSettings>'.
+store/slices/translationsSlice.ts(152,25): error TS2339: Property 'promptName' does not exist on type 'Partial<AppSettings>'.
+store/slices/translationsSlice.ts(155,30): error TS2339: Property 'settingsSnapshot' does not exist on type 'TranslationRecord'.
+tests/adapters/providers/ClaudeAdapter.test.ts(5,39): error TS2558: Expected 0-1 type arguments, but got 2.
+tests/adapters/providers/ClaudeAdapter.test.ts(8,68): error TS2345: Argument of type 'any[]' is not assignable to parameter of type 'never'.
+tests/adapters/providers/GeminiAdapter.test.ts(32,7): error TS2740: Type '{ provider: "Gemini"; model: string; systemPrompt: string; temperature: number; apiKeyGemini: string; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/adapters/providers/OpenAIAdapter.test.ts(58,7): error TS2740: Type '{ provider: "OpenAI"; model: string; systemPrompt: string; temperature: number; apiKeyOpenAI: string; apiKeyGemini: string; apiKeyDeepSeek: string; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/adapters/providers/registry.test.ts(8,7): error TS2322: Type '"OpenAI"' is not assignable to type 'ProviderName'.
+tests/adapters/providers/registry.test.ts(13,27): error TS2345: Argument of type '"OpenAI"' is not assignable to parameter of type 'ProviderName'.
+tests/current-system/feedback.test.ts(54,54): error TS2345: Argument of type '{ selection: string; type: "👍"; comment: string; }' is not assignable to parameter of type 'Omit<FeedbackItem, "chapterId" | "id" | "timestamp">'.
+  Type '{ selection: string; type: "👍"; comment: string; }' is missing the following properties from type 'Omit<FeedbackItem, "chapterId" | "id" | "timestamp">': text, category
+tests/current-system/feedback.test.ts(70,54): error TS2345: Argument of type '{ selection: string; type: "👎"; comment: string; }' is not assignable to parameter of type 'Omit<FeedbackItem, "chapterId" | "id" | "timestamp">'.
+  Type '{ selection: string; type: "👎"; comment: string; }' is missing the following properties from type 'Omit<FeedbackItem, "chapterId" | "id" | "timestamp">': text, category
+tests/current-system/feedback.test.ts(83,54): error TS2345: Argument of type '{ selection: string; type: "?"; comment: string; }' is not assignable to parameter of type 'Omit<FeedbackItem, "chapterId" | "id" | "timestamp">'.
+  Type '{ selection: string; type: "?"; comment: string; }' is missing the following properties from type 'Omit<FeedbackItem, "chapterId" | "id" | "timestamp">': text, category
+tests/current-system/settings.test.ts(134,26): error TS2345: Argument of type '(state: UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions) => { ...; }' is not assignable to parameter of type '(UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions) | Partial<...> | ((state: UiState & ... 13 more ... & SessionActions) => (UiState & ... 13 more ... & SessionActions) | Partial<...>)'.
+  Type '(state: UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions) => { ...; }' is not assignable to type '(state: UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions) => (UiState & ... 13 more ... & SessionActions) | Partial<...>'.
+    Type '{ chapters: Map<string, EnhancedChapter>; settings: { provider: string; model: string; systemPrompt: string; temperature: number; contextDepth: number; preloadCount: number; ... 36 more ...; diffAnalysisPrompt?: string; }; }' is not assignable to type '(UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions) | Partial<...>'.
+      Type '{ chapters: Map<string, EnhancedChapter>; settings: { provider: string; model: string; systemPrompt: string; temperature: number; contextDepth: number; preloadCount: number; ... 36 more ...; diffAnalysisPrompt?: string; }; }' is not assignable to type 'Partial<UiState & UiActions & SettingsState & SettingsActions & ChaptersState & ChaptersActions & ... 8 more ... & SessionActions>'.
+        The types of 'settings.provider' are incompatible between these types.
+          Type 'string' is not assignable to type 'TranslationProvider'.
+tests/db/open-singleton.test.ts(4,1): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/db/open-singleton.test.ts(5,15): error TS2304: Cannot find name 'vi'.
+tests/db/open-singleton.test.ts(7,3): error TS2304: Cannot find name 'expect'.
+tests/db/open-singleton.test.ts(8,3): error TS2304: Cannot find name 'expect'.
+tests/epub/dataCollector.test.ts(23,9): error TS2353: Object literal may only specify known properties, and 'translatedContent' does not exist in type 'TranslationResult'.
+tests/epub/exportService.test.ts(34,9): error TS2353: Object literal may only specify known properties, and 'translatedContent' does not exist in type 'TranslationResult'.
+tests/hooks/useDiffMarkers.test.tsx(70,18): error TS2322: Type '"gray"' is not assignable to type 'DiffColor'.
+tests/services/aiService.providers.test.ts(21,55): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+tests/services/aiService.providers.test.ts(38,66): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+tests/services/aiService.providers.test.ts(76,5): error TS2304: Cannot find name 'beforeEach'.
+tests/services/aiService.translateChapter.test.ts(5,29): error TS2558: Expected 0-1 type arguments, but got 2.
+tests/services/aiService.translateChapter.test.ts(15,50): error TS2345: Argument of type 'any[]' is not assignable to parameter of type 'never'.
+tests/services/aiService.translateChapter.test.ts(23,68): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+tests/services/aiService.translateChapter.test.ts(31,7): error TS2740: Type '{ provider: "OpenRouter"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; systemPrompt: string; model: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(31,19): error TS2740: Type '{ provider: "Gemini"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(48,19): error TS2740: Type '{ provider: "Gemini"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(67,19): error TS2740: Type '{ provider: "Gemini"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(85,19): error TS2740: Type '{ provider: "Gemini"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(105,19): error TS2740: Type '{ provider: "OpenAI"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(122,19): error TS2740: Type '{ provider: "OpenAI"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(141,19): error TS2740: Type '{ provider: "OpenAI"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(161,19): error TS2740: Type '{ provider: "DeepSeek"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(178,19): error TS2740: Type '{ provider: "DeepSeek"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(197,19): error TS2740: Type '{ provider: "DeepSeek"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(217,19): error TS2740: Type '{ provider: any; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(234,19): error TS2740: Type '{ provider: "OpenAI"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(253,19): error TS2740: Type '{ provider: "OpenAI"; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/api-key-validation.test.ts(282,23): error TS2740: Type '{ provider: TranslationProvider; apiKeyGemini: string; apiKeyOpenAI: string; apiKeyDeepSeek: string; model: string; systemPrompt: string; temperature: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/epubService.test.ts(104,7): error TS2322: Type '{ translatedTitle: string; translation: string; proposal: any; footnotes: any[]; suggestedIllustrations: { placementMarker: string; imagePrompt: string; url: string; }[]; usageMetrics: { totalTokens: number; ... 5 more ...; model: string; }; }' is not assignable to type 'TranslationResult'.
+  The types of 'usageMetrics.provider' are incompatible between these types.
+    Type 'string' is not assignable to type 'TranslationProvider'.
+tests/services/epubService.test.ts(196,11): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type 'SuggestedIllustration'.
+tests/services/epubService.test.ts(201,11): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type 'SuggestedIllustration'.
+tests/services/exportService.test.ts(31,9): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'ChapterRecord'.
+tests/services/exportService.test.ts(45,7): error TS2741: Property 'chapterUrl' is missing in type '{ id: string; version: number; isActive: true; createdAt: string; translatedTitle: string; translation: string; footnotes: undefined[]; suggestedIllustrations: undefined[]; provider: string; model: string; ... 9 more ...; requestTime: number; }' but required in type 'TranslationRecord'.
+tests/services/hr-rendering.test.ts(133,22): error TS2339: Property 'raw' does not exist on type 'TranslationToken'.
+  Property 'raw' does not exist on type '{ type: "text"; chunkId: string; text: string; }'.
+tests/services/illustration-validation.test.ts(86,5): error TS2304: Cannot find name 'beforeEach'.
+tests/services/imageMigrationService.test.ts(38,9): error TS2353: Object literal may only specify known properties, and 'translatedContent' does not exist in type 'TranslationResult'.
+tests/services/imageMigrationService.test.ts(75,47): error TS2345: Argument of type '{ chapterId: string; placementMarker: string; }' is not assignable to parameter of type 'ImageCacheKey'.
+  Property 'version' is missing in type '{ chapterId: string; placementMarker: string; }' but required in type 'ImageCacheKey'.
+tests/services/imageMigrationService.test.ts(108,15): error TS2741: Property 'version' is missing in type '{ chapterId: string; placementMarker: string; }' but required in type 'ImageCacheKey'.
+tests/services/imageMigrationService.test.ts(147,7): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type 'EnhancedChapter'.
+tests/services/imageMigrationService.test.ts(172,9): error TS2353: Object literal may only specify known properties, and 'translatedContent' does not exist in type 'TranslationResult'.
+tests/services/imageMigrationService.test.ts(208,47): error TS2345: Argument of type '{ chapterId: string; placementMarker: string; }' is not assignable to parameter of type 'ImageCacheKey'.
+  Property 'version' is missing in type '{ chapterId: string; placementMarker: string; }' but required in type 'ImageCacheKey'.
+tests/services/translate/Translator.test.ts(11,5): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult | Error'.
+tests/services/translate/Translator.test.ts(40,7): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult | Error'.
+tests/services/translate/Translator.test.ts(74,20): error TS2352: Conversion of type '{ provider: "Mock"; model: string; temperature: number; systemPrompt: string; apiKeyOpenAI: string; retryMax: number; retryInitialDelayMs: number; }' to type 'AppSettings' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ provider: "Mock"; model: string; temperature: number; systemPrompt: string; apiKeyOpenAI: string; retryMax: number; retryInitialDelayMs: number; }' is missing the following properties from type 'AppSettings': contextDepth, preloadCount, fontSize, fontStyle, and 2 more.
+tests/services/translate/Translator.test.ts(124,21): error TS2339: Property 'provider' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(135,41): error TS2345: Argument of type '{ settings: { provider: string; contextDepth: number; preloadCount: number; fontSize: number; fontStyle: "sans" | "serif"; lineHeight: number; systemPrompt: string; activePromptId?: string; ... 34 more ...; diffAnalysisPrompt?: string; }; ... 5 more ...; chapterId?: string; }' is not assignable to parameter of type 'TranslationRequest'.
+  The types of 'settings.provider' are incompatible between these types.
+    Type 'string' is not assignable to type 'TranslationProvider'.
+tests/services/translate/Translator.test.ts(180,11): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult | Error'.
+tests/services/translate/Translator.test.ts(273,9): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(294,21): error TS2339: Property 'illustrations' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(295,21): error TS2339: Property 'amendments' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(296,21): error TS2339: Property 'costUsd' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(297,21): error TS2339: Property 'tokensUsed' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(298,21): error TS2339: Property 'translationSettings' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(305,9): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(322,21): error TS2339: Property 'illustrations' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(323,21): error TS2339: Property 'amendments' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(324,21): error TS2339: Property 'costUsd' does not exist on type 'TranslationResult'.
+tests/services/translate/Translator.test.ts(325,21): error TS2339: Property 'tokensUsed' does not exist on type 'TranslationResult'.
+tests/smoke/critical-components.smoke.test.tsx(76,30): error TS2339: Property 'default' does not exist on type 'typeof import("/workspace/LexiconForge/components/LandingPage")'.
+tests/store/chaptersSlice.test.ts(29,9): error TS2353: Object literal may only specify known properties, and 'translatedContent' does not exist in type 'TranslationResult'.
+tests/store/chaptersSlice.test.ts(68,15): error TS2741: Property 'version' is missing in type '{ chapterId: string; placementMarker: string; }' but required in type 'ImageCacheKey'.
+tests/store/chaptersSlice.test.ts(131,9): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type 'EnhancedChapter'.
+tests/store/chaptersSlice.test.ts(154,7): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type 'EnhancedChapter'.
+tests/store/slices/jobsSlice.test.ts(16,24): error TS2554: Expected 3 arguments, but got 2.
+tests/store/slices/jobsSlice.test.ts(39,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(56,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(65,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(81,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(97,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(106,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(115,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(141,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(149,41): error TS2345: Argument of type '"startWorkerJob"' is not assignable to parameter of type '"addJob" | "updateJob" | "removeJob" | "clearCompleted" | "clearAll" | "startJob" | "pauseJob" | "resumeJob" | "cancelJob" | "getJob" | "getJobsByType" | "getJobsByStatus" | "getRunningJobs" | "hasRunningJobs" | "initializeWorkers" | "terminateWorkers"'.
+tests/store/slices/jobsSlice.test.ts(170,41): error TS2345: Argument of type '"startWorkerJob"' is not assignable to parameter of type '"addJob" | "updateJob" | "removeJob" | "clearCompleted" | "clearAll" | "startJob" | "pauseJob" | "resumeJob" | "cancelJob" | "getJob" | "getJobsByType" | "getJobsByStatus" | "getRunningJobs" | "hasRunningJobs" | "initializeWorkers" | "terminateWorkers"'.
+tests/store/slices/jobsSlice.test.ts(181,47): error TS2345: Argument of type '"cancelWorkerJob"' is not assignable to parameter of type '"addJob" | "updateJob" | "removeJob" | "clearCompleted" | "clearAll" | "startJob" | "pauseJob" | "resumeJob" | "cancelJob" | "getJob" | "getJobsByType" | "getJobsByStatus" | "getRunningJobs" | "hasRunningJobs" | "initializeWorkers" | "terminateWorkers"'.
+tests/store/slices/jobsSlice.test.ts(199,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(208,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(217,9): error TS2353: Object literal may only specify known properties, and 'chapterUrls' does not exist in type 'Omit<Job, "progress" | "createdAt">'.
+tests/store/slices/jobsSlice.test.ts(273,26): error TS2339: Property 'startWorkerJob' does not exist on type 'JobsSlice'.
+tests/store/slices/jobsSlice.test.ts(274,26): error TS2339: Property 'cancelWorkerJob' does not exist on type 'JobsSlice'.
+tests/store/slices/jobsSlice.test.ts(275,26): error TS2339: Property 'handleWorkerMessage' does not exist on type 'JobsSlice'.
+tests/utils/test-data.ts(106,3): error TS2739: Type '{ id: string; selection: string; type: "👎"; comment: string; }' is missing the following properties from type 'FeedbackItem': text, category, timestamp, chapterId
+tests/utils/test-data.ts(112,3): error TS2739: Type '{ id: string; selection: string; type: "👍"; comment: string; }' is missing the following properties from type 'FeedbackItem': text, category, timestamp, chapterId
+tests/utils/test-data.ts(118,3): error TS2739: Type '{ id: string; selection: string; type: "?"; comment: string; }' is missing the following properties from type 'FeedbackItem': text, category, timestamp, chapterId
+tests/utils/test-data.ts(126,94): error TS2322: Type '{ contextDepth: number; preloadCount: number; fontSize: number; fontStyle: "sans" | "serif"; lineHeight: number; systemPrompt: string; activePromptId?: string; sourceLanguage?: string; ... 34 more ...; diffAnalysisPrompt?: string; }' is not assignable to type 'AppSettings'.
+  Property 'imageModel' is optional in type '{ contextDepth: number; preloadCount: number; fontSize: number; fontStyle: "sans" | "serif"; lineHeight: number; systemPrompt: string; activePromptId?: string; sourceLanguage?: string; targetLanguage?: string; ... 33 more ...; diffAnalysisPrompt?: string; }' but required in type 'AppSettings'.
+tests/utils/test-data.ts(148,7): error TS2741: Property 'imageModel' is missing in type '{ contextDepth: number; preloadCount: number; fontSize: number; fontStyle: "serif"; lineHeight: number; systemPrompt: string; provider: "OpenAI"; model: string; temperature: number; }' but required in type 'Omit<AppSettings, "apiKeyGemini" | "apiKeyOpenAI" | "apiKeyDeepSeek">'.
+types.ts(27,23): error TS2304: Cannot find name 'TranslationRecord'.
+types/novel.test.ts(58,7): error TS2739: Type '{ downloads: number; fileSize: string; }' is missing the following properties from type 'VersionStats': content, translation
+workers/epub.worker.ts(58,28): error TS2554: Expected 2 arguments, but got 1.
+workers/epub.worker.ts(58,58): error TS2551: Property 'chapterUrls' does not exist on type 'EpubExportOptions'. Did you mean 'chapters'?
+workers/epub.worker.ts(74,20): error TS2339: Property 'url' does not exist on type 'ChapterForEpub'.
+workers/epub.worker.ts(75,15): error TS2339: Property 'manualConfig' does not exist on type 'EpubExportOptions'.
+workers/epub.worker.ts(79,54): error TS2345: Argument of type 'import("/workspace/LexiconForge/services/epubService").TranslationStats' is not assignable to parameter of type 'import("/workspace/LexiconForge/services/epub/Templates").TranslationStats'.
+  Type 'TranslationStats' is missing the following properties from type 'TranslationStats': totalChapters, totalWords, totalCharacters, uniqueModels, and 3 more.
+workers/epub.worker.ts(82,41): error TS2339: Property 'originalTitle' does not exist on type 'ChapterForEpub'.
+workers/epub.worker.ts(85,15): error TS2339: Property 'includeStatsPage' does not exist on type 'EpubExportOptions'.
+workers/epub.worker.ts(89,17): error TS2339: Property 'includeStatsPage' does not exist on type 'EpubExportOptions'.
+workers/epub.worker.ts(90,32): error TS2339: Property 'customTemplate' does not exist on type 'EpubExportOptions'.
+workers/epub.worker.ts(91,51): error TS2345: Argument of type 'import("/workspace/LexiconForge/services/epubService").TranslationStats' is not assignable to parameter of type 'import("/workspace/LexiconForge/services/epub/Templates").TranslationStats'.
+  Type 'TranslationStats' is missing the following properties from type 'TranslationStats': totalChapters, totalWords, totalCharacters, uniqueModels, and 3 more.
+workers/epub.worker.ts(107,53): error TS2339: Property 'originalTitle' does not exist on type 'ChapterForEpub'.
+workers/epub.worker.ts(108,53): error TS2339: Property 'translatedContent' does not exist on type 'ChapterForEpub'.
+workers/epub.worker.ts(129,26): error TS2339: Property 'includeStatsPage' does not exist on type 'EpubExportOptions'.
+workers/translate.worker.ts(88,22): error TS2345: Argument of type '{ originalTitle: string; originalContent: string; translatedContent: string; }' is not assignable to parameter of type 'HistoricalChapter'.
+  Type '{ originalTitle: string; originalContent: string; translatedContent: string; }' is missing the following properties from type 'HistoricalChapter': translatedTitle, footnotes, feedback
+workers/translate.worker.ts(125,11): error TS2353: Object literal may only specify known properties, and 'illustrations' does not exist in type 'TranslationResult'.
