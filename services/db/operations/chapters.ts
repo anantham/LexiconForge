@@ -363,16 +363,20 @@ export class ChapterOps {
   }
 
   static async storeEnhanced(enhanced: any): Promise<void> {
-    const originalUrl = enhanced.originalUrl || enhanced.canonicalUrl;
+    const preferredOriginalUrl = enhanced.originalUrl ?? null;
+    const fallbackUrl = enhanced.canonicalUrl ?? null;
+    const originalUrl = preferredOriginalUrl ?? fallbackUrl;
     if (!originalUrl) {
       throw new Error('[ChapterOps] Enhanced chapter requires originalUrl or canonicalUrl');
     }
+
+    const canonicalUrl = enhanced.canonicalUrl ?? enhanced.originalUrl ?? undefined;
 
     const chapter: Chapter = {
       title: enhanced.title,
       content: enhanced.content,
       originalUrl,
-      canonicalUrl: enhanced.canonicalUrl || enhanced.originalUrl,
+      canonicalUrl,
       nextUrl: enhanced.nextUrl,
       prevUrl: enhanced.prevUrl,
       chapterNumber: enhanced.chapterNumber,
