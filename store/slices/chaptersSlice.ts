@@ -175,6 +175,18 @@ export const createChaptersSlice: StateCreator<
           chapters: newChapters,
         };
       });
+
+      if (
+        chapter.translationResult?.suggestedIllustrations &&
+        chapter.translationResult.suggestedIllustrations.length > 0
+      ) {
+        const imageActions = get() as any;
+        if (typeof imageActions.loadExistingImages === 'function') {
+          void imageActions
+            .loadExistingImages(chapterId)
+            .catch(error => console.warn('[ChaptersSlice] Failed to hydrate images from IDB:', error));
+        }
+      }
     }
     
     return chapter;

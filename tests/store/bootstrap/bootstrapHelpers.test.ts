@@ -10,6 +10,7 @@ const maintenanceOpsMock = vi.hoisted(() => ({
   backfillUrlMappingsFromChapters: vi.fn().mockResolvedValue(undefined),
   normalizeStableIds: vi.fn().mockResolvedValue(undefined),
   backfillActiveTranslations: vi.fn().mockResolvedValue(undefined),
+  backfillTranslationMetadata: vi.fn().mockResolvedValue(undefined),
 }));
 
 const settingsOpsMock = vi.hoisted(() => ({
@@ -185,6 +186,7 @@ describe('bootstrap helpers', () => {
     maintenanceOpsMock.backfillUrlMappingsFromChapters.mockReset();
     maintenanceOpsMock.normalizeStableIds.mockReset();
     maintenanceOpsMock.backfillActiveTranslations.mockReset();
+    maintenanceOpsMock.backfillTranslationMetadata.mockReset();
     importOpsMock.importFullSessionData.mockReset();
     renderingOpsMock.getChaptersForReactRendering.mockReset();
     renderingOpsMock.getChaptersForReactRendering.mockResolvedValue([]);

@@ -11,6 +11,7 @@ const SETTINGS = {
   URL_BACKFILL_FLAG: 'urlMappingsBackfilled',
   STABLE_ID_NORMALIZED: 'stableIdNormalized',
   ACTIVE_TRANSLATIONS_V2: 'activeTranslationsBackfilledV2',
+  TRANSLATION_METADATA_BACKFILLED: 'translationMetadataBackfilled',
 } as const;
 
 const nowIso = () => new Date().toISOString();
@@ -206,6 +207,72 @@ export class MaintenanceOps {
     );
 
     await SettingsOps.set(SETTINGS.ACTIVE_TRANSLATIONS_V2, true);
+  }
+
+  static async backfillTranslationMetadata(): Promise<void> {
+    const already = await SettingsOps.getKey<boolean>(SETTINGS.TRANSLATION_METADATA_BACKFILLED);
+    if (already) return;
+
+    await withWriteTxn(
+      STORE_NAMES.TRANSLATIONS,
+      async (_txn, stores) => {
+        const translationsStore = stores[STORE_NAMES.TRANSLATIONS];
+        const records = (await promisifyRequest(translationsStore.getAll())) as TranslationRecord[];
+
+        for (const record of records) {
+          if (!record) continue;
+          let dirty = false;
+          const snapshot = record.settingsSnapshot;
+
+          const resolvedProvider = record.provider ?? snapshot?.provider ?? 'unknown';
+          const resolvedModel = record.model ?? snapshot?.model ?? 'unknown';
+
+          if (record.provider !== resolvedProvider) {
+            record.provider = resolvedProvider;
+            dirty = true;
+          }
+
+          if (record.model !== resolvedModel) {
+            record.model = resolvedModel;
+            dirty = true;
+          }
+
+          if (record.settingsSnapshot) {
+            let snapDirty = false;
+            if (!record.settingsSnapshot.provider && resolvedProvider) {
+              record.settingsSnapshot.provider = resolvedProvider;
+              snapDirty = true;
+            }
+            if (!record.settingsSnapshot.model && resolvedModel) {
+              record.settingsSnapshot.model = resolvedModel;
+              snapDirty = true;
+            }
+            if (snapDirty) {
+              dirty = true;
+            }
+          } else {
+            record.settingsSnapshot = {
+              provider: resolvedProvider,
+              model: resolvedModel,
+              temperature: typeof record.temperature === 'number' ? record.temperature : 0.7,
+              systemPrompt: record.systemPrompt || '',
+              promptId: record.promptId,
+              promptName: record.promptName,
+            };
+            dirty = true;
+          }
+
+          if (dirty) {
+            await promisifyRequest(translationsStore.put(record));
+          }
+        }
+      },
+      'maintenance',
+      'backfill',
+      'translationMetadata'
+    );
+
+    await SettingsOps.set(SETTINGS.TRANSLATION_METADATA_BACKFILLED, true);
   }
 
   static async clearAllData(): Promise<void> {

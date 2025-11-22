@@ -121,6 +121,14 @@ export const createInitializeStore = (ctx: BootstrapContext): SessionActions['in
       }
 
       try {
+        bootstrapLog('translationMetadataBackfill start');
+        await MaintenanceOps.backfillTranslationMetadata();
+        bootstrapLog('translationMetadataBackfill complete');
+      } catch (e) {
+        console.warn('[Store] Translation metadata backfill failed:', e);
+      }
+
+      try {
         bootstrapLog('chapterNumbersBackfill check');
         const chapterNumbersBackfilled = await SettingsOps.getKey<boolean>('chapterNumbersBackfilled');
         if (!chapterNumbersBackfilled) {

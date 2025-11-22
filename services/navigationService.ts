@@ -17,7 +17,7 @@ import {
   normalizeUrlAggressively,
   transformImportedChapters
 } from './stableIdService';
-import type { ImportedChapter, TranslationResult } from '../types';
+import type { ImportedChapter, TranslationResult, TranslationSettingsSnapshot } from '../types';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
 import { telemetryService } from './telemetryService';
 import { debugLog } from '../utils/debug';
@@ -244,6 +244,10 @@ export class NavigationService {
             const hydrated = adaptTranslationRecordToResult(chapterId, active);
             if (hydrated) {
               chapter.translationResult = hydrated as any;
+              const activeSnapshot = (active.settingsSnapshot ??
+                null) as TranslationSettingsSnapshot | null;
+              chapter.translationSettingsSnapshot =
+                activeSnapshot ?? chapter.translationSettingsSnapshot ?? null;
               console.log(`✅ [Navigation] Hydration successful @${Date.now()}`);
             } else {
               console.warn(`⚠️ [Navigation] Hydration returned null @${Date.now()}`);
@@ -437,6 +441,12 @@ export class NavigationService {
 
           const adaptedTranslation = adaptTranslationRecordToResult(chapterIdFound, found.data?.translationResult);
 
+          const snapshot = (
+            (found.data?.translationResult as any)?.translationSettingsSnapshot ??
+            (found.data?.translationResult as any)?.settingsSnapshot ??
+            null
+          ) as TranslationSettingsSnapshot | null;
+
           const enhanced: EnhancedChapter = {
             id: chapterIdFound,
             title: c?.title || 'Untitled Chapter',
@@ -455,6 +465,7 @@ export class NavigationService {
               sourceFormat: 'json'
             },
             translationResult: adaptedTranslation,
+            translationSettingsSnapshot: snapshot,
           } as EnhancedChapter;
 
           const newHistory = [...new Set(navigationHistory.concat(chapterIdFound))];
@@ -808,6 +819,8 @@ export class NavigationService {
           });
 
           enhanced.translationResult = adaptTranslationRecordToResult(chapterId, activeTranslation);
+          enhanced.translationSettingsSnapshot = (activeTranslation.settingsSnapshot ??
+            null) as TranslationSettingsSnapshot | null;
           console.log(`✅ [TranslationLoad] Translation adapted to result format`);
           debugLog(
             'navigation',
