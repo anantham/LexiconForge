@@ -513,46 +513,52 @@ export const createImageSlice: StateCreator<
 
     debugLog('image', 'summary', `[ImageSlice] Hydrated ${count} existing images for ${chapterId}`);
 
-    if (count > 0) {
-      const currentState = get();
-      const versionUpdates: Record<string, number> = {};
-      const activeUpdates: Record<string, number> = {};
+    const currentState = get();
+    const versionUpdates: Record<string, number> = {};
+    const activeUpdates: Record<string, number> = {};
 
-      if (chapter?.translationResult?.suggestedIllustrations) {
-        chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
-          const marker = illust?.placementMarker;
-          if (!marker) return;
-          const key = `${chapterId}:${marker}`;
-          const versionState = (chapter.translationResult as any)?.imageVersionState?.[marker];
-          const version =
-            versionState?.latestVersion ??
-            illust?.generatedImage?.imageCacheKey?.version ??
-            (typeof (illust as any)?.url === 'string' ? 1 : undefined);
+    if (chapter?.translationResult?.suggestedIllustrations) {
+      chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+        const marker = illust?.placementMarker;
+        if (!marker) return;
+        const key = `${chapterId}:${marker}`;
+        const versionState = (chapter.translationResult as any)?.imageVersionState?.[marker];
+        let version =
+          versionState?.latestVersion ??
+          illust?.generatedImage?.imageCacheKey?.version ??
+          (typeof (illust as any)?.url === 'string' ? 1 : undefined);
 
-          if (!version) return;
+        // If a version state exists but no concrete versions remain, keep a placeholder version so UI controls persist.
+        if (versionState && (!version || version < 1)) {
+          version = 1;
+        }
 
-          const prevVersion = currentState.imageVersions?.[key] ?? 0;
-          if (version > prevVersion || !(key in currentState.imageVersions)) {
-            versionUpdates[key] = version;
-          }
+        if (!version) return;
 
-          if (!(key in currentState.activeImageVersion)) {
-            const activeVersion = versionState?.activeVersion ?? version;
-            activeUpdates[key] = activeVersion;
-          }
-        });
-      }
+        const prevVersion = currentState.imageVersions?.[key] ?? 0;
+        if (version > prevVersion || !(key in currentState.imageVersions)) {
+          versionUpdates[key] = version;
+        }
 
-      set(prevState => ({
-        generatedImages: { ...prevState.generatedImages, ...existingImages },
-        imageVersions: Object.keys(versionUpdates).length > 0
-          ? { ...prevState.imageVersions, ...versionUpdates }
-          : prevState.imageVersions,
-        activeImageVersion: Object.keys(activeUpdates).length > 0
-          ? { ...prevState.activeImageVersion, ...activeUpdates }
-          : prevState.activeImageVersion
-      }));
+        if (!(key in currentState.activeImageVersion)) {
+          const activeVersion =
+            versionState?.activeVersion && versionState.activeVersion > 0
+              ? versionState.activeVersion
+              : version;
+          activeUpdates[key] = activeVersion;
+        }
+      });
     }
+
+    set(prevState => ({
+      generatedImages: { ...prevState.generatedImages, ...existingImages },
+      imageVersions: Object.keys(versionUpdates).length > 0
+        ? { ...prevState.imageVersions, ...versionUpdates }
+        : prevState.imageVersions,
+      activeImageVersion: Object.keys(activeUpdates).length > 0
+        ? { ...prevState.activeImageVersion, ...activeUpdates }
+        : prevState.activeImageVersion
+    }));
   },
   
   // Image state management
@@ -864,9 +870,21 @@ export const createImageSlice: StateCreator<
   getVersionInfo: (chapterId, placementMarker) => {
     const state = get();
     const key = `${chapterId}:${placementMarker}`;
-    const totalVersions = state.imageVersions[key] || 0;
+    const hasKey = Object.prototype.hasOwnProperty.call(state.imageVersions, key);
+    const totalVersions = hasKey ? state.imageVersions[key] : 0;
 
-    if (totalVersions === 0) return null;
+    if (totalVersions === 0) {
+      const chapters = (state as any).chapters as Map<string, any> | undefined;
+      const chapter = chapters?.get(chapterId);
+      const hasIllustration = chapter?.translationResult?.suggestedIllustrations?.some(
+        (ill: any) => ill?.placementMarker === placementMarker
+      );
+
+      if (!hasIllustration) return null;
+
+      // Show placeholder controls so the marker can still be deleted or regenerated.
+      return { current: 1, total: 1 };
+    }
 
     const currentVersion = state.activeImageVersion[key] || totalVersions; // Default to latest
 
@@ -879,9 +897,10 @@ export const createImageSlice: StateCreator<
   deleteVersion: async (chapterId, placementMarker, version) => {
     const state = get();
     const key = `${chapterId}:${placementMarker}`;
+    const hasKey = Object.prototype.hasOwnProperty.call(state.imageVersions, key);
     const currentVersion = state.activeImageVersion[key] || state.imageVersions[key] || 1;
     const versionToDelete = version ?? currentVersion;
-    const totalVersions = state.imageVersions[key] || 1;
+    const totalVersions = hasKey ? state.imageVersions[key] : 1;
 
     debugLog('image', 'summary', `[ImageSlice] Deleting version ${versionToDelete} for ${placementMarker} in chapter ${chapterId}`);
 

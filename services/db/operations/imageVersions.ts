@@ -1,4 +1,5 @@
 import type { ChapterRecord, TranslationRecord } from '../types';
+import type { ImageGenerationMetadata } from '../../../types';
 import { chapterRepository } from '../repositories/instances';
 import { translationFacade } from '../repositories/translationFacade';
 
@@ -27,6 +28,30 @@ const resolveActiveTranslation = async (
   return translationFacade.getActiveByUrl(chapter.url);
 };
 
+const normalizeVersionEntries = (
+  versions: unknown
+): Array<[number, ImageGenerationMetadata]> => {
+  if (!versions) {
+    return [];
+  }
+
+  if (Array.isArray(versions)) {
+    return versions
+      .filter((entry): entry is ImageGenerationMetadata & { version: number } => {
+        return entry && typeof entry.version === 'number';
+      })
+      .map(entry => [entry.version, entry]);
+  }
+
+  if (typeof versions === 'object') {
+    return Object.entries(versions as Record<string, ImageGenerationMetadata>).map(
+      ([key, value]) => [Number(key), value]
+    );
+  }
+
+  return [];
+};
+
 export class ImageOps {
   static async deleteImageVersion(
     chapterId: string,
@@ -49,18 +74,42 @@ export class ImageOps {
     const markerState = versionState[placementMarker];
     if (!markerState) throw missingMarkerError(placementMarker);
 
-    const updatedVersions = (markerState.versions || []).filter(
-      (entry: { version: number }) => entry.version !== version
-    );
-
-    if (updatedVersions.length === 0) {
+    const normalizedEntries = normalizeVersionEntries(markerState.versions);
+    // If there are no version entries left, treat this as a marker cleanup request.
+    if (normalizedEntries.length === 0) {
       delete versionState[placementMarker];
+      if (Array.isArray(translationRecord.suggestedIllustrations)) {
+        translationRecord.suggestedIllustrations = translationRecord.suggestedIllustrations.filter(
+          ill => ill?.placementMarker !== placementMarker
+        );
+      }
+      translationRecord.imageVersionState =
+        Object.keys(versionState).length > 0 ? versionState : undefined;
+      await translationFacade.update(translationRecord);
+      return;
+    }
+
+    const filteredEntries = normalizedEntries.filter(([entryVersion]) => entryVersion !== version);
+
+    if (filteredEntries.length === 0) {
+      versionState[placementMarker] = {
+        ...markerState,
+        versions: {},
+        activeVersion: null,
+        latestVersion: 0,
+      };
     } else {
-      const newLatestVersion = Math.max(
-        ...updatedVersions.map((entry: { version: number }) => entry.version)
+      const updatedVersions = filteredEntries.reduce<Record<number, ImageGenerationMetadata>>(
+        (acc, [entryVersion, metadata]) => {
+          acc[entryVersion] = metadata;
+          return acc;
+        },
+        {}
       );
+      const versionNumbers = filteredEntries.map(([entryVersion]) => entryVersion);
+      const newLatestVersion = Math.max(...versionNumbers);
       const newActiveVersion =
-        markerState.activeVersion === version
+        markerState.activeVersion === version || markerState.activeVersion == null
           ? newLatestVersion
           : markerState.activeVersion;
 
