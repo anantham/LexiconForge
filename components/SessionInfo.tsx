@@ -449,7 +449,7 @@ const SessionInfo: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto -mt-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-b-xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-t border-gray-200 dark:border-gray-700">
-      <div className="flex-grow w-full sm:w-auto flex flex-col gap-2">
+      <div className="flex-grow w-full sm:w-auto flex flex-col gap-2 min-w-0">
         <div className="flex items-center gap-2">
           <label htmlFor="chapter-select" className="font-semibold text-gray-600 dark:text-gray-300 flex-shrink-0">
             Chapter:
@@ -464,7 +464,7 @@ const SessionInfo: React.FC = () => {
               value={currentChapterId || ''}
               onChange={handleChapterSelect}
               disabled={sessionIsEmpty || summariesLoading}
-              className="flex-grow w-full sm:w-auto min-w-[12rem] px-3 py-2 text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="flex-grow w-full sm:w-auto min-w-[12rem] max-w-full px-3 py-2 text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               aria-label="Select a chapter to navigate to"
             >
               {chapterOptions.map((chapter) => {
@@ -490,7 +490,7 @@ const SessionInfo: React.FC = () => {
             <label className="text-sm font-semibold text-gray-600 dark:text-gray-300">Version:</label>
 
             {/* Desktop: Native select */}
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2 min-w-0">
               <select
                 value={selectedVersion}
                 onChange={handleVersionSelect}
@@ -541,7 +541,7 @@ const SessionInfo: React.FC = () => {
           </div>
         )}
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-center">
+      <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-center sm:justify-end">
         <button
             onClick={() => setShowSettingsModal(true)}
             className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-full shadow-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition"
