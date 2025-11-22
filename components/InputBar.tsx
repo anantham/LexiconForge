@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { SUPPORTED_WEBSITES_CONFIG } from '../config/constants';
 import { ImportService, ImportProgress } from '../services/importService';
+import { fetchChaptersForReactRendering } from '../services/db/operations/rendering';
 
 /**
  * Detect if URL points to a session JSON file
@@ -54,9 +55,8 @@ const InputBar: React.FC = () => {
 
             console.log('[InputBar] First 10 chapters ready, navigating...');
 
-            const { indexedDBService } = await import('../services/indexeddb');
             const { useAppStore } = await import('../store');
-            const chapters = await indexedDBService.getChaptersForReactRendering();
+            const chapters = await fetchChaptersForReactRendering();
 
             // Hydrate store with first chapters
             const firstChapters = chapters.slice(0, Math.min(10, chapters.length));

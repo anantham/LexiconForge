@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { AppSettings, TranslationResult } from '../../types';
+import { createMockAppSettings, createMockTranslationResult } from '../utils/test-data';
 
 const initializeProvidersMock = vi.fn().mockResolvedValue(undefined);
-const translateMock = vi.fn<[], Promise<TranslationResult>>();
+const translateMock = vi.fn<(...args: any[]) => Promise<TranslationResult>>();
 const incrementUsageMock = vi.fn();
 const getDefaultKeyStatusMock = vi.fn(() => ({ usageCount: 0, remainingUses: 10, hasExceeded: false }));
 
@@ -18,9 +19,9 @@ vi.mock('../../services/translate/Translator', () => ({
 
 vi.mock('../../services/defaultApiKeyService', () => ({
   getDefaultApiKey: vi.fn(() => 'trial-key'),
-  incrementDefaultKeyUsage: (...args: any[]) => incrementUsageMock(...args),
+  incrementDefaultKeyUsage: incrementUsageMock,
   canUseDefaultKey: vi.fn(() => true),
-  getDefaultKeyStatus: (...args: any[]) => getDefaultKeyStatusMock(...args),
+  getDefaultKeyStatus: getDefaultKeyStatusMock,
 }));
 
 vi.mock('../../services/env', () => ({
@@ -28,22 +29,20 @@ vi.mock('../../services/env', () => ({
   hasEnvVar: vi.fn(() => false),
 }));
 
-const baseSettings: AppSettings = {
+const baseSettings: AppSettings = createMockAppSettings({
   provider: 'OpenRouter',
-  apiKeyGemini: '',
-  apiKeyOpenAI: '',
-  apiKeyDeepSeek: '',
-  systemPrompt: 'System prompt',
   model: 'openai/gpt-4o',
   temperature: 0.5,
-};
+  systemPrompt: 'System prompt',
+  imageModel: 'openrouter-image-model',
+  apiKeyOpenRouter: '',
+  includeFanTranslationInPrompt: true,
+  showDiffHeatmap: false,
+});
 
-const baseResult: TranslationResult = {
+const baseResult: TranslationResult = createMockTranslationResult({
   translatedTitle: 'T',
   translation: 'Translation body',
-  footnotes: [],
-  proposal: null,
-  suggestedIllustrations: [],
   usageMetrics: {
     promptTokens: 0,
     completionTokens: 0,
@@ -53,7 +52,7 @@ const baseResult: TranslationResult = {
     provider: 'OpenRouter',
     model: 'openai/gpt-4o',
   },
-};
+});
 
 describe('translateChapter', () => {
   beforeEach(() => {

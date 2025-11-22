@@ -8,8 +8,10 @@ import {
   Footnote,
   SuggestedIllustration,
   AppSettings,
-  ImportedSession
+  ImportedSession,
+  ImageCacheKey
 } from '../../types';
+import type { EnhancedChapter } from '../../services/stableIdService';
 
 export const MOCK_KAKUYOMU_URLS = {
   chapter1: 'https://kakuyomu.jp/works/16816927859418072361/episodes/16818093085877625597',
@@ -94,6 +96,27 @@ Before I knew it, the throne room had fallen under the dominion of an inexplicab
   ...overrides,
 });
 
+export const createMockImageCacheKey = (overrides: Partial<ImageCacheKey> = {}): ImageCacheKey => ({
+  chapterId: overrides.chapterId ?? 'chapter-1',
+  placementMarker: overrides.placementMarker ?? '[ILLUSTRATION-1]',
+  version: overrides.version ?? 1,
+});
+
+export const createMockEnhancedChapter = (overrides: Partial<EnhancedChapter> = {}): EnhancedChapter => {
+  const chapter = createMockChapter(overrides);
+  return {
+    id: overrides.id ?? 'stable-chapter-1',
+    canonicalUrl: overrides.canonicalUrl ?? chapter.originalUrl,
+    sourceUrls: overrides.sourceUrls ?? [chapter.originalUrl],
+    translationResult: overrides.translationResult ?? null,
+    translationSettingsSnapshot: overrides.translationSettingsSnapshot,
+    feedback: overrides.feedback ?? [],
+    ...chapter,
+    url: overrides.url ?? chapter.originalUrl,
+    ...overrides,
+  };
+};
+
 export const createMockAmendmentProposal = (overrides: Partial<AmendmentProposal> = {}): AmendmentProposal => ({
   observation: 'This chapter introduces recurring terminology that should be standardized.',
   currentRule: 'Novel-Specific Glossary (Live Document): This glossary will be maintained for consistency.\nRomaji Terms: hitogata, koku, jō, Gashadokuro, ayakashi, onryō, yokai.\nTranslated Terms: Almiraj (Horned Rabbit), Frost Wraith, 認定票 (Adventurer\'s Medallion).',
@@ -105,18 +128,30 @@ export const createMockAmendmentProposal = (overrides: Partial<AmendmentProposal
 export const createMockFeedbackItems = (): FeedbackItem[] => [
   {
     id: '2023-12-01T10:30:00.000Z',
+    chapterId: 'chapter-1',
+    text: 'Too generic - maybe "Dark Lord" or keep "Maō"?',
+    category: 'negative',
+    timestamp: Date.parse('2023-12-01T10:30:00.000Z'),
     selection: 'Demon King',
     type: '👎',
     comment: 'Too generic - maybe "Dark Lord" or keep "Maō"?',
   },
   {
-    id: '2023-12-01T10:35:00.000Z', 
+    id: '2023-12-01T10:35:00.000Z',
+    chapterId: 'chapter-1',
+    text: 'Perfect translation of the emperor\'s aura!',
+    category: 'positive',
+    timestamp: Date.parse('2023-12-01T10:35:00.000Z'),
     selection: 'overwhelming presence',
     type: '👍',
     comment: 'Perfect translation of the emperor\'s aura!',
   },
   {
     id: '2023-12-01T10:40:00.000Z',
+    chapterId: 'chapter-1',
+    text: 'Is this the best way to convey the paralysis?',
+    category: 'suggestion',
+    timestamp: Date.parse('2023-12-01T10:40:00.000Z'),
     selection: 'stood frozen',
     type: '?',
     comment: 'Is this the best way to convey the paralysis?',
@@ -136,6 +171,9 @@ export const createMockAppSettings = (overrides: Partial<AppSettings> = {}): App
   apiKeyGemini: 'test-gemini-key',
   apiKeyOpenAI: 'test-openai-key',
   apiKeyDeepSeek: 'test-deepseek-key',
+  imageModel: 'imagen-3.0-generate-001',
+  includeFanTranslationInPrompt: true,
+  showDiffHeatmap: false,
   ...overrides,
 });
 
@@ -155,6 +193,9 @@ export const createMockImportedSession = (): ImportedSession => {
         provider: 'OpenAI',
         model: 'gpt-5',
         temperature: 0.5,
+        imageModel: 'dall-e-mini',
+        includeFanTranslationInPrompt: true,
+        showDiffHeatmap: false,
       },
     },
     urlHistory: [

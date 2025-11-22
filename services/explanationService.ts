@@ -74,9 +74,12 @@ export class ExplanationService {
 
       // Use global settings.maxOutputTokens so explanation generation can utilize the global cap
       const maxOutput = Math.max(1, Math.min((settings.maxOutputTokens ?? 16384), 200000));
-      const requestBody = {
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: 'user', content: prompt },
+      ];
+      const requestBody: OpenAI.Chat.Completions.ChatCompletionCreateParams = {
         model: settings.model,
-        messages: [{ role: 'user', content: prompt }],
+        messages,
         temperature: 0.5, // Use a moderate temperature for factual but nuanced explanations
         max_tokens: maxOutput, // Use the full configured global cap
       };

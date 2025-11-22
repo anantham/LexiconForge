@@ -41,15 +41,6 @@ vi.mock('../../store', () => ({
   })
 }));
 
-// Mock IndexedDB service
-vi.mock('../../services/indexeddb', () => ({
-  indexedDBService: {
-    getChaptersForReactRendering: vi.fn().mockResolvedValue([]),
-    getSetting: vi.fn().mockResolvedValue(null),
-    getSettingsSync: vi.fn().mockReturnValue(null),
-  }
-}));
-
 describe.skip('Smoke: App.tsx', () => {
   it('imports without error', async () => {
     // Just importing catches missing dependencies, syntax errors
@@ -73,21 +64,20 @@ describe.skip('Smoke: App.tsx', () => {
 describe.skip('Smoke: LandingPage.tsx', () => {
   it('imports without error', async () => {
     const LandingPageModule = await import('../../components/LandingPage');
-    expect(LandingPageModule.default).toBeDefined();
+    expect(LandingPageModule.LandingPage).toBeDefined();
   });
 
   it('renders without crashing', () => {
-    const LandingPage = require('../../components/LandingPage').default;
-
-    const { container } = render(<LandingPage />);
+    const { LandingPage } = require('../../components/LandingPage');
+    const { container } = render(<LandingPage onSessionLoaded={vi.fn()} />);
 
     expect(container).toBeInTheDocument();
   });
 
   it('displays key UI elements', () => {
-    const LandingPage = require('../../components/LandingPage').default;
+    const { LandingPage } = require('../../components/LandingPage');
 
-    render(<LandingPage />);
+    render(<LandingPage onSessionLoaded={vi.fn()} />);
 
     // Check for some expected content (adjust based on actual component)
     // This catches if the component returns null or renders nothing

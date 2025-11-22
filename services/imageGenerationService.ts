@@ -16,8 +16,9 @@ import type { AppSettings, PromptTemplate, ImageGenerationMetadata, ImageVersion
 import type { EnhancedChapter } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 
-const slog = (...args: any[]) => debugLog('image', 'summary', ...args);
-const swarn = (...args: any[]) => debugWarn('image', 'summary', ...args);
+type ConsoleArgs = Parameters<typeof console.log>;
+const slog = (message: string, ...args: ConsoleArgs) => debugLog('image', 'summary', message, ...args);
+const swarn = (message: string, ...args: ConsoleArgs) => debugWarn('image', 'summary', message, ...args);
 
 export interface ImageGenerationContext {
   chapters: Map<string, EnhancedChapter>;

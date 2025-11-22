@@ -32,6 +32,8 @@
     "**/*.legacy.ts",
     "services/audio/storage/cache.ts",
     "services/audio/storage/opfs.ts",
-    "services/audio/storage/pinning.ts"
+    "services/audio/storage/pinning.ts",
+    "tests/e2e",
+    "tests/novel-library-flow.test.tsx"
   ]
 }

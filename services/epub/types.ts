@@ -9,7 +9,7 @@
  * 5. Export Service → Orchestration
  */
 
-import type { AppSettings } from '../../types';
+import type { AppSettings, ImageCacheKey } from '../../types';
 
 // ============================================================================
 // EXPORT OPTIONS
@@ -24,6 +24,18 @@ export interface EpubExportOptions {
 
   /** Include statistics page at end */
   includeStatsPage: boolean;
+
+  /** Enable HTML repair on translated content prior to export */
+  enableHtmlRepair?: boolean;
+
+  /** Optional list of chapter URLs to include (legacy pipeline support) */
+  chapterUrls?: string[];
+
+  /** Optional manual configuration overrides (legacy pipeline support) */
+  manualConfig?: unknown;
+
+  /** Optional custom template identifier (legacy pipeline support) */
+  customTemplate?: unknown;
 
   /** Custom EPUB metadata overrides */
   metadata?: {
@@ -66,7 +78,7 @@ export interface CollectedChapter {
   imageReferences: Array<{
     placementMarker: string;
     prompt: string;
-    cacheKey?: { chapterId: string; placementMarker: string };
+    cacheKey?: ImageCacheKey;
     base64Fallback?: string; // Legacy data
   }>;
 

@@ -13,7 +13,9 @@
  * ```
  */
 
-import { indexedDBService } from '../services/indexeddb';
+import type { ChapterSummaryRecord } from '../services/db/types';
+import { ChapterOps, fetchChapterSummaries } from '../services/db/operations';
+import { recomputeChapterSummary } from '../services/db/operations/chapters';
 
 /**
  * Extract chapter number from title using multiple patterns
@@ -75,20 +77,14 @@ export async function backfillChapterNumbers(): Promise<void> {
 
   try {
     // Get all chapter summaries (flat structure with title directly accessible)
-    const summaries = await indexedDBService.getChapterSummaries();
+    const summaries = await fetchChapterSummaries();
     console.log(`[Migration] Found ${summaries.length} chapters to process`);
 
     let updatedCount = 0;
     let skippedCount = 0;
     let failedCount = 0;
 
-    // Open database directly for bulk updates
-    const db = await (indexedDBService as any).openDatabase();
-    const tx = db.transaction(['chapters', 'chapter_summaries'], 'readwrite');
-    const chaptersStore = tx.objectStore('chapters');
-    const summariesStore = tx.objectStore('chapter_summaries');
-
-    for (const summary of summaries) {
+    for (const summary of summaries as ChapterSummaryRecord[]) {
       const currentNumber = summary.chapterNumber;
 
       // Skip if already has a valid chapter number (> 0)
@@ -104,20 +100,15 @@ export async function backfillChapterNumbers(): Promise<void> {
         console.log(`[Migration] Updating ${summary.stableId}: "${summary.title}" → Ch #${extractedNumber}`);
 
         try {
-          // Update summary with chapter number
-          const updatedSummary = { ...summary, chapterNumber: extractedNumber };
-          summariesStore.put(updatedSummary);
+          if (!summary.stableId) {
+            throw new Error('Missing stableId on summary record');
+          }
 
-          // Also try to update the corresponding chapter record if it exists
-          const chapterReq = chaptersStore.get(summary.canonicalUrl || '');
-          chapterReq.onsuccess = () => {
-            const chapter = chapterReq.result;
-            if (chapter) {
-              chapter.chapterNumber = extractedNumber;
-              chaptersStore.put(chapter);
-            }
-          };
-
+          await ChapterOps.setChapterNumberByStableId(summary.stableId, extractedNumber);
+          const updatedChapter = await ChapterOps.getByStableId(summary.stableId);
+          if (updatedChapter) {
+            await recomputeChapterSummary(updatedChapter);
+          }
           updatedCount++;
         } catch (err) {
           console.error(`[Migration] Failed to update ${summary.stableId}:`, err);
@@ -128,12 +119,6 @@ export async function backfillChapterNumbers(): Promise<void> {
         failedCount++;
       }
     }
-
-    // Wait for transaction to complete
-    await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
 
     console.log(`[Migration] Backfill complete!`);
     console.log(`[Migration]   Updated: ${updatedCount} chapters`);

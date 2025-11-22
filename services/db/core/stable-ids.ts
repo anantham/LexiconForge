@@ -1,5 +1,7 @@
-import { indexedDBService } from '../../indexeddb';
+import type { ChapterRecord, UrlMappingRecord } from '../types';
 import { normalizeUrlAggressively, generateStableChapterId } from '../../stableIdService';
+import { STORE_NAMES } from './schema';
+import { withReadTxn, withWriteTxn, promisifyRequest } from './txn';
 
 /**
  * StableIdManager — unified stable ID handling with migration-friendly fallbacks.
@@ -8,6 +10,8 @@ import { normalizeUrlAggressively, generateStableChapterId } from '../../stableI
  * Legacy/backfill format: hyphen-based IDs, e.g. ch-163-abcd1234-wxyz (tolerated during migration)
  */
 export class StableIdManager {
+  private static readonly DOMAIN = 'stableIds';
+
   /**
    * Generate canonical underscore-format stable ID
    */
@@ -21,20 +25,38 @@ export class StableIdManager {
    */
   static async ensureUrlMappings(chapterUrl: string, stableId: string): Promise<void> {
     const canonical = normalizeUrlAggressively(chapterUrl) || chapterUrl;
-    try {
-      // Minimal import payload that only writes URL mappings
-      const payload = {
-        novels: new Map(),
-        chapters: new Map(),
-        urlIndex: new Map<string, string>([[canonical, stableId]]),
-        rawUrlIndex: canonical === chapterUrl ? new Map() : new Map<string, string>([[chapterUrl, stableId]]),
-        currentChapterId: null as any,
-        navigationHistory: [] as string[],
+    const nowIso = new Date().toISOString();
+
+    const upsert = async (store: IDBObjectStore, url: string, isCanonical: boolean) => {
+      const existing = (await promisifyRequest(store.get(url))) as UrlMappingRecord | undefined;
+      const record: UrlMappingRecord = {
+        url,
+        stableId,
+        isCanonical,
+        dateAdded: existing?.dateAdded ?? nowIso,
       };
-      await indexedDBService.importStableSessionData(payload as any);
-    } catch (e) {
-      console.warn('[StableIdManager] ensureUrlMappings failed', { chapterUrl, stableId, error: (e as any)?.message });
-    }
+      await promisifyRequest(store.put(record as any));
+    };
+
+    await withWriteTxn(
+      STORE_NAMES.URL_MAPPINGS,
+      async (_txn, stores) => {
+        const store = stores[STORE_NAMES.URL_MAPPINGS];
+        await upsert(store, canonical, true);
+        if (canonical !== chapterUrl) {
+          await upsert(store, chapterUrl, false);
+        }
+      },
+      this.DOMAIN,
+      'core',
+      'ensureUrlMappings'
+    ).catch(error => {
+      console.warn('[StableIdManager] ensureUrlMappings failed', {
+        chapterUrl,
+        stableId,
+        error: (error as Error)?.message ?? String(error),
+      });
+    });
   }
 
   /**
@@ -63,8 +85,7 @@ export class StableIdManager {
     }
 
     // 3) Fallback search in chapters
-    const chapter = await indexedDBService.getChapterByStableId(stableId)
-      .catch(() => null);
+    const chapter = await this.getChapterByStableId(stableId);
     if (chapter?.url) {
       const url = chapter.url;
       await this.ensureUrlMappings(url, stableId);
@@ -72,7 +93,7 @@ export class StableIdManager {
     }
 
     // 4) Try variant in chapters as last resort
-    const ch2 = await indexedDBService.getChapterByStableId(undersc).catch(() => null);
+    const ch2 = await this.getChapterByStableId(undersc);
     if (ch2?.url) {
       const url = ch2.url;
       await this.ensureUrlMappings(url, undersc);
@@ -83,13 +104,45 @@ export class StableIdManager {
   }
 
   private static async lookupUrlByStableId(id: string): Promise<string | null> {
-    try {
-      const all = await indexedDBService.getAllUrlMappings();
-      const row = all.find(r => r.stableId === id);
-      return row?.url || null;
-    } catch {
-      return null;
-    }
+    return withReadTxn(
+      STORE_NAMES.URL_MAPPINGS,
+      async (_txn, stores) => {
+        const store = stores[STORE_NAMES.URL_MAPPINGS];
+        let record: UrlMappingRecord | undefined;
+
+        if (store.indexNames.contains('stableId')) {
+          const idx = store.index('stableId');
+          record = (await promisifyRequest(idx.get(id))) as UrlMappingRecord | undefined;
+        } else {
+          const rows = (await promisifyRequest(store.getAll())) as UrlMappingRecord[];
+          record = rows.find(row => row.stableId === id);
+        }
+
+        return record?.url ?? null;
+      },
+      this.DOMAIN,
+      'core',
+      'lookupUrlByStableId'
+    ).catch(() => null);
+  }
+
+  private static async getChapterByStableId(stableId: string): Promise<ChapterRecord | null> {
+    return withReadTxn(
+      STORE_NAMES.CHAPTERS,
+      async (_txn, stores) => {
+        const store = stores[STORE_NAMES.CHAPTERS];
+        if (store.indexNames.contains('stableId')) {
+          const index = store.index('stableId');
+          const record = (await promisifyRequest(index.get(stableId))) as ChapterRecord | undefined;
+          return record || null;
+        }
+
+        const rows = (await promisifyRequest(store.getAll())) as ChapterRecord[];
+        return rows.find(row => row.stableId === stableId) || null;
+      },
+      this.DOMAIN,
+      'core',
+      'getChapterByStableId'
+    ).catch(() => null);
   }
 }
-

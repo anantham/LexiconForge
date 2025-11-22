@@ -44,6 +44,7 @@ Legend for **Status**:
 | tests/services/epubService.test.ts | EPUB service integration | ❓ Unknown | Unassigned | Review | |
 | tests/services/HtmlSanitizer.test.ts | Sanitizer | ✅ Passing (2025-10-27) | Unassigned | Keep | Covers allowHr toggle and legacy normalization. |
 | tests/services/comparisonService.test.ts | Comparison workflow | ✅ Passing (2025-10-27) | Unassigned | Keep | New coverage for focused comparison prompt/response parsing. |
+| tests/services/comparisonService.test.ts | Comparison workflow | ✅ Passing (2025-10-27) | Unassigned | Keep | New coverage for focused comparison prompt/response parsing. |
 | tests/services/illustration-validation.test.ts | Illustration prompts | ❓ Unknown | Unassigned | Review | Align with latest prompt schema. |
 | tests/services/imageMigrationService.test.ts | Image migration | ❓ Unknown | Unassigned | Review | Likely still valid. |
 | tests/services/structured-outputs.test.ts | Structured output parsing | ✅ Passing (2025-10-13) | Unassigned | Keep | Schema now sourced dynamically from `config/prompts.json`; no rewrites needed. |

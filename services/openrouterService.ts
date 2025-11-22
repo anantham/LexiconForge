@@ -1,4 +1,4 @@
-import { indexedDBService } from './indexeddb';
+import { SettingsOps } from './db/operations';
 import { debugLog } from '../utils/debug';
 
 type ORPricing = {
@@ -85,7 +85,7 @@ export const openrouterService = {
       pricing: m.pricing || null,
     }));
     const cache = { data: mapped, fetchedAt: nowIso() };
-    await indexedDBService.setSetting(MODELS_KEY, cache);
+    await SettingsOps.set(MODELS_KEY, cache);
     return cache;
   },
 
@@ -145,29 +145,29 @@ export const openrouterService = {
       cache = await fetchLegacyUsage();
     }
 
-    await indexedDBService.setSetting(KEY_USAGE_KEY, cache);
+    await SettingsOps.set(KEY_USAGE_KEY, cache);
     debugLog('api', 'full', '[OpenRouter] Credit data cached:', cache);
     return cache;
   },
 
   // Cache accessors
   async getCachedModels(): Promise<OpenRouterModelsCache | null> {
-    return indexedDBService.getSetting<OpenRouterModelsCache>(MODELS_KEY);
+    return SettingsOps.getKey<OpenRouterModelsCache>(MODELS_KEY);
   },
   async getCachedKeyUsage(): Promise<OpenRouterKeyUsageCache | null> {
-    return indexedDBService.getSetting<OpenRouterKeyUsageCache>(KEY_USAGE_KEY);
+    return SettingsOps.getKey<OpenRouterKeyUsageCache>(KEY_USAGE_KEY);
   },
 
   // Last used helpers
   async setLastUsed(modelId: string): Promise<void> {
     try {
-      const map = (await indexedDBService.getSetting<Record<string, string>>(LAST_USED_KEY)) || {};
+      const map = (await SettingsOps.getKey<Record<string, string>>(LAST_USED_KEY)) || {};
       map[modelId] = nowIso();
-      await indexedDBService.setSetting(LAST_USED_KEY, map);
+      await SettingsOps.set(LAST_USED_KEY, map);
     } catch {}
   },
   async getLastUsedMap(): Promise<Record<string, string>> {
-    return (await indexedDBService.getSetting<Record<string, string>>(LAST_USED_KEY)) || {};
+    return (await SettingsOps.getKey<Record<string, string>>(LAST_USED_KEY)) || {};
   },
 
   async getPricingForModel(modelId: string): Promise<ORPricing | null> {

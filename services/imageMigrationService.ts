@@ -8,7 +8,7 @@
  */
 
 import { ImageCacheStore } from './imageCacheService';
-import { indexedDBService } from './indexeddb';
+import { TranslationOps } from './db/operations';
 import type { EnhancedChapter } from './stableIdService';
 import type { GeneratedImageResult, ImageCacheKey } from '../types';
 
@@ -51,8 +51,8 @@ export async function migrateImagesToCacheFromDB(
   console.log('[ImageMigration] Starting database-level migration...', { dryRun });
 
   try {
-    // Get ALL translations from IndexedDB
-    const translations = await indexedDBService.getAllTranslations();
+    // Get ALL translations via the repo/ops layer
+    const translations = await TranslationOps.getAll();
     console.log(`[ImageMigration] Found ${translations.length} translations in IndexedDB`);
 
     // Process each translation
@@ -115,7 +115,7 @@ export async function migrateImagesToCacheFromDB(
       // Write back to IndexedDB if we modified this translation
       if (translationModified && !dryRun) {
         try {
-          await indexedDBService.updateTranslationRecord(translation);
+          await TranslationOps.update(translation);
           console.log(`[ImageMigration] Updated translation record: ${translation.id}`);
         } catch (error: any) {
           const chapterId = translation.stableId || translation.chapterUrl;

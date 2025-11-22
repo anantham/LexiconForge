@@ -12,7 +12,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { exportEpub } from '../../services/epub/exportService';
 import type { EpubExportOptions } from '../../services/epub/types';
-import type { EnhancedChapter } from '../../services/stableIdService';
+import { createMockEnhancedChapter, createMockTranslationResult, createMockUsageMetrics } from '../utils/test-data';
 
 // Mock ImageCacheStore
 vi.mock('../../services/imageCacheService', () => ({
@@ -24,38 +24,45 @@ vi.mock('../../services/imageCacheService', () => ({
 describe('exportEpub', () => {
   it('orchestrates full pipeline and returns EPUB blob', async () => {
     // Arrange: Create store snapshot with sample chapter
-    const chapter1: EnhancedChapter = {
+    const translation = createMockTranslationResult({
+      translatedTitle: 'Capítulo Uno',
+      translation: '<p>Texto traducido [ILL-1] aquí.</p>',
+      translatedContent: '<p>Texto traducido [ILL-1] aquí.</p>',
+      footnotes: [{ marker: 'FN-1', text: 'Una nota al pie' }],
+      suggestedIllustrations: [
+        {
+          placementMarker: 'ILL-1',
+          imagePrompt: 'A dramatic scene',
+          generatedImage: {
+            imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+            requestTime: 1.5,
+            cost: 0.04
+          }
+        }
+      ],
+      usageMetrics: createMockUsageMetrics({
+        estimatedCost: 0.002,
+        requestTime: 3.2,
+        provider: 'Gemini',
+        model: 'gemini-2.0-flash-exp',
+        totalTokens: 1500,
+        promptTokens: 900,
+        completionTokens: 600
+      })
+    });
+
+    const chapter1 = createMockEnhancedChapter({
       id: 'ch-1',
       chapterNumber: 1,
       title: 'Chapter One',
       content: '<p>Original text</p>',
-      translationResult: {
-        translatedTitle: 'Capítulo Uno',
-        translatedContent: '<p>Texto traducido [ILL-1] aquí.</p>',
-        footnotes: [
-          { marker: 'FN-1', text: 'Una nota al pie' }
-        ],
-        suggestedIllustrations: [
-          {
-            placementMarker: 'ILL-1',
-            imagePrompt: 'A dramatic scene',
-            generatedImage: {
-              imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-              requestTime: 1.5,
-              cost: 0.04
-            }
-          }
-        ],
-        provider: 'google',
-        model: 'gemini-2.0-flash-exp',
-        cost: 0.002,
-        tokens: 1500,
-        requestTime: 3.2
-      },
+      translationResult: translation,
       url: 'https://example.com/ch1',
+      originalUrl: 'https://example.com/ch1',
+      canonicalUrl: 'https://example.com/ch1',
       prevUrl: null,
       nextUrl: 'https://example.com/ch2'
-    };
+    });
 
     const storeSnapshot = {
       chapters: new Map([['ch-1', chapter1]]),

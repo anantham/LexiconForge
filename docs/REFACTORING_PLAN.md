@@ -49,14 +49,14 @@ services/db/core/
 
 #### Migration & Maintenance ✅ Complete
 ```
-services/db/migration/
-├── phase-controller.ts (412 LOC) - Migration orchestration
-├── shadow-validator.ts (391 LOC) - Dual-write validation
-└── service-adapter.ts (312 LOC) - Adapter pattern for repos
-
 services/db/
 ├── migrationService.ts (151 LOC) - localStorage → IndexedDB
 └── maintenanceService.ts (87 LOC) - Cleanup utilities
+
+Deprecated stack removed 2025-11-13:
+  • `services/db/migration/phase-controller.ts`
+  • `services/db/migration/shadow-validator.ts`
+  • `services/db/migration/service-adapter.ts`
 ```
 
 #### Operations (Thin Wrappers) ⚠️ Delegate to Legacy
@@ -76,14 +76,12 @@ services/db/operations/
 
 #### Factory Pattern ✅ In Place
 ```
-services/db/index.ts (390 LOC)
-- Hybrid factory choosing between:
-  • Legacy repo (indexedDBService wrapper)
-  • Memory repo (testing)
-  • Shadow repo (dual-write validation)
-  • New repo (re-exports operations classes)
-- Switch at line 202
-- Sits in front of monolith, doesn't replace it
+services/db/index.ts (~400 LOC)
+- Chooses between:
+  • Modern repo (ops layer)
+  • Memory repo (testing / fallback when IndexedDB is unavailable)
+- Backend preference driven by env `DB_BACKEND` or localStorage `lf:db-backend`
+- No more shadow repo; rollback now means exporting data or temporarily using the memory backend
 ```
 
 ---
@@ -159,23 +157,14 @@ services/importTransformationService.ts
 ---
 
 #### 3. 🟡 MEDIUM - Adapters (Abstraction Layer)
-**Impact:** Already wrapped, lower priority
+**Impact:** ✅ Removed 2025-11-15
 
 ```
-adapters/repo/
-├── ChaptersRepo.ts - Wrapper around indexedDBService.chapters
-├── TranslationsRepo.ts - Wrapper around indexedDBService.translations
-├── SettingsRepo.ts - Wrapper around indexedDBService.settings
-├── FeedbackRepo.ts - Wrapper around indexedDBService.feedback
-├── PromptTemplatesRepo.ts - Wrapper around indexedDBService.templates
-├── NovelsRepo.ts - Wrapper around indexedDBService.novels
-├── UrlMappingsRepo.ts - Wrapper around indexedDBService.mappings
-└── IndexedDbRepo.ts - Meta-wrapper
+adapters/repo/ (deleted)
+├── Repo.ts / IndexedDbRepo.ts
+└── index.ts
 ```
-
-**Migration Path:**
-- These can be deprecated entirely once store slices migrate
-- Or refactored to use `services/db/operations/*`
+_All adapter shims are gone; the modern ops/repository layer is now the only API. No further work required here._
 
 ---
 
@@ -184,32 +173,28 @@ adapters/repo/
 
 ```
 services/db/operations/*.ts
-├── All 7 operation files delegate to indexedDBService
-└── These ARE the migration target, not dependents
+├── Directly orchestrate IndexedDB transactions via txn helpers
+└── Already wired up to repositories/txn helpers (main effort now is deleting the facade once consumers migrate)
 
 services/db/core/stable-ids.ts
-├── Uses indexedDBService.getAllUrlMappings()
-└── Part of new architecture
+├── Part of the modern architecture (no direct facade calls)
 
 services/db/maintenanceService.ts
 services/db/migrationService.ts
-├── Utility functions for migration
-└── Can stay on legacy until final cutover
+├── Utility functions that now call MaintenanceOps / ChapterOps
+└── Keep monitoring until the facade disappears
 ```
 
 **Migration Path:**
-- Replace delegation with direct IndexedDB operations
-- This is the core refactoring work
+- Continue shrinking `services/indexeddb.ts` so the facade becomes a noop shim, then delete it.
 
 ---
 
 #### 5. 🔵 LEGACY - Compatibility Layers
-**Impact:** Intentional legacy, deprecate last
+**Impact:** Compatibility shim removed; only the facade remains
 
 ```
-legacy/indexeddb-compat.ts
-├── Explicit compatibility shim
-└── Can stay until very end
+legacy/indexeddb-compat.ts (deleted 2025-11-15)
 
 services/indexeddb.ts (3191 LOC)
 ├── The monolith itself
@@ -217,8 +202,8 @@ services/indexeddb.ts (3191 LOC)
 ```
 
 **Migration Path:**
-- Leave alone until all consumers migrated
-- Then delete or turn into re-export shim
+- Continue slimming `services/indexeddb.ts` until it can be replaced entirely by ops/repositories.
+- Backend toggles now only allow `'modern'` or `'memory'`; see `docs/LEGACY_REPO_RETIREMENT_PLAN.md` for the completed shutdown notes.
 
 ---
 
@@ -258,7 +243,7 @@ tests/
 
 **Migration Path:**
 - Port tests during each domain migration
-- Use shadow validation helpers
+- Use the backend toggle (`dbUtils.switchBackend('memory' | 'modern')`) to compare outputs during rollout
 
 ---
 
@@ -298,9 +283,9 @@ Tasks:
 [ ] Add proper error handling
 [ ] Add transaction wrappers (use txn.ts)
 [ ] Port existing tests
-[ ] Shadow validate against legacy
+[ ] Shadow validate against the existing facade
 
-Update 2025-10-13: Direct chapter ops implemented behind `LF_DB_V2` feature flag (`services/db/operations/chapters.ts`). Enable flag + compare against legacy before flipping default.
+Update 2025-10-13: Direct chapter ops implemented behind `LF_DB_V2` feature flag (`services/db/operations/chapters.ts`). Enable the flag and compare against the existing `indexedDBService` facade before flipping the default.
 
 Dependencies: None (core infrastructure ready)
 Estimate: 3-4 hours
@@ -317,7 +302,7 @@ Tasks:
     - getVersionsByUrl(): Query translations index
     - setActiveByUrl(): Update active translation record
     - Atomic version assignment logic
-[ ] Handle version numbering (currently in legacy)
+[ ] Handle version numbering (currently guarded inside the facade)
 [ ] Add proper error handling
 [ ] Port existing tests
 [ ] Shadow validate
@@ -488,7 +473,7 @@ Estimate: 2-4 hours
 #### 6.1 Verify No Remaining Deps
 ```
 Tasks:
-[ ] grep -r "indexedDBService" (should only find legacy/*, db/*, tests/*)
+[ ] grep -r "indexedDBService" (should only find the facade, db ops, or test harnesses)
 [ ] Confirm all operations in services/db/operations/* are independent
 [ ] Run full test suite
 [ ] Monitor production for 1 week
@@ -513,7 +498,7 @@ export const indexedDBService = {
 ```
 Tasks:
 [ ] Delete services/indexeddb.ts (3191 lines removed!)
-[ ] Delete legacy/indexeddb-compat.ts
+[x] Delete legacy/indexeddb-compat.ts (2025-11-15)
 [ ] Update all remaining imports
 [ ] Update documentation
 [ ] Celebrate 🎉
@@ -720,19 +705,8 @@ services/ai/
 ### Test During Extraction
 - Port tests to new module immediately
 - Don't wait until end to validate
-- Use shadow helpers (`services/db/migration/shadow-validator.ts`)
-- Compare legacy vs. new results during rollout
-
-### Shadow Validation Pattern
-```typescript
-// Example from shadow-validator.ts pattern
-const legacyResult = await indexedDBService.storeChapter(chapter);
-const newResult = await ChapterOps.store(chapter);
-
-if (!deepEqual(legacyResult, newResult)) {
-  logDivergence('storeChapter', { legacy, new });
-}
-```
+- Flip `dbUtils.switchBackend('memory')` / `'modern'` to capture before/after snapshots
+- Compare exported sessions or targeted repo queries during rollout
 
 ---
 
@@ -741,7 +715,7 @@ if (!deepEqual(legacyResult, newResult)) {
 ### Week 1: ChapterOps + TranslationOps
 1. Implement ChapterOps with direct IndexedDB (3-4 hours)
 2. Implement TranslationOps with direct IndexedDB (4-5 hours)
-3. Add tests and shadow validation (2-3 hours)
+3. Add tests and backend comparison run via `dbUtils.switchBackend` (2-3 hours)
 4. **PR #1:** Independent DB operations
 
 ### Week 2: Store Slices Migration
@@ -760,7 +734,7 @@ if (!deepEqual(legacyResult, newResult)) {
 
 ## Questions & Decisions Needed
 
-1. **Shadow Validation:** Enable for all operations during Phase 1?
+1. **Backend Toggle Strategy:** When should we flip `DB_BACKEND`/`lf:db-backend` to modern by default?
 2. **Breaking Changes:** Any backwards compatibility concerns?
 3. **Performance:** Should we benchmark before/after?
 4. **Rollout Strategy:** Feature flag for new DB path?

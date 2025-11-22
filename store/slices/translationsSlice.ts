@@ -15,8 +15,8 @@ import { ExplanationService } from '../../services/explanationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
-import { indexedDBService } from '../../services/indexeddb';
-import { debugLog } from '../../utils/debug';
+import { TranslationOps, AmendmentOps } from '../../services/db/operations';
+import { debugLog, debugWarn } from '../../utils/debug';
 
 export interface TranslationsState {
   // Active translations
@@ -139,7 +139,7 @@ export const createTranslationsSlice: StateCreator<
     }
 
     try {
-      const existingVersions = await indexedDBService.getTranslationVersionsByStableId(chapterId).catch(() => []);
+      const existingVersions = await TranslationOps.getVersionsByStableId(chapterId).catch(() => []);
       debugLog('translation', 'summary', '[Retranslate] Found existing versions', {
         chapterId,
         count: existingVersions.length
@@ -209,13 +209,13 @@ export const createTranslationsSlice: StateCreator<
         });
       }
 
-      const result = await TranslationService.translateChapterSequential(
+      const response = await TranslationService.translateChapterSequential(
         chapterId,
         context,
         (id) => get().buildTranslationHistoryAsync(id)
       );
       
-      if ('aborted' in result && result.aborted) {
+      if (response?.aborted) {
         set(prevState => ({
           translationProgress: {
             ...prevState.translationProgress,
@@ -225,21 +225,31 @@ export const createTranslationsSlice: StateCreator<
         return;
       }
       
-      if ('error' in result && result.error) {
+      if (response?.error) {
         set(prevState => ({
           translationProgress: {
             ...prevState.translationProgress,
-            [chapterId]: { status: 'failed', error: result.error }
+            [chapterId]: { status: 'failed', error: response.error }
           }
         }));
         
         if (uiActions.setError) {
-          uiActions.setError(result.error);
+          uiActions.setError(response.error);
         }
         return;
       }
       
-      const translationResult = result as TranslationResult;
+      const translationResult = response?.translationResult as TranslationResult | undefined;
+      if (!translationResult) {
+        debugWarn('translation', 'summary', '[Translation] Missing translationResult payload from translateChapterSequential response', response);
+        set(prevState => ({
+          translationProgress: {
+            ...prevState.translationProgress,
+            [chapterId]: { status: 'failed', error: 'Translation finished without a result.' }
+          }
+        }));
+        return;
+      }
       const relevantSettings = TranslationService.extractSettingsSnapshot(context.settings);
 
       // Update chapter with translation result
@@ -404,10 +414,25 @@ export const createTranslationsSlice: StateCreator<
   
   // Feedback management
   submitFeedback: (chapterId: string, feedbackData: Omit<FeedbackItem, 'id' | 'timestamp' | 'chapterId'>) => {
+    const mapTypeToCategory = (type?: FeedbackItem['type']): string => {
+      switch (type) {
+        case '👍':
+          return 'positive';
+        case '👎':
+          return 'negative';
+        case '?':
+          return 'question';
+        case '🎨':
+          return 'illustration';
+        default:
+          return 'unknown';
+      }
+    };
+
     const newFeedback: FeedbackItem = {
       id: crypto.randomUUID(),
       text: feedbackData.selection || '',
-      category: feedbackData.type || '?',
+      category: mapTypeToCategory(feedbackData.type),
       timestamp: Date.now(),
       chapterId,
       selection: feedbackData.selection,
@@ -435,7 +460,7 @@ export const createTranslationsSlice: StateCreator<
     }
 
     // --- NEW FEATURE: EXPLANATION FOOTNOTE ---
-    if (newFeedback.category === '?') {
+    if (newFeedback.type === '?') {
       const state = get();
       const chapter = (state.chapters as Map<string, EnhancedChapter>).get(chapterId);
       const settings = state.settings;
@@ -605,9 +630,9 @@ export const createTranslationsSlice: StateCreator<
 
       // Log the accepted amendment
       try {
-        await indexedDBService.logAmendmentAction({
+        await AmendmentOps.logAction({
           chapterId: currentChapterId,
-          proposal: proposal,
+          proposal,
           action: 'accepted',
           finalPromptChange: cleanChange
         });
@@ -632,9 +657,9 @@ export const createTranslationsSlice: StateCreator<
 
     // Log the rejected amendment
     try {
-      await indexedDBService.logAmendmentAction({
+      await AmendmentOps.logAction({
         chapterId: currentChapterId,
-        proposal: proposal,
+        proposal,
         action: 'rejected'
       });
     } catch (error) {
@@ -668,9 +693,9 @@ export const createTranslationsSlice: StateCreator<
 
       // Log the modified amendment
       try {
-        await indexedDBService.logAmendmentAction({
+        await AmendmentOps.logAction({
           chapterId: currentChapterId,
-          proposal: proposal,
+          proposal,
           action: 'modified',
           finalPromptChange: cleanChange
         });
@@ -738,9 +763,7 @@ export const createTranslationsSlice: StateCreator<
   // Translation version management
   fetchTranslationVersions: async (chapterId) => {
     try {
-      const { indexedDBService } = await import('../../services/indexeddb');
-      const versions = await indexedDBService.getTranslationVersionsByStableId(chapterId);
-      // console.log(`[TranslationsSlice] Fetched ${versions.length} translation versions for ${chapterId}`);
+      const versions = await TranslationOps.getVersionsByStableId(chapterId);
       return versions;
     } catch (error) {
       console.error('[TranslationsSlice] Failed to fetch translation versions:', error);
@@ -750,13 +773,8 @@ export const createTranslationsSlice: StateCreator<
 
   setActiveTranslationVersion: async (chapterId, version) => {
     try {
-      const { indexedDBService } = await import('../../services/indexeddb');
-      
-      // Set the active version in IndexedDB
-      await indexedDBService.setActiveTranslationByStableId(chapterId, version);
-      
-      // Load the active translation into chapter state
-      const activeTranslation = await indexedDBService.getActiveTranslationByStableId(chapterId);
+      await TranslationOps.setActiveByStableId(chapterId, version);
+      const activeTranslation = await TranslationOps.getActiveByStableId(chapterId);
       
       if (activeTranslation) {
         console.log(`[TranslationsSlice] Loaded translation version ${version} for chapter ${chapterId}`);
@@ -799,14 +817,9 @@ export const createTranslationsSlice: StateCreator<
 
   deleteTranslationVersion: async (chapterId, translationId) => {
     try {
-      const { indexedDBService } = await import('../../services/indexeddb');
-      const { translationsRepo } = await import('../../adapters/repo');
+      const activeTranslation = await TranslationOps.getActiveByStableId(chapterId);
 
-      // Get the current active translation for this chapter to check if we are deleting it
-      const activeTranslation = await indexedDBService.getActiveTranslationByStableId(chapterId);
-
-      // Delete the version from IndexedDB
-      await translationsRepo.deleteTranslationVersion(translationId);
+      await TranslationOps.deleteVersion(translationId);
       debugLog('translation', 'summary', `[TranslationsSlice] Deleted translation version ${translationId} for chapter ${chapterId}`);
 
       // If the deleted version was the active one, we need to promote a new version

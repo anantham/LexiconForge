@@ -1,26 +1,37 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Translator, type TranslationProvider, type TranslationRequest } from '../../../services/translate/Translator';
 import type { TranslationResult, AppSettings } from '../../../types';
+import { createMockAppSettings, createMockTranslationResult, createMockUsageMetrics } from '../../utils/test-data';
+
+const baseUsageMetrics = createMockUsageMetrics({
+  promptTokens: 100,
+  completionTokens: 50,
+  totalTokens: 150,
+  estimatedCost: 0.01,
+  requestTime: 1.2,
+  provider: 'Claude',
+  model: 'claude-3-opus',
+});
+
+const baseTranslationResult = (): TranslationResult =>
+  createMockTranslationResult({
+    translatedTitle: 'Mock Title',
+    translation: 'Mock translation content',
+    usageMetrics: { ...baseUsageMetrics },
+    model: 'claude-3-opus',
+    provider: 'Claude',
+    translationSettings: {
+      provider: 'Claude',
+      model: 'claude-3-opus',
+      temperature: 0.7,
+      systemPrompt: 'Mock prompt',
+    },
+  });
 
 // Mock provider for testing
 class MockTranslationProvider implements TranslationProvider {
   public translateCalls: TranslationRequest[] = [];
-  public mockResult: TranslationResult | Error = {
-    translatedTitle: 'Mock Title',
-    translation: 'Mock translation content',
-    illustrations: [],
-    amendments: [],
-    costUsd: 0.01,
-    tokensUsed: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
-    model: 'mock-model',
-    provider: 'Mock',
-    translationSettings: {
-      provider: 'Mock',
-      model: 'mock-model',
-      temperature: 0.7,
-      systemPrompt: 'Mock prompt',
-    }
-  };
+  public mockResult: TranslationResult | Error = baseTranslationResult();
 
   async translate(request: TranslationRequest): Promise<TranslationResult> {
     this.translateCalls.push(request);
@@ -34,22 +45,7 @@ class MockTranslationProvider implements TranslationProvider {
 
   reset() {
     this.translateCalls = [];
-    this.mockResult = {
-      translatedTitle: 'Mock Title',
-      translation: 'Mock translation content',
-      illustrations: [],
-      amendments: [],
-      costUsd: 0.01,
-      tokensUsed: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
-      model: 'mock-model',
-      provider: 'Mock',
-      translationSettings: {
-        provider: 'Mock',
-        model: 'mock-model',
-        temperature: 0.7,
-        systemPrompt: 'Mock prompt',
-      }
-    };
+    this.mockResult = baseTranslationResult();
   }
 }
 
@@ -69,17 +65,19 @@ describe('Translator', () => {
     mockProvider = new MockTranslationProvider();
     mockProvider.reset();
     
-    translator.registerProvider('Mock', mockProvider);
+    translator.registerProvider('Claude', mockProvider);
 
-    mockSettings = {
-      provider: 'Mock',
-      model: 'mock-model',
+    mockSettings = createMockAppSettings({
+      provider: 'Claude',
+      model: 'claude-3-opus',
       temperature: 0.7,
       systemPrompt: 'Test system prompt',
-      apiKeyOpenAI: 'mock-key',
+      apiKeyClaude: 'mock-key',
+      imageModel: 'mock-image-model',
       retryMax: 3,
       retryInitialDelayMs: 1000,
-    } as AppSettings;
+      showDiffHeatmap: false,
+    });
 
     mockRequest = {
       title: 'Test Title',
@@ -121,18 +119,22 @@ describe('Translator', () => {
 
       expect(result.translatedTitle).toBe('Mock Title');
       expect(result.translation).toBe('Mock translation content [sanitized]');
-      expect(result.provider).toBe('Mock');
+      expect(result.provider).toBe('Claude');
       expect(mockProvider.translateCalls).toHaveLength(1);
       expect(mockProvider.translateCalls[0]).toMatchObject(mockRequest);
     });
 
     it('throws error for unregistered provider', async () => {
-      const request = {
+      const request: TranslationRequest = {
         ...mockRequest,
-        settings: { ...mockSettings, provider: 'Unknown' }
+        settings: createMockAppSettings({
+          provider: 'OpenAI',
+          model: 'gpt-4o-mini',
+          systemPrompt: mockSettings.systemPrompt,
+        }),
       };
 
-      await expect(translator.translate(request)).rejects.toThrow('Provider not registered: Unknown');
+      await expect(translator.translate(request)).rejects.toThrow('Provider not registered: OpenAI');
     });
 
     it('sanitizes translation results', async () => {
@@ -174,22 +176,12 @@ describe('Translator', () => {
         if (callCount === 1) {
           throw rateLimitError;
         }
-        return mockProvider.mockResult = {
+        mockProvider.mockResult = {
+          ...baseTranslationResult(),
           translatedTitle: 'Retry Success',
           translation: 'Succeeded after retry',
-          illustrations: [],
-          amendments: [],
-          costUsd: 0.01,
-          tokensUsed: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
-          model: 'mock-model',
-          provider: 'Mock',
-          translationSettings: {
-            provider: 'Mock',
-            model: 'mock-model',
-            temperature: 0.7,
-            systemPrompt: 'Mock prompt',
-          }
         };
+        return mockProvider.mockResult;
       });
 
       const result = await translator.translate(mockRequest, { 
@@ -268,16 +260,24 @@ describe('Translator', () => {
   describe('result processing', () => {
     it('preserves all result fields', async () => {
       const complexResult: TranslationResult = {
+        ...baseTranslationResult(),
         translatedTitle: 'Complex Title',
         translation: 'Complex translation',
-        illustrations: [{ description: 'Test illustration', placement: 'top' }],
+        suggestedIllustrations: [{ placementMarker: 'marker', imagePrompt: 'prompt' }],
+        usageMetrics: {
+          ...baseUsageMetrics,
+          totalTokens: 300,
+          promptTokens: 200,
+          completionTokens: 100,
+        },
+        illustrations: [{ placement: 'top', description: 'Test illustration' }],
         amendments: [{ issue: 'Test issue', currentTranslation: 'Current', suggestedImprovement: 'Improved', reasoning: 'Better' }],
         costUsd: 0.05,
         tokensUsed: { promptTokens: 200, completionTokens: 100, totalTokens: 300 },
         model: 'advanced-model',
-        provider: 'Mock',
+        provider: 'Claude',
         translationSettings: {
-          provider: 'Mock',
+          provider: 'Claude',
           model: 'advanced-model',
           temperature: 0.8,
           systemPrompt: 'Advanced prompt',
@@ -300,18 +300,12 @@ describe('Translator', () => {
 
     it('handles missing optional fields gracefully', async () => {
       const minimalResult: TranslationResult = {
+        ...baseTranslationResult(),
         translatedTitle: 'Minimal Title',
         translation: 'Minimal translation',
+        suggestedIllustrations: [],
         illustrations: [],
         amendments: [],
-        model: 'mock-model',
-        provider: 'Mock',
-        translationSettings: {
-          provider: 'Mock',
-          model: 'mock-model',
-          temperature: 0.7,
-          systemPrompt: 'Mock prompt',
-        }
       };
 
       mockProvider.mockResult = minimalResult;

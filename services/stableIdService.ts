@@ -7,7 +7,7 @@
  * 3. Providing a transformation layer between import and storage
  */
 
-import { Chapter, TranslationResult, AppSettings, FeedbackItem } from '../types';
+import { Chapter, TranslationResult, AppSettings, FeedbackItem, ImportedChapter } from '../types';
 import { debugLog } from '../utils/debug';
 
 /**
@@ -113,15 +113,15 @@ export interface NovelInfo {
 /**
  * Extracts novel information from chapter data
  */
-export const extractNovelInfo = (chapters: any[]): NovelInfo => {
+export const extractNovelInfo = (chapters: ImportedChapter[]): NovelInfo => {
   if (chapters.length === 0) {
     throw new Error('No chapters provided for novel info extraction');
   }
   
   // Use the first chapter's URL to determine novel identity
   const firstChapter = chapters[0];
-  const firstUrl = firstChapter.url || firstChapter.sourceUrl;
-  
+  const firstUrl = firstChapter.sourceUrl;
+
   if (!firstUrl) {
     throw new Error('No URL found in first chapter for novel identification');
   }
@@ -171,8 +171,8 @@ export interface StableSessionData {
  * This is the key compatibility layer
  */
 export const transformImportedChapters = (
-  importedChapters: any[],
-  importMetadata?: any
+  importedChapters: ImportedChapter[],
+  _importMetadata?: Record<string, unknown>
 ): StableSessionData => {
   debugLog('indexeddb', 'summary', '[StableID] Transforming imported chapters with stable IDs');
   
@@ -189,7 +189,7 @@ export const transformImportedChapters = (
   
   // Process each chapter
   importedChapters.forEach((rawChapter, index) => {
-    const originalUrl = rawChapter.url || rawChapter.sourceUrl;
+    const originalUrl = rawChapter.sourceUrl;
     if (!originalUrl) {
       return;
     }
@@ -207,36 +207,35 @@ export const transformImportedChapters = (
 
     // Generate stable chapter ID
     const stableId = generateStableChapterId(
-      rawChapter.content || '',
+      rawChapter.originalContent || '',
       assignedChapterNumber,
       rawChapter.title || 'Untitled'
     );
-    
+
     // Collect all URL variants for this chapter
     const sourceUrls = [originalUrl];
     if (rawChapter.nextUrl) sourceUrls.push(rawChapter.nextUrl);
     if (rawChapter.prevUrl) sourceUrls.push(rawChapter.prevUrl);
-    
+
     // Generate canonical URL
     const canonicalUrl = generateCanonicalUrl([originalUrl]);
-    
+
     // Create enhanced chapter
     const enhancedChapter: EnhancedChapter = {
       id: stableId,
       title: rawChapter.title || 'Untitled Chapter',
-      content: rawChapter.content || '',
+      content: rawChapter.originalContent || '',
       originalUrl: canonicalUrl, // Use canonical URL
       nextUrl: rawChapter.nextUrl ? normalizeUrlAggressively(rawChapter.nextUrl) : undefined,
       prevUrl: rawChapter.prevUrl ? normalizeUrlAggressively(rawChapter.prevUrl) : undefined,
       chapterNumber: assignedChapterNumber,
       canonicalUrl,
       sourceUrls: [originalUrl], // Store original URL as source
-      fanTranslation: rawChapter.fanTranslation ?? null,
+      fanTranslation: null,
       importSource: {
         originalUrl,
         importDate: new Date(),
-        sourceFormat: 'json',
-        chapterIndex: index
+        sourceFormat: 'json'
       }
     };
     
@@ -258,9 +257,9 @@ export const transformImportedChapters = (
     chapters,
     urlIndex,
     rawUrlIndex,
-    currentChapterId: importedChapters.length > 0 ? 
+    currentChapterId: importedChapters.length > 0 ?
       generateStableChapterId(
-        importedChapters[0].content || '',
+        importedChapters[0].originalContent || '',
         assignedNumbers[0] || 0,
         importedChapters[0].title || ''
       ) : null,
@@ -272,8 +271,23 @@ export const transformImportedChapters = (
  * Converts stable session data back to legacy format for compatibility
  * Used when other parts of the system expect the old format
  */
-export const toLegacySessionData = (stableData: StableSessionData): Record<string, any> => {
-  const legacyData: Record<string, any> = {};
+interface LegacySessionEntry {
+  chapter: {
+    title: string;
+    content: string;
+    originalUrl: string;
+    nextUrl?: string | null;
+    prevUrl?: string | null;
+    chapterNumber?: number;
+    fanTranslation: string | null;
+  };
+  translationResult: TranslationResult | null;
+}
+
+export const toLegacySessionData = (
+  stableData: StableSessionData
+): Record<string, LegacySessionEntry> => {
+  const legacyData: Record<string, LegacySessionEntry> = {};
   
   for (const [chapterId, chapter] of stableData.chapters) {
     // Use canonical URL as the key for legacy compatibility

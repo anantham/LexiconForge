@@ -3,13 +3,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useAppStore } from '../../store';
 import { AmendmentProposal } from '../../types';
 import { INITIAL_SYSTEM_PROMPT } from '../../config/constants';
-import { indexedDBService } from '../../services/indexeddb';
+import { AmendmentOps, MaintenanceOps } from '../../services/db/operations';
 
 describe('Amendment Proposal System', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     localStorage.clear();
-    await indexedDBService.clearAllData();
+    await MaintenanceOps.clearAllData();
     // Reset store state after clearing persistence
     await useAppStore.getState().clearSession();
   });
@@ -161,7 +161,7 @@ describe('Amendment Proposal System', () => {
       await store.acceptProposal()
 
       // Check that the amendment was logged
-      const logs = await indexedDBService.getAmendmentLogs({ limit: 1 })
+      const logs = await AmendmentOps.getLogs({ limit: 1 });
 
       expect(logs.length).toBeGreaterThan(0)
       expect(logs[0].action).toBe('accepted')
@@ -177,7 +177,7 @@ describe('Amendment Proposal System', () => {
 
       await store.rejectProposal()
 
-      const logs = await indexedDBService.getAmendmentLogs({ action: 'rejected', limit: 1 })
+      const logs = await AmendmentOps.getLogs({ action: 'rejected', limit: 1 });
 
       expect(logs.length).toBeGreaterThan(0)
       expect(logs[0].action).toBe('rejected')
@@ -196,7 +196,7 @@ describe('Amendment Proposal System', () => {
       const modifiedChange = 'User modification'
       await store.editAndAcceptProposal(modifiedChange)
 
-      const logs = await indexedDBService.getAmendmentLogs({ action: 'modified', limit: 1 })
+      const logs = await AmendmentOps.getLogs({ action: 'modified', limit: 1 });
 
       expect(logs[0].proposal.proposedChange).toBe('AI suggestion')
       expect(logs[0].finalPromptChange).toBe('User modification')
@@ -205,9 +205,9 @@ describe('Amendment Proposal System', () => {
     it('should retrieve amendment statistics', async () => {
       const store = useAppStore.getState()
       // Clear any existing logs first
-      const existingLogs = await indexedDBService.getAmendmentLogs()
+      const existingLogs = await AmendmentOps.getLogs();
       for (const log of existingLogs) {
-        await indexedDBService.deleteAmendmentLog(log.id)
+        await AmendmentOps.deleteLog(log.id);
       }
 
       // Create and process multiple proposals
@@ -229,7 +229,7 @@ describe('Amendment Proposal System', () => {
       store.addAmendmentProposal(proposal3)
       await store.editAndAcceptProposal('custom')
 
-      const stats = await indexedDBService.getAmendmentStats()
+      const stats = await AmendmentOps.getStats();
 
       expect(stats.total).toBeGreaterThanOrEqual(3)
       expect(stats.accepted).toBeGreaterThanOrEqual(1)

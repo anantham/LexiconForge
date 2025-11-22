@@ -10,19 +10,20 @@
  */
 
 import { fetchAndParseUrl, isUrlSupported, getSupportedSiteInfo, SupportedSiteInfo } from './adapters';
-import { TranslationRecord, indexedDBService } from './indexeddb';
+import type { TranslationRecord } from './db/types';
 import { getRepoForService } from './db/index';
-import { 
-  EnhancedChapter, 
-  normalizeUrlAggressively, 
-  transformImportedChapters 
+import {
+  EnhancedChapter,
+  normalizeUrlAggressively,
+  transformImportedChapters
 } from './stableIdService';
+import type { ImportedChapter, TranslationResult, TranslationSettingsSnapshot } from '../types';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
 import { telemetryService } from './telemetryService';
 import { debugLog } from '../utils/debug';
-import { DiffResultsRepo } from '../adapters/repo/DiffResultsRepo';
 import { computeDiffHash } from './diff/hash';
 import { DIFF_ALGO_VERSION } from './diff/constants';
+import { ChapterOps, TranslationOps, SettingsOps, ImportOps, DiffOps } from './db/operations';
 
 // Logging utilities matching the store pattern
 const storeDebugEnabled = () => {
@@ -31,9 +32,20 @@ const storeDebugEnabled = () => {
 const slog = (...args: any[]) => { if (storeDebugEnabled()) console.log(...args); };
 const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...args); }; 
 
-const diffResultsRepo = new DiffResultsRepo();
+type HydratedTranslationResult = TranslationResult & {
+  id: string;
+  version?: number;
+  customVersionLabel?: string;
+  createdAt?: string;
+  isActive?: boolean;
+  stableId?: string;
+  chapterUrl?: string;
+};
 
-const adaptTranslationRecordToResult = (chapterId: string, record: TranslationRecord | null | undefined): any => {
+const adaptTranslationRecordToResult = (
+  chapterId: string,
+  record: TranslationRecord | null | undefined
+): HydratedTranslationResult | null => {
   if (!record) return null;
 
   const usageMetrics = {
@@ -71,7 +83,7 @@ const adaptTranslationRecordToResult = (chapterId: string, record: TranslationRe
     isActive: record.isActive,
     stableId: record.stableId,
     chapterUrl: record.chapterUrl,
-  };
+  } as HydratedTranslationResult;
 };
 
 // In-flight fetch management
@@ -202,14 +214,14 @@ export class NavigationService {
       }
       
       // Persist navigation state
-      try { 
-        indexedDBService.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {}); 
+      try {
+        SettingsOps.set('navigation-history', { stableIds: newHistory }).catch(() => {});
       } catch {}
-      try { 
-        indexedDBService.setSetting('lastActiveChapter', { 
-          id: chapterId, 
-          url: chapters.get(chapterId)?.canonicalUrl || url 
-        }).catch(() => {}); 
+      try {
+        SettingsOps.set('lastActiveChapter', {
+          id: chapterId,
+          url: chapters.get(chapterId)?.canonicalUrl || url,
+        }).catch(() => {});
       } catch {}
 
       slog(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
@@ -220,7 +232,7 @@ export class NavigationService {
       if (chapter && !chapter.translationResult) {
         console.log(`🔧 [Navigation] Chapter ${chapterId} in memory but missing translationResult, attempting hydration @${Date.now()}`);
         try {
-          const active = await indexedDBService.getActiveTranslationByStableId(chapterId);
+          const active = await TranslationOps.getActiveByStableId(chapterId);
           if (active) {
             console.log(`🔧 [Navigation] Found active translation in IDB, hydrating @${Date.now()}`, {
               provider: active.provider,
@@ -232,6 +244,10 @@ export class NavigationService {
             const hydrated = adaptTranslationRecordToResult(chapterId, active);
             if (hydrated) {
               chapter.translationResult = hydrated as any;
+              const activeSnapshot = (active.settingsSnapshot ??
+                null) as TranslationSettingsSnapshot | null;
+              chapter.translationSettingsSnapshot =
+                activeSnapshot ?? chapter.translationSettingsSnapshot ?? null;
               console.log(`✅ [Navigation] Hydration successful @${Date.now()}`);
             } else {
               console.warn(`⚠️ [Navigation] Hydration returned null @${Date.now()}`);
@@ -420,25 +436,36 @@ export class NavigationService {
         const found = await repo.findChapterByUrl(url);
         if (found?.stableId) {
           const chapterIdFound = found.stableId;
-          const c = found.data?.chapter || {};
-          const canonicalUrl = found.canonicalUrl || c.originalUrl || url;
-          
+          const c = found.data?.chapter;
+          const canonicalUrl = found.canonicalUrl || c?.originalUrl || url;
+
+          const adaptedTranslation = adaptTranslationRecordToResult(chapterIdFound, found.data?.translationResult);
+
+          const snapshot = (
+            (found.data?.translationResult as any)?.translationSettingsSnapshot ??
+            (found.data?.translationResult as any)?.settingsSnapshot ??
+            null
+          ) as TranslationSettingsSnapshot | null;
+
           const enhanced: EnhancedChapter = {
             id: chapterIdFound,
-            title: c.title || 'Untitled Chapter',
-            content: c.content || '',
+            title: c?.title || 'Untitled Chapter',
+            content: c?.content || '',
             originalUrl: canonicalUrl,
             canonicalUrl,
-            nextUrl: c.nextUrl,
-            prevUrl: c.prevUrl,
-            chapterNumber: c.chapterNumber || 0,
-            sourceUrls: [c.originalUrl || canonicalUrl],
-            importSource: { 
-              originalUrl: c.originalUrl || canonicalUrl, 
-              importDate: new Date(), 
-              sourceFormat: 'json' 
+            nextUrl: c?.nextUrl,
+            prevUrl: c?.prevUrl,
+            chapterNumber: c?.chapterNumber || 0,
+            sourceUrls: [c?.originalUrl || canonicalUrl].filter(
+              (url): url is string => typeof url === 'string' && url.length > 0
+            ),
+            importSource: {
+              originalUrl: c?.originalUrl || canonicalUrl,
+              importDate: new Date(),
+              sourceFormat: 'json'
             },
-            translationResult: found.data?.translationResult || null,
+            translationResult: adaptedTranslation,
+            translationSettingsSnapshot: snapshot,
           } as EnhancedChapter;
 
           const newHistory = [...new Set(navigationHistory.concat(chapterIdFound))];
@@ -504,6 +531,10 @@ export class NavigationService {
       ? performance.now()
       : Date.now();
     const telemetryMeta: Record<string, any> = { url };
+    const cachedResult = await this.tryServeChapterFromCache(url, telemetryMeta);
+    if (cachedResult) {
+      return cachedResult;
+    }
     try {
     if (inflightFetches.has(url)) {
       await inflightFetches.get(url);
@@ -532,9 +563,15 @@ export class NavigationService {
         
         // Transform to stable format
         slog(`[Fetch] Transforming to stable format...`);
-        const dataForTransformation = {
-          ...chapterData,
-          url: chapterData.originalUrl // Ensure 'url' property is present
+        const dataForTransformation: ImportedChapter = {
+          sourceUrl: chapterData.originalUrl,
+          title: chapterData.title,
+          originalContent: chapterData.content,
+          nextUrl: chapterData.nextUrl || null,
+          prevUrl: chapterData.prevUrl || null,
+          translationResult: null,
+          feedback: [],
+          chapterNumber: chapterData.chapterNumber
         };
         const stableData = transformImportedChapters([dataForTransformation]);
         slog(`[Fetch] Stable transformation result:`, {
@@ -558,7 +595,7 @@ export class NavigationService {
         
         // Persist to IndexedDB
         try {
-          await indexedDBService.importStableSessionData({
+          await ImportOps.importStableSessionData({
             novels: stableData.novels,
             chapters: stableData.chapters,
             urlIndex: stableData.urlIndex,
@@ -704,7 +741,7 @@ export class NavigationService {
     };
     
     try {
-      const rec = await indexedDBService.getChapterByStableId(chapterId);
+      const rec = await ChapterOps.getByStableId(chapterId);
       slog(`[IDB] Retrieved record:`, {
         exists: !!rec,
         title: rec?.title,
@@ -746,7 +783,7 @@ export class NavigationService {
         sourceUrls: [rec.url || ''],
         importSource: {
           originalUrl: rec.originalUrl || rec.url || '',
-          importDate: new Date(rec.createdAt || Date.now()),
+          importDate: new Date(rec.dateAdded || Date.now()),
           sourceFormat: 'json'
         },
         fanTranslation: rec.fanTranslation || null, // Include fan translation from IndexedDB
@@ -766,7 +803,7 @@ export class NavigationService {
         console.log(`🔍 [TranslationLoad] Starting load for chapter: ${chapterId}`);
         console.log(`🔍 [TranslationLoad] Chapter URL: ${rec.url}, Canonical: ${rec.canonicalUrl}`);
 
-        const activeTranslation = await indexedDBService.ensureActiveTranslationByStableId(chapterId);
+        const activeTranslation = await TranslationOps.ensureActiveByStableId(chapterId);
 
         if (activeTranslation) {
           console.log(`✅ [TranslationLoad] Active translation found for ${chapterId}:`, {
@@ -782,6 +819,8 @@ export class NavigationService {
           });
 
           enhanced.translationResult = adaptTranslationRecordToResult(chapterId, activeTranslation);
+          enhanced.translationSettingsSnapshot = (activeTranslation.settingsSnapshot ??
+            null) as TranslationSettingsSnapshot | null;
           console.log(`✅ [TranslationLoad] Translation adapted to result format`);
           debugLog(
             'navigation',
@@ -809,17 +848,17 @@ export class NavigationService {
               const normalizedFanId = '';
 
               if (aiTranslationId) {
-                cachedDiff = await diffResultsRepo.get(
+                cachedDiff = await DiffOps.get({
                   chapterId,
-                  aiTranslationId,
-                  normalizedFanId,
-                  rawHash,
-                  DIFF_ALGO_VERSION
-                );
+                  aiVersionId: aiTranslationId,
+                  fanVersionId: null,
+                  rawVersionId: rawHash,
+                  algoVersion: DIFF_ALGO_VERSION,
+                });
               }
 
               if (!cachedDiff) {
-                cachedDiff = await diffResultsRepo.findByHashes(
+                cachedDiff = await DiffOps.findByHashes(
                   chapterId,
                   aiHash,
                   fanHash,
@@ -885,6 +924,71 @@ export class NavigationService {
     } finally {
       // Clear hydrating state
       updateHydratingState(chapterId, false);
+    }
+  }
+
+  private static async tryServeChapterFromCache(
+    url: string,
+    telemetryMeta: Record<string, any>
+  ): Promise<FetchResult | null> {
+    try {
+      const repo = getRepoForService('navigationService');
+      const normalized = normalizeUrlAggressively(url);
+      const mapping =
+        (normalized ? await repo.getUrlMappingForUrl(normalized) : null) ||
+        (await repo.getUrlMappingForUrl(url));
+
+      if (!mapping?.stableId) {
+        return null;
+      }
+
+      const noopHydration = (_chapterId: string, _hydrating: boolean) => {};
+      const chapter = await NavigationService.loadChapterFromIDB(
+        mapping.stableId,
+        noopHydration
+      );
+
+      if (!chapter) {
+        return null;
+      }
+
+      const chapters = new Map<string, EnhancedChapter>([
+        [mapping.stableId, chapter],
+      ]);
+      const urlIndex = new Map<string, string>();
+      if (normalized) {
+        urlIndex.set(normalized, mapping.stableId);
+      }
+      const canonicalNormalized = chapter.canonicalUrl
+        ? normalizeUrlAggressively(chapter.canonicalUrl)
+        : null;
+      if (canonicalNormalized) {
+        urlIndex.set(canonicalNormalized, mapping.stableId);
+      }
+      const rawUrlIndex = new Map<string, string>([[url, mapping.stableId]]);
+
+      telemetryMeta.outcome = 'cache_hit';
+      telemetryMeta.chapterId = mapping.stableId;
+      telemetryMeta.cacheSource = 'url_mapping';
+      debugLog(
+        'navigation',
+        'summary',
+        '[Navigation] handleFetch short-circuited via IndexedDB cache',
+        {
+          url,
+          chapterId: mapping.stableId,
+        }
+      );
+
+      return {
+        chapters,
+        urlIndex,
+        rawUrlIndex,
+        currentChapterId: mapping.stableId,
+      };
+    } catch (error) {
+      swarn('[Navigation] Cache short-circuit failed, falling back to fetch', error);
+      return null;
     }
   }
 }

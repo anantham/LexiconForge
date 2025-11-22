@@ -16,6 +16,7 @@ export interface BaseJob {
   message?: string;
   error?: string;
   cancellationRequested?: boolean;
+  chapterUrls?: string[]; // Legacy support for tests expecting this field
 }
 
 export interface TranslationJob extends BaseJob {
@@ -46,11 +47,16 @@ export interface ImageJob extends BaseJob {
 export type Job = TranslationJob | EpubJob | ImageJob;
 
 // Jobs slice state
+type TranslationJobInput = Omit<TranslationJob, 'createdAt' | 'progress'>;
+type EpubJobInput = Omit<EpubJob, 'createdAt' | 'progress'>;
+type ImageJobInput = Omit<ImageJob, 'createdAt' | 'progress'>;
+export type JobInput = TranslationJobInput | EpubJobInput | ImageJobInput;
+
 export interface JobsSlice {
   jobs: Record<string, Job>;
   
   // Actions
-  addJob: (job: Omit<Job, 'createdAt' | 'progress'>) => void;
+  addJob: (job: JobInput) => void;
   updateJob: (id: string, updates: Partial<Job>) => void;
   removeJob: (id: string) => void;
   clearCompleted: () => void;
@@ -76,7 +82,29 @@ export interface JobsSlice {
   };
   initializeWorkers: () => void;
   terminateWorkers: () => void;
+  startWorkerJob: (job: Job) => void;
+  cancelWorkerJob: (job: Job) => void;
+  handleWorkerMessage: (event: MessageEvent, workerType: 'translation' | 'epub') => void;
 }
+
+const buildJob = (jobData: JobInput): Job => {
+  const common = {
+    ...jobData,
+    createdAt: Date.now(),
+    progress: 0,
+  };
+
+  switch (jobData.type) {
+    case 'translation':
+      return common as TranslationJob;
+    case 'epub':
+      return common as EpubJob;
+    case 'image':
+      return common as ImageJob;
+    default:
+      return common as Job;
+  }
+};
 
 export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
   jobs: {},
@@ -84,15 +112,12 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
 
   // Actions
   addJob: (jobData) => {
-    const job: Job = {
-      ...jobData,
-      createdAt: Date.now(),
-      progress: 0,
-    };
+    const job = buildJob(jobData);
     
-    set((state) => ({
-      jobs: { ...state.jobs, [job.id]: job }
-    }));
+    set((state) => {
+      const updatedJobs = { ...state.jobs, [job.id]: job } as JobsSlice['jobs'];
+      return { jobs: updatedJobs };
+    });
   },
 
   updateJob: (id, updates) => {
@@ -100,29 +125,28 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
       const existingJob = state.jobs[id];
       if (!existingJob) return state;
 
-      return {
-        jobs: {
-          ...state.jobs,
-          [id]: { ...existingJob, ...updates }
-        }
-      };
+      const updatedJobs = {
+        ...state.jobs,
+        [id]: { ...existingJob, ...updates }
+      } as JobsSlice['jobs'];
+
+      return { jobs: updatedJobs };
     });
   },
 
   removeJob: (id) => {
     set((state) => {
       const { [id]: removed, ...remainingJobs } = state.jobs;
-      return { jobs: remainingJobs };
+      return { jobs: remainingJobs as JobsSlice['jobs'] };
     });
   },
 
   clearCompleted: () => {
     set((state) => {
-      const activeJobs = Object.fromEntries(
-        Object.entries(state.jobs).filter(([_, job]) => 
-          !['completed', 'failed', 'cancelled'].includes(job.status)
-        )
+      const activeJobsEntries = Object.entries(state.jobs).filter(([_, job]) =>
+        !['completed', 'failed', 'cancelled'].includes(job.status)
       );
+      const activeJobs = Object.fromEntries(activeJobsEntries) as JobsSlice['jobs'];
       return { jobs: activeJobs };
     });
   },
@@ -132,9 +156,9 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
     const runningJobs = get().getRunningJobs();
     runningJobs.forEach(job => get().cancelJob(job.id));
     
-    set({ jobs: {} });
+    const emptyJobs: JobsSlice['jobs'] = {};
+    set({ jobs: emptyJobs });
   },
-
   // Job control
   startJob: (id) => {
     const job = get().jobs[id];

@@ -1,17 +1,17 @@
 import type { AppSettings } from '../../../types';
-import { indexedDBService } from '../../indexeddb';
+import { settingsRepository } from '../repositories/instances';
 
 export class SettingsOps {
   static async store(settings: AppSettings) {
-    return indexedDBService.storeSettings(settings);
+    return settingsRepository.storeAppSettings(settings);
   }
   static async get(): Promise<AppSettings | null> {
-    return indexedDBService.getSettings();
+    return settingsRepository.getAppSettings();
   }
   static async set<T = any>(key: string, value: T) {
-    return indexedDBService.setSetting(key, value);
+    return settingsRepository.setSetting(key, value);
   }
   static async getKey<T = any>(key: string): Promise<T | null> {
-    return indexedDBService.getSetting<T>(key);
+    return settingsRepository.getSetting<T>(key);
   }
 }

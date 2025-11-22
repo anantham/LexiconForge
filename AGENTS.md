@@ -14,7 +14,7 @@ PHILOSOPHY: We are computational peers collaborating with human developers. Oper
 4. **Human Gates Are Sacred:** Architectural changes, solution selection, and root cause confirmation require explicit human validation. The goal is to keep humans in the loop with interfaces designed to make it easy for humans to give feedback frictionlessly.
 5. **Documentation Is Design:** Every feature needs intent documentation. Use ADRs for significant decisions. 
 6. **Don't be trigger happy** - When I ask you a question, just answer, don't assume the implicit request is for you to fix it immediately you can offer to fix it with precise plans and I may approve but do not proactively edit files and patch code.
-7. **Epistemic Hygine** - Every fix proposal includes: assumptions, predicted test outcomes, confidence (0–1), fallback plan. If uncertain or unsafe → “decline & explain” using STOP template
+7. **Epistemic Hygiene** - Every fix proposal includes: assumptions, predicted test outcomes, confidence (0.0–1.0), fallback plan. If confidence < 0.7 or unsafe → "decline & explain" using STOP template
 
 
 8. **Meta update protocol** - if I ask you to do something and mention /metaupdate then incorporate that request into the appropriate section in this AGENTS.md document itself after confirming with me. If you offer me an investigation plan as part of the bug squashing protocol below and I say "make sure you also note all relevant files that will be affected /metaupdate" then you will append that rule to the protocol below specifying concrete paths to files that are relevant and will be investigated.
@@ -40,10 +40,26 @@ PRE‑FLIGHT_CHECKLIST (before ANY code changes)
 
 # HYPOTHESIS‑DRIVEN_PROTOCOL  
 
-PHASE 1 — Hypothesis Formation  
-
+PHASE 1 — Hypothesis Formation
 
 TEMPLATE: Investigation Plan
+```json
+{
+  "issue": "User-reported behavior that violates spec",
+  "hypotheses": {
+    "H1": {"description": "Most likely cause", "prior": 0.4, "test": "How to disprove"},
+    "H2": {"description": "Alternative cause", "prior": 0.3, "test": "How to disprove"},
+    "H3": {"description": "Boring cause (typo, cache, etc)", "prior": 0.3, "test": "How to disprove"}
+  },
+  "evidence_plan": {
+    "logs_to_add": ["Location and what to log"],
+    "metrics_to_capture": ["What to measure"],
+    "predictions": ["If H1 true, will see X", "If H2 true, will see Y"]
+  },
+  "confidence": 0.7,
+  "decision_rule": "How we'll know which hypothesis is correct"
+}
+```
 
 - User asks for help. There is empirical evidence that the human needs to give you. What is the behaviour of the app that is against the product specification
 - Make sure the ADR document has this feature clearly promised and the user is highlighting a failure or update the ADR to align with the user wishes
@@ -84,7 +100,16 @@ If tests allowed you to collect enough evidence to convince human that the root 
 
 PHASE 3 — Map out solution space
 
-Present to the human various possible Implementation Roadmaps for solving the root cause.
+Present options using this comparison table:
+
+| Option | Files | LOC Δ | Complexity | Hours | Reversible | Risks | Perf Impact | Tests |
+|--------|-------|-------|------------|-------|------------|-------|-------------|-------|
+| A: Quick patch | 2 | +20 | Low | 1 | Yes | Bandaid | None | 2 |
+| B: Refactor service | 5 | -200 | Medium | 4 | Partial | Breaking API | +10% | 8 |
+| C: Redesign module | 12 | -500 | High | 16 | No | Migration | +30% | 20 |
+
+**Recommendation:** [Which option and why, given constraints]
+**Confidence:** [0-1 scale]
 
 The important aspects are tradeoffs, constraints, affects on future features, how many files are affected the breakdown of how we will go about implementing are shown to the human and explained.
 
@@ -175,9 +200,90 @@ Don’t write “update stuff”, “WIP”, or pile many unrelated files.
 
 Don’t encode implementation trivia in tests/messaging.
 
-Don’t rely on CI logs to explain context—put essentials in the body.
+Don't rely on CI logs to explain context—put essentials in the body.
 
 
+
+---
+
+## PULL_REQUEST_WORKFLOW (Mandatory for Code Review)
+
+### All Changes Must Go Through Pull Requests
+
+**CRITICAL:** Direct commits to main branch are PROHIBITED. All changes must be submitted via Pull Request to trigger Codex automated code review.
+
+### PR Creation Protocol
+
+1. **Create feature branch** from latest main: `git checkout -b [type]/[description]`
+   - Examples: `fix/indexeddb-refactor`, `feat/add-telemetry`, `debt/split-monolithic-services`
+
+2. **Make atomic commits** following the templates below
+   - One logical change per commit
+   - Include tests with implementation
+   - Follow commit message format strictly
+
+3. **Push branch and create PR**
+   ```bash
+   git push -u origin [branch-name]
+   gh pr create --title "[TYPE]: Brief description" --body "..."
+   ```
+
+4. **Wait for Codex review** before any merge
+   - Address all review comments
+   - Add follow-up commits for fixes
+   - DO NOT force-push after review starts
+
+### PR Size Guidelines
+
+- **Small PRs preferred:** 200-400 lines ideal, 800 lines max
+- **Split large refactors:** Create sequential PRs for reviewability
+- **Tech debt PRs:** One monolithic file split per PR
+
+### PR Description Requirements
+
+```markdown
+## Summary
+[What and why in 2-3 sentences]
+
+## Root Cause (if bug fix)
+[Link to investigation/hypothesis validation]
+
+## Changes
+- [ ] file1.ts: Specific changes
+- [ ] file2.ts: Specific changes
+- [ ] tests added/modified
+
+## Testing
+- [ ] All tests pass locally
+- [ ] New tests cover the changes
+- [ ] Manual testing completed
+
+## Review Checklist
+- [ ] No direct commits to main
+- [ ] Follows commit format
+- [ ] Ready for Codex review
+- [ ] No unrelated changes mixed in
+```
+
+### Agent-Specific PR Rules
+
+1. **Never bypass PR process** even for "simple" fixes
+2. **Each PR addresses ONE issue** - no scope creep
+3. **Include PR number in commits** after creation: `fix(db): Split indexeddb service (#123)`
+4. **Tech debt PRs:** Include metrics (before/after LOC, complexity reduction)
+5. **If PR blocked by review:** Create follow-up PR rather than force-pushing
+
+---
+
+## REFACTORING METRICS
+
+Required measurements for any refactoring PR:
+- Line count: [before] → [after] with % change
+- Cyclomatic complexity: [before] → [after] per function
+- Test coverage: [before]% → [after]%
+- Bundle size: [before] KB → [after] KB
+- Type safety: # of 'any' types removed
+- Performance: [method] shows [before] ms → [after] ms
 
 ---
 

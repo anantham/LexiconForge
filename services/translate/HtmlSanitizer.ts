@@ -12,59 +12,29 @@ export function sanitizeHtml(input: string, options?: SanitizeHtmlOptions): stri
   // Normalize common scene breaks
   s = s.replace(/\s*(?:\* \* \*|\*{3,}|—{3,}|- {2,}-)\s*/g, '<hr />');
 
-  // Strip <p> tags if they sneak in (reader prefers fragment-level markup)
+  // Remove paragraph tags and normalize <br>
   s = s.replace(/<\/?p[^>]*>/gi, '');
-
-  // Heal & canonicalize void tags
   s = s.replace(/<\s*br\b[^>]*>/gi, '<br />');
   s = s.replace(/<\s*br\b(?![^>]*>)/gi, '<br />');
-  s = s.replace(/<\/\s*br\s*>/gi, '');
-
-  s = s.replace(/<\s*hr\b[^>]*>/gi, '<hr />');
-  s = s.replace(/<\s*hr\b(?![^>]*>)/gi, '<hr />');
-  s = s.replace(/<\/\s*hr\s*>/gi, '');
+  s = s.replace(/<\/?br\s*>/gi, '<br />');
+  s = s.replace(/<\/?hr\s*>/gi, '<hr />');
 
   // Tighten inline formatting tags: drop hallucinated attributes
-  s = s.replace(/<\s*([/]?)(i|em|b|strong|u|s|sub|sup)\b[^>]*>/gi, '<$1$2>');
+  s = s.replace(/<\s*([\/]?)(i|em|b|strong|u|s|sub|sup)\b[^>]*>/gi, '<$1$2>');
 
   if (!allowHr) {
-    s = s.replace(/<hr \/>/gi, '<br /><br />');
+    s = s.replace(/<hr\s*\/>/gi, '<br /><br />');
   }
 
-  // Escape any other accidental '<tag' sequences to plain text
-  const allowedPattern = allowHr
-    ? 'br|hr|i|em|b|strong|u|s|sub|sup'
-    : 'br|i|em|b|strong|u|s|sub|sup';
+  const allowedPattern = allowHr ? 'br|hr|i|em|b|strong|u|s|sub|sup' : 'br|i|em|b|strong|u|s|sub|sup';
   const escapeUnknownTags = new RegExp('<(?!\\/?(?:' + allowedPattern + ')\\b)', 'gi');
   s = s.replace(escapeUnknownTags, '&lt;');
 
   return s;
 }
 
-// Strict XHTML serializer used for EPUB packaging
-export function toStrictXhtml(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const allowed = new Set(['BR','HR','I','EM','B','STRONG','U','S','SUB','SUP']);
-
-  const xdoc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'div', null);
-  const root = xdoc.documentElement;
-
-  const transplant = (node: Node, into: Element) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      into.appendChild(xdoc.createTextNode(node.nodeValue || ''));
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const el = node as HTMLElement;
-      if (!allowed.has(el.tagName)) {
-        el.childNodes.forEach(n => transplant(n, into));
-        return;
-      }
-      const xEl = xdoc.createElementNS('http://www.w3.org/1999/xhtml', el.tagName.toLowerCase());
-      el.childNodes.forEach(n => transplant(n, xEl));
-      into.appendChild(xEl);
-    }
-  };
-
-  doc.body.childNodes.forEach(n => transplant(n, root));
-  return new XMLSerializer().serializeToString(root);
+// Strict XHTML serializer helper used by EPUB pipeline.
+// For now reuse sanitizeHtml to normalize markup and ensure br/hr compliance.
+export function toStrictXhtml(input: string): string {
+  return sanitizeHtml(input, { allowHr: true });
 }
-

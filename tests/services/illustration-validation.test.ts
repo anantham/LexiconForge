@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // We need to test the validateAndFixIllustrations function, but it's not exported
 // So we'll create our own version for testing and compare behavior

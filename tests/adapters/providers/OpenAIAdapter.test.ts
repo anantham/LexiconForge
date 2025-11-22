@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { AppSettings } from '../../../types';
+import type { TranslationRequest } from '../../../services/translate/Translator';
 import { OpenAIAdapter } from '../../../adapters/providers/OpenAIAdapter';
+import { createMockAppSettings } from '../../utils/test-data';
 
 const { createMock, openAIConstructor } = vi.hoisted(() => {
   const create = vi.fn();
@@ -55,7 +57,7 @@ vi.mock('../../../services/defaultApiKeyService', () => ({
   getDefaultApiKey: vi.fn(() => 'trial-key'),
 }));
 
-const baseSettings: AppSettings = {
+const baseSettings: AppSettings = createMockAppSettings({
   provider: 'OpenAI',
   model: 'gpt-4o',
   systemPrompt: 'Translate text.',
@@ -63,7 +65,7 @@ const baseSettings: AppSettings = {
   apiKeyOpenAI: '',
   apiKeyGemini: '',
   apiKeyDeepSeek: '',
-};
+});
 
 const successResponse = {
   choices: [{
@@ -142,14 +144,16 @@ describe('OpenAIAdapter translate() parameter handling', () => {
       frequencyPenalty: 1,
       presencePenalty: 0.2,
       seed: 123,
-    } as any;
+    };
 
-    await adapter.translate({
+    const request: TranslationRequest = {
       title: 'T',
       content: 'Body',
       settings,
       history: [],
-    } as any);
+    };
+
+    await adapter.translate(request);
 
     expect(createMock).toHaveBeenCalledTimes(2);
     const firstCallArgs = createMock.mock.calls[0][0];

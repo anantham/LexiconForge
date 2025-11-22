@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useAppStore } from '../../store';
 import { defaultSettings } from '../../services/sessionManagementService';
-import { indexedDBService } from '../../services/indexeddb';
 import { TranslationService } from '../../services/translationService';
+import { TranslationOps } from '../../services/db/operations';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import type { TranslationResult } from '../../types';
 
@@ -62,8 +62,8 @@ beforeEach(() => {
   vi.restoreAllMocks();
   resetStore();
   translationSpy = vi.spyOn(TranslationService, 'translateChapterSequential');
-  versionsSpy = vi.spyOn(indexedDBService, 'getTranslationVersionsByStableId');
-  storeTranslationSpy = vi.spyOn(indexedDBService, 'storeTranslationByStableId');
+  versionsSpy = vi.spyOn(TranslationOps, 'getVersionsByStableId');
+  storeTranslationSpy = vi.spyOn(TranslationOps, 'storeByStableId');
   activeIdsSpy = vi.spyOn(TranslationService, 'getActiveTranslationIds');
   activeIdsSpy.mockReturnValue([]);
 });

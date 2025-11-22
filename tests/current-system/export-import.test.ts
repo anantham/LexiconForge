@@ -2,7 +2,15 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useAppStore } from '../../store';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import type { TranslationResult } from '../../types';
-import { indexedDBService } from '../../services/indexeddb';
+import type { DiffResult } from '../../services/diff/types';
+import {
+  AmendmentOps,
+  DiffOps,
+  ImportOps,
+  SessionExportOps,
+  SettingsOps,
+} from '../../services/db/operations';
+import * as RenderingOps from '../../services/db/operations/rendering';
 import { normalizeUrlAggressively } from '../../services/stableIdService';
 
 const resetStore = () => {
@@ -75,11 +83,11 @@ describe('Session export/import', () => {
           costUsd: 0.001,
           model: 'gpt-4o-mini'
         }
-      ];
+      ] satisfies DiffResult[];
 
-      vi.spyOn(indexedDBService, 'getAllDiffResults').mockResolvedValue(mockDiffResults);
+      vi.spyOn(DiffOps, 'getAll').mockResolvedValue(mockDiffResults);
 
-      const exported = await indexedDBService.exportFullSessionToJson();
+      const exported = await SessionExportOps.exportFullSession();
 
       expect(exported.diffResults).toBeDefined();
       expect(exported.diffResults).toHaveLength(1);
@@ -113,13 +121,13 @@ describe('Session export/import', () => {
             costUsd: 0.002,
             model: 'gpt-4o-mini'
           }
-        ]
+        ] satisfies DiffResult[]
       };
 
       // Import should succeed or gracefully skip if diffResults store doesn't exist
       // (older DB versions may not have the store)
       try {
-        await indexedDBService.importFullSessionData(sessionData);
+        await ImportOps.importFullSessionData(sessionData);
         // If we get here, import succeeded
         expect(true).toBe(true);
       } catch (error: any) {
@@ -134,9 +142,9 @@ describe('Session export/import', () => {
     });
 
     it('should handle export when no diffResults exist', async () => {
-      vi.spyOn(indexedDBService, 'getAllDiffResults').mockResolvedValue([]);
+      vi.spyOn(DiffOps, 'getAll').mockResolvedValue([]);
 
-      const exported = await indexedDBService.exportFullSessionToJson();
+      const exported = await SessionExportOps.exportFullSession();
 
       expect(exported.diffResults).toBeDefined();
       expect(exported.diffResults).toHaveLength(0);
@@ -155,7 +163,61 @@ describe('Session export/import', () => {
       };
 
       // Import should not throw even without diffResults
-      await expect(indexedDBService.importFullSessionData(sessionData)).resolves.not.toThrow();
+      await expect(ImportOps.importFullSessionData(sessionData)).resolves.not.toThrow();
+    });
+  });
+
+  describe('amendmentLogs export/import', () => {
+    it('should include amendment logs in exported session data', async () => {
+      const logs = [
+        {
+          id: 'log-1',
+          timestamp: Date.now(),
+          chapterId: 'stable-123',
+          proposal: {
+            observation: 'Note',
+            currentRule: 'Rule',
+            proposedChange: 'Change',
+            reasoning: 'Because',
+          },
+          action: 'accepted' as const,
+          finalPromptChange: 'Updated prompt',
+          notes: 'Imported',
+        },
+      ];
+      vi.spyOn(AmendmentOps, 'getLogs').mockResolvedValue(logs);
+
+      const exported = await SessionExportOps.exportFullSession();
+      expect(exported.amendmentLogs).toEqual(logs);
+    });
+
+    it('imports amendment logs when present in payload', async () => {
+      const logs = [
+        {
+          id: 'log-2',
+          timestamp: Date.now(),
+          chapterId: 'stable-456',
+          proposal: {
+            observation: 'Detail',
+            currentRule: 'Old',
+            proposedChange: 'New',
+            reasoning: 'Better',
+          },
+          action: 'modified' as const,
+          finalPromptChange: 'Changed prompt',
+          notes: 'Imported',
+        },
+      ];
+      const importSpy = vi
+        .spyOn(AmendmentOps, 'importLogs')
+        .mockResolvedValue(undefined as any);
+
+      await ImportOps.importFullSessionData({
+        metadata: { format: 'lexiconforge-full-1' },
+        amendmentLogs: logs,
+      });
+
+      expect(importSpy).toHaveBeenCalledWith(logs);
     });
   });
 
@@ -207,9 +269,9 @@ describe('Session export/import', () => {
         },
       ];
 
-      const importSpy = vi.spyOn(indexedDBService, 'importFullSessionData').mockResolvedValue();
-      vi.spyOn(indexedDBService, 'getChaptersForReactRendering').mockResolvedValue(rendering as any);
-      vi.spyOn(indexedDBService, 'getSetting').mockImplementation(async (key: string) => {
+      const importSpy = vi.spyOn(ImportOps, 'importFullSessionData').mockResolvedValue();
+      vi.spyOn(RenderingOps, 'fetchChaptersForReactRendering').mockResolvedValue(rendering as any);
+      vi.spyOn(SettingsOps, 'getKey').mockImplementation(async (key: string) => {
         if (key === 'navigation-history') return { stableIds: ['stable-1'] };
         if (key === 'lastActiveChapter') return { id: 'stable-1', url: rendering[0].url };
         return null;

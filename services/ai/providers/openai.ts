@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import type { ChatCompletion } from 'openai/resources';
+import type { ChatCompletion } from 'openai/resources/chat/completions';
 import prompts from '@/config/prompts.json';
 import appConfig from '@/config/app.json';
 import { buildFanTranslationContext, formatHistory } from '@/services/prompts';

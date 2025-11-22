@@ -86,6 +86,7 @@ export const COSTS_PER_MILLION_TOKENS: { [key: string]: { input: number, output:
     'claude-3-7-sonnet-20250219': { input: 3.00, output: 15.00 },
     'claude-3-5-sonnet-20241022': { input: 3.00, output: 15.00 },
     'claude-3-5-haiku-20241022': { input: 0.80, output: 4.00 },
+    'openrouter/google/gemini-3-pro-image-preview': { input: 2.00, output: 12.00 },
 };
 
 // --- IMAGE MODEL COSTS (Per Image in USD) ---
@@ -108,6 +109,7 @@ export const IMAGE_COSTS: { [key: string]: number } = {
     'openrouter/google/gemini-2.5-flash-image': 0.039, // $0.039 per image
     'openrouter/google/gemini-2.5-flash-image-preview': 0.039, // $0.039 per image
     'openrouter/google/gemini-2.5-flash-image-preview:free': 0.00, // Free tier
+    'openrouter/google/gemini-3-pro-image-preview': 0.039,
 
     // PiAPI Flux models (pricing provided by user)
     // Flux.1-Schnell: $0.0015 per image (batch 1-4)

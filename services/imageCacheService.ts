@@ -229,7 +229,9 @@ export class ImageCacheStore {
 
       return blobUrl;
     } catch (error) {
-      telemetryService.captureError('blob-url-create', error, cacheKey);
+      telemetryService.captureError('blob-url-create', error, {
+        cacheKey,
+      });
       return null;
     }
   }
@@ -268,7 +270,9 @@ export class ImageCacheStore {
 
       return await response.blob();
     } catch (error) {
-      telemetryService.captureError('blob-fetch', error, cacheKey);
+      telemetryService.captureError('blob-fetch', error, {
+        cacheKey,
+      });
       return null;
     }
   }
@@ -282,7 +286,9 @@ export class ImageCacheStore {
       const cacheUrl = this.getCacheUrl(cacheKey.chapterId, cacheKey.placementMarker, cacheKey.version);
       return await cache.delete(cacheUrl);
     } catch (error) {
-      telemetryService.captureError('cache-delete', error, cacheKey);
+      telemetryService.captureError('cache-delete', error, {
+        cacheKey,
+      });
       return false;
     }
   }

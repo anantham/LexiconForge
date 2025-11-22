@@ -8,6 +8,8 @@ import { useAppStore } from '../store';
 import type { NovelEntry, NovelVersion } from '../types/novel';
 import { debugLog } from '../utils/debug';
 import { normalizeUrlAggressively } from '../services/stableIdService';
+import { SettingsOps } from '../services/db/operations';
+import { fetchChaptersForReactRendering } from '../services/db/operations/rendering';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -64,53 +66,44 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
     try {
       // Check if novel is already loaded in IndexedDB (simple cache check)
-      const { indexedDBService } = await import('../services/indexeddb');
-      const existingChapters = await indexedDBService.getChaptersForReactRendering();
+      const existingChapters = await fetchChaptersForReactRendering();
 
       if (existingChapters.length > 0) {
         // Chapters already exist, just load them into store
         setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
 
         const { useAppStore } = await import('../store');
-        const nav = await indexedDBService.getSetting<any>('navigation-history').catch(() => null);
-        const lastActive = await indexedDBService.getSetting<any>('lastActiveChapter').catch(() => null);
+        const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+        const lastActive = await SettingsOps.getKey<any>('lastActiveChapter').catch(() => null);
 
         useAppStore.setState(state => {
           const newChapters = new Map<string, any>();
           const newUrlIndex = new Map<string, string>();
           const newRawUrlIndex = new Map<string, string>();
+
           for (const ch of existingChapters) {
+            const sourceUrls = ch.sourceUrls ?? [ch.url];
             newChapters.set(ch.stableId, {
-              stableId: ch.stableId,
-              url: ch.url || ch.canonicalUrl,
-              title: ch.data?.chapter?.title || ch.title,
-              content: ch.data?.chapter?.content || ch.content,
-              nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
-              prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
-              chapterNumber: ch.chapterNumber || 0,
-              canonicalUrl: ch.url,
-              originalUrl: ch.url,
-              sourceUrls: [ch.url],
-              fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
-              translationResult: ch.data?.translationResult || null,
+              id: ch.stableId,
+              title: ch.title,
+              content: ch.content,
+              originalUrl: ch.originalUrl,
+              nextUrl: ch.nextUrl ?? null,
+              prevUrl: ch.prevUrl ?? null,
+              chapterNumber: ch.chapterNumber ?? 0,
+              canonicalUrl: ch.canonicalUrl ?? ch.url,
+              sourceUrls,
+              fanTranslation: ch.fanTranslation ?? null,
+              translationResult: ch.translationResult || null,
               feedback: [],
             });
 
-            const canonicalUrl = ch.url;
-            if (canonicalUrl) {
-              newRawUrlIndex.set(canonicalUrl, ch.stableId);
-              const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
-              if (normalizedCanonical) {
-                newUrlIndex.set(normalizedCanonical, ch.stableId);
-              }
-            }
-
-            const originalUrl = ch.data?.chapter?.originalUrl || ch.originalUrl;
-            if (originalUrl) {
-              newRawUrlIndex.set(originalUrl, ch.stableId);
-              const normalizedOriginal = normalizeUrlAggressively(originalUrl);
-              if (normalizedOriginal) {
-                newUrlIndex.set(normalizedOriginal, ch.stableId);
+            for (const rawUrl of sourceUrls) {
+              if (!rawUrl) continue;
+              newRawUrlIndex.set(rawUrl, ch.stableId);
+              const normalized = normalizeUrlAggressively(rawUrl);
+              if (normalized) {
+                newUrlIndex.set(normalized, ch.stableId);
               }
             }
           }
@@ -159,7 +152,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                 }
               );
 
-              const chapters = await indexedDBService.getChaptersForReactRendering();
+              const chapters = await fetchChaptersForReactRendering();
 
               // Hydrate store with first 10 chapters
               const threshold = Math.min(chapters.length, 10);
@@ -167,38 +160,30 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
               const newChapters = new Map<string, any>();
               const newUrlIndex = new Map<string, string>();
               const newRawUrlIndex = new Map<string, string>();
+
               for (const ch of firstChapters) {
+                const sourceUrls = ch.sourceUrls ?? [ch.url];
                 newChapters.set(ch.stableId, {
-                  stableId: ch.stableId,
-                  url: ch.url || ch.canonicalUrl,
-                  title: ch.data?.chapter?.title || ch.title,
-                  content: ch.data?.chapter?.content || ch.content,
-                  nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
-                  prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
-                  chapterNumber: ch.chapterNumber || 0,
-                  canonicalUrl: ch.url,
-                  originalUrl: ch.url,
-                  sourceUrls: [ch.url],
-                  fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
-                  translationResult: ch.data?.translationResult || null,
+                  id: ch.stableId,
+                  title: ch.title,
+                  content: ch.content,
+                  originalUrl: ch.originalUrl,
+                  nextUrl: ch.nextUrl ?? null,
+                  prevUrl: ch.prevUrl ?? null,
+                  chapterNumber: ch.chapterNumber ?? 0,
+                  canonicalUrl: ch.canonicalUrl ?? ch.url,
+                  sourceUrls,
+                  fanTranslation: ch.fanTranslation ?? null,
+                  translationResult: ch.translationResult || null,
                   feedback: [],
                 });
 
-                const canonicalUrl = ch.url;
-                if (canonicalUrl) {
-                  newRawUrlIndex.set(canonicalUrl, ch.stableId);
-                  const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
-                  if (normalizedCanonical) {
-                    newUrlIndex.set(normalizedCanonical, ch.stableId);
-                  }
-                }
-
-                const originalUrl = ch.data?.chapter?.originalUrl || ch.originalUrl;
-                if (originalUrl) {
-                  newRawUrlIndex.set(originalUrl, ch.stableId);
-                  const normalizedOriginal = normalizeUrlAggressively(originalUrl);
-                  if (normalizedOriginal) {
-                    newUrlIndex.set(normalizedOriginal, ch.stableId);
+                for (const rawUrl of sourceUrls) {
+                  if (!rawUrl) continue;
+                  newRawUrlIndex.set(rawUrl, ch.stableId);
+                  const normalized = normalizeUrlAggressively(rawUrl);
+                  if (normalized) {
+                    newUrlIndex.set(normalized, ch.stableId);
                   }
                 }
               }

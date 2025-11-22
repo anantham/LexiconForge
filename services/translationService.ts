@@ -10,15 +10,15 @@
  */
 
 import { translateChapter, validateApiKey } from './aiService';
-import { indexedDBService } from './indexeddb';
-import type { AppSettings, HistoricalChapter, TranslationResult, PromptTemplate } from '../types';
+import type { AppSettings, HistoricalChapter, TranslationResult, PromptTemplate, TranslationSettingsSnapshot } from '../types';
 import type { EnhancedChapter } from './stableIdService';
 import { normalizeUrlAggressively, generateStableChapterId } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 import { HtmlRepairService } from './translate/HtmlRepairService';
+import { ChapterOps, FeedbackOps, TranslationOps } from './db/operations';
 
-const slog = (...args: any[]) => debugLog('translation', 'summary', ...args);
-const swarn = (...args: any[]) => debugWarn('translation', 'summary', ...args);
+const slog = (message: string, ...args: any[]) => debugLog('translation', 'summary', message, ...args);
+const swarn = (message: string, ...args: any[]) => debugWarn('translation', 'summary', message, ...args);
 
 export interface TranslationContext {
   chapters: Map<string, EnhancedChapter>;
@@ -26,9 +26,8 @@ export interface TranslationContext {
   activePromptTemplate?: PromptTemplate;
 }
 
-export interface TranslationResult {
-  translationResult?: any; // TranslationResult type
-  proposal?: any; // AmendmentProposal type
+export interface TranslateChapterResponse {
+  translationResult?: TranslationResult;
   error?: string;
   aborted?: boolean;
 }
@@ -82,7 +81,7 @@ export class TranslationService {
     chapterId: string,
     context: TranslationContext,
     buildHistoryFn?: (chapterId: string) => HistoricalChapter[] | Promise<HistoricalChapter[]>
-  ): Promise<TranslationResult> {
+  ): Promise<TranslateChapterResponse> {
     return this.runSequential(() => this.translateChapter(chapterId, context, buildHistoryFn));
   }
 
@@ -93,7 +92,7 @@ export class TranslationService {
     chapterId: string,
     context: TranslationContext,
     buildHistoryFn?: (chapterId: string) => HistoricalChapter[] | Promise<HistoricalChapter[]>
-  ): Promise<TranslationResult> {
+  ): Promise<TranslateChapterResponse> {
     const { chapters, settings, activePromptTemplate } = context;
     const chapterToTranslate = chapters.get(chapterId);
 
@@ -182,7 +181,7 @@ export class TranslationService {
 
       // Persist translation to IndexedDB
       try {
-        const storedRecord = await indexedDBService.storeTranslationByStableId(chapterId, result as any, {
+        const storedRecord = await TranslationOps.storeByStableId(chapterId, result as TranslationResult, {
           provider: settings.provider,
           model: settings.model,
           temperature: settings.temperature,
@@ -200,7 +199,7 @@ export class TranslationService {
         console.warn('[TranslationService] Failed to persist translation version', e);
       }
 
-      return result;
+      return { translationResult: result };
 
     } catch (e: any) {
       if (e.name === 'AbortError') {
@@ -278,7 +277,7 @@ export class TranslationService {
         for (const t of targets) dbByNumber[t] = { found: false };
 
         for (const num of targets) {
-          const dbCh = await indexedDBService.findChapterByNumber(num);
+          const dbCh = await ChapterOps.findByNumber(num);
           if (!dbCh) continue;
 
           dbByNumber[num].found = true;
@@ -288,7 +287,7 @@ export class TranslationService {
 
           if (stableId) {
             try {
-              const active = await indexedDBService.ensureActiveTranslationByStableId(stableId);
+              const active = await TranslationOps.ensureActiveByStableId(stableId);
               dbByNumber[num].hasActiveTranslation = !!active;
             } catch {
               dbByNumber[num].hasActiveTranslation = false;
@@ -464,7 +463,7 @@ export class TranslationService {
       const dbCandidates: Array<{ number: number; history: HistoricalChapter }> = [];
 
       for (const num of missingNumbers) {
-        const chapterRecord = await indexedDBService.findChapterByNumber(num);
+        const chapterRecord = await ChapterOps.findByNumber(num);
         if (!chapterRecord || !chapterRecord.content) continue;
 
         let stableId = chapterRecord.stableId;
@@ -474,9 +473,9 @@ export class TranslationService {
 
         if (!stableId) continue;
 
-        let activeTranslation = await indexedDBService.ensureActiveTranslationByStableId(stableId);
+        let activeTranslation = await TranslationOps.ensureActiveByStableId(stableId);
         if (!activeTranslation) {
-          const fallbackVersions = await indexedDBService.getTranslationVersions(chapterRecord.url).catch(() => []);
+          const fallbackVersions = await TranslationOps.getVersionsByUrl(chapterRecord.url).catch(() => []);
           if (fallbackVersions.length) {
             fallbackVersions.sort((a, b) => b.version - a.version);
             activeTranslation = fallbackVersions[0];
@@ -485,7 +484,7 @@ export class TranslationService {
         if (!activeTranslation) continue;
 
         // Load feedback from IndexedDB
-        const feedbackRecords = await indexedDBService.getFeedback(chapterRecord.url).catch(() => []);
+        const feedbackRecords = await FeedbackOps.get(chapterRecord.url).catch(() => []);
         const feedback = feedbackRecords.map(record => this.convertFeedbackRecordToItem(record));
 
         dbCandidates.push({
@@ -552,12 +551,12 @@ export class TranslationService {
 
         if (!matched) {
           // Try IndexedDB lookup
-          const dbRec = await indexedDBService.findChapterByUrl(cursorPrev);
+          const dbRec = await ChapterOps.findByUrl(cursorPrev);
           if (dbRec) {
             const stableId = dbRec.stableId || generateStableChapterId(dbRec.data?.chapter?.content || dbRec.content || '', dbRec.data?.chapter?.chapterNumber || dbRec.chapterNumber || 0, dbRec.title || '');
-            let active = stableId ? await indexedDBService.ensureActiveTranslationByStableId(stableId) : null;
+            let active = stableId ? await TranslationOps.ensureActiveByStableId(stableId) : null;
             if (!active && dbRec.canonicalUrl) {
-              const versions = await indexedDBService.getTranslationVersions(dbRec.canonicalUrl).catch(() => []);
+              const versions = await TranslationOps.getVersionsByUrl(dbRec.canonicalUrl).catch(() => []);
               if (versions.length) {
                 versions.sort((a, b) => b.version - a.version);
                 active = versions[0];
@@ -567,7 +566,7 @@ export class TranslationService {
             const title = dbRec.data?.chapter?.title || dbRec.title;
             if (active && content) {
               // Load feedback from IndexedDB
-              const feedbackRecords = await indexedDBService.getFeedback(cursorPrev).catch(() => []);
+              const feedbackRecords = await FeedbackOps.get(cursorPrev).catch(() => []);
               const feedback = feedbackRecords.map(record => this.convertFeedbackRecordToItem(record));
 
               results.push({
@@ -614,7 +613,7 @@ export class TranslationService {
             if (inferred <= 0) break;
             const link = links[i];
             if (link.stableId) {
-              try { await indexedDBService.setChapterNumberByStableId(link.stableId, inferred); } catch {}
+              try { await ChapterOps.setChapterNumberByStableId(link.stableId, inferred); } catch {}
             }
             if (link.memChapter) {
               try { (link.memChapter as any).chapterNumber = inferred; } catch {}
@@ -648,9 +647,33 @@ export class TranslationService {
   /**
    * Extract relevant settings snapshot for translation persistence
    */
-  static extractSettingsSnapshot(settings: AppSettings): Partial<AppSettings> {
-    const { provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt } = settings;
-    return { provider, model, temperature, topP, frequencyPenalty, presencePenalty, seed, contextDepth, systemPrompt };
+  static extractSettingsSnapshot(settings: AppSettings): TranslationSettingsSnapshot {
+    const {
+      provider,
+      model,
+      temperature,
+      topP,
+      frequencyPenalty,
+      presencePenalty,
+      seed,
+      contextDepth,
+      systemPrompt,
+      promptId,
+      promptName,
+    } = settings;
+    return {
+      provider,
+      model,
+      temperature,
+      topP,
+      frequencyPenalty,
+      presencePenalty,
+      seed,
+      contextDepth,
+      systemPrompt,
+      promptId,
+      promptName,
+    };
   }
 
   /**

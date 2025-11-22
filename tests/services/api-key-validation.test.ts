@@ -13,6 +13,27 @@ vi.mock('../../services/env', () => ({
   hasEnvVar: vi.fn((key: string) => mockEnv[key] !== undefined),
 }));
 
+const createSettings = (overrides: Partial<AppSettings>): AppSettings => ({
+  contextDepth: 2,
+  preloadCount: 0,
+  fontSize: 16,
+  fontStyle: 'serif',
+  lineHeight: 1.6,
+  systemPrompt: '',
+  provider: 'Gemini',
+  model: 'gemini-1.5-flash',
+  temperature: 0.7,
+  apiKeyGemini: '',
+  apiKeyOpenAI: '',
+  apiKeyDeepSeek: '',
+  apiKeyClaude: '',
+  apiKeyOpenRouter: '',
+  imageModel: 'imagen-test-model',
+  includeFanTranslationInPrompt: true,
+  showDiffHeatmap: false,
+  ...overrides,
+});
+
 describe('validateApiKey', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -28,15 +49,10 @@ describe('validateApiKey', () => {
 
     describe('Gemini Provider', () => {
         it('should validate with settings API key', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'Gemini',
                 apiKeyGemini: 'user-gemini-key',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
-                model: 'gemini-1.5-flash',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -45,15 +61,9 @@ describe('validateApiKey', () => {
         });
 
         it('should validate with environment API key when settings key is empty', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'Gemini',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
-                model: 'gemini-1.5-flash',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -64,15 +74,9 @@ describe('validateApiKey', () => {
         it('should fail when no API key is available', () => {
             resetMockEnv({});
             
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'Gemini',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
-                model: 'gemini-1.5-flash',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -82,15 +86,10 @@ describe('validateApiKey', () => {
         });
 
         it('should fail when API key is whitespace only', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'Gemini',
                 apiKeyGemini: '   \t\n   ',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
-                model: 'gemini-1.5-flash',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -102,15 +101,11 @@ describe('validateApiKey', () => {
 
     describe('OpenAI Provider', () => {
         it('should validate with settings API key', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'OpenAI',
-                apiKeyGemini: '',
                 apiKeyOpenAI: 'user-openai-key',
-                apiKeyDeepSeek: '',
                 model: 'gpt-4o',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -119,15 +114,10 @@ describe('validateApiKey', () => {
         });
 
         it('should validate with environment API key', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'OpenAI',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
                 model: 'gpt-4o',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -138,15 +128,10 @@ describe('validateApiKey', () => {
         it('should fail when no API key is available', () => {
             resetMockEnv({});
             
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'OpenAI',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
                 model: 'gpt-4o',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -158,15 +143,11 @@ describe('validateApiKey', () => {
 
     describe('DeepSeek Provider', () => {
         it('should validate with settings API key', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'DeepSeek',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
                 apiKeyDeepSeek: 'user-deepseek-key',
                 model: 'deepseek-chat',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -175,15 +156,10 @@ describe('validateApiKey', () => {
         });
 
         it('should validate with environment API key', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'DeepSeek',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
                 model: 'deepseek-chat',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -194,15 +170,10 @@ describe('validateApiKey', () => {
         it('should fail when no API key is available', () => {
             resetMockEnv({});
             
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'DeepSeek',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
                 model: 'deepseek-chat',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -214,15 +185,10 @@ describe('validateApiKey', () => {
 
     describe('Edge Cases', () => {
         it('should handle unknown provider', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'UnknownProvider' as any,
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
                 model: 'some-model',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -231,15 +197,11 @@ describe('validateApiKey', () => {
         });
 
         it('should prefer settings key over environment key', () => {
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'OpenAI',
-                apiKeyGemini: '',
                 apiKeyOpenAI: 'settings-key',
-                apiKeyDeepSeek: '',
                 model: 'gpt-4o',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -250,15 +212,10 @@ describe('validateApiKey', () => {
         it('should handle missing process object gracefully', () => {
             resetMockEnv({});
             
-            const settings: AppSettings = {
+            const settings = createSettings({
                 provider: 'OpenAI',
-                apiKeyGemini: '',
-                apiKeyOpenAI: '',
-                apiKeyDeepSeek: '',
                 model: 'gpt-4o',
-                systemPrompt: '',
-                temperature: 0.7
-            };
+            });
 
             const result = validateApiKey(settings);
             
@@ -279,15 +236,10 @@ describe('validateApiKey', () => {
             ];
 
             providers.forEach(({ provider, expectedName }) => {
-                const settings: AppSettings = {
+                const settings = createSettings({
                     provider,
-                    apiKeyGemini: '',
-                    apiKeyOpenAI: '',
-                    apiKeyDeepSeek: '',
                     model: 'test-model',
-                    systemPrompt: '',
-                    temperature: 0.7
-                };
+                });
 
                 const result = validateApiKey(settings);
                 

@@ -1,12 +1,12 @@
 // tests/utils/db-harness.ts
-import { indexedDBService } from '@/services/indexeddb'
+import { getConnection } from '@/services/db/core/connection';
 
 /**
  * Helper to get a direct handle to the database for test assertions.
  * This bypasses the service's singleton logic to get a fresh connection for setup/teardown.
  */
 export async function getTestDB() {
-  return await indexedDBService.openDatabase()
+  return await getConnection();
 }
 
 /**

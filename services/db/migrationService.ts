@@ -8,10 +8,37 @@
  * - Data transformation and compatibility
  */
 
-import { indexedDBService } from '../indexeddb';
+import { translationFacade } from './repositories/translationFacade';
+import type { AppSettings, TranslationResult, FeedbackItem } from '../../types';
+import { ChapterOps, FeedbackOps, SettingsOps } from './operations';
 
 // Migration state tracking
 let migrationInProgress = false;
+
+const FALLBACK_TRANSLATION_SETTINGS: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> = {
+  provider: 'OpenAI',
+  model: 'gpt-4o-mini',
+  temperature: 0.2,
+  systemPrompt: '',
+};
+
+function resolveMigrationSettings(
+  result: TranslationResult
+): Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+  promptId?: string;
+  promptName?: string;
+} {
+  const snapshot = result.translationSettings ?? null;
+
+  return {
+    provider: (result.provider as AppSettings['provider']) ?? (snapshot?.provider as AppSettings['provider']) ?? FALLBACK_TRANSLATION_SETTINGS.provider,
+    model: result.model ?? snapshot?.model ?? FALLBACK_TRANSLATION_SETTINGS.model,
+    temperature: result.temperature ?? snapshot?.temperature ?? FALLBACK_TRANSLATION_SETTINGS.temperature,
+    systemPrompt: snapshot?.systemPrompt ?? FALLBACK_TRANSLATION_SETTINGS.systemPrompt,
+    promptId: result.promptId ?? snapshot?.promptId ?? undefined,
+    promptName: result.promptName ?? snapshot?.promptName ?? undefined,
+  };
+}
 
 /**
  * Migrate data from localStorage to IndexedDB
@@ -59,18 +86,16 @@ export async function migrateFromLocalStorage(): Promise<void> {
           if (data && typeof data === 'object') {
             // Store chapter data
             if ((data as any).chapter) {
-              await indexedDBService.storeChapter((data as any).chapter, url);
+              await ChapterOps.store((data as any).chapter as any);
             }
             
             // Store translation data
             if ((data as any).translationResult) {
-              await indexedDBService.storeTranslationVersion(
+              const migrationSettings = resolveMigrationSettings((data as any).translationResult);
+              await translationFacade.storeByUrl(
                 url,
                 (data as any).translationResult,
-                {
-                  source: 'localStorage_migration',
-                  timestamp: new Date().toISOString()
-                }
+                migrationSettings
               );
             }
           }
@@ -86,7 +111,7 @@ export async function migrateFromLocalStorage(): Promise<void> {
       const settingsStr = localStorage.getItem('app-settings');
       if (settingsStr) {
         const settings = JSON.parse(settingsStr);
-        await indexedDBService.storeAppSettings(settings);
+        await SettingsOps.store(settings as AppSettings);
         console.log('[Migration] ✅ Settings migration completed');
       }
     } catch (error) {
@@ -103,7 +128,7 @@ export async function migrateFromLocalStorage(): Promise<void> {
         for (const [url, feedbackList] of Object.entries(feedbackHistory as any)) {
           if (Array.isArray(feedbackList)) {
             for (const feedback of feedbackList) {
-              await indexedDBService.storeFeedbackItem(url, feedback);
+              await FeedbackOps.store(url, feedback as FeedbackItem);
             }
           }
         }

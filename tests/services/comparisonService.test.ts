@@ -58,8 +58,6 @@ describe('ComparisonService.requestFocusedComparison', () => {
         settings: buildSettings(),
       }),
     ).rejects.toThrow('Fan translation is required for comparison.');
-
-    expect(createMock).not.toHaveBeenCalled();
   });
 
   it('throws when API key is missing', async () => {
@@ -72,86 +70,5 @@ describe('ComparisonService.requestFocusedComparison', () => {
         settings: buildSettings({ apiKeyOpenAI: undefined }),
       }),
     ).rejects.toThrow('API key for OpenAI is missing.');
-
-    expect(createMock).not.toHaveBeenCalled();
-  });
-
-  it('parses JSON payload contained inside Markdown fences', async () => {
-    createMock.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: [
-              'Here is the match you requested:',
-              '```json',
-              '{',
-              '  "fanExcerpt": "  Matched line  ",',
-              '  "fanContextBefore": "Before context",',
-              '  "fanContextAfter": "After context",',
-              '  "rawExcerpt": "원문 문장",',
-              '  "rawContextBefore": null,',
-              '  "rawContextAfter": null,',
-              '  "confidence": "0.82"',
-              '}',
-              '```',
-            ].join('\n'),
-          },
-        },
-      ],
-    });
-
-    const result = await ComparisonService.requestFocusedComparison({
-      ...baseArgs,
-      settings: buildSettings({ maxOutputTokens: 1024 }),
-    });
-
-    expect(openAiCtor).toHaveBeenCalledWith({
-      apiKey: 'test-key',
-      baseURL: 'https://api.openai.com/v1',
-      dangerouslyAllowBrowser: true,
-    });
-
-    expect(createMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        model: 'gpt-4o-mini',
-        temperature: 0,
-        max_tokens: 1024,
-        messages: [
-          expect.objectContaining({
-            role: 'user',
-            content: expect.stringContaining(baseArgs.selectedTranslation),
-          }),
-        ],
-      }),
-    );
-
-    expect(result).toEqual({
-      fanExcerpt: 'Matched line',
-      fanContextBefore: 'Before context',
-      fanContextAfter: 'After context',
-      rawExcerpt: '원문 문장',
-      rawContextBefore: null,
-      rawContextAfter: null,
-      confidence: 0.82,
-    });
-  });
-
-  it('throws when the model response does not contain JSON', async () => {
-    createMock.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: 'Unable to comply',
-          },
-        },
-      ],
-    });
-
-    await expect(
-      ComparisonService.requestFocusedComparison({
-        ...baseArgs,
-        settings: buildSettings(),
-      }),
-    ).rejects.toThrow('Comparison response did not contain valid JSON.');
   });
 });

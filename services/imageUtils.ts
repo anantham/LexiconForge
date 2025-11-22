@@ -82,7 +82,9 @@ export const resizeImage = async (
     const originalOnload = img.onload;
     img.onload = () => {
       try {
-        originalOnload?.();
+        if (originalOnload) {
+          originalOnload.call(img, new Event('load'));
+        }
       } finally {
         cleanup();
       }

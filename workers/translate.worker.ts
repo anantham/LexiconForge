@@ -88,10 +88,10 @@ async function handleTranslationJob(job: TranslationJob) {
         history.push({
           originalTitle: chapter.title,
           originalContent: chapter.content,
-          translatedContent: JSON.stringify({
-            translatedTitle: result.translatedTitle,
-            translation: result.translation
-          })
+          translatedTitle: result.translatedTitle,
+          translatedContent: result.translation,
+          footnotes: result.footnotes ?? [],
+          feedback: [],
         });
 
         // Keep history manageable (last 3 translations)
@@ -122,6 +122,9 @@ async function handleTranslationJob(job: TranslationJob) {
         results.push({
           translatedTitle: `[ERROR] ${chapter.title}`,
           translation: `Translation failed: ${error.message}`,
+          footnotes: [],
+          proposal: null,
+          suggestedIllustrations: [],
           illustrations: [],
           amendments: [],
           model: settings.model,
@@ -131,7 +134,16 @@ async function handleTranslationJob(job: TranslationJob) {
             model: settings.model,
             temperature: settings.temperature,
             systemPrompt: settings.systemPrompt,
-          }
+          },
+          usageMetrics: {
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+            estimatedCost: 0,
+            requestTime: 0,
+            provider: settings.provider,
+            model: settings.model,
+          },
         });
       }
     }

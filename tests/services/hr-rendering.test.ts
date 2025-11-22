@@ -129,8 +129,11 @@ describe('HR Tag Rendering', () => {
     const tokens = buildTranslationTokens(input, 'test', { value: 0 });
 
     expect(tokens).toHaveLength(3);
-    expect(tokens[1].type).toBe('hr');
-    expect(tokens[1].raw).toBe('<hr />');
+    const hrToken = tokens[1];
+    expect(hrToken.type).toBe('hr');
+    if (hrToken.type === 'hr') {
+      expect(hrToken.raw).toBe('<hr />');
+    }
   });
 
   it('should handle multiple <hr> tags in sequence', () => {
@@ -188,7 +191,11 @@ describe('HR Tag Rendering', () => {
       const tokens = buildTranslationTokens(`Before${variant}After`, 'test', { value: 0 });
       const hrToken = tokens.find(t => t.type === 'hr');
       expect(hrToken).toBeDefined();
-      expect(hrToken?.raw).toBe(variant);
+      if (hrToken && hrToken.type === 'hr') {
+        expect(hrToken.raw).toBe(variant);
+      } else {
+        throw new Error('Expected hr token for variant test');
+      }
     });
   });
 

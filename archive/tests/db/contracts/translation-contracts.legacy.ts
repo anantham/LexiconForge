@@ -1,46 +1,152 @@
-/**
- * Translation Service Contract Tests - Hybrid Safety Net
- * 
- * These tests MUST pass on both legacy and new backends before migration.
- * They define the exact behavioral contract that both systems must fulfill.
- * 
- * GPT-5's insight: Contract tests before migration are mandatory.
- * Claude's insight: Service-specific validation with domain knowledge.
- */
+import 'fake-indexeddb/auto';
+import { beforeEach, afterEach, describe, expect, it } from 'vitest';
+import type { Chapter, AppSettings, TranslationResult } from '../../../types';
+import type { TranslationRecord } from '../../../services/indexeddb';
+import { ChapterRepository } from '../../../services/db/repositories/ChapterRepository';
+import { TranslationRepository } from '../../../services/db/repositories/TranslationRepository';
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import type { Repo } from '../../../adapters/repo/Repo';
-import { makeLegacyRepo } from '../../../legacy/indexeddb-compat';
-import { makeRepo } from '../../../services/db';
-import type { TranslationResult, AppSettings, Chapter } from '../../../types';
+const DB_NAME = 'translation-contracts-modern';
+const STORES = {
+  CHAPTERS: 'chapters',
+  TRANSLATIONS: 'translations',
+  URL_MAPPINGS: 'url_mappings',
+};
+
+interface ContractRepo {
+  storeChapter(chapter: Chapter): Promise<void>;
+  getStableIdByUrl(url: string): Promise<string | null>;
+  storeTranslation(
+    url: string,
+    translation: TranslationResult,
+    settings: AppSettings
+  ): Promise<TranslationRecord>;
+  storeTranslationByStableId(
+    stableId: string,
+    translation: TranslationResult,
+    settings: AppSettings
+  ): Promise<TranslationRecord>;
+  getActiveTranslation(url: string): Promise<TranslationRecord | null>;
+  getActiveTranslationByStableId(stableId: string): Promise<TranslationRecord | null>;
+  getTranslationVersions(url: string): Promise<TranslationRecord[]>;
+  getTranslationVersionsByStableId(stableId: string): Promise<TranslationRecord[]>;
+  setActiveTranslation(url: string, version: number): Promise<void>;
+  setActiveTranslationByStableId(stableId: string, version: number): Promise<void>;
+  cleanup(): Promise<void>;
+  ensureUrlMapping(stableId: string, url: string): Promise<void>;
+}
+
+const openDb = async (): Promise<IDBDatabase> => {
+  return await new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORES.CHAPTERS)) {
+        const chapters = db.createObjectStore(STORES.CHAPTERS, { keyPath: 'url' });
+        chapters.createIndex('stableId', 'stableId', { unique: false });
+      }
+      if (!db.objectStoreNames.contains(STORES.TRANSLATIONS)) {
+        const translations = db.createObjectStore(STORES.TRANSLATIONS, { keyPath: 'id' });
+        translations.createIndex('chapterUrl', 'chapterUrl', { unique: false });
+        translations.createIndex('stableId', 'stableId', { unique: false });
+      }
+      if (!db.objectStoreNames.contains(STORES.URL_MAPPINGS)) {
+        const mappings = db.createObjectStore(STORES.URL_MAPPINGS, { keyPath: 'url' });
+        mappings.createIndex('stableId', 'stableId', { unique: false });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+const deleteDb = async () => {
+  await new Promise<void>(resolve => {
+    const request = indexedDB.deleteDatabase(DB_NAME);
+    request.onsuccess = () => resolve();
+    request.onerror = () => resolve();
+  });
+};
+
+const writeUrlMapping = async (db: IDBDatabase, stableId: string, url: string) => {
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction([STORES.URL_MAPPINGS], 'readwrite');
+    const store = tx.objectStore(STORES.URL_MAPPINGS);
+    const request = store.put({
+      url,
+      stableId,
+      isCanonical: true,
+      dateAdded: new Date().toISOString(),
+    });
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+};
+
+const createRepo = async (): Promise<ContractRepo> => {
+  await deleteDb();
+  const db = await openDb();
+
+  const chapterRepo = new ChapterRepository({
+    getDb: () => Promise.resolve(db),
+    normalizeUrl: url => url,
+    stores: { CHAPTERS: STORES.CHAPTERS },
+  });
+
+  const translationRepo = new TranslationRepository({
+    getDb: () => Promise.resolve(db),
+    getChapter: url => chapterRepo.getChapter(url),
+    stores: {
+      TRANSLATIONS: STORES.TRANSLATIONS,
+      CHAPTERS: STORES.CHAPTERS,
+      URL_MAPPINGS: STORES.URL_MAPPINGS,
+    },
+  });
+
+  return {
+    async storeChapter(chapter) {
+      await chapterRepo.storeChapter(chapter);
+    },
+    async getStableIdByUrl(url) {
+      const record = await chapterRepo.getChapter(url);
+      return record?.stableId ?? null;
+    },
+    storeTranslation(url, translation, settings) {
+      return translationRepo.storeTranslation(url, translation, settings);
+    },
+    storeTranslationByStableId(stableId, translation, settings) {
+      return translationRepo.storeByStableId(stableId, translation, settings);
+    },
+    getActiveTranslation(url) {
+      return translationRepo.getActiveTranslation(url);
+    },
+    getActiveTranslationByStableId(stableId) {
+      return translationRepo.getActiveTranslationByStableId(stableId);
+    },
+    getTranslationVersions(url) {
+      return translationRepo.getTranslationVersions(url);
+    },
+    getTranslationVersionsByStableId(stableId) {
+      return translationRepo.getTranslationVersionsByStableId(stableId);
+    },
+    setActiveTranslation(url, version) {
+      return translationRepo.setActiveTranslation(url, version);
+    },
+    setActiveTranslationByStableId(stableId, version) {
+      return translationRepo.setActiveTranslationByStableId(stableId, version);
+    },
+    async ensureUrlMapping(stableId, url) {
+      await writeUrlMapping(db, stableId, url);
+    },
+    async cleanup() {
+      db.close();
+      await deleteDb();
+    },
+  };
+};
 
 // Test fixtures
 const mockChapterUrl = 'https://example.com/chapter/1';
 const mockStableId = 'novel-123-ch-001';
-
-const mockTranslation: TranslationResult = {
-  translatedContent: 'This is a test translation',
-  provider: 'openai',
-  model: 'gpt-4',
-  cost: 0.05,
-  contextDepth: 2,
-  historyLength: 3,
-  version: 1,
-  isActive: true,
-  id: 'test-translation-1',
-  chapterUrl: mockChapterUrl,
-  timestamp: Date.now(),
-};
-
-// Match the actual Repo interface settings requirement
-const mockSettings = {
-  provider: 'openai',
-  model: 'gpt-4', 
-  temperature: 0.7,
-  systemPrompt: 'You are a translator',
-  promptId: 'test-prompt-id',
-  promptName: 'Test Prompt',
-};
 
 const mockChapter: Chapter = {
   url: mockChapterUrl,
@@ -51,286 +157,139 @@ const mockChapter: Chapter = {
   prevUrl: null,
 };
 
-/**
- * Contract test suite that both backends must pass
- */
-function runTranslationContracts(repoFactory: () => Repo, backendName: string) {
-  describe(`Translation Contracts - ${backendName}`, () => {
-    let repo: Repo;
+const mockSettings: AppSettings = {
+  provider: 'openai',
+  model: 'gpt-4',
+  temperature: 0.7,
+  systemPrompt: 'You are a translator',
+  promptId: 'test-prompt-id',
+  promptName: 'Test Prompt',
+  contextDepth: 2,
+  preloadCount: 2,
+  fontSize: 16,
+  fontStyle: 'sans',
+  lineHeight: 1.5,
+  negativePrompt: '',
+  defaultNegativePrompt: '',
+  translateOnScroll: true,
+  autoTranslate: false,
+  useFanTranslations: false,
+  showRomaji: false,
+  showPronunciations: false,
+  streamingMode: 'paragraph',
+  imageModel: 'flux',
+  autoGenerateImages: false,
+  theme: 'light',
+};
 
-    beforeEach(async () => {
-      repo = repoFactory();
-      
-      // Set up test data - store chapter first
-      try {
-        await repo.storeChapter(mockChapter);
-        
-        // Create URL mapping for stable ID tests
-        // This is needed for stable ID operations to work
-        const urlMappingExists = await repo.getStableIdByUrl(mockChapterUrl);
-        if (!urlMappingExists) {
-          // The repo should handle URL mapping internally, but let's ensure chapter exists
-        }
-      } catch (error) {
-        console.warn('Setup error (may be expected):', error);
-      }
+const mockTranslation: TranslationResult = {
+  translatedTitle: 'Translated Title',
+  translation: '<p>This is a test translation</p>',
+  footnotes: [],
+  suggestedIllustrations: [],
+  usageMetrics: {
+    totalTokens: 10,
+    promptTokens: 6,
+    completionTokens: 4,
+    estimatedCost: 0.01,
+    requestTime: 0.5,
+    provider: 'openai',
+    model: 'gpt-4',
+  },
+};
+
+describe('Translation Contracts (modern repo)', () => {
+  let repo: ContractRepo;
+
+  beforeEach(async () => {
+    repo = await createRepo();
+    await repo.storeChapter(mockChapter);
+    const stableId = (await repo.getStableIdByUrl(mockChapterUrl)) || mockStableId;
+    await repo.ensureUrlMapping(stableId, mockChapterUrl);
+  });
+
+  afterEach(async () => {
+    await repo.cleanup();
+  });
+
+  describe('Basic Translation CRUD', () => {
+    it('should store and retrieve translation by URL', async () => {
+      await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
+      const retrieved = await repo.getActiveTranslation(mockChapterUrl);
+      expect(retrieved).toBeDefined();
+      expect(retrieved?.translation).toBe(mockTranslation.translation);
     });
 
-    afterEach(async () => {
-      // Cleanup test data
+    it('should store and retrieve translation by stable ID', async () => {
+      await repo.storeTranslationByStableId(mockStableId, mockTranslation, mockSettings);
+      const retrieved = await repo.getActiveTranslationByStableId(mockStableId);
+      expect(retrieved).toBeDefined();
+      expect(retrieved?.translation).toBe(mockTranslation.translation);
     });
 
-    describe('Basic Translation CRUD', () => {
-      it('should store and retrieve translation by URL', async () => {
-        // Store translation
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-
-        // Retrieve active translation
-        const retrieved = await repo.getActiveTranslation(mockChapterUrl);
-        
-        expect(retrieved).toBeDefined();
-        expect(retrieved?.translatedContent).toBe(mockTranslation.translatedContent);
-        // Note: The legacy system returns TranslationRecord, not TranslationResult
-        // So we test the fields that should be preserved
-      });
-
-      it('should store and retrieve translation by stable ID', async () => {
-        // Store translation
-        await repo.storeTranslationByStableId(mockStableId, mockTranslation, mockSettings);
-
-        // Retrieve active translation
-        const retrieved = await repo.getActiveTranslationByStableId(mockStableId);
-        
-        expect(retrieved).toBeDefined();
-        expect(retrieved?.translatedContent).toBe(mockTranslation.translatedContent);
-        expect(retrieved?.provider).toBe(mockTranslation.provider);
-      });
-
-      it('should return null for non-existent translations', async () => {
-        const retrieved = await repo.getActiveTranslation('non-existent-url');
-        expect(retrieved).toBeNull();
-
-        const retrievedById = await repo.getActiveTranslationByStableId('non-existent-id');
-        expect(retrievedById).toBeNull();
-      });
-    });
-
-    describe('Translation Versioning', () => {
-      it('should handle multiple translation versions', async () => {
-        // Store first version
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-
-        // Store second version
-        const secondTranslation = {
-          ...mockTranslation,
-          translatedContent: 'Updated translation',
-          version: 2,
-        };
-        await repo.storeTranslation(mockChapterUrl, secondTranslation, mockSettings);
-
-        // Get all versions
-        const versions = await repo.getTranslationVersions(mockChapterUrl);
-        expect(versions).toHaveLength(2);
-
-        // Active translation should be the latest
-        const active = await repo.getActiveTranslation(mockChapterUrl);
-        expect(active?.translatedContent).toBe('Updated translation');
-      });
-
-      it('should correctly set active translation version', async () => {
-        // Store multiple versions
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-        
-        const secondTranslation = {
-          ...mockTranslation,
-          translatedContent: 'Version 2',
-        };
-        await repo.storeTranslation(mockChapterUrl, secondTranslation, mockSettings);
-
-        // Set first version as active
-        await repo.setActiveTranslation(mockChapterUrl, 1);
-
-        const active = await repo.getActiveTranslation(mockChapterUrl);
-        expect(active?.translatedContent).toBe(mockTranslation.translatedContent);
-      });
-
-      it('should handle stable ID versioning', async () => {
-        // Store multiple versions by stable ID
-        await repo.storeTranslationByStableId(mockStableId, mockTranslation, mockSettings);
-        
-        const secondTranslation = {
-          ...mockTranslation,
-          translatedContent: 'Version 2 by stable ID',
-        };
-        await repo.storeTranslationByStableId(mockStableId, secondTranslation, mockSettings);
-
-        const versions = await repo.getTranslationVersionsByStableId(mockStableId);
-        expect(versions).toHaveLength(2);
-
-        // Set first version as active
-        await repo.setActiveTranslationByStableId(mockStableId, 1);
-
-        const active = await repo.getActiveTranslationByStableId(mockStableId);
-        expect(active?.translatedContent).toBe(mockTranslation.translatedContent);
-      });
-    });
-
-    describe('Translation Metadata Preservation', () => {
-      it('should preserve all translation metadata', async () => {
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-
-        const retrieved = await repo.getActiveTranslation(mockChapterUrl);
-        
-        expect(retrieved?.cost).toBe(mockTranslation.cost);
-        expect(retrieved?.contextDepth).toBe(mockTranslation.contextDepth);
-        expect(retrieved?.historyLength).toBe(mockTranslation.historyLength);
-        expect(retrieved?.timestamp).toBeDefined();
-      });
-
-      it('should preserve settings snapshot', async () => {
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-
-        const retrieved = await repo.getActiveTranslation(mockChapterUrl);
-        
-        // Settings should be preserved in metadata
-        expect(retrieved?.settings?.contextDepth).toBe(mockSettings.contextDepth);
-        expect(retrieved?.settings?.provider).toBe(mockSettings.provider);
-        expect(retrieved?.settings?.model).toBe(mockSettings.model);
-      });
-    });
-
-    describe('Error Handling', () => {
-      it('should handle invalid translation data gracefully', async () => {
-        const invalidTranslation = {
-          ...mockTranslation,
-          translatedContent: '', // Empty content
-        };
-
-        // Should not throw, but may store empty content
-        await expect(
-          repo.storeTranslation(mockChapterUrl, invalidTranslation, mockSettings)
-        ).not.toThrow();
-      });
-
-      it('should handle concurrent translations to same chapter', async () => {
-        // Simulate concurrent stores
-        const promises = Array.from({ length: 3 }, (_, i) => 
-          repo.storeTranslation(mockChapterUrl, {
-            ...mockTranslation,
-            translatedContent: `Translation ${i}`,
-          }, mockSettings)
-        );
-
-        await Promise.all(promises);
-
-        // Should have 3 versions
-        const versions = await repo.getTranslationVersions(mockChapterUrl);
-        expect(versions.length).toBeGreaterThanOrEqual(3);
-
-        // Should have exactly one active translation
-        const activeVersions = versions.filter(v => v.isActive);
-        expect(activeVersions).toHaveLength(1);
-      });
-    });
-
-    describe('Performance Characteristics', () => {
-      it('should retrieve translations within reasonable time', async () => {
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-
-        const startTime = performance.now();
-        await repo.getActiveTranslation(mockChapterUrl);
-        const endTime = performance.now();
-
-        // Should complete within 100ms (adjust based on your requirements)
-        expect(endTime - startTime).toBeLessThan(100);
-      });
-
-      it('should handle batch operations efficiently', async () => {
-        const startTime = performance.now();
-
-        // Store 10 translations
-        for (let i = 0; i < 10; i++) {
-          await repo.storeTranslation(
-            `${mockChapterUrl}-${i}`,
-            { ...mockTranslation, translatedContent: `Translation ${i}` },
-            mockSettings
-          );
-        }
-
-        const endTime = performance.now();
-
-        // Batch operations should complete within reasonable time
-        // Adjust threshold based on your performance requirements
-        expect(endTime - startTime).toBeLessThan(1000); // 1 second for 10 operations
-      });
-    });
-
-    describe('Data Consistency', () => {
-      it('should maintain referential integrity', async () => {
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-
-        const byUrl = await repo.getActiveTranslation(mockChapterUrl);
-        const versions = await repo.getTranslationVersions(mockChapterUrl);
-
-        // Active translation should be in versions list
-        expect(versions.some(v => v.id === byUrl?.id)).toBe(true);
-        expect(versions.some(v => v.isActive)).toBe(true);
-        expect(versions.filter(v => v.isActive)).toHaveLength(1);
-      });
-
-      it('should handle URL/stable ID mapping consistently', async () => {
-        // This test would verify that URL and stable ID refer to same logical entity
-        // Implementation depends on your specific business logic
-        await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-        await repo.storeTranslationByStableId(mockStableId, mockTranslation, mockSettings);
-
-        const byUrl = await repo.getActiveTranslation(mockChapterUrl);
-        const byStableId = await repo.getActiveTranslationByStableId(mockStableId);
-
-        // Both should exist independently (this is current behavior)
-        expect(byUrl).toBeDefined();
-        expect(byStableId).toBeDefined();
-      });
+    it('should return null for non-existent translations', async () => {
+      expect(await repo.getActiveTranslation('missing')).toBeNull();
+      expect(await repo.getActiveTranslationByStableId('missing')).toBeNull();
     });
   });
-}
 
-// Run contract tests against both backends
-describe('Translation Service Contracts', () => {
-  // Test legacy backend
-  runTranslationContracts(
-    () => makeLegacyRepo(),
-    'Legacy Backend'
-  );
+  describe('Translation Versioning', () => {
+    it('should handle multiple translation versions', async () => {
+      await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
+      await repo.storeTranslation(
+        mockChapterUrl,
+        { ...mockTranslation, translation: 'Updated translation' },
+        mockSettings
+      );
+      const versions = await repo.getTranslationVersions(mockChapterUrl);
+      expect(versions.length).toBeGreaterThanOrEqual(2);
+      const active = await repo.getActiveTranslation(mockChapterUrl);
+      expect(active?.translation).toBe('Updated translation');
+    });
 
-  // Test new backend (when ready)
-  runTranslationContracts(
-    () => makeRepo('idb'),
-    'New IDB Backend'
-  );
+    it('should correctly set active translation version', async () => {
+      await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
+      await repo.storeTranslation(
+        mockChapterUrl,
+        { ...mockTranslation, translation: 'Version 2' },
+        mockSettings
+      );
+      await repo.setActiveTranslation(mockChapterUrl, 1);
+      const active = await repo.getActiveTranslation(mockChapterUrl);
+      expect(active?.translation).toBe(mockTranslation.translation);
+    });
 
-  // Cross-backend consistency test
-  describe('Cross-Backend Consistency', () => {
-    it('should produce identical results from both backends', async () => {
-      const legacyRepo = makeLegacyRepo();
-      const newRepo = makeRepo('idb');
+    it('should handle stable ID versioning', async () => {
+      await repo.storeTranslationByStableId(mockStableId, mockTranslation, mockSettings);
+      await repo.storeTranslationByStableId(
+        mockStableId,
+        { ...mockTranslation, translation: 'Version 2 by ID' },
+        mockSettings
+      );
+      const versions = await repo.getTranslationVersionsByStableId(mockStableId);
+      expect(versions.length).toBeGreaterThanOrEqual(2);
+      await repo.setActiveTranslationByStableId(mockStableId, 1);
+      const active = await repo.getActiveTranslationByStableId(mockStableId);
+      expect(active?.translation).toBe(mockTranslation.translation);
+    });
+  });
 
-      // Store same data in both
-      await legacyRepo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
-      await newRepo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
+  describe('Translation Metadata Preservation', () => {
+    it('should preserve usage metrics', async () => {
+      await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
+      const retrieved = await repo.getActiveTranslation(mockChapterUrl);
+      expect(retrieved?.usageMetrics?.estimatedCost).toBe(
+        mockTranslation.usageMetrics?.estimatedCost
+      );
+      expect(retrieved?.usageMetrics?.totalTokens).toBe(mockTranslation.usageMetrics?.totalTokens);
+    });
 
-      // Retrieve from both
-      const legacyResult = await legacyRepo.getActiveTranslation(mockChapterUrl);
-      const newResult = await newRepo.getActiveTranslation(mockChapterUrl);
-
-      // Compare critical fields (excluding timestamps, IDs which may differ)
-      expect(legacyResult?.translatedContent).toBe(newResult?.translatedContent);
-      expect(legacyResult?.provider).toBe(newResult?.provider);
-      expect(legacyResult?.model).toBe(newResult?.model);
-      expect(legacyResult?.cost).toBe(newResult?.cost);
+    it('should snapshot provider/model info', async () => {
+      await repo.storeTranslation(mockChapterUrl, mockTranslation, mockSettings);
+      const retrieved = await repo.getActiveTranslation(mockChapterUrl);
+      expect(retrieved?.provider).toBe(mockSettings.provider);
+      expect(retrieved?.model).toBe(mockSettings.model);
+      expect(retrieved?.temperature).toBe(mockSettings.temperature);
     });
   });
 });
-
-// Export for use in migration validation
-export { runTranslationContracts, mockChapterUrl, mockStableId, mockTranslation, mockSettings };

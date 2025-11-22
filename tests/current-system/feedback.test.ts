@@ -55,6 +55,8 @@ describe('Feedback slice', () => {
       selection: 'Great line',
       type: '👍',
       comment: 'Love this turn of phrase',
+      text: 'Love this turn of phrase',
+      category: 'positive',
     });
 
     const history = useAppStore.getState().feedbackHistory[chapterId];
@@ -71,6 +73,8 @@ describe('Feedback slice', () => {
       selection: 'Line',
       type: '👎',
       comment: 'Needs work',
+      text: 'Needs work',
+      category: 'negative',
     });
 
     const feedbackId = useAppStore.getState().feedbackHistory[chapterId][0].id;
@@ -84,6 +88,8 @@ describe('Feedback slice', () => {
       selection: 'Line',
       type: '?',
       comment: 'What does this mean?',
+      text: 'What does this mean?',
+      category: 'suggestion',
     });
     const feedbackId = useAppStore.getState().feedbackHistory[chapterId][0].id;
 

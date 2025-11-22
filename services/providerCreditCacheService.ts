@@ -1,4 +1,4 @@
-import { indexedDBService } from './indexeddb';
+import { SettingsOps } from './db/operations';
 
 const nowIso = () => new Date().toISOString();
 
@@ -38,12 +38,12 @@ const toNumber = (value: unknown): number | null => {
 
 async function cacheSummary(summary: ProviderCreditSummary): Promise<void> {
   const key = CACHE_KEYS[summary.provider];
-  await indexedDBService.setSetting(key, summary);
+  await SettingsOps.set(key, summary);
 }
 
 async function getCachedSummary(provider: SupportedCreditProvider): Promise<ProviderCreditSummary | null> {
   const key = CACHE_KEYS[provider];
-  return indexedDBService.getSetting<ProviderCreditSummary>(key);
+  return SettingsOps.getKey<ProviderCreditSummary>(key);
 }
 
 async function fetchDeepSeekBalance(apiKey: string): Promise<ProviderCreditSummary> {

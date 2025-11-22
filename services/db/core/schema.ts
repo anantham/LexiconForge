@@ -76,6 +76,29 @@ export const MIGRATIONS: Record<number, MigrationFunction> = {
   12: migrateToV12,
 };
 
+function ensureStore(
+  db: IDBDatabase,
+  transaction: IDBTransaction,
+  name: string,
+  options?: IDBObjectStoreParameters
+): IDBObjectStore {
+  if (!db.objectStoreNames.contains(name)) {
+    return db.createObjectStore(name, options);
+  }
+  return transaction.objectStore(name);
+}
+
+function ensureIndex(
+  store: IDBObjectStore,
+  indexName: string,
+  keyPath: string | string[],
+  options?: IDBIndexParameters
+): void {
+  if (!store.indexNames.contains(indexName)) {
+    store.createIndex(indexName, keyPath, options);
+  }
+}
+
 /**
  * Apply all necessary migrations from oldVersion to newVersion
  */
@@ -99,186 +122,119 @@ export function applyMigrations(
 /**
  * Migration to version 1: Initial schema
  */
-function migrateToV1(db: IDBDatabase): void {
-  // Chapters store
-  if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTERS)) {
-    const chaptersStore = db.createObjectStore(STORE_NAMES.CHAPTERS, { 
-      keyPath: 'url' 
-    });
-    chaptersStore.createIndex('title', 'title', { unique: false });
-    chaptersStore.createIndex('createdAt', 'createdAt', { unique: false });
-  }
+function migrateToV1(db: IDBDatabase, transaction: IDBTransaction): void {
+  const chaptersStore = ensureStore(db, transaction, STORE_NAMES.CHAPTERS, { keyPath: 'url' });
+  ensureIndex(chaptersStore, 'title', 'title');
+  ensureIndex(chaptersStore, 'createdAt', 'createdAt');
+  ensureIndex(chaptersStore, 'stableId', 'stableId');
+  ensureIndex(chaptersStore, 'canonicalUrl', 'canonicalUrl');
+  ensureIndex(chaptersStore, 'chapterNumber', 'chapterNumber');
+  ensureIndex(chaptersStore, 'dateAdded', 'dateAdded');
+  ensureIndex(chaptersStore, 'lastAccessed', 'lastAccessed');
 
-  // Translations store
-  if (!db.objectStoreNames.contains(STORE_NAMES.TRANSLATIONS)) {
-    const translationsStore = db.createObjectStore(STORE_NAMES.TRANSLATIONS, { 
-      keyPath: 'id' 
-    });
-    translationsStore.createIndex('chapterUrl', 'chapterUrl', { unique: false });
-    translationsStore.createIndex('createdAt', 'createdAt', { unique: false });
-  }
+  const translationsStore = ensureStore(db, transaction, STORE_NAMES.TRANSLATIONS, { keyPath: 'id' });
+  ensureIndex(translationsStore, 'chapterUrl', 'chapterUrl');
+  ensureIndex(translationsStore, 'createdAt', 'createdAt');
+  ensureIndex(translationsStore, 'version', 'version');
+  ensureIndex(translationsStore, 'isActive', 'isActive');
+  ensureIndex(translationsStore, 'provider', 'provider');
+  ensureIndex(translationsStore, 'model', 'model');
 
-  // Settings store
-  if (!db.objectStoreNames.contains(STORE_NAMES.SETTINGS)) {
-    db.createObjectStore(STORE_NAMES.SETTINGS, { keyPath: 'key' });
-  }
+  ensureStore(db, transaction, STORE_NAMES.SETTINGS, { keyPath: 'key' });
 
-  // Feedback store
-  if (!db.objectStoreNames.contains(STORE_NAMES.FEEDBACK)) {
-    const feedbackStore = db.createObjectStore(STORE_NAMES.FEEDBACK, { 
-      keyPath: 'id' 
-    });
-    feedbackStore.createIndex('chapterUrl', 'chapterUrl', { unique: false });
-    feedbackStore.createIndex('createdAt', 'createdAt', { unique: false });
-  }
+  const feedbackStore = ensureStore(db, transaction, STORE_NAMES.FEEDBACK, { keyPath: 'id' });
+  ensureIndex(feedbackStore, 'chapterUrl', 'chapterUrl');
+  ensureIndex(feedbackStore, 'createdAt', 'createdAt');
 }
 
 /**
  * Migration to version 2: Add performance indexes
  */
 function migrateToV2(db: IDBDatabase, transaction: IDBTransaction): void {
-  // Add composite indexes for better query performance
-  const translationsStore = transaction.objectStore(STORE_NAMES.TRANSLATIONS);
-  
-  if (!translationsStore.indexNames.contains('version')) {
-    translationsStore.createIndex('version', ['chapterUrl', 'version'], { unique: true });
-  }
-  
-  if (!translationsStore.indexNames.contains('active')) {
-    translationsStore.createIndex('active', ['chapterUrl', 'isActive'], { unique: false });
-  }
+  const translationsStore = ensureStore(db, transaction, STORE_NAMES.TRANSLATIONS, { keyPath: 'id' });
+  ensureIndex(translationsStore, 'chapterUrl_version', ['chapterUrl', 'version'], { unique: true });
+  ensureIndex(translationsStore, 'active', ['chapterUrl', 'isActive']);
 }
 
 /**
  * Migration to version 3: Add stable ID support
  */
 function migrateToV3(db: IDBDatabase, transaction: IDBTransaction): void {
-  // Add stable ID indexes to chapters
-  const chaptersStore = transaction.objectStore(STORE_NAMES.CHAPTERS);
-  if (!chaptersStore.indexNames.contains('stableId')) {
-    chaptersStore.createIndex('stableId', 'stableId', { unique: false });
-  }
+  const chaptersStore = ensureStore(db, transaction, STORE_NAMES.CHAPTERS, { keyPath: 'url' });
+  ensureIndex(chaptersStore, 'stableId', 'stableId');
+  ensureIndex(chaptersStore, 'canonicalUrl', 'canonicalUrl');
 
-  // Add stable ID indexes to translations
-  const translationsStore = transaction.objectStore(STORE_NAMES.TRANSLATIONS);
-  if (!translationsStore.indexNames.contains('stableId')) {
-    translationsStore.createIndex('stableId', 'stableId', { unique: false });
-  }
+  const translationsStore = ensureStore(db, transaction, STORE_NAMES.TRANSLATIONS, { keyPath: 'id' });
+  ensureIndex(translationsStore, 'stableId', 'stableId');
 }
 
 /**
  * Migration to version 4: Add prompt templates
  */
-function migrateToV4(db: IDBDatabase): void {
-  if (!db.objectStoreNames.contains(STORE_NAMES.PROMPT_TEMPLATES)) {
-    const templatesStore = db.createObjectStore(STORE_NAMES.PROMPT_TEMPLATES, { 
-      keyPath: 'id' 
-    });
-    templatesStore.createIndex('name', 'name', { unique: true });
-    templatesStore.createIndex('isDefault', 'isDefault', { unique: false });
-  }
+function migrateToV4(db: IDBDatabase, transaction: IDBTransaction): void {
+  const templatesStore = ensureStore(db, transaction, STORE_NAMES.PROMPT_TEMPLATES, { keyPath: 'id' });
+  ensureIndex(templatesStore, 'name', 'name', { unique: true });
+  ensureIndex(templatesStore, 'isDefault', 'isDefault');
+  ensureIndex(templatesStore, 'createdAt', 'createdAt');
+  ensureIndex(templatesStore, 'lastUsed', 'lastUsed');
 }
 
 /**
  * Migration to version 5: Add URL mappings for stable IDs
  */
-function migrateToV5(db: IDBDatabase): void {
-  if (!db.objectStoreNames.contains(STORE_NAMES.URL_MAPPINGS)) {
-    const urlMappingsStore = db.createObjectStore(STORE_NAMES.URL_MAPPINGS, { 
-      keyPath: 'url' 
-    });
-    urlMappingsStore.createIndex('stableId', 'stableId', { unique: false });
-    urlMappingsStore.createIndex('novelId', 'novelId', { unique: false });
-  }
+function migrateToV5(db: IDBDatabase, transaction: IDBTransaction): void {
+  const urlMappingsStore = ensureStore(db, transaction, STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+  ensureIndex(urlMappingsStore, 'stableId', 'stableId');
+  ensureIndex(urlMappingsStore, 'novelId', 'novelId');
 }
 
 /**
  * Migration to version 6: Enhanced schema for new architecture
  */
 function migrateToV6(db: IDBDatabase, transaction: IDBTransaction): void {
-  // Add translation ID index to feedback for better queries
-  const feedbackStore = transaction.objectStore(STORE_NAMES.FEEDBACK);
-  if (!feedbackStore.indexNames.contains('translationId')) {
-    feedbackStore.createIndex('translationId', 'translationId', { unique: false });
-  }
+  const feedbackStore = ensureStore(db, transaction, STORE_NAMES.FEEDBACK, { keyPath: 'id' });
+  ensureIndex(feedbackStore, 'translationId', 'translationId');
 
-  // Add composite index for chapter-translation lookups
-  const translationsStore = transaction.objectStore(STORE_NAMES.TRANSLATIONS);
-  if (!translationsStore.indexNames.contains('chapterVersion')) {
-    translationsStore.createIndex('chapterVersion', ['chapterUrl', 'version'], { unique: true });
-  }
+  const translationsStore = ensureStore(db, transaction, STORE_NAMES.TRANSLATIONS, { keyPath: 'id' });
+  ensureIndex(translationsStore, 'chapterVersion', ['chapterUrl', 'version'], { unique: true });
 
-  // Add novel-chapter composite index for URL mappings
-  const urlMappingsStore = transaction.objectStore(STORE_NAMES.URL_MAPPINGS);
-  if (!urlMappingsStore.indexNames.contains('novelChapter')) {
-    urlMappingsStore.createIndex('novelChapter', ['novelId', 'chapterNumber'], { unique: false });
-  }
+  const urlMappingsStore = ensureStore(db, transaction, STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+  ensureIndex(urlMappingsStore, 'novelChapter', ['novelId', 'chapterNumber']);
 }
 
 /**
  * Migration to version 7: Add canonical data stores and indexes
  */
 function migrateToV7(db: IDBDatabase, transaction: IDBTransaction): void {
-  // Ensure URL mappings has full canonical indexes
-  let urlStore: IDBObjectStore;
-  if (!db.objectStoreNames.contains(STORE_NAMES.URL_MAPPINGS)) {
-    urlStore = db.createObjectStore(STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
-  } else {
-    urlStore = transaction.objectStore(STORE_NAMES.URL_MAPPINGS);
-  }
+  const urlStore = ensureStore(db, transaction, STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+  ensureIndex(urlStore, 'stableId', 'stableId');
+  ensureIndex(urlStore, 'isCanonical', 'isCanonical');
+  ensureIndex(urlStore, 'dateAdded', 'dateAdded');
+  ensureIndex(urlStore, 'novelId', 'novelId');
 
-  if (!urlStore.indexNames.contains('stableId')) {
-    urlStore.createIndex('stableId', 'stableId', { unique: false });
-  }
-  if (!urlStore.indexNames.contains('isCanonical')) {
-    urlStore.createIndex('isCanonical', 'isCanonical', { unique: false });
-  }
-  if (!urlStore.indexNames.contains('dateAdded')) {
-    urlStore.createIndex('dateAdded', 'dateAdded', { unique: false });
-  }
-  if (!urlStore.indexNames.contains('novelId')) {
-    urlStore.createIndex('novelId', 'novelId', { unique: false });
-  }
+  const novelStore = ensureStore(db, transaction, STORE_NAMES.NOVELS, { keyPath: 'id' });
+  ensureIndex(novelStore, 'source', 'source');
+  ensureIndex(novelStore, 'title', 'title');
+  ensureIndex(novelStore, 'dateAdded', 'dateAdded');
+  ensureIndex(novelStore, 'lastAccessed', 'lastAccessed');
 
-  // Add novels store if missing
-  if (!db.objectStoreNames.contains(STORE_NAMES.NOVELS)) {
-    const novelStore = db.createObjectStore(STORE_NAMES.NOVELS, { keyPath: 'id' });
-    novelStore.createIndex('source', 'source', { unique: false });
-    novelStore.createIndex('title', 'title', { unique: false });
-    novelStore.createIndex('dateAdded', 'dateAdded', { unique: false });
-    novelStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
-  }
-
-  // Add chapter summaries store if missing
-  if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTER_SUMMARIES)) {
-    const summaryStore = db.createObjectStore(STORE_NAMES.CHAPTER_SUMMARIES, { keyPath: 'stableId' });
-    summaryStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
-    summaryStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
-    summaryStore.createIndex('hasTranslation', 'hasTranslation', { unique: false });
-  }
+  const summaryStore = ensureStore(db, transaction, STORE_NAMES.CHAPTER_SUMMARIES, { keyPath: 'stableId' });
+  ensureIndex(summaryStore, 'chapterNumber', 'chapterNumber');
+  ensureIndex(summaryStore, 'lastAccessed', 'lastAccessed');
+  ensureIndex(summaryStore, 'hasTranslation', 'hasTranslation');
 }
 
 /**
  * Migration to version 8: Ensure compound indexes exist for translations and chapters
  */
 function migrateToV8(db: IDBDatabase, transaction: IDBTransaction): void {
-  // Ensure translations store has compound indexes
-  const translationsStore = transaction.objectStore(STORE_NAMES.TRANSLATIONS);
-  if (!translationsStore.indexNames.contains('chapterUrl_version')) {
-    translationsStore.createIndex('chapterUrl_version', ['chapterUrl', 'version'], { unique: true });
-  }
-  if (!translationsStore.indexNames.contains('stableId')) {
-    translationsStore.createIndex('stableId', 'stableId', { unique: false });
-  }
-  if (!translationsStore.indexNames.contains('stableId_version')) {
-    translationsStore.createIndex('stableId_version', ['stableId', 'version'], { unique: true });
-  }
+  const translationsStore = ensureStore(db, transaction, STORE_NAMES.TRANSLATIONS, { keyPath: 'id' });
+  ensureIndex(translationsStore, 'chapterUrl_version', ['chapterUrl', 'version'], { unique: true });
+  ensureIndex(translationsStore, 'stableId', 'stableId');
+  ensureIndex(translationsStore, 'stableId_version', ['stableId', 'version'], { unique: true });
 
-  // Ensure chapters store has chapterNumber index for navigation
-  const chaptersStore = transaction.objectStore(STORE_NAMES.CHAPTERS);
-  if (!chaptersStore.indexNames.contains('chapterNumber')) {
-    chaptersStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
-  }
+  const chaptersStore = ensureStore(db, transaction, STORE_NAMES.CHAPTERS, { keyPath: 'url' });
+  ensureIndex(chaptersStore, 'chapterNumber', 'chapterNumber');
 }
 
 /**
@@ -295,35 +251,29 @@ function migrateToV9(): void {
  * Migration to version 10: Guarantee chapterNumber index exists even for legacy installations.
  */
 function migrateToV10(db: IDBDatabase, transaction: IDBTransaction): void {
-  const chaptersStore = transaction.objectStore(STORE_NAMES.CHAPTERS);
-  if (!chaptersStore.indexNames.contains('chapterNumber')) {
-    chaptersStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
-  }
+  const chaptersStore = ensureStore(db, transaction, STORE_NAMES.CHAPTERS, { keyPath: 'url' });
+  ensureIndex(chaptersStore, 'chapterNumber', 'chapterNumber');
 }
 
 /**
  * Migration to version 11: Add amendment logs store for tracking prompt proposal actions
  */
-function migrateToV11(db: IDBDatabase): void {
-  if (!db.objectStoreNames.contains(STORE_NAMES.AMENDMENT_LOGS)) {
-    const amendmentLogsStore = db.createObjectStore(STORE_NAMES.AMENDMENT_LOGS, { keyPath: 'id' });
-    amendmentLogsStore.createIndex('timestamp', 'timestamp', { unique: false });
-    amendmentLogsStore.createIndex('chapterId', 'chapterId', { unique: false });
-    amendmentLogsStore.createIndex('action', 'action', { unique: false });
-  }
+function migrateToV11(db: IDBDatabase, transaction: IDBTransaction): void {
+  const amendmentLogsStore = ensureStore(db, transaction, STORE_NAMES.AMENDMENT_LOGS, { keyPath: 'id' });
+  ensureIndex(amendmentLogsStore, 'timestamp', 'timestamp');
+  ensureIndex(amendmentLogsStore, 'chapterId', 'chapterId');
+  ensureIndex(amendmentLogsStore, 'action', 'action');
 }
 
 /**
  * Migration to version 12: Add diffResults store for semantic diff analysis
  */
-function migrateToV12(db: IDBDatabase): void {
-  if (!db.objectStoreNames.contains(STORE_NAMES.DIFF_RESULTS)) {
-    const diffResultsStore = db.createObjectStore(STORE_NAMES.DIFF_RESULTS, {
-      keyPath: ['chapterId', 'aiVersionId', 'fanVersionId', 'rawVersionId', 'algoVersion']
-    });
-    diffResultsStore.createIndex('by_chapter', 'chapterId', { unique: false });
-    diffResultsStore.createIndex('by_analyzed_at', 'analyzedAt', { unique: false });
-  }
+function migrateToV12(db: IDBDatabase, transaction: IDBTransaction): void {
+  const diffResultsStore = ensureStore(db, transaction, STORE_NAMES.DIFF_RESULTS, {
+    keyPath: ['chapterId', 'aiVersionId', 'fanVersionId', 'rawVersionId', 'algoVersion'],
+  });
+  ensureIndex(diffResultsStore, 'by_chapter', 'chapterId');
+  ensureIndex(diffResultsStore, 'by_analyzed_at', 'analyzedAt');
 }
 
 /**
