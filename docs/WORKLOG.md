@@ -285,6 +285,14 @@
   - Removed the obsolete interface + mock + contract test; tests now spy directly on the ops layer.
 - Tests: `npx tsc --noEmit`
 
+2025-11-16 07:10 UTC - Preserve enhanced chapter raw URLs
+- Files: services/db/operations/chapters.ts:360-390; docs/WORKLOG.md:1-120
+- Why: Ensure enhanced chapter writes continue preferring the raw/original URL so URL mappings contain both canonical and fetched URLs.
+- Details:
+  - Updated `ChapterOps.storeEnhanced` to prefer `enhanced.originalUrl` when present and only fall back to `enhanced.canonicalUrl` if necessary.
+  - Explicitly carry a separate canonical URL so downstream storage/mapping logic receives both representations.
+- Tests: `npx tsc --noEmit`
+
 2025-11-16 05:55 UTC - Facade slimming: chapter lookup delegation
 - Files: services/indexeddb.ts:890-1045; services/db/operations/chapters.ts:150-360; docs/INDEXEDDB-FACADE-MIGRATION.md:18-28
 - Why: Remove the remaining raw CHAPTERS store transactions (find-by-url, find-by-number, most-recent-stable-id) so ChapterOps owns all chapter lookups.
