@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { DiffMarker } from '../../../services/diff/types';
 import type { DiffMarkerVisibilitySettings } from '../../../types';
-import { __testables } from '../../../components/ChapterView';
-
-const { mapMarkerForVisibility } = __testables;
+import { mapMarkerForVisibility } from '../../../components/chapter/diffVisibility';
 
 const baseMarker: DiffMarker = {
   chunkId: 'para-0-test',
