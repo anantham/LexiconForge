@@ -1,3 +1,229 @@
+2025-11-21 01:00 UTC - TranslationStatusPanel spacing tweak
+- Files: components/chapter/TranslationStatusPanel.tsx (wrapper div class)
+- Why: Chapter body sat flush against the translation/image metric lines; user requested extra spacing after the status rows.
+- Details: Added `mb-4` to the panel wrapper (`space-y-2 mb-4`) so the “Translated in …” / “Generated …” lines remain tight but the chapter content starts with a clear visual gap.
+- Tests: Not run (styling-only change)
+
+2025-11-21 00:48 UTC - ImageOps deletion fixes + regression tests
+- Files: services/db/operations/imageVersions.ts (normalizeVersionEntries helper + delete logic lines ~1-120); tests/services/db/ImageOps.test.ts (new regression coverage); docs/WORKLOG.md
+- Why: Deleting an illustration version threw `TypeError: (markerState.versions || []).filter is not a function` because `versions` persisted as a record map, not an array. Needed to normalize both object + legacy array shapes before filtering and recompute latest/active state.
+- Details:
+  - Added `normalizeVersionEntries` to coerce stored metadata into `[version, metadata]` tuples and rewrote `deleteImageVersion` to build a new versions record, recompute `latestVersion`/`activeVersion`, and gracefully handle last-version deletions.
+  - Added Vitest coverage under `tests/services/db/ImageOps.test.ts` to exercise both record-backed and legacy array-backed version states, ensuring `translationFacade.update` receives sanitized data.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/services/db/ImageOps.test.ts --run`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`
+
+2025-11-20 10:35 UTC - ChapterView decomposition: tokenization hook
+- Files: hooks/useTranslationTokens.ts; components/ChapterView.tsx; tests/hooks/useTranslationTokens.test.tsx; docs/WORKLOG.md
+- Why: Tokenization/diff wiring still lived in ChapterView (useMemo + ref updates). Extracting the logic into `useTranslationTokens` keeps the component lean and centralizes the memo/ref sync.
+- Details:
+  - Added `useTranslationTokens` to return `translationTokensData` + a ref that stays synced with token updates; ChapterView now consumes the hook and passes the ref into the inline editor hook.
+  - Added hook tests ensuring English mode tokenizes while other modes return empty, and reran the standard targeted suites.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`; `npm run test -- tests/components/chapter/TranslationStatusPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ComparisonPortal.test.tsx --run`; `npm run test -- tests/components/chapter/FooterNavigation.test.tsx --run`; `npm run test -- tests/hooks/useFootnoteNavigation.test.tsx --run`; `npm run test -- tests/hooks/useTranslationTokens.test.tsx --run`
+
+2025-11-20 10:19 UTC - ChapterView decomposition: footer navigation component
+- Files: components/chapter/FooterNavigation.tsx; components/ChapterView.tsx; tests/components/chapter/FooterNavigation.test.tsx; docs/WORKLOG.md
+- Why: The footer `NavigationControls` block plus `<footer>` wrapper were still inline. Extracting them reduces noise and keeps navigation wiring reusable.
+- Details:
+  - Added `FooterNavigation` to render prev/next buttons with the existing styles/disabled states; ChapterView now passes URLs/loading status down.
+  - Added lightweight tests to exercise disabled/enabled states and updated the targeted suite.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`; `npm run test -- tests/components/chapter/TranslationStatusPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ComparisonPortal.test.tsx --run`; `npm run test -- tests/components/chapter/FooterNavigation.test.tsx --run`; `npm run test -- tests/hooks/useFootnoteNavigation.test.tsx --run`
+
+2025-11-20 10:15 UTC - ChapterView decomposition: TranslationStatusPanel integration
+- Files: components/chapter/ChapterHeader.tsx; components/chapter/TranslationStatusPanel.tsx; components/ChapterView.tsx; tests/components/chapter/ChapterHeader.test.tsx; docs/WORKLOG.md
+- Why: The translation status UI was still embedded in ChapterHeader; moving it entirely into TranslationStatusPanel keeps the header focused on navigation/toggles and centralizes retranslate + metrics logic.
+- Details:
+  - Slimmed `ChapterHeader` to just title/navigation/language controls, eliminating the retranslate buttons and metrics text that now live in `TranslationStatusPanel`.
+  - Rendered `TranslationStatusPanel` directly beneath the header inside ChapterView, wiring it to the existing `handleRetranslateClick` helper and status booleans.
+  - Updated ChapterHeader tests accordingly and reran the targeted suites.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`; `npm run test -- tests/components/chapter/TranslationStatusPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ComparisonPortal.test.tsx --run`; `npm run test -- tests/hooks/useFootnoteNavigation.test.tsx --run`
+
+2025-11-20 09:47 UTC - ChapterView decomposition: comparison portal component
+- Files: components/chapter/ComparisonPortal.tsx; components/ChapterView.tsx; hooks/useComparisonPortal.ts; tests/components/chapter/ComparisonPortal.test.tsx; docs/WORKLOG.md
+- Why: The fan comparison portal UI (plus show/hide toggles) still lived inline in ChapterView; extracting it reduces another ~100 LOC chunk and keeps portal-specific logic encapsulated.
+- Details:
+  - Added `ComparisonPortal` to own both the expanded card and collapsed chip, handling raw/fan toggle, dismiss, and loading/error messaging; ChapterView now just passes hook state down.
+  - Exported the `ComparisonChunk` type from `useComparisonPortal` for reuse, and backfilled tests to ensure the component renders correctly for expanded/collapsed states and fires the appropriate callbacks.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`; `npm run test -- tests/components/chapter/TranslationStatusPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ComparisonPortal.test.tsx --run`; `npm run test -- tests/hooks/useFootnoteNavigation.test.tsx --run`
+
+2025-11-20 09:21 UTC - ChapterView decomposition: TranslationStatusPanel
+- Files: components/chapter/TranslationStatusPanel.tsx; components/ChapterView.tsx; tests/components/chapter/TranslationStatusPanel.test.tsx; docs/WORKLOG.md
+- Why: The translation status + metrics block (retranslate CTA, translation banner, usage/image metrics) was still inline inside ChapterView; extracting it keeps the orchestrator lean and centralizes formatting.
+- Details:
+  - Added `TranslationStatusPanel` to render the retranslate button, translating banner, and usage/image metrics; ChapterView now just passes the booleans and callbacks.
+  - Added RTL tests covering button clicks, metrics rendering, and translating states; reran the standard test suite.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`; `npm run test -- tests/components/chapter/TranslationStatusPanel.test.tsx --run`; `npm run test -- tests/hooks/useFootnoteNavigation.test.tsx --run`
+
+2025-11-20 07:03 UTC - ChapterView decomposition: footnote navigation hook
+- Files: hooks/useFootnoteNavigation.ts; components/ChapterView.tsx; tests/hooks/useFootnoteNavigation.test.tsx; docs/WORKLOG.md
+- Why: The click + hashchange effects for footnotes were still inline within ChapterView; extracting them into a hook keeps the component lean and improves testability.
+- Details:
+  - Added `useFootnoteNavigation` to encapsulate the container click handler and hashchange listener, preserving the smooth-scroll + history update behavior while guarding for SSR.
+  - ChapterView now simply calls the hook with `viewRef`, `viewMode`, and `currentChapterId`, allowing future consumers (e.g., preview panes) to reuse the behavior.
+  - Added RTL tests that verify scroll triggers for anchor clicks and initial hash/hashchange events, then reran the standard targeted suites.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`; `npm run test -- tests/hooks/useFootnoteNavigation.test.tsx --run`
+
+2025-11-20 05:48 UTC - ChapterView decomposition: FootnotesPanel extraction
+- Files: components/chapter/FootnotesPanel.tsx; components/ChapterView.tsx; tests/components/chapter/FootnotesPanel.test.tsx; docs/WORKLOG.md
+- Why: The footnotes rendering block (and its cloning quirks) was still embedded in ChapterView; extracting it keeps the reader body thinner while preserving the sanitized markup logic.
+- Details:
+  - Added `FootnotesPanel` which mirrors the previous `renderFootnotes` output (including normalization + anchor links) and returns null when no notes exist.
+  - ChapterView now drops the helper and instead mounts the panel; hash/click navigation hooks remain untouched.
+  - Added RTL coverage for empty vs populated states and reran the standard targeted suites.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`
+
+2025-11-20 04:19 UTC - ChapterView decomposition: ReaderFeedbackPanel extraction
+- Files: components/chapter/ReaderFeedbackPanel.tsx; components/ChapterView.tsx; tests/components/chapter/ReaderFeedbackPanel.test.tsx; docs/WORKLOG.md
+- Why: Continue peeling large contiguous blocks out of ChapterView by moving the reader feedback section (heading + FeedbackDisplay wiring) into its own component that can gate rendering by view mode.
+- Details:
+  - Added `ReaderFeedbackPanel` to wrap FeedbackDisplay, applying the existing heading + layout while hiding itself unless the English view has feedback.
+  - ChapterView now renders the panel unconditionally (it returns null otherwise) and no longer imports FeedbackDisplay directly.
+  - Added a focused test to ensure the panel renders only when expected and forwards delete callbacks; reran the standard targeted suites.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`
+
+2025-11-20 03:31 UTC - ChapterView decomposition: ChapterHeader extraction
+- Files: components/chapter/ChapterHeader.tsx; components/ChapterView.tsx; tests/components/chapter/ChapterHeader.test.tsx; docs/WORKLOG.md
+- Why: The ChapterView header block (nav, toggles, retranslate, metrics) was a contiguous ~200 LOC section; extracting it keeps the orchestrator slimmer per modularity plan.
+- Details:
+  - Introduced `ChapterHeader` to own both desktop/mobile layouts, Source link, retranslate button styling, translating banner, and metrics messaging; ChapterView now passes the necessary props instead of duplicating logic.
+  - Added a `handleRetranslateClick` helper so logging/cancel-start flows live alongside store wiring, and replaced the inline `MetricsDisplay` helpers with booleans fed to the new component.
+  - Created `ChapterHeader.test.tsx` to cover navigation disabling, language toggles, retranslate callbacks, and metrics rendering so future style changes stay guarded.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`
+
+2025-11-19 18:22 UTC - ChapterView decomposition: selection overlay + comparison guard
+- Files: components/ChapterView.tsx; components/chapter/SelectionOverlay.tsx; hooks/useComparisonPortal.ts; hooks/useIsTouch.ts; tests/components/chapter/SelectionOverlay.test.tsx; docs/WORKLOG.md
+- Why: Continue shrinking ChapterView by moving selection feedback UI into a dedicated component and make the comparison hook resilient when users dismiss or trigger multiple requests quickly.
+- Details:
+  - Added `SelectionOverlay` (with the previous `SelectionSheet`) plus a shared `useIsTouch` hook so ChapterView no longer inlines the popover/sheet gating logic; the new component consumes the feedback actions + inline edit hook directly.
+  - Hardened `useComparisonPortal` with a `dismissComparison` helper and request-id guard so stale responses don’t resurrect dismissed cards; ChapterView now calls the helper instead of mutating hook state.
+  - Added `SelectionOverlay.test.tsx` to assert popover vs sheet rendering paths and documented the extraction to keep future work coordinated.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`
+
+2025-11-16 20:10 UTC - ChapterView decomposition: comparison portal hook
+- Files: components/ChapterView.tsx; hooks/useComparisonPortal.ts; docs/WORKLOG.md
+- Why: Comparison/portal logic still consumed ~200 LOC in ChapterView. Moving it into a dedicated hook shrinks the component and centralizes portal cleanup + request handling.
+- Details:
+  - Added `useComparisonPortal` to own the chunk state, portal creation/removal, async comparison request, and error handling.
+  - ChapterView now simply consumes the hook outputs (`comparisonChunk`, `comparisonLoading`, etc.) and renders the existing UI.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/diff/ChapterView.mapMarker.test.tsx --run`
+
+2025-11-16 19:15 UTC - ChapterView decomposition: inline editor hook
+- Files: components/ChapterView.tsx; hooks/useInlineTranslationEditor.ts; docs/WORKLOG.md
+- Why: ChapterView still carried ~250 LOC of inline edit state/handlers. Moving them into a dedicated hook reduces the component surface and keeps the toolbar logic encapsulated.
+- Details:
+  - Added `useInlineTranslationEditor`, responsible for selection validation, toolbar positioning, and persist/cancel flows; the component now just consumes the hook outputs.
+  - ChapterView no longer manages `inlineEditState`/toolbar effects directly, cutting another ~150 LOC from the monolith.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`
+
+2025-11-16 19:15 UTC - ChapterView decomposition: inline editor hook
+- Files: components/ChapterView.tsx; hooks/useInlineTranslationEditor.ts; docs/WORKLOG.md
+- Why: ChapterView still carried ~250 LOC of inline edit state/handlers. Moving them into a dedicated hook reduces the component surface and keeps the toolbar logic encapsulated.
+- Details:
+  - Added `useInlineTranslationEditor`, responsible for selection validation, toolbar positioning, and persist/cancel flows; the component now just consumes the hook outputs.
+  - ChapterView no longer manages `inlineEditState`/toolbar effects directly, cutting another ~150 LOC from the monolith.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/diff/ChapterView.mapMarker.test.tsx --run`
+
+2025-11-16 19:15 UTC - ChapterView decomposition: inline editor hook
+- Files: components/ChapterView.tsx; hooks/useInlineTranslationEditor.ts; docs/WORKLOG.md
+- Why: ChapterView still carried ~250 LOC of inline edit state/handlers. Moving them into a dedicated hook reduces the component surface and keeps the toolbar logic encapsulated.
+- Details:
+  - Added `useInlineTranslationEditor`, responsible for selection validation, toolbar positioning, and persist/cancel flows; the component now just consumes the hook outputs.
+  - ChapterView no longer manages `inlineEditState`/toolbar effects directly, cutting another ~150 LOC from the monolith.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/diff/ChapterView.mapMarker.test.tsx --run`
+
+2025-11-16 18:45 UTC - ChapterView decomposition: diff gutter + hook
+- Files: components/{ChapterView.tsx,chapter/DiffMarkersPanel.tsx}; hooks/useChapterDiffs.ts; tests/components/diff/ChapterView.mapMarker.test.tsx; docs/WORKLOG.md
+- Why: Continue slimming the 1.6k LOC ChapterView by extracting the diff gutter JSX and orchestration into reusable pieces.
+- Details:
+  - Added `DiffMarkersPanel` to render the paragraph heatmap markers + tooltips and `useChapterDiffs` to wrap fetching/visibility/navigation logic; ChapterView now just passes props instead of managing the Map + JSX inline.
+  - Updated the diff visibility test to import `mapMarkerForVisibility` from the new module instead of reaching through `__testables`.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/diff/ChapterView.mapMarker.test.tsx --run`
+
+2025-11-16 18:05 UTC - ChapterView decomposition: token + diff helpers
+- Files: components/{ChapterView.tsx,chapter/translationTokens.tsx,chapter/diffVisibility.ts}; docs/WORKLOG.md
+- Why: ChapterView was ~2k LOC with huge inline tokenization/diff helper blocks. Extracting them keeps the component readable and preps further splits.
+- Details:
+  - Moved the translation token/paragraph logic (regexes, renderers, mutate helpers) into `components/chapter/translationTokens.tsx`, exporting the same API consumed by the view.
+  - Extracted the diff marker visibility helpers into `components/chapter/diffVisibility.ts`, so the component now imports `resolveMarkerVisibility`, `mapMarkerForVisibility`, and `DEFAULT_DIFF_MARKER_VISIBILITY`.
+  - ChapterView imports the new modules and no longer duplicates the helper code.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`
+
+2025-11-16 17:45 UTC - SettingsModal decomposition: Novel metadata hook
+- Files: hooks/useNovelMetadata.ts; components/SettingsModal.tsx; docs/WORKLOG.md
+- Why: Move the metadata-prefill logic (localStorage, sessionInfo, IndexedDB fallback) out of the modal so it only consumes a hook instead of embedding ~150 LOC of helpers/effects.
+- Details:
+  - Added `useNovelMetadata` to encapsulate the helper functions, fallback generation, and persistence into SettingsOps/localStorage while emitting the existing debug logs.
+  - `SettingsModal` now calls the hook to receive `novelMetadata` + `handleNovelMetadataChange`, letting the shared context expose those values without maintaining duplicate effects or helpers inline.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`
+
+2025-11-16 17:20 UTC - SettingsModal decomposition: Session actions footer
+- Files: components/settings/{SessionActions.tsx,SessionActions.test.tsx}; components/SettingsModal.tsx; docs/WORKLOG.md
+- Why: Finish stripping UI/handlers from the modal by moving the import/clear/save footer into a dedicated component so the shell just wires callbacks.
+- Details:
+  - Added `SessionActions` to encapsulate the hidden file input, import reader, and responsive buttons; `SettingsModal` now passes `handleSave/handleCancel/handleClear/importSessionData` instead of managing refs + FileReader logic inline.
+  - Added tests covering save/cancel/clear events and verifying that importing a JSON file invokes the provided callback with parsed data.
+- Tests: `npx tsc --noEmit`; `npm run test -- components/settings/SessionActions.test.tsx --run`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`
+
+2025-11-16 16:45 UTC - SettingsModal decomposition: Display panel extraction
+- Files: components/settings/{DisplayPanel.tsx,DisplayPanel.test.tsx}; components/SettingsModal.tsx; docs/WORKLOG.md
+- Why: Finish carving the “General” tab out of the modal by moving the display/accessibility controls into their own panel with tests so future tweaks don’t require touching the modal shell.
+- Details:
+  - Added `DisplayPanel` consuming the shared modal context for font size/style/line height and rewired the General tab to render `<DisplayPanel/>` + `<PromptPanel/>`, eliminating the inline markup and handlers.
+  - Added a focused test suite ensuring slider/dropdown changes call `handleSettingChange`, keeping regression coverage on the extracted UI.
+- Tests: `npx tsc --noEmit`; `npm run test -- components/settings/DisplayPanel.test.tsx --run`
+
+2025-11-16 16:05 UTC - SettingsModal decomposition: Advanced panel extraction
+- Files: components/settings/{AdvancedPanel.tsx,AdvancedPanel.test.tsx}; hooks/useAdvancedPanelStore.ts; components/SettingsModal.tsx; docs/WORKLOG.md
+- Why: Continue shrinking the modal by moving the diagnostics/logging + advanced parameter controls into a dedicated panel with its own hook/tests so the shell is only tabs + metadata state.
+- Details:
+  - Introduced `useAdvancedPanelStore` to surface memory diagnostics from the store and built `AdvancedPanel` with logging level + pipeline controls, image/diff parameter editors, and async disk diagnostics backed by `ImageOps`.
+  - `SettingsModal` no longer tracks debug toggles or diagnostics state—rendering the advanced tab now delegates to `<AdvancedPanel/>`, reducing local hooks and keeping context clean.
+  - Added `AdvancedPanel.test.tsx` to cover logging-level persistence, pipeline toggles, diagnostics hydration, and state delegation; panel wiring mirrors the other extracted tabs.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- components/settings/AdvancedPanel.test.tsx --run`
+
+2025-11-16 13:08 UTC - SettingsModal decomposition: Providers panel extraction
+- Files: components/settings/{ProvidersPanel.tsx,SettingsTabs.tsx}, components/settings/ProvidersPanel.test.tsx, hooks/useProvidersPanelStore.ts, components/SettingsModal.tsx, services/translate/HtmlSanitizer.ts
+- Why: Begin the agreed SettingsModal decomposition by carving out the provider/API-key section into a dedicated panel with its own hook + tests, reducing the monolith size and introducing the shared tab shell/context needed for future extractions.
+- Details:
+  - Added `SettingsModalProvider` + `SettingsTabs` scaffolding and rewired `SettingsModal` to render the new `<ProvidersPanel/>` tab while delegating Zustand selectors for provider data into `useProvidersPanelStore`.
+  - Implemented `ProvidersPanel` with all translation-engine + API key controls, OpenRouter model sorting, credit summaries, and structured-output/parameter probes; moved the supporting logic out of the modal and added focused tests.
+  - Exported `toStrictXhtml` from `HtmlSanitizer` so existing EPUB serializers keep compiling under `tsc --noEmit`.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- components/settings/ProvidersPanel.test.tsx --run`
+
+2025-11-16 13:45 UTC - SettingsModal decomposition: Export + metadata panels
+- Files: components/settings/{MetadataPanel.tsx,SessionExportPanel.tsx,MetadataPanel.test.tsx,SessionExportPanel.test.tsx,types.ts}, hooks/useExportPanelStore.ts, components/SettingsModal.tsx
+- Why: Continue shrinking the 2.7k LOC modal by extracting the metadata editor and export workflow into their own panels so future slices can reuse the shared context/tabs without reimplementing IndexedDB helpers.
+- Details:
+  - Added `PublisherMetadata` + extended context values so the metadata state lives in a provider that both panels consume; `MetadataPanel` now renders the novel form while `SessionExportPanel` owns the Quick Export/Publish flows.
+  - Introduced `useExportPanelStore` and panel-specific tests to cover metadata propagation, quick export success, and metadata gating before publishing.
+  - `SettingsModal.tsx` no longer contains the export/metadata markup, reducing surface area for future decompositions.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- components/settings/{ProvidersPanel.test.tsx,MetadataPanel.test.tsx,SessionExportPanel.test.tsx} --run`
+
+2025-11-16 14:36 UTC - SettingsModal decomposition: Audio panel extraction
+- Files: components/settings/{AudioPanel.tsx,AudioPanel.test.tsx}, hooks/useAudioPanelStore.ts, components/SettingsModal.tsx
+- Why: Keep chipping away at the 2.7k LOC modal by migrating the entire Audio/OST settings tab into a dedicated panel that talks directly to the audio slice, so the shell no longer hosts provider/task/file-upload logic.
+- Details:
+  - Added `useAudioPanelStore` to wrap the audio slice selectors/actions and built `AudioPanel` with accessible controls, OST hydration, upload validation, and usage stats; the modal now renders `<AudioPanel/>` and drops the inline helper state/effects.
+  - Converted the panel to rely on `setError` from the store so validation errors surface the same way as before; imports/state (OST samples, upload helpers) were removed from `SettingsModal`.
+  - Added a focused test suite exercising provider changes and file validation.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- components/settings/{ProvidersPanel.test.tsx,MetadataPanel.test.tsx,SessionExportPanel.test.tsx,AudioPanel.test.tsx} --run`
+ 
+2025-11-16 15:05 UTC - SettingsModal decomposition: Diff + prompt panels
+- Files: components/settings/{DiffPanel.tsx,DiffPanel.test.tsx,PromptPanel.tsx,PromptPanel.test.tsx}, components/SettingsModal.tsx
+- Why: Keep shrinking the monolith by isolating the diff/reader-features UI and the prompt library/system prompt editor, so subsequent tabs can follow the same panel pattern.
+- Details:
+  - Moved marker visibility toggles, diff prompt textarea, and the invalidate workflow into `DiffPanel`, which now talks to `DiffOps`/notifications directly.
+  - Introduced `PromptPanel` to handle template CRUD, selection, and editing while syncing `systemPrompt` through the shared modal context.
+  - `SettingsModal.tsx` no longer keeps the prompt/diff state or helper functions; the general tab now renders Display settings plus `<PromptPanel/>`.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- components/settings/{ProvidersPanel.test.tsx,MetadataPanel.test.tsx,SessionExportPanel.test.tsx,AudioPanel.test.tsx,DiffPanel.test.tsx,PromptPanel.test.tsx} --run`
+
+2025-11-16 15:30 UTC - SettingsModal decomposition: EPUB template panel
+- Files: components/settings/{TemplatePanel.tsx,TemplatePanel.test.tsx}, components/SettingsModal.tsx
+- Why: Continue the decomposition by moving the EPUB overrides (gratitude message, project description, footer) into a dedicated panel so the templates tab is just `<TemplatePanel/>`.
+- Details:
+  - TemplatePanel now renders the EPUB fields with proper labels/IDs and uses the shared context to update settings; the modal dropped the legacy fieldset and no longer imports `getDefaultTemplate`.
+  - Added tests that check the panel calls `handleSettingChange` for gratitude/footer edits.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- components/settings/{PromptPanel.test.tsx,TemplatePanel.test.tsx} --run`
+
 2025-11-16 06:05 UTC - Facade slimming: URL mapping delegation
 - Files: services/indexeddb.ts:330-440,404-420; services/db/operations/chapters.ts:300-360; docs/INDEXEDDB-FACADE-MIGRATION.md:18-30
 - Why: Remove the facade’s custom URL mapping transaction so ChapterOps owns mapping upserts alongside the rest of the chapter logic.
@@ -809,3 +1035,73 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
   - `MaintenanceOps` exposes `clearAllData`, so session clearing no longer touches the facade.
   - Migration tracker count for services decremented accordingly.
 - Tests: `npx tsc --noEmit`
+2025-11-20 19:20 UTC - ChapterView decomposition: chapter telemetry + token hook
+- Files: components/ChapterView.tsx; components/chapter/ChapterHeader.tsx; components/chapter/TranslationStatusPanel.tsx; components/chapter/FooterNavigation.tsx; components/chapter/ComparisonPortal.tsx; hooks/useTokenizedContent.ts; hooks/useTranslationTokens.ts; hooks/useChapterTelemetry.ts; tests/hooks/useTranslationTokens.test.tsx; tests/hooks/useChapterTelemetry.test.tsx; tests/components/chapter/FooterNavigation.test.tsx; tests/components/chapter/ComparisonPortal.test.tsx; tests/components/chapter/TranslationStatusPanel.test.tsx; docs/WORKLOG.md
+- Why: Continue slicing ChapterView by moving token/diff wiring into a hook, centralizing telemetry, and extracting remaining UI blocks (comparison portal, status panel, footer nav).
+- Details:
+  - Added `useTokenizedContent` (wrapping translation tokenization, diff markers, and inline edit wiring) plus `useTranslationTokens`, letting ChapterView just consume the outputs.
+  - Created `useChapterTelemetry` so mount/ready performance logging and selection debug logs live outside the component.
+  - Extracted `TranslationStatusPanel`, `ComparisonPortal`, and `FooterNavigation` into dedicated components with RTL coverage.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/store/bootstrap/bootstrapHelpers.test.ts --run`; `npm run test -- tests/services/exportService.test.ts --run`; `npm run test -- tests/components/chapter/SelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterHeader.test.tsx --run`; `npm run test -- tests/components/chapter/ReaderFeedbackPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ChapterContent.test.tsx --run`; `npm run test -- tests/components/chapter/FootnotesPanel.test.tsx --run`; `npm run test -- tests/components/chapter/TranslationStatusPanel.test.tsx --run`; `npm run test -- tests/components/chapter/ComparisonPortal.test.tsx --run`; `npm run test -- tests/components/chapter/FooterNavigation.test.tsx --run`; `npm run test -- tests/hooks/useFootnoteNavigation.test.tsx --run`; `npm run test -- tests/hooks/useTranslationTokens.test.tsx --run`; `npm run test -- tests/hooks/useChapterTelemetry.test.tsx --run`
+2025-11-20 19:37 UTC - ChapterContent decomposition: diff paragraphs + inline toolbar
+- Files: components/chapter/ChapterContent.tsx; components/chapter/DiffParagraphs.tsx; components/chapter/InlineEditToolbar.tsx; hooks/useTokenizedContent.ts; tests/components/chapter/DiffParagraphs.test.tsx; tests/components/chapter/InlineEditToolbar.test.tsx; docs/WORKLOG.md
+- Why: ChapterContent still hosted the diff paragraph mapping and inline edit toolbar markup; splitting them keeps the main component lean and reusable.
+- Details:
+  - Added `DiffParagraphs` and `InlineEditToolbar` components; `ChapterContent` now composes them instead of embedding the markup.
+  - `useTokenizedContent` remains the central hook for tokens/diffs; updated imports accordingly.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/components/chapter/DiffParagraphs.test.tsx --run`; `npm run test -- tests/components/chapter/InlineEditToolbar.test.tsx --run`
+2025-11-20 19:39 UTC - ChapterContent decomposition: translation editor component
+- Files: components/chapter/ChapterContent.tsx; components/chapter/TranslationEditor.tsx; tests/components/chapter/TranslationEditor.test.tsx; docs/WORKLOG.md
+- Why: The inline textarea inside ChapterContent was still embedded; extracting it keeps the component slimmer and makes future styling/testing easier.
+- Details:
+  - Added `TranslationEditor` (a simple textarea wrapper) and replaced the inline markup; added a lightweight test to ensure onChange fires.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/components/chapter/TranslationEditor.test.tsx --run`
+2025-11-20 19:48 UTC - Selection overlay wrapper + editor split
+- Files: components/ChapterView.tsx; components/chapter/ChapterSelectionOverlay.tsx; components/chapter/ChapterContent.tsx; components/chapter/TranslationEditor.tsx; tests/components/chapter/ChapterSelectionOverlay.test.tsx; tests/components/chapter/TranslationEditor.test.tsx; docs/WORKLOG.md
+- Why: Continue slimming ChapterView/ChapterContent by wrapping the SelectionOverlay wiring and extracting the translation textarea.
+- Details:
+  - Added `ChapterSelectionOverlay` to encapsulate the overlay rendering logic so ChapterView just mounts the wrapper; added RTL coverage for selection/no-selection cases.
+  - Extracted the `TranslationEditor` textarea from ChapterContent for reuse and simpler testing.
+- Tests: `npx tsc --noEmit`; `npm run test -- tests/components/chapter/ChapterSelectionOverlay.test.tsx --run`; `npm run test -- tests/components/chapter/TranslationEditor.test.tsx --run`
+2025-11-20 19:51 UTC - ReaderBody wrapper
+- Files: components/ChapterView.tsx; components/chapter/ReaderBody.tsx; docs/WORKLOG.md
+- Why: Compress the main render body by wrapping ChapterContent, footnotes, feedback, selection overlay, comparison portal, footer nav, and audio player into a single component.
+- Details:
+  - Added `ReaderBody` which accepts the necessary props (chapter content config, overlay handlers, comparison portal state, navigation/audio props) so ChapterView just passes down computed values.
+- Tests: `npx tsc --noEmit`
+2025-11-21 13:47 UTC - ChapterView decomposition: ReaderBody wrapper
+- Files: components/ChapterView.tsx; components/chapter/ReaderBody.tsx; docs/WORKLOG.md
+- Why: Consolidate the remaining ChapterView body (ChapterContent, footnotes, reader feedback, selection overlay, comparison portal, footer nav, audio player) into a single component.
+- Details:
+  - Added `ReaderBody` which accepts the necessary props (tokenized content config, overlay actions, comparison portal state, navigation/audio handlers) so ChapterView only orchestrates data/hook outputs.
+- Tests: `npx tsc --noEmit`
+
+2025-11-21 14:05 UTC - ChapterView decomposition: ReaderView container
+- Files: components/ChapterView.tsx; components/chapter/ReaderView.tsx; docs/WORKLOG.md
+- Why: Wrap the header + status + body render structure in a dedicated `ReaderView` so ChapterView shrinks to computing props + invoking a single component.
+- Details:
+  - Added `ReaderView` that renders `ChapterHeader`, `TranslationStatusPanel`, and `ReaderBody` inside the main container; ChapterView now just builds the header/status/body prop objects and passes a `viewRef`.
+- Tests: `npx tsc --noEmit`
+2025-11-22 12:40 UTC - Image version hydration + marker cleanup
+- Files: services/db/operations/imageVersions.ts; store/slices/imageSlice.ts; tests/services/db/ImageOps.test.ts
+- Why: After deleting the last illustration version, navigation/reload cleared imageVersionState so the delete control disappeared; user also wanted to delete orphaned markers after a refresh.
+- Details: Keep a placeholder imageVersionState when the final version is removed, surface version controls via loadExistingImages/getVersionInfo even with zero versions, and treat a delete against an empty version list as a marker cleanup (removing it from suggestedIllustrations). Added regression coverage for last-version placeholders and empty-state cleanup.
+- Tests: npx tsc --noEmit; npm run test -- run tests/services/db/ImageOps.test.ts
+
+2025-11-22 12:30 UTC - Translation metadata backfill + image hydration on navigation
+- Files: services/navigationService.ts; services/db/operations/maintenance.ts; store/bootstrap/initializeStore.ts; store/slices/chaptersSlice.ts; tests/store/bootstrap/bootstrapHelpers.test.ts
+- Why: Legacy translations lacked provider/model snapshots, breaking shouldEnableRetranslation and image persistence after navigation; image delete controls vanished after leaving a chapter because image state wasn’t hydrated on load.
+- Details: Hydrate translationSettingsSnapshot during chapter load, add a maintenance backfill for provider/model snapshots, wire it into bootstrap, and auto-call loadExistingImages when hydrating a chapter that has suggestedIllustrations. Navigation/chapters slices now preserve snapshot metadata and repopulate image state after navigation.
+- Tests: npx tsc --noEmit; npm run test -- run tests/store/bootstrap/bootstrapHelpers.test.ts
+
+2025-11-22 12:20 UTC - SettingsModal modularization + novel metadata guard
+- Files: components/SettingsModal.tsx; components/settings/*; hooks/useAdvancedPanelStore.ts; hooks/useAudioPanelStore.ts; hooks/useExportPanelStore.ts; hooks/useProvidersPanelStore.ts; hooks/useNovelMetadata.ts
+- Why: 2.7k LOC modal blocked further changes and tests were brittle; novel metadata hook crashed in tests without a chapters map.
+- Details: Extracted Providers/Display/Prompt/Diff/Metadata/Export/Template/Audio/Advanced panels with shared context/tabs and SessionActions footer; added dedicated panel tests and a defensive guard in useNovelMetadata for undefined maps.
+- Tests: npm run test -- run components/settings; npx tsc --noEmit
+
+2025-11-22 12:10 UTC - Config + UX touch-ups
+- Files: config/constants.ts; config/costs.ts; services/translate/HtmlSanitizer.ts; components/SessionInfo.tsx
+- Why: Add OpenRouter Gemini 3 Pro image preview model pricing, expose strict XHTML sanitizer for EPUB, and fix SessionInfo wrapping on small screens.
+- Details: Deduped Gemini model entry, added pricing, exported toStrictXhtml helper, and tightened select wrappers/justification on SessionInfo.
+- Tests: npx tsc --noEmit
