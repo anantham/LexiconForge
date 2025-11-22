@@ -32,3 +32,9 @@ export function sanitizeHtml(input: string, options?: SanitizeHtmlOptions): stri
 
   return s;
 }
+
+// Strict XHTML serializer helper used by EPUB pipeline.
+// For now reuse sanitizeHtml to normalize markup and ensure br/hr compliance.
+export function toStrictXhtml(input: string): string {
+  return sanitizeHtml(input, { allowHr: true });
+}
