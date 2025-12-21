@@ -1113,3 +1113,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Why: Add OpenRouter Gemini 3 Pro image preview model pricing, expose strict XHTML sanitizer for EPUB, and fix SessionInfo wrapping on small screens.
 - Details: Deduped Gemini model entry, added pricing, exported toStrictXhtml helper, and tightened select wrappers/justification on SessionInfo.
 - Tests: npx tsc --noEmit
+
+2025-12-21 18:05 UTC - Repo hygiene: ignore local assistant configs
+- Files: .gitignore; docs/WORKLOG.md
+- Why: Keep local Codex/Claude config and symlink artifacts out of `git status` and prevent accidental commits.
+- Details: Ignore `.claude/` and `CLAUDE.md`.
