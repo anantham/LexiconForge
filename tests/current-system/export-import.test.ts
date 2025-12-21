@@ -63,8 +63,8 @@ describe('Session export/import', () => {
   });
 
   describe('diffResults export/import', () => {
-    it('should include diffResults in exported session data', async () => {
-      // Mock the getAllDiffResults method to return test data
+    it('[Unit] should include diffResults in exported session data (mocked)', async () => {
+      // Unit test: Mock DiffOps.getAll() to test export logic in isolation
       const mockDiffResults = [
         {
           chapterId: 'stable-1',
@@ -92,6 +92,41 @@ describe('Session export/import', () => {
       expect(exported.diffResults).toBeDefined();
       expect(exported.diffResults).toHaveLength(1);
       expect(exported.diffResults[0].chapterId).toBe('stable-1');
+    });
+
+    it('[Integration] should include diffResults from real DB', async () => {
+      // Integration test: Use actual fake-indexeddb to test full data flow
+      const testDiffResult: DiffResult = {
+        chapterId: 'stable-integration',
+        aiVersionId: 'ai-version-123',
+        fanVersionId: null,
+        rawVersionId: 'raw-version-456',
+        algoVersion: '1.0.0',
+        markers: [{
+          chunkId: 'para-0-test',
+          colors: ['orange'],
+          reasons: ['raw-divergence'],
+          aiRange: { start: 0, end: 15 },
+          position: 0
+        }],
+        analyzedAt: Date.now(),
+        costUsd: 0.002,
+        model: 'gpt-4o-mini'
+      };
+
+      // Save to actual DB
+      await DiffOps.save(testDiffResult);
+
+      // Export should retrieve from DB
+      const exported = await SessionExportOps.exportFullSession();
+
+      expect(exported.diffResults).toBeDefined();
+      expect(exported.diffResults.length).toBeGreaterThanOrEqual(1);
+
+      const found = exported.diffResults.find((r: any) => r.chapterId === 'stable-integration');
+      expect(found).toBeDefined();
+      expect(found?.aiVersionId).toBe('ai-version-123');
+      expect(found?.model).toBe('gpt-4o-mini');
     });
 
     it('should restore diffResults from imported session data', async () => {
@@ -208,16 +243,20 @@ describe('Session export/import', () => {
           notes: 'Imported',
         },
       ];
-      const importSpy = vi
-        .spyOn(AmendmentOps, 'importLogs')
-        .mockResolvedValue(undefined as any);
 
       await ImportOps.importFullSessionData({
         metadata: { format: 'lexiconforge-full-1' },
         amendmentLogs: logs,
       });
 
-      expect(importSpy).toHaveBeenCalledWith(logs);
+      // Verify amendment logs were written to DB (integration test)
+      const retrievedLogs = await AmendmentOps.getLogs();
+      const importedLog = retrievedLogs.find(l => l.id === 'log-2');
+
+      expect(importedLog).toBeDefined();
+      expect(importedLog?.chapterId).toBe('stable-456');
+      expect(importedLog?.action).toBe('modified');
+      expect(importedLog?.finalPromptChange).toBe('Changed prompt');
     });
   });
 

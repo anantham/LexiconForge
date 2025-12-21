@@ -78,7 +78,7 @@ export const DiffMarkersPanel: React.FC<DiffMarkersPanelProps> = ({
           )}
         </div>
       )}
-      <div className="whitespace-pre-wrap leading-relaxed">
+      <div className="whitespace-pre-wrap leading-relaxed" data-lf-type="text">
         {paragraph.nodes}
         {hasMarkers &&
           markerVisibilitySettings.stylistic &&
