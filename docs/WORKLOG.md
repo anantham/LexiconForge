@@ -1123,3 +1123,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files: services/db/operations/sessionExport.ts; services/epub/assetResolver.ts; components/chapter/{ReaderView.tsx,DiffMarkersPanel.tsx}; tests/current-system/{export-import.test.ts,translation.test.ts}; tests/epub/assetResolver.test.ts; tests/services/db/TranslationRepository.test.ts; docs/WORKLOG.md
 - Why: Keep session export using the DB ops layer (DiffOps), make EPUB image IDs stable with versioning, and tighten tests/selectors for more reliable validation.
 - Tests: `npm test -- --run tests/current-system/export-import.test.ts tests/epub/assetResolver.test.ts tests/current-system/translation.test.ts tests/services/db/TranslationRepository.test.ts`
+
+2025-12-21 18:26 UTC - Test runner fixes: exclude Playwright specs + stabilize DB singleton test
+- Files: vitest.config.ts; tests/adapters/providers/ClaudeAdapter.test.ts; services/db/core/connection.ts; docs/WORKLOG.md
+- Why: Keep Playwright `tests/e2e/*.spec.ts` out of Vitest, fix Vitest mock hoisting in ClaudeAdapter tests, and remove an unreliable IndexedDB “probe open” that doubled open() calls.
+- Tests: `npm test -- --run`
