@@ -83,3 +83,7 @@ Marketing/.DS_Store
 
 # Git worktrees
 .worktrees/
+
+# Local AI assistant configs
+.claude/
+CLAUDE.md
