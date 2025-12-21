@@ -4,9 +4,17 @@ import type { AppSettings, HistoricalChapter, TranslationResult } from '../../..
 import type { TranslationRequest } from '../../../services/translate/Translator';
 import { createMockAppSettings } from '../../utils/test-data';
 
-const translateWithClaudeMock = vi.fn<
-  (title: string, content: string, settings: AppSettings, history: HistoricalChapter[], fanTranslation?: string | null) => Promise<TranslationResult>
->();
+const { translateWithClaudeMock } = vi.hoisted(() => ({
+  translateWithClaudeMock: vi.fn<
+    (
+      title: string,
+      content: string,
+      settings: AppSettings,
+      history: HistoricalChapter[],
+      fanTranslation?: string | null
+    ) => Promise<TranslationResult>
+  >(),
+}));
 
 vi.mock('../../../services/claudeService', () => ({
   translateWithClaude: translateWithClaudeMock,
