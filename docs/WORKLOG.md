@@ -1118,3 +1118,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files: .gitignore; docs/WORKLOG.md
 - Why: Keep local Codex/Claude config and symlink artifacts out of `git status` and prevent accidental commits.
 - Details: Ignore `.claude/` and `CLAUDE.md`.
+
+2025-12-21 18:08 UTC - System tests: export/import + EPUB asset resolver hardening
+- Files: services/db/operations/sessionExport.ts; services/epub/assetResolver.ts; components/chapter/{ReaderView.tsx,DiffMarkersPanel.tsx}; tests/current-system/{export-import.test.ts,translation.test.ts}; tests/epub/assetResolver.test.ts; tests/services/db/TranslationRepository.test.ts; docs/WORKLOG.md
+- Why: Keep session export using the DB ops layer (DiffOps), make EPUB image IDs stable with versioning, and tighten tests/selectors for more reliable validation.
+- Tests: `npm test -- --run tests/current-system/export-import.test.ts tests/epub/assetResolver.test.ts tests/current-system/translation.test.ts tests/services/db/TranslationRepository.test.ts`
