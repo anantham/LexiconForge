@@ -1118,3 +1118,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files: .gitignore; docs/WORKLOG.md
 - Why: Keep local Codex/Claude config and symlink artifacts out of `git status` and prevent accidental commits.
 - Details: Ignore `.claude/` and `CLAUDE.md`.
+
+2025-12-21 18:10 UTC - Prompt UX: active prompt content editor
+- Files: components/settings/PromptPanel.tsx; components/settings/PromptPanel.test.tsx; docs/WORKLOG.md
+- Why: Make the active system prompt directly editable (edit/save/cancel) without switching templates or losing selection state.
+- Tests: `npm test -- --run components/settings/PromptPanel.test.tsx`
