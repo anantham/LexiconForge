@@ -81,7 +81,8 @@ afterEach(() => {
     }));
 
     versionsSpy.mockResolvedValue([]);
-    translationSpy.mockResolvedValue(mockResult());
+    // Fix: translateChapterSequential returns TranslateChapterResponse, not TranslationResult directly
+    translationSpy.mockResolvedValue({ translationResult: mockResult() });
     storeTranslationSpy.mockResolvedValue({ id: 'stored-version-id' } as any);
 
     await useAppStore.getState().handleTranslate(chapterId);

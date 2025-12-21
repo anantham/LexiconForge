@@ -25,7 +25,7 @@ const baseSettings: AppSettings = createMockAppSettings({
 });
 
 const baseChapter: Chapter = createMockChapter({
-  url: 'https://example.com/ch1',
+  originalUrl: 'https://example.com/ch1',  // Use originalUrl, not url, to match storage key
   chapterNumber: 1,
 });
 
@@ -83,11 +83,12 @@ const writeUrlMapping = async (stableId: string, url: string) => {
 };
 
 const ensureStableMapping = async (): Promise<string> => {
-  const chapterRecord = await chapterRepo.getChapter(baseChapter.url);
+  // Use originalUrl to match the storage key (ChapterRepository stores by originalUrl)
+  const chapterRecord = await chapterRepo.getChapter(baseChapter.originalUrl!);
   if (!chapterRecord?.stableId) {
     throw new Error('Expected stored chapter to include stableId');
   }
-  await writeUrlMapping(chapterRecord.stableId, baseChapter.url);
+  await writeUrlMapping(chapterRecord.stableId, baseChapter.originalUrl!);
   return chapterRecord.stableId;
 };
 
@@ -118,35 +119,35 @@ afterEach(async () => {
 
 describe('TranslationRepository', () => {
   it('stores translations with incrementing versions and single active record', async () => {
-    const first = await translationRepo.storeTranslation(baseChapter.url, baseTranslation, baseSettings);
+    const first = await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
     expect(first.version).toBe(1);
-    const second = await translationRepo.storeTranslation(baseChapter.url, {
+    const second = await translationRepo.storeTranslation(baseChapter.originalUrl!, {
       ...baseTranslation,
       translatedTitle: 'Translated 2',
       translation: '<p>Hola Mundo</p>',
     }, baseSettings);
     expect(second.version).toBe(2);
 
-    const active = await translationRepo.getActiveTranslation(baseChapter.url);
+    const active = await translationRepo.getActiveTranslation(baseChapter.originalUrl!);
     expect(active?.version).toBe(2);
 
-    const versions = await translationRepo.getTranslationVersions(baseChapter.url);
+    const versions = await translationRepo.getTranslationVersions(baseChapter.originalUrl!);
     expect(versions).toHaveLength(2);
     expect(versions.filter(v => v.isActive)).toHaveLength(1);
   });
 
   it('allows overriding active translation', async () => {
-    await translationRepo.storeTranslation(baseChapter.url, baseTranslation, baseSettings);
-    const second = await translationRepo.storeTranslation(baseChapter.url, {
+    await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
+    const second = await translationRepo.storeTranslation(baseChapter.originalUrl!, {
       ...baseTranslation,
       translatedTitle: 'Alt',
     }, baseSettings);
 
-    await translationRepo.setActiveTranslation(baseChapter.url, 1);
-    const active = await translationRepo.getActiveTranslation(baseChapter.url);
+    await translationRepo.setActiveTranslation(baseChapter.originalUrl!, 1);
+    const active = await translationRepo.getActiveTranslation(baseChapter.originalUrl!);
     expect(active?.version).toBe(1);
 
-    const versions = await translationRepo.getTranslationVersions(baseChapter.url);
+    const versions = await translationRepo.getTranslationVersions(baseChapter.originalUrl!);
     const activeCount = versions.filter(v => v.isActive).length;
     expect(activeCount).toBe(1);
     expect(second.isActive).toBe(true); // stored record remains true, but DB state toggled
@@ -162,21 +163,21 @@ describe('TranslationRepository', () => {
   });
 
   it('deletes translation versions and reactivates latest', async () => {
-    await translationRepo.storeTranslation(baseChapter.url, baseTranslation, baseSettings);
-    const second = await translationRepo.storeTranslation(baseChapter.url, {
+    await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
+    const second = await translationRepo.storeTranslation(baseChapter.originalUrl!, {
       ...baseTranslation,
       translatedTitle: 'Another',
     }, baseSettings);
 
     await translationRepo.deleteTranslationVersion(second.id);
-    const versions = await translationRepo.getTranslationVersions(baseChapter.url);
+    const versions = await translationRepo.getTranslationVersions(baseChapter.originalUrl!);
     expect(versions).toHaveLength(1);
     expect(versions[0].isActive).toBeTruthy();
   });
 
   it('retrieves translations by id and lists all translations', async () => {
-    const first = await translationRepo.storeTranslation(baseChapter.url, baseTranslation, baseSettings);
-    const second = await translationRepo.storeTranslation(baseChapter.url, {
+    const first = await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
+    const second = await translationRepo.storeTranslation(baseChapter.originalUrl!, {
       ...baseTranslation,
       translatedTitle: 'Third',
     }, baseSettings);
@@ -191,8 +192,8 @@ describe('TranslationRepository', () => {
   });
 
   it('sets active translation via stableId', async () => {
-    await translationRepo.storeTranslation(baseChapter.url, baseTranslation, baseSettings);
-    await translationRepo.storeTranslation(baseChapter.url, { ...baseTranslation, translatedTitle: 'Alt' }, baseSettings);
+    await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
+    await translationRepo.storeTranslation(baseChapter.originalUrl!, { ...baseTranslation, translatedTitle: 'Alt' }, baseSettings);
     const stableId = await ensureStableMapping();
 
     await translationRepo.setActiveTranslationByStableId(stableId, 1);
@@ -202,8 +203,8 @@ describe('TranslationRepository', () => {
   });
 
   it('ensures an active translation exists per stableId', async () => {
-    await translationRepo.storeTranslation(baseChapter.url, baseTranslation, baseSettings);
-    await translationRepo.storeTranslation(baseChapter.url, { ...baseTranslation, translatedTitle: 'Alt' }, baseSettings);
+    await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
+    await translationRepo.storeTranslation(baseChapter.originalUrl!, { ...baseTranslation, translatedTitle: 'Alt' }, baseSettings);
     const stableId = await ensureStableMapping();
 
     const versions = await translationRepo.getTranslationVersionsByStableId(stableId);
