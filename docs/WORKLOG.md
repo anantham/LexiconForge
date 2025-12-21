@@ -1118,3 +1118,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files: .gitignore; docs/WORKLOG.md
 - Why: Keep local Codex/Claude config and symlink artifacts out of `git status` and prevent accidental commits.
 - Details: Ignore `.claude/` and `CLAUDE.md`.
+
+2025-12-21 18:13 UTC - Prompts: metadata preamble plumbing
+- Files: services/prompts/metadataPreamble.ts; tests/services/prompts/metadataPreamble.test.ts; services/ai/providers/{openai.ts,gemini.ts}; services/claudeService.ts; docs/WORKLOG.md
+- Why: Centralize “session context” (project/languages/glossary) generation and inject it into provider prompts to reduce prompt drift across models.
+- Tests: `npm test -- --run tests/services/prompts/metadataPreamble.test.ts tests/services/aiService.providers.test.ts`
