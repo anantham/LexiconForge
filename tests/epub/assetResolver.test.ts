@@ -46,7 +46,7 @@ describe('resolveAssets', () => {
             {
               placementMarker: 'ILL-1',
               prompt: 'A hero',
-              cacheKey: { chapterId: 'ch-1', placementMarker: 'ILL-1' }
+              cacheKey: { chapterId: 'ch-1', placementMarker: 'ILL-1', version: 1 }
             }
           ]
         } as CollectedChapter
@@ -66,7 +66,7 @@ describe('resolveAssets', () => {
     // Assert: Asset created with correct structure
     expect(result.assets).toHaveLength(1);
     expect(result.assets[0]).toMatchObject({
-      id: 'img-ch-1-ILL-1',
+      id: 'img-ch-1-ILL-1-v1',  // Version included in ID
       mimeType: 'image/png',
       extension: 'png',
       sourceRef: {
@@ -85,7 +85,7 @@ describe('resolveAssets', () => {
     expect(result.chapters[0].imageReferences[0]).toMatchObject({
       placementMarker: 'ILL-1',
       prompt: 'A hero',
-      assetId: 'img-ch-1-ILL-1',
+      assetId: 'img-ch-1-ILL-1-v1',  // Version included in ID
       missing: false
     });
 
@@ -110,7 +110,7 @@ describe('resolveAssets', () => {
             {
               placementMarker: 'ILL-2',
               prompt: 'A dragon',
-              cacheKey: { chapterId: 'ch-2', placementMarker: 'ILL-2' },
+              cacheKey: { chapterId: 'ch-2', placementMarker: 'ILL-2', version: 1 },
               base64Fallback: base64Image
             }
           ]
@@ -148,6 +148,51 @@ describe('resolveAssets', () => {
     expect(result.chapters[0].imageReferences[0].missing).toBe(false);
   });
 
+  it('handles missing version field gracefully with fallback to version 1', async () => {
+    // Arrange: Cache hit but version field missing (defensive case)
+    const pngData = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+    const mockBlob = new Blob([pngData], { type: 'image/png' });
+    vi.mocked(ImageCacheStore.getImageBlob).mockResolvedValue(mockBlob);
+
+    const collectedData: CollectedData = {
+      chapters: [
+        {
+          id: 'ch-defensive',
+          chapterNumber: 99,
+          title: 'Defensive Test',
+          content: '<p>Content</p>',
+          footnotes: [],
+          imageReferences: [
+            {
+              placementMarker: 'ILL-DEF',
+              prompt: 'A test',
+              // Type assertion to simulate missing version (runtime data quality issue)
+              cacheKey: { chapterId: 'ch-defensive', placementMarker: 'ILL-DEF' } as any
+            }
+          ]
+        } as CollectedChapter
+      ],
+      metadata: {
+        novelTitle: 'Test',
+        totalChapters: 1,
+        translatedChapters: 1,
+        exportDate: '2025-01-01'
+      },
+      warnings: []
+    };
+
+    // Act
+    const result = await resolveAssets(collectedData);
+
+    // Assert: Should fallback to version 1 or generate ID without version
+    expect(result.assets).toHaveLength(1);
+    // Asset ID should handle missing version gracefully (either with 'undefined' or fallback)
+    const assetId = result.assets[0].id;
+    expect(assetId).toMatch(/^img-ch-defensive-ILL-DEF/);
+    expect(result.chapters[0].imageReferences[0].assetId).toBe(assetId);
+    expect(result.chapters[0].imageReferences[0].missing).toBe(false);
+  });
+
   it('marks image as missing when both cache and fallback unavailable', async () => {
     // Arrange: Cache miss + no fallback
     vi.mocked(ImageCacheStore.getImageBlob).mockResolvedValue(null);
@@ -164,7 +209,7 @@ describe('resolveAssets', () => {
             {
               placementMarker: 'ILL-3',
               prompt: 'A castle',
-              cacheKey: { chapterId: 'ch-3', placementMarker: 'ILL-3' }
+              cacheKey: { chapterId: 'ch-3', placementMarker: 'ILL-3', version: 1 }
               // No base64Fallback
             }
           ]

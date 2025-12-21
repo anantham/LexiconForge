@@ -1,10 +1,14 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig, configDefaults } from 'vitest/config'
 import { resolve } from 'path'
 
 export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    exclude: [
+      ...configDefaults.exclude,
+      'tests/e2e/**', // Playwright specs (run via `npm run test:e2e`)
+    ],
     setupFiles: ['./tests/setup.ts'],
     coverage: {
       provider: 'v8',
