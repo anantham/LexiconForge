@@ -46,7 +46,8 @@ export async function resolveAssets(
             if (blob) {
               // Cache hit - convert to ArrayBuffer (Node-compatible)
               const arrayBuffer = await blobToArrayBuffer(blob);
-              const assetId = `img-${imageRef.cacheKey.chapterId}-${imageRef.placementMarker}-v${imageRef.cacheKey.version}`;
+              const version = imageRef.cacheKey.version ?? 1; // Defensive fallback for missing version
+              const assetId = `img-${imageRef.cacheKey.chapterId}-${imageRef.placementMarker}-v${version}`;
 
               resolvedAssets.push({
                 id: assetId,
