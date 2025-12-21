@@ -7,29 +7,9 @@ import {
   TemplatesOps,
   TranslationOps,
   MappingsOps,
+  DiffOps,
 } from './index';
 import { AmendmentOps } from './amendments';
-import { STORE_NAMES } from '../core/schema';
-import { withReadTxn, promisifyRequest } from '../core/txn';
-
-const DOMAIN = 'sessionExport';
-
-const getAllDiffResults = async (): Promise<any[]> => {
-  try {
-    return await withReadTxn(
-      STORE_NAMES.DIFF_RESULTS,
-      async (_txn, stores) => {
-        const store = stores[STORE_NAMES.DIFF_RESULTS];
-        return (await promisifyRequest(store.getAll())) as any[];
-      },
-      DOMAIN,
-      'operations',
-      'getAllDiffResults'
-    );
-  } catch {
-    return [];
-  }
-};
 
 const getUrlMappingOrNull = (url: string): Promise<UrlMappingRecord | null> => {
   return MappingsOps.getUrlMappingForUrl(url);
@@ -48,7 +28,7 @@ export class SessionExportOps {
         getAllNovels: () => MappingsOps.getAllNovels(),
         getAllChapters: () => ChapterOps.getAll(),
         getSetting: <T>(key: string) => SettingsOps.getKey<T>(key),
-        getAllDiffResults,
+        getAllDiffResults: () => DiffOps.getAll(),
         getUrlMappingForUrl: getUrlMappingOrNull,
         getTranslationVersionsByStableId: (stableId: string) =>
           TranslationOps.getVersionsByStableId(stableId),
