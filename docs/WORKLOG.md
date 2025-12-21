@@ -1138,3 +1138,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files: vitest.config.ts; tests/adapters/providers/ClaudeAdapter.test.ts; services/db/core/connection.ts; docs/WORKLOG.md
 - Why: Keep Playwright `tests/e2e/*.spec.ts` out of Vitest, fix Vitest mock hoisting in ClaudeAdapter tests, and remove an unreliable IndexedDB “probe open” that doubled open() calls.
 - Tests: `npm test -- --run`
+
+2025-12-21 18:50 UTC - Prompts: update default system prompt
+- Files: config/prompts.json; docs/WORKLOG.md
+- Why: Refresh the default `systemPrompt` to better match the new metadata preamble flow and keep the baseline prompt less project-specific.
+- Tests: `npm test -- --run`
