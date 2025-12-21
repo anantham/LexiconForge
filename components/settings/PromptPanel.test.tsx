@@ -4,6 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import PromptPanel from './PromptPanel';
 import { SettingsModalProvider } from './SettingsModalContext';
 import type { AppSettings } from '../../types';
+import React from 'react';
 
 const baseSettings: AppSettings = {
   provider: 'Gemini',
@@ -38,20 +39,34 @@ vi.mock('../../store', () => ({
 }));
 
 const renderPanel = (overrides: Partial<AppSettings> = {}) => {
-  const ctxValue = {
-    currentSettings: { ...baseSettings, ...overrides },
-    handleSettingChange: vi.fn(),
-    parameterSupport: {},
-    setParameterSupport: vi.fn(),
-    novelMetadata: null,
-    handleNovelMetadataChange: vi.fn(),
+  const Wrapper: React.FC = () => {
+    const [currentSettings, setCurrentSettings] = React.useState<AppSettings>({
+      ...baseSettings,
+      ...overrides,
+    });
+
+    const ctxValue = React.useMemo(
+      () => ({
+        currentSettings,
+        handleSettingChange: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+          setCurrentSettings((prev) => ({ ...prev, [key]: value }));
+        },
+        parameterSupport: {},
+        setParameterSupport: vi.fn(),
+        novelMetadata: null,
+        handleNovelMetadataChange: vi.fn(),
+      }),
+      [currentSettings]
+    );
+
+    return (
+      <SettingsModalProvider value={ctxValue}>
+        <PromptPanel />
+      </SettingsModalProvider>
+    );
   };
 
-  return render(
-    <SettingsModalProvider value={ctxValue}>
-      <PromptPanel />
-    </SettingsModalProvider>
-  );
+  return render(<Wrapper />);
 };
 
 describe('PromptPanel', () => {
@@ -81,5 +96,21 @@ describe('PromptPanel', () => {
 
     expect(storeState.setActivePromptTemplate).toHaveBeenCalledWith('2');
     expect(storeState.updateSettings).toHaveBeenCalledWith({ systemPrompt: 'B', activePromptId: '2' });
+  });
+
+  it('edits the active prompt content and saves it', async () => {
+    const user = userEvent.setup();
+    renderPanel();
+
+    const editButtons = screen.getAllByRole('button', { name: /^edit$/i });
+    await user.click(editButtons[0]);
+    const textarea = screen.getByLabelText(/system prompt text/i);
+    await user.clear(textarea);
+    await user.type(textarea, 'Updated content');
+    await user.click(screen.getAllByRole('button', { name: /save/i })[0]);
+
+    expect(storeState.updatePromptTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1', content: 'Updated content' })
+    );
   });
 });

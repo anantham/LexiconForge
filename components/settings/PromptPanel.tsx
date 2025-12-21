@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { useAppStore } from '../../store';
 import { useShallow } from 'zustand/react/shallow';
@@ -29,6 +29,15 @@ export const PromptPanel: React.FC = () => {
   const [editingPrompt, setEditingPrompt] = useState<string | null>(null);
   const [newPromptName, setNewPromptName] = useState('');
   const [newPromptDescription, setNewPromptDescription] = useState('');
+  const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const isEditingActive = editingPrompt === activePromptTemplate?.id;
+
+  useEffect(() => {
+    if (isEditingActive && promptTextareaRef.current) {
+      promptTextareaRef.current.focus();
+    }
+  }, [isEditingActive]);
 
   const handleCreatePrompt = async () => {
     if (!newPromptName.trim()) return;
@@ -46,6 +55,7 @@ export const PromptPanel: React.FC = () => {
   };
 
   const handleSelectPrompt = async (templateId: string) => {
+    setEditingPrompt(null);
     await setActivePromptTemplate(templateId);
     const template = promptTemplates.find((t) => t.id === templateId);
     if (template) {
@@ -54,7 +64,7 @@ export const PromptPanel: React.FC = () => {
       handleSettingChange('activePromptId' as any, templateId as any);
       requestAnimationFrame(() => {
         const el = document.getElementById(`prompt-${templateId}`);
-        if (el) {
+        if (el && typeof el.scrollIntoView === 'function') {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           el.classList.add('ring-2', 'ring-blue-400');
           setTimeout(() => el.classList.remove('ring-2', 'ring-blue-400'), 1200);
@@ -77,6 +87,7 @@ export const PromptPanel: React.FC = () => {
         ...template,
         content: currentSettings.systemPrompt,
       });
+      updateSettings({ systemPrompt: currentSettings.systemPrompt, activePromptId: templateId });
     }
     setEditingPrompt(null);
   };
@@ -102,6 +113,64 @@ export const PromptPanel: React.FC = () => {
           >
             + Create New
           </button>
+        </div>
+
+        <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-white dark:bg-gray-900">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+              Active prompt content
+            </h4>
+            <div className="space-x-2">
+              {activePromptTemplate && !isEditingActive && (
+                <button
+                  onClick={() => setEditingPrompt(activePromptTemplate.id)}
+                  className="px-2 py-1 bg-gray-500 text-white text-xs rounded-md hover:bg-gray-600 transition"
+                  disabled={!activePromptTemplate}
+                >
+                  Edit
+                </button>
+              )}
+              {isEditingActive && (
+                <>
+                  <button
+                    onClick={() => setEditingPrompt(null)}
+                    className="px-2 py-1 bg-gray-400 text-white text-xs rounded-md hover:bg-gray-500 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleSavePromptEdit(activePromptTemplate!.id)}
+                    className="px-2 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition"
+                  >
+                    Save
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1" htmlFor="active-prompt-content">
+            System prompt text
+          </label>
+          <textarea
+            id="active-prompt-content"
+            ref={promptTextareaRef}
+            value={currentSettings.systemPrompt}
+            onChange={(e) => handleSettingChange('systemPrompt' as any, e.target.value as any)}
+            disabled={!activePromptTemplate}
+            className={`w-full h-40 p-3 text-sm rounded-md border ${
+              isEditingActive
+                ? 'border-blue-400 focus:ring-2 focus:ring-blue-400'
+                : 'border-gray-300 dark:border-gray-700'
+            } bg-gray-50 dark:bg-gray-800 dark:text-gray-100`}
+            placeholder="Select or create a prompt to edit its content"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {activePromptTemplate
+              ? isEditingActive
+                ? 'Editing active prompt. Click Save to persist changes.'
+                : 'Click Edit to modify the active prompt content.'
+              : 'Select or create a prompt to start editing.'}
+          </p>
         </div>
 
         {showCreatePrompt && (
