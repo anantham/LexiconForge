@@ -21,23 +21,9 @@ export function isIndexedDBAvailable(): boolean {
   }
 
   try {
+    // Simple synchronous check - just verify indexedDB exists.
+    // Private browsing / blocked storage is handled when open() fails.
     _indexedDBAvailable = typeof indexedDB !== 'undefined' && indexedDB !== null;
-    
-    // Additional check for private browsing mode
-    if (_indexedDBAvailable) {
-      // Test if we can actually open a database
-      const testName = `__idb_test_${Date.now()}`;
-      const testRequest = indexedDB.open(testName);
-      testRequest.onerror = () => {
-        _indexedDBAvailable = false;
-      };
-      testRequest.onsuccess = () => {
-        // Clean up test database
-        const testDb = testRequest.result;
-        testDb.close();
-        indexedDB.deleteDatabase(testName);
-      };
-    }
   } catch (error) {
     _indexedDBAvailable = false;
   }
