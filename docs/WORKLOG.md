@@ -1129,6 +1129,11 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Why: Make the active system prompt directly editable (edit/save/cancel) without switching templates or losing selection state.
 - Tests: `npm test -- --run components/settings/PromptPanel.test.tsx`
 
+2025-12-21 18:13 UTC - Prompts: metadata preamble plumbing
+- Files: services/prompts/metadataPreamble.ts; tests/services/prompts/metadataPreamble.test.ts; services/ai/providers/{openai.ts,gemini.ts}; services/claudeService.ts; docs/WORKLOG.md
+- Why: Centralize “session context” (project/languages/glossary) generation and inject it into provider prompts to reduce prompt drift across models.
+- Tests: `npm test -- --run tests/services/prompts/metadataPreamble.test.ts tests/services/aiService.providers.test.ts`
+
 2025-12-21 18:26 UTC - Test runner fixes: exclude Playwright specs + stabilize DB singleton test
 - Files: vitest.config.ts; tests/adapters/providers/ClaudeAdapter.test.ts; services/db/core/connection.ts; docs/WORKLOG.md
 - Why: Keep Playwright `tests/e2e/*.spec.ts` out of Vitest, fix Vitest mock hoisting in ClaudeAdapter tests, and remove an unreliable IndexedDB “probe open” that doubled open() calls.

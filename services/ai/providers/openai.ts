@@ -7,6 +7,7 @@ import { getEnvVar } from '@/services/env';
 import { rateLimitService } from '@/services/rateLimitService';
 import { supportsStructuredOutputs, supportsParameters } from '@/services/capabilityService';
 import { openrouterService } from '@/services/openrouterService';
+import { buildPreambleFromSettings } from '@/services/prompts/metadataPreamble';
 import type { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from '@/types';
 import { getDefaultApiKey } from '@/services/defaultApiKeyService';
 import { dlog, dlogFull, aiDebugEnabled } from '../debug';
@@ -199,7 +200,8 @@ export const translateWithOpenAI = async (
   await rateLimitService.canMakeRequest(settings.model);
 
   const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
-  let systemPrompt = replacePlaceholders(settings.systemPrompt, settings);
+  const preamble = buildPreambleFromSettings(settings);
+  let systemPrompt = replacePlaceholders(`${settings.systemPrompt}\n\n${preamble}`, settings);
 
   const requestOptions: any = { model: settings.model };
   const parameterSupport = await Promise.all([

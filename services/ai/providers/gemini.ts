@@ -2,6 +2,7 @@ import { GoogleGenAI, GenerateContentResponse, Type } from '@google/genai';
 import prompts from '@/config/prompts.json';
 import appConfig from '@/config/app.json';
 import { buildFanTranslationContext, formatHistory } from '@/services/prompts';
+import { buildPreambleFromSettings } from '@/services/prompts/metadataPreamble';
 import { getEnvVar } from '@/services/env';
 import type { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from '@/types';
 import { sanitizeHtml as sanitizeTranslationHTML } from '@/services/translate/HtmlSanitizer';
@@ -129,6 +130,7 @@ export const translateWithGemini = async (
     (fanTranslation ? prompts.translateFanSuffix : '') +
     prompts.translateInstruction +
     prompts.translateTitleGuidance;
+  const preamble = buildPreambleFromSettings(settings);
   const fullPrompt = `${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}`;
 
   dlog('[Gemini Debug] Request summary:', {
@@ -143,7 +145,7 @@ export const translateWithGemini = async (
   const baseRequest = {
     model: settings.model,
     contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-    systemInstruction: replacePlaceholders(settings.systemPrompt, settings),
+    systemInstruction: replacePlaceholders(`${settings.systemPrompt}\n\n${preamble}`, settings),
     generationConfig: {
       temperature: settings.temperature,
       responseMimeType: 'application/json',
