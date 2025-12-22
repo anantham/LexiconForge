@@ -1,4 +1,3 @@
-import { AppSettings, SessionChapterData } from '../types';
 import {
   ChapterForEpub,
   EpubExportOptions,
@@ -8,25 +7,25 @@ import {
   EpubTemplate,
   EpubChapter,
   EpubMeta
-} from './epub/types';
+} from './epubService/types';
 import {
   getDefaultTemplate,
   createCustomTemplate
-} from './epub/templates/defaults';
-import { getNovelConfig } from './epub/templates/novelConfig';
-import { calculateTranslationStats } from './epub/data/stats';
-import { collectActiveVersions } from './epub/data/collector';
-import { generateTitlePage } from './epub/generators/titlePage';
-import { generateTableOfContents } from './epub/generators/toc';
+} from './epubService/templates/defaults';
+import { getNovelConfig } from './epubService/templates/novelConfig';
+import { calculateTranslationStats } from './epubService/data/stats';
+import { collectActiveVersions } from './epubService/data/collector';
+import { generateTitlePage } from './epubService/generators/titlePage';
+import { generateTableOfContents } from './epubService/generators/toc';
 import {
   renderTelemetryInsights,
   generateStatsAndAcknowledgments
-} from './epub/generators/statsPage';
+} from './epubService/generators/statsPage';
 import {
   buildChapterXhtml,
-  htmlFragmentToXhtml
-} from './epub/generators/chapter';
-import { generateEpub3WithJSZip } from './epub/packagers/epubPackager';
+} from './epubService/generators/chapter';
+import { htmlFragmentToXhtml } from './epubService/sanitizers/xhtmlSanitizer';
+import { generateEpub3WithJSZip } from './epubService/packagers/epubPackager';
 
 // Re-export types for consumers
 export type {
