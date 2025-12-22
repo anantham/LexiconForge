@@ -1,0 +1,1139 @@
+diff --git a/components/SessionInfo.tsx b/components/SessionInfo.tsx
+index e9649da..49911da 100644
+--- a/components/SessionInfo.tsx
++++ b/components/SessionInfo.tsx
+@@ -5,6 +5,29 @@ import SettingsIcon from './icons/SettingsIcon';
+ import { useShallow } from 'zustand/react/shallow';
+ import { SessionChapterData } from '../store/useAppStore';
+ 
++/**
++ * Extracts a chapter number from a string.
++ * It looks for standalone numbers or numbers prefixed with "Chapter".
++ * @param str The string to parse.
++ * @returns The chapter number, or null if not found.
++ */
++const getChapterNumber = (str: string): number | null => {
++    if (!str) return null;
++
++    // Attempt to match "Chapter 123", "ch 123", "123", etc.
++    const match = str.match(/(?:chapter|ch|ตอนที่|ตอน)?[\s.]*(\d+)/i);
++
++    if (match && match[1]) {
++        const num = parseInt(match[1], 10);
++        // Basic validation to avoid giant numbers from other parts of the URL/string
++        if (num >= 0 && num < 100000) {
++            return num;
++        }
++    }
++    return null;
++};
++
++
+ const SessionInfo: React.FC = () => {
+     const {
+         currentUrl,
+@@ -28,66 +51,25 @@ const SessionInfo: React.FC = () => {
+     const [isExporting, setIsExporting] = useState(false);
+     
+     const sortedChapters = useMemo(() => {
+-        const chapterMap = new Map<string, { url: string, data: SessionChapterData }>();
+-        Object.entries(sessionData).forEach(([url, data]) => {
+-            if (data?.chapter) {
+-                chapterMap.set(url, { url, data });
+-            }
+-        });
++        const chapters = Object.values(sessionData)
++            .filter(item => item.chapter) // Ensure it is a chapter
++            .map(item => ({ url: item.url, data: item }));
+ 
+-        if (chapterMap.size === 0) return [];
++        chapters.sort((a, b) => {
++            const titleA = a.data.translationResult?.translatedTitle || a.data.chapter.title || '';
++            const titleB = b.data.translationResult?.translatedTitle || b.data.chapter.title || '';
+ 
+-        // Find the starting nodes (heads) of all chapter chains
+-        const heads = new Set(chapterMap.values());
+-        for (const chapter of chapterMap.values()) {
+-            const prevUrl = chapter.data.chapter.prevUrl;
+-            if (prevUrl && chapterMap.has(prevUrl)) {
+-                heads.delete(chapter); // This node is not a head because something points to it
+-            }
+-        }
+-
+-        // Build the chains by following nextUrl from each head
+-        const chains: Array<{ url: string, data: SessionChapterData }[]> = [];
+-        for (const head of heads) {
+-            const currentChain: { url: string, data: SessionChapterData }[] = [];
+-            let currentNode: { url: string, data: SessionChapterData } | undefined = head;
+-            while (currentNode) {
+-                currentChain.push(currentNode);
+-                const nextUrl = currentNode.data.chapter.nextUrl;
+-                // Ensure we don't add chapters that aren't in the session, preventing infinite loops
+-                currentNode = nextUrl && chapterMap.has(nextUrl) ? chapterMap.get(nextUrl) : undefined;
+-            }
+-            chains.push(currentChain);
+-        }
+-
+-        // Sort the chains using the hybrid, multi-level logic
+-        chains.sort((chainA, chainB) => {
+-            const firstA = chainA[0];
+-            const firstB = chainB[0];
+-
+-            const titleA = firstA.data.translationResult?.translatedTitle || firstA.data.chapter.title || '';
+-            const titleB = firstB.data.translationResult?.translatedTitle || firstB.data.chapter.title || '';
+-
+-            // 1. Primary Sort: By number in the title
+-            const numA_title = getChapterNumber(titleA);
+-            const numB_title = getChapterNumber(titleB);
+-            if (numA_title !== null && numB_title !== null && numA_title !== numB_title) {
+-                return numA_title - numB_title;
+-            }
++            const numA = getChapterNumber(titleA) ?? getChapterNumber(a.url);
++            const numB = getChapterNumber(titleB) ?? getChapterNumber(b.url);
+ 
+-            // 2. Tie-breaker: By number in the URL
+-            const numA_url = getChapterNumber(firstA.url);
+-            const numB_url = getChapterNumber(firstB.url);
+-            if (numA_url !== null && numB_url !== null && numA_url !== numB_url) {
+-                return numA_url - numB_url;
++            if (numA !== null && numB !== null && numA !== numB) {
++                return numA - numB;
+             }
+ 
+-            // 3. Final Tie-breaker: Alphabetical URL sort for stability
+-            return firstA.url.localeCompare(firstB.url);
++            return a.url.localeCompare(b.url); // Fallback sort
+         });
+ 
+-        // Flatten the sorted chains into a single list
+-        return chains.flat();
++        return chapters;
+     }, [sessionData]);
+ 
+     const sessionIsEmpty = sortedChapters.length === 0;
+diff --git a/package-lock.json b/package-lock.json
+index 7295144..42ff41d 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -12,6 +12,7 @@
+         "@google/genai": "1.13.0",
+         "@vercel/analytics": "^1.5.0",
+         "epub-gen": "^0.1.0",
++        "jszip": "^3.10.1",
+         "openai": "4.52.7",
+         "react": "19.1.1",
+         "react-dom": "19.1.1",
+@@ -19,6 +20,7 @@
+       },
+       "devDependencies": {
+         "@tailwindcss/postcss": "^4.1.11",
++        "@types/jszip": "^3.4.0",
+         "@types/node": "^22.14.0",
+         "@vitest/coverage-v8": "^2.1.8",
+         "@vitest/ui": "^2.1.8",
+@@ -1260,6 +1262,16 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/@types/jszip": {
++      "version": "3.4.0",
++      "resolved": "https://registry.npmjs.org/@types/jszip/-/jszip-3.4.0.tgz",
++      "integrity": "sha512-GFHqtQQP3R4NNuvZH3hNCYD0NbyBZ42bkN7kO3NDrU/SnvIZWMS8Bp38XCsRKBT5BXvgm0y1zqpZWp/ZkRzBzg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "jszip": "*"
++      }
++    },
+     "node_modules/@types/node": {
+       "version": "22.17.1",
+       "resolved": "https://registry.npmjs.org/@types/node/-/node-22.17.1.tgz",
+@@ -2987,6 +2999,12 @@
+       ],
+       "license": "BSD-3-Clause"
+     },
++    "node_modules/immediate": {
++      "version": "3.0.6",
++      "resolved": "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz",
++      "integrity": "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==",
++      "license": "MIT"
++    },
+     "node_modules/inflight": {
+       "version": "1.0.6",
+       "resolved": "https://registry.npmjs.org/inflight/-/inflight-1.0.6.tgz",
+@@ -3137,6 +3155,48 @@
+         "graceful-fs": "^4.1.6"
+       }
+     },
++    "node_modules/jszip": {
++      "version": "3.10.1",
++      "resolved": "https://registry.npmjs.org/jszip/-/jszip-3.10.1.tgz",
++      "integrity": "sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==",
++      "license": "(MIT OR GPL-3.0-or-later)",
++      "dependencies": {
++        "lie": "~3.3.0",
++        "pako": "~1.0.2",
++        "readable-stream": "~2.3.6",
++        "setimmediate": "^1.0.5"
++      }
++    },
++    "node_modules/jszip/node_modules/readable-stream": {
++      "version": "2.3.8",
++      "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.8.tgz",
++      "integrity": "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==",
++      "license": "MIT",
++      "dependencies": {
++        "core-util-is": "~1.0.0",
++        "inherits": "~2.0.3",
++        "isarray": "~1.0.0",
++        "process-nextick-args": "~2.0.0",
++        "safe-buffer": "~5.1.1",
++        "string_decoder": "~1.1.1",
++        "util-deprecate": "~1.0.1"
++      }
++    },
++    "node_modules/jszip/node_modules/safe-buffer": {
++      "version": "5.1.2",
++      "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz",
++      "integrity": "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==",
++      "license": "MIT"
++    },
++    "node_modules/jszip/node_modules/string_decoder": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz",
++      "integrity": "sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==",
++      "license": "MIT",
++      "dependencies": {
++        "safe-buffer": "~5.1.0"
++      }
++    },
+     "node_modules/jwa": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/jwa/-/jwa-2.0.1.tgz",
+@@ -3200,6 +3260,15 @@
+         "safe-buffer": "~5.1.0"
+       }
+     },
++    "node_modules/lie": {
++      "version": "3.3.0",
++      "resolved": "https://registry.npmjs.org/lie/-/lie-3.3.0.tgz",
++      "integrity": "sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==",
++      "license": "MIT",
++      "dependencies": {
++        "immediate": "~3.0.5"
++      }
++    },
+     "node_modules/lightningcss": {
+       "version": "1.30.1",
+       "resolved": "https://registry.npmjs.org/lightningcss/-/lightningcss-1.30.1.tgz",
+@@ -3866,6 +3935,12 @@
+       "dev": true,
+       "license": "BlueOak-1.0.0"
+     },
++    "node_modules/pako": {
++      "version": "1.0.11",
++      "resolved": "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz",
++      "integrity": "sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==",
++      "license": "(MIT AND Zlib)"
++    },
+     "node_modules/path-is-absolute": {
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz",
+@@ -4177,6 +4252,12 @@
+         "node": ">=10"
+       }
+     },
++    "node_modules/setimmediate": {
++      "version": "1.0.5",
++      "resolved": "https://registry.npmjs.org/setimmediate/-/setimmediate-1.0.5.tgz",
++      "integrity": "sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==",
++      "license": "MIT"
++    },
+     "node_modules/shebang-command": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz",
+diff --git a/package.json b/package.json
+index 84fcddf..097cc7d 100644
+--- a/package.json
++++ b/package.json
+@@ -17,6 +17,7 @@
+     "@google/genai": "1.13.0",
+     "@vercel/analytics": "^1.5.0",
+     "epub-gen": "^0.1.0",
++    "jszip": "^3.10.1",
+     "openai": "4.52.7",
+     "react": "19.1.1",
+     "react-dom": "19.1.1",
+@@ -24,6 +25,7 @@
+   },
+   "devDependencies": {
+     "@tailwindcss/postcss": "^4.1.11",
++    "@types/jszip": "^3.4.0",
+     "@types/node": "^22.14.0",
+     "@vitest/coverage-v8": "^2.1.8",
+     "@vitest/ui": "^2.1.8",
+diff --git a/services/adapters.ts b/services/adapters.ts
+index 9aadf79..0fff43d 100644
+--- a/services/adapters.ts
++++ b/services/adapters.ts
+@@ -96,11 +96,178 @@ class NovelcoolAdapter extends BaseAdapter {
+     getNextLink = () => this.getLinkByText(/next/);
+ }
+ 
++class BookTokiAdapter extends BaseAdapter {
++    extractTitle = () => {
++        const fullTitle = this.doc.querySelector('title')?.textContent ?? '';
++        // Format: "던전 디펜스-2화 | 북토끼 - 웹소설 자료실"
++        // Extract Korean chapter title pattern like "던전 디펜스-2화"
++        const chapterMatch = fullTitle.match(/([^_|]+?-\d+화)/);
++        if (chapterMatch) {
++            return chapterMatch[1].trim();
++        }
++        
++        // Fallback: try h1, h2 elements
++        const h1Title = this.doc.querySelector('h1')?.textContent?.trim();
++        if (h1Title) return h1Title;
++        
++        const h2Title = this.doc.querySelector('h2')?.textContent?.trim();
++        if (h2Title) return h2Title;
++        
++        return fullTitle.split('|')[0].trim() || null;
++    };
++
++    extractContent = () => {
++        // Primary content selector based on BookToki HTML structure
++        const contentContainer = this.doc.querySelector('#novel_content');
++        if (!contentContainer) return null;
++        
++        // Look for content within the f9e99a33513 div (specific to BookToki)
++        let contentDiv = contentContainer.querySelector('div.f9e99a33513');
++        if (!contentDiv) {
++            // Fallback to direct extraction from novel_content
++            contentDiv = contentContainer;
++        }
++        
++        // Extract all paragraph content
++        const paragraphs = contentDiv.querySelectorAll('p');
++        if (!paragraphs.length) {
++            // Fallback to raw text
++            return this.extractRawText(contentDiv);
++        }
++        
++        // Extract and clean paragraph text
++        const validParagraphs: string[] = [];
++        paragraphs.forEach(p => {
++            const text = p.textContent?.trim();
++            if (text && this.isValidParagraph(text)) {
++                validParagraphs.push(text);
++            }
++        });
++        
++        if (!validParagraphs.length) {
++            return this.extractRawText(contentDiv);
++        }
++        
++        const content = validParagraphs.join('\n\n');
++        
++        // Validate content quality
++        if (!this.isValidContent(content)) {
++            return null;
++        }
++        
++        return content;
++    };
++    
++    private extractRawText = (container: Element): string | null => {
++        // Remove script and style elements
++        const clonedContainer = container.cloneNode(true) as Element;
++        clonedContainer.querySelectorAll('script, style').forEach(el => el.remove());
++        
++        const rawText = clonedContainer.textContent?.trim();
++        if (!rawText) return null;
++        
++        // Basic cleanup
++        const lines = rawText.split('\n')
++            .map(line => line.trim())
++            .filter(line => line && this.isValidParagraph(line));
++        
++        const content = lines.join('\n\n');
++        return this.isValidContent(content) ? content : null;
++    };
++    
++    private isValidParagraph = (text: string): boolean => {
++        if (!text || text.length < 3) return false;
++        
++        // Skip separator lines and metadata
++        const invalidPatterns = [
++            /^={5,}/, // Separator lines like "====="
++            /^\d{5}\s/, // Chapter numbers like "00002"
++            /^https?:\/\//, // URLs
++            /^www\./, // Web addresses
++        ];
++        
++        return !invalidPatterns.some(pattern => pattern.test(text.trim()));
++    };
++    
++    private isValidContent = (content: string): boolean => {
++        if (!content || content.length < 500) return false;
++        
++        // Check for Korean text (basic validation)
++        const koreanChars = content.match(/[가-힣]/g);
++        if (!koreanChars || koreanChars.length < 100) return false;
++        
++        // Check content quality indicators  
++        const sentenceIndicators = (content.match(/[.!?다]/g) || []).length;
++        return sentenceIndicators >= 10;
++    };
++    
++    private getLinkByDirection = (isNext: boolean): string | null => {
++        // Look for navigation links
++        const navSelectors = [
++            'a[href*="/novel/"]', // Direct novel links
++            '.btn-group a[href]', // Button group navigation
++            '.pagination a[href]', // Pagination links
++            'a[href*="chapter"]', // Chapter links
++        ];
++        
++        const navLinks: HTMLAnchorElement[] = [];
++        navSelectors.forEach(selector => {
++            const links = this.doc.querySelectorAll(selector) as NodeListOf<HTMLAnchorElement>;
++            navLinks.push(...Array.from(links));
++        });
++        
++        if (!navLinks.length) return null;
++        
++        // Extract current chapter ID from URL
++        const currentChapterId = this.extractChapterIdFromUrl(this.url);
++        if (!currentChapterId) return null;
++        
++        // Filter and analyze navigation links
++        const chapterLinks = navLinks
++            .map(link => {
++                const href = link.getAttribute('href');
++                if (!href || !href.includes('/novel/')) return null;
++                
++                const linkChapterId = this.extractChapterIdFromUrl(href);
++                if (!linkChapterId || linkChapterId === currentChapterId) return null;
++                
++                return {
++                    url: new URL(href, this.url).href,
++                    text: link.textContent?.trim() || '',
++                    chapterId: linkChapterId
++                };
++            })
++            .filter(Boolean)
++            .sort((a, b) => a!.chapterId - b!.chapterId);
++        
++        if (!chapterLinks.length) return null;
++        
++        if (isNext) {
++            // Find next chapter (higher ID)
++            const nextLink = chapterLinks.find(link => link!.chapterId > currentChapterId);
++            return nextLink?.url || null;
++        } else {
++            // Find previous chapter (lower ID) 
++            const prevLink = chapterLinks.reverse().find(link => link!.chapterId < currentChapterId);
++            return prevLink?.url || null;
++        }
++    };
++    
++    private extractChapterIdFromUrl = (url: string): number => {
++        const match = url.match(/\/novel\/(\d+)/);
++        return match ? parseInt(match[1], 10) : 0;
++    };
++    
++    getNextLink = (): string | null => this.getLinkByDirection(true);
++    getPrevLink = (): string | null => this.getLinkByDirection(false);
++}
++
+ const getAdapter = (url: string, doc: Document): BaseAdapter | null => {
+     if (url.includes('kakuyomu.jp')) return new KakuyomuAdapter(url, doc);
+     if (url.includes('dxmwx.org')) return new DxmwxAdapter(url, doc);
+     if (url.includes('kanunu8.com') || url.includes('kanunu.net')) return new KanunuAdapter(url, doc);
+     if (url.includes('novelcool.com')) return new NovelcoolAdapter(url, doc);
++    if (url.includes('booktoki468.com')) return new BookTokiAdapter(url, doc);
+     return null;
+ }
+ 
+diff --git a/services/epubService.ts b/services/epubService.ts
+index 42048d3..036d0d9 100644
+--- a/services/epubService.ts
++++ b/services/epubService.ts
+@@ -1,11 +1,5 @@
+ import { SessionChapterData, AppSettings } from '../types';
+-
+-// Import epub-gen for EPUB creation using dynamic import to handle CommonJS
+-const getEpubGen = async () => {
+-  // @ts-ignore
+-  const ePub = await import('epub-gen');
+-  return ePub.default || ePub;
+-};
++import JSZip from 'jszip';
+ 
+ export interface ChapterForEpub {
+   title: string;
+@@ -26,6 +20,10 @@ export interface ChapterForEpub {
+     imageData: string; // base64 data URL
+     prompt: string;
+   }>;
++  footnotes: Array<{
++    marker: string;
++    text: string;
++  }>;
+ }
+ 
+ export interface TranslationStats {
+@@ -48,6 +46,22 @@ export interface TranslationStats {
+   }>;
+ }
+ 
++export interface NovelConfig {
++  title: string;
++  author: string;
++  originalTitle?: string;
++  description?: string;
++  genre?: string;
++  language: string;
++  originalLanguage?: string;
++  coverImage?: string; // base64 or URL
++  seriesName?: string;
++  volumeNumber?: number;
++  isbn?: string;
++  publisher?: string;
++  translationNotes?: string;
++}
++
+ export interface EpubTemplate {
+   gratitudeMessage?: string;
+   projectDescription?: string;
+@@ -63,6 +77,7 @@ export interface EpubExportOptions {
+   chapters: ChapterForEpub[];
+   settings: AppSettings;
+   template?: EpubTemplate;
++  novelConfig?: NovelConfig;
+ }
+ 
+ /**
+@@ -133,9 +148,15 @@ export const collectActiveVersions = (
+       prompt: illust.imagePrompt
+     })) || [];
+     
++    // Get footnotes from translation result
++    const footnotes = data.translationResult.footnotes?.map(footnote => ({
++      marker: footnote.marker,
++      text: footnote.text
++    })) || [];
++    
+     chapters.push({
+       title: data.chapter.title,
+-      content: data.chapter.content,
++      content: data.translationResult.translation || data.chapter.content, // Use translation, fallback to original
+       originalUrl: url,
+       translatedTitle: data.translationResult.translatedTitle,
+       usageMetrics: {
+@@ -147,7 +168,8 @@ export const collectActiveVersions = (
+         provider: metrics.provider,
+         model: metrics.model,
+       },
+-      images: images.filter(img => img.imageData) // Only include images with data
++      images: images.filter(img => img.imageData), // Only include images with data
++      footnotes: footnotes
+     });
+   }
+   
+@@ -224,7 +246,7 @@ export const getDefaultTemplate = (): EpubTemplate => ({
+   
+   additionalAcknowledgments: `Special thanks to the original authors whose creative works inspire these translations, and to the open-source community that makes tools like this possible. Translation is an art that bridges cultures and languages, bringing stories to new audiences worldwide.`,
+   
+-  customFooter: `Generated with ❤️ using AI translation technology`
++  customFooter: `Generated with love using AI translation technology`
+ });
+ 
+ /**
+@@ -239,6 +261,86 @@ export const createCustomTemplate = (overrides: Partial<EpubTemplate>): EpubTemp
+   return { ...getDefaultTemplate(), ...overrides };
+ };
+ 
++/**
++ * Gets novel configuration based on URL or manual configuration
++ * This allows for novel-specific metadata like title, author, etc.
++ */
++export const getNovelConfig = (firstChapterUrl?: string, manualConfig?: Partial<NovelConfig>): NovelConfig => {
++  // Default configuration
++  const defaultConfig: NovelConfig = {
++    title: 'Translated Novel',
++    author: 'Unknown Author',
++    language: 'en',
++    originalLanguage: 'ja',
++    publisher: 'LexiconForge Community'
++  };
++
++  // Novel-specific configurations based on URL patterns
++  let novelSpecificConfig: Partial<NovelConfig> = {};
++
++  if (firstChapterUrl) {
++    if (firstChapterUrl.includes('kakuyomu.jp')) {
++      // Enhanced configuration based on Novel Updates data
++      novelSpecificConfig = {
++        title: 'The Reincarnation of the Strongest Exorcist in Another World',
++        author: 'Kosuzu Kiichi',
++        originalTitle: '最強陰陽師の異世界転生記 〜下僕の妖怪どもに比べてモンスターが弱すぎるんだが〜',
++        description: 'Haruyoshi, the strongest exorcist was on the verge of death after the betrayal of his companions. Hoping to be happy in the next life, he tried the secret technique of reincarnation and was sent to a different world! Born into a family of magicians, the magic he failed to inherit was nothing compared to his previous skills as an exorcist. "Who needs magic? I\'ll survive in this world with my old techniques!"',
++        genre: 'Action, Adventure, Fantasy, Harem, Romance',
++        originalLanguage: 'ja',
++        seriesName: 'The Reincarnation of the Strongest Exorcist',
++        volumeNumber: 1,
++        isbn: 'urn:uuid:strongest-exorcist-v1',
++        publisher: 'Futabasha (Original) / J-Novel Club (English)',
++        translationNotes: 'Translated from Japanese web novel published on Kakuyomu and Syosetu. Originally published in 2018 by Kosuzu Kiichi. Licensed by J-Novel Club for English publication. This is an AI-powered fan translation for educational and entertainment purposes.'
++      };
++    } else if (firstChapterUrl.includes('booktoki468.com')) {
++      novelSpecificConfig = {
++        title: 'Dungeon Defense',
++        author: 'Yoo Heonhwa',
++        originalTitle: '던전 디펜스',
++        description: 'A dark fantasy novel about survival and strategy in a dungeon world where the protagonist must use cunning and manipulation to survive against overwhelming odds.',
++        genre: 'Dark Fantasy, Strategy, Psychological',
++        originalLanguage: 'ko',
++        seriesName: 'Dungeon Defense',
++        volumeNumber: 1,
++        isbn: 'urn:uuid:dungeon-defense-v1',
++        publisher: 'BookToki (Original)',
++        translationNotes: 'Translated from Korean web novel published on BookToki. Known for its complex psychological elements and strategic gameplay mechanics.'
++      };
++    } else if (firstChapterUrl.includes('syosetu.com') || firstChapterUrl.includes('ncode.syosetu.com')) {
++      // Syosetu - Japanese web novel platform
++      novelSpecificConfig = {
++        title: 'Web Novel from Syosetu',
++        author: 'Unknown Syosetu Author',
++        originalTitle: '小説家になろう作品',
++        description: 'Japanese web novel from the popular Syosetu platform.',
++        genre: 'Web Novel, Japanese Literature',
++        originalLanguage: 'ja',
++        publisher: 'Syosetu (Original)',
++        translationNotes: 'Translated from Japanese web novel published on Syosetu (Shōsetsuka ni Narō).'
++      };
++    } else if (firstChapterUrl.includes('novelupdates.com')) {
++      // Novel Updates - aggregator site
++      novelSpecificConfig = {
++        title: 'Novel from Novel Updates',
++        author: 'Unknown Author',
++        description: 'Novel sourced from Novel Updates database.',
++        genre: 'Various',
++        publisher: 'Novel Updates Community',
++        translationNotes: 'Novel information sourced from Novel Updates community database.'
++      };
++    }
++    // Add more novel configurations as needed
++  }
++
++  return { 
++    ...defaultConfig, 
++    ...novelSpecificConfig, 
++    ...manualConfig 
++  };
++};
++
+ /**
+  * Generates a comprehensive table of contents page
+  */
+@@ -253,8 +355,10 @@ const generateTableOfContents = (chapters: ChapterForEpub[]): string => {
+   
+   chapters.forEach((chapter, index) => {
+     const chapterTitle = chapter.translatedTitle || chapter.title || `Chapter ${index + 1}`;
++    // Chapter files are numbered starting from 2 (since chapter1.xhtml is the ToC itself)
++    const chapterFile = `chapter${index + 2}.xhtml`;
+     tocHtml += `  <li style="margin-bottom: 0.5em;">\n`;
+-    tocHtml += `    <strong>${escapeHtml(chapterTitle)}</strong>\n`;
++    tocHtml += `    <a href="${chapterFile}" style="text-decoration: none; color: #007bff;"><strong>${escapeHtml(chapterTitle)}</strong></a>\n`;
+     tocHtml += `    <div style="font-size: 0.85em; color: #666; margin-top: 0.2em;">\n`;
+     tocHtml += `      Translated with ${escapeHtml(chapter.usageMetrics.provider)} ${escapeHtml(chapter.usageMetrics.model)}\n`;
+     if (chapter.images.length > 0) {
+@@ -275,10 +379,21 @@ const generateTableOfContents = (chapters: ChapterForEpub[]): string => {
+ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: EpubTemplate): string => {
+   let html = `<h1 style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 1em;">Translation Details & Acknowledgments</h1>\n\n`;
+ 
++  // Debug logging
++  console.log('[EPUBService] Generating stats page with template:', {
++    projectDescription: template.projectDescription?.length || 0,
++    gratitudeMessage: template.gratitudeMessage?.length || 0,
++    stats: {
++      chapterCount: stats.chapterCount,
++      totalCost: stats.totalCost,
++      totalTime: stats.totalTime
++    }
++  });
++
+   // Project description
+   html += `<div style="margin: 2em 0; padding: 1.5em; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">\n`;
+   html += `<h2 style="margin-top: 0; color: #007bff;">About This Translation</h2>\n`;
+-  html += `<p>${escapeHtml(template.projectDescription || '')}</p>\n`;
++  html += `<p>${escapeHtml(template.projectDescription || 'No project description available.')}</p>\n`;
+   if (template.githubUrl) {
+     html += `<p><strong>Source Code:</strong> <a href="${escapeHtml(template.githubUrl)}" style="color: #007bff;">${escapeHtml(template.githubUrl)}</a></p>\n`;
+   }
+@@ -379,7 +494,7 @@ const generateStatsAndAcknowledgments = (stats: TranslationStats, template: Epub
+   // Gratitude message
+   html += `<div style="margin: 3em 0; padding: 2em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">\n`;
+   html += `<h2 style="margin-top: 0; color: white; text-align: center;">Gratitude & Acknowledgments</h2>\n`;
+-  html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeHtml(template.gratitudeMessage || '')}</p>\n`;
++  html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeHtml(template.gratitudeMessage || 'Thank you for using LexiconForge for AI-powered translation.')}</p>\n`;
+   if (template.additionalAcknowledgments) {
+     html += `<p style="font-size: 1.1em; line-height: 1.6; text-align: justify;">${escapeHtml(template.additionalAcknowledgments)}</p>\n`;
+   }
+@@ -423,29 +538,51 @@ const convertChapterToHtml = (chapter: ChapterForEpub): string => {
+     }
+   }
+   
+-  // Convert basic HTML formatting and preserve line breaks
+-  content = content
+-    .replace(/\n\n/g, '</p><p>')
+-    .replace(/\n/g, '<br>')
+-    .replace(/^(.*)$/gm, '$1'); // Ensure content is wrapped
++  // Convert content to well-formed XHTML paragraphs
++  const paragraphs = content
++    .split(/\n\s*\n/) // Split on double line breaks (paragraph breaks)
++    .map(para => para.trim())
++    .filter(para => para.length > 0)
++    .map(para => {
++      // First escape HTML characters in the content
++      const escapedPara = escapeHtml(para);
++      // Then convert single line breaks within paragraphs to XHTML line breaks
++      const formattedPara = escapedPara.replace(/\n/g, '<br />');
++      return `<p>${formattedPara}</p>`;
++    });
+   
+-  // Wrap in paragraphs if not already
+-  if (!content.startsWith('<p>')) {
+-    content = `<p>${content}</p>`;
+-  }
++  content = paragraphs.join('\n');
+   
+   htmlContent += content;
+   
++  // Add footnotes section if any footnotes exist
++  if (chapter.footnotes && chapter.footnotes.length > 0) {
++    htmlContent += '\n\n<div class="footnotes" style="margin-top: 2em; border-top: 1px solid #ddd; padding-top: 1em;">\n';
++    htmlContent += '<h3 style="color: #666; font-size: 1.1em; margin-bottom: 1em;">Footnotes</h3>\n';
++    
++    for (const footnote of chapter.footnotes) {
++      htmlContent += `<p class="footnote" style="font-size: 0.9em; margin: 0.5em 0; color: #555;">\n`;
++      htmlContent += `  <strong style="color: #333;">${escapeHtml(footnote.marker)}</strong>: ${escapeHtml(footnote.text)}\n`;
++      htmlContent += `</p>\n`;
++    }
++    
++    htmlContent += '</div>';
++  }
++  
+   return htmlContent;
+ };
+ 
+ /**
+  * Escape HTML characters to prevent XSS and formatting issues
++ * Browser-compatible version that doesn't rely on DOM manipulation
+  */
+ const escapeHtml = (text: string): string => {
+-  const div = document.createElement('div');
+-  div.textContent = text;
+-  return div.innerHTML;
++  return text
++    .replace(/&/g, '&amp;')
++    .replace(/</g, '&lt;')
++    .replace(/>/g, '&gt;')
++    .replace(/"/g, '&quot;')
++    .replace(/'/g, '&#x27;');
+ };
+ 
+ /**
+@@ -461,15 +598,19 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
+   // Use provided template or default
+   const template = { ...getDefaultTemplate(), ...options.template };
+   
++  // Get novel configuration (auto-detect from first chapter URL or use manual config)
++  const firstChapter = options.chapters[0];
++  const firstChapterUrl = firstChapter.originalUrl;
++  const novelConfig = getNovelConfig(firstChapterUrl, options.novelConfig);
++  
+   // Calculate comprehensive statistics
+   const stats = calculateTranslationStats(options.chapters);
+   
+-  // Determine book metadata
+-  const firstChapter = options.chapters[0];
+-  const title = options.title || `Translated Novel - ${firstChapter.translatedTitle || firstChapter.title}`;
+-  const author = options.author || 'AI Translation Team';
+-  const description = options.description || 
+-    `AI-translated novel containing ${options.chapters.length} chapters. ` +
++  // Use novel configuration for metadata (with fallbacks)
++  const title = options.title || novelConfig.title;
++  const author = options.author || novelConfig.author;
++  const description = options.description || novelConfig.description || 
++    `${novelConfig.translationNotes || 'AI-translated novel'} containing ${options.chapters.length} chapters. ` +
+     `Total cost: $${stats.totalCost.toFixed(4)}, ` +
+     `translated using ${Object.keys(stats.providerBreakdown).join(', ')}.`;
+   
+@@ -605,6 +746,42 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
+       .gratitude-section p {
+         text-indent: 0;
+       }
++      .footnotes {
++        margin-top: 2em;
++        border-top: 1px solid #ddd;
++        padding-top: 1em;
++        page-break-inside: avoid;
++      }
++      .footnotes h3 {
++        color: #666;
++        font-size: 1.1em;
++        margin-bottom: 1em;
++        border-bottom: none;
++      }
++      .footnote {
++        font-size: 0.9em;
++        margin: 0.5em 0;
++        color: #555;
++        text-indent: 0;
++        line-height: 1.4;
++      }
++      .footnote strong {
++        color: #333;
++        font-weight: bold;
++      }
++      /* Table of Contents styling */
++      ol a {
++        text-decoration: none;
++        color: #007bff;
++        transition: color 0.2s ease;
++      }
++      ol a:hover {
++        color: #0056b3;
++        text-decoration: underline;
++      }
++      ol a:visited {
++        color: #6610f2;
++      }
+     `,
+     // Metadata
+     date: new Date().toISOString().split('T')[0],
+@@ -634,9 +811,16 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
+         .map(([model, data]) => `${model} (${data.chapters} ch)`)
+     });
+     
+-    // Get epub-gen dynamically and generate EPUB buffer
+-    const ePub = await getEpubGen();
+-    const epubBuffer = await ePub(epubOptions);
++    // Generate EPUB using browser-compatible method
++    const epubBuffer = await generateBrowserEpub({
++      title,
++      author,
++      description,
++      chapters: epubOptions.content,
++      css: epubOptions.css,
++      date: epubOptions.date,
++      language: epubOptions.language
++    });
+     
+     // Create download link
+     const blob = new Blob([epubBuffer], { type: 'application/epub+zip' });
+@@ -665,4 +849,185 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
+     console.error('[EPUBService] Failed to generate EPUB:', error);
+     throw new Error(`EPUB generation failed: ${error}`);
+   }
+-};
+\ No newline at end of file
++};
++
++// Browser-compatible EPUB generation using JSZip
++interface BrowserEpubOptions {
++  title: string;
++  author: string;
++  description: string;
++  chapters: Array<{ title: string; content: string; filename?: string; }>;
++  css?: string;
++  date?: string;
++  language?: string;
++}
++
++// Enhanced browser EPUB generation interface
++interface BrowserEpubOptions {
++  title: string;
++  author: string;
++  description: string;
++  chapters: Array<{ title: string; content: string; filename?: string; }>;
++  css?: string;
++  date?: string;
++  language?: string;
++  novelConfig?: NovelConfig;
++}
++
++async function generateBrowserEpub(options: BrowserEpubOptions): Promise<ArrayBuffer> {
++  const zip = new JSZip();
++  const uuid = options.novelConfig?.isbn || ('urn:uuid:' + generateUUID());
++  
++  // Create META-INF directory
++  zip.folder('META-INF');
++  zip.file('META-INF/container.xml', `<?xml version="1.0" encoding="UTF-8"?>
++<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
++  <rootfiles>
++    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
++  </rootfiles>
++</container>`);
++
++  // Create OEBPS directory
++  const oebps = zip.folder('OEBPS');
++  
++  // Create content.opf (package file)
++  const manifestItems = options.chapters.map((_, index) => 
++    `    <item id="ch${index + 1}" href="chapter${index + 1}.xhtml" media-type="application/xhtml+xml"/>`
++  ).join('\n');
++  
++  const spineItems = options.chapters.map((_, index) => 
++    `    <itemref idref="ch${index + 1}"/>`
++  ).join('\n');
++
++  // Build comprehensive metadata using novel configuration
++  const config = options.novelConfig;
++  let metadataXml = `    <dc:identifier id="bookid">${uuid}</dc:identifier>
++    <dc:title>${escapeXml(options.title)}</dc:title>
++    <dc:creator>${escapeXml(options.author)}</dc:creator>
++    <dc:description>${escapeXml(options.description)}</dc:description>
++    <dc:language>${options.language || 'en'}</dc:language>
++    <dc:date>${options.date || new Date().toISOString().split('T')[0]}</dc:date>
++    <dc:publisher>${escapeXml(config?.publisher || 'LexiconForge')}</dc:publisher>
++    <meta name="generator" content="LexiconForge EPUB Generator"/>`;
++
++  // Add enhanced metadata if available from novel config
++  if (config) {
++    if (config.originalTitle) {
++      metadataXml += `\n    <meta name="original-title" content="${escapeXml(config.originalTitle)}"/>`;
++    }
++    if (config.originalLanguage) {
++      metadataXml += `\n    <dc:language id="original-language">${config.originalLanguage}</dc:language>`;
++    }
++    if (config.genre) {
++      // Split genres and add as separate subjects
++      const genres = config.genre.split(',').map(g => g.trim());
++      genres.forEach(genre => {
++        metadataXml += `\n    <dc:subject>${escapeXml(genre)}</dc:subject>`;
++      });
++    }
++    if (config.seriesName) {
++      metadataXml += `\n    <meta name="calibre:series" content="${escapeXml(config.seriesName)}"/>`;
++      if (config.volumeNumber) {
++        metadataXml += `\n    <meta name="calibre:series_index" content="${config.volumeNumber}"/>`;
++      }
++    }
++    if (config.translationNotes) {
++      metadataXml += `\n    <meta name="translation-notes" content="${escapeXml(config.translationNotes)}"/>`;
++    }
++  }
++
++  oebps!.file('content.opf', `<?xml version="1.0" encoding="UTF-8"?>
++<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" version="2.0">
++  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/OPF/spec/2.0/2.1/draft/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++${metadataXml}
++  </metadata>
++  <manifest>
++    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
++${manifestItems}
++${options.css ? '    <item id="css" href="styles.css" media-type="text/css"/>' : ''}
++  </manifest>
++  <spine toc="ncx">
++${spineItems}
++  </spine>
++</package>`);
++
++  // Create table of contents (toc.ncx)
++  const navPoints = options.chapters.map((chapter, index) => `
++    <navPoint id="ch${index + 1}" playOrder="${index + 1}">
++      <navLabel>
++        <text>${escapeXml(chapter.title)}</text>
++      </navLabel>
++      <content src="chapter${index + 1}.xhtml"/>
++    </navPoint>`).join('');
++
++  oebps!.file('toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>
++<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
++  <head>
++    <meta name="dtb:uid" content="${uuid}"/>
++    <meta name="dtb:depth" content="1"/>
++    <meta name="dtb:totalPageCount" content="0"/>
++    <meta name="dtb:maxPageNumber" content="0"/>
++  </head>
++  <docTitle>
++    <text>${escapeXml(options.title)}</text>
++  </docTitle>
++  <navMap>
++${navPoints}
++  </navMap>
++</ncx>`);
++
++  // Add CSS file if provided
++  if (options.css) {
++    oebps!.file('styles.css', options.css);
++  }
++
++  // Create chapter files
++  options.chapters.forEach((chapter, index) => {
++    const cssLink = options.css ? '<link rel="stylesheet" type="text/css" href="styles.css" />' : '';
++    const xhtmlContent = `<?xml version="1.0" encoding="UTF-8"?>
++<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
++<html xmlns="http://www.w3.org/1999/xhtml">
++<head>
++  <title>${escapeXml(chapter.title)}</title>
++  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
++  ${cssLink}
++</head>
++<body>
++  ${chapter.content}
++</body>
++</html>`;
++    
++    oebps!.file(`chapter${index + 1}.xhtml`, xhtmlContent);
++  });
++
++  // Create mimetype file (must be uncompressed and first in zip)
++  zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
++
++  // Generate the zip file
++  return await zip.generateAsync({ 
++    type: 'arraybuffer',
++    compression: 'DEFLATE',
++    compressionOptions: { level: 9 }
++  });
++}
++
++function generateUUID(): string {
++  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
++    const r = Math.random() * 16 | 0;
++    const v = c === 'x' ? r : (r & 0x3 | 0x8);
++    return v.toString(16);
++  });
++}
++
++function escapeXml(unsafe: string): string {
++  return unsafe.replace(/[<>&'"]/g, function (c) {
++    switch (c) {
++      case '<': return '&lt;';
++      case '>': return '&gt;';
++      case '&': return '&amp;';
++      case '\'': return '&apos;';
++      case '"': return '&quot;';
++    }
++    return c;
++  });
++}
+\ No newline at end of file
+diff --git a/store/useAppStore.ts b/store/useAppStore.ts
+index 4583c0e..b7d383e 100644
+--- a/store/useAppStore.ts
++++ b/store/useAppStore.ts
+@@ -1,7 +1,7 @@
+ 
+ import { create } from 'zustand';
+ import { persist, PersistOptions } from 'zustand/middleware';
+-import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, ImportedSession, TranslationProvider, PromptTemplate } from '../types';
++import { Chapter, FeedbackItem, AmendmentProposal, TranslationResult, AppSettings, HistoricalChapter, ImportedSession, TranslationProvider, PromptTemplate, BookTokiJson, BookTokiChapter } from '../types';
+ import { INITIAL_SYSTEM_PROMPT } from '../constants';
+ import { translateChapter, validateApiKey } from '../services/aiService';
+ import { generateImage } from '../services/imageService';
+@@ -773,9 +773,52 @@ const useAppStore = create<Store>()(
+                         const text = e.target?.result;
+                         if (typeof text !== 'string') throw new Error('File content is not text.');
+                         
+-                        const importedData: ImportedSession = JSON.parse(text);
+-                        if (!importedData.session_metadata || !Array.isArray(importedData.chapters)) {
+-                            throw new Error('Invalid session file format.');
++                        const jsonData = JSON.parse(text);
++                        
++                        // Detect BookToki format vs LexiconForge format
++                        const isBookTokiFormat = jsonData.metadata && jsonData.metadata.source === 'booktoki468.com' && 
++                                                jsonData.chapters && Array.isArray(jsonData.chapters) &&
++                                                jsonData.chapters[0]?.chapterNumber !== undefined;
++                        
++                        let importedData: ImportedSession;
++                        
++                        if (isBookTokiFormat) {
++                            // Convert BookToki format to LexiconForge format
++                            const bookTokiData = jsonData as BookTokiJson;
++                            console.log('[Import] Detected BookToki JSON format, converting...');
++                            importedData = {
++                                session_metadata: {
++                                    exported_at: bookTokiData.metadata.scrapeDate || new Date().toISOString(),
++                                    settings: {
++                                        contextDepth: 2,
++                                        preloadCount: 0,
++                                        fontSize: 18,
++                                        fontStyle: 'serif',
++                                        lineHeight: 1.7,
++                                        systemPrompt: '',
++                                        provider: 'Gemini',
++                                        model: 'gemini-2.5-flash',
++                                        temperature: 0.3
++                                    } // Default settings for BookToki imports
++                                },
++                                urlHistory: [], // BookToki doesn't have URL history
++                                chapters: bookTokiData.chapters.map((bookTokiChapter: BookTokiChapter) => ({
++                                    sourceUrl: bookTokiChapter.url,
++                                    title: bookTokiChapter.title,
++                                    originalContent: bookTokiChapter.content,
++                                    nextUrl: bookTokiChapter.nextUrl || null,
++                                    prevUrl: bookTokiChapter.prevUrl || null,
++                                    translationResult: null, // No translations in BookToki format
++                                    feedback: [] // No feedback in BookToki format
++                                }))
++                            };
++                            console.log(`[Import] Converted ${bookTokiData.chapters.length} BookToki chapters to LexiconForge format`);
++                        } else {
++                            // Standard LexiconForge format
++                            importedData = jsonData as ImportedSession;
++                            if (!importedData.session_metadata || !Array.isArray(importedData.chapters)) {
++                                throw new Error('Invalid session file format.');
++                            }
+                         }
+ 
+                         set(state => {
+@@ -813,7 +856,8 @@ const useAppStore = create<Store>()(
+                                 newUrlHistory = importedData.urlHistory;
+                             }
+                             
+-                            alert(`Import complete! ${importedData.chapters.length} chapters processed. ${conflicts} conflicts were handled.`);
++                            const formatType = isBookTokiFormat ? 'BookToki' : 'LexiconForge';
++                            alert(`Import complete! ${importedData.chapters.length} ${formatType} chapters processed. ${conflicts} conflicts were handled.`);
+                             
+                             return {
+                                 sessionData: newSessionData,
+diff --git a/types.ts b/types.ts
+index 2474db2..1543d03 100644
+--- a/types.ts
++++ b/types.ts
+@@ -132,4 +132,29 @@ export interface ImportedSession {
+     };
+     urlHistory: string[];
+     chapters: ImportedChapter[];
++}
++
++// BookToki JSON format interfaces
++export interface BookTokiChapter {
++    chapterNumber: number;
++    content: string;
++    title: string;
++    url: string;
++    nextUrl?: string;
++    prevUrl?: string;
++    timestamp: string;
++    koreanCount: number;
++    paragraphCount: number;
++}
++
++export interface BookTokiJson {
++    metadata: {
++        scrapeDate: string;
++        totalChapters: number;
++        source: string;
++        scraper: string;
++        version: string;
++        sessionStartTime: string;
++    };
++    chapters: BookTokiChapter[];
+ }
+\ No newline at end of file

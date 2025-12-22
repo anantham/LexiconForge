@@ -1,0 +1,44 @@
+diff --git a/README.md b/README.md
+index 659d3a9..3bf1a33 100644
+--- a/README.md
++++ b/README.md
+@@ -4,14 +4,7 @@
+ 
+ LexiconForge is your gateway to the world of web novels. It's a powerful, AI-driven tool that lets you translate chapters from almost any source, in any language, and customize the reading experience to be *exactly* how you like it. Break down the language barriers and dive into the original stories.
+ 
+-<video width="640" controls muted playsinline poster="media/demo_poster.jpg">
+-  <source src="media/demo.mp4"  type="video/mp4">   <!-- H.264/AAC -->
+-  <source src="media/demo.webm" type="video/webm">  <!-- VP9/Opus -->
+-  <!-- Fallback if the browser can't play any of the sources -->
+-  <img src="media/demo.gif" alt="Demo animation" width="640">
+-  <!-- Extra belt-and-suspenders link -->
+-  <a href="media/demo.mp4">Download the video</a>
+-</video>
++<video src="media/demo_autoplay.mp4" autoplay muted loop playsinline width="720"></video>
+ 
+ ---
+ 
+diff --git a/media/demo.webm b/media/demo.webm
+index 2480609..2a0fc97 100644
+Binary files a/media/demo.webm and b/media/demo.webm differ
+diff --git a/package.json b/package.json
+index f881074..ffde2c7 100644
+--- a/package.json
++++ b/package.json
+@@ -27,12 +27,16 @@
+   },
+   "devDependencies": {
+     "@tailwindcss/postcss": "^4.1.11",
++    "@testing-library/jest-dom": "^6.8.0",
++    "@testing-library/react": "^16.3.0",
++    "@testing-library/user-event": "^14.6.1",
+     "@types/node": "^22.14.0",
+     "@vitest/coverage-v8": "^2.1.8",
+     "@vitest/ui": "^2.1.8",
+     "autoprefixer": "^10.4.21",
+     "fake-indexeddb": "^6.1.0",
+     "happy-dom": "^15.11.6",
++    "jsdom": "^26.1.0",
+     "postcss": "^8.5.6",
+     "tailwindcss": "^4.1.11",
+     "terser": "^5.43.1",
