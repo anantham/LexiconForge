@@ -1143,3 +1143,9 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files: config/prompts.json; docs/WORKLOG.md
 - Why: Refresh the default `systemPrompt` to better match the new metadata preamble flow and keep the baseline prompt less project-specific.
 - Tests: `npm test -- --run`
+
+2025-12-22 03:00 UTC - Security deps bump: Vitest 4 + Vite + GenAI + Happy DOM
+- Files: package.json; package-lock.json; index.html; tests/services/aiService.providers.test.ts; tests/adapters/providers/OpenAIAdapter.test.ts; docs/WORKLOG.md
+- Why: Address dependency vulnerability chain (glob/path deps) and align tooling on supported versions.
+- Details: Bumped `vitest`/`@vitest/*`, `vite`, `happy-dom`, and `@google/genai` (plus updated the browser importmap); adjusted OpenAI mocks in tests to use a constructible class under Vitest 4.
+- Tests: `npm audit`; `npx tsc --noEmit`; `npm test -- --run`

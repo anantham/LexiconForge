@@ -4,22 +4,23 @@ import type { TranslationRequest } from '../../../services/translate/Translator'
 import { OpenAIAdapter } from '../../../adapters/providers/OpenAIAdapter';
 import { createMockAppSettings } from '../../utils/test-data';
 
-const { createMock, openAIConstructor } = vi.hoisted(() => {
+const openAiMocks = vi.hoisted(() => {
   const create = vi.fn();
-  const ctor = vi.fn(() => ({
-    chat: {
+  const ctor = vi.fn();
+  class OpenAI {
+    chat = {
       completions: {
         create: (...args: any[]) => create(...args),
       },
-    },
-  }));
-  return { createMock: create, openAIConstructor: ctor };
+    };
+    constructor(...args: any[]) {
+      ctor(...args);
+    }
+  }
+  return { OpenAI, create, ctor };
 });
 
-vi.mock('openai', () => ({
-  __esModule: true,
-  default: openAIConstructor,
-}));
+vi.mock('openai', () => ({ __esModule: true, default: openAiMocks.OpenAI }));
 
 const supportsStructuredOutputsMock = vi.fn().mockResolvedValue(true);
 const supportsParametersMock = vi.fn().mockResolvedValue(true);
@@ -125,15 +126,15 @@ describe('OpenAIAdapter processResponse', () => {
 
 describe('OpenAIAdapter translate() parameter handling', () => {
   beforeEach(() => {
-    createMock.mockReset();
-    openAIConstructor.mockClear();
+    openAiMocks.create.mockReset();
+    openAiMocks.ctor.mockClear();
     recordMetricMock.mockClear();
     supportsStructuredOutputsMock.mockResolvedValue(false);
   });
 
   it('retries without advanced params when parameter error occurs', async () => {
     const adapter = new OpenAIAdapter();
-    createMock
+    openAiMocks.create
       .mockRejectedValueOnce(new Error('temperature not supported'))
       .mockResolvedValueOnce(successResponse);
 
@@ -155,11 +156,11 @@ describe('OpenAIAdapter translate() parameter handling', () => {
 
     await adapter.translate(request);
 
-    expect(createMock).toHaveBeenCalledTimes(2);
-    const firstCallArgs = createMock.mock.calls[0][0];
+    expect(openAiMocks.create).toHaveBeenCalledTimes(2);
+    const firstCallArgs = openAiMocks.create.mock.calls[0][0];
     expect(firstCallArgs.temperature).toBeDefined();
 
-    const retryArgs = createMock.mock.calls[1][0];
+    const retryArgs = openAiMocks.create.mock.calls[1][0];
     expect(retryArgs.temperature).toBeUndefined();
     expect(retryArgs.top_p).toBeUndefined();
     expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
