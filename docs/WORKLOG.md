@@ -1155,3 +1155,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Why: Make first-time contributors productive quickly and capture actionable decomposition plans for known monoliths.
 - Details: Add onboarding walkthrough (load → translate flow), refresh CONTRIBUTING references to match current code locations, and add draft decomposition plans for `services/epubService.ts`, `store/slices/imageSlice.ts`, and `services/navigationService.ts`.
 - Tests: N/A (docs only)
+
+2025-12-22 04:45 UTC - Refactor: isolate `epubService.ts` decomposition modules
+- Files: services/epubService.ts; services/epubService/**; services/epub/types.ts; docs/WORKLOG.md
+- Why: Decompose the `services/epubService.ts` monolith without breaking the existing `services/epub/*` pipeline/types; keep new modules <300 LOC.
+- Tests: `npx tsc --noEmit`; `npm test -- --run tests/services/epubService.test.ts tests/epub/*.test.ts`
