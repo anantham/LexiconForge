@@ -1149,3 +1149,9 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Why: Address dependency vulnerability chain (glob/path deps) and align tooling on supported versions.
 - Details: Bumped `vitest`/`@vitest/*`, `vite`, `happy-dom`, and `@google/genai` (plus updated the browser importmap); adjusted OpenAI mocks in tests to use a constructible class under Vitest 4.
 - Tests: `npm audit`; `npx tsc --noEmit`; `npm test -- --run`
+
+2025-12-22 03:27 UTC - Contributor docs: onboarding + decomposition plans
+- Files: CONTRIBUTING.md; docs/ONBOARDING.md; docs/plans/{EPUB-SERVICE-DECOMPOSITION.md,IMAGE-SLICE-DECOMPOSITION.md,NAVIGATION-SERVICE-DECOMPOSITION.md}; docs/WORKLOG.md
+- Why: Make first-time contributors productive quickly and capture actionable decomposition plans for known monoliths.
+- Details: Add onboarding walkthrough (load → translate flow), refresh CONTRIBUTING references to match current code locations, and add draft decomposition plans for `services/epubService.ts`, `store/slices/imageSlice.ts`, and `services/navigationService.ts`.
+- Tests: N/A (docs only)
