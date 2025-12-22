@@ -67,20 +67,21 @@ const createHistoricalChapter = (overrides: Partial<HistoricalChapter> = {}): Hi
 
 const openAiMocks = vi.hoisted(() => {
   const create = vi.fn();
-  const ctor = vi.fn(() => ({
-    chat: {
+  const ctor = vi.fn();
+  class OpenAI {
+    chat = {
       completions: {
         create: (...args: any[]) => create(...args),
       },
-    },
-  }));
-  return { create, ctor };
+    };
+    constructor(...args: any[]) {
+      ctor(...args);
+    }
+  }
+  return { OpenAI, create, ctor };
 });
 
-vi.mock('openai', () => ({
-  __esModule: true,
-  default: openAiMocks.ctor,
-}));
+vi.mock('openai', () => ({ __esModule: true, default: openAiMocks.OpenAI }));
 
 describe('legacy provider helpers in aiService', () => {
   it('translateWithGemini rejects when API key missing', async () => {
@@ -110,13 +111,7 @@ describe('legacy provider helpers in aiService', () => {
       openrouterMocks.setLastUsed.mockReset().mockResolvedValue(undefined);
       fanContextMock.mockReset().mockReturnValue('Fan translation context');
       openAiMocks.create.mockReset();
-      openAiMocks.ctor.mockReset().mockImplementation(() => ({
-        chat: {
-          completions: {
-            create: (...args: any[]) => openAiMocks.create(...args),
-          },
-        },
-      }));
+      openAiMocks.ctor.mockReset();
     });
 
     it('throws when API key missing', async () => {
