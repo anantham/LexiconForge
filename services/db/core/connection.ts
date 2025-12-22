@@ -1,12 +1,29 @@
 /**
  * Database Connection Management - Hybrid Approach
- * 
+ *
  * Single source of truth for IndexedDB connection with upgrade hooks.
  * Handles browser compatibility and provides fallback detection.
+ *
+ * Safety features:
+ * - Pre-migration backup before schema upgrades
+ * - Version gate to prevent opening newer DB with older app
+ * - Restore capability if migration fails
  */
 
 import { DbError, mapDomError } from './errors';
 import { applyMigrations, SCHEMA_VERSIONS, STORE_NAMES } from './schema';
+import {
+  createPreMigrationBackup,
+  markBackupCompleted,
+  markBackupFailed,
+  cleanupOldBackups,
+} from './migrationBackup';
+import {
+  checkDatabaseVersion,
+  formatVersionCheck,
+  shouldBlockApp,
+  type VersionCheckResult,
+} from './versionGate';
 
 // Database configuration constants
 export const DB_NAME = 'lexicon-forge';
@@ -34,6 +51,7 @@ export function isIndexedDBAvailable(): boolean {
 // Connection singleton
 let _dbConnection: IDBDatabase | null = null;
 let _connectionPromise: Promise<IDBDatabase> | null = null;
+let _versionCheckResult: VersionCheckResult | null = null;
 
 export function resetConnection(): void {
   if (_dbConnection) {
@@ -45,10 +63,52 @@ export function resetConnection(): void {
   }
   _dbConnection = null;
   _connectionPromise = null;
+  _versionCheckResult = null;
 }
 
 /**
- * Get or create the database connection
+ * Get the last version check result (useful for UI)
+ */
+export function getLastVersionCheck(): VersionCheckResult | null {
+  return _versionCheckResult;
+}
+
+/**
+ * Perform version check and backup if needed, BEFORE opening connection.
+ * Returns the version check result so the app can decide how to proceed.
+ */
+export async function prepareConnection(): Promise<VersionCheckResult> {
+  // Run version check
+  _versionCheckResult = await checkDatabaseVersion(DB_NAME, DB_VERSION);
+  console.log(`[Connection] Version check: ${formatVersionCheck(_versionCheckResult)}`);
+
+  // If we can't proceed, return early and let caller handle it
+  if (shouldBlockApp(_versionCheckResult)) {
+    return _versionCheckResult;
+  }
+
+  // If upgrade is needed, create backup first
+  if (_versionCheckResult.requiresBackup && _versionCheckResult.currentDbVersion !== null) {
+    console.log('[Connection] Creating pre-migration backup...');
+
+    const backupSuccess = await createPreMigrationBackup(
+      DB_NAME,
+      _versionCheckResult.currentDbVersion,
+      DB_VERSION
+    );
+
+    if (!backupSuccess) {
+      console.warn('[Connection] Backup failed - proceeding anyway (user was warned)');
+      // We don't block here - backup service already prompted user
+    }
+  }
+
+  return _versionCheckResult;
+}
+
+/**
+ * Get or create the database connection.
+ * Call prepareConnection() first to handle version checks and backups.
  */
 export async function getConnection(): Promise<IDBDatabase> {
   if (_dbConnection) {
@@ -59,9 +119,37 @@ export async function getConnection(): Promise<IDBDatabase> {
     return _connectionPromise;
   }
 
-  _connectionPromise = openDatabase();
-  _dbConnection = await _connectionPromise;
-  return _dbConnection;
+  // IMPORTANT: create the shared promise before any awaits to avoid stampede opens.
+  _connectionPromise = (async () => {
+    // If prepareConnection wasn't called, do a quick check/backup here.
+    if (!_versionCheckResult) {
+      const result = await prepareConnection();
+      if (shouldBlockApp(result)) {
+        throw new DbError('Version', 'connection', 'system', result.message);
+      }
+    }
+
+    try {
+      const db = await openDatabase();
+
+      // Migration succeeded - mark backup as completed and schedule cleanup
+      if (_versionCheckResult?.requiresBackup) {
+        markBackupCompleted();
+        cleanupOldBackups().catch((e) => console.warn('[Connection] Backup cleanup failed:', e));
+      }
+
+      _dbConnection = db;
+      return db;
+    } catch (error) {
+      // Migration failed - mark backup as failed so restore is available
+      if (_versionCheckResult?.requiresBackup) {
+        markBackupFailed();
+      }
+      throw error;
+    }
+  })();
+
+  return _connectionPromise;
 }
 
 /**

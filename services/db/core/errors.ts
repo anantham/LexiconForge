@@ -5,7 +5,7 @@
  * Maps browser IndexedDB errors to typed, actionable error categories.
  */
 
-export type DbErrorKind = 
+export type DbErrorKind =
   | 'Blocked'      // Another tab has DB open for upgrade
   | 'Upgrade'      // Version/schema upgrade needed
   | 'Quota'        // Storage quota exceeded
@@ -13,7 +13,8 @@ export type DbErrorKind =
   | 'NotFound'     // Record not found
   | 'Constraint'   // Unique constraint or validation error
   | 'Permission'   // Access denied (private browsing, etc.)
-  | 'Timeout';     // Operation timed out
+  | 'Timeout'      // Operation timed out
+  | 'Version';     // DB version incompatible (newer than app)
 
 export class DbError extends Error {
   constructor(
@@ -32,7 +33,7 @@ export class DbError extends Error {
   }
 
   get requiresUserAction(): boolean {
-    return this.kind === 'Quota' || this.kind === 'Permission';
+    return this.kind === 'Quota' || this.kind === 'Permission' || this.kind === 'Version';
   }
 }
 

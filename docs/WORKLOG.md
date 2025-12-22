@@ -1165,3 +1165,13 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Files: services/epubService.ts; services/epubService/**; services/epub/types.ts; docs/WORKLOG.md
 - Why: Decompose the `services/epubService.ts` monolith without breaking the existing `services/epub/*` pipeline/types; keep new modules <300 LOC.
 - Tests: `npx tsc --noEmit`; `npm test -- --run tests/services/epubService.test.ts tests/epub/*.test.ts`
+
+2025-12-22 08:42 UTC - DB safety: pre-migration backup + version gate + restore
+- Files: services/db/core/connection.ts; services/db/core/errors.ts; services/db/core/migrationBackup.ts; services/db/core/migrationRestore.ts; services/db/core/versionGate.ts; tests/db/migrations/{migrationBackup.test.ts,migrationRestore.test.ts,versionGate.test.ts}; docs/WORKLOG.md
+- Why: Prevent data loss during schema upgrades, and fail loudly when the DB version is newer than the app (so we don’t silently corrupt/overwrite).
+- Details:
+  - services/db/core/connection.ts#L76: add `prepareConnection()` (version check + backup) and ensure `getConnection()` sets `_connectionPromise` before awaits to avoid stampede opens.
+  - services/db/core/migrationBackup.ts#L31: export-and-store backup before migrations using tiered storage (OPFS → backup DB → localStorage → user download).
+  - services/db/core/versionGate.ts#L36: version peek without triggering upgrades; returns actionable status for newer/older/corrupted DB + failed migration marker.
+  - services/db/core/migrationRestore.ts#L51: restore flow that deletes the DB, recreates at `fromVersion`, replays migrations, then imports backup.
+- Tests: `npx tsc --noEmit`; `npm test -- --run tests/db/open-singleton.test.ts tests/db/migrations/*`
