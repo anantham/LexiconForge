@@ -1155,3 +1155,8 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Why: Avoid stash conflicts/context loss when multiple PRs/agents work in parallel; keep `main` checkout clean.
 - Details: Added a simple worktree policy + command snippets; introduced tracked `CLAUDE.md` and stopped ignoring it (ignore `CLAUDE.local.md` instead).
 - Tests: N/A (docs/workflow only)
+2025-12-22 03:27 UTC - Contributor docs: onboarding + decomposition plans
+- Files: CONTRIBUTING.md; docs/ONBOARDING.md; docs/plans/{EPUB-SERVICE-DECOMPOSITION.md,IMAGE-SLICE-DECOMPOSITION.md,NAVIGATION-SERVICE-DECOMPOSITION.md}; docs/WORKLOG.md
+- Why: Make first-time contributors productive quickly and capture actionable decomposition plans for known monoliths.
+- Details: Add onboarding walkthrough (load → translate flow), refresh CONTRIBUTING references to match current code locations, and add draft decomposition plans for `services/epubService.ts`, `store/slices/imageSlice.ts`, and `services/navigationService.ts`.
+- Tests: N/A (docs only)
