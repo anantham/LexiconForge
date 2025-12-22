@@ -1150,6 +1150,11 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
 - Details: Bumped `vitest`/`@vitest/*`, `vite`, `happy-dom`, and `@google/genai` (plus updated the browser importmap); adjusted OpenAI mocks in tests to use a constructible class under Vitest 4.
 - Tests: `npm audit`; `npx tsc --noEmit`; `npm test -- --run`
 
+2025-12-22 03:08 UTC - Agent workflow: require git worktrees (reduce stash churn)
+- Files: AGENTS.md; CLAUDE.md; .gitignore; docs/WORKLOG.md
+- Why: Avoid stash conflicts/context loss when multiple PRs/agents work in parallel; keep `main` checkout clean.
+- Details: Added a simple worktree policy + command snippets; introduced tracked `CLAUDE.md` and stopped ignoring it (ignore `CLAUDE.local.md` instead).
+- Tests: N/A (docs/workflow only)
 2025-12-22 03:27 UTC - Contributor docs: onboarding + decomposition plans
 - Files: CONTRIBUTING.md; docs/ONBOARDING.md; docs/plans/{EPUB-SERVICE-DECOMPOSITION.md,IMAGE-SLICE-DECOMPOSITION.md,NAVIGATION-SERVICE-DECOMPOSITION.md}; docs/WORKLOG.md
 - Why: Make first-time contributors productive quickly and capture actionable decomposition plans for known monoliths.

@@ -38,6 +38,34 @@ PRE‑FLIGHT_CHECKLIST (before ANY code changes)
 
 ---
 
+# WORKTREE_POLICY (Default)
+
+Goal: avoid stash hell and keep the main checkout clean.
+
+- Default to **one worktree per branch** for any non-trivial task or whenever you need to context-switch.
+- Keep the root repo checkout on `main` and clean; do not develop on `main`.
+- Prefer worktrees **outside** the repo to avoid untracked noise: `../LexiconForge.worktrees/<branch-name>/`.
+- Avoid `git stash` unless it’s an emergency; if you stash, name it and log `stash@{n}` + reason in `docs/WORKLOG.md`.
+
+Quickstart
+```bash
+mkdir -p ../LexiconForge.worktrees
+git worktree add ../LexiconForge.worktrees/<branch-name> -b <branch-name> main
+# or for an existing branch:
+git worktree add ../LexiconForge.worktrees/<branch-name> <branch-name>
+```
+
+Cleanup after PR merge
+```bash
+git worktree remove ../LexiconForge.worktrees/<branch-name>
+git branch -d <branch-name>
+git worktree prune
+```
+
+Notes
+- One branch can only be checked out in one worktree at a time (Git enforces this).
+- Node projects duplicate `node_modules` per worktree; prune old worktrees regularly.
+
 # HYPOTHESIS‑DRIVEN_PROTOCOL  
 
 PHASE 1 — Hypothesis Formation
