@@ -1,6 +1,11 @@
-# Contributing
+# Contributing to LexiconForge
 
-Thanks for improving LexiconForge! This guide keeps changes safe and easy to review.
+👋 **Welcome!** We're thrilled you want to help improve LexiconForge.
+
+**🚀 New to the project?**
+Check out our [**Newcomer Onboarding Guide**](docs/ONBOARDING.md) for a step-by-step walkthrough of the codebase and your first contribution.
+
+---
 
 ## Setup
 
@@ -21,14 +26,14 @@ LexiconForge/
 │   └── prompts.json          # AI system prompts and translation instructions
 │
 ├── components/               # 🎨 React UI components
-│   ├── icons/               # SVG icon components (add custom toolbar emojis here!)
+│   ├── icons/               # SVG icon components (used in selection/feedback controls)
 │   │   ├── SettingsIcon.tsx
 │   │   ├── TrashIcon.tsx
 │   │   └── ...              # Add your custom emoji icons here
-│   ├── ChapterDisplay.tsx   # Main translation display
+│   ├── ChapterView.tsx      # Main reader/translation view
 │   ├── InputBar.tsx         # URL input with website suggestions
 │   ├── SettingsModal.tsx    # Settings UI (model selection, API keys)
-│   ├── Toolbar.tsx          # Feedback toolbar with emoji buttons
+│   ├── FeedbackPopover.tsx  # Selection feedback controls (👍 👎 ? 🎨)
 │   └── ...
 │
 ├── services/                # 🔧 Business logic and external integrations
@@ -48,9 +53,8 @@ LexiconForge/
 │       ├── chaptersSlice.ts      # Chapter data & navigation
 │       └── ...
 │
-├── adapters/               # 🔌 Data layer adapters
-│   ├── providers/         # Translation provider adapters
-│   └── repo/              # Repository pattern for database access
+├── adapters/               # 🔌 Translation provider adapters
+│   └── providers/         # Provider adapters + registration
 │
 ├── types.ts               # 📝 TypeScript type definitions
 ├── utils/                 # 🛠️ Helper functions
@@ -67,7 +71,7 @@ LexiconForge/
 
 **Want to add custom emojis to the toolbar?**
 1. Add your SVG icon component to `components/icons/`
-2. Import and use it in `components/Toolbar.tsx`
+2. Import and use it in `components/FeedbackPopover.tsx`
 
 **Want to change default models or AI parameters?**
 - Edit `config/app.json` → `defaultModels` section
@@ -75,7 +79,7 @@ LexiconForge/
 **Want to add a new translation provider?**
 1. Create adapter in `adapters/providers/`
 2. Follow the `TranslationProvider` interface
-3. Register in the `Translator` (see `docs/META_ADAPTER.md`)
+3. Register it in `adapters/providers/index.ts` (see `docs/META_ADAPTER.md`)
 
 **Want to add support for a new website?**
 1. Create adapter class in `services/adapters.ts`
@@ -106,13 +110,13 @@ LexiconForge/
 
 ## File Size Limits (Agent‑First)
 
-- Services ≤ 200 LOC; Components ≤ 250 LOC (see ADR‑005)
+- Services ≤ 200 LOC; Components ≤ 250 LOC (see [ADR‑005](docs/ADR-005-Agent-First-Code-Organization.md))
 - Prefer extracting helpers and modules instead of growing files
 
 ## Adding Site Adapters / Providers
 
 - Website adapters: follow `docs/META_ADAPTER.md`
-- Translation providers: implement `TranslationProvider` and register with the `Translator`
+- Translation providers: implement `TranslationProvider` and register in `adapters/providers/index.ts`
 
 ## Debugging
 
