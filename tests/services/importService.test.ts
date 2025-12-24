@@ -134,4 +134,43 @@ describe('ImportService', () => {
     expect(mockSetSessionProvenance).not.toHaveBeenCalled();
     expect(mockSetSessionVersion).not.toHaveBeenCalled();
   });
+
+  it('should import BookToki scrape JSON by converting it to lexiconforge-full-1', async () => {
+    const bookTokiPayload = {
+      metadata: {
+        source: 'booktoki468.com',
+        scrapeDate: '2025-08-14T00:00:00Z',
+        totalChapters: 1,
+        scraper: 'BookToki Chrome Extension',
+        version: '1.0',
+        sessionStartTime: '2025-08-14T00:00:00Z',
+      },
+      chapters: [
+        {
+          chapterNumber: 1,
+          title: '던전 디펜스-1화',
+          url: 'https://booktoki468.com/novel/3913764',
+          content: '테스트 콘텐츠',
+          timestamp: '2025-08-14T00:00:00Z',
+          koreanCount: 6,
+          paragraphCount: 1,
+        },
+      ],
+    };
+
+    const file = new File([JSON.stringify(bookTokiPayload)], 'booktoki.json', {
+      type: 'application/json',
+    });
+
+    const result = await ImportService.importFromFile(file);
+
+    expect(mockImportSessionData).toHaveBeenCalledTimes(1);
+    const importedArg = mockImportSessionData.mock.calls[0][0];
+    expect(importedArg?.metadata?.format).toBe('lexiconforge-full-1');
+    expect(importedArg?.chapters).toHaveLength(1);
+    expect(importedArg?.chapters?.[0]?.canonicalUrl).toContain('booktoki468.com/novel/3913764');
+
+    // ImportService returns the converted payload
+    expect(result?.metadata?.format).toBe('lexiconforge-full-1');
+  });
 });

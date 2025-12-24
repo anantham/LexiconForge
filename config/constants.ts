@@ -112,6 +112,13 @@ export const SUPPORTED_WEBSITES_CONFIG: SupportedWebsite[] = [
     homeUrl: 'https://www.novelcool.com',
     exampleUrl: 'https://www.novelcool.com/chapter/Lord-of-the-Mysteries-Chapter-1/'
   },
+  {
+    domain: 'booktoki468.com',
+    name: 'BookToki',
+    category: 'Korean',
+    homeUrl: 'https://booktoki468.com',
+    exampleUrl: 'https://booktoki468.com/novel/3913764'
+  },
 ];
 
 // Legacy array for backward compatibility

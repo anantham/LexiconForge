@@ -97,6 +97,90 @@ class NovelcoolAdapter extends BaseAdapter {
     getNextLink = () => this.getLinkByText(/next/);
 }
 
+class BookTokiAdapter extends BaseAdapter {
+    extractTitle = () => {
+        const fullTitle = this.doc.querySelector('title')?.textContent?.trim() ?? '';
+        // Format example: "던전 디펜스-2화 | 북토끼 - 웹소설 자료실"
+        const match = fullTitle.match(/([^|]+?-\s*\d+\s*화)/);
+        if (match) return match[1].trim();
+
+        const h1Title = this.doc.querySelector('h1')?.textContent?.trim();
+        if (h1Title) return h1Title;
+
+        const h2Title = this.doc.querySelector('h2')?.textContent?.trim();
+        if (h2Title) return h2Title;
+
+        return fullTitle.split('|')[0]?.trim() || null;
+    };
+
+    extractContent = () => {
+        const contentContainer = this.doc.querySelector('#novel_content');
+        if (!contentContainer) return null;
+
+        const contentRoot =
+            contentContainer.querySelector('div.f9e99a33513') ?? contentContainer;
+
+        const paragraphs = Array.from(contentRoot.querySelectorAll('p'))
+            .map((p) => (p.textContent ?? '').trim())
+            .filter((text) => text.length > 0 && !this.isSkippableLine(text));
+
+        const content = paragraphs.length > 0 ? paragraphs.join('\n\n') : (contentRoot.textContent ?? '').trim();
+        return content.length > 0 ? content : null;
+    };
+
+    private isSkippableLine(text: string): boolean {
+        const trimmed = text.trim();
+        if (trimmed.length < 2) return true;
+        const invalidPatterns = [
+            /^={5,}/, // separator lines
+            /^\d{5,}\s/, // large numeric markers
+            /^https?:\/\//i,
+            /^www\./i,
+        ];
+        return invalidPatterns.some((pattern) => pattern.test(trimmed));
+    }
+
+    private extractChapterIdFromUrl(url: string): number | null {
+        const match = url.match(/\/novel\/(\d+)/);
+        if (!match) return null;
+        const parsed = parseInt(match[1], 10);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    private getLinkByDirection(isNext: boolean): string | null {
+        const currentChapterId = this.extractChapterIdFromUrl(this.url);
+        if (currentChapterId == null) return null;
+
+        const navLinks = Array.from(this.doc.querySelectorAll('a[href*="/novel/"]')) as HTMLAnchorElement[];
+
+        const candidates = navLinks
+            .map((link) => {
+                const href = link.getAttribute('href');
+                if (!href) return null;
+                const abs = new URL(href, this.url).href;
+                const id = this.extractChapterIdFromUrl(abs);
+                if (id == null || id === currentChapterId) return null;
+                return { url: abs, chapterId: id };
+            })
+            .filter((c): c is { url: string; chapterId: number } => Boolean(c))
+            .sort((a, b) => a.chapterId - b.chapterId);
+
+        if (candidates.length === 0) return null;
+
+        if (isNext) {
+            return candidates.find((c) => c.chapterId > currentChapterId)?.url ?? null;
+        }
+
+        for (let i = candidates.length - 1; i >= 0; i -= 1) {
+            if (candidates[i].chapterId < currentChapterId) return candidates[i].url;
+        }
+        return null;
+    }
+
+    getPrevLink = () => this.getLinkByDirection(false);
+    getNextLink = () => this.getLinkByDirection(true);
+}
+
 class SyosetuAdapter extends BaseAdapter {
     extractTitle = () => {
         const titleEl = this.doc.querySelector('h1.p-novel__title');
@@ -132,6 +216,7 @@ const getAdapter = (url: string, doc: Document): BaseAdapter | null => {
     if (url.includes('kanunu8.com') || url.includes('kanunu.net')) return new KanunuAdapter(url, doc);
     if (url.includes('novelcool.com')) return new NovelcoolAdapter(url, doc);
     if (url.includes('ncode.syosetu.com')) return new SyosetuAdapter(url, doc);
+    if (url.includes('booktoki468.com')) return new BookTokiAdapter(url, doc);
     return null;
 }
 
@@ -175,6 +260,7 @@ const getExampleUrl = (domain: string): string => {
         'kanunu8.com': 'https://www.kanunu8.com/book/12345/123456.html',
         'novelcool.com': 'https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345',
         'ncode.syosetu.com': 'https://ncode.syosetu.com/n1234ab/1/',
+        'booktoki468.com': 'https://booktoki468.com/novel/3913764',
     };
     
     return examples[domain] || `https://${domain}/example-chapter-url`;

@@ -1183,3 +1183,13 @@ Next: After running with reduced logs, gather traces for 'Chapter not found' and
   - services/db/core/versionGate.ts#L36: version peek without triggering upgrades; returns actionable status for newer/older/corrupted DB + failed migration marker.
   - services/db/core/migrationRestore.ts#L51: restore flow that deletes the DB, recreates at `fromVersion`, replays migrations, then imports backup.
 - Tests: `npx tsc --noEmit`; `npm test -- --run tests/db/open-singleton.test.ts tests/db/migrations/*`
+
+2025-12-24 10:56 UTC - BookToki: adapter + scraper JSON import support
+- Files: config/constants.ts; services/adapters.ts; services/import/booktoki.ts; services/importService.ts; tests/services/importService.test.ts; tests/services/adapters.booktoki.test.ts; docs/WORKLOG.md
+- Why: Make BookToki sources usable: allow direct chapter fetch parsing, and allow importing BookToki Chrome extension scrape JSON by converting it into `lexiconforge-full-1`.
+- Details:
+  - services/adapters.ts#L94: add `BookTokiAdapter` and wire it into `getAdapter()`; update example URL mapping.
+  - config/constants.ts#L72: add `booktoki468.com` to supported sites list.
+  - services/import/booktoki.ts#L1: detect + convert BookToki scrape payload → LexiconForge full session payload (stableIds, urlMappings, navigation).
+  - services/importService.ts#L178: accept BookToki payloads in `importFromUrl` / `importFromFile`.
+- Tests: `npx tsc --noEmit`; `npm test -- --run`
