@@ -9,6 +9,7 @@ import type {
   ExportedImageAsset,
 } from '../types';
 import type { StableSessionData } from '../../stableIdService';
+import type { DiffResult } from '../../diff/types';
 import { getConnection } from '../core/connection';
 import { STORE_NAMES } from '../core/schema';
 import { ImageCacheStore } from '../../imageCacheService';
@@ -24,6 +25,16 @@ export type ImportProgressHandler = (
 const BATCH_SIZE = 50;
 
 const nowIso = () => new Date().toISOString();
+
+type StoredDiffResult = DiffResult & { fanVersionId: string };
+
+const prepareDiffResultForStorage = (record: DiffResult): StoredDiffResult => ({
+  ...record,
+  fanVersionId: record.fanVersionId ?? '',
+  aiHash: record.aiHash ?? null,
+  fanHash: record.fanHash ?? null,
+  rawHash: record.rawHash ?? record.rawVersionId,
+});
 
 const putSettingsRecord = (
   store: IDBObjectStore,
@@ -223,8 +234,8 @@ export class ImportOps {
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
         const store = tx.objectStore(STORE_NAMES.DIFF_RESULTS);
-        for (const record of diffResults) {
-          store.put(record);
+        for (const record of diffResults as DiffResult[]) {
+          store.put(prepareDiffResultForStorage(record) as StoredDiffResult);
         }
       });
     }

@@ -1,20 +1,25 @@
 /**
  * Provider Contract Tests
  *
- * TEST-QUALITY: 8.5/10 (Target: High, integration-style)
+ * STATUS: SCAFFOLD - All tests skipped pending VCR infrastructure
+ * TEST-QUALITY: 2/10 (current) → 8.5/10 (target when implemented)
  *
- * Construct: "Given a prompt + text, provider returns well-formed TranslationResult
+ * This file defines the STRUCTURE for provider contract tests but the VCR
+ * (Video Cassette Recording) infrastructure for deterministic replay is not built.
+ * All tests are currently skipped.
+ *
+ * Target construct: "Given a prompt + text, provider returns well-formed TranslationResult
  * with correct token accounting and typed errors within timeout."
  *
- * Ecological validity: Uses VCR-style replay for determinism, but tests real adapter logic.
- * Can optionally run live with LIVE_API_TEST=1 env var.
+ * NOTE: Adversarial tests (rate limits, timeouts, malformed responses) are now
+ * implemented in the individual adapter test files where they can be properly tested:
+ * - tests/adapters/providers/OpenAIAdapter.test.ts (adversarial scenarios section)
+ * - tests/adapters/providers/GeminiAdapter.test.ts
  *
- * Decision-useful: Catches adapter bugs, API contract changes, token counting errors.
- *
- * Gaps addressed from audit:
- * - Mock overuse: Tests real adapter code (only network is replayed)
- * - No ground truth: Validates token counts, cost calculations
- * - No adversarial: Tests rate limits, timeouts, unknown models
+ * To make these contract tests real:
+ * 1. Implement VCR cassette recording/replay (see TODO at bottom)
+ * 2. Hook up actual adapters instead of inline mock responses
+ * 3. Remove .skip from test cases
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -278,49 +283,11 @@ describe('Provider Contract: Gemini', () => {
   });
 });
 
-// Adversarial contract tests
-describe('Provider Contract: Adversarial Cases', () => {
-  it.skip('[Adversarial] rate limit: backs off correctly', async () => {
-    // TODO: Implement rate limit testing
-    // Should test:
-    // 1. Adapter receives 429 response
-    // 2. Waits appropriate time (respecting Retry-After header)
-    // 3. Retries with exponential backoff
-    // 4. Eventually succeeds or returns typed error
-
-    expect(true).toBe(true); // Placeholder
-  });
-
-  it.skip('[Adversarial] timeout: returns partial result or error', async () => {
-    // TODO: Test timeout handling
-    // Should test:
-    // 1. Request exceeds timeout threshold
-    // 2. Adapter cancels request
-    // 3. Returns typed error with timeout info
-
-    expect(true).toBe(true); // Placeholder
-  });
-
-  it.skip('[Adversarial] unknown model: maps or fails predictably', async () => {
-    // TODO: Test unknown model handling
-    // Should test:
-    // 1. Adapter receives unknown model name
-    // 2. Either maps to known model (with warning log)
-    // 3. Or returns typed error (not crash)
-
-    expect(true).toBe(true); // Placeholder
-  });
-
-  it.skip('[Adversarial] malformed API response: handles gracefully', async () => {
-    // TODO: Test malformed response handling
-    // Should test:
-    // 1. API returns invalid JSON
-    // 2. API returns unexpected structure
-    // 3. Adapter returns typed error (not crash)
-
-    expect(true).toBe(true); // Placeholder
-  });
-});
+// NOTE: Adversarial contract tests (rate limits, timeouts, malformed responses)
+// have been moved to individual adapter test files where they can be properly tested:
+// - tests/adapters/providers/OpenAIAdapter.test.ts → "adversarial scenarios" describe block
+// - tests/adapters/providers/GeminiAdapter.test.ts
+// This avoids placeholder stubs that inflate test counts without testing behavior.
 
 /**
  * Implementation TODO (for full 8.5/10 score):

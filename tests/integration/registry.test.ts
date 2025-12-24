@@ -1,10 +1,23 @@
+/**
+ * RegistryService Unit Tests
+ *
+ * NOTE: Despite being in the 'integration' folder, these are UNIT tests.
+ * They mock `fetch` to test the service's logic in isolation:
+ * - Multi-fetch aggregation (registry → individual novel metadata)
+ * - Partial failure handling (some novels fail, others succeed)
+ * - URL routing (custom registry URLs, individual metadata URLs)
+ *
+ * For true integration tests against a real registry server,
+ * see tests/e2e/ or run with LIVE_REGISTRY_TEST=1.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RegistryService } from '../../services/registryService';
 
-// Mock fetch globally
+// Mock fetch globally - this makes these UNIT tests, not integration tests
 global.fetch = vi.fn();
 
-describe('RegistryService Integration', () => {
+describe('RegistryService (unit tests with mocked fetch)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

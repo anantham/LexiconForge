@@ -130,6 +130,24 @@ describe('Session export/import', () => {
     });
 
     it('should restore diffResults from imported session data', async () => {
+      const testDiffResult: DiffResult = {
+        chapterId: 'stable-import',
+        aiVersionId: '9876543210',
+        fanVersionId: null,
+        rawVersionId: 'xyz98765',
+        algoVersion: '1.0.0',
+        markers: [{
+          chunkId: 'para-0-xyz',
+          colors: ['orange'],
+          reasons: ['raw-divergence'],
+          aiRange: { start: 0, end: 20 },
+          position: 0
+        }],
+        analyzedAt: Date.now(),
+        costUsd: 0.002,
+        model: 'gpt-4o-mini'
+      };
+
       const sessionData = {
         metadata: { format: 'lexiconforge-full-1', exportedAt: new Date().toISOString() },
         settings: null,
@@ -138,42 +156,21 @@ describe('Session export/import', () => {
         novels: [],
         chapters: [],
         promptTemplates: [],
-        diffResults: [
-          {
-            chapterId: 'stable-import',
-            aiVersionId: '9876543210',
-            fanVersionId: null,
-            rawVersionId: 'xyz98765',
-            algoVersion: '1.0.0',
-            markers: [{
-              chunkId: 'para-0-xyz',
-              colors: ['orange'],
-              reasons: ['raw-divergence'],
-              aiRange: { start: 0, end: 20 },
-              position: 0
-            }],
-            analyzedAt: Date.now(),
-            costUsd: 0.002,
-            model: 'gpt-4o-mini'
-          }
-        ] satisfies DiffResult[]
+        diffResults: [testDiffResult]
       };
 
-      // Import should succeed or gracefully skip if diffResults store doesn't exist
-      // (older DB versions may not have the store)
-      try {
-        await ImportOps.importFullSessionData(sessionData);
-        // If we get here, import succeeded
-        expect(true).toBe(true);
-      } catch (error: any) {
-        // If error is because diffResults store doesn't exist, that's acceptable in tests
-        // Otherwise, rethrow
-        if (!error.message?.includes('diffResults') && !error.message?.includes('Data provided')) {
-          throw error;
-        }
-        // Store doesn't exist in test DB - this is OK
-        expect(true).toBe(true);
-      }
+      // Import the session data
+      await ImportOps.importFullSessionData(sessionData);
+
+      // Verify the diffResult was actually imported by reading it back
+      const allDiffResults = await DiffOps.getAll();
+      const imported = allDiffResults.find(r => r.chapterId === 'stable-import');
+
+      expect(imported).toBeDefined();
+      expect(imported?.aiVersionId).toBe('9876543210');
+      expect(imported?.model).toBe('gpt-4o-mini');
+      expect(imported?.markers).toHaveLength(1);
+      expect(imported?.markers[0].reasons).toContain('raw-divergence');
     });
 
     it('should handle export when no diffResults exist', async () => {

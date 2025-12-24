@@ -166,3 +166,87 @@ describe('OpenAIAdapter translate() parameter handling', () => {
     expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
   });
 });
+
+describe('OpenAIAdapter adversarial scenarios', () => {
+  beforeEach(() => {
+    openAiMocks.create.mockReset();
+    openAiMocks.ctor.mockClear();
+    recordMetricMock.mockClear();
+    supportsStructuredOutputsMock.mockResolvedValue(false);
+  });
+
+  const makeRequest = (): TranslationRequest => ({
+    title: 'Test',
+    content: 'Content',
+    settings: baseSettings,
+    history: [],
+  });
+
+  it('handles rate limit (429) errors with informative message', async () => {
+    const rateLimitError = new Error('Rate limit exceeded');
+    (rateLimitError as any).status = 429;
+    (rateLimitError as any).headers = { 'retry-after': '30' };
+
+    openAiMocks.create.mockRejectedValueOnce(rateLimitError);
+
+    const adapter = new OpenAIAdapter();
+
+    await expect(adapter.translate(makeRequest())).rejects.toThrow('Rate limit exceeded');
+    expect(recordMetricMock).toHaveBeenCalledWith(
+      expect.objectContaining({ success: false })
+    );
+  });
+
+  it('handles network timeout errors', async () => {
+    const timeoutError = new Error('Request timed out');
+    (timeoutError as any).code = 'ETIMEDOUT';
+
+    openAiMocks.create.mockRejectedValueOnce(timeoutError);
+
+    const adapter = new OpenAIAdapter();
+
+    await expect(adapter.translate(makeRequest())).rejects.toThrow('timed out');
+    expect(recordMetricMock).toHaveBeenCalledWith(
+      expect.objectContaining({ success: false })
+    );
+  });
+
+  it('handles empty response gracefully', async () => {
+    openAiMocks.create.mockResolvedValueOnce({
+      choices: [],
+      usage: { prompt_tokens: 0, completion_tokens: 0 },
+    });
+
+    const adapter = new OpenAIAdapter();
+
+    await expect(adapter.translate(makeRequest())).rejects.toThrow();
+  });
+
+  it('handles null message content', async () => {
+    openAiMocks.create.mockResolvedValueOnce({
+      choices: [{ finish_reason: 'stop', message: { content: null } }],
+      usage: { prompt_tokens: 10, completion_tokens: 0 },
+    });
+
+    const adapter = new OpenAIAdapter();
+
+    await expect(adapter.translate(makeRequest())).rejects.toThrow();
+  });
+
+  it('handles response with missing required fields', async () => {
+    // JSON is valid but missing translatedTitle
+    openAiMocks.create.mockResolvedValueOnce({
+      choices: [{
+        finish_reason: 'stop',
+        message: { content: '{"translation": "content only"}' },
+      }],
+      usage: { prompt_tokens: 10, completion_tokens: 5 },
+    });
+
+    const adapter = new OpenAIAdapter();
+    const result = await adapter.translate(makeRequest());
+
+    // Should not crash - missing fields should be handled gracefully
+    expect(result.translation).toBe('content only');
+  });
+});
