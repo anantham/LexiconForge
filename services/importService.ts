@@ -18,6 +18,10 @@ import { fetchChaptersForReactRendering } from './db/operations/rendering';
 import { debugLog } from '../utils/debug';
 import { normalizeUrlAggressively } from './stableIdService';
 import { telemetryService } from './telemetryService';
+import {
+  convertBookTokiToLexiconForgeFullPayload,
+  isBookTokiScrapePayload,
+} from './import/booktoki';
 
 export interface ImportProgress {
   stage: 'downloading' | 'parsing' | 'importing' | 'streaming' | 'complete';
@@ -170,11 +174,16 @@ export class ImportService {
         // Convert chunks to text
         const blob = new Blob(chunks);
         const text = await blob.text();
-        const sessionData = JSON.parse(text);
+        let sessionData = JSON.parse(text);
+
+        // Allow BookToki scraper JSON payloads by converting them into a LexiconForge full export payload.
+        if (isBookTokiScrapePayload(sessionData)) {
+          sessionData = convertBookTokiToLexiconForgeFullPayload(sessionData);
+        }
 
         // Validate format
         if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
-          throw new Error('Invalid session format. Expected lexiconforge export.');
+          throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
         }
 
         // NEW: Extract and store provenance if present
@@ -861,11 +870,16 @@ export class ImportService {
   static async importFromFile(file: File): Promise<any> {
     try {
       const text = await file.text();
-      const sessionData = JSON.parse(text);
+      let sessionData = JSON.parse(text);
+
+      // Allow BookToki scraper JSON payloads by converting them into a LexiconForge full export payload.
+      if (isBookTokiScrapePayload(sessionData)) {
+        sessionData = convertBookTokiToLexiconForgeFullPayload(sessionData);
+      }
 
       // Validate format
       if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
-        throw new Error('Invalid session format');
+        throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
       }
 
       // Extract and store provenance if present
