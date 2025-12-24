@@ -6,10 +6,13 @@ import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';
 import SettingsModal from './components/SettingsModal';
 import Loader from './components/Loader';
+import MigrationRecovery from './components/MigrationRecovery';
 import { LandingPage } from './components/LandingPage';
 import { DefaultKeyBanner } from './components/DefaultKeyBanner';
 
 import { validateApiKey } from './services/aiService';
+import { prepareConnection } from './services/db/core/connection';
+import { shouldBlockApp, type VersionCheckResult } from './services/db/core/versionGate';
 import { Analytics } from '@vercel/analytics/react';
 
 // Initialize diff trigger service for automatic semantic diff analysis
@@ -19,6 +22,11 @@ import './services/diff/DiffTriggerService';
 import './styles/diff-colors.css';
 
 const App: React.FC = () => {
+const [dbGate, setDbGate] = React.useState<{
+  status: 'checking' | 'blocked' | 'ready';
+  result: VersionCheckResult | null;
+}>({ status: 'checking', result: null });
+
 // Browser-side env diagnostics (masked) when LF_AI_DEBUG=1
 useEffect(() => {
   try {
@@ -127,6 +135,14 @@ const settingsFingerprint = React.useMemo(
     // Initialize store on first render, then handle URL params
     useEffect(() => {
       const init = async () => {
+        const versionCheck = await prepareConnection();
+        if (shouldBlockApp(versionCheck)) {
+          setDbGate({ status: 'blocked', result: versionCheck });
+          return;
+        }
+
+        setDbGate({ status: 'ready', result: versionCheck });
+
         await initializeStore();
         // Now that the store is initialized, handle any URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -250,13 +266,30 @@ const settingsFingerprint = React.useMemo(
       previousChapterIdRef.current = currentChapterId;
     }, [currentChapterId]);
 
-    if (!isInitialized) {
-      return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-          <Loader text="Initializing Session..." />
-        </div>
-      );
-    }
+	    if (dbGate.status === 'checking') {
+	      return (
+	        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+	          <Loader text="Checking database..." />
+	        </div>
+	      );
+	    }
+
+	    if (dbGate.status === 'blocked' && dbGate.result) {
+	      return (
+	        <MigrationRecovery
+	          versionCheck={dbGate.result}
+	          onRetry={() => window.location.reload()}
+	        />
+	      );
+	    }
+
+	    if (!isInitialized) {
+	      return (
+	        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+	          <Loader text="Initializing Session..." />
+	        </div>
+	      );
+	    }
 
     // Show landing page if no session is loaded
     if (!hasSession) {
