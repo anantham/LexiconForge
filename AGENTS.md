@@ -66,6 +66,79 @@ Notes
 - One branch can only be checked out in one worktree at a time (Git enforces this).
 - Node projects duplicate `node_modules` per worktree; prune old worktrees regularly.
 
+---
+
+# MULTI-AGENT COORDINATION PROTOCOL
+
+When multiple agents (Claude Code, Gemini CLI, Codex, etc.) work on this repo concurrently, follow these rules to avoid conflicts:
+
+## Core Rules
+
+| Rule | Rationale |
+|------|-----------|
+| **Main repo stays on `main`** | Never checkout other branches in the root repo |
+| **Each agent = dedicated worktree** | Isolates work completely |
+| **WORKLOG entry on start/end** | Signals ownership and progress |
+| **No stashing** | Commit WIP to branch or lose it; stashes create ownership confusion |
+| **Claim branches explicitly** | Include agent identifier in branch name |
+
+## Branch Naming Convention
+
+Use agent-prefixed branches to signal ownership:
+```
+feat/opus-<feature-name>      # Claude Opus
+feat/gemini-<feature-name>    # Gemini CLI
+feat/codex-<feature-name>     # Codex / Claude 5.2
+fix/opus-<bug-name>           # Bug fixes follow same pattern
+```
+
+## Worktree Naming Convention
+
+```
+../LexiconForge.worktrees/opus-<task>/
+../LexiconForge.worktrees/gemini-<task>/
+../LexiconForge.worktrees/codex-<task>/
+```
+
+## WORKLOG Coordination
+
+On session start, append to `docs/WORKLOG.md`:
+```markdown
+### [YYYY-MM-DD HH:MM] [Agent: Opus/Gemini/Codex]
+**Status:** Starting
+**Task:** <brief description>
+**Worktree:** ../LexiconForge.worktrees/<name>/
+**Branch:** <branch-name>
+**Files likely affected:** <list>
+```
+
+On session end or context overflow:
+```markdown
+### [YYYY-MM-DD HH:MM] [Agent: Opus/Gemini/Codex]
+**Status:** Pausing/Complete
+**Progress:** <what was done>
+**Next steps:** <what remains>
+**PR:** <link if created>
+```
+
+## Conflict Prevention
+
+1. **Check WORKLOG before starting** - see if another agent is working on overlapping files
+2. **Don't touch files outside your task scope** - especially shared configs
+3. **If you need a file another agent owns** - note it in WORKLOG and coordinate via human
+4. **Never force-push to branches you didn't create**
+5. **Keep PRs focused** - one logical change, easy to review and merge independently
+
+## Emergency Recovery
+
+If you find the repo in a dirty state (uncommitted changes, detached HEAD, etc.):
+1. **Don't try to fix it** - you may destroy another agent's work
+2. **Log the state** in WORKLOG with `git status` output
+3. **Ask human** for guidance
+4. **Create your own worktree** from `origin/main` and proceed there
+
+---
+
 # HYPOTHESIS‑DRIVEN_PROTOCOL  
 
 PHASE 1 — Hypothesis Formation
