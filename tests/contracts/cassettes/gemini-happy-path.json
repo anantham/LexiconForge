@@ -1,0 +1,24 @@
+{
+  "name": "gemini-happy-path",
+  "provider": "Gemini",
+  "model": "gemini-2.5-flash",
+  "request": {
+    "title": "Test Title",
+    "content": "今天天气很好。",
+    "systemPrompt": "Translate this Chinese text to English.",
+    "temperature": 0.3,
+    "maxOutputTokens": 512
+  },
+  "mock": {
+    "responseText": "{\"translatedTitle\":\"Test Title\",\"translation\":\"The weather is very good today.\",\"footnotes\":[],\"suggestedIllustrations\":[],\"proposal\":null}",
+    "usageMetadata": { "promptTokenCount": 14, "candidatesTokenCount": 9 }
+  },
+  "expected": {
+    "translatedTitle": "Test Title",
+    "translation": "The weather is very good today.",
+    "promptTokens": 14,
+    "completionTokens": 9,
+    "estimatedCost": 0.000008
+  }
+}
+

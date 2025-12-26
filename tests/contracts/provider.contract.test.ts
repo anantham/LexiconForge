@@ -1,320 +1,252 @@
 /**
- * Provider Contract Tests
+ * Provider Contract Tests (VCR replay-only)
  *
- * STATUS: SCAFFOLD - All tests skipped pending VCR infrastructure
- * TEST-QUALITY: 2/10 (current) → 8.5/10 (target when implemented)
+ * Goal: Exercise real adapter logic deterministically (no network) using
+ * small cassette fixtures that represent provider SDK responses.
  *
- * This file defines the STRUCTURE for provider contract tests but the VCR
- * (Video Cassette Recording) infrastructure for deterministic replay is not built.
- * All tests are currently skipped.
+ * This avoids placeholder tests while still providing integration-like coverage across:
+ * - prompt building
+ * - SDK request/response handling
+ * - JSON extraction/parsing
+ * - token accounting + cost call wiring
+ * - metrics recording (where applicable)
  *
- * Target construct: "Given a prompt + text, provider returns well-formed TranslationResult
- * with correct token accounting and typed errors within timeout."
- *
- * NOTE: Adversarial tests (rate limits, timeouts, malformed responses) are now
- * implemented in the individual adapter test files where they can be properly tested:
- * - tests/adapters/providers/OpenAIAdapter.test.ts (adversarial scenarios section)
+ * Adversarial scenarios (rate limits, timeouts, malformed responses) live in:
+ * - tests/adapters/providers/OpenAIAdapter.test.ts
  * - tests/adapters/providers/GeminiAdapter.test.ts
- *
- * To make these contract tests real:
- * 1. Implement VCR cassette recording/replay (see TODO at bottom)
- * 2. Hook up actual adapters instead of inline mock responses
- * 3. Remove .skip from test cases
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { TranslationResult } from '../../types';
+import type { AppSettings } from '../../types';
+import type { TranslationRequest } from '../../services/translate/Translator';
+import { OpenAIAdapter } from '../../adapters/providers/OpenAIAdapter';
+import { GeminiAdapter } from '../../adapters/providers/GeminiAdapter';
+import { createMockAppSettings } from '../utils/test-data';
+import { loadCassette } from './vcr/loadCassette';
+import type { GeminiCassette, OpenAICassette } from './vcr/types';
 
-// VCR-style recording types
-interface RecordedRequest {
-  provider: string;
-  model: string;
-  prompt: string;
-  timestamp: number;
-}
-
-interface RecordedResponse {
-  translatedText: string;
-  tokenCount?: { prompt: number; completion: number; total: number };
-  cost?: number;
-  latencyMs: number;
-  error?: string;
-}
-
-interface Cassette {
-  request: RecordedRequest;
-  response: RecordedResponse;
-}
-
-/**
- * VCR Replay Mechanism
- *
- * In real implementation, this would:
- * 1. Check if cassette file exists
- * 2. If yes, replay from disk
- * 3. If no + LIVE_API_TEST=1, make real call and record
- * 4. If no + not live, fail with helpful message
- *
- * For now, we use inline cassettes for demonstration.
- */
-class CassettePlayer {
-  private cassettes: Map<string, Cassette> = new Map();
-
-  record(key: string, cassette: Cassette) {
-    this.cassettes.set(key, cassette);
-  }
-
-  replay(key: string): Cassette | null {
-    return this.cassettes.get(key) || null;
-  }
-
-  clear() {
-    this.cassettes.clear();
-  }
-}
-
-const vcr = new CassettePlayer();
-
-// Contract test cases - shared across all providers
-interface ContractTestCase {
-  name: string;
-  input: {
-    systemPrompt: string;
-    text: string;
-    temperature?: number;
-  };
-  assertions: {
-    hasTranslation: boolean;
-    minTokens?: number;
-    maxCost?: number;
-    maxLatency?: number;
-  };
-}
-
-const SHARED_CONTRACT_CASES: ContractTestCase[] = [
-  {
-    name: 'happy path: small translation',
-    input: {
-      systemPrompt: 'Translate this Chinese text to English.',
-      text: '今天天气很好。',
-      temperature: 0.3,
-    },
-    assertions: {
-      hasTranslation: true,
-      minTokens: 10,
-      maxCost: 0.001,  // Should be cheap for small text
-      maxLatency: 5000, // 5 seconds
+const openAiMocks = vi.hoisted(() => {
+  const create = vi.fn();
+  const ctor = vi.fn();
+  class OpenAI {
+    chat = {
+      completions: {
+        create: (...args: any[]) => create(...args),
+      },
+    };
+    constructor(...args: any[]) {
+      ctor(...args);
     }
+  }
+  return { OpenAI, create, ctor };
+});
+
+vi.mock('openai', () => ({ __esModule: true, default: openAiMocks.OpenAI }));
+
+const geminiMocks = vi.hoisted(() => {
+  const generateContent = vi.fn();
+  const getGenerativeModel = vi.fn(() => ({
+    generateContent: (...args: any[]) => generateContent(...args),
+  }));
+  const ctor = vi.fn();
+  class GoogleGenerativeAI {
+    constructor(...args: any[]) {
+      ctor(...args);
+    }
+    getGenerativeModel(...args: any[]) {
+      return getGenerativeModel(...args);
+    }
+  }
+  return { GoogleGenerativeAI, generateContent, getGenerativeModel, ctor };
+});
+
+vi.mock('@google/generative-ai', () => ({
+  GoogleGenerativeAI: geminiMocks.GoogleGenerativeAI,
+  GenerateContentResult: Object,
+  SchemaType: {
+    OBJECT: 'OBJECT',
+    ARRAY: 'ARRAY',
+    STRING: 'STRING',
+    NUMBER: 'NUMBER',
+    BOOLEAN: 'BOOLEAN',
   },
-  {
-    name: 'medium chapter: ~1000 tokens',
-    input: {
-      systemPrompt: 'Translate this Korean web novel chapter to English.',
-      text: '그날 하늘은 맑았다. '.repeat(100), // ~1000 tokens worth
-      temperature: 0.7,
-    },
-    assertions: {
-      hasTranslation: true,
-      minTokens: 500,
-      maxCost: 0.05,   // Should be reasonable for medium text
-      maxLatency: 15000, // 15 seconds
-    }
-  }
-];
+}));
 
-describe('Provider Contract: OpenAI', () => {
-  const PROVIDER = 'OpenAI';
-  const MODEL = 'gpt-4o-mini';
+const supportsStructuredOutputsMock = vi.fn().mockResolvedValue(false);
+const supportsParametersMock = vi.fn().mockResolvedValue(false);
 
+vi.mock('../../services/capabilityService', () => ({
+  supportsStructuredOutputs: (...args: any[]) => supportsStructuredOutputsMock(...args),
+  supportsParameters: (...args: any[]) => supportsParametersMock(...args),
+}));
+
+const rateLimitMock = vi.fn().mockResolvedValue(undefined);
+
+vi.mock('../../services/rateLimitService', () => ({
+  rateLimitService: {
+    canMakeRequest: (...args: any[]) => rateLimitMock(...args),
+  },
+}));
+
+const calculateCostMock = vi.fn();
+
+vi.mock('../../services/aiService', () => ({
+  calculateCost: (...args: any[]) => calculateCostMock(...args),
+}));
+
+const recordMetricMock = vi.fn().mockResolvedValue(undefined);
+
+vi.mock('../../services/apiMetricsService', () => ({
+  apiMetricsService: {
+    recordMetric: (...args: any[]) => recordMetricMock(...args),
+  },
+}));
+
+vi.mock('../../services/env', () => ({
+  getEnvVar: (_key: string) => undefined,
+}));
+
+vi.mock('../../services/defaultApiKeyService', () => ({
+  getDefaultApiKey: () => undefined,
+}));
+
+function buildSettings(provider: 'OpenAI' | 'Gemini', cassette: OpenAICassette | GeminiCassette): AppSettings {
+  const base: Partial<AppSettings> = {
+    provider,
+    model: cassette.model,
+    systemPrompt: cassette.request.systemPrompt,
+    temperature: cassette.request.temperature ?? 0.3,
+    maxOutputTokens: cassette.request.maxOutputTokens,
+    includeFanTranslationInPrompt: cassette.request.includeFanTranslationInPrompt ?? true,
+    enableAmendments: cassette.request.enableAmendments ?? false,
+  };
+
+  return createMockAppSettings({
+    ...base,
+    apiKeyOpenAI: provider === 'OpenAI' ? 'test-openai-key' : '',
+    apiKeyGemini: provider === 'Gemini' ? 'test-gemini-key' : '',
+    apiKeyDeepSeek: '',
+  });
+}
+
+function buildRequest(cassette: OpenAICassette | GeminiCassette, settings: AppSettings): TranslationRequest {
+  return {
+    title: cassette.request.title,
+    content: cassette.request.content,
+    settings,
+    history: [],
+    chapterId: `contract:${cassette.name}`,
+  };
+}
+
+describe('Provider Contract (VCR replay-only)', () => {
   beforeEach(() => {
-    vcr.clear();
+    openAiMocks.create.mockReset();
+    openAiMocks.ctor.mockClear();
+    geminiMocks.generateContent.mockReset();
+    geminiMocks.getGenerativeModel.mockClear();
+    geminiMocks.ctor.mockClear();
 
-    // Record cassettes (in real implementation, these come from files)
-    vcr.record('openai-happy-path', {
-      request: {
-        provider: PROVIDER,
-        model: MODEL,
-        prompt: SHARED_CONTRACT_CASES[0].input.text,
-        timestamp: Date.now(),
-      },
-      response: {
-        translatedText: 'The weather is very nice today.',
-        tokenCount: { prompt: 15, completion: 8, total: 23 },
-        cost: 0.00003,
-        latencyMs: 1200,
-      }
+    rateLimitMock.mockClear();
+    calculateCostMock.mockReset();
+    recordMetricMock.mockClear();
+
+    supportsStructuredOutputsMock.mockResolvedValue(false);
+    supportsParametersMock.mockResolvedValue(false);
+  });
+
+  describe('OpenAIAdapter', () => {
+    it('replays happy-path cassette via adapter.translate()', async () => {
+      const cassette = loadCassette<OpenAICassette>('openai-happy-path');
+      const settings = buildSettings('OpenAI', cassette);
+
+      calculateCostMock.mockResolvedValueOnce(cassette.expected.estimatedCost);
+      openAiMocks.create.mockResolvedValueOnce(cassette.mock.sdkResponse);
+
+      const adapter = new OpenAIAdapter();
+      const result = await adapter.translate(buildRequest(cassette, settings));
+
+      expect(result.translatedTitle).toBe(cassette.expected.translatedTitle);
+      expect(result.translation).toBe(cassette.expected.translation);
+      expect(result.usageMetrics.promptTokens).toBe(cassette.expected.promptTokens);
+      expect(result.usageMetrics.completionTokens).toBe(cassette.expected.completionTokens);
+      expect(result.usageMetrics.totalTokens).toBe(cassette.expected.promptTokens + cassette.expected.completionTokens);
+      expect(result.usageMetrics.estimatedCost).toBe(cassette.expected.estimatedCost);
+
+      expect(rateLimitMock).toHaveBeenCalledWith(cassette.model);
+      expect(calculateCostMock).toHaveBeenCalledWith(cassette.model, cassette.expected.promptTokens, cassette.expected.completionTokens);
+      expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({
+        apiType: 'translation',
+        provider: 'OpenAI',
+        model: cassette.model,
+        success: true,
+        chapterId: `contract:${cassette.name}`,
+      }));
+
+      expect(openAiMocks.ctor).toHaveBeenCalledWith(expect.objectContaining({
+        apiKey: 'test-openai-key',
+        baseURL: 'https://api.openai.com/v1',
+      }));
+
+      const requestOptions = openAiMocks.create.mock.calls[0]?.[0];
+      expect(requestOptions).toEqual(expect.objectContaining({ model: cassette.model }));
+      expect(JSON.stringify(requestOptions)).toContain(cassette.request.title);
+      expect(JSON.stringify(requestOptions)).toContain(cassette.request.content);
     });
 
-    vcr.record('openai-medium-chapter', {
-      request: {
-        provider: PROVIDER,
-        model: MODEL,
-        prompt: SHARED_CONTRACT_CASES[1].input.text,
-        timestamp: Date.now(),
-      },
-      response: {
-        translatedText: 'That day, the sky was clear. '.repeat(100),
-        tokenCount: { prompt: 1000, completion: 850, total: 1850 },
-        cost: 0.00092,
-        latencyMs: 3500,
-      }
+    it('replays a larger cassette and preserves token accounting', async () => {
+      const cassette = loadCassette<OpenAICassette>('openai-medium-chapter');
+      const settings = buildSettings('OpenAI', cassette);
+
+      calculateCostMock.mockResolvedValueOnce(cassette.expected.estimatedCost);
+      openAiMocks.create.mockResolvedValueOnce(cassette.mock.sdkResponse);
+
+      const adapter = new OpenAIAdapter();
+      const result = await adapter.translate(buildRequest(cassette, settings));
+
+      expect(result.translatedTitle).toBe(cassette.expected.translatedTitle);
+      expect(result.translation).toBe(cassette.expected.translation);
+      expect(result.translation.length).toBeGreaterThan(100);
+      expect(result.usageMetrics.totalTokens).toBe(cassette.expected.promptTokens + cassette.expected.completionTokens);
     });
   });
 
-  it.skip('[Contract] happy path: returns well-formed result with correct tokens', async () => {
-    const testCase = SHARED_CONTRACT_CASES[0];
-    const cassette = vcr.replay('openai-happy-path')!;
+  describe('GeminiAdapter', () => {
+    it('replays happy-path cassette via adapter.translate()', async () => {
+      const cassette = loadCassette<GeminiCassette>('gemini-happy-path');
+      const settings = buildSettings('Gemini', cassette);
 
-    // Simulate adapter response based on cassette
-    const result: TranslationResult = {
-      translatedTitle: 'Test',
-      translation: cassette.response.translatedText,
-      proposal: null,
-      footnotes: [],
-      suggestedIllustrations: [],
-      usageMetrics: {
-        totalTokens: cassette.response.tokenCount!.total,
-        promptTokens: cassette.response.tokenCount!.prompt,
-        completionTokens: cassette.response.tokenCount!.completion,
-        estimatedCost: cassette.response.cost!,
-        requestTime: cassette.response.latencyMs / 1000,
-        provider: PROVIDER as any,
-        model: MODEL,
-      }
-    };
+      calculateCostMock.mockResolvedValueOnce(cassette.expected.estimatedCost);
+      geminiMocks.generateContent.mockResolvedValueOnce({
+        response: {
+          text: () => cassette.mock.responseText,
+          usageMetadata: cassette.mock.usageMetadata,
+        },
+      });
 
-    // Contract assertions
-    expect(result.translation).toBeTruthy();
-    expect(result.translation.length).toBeGreaterThan(0);
+      const adapter = new GeminiAdapter();
+      const result = await adapter.translate(buildRequest(cassette, settings));
 
-    // Token accounting
-    expect(result.usageMetrics.totalTokens).toBeGreaterThan(testCase.assertions.minTokens!);
-    expect(result.usageMetrics.totalTokens).toBe(
-      result.usageMetrics.promptTokens + result.usageMetrics.completionTokens
-    );
+      expect(result.translatedTitle).toBe(cassette.expected.translatedTitle);
+      expect(result.translation).toBe(cassette.expected.translation);
+      expect(result.usageMetrics.promptTokens).toBe(cassette.expected.promptTokens);
+      expect(result.usageMetrics.completionTokens).toBe(cassette.expected.completionTokens);
+      expect(result.usageMetrics.totalTokens).toBe(cassette.expected.promptTokens + cassette.expected.completionTokens);
+      expect(result.usageMetrics.estimatedCost).toBe(cassette.expected.estimatedCost);
 
-    // Cost calculation
-    expect(result.usageMetrics.estimatedCost).toBeLessThan(testCase.assertions.maxCost!);
-    expect(result.usageMetrics.estimatedCost).toBeGreaterThan(0);
+      expect(rateLimitMock).toHaveBeenCalledWith(cassette.model);
+      expect(calculateCostMock).toHaveBeenCalledWith(cassette.model, cassette.expected.promptTokens, cassette.expected.completionTokens);
 
-    // Latency
-    expect(result.usageMetrics.requestTime * 1000).toBeLessThan(testCase.assertions.maxLatency!);
-  });
+      expect(geminiMocks.ctor).toHaveBeenCalledWith('test-gemini-key');
+      expect(geminiMocks.getGenerativeModel).toHaveBeenCalledWith(expect.objectContaining({ model: cassette.model }));
 
-  it.skip('[Contract] medium chapter: scales correctly', async () => {
-    const testCase = SHARED_CONTRACT_CASES[1];
-    const cassette = vcr.replay('openai-medium-chapter')!;
-
-    const result: TranslationResult = {
-      translatedTitle: 'Chapter 1',
-      translation: cassette.response.translatedText,
-      proposal: null,
-      footnotes: [],
-      suggestedIllustrations: [],
-      usageMetrics: {
-        totalTokens: cassette.response.tokenCount!.total,
-        promptTokens: cassette.response.tokenCount!.prompt,
-        completionTokens: cassette.response.tokenCount!.completion,
-        estimatedCost: cassette.response.cost!,
-        requestTime: cassette.response.latencyMs / 1000,
-        provider: PROVIDER as any,
-        model: MODEL,
-      }
-    };
-
-    // Should handle larger input
-    expect(result.translation.length).toBeGreaterThan(100);
-    expect(result.usageMetrics.totalTokens).toBeGreaterThan(testCase.assertions.minTokens!);
-    expect(result.usageMetrics.estimatedCost).toBeLessThan(testCase.assertions.maxCost!);
+      const callArg = geminiMocks.generateContent.mock.calls[0]?.[0];
+      const promptText = callArg?.contents?.[0]?.parts?.[0]?.text;
+      expect(typeof promptText).toBe('string');
+      expect(promptText).toContain(cassette.request.title);
+      expect(promptText).toContain(cassette.request.content);
+      expect(callArg?.generationConfig?.responseMimeType).toBe('application/json');
+    });
   });
 });
 
-describe('Provider Contract: Gemini', () => {
-  const PROVIDER = 'Gemini';
-  const MODEL = 'gemini-2.5-flash';
-
-  beforeEach(() => {
-    vcr.clear();
-
-    vcr.record('gemini-happy-path', {
-      request: {
-        provider: PROVIDER,
-        model: MODEL,
-        prompt: SHARED_CONTRACT_CASES[0].input.text,
-        timestamp: Date.now(),
-      },
-      response: {
-        translatedText: 'The weather is very good today.',
-        tokenCount: { prompt: 14, completion: 9, total: 23 },
-        cost: 0.000008,  // Gemini Flash is cheaper
-        latencyMs: 900,
-      }
-    });
-  });
-
-  it.skip('[Contract] happy path: Gemini-specific token counting', async () => {
-    const testCase = SHARED_CONTRACT_CASES[0];
-    const cassette = vcr.replay('gemini-happy-path')!;
-
-    const result: TranslationResult = {
-      translatedTitle: 'Test',
-      translation: cassette.response.translatedText,
-      proposal: null,
-      footnotes: [],
-      suggestedIllustrations: [],
-      usageMetrics: {
-        totalTokens: cassette.response.tokenCount!.total,
-        promptTokens: cassette.response.tokenCount!.prompt,
-        completionTokens: cassette.response.tokenCount!.completion,
-        estimatedCost: cassette.response.cost!,
-        requestTime: cassette.response.latencyMs / 1000,
-        provider: PROVIDER as any,
-        model: MODEL,
-      }
-    };
-
-    // Gemini-specific assertions
-    expect(result.translation).toBeTruthy();
-    expect(result.usageMetrics.estimatedCost).toBeLessThan(testCase.assertions.maxCost!);
-
-    // Gemini Flash should be faster and cheaper than GPT-4o-mini
-    expect(result.usageMetrics.requestTime).toBeLessThan(2);
-    expect(result.usageMetrics.estimatedCost).toBeLessThan(0.0001);
-  });
-});
-
-// NOTE: Adversarial contract tests (rate limits, timeouts, malformed responses)
-// have been moved to individual adapter test files where they can be properly tested:
-// - tests/adapters/providers/OpenAIAdapter.test.ts → "adversarial scenarios" describe block
-// - tests/adapters/providers/GeminiAdapter.test.ts
-// This avoids placeholder stubs that inflate test counts without testing behavior.
-
-/**
- * Implementation TODO (for full 8.5/10 score):
- *
- * 1. Real VCR implementation:
- *    - Save cassettes to tests/contracts/cassettes/*.json
- *    - Load from disk in replay mode
- *    - Record to disk in LIVE_API_TEST mode
- *
- * 2. Hook up actual adapters:
- *    - Import OpenAIAdapter, GeminiAdapter, ClaudeAdapter
- *    - Call real adapter.translate() methods
- *    - Intercept HTTP at network layer (using nock or MSW)
- *
- * 3. Add more adversarial cases:
- *    - Concurrent requests (check for race conditions)
- *    - Very large inputs (>100K tokens)
- *    - Unicode edge cases
- *    - Network failures (ECONNRESET, etc.)
- *
- * 4. Add calibration tests:
- *    - Compare token counts to manual verification
- *    - Compare costs to actual provider billing
- *    - Validate latency buckets (p50, p95, p99)
- *
- * 5. CI integration:
- *    - Fast lane: replay only (no network)
- *    - Nightly: optional live test (rate-limited)
- *    - Fail on cassette drift (warn if recording changes)
- */
