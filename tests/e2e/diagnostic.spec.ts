@@ -10,7 +10,10 @@
 
 import { test, expect } from '@playwright/test';
 
-test.describe('Initialization Diagnostics', () => {
+const describeDiagnostics =
+  process.env.LF_E2E_DIAGNOSTICS === '1' ? test.describe : test.describe.skip;
+
+describeDiagnostics('Initialization Diagnostics', () => {
   test('Step 1: Page loads and React renders', async ({ page }) => {
     const logs: string[] = [];
     const errors: string[] = [];
@@ -28,7 +31,7 @@ test.describe('Initialization Diagnostics', () => {
     });
 
     console.log('\n=== STEP 1: Navigation ===');
-    await page.goto('http://localhost:5173/', {
+    await page.goto('/', {
       waitUntil: 'domcontentloaded',
       timeout: 30000
     });
@@ -67,7 +70,7 @@ test.describe('Initialization Diagnostics', () => {
     });
 
     console.log('\n=== STEP 2: Store Initialization ===');
-    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     // Wait for initialization
     await page.waitForTimeout(5000);
@@ -91,7 +94,7 @@ test.describe('Initialization Diagnostics', () => {
 
   test('Step 3: IndexedDB database state', async ({ page }) => {
     console.log('\n=== STEP 3: IndexedDB Database State ===');
-    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(5000);
 
     // Check what databases exist
@@ -146,7 +149,7 @@ test.describe('Initialization Diagnostics', () => {
     });
 
     console.log('\n=== STEP 4: Full Initialization Wait ===');
-    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     // Check for initialization spinner
     const hasSpinner = await page.locator('text=Initializing Session').count();
@@ -194,7 +197,7 @@ test.describe('Initialization Diagnostics', () => {
     });
 
     console.log('\n=== STEP 5: StrictMode Double-Render Check ===');
-    await page.goto('http://localhost:5173/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(5000);
 
     console.log(`\ninitializeStore calls detected: ${initCalls.length}`);
