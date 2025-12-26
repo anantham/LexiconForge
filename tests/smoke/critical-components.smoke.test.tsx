@@ -13,6 +13,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
+// Render smoke tests are useful but can be flaky due to app-level side effects.
+// Keep them opt-in so import-level smoke tests still run on every `npm test`.
+const itRender = process.env.LF_SMOKE_RENDER === '1' ? it : it.skip;
+
 // Mock zustand store
 vi.mock('../../store', () => ({
   useAppStore: vi.fn((selector) => {
@@ -41,14 +45,14 @@ vi.mock('../../store', () => ({
   })
 }));
 
-describe.skip('Smoke: App.tsx', () => {
+describe('Smoke: App.tsx', () => {
   it('imports without error', async () => {
     // Just importing catches missing dependencies, syntax errors
     const AppModule = await import('../../App');
     expect(AppModule.default).toBeDefined();
   });
 
-  it('renders without crashing', () => {
+  itRender('renders without crashing', () => {
     // Lazy import to avoid top-level side effects
     const App = require('../../App').default;
 
@@ -61,20 +65,20 @@ describe.skip('Smoke: App.tsx', () => {
   });
 });
 
-describe.skip('Smoke: LandingPage.tsx', () => {
+describe('Smoke: LandingPage.tsx', () => {
   it('imports without error', async () => {
     const LandingPageModule = await import('../../components/LandingPage');
     expect(LandingPageModule.LandingPage).toBeDefined();
   });
 
-  it('renders without crashing', () => {
+  itRender('renders without crashing', () => {
     const { LandingPage } = require('../../components/LandingPage');
     const { container } = render(<LandingPage onSessionLoaded={vi.fn()} />);
 
     expect(container).toBeInTheDocument();
   });
 
-  it('displays key UI elements', () => {
+  itRender('displays key UI elements', () => {
     const { LandingPage } = require('../../components/LandingPage');
 
     render(<LandingPage onSessionLoaded={vi.fn()} />);
@@ -86,7 +90,7 @@ describe.skip('Smoke: LandingPage.tsx', () => {
   });
 });
 
-describe.skip('Smoke: InputBar.tsx', () => {
+describe('Smoke: InputBar.tsx', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -96,7 +100,7 @@ describe.skip('Smoke: InputBar.tsx', () => {
     expect(InputBarModule.default).toBeDefined();
   });
 
-  it('renders without crashing', () => {
+  itRender('renders without crashing', () => {
     const InputBar = require('../../components/InputBar').default;
 
     const { container } = render(<InputBar />);
@@ -104,7 +108,7 @@ describe.skip('Smoke: InputBar.tsx', () => {
     expect(container).toBeInTheDocument();
   });
 
-  it('contains input element', () => {
+  itRender('contains input element', () => {
     const InputBar = require('../../components/InputBar').default;
 
     render(<InputBar />);
@@ -115,13 +119,13 @@ describe.skip('Smoke: InputBar.tsx', () => {
   });
 });
 
-describe.skip('Smoke: SessionInfo.tsx', () => {
+describe('Smoke: SessionInfo.tsx', () => {
   it('imports without error', async () => {
     const SessionInfoModule = await import('../../components/SessionInfo');
     expect(SessionInfoModule.default).toBeDefined();
   });
 
-  it('renders without crashing with no data', () => {
+  itRender('renders without crashing with no data', () => {
     const SessionInfo = require('../../components/SessionInfo').default;
 
     const { container } = render(
@@ -134,7 +138,7 @@ describe.skip('Smoke: SessionInfo.tsx', () => {
     expect(container).toBeInTheDocument();
   });
 
-  it('renders without crashing with mock data', () => {
+  itRender('renders without crashing with mock data', () => {
     const SessionInfo = require('../../components/SessionInfo').default;
 
     const { container } = render(
