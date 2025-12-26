@@ -1,0 +1,33 @@
+{
+  "name": "openai-medium-chapter",
+  "provider": "OpenAI",
+  "model": "gpt-4o-mini",
+  "request": {
+    "title": "Chapter 1",
+    "content": "그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다. 그날 하늘은 맑았다.",
+    "systemPrompt": "Translate this Korean web novel chapter to English.",
+    "temperature": 0.7,
+    "maxOutputTokens": 2048
+  },
+  "mock": {
+    "sdkResponse": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "message": {
+            "content": "{\"translatedTitle\":\"Chapter 1\",\"translation\":\"That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear.\",\"footnotes\":[],\"suggestedIllustrations\":[]}"
+          }
+        }
+      ],
+      "usage": { "prompt_tokens": 1000, "completion_tokens": 850 }
+    }
+  },
+  "expected": {
+    "translatedTitle": "Chapter 1",
+    "translation": "That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear. That day, the sky was clear.",
+    "promptTokens": 1000,
+    "completionTokens": 850,
+    "estimatedCost": 0.00092
+  }
+}
+

@@ -1,0 +1,33 @@
+{
+  "name": "openai-happy-path",
+  "provider": "OpenAI",
+  "model": "gpt-4o-mini",
+  "request": {
+    "title": "Test Title",
+    "content": "今天天气很好。",
+    "systemPrompt": "Translate this Chinese text to English.",
+    "temperature": 0.3,
+    "maxOutputTokens": 512
+  },
+  "mock": {
+    "sdkResponse": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "message": {
+            "content": "{\"translatedTitle\":\"Test Title\",\"translation\":\"The weather is very nice today.\",\"footnotes\":[],\"suggestedIllustrations\":[]}"
+          }
+        }
+      ],
+      "usage": { "prompt_tokens": 15, "completion_tokens": 8 }
+    }
+  },
+  "expected": {
+    "translatedTitle": "Test Title",
+    "translation": "The weather is very nice today.",
+    "promptTokens": 15,
+    "completionTokens": 8,
+    "estimatedCost": 0.00003
+  }
+}
+
