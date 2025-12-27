@@ -225,38 +225,183 @@ describe('ComparisonService.requestFocusedComparison', () => {
   });
 
   describe('provider routing', () => {
-    it('uses correct baseURL for OpenAI provider', async () => {
+    it('configures OpenAI client correctly for OpenAI provider', async () => {
       openAiMocks.createMock.mockResolvedValueOnce({
         choices: [{ message: { content: '{"fanExcerpt": "test"}' } }],
       });
 
       await ComparisonService.requestFocusedComparison({
         ...baseArgs,
-        settings: buildSettings({ provider: 'OpenAI' }),
+        settings: buildSettings({
+          provider: 'OpenAI',
+          apiKeyOpenAI: 'sk-test-key-12345',
+          model: 'gpt-4o-mini'
+        }),
       });
 
+      // Verify full client configuration
       expect(openAiMocks.ctorMock).toHaveBeenCalledWith(
         expect.objectContaining({
+          apiKey: 'sk-test-key-12345',
           baseURL: 'https://api.openai.com/v1',
+          dangerouslyAllowBrowser: true
         }),
+      );
+
+      // Verify request parameters
+      expect(openAiMocks.createMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: 'gpt-4o-mini',
+          temperature: 0, // Comparison should use 0 for determinism
+          messages: expect.arrayContaining([
+            expect.objectContaining({
+              role: 'user',
+              content: expect.stringContaining(baseArgs.selectedTranslation)
+            })
+          ])
+        })
       );
     });
 
-    it('uses correct baseURL for DeepSeek provider', async () => {
+    it('configures OpenAI client correctly for DeepSeek provider', async () => {
       openAiMocks.createMock.mockResolvedValueOnce({
         choices: [{ message: { content: '{"fanExcerpt": "test"}' } }],
       });
 
       await ComparisonService.requestFocusedComparison({
         ...baseArgs,
-        settings: buildSettings({ provider: 'DeepSeek', apiKeyDeepSeek: 'deepseek-key' }),
+        settings: buildSettings({
+          provider: 'DeepSeek',
+          model: 'deepseek-chat',
+          apiKeyDeepSeek: 'ds-test-key'
+        }),
       });
 
+      // Verify full client configuration for DeepSeek
       expect(openAiMocks.ctorMock).toHaveBeenCalledWith(
         expect.objectContaining({
+          apiKey: 'ds-test-key',
           baseURL: 'https://api.deepseek.com/v1',
+          dangerouslyAllowBrowser: true
         }),
       );
+
+      // Verify the model is passed correctly
+      expect(openAiMocks.createMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: 'deepseek-chat'
+        })
+      );
+    });
+  });
+
+  describe('malformed response handling', () => {
+    it('throws on empty choices array', async () => {
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: []
+      });
+
+      await expect(
+        ComparisonService.requestFocusedComparison({
+          ...baseArgs,
+          settings: buildSettings(),
+        })
+      ).rejects.toThrow();
+    });
+
+    it('throws on null message content', async () => {
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: { content: null } }]
+      });
+
+      await expect(
+        ComparisonService.requestFocusedComparison({
+          ...baseArgs,
+          settings: buildSettings(),
+        })
+      ).rejects.toThrow();
+    });
+
+    it('throws on undefined message', async () => {
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: undefined }]
+      });
+
+      await expect(
+        ComparisonService.requestFocusedComparison({
+          ...baseArgs,
+          settings: buildSettings(),
+        })
+      ).rejects.toThrow();
+    });
+
+    it('throws on truncated JSON response', async () => {
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: { content: '{"fanExcerpt": "test", "confidence":' } }] // Truncated
+      });
+
+      await expect(
+        ComparisonService.requestFocusedComparison({
+          ...baseArgs,
+          settings: buildSettings(),
+        })
+      ).rejects.toThrow('Comparison response did not contain valid JSON');
+    });
+
+    it('propagates API error responses', async () => {
+      openAiMocks.createMock.mockRejectedValueOnce(new Error('Rate limit exceeded'));
+
+      await expect(
+        ComparisonService.requestFocusedComparison({
+          ...baseArgs,
+          settings: buildSettings(),
+        })
+      ).rejects.toThrow('Rate limit exceeded');
+    });
+
+    it('propagates network errors', async () => {
+      openAiMocks.createMock.mockRejectedValueOnce(new Error('Network request failed'));
+
+      await expect(
+        ComparisonService.requestFocusedComparison({
+          ...baseArgs,
+          settings: buildSettings(),
+        })
+      ).rejects.toThrow('Network request failed');
+    });
+
+    it('returns default values for JSON string instead of object', async () => {
+      // Response is valid JSON but not an object - service normalizes to default
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: { content: '"just a string"' } }]
+      });
+
+      const result = await ComparisonService.requestFocusedComparison({
+        ...baseArgs,
+        settings: buildSettings(),
+      });
+
+      // Service gracefully handles non-object JSON by returning defaults
+      expect(result.fanExcerpt).toBe('');
+      expect(result.fanContextBefore).toBeNull();
+      expect(result.rawExcerpt).toBeNull();
+    });
+
+    it('returns default values for array instead of object', async () => {
+      // Array is valid JSON but not an object - service normalizes to default
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: { content: '[1, 2, 3]' } }]
+      });
+
+      const result = await ComparisonService.requestFocusedComparison({
+        ...baseArgs,
+        settings: buildSettings(),
+      });
+
+      // Service gracefully handles array JSON by returning defaults
+      expect(result.fanExcerpt).toBe('');
+      expect(result.fanContextBefore).toBeNull();
+      expect(result.rawExcerpt).toBeNull();
     });
   });
 });
