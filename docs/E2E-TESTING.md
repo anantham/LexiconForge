@@ -22,6 +22,12 @@ npx playwright install chromium
 ## Running Tests
 
 ```bash
+# Run with Playwright-managed dev server (recommended)
+npm run test:e2e
+
+# If you want to reuse an already-running dev server, start it on 5177:
+# npm run dev -- --port 5177 --strictPort --host 127.0.0.1
+# then run:
 # Run all E2E tests
 npm run test:e2e
 
@@ -103,7 +109,7 @@ These logs are visible in:
 
 **Fixes Applied**:
 - Restored missing `DiffResultsRepo.ts` file
-- Fixed port configuration (5173 everywhere)
+- Fixed port configuration (dedicated 5177 for E2E)
 - Fixed database name ('lexicon-forge' instead of 'LexiconForge')
 - Updated test assertions to match actual log messages
 

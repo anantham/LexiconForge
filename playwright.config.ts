@@ -26,13 +26,14 @@ export default defineConfig({
 
   // Reporter to use
   reporter: [
-    ['html'],
+    ['html', { open: 'never' }],
     ['list']
   ],
 
   use: {
     // Base URL to use in actions like `await page.goto('/')`
-    baseURL: 'http://localhost:5173',
+    // Use a dedicated port to avoid collisions with other local dev servers.
+    baseURL: 'http://127.0.0.1:5177',
 
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -52,11 +53,11 @@ export default defineConfig({
     },
   ],
 
-  // Use existing dev server instead of starting a new one
-  // webServer: {
-  //   command: 'npm run dev',
-  //   url: 'http://localhost:5177',
-  //   reuseExistingServer: true,
-  //   timeout: 120 * 1000,
-  // },
+  // Start a dedicated dev server for E2E to avoid “wrong app on same port” issues.
+  webServer: {
+    command: 'npm run dev -- --port 5177 --strictPort --host 127.0.0.1',
+    url: 'http://127.0.0.1:5177',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
 });

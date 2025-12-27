@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test('capture console logs on page load', async ({ page }) => {
+const testDiagnostics = process.env.LF_E2E_DIAGNOSTICS === '1' ? test : test.skip;
+
+testDiagnostics('capture console logs on page load', async ({ page }) => {
   const logs: string[] = [];
 
   page.on('console', msg => {
@@ -15,10 +17,10 @@ test('capture console logs on page load', async ({ page }) => {
     console.log(text);
   });
 
-  console.log('Navigating to http://localhost:5173/...');
+  console.log('Navigating to baseURL / ...');
 
   try {
-    await page.goto('http://localhost:5173/', {
+    await page.goto('/', {
       waitUntil: 'domcontentloaded',
       timeout: 10000
     });
