@@ -1,6 +1,6 @@
 import { useAppStore } from '../store';
 import type { SessionData, SessionProvenance } from '../types/session';
-import type { NovelEntry, NovelMetadata } from '../types/novel';
+import type { NovelEntry, NovelMetadata, NovelVersion } from '../types/novel';
 import { ChapterOps, TranslationOps } from './db/operations';
 
 export class ExportService {
@@ -632,5 +632,332 @@ export class ExportService {
     URL.revokeObjectURL(url);
 
     console.log(`[Export] Downloaded ${filename} to default Downloads folder`);
+  }
+
+  /**
+   * Detect if a novel already exists in the selected directory
+   * Returns the existing metadata if found
+   */
+  static async detectExistingNovel(
+    dirHandle: FileSystemDirectoryHandle
+  ): Promise<{ exists: boolean; metadata?: NovelEntry }> {
+    try {
+      const metadataHandle = await dirHandle.getFileHandle('metadata.json');
+      const file = await metadataHandle.getFile();
+      const content = await file.text();
+      const metadata = JSON.parse(content) as NovelEntry;
+      console.log('[Export] Found existing metadata.json:', metadata.title);
+      return { exists: true, metadata };
+    } catch (err: any) {
+      if (err.name === 'NotFoundError') {
+        console.log('[Export] No existing metadata.json found');
+        return { exists: false };
+      }
+      console.error('[Export] Error reading metadata.json:', err);
+      return { exists: false };
+    }
+  }
+
+  /**
+   * Calculate stats from current session data
+   */
+  static async calculateSessionStats(): Promise<{
+    totalRawChapters: number;
+    totalTranslatedChapters: number;
+    totalImages: number;
+    totalFootnotes: number;
+    avgImagesPerChapter: number;
+    avgFootnotesPerChapter: number;
+    chapterRange: { from: number; to: number };
+    totalCost: number;
+    totalTokens: number;
+    mostUsedModel: string;
+  }> {
+    const chapters = await ChapterOps.getAll();
+
+    let totalTranslated = 0;
+    let totalImages = 0;
+    let totalFootnotes = 0;
+    let totalCost = 0;
+    let totalTokens = 0;
+    let minChapter = Infinity;
+    let maxChapter = 0;
+    const modelUsage: Record<string, number> = {};
+
+    for (const ch of chapters) {
+      const stableId = ch.stableId || undefined;
+      const canonicalUrl = ch.canonicalUrl || ch.url;
+      const versions = stableId
+        ? await TranslationOps.getVersionsByStableId(stableId)
+        : await TranslationOps.getVersionsByUrl(canonicalUrl);
+
+      if (versions.length > 0) {
+        totalTranslated++;
+        const activeVersion = versions.find(v => v.isActive) || versions[0];
+
+        totalImages += activeVersion.suggestedIllustrations?.length || 0;
+        totalFootnotes += activeVersion.footnotes?.length || 0;
+        totalCost += activeVersion.estimatedCost || 0;
+        totalTokens += activeVersion.totalTokens || 0;
+
+        const modelKey = `${activeVersion.provider}/${activeVersion.model}`;
+        modelUsage[modelKey] = (modelUsage[modelKey] || 0) + 1;
+      }
+
+      const chNum = ch.chapterNumber ?? 0;
+      if (chNum > 0) {
+        minChapter = Math.min(minChapter, chNum);
+        maxChapter = Math.max(maxChapter, chNum);
+      }
+    }
+
+    const mostUsedModel = Object.entries(modelUsage).reduce(
+      (max, [model, count]) => count > max.count ? { model, count } : max,
+      { model: 'Unknown', count: 0 }
+    ).model;
+
+    return {
+      totalRawChapters: chapters.length,
+      totalTranslatedChapters: totalTranslated,
+      totalImages,
+      totalFootnotes,
+      avgImagesPerChapter: totalTranslated > 0 ? totalImages / totalTranslated : 0,
+      avgFootnotesPerChapter: totalTranslated > 0 ? totalFootnotes / totalTranslated : 0,
+      chapterRange: {
+        from: minChapter === Infinity ? 1 : minChapter,
+        to: maxChapter || chapters.length
+      },
+      totalCost,
+      totalTokens,
+      mostUsedModel
+    };
+  }
+
+  /**
+   * Publish to community library
+   * Handles three modes: update-stats, new-version, new-book
+   */
+  static async publishToLibrary(options: {
+    mode: 'update-stats' | 'new-version' | 'new-book';
+    dirHandle: FileSystemDirectoryHandle;
+    existingMetadata?: NovelEntry;
+    versionDetails?: {
+      versionName: string;
+      translatorName: string;
+      translatorLink?: string;
+      description: string;
+      style: 'faithful' | 'liberal' | 'image-heavy' | 'other';
+      completionStatus: 'In Progress' | 'Complete';
+    };
+    novelDetails?: {
+      id: string;
+      title: string;
+      author: string;
+      originalLanguage: string;
+      genres?: string[];
+      description?: string;
+    };
+    includeImages?: boolean;
+  }): Promise<{
+    success: boolean;
+    filesWritten: string[];
+    error?: string;
+    sessionSizeBytes?: number;
+  }> {
+    const { mode, dirHandle, existingMetadata, versionDetails, novelDetails, includeImages } = options;
+    const filesWritten: string[] = [];
+
+    try {
+      console.log(`[Export] Publishing to library - mode: ${mode}`);
+
+      // Step 1: Generate session data
+      const sessionData = await this.generateQuickExport();
+      const sessionJson = JSON.stringify(sessionData, null, 2);
+      const sessionSizeBytes = new TextEncoder().encode(sessionJson).length;
+      console.log(`[Export] Session size: ${(sessionSizeBytes / 1024 / 1024).toFixed(2)} MB`);
+
+      // Step 2: Calculate current stats
+      const stats = await this.calculateSessionStats();
+      const today = new Date().toISOString().split('T')[0];
+
+      // Step 3: Handle based on mode
+      let finalMetadata: NovelEntry;
+
+      if (mode === 'update-stats' && existingMetadata) {
+        // Update stats in existing metadata
+        finalMetadata = { ...existingMetadata };
+        finalMetadata.metadata.lastUpdated = today;
+
+        // Update the first (primary) version's stats
+        if (finalMetadata.versions && finalMetadata.versions.length > 0) {
+          const primaryVersion = finalMetadata.versions[0];
+          primaryVersion.lastUpdated = today;
+          primaryVersion.chapterRange = stats.chapterRange;
+          primaryVersion.stats = {
+            ...primaryVersion.stats,
+            content: {
+              totalImages: stats.totalImages,
+              totalFootnotes: stats.totalFootnotes,
+              totalRawChapters: stats.totalRawChapters,
+              totalTranslatedChapters: stats.totalTranslatedChapters,
+              avgImagesPerChapter: stats.avgImagesPerChapter,
+              avgFootnotesPerChapter: stats.avgFootnotesPerChapter
+            },
+            translation: {
+              ...primaryVersion.stats?.translation,
+              totalCost: stats.totalCost,
+              totalTokens: stats.totalTokens,
+              mostUsedModel: stats.mostUsedModel
+            }
+          };
+          // Update completion status based on translation progress
+          if (stats.totalTranslatedChapters >= stats.totalRawChapters) {
+            primaryVersion.completionStatus = 'Complete';
+          }
+        }
+
+      } else if (mode === 'new-version' && existingMetadata && versionDetails) {
+        // Add new version to existing metadata
+        finalMetadata = { ...existingMetadata };
+        finalMetadata.metadata.lastUpdated = today;
+
+        const versionNumber = (finalMetadata.versions?.length || 0) + 1;
+        const versionId = `v${versionNumber}-${versionDetails.translatorName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        const sessionFileName = `session-${versionId}.json`;
+
+        const newVersion: NovelVersion = {
+          versionId,
+          displayName: versionDetails.versionName,
+          translator: {
+            name: versionDetails.translatorName,
+            link: versionDetails.translatorLink
+          },
+          sessionJsonUrl: `./${sessionFileName}`,
+          targetLanguage: 'English',
+          style: versionDetails.style,
+          features: [],
+          description: versionDetails.description,
+          chapterRange: stats.chapterRange,
+          completionStatus: versionDetails.completionStatus,
+          lastUpdated: today,
+          stats: {
+            downloads: 0,
+            fileSize: `${(sessionSizeBytes / 1024 / 1024).toFixed(1)}MB`,
+            content: {
+              totalImages: stats.totalImages,
+              totalFootnotes: stats.totalFootnotes,
+              totalRawChapters: stats.totalRawChapters,
+              totalTranslatedChapters: stats.totalTranslatedChapters,
+              avgImagesPerChapter: stats.avgImagesPerChapter,
+              avgFootnotesPerChapter: stats.avgFootnotesPerChapter
+            },
+            translation: {
+              translationType: 'hybrid',
+              feedbackCount: 0,
+              totalCost: stats.totalCost,
+              totalTokens: stats.totalTokens,
+              mostUsedModel: stats.mostUsedModel
+            }
+          }
+        };
+
+        finalMetadata.versions = [...(finalMetadata.versions || []), newVersion];
+
+        // Write session with version-specific filename
+        const sessionHandle = await dirHandle.getFileHandle(sessionFileName, { create: true });
+        const sessionWritable = await sessionHandle.createWritable();
+        await sessionWritable.write(sessionJson);
+        await sessionWritable.close();
+        filesWritten.push(sessionFileName);
+
+      } else if (mode === 'new-book' && novelDetails && versionDetails) {
+        // Create entirely new metadata
+        const versionId = 'v1-primary';
+
+        const newBookVersion: NovelVersion = {
+          versionId,
+          displayName: versionDetails.versionName,
+          translator: {
+            name: versionDetails.translatorName,
+            link: versionDetails.translatorLink
+          },
+          sessionJsonUrl: './session.json',
+          targetLanguage: 'English',
+          style: versionDetails.style,
+          features: [],
+          description: versionDetails.description,
+          chapterRange: stats.chapterRange,
+          completionStatus: versionDetails.completionStatus,
+          lastUpdated: today,
+          stats: {
+            downloads: 0,
+            fileSize: `${(sessionSizeBytes / 1024 / 1024).toFixed(1)}MB`,
+            content: {
+              totalImages: stats.totalImages,
+              totalFootnotes: stats.totalFootnotes,
+              totalRawChapters: stats.totalRawChapters,
+              totalTranslatedChapters: stats.totalTranslatedChapters,
+              avgImagesPerChapter: stats.avgImagesPerChapter,
+              avgFootnotesPerChapter: stats.avgFootnotesPerChapter
+            },
+            translation: {
+              translationType: 'hybrid',
+              feedbackCount: 0,
+              totalCost: stats.totalCost,
+              totalTokens: stats.totalTokens,
+              mostUsedModel: stats.mostUsedModel
+            }
+          }
+        };
+
+        finalMetadata = {
+          id: novelDetails.id,
+          title: novelDetails.title,
+          metadata: {
+            author: novelDetails.author,
+            originalLanguage: novelDetails.originalLanguage,
+            chapterCount: stats.totalRawChapters,
+            genres: novelDetails.genres || [],
+            description: novelDetails.description || '',
+            lastUpdated: today
+          },
+          versions: [newBookVersion]
+        };
+      } else {
+        throw new Error('Invalid publish mode or missing required parameters');
+      }
+
+      // Step 4: Write session.json (for update-stats and new-book modes)
+      if (mode !== 'new-version') {
+        const sessionHandle = await dirHandle.getFileHandle('session.json', { create: true });
+        const sessionWritable = await sessionHandle.createWritable();
+        await sessionWritable.write(sessionJson);
+        await sessionWritable.close();
+        filesWritten.push('session.json');
+      }
+
+      // Step 5: Write metadata.json
+      const metadataHandle = await dirHandle.getFileHandle('metadata.json', { create: true });
+      const metadataWritable = await metadataHandle.createWritable();
+      await metadataWritable.write(JSON.stringify(finalMetadata, null, 2));
+      await metadataWritable.close();
+      filesWritten.push('metadata.json');
+
+      console.log('[Export] Published successfully:', filesWritten);
+
+      return {
+        success: true,
+        filesWritten,
+        sessionSizeBytes
+      };
+
+    } catch (error: any) {
+      console.error('[Export] Publish failed:', error);
+      return {
+        success: false,
+        filesWritten,
+        error: error.message || 'Unknown error'
+      };
+    }
   }
 }

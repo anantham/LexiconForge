@@ -184,9 +184,244 @@ export const isTextCapable = (m: OpenRouterModelRec): boolean => {
   return ins.includes('text') && outs.includes('text');
 };
 
+export const isImageCapable = (m: OpenRouterModelRec): boolean => {
+  // ONLY check output_modalities for 'image' - this is the reliable indicator
+  // NOTE: pricing.image means the model accepts images as INPUT (vision),
+  // NOT that it can generate images as output!
+  const outs = (m.architecture?.output_modalities || []).map(x => String(x).toLowerCase());
+  return outs.includes('image');
+};
+
 export const formatPerMillion = (x?: string | number | null): number | null => {
   if (x === null || x === undefined) return null;
   const n = typeof x === 'string' ? parseFloat(x) : x;
   if (!isFinite(n) || n <= 0) return null;
   return n * 1_000_000;
+};
+
+/**
+ * Get image-capable models from cached OpenRouter models.
+ * Will auto-fetch the models catalog if cache is empty.
+ */
+export const getOpenRouterImageModels = async (): Promise<Array<{
+  id: string;
+  name: string;
+  pricePerImage: number | null;
+}>> => {
+  let cache = await openrouterService.getCachedModels();
+  console.log('[OpenRouter] getOpenRouterImageModels - cache status:', {
+    hasCache: !!cache,
+    dataLength: cache?.data?.length ?? 0,
+  });
+
+  // If cache is empty, try to fetch fresh data
+  if (!cache?.data || cache.data.length === 0) {
+    console.log('[OpenRouter] Models cache empty, fetching...');
+    try {
+      cache = await openrouterService.fetchModels();
+      console.log('[OpenRouter] Fetched models:', cache?.data?.length ?? 0);
+    } catch (err) {
+      console.error('[OpenRouter] Failed to fetch models:', err);
+      return [];
+    }
+  }
+
+  if (!cache?.data) return [];
+
+  // Debug: Count models with different image indicators
+  const withOutputModality = cache.data.filter(m =>
+    (m.architecture?.output_modalities || []).map(x => String(x).toLowerCase()).includes('image')
+  );
+  const withImagePricing = cache.data.filter(m => {
+    const p = m.pricing?.image;
+    return p !== null && p !== undefined && p !== 0 && p !== '0';
+  });
+  console.log('[OpenRouter] Models that can GENERATE images (output_modalities=image):', withOutputModality.length);
+  console.log('[OpenRouter] Models that can ACCEPT images as input (pricing.image, vision):', withImagePricing.length);
+  console.log('[OpenRouter] NOTE: Only output_modalities=image models are shown in image model picker');
+
+  // Check for specific models user asked about
+  const targetModels = ['flux', 'seedream', 'riverflow', 'imagen'];
+  const matchingAny = cache.data.filter(m =>
+    targetModels.some(t => m.id.toLowerCase().includes(t))
+  );
+  if (matchingAny.length > 0) {
+    console.log('[OpenRouter] Found target model patterns:', matchingAny.map(m => ({
+      id: m.id,
+      outputModalities: m.architecture?.output_modalities,
+      imagePrice: m.pricing?.image,
+    })));
+  } else {
+    console.log('[OpenRouter] No flux/seedream/riverflow/imagen models in cache');
+  }
+
+  // Filter to image-capable models
+  const imageModels = cache.data.filter(isImageCapable);
+  console.log('[OpenRouter] Image-capable models found:', imageModels.length);
+
+  // Log a sample of models with their pricing - EXPANDED for debugging
+  if (imageModels.length > 0) {
+    const samples = imageModels.slice(0, 5).map(m => ({
+      id: m.id,
+      pricingObj: m.pricing,
+      imageField: m.pricing?.image,
+      imageFieldType: typeof m.pricing?.image,
+      allPricingKeys: m.pricing ? Object.keys(m.pricing) : [],
+    }));
+    console.log('[OpenRouter] Sample image model pricing (EXPANDED):');
+    samples.forEach(s => console.log('  -', s.id, '| image:', s.imageField, `(${s.imageFieldType})`, '| keys:', s.allPricingKeys));
+  }
+
+  const mapped = imageModels.map(m => {
+    // Image pricing from OpenRouter is per-image directly
+    const imagePrice = m.pricing?.image;
+    let pricePerImage: number | null = null;
+    if (imagePrice !== null && imagePrice !== undefined) {
+      const parsed = typeof imagePrice === 'string' ? parseFloat(imagePrice) : imagePrice;
+      if (isFinite(parsed) && parsed >= 0) {
+        pricePerImage = parsed;
+      }
+    }
+    return {
+      id: m.id,
+      name: m.name,
+      pricePerImage,
+    };
+  });
+
+  // Log final parsed prices
+  console.log('[OpenRouter] Final parsed image prices:');
+  mapped.forEach(m => console.log('  -', m.id, '| pricePerImage:', m.pricePerImage));
+
+  return mapped
+    .sort((a, b) => {
+      // Sort by price (nulls last)
+      const pa = a.pricePerImage ?? Infinity;
+      const pb = b.pricePerImage ?? Infinity;
+      return pa - pb || a.name.localeCompare(b.name);
+    });
+};
+
+/**
+ * Get dynamic image pricing for a model from OpenRouter cache.
+ * Will auto-fetch the models catalog if cache is empty.
+ */
+export const getOpenRouterImagePrice = async (modelId: string): Promise<number | null> => {
+  // Strip 'openrouter/' prefix if present
+  const cleanId = modelId.startsWith('openrouter/') ? modelId.slice(11) : modelId;
+
+  let cache = await openrouterService.getCachedModels();
+
+  // If cache is empty or stale (>24h), try to fetch fresh data
+  if (!cache?.data || cache.data.length === 0) {
+    debugLog('api', 'summary', '[OpenRouter] Models cache empty, fetching...');
+    try {
+      cache = await openrouterService.fetchModels();
+    } catch (err) {
+      debugLog('api', 'summary', '[OpenRouter] Failed to fetch models for pricing:', err);
+    }
+  }
+
+  debugLog('api', 'full', '[OpenRouter] getOpenRouterImagePrice lookup:', {
+    modelId,
+    cleanId,
+    cacheExists: !!cache,
+    cacheSize: cache?.data?.length ?? 0,
+  });
+
+  if (!cache?.data) return null;
+
+  // Find the model in cache
+  const model = cache.data.find(m => m.id === cleanId);
+  const pricing = model?.pricing;
+
+  debugLog('api', 'full', '[OpenRouter] Pricing for model:', {
+    cleanId,
+    modelFound: !!model,
+    pricing,
+    hasImagePrice: !!pricing?.image,
+  });
+
+  if (!pricing?.image) return null;
+
+  const price = typeof pricing.image === 'string' ? parseFloat(pricing.image) : pricing.image;
+  debugLog('api', 'summary', `[OpenRouter] Image price for ${cleanId}: $${price}`);
+  return isFinite(price) && price >= 0 ? price : null;
+};
+
+/**
+ * Estimate per-image cost using historical token data × per-token pricing.
+ * This provides more accurate per-image costs than raw API pricing data
+ * (which is per-token, not per-image).
+ *
+ * @param modelId The OpenRouter model ID (e.g., "openai/gpt-5-image")
+ * @returns Estimated cost per image in USD, or null if insufficient data
+ */
+export const estimateImageCostFromHistory = async (
+  modelId: string
+): Promise<{
+  estimatedCostPerImage: number;
+  confidence: 'high' | 'medium' | 'low';
+  sampleCount: number;
+  avgTokens: number;
+  perTokenPrice: number;
+} | null> => {
+  // Lazy import to avoid circular dependencies
+  const { apiMetricsService } = await import('./apiMetricsService');
+
+  // Get historical token usage for this model
+  const fullModelId = modelId.startsWith('openrouter/') ? modelId : `openrouter/${modelId}`;
+  const tokenData = await apiMetricsService.getAverageTokensPerImage(fullModelId);
+
+  if (!tokenData || tokenData.sampleCount === 0) {
+    debugLog('api', 'summary', `[OpenRouter] No historical data for ${modelId}`);
+    return null;
+  }
+
+  // Get per-token pricing from cache
+  const cache = await openrouterService.getCachedModels();
+  const cleanId = modelId.startsWith('openrouter/') ? modelId.slice(11) : modelId;
+  const model = cache?.data?.find(m => m.id === cleanId);
+
+  if (!model?.pricing) {
+    debugLog('api', 'summary', `[OpenRouter] No pricing data for ${modelId}`);
+    return null;
+  }
+
+  // OpenRouter uses per-token pricing for input (prompt), output (completion), and image
+  // Image-related tokens may use the 'image' price, or we can weight prompt/completion
+  const promptPrice = parseFloat(String(model.pricing.prompt || 0));
+  const completionPrice = parseFloat(String(model.pricing.completion || 0));
+  const imagePrice = parseFloat(String(model.pricing.image || 0));
+
+  // Calculate estimated cost: (prompt_tokens × prompt_price) + (completion_tokens × completion_price)
+  // If image pricing is separate, use that for image-related tokens
+  let estimatedCost: number;
+  let perTokenPrice: number;
+
+  if (imagePrice > 0 && imagePrice !== promptPrice) {
+    // Use image-specific pricing for all tokens (some models have dedicated image token pricing)
+    estimatedCost = tokenData.avgTotal * imagePrice;
+    perTokenPrice = imagePrice;
+  } else {
+    // Use weighted prompt/completion pricing
+    estimatedCost =
+      tokenData.avgPrompt * promptPrice + tokenData.avgCompletion * completionPrice;
+    perTokenPrice = (promptPrice + completionPrice) / 2; // Average for display
+  }
+
+  // Determine confidence based on sample count
+  const confidence: 'high' | 'medium' | 'low' =
+    tokenData.sampleCount >= 10 ? 'high' : tokenData.sampleCount >= 3 ? 'medium' : 'low';
+
+  const result = {
+    estimatedCostPerImage: estimatedCost,
+    confidence,
+    sampleCount: tokenData.sampleCount,
+    avgTokens: tokenData.avgTotal,
+    perTokenPrice,
+  };
+
+  debugLog('api', 'summary', `[OpenRouter] Estimated image cost for ${modelId}:`, result);
+  return result;
 };

@@ -6,6 +6,7 @@ import { supportsStructuredOutputs, supportsParameters } from '../../services/ca
 import { debugLog } from '../../utils/debug';
 import { useSettingsModalContext, ParameterSupportState } from './SettingsModalContext';
 import { useProvidersPanelStore } from '../../hooks/useProvidersPanelStore';
+import { getOpenRouterImageModels } from '../../services/openrouterService';
 
 const formatCurrencyValue = (value?: number | null, currency = 'USD'): string | null => {
   if (value === null || value === undefined || Number.isNaN(value)) return null;
@@ -45,6 +46,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
   const [orSearch, setOrSearch] = useState('');
   const [lastUsedMap, setLastUsedMap] = useState<Record<string, string>>({});
   const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
+  const [dynamicImageModels, setDynamicImageModels] = useState<Array<{ id: string; name: string; pricePerImage: number | null }>>([]);
   const checkStructuredOutputSupport = useCallback(
     async (provider: string, modelId: string) => {
       const key = `${provider}:${modelId}`;
@@ -95,6 +97,28 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     if (!isOpen) return;
     loadProviderCreditsFromCache();
   }, [isOpen, loadProviderCreditsFromCache]);
+
+  // Fetch OpenRouter image models dynamically for pricing
+  useEffect(() => {
+    if (!isOpen) return;
+    console.log('[ProvidersPanel] Panel opened, fetching OpenRouter image models...');
+    (async () => {
+      try {
+        const models = await getOpenRouterImageModels();
+        console.log('[ProvidersPanel] OpenRouter image models result:', {
+          count: models.length,
+          first3: models.slice(0, 3).map(m => ({ id: m.id, price: m.pricePerImage })),
+        });
+        if (models.length > 0) {
+          setDynamicImageModels(models);
+        } else {
+          console.warn('[ProvidersPanel] No OpenRouter image models found - cache may be empty');
+        }
+      } catch (error) {
+        console.error('[ProvidersPanel] Failed to load OpenRouter image models:', error);
+      }
+    })();
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen || currentSettings.provider !== 'OpenRouter') return;
@@ -244,12 +268,30 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
           const bk = b.priceKey == null ? Number.POSITIVE_INFINITY : b.priceKey;
           return ak - bk || a.id.localeCompare(b.id);
         });
-      return recents.concat(rest).map((m) => ({
+      const result = recents.concat(rest).map((m) => ({
         id: m.id,
         name: m.label,
         label: m.label,
         sortKey: m.priceKey ?? Number.POSITIVE_INFINITY,
       }));
+
+      // CRITICAL: Always include the currently selected model at the top if it's not in the filtered results
+      // This prevents the controlled select from breaking when the current value isn't in options
+      const currentModelInResults = result.some(m => m.id === currentSettings.model);
+      if (!currentModelInResults && currentSettings.model) {
+        const allModels = getOpenRouterOptions(''); // Get unfiltered list
+        const currentModelData = allModels.find(m => m.id === currentSettings.model);
+        if (currentModelData) {
+          result.unshift({
+            id: currentModelData.id,
+            name: `★ ${currentModelData.label} (current)`,
+            label: `★ ${currentModelData.label} (current)`,
+            sortKey: -1, // Put at top
+          });
+        }
+      }
+
+      return result;
     }
 
     return (MODELS.filter((m) => m.provider === currentSettings.provider) || [])
@@ -267,17 +309,79 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
       .sort((a, b) => a.sortKey - b.sortKey);
   }, [currentSettings.provider, getOpenRouterOptions, lastUsedMap, orSearch]);
 
+  // Ensure selected model is in the available list - if not, we have a stale selection
+  const selectedModelInList = pricedTextModels.some(m => m.id === currentSettings.model);
+  useEffect(() => {
+    if (!selectedModelInList && pricedTextModels.length > 0) {
+      console.warn('⚠️ [ProvidersPanel] Selected model not in list, auto-correcting to first available:', {
+        current: currentSettings.model,
+        firstAvailable: pricedTextModels[0]?.id
+      });
+      // Don't auto-correct during search - only when list is unfiltered
+      if (!orSearch) {
+        handleSettingChange('model', pricedTextModels[0].id);
+      }
+    }
+  }, [selectedModelInList, pricedTextModels, currentSettings.model, orSearch, handleSettingChange]);
+
   const pricedImageModels = useMemo(() => {
     const rawImageModels = AVAILABLE_IMAGE_MODELS['Gemini'] || [];
-    return rawImageModels
-      .map((m) => {
-        const price = IMAGE_COSTS[m.id];
-        const label = price != null ? `${m.name} — $${price.toFixed(3)}/image` : m.name;
-        const sortKey = price != null ? price : Number.POSITIVE_INFINITY;
-        return { ...m, label, sortKey };
-      })
-      .sort((a, b) => a.sortKey - b.sortKey);
-  }, []);
+
+    // Build set of static model IDs to avoid duplicates
+    const staticIds = new Set(rawImageModels.map(m => m.id));
+
+    // Helper to extract provider from model ID
+    const getProvider = (id: string): string => {
+      if (id.startsWith('openrouter/google/')) return 'OpenRouter/Google';
+      if (id.startsWith('openrouter/openai/')) return 'OpenRouter/OpenAI';
+      if (id.startsWith('openrouter/black-forest-labs/')) return 'OpenRouter/Flux';
+      if (id.startsWith('openrouter/bytedance-seed/')) return 'OpenRouter/ByteDance';
+      if (id.startsWith('openrouter/sourceful/')) return 'OpenRouter/Sourceful';
+      if (id.startsWith('openrouter/')) return 'OpenRouter/Other';
+      if (id.startsWith('Qubico/')) return 'PiAPI';
+      if (id.startsWith('gemini') || id.startsWith('imagen')) return 'Google';
+      return 'Other';
+    };
+
+    // Static models with pricing from costs.ts
+    const staticModels = rawImageModels.map((m) => {
+      const price = IMAGE_COSTS[m.id];
+      const label = price != null ? `${m.name} — $${price.toFixed(3)}/image` : m.name;
+      const sortKey = price != null ? price : Number.POSITIVE_INFINITY;
+      const provider = getProvider(m.id);
+      return { ...m, label, sortKey, provider, source: 'static' as const };
+    });
+
+    // Dynamic OpenRouter models with live pricing from API
+    // Exclude any that are already in static list (they have fallback pricing there)
+    const dynamicModels = dynamicImageModels
+      .filter(m => !staticIds.has(`openrouter/${m.id}`))
+      .map(m => {
+        const fullId = `openrouter/${m.id}`;
+        const priceLabel = m.pricePerImage != null
+          ? `$${m.pricePerImage.toFixed(4)}/image`
+          : 'price unknown';
+        return {
+          id: fullId,
+          name: `${m.name} (OpenRouter)`,
+          description: `Dynamic pricing: ${priceLabel}`,
+          label: `${m.name} — ${priceLabel}`,
+          sortKey: m.pricePerImage ?? Number.POSITIVE_INFINITY,
+          provider: getProvider(fullId),
+          source: 'dynamic' as const,
+        };
+      });
+
+    // Merge and sort by provider first, then by price within provider
+    const allModels = [...staticModels, ...dynamicModels];
+    return allModels.sort((a, b) => {
+      // First sort by provider
+      const providerCompare = a.provider.localeCompare(b.provider);
+      if (providerCompare !== 0) return providerCompare;
+      // Then by price within provider
+      return a.sortKey - b.sortKey;
+    });
+  }, [dynamicImageModels]);
 
   const renderStructuredOutputIndicator = () => {
     const key = `${currentSettings.provider}:${currentSettings.model}`;
@@ -376,7 +480,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
                 <div className="mb-2">
                   <input
                     type="search"
-                    placeholder="Search models or providers"
+                    placeholder="Search models or providers (clears after selection)"
                     value={orSearch}
                     onChange={(e) => setOrSearch(e.target.value)}
                     className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-800 dark:text-gray-200"
@@ -386,7 +490,26 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
               <select
                 id="model"
                 value={currentSettings.model}
-                onChange={(e) => handleSettingChange('model', e.target.value)}
+                onChange={(e) => {
+                  const newModel = e.target.value;
+                  console.log('🔧 [ProvidersPanel] Model changed:', { from: currentSettings.model, to: newModel, hadSearch: !!orSearch });
+                  handleSettingChange('model', newModel);
+                  // Clear search after selection to show full list with new selection visible
+                  if (orSearch) {
+                    setOrSearch('');
+                  }
+                }}
+                onClick={(e) => {
+                  const target = e.target as HTMLSelectElement;
+                  console.log('🖱️ [ProvidersPanel] Select clicked, selectedIndex:', target.selectedIndex, 'value:', target.value);
+                }}
+                onMouseDown={() => {
+                  console.log('🖱️ [ProvidersPanel] Dropdown clicked, current model:', currentSettings.model);
+                  console.log('🖱️ [ProvidersPanel] Available models count:', pricedTextModels.length);
+                  console.log('🖱️ [ProvidersPanel] Current model in list:', pricedTextModels.some(m => m.id === currentSettings.model));
+                  // Log first 5 options for debugging
+                  console.log('🖱️ [ProvidersPanel] First 5 options:', pricedTextModels.slice(0, 5).map(m => m.id));
+                }}
                 className="mt-1 block w-full pl-3 pr-2 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               >
                 {pricedTextModels.map((model) => (

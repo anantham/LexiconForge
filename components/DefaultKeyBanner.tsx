@@ -20,17 +20,21 @@ export function DefaultKeyBanner() {
 
   // Check if we should show the banner
   // Show if using OpenRouter without a user key (includes both active trial and exceeded trial)
-  const hasEnvKey = import.meta.env.VITE_DEFAULT_OPENROUTER_KEY;
+  const hasTrialKey = import.meta.env.VITE_DEFAULT_OPENROUTER_KEY;
+  const hasUserEnvKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+  // Don't show banner if user has their own key (either in settings or env)
   const isUsingDefaultKey = settings.provider === 'OpenRouter' &&
     !settings.apiKeyOpenRouter &&
-    !hasEnvKey;
+    !hasUserEnvKey &&
+    !hasTrialKey;
 
   // Debug logging to understand banner visibility (only log when state changes)
   useEffect(() => {
     const currentState = JSON.stringify({
       provider: settings.provider,
       hasUserKey: !!settings.apiKeyOpenRouter,
-      hasEnvKey: !!hasEnvKey,
+      hasUserEnvKey: !!hasUserEnvKey,
+      hasTrialKey: !!hasTrialKey,
       usageCount: status.usageCount,
       isUsingDefaultKey,
       isDismissed,
@@ -40,7 +44,8 @@ export function DefaultKeyBanner() {
       console.log('[DefaultKeyBanner] Visibility state changed:', {
         provider: settings.provider,
         hasUserKey: !!settings.apiKeyOpenRouter,
-        hasEnvKey: !!hasEnvKey,
+        hasUserEnvKey: !!hasUserEnvKey,
+        hasTrialKey: !!hasTrialKey,
         userKeyPrefix: settings.apiKeyOpenRouter ? `${settings.apiKeyOpenRouter.slice(0, 8)}...` : 'none',
         usageCount: status.usageCount,
         usageLimit: 10,
@@ -51,7 +56,7 @@ export function DefaultKeyBanner() {
       });
       setLastLoggedState(currentState);
     }
-  }, [settings.provider, settings.apiKeyOpenRouter, hasEnvKey, status.usageCount, isUsingDefaultKey, isDismissed, lastLoggedState]);
+  }, [settings.provider, settings.apiKeyOpenRouter, hasUserEnvKey, hasTrialKey, status.usageCount, isUsingDefaultKey, isDismissed, lastLoggedState]);
 
   if (!isUsingDefaultKey || isDismissed) {
     return null;

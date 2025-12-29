@@ -93,24 +93,24 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
   const stylesheet = EPUB_STYLESHEET_CSS;
 
   // Extract data:image payloads from chapter XHTML and rewrite to packaged image files
+  // Using DOM parsing instead of regex to handle large base64 strings reliably
   type ImgEntry = { href: string; mediaType: string; base64: string; id: string; isCover?: boolean };
   const processedChapters: { ch: EpubChapter; xhtml: string }[] = [];
   const imageEntries: ImgEntry[] = [];
   let imgIndex = 1;
-  // Regex allows whitespace in base64 (some encoders add line breaks)
-  const dataImgRegex = /(<img\b[^>]*?src=")(data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=\s]+))("[^>]*>)/g;
 
   // Process cover image if provided
   let coverEntry: ImgEntry | null = null;
   if (meta.coverImage) {
-    const coverMatch = meta.coverImage.match(/^data:(image\/[A-Za-z0-9.+-]+);base64,(.+)$/);
+    const coverMatch = meta.coverImage.match(/^data:(image\/[A-Za-z0-9.+-]+);base64,(.+)$/s);
     if (coverMatch) {
       const [, mime, b64] = coverMatch;
+      const cleanB64 = b64.replace(/\s/g, '');
       const ext = mime.endsWith('jpeg') ? 'jpg' : (mime.split('/')[1] || 'png');
       coverEntry = {
         href: `images/cover.${ext}`,
         mediaType: mime,
-        base64: b64,
+        base64: cleanB64,
         id: 'cover-image',
         isCover: true,
       };
@@ -137,17 +137,44 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
 
   for (const ch of chapters) {
     let xhtml = ch.xhtml;
-    xhtml = xhtml.replace(dataImgRegex, (_m, p1, _src, mime, b64, p5) => {
-      const ext = mime.endsWith('jpeg') ? 'jpg' : (mime.split('/')[1] || 'png');
-      const filename = `img-${String(imgIndex).padStart(4, '0')}.${ext}`;
-      const href = `images/${filename}`;
-      const id = `img${imgIndex}`;
-      // Strip any whitespace from base64 data
-      const cleanB64 = b64.replace(/\s/g, '');
-      imageEntries.push({ href, mediaType: mime, base64: cleanB64, id });
-      imgIndex++;
-      return `${p1}../${href}${p5}`;
-    });
+
+    // Use DOM parsing for reliable base64 image extraction
+    try {
+      const parser = new DOMParser();
+      // Wrap in html for proper parsing
+      const doc = parser.parseFromString(`<html><body>${xhtml}</body></html>`, 'text/html');
+      const images = doc.querySelectorAll('img[src^="data:image"]');
+
+      for (const img of Array.from(images)) {
+        const src = img.getAttribute('src');
+        if (!src) continue;
+
+        // Parse data URL: data:image/png;base64,ABC123...
+        const dataUrlMatch = src.match(/^data:(image\/[A-Za-z0-9.+-]+);base64,(.+)$/s);
+        if (!dataUrlMatch) continue;
+
+        const [, mimeType, base64Data] = dataUrlMatch;
+        // Remove any whitespace from base64 (in case of line-wrapped data)
+        const cleanBase64 = base64Data.replace(/\s/g, '');
+
+        const ext = mimeType.endsWith('jpeg') || mimeType.endsWith('jpg') ? 'jpg' : (mimeType.split('/')[1] || 'png');
+        const filename = `img-${String(imgIndex).padStart(4, '0')}.${ext}`;
+        const href = `images/${filename}`;
+        const id = `img${imgIndex}`;
+
+        imageEntries.push({ href, mediaType: mimeType, base64: cleanBase64, id });
+
+        // Update the img src to reference the extracted file
+        img.setAttribute('src', `../${href}`);
+        imgIndex++;
+      }
+
+      // Serialize back to string (get just the body content)
+      xhtml = doc.body.innerHTML;
+    } catch (err) {
+      console.warn('[EPUBPackager] DOM parsing failed for image extraction, using original xhtml:', err);
+    }
+
     processedChapters.push({ ch, xhtml });
   }
 

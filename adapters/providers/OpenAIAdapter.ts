@@ -501,7 +501,7 @@ ${schemaString}`;
       success: true,
     });
 
-    return {
+    const result = {
       translatedTitle: parsedResponse.translatedTitle || '',
       translation: parsedResponse.translation || '',
       suggestedIllustrations: parsedResponse.suggestedIllustrations || [],
@@ -509,5 +509,20 @@ ${schemaString}`;
       footnotes: parsedResponse.footnotes || [],
       usageMetrics: usageMetrics,
     };
+
+    // ALWAYS log if translation is suspiciously short (< 100 chars) but we were charged
+    if (result.translation.length < 100 && costUsd > 0.01) {
+      console.warn('[OpenAI] ⚠️ SUSPICIOUS: Short translation but high cost!', {
+        translationLength: result.translation.length,
+        translationPreview: result.translation.substring(0, 50),
+        cost: costUsd,
+        model: settings.model,
+        promptTokens,
+        completionTokens,
+        rawResponsePreview: responseText.substring(0, 500),
+      });
+    }
+
+    return result;
   }
 }

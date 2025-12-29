@@ -98,16 +98,17 @@ export const createSettingsSlice: StateCreator<
   loadSettings: () => {
     try {
       const loadedSettings = SessionManagementService.loadSettings();
-      set({ 
+      console.log('📥 [SettingsSlice] Loading settings:', { provider: loadedSettings.provider, model: loadedSettings.model });
+      set({
         settings: loadedSettings,
         settingsLoaded: true,
-        settingsError: null 
+        settingsError: null
       });
     } catch (error) {
       console.error('[SettingsSlice] Failed to load settings:', error);
-      set({ 
+      set({
         settingsError: `Failed to load settings: ${error}`,
-        settingsLoaded: true 
+        settingsLoaded: true
       });
     }
   },

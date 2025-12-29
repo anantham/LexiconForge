@@ -110,8 +110,11 @@ export const buildChapterXhtml = (chapter: ChapterForEpub): string => {
   h1.textContent = chapter.translatedTitle || chapter.title;
   root.appendChild(h1);
 
+  // Use translated content if available, fallback to original content
+  const contentToProcess = chapter.translatedContent || chapter.content;
+
   // 1) Inject placeholders for markers
-  const withIllu = chapter.content.replace(/\b(ILLUSTRATION-\d+[A-Za-z]*)\b/g, (_m, marker) => {
+  const withIllu = contentToProcess.replace(/\b(ILLUSTRATION-\d+[A-Za-z]*)\b/g, (_m, marker) => {
     return `<span data-illu="${marker}"></span>`;
   });
   const withPlaceholders = withIllu.replace(/\((\d+)\)/g, (_m, n) => `<span data-fn="${n}"></span>`);

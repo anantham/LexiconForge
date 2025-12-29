@@ -1,10 +1,42 @@
 import { NovelConfig } from '../types';
 
 /**
- * Gets novel configuration based on URL or manual configuration
- * This allows for novel-specific metadata like title, author, etc.
+ * Extracts novel title from chapter title by removing chapter numbering
+ * Examples:
+ * - "Eon: Chapter 1 – The Beginning" → "Eon"
+ * - "Chapter 5: The Dark Lord" → "The Dark Lord"
+ * - "Volume 2 Chapter 10 - Revelations" → "Revelations"
  */
-export const getNovelConfig = (firstChapterUrl?: string, manualConfig?: Partial<NovelConfig>): NovelConfig => {
+export const extractNovelTitleFromChapter = (chapterTitle?: string): string | undefined => {
+  if (!chapterTitle) return undefined;
+
+  // Common patterns: "Novel: Chapter N", "Novel - Chapter N", "Chapter N: Title"
+  const patterns = [
+    /^(.+?):\s*(?:Chapter|Ch\.?|第)\s*\d+/i,  // "Eon: Chapter 1"
+    /^(.+?)\s*[-–—]\s*(?:Chapter|Ch\.?|第)\s*\d+/i,  // "Eon - Chapter 1"
+    /^(?:Volume|Vol\.?)\s*\d+\s*(?:Chapter|Ch\.?)\s*\d+\s*[-–—:]\s*(.+)$/i,  // "Vol 2 Ch 5: Title"
+    /^(?:Chapter|Ch\.?|第)\s*\d+\s*[-–—:]\s*(.+)$/i,  // "Chapter 1: Title"
+  ];
+
+  for (const pattern of patterns) {
+    const match = chapterTitle.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return undefined;
+};
+
+/**
+ * Gets novel configuration based on URL, chapter data, or manual configuration
+ * Priority: manualConfig > URL pattern detection > chapter title extraction > defaults
+ */
+export const getNovelConfig = (
+  firstChapterUrl?: string,
+  manualConfig?: Partial<NovelConfig>,
+  firstChapterTitle?: string
+): NovelConfig => {
   // Default configuration
   const defaultConfig: NovelConfig = {
     title: 'Translated Novel',
@@ -73,9 +105,18 @@ export const getNovelConfig = (firstChapterUrl?: string, manualConfig?: Partial<
     // Add more novel configurations as needed
   }
 
-  return { 
-    ...defaultConfig, 
-    ...novelSpecificConfig, 
-    ...manualConfig 
+  // Try to extract title from chapter if URL detection didn't provide one
+  if (!novelSpecificConfig.title || novelSpecificConfig.title === 'Translated Novel') {
+    const extractedTitle = extractNovelTitleFromChapter(firstChapterTitle);
+    if (extractedTitle) {
+      novelSpecificConfig.title = extractedTitle;
+      console.log(`[NovelConfig] Extracted novel title from chapter: "${extractedTitle}"`);
+    }
+  }
+
+  return {
+    ...defaultConfig,
+    ...novelSpecificConfig,
+    ...manualConfig
   };
 };

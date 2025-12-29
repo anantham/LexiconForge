@@ -106,10 +106,12 @@ export const IMAGE_COSTS: { [key: string]: number } = {
     'imagen-4-ultra': 0.06,
 
     // OpenRouter Gemini Image Models [Nano Banana]
-    'openrouter/google/gemini-2.5-flash-image': 0.039, // $0.039 per image
-    'openrouter/google/gemini-2.5-flash-image-preview': 0.039, // $0.039 per image
+    // Gemini 2.5 Flash Image: $30/M tokens → ~$0.03/image at 1000 tokens
+    'openrouter/google/gemini-2.5-flash-image': 0.03,
+    'openrouter/google/gemini-2.5-flash-image-preview': 0.03,
     'openrouter/google/gemini-2.5-flash-image-preview:free': 0.00, // Free tier
-    'openrouter/google/gemini-3-pro-image-preview': 0.039,
+    // Nano Banana Pro (Gemini 3 Pro): $120/M tokens → ~$0.12/image at 1000 tokens
+    'openrouter/google/gemini-3-pro-image-preview': 0.12,
 
     // PiAPI Flux models (pricing provided by user)
     // Flux.1-Schnell: $0.0015 per image (batch 1-4)
@@ -119,10 +121,25 @@ export const IMAGE_COSTS: { [key: string]: number } = {
     // Flux.1-Dev-Advanced: $0.02 per generation
     'Qubico/flux1-dev-advanced': 0.02,
 
-    // OpenRouter OpenAI Image Models (token-based pricing converted to per-image estimate)
-    // Assuming ~1000 tokens per image generation (typical for image models)
-    // gpt-5-image: $10/1M tokens = $0.01 per 1000 tokens
-    'openrouter/openai/gpt-5-image': 0.01,
-    // gpt-5-image-mini: $2.5/1M tokens = $0.0025 per 1000 tokens
-    'openrouter/openai/gpt-5-image-mini': 0.0025,
+    // OpenRouter OpenAI Image Models
+    // GPT-5 Image: $40/M tokens → ~$0.04/image at 1000 tokens
+    'openrouter/openai/gpt-5-image': 0.04,
+    // GPT-5 Image Mini: $8/M tokens → ~$0.008/image at 1000 tokens
+    'openrouter/openai/gpt-5-image-mini': 0.008,
+
+    // OpenRouter Sourceful Riverflow (FIXED per-image pricing from OpenRouter)
+    'openrouter/sourceful/riverflow-v2-fast-preview': 0.03,     // $0.03/image
+    'openrouter/sourceful/riverflow-v2-standard-preview': 0.035, // $0.035/image
+    'openrouter/sourceful/riverflow-v2-max-preview': 0.04,      // estimated ~$0.04/image
+
+    // OpenRouter Black Forest Labs FLUX.2 (megapixel-based pricing for 1MP/1024x1024)
+    // Flex: $0.06/MP input + $0.06/MP output → $0.12 for 1MP
+    'openrouter/black-forest-labs/flux.2-flex': 0.12,
+    // Pro: $0.015/MP input + $0.03 first MP output → $0.045 for 1MP
+    'openrouter/black-forest-labs/flux.2-pro': 0.045,
+    // Max: $0.03/MP input + $0.07 first MP output → $0.10 for 1MP
+    'openrouter/black-forest-labs/flux.2-max': 0.10,
+
+    // OpenRouter ByteDance Seedream ($9.581/M output tokens → ~$0.01/image at 1000 tokens)
+    'openrouter/bytedance-seed/seedream-4.5': 0.01,
 };

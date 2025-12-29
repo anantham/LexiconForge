@@ -7,8 +7,10 @@ import TrashIcon from './icons/TrashIcon';
 
 import { ImportTransformationService } from '../services/importTransformationService';
 import type { ChapterSummary } from '../types';
+import type { NovelEntry } from '../types/novel';
 import { telemetryService } from '../services/telemetryService';
 import { ChapterOps } from '../services/db/operations';
+import { ExportService } from '../services/exportService';
 
 // Prefer a human-facing number if the title contains "Chapter 147", "Ch 147", etc.
 const numberFromTitle = (s?: string): number | undefined => {
@@ -112,6 +114,30 @@ const SessionInfo: React.FC = () => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [deleteMode, setDeleteMode] = useState<'translation-only' | 'chapter'>('translation-only');
     const [pendingDeleteTarget, setPendingDeleteTarget] = useState<any>(null);
+
+    // Publish to Library state
+    const [publishStep, setPublishStep] = useState<
+        'idle' | 'confirm-action' | 'version-form' | 'new-book-form' | 'writing' | 'done'
+    >('idle');
+    const [existingMetadata, setExistingMetadata] = useState<NovelEntry | null>(null);
+    const [selectedDirHandle, setSelectedDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
+    const [publishResult, setPublishResult] = useState<{ success: boolean; filesWritten: string[]; error?: string; sessionSizeBytes?: number } | null>(null);
+    const [versionDetails, setVersionDetails] = useState({
+        versionName: '',
+        translatorName: '',
+        translatorLink: '',
+        description: '',
+        style: 'faithful' as 'faithful' | 'liberal' | 'image-heavy' | 'other',
+        completionStatus: 'In Progress' as 'In Progress' | 'Complete',
+    });
+    const [novelDetails, setNovelDetails] = useState({
+        id: '',
+        title: '',
+        author: '',
+        originalLanguage: 'Korean',
+        genres: [] as string[],
+        description: '',
+    });
 
     useEffect(() => {
         if (!showExportModal) {
@@ -447,6 +473,88 @@ const SessionInfo: React.FC = () => {
         }
     }
 
+    // Publish to Library handlers
+    const handlePublishClick = async () => {
+        try {
+            // Open folder picker
+            const dirHandle = await window.showDirectoryPicker({
+                mode: 'readwrite',
+            });
+            setSelectedDirHandle(dirHandle);
+
+            // Check if metadata.json exists
+            const result = await ExportService.detectExistingNovel(dirHandle);
+            if (result.exists && result.metadata) {
+                setExistingMetadata(result.metadata);
+                setPublishStep('confirm-action');
+            } else {
+                setExistingMetadata(null);
+                setPublishStep('new-book-form');
+            }
+        } catch (error: any) {
+            if (error.name !== 'AbortError') {
+                console.error('[Publish] Failed to open folder:', error);
+                alert(`Failed to open folder: ${error.message || 'Unknown error'}`);
+            }
+        }
+    };
+
+    const handlePublishAction = async (action: 'update-stats' | 'new-version') => {
+        if (action === 'update-stats') {
+            // Directly write files without version form
+            await executePublish('update-stats');
+        } else {
+            // Show version details form
+            setPublishStep('version-form');
+        }
+    };
+
+    const executePublish = async (mode: 'update-stats' | 'new-version' | 'new-book') => {
+        if (!selectedDirHandle) return;
+
+        setPublishStep('writing');
+        try {
+            const result = await ExportService.publishToLibrary({
+                mode,
+                dirHandle: selectedDirHandle,
+                existingMetadata: existingMetadata || undefined,
+                versionDetails: mode !== 'update-stats' ? versionDetails : undefined,
+                novelDetails: mode === 'new-book' ? novelDetails : undefined,
+                includeImages: true,
+            });
+
+            setPublishResult(result);
+            setPublishStep('done');
+        } catch (error: any) {
+            console.error('[Publish] Failed to publish:', error);
+            setPublishResult({ success: false, filesWritten: [], error: error.message || 'Unknown error' });
+            setPublishStep('done');
+        }
+    };
+
+    const resetPublishState = () => {
+        setPublishStep('idle');
+        setExistingMetadata(null);
+        setSelectedDirHandle(null);
+        setPublishResult(null);
+        setVersionDetails({
+            versionName: '',
+            translatorName: '',
+            translatorLink: '',
+            description: '',
+            style: 'faithful',
+            completionStatus: 'In Progress',
+        });
+        setNovelDetails({
+            id: '',
+            title: '',
+            author: '',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+        });
+    };
+
   return (
     <div className="w-full max-w-4xl mx-auto -mt-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-b-xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-t border-gray-200 dark:border-gray-700">
       <div className="flex-grow w-full sm:w-auto flex flex-col gap-2 min-w-0">
@@ -621,8 +729,21 @@ const SessionInfo: React.FC = () => {
                     <div className="font-medium text-gray-900 dark:text-gray-100">Export EPUB</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Generate a readable e-book with the active translations and images</div>
                   </button>
+
+                  <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+
+                  <button
+                    onClick={handlePublishClick}
+                    disabled={isExporting || sessionIsEmpty}
+                    className="w-full p-4 text-left border-2 border-purple-200 dark:border-purple-600 rounded-lg hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="font-medium text-gray-900 dark:text-gray-100">Publish to Library</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Save to local git repo (metadata.json + session.json)
+                    </div>
+                  </button>
                 </div>
-                
+
                 <div className="flex justify-end mt-6">
                   <button
                     onClick={() => setShowExportModal(false)}
@@ -789,6 +910,426 @@ const SessionInfo: React.FC = () => {
                   Delete
                 </button>
               </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Publish to Library - Confirm Action Modal */}
+      {publishStep === 'confirm-action' && existingMetadata && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={resetPublishState}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Existing Book Found
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <strong>{existingMetadata.title}</strong> by {existingMetadata.author}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                What would you like to do?
+              </p>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => handlePublishAction('update-stats')}
+                  className="w-full p-4 text-left border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+                >
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Update Stats Only</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Overwrite session.json and update stats in metadata.json
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handlePublishAction('new-version')}
+                  className="w-full p-4 text-left border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                >
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Add New Version</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Create a new version entry with different chapter range or translator
+                  </div>
+                </button>
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={resetPublishState}
+                  className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Publish to Library - Version Form Modal */}
+      {publishStep === 'version-form' && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={resetPublishState}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Version Details
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Version Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={versionDetails.versionName}
+                    onChange={e => setVersionDetails(prev => ({ ...prev, versionName: e.target.value }))}
+                    placeholder="e.g., Complete AI Translation v2"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Translator Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={versionDetails.translatorName}
+                    onChange={e => setVersionDetails(prev => ({ ...prev, translatorName: e.target.value }))}
+                    placeholder="Your name or handle"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Translator Website (optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={versionDetails.translatorLink}
+                    onChange={e => setVersionDetails(prev => ({ ...prev, translatorLink: e.target.value }))}
+                    placeholder="https://..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={versionDetails.description}
+                    onChange={e => setVersionDetails(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Brief notes about this version..."
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Style
+                    </label>
+                    <select
+                      value={versionDetails.style}
+                      onChange={e => setVersionDetails(prev => ({ ...prev, style: e.target.value as typeof versionDetails.style }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="faithful">Faithful</option>
+                      <option value="liberal">Liberal</option>
+                      <option value="image-heavy">Image-heavy</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={versionDetails.completionStatus}
+                      onChange={e => setVersionDetails(prev => ({ ...prev, completionStatus: e.target.value as typeof versionDetails.completionStatus }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="In Progress">In Progress</option>
+                      <option value="Complete">Complete</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={resetPublishState}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => executePublish(existingMetadata ? 'new-version' : 'new-book')}
+                  disabled={!versionDetails.versionName || !versionDetails.translatorName}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                >
+                  Publish
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Publish to Library - New Book Form Modal */}
+      {publishStep === 'new-book-form' && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={resetPublishState}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Create New Book
+              </h3>
+
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-600 pb-2">
+                  Book Details
+                </h4>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Book ID *
+                  </label>
+                  <input
+                    type="text"
+                    value={novelDetails.id}
+                    onChange={e => setNovelDetails(prev => ({ ...prev, id: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))}
+                    placeholder="e.g., dungeon-defense-wn"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Lowercase letters, numbers, and hyphens only</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={novelDetails.title}
+                    onChange={e => setNovelDetails(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Novel title"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Author *
+                  </label>
+                  <input
+                    type="text"
+                    value={novelDetails.author}
+                    onChange={e => setNovelDetails(prev => ({ ...prev, author: e.target.value }))}
+                    placeholder="Original author"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Original Language
+                  </label>
+                  <select
+                    value={novelDetails.originalLanguage}
+                    onChange={e => setNovelDetails(prev => ({ ...prev, originalLanguage: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="Korean">Korean</option>
+                    <option value="Japanese">Japanese</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Description (optional)
+                  </label>
+                  <textarea
+                    value={novelDetails.description}
+                    onChange={e => setNovelDetails(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Brief synopsis..."
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <h4 className="font-medium text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-600 pb-2 pt-4">
+                  Version Details
+                </h4>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Version Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={versionDetails.versionName}
+                    onChange={e => setVersionDetails(prev => ({ ...prev, versionName: e.target.value }))}
+                    placeholder="e.g., Initial AI Translation"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Translator Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={versionDetails.translatorName}
+                    onChange={e => setVersionDetails(prev => ({ ...prev, translatorName: e.target.value }))}
+                    placeholder="Your name or handle"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Style
+                    </label>
+                    <select
+                      value={versionDetails.style}
+                      onChange={e => setVersionDetails(prev => ({ ...prev, style: e.target.value as typeof versionDetails.style }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="faithful">Faithful</option>
+                      <option value="liberal">Liberal</option>
+                      <option value="image-heavy">Image-heavy</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={versionDetails.completionStatus}
+                      onChange={e => setVersionDetails(prev => ({ ...prev, completionStatus: e.target.value as typeof versionDetails.completionStatus }))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="In Progress">In Progress</option>
+                      <option value="Complete">Complete</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={resetPublishState}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => executePublish('new-book')}
+                  disabled={!novelDetails.id || !novelDetails.title || !novelDetails.author || !versionDetails.versionName || !versionDetails.translatorName}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                >
+                  Create Book
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Publish to Library - Writing Progress */}
+      {publishStep === 'writing' && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-sm w-full p-6">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Publishing...
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                Writing session.json and metadata.json to the selected folder
+              </p>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Publish to Library - Done Modal */}
+      {publishStep === 'done' && publishResult && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={resetPublishState}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              {publishResult.success ? (
+                <>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <span className="text-xl">✓</span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      Published Successfully!
+                    </h3>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Files written:</p>
+                    <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                      {publishResult.filesWritten.map((file, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <span className="text-green-600 dark:text-green-400">•</span>
+                          {file}
+                        </li>
+                      ))}
+                    </ul>
+                    {publishResult.sessionSizeBytes && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        Session size: {formatSize(publishResult.sessionSizeBytes)}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-4">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Next steps:</p>
+                    <code className="text-xs text-gray-600 dark:text-gray-400 block">
+                      git add . && git commit -m "Update translation" && git push
+                    </code>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                      <span className="text-xl">✗</span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      Publish Failed
+                    </h3>
+                  </div>
+                  <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+                    {publishResult.error || 'Unknown error occurred'}
+                  </p>
+                </>
+              )}
+
+              <button
+                onClick={resetPublishState}
+                className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>,

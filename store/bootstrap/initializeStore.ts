@@ -34,6 +34,11 @@ export const createInitializeStore = (ctx: BootstrapContext): SessionActions['in
           bootstrapLog('initializeSession start (no active template)');
           const init = await SessionManagementService.initializeSession();
           bootstrapLog('initializeSession provided defaults');
+          console.log('⚠️ [Bootstrap] Setting settings from initializeSession:', {
+            provider: init.settings.provider,
+            model: init.settings.model,
+            reason: 'no active template found'
+          });
           ctx.set({
             settings: init.settings,
             promptTemplates: init.promptTemplates,

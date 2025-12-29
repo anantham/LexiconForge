@@ -879,10 +879,54 @@ export const createTranslationsSlice: StateCreator<
       imagePrompt,
     };
 
-    const updatedTranslation = chapterToUpdate.translationResult.translation.replace(
-      selection,
-      `${selection} ${newMarker}`
-    );
+    // Build an HTML-aware regex that matches the selection text even when HTML tags are interspersed
+    // E.g., "The knight" should match "The <em>knight</em>" or "<span>The</span> knight"
+    const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Create pattern that allows optional HTML tags between any characters
+    // This handles cases like "The <em>knight</em> raised" when user selects "The knight raised"
+    const selectionChars = selection.split('');
+    const htmlTagPattern = '(?:<[^>]*>)*'; // Match zero or more HTML tags
+    const regexPattern = selectionChars
+      .map((char, i) => {
+        const escaped = escapeRegex(char);
+        // Allow HTML tags after each character (except whitespace handling)
+        return i < selectionChars.length - 1 ? escaped + htmlTagPattern : escaped;
+      })
+      .join('');
+
+    let updatedTranslation = chapterToUpdate.translationResult.translation;
+
+    try {
+      const regex = new RegExp(`(${regexPattern})`, 'i');
+      const match = updatedTranslation.match(regex);
+
+      if (match && match.index !== undefined) {
+        // Insert marker after the matched text
+        const matchEnd = match.index + match[0].length;
+        updatedTranslation =
+          updatedTranslation.slice(0, matchEnd) +
+          ` ${newMarker}` +
+          updatedTranslation.slice(matchEnd);
+        debugLog('translation', 'summary', '[TranslationsSlice] Marker inserted using HTML-aware regex');
+      } else {
+        // Fallback: try simple replace (works if no HTML in selection area)
+        const simpleUpdated = updatedTranslation.replace(selection, `${selection} ${newMarker}`);
+        if (simpleUpdated !== updatedTranslation) {
+          updatedTranslation = simpleUpdated;
+          debugLog('translation', 'summary', '[TranslationsSlice] Marker inserted using simple replace');
+        } else {
+          debugLog('translation', 'summary', '[TranslationsSlice] WARNING: Could not find selection in translation', {
+            selectionLength: selection.length,
+            selectionPreview: selection.slice(0, 50),
+            translationLength: chapterToUpdate.translationResult.translation.length,
+          });
+        }
+      }
+    } catch (regexError) {
+      debugLog('translation', 'summary', '[TranslationsSlice] Regex error, using fallback:', regexError);
+      updatedTranslation = updatedTranslation.replace(selection, `${selection} ${newMarker}`);
+    }
 
     const updatedTranslationResult = {
       ...chapterToUpdate.translationResult,

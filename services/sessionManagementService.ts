@@ -61,6 +61,9 @@ export const defaultSettings: AppSettings = {
     stylistic: true,
   },
   diffAnalysisPrompt: getDefaultDiffPrompt(),
+  // EPUB export settings
+  includeTitlePage: true,
+  includeStatsPage: true,
 };
 
 export interface SessionData {
@@ -114,7 +117,9 @@ export class SessionManagementService {
       const raw = localStorage.getItem(settingsStorageKey);
       if (raw) {
         const parsed = JSON.parse(raw);
+        console.log('📂 [SessionMgmt] Raw localStorage settings:', { provider: parsed.provider, model: parsed.model });
         const merged = { ...defaultSettings, ...parsed } as AppSettings;
+        console.log('📂 [SessionMgmt] After merge with defaults:', { provider: merged.provider, model: merged.model });
         merged.diffMarkerVisibility = normalizeDiffVisibility(merged.diffMarkerVisibility);
         if (!merged.diffAnalysisPrompt) {
           merged.diffAnalysisPrompt = getDefaultDiffPrompt();
@@ -132,12 +137,14 @@ export class SessionManagementService {
    */
   static saveSettings(settings: AppSettings): void {
     try {
+      console.log('💾 [SessionMgmt] Saving settings:', { provider: settings.provider, model: settings.model });
       const normalized: AppSettings = {
         ...settings,
         diffMarkerVisibility: normalizeDiffVisibility(settings.diffMarkerVisibility),
         diffAnalysisPrompt: settings.diffAnalysisPrompt || getDefaultDiffPrompt(),
       };
       localStorage.setItem(settingsStorageKey, JSON.stringify(normalized));
+      console.log('💾 [SessionMgmt] Saved successfully');
     } catch (e) {
       console.warn('[SessionManagement] Failed to save settings to localStorage:', e);
     }

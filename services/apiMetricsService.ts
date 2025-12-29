@@ -280,6 +280,100 @@ class ApiMetricsService {
       return v.toString(16);
     });
   }
+
+  /**
+   * Calculate average tokens per image for a specific model from historical data.
+   * Useful for estimating per-image costs when only per-token pricing is available.
+   * @param modelId The model ID (e.g., "openrouter/openai/gpt-5-image")
+   * @returns Average tokens per image, or null if no historical data
+   */
+  async getAverageTokensPerImage(modelId: string): Promise<{
+    avgTotal: number;
+    avgPrompt: number;
+    avgCompletion: number;
+    sampleCount: number;
+  } | null> {
+    try {
+      const db = await this.openDatabase();
+      const tx = db.transaction([this.storeName], 'readonly');
+      const store = tx.objectStore(this.storeName);
+      const request = store.getAll();
+
+      const allMetrics = await new Promise<ApiCallMetric[]>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      // Filter to image generation calls for this model that have token data
+      const imageMetrics = allMetrics.filter(m =>
+        m.apiType === 'image' &&
+        m.model === modelId &&
+        m.tokens &&
+        m.tokens.total > 0 &&
+        m.success
+      );
+
+      if (imageMetrics.length === 0) {
+        console.log(`[ApiMetrics] No historical token data for image model: ${modelId}`);
+        return null;
+      }
+
+      // Calculate averages
+      const totals = imageMetrics.reduce(
+        (acc, m) => {
+          acc.total += m.tokens!.total;
+          acc.prompt += m.tokens!.prompt;
+          acc.completion += m.tokens!.completion;
+          return acc;
+        },
+        { total: 0, prompt: 0, completion: 0 }
+      );
+
+      const result = {
+        avgTotal: totals.total / imageMetrics.length,
+        avgPrompt: totals.prompt / imageMetrics.length,
+        avgCompletion: totals.completion / imageMetrics.length,
+        sampleCount: imageMetrics.length,
+      };
+
+      console.log(`[ApiMetrics] Token averages for ${modelId}:`, result);
+      return result;
+    } catch (error) {
+      console.error('[ApiMetrics] Failed to get average tokens per image:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get all image generation models that have historical token data.
+   * Useful for building estimated pricing for OpenRouter models.
+   */
+  async getImageModelsWithTokenData(): Promise<string[]> {
+    try {
+      const db = await this.openDatabase();
+      const tx = db.transaction([this.storeName], 'readonly');
+      const store = tx.objectStore(this.storeName);
+      const request = store.getAll();
+
+      const allMetrics = await new Promise<ApiCallMetric[]>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      // Get unique models with token data
+      const modelsWithTokens = new Set<string>();
+      for (const m of allMetrics) {
+        if (m.apiType === 'image' && m.tokens && m.tokens.total > 0 && m.success) {
+          modelsWithTokens.add(m.model);
+        }
+      }
+
+      return Array.from(modelsWithTokens);
+    } catch (error) {
+      console.error('[ApiMetrics] Failed to get image models with token data:', error);
+      return [];
+    }
+  }
 }
 
 // Singleton instance

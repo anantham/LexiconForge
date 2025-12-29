@@ -116,7 +116,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   );
 
   const handleSave = () => {
+    console.log('💾 [SettingsModal] Saving settings:', {
+      provider: currentSettings.provider,
+      model: currentSettings.model,
+      fullSettings: currentSettings
+    });
     updateSettings(currentSettings);
+
+    // Verify save worked
+    const savedRaw = localStorage.getItem('app-settings');
+    if (savedRaw) {
+      const saved = JSON.parse(savedRaw);
+      console.log('✅ [SettingsModal] Verified in localStorage:', { provider: saved.provider, model: saved.model });
+    }
 
     // Save novel metadata to localStorage
     if (novelMetadata) {

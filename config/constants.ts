@@ -52,12 +52,22 @@ export const AVAILABLE_IMAGE_MODELS = {
     { id: 'Qubico/flux1-dev', name: 'PiAPI Flux 1 Dev', description: 'Balanced flux text-to-image (PiAPI)' },
     { id: 'Qubico/flux1-dev-advanced', name: 'PiAPI Flux 1 Dev Advanced', description: 'Advanced flux text-to-image (PiAPI)' },
     // OpenRouter image models
-    { id: 'openrouter/google/gemini-2.5-flash-image', name: 'OpenRouter Gemini 2.5 Flash Image [Nano Banana]', description: 'Gemini image generation via OpenRouter' },
-    { id: 'openrouter/google/gemini-2.5-flash-image-preview', name: 'OpenRouter Gemini 2.5 Flash (Image Preview) [Nano Banana]', description: 'Gemini image generation via OpenRouter (preview version)' },
-    { id: 'openrouter/google/gemini-2.5-flash-image-preview:free', name: 'OpenRouter Gemini 2.5 Flash (Image, Free) [Nano Banana]', description: 'Free Gemini image generation via OpenRouter' },
-    { id: 'openrouter/google/gemini-3-pro-image-preview', name: 'OpenRouter Gemini 3 Pro (Image Preview)', description: 'Gemini 3 Pro image generation via OpenRouter (preview)' },
-    { id: 'openrouter/openai/gpt-5-image', name: 'OpenRouter GPT-5 Image', description: 'OpenAI GPT-5 image generation via OpenRouter, $0.01/image' },
-    { id: 'openrouter/openai/gpt-5-image-mini', name: 'OpenRouter GPT-5 Image Mini', description: 'OpenAI GPT-5 Mini image generation via OpenRouter, $0.0025/image' },
+    { id: 'openrouter/google/gemini-2.5-flash-image', name: 'OpenRouter Gemini 2.5 Flash Image [Nano Banana]', description: '~$0.03/image ($30/M tokens)' },
+    { id: 'openrouter/google/gemini-2.5-flash-image-preview', name: 'OpenRouter Gemini 2.5 Flash (Image Preview) [Nano Banana]', description: '~$0.03/image ($30/M tokens)' },
+    { id: 'openrouter/google/gemini-2.5-flash-image-preview:free', name: 'OpenRouter Gemini 2.5 Flash (Image, Free) [Nano Banana]', description: 'Free tier' },
+    { id: 'openrouter/google/gemini-3-pro-image-preview', name: 'OpenRouter Nano Banana Pro (Gemini 3 Pro)', description: '~$0.12/image ($120/M tokens)' },
+    { id: 'openrouter/openai/gpt-5-image', name: 'OpenRouter GPT-5 Image', description: '~$0.04/image ($40/M tokens)' },
+    { id: 'openrouter/openai/gpt-5-image-mini', name: 'OpenRouter GPT-5 Image Mini', description: '~$0.008/image ($8/M tokens)' },
+    // OpenRouter Flux 2 models (Black Forest Labs) - megapixel pricing
+    { id: 'openrouter/black-forest-labs/flux.2-max', name: 'Flux 2 Max (OpenRouter)', description: '~$0.10/image ($0.07 first MP out)' },
+    { id: 'openrouter/black-forest-labs/flux.2-pro', name: 'Flux 2 Pro (OpenRouter)', description: '~$0.045/image ($0.03 first MP out)' },
+    { id: 'openrouter/black-forest-labs/flux.2-flex', name: 'Flux 2 Flex (OpenRouter)', description: '~$0.12/image ($0.06/MP in+out)' },
+    // OpenRouter Seedream (ByteDance)
+    { id: 'openrouter/bytedance-seed/seedream-4.5', name: 'Seedream 4.5 (OpenRouter)', description: '~$0.01/image ($9.58/M tokens)' },
+    // OpenRouter Riverflow (Sourceful) - FIXED per-image pricing
+    { id: 'openrouter/sourceful/riverflow-v2-max-preview', name: 'Riverflow v2 Max (OpenRouter)', description: '~$0.04/image (fixed)' },
+    { id: 'openrouter/sourceful/riverflow-v2-standard-preview', name: 'Riverflow v2 Standard (OpenRouter)', description: '$0.035/image (fixed)' },
+    { id: 'openrouter/sourceful/riverflow-v2-fast-preview', name: 'Riverflow v2 Fast (OpenRouter)', description: '$0.03/image (fixed, fastest)' },
   ]
 };
 

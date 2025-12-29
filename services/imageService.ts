@@ -20,21 +20,68 @@ const ilog = (...args: any[]) => { if (imgDebugEnabled()) console.log(...args); 
 const iwarn = (...args: any[]) => { if (imgDebugEnabled()) console.warn(...args); };
 const ierror = (...args: any[]) => { console.error(...args); };
 import { IMAGE_COSTS } from '../config/costs';
+import { getOpenRouterImagePrice } from './openrouterService';
 
 // --- CONSTANTS ---
 // Using a cutting-edge model known for high-quality image generation.
 // This could be parameterized in settings later if needed.
 const IMAGE_MODEL = 'gemini-1.5-flash';
 
+// Cache for dynamic OpenRouter prices (populated asynchronously)
+let openRouterPriceCache: Record<string, number> = {};
+
 // --- IMAGE COST CALCULATION ---
 
 /**
- * Calculates the cost for generating one image with the specified model
+ * Calculates the cost for generating one image with the specified model (sync version)
+ * For OpenRouter models, uses cached dynamic pricing if available, falls back to static costs.ts
  * @param model The image model ID
  * @returns Cost in USD for one image
  */
 export const calculateImageCost = (model: string): number => {
-    return IMAGE_COSTS[model] || 0;
+    // Check static costs first
+    if (IMAGE_COSTS[model] != null) {
+        console.log(`[ImageCost] Using static price for ${model}: $${IMAGE_COSTS[model]}`);
+        return IMAGE_COSTS[model];
+    }
+
+    // For OpenRouter models, check dynamic cache
+    if (model.startsWith('openrouter/')) {
+        const cleanId = model.slice(11); // Remove 'openrouter/' prefix
+        if (openRouterPriceCache[cleanId] != null) {
+            console.log(`[ImageCost] Using cached OpenRouter price for ${model}: $${openRouterPriceCache[cleanId]}`);
+            console.warn(`[ImageCost] ⚠️ NOTE: This is per-TOKEN pricing from OpenRouter API, not per-image!`);
+            return openRouterPriceCache[cleanId];
+        }
+        console.log(`[ImageCost] No price found for OpenRouter model: ${model} (cleanId: ${cleanId})`);
+        console.log(`[ImageCost] Cache contents:`, Object.keys(openRouterPriceCache));
+    }
+
+    console.log(`[ImageCost] No price found for model: ${model}, returning $0`);
+    return 0;
+};
+
+/**
+ * Fetches and caches dynamic pricing for an OpenRouter image model.
+ * Call this before generateImage() to ensure accurate cost tracking.
+ * @param model The image model ID (with or without 'openrouter/' prefix)
+ * @returns The price per image in USD, or null if unavailable
+ */
+export const fetchOpenRouterImagePrice = async (model: string): Promise<number | null> => {
+    console.log('[ImageService] Fetching OpenRouter price for:', model);
+    const price = await getOpenRouterImagePrice(model);
+    console.log('[ImageService] OpenRouter price result:', { model, price });
+    if (price != null) {
+        const cleanId = model.startsWith('openrouter/') ? model.slice(11) : model;
+        openRouterPriceCache[cleanId] = price;
+        console.log('[ImageService] Cached OpenRouter price:', { cleanId, price });
+        console.warn(`[ImageService] ⚠️ This is per-TOKEN pricing ($${price}/token), not per-image!`);
+        console.warn(`[ImageService] For per-image cost, multiply by average tokens (typically 500-2000 per image)`);
+    } else {
+        console.warn('[ImageService] No price found for OpenRouter model:', model);
+        console.warn('[ImageService] Model may not exist in OpenRouter catalog or lacks pricing.image field');
+    }
+    return price;
 };
 
 // --- IMAGE GENERATION SERVICE ---
@@ -86,6 +133,8 @@ export const generateImage = async (
     try {
         let base64Data: string;
         let mimeTypeForReturn: string | null = null;
+        // Token usage tracking (primarily for OpenRouter)
+        let imageTokenUsage: { prompt: number; completion: number; total: number } | undefined;
 
         if (imageModel.startsWith('imagen')) {
             ilog('[ImageService] Using Imagen model:', imageModel);
@@ -245,9 +294,19 @@ export const generateImage = async (
             }
             let parsed: any = {};
             try { parsed = JSON.parse(raw); } catch { throw new Error('Failed to parse OpenRouter response'); }
-            
+
             // Enhanced debugging: log the actual response structure
             ilog('[OpenRouter Debug] Full response structure:', JSON.stringify(parsed, null, 2));
+
+            // Extract token usage from response (for cost estimation from historical data)
+            if (parsed.usage) {
+              imageTokenUsage = {
+                prompt: parsed.usage.prompt_tokens || 0,
+                completion: parsed.usage.completion_tokens || 0,
+                total: parsed.usage.total_tokens || 0
+              };
+              ilog('[OpenRouter Debug] Token usage:', imageTokenUsage);
+            }
 
             const choice = parsed?.choices?.[0];
 
@@ -512,6 +571,11 @@ export const generateImage = async (
         }
 
         const requestTime = (performance.now() - startTime) / 1000; // in seconds
+
+        // For OpenRouter models, fetch dynamic pricing before calculating cost
+        if (imageModel.startsWith('openrouter/')) {
+            await fetchOpenRouterImagePrice(imageModel);
+        }
         const cost = calculateImageCost(imageModel);
         const base64DataUrl = `data:${mimeTypeForReturn || 'image/png'};base64,${base64Data}`;
 
@@ -532,6 +596,7 @@ export const generateImage = async (
             imageCount: 1,
             chapterId,
             success: true,
+            tokens: imageTokenUsage, // Include token usage for historical cost estimation
         });
 
         // NEW: Store in Cache API if chapter/marker provided

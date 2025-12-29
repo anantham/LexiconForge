@@ -66,10 +66,11 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
   // Calculate comprehensive statistics
   const stats = calculateTranslationStats(options.chapters);
   
-  // Get novel configuration (auto-detect from first chapter URL or use manual config)
+  // Get novel configuration (auto-detect from URL, chapter title, or use manual config)
   const firstChapter = options.chapters[0];
   const firstChapterUrl = firstChapter.originalUrl;
-  const novelConfig = getNovelConfig(firstChapterUrl, options.novelConfig);
+  const firstChapterTitle = firstChapter.translatedTitle || firstChapter.title;
+  const novelConfig = getNovelConfig(firstChapterUrl, options.novelConfig, firstChapterTitle);
   
   // Use novel configuration for metadata (with fallbacks)
   const title = options.title || novelConfig.title;
@@ -144,10 +145,12 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
     // Create download link
     const blob = new Blob([epubBuffer], { type: 'application/epub+zip' });
     const url = URL.createObjectURL(blob);
-    
-    // Generate filename with timestamp (UTC, to seconds)
-    const timestamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');
-    const filename = `translated-novel-${timestamp}.epub`;
+
+    // Generate filename with title, author, and chapter count
+    const sanitizeForFilename = (str: string): string =>
+      str.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-').slice(0, 40);
+    const chapterCount = options.chapters.length;
+    const filename = `${sanitizeForFilename(title)}_${sanitizeForFilename(author)}_${chapterCount}ch.epub`;
     
     // Trigger download
     const link = document.createElement('a');

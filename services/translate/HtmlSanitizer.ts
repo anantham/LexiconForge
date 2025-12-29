@@ -26,7 +26,9 @@ export function sanitizeHtml(input: string, options?: SanitizeHtmlOptions): stri
     s = s.replace(/<hr\s*\/>/gi, '<br /><br />');
   }
 
-  const allowedPattern = allowHr ? 'br|hr|i|em|b|strong|u|s|sub|sup' : 'br|i|em|b|strong|u|s|sub|sup';
+  // EPUB-compatible allowlist: include all semantic and structural tags used in chapters
+  const epubTags = 'h[1-6]|div|p|span|a|img|ol|ul|li|blockquote|pre|code|table|tr|td|th|thead|tbody|figure|figcaption|section|article|nav|aside|header|footer|main|sup|sub';
+  const allowedPattern = allowHr ? `br|hr|i|em|b|strong|u|s|${epubTags}` : `br|i|em|b|strong|u|s|${epubTags}`;
   const escapeUnknownTags = new RegExp('<(?!\\/?(?:' + allowedPattern + ')\\b)', 'gi');
   s = s.replace(escapeUnknownTags, '&lt;');
 
@@ -34,7 +36,19 @@ export function sanitizeHtml(input: string, options?: SanitizeHtmlOptions): stri
 }
 
 // Strict XHTML serializer helper used by EPUB pipeline.
-// For now reuse sanitizeHtml to normalize markup and ensure br/hr compliance.
+// Unlike sanitizeHtml, this preserves structural HTML tags needed for EPUB.
 export function toStrictXhtml(input: string): string {
-  return sanitizeHtml(input, { allowHr: true });
+  let s = input || '';
+
+  // Normalize self-closing tags for XHTML compliance
+  s = s.replace(/<\s*br\b[^>]*>/gi, '<br />');
+  s = s.replace(/<\s*hr\b[^>]*>/gi, '<hr />');
+
+  // EPUB-compatible allowlist: all semantic and structural tags
+  const epubTags = 'h[1-6]|div|p|span|a|img|ol|ul|li|blockquote|pre|code|table|tr|td|th|thead|tbody|figure|figcaption|section|article|nav|aside|header|footer|main|sup|sub';
+  const allowedPattern = `br|hr|i|em|b|strong|u|s|${epubTags}`;
+  const escapeUnknownTags = new RegExp('<(?!\\/?(?:' + allowedPattern + ')\\b)', 'gi');
+  s = s.replace(escapeUnknownTags, '&lt;');
+
+  return s;
 }
