@@ -11,6 +11,7 @@ import DiffPanel from './settings/DiffPanel';
 import PromptPanel from './settings/PromptPanel';
 import TemplatePanel from './settings/TemplatePanel';
 import AdvancedPanel from './settings/AdvancedPanel';
+import GalleryPanel from './settings/GalleryPanel';
 import { SettingsSidebar, type SidebarSection } from './settings/SettingsSidebar';
 import { SettingsModalProvider, ParameterSupportState } from './settings/SettingsModalContext';
 import DisplayPanel from './settings/DisplayPanel';
@@ -171,12 +172,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               {activePanel === 'diff' && <DiffPanel />}
               {activePanel === 'templates' && <TemplatePanel />}
               {activePanel === 'metadata' && <MetadataPanel />}
-              {activePanel === 'gallery' && (
-                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                  <p className="text-lg">Gallery coming soon...</p>
-                  <p className="text-sm mt-2">Image gallery will be available here</p>
-                </div>
-              )}
+              {activePanel === 'gallery' && <GalleryPanel />}
               {activePanel === 'export' && (
                 <SessionExportPanel onRequireMetadata={() => setActivePanel('metadata')} />
               )}
