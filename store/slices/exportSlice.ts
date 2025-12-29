@@ -406,12 +406,27 @@ export const createExportSlice: StateCreator<
       if (s.epubProjectDescription) tpl.projectDescription = s.epubProjectDescription;
       if (s.epubFooter !== undefined) tpl.customFooter = s.epubFooter || '';
 
-      // Fetch cover image from cache if selected
+      // Fetch novel metadata and cover image from storage
       let coverImageData: string | undefined;
+      let novelTitle: string | undefined;
+      let novelAuthor: string | undefined;
+      let novelDescription: string | undefined;
       try {
         const novelMetaJson = localStorage.getItem('novelMetadata');
         if (novelMetaJson) {
-          const novelMeta = JSON.parse(novelMetaJson) as { coverImage?: CoverImageRef };
+          const novelMeta = JSON.parse(novelMetaJson) as {
+            title?: string;
+            author?: string;
+            description?: string;
+            coverImage?: CoverImageRef;
+          };
+          // Extract title/author from metadata
+          novelTitle = novelMeta?.title;
+          novelAuthor = novelMeta?.author;
+          novelDescription = novelMeta?.description;
+          console.log('[ExportSlice] Novel metadata loaded:', { title: novelTitle, author: novelAuthor });
+
+          // Fetch cover image if selected
           if (novelMeta?.coverImage?.cacheKey) {
             const blob = await ImageCacheStore.getImageBlob(novelMeta.coverImage.cacheKey);
             if (blob) {
@@ -421,19 +436,19 @@ export const createExportSlice: StateCreator<
           }
         }
       } catch (err) {
-        console.warn('[ExportSlice] Failed to load cover image:', err);
+        console.warn('[ExportSlice] Failed to load novel metadata:', err);
       }
 
       await generateEpub({
-        title: undefined,
-        author: undefined,
-        description: undefined,
+        title: novelTitle,
+        author: novelAuthor,
+        description: novelDescription,
         chapters: chaptersForEpub,
         settings,
         template: tpl,
         novelConfig: undefined,
-        includeTitlePage: !!settings.includeTitlePage,
-        includeStatsPage: !!settings.includeStatsPage,
+        includeTitlePage: settings.includeTitlePage !== false,
+        includeStatsPage: settings.includeStatsPage !== false,
         telemetryInsights: telemetryInsights || undefined,
         customTemplate: undefined,
         manualConfig: undefined,

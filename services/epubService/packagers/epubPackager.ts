@@ -97,7 +97,8 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
   const processedChapters: { ch: EpubChapter; xhtml: string }[] = [];
   const imageEntries: ImgEntry[] = [];
   let imgIndex = 1;
-  const dataImgRegex = /(<img\b[^>]*?src=")(data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=]+))("[^>]*>)/g;
+  // Regex allows whitespace in base64 (some encoders add line breaks)
+  const dataImgRegex = /(<img\b[^>]*?src=")(data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=\s]+))("[^>]*>)/g;
 
   // Process cover image if provided
   let coverEntry: ImgEntry | null = null;
@@ -141,7 +142,9 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
       const filename = `img-${String(imgIndex).padStart(4, '0')}.${ext}`;
       const href = `images/${filename}`;
       const id = `img${imgIndex}`;
-      imageEntries.push({ href, mediaType: mime, base64: b64, id });
+      // Strip any whitespace from base64 data
+      const cleanB64 = b64.replace(/\s/g, '');
+      imageEntries.push({ href, mediaType: mime, base64: cleanB64, id });
       imgIndex++;
       return `${p1}../${href}${p5}`;
     });
