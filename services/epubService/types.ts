@@ -97,6 +97,8 @@ export interface EpubExportOptions {
   customTemplate?: any;
   manualConfig?: any;
   chapterUrls?: string[];
+  /** Cover image as base64 data URL (e.g., "data:image/jpeg;base64,...") */
+  coverImage?: string;
 }
 
 export interface EpubChapter {
@@ -113,4 +115,6 @@ export interface EpubMeta {
   language?: string;
   identifier?: string;
   publisher?: string;
+  /** Cover image as base64 data URL (e.g., "data:image/jpeg;base64,...") */
+  coverImage?: string;
 }

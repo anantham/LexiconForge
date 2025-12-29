@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { SettingsOps } from '../services/db/operations';
 import { debugLog } from '../utils/debug';
-import type { PublisherMetadata } from '../components/settings/types';
+import type { PublisherMetadata, CoverImageRef } from '../components/settings/types';
 
 const pickFirstNonEmpty = (...values: (string | undefined | null)[]): string | undefined => {
   for (const value of values) {
@@ -155,6 +155,41 @@ export const useNovelMetadata = (chaptersMap?: Map<string, any> | null) => {
     [applyMetadata]
   );
 
+  const setCoverImage = useCallback(
+    (coverImage: CoverImageRef | null) => {
+      setNovelMetadata((prev) => {
+        if (!prev) {
+          // Create minimal metadata if none exists
+          const newMetadata: PublisherMetadata = {
+            title: 'Untitled Novel',
+            description: '',
+            originalLanguage: 'Unknown',
+            chapterCount: 1,
+            genres: [],
+            lastUpdated: new Date().toISOString().split('T')[0],
+            coverImage: coverImage ?? undefined,
+          };
+          localStorage.setItem('novelMetadata', JSON.stringify(newMetadata));
+          persistNovelMetadata(newMetadata);
+          return newMetadata;
+        }
+
+        const updated = {
+          ...prev,
+          coverImage: coverImage ?? undefined,
+        };
+        localStorage.setItem('novelMetadata', JSON.stringify(updated));
+        persistNovelMetadata(updated);
+        debugLog('ui', 'summary', '[useNovelMetadata] Cover image updated', {
+          chapterId: coverImage?.chapterId,
+          marker: coverImage?.marker,
+        });
+        return updated;
+      });
+    },
+    [persistNovelMetadata]
+  );
+
   useEffect(() => {
     const loadMetadataFromSession = async () => {
       if (novelMetadata) return;
@@ -194,5 +229,5 @@ export const useNovelMetadata = (chaptersMap?: Map<string, any> | null) => {
     loadMetadataFromSession();
   }, [applyMetadata, chaptersMap, novelMetadata]);
 
-  return { novelMetadata, handleNovelMetadataChange };
+  return { novelMetadata, handleNovelMetadataChange, setCoverImage };
 };

@@ -93,11 +93,46 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
   const stylesheet = EPUB_STYLESHEET_CSS;
 
   // Extract data:image payloads from chapter XHTML and rewrite to packaged image files
-  type ImgEntry = { href: string; mediaType: string; base64: string; id: string };
+  type ImgEntry = { href: string; mediaType: string; base64: string; id: string; isCover?: boolean };
   const processedChapters: { ch: EpubChapter; xhtml: string }[] = [];
   const imageEntries: ImgEntry[] = [];
   let imgIndex = 1;
   const dataImgRegex = /(<img\b[^>]*?src=")(data:(image\/[A-Za-z0-9.+-]+);base64,([A-Za-z0-9+/=]+))("[^>]*>)/g;
+
+  // Process cover image if provided
+  let coverEntry: ImgEntry | null = null;
+  if (meta.coverImage) {
+    const coverMatch = meta.coverImage.match(/^data:(image\/[A-Za-z0-9.+-]+);base64,(.+)$/);
+    if (coverMatch) {
+      const [, mime, b64] = coverMatch;
+      const ext = mime.endsWith('jpeg') ? 'jpg' : (mime.split('/')[1] || 'png');
+      coverEntry = {
+        href: `images/cover.${ext}`,
+        mediaType: mime,
+        base64: b64,
+        id: 'cover-image',
+        isCover: true,
+      };
+      imageEntries.push(coverEntry);
+    }
+  }
+
+  // Generate cover page XHTML if we have a cover
+  const coverXhtml = coverEntry ? `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${lang}">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Cover</title>
+    <style>
+      body { margin: 0; padding: 0; text-align: center; }
+      img { max-width: 100%; max-height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <img src="../${coverEntry.href}" alt="Cover"/>
+  </body>
+</html>` : null;
 
   for (const ch of chapters) {
     let xhtml = ch.xhtml;
@@ -117,10 +152,20 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
   const manifestItemsText = processedChapters.map(({ ch }) =>
     `<item id="${ch.id}" href="text/${ch.href}" media-type="application/xhtml+xml"/>`
   ).join('\n        ');
-  const manifestItemsImages = imageEntries.map(img =>
-    `<item id="${img.id}" href="${escapeXml(img.href)}" media-type="${escapeXml(img.mediaType)}"/>`
-  ).join('\n        ');
+  const manifestItemsImages = imageEntries.map(img => {
+    const props = img.isCover ? ' properties="cover-image"' : '';
+    return `<item id="${img.id}" href="${escapeXml(img.href)}" media-type="${escapeXml(img.mediaType)}"${props}/>`;
+  }).join('\n        ');
+
+  // Cover page manifest item (if we have a cover)
+  const coverPageManifest = coverEntry ? `<item id="cover" href="text/cover.xhtml" media-type="application/xhtml+xml"/>` : '';
+
+  // Spine: cover first (if present), then chapters
+  const coverSpineItem = coverEntry ? `<itemref idref="cover"/>` : '';
   const spineItems2 = processedChapters.map(({ ch }) => `<itemref idref="${ch.id}"/>`).join('\n        ');
+
+  // Cover metadata reference (if we have a cover)
+  const coverMeta = coverEntry ? `<meta name="cover" content="cover-image"/>` : '';
 
   const contentOpf2 = `<?xml version="1.0" encoding="utf-8"?>
 <package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" xml:lang="${lang}">
@@ -132,15 +177,16 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
     ${meta.publisher ? `<dc:publisher>${escapeXml(meta.publisher)}</dc:publisher>` : ''}
     ${meta.description ? `<dc:description>${escapeXml(meta.description)}</dc:description>` : ''}
     <meta property="dcterms:modified">${new Date().toISOString()}</meta>
+    ${coverMeta}
   </metadata>
   <manifest>
     <item id="nav" href="text/nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
     <item id="css" href="styles/stylesheet.css" media-type="text/css"/>
-        ${manifestItemsText}
+        ${coverPageManifest ? `${coverPageManifest}\n        ` : ''}${manifestItemsText}
         ${manifestItemsImages ? `\n        ${manifestItemsImages}` : ''}
   </manifest>
   <spine>
-        ${spineItems2}
+        ${coverSpineItem ? `${coverSpineItem}\n        ` : ''}${spineItems2}
   </spine>
 </package>`;
 
@@ -157,6 +203,11 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
   zip.file(`${oebps}/content.opf`, contentOpf2);
   zip.file(`${textDir}/nav.xhtml`, navXhtml);
   zip.file(`${stylesDir}/stylesheet.css`, stylesheet);
+
+  // Add cover page if we have a cover
+  if (coverXhtml) {
+    zip.file(`${textDir}/cover.xhtml`, coverXhtml);
+  }
   
   // Add processed chapter files and extracted images (with optional strict XML parse diagnostics)
   const parseErrors: string[] = [];
