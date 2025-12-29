@@ -137,7 +137,8 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
       description,
       language,
       identifier: bookId,
-      publisher: novelConfig.publisher
+      publisher: novelConfig.publisher,
+      coverImage: options.coverImage,
     }, chapters);
     
     // Create download link

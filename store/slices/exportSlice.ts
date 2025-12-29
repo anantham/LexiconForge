@@ -2,10 +2,12 @@ import { StateCreator } from 'zustand';
 import type { ExportSessionOptions } from '../../services/db/types';
 import type { TelemetryInsights } from '../../services/epubService';
 import { blobToBase64DataUrl } from '../../services/imageUtils';
+import { ImageCacheStore } from '../../services/imageCacheService';
 import { telemetryService } from '../../services/telemetryService';
 import type { ImageGenerationMetadata } from '../../types';
 import { SessionExportOps, SettingsOps, TranslationOps } from '../../services/db/operations';
 import { fetchChaptersForReactRendering } from '../../services/db/operations/rendering';
+import type { CoverImageRef } from '../../components/settings/types';
 
 // Export slice state
 export interface ExportSlice {
@@ -404,6 +406,24 @@ export const createExportSlice: StateCreator<
       if (s.epubProjectDescription) tpl.projectDescription = s.epubProjectDescription;
       if (s.epubFooter !== undefined) tpl.customFooter = s.epubFooter || '';
 
+      // Fetch cover image from cache if selected
+      let coverImageData: string | undefined;
+      try {
+        const novelMetaJson = localStorage.getItem('novelMetadata');
+        if (novelMetaJson) {
+          const novelMeta = JSON.parse(novelMetaJson) as { coverImage?: CoverImageRef };
+          if (novelMeta?.coverImage?.cacheKey) {
+            const blob = await ImageCacheStore.getImageBlob(novelMeta.coverImage.cacheKey);
+            if (blob) {
+              coverImageData = await blobToBase64DataUrl(blob);
+              console.log('[ExportSlice] Cover image loaded from cache');
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[ExportSlice] Failed to load cover image:', err);
+      }
+
       await generateEpub({
         title: undefined,
         author: undefined,
@@ -418,6 +438,7 @@ export const createExportSlice: StateCreator<
         customTemplate: undefined,
         manualConfig: undefined,
         chapterUrls: undefined,
+        coverImage: coverImageData,
       });
 
       const end = typeof performance !== 'undefined' && typeof performance.now === 'function'
