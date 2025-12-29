@@ -11,7 +11,8 @@ import DiffPanel from './settings/DiffPanel';
 import PromptPanel from './settings/PromptPanel';
 import TemplatePanel from './settings/TemplatePanel';
 import AdvancedPanel from './settings/AdvancedPanel';
-import { SettingsTabs, type SettingsTabConfig } from './settings/SettingsTabs';
+import GalleryPanel from './settings/GalleryPanel';
+import { SettingsSidebar, type SidebarSection } from './settings/SettingsSidebar';
 import { SettingsModalProvider, ParameterSupportState } from './settings/SettingsModalContext';
 import DisplayPanel from './settings/DisplayPanel';
 import SessionActions from './settings/SessionActions';
@@ -47,18 +48,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   })));
 
   const [currentSettings, setCurrentSettings] = useState(settings);
-  type SettingsTabId = 'providers' | 'general' | 'features' | 'export' | 'templates' | 'audio' | 'advanced' | 'metadata';
-  const [activeTab, setActiveTab] = useState<SettingsTabId>('providers');
-  const tabConfig: SettingsTabConfig[] = useMemo(
+  type SettingsPanelId = 'providers' | 'prompt' | 'advanced' | 'display' | 'audio' | 'diff' | 'templates' | 'metadata' | 'gallery' | 'export';
+  const [activePanel, setActivePanel] = useState<SettingsPanelId>('providers');
+  const sidebarSections: SidebarSection[] = useMemo(
     () => [
-      { id: 'providers', label: 'Providers' },
-      { id: 'general', label: 'General' },
-      { id: 'features', label: 'Features' },
-      { id: 'export', label: 'Export' },
-      { id: 'metadata', label: 'Metadata' },
-      { id: 'templates', label: 'Templates' },
-      { id: 'audio', label: 'Audio' },
-      { id: 'advanced', label: 'Advanced' },
+      {
+        id: 'settings',
+        label: 'Settings',
+        icon: '⚙️',
+        items: [
+          { id: 'providers', label: 'Providers' },
+          { id: 'prompt', label: 'Prompt' },
+          { id: 'advanced', label: 'Advanced' },
+        ],
+      },
+      {
+        id: 'features',
+        label: 'Features',
+        icon: '✨',
+        items: [
+          { id: 'display', label: 'Display' },
+          { id: 'audio', label: 'Audio' },
+          { id: 'diff', label: 'Diff Heatmap' },
+        ],
+      },
+      {
+        id: 'workspace',
+        label: 'Workspace',
+        icon: '📁',
+        items: [
+          { id: 'templates', label: 'Templates' },
+          { id: 'metadata', label: 'Metadata' },
+          { id: 'gallery', label: 'Gallery' },
+        ],
+      },
+      {
+        id: 'export-section',
+        label: 'Export',
+        icon: '📤',
+        items: [{ id: 'export', label: 'Export' }],
+      },
     ],
     []
   );
@@ -127,38 +156,27 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         </header>
 
         <SettingsModalProvider value={modalContextValue}>
-          <SettingsTabs
-            tabs={tabConfig}
-            activeTab={activeTab}
-            onSelect={(tabId) => setActiveTab(tabId as SettingsTabId)}
-          />
+          <div className="flex flex-1 overflow-hidden">
+            <SettingsSidebar
+              sections={sidebarSections}
+              activeItem={activePanel}
+              onSelect={(panelId) => setActivePanel(panelId as SettingsPanelId)}
+            />
 
-          <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 overflow-y-auto">
-          {activeTab === 'providers' && <ProvidersPanel isOpen={isOpen} />}
-          {activeTab === 'general' && (
-            <>
-              <DisplayPanel />
-              <PromptPanel />
-            </>
-          )}
-
-          {activeTab === 'features' && (<DiffPanel />)}
-
-          {activeTab === 'export' && (
-            <SessionExportPanel onRequireMetadata={() => setActiveTab('metadata')} />
-          )}
-
-          {activeTab === 'metadata' && (
-            <MetadataPanel />
-          )}
-
-          {activeTab === 'templates' && (<TemplatePanel />)}
-
-          {activeTab === 'audio' && (
-            <AudioPanel />
-          )}
-
-          {activeTab === 'advanced' && <AdvancedPanel />}
+            <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 overflow-y-auto">
+              {activePanel === 'providers' && <ProvidersPanel isOpen={isOpen} />}
+              {activePanel === 'prompt' && <PromptPanel />}
+              {activePanel === 'advanced' && <AdvancedPanel />}
+              {activePanel === 'display' && <DisplayPanel />}
+              {activePanel === 'audio' && <AudioPanel />}
+              {activePanel === 'diff' && <DiffPanel />}
+              {activePanel === 'templates' && <TemplatePanel />}
+              {activePanel === 'metadata' && <MetadataPanel />}
+              {activePanel === 'gallery' && <GalleryPanel />}
+              {activePanel === 'export' && (
+                <SessionExportPanel onRequireMetadata={() => setActivePanel('metadata')} />
+              )}
+            </div>
           </div>
         </SettingsModalProvider>
         <SessionActions
