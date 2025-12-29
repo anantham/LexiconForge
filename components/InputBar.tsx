@@ -192,16 +192,17 @@ const InputBar: React.FC = () => {
               onClick={() => fileInputRef.current?.click()}
               disabled={isAnyLoading}
               className="px-4 py-2 bg-gray-600 text-white font-semibold rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
-              title="Select session JSON file from disk"
+              title="Import session from a JSON file on your computer"
             >
-              📁 File
+              📁 Import
             </button>
             <button
               type="submit"
-              disabled={isAnyLoading}
+              disabled={isAnyLoading || !url.trim()}
               className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+              title={url.trim() ? 'Fetch chapter or session from URL' : 'Enter a URL first'}
             >
-              {isImporting ? 'Importing...' : isLoading ? 'Fetching...' : 'Load'}
+              {isImporting ? 'Importing...' : isLoading ? 'Fetching...' : '🔗 Fetch'}
             </button>
           </div>
         </div>
