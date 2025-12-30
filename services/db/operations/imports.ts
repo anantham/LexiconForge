@@ -10,6 +10,7 @@ import type {
 } from '../types';
 import type { StableSessionData } from '../../stableIdService';
 import type { DiffResult } from '../../diff/types';
+import { prepareForStorage as prepareDiffResultForStorage, type StoredDiffResult } from './diffResults';
 import { getConnection } from '../core/connection';
 import { STORE_NAMES } from '../core/schema';
 import { ImageCacheStore } from '../../imageCacheService';
@@ -25,16 +26,6 @@ export type ImportProgressHandler = (
 const BATCH_SIZE = 50;
 
 const nowIso = () => new Date().toISOString();
-
-type StoredDiffResult = DiffResult & { fanVersionId: string };
-
-const prepareDiffResultForStorage = (record: DiffResult): StoredDiffResult => ({
-  ...record,
-  fanVersionId: record.fanVersionId ?? '',
-  aiHash: record.aiHash ?? null,
-  fanHash: record.fanHash ?? null,
-  rawHash: record.rawHash ?? record.rawVersionId,
-});
 
 const putSettingsRecord = (
   store: IDBObjectStore,

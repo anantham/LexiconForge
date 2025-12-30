@@ -4,7 +4,7 @@ import { withReadTxn, withWriteTxn, promisifyRequest } from '../core/txn';
 
 const DOMAIN = 'diffResults';
 
-type StoredDiffResult = DiffResult & { fanVersionId: string };
+export type StoredDiffResult = DiffResult & { fanVersionId: string };
 
 const normalizeFanVersionId = (value: string | null | undefined): string =>
   value ?? '';
@@ -20,7 +20,8 @@ const mapFromStorage = (record?: DiffResult | null): DiffResult | null => {
   };
 };
 
-const prepareForStorage = (record: DiffResult): StoredDiffResult => ({
+/** Normalizes a DiffResult for IndexedDB storage (null → '' for composite key fields) */
+export const prepareForStorage = (record: DiffResult): StoredDiffResult => ({
   ...record,
   fanVersionId: normalizeFanVersionId(record.fanVersionId),
   aiHash: record.aiHash ?? null,

@@ -183,7 +183,7 @@ describe('Session export/import', () => {
       const testDiffResult: DiffResult = {
         chapterId: 'stable-import-fidelity',
         aiVersionId: '9876543210',
-        fanVersionId: null, // Edge case: null fan version should survive round-trip
+        fanVersionId: null, // imports.ts normalizes null → '' before storage
         rawVersionId: 'xyz98765',
         algoVersion: '2.0.0',
         aiHash: 'abc12345',
