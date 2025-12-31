@@ -596,9 +596,610 @@ describe('EPUB Service - Edge Cases and Error Handling', () => {
 
 /**
  * ==================================
+ * E2E CONTENT GENERATION TESTS
+ * ==================================
+ *
+ * These tests verify:
+ * - Images are properly embedded with XHTML-compliant self-closing tags
+ * - Chapter content is complete and not truncated
+ * - Title page uses correct user-provided metadata
+ * - XHTML output is valid and parseable
+ */
+
+import { buildChapterXhtml } from '../../services/epubService/generators/chapter';
+import { generateTitlePage } from '../../services/epubService/generators/titlePage';
+import { htmlFragmentToXhtml } from '../../services/epubService/sanitizers/xhtmlSanitizer';
+import { generateEpub3WithJSZip } from '../../services/epubService/packagers/epubPackager';
+import type { EpubMeta, EpubChapter } from '../../services/epubService/types';
+import JSZip from 'jszip';
+
+describe('EPUB Content Generation E2E', () => {
+  describe('Chapter XHTML Generation', () => {
+    it('should produce self-closing img tags for XHTML compliance', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Test Chapter',
+        content: 'Original content with [ILLUSTRATION-1] marker.',
+        originalUrl: 'https://example.com/test',
+        translatedTitle: 'Translated Test Chapter',
+        translatedContent: 'Translated content with [ILLUSTRATION-1] marker.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [{
+          marker: '[ILLUSTRATION-1]',
+          imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+          prompt: 'A test illustration'
+        }],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Verify img tags are self-closing (not <img></img>)
+      expect(xhtml).not.toMatch(/<img[^>]*><\/img>/i);
+      // Should have self-closing form
+      expect(xhtml).toMatch(/<img[^>]*\/>/i);
+      // Should contain the image data
+      expect(xhtml).toContain('data:image/png;base64');
+    });
+
+    it('should preserve full chapter content without truncation', () => {
+      const longContent = 'This is a very long translated chapter content. '.repeat(100);
+      const chapter: ChapterForEpub = {
+        title: 'Long Chapter',
+        content: 'Original short content',
+        originalUrl: 'https://example.com/long',
+        translatedTitle: 'Long Translated Chapter',
+        translatedContent: longContent,
+        usageMetrics: createMockUsageMetrics(),
+        images: [],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Verify content is not truncated
+      expect(xhtml.length).toBeGreaterThan(longContent.length);
+      // Should contain the full repeated phrase
+      expect(xhtml).toContain('very long translated chapter content');
+      // Count occurrences - should be close to 100
+      const matches = xhtml.match(/very long translated chapter content/g);
+      expect(matches?.length).toBeGreaterThanOrEqual(90); // Allow for some whitespace normalization
+    });
+
+    it('should include chapter title in output', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Original Title',
+        content: 'Content',
+        originalUrl: 'https://example.com/test',
+        translatedTitle: 'My Translated Chapter Title',
+        translatedContent: 'Translated content here.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      expect(xhtml).toContain('My Translated Chapter Title');
+      expect(xhtml).toContain('<h1');
+    });
+
+    it('should handle chapters with footnotes', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Chapter with Notes',
+        content: 'Content with (1) footnote reference.',
+        originalUrl: 'https://example.com/notes',
+        translatedTitle: 'Translated Chapter with Notes',
+        translatedContent: 'Translated content with (1) footnote reference.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [],
+        footnotes: [{
+          marker: '1',
+          text: 'This is the footnote explanation.'
+        }]
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Should contain footnote section
+      expect(xhtml).toContain('Footnotes');
+      expect(xhtml).toContain('footnote explanation');
+      // Should have footnote reference link
+      expect(xhtml).toMatch(/href="#fn1"/);
+    });
+
+    it('should produce valid XHTML that can be parsed', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Parse Test',
+        content: 'Content with <special> characters & "quotes"',
+        originalUrl: 'https://example.com/parse',
+        translatedTitle: 'Parse Test Chapter',
+        translatedContent: 'Content with <special> characters & "quotes" and [ILLUSTRATION-1] marker.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [{
+          marker: '[ILLUSTRATION-1]',
+          imageData: 'data:image/png;base64,abc123',
+          prompt: 'Test image'
+        }],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Wrap in a root element for parsing
+      const fullXhtml = `<div xmlns="http://www.w3.org/1999/xhtml">${xhtml}</div>`;
+
+      // Should not throw when parsed as XML
+      expect(() => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(fullXhtml, 'application/xhtml+xml');
+        // Check for parse errors
+        const parseError = doc.querySelector('parsererror');
+        if (parseError) {
+          throw new Error(`XHTML parse error: ${parseError.textContent}`);
+        }
+      }).not.toThrow();
+    });
+  });
+
+  describe('Title Page Generation', () => {
+    it('should use provided title and author, not auto-detected values', () => {
+      const config = {
+        title: 'User Provided Title',
+        author: 'User Provided Author',
+        language: 'en',
+        description: 'User provided description'
+      };
+      const stats: TranslationStats = {
+        totalCost: 1.5,
+        totalTime: 120,
+        totalTokens: 50000,
+        chapterCount: 10,
+        imageCount: 5,
+        providerBreakdown: {},
+        modelBreakdown: {}
+      };
+
+      const html = generateTitlePage(config, stats);
+
+      expect(html).toContain('User Provided Title');
+      expect(html).toContain('User Provided Author');
+      expect(html).toContain('10 chapters');
+      expect(html).not.toContain('Unknown Author');
+      expect(html).not.toContain('Eon'); // Should not use auto-detected title
+    });
+
+    it('should include translation statistics', () => {
+      const config = {
+        title: 'Test Novel',
+        author: 'Test Author',
+        language: 'en'
+      };
+      const stats: TranslationStats = {
+        totalCost: 2.5,
+        totalTime: 300,
+        totalTokens: 100000,
+        chapterCount: 25,
+        imageCount: 12,
+        providerBreakdown: {},
+        modelBreakdown: {}
+      };
+
+      const html = generateTitlePage(config, stats);
+
+      expect(html).toContain('25 chapters');
+      // Token count uses toLocaleString() which may vary by locale
+      expect(html).toMatch(/100[,.]?000|1,00,000/); // Match both US and Indian formats
+      expect(html).toContain('$2.5');
+    });
+  });
+
+  describe('XHTML Sanitizer', () => {
+    it('should convert void elements to self-closing form', () => {
+      const html = '<div><img src="test.png" alt="test"><br>Text<hr></div>';
+      const xhtml = htmlFragmentToXhtml(html);
+
+      // All void elements should be self-closing
+      expect(xhtml).not.toMatch(/<img[^>]*><\/img>/i);
+      expect(xhtml).not.toMatch(/<br><\/br>/i);
+      expect(xhtml).not.toMatch(/<hr><\/hr>/i);
+      expect(xhtml).toMatch(/<img[^>]*\/>/i);
+      expect(xhtml).toMatch(/<br\s*\/>/i);
+    });
+
+    it('should handle multiple images correctly', () => {
+      const html = `
+        <div>
+          <img src="img1.png" alt="First">
+          <p>Some text</p>
+          <img src="img2.png" alt="Second">
+        </div>
+      `;
+      const xhtml = htmlFragmentToXhtml(html);
+
+      // Count self-closing img tags
+      const selfClosingImgs = xhtml.match(/<img[^>]*\/>/gi) || [];
+      expect(selfClosingImgs.length).toBe(2);
+
+      // No non-self-closing img tags
+      expect(xhtml).not.toMatch(/<img[^>]*><\/img>/i);
+    });
+
+    it('should preserve image attributes', () => {
+      const html = '<img src="test.png" alt="Test Alt" style="max-width: 100%;">';
+      const xhtml = htmlFragmentToXhtml(html);
+
+      expect(xhtml).toContain('src="test.png"');
+      expect(xhtml).toContain('alt="Test Alt"');
+    });
+  });
+
+  describe('Full EPUB Content Validation', () => {
+    /**
+     * This test simulates the full EPUB generation flow and validates
+     * that ALL chapters produce valid, parseable XHTML
+     */
+    it('should generate valid XHTML for multiple chapters with images', () => {
+      const chapters: ChapterForEpub[] = [];
+
+      // Create 5 chapters with varying content
+      for (let i = 1; i <= 5; i++) {
+        const hasImage = i % 2 === 1; // Odd chapters have images
+        chapters.push({
+          title: `Chapter ${i}`,
+          content: `Original content for chapter ${i}`,
+          originalUrl: `https://example.com/chapter${i}`,
+          translatedTitle: `Translated Chapter ${i}: The Adventure Continues`,
+          translatedContent: hasImage
+            ? `This is the full translated content for chapter ${i}. It contains multiple paragraphs.\n\nSecond paragraph with more details about the story.\n\n[ILLUSTRATION-${i}]\n\nThird paragraph after the illustration.`
+            : `This is the full translated content for chapter ${i}. It has no images but should still be complete.`,
+          usageMetrics: createMockUsageMetrics(),
+          images: hasImage ? [{
+            marker: `[ILLUSTRATION-${i}]`,
+            imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            prompt: `Illustration for chapter ${i}`
+          }] : [],
+          footnotes: i === 3 ? [{
+            marker: '1',
+            text: 'A footnote in chapter 3'
+          }] : []
+        });
+      }
+
+      // Generate and validate each chapter
+      const errors: string[] = [];
+
+      for (const chapter of chapters) {
+        const xhtml = buildChapterXhtml(chapter);
+
+        // Check for common XHTML issues
+        if (/<img[^>]*><\/img>/i.test(xhtml)) {
+          errors.push(`Chapter "${chapter.title}": Found non-self-closing img tag`);
+        }
+        if (/<br><\/br>/i.test(xhtml)) {
+          errors.push(`Chapter "${chapter.title}": Found non-self-closing br tag`);
+        }
+
+        // Verify it's parseable as XML
+        const fullXhtml = `<div xmlns="http://www.w3.org/1999/xhtml">${xhtml}</div>`;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(fullXhtml, 'application/xhtml+xml');
+        const parseError = doc.querySelector('parsererror');
+
+        if (parseError) {
+          errors.push(`Chapter "${chapter.title}": XHTML parse error - ${parseError.textContent?.slice(0, 100)}`);
+        }
+
+        // Verify content is not empty/truncated
+        if (xhtml.length < 100) {
+          errors.push(`Chapter "${chapter.title}": Content appears truncated (only ${xhtml.length} chars)`);
+        }
+
+        // Verify title is present
+        if (!xhtml.includes(chapter.translatedTitle || chapter.title)) {
+          errors.push(`Chapter "${chapter.title}": Title not found in output`);
+        }
+      }
+
+      // All chapters should pass validation
+      expect(errors).toEqual([]);
+    });
+
+    it('should handle special characters without breaking XHTML', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Special Characters Test',
+        content: 'Original',
+        originalUrl: 'https://example.com/special',
+        translatedTitle: 'Chapter with <special> & "quoted" \'chars\'',
+        translatedContent: 'Content with <angle brackets> & ampersands "quotes" and \'apostrophes\' plus Chinese: 这是中文',
+        usageMetrics: createMockUsageMetrics(),
+        images: [],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Should be parseable despite special characters
+      const fullXhtml = `<div xmlns="http://www.w3.org/1999/xhtml">${xhtml}</div>`;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(fullXhtml, 'application/xhtml+xml');
+
+      expect(doc.querySelector('parsererror')).toBeNull();
+
+      // Should escape entities properly - ampersands should be &amp;
+      expect(xhtml).toContain('&amp;');
+      // No bare/unescaped ampersands (should all be &amp; or other entities like &lt;)
+      expect(xhtml).not.toMatch(/&(?!(amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/)
+    });
+
+    it('should correctly place images at marker locations', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Image Placement Test',
+        content: 'Original',
+        originalUrl: 'https://example.com/images',
+        translatedTitle: 'Image Placement Chapter',
+        translatedContent: 'Before the image.\n\n[ILLUSTRATION-1]\n\nAfter the image.\n\n[ILLUSTRATION-2]\n\nAt the end.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [
+          {
+            marker: '[ILLUSTRATION-1]',
+            imageData: 'data:image/png;base64,FIRST_IMAGE_DATA',
+            prompt: 'First image'
+          },
+          {
+            marker: '[ILLUSTRATION-2]',
+            imageData: 'data:image/png;base64,SECOND_IMAGE_DATA',
+            prompt: 'Second image'
+          }
+        ],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Both images should be present
+      expect(xhtml).toContain('FIRST_IMAGE_DATA');
+      expect(xhtml).toContain('SECOND_IMAGE_DATA');
+
+      // Markers should be replaced (not visible in output)
+      expect(xhtml).not.toContain('[ILLUSTRATION-1]');
+      expect(xhtml).not.toContain('[ILLUSTRATION-2]');
+
+      // Content structure should be preserved
+      expect(xhtml).toContain('Before the image');
+      expect(xhtml).toContain('After the image');
+      expect(xhtml).toContain('At the end');
+
+      // Images should be in img tags
+      const imgMatches = xhtml.match(/<img[^>]*\/>/gi) || [];
+      expect(imgMatches.length).toBe(2);
+    });
+
+    it('should handle chapters with no translated content gracefully', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Empty Translation',
+        content: 'This is the original content that should be used as fallback.',
+        originalUrl: 'https://example.com/empty',
+        translatedTitle: 'Empty Translation Chapter',
+        translatedContent: '', // Empty translation
+        usageMetrics: createMockUsageMetrics(),
+        images: [],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Should have valid structure even with empty translation
+      expect(xhtml).toContain('<h1');
+      expect(xhtml).toContain('Empty Translation Chapter');
+
+      // Should be parseable
+      const fullXhtml = `<div xmlns="http://www.w3.org/1999/xhtml">${xhtml}</div>`;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(fullXhtml, 'application/xhtml+xml');
+      expect(doc.querySelector('parsererror')).toBeNull();
+    });
+  });
+
+  /**
+   * TRUE E2E TEST: Generate actual EPUB, unzip it, validate all XML files
+   * This catches real issues that proxy tests miss
+   */
+  describe('Real EPUB Generation E2E', () => {
+    it('should generate valid EPUB with parseable XML in all files', async () => {
+      // Build chapters using the real buildChapterXhtml function
+      const chaptersData: ChapterForEpub[] = [
+        {
+          title: 'Chapter 1',
+          content: 'Original',
+          originalUrl: 'https://example.com/ch1',
+          translatedTitle: 'The First Chapter: Beginning',
+          translatedContent: 'This is a real chapter with actual content.\n\nMultiple paragraphs here.\n\n[ILLUSTRATION-1]\n\nMore content after the image.',
+          usageMetrics: createMockUsageMetrics(),
+          images: [{
+            marker: '[ILLUSTRATION-1]',
+            imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            prompt: 'Test image'
+          }],
+          footnotes: []
+        },
+        {
+          title: 'Chapter 2',
+          content: 'Original 2',
+          originalUrl: 'https://example.com/ch2',
+          translatedTitle: 'The Second Chapter: Continuation',
+          translatedContent: 'Second chapter content with special chars: <brackets> & ampersands "quotes".',
+          usageMetrics: createMockUsageMetrics(),
+          images: [],
+          footnotes: [{
+            marker: '1',
+            text: 'A footnote here'
+          }]
+        }
+      ];
+
+      // Generate XHTML for each chapter using the real builder
+      const epubChapters: EpubChapter[] = chaptersData.map((ch, i) => ({
+        id: `ch-${i + 1}`,
+        title: ch.translatedTitle || ch.title,
+        xhtml: buildChapterXhtml(ch),
+        href: `chapter-${i + 1}.xhtml`
+      }));
+
+      const meta: EpubMeta = {
+        title: 'Test Novel Title',
+        author: 'Test Author Name',
+        description: 'A test book',
+        language: 'en',
+        identifier: 'test-epub-123'
+      };
+
+      // Generate actual EPUB
+      const epubBuffer = await generateEpub3WithJSZip(meta, epubChapters);
+
+      // Unzip and validate
+      const zip = await JSZip.loadAsync(epubBuffer);
+
+      // Collect all validation errors
+      const errors: string[] = [];
+
+      // Check required EPUB files exist
+      const requiredFiles = [
+        'mimetype',
+        'META-INF/container.xml',
+        'OEBPS/content.opf',
+        'OEBPS/text/nav.xhtml'
+      ];
+      for (const file of requiredFiles) {
+        if (!zip.file(file)) {
+          errors.push(`Missing required file: ${file}`);
+        }
+      }
+
+      // Check NO debug/parse-errors.txt exists (would indicate parse failures)
+      if (zip.file('OEBPS/debug/parse-errors.txt')) {
+        const errorContent = await zip.file('OEBPS/debug/parse-errors.txt')!.async('string');
+        errors.push(`EPUB contains parse errors: ${errorContent.slice(0, 500)}`);
+      }
+
+      // Validate all XML/XHTML files are parseable
+      const xmlFiles = Object.keys(zip.files).filter(f =>
+        f.endsWith('.xml') || f.endsWith('.xhtml') || f.endsWith('.opf')
+      );
+
+      for (const filename of xmlFiles) {
+        const content = await zip.file(filename)!.async('string');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'application/xhtml+xml');
+
+        // Check for parse errors
+        const parseError = doc.querySelector('parsererror');
+        if (parseError) {
+          errors.push(`Parse error in ${filename}: ${parseError.textContent?.slice(0, 200)}`);
+        }
+
+        // For chapter files, verify they have substantial content
+        if (filename.includes('chapter-')) {
+          if (content.length < 200) {
+            errors.push(`${filename} appears truncated (only ${content.length} chars)`);
+          }
+
+          // Check for common XHTML errors
+          if (/<img[^>]*><\/img>/i.test(content)) {
+            errors.push(`${filename} has non-self-closing img tags`);
+          }
+        }
+      }
+
+      // Verify chapter content is present
+      const ch1Content = await zip.file('OEBPS/text/chapter-1.xhtml')!.async('string');
+      if (!ch1Content.includes('The First Chapter')) {
+        errors.push('Chapter 1 missing title');
+      }
+      if (!ch1Content.includes('Multiple paragraphs')) {
+        errors.push('Chapter 1 missing content');
+      }
+
+      // Verify metadata in content.opf
+      const opfContent = await zip.file('OEBPS/content.opf')!.async('string');
+      if (!opfContent.includes('Test Novel Title')) {
+        errors.push('OPF missing title metadata');
+      }
+      if (!opfContent.includes('Test Author Name')) {
+        errors.push('OPF missing author metadata');
+      }
+
+      // All validations should pass
+      expect(errors).toEqual([]);
+    });
+
+    it('should properly embed images without breaking XHTML', async () => {
+      const chapter: ChapterForEpub = {
+        title: 'Image Test',
+        content: 'Original',
+        originalUrl: 'https://example.com/img',
+        translatedTitle: 'Image Test Chapter',
+        translatedContent: 'Before image.\n\n[ILLUSTRATION-1]\n\nAfter image.\n\n[ILLUSTRATION-2]\n\nEnd.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [
+          {
+            marker: '[ILLUSTRATION-1]',
+            imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            prompt: 'First image'
+          },
+          {
+            marker: '[ILLUSTRATION-2]',
+            imageData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
+            prompt: 'Second image'
+          }
+        ],
+        footnotes: []
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+      const epubChapters: EpubChapter[] = [{
+        id: 'ch-1',
+        title: chapter.translatedTitle,
+        xhtml,
+        href: 'chapter-1.xhtml'
+      }];
+
+      const meta: EpubMeta = {
+        title: 'Image Test Book',
+        author: 'Author',
+        language: 'en',
+        identifier: 'test-img-123'
+      };
+
+      const epubBuffer = await generateEpub3WithJSZip(meta, epubChapters);
+      const zip = await JSZip.loadAsync(epubBuffer);
+
+      // Verify images were extracted to files (filter out directory entries)
+      const imageFiles = Object.keys(zip.files).filter(f =>
+        f.includes('images/') && !f.endsWith('/') && f.includes('.')
+      );
+      expect(imageFiles.length).toBe(2);
+
+      // Verify chapter XHTML references the extracted images (not inline base64)
+      const chapterContent = await zip.file('OEBPS/text/chapter-1.xhtml')!.async('string');
+      expect(chapterContent).not.toContain('data:image'); // No inline base64
+      expect(chapterContent).toContain('../images/'); // References extracted files
+
+      // Verify XHTML is valid
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(chapterContent, 'application/xhtml+xml');
+      expect(doc.querySelector('parsererror')).toBeNull();
+
+      // Verify img tags are self-closing
+      expect(chapterContent).not.toMatch(/<img[^>]*><\/img>/i);
+    });
+  });
+});
+
+/**
+ * ==================================
  * TEST COVERAGE SUMMARY
  * ==================================
- * 
+ *
  * This test suite covers:
  * ✅ Data collection accuracy from session data
  * ✅ Statistics aggregation with multiple providers/models
@@ -608,17 +1209,22 @@ describe('EPUB Service - Edge Cases and Error Handling', () => {
  * ✅ Edge cases: empty data, zero costs, large numbers
  * ✅ Error resilience with corrupted data
  * ✅ Image counting and filtering
- * 
+ * ✅ XHTML compliance with self-closing void elements
+ * ✅ Full chapter content preservation (no truncation)
+ * ✅ Title page metadata correctness
+ * ✅ XHTML parseability validation
+ *
  * FINANCIAL SAFETY:
  * ✅ Prevents cost calculation errors
  * ✅ Ensures breakdown sums match totals
  * ✅ Validates all aggregation math
- * 
+ *
  * USER TRUST:
  * ✅ Guarantees accurate statistics reporting
  * ✅ Validates template customization works
  * ✅ Ensures professional EPUB output quality
- * 
+ * ✅ Verifies images are properly embedded
+ *
  * This comprehensive test coverage ensures the EPUB export
  * feature produces accurate, trustworthy statistics and
  * professional-quality output for users.

@@ -113,8 +113,8 @@ export const buildChapterXhtml = (chapter: ChapterForEpub): string => {
   // Use translated content if available, fallback to original content
   const contentToProcess = chapter.translatedContent || chapter.content;
 
-  // 1) Inject placeholders for markers
-  const withIllu = contentToProcess.replace(/\b(ILLUSTRATION-\d+[A-Za-z]*)\b/g, (_m, marker) => {
+  // 1) Inject placeholders for markers (including surrounding brackets)
+  const withIllu = contentToProcess.replace(/\[(ILLUSTRATION-\d+[A-Za-z]*)\]/g, (_m, marker) => {
     return `<span data-illu="${marker}"></span>`;
   });
   const withPlaceholders = withIllu.replace(/\((\d+)\)/g, (_m, n) => `<span data-fn="${n}"></span>`);
@@ -166,8 +166,11 @@ export const buildChapterXhtml = (chapter: ChapterForEpub): string => {
     span.replaceWith(sup);
   }
 
-  // 5) Append sanitized content under title
-  while (container.firstChild) root.appendChild(container.firstChild);
+  // 5) Wrap content in a section and append under title
+  const section = document.createElement('section');
+  section.setAttribute('class', 'chapter-content');
+  while (container.firstChild) section.appendChild(container.firstChild);
+  root.appendChild(section);
 
   // 6) Footnotes section at end
   if (chapter.footnotes && chapter.footnotes.length > 0) {

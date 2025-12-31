@@ -82,8 +82,14 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
   const language = novelConfig.language || 'en';
   const bookId = novelConfig.isbn || `urn:uuid:${crypto.randomUUID()}`;
   
-  // Generate special pages  
-  const titlePage = generateTitlePage(novelConfig, stats);
+  // Generate special pages with user-provided metadata taking priority
+  const titlePageConfig = {
+    ...novelConfig,
+    title,  // Use computed title (prioritizes options.title over novelConfig.title)
+    author, // Use computed author (prioritizes options.author over novelConfig.author)
+    description,
+  };
+  const titlePage = generateTitlePage(titlePageConfig, stats);
   const includeTitle = (options as any).includeTitlePage !== false;
   const includeStats = (options as any).includeStatsPage !== false;
   const tableOfContents = generateTableOfContents(options.chapters, includeStats);
@@ -146,11 +152,17 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
     const blob = new Blob([epubBuffer], { type: 'application/epub+zip' });
     const url = URL.createObjectURL(blob);
 
-    // Generate filename with title, author, and chapter count
+    // Generate filename with title, author, and chapter count (human-readable format)
     const sanitizeForFilename = (str: string): string =>
-      str.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '-').slice(0, 40);
+      str.trim().replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, ' ').slice(0, 40).trim();
     const chapterCount = options.chapters.length;
-    const filename = `${sanitizeForFilename(title)}_${sanitizeForFilename(author)}_${chapterCount}ch.epub`;
+    const sanitizedTitle = sanitizeForFilename(title) || 'Untitled';
+    const sanitizedAuthor = sanitizeForFilename(author);
+    const chapterLabel = chapterCount === 1 ? '1 chapter' : `${chapterCount} chapters`;
+    // Format: "Title by Author (N chapters).epub" or "Title (N chapters).epub" if no author
+    const filename = sanitizedAuthor
+      ? `${sanitizedTitle} by ${sanitizedAuthor} (${chapterLabel}).epub`
+      : `${sanitizedTitle} (${chapterLabel}).epub`;
     
     // Trigger download
     const link = document.createElement('a');

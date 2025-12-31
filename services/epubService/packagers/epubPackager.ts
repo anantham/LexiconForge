@@ -171,6 +171,9 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
 
       // Serialize back to string (get just the body content)
       xhtml = doc.body.innerHTML;
+
+      // Re-apply self-closing for void elements (innerHTML loses these)
+      xhtml = xhtml.replace(/<(img|br|hr|input|meta|link|col|area|base|embed|source|track|wbr)([^>]*)>/gi, '<$1$2 />');
     } catch (err) {
       console.warn('[EPUBPackager] DOM parsing failed for image extraction, using original xhtml:', err);
     }
