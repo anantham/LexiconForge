@@ -16,6 +16,16 @@ Multiple agents (Opus, Gemini, Codex/5.2) work on this repo. Follow these rules:
 
 Before starting: Check `docs/WORKLOG.md` for other agents' active work.
 
+### WORKLOG Maintenance
+
+Run the auto-cycling script periodically to prevent WORKLOG bloat:
+
+```bash
+./scripts/cycle-worklog.sh
+```
+
+This archives old entries when the file exceeds ~22k tokens. Archives go to `docs/archive/WORKLOG-*.md`.
+
 ## Worktrees (Required)
 
 - Keep the main checkout clean and on `main`.
