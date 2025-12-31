@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GalleryPanel } from './GalleryPanel';
@@ -21,6 +21,19 @@ vi.mock('../../hooks/useNovelMetadata', () => ({
   })),
 }));
 
+// Mock IndexedDB operations
+vi.mock('../../services/db/operations/translations', () => ({
+  TranslationOps: {
+    getAll: vi.fn(() => Promise.resolve([])),
+  },
+}));
+
+vi.mock('../../services/db/operations/chapters', () => ({
+  ChapterOps: {
+    getAll: vi.fn(() => Promise.resolve([])),
+  },
+}));
+
 import { useAppStore } from '../../store';
 import { useBlobUrl } from '../../hooks/useBlobUrl';
 import { useNovelMetadata } from '../../hooks/useNovelMetadata';
@@ -30,16 +43,19 @@ describe('GalleryPanel', () => {
     vi.clearAllMocks();
   });
 
-  it('shows empty state when no images exist', () => {
+  it('shows empty state when no images exist', async () => {
     vi.mocked(useAppStore).mockReturnValue(new Map());
 
     render(<GalleryPanel />);
 
-    expect(screen.getByText('No images generated yet')).toBeInTheDocument();
+    // Wait for loading to complete
+    await waitFor(() => {
+      expect(screen.getByText('No images generated yet')).toBeInTheDocument();
+    });
     expect(screen.getByText('Generate illustrations in chapters to see them here')).toBeInTheDocument();
   });
 
-  it('displays chapter sections with images', () => {
+  it('displays chapter sections with images', async () => {
     const mockChapters = new Map([
       [
         'chapter-1',
@@ -69,12 +85,14 @@ describe('GalleryPanel', () => {
 
     render(<GalleryPanel />);
 
-    expect(screen.getByText('Image Gallery')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Image Gallery')).toBeInTheDocument();
+    });
     expect(screen.getByText('Chapter 1: The Beginning')).toBeInTheDocument();
     expect(screen.getByText('2 images')).toBeInTheDocument();
   });
 
-  it('shows cover status indicator', () => {
+  it('shows cover status indicator', async () => {
     const mockChapters = new Map([
       [
         'chapter-1',
@@ -106,10 +124,12 @@ describe('GalleryPanel', () => {
 
     render(<GalleryPanel />);
 
-    expect(screen.getByText('Cover: ✓ Selected')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Cover: ✓ Selected')).toBeInTheDocument();
+    });
   });
 
-  it('shows "Cover: None" when no cover selected', () => {
+  it('shows "Cover: None" when no cover selected', async () => {
     const mockChapters = new Map([
       [
         'chapter-1',
@@ -139,7 +159,9 @@ describe('GalleryPanel', () => {
 
     render(<GalleryPanel />);
 
-    expect(screen.getByText('Cover: None')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Cover: None')).toBeInTheDocument();
+    });
   });
 
   it('can collapse and expand chapter sections', async () => {
@@ -168,6 +190,11 @@ describe('GalleryPanel', () => {
 
     render(<GalleryPanel />);
 
+    // Wait for loading to complete
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Test Chapter/i })).toBeInTheDocument();
+    });
+
     // Find the collapse button and click it
     const collapseButton = screen.getByRole('button', { name: /Test Chapter/i });
 
@@ -180,7 +207,7 @@ describe('GalleryPanel', () => {
     expect(collapseButton.textContent).toContain('▶');
   });
 
-  it('filters out chapters without images', () => {
+  it('filters out chapters without images', async () => {
     const mockChapters = new Map([
       [
         'chapter-1',
@@ -222,7 +249,9 @@ describe('GalleryPanel', () => {
 
     render(<GalleryPanel />);
 
-    expect(screen.getByText('Chapter with images')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Chapter with images')).toBeInTheDocument();
+    });
     expect(screen.queryByText('Chapter without images')).not.toBeInTheDocument();
     expect(screen.queryByText('Chapter with no translation')).not.toBeInTheDocument();
   });

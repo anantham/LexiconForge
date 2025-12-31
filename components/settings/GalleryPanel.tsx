@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { useAppStore } from '../../store';
 import { useBlobUrl } from '../../hooks/useBlobUrl';
 import { useNovelMetadata } from '../../hooks/useNovelMetadata';
 import type { SuggestedIllustration, ImageCacheKey } from '../../types';
+import type { TranslationRecord } from '../../services/db/types';
 import ImageLightbox from './ImageLightbox';
 
 export interface GalleryImage {
@@ -20,12 +21,56 @@ export const GalleryPanel: React.FC = () => {
   const { novelMetadata, setCoverImage } = useNovelMetadata(chapters);
 
   const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
+  const [idbTranslations, setIdbTranslations] = useState<TranslationRecord[]>([]);
+  const [isLoadingFromIdb, setIsLoadingFromIdb] = useState(true);
 
-  // Collect all images from all chapters
+  // Load all translations from IndexedDB on mount
+  useEffect(() => {
+    let cancelled = false;
+    const loadFromIdb = async () => {
+      try {
+        const { TranslationOps } = await import('../../services/db/operations/translations');
+        const { ChapterOps } = await import('../../services/db/operations/chapters');
+
+        const [allTranslations, allChapters] = await Promise.all([
+          TranslationOps.getAll(),
+          ChapterOps.getAll(),
+        ]);
+
+        if (cancelled) return;
+
+        // Only keep active translations (one per chapter)
+        const activeByStableId = new Map<string, TranslationRecord>();
+        for (const t of allTranslations) {
+          if (t.isActive && t.stableId) {
+            activeByStableId.set(t.stableId, t);
+          }
+        }
+
+        // For translations without stableId, use chapterUrl as key
+        for (const t of allTranslations) {
+          if (t.isActive && !t.stableId) {
+            activeByStableId.set(t.chapterUrl, t);
+          }
+        }
+
+        setIdbTranslations(Array.from(activeByStableId.values()));
+      } catch (err) {
+        console.error('[GalleryPanel] Failed to load translations from IndexedDB:', err);
+      } finally {
+        if (!cancelled) setIsLoadingFromIdb(false);
+      }
+    };
+
+    loadFromIdb();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Collect all images from both in-memory chapters and IndexedDB translations
   const imagesByChapter = useMemo(() => {
     const result: Record<string, GalleryImage[]> = {};
 
-    // chapters is a Map<string, EnhancedChapter>
+    // First, add from in-memory chapters (these are the most up-to-date)
     chapters.forEach((chapter, chapterId) => {
       const illustrations = chapter.translationResult?.suggestedIllustrations || [];
       const chapterTitle = chapter.translationResult?.translatedTitle || chapter.title || chapterId;
@@ -62,8 +107,47 @@ export const GalleryPanel: React.FC = () => {
       }
     });
 
+    // Then, add from IndexedDB translations (for chapters not in memory)
+    for (const translation of idbTranslations) {
+      const chapterId = translation.stableId || translation.chapterUrl;
+
+      // Skip if already have images from in-memory chapters
+      if (result[chapterId]) continue;
+
+      const illustrations = translation.suggestedIllustrations || [];
+      const chapterTitle = translation.translatedTitle || chapterId;
+
+      const images = illustrations
+        .filter((ill) => {
+          return (
+            ill.imageCacheKey ||
+            (ill.generatedImage as any)?.imageCacheKey ||
+            (ill.generatedImage as any)?.imageData ||
+            ill.url
+          );
+        })
+        .map((ill): GalleryImage => {
+          const genImg = ill.generatedImage as any;
+          const cacheKey = ill.imageCacheKey || genImg?.imageCacheKey || null;
+          const legacyData = genImg?.imageData || ill.url || undefined;
+
+          return {
+            chapterId,
+            chapterTitle,
+            marker: ill.placementMarker,
+            prompt: ill.imagePrompt,
+            imageCacheKey: cacheKey,
+            legacyImageData: legacyData,
+          };
+        });
+
+      if (images.length > 0) {
+        result[chapterId] = images;
+      }
+    }
+
     return result;
-  }, [chapters]);
+  }, [chapters, idbTranslations]);
 
   const allImages = useMemo(() => {
     return Object.values(imagesByChapter).flat();
@@ -98,6 +182,18 @@ export const GalleryPanel: React.FC = () => {
     },
     [novelMetadata?.coverImage]
   );
+
+  if (isLoadingFromIdb) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-4xl mb-4 animate-pulse">🖼️</div>
+        <p className="text-lg text-gray-600 dark:text-gray-300">Loading gallery...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          Retrieving images from storage
+        </p>
+      </div>
+    );
+  }
 
   if (Object.keys(imagesByChapter).length === 0) {
     return (
