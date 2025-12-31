@@ -121,6 +121,23 @@ const requestedRef = React.useRef(new Map<string, string>());
 // Memory optimization: Track previous chapter for cleanup
 const previousChapterIdRef = React.useRef<string | null>(null);
 
+// Warn user before page refresh/close if translation or image generation is in progress
+const hasImagesInProgress = useAppStore((s) => s.hasImagesInProgress);
+useEffect(() => {
+  const isWorking = isTranslationActive(currentChapterId ?? '') || hasImagesInProgress();
+  if (!isWorking) return;
+
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+    // Modern browsers ignore custom messages, but returnValue is required
+    e.returnValue = 'Translation or image generation in progress. Changes may be lost.';
+    return e.returnValue;
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+}, [currentChapterId, isTranslationActive, hasImagesInProgress]);
+
 const settingsFingerprint = React.useMemo(
   () =>
     JSON.stringify({
