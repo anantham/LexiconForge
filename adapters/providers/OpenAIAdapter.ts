@@ -389,16 +389,30 @@ ${schemaString}`;
   /**
    * Extract first balanced JSON block from text
    * Handles cases where response has preamble or postamble text
+   * Properly skips braces inside strings and handles escaped characters
    */
   private extractBalancedJson(text: string): string | null {
     const scan = (open: string, close: string): string | null => {
       let depth = 0;
+      let inString = false;
       const start = text.indexOf(open);
       if (start === -1) return null;
 
       for (let i = start; i < text.length; i++) {
-        if (text[i] === open) depth++;
-        if (text[i] === close) depth--;
+        const char = text[i];
+        const prevChar = i > 0 ? text[i - 1] : '';
+
+        // Handle string boundaries (but not escaped quotes)
+        if (char === '"' && prevChar !== '\\') {
+          inString = !inString;
+          continue;
+        }
+
+        // Skip characters inside strings
+        if (inString) continue;
+
+        if (char === open) depth++;
+        if (char === close) depth--;
         if (depth === 0) {
           return text.substring(start, i + 1);
         }
@@ -512,7 +526,7 @@ ${schemaString}`;
 
     // ALWAYS log if translation is suspiciously short (< 100 chars) but we were charged
     if (result.translation.length < 100 && costUsd > 0.01) {
-      console.warn('[OpenAI] ⚠️ SUSPICIOUS: Short translation but high cost!', {
+      console.error('[OpenAI] ⚠️ SUSPICIOUS: Short translation but high cost!', {
         translationLength: result.translation.length,
         translationPreview: result.translation.substring(0, 50),
         cost: costUsd,
@@ -520,7 +534,19 @@ ${schemaString}`;
         promptTokens,
         completionTokens,
         rawResponsePreview: responseText.substring(0, 500),
+        parsedResponseKeys: Object.keys(parsedResponse),
+        parsedTranslationType: typeof parsedResponse.translation,
+        fullParsedResponse: JSON.stringify(parsedResponse).substring(0, 1000),
       });
+
+      // If translation is critically short (< 20 chars), throw error to prevent storing garbage
+      if (result.translation.length < 20) {
+        throw new Error(
+          `Translation response appears corrupted or truncated. ` +
+          `Got only ${result.translation.length} chars: "${result.translation}". ` +
+          `Raw response preview: ${responseText.substring(0, 200)}...`
+        );
+      }
     }
 
     return result;

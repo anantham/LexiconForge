@@ -68,10 +68,13 @@ const baseSettings: AppSettings = createMockAppSettings({
   apiKeyDeepSeek: '',
 });
 
+// Use realistic translation length to avoid triggering corruption detection
+const realisticTranslation = 'This is a properly translated chapter with enough content to pass validation checks. The story continues with the protagonist facing new challenges.';
+
 const successResponse = {
   choices: [{
     finish_reason: 'stop',
-    message: { content: JSON.stringify({ translatedTitle: 'T', translation: 'Body' }) },
+    message: { content: JSON.stringify({ translatedTitle: 'Chapter Title', translation: realisticTranslation }) },
   }],
   usage: { prompt_tokens: 12, completion_tokens: 5 },
 };
@@ -86,8 +89,8 @@ describe('OpenAIAdapter processResponse', () => {
     const adapter = new OpenAIAdapter() as any;
     const result = await adapter.processResponse(successResponse, baseSettings, 0, 1000, 'chapter-1');
 
-    expect(result.translation).toBe('Body');
-    expect(result.translatedTitle).toBe('T');
+    expect(result.translation).toBe(realisticTranslation);
+    expect(result.translatedTitle).toBe('Chapter Title');
     expect(result.usageMetrics.totalTokens).toBe(17);
     expect(calculateCostMock).toHaveBeenCalledWith('gpt-4o', 12, 5);
     expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: true, chapterId: 'chapter-1' }));
@@ -234,11 +237,12 @@ describe('OpenAIAdapter adversarial scenarios', () => {
   });
 
   it('handles response with missing required fields', async () => {
-    // JSON is valid but missing translatedTitle
+    // JSON is valid but missing translatedTitle - use realistic content length
+    const contentOnly = 'This translation has enough content to pass validation but is missing the translatedTitle field which should be handled gracefully.';
     openAiMocks.create.mockResolvedValueOnce({
       choices: [{
         finish_reason: 'stop',
-        message: { content: '{"translation": "content only"}' },
+        message: { content: JSON.stringify({ translation: contentOnly }) },
       }],
       usage: { prompt_tokens: 10, completion_tokens: 5 },
     });
@@ -247,6 +251,6 @@ describe('OpenAIAdapter adversarial scenarios', () => {
     const result = await adapter.translate(makeRequest());
 
     // Should not crash - missing fields should be handled gracefully
-    expect(result.translation).toBe('content only');
+    expect(result.translation).toBe(contentOnly);
   });
 });
