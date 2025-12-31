@@ -12,8 +12,48 @@ import type { StableSessionData } from '../../stableIdService';
 import type { DiffResult } from '../../diff/types';
 import { prepareForStorage as prepareDiffResultForStorage, type StoredDiffResult } from './diffResults';
 import { getConnection } from '../core/connection';
-import { STORE_NAMES } from '../core/schema';
+import { STORE_NAMES, SCHEMA_VERSIONS } from '../core/schema';
 import { ImageCacheStore } from '../../imageCacheService';
+
+/**
+ * Validates that all required stores exist in the database.
+ * Throws a clear, actionable error if any are missing.
+ */
+function assertRequiredStores(db: IDBDatabase): void {
+  const requiredStores = [
+    STORE_NAMES.SETTINGS,
+    STORE_NAMES.CHAPTERS,
+    STORE_NAMES.TRANSLATIONS,
+    STORE_NAMES.FEEDBACK,
+    STORE_NAMES.PROMPT_TEMPLATES,
+    STORE_NAMES.URL_MAPPINGS,
+    STORE_NAMES.NOVELS,
+    STORE_NAMES.CHAPTER_SUMMARIES,
+    STORE_NAMES.AMENDMENT_LOGS,
+    STORE_NAMES.DIFF_RESULTS,
+  ];
+
+  const existingStores = Array.from(db.objectStoreNames);
+  const missingStores = requiredStores.filter(s => !existingStores.includes(s));
+
+  if (missingStores.length > 0) {
+    const error = new Error(
+      `[Import] Database schema incomplete. Missing stores: [${missingStores.join(', ')}]. ` +
+      `DB version: ${db.version}, expected: ${SCHEMA_VERSIONS.CURRENT}. ` +
+      `This indicates a migration failure. Try clearing IndexedDB and reimporting.`
+    );
+    error.name = 'SchemaValidationError';
+    console.error('[Import] Schema validation failed:', {
+      missing: missingStores,
+      existing: existingStores,
+      dbVersion: db.version,
+      expectedVersion: SCHEMA_VERSIONS.CURRENT,
+    });
+    throw error;
+  }
+
+  console.log('[Import] Schema validated. All stores present:', existingStores);
+}
 
 export type ImportProgressStage = 'settings' | 'chapters' | 'complete';
 export type ImportProgressHandler = (
@@ -42,7 +82,10 @@ type StableImportPayload = Pick<StableSessionData, 'chapters' | 'urlIndex' | 'ra
 export class ImportOps {
   static async importFullSessionData(payload: any, onProgress?: ImportProgressHandler): Promise<void> {
     const db = await getConnection();
-    const hasDiffResultsStore = db.objectStoreNames.contains(STORE_NAMES.DIFF_RESULTS);
+
+    // Fail fast if schema is incomplete - don't silently skip missing stores
+    assertRequiredStores(db);
+
     const {
       settings,
       urlMappings,
@@ -65,15 +108,15 @@ export class ImportOps {
         STORE_NAMES.PROMPT_TEMPLATES,
         STORE_NAMES.AMENDMENT_LOGS,
       ];
+
       const tx = db.transaction(storeNames, 'readwrite');
       tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      tx.onerror = () => {
+        console.error('[Import] Transaction error:', tx.error);
+        reject(tx.error);
+      };
 
       const settingsStore = tx.objectStore(STORE_NAMES.SETTINGS);
-      const urlStore = tx.objectStore(STORE_NAMES.URL_MAPPINGS);
-      const novelsStore = tx.objectStore(STORE_NAMES.NOVELS);
-      const promptStore = tx.objectStore(STORE_NAMES.PROMPT_TEMPLATES);
-      const amendmentStore = tx.objectStore(STORE_NAMES.AMENDMENT_LOGS);
 
       if (settings) {
         putSettingsRecord(settingsStore, 'app-settings', settings);
@@ -89,6 +132,7 @@ export class ImportOps {
       }
 
       if (Array.isArray(urlMappings)) {
+        const urlStore = tx.objectStore(STORE_NAMES.URL_MAPPINGS);
         for (const mapping of urlMappings as UrlMappingRecord[]) {
           urlStore.put({
             url: mapping.url,
@@ -100,6 +144,7 @@ export class ImportOps {
       }
 
       if (Array.isArray(novels)) {
+        const novelsStore = tx.objectStore(STORE_NAMES.NOVELS);
         for (const novel of novels as NovelRecord[]) {
           novelsStore.put({
             id: novel.id,
@@ -113,6 +158,7 @@ export class ImportOps {
       }
 
       if (Array.isArray(promptTemplates)) {
+        const promptStore = tx.objectStore(STORE_NAMES.PROMPT_TEMPLATES);
         for (const template of promptTemplates as PromptTemplateRecord[]) {
           promptStore.put({
             id: template.id,
@@ -127,6 +173,7 @@ export class ImportOps {
       }
 
       if (Array.isArray(amendmentLogs)) {
+        const amendmentStore = tx.objectStore(STORE_NAMES.AMENDMENT_LOGS);
         for (const log of amendmentLogs as AmendmentLogRecord[]) {
           amendmentStore.put(log);
         }
@@ -219,7 +266,7 @@ export class ImportOps {
       }
     }
 
-    if (hasDiffResultsStore && Array.isArray(diffResults)) {
+    if (Array.isArray(diffResults)) {
       await new Promise<void>((resolve, reject) => {
         const tx = db.transaction([STORE_NAMES.DIFF_RESULTS], 'readwrite');
         tx.oncomplete = () => resolve();
@@ -243,10 +290,19 @@ export class ImportOps {
 
   static async importStableSessionData(stableData: StableImportPayload): Promise<void> {
     const db = await getConnection();
+
+    // Fail fast if schema is incomplete
+    assertRequiredStores(db);
+
+    const storeNames = [STORE_NAMES.CHAPTERS, STORE_NAMES.URL_MAPPINGS];
+
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction([STORE_NAMES.CHAPTERS, STORE_NAMES.URL_MAPPINGS], 'readwrite');
+      const tx = db.transaction(storeNames, 'readwrite');
       tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      tx.onerror = () => {
+        console.error('[Import:Stable] Transaction error:', tx.error);
+        reject(tx.error);
+      };
 
       const chaptersStore = tx.objectStore(STORE_NAMES.CHAPTERS);
       const mappingsStore = tx.objectStore(STORE_NAMES.URL_MAPPINGS);

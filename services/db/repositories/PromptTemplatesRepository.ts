@@ -83,6 +83,20 @@ export class PromptTemplatesRepository implements IPromptTemplatesRepository {
   async getDefaultTemplate(): Promise<PromptTemplateRecord | null> {
     return this.withStore('readonly', store => {
       return new Promise<PromptTemplateRecord | null>((resolve, reject) => {
+        // Check if isDefault index exists - fallback to getAll() scan if not
+        // This handles databases created before the index was added
+        if (!store.indexNames.contains('isDefault')) {
+          console.warn('[PromptTemplates] isDefault index missing, using fallback scan');
+          const req = store.getAll();
+          req.onsuccess = () => {
+            const records = (req.result as StoredPromptTemplateRecord[]) ?? [];
+            const defaultRecord = records.find(r => r.isDefault === 1);
+            resolve(defaultRecord ? normalizeRecord(defaultRecord) : null);
+          };
+          req.onerror = () => reject(req.error);
+          return;
+        }
+
         const index = store.index('isDefault');
         const req = index.get(IDBKeyRange.only(1));
         req.onsuccess = () => {

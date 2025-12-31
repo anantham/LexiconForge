@@ -331,7 +331,7 @@ describe('Fresh Install: v0 → v12 Migration', () => {
 
     it('should have the correct database version', () => {
       expect(db.version).toBe(DB_VERSION);
-      expect(db.version).toBe(12);
+      expect(db.version).toBe(13); // SCHEMA_REPAIR version
     });
 
     it('should not throw errors when accessing all stores', () => {

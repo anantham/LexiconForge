@@ -21,7 +21,8 @@ export const SCHEMA_VERSIONS = {
   CHAPTER_NUMBER_INDEX: 10,
   AMENDMENT_LOGS: 11,
   DIFF_RESULTS: 12,
-  CURRENT: 12,
+  SCHEMA_REPAIR: 13,
+  CURRENT: 13,
 } as const;
 
 // Object store definitions
@@ -74,6 +75,7 @@ export const MIGRATIONS: Record<number, MigrationFunction> = {
   10: migrateToV10,
   11: migrateToV11,
   12: migrateToV12,
+  13: migrateToV13,
 };
 
 function ensureStore(
@@ -274,6 +276,90 @@ function migrateToV12(db: IDBDatabase, transaction: IDBTransaction): void {
   });
   ensureIndex(diffResultsStore, 'by_chapter', 'chapterId');
   ensureIndex(diffResultsStore, 'by_analyzed_at', 'analyzedAt');
+}
+
+/**
+ * Migration to version 13: Schema repair - ensures ALL stores and indexes exist
+ * This is a comprehensive repair migration that re-runs all store/index creation.
+ * It handles databases that somehow ended up with missing stores or indexes.
+ */
+function migrateToV13(db: IDBDatabase, transaction: IDBTransaction): void {
+  console.log('[Migration v13] Running schema repair...');
+
+  // Log existing stores for debugging
+  const existingStores = Array.from(db.objectStoreNames);
+  console.log('[Migration v13] Existing stores:', existingStores);
+
+  // Chapters store and indexes
+  const chaptersStore = ensureStore(db, transaction, STORE_NAMES.CHAPTERS, { keyPath: 'url' });
+  ensureIndex(chaptersStore, 'stableId', 'stableId');
+  ensureIndex(chaptersStore, 'title', 'title');
+  ensureIndex(chaptersStore, 'canonicalUrl', 'canonicalUrl');
+  ensureIndex(chaptersStore, 'chapterNumber', 'chapterNumber');
+  ensureIndex(chaptersStore, 'dateAdded', 'dateAdded');
+  ensureIndex(chaptersStore, 'lastAccessed', 'lastAccessed');
+
+  // Translations store and indexes
+  const translationsStore = ensureStore(db, transaction, STORE_NAMES.TRANSLATIONS, { keyPath: 'id' });
+  ensureIndex(translationsStore, 'chapterUrl', 'chapterUrl');
+  ensureIndex(translationsStore, 'stableId', 'stableId');
+  ensureIndex(translationsStore, 'version', ['chapterUrl', 'version'], { unique: true });
+  ensureIndex(translationsStore, 'chapterUrl_version', ['chapterUrl', 'version'], { unique: true });
+  ensureIndex(translationsStore, 'stableId_version', ['stableId', 'version'], { unique: true });
+  ensureIndex(translationsStore, 'isActive', 'isActive');
+  ensureIndex(translationsStore, 'createdAt', 'createdAt');
+
+  // Settings store
+  ensureStore(db, transaction, STORE_NAMES.SETTINGS, { keyPath: 'key' });
+
+  // Feedback store and indexes
+  const feedbackStore = ensureStore(db, transaction, STORE_NAMES.FEEDBACK, { keyPath: 'id' });
+  ensureIndex(feedbackStore, 'chapterUrl', 'chapterUrl');
+  ensureIndex(feedbackStore, 'translationId', 'translationId');
+  ensureIndex(feedbackStore, 'createdAt', 'createdAt');
+
+  // Prompt templates store and indexes
+  const promptStore = ensureStore(db, transaction, STORE_NAMES.PROMPT_TEMPLATES, { keyPath: 'id' });
+  ensureIndex(promptStore, 'name', 'name', { unique: true });
+  ensureIndex(promptStore, 'isDefault', 'isDefault');
+  ensureIndex(promptStore, 'createdAt', 'createdAt');
+  ensureIndex(promptStore, 'lastUsed', 'lastUsed');
+
+  // URL mappings store and indexes
+  const urlStore = ensureStore(db, transaction, STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+  ensureIndex(urlStore, 'stableId', 'stableId');
+  ensureIndex(urlStore, 'isCanonical', 'isCanonical');
+  ensureIndex(urlStore, 'dateAdded', 'dateAdded');
+
+  // Novels store and indexes
+  const novelStore = ensureStore(db, transaction, STORE_NAMES.NOVELS, { keyPath: 'id' });
+  ensureIndex(novelStore, 'source', 'source');
+  ensureIndex(novelStore, 'title', 'title');
+  ensureIndex(novelStore, 'dateAdded', 'dateAdded');
+  ensureIndex(novelStore, 'lastAccessed', 'lastAccessed');
+
+  // Chapter summaries store and indexes
+  const summaryStore = ensureStore(db, transaction, STORE_NAMES.CHAPTER_SUMMARIES, { keyPath: 'stableId' });
+  ensureIndex(summaryStore, 'chapterNumber', 'chapterNumber');
+  ensureIndex(summaryStore, 'lastAccessed', 'lastAccessed');
+  ensureIndex(summaryStore, 'hasTranslation', 'hasTranslation');
+
+  // Amendment logs store and indexes
+  const amendmentStore = ensureStore(db, transaction, STORE_NAMES.AMENDMENT_LOGS, { keyPath: 'id' });
+  ensureIndex(amendmentStore, 'timestamp', 'timestamp');
+  ensureIndex(amendmentStore, 'chapterId', 'chapterId');
+  ensureIndex(amendmentStore, 'action', 'action');
+
+  // Diff results store and indexes
+  const diffStore = ensureStore(db, transaction, STORE_NAMES.DIFF_RESULTS, {
+    keyPath: ['chapterId', 'aiVersionId', 'fanVersionId', 'rawVersionId', 'algoVersion'],
+  });
+  ensureIndex(diffStore, 'by_chapter', 'chapterId');
+  ensureIndex(diffStore, 'by_analyzed_at', 'analyzedAt');
+
+  // Log final state
+  const finalStores = Array.from(db.objectStoreNames);
+  console.log('[Migration v13] Schema repair complete. Stores:', finalStores);
 }
 
 /**
