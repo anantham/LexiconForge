@@ -345,6 +345,126 @@ class ApiMetricsService {
   }
 
   /**
+   * Get median image generation time across ALL models from historical data.
+   * Used as fallback when no model-specific data is available.
+   * @returns Median generation time in seconds, or 20 if no historical data
+   */
+  async getMedianImageGenerationTime(): Promise<number> {
+    try {
+      const db = await this.openDatabase();
+      const tx = db.transaction([this.storeName], 'readonly');
+      const store = tx.objectStore(this.storeName);
+      const request = store.getAll();
+
+      const allMetrics = await new Promise<ApiCallMetric[]>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      // Filter to successful image generation calls with duration data
+      const imageMetrics = allMetrics.filter(m =>
+        m.apiType === 'image' &&
+        m.success &&
+        typeof m.duration === 'number' &&
+        m.duration > 0
+      );
+
+      if (imageMetrics.length === 0) {
+        console.log('[ApiMetrics] No historical image time data available, using default 20s');
+        return 20;
+      }
+
+      // Calculate median
+      const times = imageMetrics.map(m => m.duration!).sort((a, b) => a - b);
+      const mid = Math.floor(times.length / 2);
+      const median = times.length % 2 !== 0
+        ? times[mid]
+        : (times[mid - 1] + times[mid]) / 2;
+
+      console.log(`[ApiMetrics] Median image generation time across ${times.length} samples: ${median.toFixed(1)}s`);
+      return median;
+    } catch (error) {
+      console.error('[ApiMetrics] Failed to get median image generation time:', error);
+      return 20;
+    }
+  }
+
+  /**
+   * Get average image generation time for a specific model from historical data.
+   * Useful for showing estimated time remaining to users.
+   * @param modelId The model ID (e.g., "openrouter/black-forest-labs/flux-schnell")
+   * @returns Average generation time in seconds, or null if no historical data
+   */
+  async getAverageImageGenerationTime(modelId: string): Promise<{
+    avgTimeSeconds: number;
+    sampleCount: number;
+    minTimeSeconds: number;
+    maxTimeSeconds: number;
+  } | null> {
+    try {
+      const db = await this.openDatabase();
+      const tx = db.transaction([this.storeName], 'readonly');
+      const store = tx.objectStore(this.storeName);
+      const request = store.getAll();
+
+      const allMetrics = await new Promise<ApiCallMetric[]>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      // Filter to successful image generation calls for this model
+      // Note: We need to look at the costUsd/tokens to estimate time since duration isn't always set
+      const imageMetrics = allMetrics.filter(m =>
+        m.apiType === 'image' &&
+        m.model === modelId &&
+        m.success
+      );
+
+      if (imageMetrics.length === 0) {
+        console.log(`[ApiMetrics] No historical time data for image model: ${modelId}`);
+        return null;
+      }
+
+      // Calculate based on the timestamps of consecutive calls as a proxy for generation time
+      // Or use any duration field if available
+      let totalTime = 0;
+      let validSamples = 0;
+      let minTime = Infinity;
+      let maxTime = 0;
+
+      // For now, estimate ~15-30 seconds per image as a default if we don't have duration
+      // This will be refined as we collect more data
+      const defaultTimePerImage = 20; // seconds
+
+      for (const m of imageMetrics) {
+        // If duration is set (for audio/some image calls), use it
+        const timeEstimate = m.duration ?? defaultTimePerImage;
+        totalTime += timeEstimate;
+        validSamples++;
+        minTime = Math.min(minTime, timeEstimate);
+        maxTime = Math.max(maxTime, timeEstimate);
+      }
+
+      if (validSamples === 0) {
+        return null;
+      }
+
+      const result = {
+        avgTimeSeconds: totalTime / validSamples,
+        sampleCount: validSamples,
+        minTimeSeconds: minTime === Infinity ? defaultTimePerImage : minTime,
+        maxTimeSeconds: maxTime === 0 ? defaultTimePerImage : maxTime,
+      };
+
+      console.log(`[ApiMetrics] Time averages for ${modelId}:`, result);
+      return result;
+    } catch (error) {
+      console.error('[ApiMetrics] Failed to get average image generation time:', error);
+      return null;
+    }
+  }
+
+  /**
    * Get all image generation models that have historical token data.
    * Useful for building estimated pricing for OpenRouter models.
    */

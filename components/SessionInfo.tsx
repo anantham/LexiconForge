@@ -462,6 +462,47 @@ const SessionInfo: React.FC = () => {
                 }
                 await exportSessionData(exportOptions);
             } else {
+                // EPUB export - check for metadata and cover image
+                let novelMeta: { title?: string; author?: string; coverImage?: any } = {};
+                try {
+                    const stored = localStorage.getItem('novelMetadata');
+                    if (stored) novelMeta = JSON.parse(stored);
+                } catch {}
+
+                const missingFields: string[] = [];
+                if (!novelMeta.title?.trim()) missingFields.push('Title');
+                if (!novelMeta.author?.trim()) missingFields.push('Author');
+
+                // Warn about missing metadata
+                if (missingFields.length > 0) {
+                    const proceed = confirm(
+                        `The following metadata fields are empty:\n• ${missingFields.join('\n• ')}\n\n` +
+                        `Your EPUB will have generic metadata. Would you like to continue anyway?\n\n` +
+                        `(Click Cancel to go to Settings → Novel Info to fill in the details)`
+                    );
+                    if (!proceed) {
+                        setIsExporting(false);
+                        setShowExportModal(false);
+                        setShowSettingsModal(true);
+                        return;
+                    }
+                }
+
+                // Warn about missing cover image
+                if (!novelMeta.coverImage?.cacheKey) {
+                    const proceed = confirm(
+                        `No cover image selected for your EPUB.\n\n` +
+                        `Would you like to continue without a cover?\n\n` +
+                        `(Click Cancel to go to Settings → Novel Info to select a cover from your gallery)`
+                    );
+                    if (!proceed) {
+                        setIsExporting(false);
+                        setShowExportModal(false);
+                        setShowSettingsModal(true);
+                        return;
+                    }
+                }
+
                 await exportEpub();
             }
             setShowExportModal(false);
@@ -605,7 +646,9 @@ const SessionInfo: React.FC = () => {
                 className="px-2 py-1 text-xs text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded max-w-[22rem]"
               >
                 {versions.sort((a: any,b: any)=>a.version-b.version).map((v: any) => {
-                  const abbr = MODEL_ABBREVIATIONS[v.model] || v.model;
+                  // Handle undefined/unknown model gracefully
+                  const modelName = v.model && v.model !== 'unknown' ? v.model : null;
+                  const abbr = modelName ? (MODEL_ABBREVIATIONS[modelName] || modelName) : 'Unknown';
                   const ts = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, { month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
                   const baseLabel = ts ? `v${v.version} — ${abbr} • ${ts}` : `v${v.version} — ${abbr}`;
                   const label = v.customVersionLabel ? `${baseLabel} • ${v.customVersionLabel}` : baseLabel;
@@ -632,7 +675,9 @@ const SessionInfo: React.FC = () => {
               {(() => {
                 const current = versions.find(v => v.version === selectedVersion);
                 if (!current) return 'Select version';
-                const abbr = MODEL_ABBREVIATIONS[current.model] || current.model;
+                // Handle undefined/unknown model gracefully
+                const modelName = current.model && current.model !== 'unknown' ? current.model : null;
+                const abbr = modelName ? (MODEL_ABBREVIATIONS[modelName] || modelName) : 'Unknown';
                 const base = `v${current.version} — ${abbr}`;
                 return current.customVersionLabel ? `${base} • ${current.customVersionLabel}` : base;
               })()}
@@ -769,15 +814,17 @@ const SessionInfo: React.FC = () => {
                 <div className="flex-1 overflow-y-auto p-4">
                   <ul className="space-y-1">
                     {versions.sort((a: any, b: any) => a.version - b.version).map((v: any) => {
-                      const abbr = MODEL_ABBREVIATIONS[v.model] || v.model;
-                      const tsLong = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, { 
+                      // Handle undefined/unknown model gracefully
+                      const modelName = v.model && v.model !== 'unknown' ? v.model : null;
+                      const abbr = modelName ? (MODEL_ABBREVIATIONS[modelName] || modelName) : 'Unknown';
+                      const tsLong = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, {
                         weekday: 'short',
-                        month: 'short', 
-                        day: '2-digit', 
-                        year: 'numeric', 
-                        hour: 'numeric', 
-                        minute: '2-digit', 
-                        hour12: true 
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
                       }) : '';
                       
                       return (

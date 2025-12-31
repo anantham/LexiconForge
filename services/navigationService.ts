@@ -48,6 +48,30 @@ const adaptTranslationRecordToResult = (
 ): HydratedTranslationResult | null => {
   if (!record) return null;
 
+  // Trace missing metadata for diagnostics
+  const hasValidProvider = record.provider && record.provider !== 'unknown';
+  const hasValidModel = record.model && record.model !== 'unknown';
+
+  if ((!hasValidProvider || !hasValidModel) && typeof window !== 'undefined') {
+    console.warn('[Navigation] Translation has missing/unknown metadata:', {
+      chapterId,
+      translationId: record.id,
+      version: record.version,
+      provider: record.provider || '(missing)',
+      model: record.model || '(missing)',
+      hasSettingsSnapshot: !!record.settingsSnapshot,
+      snapshotProvider: record.settingsSnapshot?.provider || '(missing)',
+      snapshotModel: record.settingsSnapshot?.model || '(missing)',
+      createdAt: record.createdAt,
+      // Check if metrics might be in usageMetrics field (legacy format)
+      legacyCheck: {
+        totalTokens: record.totalTokens,
+        requestTime: record.requestTime,
+        estimatedCost: record.estimatedCost,
+      },
+    });
+  }
+
   const usageMetrics = {
     totalTokens: record.totalTokens || 0,
     promptTokens: record.promptTokens || 0,
