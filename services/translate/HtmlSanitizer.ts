@@ -41,8 +41,17 @@ export function toStrictXhtml(input: string): string {
   let s = input || '';
 
   // Normalize self-closing tags for XHTML compliance
+  // Void elements in XHTML must be self-closing: br, hr, img, input, meta, link, etc.
   s = s.replace(/<\s*br\b[^>]*>/gi, '<br />');
   s = s.replace(/<\s*hr\b[^>]*>/gi, '<hr />');
+
+  // Fix <img> tags - ensure they are self-closing for XHTML
+  // Match <img ...> that doesn't already end with />
+  s = s.replace(/<img\b([^>]*[^/])>/gi, '<img$1 />');
+  // Also handle <img> with no attributes
+  s = s.replace(/<img>/gi, '<img />');
+  // Fix malformed <img.../> (no space before /)
+  s = s.replace(/<img\b([^>]*)([^/\s])\/>/gi, '<img$1$2 />');
 
   // EPUB-compatible allowlist: all semantic and structural tags
   const epubTags = 'h[1-6]|div|p|span|a|img|ol|ul|li|blockquote|pre|code|table|tr|td|th|thead|tbody|figure|figcaption|section|article|nav|aside|header|footer|main|sup|sub';

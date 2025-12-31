@@ -289,6 +289,18 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
               parsedJson.footnotes
             );
 
+            // Debug: Log what we're about to return
+            console.log('[Claude Debug] Final result check:', {
+                translatedTitleLength: parsedJson.translatedTitle?.length || 0,
+                translatedTitlePreview: parsedJson.translatedTitle?.substring(0, 50),
+                rawTranslationLength: parsedJson.translation?.length || 0,
+                rawTranslationPreview: parsedJson.translation?.substring(0, 100),
+                fixedTranslationLength: fixedTranslation?.length || 0,
+                fixedTranslationPreview: fixedTranslation?.substring(0, 100),
+                footnotesCount: fixedFootnotes?.length || 0,
+                illustrationsCount: fixedIllustrations?.length || 0,
+            });
+
             return {
                 translatedTitle: parsedJson.translatedTitle,
                 translation: fixedTranslation,

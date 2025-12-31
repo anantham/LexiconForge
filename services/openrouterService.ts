@@ -72,18 +72,22 @@ const toCachePayload = (
 export const openrouterService = {
   // Network fetchers
   async fetchModels(apiKey?: string): Promise<OpenRouterModelsCache> {
+    console.log('[OpenRouter] fetchModels called, apiKey present:', !!apiKey);
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
     const res = await fetch('https://openrouter.ai/api/v1/models', { headers });
+    console.log('[OpenRouter] fetchModels response status:', res.status);
     if (!res.ok) throw new Error(`OpenRouter models fetch failed: ${res.status}`);
     const json = await res.json();
     const data = (json?.data || []) as any[];
+    console.log('[OpenRouter] fetchModels raw data count:', data.length);
     const mapped: OpenRouterModelRec[] = data.map((m: any) => ({
       id: m.id || m.slug || m.name,
       name: m.name || m.id,
       architecture: m.architecture || {},
       pricing: m.pricing || null,
     }));
+    console.log('[OpenRouter] fetchModels mapped count:', mapped.length);
     const cache = { data: mapped, fetchedAt: nowIso() };
     await SettingsOps.set(MODELS_KEY, cache);
     return cache;
