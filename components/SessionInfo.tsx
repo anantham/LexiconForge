@@ -517,6 +517,83 @@ const SessionInfo: React.FC = () => {
     // Publish to Library handlers
     const handlePublishClick = async () => {
         try {
+            // Check browser support for File System Access API
+            if (!('showDirectoryPicker' in window)) {
+                const useManualExport = confirm(
+                    'Direct folder access requires Chrome or Edge.\n\n' +
+                    'Would you like to download the files separately instead?\n\n' +
+                    'You can manually place them in your library folder:\n' +
+                    '• metadata.json - Novel info and version details\n' +
+                    '• session.json - Full translation data'
+                );
+
+                if (useManualExport) {
+                    // Generate and download files manually
+                    const sessionData = await ExportService.generateQuickExport();
+                    const stats = await ExportService.calculateSessionStats();
+
+                    // Get novel metadata from localStorage
+                    let storedMeta: any = {};
+                    try {
+                        const stored = localStorage.getItem('novelMetadata');
+                        if (stored) storedMeta = JSON.parse(stored);
+                    } catch {}
+
+                    const novelId = storedMeta.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'novel';
+
+                    // Create a basic metadata structure
+                    const metadata = {
+                        id: novelId,
+                        metadata: {
+                            title: storedMeta.title || 'Untitled',
+                            author: storedMeta.author || 'Unknown',
+                            originalLanguage: storedMeta.originalLanguage || 'ko',
+                            genres: storedMeta.genres || [],
+                            description: storedMeta.description || '',
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        },
+                        versions: [{
+                            versionId: 'v1',
+                            versionName: 'Primary Translation',
+                            translator: { name: 'LexiconForge' },
+                            lastUpdated: new Date().toISOString().split('T')[0],
+                            chapterRange: stats.chapterRange,
+                            completionStatus: 'In Progress' as const,
+                            style: 'faithful' as const,
+                            stats: {
+                                content: {
+                                    totalImages: stats.totalImages,
+                                    totalFootnotes: stats.totalFootnotes,
+                                    totalRawChapters: stats.totalRawChapters,
+                                    totalTranslatedChapters: stats.totalTranslatedChapters
+                                },
+                                translation: {
+                                    totalCost: stats.totalCost,
+                                    totalTokens: stats.totalTokens,
+                                    mostUsedModel: stats.mostUsedModel
+                                }
+                            },
+                            files: { session: 'session.json' }
+                        }]
+                    };
+
+                    // Download both files
+                    await ExportService.downloadJSON(metadata, `${novelId}-metadata.json`);
+                    await ExportService.downloadJSON(sessionData, `${novelId}-session.json`);
+
+                    alert(
+                        'Files downloaded!\n\n' +
+                        'To add to your library:\n' +
+                        `1. Create folder: library/${novelId}/\n` +
+                        '2. Rename and move files:\n' +
+                        `   • ${novelId}-metadata.json → metadata.json\n` +
+                        `   • ${novelId}-session.json → session.json\n` +
+                        '3. Commit and push to your repo'
+                    );
+                }
+                return;
+            }
+
             // Open folder picker
             const dirHandle = await window.showDirectoryPicker({
                 mode: 'readwrite',

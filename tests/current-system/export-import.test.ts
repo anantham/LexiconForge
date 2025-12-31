@@ -524,7 +524,7 @@ describe('Session export/import', () => {
       // Verify translation result is present
       expect(chapter?.translationResult?.translatedTitle).toBe('Translated Integration Chapter');
       expect(chapter?.translationResult?.footnotes).toHaveLength(1);
-      expect(chapter?.translationResult?.footnotes?.[0]?.content).toBe('A test footnote');
+      expect(chapter?.translationResult?.footnotes?.[0]?.text).toBe('A test footnote');
 
       // Verify URL index was built
       const normalized = normalizeUrlAggressively(url);

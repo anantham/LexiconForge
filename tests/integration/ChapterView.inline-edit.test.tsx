@@ -183,8 +183,8 @@ describe('ChapterView: Critical Flow #2 - Inline Edit', () => {
           updateChapterSpy(chapterId, patch);
           set((state: any) => {
             const next = new Map(state.chapters);
-            const existing = next.get(chapterId);
-            next.set(chapterId, { ...existing, ...patch });
+            const existing = next.get(chapterId) as Record<string, unknown> | undefined;
+            next.set(chapterId, { ...(existing ?? {}), ...patch });
             return { chapters: next };
           });
         },

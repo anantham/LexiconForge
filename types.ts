@@ -306,6 +306,8 @@ export interface AppSettings {
     showDiffHeatmap?: boolean;                // Show semantic diff markers in gutter (default: true)
     diffMarkerVisibility?: DiffMarkerVisibilitySettings;
     diffAnalysisPrompt?: string;
+    // Audio feature
+    enableAudio?: boolean;                    // Show audio generation controls (default: false)
     // Prompt snapshot metadata
     promptId?: string;
     promptName?: string;

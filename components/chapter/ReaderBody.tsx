@@ -6,6 +6,7 @@ import ChapterSelectionOverlay from './ChapterSelectionOverlay';
 import ComparisonPortal from './ComparisonPortal';
 import FooterNavigation from './FooterNavigation';
 import AudioPlayer from '../AudioPlayer';
+import { useAppStore } from '../../store';
 import type { Chapter, FeedbackItem } from '../../types';
 
 interface ReaderBodyProps {
@@ -54,37 +55,41 @@ const ReaderBody: React.FC<ReaderBodyProps> = ({
   onDeleteFeedback,
   onUpdateFeedback,
   onScrollToText,
-}) => (
-  <>
-    <ChapterContent {...chapterContentProps} />
-    <FootnotesPanel
-      chapterId={chapter?.id ?? null}
-      footnotes={viewMode === 'english' ? translationResult?.footnotes : undefined}
-    />
-    <ReaderFeedbackPanel
-      feedback={feedbackForChapter}
-      viewMode={viewMode}
-      onDelete={onDeleteFeedback}
-      onUpdate={onUpdateFeedback}
-      onScrollToText={onScrollToText}
-    />
-    <ChapterSelectionOverlay
-      selection={selection}
-      viewMode={viewMode}
-      isTouch={isTouch}
-      inlineEditActive={inlineEditActive}
-      canCompare={canCompare}
-      comparisonLoading={comparisonLoading}
-      beginInlineEdit={beginInlineEdit}
-      handleCompareRequest={handleCompareRequest}
-      handleFeedbackSubmit={handleFeedbackSubmit}
-      clearSelection={clearSelection}
-      viewRef={viewRef}
-    />
-    <ComparisonPortal viewMode={viewMode} {...comparisonPortalProps} />
-    {chapter && <FooterNavigation {...footerProps} />}
-    <AudioPlayer {...audioProps} />
-  </>
-);
+}) => {
+  const enableAudio = useAppStore((s) => s.settings.enableAudio ?? false);
+
+  return (
+    <>
+      <ChapterContent {...chapterContentProps} />
+      <FootnotesPanel
+        chapterId={chapter?.id ?? null}
+        footnotes={viewMode === 'english' ? translationResult?.footnotes : undefined}
+      />
+      <ReaderFeedbackPanel
+        feedback={feedbackForChapter}
+        viewMode={viewMode}
+        onDelete={onDeleteFeedback}
+        onUpdate={onUpdateFeedback}
+        onScrollToText={onScrollToText}
+      />
+      <ChapterSelectionOverlay
+        selection={selection}
+        viewMode={viewMode}
+        isTouch={isTouch}
+        inlineEditActive={inlineEditActive}
+        canCompare={canCompare}
+        comparisonLoading={comparisonLoading}
+        beginInlineEdit={beginInlineEdit}
+        handleCompareRequest={handleCompareRequest}
+        handleFeedbackSubmit={handleFeedbackSubmit}
+        clearSelection={clearSelection}
+        viewRef={viewRef}
+      />
+      <ComparisonPortal viewMode={viewMode} {...comparisonPortalProps} />
+      {chapter && <FooterNavigation {...footerProps} />}
+      {enableAudio && <AudioPlayer {...audioProps} />}
+    </>
+  );
+};
 
 export default ReaderBody;

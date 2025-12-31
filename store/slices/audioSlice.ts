@@ -85,6 +85,7 @@ export interface AudioActions {
   pauseAudio: () => void;
   stopAudio: () => void;
   seekAudio: (time: number) => void;
+  updatePlaybackProgress: (currentTime: number, duration: number) => void;
   
   // UI controls
   toggleAudioControls: (show?: boolean) => void;
@@ -394,6 +395,16 @@ export const createAudioSlice: StateCreator<AudioSlice> = (set, get) => ({
       currentPlayback: {
         ...state.currentPlayback,
         currentTime: time,
+      }
+    } : {});
+  },
+
+  updatePlaybackProgress: (currentTime: number, duration: number) => {
+    set(state => state.currentPlayback ? {
+      currentPlayback: {
+        ...state.currentPlayback,
+        currentTime,
+        duration,
       }
     } : {});
   },

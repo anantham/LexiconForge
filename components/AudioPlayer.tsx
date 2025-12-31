@@ -33,6 +33,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ chapterId, isVisible }) => {
   const stopAudio = useAppStore(s => s.stopAudio);
   const setVolume = useAppStore(s => s.setVolume);
   const seekAudio = useAppStore(s => s.seekAudio);
+  const updatePlaybackProgress = useAppStore(s => s.updatePlaybackProgress);
   
   // Chapter data
   const chapters = useAppStore(s => s.chapters);
@@ -97,6 +98,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ chapterId, isVisible }) => {
     const newTime = parseFloat(e.target.value);
     setIsDragging(false);
     setTempSeekTime(null);
+
+    // Actually seek the audio element
+    const audio = audioRef.current;
+    if (audio && isFinite(newTime)) {
+      audio.currentTime = newTime;
+    }
     seekAudio(newTime);
   };
   
@@ -136,13 +143,47 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ chapterId, isVisible }) => {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !hasAudio) return;
-    
+
     const latestAudio = chapterAudio[chapterAudio.length - 1];
     if (latestAudio && audio.src !== latestAudio) {
       audio.src = latestAudio;
       audio.load();
     }
   }, [chapterAudio, hasAudio]);
+
+  // Update playback progress from audio element
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => {
+      if (!isDragging && isCurrentChapterPlaying) {
+        updatePlaybackProgress(audio.currentTime, audio.duration || 0);
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      if (isCurrentChapterPlaying) {
+        updatePlaybackProgress(audio.currentTime, audio.duration || 0);
+      }
+    };
+
+    const handleDurationChange = () => {
+      if (isCurrentChapterPlaying && audio.duration && isFinite(audio.duration)) {
+        updatePlaybackProgress(audio.currentTime, audio.duration);
+      }
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('durationchange', handleDurationChange);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('durationchange', handleDurationChange);
+    };
+  }, [isDragging, isCurrentChapterPlaying, updatePlaybackProgress]);
   
   if (!isVisible) return null;
   

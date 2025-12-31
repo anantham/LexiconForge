@@ -875,15 +875,39 @@ export const createTranslationsSlice: StateCreator<
   },
 
   generateIllustrationForSelection: async (chapterId, selection) => {
+    debugLog('image', 'summary', '[generateIllustrationForSelection] Called with:', { chapterId, selectionLength: selection?.length });
+
     const { IllustrationService } = await import('../../services/illustrationService');
     const state = get();
     const chapter = (state.chapters as Map<string, EnhancedChapter>).get(chapterId);
     const settings = state.settings;
+    const showNotification = (state as any).showNotification;
 
-    if (!chapter || !chapter.translationResult) return;
+    // Diagnostic: log state of chapter lookup
+    debugLog('image', 'summary', '[generateIllustrationForSelection] Chapter lookup:', {
+      chapterId,
+      chapterFound: !!chapter,
+      hasTranslationResult: !!chapter?.translationResult,
+      chaptersMapSize: (state.chapters as Map<string, EnhancedChapter>).size,
+    });
+
+    if (!chapter) {
+      console.warn('[generateIllustrationForSelection] Chapter not found:', chapterId);
+      if (showNotification) {
+        showNotification('Cannot generate illustration: chapter not found', 'error');
+      }
+      return;
+    }
+
+    if (!chapter.translationResult) {
+      console.warn('[generateIllustrationForSelection] No translation result for chapter:', chapterId);
+      if (showNotification) {
+        showNotification('Cannot generate illustration: translate the chapter first', 'warning');
+      }
+      return;
+    }
 
     // Show immediate feedback that we're generating the illustration prompt
-    const showNotification = (state as any).showNotification;
     if (showNotification) {
       showNotification('Generating illustration prompt...', 'info');
     }

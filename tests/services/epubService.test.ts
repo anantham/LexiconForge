@@ -686,10 +686,10 @@ describe('EPUB Content Generation E2E', () => {
     it('should handle chapters with footnotes', () => {
       const chapter: ChapterForEpub = {
         title: 'Chapter with Notes',
-        content: 'Content with (1) footnote reference.',
+        content: 'Content with [1] footnote reference.',
         originalUrl: 'https://example.com/notes',
         translatedTitle: 'Translated Chapter with Notes',
-        translatedContent: 'Translated content with (1) footnote reference.',
+        translatedContent: 'Translated content with [1] footnote reference.',
         usageMetrics: createMockUsageMetrics(),
         images: [],
         footnotes: [{
@@ -705,6 +705,49 @@ describe('EPUB Content Generation E2E', () => {
       expect(xhtml).toContain('footnote explanation');
       // Should have footnote reference link
       expect(xhtml).toMatch(/href="#fn1"/);
+    });
+
+    /**
+     * CONTRACT TEST: Footnote markers use [n] format per prompts.json
+     *
+     * The AI is instructed via prompts.json to use [1], [2], [3] format:
+     * - footnotesDescription: "...numbered marker [1], [2], [3]..."
+     * - footnoteMarkerDescription: "Exact marker from text: '[1]', '[2]', etc."
+     *
+     * This test ensures the EPUB generator matches that contract.
+     * If this test fails, check if prompts.json format changed.
+     */
+    it('should link footnotes using [n] bracket format from AI output', () => {
+      const chapter: ChapterForEpub = {
+        title: 'Contract Test',
+        content: 'Original with [1] and [2] markers.',
+        originalUrl: 'https://example.com/contract',
+        translatedTitle: 'Contract Test Chapter',
+        // This format matches what the AI actually produces per prompts.json
+        translatedContent: 'The hero spoke [1] about ancient times [2] when dragons roamed.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [],
+        footnotes: [
+          { marker: '1', text: '[TL Note:] A cultural reference' },
+          { marker: '2', text: '[Author\'s Note:] Historical context' }
+        ]
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Both footnote markers should be converted to clickable links
+      expect(xhtml).toMatch(/href="#fn1".*\[1\]/);
+      expect(xhtml).toMatch(/href="#fn2".*\[2\]/);
+
+      // Footnotes section should have back-links
+      expect(xhtml).toMatch(/id="fn1"/);
+      expect(xhtml).toMatch(/id="fn2"/);
+      expect(xhtml).toMatch(/href="#fnref1"/);
+      expect(xhtml).toMatch(/href="#fnref2"/);
+
+      // Verify the markers are wrapped in <sup><a>...</a></sup> structure
+      expect(xhtml).toContain('<sup><a href="#fn1"');
+      expect(xhtml).toContain('<sup><a href="#fn2"');
     });
 
     it('should produce valid XHTML that can be parsed', () => {

@@ -236,9 +236,17 @@ const ChapterView: React.FC = () => {
   });
 
   const handleIllustrationRequest = useCallback((selection: string) => {
-    if (!currentChapterId) return;
+    debugLog('image', 'summary', '[ChapterView] handleIllustrationRequest called:', {
+      currentChapterId,
+      selectionLength: selection?.length
+    });
+    if (!currentChapterId) {
+      console.warn('[ChapterView] handleIllustrationRequest: No currentChapterId - cannot generate illustration');
+      showNotification('Cannot generate illustration: no chapter selected', 'warning');
+      return;
+    }
     useAppStore.getState().generateIllustrationForSelection(currentChapterId, selection);
-  }, [currentChapterId]);
+  }, [currentChapterId, showNotification]);
 
   const { handleFeedbackSubmit, deleteFeedback, updateFeedbackComment } = useFeedbackActions({
     currentChapterId,

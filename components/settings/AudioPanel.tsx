@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { useAudioPanelStore } from '../../hooks/useAudioPanelStore';
+import { useAppStore } from '../../store';
 import { ostLibraryService } from '../../services/audio/OSTLibraryService';
 import type { OSTSample } from '../../services/audio/OSTLibraryService';
 
 export const AudioPanel: React.FC = () => {
+  const settings = useAppStore((s) => s.settings);
+  const updateSettings = useAppStore((s) => s.updateSettings);
+  const audioEnabled = settings.enableAudio ?? false;
+
   const {
     selectedProvider,
     setProvider,
@@ -65,6 +70,25 @@ export const AudioPanel: React.FC = () => {
         Audio Settings
       </legend>
       <div className="space-y-6">
+        {/* Enable/Disable Toggle */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="enable-audio"
+            className="mr-2"
+            checked={audioEnabled}
+            onChange={(e) => updateSettings({ enableAudio: e.target.checked })}
+          />
+          <label htmlFor="enable-audio" className="text-sm text-gray-700 dark:text-gray-300">
+            Enable audio generation
+          </label>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4">
+          When enabled, shows the audio generation button in chapter headers.
+        </p>
+
+        {audioEnabled && (
+        <>
         <div>
           <label htmlFor="audio-provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Audio Provider</label>
           <select
@@ -213,6 +237,8 @@ export const AudioPanel: React.FC = () => {
             <li>• Generated audio plays in background while reading</li>
           </ul>
         </div>
+        </>
+        )}
       </div>
     </fieldset>
   );

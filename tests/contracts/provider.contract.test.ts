@@ -45,16 +45,16 @@ vi.mock('openai', () => ({ __esModule: true, default: openAiMocks.OpenAI }));
 
 const geminiMocks = vi.hoisted(() => {
   const generateContent = vi.fn();
-  const getGenerativeModel = vi.fn(() => ({
-    generateContent: (...args: any[]) => generateContent(...args),
+  const getGenerativeModel = vi.fn((_config?: Record<string, unknown>) => ({
+    generateContent: (...args: unknown[]) => generateContent(...args),
   }));
   const ctor = vi.fn();
   class GoogleGenerativeAI {
-    constructor(...args: any[]) {
-      ctor(...args);
+    constructor(...args: unknown[]) {
+      ctor(args[0]);
     }
-    getGenerativeModel(...args: any[]) {
-      return getGenerativeModel(...args);
+    getGenerativeModel(config?: Record<string, unknown>) {
+      return getGenerativeModel(config);
     }
   }
   return { GoogleGenerativeAI, generateContent, getGenerativeModel, ctor };

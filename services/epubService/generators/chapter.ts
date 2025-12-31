@@ -117,7 +117,8 @@ export const buildChapterXhtml = (chapter: ChapterForEpub): string => {
   const withIllu = contentToProcess.replace(/\[(ILLUSTRATION-\d+[A-Za-z]*)\]/g, (_m, marker) => {
     return `<span data-illu="${marker}"></span>`;
   });
-  const withPlaceholders = withIllu.replace(/\((\d+)\)/g, (_m, n) => `<span data-fn="${n}"></span>`);
+  // Match footnote markers in [1], [2], [3] format as specified in prompts
+  const withPlaceholders = withIllu.replace(/\[(\d+)\]/g, (_m, n) => `<span data-fn="${n}"></span>`);
 
   // 2) Sanitize with tight allowlist to preserve inline tags safely
   const sanitized = sanitizeHtmlAllowlist(withPlaceholders);

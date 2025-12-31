@@ -53,6 +53,8 @@ export const defaultSettings: AppSettings = {
   exportOrder: 'number',
   // Diff heatmap - OFF by default to save API costs
   showDiffHeatmap: false,  // Disabled by default - costs API calls
+  // Audio feature - OFF by default
+  enableAudio: false,
   diffMarkerVisibility: {
     fan: true,
     rawLoss: true,

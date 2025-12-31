@@ -268,3 +268,32 @@ describe('Illustration Marker Insertion', () => {
     });
   });
 });
+
+/**
+ * Error Handling Documentation
+ *
+ * The `generateIllustrationForSelection` function in translationsSlice.ts has several
+ * error paths that were previously silent returns. These have been fixed to show user
+ * notifications:
+ *
+ * 1. Missing currentChapterId (in ChapterView.tsx handleIllustrationRequest):
+ *    - Shows: "Cannot generate illustration: no chapter selected"
+ *
+ * 2. Chapter not found in state (in translationsSlice.ts):
+ *    - Shows: "Cannot generate illustration: chapter not found"
+ *
+ * 3. No translation result for chapter (in translationsSlice.ts):
+ *    - Shows: "Cannot generate illustration: translate the chapter first"
+ *
+ * 4. API call fails (in IllustrationService):
+ *    - Shows: "Failed to generate illustration prompt"
+ *
+ * These error paths are integration-level behaviors that require the full store
+ * to test properly. The notifications ensure users understand why the 🎨 button
+ * appears to "do nothing" instead of silently failing.
+ *
+ * Related files:
+ * - components/ChapterView.tsx:handleIllustrationRequest
+ * - store/slices/translationsSlice.ts:generateIllustrationForSelection
+ * - services/illustrationService.ts
+ */
