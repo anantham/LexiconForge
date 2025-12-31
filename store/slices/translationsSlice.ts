@@ -259,6 +259,26 @@ export const createTranslationsSlice: StateCreator<
           translationResult: translationResult,
           translationSettingsSnapshot: relevantSettings
         });
+
+        // Clear stale image state when new translation is saved
+        // (new translation = new suggestedIllustrations with different placementMarkers)
+        const imageActions = state as any;
+        if (imageActions.clearImageState) {
+          imageActions.clearImageState(chapterId);
+          debugLog('translation', 'summary', `[Translation] Cleared image state for chapter ${chapterId}`);
+        }
+        if (imageActions.clearMetrics) {
+          imageActions.clearMetrics();
+        }
+
+        // Debug: Check translation content before storing
+        console.log('[Translation] Content check before store:', {
+          translationLength: translationResult.translation?.length || 0,
+          translationPreview: translationResult.translation?.substring(0, 100),
+          translationIsEmpty: !translationResult.translation || translationResult.translation.trim() === '',
+          footnotesCount: translationResult.footnotes?.length || 0,
+          illustrationsCount: translationResult.suggestedIllustrations?.length || 0,
+        });
         debugLog('translation', 'summary', '[Translation] Raw translationResult:', translationResult);
         const metrics = translationResult.usageMetrics;
         debugLog('translation', 'summary', `[Translation] ✅ Success for chapter ${chapterId}. Model: ${metrics?.provider}/${metrics?.model}. Tokens: ${metrics?.totalTokens}.`);
@@ -862,10 +882,21 @@ export const createTranslationsSlice: StateCreator<
 
     if (!chapter || !chapter.translationResult) return;
 
+    // Show immediate feedback that we're generating the illustration prompt
+    const showNotification = (state as any).showNotification;
+    if (showNotification) {
+      showNotification('Generating illustration prompt...', 'info');
+    }
+
     const context = chapter.translationResult.translation;
     const imagePrompt = await IllustrationService.generateIllustrationForSelection(selection, context, settings);
 
-    if (!imagePrompt) return;
+    if (!imagePrompt) {
+      if (showNotification) {
+        showNotification('Failed to generate illustration prompt', 'error');
+      }
+      return;
+    }
 
     const chapterToUpdate = (get().chapters as Map<string, EnhancedChapter>).get(chapterId);
     if (!chapterToUpdate || !chapterToUpdate.translationResult) return;
@@ -976,5 +1007,29 @@ export const createTranslationsSlice: StateCreator<
     }).catch((error) => {
       console.warn('[TranslationsSlice] Failed to persist translation after illustration update:', error);
     });
+
+    // Auto-trigger image generation for the new illustration
+    const imageModel = settings?.imageModel;
+    if (imageModel && imageModel.toLowerCase() !== 'none') {
+      debugLog('translation', 'summary', `[TranslationsSlice] Auto-triggering image generation for ${newMarker}`);
+
+      // Show feedback that image generation is starting
+      const currentShowNotification = (get() as any).showNotification;
+      if (currentShowNotification) {
+        currentShowNotification(`Generating illustration ${newMarker}...`, 'info');
+      }
+
+      // Trigger image generation for the specific illustration
+      const handleRetryImage = (get() as any).handleRetryImage;
+      if (handleRetryImage) {
+        handleRetryImage(chapterId, newMarker);
+      }
+    } else {
+      // No image model configured - just notify that marker was added
+      const currentShowNotification = (get() as any).showNotification;
+      if (currentShowNotification) {
+        currentShowNotification(`Illustration marker ${newMarker} added. Select an image model in Settings to generate the image.`, 'info');
+      }
+    }
   }
 });

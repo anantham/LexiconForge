@@ -253,13 +253,32 @@ export const createSettingsSlice: StateCreator<
   loadOpenRouterCatalogue: async (force = false) => {
     try {
       const { openrouterService } = await import('../../services/openrouterService');
-      
-      // Check if we already have cached models and they're fresh enough
-      const currentModels = get().openRouterModels;
+
+      // Check in-memory state first
+      let currentModels = get().openRouterModels;
+
+      // If memory is empty, try loading from IndexedDB cache
+      if (!currentModels?.data?.length) {
+        const persistedCache = await openrouterService.getCachedModels();
+        if (persistedCache?.data?.length) {
+          console.log('[SettingsSlice] Loaded models from IndexedDB cache:', persistedCache.data.length);
+          set({ openRouterModels: persistedCache });
+          currentModels = persistedCache;
+        }
+      }
+
+      console.log('[SettingsSlice] loadOpenRouterCatalogue called', {
+        force,
+        hasCachedModels: !!currentModels,
+        cachedModelCount: currentModels?.data?.length || 0,
+        cachedAt: currentModels?.fetchedAt,
+      });
+
       if (!force && currentModels?.fetchedAt) {
         const age = Date.now() - new Date(currentModels.fetchedAt).getTime();
         // Use cache if less than 1 hour old
         if (age < 60 * 60 * 1000) {
+          console.log('[SettingsSlice] Using cached models, age:', Math.round(age / 1000 / 60), 'minutes');
           return;
         }
       }

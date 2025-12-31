@@ -66,9 +66,18 @@ const TranslationStatusPanel: React.FC<Props> = ({
 
       {showUsageMetrics && usageMetrics && !isLoading && !isTranslating && (
         <div className="text-xs text-center text-gray-500 dark:text-gray-400">
-          Translated in {usageMetrics.requestTime.toFixed(2)}s with{' '}
-          <span className="font-semibold">{usageMetrics.model}</span>
-          {formatActualParams(usageMetrics.actualParams)} (~${usageMetrics.estimatedCost.toFixed(5)})
+          {/* Handle unknown/missing metrics gracefully */}
+          {usageMetrics.model && usageMetrics.model !== 'unknown' ? (
+            <>
+              Translated in {usageMetrics.requestTime.toFixed(2)}s with{' '}
+              <span className="font-semibold">{usageMetrics.model}</span>
+              {formatActualParams(usageMetrics.actualParams)} (~${usageMetrics.estimatedCost.toFixed(5)})
+            </>
+          ) : (
+            <span className="italic text-gray-400 dark:text-gray-500">
+              Translation metrics unavailable (legacy data)
+            </span>
+          )}
         </div>
       )}
 
