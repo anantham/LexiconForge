@@ -107,7 +107,7 @@ export class ImageGenerationService {
   static async generateImages(
     chapterId: string,
     context: ImageGenerationContext,
-    onProgressUpdate?: (imageStates: Record<string, ImageState>) => void
+    onProgressUpdate?: (imageStates: Record<string, ImageState>, currentMetrics?: Partial<ImageGenerationMetrics>) => void
   ): Promise<ImageGenerationResult> {
     slog(`[ImageGen] Starting image generation for ${chapterId}`);
     const { chapters, settings, steeringImages, negativePrompts, guidanceScales, loraModels, loraStrengths } = context;
@@ -210,7 +210,13 @@ export class ImageGenerationService {
           error: null
         };
 
-        onProgressUpdate?.(generatedImages);
+        // Pass current metrics for real-time UI updates
+        onProgressUpdate?.(generatedImages, {
+          count: generatedCount,
+          totalTime,
+          totalCost,
+          lastModel: settings.imageModel
+        });
 
         // Store in chapter's translationResult for persistence
         if (chapter && chapter.translationResult) {
@@ -304,7 +310,13 @@ export class ImageGenerationService {
           canRetry: error.canRetry
         };
 
-        onProgressUpdate?.(generatedImages);
+        // Pass current metrics even on error for real-time updates
+        onProgressUpdate?.(generatedImages, {
+          count: generatedCount,
+          totalTime,
+          totalCost,
+          lastModel: settings.imageModel
+        });
       }
     }
 

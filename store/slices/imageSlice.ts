@@ -217,8 +217,8 @@ export const createImageSlice: StateCreator<
     const result = await ImageGenerationService.generateImages(
       chapterId,
       context,
-      (imageStates) => {
-        // Update image states and progress
+      (imageStates, currentMetrics) => {
+        // Update image states, progress, and metrics in real-time
         const summary = Object.entries(imageStates).reduce<Record<string, { isLoading: boolean; hasData: boolean; error: string | null }>>((acc, [key, state]) => {
           acc[key] = {
             isLoading: state.isLoading,
@@ -232,13 +232,20 @@ export const createImageSlice: StateCreator<
           const completed = Object.values(imageStates).filter(
             state => !state.isLoading && (state.data || state.error)
           ).length;
-          
+
           return {
             generatedImages: { ...prevState.generatedImages, ...imageStates },
             imageGenerationProgress: {
               ...prevState.imageGenerationProgress,
               [chapterId]: { completed, total: totalIllustrations }
-            }
+            },
+            // Update metrics in real-time as each image completes
+            imageGenerationMetrics: currentMetrics ? {
+              count: currentMetrics.count ?? 0,
+              totalTime: currentMetrics.totalTime ?? 0,
+              totalCost: currentMetrics.totalCost ?? 0,
+              lastModel: currentMetrics.lastModel ?? ''
+            } : prevState.imageGenerationMetrics
           };
         });
       }
