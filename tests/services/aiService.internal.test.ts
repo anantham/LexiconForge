@@ -22,6 +22,28 @@ describe('aiService internal utilities', () => {
     it('throws when JSON is unbalanced', () => {
       expect(() => extractBalancedJson('{"missing": true')).toThrow(/unbalanced/i);
     });
+
+    // Critical: Braces inside strings should NOT break brace matching
+    // This was the exact bug that caused translations like {"translation": "<i>"} corruption
+    it('handles braces inside string values correctly', () => {
+      const text = '{"translation": "He said {hello} to her"}';
+      expect(extractBalancedJson(text)).toBe('{"translation": "He said {hello} to her"}');
+    });
+
+    it('handles nested braces inside strings', () => {
+      const text = '{"content": "function() { return { key: value }; }"}';
+      expect(extractBalancedJson(text)).toBe('{"content": "function() { return { key: value }; }"}');
+    });
+
+    it('handles escaped quotes inside strings', () => {
+      const text = '{"text": "She said \\"hello\\" to him"}';
+      expect(extractBalancedJson(text)).toBe('{"text": "She said \\"hello\\" to him"}');
+    });
+
+    it('handles mixed braces, quotes and escapes', () => {
+      const text = 'prefix {"translation": "Use {var} and \\"quotes\\" here"} suffix';
+      expect(extractBalancedJson(text)).toBe('{"translation": "Use {var} and \\"quotes\\" here"}');
+    });
   });
 
   describe('validateAndFixIllustrations', () => {
