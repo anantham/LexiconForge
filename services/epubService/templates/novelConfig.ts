@@ -105,8 +105,9 @@ export const getNovelConfig = (
     // Add more novel configurations as needed
   }
 
-  // Try to extract title from chapter if URL detection didn't provide one
-  if (!novelSpecificConfig.title || novelSpecificConfig.title === 'Translated Novel') {
+  // Try to extract title from chapter if neither URL detection nor manualConfig provided one
+  const hasManualTitle = manualConfig?.title && manualConfig.title !== 'Translated Novel';
+  if (!hasManualTitle && (!novelSpecificConfig.title || novelSpecificConfig.title === 'Translated Novel')) {
     const extractedTitle = extractNovelTitleFromChapter(firstChapterTitle);
     if (extractedTitle) {
       novelSpecificConfig.title = extractedTitle;
