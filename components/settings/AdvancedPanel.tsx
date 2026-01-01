@@ -8,6 +8,7 @@ import {
   logCurrentDebugConfig,
 } from '../../utils/debug';
 import { ImageOps } from '../../services/db/operations';
+import { ImageCacheStore } from '../../services/imageCacheService';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { useAdvancedPanelStore } from '../../hooks/useAdvancedPanelStore';
 import type { AppSettings } from '../../types';
@@ -123,6 +124,7 @@ const AdvancedPanel: React.FC = () => {
   const [diagnosticsExpanded, setDiagnosticsExpanded] = useState(false);
   const [diskDiagnostics, setDiskDiagnostics] = useState<DiskDiagnostics | null>(null);
   const [loadingDiskStats, setLoadingDiskStats] = useState(false);
+  const [clearingCache, setClearingCache] = useState(false);
 
   const [apiDebugLevel, setApiDebugLevel] = useState<DebugLevel>(() => {
     try {
@@ -225,6 +227,32 @@ const AdvancedPanel: React.FC = () => {
     setDebugPipelineSelections([]);
     writeDebugPipelines([]);
     logCurrentDebugConfig();
+  };
+
+  const handleClearImageCache = async () => {
+    const imageCount = diskDiagnostics?.disk.imagesInCache ?? 0;
+    const confirmed = window.confirm(
+      `⚠️ Clear Image Cache?\n\n` +
+      `This will permanently delete ${imageCount} cached image${imageCount !== 1 ? 's' : ''}.\n\n` +
+      `Make sure you've exported your session with images included before clearing.\n\n` +
+      `This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    setClearingCache(true);
+    try {
+      await ImageCacheStore.clear();
+      // Refresh disk diagnostics after clearing
+      const stats = await ImageOps.getStorageDiagnostics();
+      setDiskDiagnostics(stats);
+      alert('✓ Image cache cleared successfully.');
+    } catch (error) {
+      console.error('Failed to clear image cache:', error);
+      alert('Failed to clear image cache. See console for details.');
+    } finally {
+      setClearingCache(false);
+    }
   };
 
   return (
@@ -710,6 +738,21 @@ const AdvancedPanel: React.FC = () => {
                         </div>
                       </div>
                     </div>
+                    {diskDiagnostics.disk.imagesInCache > 0 && (
+                      <div className="mt-4 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={handleClearImageCache}
+                          disabled={clearingCache}
+                          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {clearingCache ? 'Clearing...' : `Clear Image Cache (${diskDiagnostics.disk.imagesInCache} images)`}
+                        </button>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          Export with images first to preserve them
+                        </span>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded text-center">

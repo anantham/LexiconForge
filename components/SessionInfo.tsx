@@ -38,7 +38,7 @@ const formatSize = (bytes?: number | null): string => {
 const DEFAULT_EXPORT_OPTIONS = {
     includeChapters: true,
     includeTelemetry: true,
-    includeImages: false,
+    includeImages: true,  // Include images by default for portable exports
 };
 
 const SessionInfo: React.FC = () => {

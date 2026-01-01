@@ -117,7 +117,7 @@ export const createExportSlice: StateCreator<
       const finalOptions: Required<ExportSessionOptions> = {
         includeChapters: true,
         includeTelemetry: true,
-        includeImages: false,
+        includeImages: true,  // Include images by default for portable exports
         ...(jsonObj?.metadata?.exportOptions ?? {})
       } as Required<ExportSessionOptions>;
 

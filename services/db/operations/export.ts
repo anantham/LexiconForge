@@ -15,7 +15,7 @@ import { AmendmentOps } from './amendments';
 const DEFAULT_EXPORT_OPTIONS: Required<ExportSessionOptions> = {
   includeChapters: true,
   includeTelemetry: true,
-  includeImages: false,
+  includeImages: true,  // Include images by default for portable exports
 };
 
 const getMimeTypeFromDataUrl = (dataUrl: string): string => {
