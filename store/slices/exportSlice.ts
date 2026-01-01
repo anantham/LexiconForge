@@ -461,8 +461,11 @@ export const createExportSlice: StateCreator<
           novelDescription = novelMeta?.description;
           console.log('[ExportSlice] Novel metadata loaded:', { title: novelTitle, author: novelAuthor });
 
-          // Fetch cover image if selected
-          if (novelMeta?.coverImage?.cacheKey) {
+          // Use cropped cover data if available (portrait-optimized), otherwise fetch from cache
+          if (novelMeta?.coverImage?.croppedCoverData) {
+            coverImageData = novelMeta.coverImage.croppedCoverData;
+            console.log('[ExportSlice] Cover image loaded from cropped data (portrait)');
+          } else if (novelMeta?.coverImage?.cacheKey) {
             const blob = await ImageCacheStore.getImageBlob(novelMeta.coverImage.cacheKey);
             if (blob) {
               coverImageData = await blobToBase64DataUrl(blob);

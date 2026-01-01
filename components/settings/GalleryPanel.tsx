@@ -158,11 +158,12 @@ export const GalleryPanel: React.FC = () => {
   }, []);
 
   const handleSetCover = useCallback(
-    (image: GalleryImage) => {
+    (image: GalleryImage, croppedDataUrl?: string) => {
       setCoverImage({
         chapterId: image.chapterId,
         marker: image.marker,
         cacheKey: image.imageCacheKey,
+        croppedCoverData: croppedDataUrl,
       });
     },
     [setCoverImage]

@@ -1,12 +1,13 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useBlobUrl } from '../../hooks/useBlobUrl';
 import type { GalleryImage } from './GalleryPanel';
+import CoverCropModal from './CoverCropModal';
 
 interface ImageLightboxProps {
   image: GalleryImage;
   allImages: GalleryImage[];
   onClose: () => void;
-  onSetCover: (image: GalleryImage) => void;
+  onSetCover: (image: GalleryImage, croppedDataUrl?: string) => void;
   isCover: boolean;
 }
 
@@ -27,6 +28,10 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
 
   // Check if current image is cover
   const [isCoverCurrent, setIsCoverCurrent] = useState(initialIsCover);
+
+  // Cover crop modal state
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // Update cover status when navigating
@@ -60,9 +65,27 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
     if (e.target === e.currentTarget) onClose();
   };
 
-  const handleSetCover = () => {
-    onSetCover(currentImage);
+  // Open crop modal with current image
+  const handleSetCoverClick = () => {
+    // Get the image URL from the LightboxImage component's logic
+    const blobUrl = currentImage.imageCacheKey ? null : currentImage.legacyImageData;
+    // We'll use the LightboxImage's blobUrl, but need to get it here
+    // For now, open crop modal and let it load the image
+    setShowCropModal(true);
+  };
+
+  // Called when crop is confirmed
+  const handleCropConfirm = (croppedDataUrl: string) => {
+    onSetCover(currentImage, croppedDataUrl);
     setIsCoverCurrent(true);
+    setShowCropModal(false);
+    setCropImageUrl(null);
+  };
+
+  // Called when crop is cancelled
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setCropImageUrl(null);
   };
 
   return (
@@ -116,7 +139,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
           </div>
 
           <button
-            onClick={handleSetCover}
+            onClick={handleSetCoverClick}
             disabled={isCoverCurrent}
             className={`mt-4 w-full py-2 rounded-lg font-medium transition-colors ${
               isCoverCurrent
@@ -128,7 +151,44 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Cover Crop Modal */}
+      {showCropModal && (
+        <CropModalWrapper
+          image={currentImage}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
+        />
+      )}
     </div>
+  );
+};
+
+// Wrapper to load image URL for crop modal
+interface CropModalWrapperProps {
+  image: GalleryImage;
+  onConfirm: (croppedDataUrl: string) => void;
+  onCancel: () => void;
+}
+
+const CropModalWrapper: React.FC<CropModalWrapperProps> = ({ image, onConfirm, onCancel }) => {
+  const blobUrl = useBlobUrl(image.imageCacheKey);
+  const imageUrl = blobUrl || image.legacyImageData || null;
+
+  if (!imageUrl) {
+    return (
+      <div className="fixed inset-0 z-[110] bg-black/95 flex items-center justify-center">
+        <div className="text-white">Loading image...</div>
+      </div>
+    );
+  }
+
+  return (
+    <CoverCropModal
+      imageUrl={imageUrl}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />
   );
 };
 

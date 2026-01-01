@@ -9,6 +9,8 @@ export interface CoverImageRef {
   chapterId: string;
   marker: string;
   cacheKey: ImageCacheKey | null;
+  /** Pre-cropped base64 data URL for portrait EPUB cover */
+  croppedCoverData?: string;
 }
 
 export type PublisherMetadata = NovelMetadata & {
