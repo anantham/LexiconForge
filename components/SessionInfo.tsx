@@ -47,6 +47,8 @@ const SessionInfo: React.FC = () => {
     const handleNavigate = useAppStore(s => s.handleNavigate);
     const exportSessionData = useAppStore(s => s.exportSessionData);
     const exportEpub = useAppStore(s => s.exportEpub);
+    const exportProgress = useAppStore(s => s.exportProgress);
+    const setExportProgress = useAppStore(s => s.setExportProgress);
     const setShowSettingsModal = useAppStore(s => s.setShowSettingsModal);
     const fetchTranslationVersions = useAppStore(s => s.fetchTranslationVersions);
     const setActiveTranslationVersion = useAppStore(s => s.setActiveTranslationVersion);
@@ -453,6 +455,7 @@ const SessionInfo: React.FC = () => {
 
     const handleExportFormat = async (format: 'json' | 'epub') => {
         setIsExporting(true);
+        setExportProgress(null); // Reset progress at start
         try {
             if (format === 'json') {
                 const hasContent = exportOptions.includeChapters || exportOptions.includeTelemetry || exportOptions.includeImages;
@@ -511,6 +514,8 @@ const SessionInfo: React.FC = () => {
             alert(`Export failed: ${error.message || 'Unknown error'}`);
         } finally {
             setIsExporting(false);
+            // Clear progress after a short delay so user sees completion
+            setTimeout(() => setExportProgress(null), 1500);
         }
     }
 
@@ -829,6 +834,29 @@ const SessionInfo: React.FC = () => {
                       </span>
                     </label>
                   </fieldset>
+
+                  {/* Export Progress Bar */}
+                  {isExporting && exportProgress && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                          {exportProgress.phase === 'done' ? '✓ Complete' : 'Exporting...'}
+                        </span>
+                        <span className="text-xs text-blue-600 dark:text-blue-300">
+                          {exportProgress.current}/{exportProgress.total}
+                        </span>
+                      </div>
+                      <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 mb-2">
+                        <div
+                          className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${Math.min((exportProgress.current / Math.max(exportProgress.total, 1)) * 100, 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-blue-700 dark:text-blue-300 truncate">
+                        {exportProgress.message}
+                      </p>
+                    </div>
+                  )}
 
                   <button
                     onClick={() => handleExportFormat('json')}

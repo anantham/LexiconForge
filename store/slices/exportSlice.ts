@@ -9,8 +9,20 @@ import { SessionExportOps, SettingsOps, TranslationOps } from '../../services/db
 import { fetchChaptersForReactRendering } from '../../services/db/operations/rendering';
 import type { CoverImageRef } from '../../components/settings/types';
 
+// Export progress tracking
+export interface ExportProgress {
+  phase: 'preparing' | 'loading-chapters' | 'embedding-images' | 'generating' | 'writing' | 'done';
+  current: number;
+  total: number;
+  message: string;
+}
+
 // Export slice state
 export interface ExportSlice {
+  // Export progress state
+  exportProgress: ExportProgress | null;
+  setExportProgress: (progress: ExportProgress | null) => void;
+
   // Export actions
   exportSessionData: (options?: ExportSessionOptions) => Promise<string>;
   exportEpub: () => Promise<void>;
@@ -106,13 +118,20 @@ export const createExportSlice: StateCreator<
   [],
   ExportSlice
 > = (set, get) => ({
+  // Export progress state
+  exportProgress: null,
+  setExportProgress: (progress: ExportProgress | null) => set({ exportProgress: progress }),
+
   exportSessionData: async (options?: ExportSessionOptions) => {
     const storeState = get();
+    const setProgress = get().setExportProgress;
     const start = typeof performance !== 'undefined' && typeof performance.now === 'function'
       ? performance.now()
       : Date.now();
 
     try {
+      setProgress({ phase: 'preparing', current: 0, total: 1, message: 'Preparing export...' });
+
       const jsonObj = await SessionExportOps.exportFullSession(options);
       const finalOptions: Required<ExportSessionOptions> = {
         includeChapters: true,
@@ -215,8 +234,10 @@ export const createExportSlice: StateCreator<
         fileSizeBytes
       });
 
+      setProgress({ phase: 'done', current: 1, total: 1, message: 'Export complete!' });
       return json;
     } catch (error) {
+      setProgress(null);
       telemetryService.captureError('export-json', error, {
         options
       });
@@ -230,9 +251,12 @@ export const createExportSlice: StateCreator<
       : Date.now();
     const settings = get().settings;
     const { imageVersions, activeImageVersion } = get();
+    const setProgress = get().setExportProgress;
     const chaptersForEpub: import('../../services/epubService').ChapterForEpub[] = [];
 
     try {
+      setProgress({ phase: 'preparing', current: 0, total: 1, message: 'Loading chapters...' });
+
       // Gather chapters in order using IndexedDB as ground truth
       const [rendering, navHistSetting] = await Promise.all([
         fetchChaptersForReactRendering(),
@@ -281,11 +305,22 @@ export const createExportSlice: StateCreator<
       }
 
       // Build ChapterForEpub list using active translation versions
+      const totalChapters = ordered.length;
+      let processedChapters = 0;
+
       for (const sid of ordered) {
         const ch = byStableId.get(sid);
         if (!ch) continue;
         const active = await TranslationOps.getActiveByStableId(sid);
         if (!active) continue;
+
+        processedChapters++;
+        setProgress({
+          phase: 'embedding-images',
+          current: processedChapters,
+          total: totalChapters,
+          message: `Processing chapter ${processedChapters}/${totalChapters}: ${ch.title?.slice(0, 30) || 'Untitled'}...`
+        });
 
         const suggestedIllustrations = active.suggestedIllustrations || [];
         const hasModernImages = suggestedIllustrations.some((illust: any) => illust.generatedImage?.imageCacheKey || illust.imageCacheKey);
@@ -439,6 +474,13 @@ export const createExportSlice: StateCreator<
         console.warn('[ExportSlice] Failed to load novel metadata:', err);
       }
 
+      setProgress({
+        phase: 'generating',
+        current: chaptersForEpub.length,
+        total: chaptersForEpub.length,
+        message: 'Generating EPUB file...'
+      });
+
       await generateEpub({
         title: novelTitle,
         author: novelAuthor,
@@ -466,7 +508,10 @@ export const createExportSlice: StateCreator<
         includeTitlePage: !!settings.includeTitlePage,
         includeStatsPage: !!settings.includeStatsPage
       });
+
+      setProgress({ phase: 'done', current: 1, total: 1, message: 'EPUB export complete!' });
     } catch (e: any) {
+      setProgress(null);
       console.error('[Export] EPUB generation failed', e);
       telemetryService.captureError('export-epub', e, {
         chapterCount: chaptersForEpub.length
