@@ -1,7 +1,83 @@
 import { useAppStore } from '../store';
 import type { SessionData, SessionProvenance } from '../types/session';
 import type { NovelEntry, NovelMetadata, NovelVersion } from '../types/novel';
+import type { ImageCacheKey, GeneratedImageResult } from '../types';
 import { ChapterOps, TranslationOps } from './db/operations';
+import { ImageCacheStore } from './imageCacheService';
+import { blobToBase64DataUrl } from './imageUtils';
+
+/**
+ * Type for illustrations from TranslationRecord (more permissive than SuggestedIllustration)
+ */
+type TranslationIllustration = {
+  placementMarker: string;
+  imagePrompt: string;
+  url?: string;
+  generatedImage?: string | GeneratedImageResult;
+  imageCacheKey?: ImageCacheKey;
+};
+
+/**
+ * Embed images from Cache API into suggestedIllustrations
+ *
+ * This ensures session exports are portable - images are stored as base64
+ * in the `url` field rather than just Cache API references.
+ *
+ * @param illustrations - Array of suggested illustrations with potential imageCacheKey refs
+ * @param chapterId - Chapter ID for constructing cache keys
+ * @returns Illustrations with base64 image data embedded in `url` field
+ */
+async function embedImagesFromCache(
+  illustrations: TranslationIllustration[] | undefined,
+  chapterId: string | undefined
+): Promise<TranslationIllustration[]> {
+  if (!illustrations || illustrations.length === 0) {
+    return [];
+  }
+
+  const cacheSupported = typeof window !== 'undefined' && ImageCacheStore.isSupported();
+
+  return Promise.all(
+    illustrations.map(async (illust) => {
+      // If already has base64 data, keep it
+      if (illust.url && illust.url.startsWith('data:')) {
+        return illust;
+      }
+
+      // Try to fetch from Cache API
+      // Handle both direct imageCacheKey and nested in generatedImage
+      let cacheKey = illust.imageCacheKey;
+      if (!cacheKey && illust.generatedImage && typeof illust.generatedImage === 'object') {
+        cacheKey = (illust.generatedImage as GeneratedImageResult).imageCacheKey;
+      }
+
+      if (cacheSupported && cacheKey && chapterId) {
+        try {
+          const keyToFetch: ImageCacheKey = {
+            chapterId: cacheKey.chapterId || chapterId,
+            placementMarker: cacheKey.placementMarker || illust.placementMarker,
+            version: cacheKey.version || 1,
+          };
+
+          const blob = await ImageCacheStore.getImageBlob(keyToFetch);
+          if (blob) {
+            const base64DataUrl = await blobToBase64DataUrl(blob);
+            console.log(`[Export] Embedded image for ${illust.placementMarker} (${Math.round(blob.size / 1024)} KB)`);
+            return {
+              ...illust,
+              url: base64DataUrl, // Embed base64 for portability
+            };
+          }
+        } catch (error) {
+          console.warn(`[Export] Failed to fetch image from cache for ${illust.placementMarker}:`, error);
+        }
+      }
+
+      // Return as-is if no cache data available
+      return illust;
+    })
+  );
+}
 
 export class ExportService {
   /**
@@ -21,16 +97,9 @@ export class ExportService {
           ? await TranslationOps.getVersionsByStableId(stableId)
           : await TranslationOps.getVersionsByUrl(canonicalUrl);
 
-        return {
-          stableId,
-          canonicalUrl,
-          title: ch.title,
-          content: ch.content,
-          fanTranslation: ch.fanTranslation || null,
-          nextUrl: ch.nextUrl || null,
-          prevUrl: ch.prevUrl || null,
-          chapterNumber: ch.chapterNumber ?? null,
-          translations: versions.map(v => ({
+        // Embed images from Cache API for portability
+        const translationsWithEmbeddedImages = await Promise.all(
+          versions.map(async v => ({
             id: v.id,
             version: v.version,
             isActive: v.isActive,
@@ -38,7 +107,7 @@ export class ExportService {
             translatedTitle: v.translatedTitle,
             translation: v.translation,
             footnotes: v.footnotes,
-            suggestedIllustrations: v.suggestedIllustrations,
+            suggestedIllustrations: await embedImagesFromCache(v.suggestedIllustrations, stableId),
             provider: v.provider,
             model: v.model,
             temperature: v.temperature,
@@ -56,11 +125,23 @@ export class ExportService {
               model: v.model
             }
           }))
+        );
+
+        return {
+          stableId,
+          canonicalUrl,
+          title: ch.title,
+          content: ch.content,
+          fanTranslation: ch.fanTranslation || null,
+          nextUrl: ch.nextUrl || null,
+          prevUrl: ch.prevUrl || null,
+          chapterNumber: ch.chapterNumber ?? null,
+          translations: translationsWithEmbeddedImages
         };
       })
     );
 
-    console.log('[Export] Loaded', chaptersWithTranslations.length, 'chapters from IndexedDB');
+    console.log('[Export] Loaded', chaptersWithTranslations.length, 'chapters from IndexedDB (with embedded images)');
     console.log('[Export] Chapters with translations:',
       chaptersWithTranslations.filter(ch => ch.translations.length > 0).length);
 
@@ -116,16 +197,9 @@ export class ExportService {
           ? await TranslationOps.getVersionsByStableId(stableId)
           : await TranslationOps.getVersionsByUrl(canonicalUrl);
 
-        return {
-          stableId,
-          canonicalUrl,
-          title: ch.title,
-          content: ch.content,
-          fanTranslation: ch.fanTranslation || null,
-          nextUrl: ch.nextUrl || null,
-          prevUrl: ch.prevUrl || null,
-          chapterNumber: ch.chapterNumber ?? null,
-          translations: versions.map(v => ({
+        // Embed images from Cache API for portability
+        const translationsWithEmbeddedImages = await Promise.all(
+          versions.map(async v => ({
             id: v.id,
             version: v.version,
             isActive: v.isActive,
@@ -133,7 +207,7 @@ export class ExportService {
             translatedTitle: v.translatedTitle,
             translation: v.translation,
             footnotes: v.footnotes,
-            suggestedIllustrations: v.suggestedIllustrations,
+            suggestedIllustrations: await embedImagesFromCache(v.suggestedIllustrations, stableId),
             provider: v.provider,
             model: v.model,
             temperature: v.temperature,
@@ -151,6 +225,18 @@ export class ExportService {
               model: v.model
             }
           }))
+        );
+
+        return {
+          stableId,
+          canonicalUrl,
+          title: ch.title,
+          content: ch.content,
+          fanTranslation: ch.fanTranslation || null,
+          nextUrl: ch.nextUrl || null,
+          prevUrl: ch.prevUrl || null,
+          chapterNumber: ch.chapterNumber ?? null,
+          translations: translationsWithEmbeddedImages
         };
       })
     );
@@ -230,16 +316,9 @@ export class ExportService {
           ? await TranslationOps.getVersionsByStableId(stableId)
           : await TranslationOps.getVersionsByUrl(canonicalUrl);
 
-        return {
-          stableId,
-          canonicalUrl,
-          title: ch.title,
-          content: ch.content,
-          fanTranslation: ch.fanTranslation || null,
-          nextUrl: ch.nextUrl || null,
-          prevUrl: ch.prevUrl || null,
-          chapterNumber: ch.chapterNumber ?? null,
-          translations: versions.map(v => ({
+        // Embed images from Cache API for portability
+        const translationsWithEmbeddedImages = await Promise.all(
+          versions.map(async v => ({
             id: v.id,
             version: v.version,
             isActive: v.isActive,
@@ -247,7 +326,7 @@ export class ExportService {
             translatedTitle: v.translatedTitle,
             translation: v.translation,
             footnotes: v.footnotes,
-            suggestedIllustrations: v.suggestedIllustrations,
+            suggestedIllustrations: await embedImagesFromCache(v.suggestedIllustrations, stableId),
             provider: v.provider,
             model: v.model,
             temperature: v.temperature,
@@ -265,6 +344,18 @@ export class ExportService {
               model: v.model
             }
           }))
+        );
+
+        return {
+          stableId,
+          canonicalUrl,
+          title: ch.title,
+          content: ch.content,
+          fanTranslation: ch.fanTranslation || null,
+          nextUrl: ch.nextUrl || null,
+          prevUrl: ch.prevUrl || null,
+          chapterNumber: ch.chapterNumber ?? null,
+          translations: translationsWithEmbeddedImages
         };
       })
     );

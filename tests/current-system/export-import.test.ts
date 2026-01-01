@@ -474,7 +474,7 @@ describe('Session export/import', () => {
             version: 1,
             translatedTitle: 'Translated Integration Chapter',
             translation: '<p>Translated English content</p>',
-            footnotes: [{ id: 'fn-1', marker: '[1]', content: 'A test footnote' }],
+            footnotes: [{ marker: '[1]', text: 'A test footnote' }],
             suggestedIllustrations: [{ marker: '{{IMG:test}}', description: 'Test illustration' }],
             provider: 'OpenAI',
             model: 'gpt-4o',
