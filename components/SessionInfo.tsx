@@ -577,17 +577,15 @@ const SessionInfo: React.FC = () => {
                         }]
                     };
 
-                    // Download both files
-                    await ExportService.downloadJSON(metadata, `${novelId}-metadata.json`);
-                    await ExportService.downloadJSON(sessionData, `${novelId}-session.json`);
+                    // Download both files with simple names for drag-and-drop
+                    await ExportService.downloadJSON(metadata, 'metadata.json');
+                    await ExportService.downloadJSON(sessionData, 'session.json');
 
                     alert(
                         'Files downloaded!\n\n' +
                         'To add to your library:\n' +
                         `1. Create folder: library/${novelId}/\n` +
-                        '2. Rename and move files:\n' +
-                        `   • ${novelId}-metadata.json → metadata.json\n` +
-                        `   • ${novelId}-session.json → session.json\n` +
+                        '2. Drag metadata.json and session.json into that folder\n' +
                         '3. Commit and push to your repo'
                     );
                 }
