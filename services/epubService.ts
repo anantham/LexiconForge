@@ -67,10 +67,17 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
   const stats = calculateTranslationStats(options.chapters);
   
   // Get novel configuration (auto-detect from URL, chapter title, or use manual config)
+  // Pass options.title/author to skip unnecessary title extraction when metadata is already known
   const firstChapter = options.chapters[0];
   const firstChapterUrl = firstChapter.originalUrl;
   const firstChapterTitle = firstChapter.translatedTitle || firstChapter.title;
-  const novelConfig = getNovelConfig(firstChapterUrl, options.novelConfig, firstChapterTitle);
+  const novelConfig = getNovelConfig(firstChapterUrl, {
+    ...options.novelConfig,
+    // Pre-populate from options to skip extraction
+    title: options.title || options.novelConfig?.title,
+    author: options.author || options.novelConfig?.author,
+    description: options.description || options.novelConfig?.description,
+  }, firstChapterTitle);
   
   // Use novel configuration for metadata (with fallbacks)
   const title = options.title || novelConfig.title;
