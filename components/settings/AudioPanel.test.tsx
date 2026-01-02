@@ -21,8 +21,18 @@ const storeState = {
   setError: vi.fn(),
 };
 
+// Mock appStore with audio enabled to show full settings
+const appStoreState = {
+  settings: { enableAudio: true },
+  updateSettings: vi.fn(),
+};
+
 vi.mock('../../hooks/useAudioPanelStore', () => ({
   useAudioPanelStore: () => storeState,
+}));
+
+vi.mock('../../store', () => ({
+  useAppStore: (selector: (state: typeof appStoreState) => unknown) => selector(appStoreState),
 }));
 
 vi.mock('../../services/audio/OSTLibraryService', () => ({

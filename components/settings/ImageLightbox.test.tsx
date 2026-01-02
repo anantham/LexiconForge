@@ -9,6 +9,18 @@ vi.mock('../../hooks/useBlobUrl', () => ({
   useBlobUrl: vi.fn(() => 'blob:test-image-url'),
 }));
 
+// Mock CoverCropModal to auto-confirm with a test cropped data URL
+vi.mock('./CoverCropModal', () => ({
+  default: ({ onConfirm, onCancel }: { onConfirm: (url: string) => void; onCancel: () => void }) => (
+    <div data-testid="crop-modal">
+      <button onClick={() => onConfirm('data:image/jpeg;base64,cropped-test-data')}>
+        Confirm Crop
+      </button>
+      <button onClick={onCancel}>Cancel Crop</button>
+    </div>
+  ),
+}));
+
 const createMockImage = (id: string, prompt: string): GalleryImage => ({
   chapterId: `chapter-${id}`,
   chapterTitle: `Chapter ${id}`,
@@ -129,14 +141,26 @@ describe('ImageLightbox', () => {
     expect(screen.getByText(/Image 1 of 3/)).toBeInTheDocument();
   });
 
-  it('calls onSetCover when "Set as Cover" clicked', async () => {
+  it('calls onSetCover when "Set as Cover" clicked and crop confirmed', async () => {
     const user = userEvent.setup();
     const onSetCover = vi.fn();
 
     render(<ImageLightbox {...defaultProps} onSetCover={onSetCover} />);
 
+    // Click "Set as Cover" to open the crop modal
     await user.click(screen.getByRole('button', { name: /Set as Cover/i }));
-    expect(onSetCover).toHaveBeenCalledWith(mockImages[0]);
+
+    // Crop modal should appear
+    expect(screen.getByTestId('crop-modal')).toBeInTheDocument();
+
+    // Confirm the crop
+    await user.click(screen.getByRole('button', { name: /Confirm Crop/i }));
+
+    // onSetCover should be called with image and cropped data URL
+    expect(onSetCover).toHaveBeenCalledWith(
+      mockImages[0],
+      'data:image/jpeg;base64,cropped-test-data'
+    );
   });
 
   it('hides navigation arrows when only one image', () => {
