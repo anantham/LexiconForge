@@ -35,18 +35,18 @@ Ideas and enhancements for future development. Items here are not committed - ju
 
 ## Image Gallery & Cover Selection
 
-**Status:** In design (2025-12-29)
+**Status:** ✅ DONE (2025-12-30)
 
-- [ ] Gallery view showing all generated images across chapters
-- [ ] Full-size image preview (not just thumbnails)
-- [ ] Select image as EPUB cover
-- [ ] Lives in new sidebar navigation under "Workspace" section
+- [x] Gallery view showing all generated images across chapters
+- [x] Full-size image preview (not just thumbnails)
+- [x] Select image as EPUB cover (with portrait crop support)
+- [x] Lives in new sidebar navigation under "Workspace" section
 
 ---
 
 ## Settings Modal Restructure
 
-**Status:** In design (2025-12-29)
+**Status:** ✅ DONE (2025-12-30)
 
 Replacing horizontal tabs with sidebar navigation:
 
