@@ -1,4 +1,4 @@
-# LexiconForge Architecture (November 2025)
+# LexiconForge Architecture (January 2026)
 
 ## 1. System Overview
 
@@ -12,98 +12,127 @@
                                       │
                            providers / adapters
                                       │
-                           IndexedDB + dual write
+                              IndexedDB (modular ops)
 ```
 
-- **UI layer** lives under `components/` (e.g., `components/SettingsModal.tsx`, `components/ChapterView.tsx`).
-- **Store layer** is a composed Zustand store (`store/index.ts:24-30`) with slices that import services directly (translations, audio, export, etc.).
-- **Services layer** is a grab bag under `services/` (audio, translation, EPUB, DB). Several services still exceed 700 lines and contain multiple responsibilities, but the old 3,900‑line `services/indexeddb.ts` was retired in favor of the modular ops layer.
-- **Workers** (`workers/translate.worker.ts`, `workers/epub.worker.ts`) offload heavy tasks but still pull in large services via `importScripts`.
-- **Persistence** now relies on the modular operations/repository stack (`services/db/operations/*`, `services/db/repositories/*`). The monolithic `services/indexeddb.ts` was removed on 2025‑11‑16; the `LF_DB_V2_DOMAINS` flag now primarily controls the memory fallback.
+- **UI layer** lives under `components/` with feature-specific subdirectories (`components/settings/`, `components/chapter/`, `components/icons/`).
+- **Store layer** is a composed Zustand store (`store/index.ts`) with feature slices (`store/slices/*`) that import services directly.
+- **Services layer** under `services/` contains audio, translation, EPUB, and database modules.
+- **Workers** (`workers/translate.worker.ts`, `workers/epub.worker.ts`) offload heavy tasks.
+- **Persistence** uses the modular operations stack (`services/db/operations/*`). The legacy monolithic `services/indexeddb.ts` was fully removed.
 
 
 ## 2. Data & Control Flow
 
 1. **User action** (e.g., translate chapter) → UI components dispatch to Zustand slices.
 2. **Store slice** orchestrates:
-   - `translationsSlice` imports `TranslationService`, `ExplanationService`, `TranslationPersistenceService`, and `indexedDBService`.
-   - `chaptersSlice` composes `NavigationService`, `indexedDBService`, and Stable ID helpers.
+   - `translationsSlice` imports `TranslationService`, `ExplanationService`, `TranslationPersistenceService`.
+   - `chaptersSlice` composes `NavigationService`, `stableIdService`, chapter operations.
    - `imageSlice` coordinates `ImageGenerationService`, `ImageCacheService`, and persistence.
 3. **Services** fan out to provider adapters, workers, telemetry, and persistence.
 4. **Persistence**:
-   - Legacy path: `indexedDBService` (monolithic) manages schemas, migrations, caching.
-   - Modern path: Repository factory in `services/db/index.ts` routes to `ChapterOps`, `TranslationOps`, etc., when feature flag is enabled.
+   - All persistence now uses the modular ops layer: `ChapterOps`, `TranslationOps`, `FeedbackOps`, `ImageCacheOps`, `SummaryOps`, `NovelMetadataOps`.
+   - Connection managed via `services/db/core/connection.ts`.
 5. **Workers** call back into services (e.g., `workers/epub.worker.ts` delegates to `services/epub/exportService.ts`).
 
 
-## 3. Persistence Stack Details
+## 3. Persistence Stack
 
 | Layer | Location | Notes |
 |-------|----------|-------|
-| Legacy IndexedDB service | *(historical) `services/indexeddb.ts`* | Former 3,938 LOC file handling schema, migrations, URL mappings, exports, feedback, image cache, telemetry hooks (deleted). |
-| Modern operations | `services/db/operations/*.ts` | ChapterOps, TranslationOps, FeedbackOps, etc. talk directly to IndexedDB via typed transactions. |
-| Repository factory | `services/db/index.ts:1-200` | Selects backend (`legacy`, `modern`, `memory`, `shadow`) via env + feature flags; exposes repo-like API used by `adapters/repo`. |
-| Dual-write feature control | `services/db/utils/featureFlags.ts` | Reads `LF_DB_V2_DOMAINS` & `localStorage` to decide whether modern backend handles each domain. |
-| Store consumers | `adapters/repo/*.ts`, `store/slices/*` | Repos mostly pass through to `indexedDBService` today; modern ops still guarded. |
+| Operations | `services/db/operations/*.ts` | ChapterOps, TranslationOps, FeedbackOps, ImageCacheOps, SummaryOps, NovelMetadataOps (~3,073 LOC total) |
+| Connection | `services/db/core/connection.ts` | Manages IndexedDB connection, schema, migrations |
+| Types | `services/db/types.ts` | Shared database record types |
 
-### Current Pain Points
-1. **Single entry point** (`indexedDBService`) imported by 20+ modules (translations, navigation, export, import, stable IDs, telemetry) resulting in tight coupling and large bundle impact.
-2. **Mixed responsibilities**: schema/migration logic, caching, image asset management, export/import, telemetry instrumentation all share one class.
-3. **Testing**: no isolated tests for persistence layer; new `tests/services/db/indexedDBService.interface.test.ts` provides only a high-level contract.
+### Architecture Benefits
+- **Modular**: Each domain (chapters, translations, images) has its own operations file
+- **Testable**: Operations are pure functions that work with IndexedDB transactions
+- **Type-safe**: Full TypeScript coverage with shared types
 
 
 ## 4. State & Service Dependencies
 
 ### Zustand Store
 
-| Slice | Key Imports | Responsibilities |
-|-------|-------------|------------------|
-| `store/index.ts` | `SessionManagementService`, `indexedDBService`, audio worker registration | Bootstraps slices, rehydrates session from persistence. |
-| `store/slices/translationsSlice.ts` | `TranslationService`, `ExplanationService`, `TranslationPersistenceService`, `indexedDBService` | Translation queueing, persistence, footnotes, explanation requests. |
-| `store/slices/chaptersSlice.ts` | `NavigationService`, `stableIdService`, `indexedDBService`, `aiService` | Chapter navigation, canonical URL mapping, translation heatmap toggles. |
-| `store/slices/imageSlice.ts` | `ImageGenerationService`, `ImageCacheService`, `TranslationPersistenceService` | Handles generation jobs, image caching, association with chapters. |
-| `store/slices/exportSlice.ts` | `indexedDBService`, `telemetryService`, `imageUtils` | EPUB/export orchestration. |
-
-Because slices import services directly, components often indirectly depend on IndexedDB and provider logic, complicating testing and code splitting.
-
+| Slice | LOC | Key Imports | Responsibilities |
+|-------|-----|-------------|------------------|
+| `store/index.ts` | 69 | Slice composers | Bootstraps and composes all slices |
+| `translationsSlice.ts` | 1,059 | TranslationService, ExplanationService | Translation queueing, persistence, footnotes |
+| `chaptersSlice.ts` | 825 | NavigationService, stableIdService | Chapter navigation, URL mapping |
+| `imageSlice.ts` | 1,081 | ImageGenerationService, ImageCacheService | Generation jobs, image caching |
+| `exportSlice.ts` | 525 | Export utilities, imageUtils | EPUB/session export with progress tracking |
 
 ### Services & Adapters
 
-- **AI/Translation**: `services/translationService.ts` orchestrates translation requests, context building, and persistence; `services/aiService.ts` plus provider adapters (`adapters/providers/*.ts`) talk to OpenAI/Gemini/Claude.
-- **EPUB**: `services/epubService.ts`, `services/epub/exportService.ts`, and worker counterpart handle DOM cloning, sanitization, packaging, and asset streaming.
-- **Audio**: `services/audio/*.ts` manage generation providers and in-browser storage via OPFS/service workers.
-- **Telemetry**: `services/telemetryService.ts` instrumented via store slices/components, capturing memory pressure and custom events.
-- **Import/Export**: `services/importService.ts`, `services/importTransformationService.ts` rely on Stable ID helpers to normalize incoming chapters.
+- **AI/Translation**: `services/translationService.ts` orchestrates requests; provider adapters in `adapters/providers/*.ts` talk to OpenAI/Gemini/Claude/DeepSeek.
+- **EPUB**: `services/epub/exportService.ts` and worker handle DOM cloning, sanitization, packaging.
+- **Audio**: `services/audio/*.ts` manage generation providers and OPFS storage.
+- **Images**: `services/imageService.ts` with `ImageCacheService` for blob storage.
 
 
-## 5. Feature Flags & Environment
+## 5. Component Architecture
+
+### Decomposed Components
+
+| Component | LOC | Subdirectory | Notes |
+|-----------|-----|--------------|-------|
+| `SettingsModal.tsx` | 205 | `components/settings/` | Shell component; panels extracted |
+| `ChapterView.tsx` | 414 | `components/chapter/` | Core reader; helpers extracted |
+
+### Settings Panels (`components/settings/`)
+- `ProvidersPanel.tsx` - AI provider configuration
+- `PromptPanel.tsx` - Translation prompt customization
+- `AudioPanel.tsx` - Audio generation settings
+- `DisplayPanel.tsx` - Reading display preferences
+- `DiffPanel.tsx` - Diff heatmap settings
+- `GalleryPanel.tsx` - Image gallery with cover selection
+- `ExportPanel.tsx` - Export configuration
+- `MetadataPanel.tsx` - Novel metadata editing
+- `TemplatesPanel.tsx` - Prompt template management
+
+### Chapter Components (`components/chapter/`)
+- `ChapterContent.tsx` - Rendered chapter content
+- `ChapterHeader.tsx` - Navigation and controls
+- `ParagraphRenderer.tsx` - Individual paragraph display
+- `IllustrationPlaceholder.tsx` - Image placement markers
+
+
+## 6. Feature Flags & Environment
 
 | Flag/Env | Location | Purpose |
 |----------|----------|---------|
-| `DB_BACKEND`, `LF_DB_V2_DOMAINS` | `services/db/index.ts`, `services/db/utils/featureFlags.ts` | Selects backend (legacy vs modern vs shadow). |
-| Provider API keys (`OPENAI_API_KEY`, etc.) | `services/env.ts`, `services/explanationService.ts`, `services/illustrationService.ts` | Determine provider availability and fallback order. |
-| Debug toggles (`debugPipelineEnabled`, `dbDebugEnabled`) | `utils/debug.ts` | Control verbosity for services like `indexeddb.ts`. |
+| Provider API keys | `services/env.ts` | Determine provider availability |
+| Debug toggles | `utils/debug.ts` | Control logging verbosity |
+| `enableAudio` | Settings slice | Toggle audio features |
+| `enableDiffHeatmap` | Settings slice | Toggle diff visualization |
 
 
-## 6. Known Hotspots
+## 7. Current Hotspots
 
-| File | LOC | Issue |
-|------|-----|-------|
-| `services/indexeddb.ts` | 3,938 | Monolith mixing schema, repos, exports, telemetry. |
-| `components/SettingsModal.tsx` | 2,745 | One component handles provider, audio, export, diff, telemetry settings. |
-| `components/ChapterView.tsx` | 1,969 | Rendering + tokenization + audio/diff overlays all intertwined. |
-| `store/slices/imageSlice.ts` | 1,055 | Mixes API orchestration, cache state, job queue. |
-| `store/index.ts` | 485 | Central store wiring plus side effects (audio worker setup, telemetry). |
+| File | LOC | Status |
+|------|-----|--------|
+| `store/slices/imageSlice.ts` | 1,081 | Mixes API orchestration, cache state, job queue |
+| `store/slices/translationsSlice.ts` | 1,059 | Complex translation pipeline |
+| `store/slices/chaptersSlice.ts` | 825 | Navigation + state management |
+| `store/slices/exportSlice.ts` | 525 | Export orchestration |
 
-These files are priority targets for decomposition (documented in `docs/COMPONENT-DECOMPOSITION-PLAN.md` and `docs/INDEXEDDB-DECOMPOSITION-PLAN.md`).
+These slices exceed the 300 LOC guideline but contain related functionality. Further decomposition may be considered if complexity increases.
 
 
-## 7. Next Architecture Steps
+## 8. Testing Strategy
 
-1. **Documented Decomposition** (this file + decomposition plans) → ensures shared understanding.
-2. **Repository Extraction** from `services/indexeddb.ts` using new `IIndexedDBService` contract and mock harness.
-3. **Store/Service boundary cleanup**: move service instantiation behind dependency injection container once repos are isolated.
-4. **Component splitting** for SettingsModal/ChapterView to enable code splitting and targeted memoization.
-5. **CI Guardrails**: integrate `npm run check:loc`, `tsc --noEmit`, and interface tests into pre-PR checks once refactors land.
+- **Unit tests**: Vitest with React Testing Library (`*.test.tsx`)
+- **E2E tests**: Playwright (`tests/e2e/`)
+- **LOC checks**: `npm run check:loc` enforces file size limits
 
-This document should be updated whenever architecture decisions change (e.g., after ChapterRepository extraction or new worker flows).***
+## 9. Documentation
+
+- `docs/adr/` - Architecture Decision Records
+- `docs/plans/` - Implementation plans (archive completed ones)
+- `docs/WORKLOG.md` - Development log
+- `AGENTS.md` - Multi-agent coordination rules
+
+---
+
+*Last updated: January 2026*
+*Previous major update: November 2025 (pre-decomposition)*

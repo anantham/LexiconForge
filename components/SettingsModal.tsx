@@ -68,7 +68,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         icon: '✨',
         items: [
           { id: 'display', label: 'Display' },
-          { id: 'audio', label: 'Audio' },
+          { id: 'audio', label: 'Audio', hidden: !settings.enableAudio },
           { id: 'diff', label: 'Diff Heatmap' },
         ],
       },
@@ -89,7 +89,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         items: [{ id: 'export', label: 'Export' }],
       },
     ],
-    []
+    [settings.enableAudio]
   );
   const [parameterSupport, setParameterSupport] = useState<Record<string, ParameterSupportState>>({});
   const chaptersMap = useAppStore(s => s.chapters);

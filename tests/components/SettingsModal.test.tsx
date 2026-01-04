@@ -16,7 +16,8 @@ describe('SettingsModal Sidebar Navigation', () => {
     expect(screen.getByText('Prompt')).toBeInTheDocument();
     expect(screen.getByText('Advanced')).toBeInTheDocument();
     expect(screen.getByText('Display')).toBeInTheDocument();
-    expect(screen.getByText('Audio')).toBeInTheDocument();
+    // Audio is hidden when enableAudio is false (default)
+    expect(screen.queryByText('Audio')).not.toBeInTheDocument();
     expect(screen.getByText('Templates')).toBeInTheDocument();
     expect(screen.getByText('Metadata')).toBeInTheDocument();
     expect(screen.getByText('Gallery')).toBeInTheDocument();
