@@ -85,9 +85,9 @@ class YourSiteAdapter extends BaseAdapter {
 
 ### Step 3: Register Website Support
 
-**Location**: `constants.ts`
+**Location**: `config/constants.ts`
 
-**Add to SUPPORTED_WEBSITES array**:
+**Add to SUPPORTED_WEBSITES_CONFIG array**:
 ```typescript
 export const SUPPORTED_WEBSITES = [
   'existing-site.com',
@@ -223,7 +223,7 @@ For each new website adapter, you need to modify:
    - Add new adapter class
    - Update `getAdapter()` function
 
-2. **`constants.ts`**:
-   - Add website to `SUPPORTED_WEBSITES` array
+2. **`config/constants.ts`**:
+   - Add website to `SUPPORTED_WEBSITES_CONFIG` array
 
 That's it! The existing proxy system and UI will automatically work with the new adapter.
