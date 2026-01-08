@@ -28,6 +28,19 @@ export interface ExportSlice {
   exportEpub: () => Promise<void>;
 }
 
+type ExportWarningType = 'missing-translation' | 'image-cache-miss';
+
+interface ExportWarning {
+  type: ExportWarningType;
+  message: string;
+  chapterStableId?: string;
+  chapterId?: string;
+  chapterTitle?: string;
+  chapterUrl?: string;
+  marker?: string;
+  details?: Record<string, unknown>;
+}
+
 // Debug logging utilities (copied from old store)
 const storeDebugEnabled = (): boolean => {
   try {
@@ -253,6 +266,19 @@ export const createExportSlice: StateCreator<
     const { imageVersions, activeImageVersion } = get();
     const setProgress = get().setExportProgress;
     const chaptersForEpub: import('../../services/epubService').ChapterForEpub[] = [];
+    const warnings: ExportWarning[] = [];
+    const recordWarning = (warning: ExportWarning) => {
+      warnings.push(warning);
+      telemetryService.captureWarning('export-epub', warning.message, {
+        type: warning.type,
+        chapterStableId: warning.chapterStableId,
+        chapterId: warning.chapterId,
+        chapterTitle: warning.chapterTitle,
+        chapterUrl: warning.chapterUrl,
+        marker: warning.marker,
+        details: warning.details,
+      });
+    };
 
     try {
       setProgress({ phase: 'preparing', current: 0, total: 1, message: 'Loading chapters...' });
@@ -312,7 +338,18 @@ export const createExportSlice: StateCreator<
         const ch = byStableId.get(sid);
         if (!ch) continue;
         const active = await TranslationOps.getActiveByStableId(sid);
-        if (!active) continue;
+        if (!active) {
+          recordWarning({
+            type: 'missing-translation',
+            message: `Missing active translation for "${ch.title || 'Untitled'}" (${sid}).`,
+            chapterStableId: sid,
+            chapterId: ch.id,
+            chapterTitle: ch.title,
+            chapterUrl: ch.url,
+            details: { chapterNumber: ch.chapterNumber }
+          });
+          continue;
+        }
 
         processedChapters++;
         setProgress({
@@ -333,6 +370,7 @@ export const createExportSlice: StateCreator<
           suggestedIllustrations.map(async (illust: any) => {
             // Check if this illustration has a cache key (modern versioned images)
             const imageCacheKey = illust.generatedImage?.imageCacheKey || illust.imageCacheKey;
+            const legacyUrl = (illust as any).url;
             const versionKey = ch.id && illust.placementMarker
               ? `${ch.id}:${illust.placementMarker}`
               : null;
@@ -363,10 +401,24 @@ export const createExportSlice: StateCreator<
                     prompt: caption
                   };
                 }
+
+                recordWarning({
+                  type: 'image-cache-miss',
+                  message: `Image cache miss for "${illust.placementMarker}" in "${ch.title || 'Untitled'}" (${sid}).`,
+                  chapterStableId: sid,
+                  chapterId: ch.id,
+                  chapterTitle: ch.title,
+                  chapterUrl: ch.url,
+                  marker: illust.placementMarker,
+                  details: {
+                    cacheKey: versionedKey,
+                    fallbackUsed: Boolean(legacyUrl),
+                    reason: 'miss'
+                  }
+                });
               }
 
               // Legacy fallback: use .url field (base64 data URL)
-              const legacyUrl = (illust as any).url;
               if (legacyUrl) {
                 const metadata: ImageGenerationMetadata | undefined = versionStateEntry?.versions?.[version];
                 const caption = buildImageCaption(version, metadata, illust.imagePrompt);
@@ -381,8 +433,29 @@ export const createExportSlice: StateCreator<
               return null;
             } catch (error) {
               console.error(`[Export] Failed to retrieve image for marker ${illust.placementMarker}:`, error);
+              if (imageCacheKey && ch.id) {
+                const cacheKey = {
+                  chapterId: ch.id,
+                  placementMarker: illust.placementMarker,
+                  version: version
+                };
+                recordWarning({
+                  type: 'image-cache-miss',
+                  message: `Image cache lookup failed for "${illust.placementMarker}" in "${ch.title || 'Untitled'}" (${sid}).`,
+                  chapterStableId: sid,
+                  chapterId: ch.id,
+                  chapterTitle: ch.title,
+                  chapterUrl: ch.url,
+                  marker: illust.placementMarker,
+                  details: {
+                    cacheKey,
+                    fallbackUsed: Boolean(legacyUrl),
+                    reason: 'error',
+                    error: error instanceof Error ? error.message : String(error)
+                  }
+                });
+              }
               // Try legacy fallback on error
-              const legacyUrl = (illust as any).url;
               if (legacyUrl) {
                 const metadata: ImageGenerationMetadata | undefined = versionStateEntry?.versions?.[version];
                 const caption = buildImageCaption(version, metadata, illust.imagePrompt);
@@ -505,14 +578,21 @@ export const createExportSlice: StateCreator<
         ? performance.now()
         : Date.now();
       const totalImages = chaptersForEpub.reduce((sum, chapter) => sum + (chapter.images?.length ?? 0), 0);
+      const warningTypes = Array.from(new Set(warnings.map(warning => warning.type)));
       telemetryService.capturePerformance('ux:export:epub', end - start, {
         chapterCount: chaptersForEpub.length,
         imageCount: totalImages,
         includeTitlePage: !!settings.includeTitlePage,
-        includeStatsPage: !!settings.includeStatsPage
+        includeStatsPage: !!settings.includeStatsPage,
+        warningCount: warnings.length,
+        warningTypes: warningTypes.length > 0 ? warningTypes : undefined
       });
 
-      setProgress({ phase: 'done', current: 1, total: 1, message: 'EPUB export complete!' });
+      const warningLabel = warnings.length === 1 ? 'warning' : 'warnings';
+      const completionMessage = warnings.length > 0
+        ? `EPUB export complete with ${warnings.length} ${warningLabel}.`
+        : 'EPUB export complete!';
+      setProgress({ phase: 'done', current: 1, total: 1, message: completionMessage });
     } catch (e: any) {
       setProgress(null);
       console.error('[Export] EPUB generation failed', e);
