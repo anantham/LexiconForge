@@ -9,6 +9,32 @@ import { EPUB_STYLESHEET_CSS } from './stylesheet';
 export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapter[]): Promise<ArrayBuffer> => {
   const lang = meta.language || 'en';
   const bookId = meta.identifier || `urn:uuid:${crypto.randomUUID()}`;
+
+  type PackageWarning = { type: string; message: string; details?: Record<string, unknown> };
+  const packageWarnings: PackageWarning[] = [];
+  const recordWarning = (warning: PackageWarning) => {
+    packageWarnings.push(warning);
+    console.warn('[EPUBPackager]', warning);
+  };
+
+  if (!meta.title || meta.title.trim().length === 0) {
+    recordWarning({
+      type: 'missing-title',
+      message: 'EPUB package metadata is missing a title.'
+    });
+  }
+  if (!meta.identifier) {
+    recordWarning({
+      type: 'missing-identifier',
+      message: 'EPUB package metadata is missing an identifier; generated UUID will be used.'
+    });
+  }
+  if (chapters.length === 0) {
+    recordWarning({
+      type: 'no-chapters',
+      message: 'EPUB package contains no chapters.'
+    });
+  }
   
   // EPUB3 directory structure
   const oebps = 'OEBPS';
@@ -115,6 +141,13 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
         isCover: true,
       };
       imageEntries.push(coverEntry);
+    }
+    if (!coverEntry) {
+      recordWarning({
+        type: 'invalid-cover-image',
+        message: 'Cover image was provided but is not a valid base64 data URL.',
+        details: { sample: meta.coverImage.slice(0, 32) }
+      });
     }
   }
 
@@ -270,6 +303,11 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
     zip.file(`${oebps}/debug/parse-errors.txt`, parseErrors.join('\n'));
     processedChapters.forEach(({ ch, xhtml }) => {
       zip.file(`${oebps}/debug/text/${ch.href}.raw.xhtml`, xhtml);
+    });
+    recordWarning({
+      type: 'xhtml-parse-error',
+      message: `Detected ${parseErrors.length} XHTML parse error(s) during packaging.`,
+      details: { count: parseErrors.length }
     });
   }
 
