@@ -206,6 +206,16 @@ class PolyglottaContentScript {
             headlineText: headline?.textContent?.trim() || null,
         };
 
+        // Check for navigation options
+        const fulltextLinks = document.querySelectorAll('a[href*="page=fulltext"]');
+        const recordLinks = document.querySelectorAll('a[href*="page=record"]');
+
+        analysis.navigation = {
+            fulltextLinksCount: fulltextLinks.length,
+            recordLinksCount: recordLinks.length,
+            hasFulltextLink: fulltextLinks.length > 0,
+        };
+
         return analysis;
     }
 
@@ -220,6 +230,44 @@ class PolyglottaContentScript {
     }
 
     /**
+     * Find a link to the fulltext view from current page
+     */
+    findFulltextLink() {
+        // Look for "Continuous text view" or similar links
+        const selectors = [
+            'a[href*="page=fulltext"]',
+            'a[href*="view=fulltext"]',
+        ];
+
+        for (const selector of selectors) {
+            const links = document.querySelectorAll(selector);
+            for (const link of links) {
+                const href = link.getAttribute('href');
+                // Make sure it's a real fulltext link, not admin
+                if (href && href.includes('page=fulltext') && !href.includes('/admin/')) {
+                    // Convert relative to absolute
+                    return new URL(href, window.location.href).href;
+                }
+            }
+        }
+
+        // Also check for links with text containing "fulltext" or "continuous"
+        const allLinks = document.querySelectorAll('a');
+        for (const link of allLinks) {
+            const text = link.textContent?.toLowerCase() || '';
+            if (text.includes('continuous') || text.includes('fulltext') || text.includes('full text')) {
+                const href = link.getAttribute('href');
+                if (href && !href.includes('/admin/')) {
+                    this.log(`   Found link by text: "${link.textContent.trim()}"`);
+                    return new URL(href, window.location.href).href;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Navigate to table of contents if we're on a specific section
      */
     async ensureOnTableOfContents() {
@@ -228,15 +276,47 @@ class PolyglottaContentScript {
         this.log(`\n${'─'.repeat(50)}`);
         this.log(`📊 PAGE ANALYSIS:`);
         this.log(`   URL: ${analysis.url}`);
-        this.log(`   vid=${analysis.params.vid}, cid=${analysis.params.cid || 'none'}, level=${analysis.params.level || 'none'}`);
+        this.log(`   Page type: ${analysis.params.page || 'unknown'}`);
+        this.log(`   vid=${analysis.params.vid || 'none'}, cid=${analysis.params.cid || 'none'}, level=${analysis.params.level || 'none'}`);
         this.log(`   Is fulltext page: ${analysis.isFulltextPage}`);
         this.log(`   Is on specific section: ${analysis.isOnSpecificSection}`);
-        this.log(`   DOM: ${analysis.dom.navLinksCount} nav links, ${analysis.dom.bolkContainersCount} content blocks`);
+        this.log(`   DOM: ${analysis.dom.navLinksCount} section links, ${analysis.dom.bolkContainersCount} content blocks`);
+        this.log(`   Navigation: ${analysis.navigation.fulltextLinksCount} fulltext links, ${analysis.navigation.recordLinksCount} record links`);
         this.log(`   Headline: ${analysis.dom.headlineText || 'none'}`);
         this.log(`${'─'.repeat(50)}\n`);
 
         if (!analysis.isFulltextPage) {
-            throw new Error(`Not on a fulltext page. Current page type: ${analysis.params.page || 'unknown'}. Navigate to a Polyglotta text first.`);
+            // Check if we're on a record page - we can navigate to fulltext from there
+            if (analysis.params.page === 'record') {
+                const fulltextLink = this.findFulltextLink();
+                if (fulltextLink) {
+                    this.log(`📍 On record page - found fulltext link`);
+                    this.log(`➡️ Navigating to fulltext view: ${fulltextLink}`);
+
+                    // Save state indicating we need to start scraping after navigation
+                    await chrome.storage.local.set({
+                        polyglottaPendingStart: {
+                            shouldStart: true,
+                            maxSections: this.pendingMaxSections || 50,
+                            timestamp: Date.now()
+                        }
+                    });
+
+                    window.location.href = fulltextLink;
+                    return false; // Will reload page
+                } else {
+                    throw new Error(
+                        `On a record page but couldn't find fulltext link.\n` +
+                        `   Look for "Continuous text view" link on the page and click it manually.`
+                    );
+                }
+            }
+
+            throw new Error(
+                `Not on a fulltext page. Current page type: ${analysis.params.page || 'unknown'}.\n` +
+                `   Navigate to a Polyglotta text's "Continuous text view" first.\n` +
+                `   URL should contain: page=fulltext`
+            );
         }
 
         if (!analysis.params.vid) {
