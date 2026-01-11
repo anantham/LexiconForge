@@ -70,6 +70,9 @@ class PolyglottaContentScript {
 
         // Wait for page to be ready before checking session
         this.waitForPageReady().then(async () => {
+            // Load any persisted logs from previous page navigations
+            await this.loadPersistedLogs();
+
             this.log('✅ Page ready - checking for pending actions...');
 
             // Check if we were redirected here to start scraping
@@ -147,7 +150,35 @@ class PolyglottaContentScript {
             this.logHistory = this.logHistory.slice(-500);
         }
 
+        // Persist logs to storage (for cross-navigation persistence)
+        this.persistLogs();
+
         this.sendToPopup('LOG', { message });
+    }
+
+    async persistLogs() {
+        // Debounce: only persist every 500ms
+        if (this._logPersistTimeout) return;
+        this._logPersistTimeout = setTimeout(async () => {
+            this._logPersistTimeout = null;
+            try {
+                await chrome.storage.local.set({ polyglottaLogs: this.logHistory });
+            } catch (e) {
+                // Storage might be full, ignore
+            }
+        }, 500);
+    }
+
+    async loadPersistedLogs() {
+        try {
+            const result = await chrome.storage.local.get(['polyglottaLogs']);
+            if (result.polyglottaLogs && result.polyglottaLogs.length > 0) {
+                this.logHistory = result.polyglottaLogs;
+                console.log(`[Polyglotta] Loaded ${this.logHistory.length} persisted log entries`);
+            }
+        } catch (e) {
+            // Ignore errors
+        }
     }
 
     warn(message) {
@@ -760,6 +791,10 @@ class PolyglottaContentScript {
             totalLanguages: new Set(),
         };
 
+        // Clear previous logs for fresh start
+        this.logHistory = [];
+        await chrome.storage.local.remove(['polyglottaLogs']);
+
         try {
             this.log(`\n${'═'.repeat(60)}`);
             this.log(`🚀 STARTING POLYGLOTTA SCRAPER`);
@@ -1093,6 +1128,10 @@ class PolyglottaContentScript {
 
             if (response.success) {
                 this.log(`🎉 Downloaded ${response.sectionsCount} sections with ${response.paragraphsCount} aligned paragraphs!`);
+
+                // Clear persisted logs now that they're in the output file
+                await chrome.storage.local.remove(['polyglottaLogs']);
+
                 this.updateStatus('ready', `Complete! ${response.paragraphsCount} paragraphs`);
                 this.sendToPopup('COMPLETE', {
                     sectionsCount: response.sectionsCount,
