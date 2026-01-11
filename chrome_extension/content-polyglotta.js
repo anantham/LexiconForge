@@ -62,12 +62,28 @@ class PolyglottaContentScript {
         console.log('='.repeat(60));
 
         this.log('📚 Polyglotta content script loaded (Robust Edition)');
+        this.log(`📍 Current URL: ${window.location.href}`);
+        this.log(`📍 Document state: ${document.readyState}`);
 
         // Wait for page to be ready before checking session
-        this.waitForPageReady().then(() => {
-            this.log('✅ Page ready - navigation tree detected');
-            // Check if scraping session is active and resume
-            this.checkAndResumeSession();
+        this.waitForPageReady().then(async () => {
+            this.log('✅ Page ready - checking for pending actions...');
+
+            // Check if we were redirected here to start scraping
+            const pendingResult = await chrome.storage.local.get(['polyglottaPendingStart']);
+            const pending = pendingResult.polyglottaPendingStart;
+
+            if (pending?.shouldStart && (Date.now() - pending.timestamp) < 30000) {
+                this.log(`🔄 Found pending scrape request (max ${pending.maxSections} sections)`);
+                await chrome.storage.local.remove(['polyglottaPendingStart']);
+                await this.startScraping({ maxSections: pending.maxSections });
+            } else {
+                // Check for active session to resume
+                this.checkAndResumeSession();
+            }
+        }).catch(err => {
+            this.log(`❌ Page ready check failed: ${err.message}`);
+            console.error('[Polyglotta] Initialization error:', err);
         });
     }
 
@@ -154,6 +170,111 @@ class PolyglottaContentScript {
         const mins = Math.floor(ms / 60000);
         const secs = Math.round((ms % 60000) / 1000);
         return `${mins}m ${secs}s`;
+    }
+
+    /**
+     * Analyze current URL and page state
+     */
+    analyzeCurrentPage() {
+        const url = new URL(window.location.href);
+        const params = {
+            page: url.searchParams.get('page'),
+            view: url.searchParams.get('view'),
+            vid: url.searchParams.get('vid'),
+            cid: url.searchParams.get('cid'),
+            level: url.searchParams.get('level'),
+        };
+
+        const analysis = {
+            url: window.location.href,
+            params,
+            isFulltextPage: params.page === 'fulltext',
+            isOnSpecificSection: !!params.cid,
+            vid: params.vid,
+            cid: params.cid,
+        };
+
+        // Check what's visible on the page
+        const navLinks = document.querySelectorAll('a[href*="page=fulltext"][href*="cid="]');
+        const bolkContainers = document.querySelectorAll('.BolkContainer');
+        const headline = document.querySelector('.headline');
+
+        analysis.dom = {
+            navLinksCount: navLinks.length,
+            bolkContainersCount: bolkContainers.length,
+            hasHeadline: !!headline,
+            headlineText: headline?.textContent?.trim() || null,
+        };
+
+        return analysis;
+    }
+
+    /**
+     * Get the table of contents URL (without cid parameter)
+     */
+    getTableOfContentsUrl() {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('cid');
+        url.searchParams.delete('level');
+        return url.href;
+    }
+
+    /**
+     * Navigate to table of contents if we're on a specific section
+     */
+    async ensureOnTableOfContents() {
+        const analysis = this.analyzeCurrentPage();
+
+        this.log(`\n${'─'.repeat(50)}`);
+        this.log(`📊 PAGE ANALYSIS:`);
+        this.log(`   URL: ${analysis.url}`);
+        this.log(`   vid=${analysis.params.vid}, cid=${analysis.params.cid || 'none'}, level=${analysis.params.level || 'none'}`);
+        this.log(`   Is fulltext page: ${analysis.isFulltextPage}`);
+        this.log(`   Is on specific section: ${analysis.isOnSpecificSection}`);
+        this.log(`   DOM: ${analysis.dom.navLinksCount} nav links, ${analysis.dom.bolkContainersCount} content blocks`);
+        this.log(`   Headline: ${analysis.dom.headlineText || 'none'}`);
+        this.log(`${'─'.repeat(50)}\n`);
+
+        if (!analysis.isFulltextPage) {
+            throw new Error(`Not on a fulltext page. Current page type: ${analysis.params.page || 'unknown'}. Navigate to a Polyglotta text first.`);
+        }
+
+        if (!analysis.params.vid) {
+            throw new Error('No vid (volume ID) in URL. Navigate to a specific text first.');
+        }
+
+        // If we're on a specific section (has cid), we need to go to the table of contents
+        if (analysis.isOnSpecificSection) {
+            const tocUrl = this.getTableOfContentsUrl();
+            this.log(`⚠️ Currently on section cid=${analysis.params.cid}`);
+            this.log(`➡️ Navigating to table of contents: ${tocUrl}`);
+
+            // Save state indicating we need to start scraping after navigation
+            await chrome.storage.local.set({
+                polyglottaPendingStart: {
+                    shouldStart: true,
+                    maxSections: this.pendingMaxSections || 50,
+                    timestamp: Date.now()
+                }
+            });
+
+            window.location.href = tocUrl;
+            return false; // Will reload page
+        }
+
+        // Check if we have navigation links
+        if (analysis.dom.navLinksCount === 0) {
+            this.log(`⚠️ No navigation links found yet. Page may still be loading.`);
+            // Try waiting a bit more
+            await this.wait(3000);
+            const recheck = this.analyzeCurrentPage();
+            if (recheck.dom.navLinksCount === 0) {
+                throw new Error(`No section links found in navigation tree. Found ${recheck.dom.bolkContainersCount} content blocks. The page structure may have changed or not loaded correctly.`);
+            }
+            this.log(`✅ After waiting: found ${recheck.dom.navLinksCount} nav links`);
+        }
+
+        return true; // Ready to proceed
     }
 
     // ==================== MESSAGE HANDLING ====================
@@ -458,21 +579,50 @@ class PolyglottaContentScript {
     // ==================== SESSION MANAGEMENT ====================
 
     async checkAndResumeSession() {
+        this.log(`📍 checkAndResumeSession() called`);
+
         try {
             const response = await chrome.runtime.sendMessage({ action: 'getPolyglottaSession' });
             const session = response.session;
 
+            this.log(`   Session found: ${!!session}`);
+            this.log(`   Session active: ${session?.isActive || false}`);
+
             if (session && session.isActive) {
-                this.log(`🔄 Found active session. Resuming from section ${session.currentSection + 1}/${session.totalSections}`);
+                this.log(`\n${'═'.repeat(60)}`);
+                this.log(`🔄 RESUMING ACTIVE SESSION`);
+                this.log(`${'═'.repeat(60)}`);
+                this.log(`   Current section: ${session.currentSection + 1}/${session.totalSections}`);
+                this.log(`   Section URLs loaded: ${session.sectionUrls?.length || 0}`);
+                this.log(`   Manifest captured: ${session.manifest?.capturedSections || 0}`);
+                this.log(`${'═'.repeat(60)}\n`);
+
+                this.isRunning = true;
                 this.sectionUrls = session.sectionUrls || [];
                 this.currentSectionIndex = session.currentSection || 0;
                 this.manifest = session.manifest || this.manifest;
 
+                if (this.sectionUrls.length === 0) {
+                    this.log(`❌ Session has no section URLs - cannot resume`);
+                    this.log(`   This usually means the session was corrupted. Clearing...`);
+                    await chrome.storage.local.set({
+                        polyglottaSession: { isActive: false },
+                        polyglottaSections: []
+                    });
+                    return;
+                }
+
+                this.log(`⏳ Waiting 2s before resuming...`);
                 await this.wait(2000);
+
+                this.log(`📍 Calling continueScraping()...`);
                 await this.continueScraping();
+            } else {
+                this.log(`ℹ️ No active session to resume`);
             }
         } catch (error) {
-            this.log(`ℹ️ No active session to resume`);
+            this.log(`❌ Error checking session: ${error.message}`);
+            console.error('[Polyglotta] Session check error:', error);
         }
     }
 
@@ -485,6 +635,9 @@ class PolyglottaContentScript {
         }
 
         this.isRunning = true;
+        this.pendingMaxSections = options.maxSections || 50;
+
+        // Reset tracking
         this.manifest = {
             expectedSections: 0,
             capturedSections: 0,
@@ -494,25 +647,66 @@ class PolyglottaContentScript {
             startTime: new Date().toISOString(),
             endTime: null,
         };
+        this.metrics = {
+            sectionTimings: [],
+            navigationTimeMs: 0,
+            extractionTimeMs: 0,
+            expandTimeMs: 0,
+            totalParagraphs: 0,
+            totalLanguages: new Set(),
+        };
 
         try {
-            this.log('🚀 Starting Polyglotta scraping (Robust Edition)...');
-            this.updateStatus('working', 'Waiting for page to load...');
+            this.log(`\n${'═'.repeat(60)}`);
+            this.log(`🚀 STARTING POLYGLOTTA SCRAPER`);
+            this.log(`${'═'.repeat(60)}`);
+            this.log(`   Requested sections: ${this.pendingMaxSections}`);
+            this.log(`   Start time: ${this.manifest.startTime}`);
+            this.log(`${'═'.repeat(60)}\n`);
 
-            // Step 0: Ensure page is fully loaded
+            this.updateStatus('working', 'Analyzing page...');
+
+            // Step 0: Ensure we're on the right page
+            this.log('📍 Step 0: Checking current page location...');
+            const readyToProceed = await this.ensureOnTableOfContents();
+            if (!readyToProceed) {
+                this.log('🔄 Navigating to table of contents - will resume after page load');
+                return; // Page will reload, script will resume
+            }
+
+            // Step 1: Wait for page to be fully loaded
+            this.log('📍 Step 1: Waiting for page to fully load...');
+            this.updateStatus('working', 'Waiting for page to load...');
             await this.waitForPageReady();
 
-            // Step 1: Expand all collapsed sections
+            // Step 2: Expand all collapsed sections
+            this.log('📍 Step 2: Expanding collapsed navigation sections...');
             this.updateStatus('working', 'Expanding navigation tree...');
-            await this.expandAllSections();
+            const expandedCount = await this.expandAllSections();
+            this.log(`   Expanded ${expandedCount} collapsed items`);
             await this.wait(1000);
 
-            // Step 2: Extract all section URLs
+            // Step 3: Extract all section URLs
+            this.log('📍 Step 3: Extracting section URLs from navigation...');
             this.updateStatus('working', 'Counting sections...');
             this.sectionUrls = this.extractSectionUrls();
 
+            this.log(`   Found ${this.sectionUrls.length} section URLs`);
+
             if (this.sectionUrls.length === 0) {
-                throw new Error('No section URLs found. Make sure you are on a Polyglotta fulltext page with the navigation tree visible.');
+                // Detailed error with page state
+                const analysis = this.analyzeCurrentPage();
+                throw new Error(
+                    `No section URLs found!\n` +
+                    `   Page URL: ${analysis.url}\n` +
+                    `   Nav links in DOM: ${analysis.dom.navLinksCount}\n` +
+                    `   Content blocks: ${analysis.dom.bolkContainersCount}\n` +
+                    `   Headline: ${analysis.dom.headlineText || 'none'}\n` +
+                    `   Possible causes:\n` +
+                    `   - Navigation tree not loaded\n` +
+                    `   - Page structure changed\n` +
+                    `   - Not on a text with sections`
+                );
             }
 
             // Step 3: Apply limit if specified
@@ -637,26 +831,54 @@ class PolyglottaContentScript {
     }
 
     async continueScraping() {
+        this.log(`\n📍 continueScraping() called`);
+        this.log(`   isRunning: ${this.isRunning}`);
+        this.log(`   currentSectionIndex: ${this.currentSectionIndex}`);
+        this.log(`   sectionUrls.length: ${this.sectionUrls.length}`);
+
+        if (!this.isRunning) {
+            this.log(`⚠️ Scraping stopped (isRunning=false)`);
+            return;
+        }
+
+        if (this.sectionUrls.length === 0) {
+            this.log(`❌ No section URLs loaded - cannot continue`);
+            throw new Error('Section URLs not loaded. This is a bug - session state may be corrupted.');
+        }
+
         while (this.isRunning && this.currentSectionIndex < this.sectionUrls.length) {
             const section = this.sectionUrls[this.currentSectionIndex];
             const total = this.sectionUrls.length;
 
-            this.log(`📖 Section ${this.currentSectionIndex + 1}/${total}: ${section.name} (${section.chapter})`);
+            this.log(`\n${'─'.repeat(40)}`);
+            this.log(`📖 Section ${this.currentSectionIndex + 1}/${total}: ${section.name}`);
+            this.log(`   Chapter: ${section.chapter}`);
+            this.log(`   CID: ${section.cid}`);
+            this.log(`   URL: ${section.url}`);
+            this.log(`${'─'.repeat(40)}`);
+
             this.updateProgress(this.currentSectionIndex + 1, total, `${section.chapter}: ${section.name}`);
 
             // Check if we're already on this section's page
             const currentCid = new URL(window.location.href).searchParams.get('cid');
+            this.log(`   Current page CID: ${currentCid || 'none'}`);
+            this.log(`   Target section CID: ${section.cid}`);
 
             if (currentCid === section.cid) {
+                this.log(`   ✓ Already on correct page - extracting...`);
+
                 // Already on correct page, extract
                 try {
                     await this.extractAndSaveCurrentSection(section.cid);
+                    this.log(`   ✓ Extraction complete for ${section.name}`);
                 } catch (error) {
-                    this.warn(`Failed to extract ${section.name}: ${error.message}`);
+                    this.log(`   ❌ Extraction FAILED: ${error.message}`);
+                    console.error('[Polyglotta] Extraction error:', error);
                     this.manifest.failedSections.push({
                         cid: section.cid,
                         name: section.name,
-                        error: error.message
+                        error: error.message,
+                        stack: error.stack
                     });
                     this.currentSectionIndex++;
                 }
@@ -665,22 +887,28 @@ class PolyglottaContentScript {
                 if (this.currentSectionIndex < this.sectionUrls.length) {
                     const nextSection = this.sectionUrls[this.currentSectionIndex];
                     const delay = this.randomDelay(2000, 4000);
-                    this.log(`⏳ Waiting ${delay}ms before next section...`);
+                    this.log(`⏳ Waiting ${delay}ms before navigating to next section...`);
                     await this.wait(delay);
 
-                    this.log(`➡️ Navigating to: ${nextSection.name}`);
+                    this.log(`➡️ Navigating to: ${nextSection.name} (cid=${nextSection.cid})`);
+                    this.log(`   URL: ${nextSection.url}`);
                     window.location.href = nextSection.url;
                     return; // Page will reload, script will resume via checkAndResumeSession
+                } else {
+                    this.log(`📍 No more sections - calling completeScraping()`);
                 }
             } else {
                 // Need to navigate to this section
-                this.log(`➡️ Navigating to: ${section.name}`);
+                this.log(`   ✗ Wrong page - navigating to correct section...`);
+                this.log(`➡️ Navigating to: ${section.name} (cid=${section.cid})`);
+                this.log(`   URL: ${section.url}`);
                 window.location.href = section.url;
                 return; // Page will reload
             }
         }
 
         // All done!
+        this.log(`\n📍 Exited scraping loop - completing session...`);
         await this.completeScraping();
     }
 
