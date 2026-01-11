@@ -29,6 +29,16 @@ class PolyglottaContentScript {
             endTime: null,
         };
 
+        // Metrics tracking
+        this.metrics = {
+            sectionTimings: [],          // Array of { cid, name, durationMs, paragraphs, languages }
+            navigationTimeMs: 0,         // Total time spent navigating
+            extractionTimeMs: 0,         // Total time spent extracting
+            expandTimeMs: 0,             // Time spent expanding sections
+            totalParagraphs: 0,
+            totalLanguages: new Set(),
+        };
+
         // Retry configuration
         this.config = {
             maxRetries: 3,
@@ -53,8 +63,51 @@ class PolyglottaContentScript {
 
         this.log('📚 Polyglotta content script loaded (Robust Edition)');
 
-        // Check if scraping session is active and resume
-        this.checkAndResumeSession();
+        // Wait for page to be ready before checking session
+        this.waitForPageReady().then(() => {
+            this.log('✅ Page ready - navigation tree detected');
+            // Check if scraping session is active and resume
+            this.checkAndResumeSession();
+        });
+    }
+
+    /**
+     * Wait for the page to fully load with navigation tree visible
+     */
+    async waitForPageReady() {
+        const maxWait = 60000; // 60 seconds max
+        const checkInterval = 500;
+        const startTime = Date.now();
+
+        this.log('⏳ Waiting for page to load...');
+
+        while (Date.now() - startTime < maxWait) {
+            // Check if navigation tree has loaded
+            const navLinks = document.querySelectorAll('a[href*="page=fulltext"][href*="cid="]');
+            const hasNavTree = navLinks.length > 0;
+
+            // Check if main content area exists
+            const hasContent = document.querySelector('.BolkContainer') ||
+                               document.querySelector('.headline') ||
+                               document.querySelector('.brodsmuleboks');
+
+            if (hasNavTree || hasContent) {
+                const elapsed = Date.now() - startTime;
+                this.log(`⏱️ Page loaded in ${elapsed}ms (found ${navLinks.length} navigation links)`);
+                return true;
+            }
+
+            // Still loading - show progress
+            if ((Date.now() - startTime) % 5000 < checkInterval) {
+                const elapsed = Math.round((Date.now() - startTime) / 1000);
+                this.log(`⏳ Still loading... (${elapsed}s)`);
+            }
+
+            await this.wait(checkInterval);
+        }
+
+        this.warn(`Page load timeout after ${maxWait / 1000}s - proceeding anyway`);
+        return false;
     }
 
     // ==================== UTILITIES ====================
@@ -93,6 +146,14 @@ class PolyglottaContentScript {
 
     randomDelay(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    formatDuration(ms) {
+        if (ms < 1000) return `${ms}ms`;
+        if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+        const mins = Math.floor(ms / 60000);
+        const secs = Math.round((ms % 60000) / 1000);
+        return `${mins}m ${secs}s`;
     }
 
     // ==================== MESSAGE HANDLING ====================
@@ -137,6 +198,7 @@ class PolyglottaContentScript {
      */
     async expandAllSections() {
         this.log('📂 Expanding all collapsed sections...');
+        const expandStart = Date.now();
 
         let expandedCount = 0;
         let iterations = 0;
@@ -173,7 +235,8 @@ class PolyglottaContentScript {
             await this.wait(500); // Wait for DOM updates
         }
 
-        this.log(`📂 Expanded ${expandedCount} sections`);
+        this.metrics.expandTimeMs = Date.now() - expandStart;
+        this.log(`📂 Expanded ${expandedCount} sections in ${this.metrics.expandTimeMs}ms`);
         return expandedCount;
     }
 
@@ -434,7 +497,10 @@ class PolyglottaContentScript {
 
         try {
             this.log('🚀 Starting Polyglotta scraping (Robust Edition)...');
-            this.updateStatus('working', 'Preparing...');
+            this.updateStatus('working', 'Waiting for page to load...');
+
+            // Step 0: Ensure page is fully loaded
+            await this.waitForPageReady();
 
             // Step 1: Expand all collapsed sections
             this.updateStatus('working', 'Expanding navigation tree...');
@@ -499,6 +565,8 @@ class PolyglottaContentScript {
     }
 
     async extractAndSaveCurrentSection(expectedCid) {
+        const extractStart = Date.now();
+
         const sectionData = await this.withRetry(
             async () => {
                 await this.wait(this.config.pageLoadWaitMs);
@@ -525,8 +593,30 @@ class PolyglottaContentScript {
             sectionData
         });
 
+        const extractDuration = Date.now() - extractStart;
+        this.metrics.extractionTimeMs += extractDuration;
+
+        // Track per-section metrics
+        const sectionMetrics = {
+            cid: expectedCid,
+            name: sectionData.sectionName,
+            durationMs: extractDuration,
+            paragraphs: sectionData.paragraphs.length,
+            languages: sectionData.languagesFound.length,
+            timestamp: new Date().toISOString()
+        };
+        this.metrics.sectionTimings.push(sectionMetrics);
+        this.metrics.totalParagraphs += sectionData.paragraphs.length;
+        sectionData.languagesFound.forEach(lang => this.metrics.totalLanguages.add(lang));
+
         this.manifest.capturedSections++;
-        this.log(`✅ Captured: ${sectionData.sectionName} (${sectionData.paragraphs.length} paragraphs, ${sectionData.languagesFound.length} languages)`);
+
+        // Calculate running stats
+        const avgTimeMs = this.metrics.extractionTimeMs / this.manifest.capturedSections;
+        const remaining = this.manifest.expectedSections - this.manifest.capturedSections;
+        const etaSeconds = Math.round((remaining * avgTimeMs) / 1000);
+
+        this.log(`✅ Captured: ${sectionData.sectionName} (${sectionData.paragraphs.length} para, ${sectionData.languagesFound.length} lang) [${extractDuration}ms, ETA: ${etaSeconds}s]`);
 
         // Find this section in our list and update index
         const idx = this.sectionUrls.findIndex(s => s.cid === expectedCid);
@@ -597,13 +687,33 @@ class PolyglottaContentScript {
     async completeScraping() {
         this.manifest.endTime = new Date().toISOString();
 
-        this.log(`\n${'='.repeat(50)}`);
+        // Calculate final metrics
+        const totalDurationMs = new Date(this.manifest.endTime) - new Date(this.manifest.startTime);
+        const avgSectionMs = this.metrics.sectionTimings.length > 0
+            ? Math.round(this.metrics.extractionTimeMs / this.metrics.sectionTimings.length)
+            : 0;
+        const fastestSection = this.metrics.sectionTimings.reduce((min, s) =>
+            s.durationMs < min.durationMs ? s : min, { durationMs: Infinity });
+        const slowestSection = this.metrics.sectionTimings.reduce((max, s) =>
+            s.durationMs > max.durationMs ? s : max, { durationMs: 0 });
+
+        this.log(`\n${'='.repeat(60)}`);
         this.log(`🏁 SCRAPING COMPLETE`);
-        this.log(`${'='.repeat(50)}`);
+        this.log(`${'='.repeat(60)}`);
         this.log(`   Expected sections:  ${this.manifest.expectedSections}`);
         this.log(`   Captured sections:  ${this.manifest.capturedSections}`);
         this.log(`   Failed sections:    ${this.manifest.failedSections.length}`);
         this.log(`   Warnings:           ${this.manifest.warnings.length}`);
+        this.log(``);
+        this.log(`📊 METRICS:`);
+        this.log(`   Total duration:     ${this.formatDuration(totalDurationMs)}`);
+        this.log(`   Expand time:        ${this.formatDuration(this.metrics.expandTimeMs)}`);
+        this.log(`   Extraction time:    ${this.formatDuration(this.metrics.extractionTimeMs)}`);
+        this.log(`   Avg per section:    ${avgSectionMs}ms`);
+        this.log(`   Fastest section:    ${fastestSection.name || 'N/A'} (${fastestSection.durationMs}ms)`);
+        this.log(`   Slowest section:    ${slowestSection.name || 'N/A'} (${slowestSection.durationMs}ms)`);
+        this.log(`   Total paragraphs:   ${this.metrics.totalParagraphs}`);
+        this.log(`   Languages found:    ${Array.from(this.metrics.totalLanguages).join(', ')}`);
 
         if (this.manifest.failedSections.length > 0) {
             this.log(`\n   ❌ Failed sections:`);
@@ -628,10 +738,24 @@ class PolyglottaContentScript {
         // Complete session and download
         this.updateStatus('working', 'Preparing download...');
 
+        // Prepare metrics for output
+        const metricsForOutput = {
+            totalDurationMs: totalDurationMs,
+            expandTimeMs: this.metrics.expandTimeMs,
+            extractionTimeMs: this.metrics.extractionTimeMs,
+            avgSectionMs: avgSectionMs,
+            totalParagraphs: this.metrics.totalParagraphs,
+            languagesFound: Array.from(this.metrics.totalLanguages),
+            sectionTimings: this.metrics.sectionTimings,
+            fastestSection: fastestSection.durationMs !== Infinity ? fastestSection : null,
+            slowestSection: slowestSection.durationMs !== 0 ? slowestSection : null
+        };
+
         try {
             const response = await chrome.runtime.sendMessage({
                 action: 'completePolyglottaSession',
-                manifest: this.manifest
+                manifest: this.manifest,
+                metrics: metricsForOutput
             });
 
             if (response.success) {

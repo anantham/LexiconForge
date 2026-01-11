@@ -190,7 +190,7 @@ class ScrapingSessionManager {
         return result.polyglottaSections || [];
     }
 
-    async completePolyglottaSession(manifest = null) {
+    async completePolyglottaSession(manifest = null, metrics = null) {
         const session = await this.getPolyglottaSession();
         const sections = await this.getPolyglottaSections();
 
@@ -262,6 +262,18 @@ class ScrapingSessionManager {
                         ? Math.round((new Date(finalManifest.endTime) - new Date(finalManifest.startTime)) / 1000)
                         : null
                 },
+                // Performance metrics
+                metrics: metrics ? {
+                    totalDurationMs: metrics.totalDurationMs,
+                    expandTimeMs: metrics.expandTimeMs,
+                    extractionTimeMs: metrics.extractionTimeMs,
+                    avgSectionMs: metrics.avgSectionMs,
+                    totalParagraphs: metrics.totalParagraphs,
+                    languagesFound: metrics.languagesFound,
+                    sectionTimings: metrics.sectionTimings,
+                    fastestSection: metrics.fastestSection,
+                    slowestSection: metrics.slowestSection
+                } : null,
                 // For LexiconForge import: treat each section as a "chapter"
                 chapters: sections.map((section, idx) => ({
                     chapterNumber: idx + 1,
@@ -482,7 +494,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     if (action === 'completePolyglottaSession') {
-        sessionManager.completePolyglottaSession().then((result) => {
+        sessionManager.completePolyglottaSession(message.manifest, message.metrics).then((result) => {
             sendResponse(result);
         }).catch((error) => {
             sendResponse({ success: false, error: error.message });
