@@ -39,6 +39,9 @@ class PolyglottaContentScript {
             totalLanguages: new Set(),
         };
 
+        // Log storage for debugging
+        this.logHistory = [];
+
         // Retry configuration
         this.config = {
             maxRetries: 3,
@@ -129,8 +132,21 @@ class PolyglottaContentScript {
     // ==================== UTILITIES ====================
 
     log(message) {
-        const timestamp = new Date().toISOString().substr(11, 8);
-        console.log(`[Polyglotta ${timestamp}] ${message}`);
+        const timestamp = new Date().toISOString();
+        const shortTime = timestamp.substr(11, 8);
+        console.log(`[Polyglotta ${shortTime}] ${message}`);
+
+        // Store for inclusion in output JSON
+        this.logHistory.push({
+            time: timestamp,
+            message: message
+        });
+
+        // Keep log history bounded (last 500 entries)
+        if (this.logHistory.length > 500) {
+            this.logHistory = this.logHistory.slice(-500);
+        }
+
         this.sendToPopup('LOG', { message });
     }
 
@@ -290,8 +306,16 @@ class PolyglottaContentScript {
             if (analysis.params.page === 'record') {
                 const fulltextLink = this.findFulltextLink();
                 if (fulltextLink) {
+                    // Remove cid from the URL to go to TOC, not a specific section
+                    const tocUrl = new URL(fulltextLink);
+                    tocUrl.searchParams.delete('cid');
+                    tocUrl.searchParams.delete('level');
+                    const cleanUrl = tocUrl.href;
+
                     this.log(`📍 On record page - found fulltext link`);
-                    this.log(`➡️ Navigating to fulltext view: ${fulltextLink}`);
+                    this.log(`   Original: ${fulltextLink}`);
+                    this.log(`   Cleaned (TOC): ${cleanUrl}`);
+                    this.log(`➡️ Navigating to fulltext TOC view...`);
 
                     // Save state indicating we need to start scraping after navigation
                     await chrome.storage.local.set({
@@ -302,7 +326,7 @@ class PolyglottaContentScript {
                         }
                     });
 
-                    window.location.href = fulltextLink;
+                    window.location.href = cleanUrl;
                     return false; // Will reload page
                 } else {
                     throw new Error(
@@ -1063,7 +1087,8 @@ class PolyglottaContentScript {
             const response = await chrome.runtime.sendMessage({
                 action: 'completePolyglottaSession',
                 manifest: this.manifest,
-                metrics: metricsForOutput
+                metrics: metricsForOutput,
+                logs: this.logHistory
             });
 
             if (response.success) {
