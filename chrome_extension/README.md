@@ -1,82 +1,158 @@
-# BookToki Scraper Chrome Extension
+# LexiconForge Scraper Chrome Extension
 
-A Chrome extension for naturally scraping BookToki website with CAPTCHA support.
+A Chrome extension for scraping content from multiple sources for use with LexiconForge.
+
+## Supported Sites
+
+### BookToki (Korean Novels)
+- **Domain:** `booktoki468.com`
+- **Content:** Korean web novels
+- **Output:** JSON with chapters (Korean text + navigation)
+
+### Polyglotta (Buddhist Texts)
+- **Domain:** `www2.hf.uio.no/polyglotta`
+- **Content:** Parallel Buddhist texts in multiple languages
+- **Languages:** Sanskrit, Chinese (3 translators), Tibetan, English (2 translators)
+- **Output:** JSON with aligned paragraphs across all language versions
 
 ## Features
 
 - 🚀 **Natural Navigation**: Mimics human browsing behavior
-- 🛡️ **CAPTCHA Support**: You can manually solve challenges when needed
-- 💾 **HTML Saving**: Automatically saves pages for analysis
-- 📱 **User-Friendly Interface**: Simple popup controls
+- 🛡️ **CAPTCHA Support**: Manual solving when needed
+- 📚 **Multi-Site Detection**: Automatically detects which site you're on
+- 🕉️ **Polyglot Support**: Extracts parallel texts with paragraph-level alignment
 - ⏰ **Random Delays**: Realistic timing to avoid detection
+- 💾 **Session Persistence**: Resume interrupted scraping
 
 ## Installation
 
-1. **Prepare Icons** (required):
-   - Create icon16.png (16x16 pixels)
-   - Create icon48.png (48x48 pixels) 
-   - Create icon128.png (128x128 pixels)
-   
-   You can use any simple book/scraping icons or create text-based icons.
-
-2. **Install Extension**:
-   - Open Chrome and navigate to `chrome://extensions/`
-   - Enable "Developer mode" (top right toggle)
-   - Click "Load unpacked"
-   - Select the `chrome_extension` folder
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable "Developer mode" (top right toggle)
+3. Click "Load unpacked"
+4. Select the `chrome_extension` folder
 
 ## Usage
 
-1. **Navigate to BookToki**: Go to `http://booktoki468.com`
-2. **Open Extension**: Click the extension icon in Chrome toolbar
-3. **Start Scraping**: Click "🚀 Start Natural Scraping"
+### BookToki (Korean Novels)
 
-The extension will automatically:
-- Search for "던전 디펜스" 
-- Click on the first novel result
-- Save the final ToC page HTML
-- Handle Cloudflare challenges (you may need to solve CAPTCHAs manually)
+1. Navigate to `booktoki468.com` and find a novel chapter
+2. Click the extension icon - it will show "🇰🇷 BookToki"
+3. Set max chapters to scrape
+4. Click "📚 Start Multi-Chapter Scraping"
+5. Extension navigates through chapters automatically
+6. JSON file downloads when complete
 
-## Manual Controls
+### Polyglotta (Buddhist Texts)
 
-- **💾 Save Current Page HTML**: Save any page you're currently viewing
-- **🔍 Search for 던전 디펜스**: Perform just the search step
-- **👆 Click First Novel Result**: Click on the novel from search results
-- **⏹️ Stop Scraping**: Stop the automated process
+1. Navigate to a text on `www2.hf.uio.no/polyglotta`
+   - Example: `?page=fulltext&view=fulltext&vid=37` (Vimalakīrtinirdeśa)
+2. Click the extension icon - it will show "🕉️ Polyglotta"
+3. Set max sections to scrape (each section = 1-5 seconds)
+4. Click "🕉️ Start Section-by-Section Scraping"
+5. Extension navigates through sections, extracting all language versions
+6. JSON file downloads when complete
 
-## Files Generated
+**Note:** Polyglotta uses section-by-section scraping to avoid 16+ minute full-page loads.
 
-The extension will save HTML files to your Downloads folder:
-- `booktoki_dungeon_defense_toc_final.html` - Final novel ToC page
-- `debug_search_results.html` - Search results (if issues occur)
+## Output Format
 
-## How It Works
+### BookToki Output
 
-1. **Content Script** (`content.js`): Runs on BookToki pages, handles clicking and interaction
-2. **Popup Interface** (`popup.html/js`): Provides user controls and progress tracking
-3. **Background Worker** (`background.js`): Handles file downloads
+```json
+{
+  "metadata": {
+    "source": "booktoki468.com",
+    "totalChapters": 10
+  },
+  "chapters": [
+    {
+      "chapterNumber": 1,
+      "title": "던전 디펜스-1화",
+      "content": "Korean text...",
+      "nextUrl": "..."
+    }
+  ]
+}
+```
 
-## Advantages over Selenium
+### Polyglotta Output
 
-- ✅ **No detection**: Runs as legitimate browser extension
-- ✅ **Real user session**: Uses your actual cookies and browser state
-- ✅ **Manual CAPTCHA solving**: You can solve challenges when they appear
-- ✅ **Natural interaction**: Uses real browser events, not automation
-- ✅ **Persistent**: Extension stays loaded across browser sessions
+```json
+{
+  "metadata": {
+    "source": "polyglotta",
+    "text": { "title": "Vimalakīrtinirdeśa", "vid": "37" },
+    "totalSections": 50,
+    "totalParagraphs": 200
+  },
+  "chapters": [
+    {
+      "chapterNumber": 1,
+      "stableId": "polyglotta_49188",
+      "title": "§1",
+      "polyglotContent": [
+        {
+          "id": "§1",
+          "versions": {
+            "sanskrit": { "text": "evam mayā śrutam...", "reference": "..." },
+            "chinese-kumarajiva": { "text": "如是我聞...", "reference": "..." },
+            "tibetan": { "text": "'di skad bdag gis...", "reference": "..." },
+            "english-lamotte": { "text": "Thus have I heard...", "reference": "..." }
+          }
+        }
+      ],
+      "content": "Sanskrit text (for LexiconForge compatibility)",
+      "fanTranslation": "English translation (for LexiconForge compatibility)"
+    }
+  ],
+  "alignedParagraphs": [
+    {
+      "id": "§1",
+      "section": "Chapter I",
+      "versions": { ... }
+    }
+  ]
+}
+```
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `manifest.json` | Extension configuration |
+| `content.js` | BookToki content extraction |
+| `content-polyglotta.js` | Polyglotta content extraction |
+| `popup.html` | Extension popup UI |
+| `popup.js` | Popup logic and site detection |
+| `background.js` | Session management and downloads |
 
 ## Troubleshooting
 
-- **Extension not working**: Make sure you're on booktoki468.com
-- **No icons showing**: Add the required icon files (icon16.png, icon48.png, icon128.png)  
-- **CAPTCHA appears**: Solve it manually, then click continue in the extension
-- **Download fails**: Check Chrome downloads permissions
+- **Extension not detecting site**: Refresh the page and reopen the extension
+- **Polyglotta timeout**: The site is slow; section-by-section scraping works around this
+- **Missing content**: Some sections may have sparse content; this is normal
+- **Download fails**: Use "Download Accumulated" button to retry
 
-## Next Steps
+## Import to LexiconForge
 
-After successful scraping, you can:
-1. Analyze the saved HTML files
-2. Extract chapter links and content
-3. Build a full chapter scraping workflow
-4. Process the extracted text for translation projects
+The output JSON is compatible with LexiconForge's import:
 
-The extension provides the foundation - you can extend it to handle full chapter extraction workflows!
+1. Export the JSON from the extension
+2. In LexiconForge, use Import → Import Session JSON
+3. For Polyglotta:
+   - `content` = Sanskrit/primary language
+   - `fanTranslation` = English translation
+   - `polyglotContent` = all aligned versions (for future polyglot features)
+
+## Development
+
+To modify the extension:
+
+1. Edit the source files
+2. Go to `chrome://extensions/`
+3. Click the refresh icon on the extension card
+4. Test your changes
+
+## License
+
+Part of the LexiconForge project.

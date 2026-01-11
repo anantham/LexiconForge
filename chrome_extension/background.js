@@ -1,4 +1,5 @@
-// Background service worker for BookToki Scraper Extension
+// Background service worker for LexiconForge Scraper Extension
+// Supports: BookToki (Korean novels) and Polyglotta (Buddhist texts)
 
 class ScrapingSessionManager {
     constructor() {
@@ -102,13 +103,13 @@ class ScrapingSessionManager {
     async downloadAccumulatedChapters() {
         const session = await this.getSession();
         const chapters = await this.getAccumulatedChapters();
-        
+
         if (chapters.length > 0) {
             try {
                 // Create download data
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
                 const filename = `booktoki_chapters_${chapters.length}_${timestamp}.json`;
-                
+
                 const jsonData = {
                     metadata: {
                         scrapeDate: new Date().toISOString(),
@@ -120,11 +121,11 @@ class ScrapingSessionManager {
                     },
                     chapters: chapters
                 };
-                
+
                 // Convert JSON to data URL (Manifest V3 compatible)
                 const jsonString = JSON.stringify(jsonData, null, 2);
                 const jsonDataUrl = `data:application/json;charset=utf-8,${encodeURIComponent(jsonString)}`;
-                
+
                 // Trigger download
                 const downloadId = await chrome.downloads.download({
                     url: jsonDataUrl,
@@ -132,15 +133,198 @@ class ScrapingSessionManager {
                 });
                 console.log(`[Background] Started download: ${filename} (ID: ${downloadId})`);
                 console.log(`[Background] Successfully downloaded ${chapters.length} chapters (session preserved)`);
-                
+
             } catch (error) {
                 console.error(`[Background] Error downloading chapters: ${error.message}`);
                 throw error;
             }
         }
-        
+
         // Don't clear session - just return count
         return chapters.length;
+    }
+
+    // ==================== POLYGLOTTA METHODS ====================
+
+    async startPolyglottaSession(metadata, sectionUrls, totalSections, manifest = null) {
+        await chrome.storage.local.set({
+            polyglottaSession: {
+                isActive: true,
+                source: 'polyglotta',
+                metadata,
+                sectionUrls,
+                currentSection: 0,
+                totalSections,
+                startTime: new Date().toISOString(),
+                manifest: manifest || {
+                    expectedSections: totalSections,
+                    capturedSections: 0,
+                    failedSections: [],
+                    skippedSections: [],
+                    warnings: [],
+                    startTime: new Date().toISOString(),
+                    endTime: null
+                }
+            },
+            polyglottaSections: []
+        });
+        console.log(`[Background] Started Polyglotta session: ${metadata.title} (${totalSections} sections)`);
+    }
+
+    async getPolyglottaSession() {
+        const result = await chrome.storage.local.get(['polyglottaSession']);
+        return result.polyglottaSession || null;
+    }
+
+    async addPolyglottaSection(sectionData) {
+        const result = await chrome.storage.local.get(['polyglottaSections']);
+        const sections = result.polyglottaSections || [];
+        sections.push(sectionData);
+        await chrome.storage.local.set({ polyglottaSections: sections });
+        console.log(`[Background] Added section: ${sectionData.sectionName} (${sectionData.paragraphs.length} paragraphs)`);
+        return sections.length;
+    }
+
+    async getPolyglottaSections() {
+        const result = await chrome.storage.local.get(['polyglottaSections']);
+        return result.polyglottaSections || [];
+    }
+
+    async completePolyglottaSession(manifest = null) {
+        const session = await this.getPolyglottaSession();
+        const sections = await this.getPolyglottaSections();
+
+        // Use provided manifest or session manifest
+        const finalManifest = manifest || session?.manifest || {
+            expectedSections: sections.length,
+            capturedSections: sections.length,
+            failedSections: [],
+            skippedSections: [],
+            warnings: [],
+            startTime: session?.startTime,
+            endTime: new Date().toISOString()
+        };
+
+        if (sections.length === 0) {
+            console.log('[Background] No Polyglotta sections to save');
+            return { success: true, sectionsCount: 0, paragraphsCount: 0, manifest: finalManifest };
+        }
+
+        try {
+            // Flatten all paragraphs into aligned format
+            const allParagraphs = [];
+            let totalParagraphs = 0;
+
+            sections.forEach(section => {
+                section.paragraphs.forEach(para => {
+                    allParagraphs.push({
+                        ...para,
+                        section: section.sectionName,
+                        sectionCid: section.cid
+                    });
+                    totalParagraphs++;
+                });
+            });
+
+            // Calculate integrity status
+            const integrityPassed =
+                finalManifest.capturedSections === finalManifest.expectedSections &&
+                finalManifest.failedSections.length === 0;
+
+            // Create LexiconForge-compatible output with integrity report
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const safeTitle = (session?.metadata?.title || 'polyglotta').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+            const integrityTag = integrityPassed ? 'COMPLETE' : 'PARTIAL';
+            const filename = `polyglotta_${safeTitle}_${sections.length}sections_${integrityTag}_${timestamp}.json`;
+
+            const jsonData = {
+                metadata: {
+                    scrapeDate: new Date().toISOString(),
+                    source: 'polyglotta',
+                    scraper: 'LexiconForge Chrome Extension (Robust Edition)',
+                    version: '3.0',
+                    text: session?.metadata || {},
+                    totalSections: sections.length,
+                    totalParagraphs: totalParagraphs,
+                    sessionStartTime: session?.startTime || new Date().toISOString()
+                },
+                // Integrity report for verification
+                integrityReport: {
+                    passed: integrityPassed,
+                    expectedSections: finalManifest.expectedSections,
+                    capturedSections: finalManifest.capturedSections,
+                    failedSections: finalManifest.failedSections,
+                    skippedSections: finalManifest.skippedSections,
+                    warnings: finalManifest.warnings,
+                    scrapeStartTime: finalManifest.startTime,
+                    scrapeEndTime: finalManifest.endTime || new Date().toISOString(),
+                    durationSeconds: finalManifest.startTime && finalManifest.endTime
+                        ? Math.round((new Date(finalManifest.endTime) - new Date(finalManifest.startTime)) / 1000)
+                        : null
+                },
+                // For LexiconForge import: treat each section as a "chapter"
+                chapters: sections.map((section, idx) => ({
+                    chapterNumber: idx + 1,
+                    stableId: `polyglotta_${section.cid}`,
+                    title: section.sectionName,
+                    url: section.url,
+                    cid: section.cid,
+                    languagesFound: section.languagesFound || [],
+                    extractedAt: section.extractedAt,
+                    // Store all language versions
+                    polyglotContent: section.paragraphs,
+                    // For compatibility: use Sanskrit or first available as "content"
+                    content: section.paragraphs.map(p => {
+                        const primaryLang = p.versions.sanskrit || p.versions.tibetan ||
+                            p.versions['chinese-kumarajiva'] || Object.values(p.versions)[0];
+                        return primaryLang?.text || '';
+                    }).join('\n\n'),
+                    // Store English translations as fanTranslation
+                    fanTranslation: section.paragraphs.map(p => {
+                        const eng = p.versions['english-lamotte'] || p.versions['english-thurman'] ||
+                            p.versions.english;
+                        return eng?.text || '';
+                    }).join('\n\n')
+                })),
+                // Also include raw aligned data for advanced use
+                alignedParagraphs: allParagraphs
+            };
+
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            const jsonDataUrl = `data:application/json;charset=utf-8,${encodeURIComponent(jsonString)}`;
+
+            const downloadId = await chrome.downloads.download({
+                url: jsonDataUrl,
+                filename: filename
+            });
+
+            console.log(`[Background] Downloaded Polyglotta: ${filename} (ID: ${downloadId})`);
+            console.log(`[Background] ${sections.length} sections, ${totalParagraphs} paragraphs`);
+            console.log(`[Background] Integrity: ${integrityPassed ? 'PASSED' : 'FAILED'}`);
+
+            // Clear session
+            await chrome.storage.local.set({
+                polyglottaSession: { isActive: false },
+                polyglottaSections: []
+            });
+
+            return {
+                success: true,
+                sectionsCount: sections.length,
+                paragraphsCount: totalParagraphs,
+                integrityPassed,
+                manifest: finalManifest
+            };
+
+        } catch (error) {
+            console.error(`[Background] Error saving Polyglotta: ${error.message}`);
+            return {
+                success: false,
+                error: error.message,
+                sectionsCount: sections.length,
+                manifest: finalManifest
+            };
+        }
     }
 }
 
@@ -259,6 +443,49 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
         }).catch((error) => {
             sendResponse({success: false, error: error.message});
+        });
+        return true;
+    }
+
+    // ==================== POLYGLOTTA HANDLERS ====================
+
+    if (action === 'startPolyglottaSession') {
+        sessionManager.startPolyglottaSession(
+            message.metadata,
+            message.sectionUrls,
+            message.totalSections
+        ).then(() => {
+            sendResponse({ success: true });
+        });
+        return true;
+    }
+
+    if (action === 'getPolyglottaSession') {
+        sessionManager.getPolyglottaSession().then((session) => {
+            sendResponse({ session });
+        });
+        return true;
+    }
+
+    if (action === 'addPolyglottaSection') {
+        sessionManager.addPolyglottaSection(message.sectionData).then((totalSections) => {
+            sendResponse({ success: true, totalSections });
+        });
+        return true;
+    }
+
+    if (action === 'getPolyglottaSections') {
+        sessionManager.getPolyglottaSections().then((sections) => {
+            sendResponse({ sections });
+        });
+        return true;
+    }
+
+    if (action === 'completePolyglottaSession') {
+        sessionManager.completePolyglottaSession().then((result) => {
+            sendResponse(result);
+        }).catch((error) => {
+            sendResponse({ success: false, error: error.message });
         });
         return true;
     }

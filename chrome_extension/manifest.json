@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "BookToki Scraper Extension",
-  "version": "1.0",
-  "description": "Natural scraping extension for BookToki with CAPTCHA support",
-  
+  "name": "LexiconForge Scraper",
+  "version": "2.0",
+  "description": "Multi-site scraper for LexiconForge: BookToki (Korean novels) and Polyglotta (Buddhist texts)",
+
   "permissions": [
     "activeTab",
     "storage",
@@ -11,31 +11,37 @@
     "tabs",
     "scripting"
   ],
-  
+
   "host_permissions": [
-    "*://booktoki468.com/*"
+    "*://booktoki468.com/*",
+    "*://*.hf.uio.no/*"
   ],
-  
+
   "action": {
     "default_popup": "popup.html",
-    "default_title": "BookToki Scraper"
+    "default_title": "LexiconForge Scraper"
   },
-  
+
   "content_scripts": [
     {
       "matches": ["*://booktoki468.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://*.hf.uio.no/polyglotta/*"],
+      "js": ["content-polyglotta.js"],
+      "run_at": "document_idle"
     }
   ],
-  
+
   "background": {
     "service_worker": "background.js"
   },
-  
+
   "icons": {
     "16": "icon16.png",
-    "48": "icon48.png", 
+    "48": "icon48.png",
     "128": "icon128.png"
   }
 }

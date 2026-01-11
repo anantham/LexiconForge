@@ -4,22 +4,46 @@
     <meta charset="utf-8">
     <style>
         body {
-            width: 350px;
+            width: 380px;
             padding: 20px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        
+
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-        
+
         .header h1 {
             margin: 0;
             color: #1a73e8;
             font-size: 18px;
         }
-        
+
+        .site-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .site-indicator.booktoki {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .site-indicator.polyglotta {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .site-indicator.unknown {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
         .status {
             padding: 10px;
             border-radius: 5px;
@@ -27,26 +51,45 @@
             text-align: center;
             font-weight: bold;
         }
-        
+
         .status.ready {
             background: #e8f5e8;
             color: #1e7e34;
         }
-        
+
         .status.working {
             background: #fff3cd;
             color: #856404;
         }
-        
+
         .status.error {
             background: #f8d7da;
             color: #721c24;
         }
-        
+
         .controls {
             margin-bottom: 20px;
         }
-        
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
         button {
             width: 100%;
             padding: 10px;
@@ -57,49 +100,59 @@
             font-size: 14px;
             font-weight: bold;
         }
-        
+
         .primary {
             background: #1a73e8;
             color: white;
         }
-        
+
         .primary:hover {
             background: #1557b0;
         }
-        
+
+        .primary.polyglotta {
+            background: #7c3aed;
+        }
+
+        .primary.polyglotta:hover {
+            background: #6d28d9;
+        }
+
         .secondary {
             background: #f1f3f4;
             color: #3c4043;
         }
-        
+
         .secondary:hover {
             background: #e8eaed;
         }
-        
+
         .danger {
             background: #d93025;
             color: white;
         }
-        
+
         .danger:hover {
             background: #b52d20;
         }
-        
+
         .log {
             background: #f8f9fa;
             border: 1px solid #dadce0;
             border-radius: 5px;
             padding: 10px;
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
-            font-size: 12px;
+            font-size: 11px;
             font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
-        
+
         .progress {
             margin: 10px 0;
         }
-        
+
         .progress-bar {
             width: 100%;
             height: 6px;
@@ -107,57 +160,105 @@
             border-radius: 3px;
             overflow: hidden;
         }
-        
+
         .progress-fill {
             height: 100%;
             background: #1a73e8;
             width: 0%;
             transition: width 0.3s ease;
         }
+
+        .progress-fill.polyglotta {
+            background: #7c3aed;
+        }
+
+        #progressText {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #5f6368;
+        }
+
+        .section-booktoki, .section-polyglotta {
+            display: none;
+        }
+
+        body.site-booktoki .section-booktoki {
+            display: block;
+        }
+
+        body.site-polyglotta .section-polyglotta {
+            display: block;
+        }
+
+        .help-text {
+            font-size: 11px;
+            color: #5f6368;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>📚 BookToki Scraper</h1>
+        <h1>📚 LexiconForge Scraper</h1>
+        <div id="siteIndicator" class="site-indicator unknown">Detecting site...</div>
     </div>
-    
+
     <div id="status" class="status ready">
         Ready to scrape
     </div>
-    
+
     <div class="controls">
-        <div style="margin-bottom: 15px;">
-            <label for="maxChapters" style="display: block; margin-bottom: 5px; font-weight: bold;">Max chapters to scrape:</label>
-            <input type="number" id="maxChapters" min="1" max="50" value="10" style="width: 100%; padding: 8px; border: 1px solid #dadce0; border-radius: 4px;">
+        <!-- BookToki Controls -->
+        <div class="section-booktoki">
+            <div class="input-group">
+                <label for="maxChapters">Max chapters to scrape:</label>
+                <input type="number" id="maxChapters" min="1" max="100" value="10">
+            </div>
+
+            <button id="startScraping" class="primary">
+                📚 Start Multi-Chapter Scraping
+            </button>
+
+            <button id="downloadAccumulated" class="secondary">
+                💾 Download Accumulated Chapters
+            </button>
         </div>
-        
-        <button id="startScraping" class="primary">
-            📚 Start Multi-Chapter Scraping
-        </button>
-        
-        <button id="downloadAccumulated" class="secondary">
-            💾 Download Accumulated Chapters
-        </button>
-        
+
+        <!-- Polyglotta Controls -->
+        <div class="section-polyglotta">
+            <div class="input-group">
+                <label for="maxSections">Max sections to scrape:</label>
+                <input type="number" id="maxSections" min="1" max="500" value="50">
+                <div class="help-text">Leave high to scrape all sections. Each section = ~1-5 seconds.</div>
+            </div>
+
+            <button id="startPolyglotta" class="primary polyglotta">
+                🕉️ Start Section-by-Section Scraping
+            </button>
+
+            <button id="downloadPolyglotta" class="secondary">
+                💾 Download Accumulated Sections
+            </button>
+        </div>
+
+        <!-- Common Controls -->
         <button id="clearAllData" class="secondary">
             🗑️ Clear All Data
         </button>
-        
+
         <button id="stopScraping" class="danger" style="display: none;">
             ⏹️ Stop Scraping
         </button>
     </div>
-    
+
     <div class="progress" id="progressContainer" style="display: none;">
         <div class="progress-bar">
             <div id="progressFill" class="progress-fill"></div>
         </div>
         <div id="progressText">Step 1 of 4</div>
     </div>
-    
-    <div id="log" class="log">
-        Extension ready. Navigate to booktoki468.com and click "Start Multi-Chapter Scraping".
-    </div>
+
+    <div id="log" class="log">Extension ready. Navigate to a supported site to begin.</div>
 
     <script src="popup.js"></script>
 </body>

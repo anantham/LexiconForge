@@ -17,6 +17,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "merge-fan-translations": "tsx scripts/merge-fan-translations.ts",
+    "polyglot-merge": "tsx scripts/polyglot-merge.ts",
     "check:loc": "node scripts/check-loc.js"
   },
   "dependencies": {

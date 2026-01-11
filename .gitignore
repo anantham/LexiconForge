@@ -91,3 +91,4 @@ Marketing/.DS_Store
 # Local AI assistant configs
 .claude/
 CLAUDE.local.md
+import/
