@@ -210,6 +210,195 @@ class SyosetuAdapter extends BaseAdapter {
     };
 }
 
+/**
+ * SuttaCentral Adapter - Handles API-driven fetching for Suttas
+ * This adapter is unique as it doesn't parse the HTML but provides 
+ * its own fetch logic to hit the JSON APIs.
+ */
+class SuttaCentralAdapter extends BaseAdapter {
+    private suttaUid: string | null = null;
+    private authorUid: string | null = null;
+    private languageUid: string | null = null;
+
+    constructor(url: string, doc: Document) {
+        super(url, doc);
+        this.parseUrlMetadata(url);
+    }
+
+    private parseUrlMetadata(url: string) {
+        try {
+            const urlObj = new URL(url);
+            const queryLangRaw = urlObj.searchParams.get('lang');
+            const queryLang = queryLangRaw ? queryLangRaw.toLowerCase() : null;
+            // Expected format: https://suttacentral.net/{sutta_uid}/{lang}/{author_uid}
+            // Example: https://suttacentral.net/mn10/en/sujato
+            const parts = urlObj.pathname.split('/').filter(Boolean);
+            if (parts.length >= 1) {
+                this.suttaUid = parts[0];
+            }
+            if (parts.length >= 3) {
+                this.languageUid = queryLang ?? parts[1];
+                this.authorUid = parts[2];
+            } else if (parts.length === 2) {
+                if (queryLang) {
+                    this.languageUid = queryLang;
+                    this.authorUid = parts[1];
+                } else if (this.isLikelyLanguage(parts[1])) {
+                    this.languageUid = parts[1];
+                } else {
+                    this.authorUid = parts[1];
+                }
+            } else if (queryLang) {
+                this.languageUid = queryLang;
+            }
+            if (!this.languageUid) {
+                this.languageUid = 'en';
+            }
+        } catch (e) {
+            console.error('[SuttaCentral] Failed to parse URL metadata:', e);
+        }
+    }
+
+    private isLikelyLanguage(segment: string): boolean {
+        const normalized = segment.toLowerCase();
+        if (!/^[a-z]+$/.test(normalized)) {
+            return false;
+        }
+        const known = new Set([
+            'en', 'de', 'fr', 'es', 'it', 'pt', 'ru', 'zh', 'ja', 'ko',
+            'pli', 'pi', 'sa', 'hi', 'id', 'th', 'vi'
+        ]);
+        return known.has(normalized) || normalized.length <= 3;
+    }
+
+    private getLanguageUid(): string {
+        return this.languageUid || 'en';
+    }
+
+    private getAuthorUid(): string {
+        return this.authorUid || 'sujato';
+    }
+
+    private parseSuttaUid(uid: string): { prefix: string; parts: number[] } | null {
+        const match = uid.match(/^([a-z]+)(\d+(?:\.\d+)*)$/i);
+        if (!match) return null;
+        const parts = match[2].split('.').map((part) => parseInt(part, 10));
+        if (parts.some((part) => Number.isNaN(part))) return null;
+        return { prefix: match[1], parts };
+    }
+
+    private buildSiblingLink(delta: number): string | null {
+        if (!this.suttaUid) return null;
+        const parsed = this.parseSuttaUid(this.suttaUid);
+        if (!parsed) return null;
+        const nextParts = [...parsed.parts];
+        const lastIndex = nextParts.length - 1;
+        nextParts[lastIndex] = nextParts[lastIndex] + delta;
+        if (nextParts[lastIndex] <= 0) return null;
+        const nextUid = `${parsed.prefix}${nextParts.join('.')}`;
+        return `https://suttacentral.net/${nextUid}/${this.getLanguageUid()}/${this.getAuthorUid()}`;
+    }
+
+    extractTitle = () => {
+        // Fallback title in case API fails
+        return this.suttaUid ? `Sutta ${this.suttaUid.toUpperCase()}` : 'Sutta';
+    };
+
+    extractContent = () => {
+        // Content will be handled by the specialized fetch logic
+        return 'Loading Sutta content...';
+    };
+
+    getPrevLink = () => {
+        return this.buildSiblingLink(-1);
+    };
+
+    getNextLink = () => {
+        return this.buildSiblingLink(1);
+    };
+
+    /**
+     * Specialized fetcher for SuttaCentral that uses SuttaPlex and Bilara APIs
+     */
+    async fetchSutta(fetchFn: (url: string) => Promise<string>): Promise<Chapter> {
+        if (!this.suttaUid) throw new Error('Could not identify Sutta UID from URL.');
+        const author = this.getAuthorUid();
+        const lang = this.getLanguageUid();
+
+        console.log(`[SuttaCentral] Fetching Sutta: ${this.suttaUid} (Lang: ${lang}, Author: ${author})`);
+
+        // 1. Fetch Metadata (SuttaPlex)
+        let suttaplexData: any = null;
+        try {
+            const plexUrl = `https://suttacentral.net/api/suttaplex/${this.suttaUid}`;
+            const plexResponse = await fetchFn(plexUrl);
+            const plexJson = JSON.parse(plexResponse);
+            // SuttaPlex API returns an array of matches, we want the first one
+            suttaplexData = Array.isArray(plexJson) ? plexJson[0] : plexJson;
+        } catch (e) {
+            console.warn('[SuttaCentral] Failed to fetch SuttaPlex metadata:', e);
+        }
+
+        // 2. Fetch Content (Bilara)
+        const bilaraUrl = `https://suttacentral.net/api/bilarasuttas/${this.suttaUid}/${author}`;
+        const bilaraResponse = await fetchFn(bilaraUrl);
+        const bilaraJson = JSON.parse(bilaraResponse);
+
+        if (!bilaraJson || !bilaraJson.root_text) {
+            throw new Error(`The Sutta ${this.suttaUid} by ${author} was not found or has no text.`);
+        }
+
+        // 3. Process Content
+        const rootText = bilaraJson.root_text;
+        const translationText = bilaraJson.translation_text || {};
+        
+        // Sort keys to ensure correct sequence (mn10:1.1, mn10:1.2, etc.)
+        const keys = Object.keys(rootText).sort((a, b) => {
+            // Natural sort for segment IDs
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        // Separate Title segments (0.x) from body segments
+        const titleSegments: string[] = [];
+        const bodySegments: string[] = [];
+        const fanSegments: string[] = [];
+
+        keys.forEach(key => {
+            const isTitle = key.includes(':0.');
+            const pali = rootText[key] || '';
+            const eng = translationText[key] || '';
+
+            if (isTitle) {
+                // Collect title parts for a clean title
+                if (eng) titleSegments.push(eng);
+                else if (pali) titleSegments.push(pali);
+            } else {
+                bodySegments.push(pali);
+                fanSegments.push(eng);
+            }
+        });
+
+        // Construct final chapter object
+        const finalTitle = suttaplexData?.translated_title || suttaplexData?.original_title || titleSegments.join(' - ') || this.extractTitle();
+        const blurb = typeof suttaplexData?.blurb === 'string' ? suttaplexData.blurb.trim() : null;
+        const content = bodySegments.join('\n\n');
+        const fanTranslation = fanSegments.join('\n\n');
+
+        return {
+            title: finalTitle,
+            content: content,
+            fanTranslation: fanTranslation.length > 0 ? fanTranslation : null,
+            blurb: blurb && blurb.length > 0 ? blurb : null,
+            sourceLanguage: 'Pali',
+            targetLanguage: lang,
+            originalUrl: this.url,
+            nextUrl: this.getNextLink(),
+            prevUrl: this.getPrevLink(),
+            chapterNumber: parseInt(this.suttaUid.match(/\d+/)?.[0] || '0', 10)
+        };
+    }
+}
+
 const getAdapter = (url: string, doc: Document): BaseAdapter | null => {
     if (url.includes('kakuyomu.jp')) return new KakuyomuAdapter(url, doc);
     if (url.includes('dxmwx.org')) return new DxmwxAdapter(url, doc);
@@ -217,6 +406,7 @@ const getAdapter = (url: string, doc: Document): BaseAdapter | null => {
     if (url.includes('novelcool.com')) return new NovelcoolAdapter(url, doc);
     if (url.includes('ncode.syosetu.com')) return new SyosetuAdapter(url, doc);
     if (url.includes('booktoki468.com')) return new BookTokiAdapter(url, doc);
+    if (url.includes('suttacentral.net')) return new SuttaCentralAdapter(url, doc);
     return null;
 }
 
@@ -261,6 +451,7 @@ const getExampleUrl = (domain: string): string => {
         'novelcool.com': 'https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345',
         'ncode.syosetu.com': 'https://ncode.syosetu.com/n1234ab/1/',
         'booktoki468.com': 'https://booktoki468.com/novel/3913764',
+        'suttacentral.net': 'https://suttacentral.net/mn10/en/sujato',
     };
     
     return examples[domain] || `https://${domain}/example-chapter-url`;
@@ -355,7 +546,7 @@ const getProxyDiagnostics = (): string => {
  * A curated list of CORS proxies based on recent research to improve reliability.
  * The list is dynamically sorted based on past performance before each fetch attempt.
  */
-const PROXIES: ProxyConfig[] = [
+export const PROXIES: ProxyConfig[] = [
     // --- Tier 1: Modern & Obscure (Highest Priority Start) ---
     { url: 'https://test.cors.workers.dev/', type: 'path', responseFormat: 'html' },
     { url: 'https://proxy.cors.sh/', type: 'path', responseFormat: 'html' },
@@ -389,6 +580,14 @@ export const fetchAndParseUrl = async (
         targetUrl = new URL(url);
     } catch (e) {
         throw new Error(`The provided URL is not valid. Please enter a full web address (e.g., "https://...").`);
+    }
+
+    const isSuttaCentral = targetUrl.hostname.endsWith('suttacentral.net');
+    const suttaAdapter = isSuttaCentral
+        ? new SuttaCentralAdapter(url, new DOMParser().parseFromString('', 'text/html'))
+        : null;
+    if (suttaAdapter) {
+        console.log('[Fetch] SuttaCentral URL detected; using API fetch path.');
     }
 
     let lastError: Error | null = null;
@@ -426,6 +625,33 @@ export const fetchAndParseUrl = async (
             console.log(`[Fetch] Attempt ${attempt}/${MAX_RETRIES} via ${proxyName} for: ${url}`);
             
             try {
+                if (suttaAdapter) {
+                    const proxyFetcher = async (apiUrl: string) => {
+                        let innerUrl: string;
+                        if (proxy.type === 'param') {
+                            innerUrl = `${proxy.url}${encodeURIComponent(apiUrl)}`;
+                        } else {
+                            innerUrl = `${proxy.url}${apiUrl}`;
+                        }
+
+                        const innerResp = await fetch(innerUrl, { signal: AbortSignal.timeout(10000) });
+                        if (!innerResp.ok) throw new Error(`Proxy failed to fetch API: ${innerResp.status}`);
+
+                        if (proxy.responseFormat === 'json') {
+                            const json = await innerResp.json();
+                            return json[proxy.contentKey || 'contents'];
+                        }
+                        return await innerResp.text();
+                    };
+
+                    const result = await suttaAdapter.fetchSutta(proxyFetcher);
+                    const suttaResponseTime = Date.now() - startTime;
+                    updateProxyScore(proxy.url, true);
+                    updateProxyHealth(proxy.url, true, suttaResponseTime);
+                    console.log(`[Fetch] ✅ Success via ${proxyName} (${suttaResponseTime}ms)`);
+                    return result;
+                }
+
                 const response = await fetch(fetchUrl, { 
                     signal: AbortSignal.timeout(15000) // 15s timeout
                 });
@@ -524,7 +750,20 @@ export const fetchAndParseUrl = async (
     // Final fallback: attempt direct fetch (may fail due to CORS but worth trying)
     console.log(`[Fetch] Final fallback: attempting direct fetch for: ${url}`);
     try {
-        const response = await fetch(url, { 
+        if (suttaAdapter) {
+            const directFetcher = async (apiUrl: string) => {
+                const innerResp = await fetch(apiUrl, { signal: AbortSignal.timeout(10000) });
+                if (!innerResp.ok) {
+                    throw new Error(`Direct fetch failed to fetch API: ${innerResp.status}`);
+                }
+                return await innerResp.text();
+            };
+            const result = await suttaAdapter.fetchSutta(directFetcher);
+            console.log(`[Fetch] Direct fetch succeeded for: ${url}`);
+            return result;
+        }
+
+        const response = await fetch(url, {
             signal: AbortSignal.timeout(15000),
             mode: 'cors' // Explicit CORS mode
         });

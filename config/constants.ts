@@ -129,6 +129,13 @@ export const SUPPORTED_WEBSITES_CONFIG: SupportedWebsite[] = [
     homeUrl: 'https://booktoki468.com',
     exampleUrl: 'https://booktoki468.com/novel/3913764'
   },
+  {
+    domain: 'suttacentral.net',
+    name: 'SuttaCentral',
+    category: 'Pali/Suttas',
+    homeUrl: 'https://suttacentral.net',
+    exampleUrl: 'https://suttacentral.net/mn10/en/sujato'
+  },
 ];
 
 // Legacy array for backward compatibility
