@@ -9,6 +9,7 @@ interface ChapterHeaderProps {
   viewMode: ViewMode;
   hasFanTranslation: boolean;
   sourceUrl?: string | null;
+  suttaStudioUrl?: string | null;
   onToggleLanguage: (mode: ViewMode) => void;
   onNavigatePrev?: () => void;
   onNavigateNext?: () => void;
@@ -41,6 +42,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
   viewMode,
   hasFanTranslation,
   sourceUrl,
+  suttaStudioUrl,
   onToggleLanguage,
   onNavigatePrev,
   onNavigateNext,
@@ -107,6 +109,21 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
               Source
             </a>
           )}
+          {suttaStudioUrl && (
+            <a
+              href={suttaStudioUrl}
+              className="w-9 h-9 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
+              title="Open Sutta Studio"
+              aria-label="Open Sutta Studio"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 3l2.1 4.3L18 9.4l-4.2 2 1.2 4.6L12 13.8 9 16l1.2-4.6-4.2-2 3.9-2.1L12 3z"
+                />
+              </svg>
+            </a>
+          )}
           {languageToggle('desktop')}
           {showRetranslateButton && (
             <button
@@ -157,6 +174,21 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
 
             <div className="flex justify-center items-center gap-3">
               {languageToggle('mobile')}
+              {suttaStudioUrl && (
+                <a
+                  href={suttaStudioUrl}
+                  className="w-8 h-8 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
+                  title="Open Sutta Studio"
+                  aria-label="Open Sutta Studio"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M12 3l2.1 4.3L18 9.4l-4.2 2 1.2 4.6L12 13.8 9 16l1.2-4.6-4.2-2 3.9-2.1L12 3z"
+                    />
+                  </svg>
+                </a>
+              )}
               {showRetranslateButton && (
                 <button
                   onClick={onRetranslateClick}

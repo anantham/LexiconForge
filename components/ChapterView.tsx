@@ -303,6 +303,24 @@ const ChapterView: React.FC = () => {
     return !!(chapter as any)?.fanTranslation;
   }, [chapter]);
 
+  const suttaStudioUrl = useMemo(() => {
+    if (!chapter?.originalUrl) return null;
+    try {
+      const url = new URL(chapter.originalUrl);
+      if (!url.hostname.endsWith('suttacentral.net')) return null;
+      const parts = url.pathname.split('/').filter(Boolean);
+      if (parts.length === 0) return null;
+      const uid = parts[0]?.toLowerCase();
+      const queryLang = url.searchParams.get('lang');
+      const lang = (queryLang ?? parts[1] ?? 'en').toLowerCase();
+      const author = (parts[2] ?? 'sujato').toLowerCase();
+      if (!uid) return null;
+      return `/sutta/${uid}?lang=${encodeURIComponent(lang)}&author=${encodeURIComponent(author)}`;
+    } catch {
+      return null;
+    }
+  }, [chapter?.originalUrl]);
+
   useFootnoteNavigation(viewRef, viewMode, currentChapterId);
 
   const headerProps = {
@@ -312,6 +330,7 @@ const ChapterView: React.FC = () => {
     viewMode,
     hasFanTranslation,
     sourceUrl: chapter?.originalUrl,
+    suttaStudioUrl,
     onToggleLanguage: handleToggleLanguage,
     onNavigatePrev: chapter?.prevUrl ? () => handleNavigate(chapter.prevUrl) : undefined,
     onNavigateNext: chapter?.nextUrl ? () => handleNavigate(chapter.nextUrl) : undefined,
