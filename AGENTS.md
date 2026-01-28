@@ -38,12 +38,27 @@ PRE‑FLIGHT_CHECKLIST (before ANY code changes)
 
 ---
 
+PRE‑FLIGHT_EXCEPTION (single‑agent small fix)  
+If you are the only active agent and the change qualifies as a small fix (≤2 files, ≤150 LOC, no deps/schema/ADR/architectural changes), you may skip the full checklist. Minimum requirements still apply:  
+- [ ] Read relevant files in full (no skimming)  
+- [ ] Update docs/WORKLOG.md with timestamp + files/lines + rationale  
+- [ ] State assumptions + confidence in the response  
+
+---
+
 # WORKTREE_POLICY (Default)
 
 Goal: avoid stash hell and keep the main checkout clean.
 
+Scope: Required when multiple agents are active or when the task is non-trivial. Single-agent small fixes may work directly on `main` without a separate worktree.
+
+Small fix definition:
+- ≤2 files changed
+- ≤150 LOC changed
+- No new dependencies, schema/ADR changes, or architectural refactors
+
 - Default to **one worktree per branch** for any non-trivial task or whenever you need to context-switch.
-- Keep the root repo checkout on `main` and clean; do not develop on `main`.
+- Keep the root repo checkout on `main` and clean; avoid developing on `main` except for single-agent small fixes.
 - Prefer worktrees **outside** the repo to avoid untracked noise: `../LexiconForge.worktrees/<branch-name>/`.
 - Avoid `git stash` unless it’s an emergency; if you stash, name it and log `stash@{n}` + reason in `docs/WORKLOG.md`.
 
@@ -71,6 +86,8 @@ Notes
 # MULTI-AGENT COORDINATION PROTOCOL
 
 When multiple agents (Claude Code, Gemini CLI, Codex, etc.) work on this repo concurrently, follow these rules to avoid conflicts:
+
+Scope: This protocol applies only when multiple agents are working in the same repo at the same time. Single-agent small fixes do not require PRs or worktrees.
 
 ## Core Rules
 
@@ -120,6 +137,9 @@ On session end or context overflow:
 **Next steps:** <what remains>
 **PR:** <link if created>
 ```
+
+WORKLOG bloat control:
+- Run `./scripts/cycle-worklog.sh` periodically to archive older entries when `docs/WORKLOG.md` grows too large.
 
 ## Conflict Prevention
 
@@ -227,7 +247,8 @@ Human picks one for writing to files, testing is done manually and then if it is
 ## FILE_SIZE_MANAGEMENT 
 
 Decomposition protocol for files > 300 LOC  
-Plan: identify file that is monolithic and bloated and inform human that it needs refactoring to split into smaller modular pieces
+Plan: identify files that are monolithic or bloated and log them in `docs/REFACTOR_CANDIDATES.md` with a brief reason + suggested split.  
+Notes: 300 LOC is a rule of thumb; prioritize maintainability, cohesion, and testability over raw line count. No warning is required before reading large files.
 
 
 ---
@@ -244,7 +265,7 @@ Every leg of your roadmap, todo list, uncertainties, discoveries, antipatterns d
     
 2. context overflow (> 80% of window) prepare to make best use of remaining tokens
     
-3. file > 300 LOC without having warned human user 
+3. file > 300 LOC without adding it to `docs/REFACTOR_CANDIDATES.md` when it warrants refactoring
     
 4. security risk (auth/crypto/sanitization/secrets)
     
@@ -307,11 +328,14 @@ Don't rely on CI logs to explain context—put essentials in the body.
 
 ---
 
-## PULL_REQUEST_WORKFLOW (Mandatory for Code Review)
+## PULL_REQUEST_WORKFLOW (Default for Multi-Agent and Non-Trivial Changes)
+
+### Scope
+Required when multiple agents are active or when changes are non-trivial. Single-agent small fixes may go directly to `main` without a PR.
 
 ### All Changes Must Go Through Pull Requests
 
-**CRITICAL:** Direct commits to main branch are PROHIBITED. All changes must be submitted via Pull Request to trigger Codex automated code review.
+**CRITICAL:** Direct commits to main branch are PROHIBITED except for single-agent small fixes (as defined above). All other changes must be submitted via Pull Request to trigger Codex automated code review.
 
 ### PR Creation Protocol
 
@@ -360,7 +384,7 @@ Don't rely on CI logs to explain context—put essentials in the body.
 - [ ] Manual testing completed
 
 ## Review Checklist
-- [ ] No direct commits to main
+- [ ] No direct commits to main (unless small-fix exception applies)
 - [ ] Follows commit format
 - [ ] Ready for Codex review
 - [ ] No unrelated changes mixed in
@@ -368,7 +392,7 @@ Don't rely on CI logs to explain context—put essentials in the body.
 
 ### Agent-Specific PR Rules
 
-1. **Never bypass PR process** even for "simple" fixes
+1. **Never bypass PR process** unless the small-fix exception applies
 2. **Each PR addresses ONE issue** - no scope creep
 3. **Include PR number in commits** after creation: `fix(db): Split indexeddb service (#123)`
 4. **Tech debt PRs:** Include metrics (before/after LOC, complexity reduction)
