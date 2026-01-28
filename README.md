@@ -40,12 +40,14 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 
 
 ### **🌐 Universal Web Novel Access**
-*   📖 **Multi-Site Support:** Currently supports 5 major web novel platforms:
+*   📖 **Multi-Site Support:** Currently supports 8 web novel platforms:
     - **Kakuyomu** (kakuyomu.jp) - Japanese light novels
     - **Syosetu** (ncode.syosetu.com) - Japanese web novels
     - **Dxmwx** (dxmwx.org) - Chinese web novels
     - **Kanunu** (kanunu8.com, kanunu.net) - Chinese literature archive
     - **NovelCool** (novelcool.com) - Multi-language novel platform
+    - **BookToki** (booktoki468.com) - Korean web novels
+    - **SuttaCentral** (suttacentral.net) - Pali Buddhist suttas
 
 *   🌐 **Intelligent CORS Proxy System:** 10+ redundant proxy servers with automatic health monitoring and failover for reliable content fetching.
 *   ⚡ **Smart Preloading:** Background fetching of upcoming chapters for seamless reading (configurable 0-50 chapters ahead).
@@ -54,7 +56,7 @@ LexiconForge is more than just a translator; it's a power tool for readers.
 ### **🤖 Advanced AI Translation**
 *   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, Claude, DeepSeek, or OpenRouter. You control your usage and data. If you need help contact admin in the [@webnovels](https://t.me/webnovels) group to get an API key that works!
 *   📊 **22+ AI Models:** Access the latest generation of AI models across all providers to find your perfect translator. Quality and style varies across models and prompt combinations.
-*   🔮 **Coming Soon:** Direct OpenAI integration (requires backend proxy for security).
+*   🔮 **OpenAI Supported:** Use your own API key directly or access OpenAI models via OpenRouter.
 *   🎛️ **Fine-Tuned Control:** Adjust temperature (creativity), context depth (0-5 previous chapters), and model-specific settings.
 *   💰 **Real-Time Cost Tracking:** Obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent, with 2025 pricing.
 *   🛑 **Cancelable Requests:** Click the red spinner to abort in‑flight translations instantly.
@@ -122,7 +124,7 @@ Want to run your own instance? It's easy.
     VITE_CLAUDE_API_KEY=your_claude_key_here
     VITE_OPENROUTER_API_KEY=your_openrouter_key # Access to 100+ models including GPT-4o
     VITE_PIAPI_API_KEY=your_piapi_key_here      # For Flux models and LoRA
-    # Note: Direct OpenAI support coming soon (requires backend proxy)
+    VITE_OPENAI_API_KEY=your_openai_key_here   # Direct OpenAI access (or use OpenRouter)
     ```
 4.  **Run the app:** `npm run dev`
 
@@ -146,7 +148,7 @@ npm run merge-fan-translations path/to/session.json path/to/fan-translations/ [o
 ### Technical Architecture
 
 
-For detailed technical information, see the [Project Structure & Technical Details](./docs/PROJECT_STRUCTURE.md).
+For detailed technical information, see the [Architecture Decision Records](./docs/adr/).
 
 ---
 
@@ -160,7 +162,7 @@ For detailed technical information, see the [Project Structure & Technical Detai
 - Workers & Batch Jobs: `docs/Workers.md`
 - Data Schemas (Translation/Session): `docs/Schemas.md`
 - EPUB Export & Templates: `docs/EPUB.md`
-- Architecture Decisions (ADRs): `docs/` and `docs/adr/`
+- Architecture Decisions (ADRs): `docs/adr/`
 - Chrome Extension (BookToki scraper): `chrome_extension/README.md`
 
 ---

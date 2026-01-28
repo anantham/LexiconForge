@@ -77,6 +77,10 @@ data/sessions/
 
 # User-generated exports (large session files)
 Exports/
+session-files/
+
+# Illustrations (large AI-generated images)
+data/Illustrations/
 
 # Marketing and case study materials (not part of codebase)
 Case Studies/
@@ -90,5 +94,6 @@ Marketing/.DS_Store
 
 # Local AI assistant configs
 .claude/
+.serena/
 CLAUDE.local.md
 import/

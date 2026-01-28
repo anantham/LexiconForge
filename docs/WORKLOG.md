@@ -1,3 +1,114 @@
+2026-01-28 13:00 UTC - Full docs/ reorganization into subfolders
+- Files: 38 docs moved from docs/ root into docs/features/, docs/guides/, docs/architecture/, docs/roadmaps/, docs/infrastructure/
+- Why: Flat structure with 41 files was hard to navigate; organize by domain for discoverability.
+- Details:
+  - Created 5 new folders: features/ (9 docs), guides/ (8 docs), roadmaps/ (7+3 new docs), infrastructure/ (3+2 new docs), architecture/ (1 doc)
+  - Archived 4 stale docs (TECH-DEBT-REDUCTION-PLAN, TYPESCRIPT-ERROR-ANALYSIS, TYPESCRIPT-FIX-PLAN, RELEASE_NOTES) with superseded-by headers
+  - Archived 3 completed plans (INDEXEDDB-DECOMPOSITION-PLAN, INDEXEDDB-FACADE-MIGRATION, LEGACY_REPO_RETIREMENT_PLAN) to archive/completed/
+  - Created 3 new replacement docs: TYPESCRIPT-HEALTH.md, TECH-DEBT-STATUS.md, CHANGELOG.md
+  - Added status banners to 4 incomplete docs (NOVEL_LIBRARY_STATUS, MEMORY_OPTIMIZATION, COMPONENT-DECOMPOSITION, COMMUNITY_LIBRARY)
+  - Created README.md with content index and "Missing Documentation" checklist in each folder
+  - Updated START_HERE.md with new folder structure and links
+  - docs/ root now has only 4 files: START_HERE.md, ONBOARDING.md, WORKLOG.md, Vision.md
+- Tests: Not run (docs only).
+
+2026-01-28 12:30 UTC - Archive stale root docs with superseded-by headers
+- Files: DIAGNOSTIC_LOGGING.md → docs/archive/; TEST_QUALITY_AUDIT.md → docs/archive/testing-evolution/; TEST_IMPROVEMENTS_IMPLEMENTED.md → docs/archive/testing-evolution/; PHASE_2_GOLDEN_TEST_LEARNINGS.md → docs/archive/testing-evolution/; NEXT_STEPS_DETAILED.md → docs/archive/testing-evolution/; Vision.md → docs/Vision.md
+- Why: Clean up root directory by archiving stale docs while preserving historical context.
+- Details:
+  - Created docs/archive/testing-evolution/ folder to preserve test infrastructure evolution journey.
+  - Added "superseded by" headers to each archived file pointing to current reference docs.
+  - DIAGNOSTIC_LOGGING.md → superseded by docs/Debugging.md
+  - TEST_*.md files → superseded by docs/TEST_MANIFEST.md (historical records preserved)
+  - Moved Vision.md to docs/ (not stale, just misplaced).
+- Tests: Not run (docs only).
+
+2026-01-28 12:13 UTC - Create START_HERE.md as newcomer documentation index
+- Files: docs/START_HERE.md (new)
+- Why: Provide a single entry point for newcomers to navigate the codebase documentation.
+- Details:
+  - Created comprehensive TOC linking to all key docs organized by role (contributor, architect, feature dev, ops).
+  - Includes directory structure overview, ADR index with domain prefixes, and key design principles.
+  - Links to ONBOARDING.md for detailed walkthrough.
+- Tests: Not run (docs only).
+
+2026-01-28 12:00 UTC - Unify ADR files under docs/adr/ with domain prefixes
+- Files: docs/ADR-001-Decompose-Monolithic-IndexedDB-Service.md → docs/adr/DB-001-decompose-monolithic-indexeddb.md; docs/ADR-002-Atomic-Transaction-Boundaries.md → docs/adr/DB-002-atomic-transaction-boundaries.md; docs/ADR-003-Version-Centric-Data-Model.md → docs/adr/DB-003-version-centric-data-model.md; docs/ADR-004-Service-Layer-Architecture.md → docs/adr/CORE-004-service-layer-architecture.md; docs/ADR-005-Agent-First-Code-Organization.md → docs/adr/CORE-005-agent-first-code-organization.md; docs/ADR-006-Tree-Shakeable-Service-Architecture.md → docs/adr/CORE-006-tree-shakeable-service-architecture.md; docs/ADR-007-Schema-Evolution-And-Migrations.md → docs/adr/DB-007-schema-evolution-and-migrations.md; docs/adr/001-preloader-strategy.md → docs/adr/FEAT-001-preloader-strategy.md; docs/adr/002-typescript-debt-remediation.md → docs/adr/FEAT-002-typescript-debt-remediation.md; docs/adr/003-sutta-studio-mvp.md → docs/adr/SUTTA-003-sutta-studio-mvp.md
+- Why: Fix ADR numbering collision between docs/ and docs/adr/; consolidate all ADRs under single directory with domain prefixes (DB, CORE, FEAT, SUTTA).
+- Details:
+  - Moved 7 ADR files from docs/ root to docs/adr/ with domain prefixes.
+  - Renamed 3 existing docs/adr/ files to use domain prefixes.
+  - Updated all internal cross-references (ADR-001→DB-001, ADR-002→DB-002, etc.).
+  - Updated document headers to match new naming scheme.
+- Tests: Not run (file organization only).
+
+2026-01-28 12:00 UTC - Archive diagnostic artifacts and stale files
+- Files: ts-prune-output.txt → docs/archive/diagnostics/ts-prune-output-2025.txt; diagnostics/*.txt → docs/archive/diagnostics/; formattingIssues.md → docs/archive/formattingIssues.md; ISSUES.md → docs/archive/ISSUES.md; COVERAGE_REPORT.md → docs/archive/quality/COVERAGE_REPORT.md
+- Why: Clean up root directory by moving stale diagnostic artifacts and outdated backlog files to archive.
+- Details:
+  - Moved ts-prune-output.txt with year suffix to diagnostics archive.
+  - Moved 4 TSC diagnostic files from diagnostics/ folder to archive/diagnostics/.
+  - Moved formattingIssues.md and ISSUES.md (stale backlog) to archive root.
+  - Moved COVERAGE_REPORT.md to archive/quality/ subfolder.
+  - Removed empty diagnostics/ directory.
+- Tests: Not run (file organization only).
+
+2026-01-28 12:00 UTC - Fix outdated statements in README.md
+- Files: README.md:42-50, 57, 125, 149, 163
+- Why: README had stale info about site count, OpenAI support, and broken/inconsistent links.
+- Details:
+  - Updated site list from 5 to 8 (added BookToki Korean, SuttaCentral Pali/Suttas).
+  - Changed "Coming Soon: Direct OpenAI integration" to reflect that OpenAI is now supported.
+  - Added VITE_OPENAI_API_KEY to .env.local example.
+  - Fixed broken link to PROJECT_STRUCTURE.md, now points to docs/adr/.
+  - Simplified ADR path from "docs/ and docs/adr/" to just "docs/adr/".
+- Tests: Not run (docs only).
+
+2026-01-28 08:04 UTC - Untrack .serena files from git index
+- Files: .serena/.gitignore; .serena/memories/project_overview.md; .serena/memories/project_structure.md; .serena/memories/style_and_conventions.md; .serena/memories/suggested_commands.md; .serena/memories/task_completion.md; .serena/project.yml; docs/WORKLOG.md
+- Why: Keep local assistant memory out of version control while preserving local functionality.
+- Details:
+  - Removed .serena files from git index using update-index; files remain on disk and are ignored.
+- Tests: Not run (git hygiene only).
+
+2026-01-28 07:59 UTC - Docs hygiene: options-first response format + ignore .serena + remove cookie file
+- Files: AGENTS.md:25-37; .gitignore:91-94; data/Novels/booktoki468.com_cookies.txt (removed); docs/WORKLOG.md
+- Why: Enforce options-first response framing and prevent assistant artifacts/sensitive cookies from entering git.
+- Details:
+  - Updated Prime Directive #11 to include decision dimensions and added RESPONSE_FORMAT section.
+  - Added `.serena/` to .gitignore; removed local Booktoki cookie file.
+- Tests: Not run (docs/git hygiene only).
+
+2026-01-28 04:56 UTC - Add options-first directive to AGENTS
+- Files: AGENTS.md:25; docs/WORKLOG.md
+- Why: Enforce presenting options with open questions, tradeoffs, and uncertainties before proceeding.
+- Details:
+  - Added Prime Directive #11 requiring options-first framing.
+- Tests: Not run (docs only).
+
+2026-01-28 04:43 UTC - ADR-003 amendment: assembly-line compiler pipeline + phase state envelope (proposed)
+- Files: docs/adr/003-sutta-studio-mvp.md:151-194; docs/WORKLOG.md
+- Why: Align architecture doc with the quality-first assembly-line compiler plan and prompt contracts.
+- Details:
+  - Added an ADR amendment describing chunked skeleton, anatomist/lexicographer/weaver/typesetter passes, phase state envelope, flattened schema, polysemy contract, layout hints + UI fallback, and staged validation.
+- Tests: Not run (docs only).
+
+2026-01-28 04:53 UTC - Accept ADR-003 and enable chunked skeleton pass (in progress)
+- Files: docs/adr/003-sutta-studio-mvp.md:1-4, 151-155; services/suttaStudioCompiler.ts:37, 380-494, 730-753; docs/WORKLOG.md
+- Why: Mark the assembly-line amendment as accepted and prevent skeleton truncation by chunking inputs.
+- Details:
+  - Updated ADR-003 status to Accepted (including the assembly-line amendment block).
+  - Added chunked skeleton helper to run per-50 segment windows with per-chunk fallback.
+  - Bumped prompt version to v6 to invalidate cached packets.
+- Tests: Not run (not requested).
+
+2026-01-28 04:50 UTC - Add assembly-line pipeline implementation roadmap (accepted)
+- Files: docs/plans/2026-01-28-sutta-studio-assembly-line-roadmap.md; docs/WORKLOG.md
+- Why: Capture the detailed implementation plan (rehydrator, throttling, error handling, tokenization, golden set) so it survives across sessions.
+- Details:
+  - Added a step-by-step roadmap covering chunked skeleton, throttled queue, flattened anatomist pass, rehydration utility, lexicographer/weaver/typesetter passes, degraded-state fallback, and benchmarking.
+- Tests: Not run (docs only).
+
 2026-01-28 08:25 UTC - Stale-build invalidation for Sutta Studio (in progress)
 - Files: components/sutta-studio/SuttaStudioApp.tsx:214-289; services/suttaStudioCompiler.ts:724-879; types/suttaStudio.ts:106-118; docs/WORKLOG.md
 - Why: Prevent cached packets stuck in `building` from blocking new compiles after refresh.
@@ -349,3 +460,19 @@
 - Why: Keep top progress label consistent with ready/total counts and remove unused phase resolver import.
 - Details: Fallback now renders "Phase {readyPhases}/{totalPhases}" directly with clamped ready count; cleaned unused import in studio view.
 - Tests: Not run (local).
+2026-01-28 10:18 UTC - Add compiler throttling between LLM calls (in progress)
+- Files: services/suttaStudioCompiler.ts:38, 278-311, 448-498, 714-879; docs/WORKLOG.md
+- Why: Reduce bursty LLM traffic and lower the chance of 429s during multi-phase compilation.
+- Details:
+  - Added a compiler throttle helper with abort-aware delay and a 1s minimum gap between calls.
+  - Applied throttling to skeleton chunk calls, phase compile, and morphology pass.
+- Tests: Not run (not requested).
+2026-01-28 07:51 UTC - Phase 2 anatomist pass (assembly-line) wired into compiler (in progress)
+- Files: services/suttaStudioCompiler.ts:42, 69-139, 318-407, 821-883, 1027-1157; types/suttaStudio.ts:65-104; config/suttaStudioPromptContext.ts:30-38; config/suttaStudioExamples.ts:1-124; docs/WORKLOG.md
+- Why: Introduce the Anatomist pass with a flattened schema to reduce LLM overload and make segmentation authoritative.
+- Details:
+  - Added Anatomist types, prompt context, and a golden example JSON.
+  - Added Anatomist JSON schema, phase state envelope, prompt builder, and compiler call (structured outputs).
+  - Use anatomist segments to override phase output and skip morphology when anatomist succeeds.
+  - Bumped prompt version to v7 to invalidate cached packets.
+- Tests: Not run (not requested).
