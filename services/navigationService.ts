@@ -17,13 +17,15 @@ import {
   normalizeUrlAggressively,
   transformImportedChapters
 } from './stableIdService';
-import type { ImportedChapter, TranslationResult, TranslationSettingsSnapshot } from '../types';
+import type { Chapter, ImportedChapter, TranslationResult, TranslationSettingsSnapshot } from '../types';
+import type { NovelMetadata } from '../types/novel';
 import { memorySummary, memoryDetail, memoryTimestamp, memoryTiming } from '../utils/memoryDiagnostics';
 import { telemetryService } from './telemetryService';
 import { debugLog } from '../utils/debug';
 import { computeDiffHash } from './diff/hash';
 import { DIFF_ALGO_VERSION } from './diff/constants';
 import { ChapterOps, TranslationOps, SettingsOps, ImportOps, DiffOps } from './db/operations';
+import { isSuttaFlowDebug, logSuttaFlow } from './suttaStudioDebug';
 
 // Logging utilities matching the store pattern
 const storeDebugEnabled = () => {
@@ -31,6 +33,11 @@ const storeDebugEnabled = () => {
 };
 const slog = (...args: any[]) => { if (storeDebugEnabled()) console.log(...args); };
 const swarn = (...args: any[]) => { if (storeDebugEnabled()) console.warn(...args); }; 
+
+type StoredNovelMetadata = NovelMetadata & {
+  title?: string;
+  alternateTitles?: string[];
+};
 
 type HydratedTranslationResult = TranslationResult & {
   id: string;
@@ -575,6 +582,7 @@ export class NavigationService {
       try {
         slog(`[Fetch] Fetching and parsing URL: ${url}`);
         const chapterData = await fetchAndParseUrl(url, {}, () => {});
+        await this.applySuttaMetadataFromChapter(chapterData);
         slog(`[Fetch] Raw chapter data:`, {
           title: chapterData.title,
           hasContent: !!chapterData.content,
@@ -595,7 +603,9 @@ export class NavigationService {
           prevUrl: chapterData.prevUrl || null,
           translationResult: null,
           feedback: [],
-          chapterNumber: chapterData.chapterNumber
+          chapterNumber: chapterData.chapterNumber,
+          fanTranslation: chapterData.fanTranslation ?? null,
+          suttaStudio: chapterData.suttaStudio ?? null
         };
         const stableData = transformImportedChapters([dataForTransformation]);
         slog(`[Fetch] Stable transformation result:`, {
@@ -717,6 +727,57 @@ export class NavigationService {
     }
   }
 
+  private static normalizeLanguageLabel(lang: string | null | undefined): string | undefined {
+    if (!lang) return undefined;
+    const normalized = lang.toLowerCase();
+    if (normalized === 'en') return 'English';
+    if (normalized === 'pli' || normalized === 'pi') return 'Pali';
+    return lang;
+  }
+
+  private static async applySuttaMetadataFromChapter(chapter: Chapter): Promise<void> {
+    const blurb = chapter.blurb?.trim();
+    if (!blurb) return;
+
+    const defaultDescription = 'Please provide a description for this novel.';
+
+    try {
+      const existing = await SettingsOps.getKey<StoredNovelMetadata>('novelMetadata');
+      const existingDesc = existing?.description?.trim() ?? '';
+      const hasRealDescription = existingDesc.length > 0 && existingDesc !== defaultDescription;
+      if (hasRealDescription) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const sourceLanguage = existing?.originalLanguage ?? chapter.sourceLanguage ?? 'Pali';
+      const targetLanguage =
+        existing?.targetLanguage ??
+        NavigationService.normalizeLanguageLabel(chapter.targetLanguage) ??
+        'English';
+
+      const merged: StoredNovelMetadata = {
+        ...(existing || {}),
+        title: existing?.title ?? chapter.title ?? 'Untitled Novel',
+        description: blurb,
+        originalLanguage: sourceLanguage,
+        targetLanguage,
+        chapterCount: existing?.chapterCount ?? 1,
+        genres: Array.isArray(existing?.genres) ? existing.genres : [],
+        lastUpdated: existing?.lastUpdated ?? today,
+      };
+
+      await SettingsOps.set('novelMetadata', merged);
+      if (typeof window !== 'undefined') {
+        window.localStorage?.setItem('novelMetadata', JSON.stringify(merged));
+      }
+      debugLog('navigation', 'summary', '[Navigation] Stored SuttaCentral blurb in novel metadata', {
+        title: merged.title,
+        blurbLength: blurb.length,
+      });
+    } catch (error) {
+      console.error('[Navigation] Failed to persist SuttaCentral metadata', error);
+    }
+  }
+
   /**
    * Check if URL is from a supported source for fetching
    */
@@ -729,10 +790,38 @@ export class NavigationService {
    */
   static updateBrowserHistory(chapter: EnhancedChapter, chapterId: string): void {
     if (typeof history !== 'undefined' && history.pushState) {
+      const currentUrl =
+        typeof window !== 'undefined' ? new URL(window.location.href) : null;
+      const flowDebug = isSuttaFlowDebug();
+      const params = new URLSearchParams();
+      const preserveKeys = ['lang', 'author', 'recompile'];
+
+      if (currentUrl?.pathname.startsWith('/sutta')) {
+        preserveKeys.forEach((key) => {
+          const value = currentUrl.searchParams.get(key);
+          if (value !== null && value !== '') {
+            params.set(key, value);
+          }
+        });
+      }
+
+      params.set('chapter', chapter.canonicalUrl);
+      const search = params.toString();
+      const basePath = currentUrl?.pathname || '';
+      const nextUrl = basePath ? `${basePath}?${search}` : `?${search}`;
+      if (flowDebug && currentUrl?.pathname.startsWith('/sutta')) {
+        logSuttaFlow('updateBrowserHistory', {
+          chapterId,
+          canonicalUrl: chapter.canonicalUrl,
+          previousUrl: currentUrl.toString(),
+          nextUrl,
+          preservedParams: preserveKeys.filter((key) => currentUrl.searchParams.get(key)),
+        });
+      }
       history.pushState(
         { chapterId }, 
         '', 
-        `?chapter=${encodeURIComponent(chapter.canonicalUrl)}`
+        nextUrl
       );
     }
   }
@@ -773,6 +862,7 @@ export class NavigationService {
         contentLength: rec?.content?.length || 0,
         hasFanTranslation: !!rec?.fanTranslation,
         fanTranslationLength: rec?.fanTranslation?.length || 0,
+        hasSuttaStudio: !!rec?.suttaStudio,
         url: rec?.url,
         canonicalUrl: rec?.canonicalUrl,
         originalUrl: rec?.originalUrl,
@@ -811,6 +901,7 @@ export class NavigationService {
           sourceFormat: 'json'
         },
         fanTranslation: rec.fanTranslation || null, // Include fan translation from IndexedDB
+        suttaStudio: rec.suttaStudio ?? null,
         translationResult: null, // Will be loaded below
       };
 
