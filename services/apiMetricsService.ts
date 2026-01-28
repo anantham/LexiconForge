@@ -13,7 +13,7 @@
  * - Export to CSV for accounting
  */
 
-export type ApiCallType = 'translation' | 'image' | 'audio' | 'diff_analysis';
+export type ApiCallType = 'translation' | 'image' | 'audio' | 'diff_analysis' | 'sutta_studio';
 
 export interface ApiCallMetric {
   id: string; // UUID
@@ -235,6 +235,7 @@ class ApiMetricsService {
         image: { cost: 0, calls: 0 },
         audio: { cost: 0, calls: 0 },
         diff_analysis: { cost: 0, calls: 0 },
+        sutta_studio: { cost: 0, calls: 0 },
       },
       byProvider: {},
     };
@@ -244,8 +245,8 @@ class ApiMetricsService {
 
       // Aggregate by type
       if (summary.byType[metric.apiType]) {
-        summary.byType[metric.apiType].cost += metric.costUsd;
-        summary.byType[metric.apiType].calls += 1;
+      summary.byType[metric.apiType].cost += metric.costUsd;
+      summary.byType[metric.apiType].calls += 1;
       }
 
       // Aggregate by provider
@@ -268,6 +269,7 @@ class ApiMetricsService {
         image: { cost: 0, calls: 0 },
         audio: { cost: 0, calls: 0 },
         diff_analysis: { cost: 0, calls: 0 },
+        sutta_studio: { cost: 0, calls: 0 },
       },
       byProvider: {},
     };

@@ -6,6 +6,15 @@
   - Compile gate treats `building` packets as stale if no progress within 3 minutes, and triggers a recompile.
 - Tests: Not run (local).
 
+2026-01-28 09:13 UTC - Route compiler calls through provider adapters (in progress)
+- Files: adapters/providers/OpenAIAdapter.ts:1-260; adapters/providers/GeminiAdapter.ts:1-210; adapters/providers/ClaudeAdapter.ts:1-150; adapters/providers/Provider.ts:1-40; adapters/providers/index.ts:1-30; services/apiMetricsService.ts:12-120; services/suttaStudioCompiler.ts:1-520; docs/WORKLOG.md
+- Why: Unify compiler LLM calls with the shared provider adapter layer so cost/usage metrics match translation accounting.
+- Details:
+  - Added chatJSON support to OpenAI/Gemini/Claude adapters with apiMetrics recording under `sutta_studio`.
+  - Compiler now resolves providers through adapter registry and uses adapter chatJSON (no direct OpenAI SDK calls).
+  - ApiMetrics now includes `sutta_studio` type for aggregation.
+- Tests: Not run (local).
+
 2026-01-28 08:17 UTC - Bootstrap ETA with historical EMA (in progress)
 - Files: services/suttaStudioTelemetry.ts:1-92; services/suttaStudioCompiler.ts:715-733; docs/WORKLOG.md
 - Why: Provide a Phase 1 estimate from prior runs and smooth ETA updates with EMA.

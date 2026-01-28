@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
+import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
 import { supportsStructuredOutputs, supportsParameters } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
@@ -56,7 +57,13 @@ const dlogFull = (message: string, ...args: any[]) => {
   } catch {}
 };
 
-export class OpenAIAdapter implements TranslationProvider {
+export class OpenAIAdapter implements TranslationProvider, Provider {
+  name: ProviderName;
+
+  constructor(providerName: ProviderName = 'OpenRouter') {
+    this.name = providerName;
+  }
+
   async translate(request: TranslationRequest): Promise<TranslationResult> {
     const { title, content, settings, history, fanTranslation, abortSignal, chapterId } = request;
 
@@ -127,6 +134,150 @@ export class OpenAIAdapter implements TranslationProvider {
     // Process response
     dlogFull('Full response body:', JSON.stringify(response, null, 2));
     return this.processResponse(response, settings, startTime, endTime, chapterId);
+  }
+
+  async chatJSON(input: ChatRequest): Promise<ChatResponse> {
+    const settings = input.settings;
+    if (!settings) {
+      throw new Error('chatJSON requires settings');
+    }
+
+    const model = input.model || settings.model;
+    const messages = input.messages?.length
+      ? input.messages
+      : [
+          ...(input.system ? [{ role: 'system' as const, content: input.system }] : []),
+          ...(input.user ? [{ role: 'user' as const, content: input.user }] : []),
+        ];
+
+    if (!messages.length) {
+      throw new Error('chatJSON requires at least one message');
+    }
+
+    // Configure API client
+    const apiConfig = this.getApiConfig(settings);
+    const client = new OpenAI({
+      apiKey: apiConfig.apiKey,
+      baseURL: apiConfig.baseURL,
+      dangerouslyAllowBrowser: true
+    });
+
+    // Check rate limits
+    await rateLimitService.canMakeRequest(model);
+
+    const temperature = validateAndClampParameter(
+      input.temperature ?? settings.temperature ?? 0.2,
+      'temperature'
+    );
+    const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? undefined;
+
+    const requestOptions: any = {
+      model,
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+    };
+
+    const hasStructuredOutputs = Boolean(input.schema) && Boolean(
+      input.structuredOutputs ?? (await supportsStructuredOutputs(settings.provider, model))
+    );
+
+    if (hasStructuredOutputs && input.schema) {
+      requestOptions.response_format = {
+        type: 'json_schema',
+        json_schema: {
+          name: input.schemaName || 'sutta_studio_response',
+          schema: input.schema,
+          strict: true,
+        },
+      };
+      if (settings.provider === 'OpenRouter') {
+        requestOptions.provider = { require_parameters: true };
+      }
+    } else {
+      requestOptions.response_format = { type: 'json_object' };
+    }
+
+    dlog('Making compiler API request', { model, provider: settings.provider });
+    dlogFull('Full compiler request body:', JSON.stringify(requestOptions, null, 2));
+
+    const startTime = performance.now();
+    let response: OpenAI.Chat.Completions.ChatCompletion;
+
+    try {
+      response = await (input.abortSignal
+        ? client.chat.completions.create(requestOptions, { signal: input.abortSignal })
+        : client.chat.completions.create(requestOptions));
+    } catch (error: any) {
+      const message = error?.message || String(error);
+      if (hasStructuredOutputs && /response_format|structured_outputs|not supported/i.test(message)) {
+        dlog('Structured outputs not supported; retrying without schema.');
+        const fallbackOptions = {
+          ...requestOptions,
+          response_format: { type: 'json_object' },
+        };
+        response = await (input.abortSignal
+          ? client.chat.completions.create(fallbackOptions, { signal: input.abortSignal })
+          : client.chat.completions.create(fallbackOptions));
+      } else {
+        dlogFull('Full compiler error response:', JSON.stringify(error, null, 2));
+        await apiMetricsService.recordMetric({
+          apiType: input.apiType ?? 'sutta_studio',
+          provider: settings.provider,
+          model,
+          costUsd: 0,
+          tokens: {
+            prompt: 0,
+            completion: 0,
+            total: 0,
+          },
+          chapterId: input.chapterId,
+          success: false,
+          errorMessage: message || 'Unknown error',
+        });
+        throw error;
+      }
+    }
+
+    const endTime = performance.now();
+    dlogFull('Full compiler response body:', JSON.stringify(response, null, 2));
+
+    const content = response.choices[0]?.message?.content || '';
+    if (!content.trim()) {
+      throw new Error('Empty compiler response.');
+    }
+
+    const promptTokens = response.usage?.prompt_tokens || 0;
+    const completionTokens = response.usage?.completion_tokens || 0;
+    const totalTokens = promptTokens + completionTokens;
+    let costUsd = 0;
+    try {
+      costUsd = await calculateCost(model, promptTokens, completionTokens);
+    } catch (e) {
+      console.warn('[OpenAI] Failed to calculate compiler cost:', e);
+    }
+
+    await apiMetricsService.recordMetric({
+      apiType: input.apiType ?? 'sutta_studio',
+      provider: settings.provider,
+      model,
+      costUsd,
+      tokens: {
+        prompt: promptTokens,
+        completion: completionTokens,
+        total: totalTokens,
+      },
+      chapterId: input.chapterId,
+      success: true,
+    });
+
+    return {
+      text: content,
+      tokens: { prompt: promptTokens, completion: completionTokens, total: totalTokens },
+      costUsd,
+      model: response.model || model,
+      raw: response,
+    };
   }
 
   private getApiConfig(settings: AppSettings): { apiKey: string; baseURL: string } {

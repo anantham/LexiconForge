@@ -1,8 +1,10 @@
 import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
+import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
+import { apiMetricsService } from '../../services/apiMetricsService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
@@ -55,7 +57,9 @@ const dlogFull = (message: string, ...args: any[]) => {
   }
 };
 
-export class GeminiAdapter implements TranslationProvider {
+export class GeminiAdapter implements TranslationProvider, Provider {
+  name: ProviderName = 'Gemini';
+
   async translate(request: TranslationRequest): Promise<TranslationResult> {
     const { title, content, settings, history, fanTranslation, abortSignal } = request;
     
@@ -115,6 +119,115 @@ export class GeminiAdapter implements TranslationProvider {
     
     // Process response
     return this.processResponse(result, settings, startTime, endTime);
+  }
+
+  async chatJSON(input: ChatRequest): Promise<ChatResponse> {
+    const settings = input.settings;
+    if (!settings) {
+      throw new Error('chatJSON requires settings');
+    }
+
+    const modelId = input.model || settings.model;
+    const temperature = input.temperature ?? settings.temperature ?? 0.2;
+    const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? undefined;
+
+    const messages = input.messages?.length
+      ? input.messages
+      : [
+          ...(input.system ? [{ role: 'system' as const, content: input.system }] : []),
+          ...(input.user ? [{ role: 'user' as const, content: input.user }] : []),
+        ];
+
+    const prompt = messages
+      .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+      .join('\n\n');
+
+    const envKey = getEnvVar('GEMINI_API_KEY');
+    const apiKey = settings.apiKeyGemini || envKey;
+    if (!apiKey) {
+      throw new Error('Gemini API key is missing. Please add it in settings.');
+    }
+
+    await rateLimitService.canMakeRequest(modelId);
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelId });
+
+    const startTime = performance.now();
+    let result: GenerateContentResult;
+    try {
+      const generationConfig: any = {
+        temperature,
+        maxOutputTokens: maxTokens,
+        responseMimeType: 'application/json',
+      };
+      if (input.schema && (input.structuredOutputs ?? true)) {
+        generationConfig.responseSchema = input.schema;
+      }
+
+      result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig,
+      });
+
+      if (input.abortSignal?.aborted) {
+        throw new DOMException('Aborted', 'AbortError');
+      }
+    } catch (error: any) {
+      if (input.abortSignal?.aborted || error.name === 'AbortError') {
+        throw new DOMException('Translation was aborted by user', 'AbortError');
+      }
+
+      await apiMetricsService.recordMetric({
+        apiType: input.apiType ?? 'sutta_studio',
+        provider: settings.provider,
+        model: modelId,
+        costUsd: 0,
+        tokens: { prompt: 0, completion: 0, total: 0 },
+        chapterId: input.chapterId,
+        success: false,
+        errorMessage: error.message || 'Unknown error',
+      });
+      throw error;
+    }
+
+    const endTime = performance.now();
+    const responseText = result.response.text();
+    if (!responseText) {
+      throw new Error('Empty response from Gemini API');
+    }
+
+    const promptTokens = result.response.usageMetadata?.promptTokenCount || 0;
+    const completionTokens = result.response.usageMetadata?.candidatesTokenCount || 0;
+    const totalTokens = promptTokens + completionTokens;
+    let costUsd = 0;
+    try {
+      costUsd = await calculateCost(modelId, promptTokens, completionTokens);
+    } catch (e) {
+      console.warn('[Gemini] Failed to calculate compiler cost:', e);
+    }
+
+    await apiMetricsService.recordMetric({
+      apiType: input.apiType ?? 'sutta_studio',
+      provider: settings.provider,
+      model: modelId,
+      costUsd,
+      tokens: {
+        prompt: promptTokens,
+        completion: completionTokens,
+        total: totalTokens,
+      },
+      chapterId: input.chapterId,
+      success: true,
+    });
+
+    return {
+      text: responseText,
+      tokens: { prompt: promptTokens, completion: completionTokens, total: totalTokens },
+      costUsd,
+      model: modelId,
+      raw: result,
+    };
   }
 
   private buildPrompt(

@@ -1,10 +1,10 @@
-import OpenAI from 'openai';
 import { extractBalancedJson } from './ai/textUtils';
 import { supportsStructuredOutputs } from './capabilityService';
-import { getDefaultApiKey } from './defaultApiKeyService';
-import { getEnvVar } from './env';
 import { dlog, dlogFull, aiDebugFullEnabled } from './ai/debug';
 import type { AppSettings } from '../types';
+import type { ChatMessage, ProviderName } from '../adapters/providers/Provider';
+import { initializeProviders } from '../adapters/providers';
+import { getProvider } from '../adapters/providers/registry';
 import type {
   CanonicalSegment,
   DeepLoomPacket,
@@ -262,28 +262,6 @@ const dedupeEnglishStructure = (
   return deduped;
 };
 
-const resolveApiKey = (settings: AppSettings): { apiKey?: string; baseURL?: string } => {
-  switch (settings.provider) {
-    case 'OpenAI':
-      return { apiKey: settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY'), baseURL: 'https://api.openai.com/v1' };
-    case 'DeepSeek':
-      return { apiKey: settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY'), baseURL: 'https://api.deepseek.com/v1' };
-    case 'OpenRouter': {
-      const userKey = (settings as any).apiKeyOpenRouter;
-      const envKey = getEnvVar('OPENROUTER_API_KEY');
-      const trialKey = getDefaultApiKey();
-      return { apiKey: userKey || envKey || trialKey || undefined, baseURL: 'https://openrouter.ai/api/v1' };
-    }
-    case 'Gemini':
-    case 'Claude':
-    default: {
-      const fallback = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey();
-      warn(`Provider ${settings.provider} not supported for compiler; falling back to OpenRouter.`);
-      return { apiKey: fallback, baseURL: 'https://openrouter.ai/api/v1' };
-    }
-  }
-};
-
 const getTimeoutSignal = (ms: number, external?: AbortSignal): AbortSignal | undefined => {
   if (external && typeof AbortSignal !== 'undefined' && 'any' in AbortSignal) {
     // @ts-expect-error AbortSignal.any is not in TS lib yet
@@ -468,7 +446,26 @@ const buildBoundaryContext = (boundaries: BoundaryNote[], allowCrossChapter: boo
   return `\n${rule}\n${lines}\n`;
 };
 
-type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+const resolveCompilerProvider = async (
+  settings: AppSettings
+): Promise<{ provider: { chatJSON: (input: any) => Promise<{ text: string; raw?: unknown }> }; settings: AppSettings }> => {
+  await initializeProviders();
+  const providerName = settings.provider === 'OpenAI' ? 'OpenRouter' : settings.provider;
+  let provider;
+  try {
+    provider = getProvider(providerName as ProviderName);
+  } catch (e) {
+    warn(`Provider ${providerName} not registered for compiler; falling back to OpenRouter.`);
+    provider = getProvider('OpenRouter');
+  }
+
+  const effectiveSettings =
+    providerName === settings.provider
+      ? settings
+      : { ...settings, provider: providerName as AppSettings['provider'] };
+
+  return { provider, settings: effectiveSettings };
+};
 
 const callCompilerLLM = async (
   settings: AppSettings,
@@ -477,66 +474,32 @@ const callCompilerLLM = async (
   maxTokens = 4000,
   options?: { schemaName?: string; schema?: any; structuredOutputs?: boolean }
 ): Promise<string> => {
-  const { apiKey, baseURL } = resolveApiKey(settings);
-  if (!apiKey || !baseURL) throw new Error('No API key configured for compiler calls.');
-
-  const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
-  const requestOptions: any = {
-    model: settings.model,
-    messages,
-    temperature: 0.2,
-    max_tokens: maxTokens,
-  };
-
-  if (options?.schema && options.structuredOutputs) {
-    requestOptions.response_format = {
-      type: 'json_schema',
-      json_schema: {
-        name: options.schemaName || 'sutta_studio_response',
-        schema: options.schema,
-        strict: true,
-      },
-    };
-    if (settings.provider === 'OpenRouter') {
-      requestOptions.provider = { require_parameters: true };
-    }
-  } else {
-    requestOptions.response_format = { type: 'json_object' };
-  }
+  const { provider, settings: effectiveSettings } = await resolveCompilerProvider(settings);
 
   dlog('[SuttaStudioCompiler] LLM request params', {
-    provider: settings.provider,
-    model: settings.model,
+    provider: effectiveSettings.provider,
+    model: effectiveSettings.model,
     maxTokens,
     structuredOutputs: !!options?.schema && !!options?.structuredOutputs,
-    responseFormat: requestOptions.response_format?.type,
   });
-  if (aiDebugFullEnabled()) {
-    dlogFull('[SuttaStudioCompiler] Full request body:', JSON.stringify(requestOptions, null, 2));
-  }
 
-  let resp;
-  try {
-    resp = await client.chat.completions.create(requestOptions, { signal });
-  } catch (error: any) {
-    const message = error?.message || String(error);
-    if (options?.schema && options.structuredOutputs && /response_format|structured_outputs|not supported/i.test(message)) {
-      warn(`Structured outputs not supported; retrying without schema. Error: ${message}`);
-      const fallbackOptions = {
-        ...requestOptions,
-        response_format: { type: 'json_object' },
-      };
-      resp = await client.chat.completions.create(fallbackOptions, { signal });
-    } else {
-      throw error;
-    }
-  }
+  const response = await provider.chatJSON({
+    settings: effectiveSettings,
+    messages,
+    temperature: 0.2,
+    maxTokens,
+    schema: options?.schema,
+    schemaName: options?.schemaName,
+    structuredOutputs: options?.structuredOutputs,
+    abortSignal: signal,
+    apiType: 'sutta_studio',
+  });
 
   if (aiDebugFullEnabled()) {
-    dlogFull('[SuttaStudioCompiler] Full response body:', JSON.stringify(resp, null, 2));
+    dlogFull('[SuttaStudioCompiler] Full response body:', JSON.stringify(response.raw ?? response, null, 2));
   }
 
-  const content = resp.choices[0]?.message?.content || '';
+  const content = response.text || '';
   if (!content.trim()) throw new Error('Empty compiler response.');
   return content;
 };
@@ -619,7 +582,8 @@ export const compileSuttaStudioPacket = async (options: {
   if (!settings?.model) {
     throw new Error('No model selected for Sutta Studio compiler. Please select a model in Settings.');
   }
-  const structuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
+  const structuredOutputProvider = settings.provider === 'OpenAI' ? 'OpenRouter' : settings.provider;
+  const structuredOutputs = await supportsStructuredOutputs(structuredOutputProvider, settings.model);
   log(`Structured outputs supported: ${structuredOutputs}`);
   const bundles: Array<{ uid: string; segments: CanonicalSegment[] }> = [];
   for (const entry of uidList) {
