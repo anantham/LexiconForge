@@ -151,6 +151,22 @@
   - NavigationService stores SuttaCentral blurb into novel metadata (only when description is empty/placeholder) and passes fanTranslation into imports.
   - Added SuttaCentral adapter tests for support listing, lang override, and dotted UID navigation.
 - Tests: Not run (local).
+### [2026-01-07 05:04] [Agent: Codex]
+**Status:** Starting
+**Task:** Add structured EPUB export warnings (missing translations, cache misses) and package validation logs without changing output.
+**Worktree:** ../LexiconForge.worktrees/codex-epub-diagnostics/
+**Branch:** feat/codex-epub-diagnostics
+**Files likely affected:** store/slices/exportSlice.ts; services/epubService/packagers/epubPackager.ts; tests/services/epubPackager.diagnostics.test.ts; docs/WORKLOG.md
+
+### [2026-01-07 12:21] [Agent: Codex]
+**Status:** Complete
+**Progress:** Added structured export warnings for missing translations/cache misses, added EPUB package validation warnings, and added diagnostics test coverage.
+**Files modified (line numbers + why):**
+- store/slices/exportSlice.ts:31,270,342,405,442,587 - track/export structured warnings, log to telemetry, surface warning counts in progress + performance telemetry.
+- services/epubService/packagers/epubPackager.ts:15,21,27,33,146,307 - emit package validation warnings (missing title/identifier, no chapters, invalid cover image, XHTML parse errors).
+- tests/services/epubPackager.diagnostics.test.ts:1,4,32 - verify structured warnings for missing title and invalid cover image.
+- docs/WORKLOG.md:1 - session log updates.
+**Tests:** npx vitest run tests/services/epubPackager.diagnostics.test.ts
 
 2025-12-26 20:31 UTC - Provider contract VCR replay tests
 - Files: tests/contracts/provider.contract.test.ts; tests/contracts/vcr/loadCassette.ts; tests/contracts/vcr/types.ts; tests/contracts/cassettes/*.json; docs/WORKLOG.md
