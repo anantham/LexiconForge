@@ -1,4 +1,5 @@
 import type { ChapterRecord, TranslationRecord } from '../types';
+import type { DeepLoomPacket } from '../../../types/suttaStudio';
 import { generateStableChapterId } from '../../stableIdService';
 import { telemetryService } from '../../telemetryService';
 import {
@@ -43,6 +44,7 @@ export interface ChapterRenderingRecord {
   prevUrl: string | null;
   chapterNumber: number;
   fanTranslation: string | null;
+  suttaStudio?: DeepLoomPacket | null;
   translationResult: TranslationRecord | null;
   data: {
     chapter: {
@@ -53,6 +55,7 @@ export interface ChapterRenderingRecord {
       prevUrl: string | null;
       chapterNumber: number;
       fanTranslation: string | null;
+      suttaStudio?: DeepLoomPacket | null;
     };
     translationResult: TranslationRecord | null;
   };
@@ -136,6 +139,7 @@ export const getChaptersForReactRendering = async (
             const nextUrl = chapter.nextUrl ?? null;
             const prevUrl = chapter.prevUrl ?? null;
             const fanTranslation = chapter.fanTranslation ?? null;
+            const suttaStudio = chapter.suttaStudio ?? null;
 
             return {
               stableId,
@@ -156,6 +160,7 @@ export const getChaptersForReactRendering = async (
               prevUrl,
               chapterNumber: chapter.chapterNumber || 0,
               fanTranslation,
+              suttaStudio,
               translationResult,
               data: {
                 chapter: {
@@ -166,6 +171,7 @@ export const getChaptersForReactRendering = async (
                   prevUrl,
                   chapterNumber: chapter.chapterNumber,
                   fanTranslation,
+                  suttaStudio,
                 },
                 translationResult,
               },

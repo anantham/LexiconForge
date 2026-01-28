@@ -1,4 +1,5 @@
 import type { GeneratedImageResult, ImageCacheKey } from '../../types';
+import type { DeepLoomPacket } from '../../types/suttaStudio';
 
 export interface ChapterRecord {
   url: string;
@@ -9,6 +10,7 @@ export interface ChapterRecord {
   nextUrl?: string;
   prevUrl?: string;
   fanTranslation?: string;
+  suttaStudio?: DeepLoomPacket | null;
   dateAdded: string;
   lastAccessed: string;
   chapterNumber?: number;
@@ -99,6 +101,7 @@ export interface ChapterLookupResult {
   prevUrl?: string;
   chapterNumber?: number;
   fanTranslation?: string;
+  suttaStudio?: DeepLoomPacket | null;
   data: {
     chapter: {
       title: string;
@@ -107,6 +110,7 @@ export interface ChapterLookupResult {
       nextUrl?: string;
       prevUrl?: string;
       chapterNumber?: number;
+      suttaStudio?: DeepLoomPacket | null;
     };
     translationResult: TranslationRecord | null;
   };

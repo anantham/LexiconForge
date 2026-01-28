@@ -231,7 +231,8 @@ export const transformImportedChapters = (
       chapterNumber: assignedChapterNumber,
       canonicalUrl,
       sourceUrls: [originalUrl], // Store original URL as source
-      fanTranslation: null,
+      fanTranslation: rawChapter.fanTranslation ?? null,
+      suttaStudio: rawChapter.suttaStudio ?? null,
       importSource: {
         originalUrl,
         importDate: new Date(),

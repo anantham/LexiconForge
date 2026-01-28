@@ -210,6 +210,7 @@ export const exportFullSessionToJson = async (
       title: chapter.title,
       content: chapter.content,
       fanTranslation: chapter.fanTranslation || null,
+      suttaStudio: chapter.suttaStudio ?? null,
       nextUrl: chapter.nextUrl || null,
       prevUrl: chapter.prevUrl || null,
       chapterNumber: chapter.chapterNumber ?? null,

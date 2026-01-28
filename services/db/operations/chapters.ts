@@ -122,6 +122,7 @@ const storeChapterModern = async (chapter: Chapter & { stableId?: string }) => {
         nextUrl: chapter.nextUrl ?? existing?.nextUrl,
         prevUrl: chapter.prevUrl ?? existing?.prevUrl,
         fanTranslation: chapter.fanTranslation ?? existing?.fanTranslation,
+        suttaStudio: chapter.suttaStudio ?? existing?.suttaStudio ?? null,
         chapterNumber: chapter.chapterNumber ?? existing?.chapterNumber,
         canonicalUrl: existing?.canonicalUrl || canonical,
         stableId: existing?.stableId || computedStableId,
@@ -207,6 +208,7 @@ const findChapterModernByUrl = async (url: string): Promise<ChapterLookupResult 
     prevUrl: record.prevUrl,
     chapterNumber: record.chapterNumber,
     fanTranslation: record.fanTranslation,
+    suttaStudio: record.suttaStudio ?? null,
     data: {
       chapter: {
         title: record.title,
@@ -215,6 +217,7 @@ const findChapterModernByUrl = async (url: string): Promise<ChapterLookupResult 
         nextUrl: record.nextUrl,
         prevUrl: record.prevUrl,
         chapterNumber: record.chapterNumber,
+        suttaStudio: record.suttaStudio ?? null,
       },
       translationResult: null,
     },
@@ -381,6 +384,7 @@ export class ChapterOps {
       prevUrl: enhanced.prevUrl,
       chapterNumber: enhanced.chapterNumber,
       fanTranslation: enhanced.fanTranslation ?? null,
+      suttaStudio: enhanced.suttaStudio ?? null,
     };
 
     await storeChapterModern({ ...chapter, stableId: enhanced.id });

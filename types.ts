@@ -1,3 +1,4 @@
+import type { DeepLoomPacket } from './types/suttaStudio';
 
 export interface Chapter {
   title: string;
@@ -10,6 +11,10 @@ export interface Chapter {
   prevUrl?: string | null;
   chapterNumber?: number;
   fanTranslation?: string | null;
+  suttaStudio?: DeepLoomPacket | null;
+  blurb?: string | null;
+  sourceLanguage?: string | null;
+  targetLanguage?: string | null;
   translationResult?: TranslationResult | null;
 }
 
@@ -330,6 +335,8 @@ export interface ImportedChapter {
     translationResult: TranslationResult | null;
     feedback: FeedbackItem[];
     chapterNumber?: number;
+    fanTranslation?: string | null;
+    suttaStudio?: DeepLoomPacket | null;
 }
 
 export interface SessionChapterData {
