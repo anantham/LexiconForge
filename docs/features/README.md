@@ -13,10 +13,10 @@ User-facing feature guides for LexiconForge.
 | Novel library | [NOVEL_LIBRARY.md](./NOVEL_LIBRARY.md) | ✅ Current |
 | Steering images | [STEERING_IMAGE_TEST.md](./STEERING_IMAGE_TEST.md) | ✅ Complete |
 | Community library | [COMMUNITY_LIBRARY.md](./COMMUNITY_LIBRARY.md) | ⏳ Vision only |
+| Sutta Studio | [SUTTA_STUDIO.md](./SUTTA_STUDIO.md) | ✅ Current |
+| Translation pipeline | [TRANSLATION_PIPELINE.md](./TRANSLATION_PIPELINE.md) | ✅ Current |
 
 ## Missing Documentation
 
-- [ ] **Sutta Studio**: Feature guide for Pali sutta translation/study tool
-- [ ] **Translation pipeline overview**: End-to-end flow from URL input to translated chapter
 - [ ] **Novel Gallery**: Gallery/cover art browsing feature guide
 - [ ] **Inline editing**: How users can edit translations in-place
