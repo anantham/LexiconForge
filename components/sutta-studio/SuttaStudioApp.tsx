@@ -10,6 +10,7 @@ import { SuttaStudioFallback } from './SuttaStudioFallback';
 import { compileSuttaStudioPacket, SUTTA_STUDIO_PROMPT_VERSION } from '../../services/suttaStudioCompiler';
 import { ChapterOps } from '../../services/db/operations/chapters';
 import { isSuttaFlowDebug, logSuttaFlow, warnSuttaFlow } from '../../services/suttaStudioDebug';
+import { resetPipelineLogs } from '../../services/suttaStudioPipelineLog';
 
 const parseSuttaRoute = () => {
   if (typeof window === 'undefined') return { uid: null, lang: 'en', author: 'sujato' };
@@ -312,6 +313,15 @@ export function SuttaStudioApp() {
       compileGateReason
     );
 
+    if (isSuttaFlowDebug()) {
+      resetPipelineLogs('compile_start', {
+        uid,
+        chapterId: chapter.id,
+        model: settings.model,
+        provider: settings.provider,
+      });
+    }
+
     compileOnce.current = true;
     const controller = new AbortController();
     compileAbortRef.current = controller;
@@ -338,11 +348,22 @@ export function SuttaStudioApp() {
       },
     })
       .catch((e) => {
+        const errorMessage = e instanceof Error ? e.message : String(e);
         console.error('[SuttaStudio] Compiler failed:', e);
         warnSuttaFlow('compiler failed', {
           chapterId: chapter.id,
-          error: e instanceof Error ? e.message : String(e),
+          error: errorMessage,
         });
+        // Update the packet progress state to show error in UI
+        const errorPacket = {
+          ...chapter.suttaStudio,
+          progress: {
+            ...chapter.suttaStudio?.progress,
+            state: 'error' as const,
+            errorMessage,
+          },
+        };
+        updateChapter(chapter.id, { suttaStudio: errorPacket });
       })
       .finally(() => {
         if (compileAbortRef.current === controller) {

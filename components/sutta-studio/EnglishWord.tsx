@@ -79,10 +79,10 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       className={`
-        px-2 py-1 rounded transition-all border
+        px-2 py-1 rounded transition-all border text-xl md:text-2xl lg:text-3xl
         ${
           isGhost
-            ? 'italic font-serif select-none pointer-events-none border-transparent'
+            ? 'italic font-serif cursor-help border-transparent'
             : 'font-sans cursor-pointer border-transparent'
         }
         ${

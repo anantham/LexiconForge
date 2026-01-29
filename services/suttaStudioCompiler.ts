@@ -1118,13 +1118,23 @@ const buildWeaverPrompt = (
   lexicographer: LexicographerPass,
   englishTokens: EnglishTokenInput[]
 ) => {
-  // Build Pali words list with senses for context
+  // Build segment lookup: segmentId -> segment text
+  const segmentTextMap = new Map(anatomist.segments.map((s) => [s.id, s.text]));
+
+  // Build Pali words list with SEGMENT IDs and senses for context
   const sensesMap = new Map(lexicographer.senses.map((e) => [e.wordId, e.senses]));
   const wordsList = anatomist.words
     .map((word) => {
       const senses = sensesMap.get(word.id) || [];
       const sensesStr = senses.map((s) => s.english).join(' / ') || '(no senses)';
-      return `${word.id} | ${word.surface} | senses: ${sensesStr}`;
+      // Include segment IDs so Weaver knows what to link to
+      const segmentsStr = word.segmentIds
+        .map((id) => `${id}="${segmentTextMap.get(id) || '?'}"`)
+        .join(', ');
+      const hasMultipleSegments = word.segmentIds.length > 1;
+      // Mark compounds explicitly so AI knows to use linkedSegmentId
+      const compoundMarker = hasMultipleSegments ? ' [COMPOUND]' : '';
+      return `${word.id} | ${word.surface}${compoundMarker} | segments: ${segmentsStr} | senses: ${sensesStr}`;
     })
     .join('\n');
 
@@ -1681,7 +1691,7 @@ export const compileSuttaStudioPacket = async (options: {
                 { role: 'user', content: weaverPrompt },
               ],
               signal,
-              8000,
+              4000,
               {
                 schemaName: `sutta_studio_weaver_${phase.id}`,
                 schema: weaverResponseSchema,
@@ -1802,7 +1812,7 @@ export const compileSuttaStudioPacket = async (options: {
           { role: 'user', content: phasePrompt },
         ],
         signal,
-        8000,
+        4000,
         {
           schemaName: `sutta_studio_${phase.id}`,
           schema: phaseResponseSchema,

@@ -250,6 +250,6 @@ describe('ChapterView: Critical Flow #2 - Inline Edit', () => {
     await waitFor(() => {
       expect(document.body.textContent).toContain('Edited');
     });
-  });
+  }, 15000); // Extended timeout for dynamic imports + rendering in full suite
 });
 

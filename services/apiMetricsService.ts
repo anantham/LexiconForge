@@ -206,7 +206,8 @@ class ApiMetricsService {
 
   private async openDatabase(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, 1);
+      // Must match version in localDictionaryCache.ts (shared DB)
+      const request = indexedDB.open(this.dbName, 14);
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve(request.result);

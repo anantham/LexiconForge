@@ -175,26 +175,13 @@ export const dedupeEnglishStructure = (
  * Convert WeaverPass tokens to EnglishToken[] for the PhaseView.
  * Only includes word tokens (not whitespace/punctuation).
  * Supports both segment-level linking (preferred) and word-level linking (fallback).
- *
- * @param weaver - Weaver pass output
- * @param englishTokens - Original tokenized English
- * @param anatomist - Optional Anatomist pass for validation
  */
 export const buildEnglishStructureFromWeaver = (
   weaver: WeaverPass,
-  englishTokens: EnglishTokenInput[],
-  anatomist?: AnatomistPass
+  englishTokens: EnglishTokenInput[]
 ): EnglishToken[] => {
   const tokenMap = new Map(englishTokens.map((t) => [t.index, t]));
   const result: EnglishToken[] = [];
-
-  // Build word lookup for validation
-  const wordSegmentCounts = new Map<string, number>();
-  if (anatomist) {
-    for (const word of anatomist.words) {
-      wordSegmentCounts.set(word.id, word.segmentIds.length);
-    }
-  }
 
   for (const weaverToken of weaver.tokens) {
     const originalToken = tokenMap.get(weaverToken.tokenIndex);
@@ -206,20 +193,6 @@ export const buildEnglishStructureFromWeaver = (
     // Skip whitespace and punctuation tokens
     if (originalToken.isWhitespace || originalToken.isPunctuation) {
       continue;
-    }
-
-    // VALIDATION: Log when Weaver uses linkedPaliId for compound words
-    // (compound = word with multiple segments)
-    if (weaverToken.linkedPaliId && !weaverToken.linkedSegmentId && anatomist) {
-      const segmentCount = wordSegmentCounts.get(weaverToken.linkedPaliId) ?? 0;
-      if (segmentCount > 1) {
-        warn(
-          `Weaver used linkedPaliId "${weaverToken.linkedPaliId}" (${segmentCount} segments) ` +
-            `instead of linkedSegmentId for compound word. ` +
-            `Token: "${weaverToken.text}" (index ${weaverToken.tokenIndex}). ` +
-            `This loses segment-level specificity for English linking.`
-        );
-      }
     }
 
     const englishToken: EnglishToken = {
@@ -327,8 +300,8 @@ export const rehydratePhase = (params: RehydrateParams): PhaseView => {
   // Get englishStructure: prefer Weaver output, fall back to LLM output
   let englishStructure: EnglishToken[] = [];
   if (weaver && englishTokens) {
-    // Build from Weaver pass output (pass anatomist for validation logging)
-    englishStructure = buildEnglishStructureFromWeaver(weaver, englishTokens, anatomist);
+    // Build from Weaver pass output
+    englishStructure = buildEnglishStructureFromWeaver(weaver, englishTokens);
   } else if (fallbackPhaseView?.englishStructure) {
     // Fall back to LLM-generated englishStructure
     englishStructure = fallbackPhaseView.englishStructure;

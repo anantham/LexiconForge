@@ -28,6 +28,8 @@ export function SuttaStudioFallback({
 
   // Show progress even when totalPhases is 0 but we're building
   const isBuilding = progressState === 'building';
+  const isError = progressState === 'error';
+  const errorMessage = progress?.errorMessage;
   const stageLabel = currentStage === 'fetching' ? 'Fetching...' : currentStage === 'skeleton' ? 'Analyzing structure...' : null;
   const phaseLabel = totalPhases > 0 ? `Phase ${readyPhaseCount}/${totalPhases}` : (isBuilding ? stageLabel : null);
   const progressLabel = phaseLabel ? `${phaseLabel}${etaLabel ? ` · ${etaLabel}` : ''}` : (isBuilding ? 'Starting compilation...' : null);
@@ -112,7 +114,13 @@ export function SuttaStudioFallback({
           packet={chapter?.suttaStudio ?? null}
           uid={chapter?.suttaStudio?.source?.workId ?? null}
         />
-        {progressLabel && (
+        {isError && (
+          <div className="text-xs border border-rose-500/60 text-rose-400 rounded-full px-3 py-1 flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-rose-400" />
+            Error
+          </div>
+        )}
+        {progressLabel && !isError && (
           <>
             <div
               className={`text-xs border rounded-full px-3 py-1 flex items-center gap-2 ${
@@ -142,7 +150,22 @@ export function SuttaStudioFallback({
       </div>
 
       <div className="w-full max-w-5xl mt-20 space-y-10">
-        {groupedBlocks.length === 0 && !isBuilding && (
+        {isError && (
+          <div className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-4 py-3 text-rose-200">
+            <div className="flex items-center gap-2 font-medium text-rose-300">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Compilation Error
+            </div>
+            {errorMessage && (
+              <div className="mt-2 text-sm text-rose-200/80 font-mono break-all">
+                {errorMessage}
+              </div>
+            )}
+          </div>
+        )}
+        {groupedBlocks.length === 0 && !isBuilding && !isError && (
           <div className="text-slate-400">No content available.</div>
         )}
         {groupedBlocks.map((group, groupIndex) => (

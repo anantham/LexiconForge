@@ -1,115 +1,119 @@
-> **STATUS: COMPLETE** - All major components decomposed below 500 LOC target.
-> Original targets (SettingsModal, ChapterView) plus discovered monoliths (SessionInfo, ProvidersPanel, AdvancedPanel) are now modular.
+> **STATUS: NOT STARTED** - Both components still exceed 300 LOC target.
+> This is the highest-priority tech debt item.
 
 # Component Decomposition Plan
-_Original Targets: `components/SettingsModal.tsx` & `components/ChapterView.tsx`_
+_Targets: `components/SettingsModal.tsx` (2,745 LOC) & `components/ChapterView.tsx` (1,969 LOC)_
 
 ## 1. Goals
-- Bring each component below 300–500 LOC per Prime Directive #3.
+- Bring each component below 250–300 LOC per Prime Directive #3.
 - Enable per-panel rendering, memoization, and code splitting.
 - Improve testability by isolating hooks + state.
 
 
-## 2. Completion Summary
+## 2. SettingsModal Roadmap
 
-| Component | Before | After | Status |
-|-----------|--------|-------|--------|
-| SettingsModal.tsx | ~2,745 | **205** | ✅ Complete (was already decomposed) |
-| ChapterView.tsx | ~1,969 | **433** | ✅ Complete (was already decomposed) |
-| SessionInfo.tsx | 1,364 | **307** | ✅ Decomposed Jan 2026 |
-| ProvidersPanel.tsx | 755 | **451** | ✅ Decomposed Jan 2026 |
-| AdvancedPanel.tsx | 802 | **292** | ✅ Decomposed Jan 2026 |
+### Current Structure
+- Single component handles **AI provider**, **prompt templates**, **image generation**, **audio**, **diff heatmap**, **export/EPUB**, and **telemetry** toggles.
+- Deeply nested state derived from `settingsSlice`, direct calls to services (provider validation, credit cache).
 
-
-## 3. SettingsModal (Complete)
-
-### Final Structure
+### Target Folder Layout
 ```
 components/settings/
-  SettingsModal.tsx          # 205 LOC - orchestrator shell
-  SettingsModalContext.tsx   # shared context for panels
-  SettingsSidebar.tsx        # navigation tabs
-  ProvidersPanel.tsx         # 451 LOC - provider/model selection
-  AdvancedPanel.tsx          # 292 LOC - diagnostics/parameters
-  PromptPanel.tsx            # prompt template management
-  DisplayPanel.tsx           # font/display settings
-  AudioPanel.tsx             # audio generation settings
-  DiffPanel.tsx              # semantic diff settings
-  GalleryPanel.tsx           # image gallery
-  MetadataPanel.tsx          # novel metadata
-  SessionExportPanel.tsx     # export controls
-  TemplatePanel.tsx          # template management
+  SettingsModal.tsx        // orchestrator (entry point)
+  panels/
+    ProviderPanel.tsx
+    PromptTemplatesPanel.tsx
+    ImageSettingsPanel.tsx
+    AudioSettingsPanel.tsx
+    ExportSettingsPanel.tsx
+    DiffSettingsPanel.tsx
+    AccessibilityPanel.tsx  // optional grouping for font/line-height
+  hooks/
+    useProviderSettings.ts
+    useImageSettings.ts
+    useExportSettings.ts
+  utils/
+    validation.ts
 ```
 
-### Extracted Sub-Components
+### Extraction Steps
+1. **Provider panel first** (highest complexity, multiple APIs):
+   - Move provider-specific form controls + validation logic into `ProviderPanel`.
+   - Accept `settings`, `onChange`, `onValidateKey` props.
+   - Memoize derived values (available models, key statuses).
+2. **Image/audio/export panels**:
+   - Each panel receives typed slices of state + dispatchers.
+   - Move local reducers/hook logic into `hooks/useXSettings.ts`.
+3. **Diff/accessibility toggles**:
+   - Extract simple sections to keep orchestrator small.
+4. **SettingsModal.tsx** becomes:
+   - Layout shell (tabs/accordion).
+   - Wiring for shared alerts, save/cancel handlers.
+   - Error boundary to isolate panel failures.
+5. **Testing**:
+   - Add React Testing Library snapshots per panel.
+   - Verify `npm run check:loc` to ensure each panel < 400 LOC.
+
+
+## 3. ChapterView Roadmap
+
+### Current Structure
+- Handles translation rendering, tokenization, diff overlays, inline audio, illustration galleries, footnotes, keyboard navigation.
+- Regex-based tokenizer + DOM parsing embedded directly in component.
+
+### Target Folder Layout
 ```
-components/settings/
-  ApiKeysSection.tsx              # 216 LOC - API key inputs (from ProvidersPanel)
-  TranslationEngineSection.tsx    # 281 LOC - provider/model controls (from ProvidersPanel)
-  DiagnosticsLoggingSection.tsx   # 176 LOC - debug level/pipelines (from AdvancedPanel)
-  ImageGenerationSection.tsx      # 117 LOC - image dimensions (from AdvancedPanel)
-  TranslationParametersSection.tsx # 217 LOC - AI parameters (from AdvancedPanel)
-  StorageDiagnosticsSection.tsx   # 229 LOC - RAM/disk stats (from AdvancedPanel)
+components/chapter-view/
+  ChapterView.tsx              // orchestrator
+  TokenizedContent.tsx
+  DiffMarkerGutter.tsx
+  IllustrationGallery.tsx
+  FootnotePopover.tsx
+  AudioControlsInline.tsx
+  hooks/
+    useTokenizedContent.ts
+    useDiffHighlights.ts
+  utils/
+    tokenizer.ts
+    htmlSanitizer.ts
 ```
 
-
-## 4. ChapterView (Complete)
-
-### Final Structure
-```
-components/
-  ChapterView.tsx            # 433 LOC - orchestrator
-  chapter/
-    ChapterHeader.tsx        # navigation + controls
-    ChapterContent.tsx       # content rendering
-    ChapterNavigation.tsx    # prev/next controls
-    ChapterFooter.tsx        # footer elements
-```
-
-
-## 5. SessionInfo (Complete)
-
-### Final Structure
-```
-components/
-  SessionInfo.tsx            # 307 LOC - orchestrator
-  session-info/
-    SessionHeader.tsx        # title + edit controls
-    SessionNavigation.tsx    # chapter navigation
-    SessionChapterList.tsx   # chapter listing
-    SessionMetadata.tsx      # metadata display
-    SessionActions.tsx       # action buttons
-    PublishWizard.tsx        # export workflow
-    ExportProgress.tsx       # progress display
-```
+### Extraction Steps
+1. **Tokenizer service**:
+   - Move regex + parsing logic into `components/chapter-view/utils/tokenizer.ts`.
+   - Expose `tokenizeChapter(chapter, options)` returning typed tokens.
+   - Unit test edge cases (nested tags, footnote markers).
+2. **TokenizedContent component**:
+   - Receives token array, handles mapping to React tree.
+   - Reuse in ChapterView + potential preview panes.
+3. **Diff overlay**:
+   - `DiffMarkerGutter` handles scroll sync + heatmap.
+   - Hook `useDiffHighlights(chapterId)` reads from store + memoizes.
+4. **Footnotes & illustrations**:
+   - Dedicated components to display metadata; reduce prop drilling.
+5. **Audio controls**:
+   - Wrap existing audio provider logic in `AudioControlsInline`.
+6. **ChapterView orchestrator**:
+   - Compose extracted pieces.
+   - Manage selection state, virtualization (if added later), keyboard shortcuts.
 
 
-## 6. Test Coverage
+## 4. Execution Order & Dependencies
 
-| Component | Tests | Status |
-|-----------|-------|--------|
-| ProvidersPanel | 42 | ✅ Added before decomposition |
-| AdvancedPanel | 4 | ✅ Pre-existing, all pass |
-| SessionInfo | 61 | ✅ Pre-existing, all pass |
-| Settings (total) | 87 | ✅ All pass |
-
-
-## 7. Verification Checklist
-
-- [x] All extracted components under 300 LOC
-- [x] All orchestrators under 500 LOC
-- [x] Tests pass after each decomposition
-- [x] No breaking changes to functionality
-- [x] WORKLOG updated with decomposition entries
+| Step | Component | Dependencies |
+|------|-----------|--------------|
+| 1 | Extract tokenizer utilities + tests | None (pure functions) |
+| 2 | Create `TokenizedContent` & `FootnotePopover` | Relies on tokenizer output |
+| 3 | Split SettingsModal provider panel | Requires `settingsSlice` selectors |
+| 4 | Move image/audio/export panels | After provider panel to reuse patterns |
+| 5 | ChapterView diff/audio sections | After TokenizedContent component exists |
+| 6 | Add index barrel + lazy loading | After panels/slices extracted |
 
 
-## 8. Remaining Candidates
+## 5. Verification & Guardrails
+- Run `npm run check:loc` after each extraction to ensure new files respect limits.
+- Add focused tests per extracted component/hook (`npm test components/...`).
+- Update `docs/WORKLOG.md` + this plan after each milestone.
+- Flag any new shared utilities (tokenizer, validation) for ADR entries if behavior changes.
 
-Low priority - these are under thresholds but could be split further if needed:
-
-| File | LOC | Notes |
-|------|-----|-------|
-| ChapterView.tsx | 433 | Could extract content sections |
-| ProvidersPanel.tsx | 451 | Orchestrator only, sections extracted |
-
-No urgent decomposition needs remain.
+Use this plan whenever you or another agent tackles UI decomposition. Update sections as panels/modules land so future work stays coordinated.***

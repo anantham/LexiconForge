@@ -261,6 +261,8 @@ export type DeepLoomPacket = {
     lastPhaseMs?: number;
     avgPhaseMs?: number;
     etaMs?: number;
+    /** Error message when state is 'error' */
+    errorMessage?: string;
   };
   renderDefaults: {
     ghostOpacity: number;

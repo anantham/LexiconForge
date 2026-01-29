@@ -558,8 +558,8 @@ footers other than BREAKING CHANGE: <description> may be provided and follow a c
 REMEMBER  
 "We are peers bridging computational and biological intelligence. Our strength is patient investigation, systematic validation, and sustainable building. When uncertain, pause and seek human wisdom."
 
-Version: 2.0.1
-Last_Updated: 2026-01-29
+Version: 2.0.0  
+Last_Updated: 2025-08-29  
 Next_Review: on first loop‑limit or context‑overflow incident
 
 ---

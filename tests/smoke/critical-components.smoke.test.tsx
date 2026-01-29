@@ -17,40 +17,48 @@ import { render, screen } from '@testing-library/react';
 // Keep them opt-in so import-level smoke tests still run on every `npm test`.
 const itRender = process.env.LF_SMOKE_RENDER === '1' ? it : it.skip;
 
-// Mock zustand store
-vi.mock('../../store', () => ({
-  useAppStore: vi.fn((selector) => {
-    const state = {
-      settings: {
-        contextDepth: 3,
-        fontSize: 16,
-        fontStyle: 'sans' as const,
-        lineHeight: 1.6,
-        provider: 'Gemini' as const,
-        model: 'gemini-2.5-flash',
-        imageModel: 'imagen-3',
-        temperature: 0.7,
-        systemPrompt: 'Test prompt',
-        preloadCount: 1,
-      },
-      chapters: new Map(),
-      novels: new Map(),
-      currentChapterId: null,
-      navigationHistory: [],
-      showNotification: vi.fn(),
-      setError: vi.fn(),
-      clearSession: vi.fn(),
-    };
-    return selector ? selector(state) : state;
-  })
-}));
+// Helper to set up store mock (used with vi.doMock after resetModules)
+const setupStoreMock = () => {
+  vi.doMock('../../store', () => ({
+    useAppStore: vi.fn((selector) => {
+      const state = {
+        settings: {
+          contextDepth: 3,
+          fontSize: 16,
+          fontStyle: 'sans' as const,
+          lineHeight: 1.6,
+          provider: 'Gemini' as const,
+          model: 'gemini-2.5-flash',
+          imageModel: 'imagen-3',
+          temperature: 0.7,
+          systemPrompt: 'Test prompt',
+          preloadCount: 1,
+        },
+        chapters: new Map(),
+        novels: new Map(),
+        currentChapterId: null,
+        navigationHistory: [],
+        showNotification: vi.fn(),
+        setError: vi.fn(),
+        clearSession: vi.fn(),
+      };
+      return selector ? selector(state) : state;
+    })
+  }));
+};
 
 describe('Smoke: App.tsx', () => {
+  beforeEach(() => {
+    // Reset module cache to avoid pollution from other tests that import real services
+    vi.resetModules();
+    setupStoreMock();
+  });
+
   it('imports without error', async () => {
     // Just importing catches missing dependencies, syntax errors
     const AppModule = await import('../../App');
     expect(AppModule.default).toBeDefined();
-  });
+  }, 10000); // Extended timeout for full App import chain
 
   itRender('renders without crashing', () => {
     // Lazy import to avoid top-level side effects

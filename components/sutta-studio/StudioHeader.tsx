@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import type { ReactNode } from 'react';
 import { StudioProgress } from './StudioProgress';
 
 export function StudioHeader({
@@ -8,6 +9,7 @@ export function StudioHeader({
   progressOverdue,
   studyMode,
   onToggleStudy,
+  debugButton,
 }: {
   backToReaderUrl?: string | null;
   showProgress: boolean;
@@ -15,6 +17,7 @@ export function StudioHeader({
   progressOverdue?: boolean;
   studyMode: boolean;
   onToggleStudy: () => void;
+  debugButton?: ReactNode;
 }) {
   return (
     <>
@@ -32,6 +35,7 @@ export function StudioHeader({
       )}
 
       <div className="absolute top-6 right-6 flex items-center gap-2 z-50 select-none">
+        {debugButton}
         <StudioProgress show={showProgress} label={progressLabel} overdue={progressOverdue} />
         <div
           data-interactive="true"
