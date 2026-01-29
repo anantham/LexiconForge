@@ -1,3 +1,43 @@
+2026-01-29 13:30 UTC - AdvancedPanel decomposition (complete)
+- Files: components/settings/AdvancedPanel.tsx (802 → 292 LOC); components/settings/DiagnosticsLoggingSection.tsx (176 LOC, new); components/settings/ImageGenerationSection.tsx (117 LOC, new); components/settings/TranslationParametersSection.tsx (217 LOC, new); components/settings/StorageDiagnosticsSection.tsx (229 LOC, new)
+- Why: AdvancedPanel had 4 distinct sections mixed together; split for maintainability.
+- Details:
+  - DiagnosticsLoggingSection: debug level dropdown + pipeline checkboxes
+  - ImageGenerationSection: image width/height, aspect ratio, size preset
+  - TranslationParametersSection: temperature, topP, seed, penalties, feature toggles
+  - StorageDiagnosticsSection: RAM/disk stats display + cache clearing
+  - AdvancedPanel now orchestrates state/effects only
+- Tests: All 87 settings tests pass.
+
+2026-01-29 12:00 UTC - ProvidersPanel tests + decomposition (complete)
+- Files: components/settings/ProvidersPanel.test.tsx (571 LOC, new); components/settings/ProvidersPanel.tsx (755 → 451 LOC); components/settings/ApiKeysSection.tsx (216 LOC, new); components/settings/TranslationEngineSection.tsx (281 LOC, new)
+- Why: ProvidersPanel had no tests; needed coverage before safe decomposition.
+- Details:
+  - Added 42 tests covering rendering, provider selection, API keys, sliders, OpenRouter features
+  - Used vi.mocked() with setupDefaultMocks helper pattern for clean test setup
+  - Extracted ApiKeysSection: all API key inputs with refresh buttons
+  - Extracted TranslationEngineSection: provider/model/language controls
+  - ProvidersPanel now orchestrates state/effects only
+- Tests: All 42 ProvidersPanel tests pass.
+
+2026-01-29 11:00 UTC - SessionInfo decomposition (complete)
+- Files: components/SessionInfo.tsx (1364 → 307 LOC); components/session-info/PublishWizard.tsx (added onStart callback)
+- Why: SessionInfo was over 1300 LOC; decomposed into focused subcomponents.
+- Details:
+  - Fixed PublishWizard to use trigger/onComplete pattern with new onStart callback
+  - onStart keeps export modal open until directory picker completes
+  - All 61 SessionInfo tests pass after decomposition
+- Tests: All 61 tests pass.
+
+2026-01-29 13:35 UTC - Component decomposition docs update (complete)
+- Files: docs/roadmaps/COMPONENT-DECOMPOSITION-PLAN.md
+- Why: Plan was outdated (showed NOT STARTED, stale LOC counts).
+- Details:
+  - Updated status to COMPLETE
+  - Added accurate before/after LOC for all decomposed components
+  - Documented final folder structures and test coverage
+  - Marked remaining candidates as low priority
+
 2026-01-28 13:00 UTC - Full docs/ reorganization into subfolders
 - Files: 38 docs moved from docs/ root into docs/features/, docs/guides/, docs/architecture/, docs/roadmaps/, docs/infrastructure/
 - Why: Flat structure with 41 files was hard to navigate; organize by domain for discoverability.
