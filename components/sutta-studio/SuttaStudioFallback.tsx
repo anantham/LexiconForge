@@ -4,6 +4,7 @@ import type { CanonicalSegment, DeepLoomPacket } from '../../types/suttaStudio';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { formatDuration } from './utils';
 import { isSuttaFlowDebug, logSuttaFlow, warnSuttaFlow } from '../../services/suttaStudioDebug';
+import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 
 export function SuttaStudioFallback({
   chapter,
@@ -19,12 +20,17 @@ export function SuttaStudioFallback({
   const totalPhases = progress?.totalPhases ?? 0;
   const readyPhases = progress?.readyPhases ?? 0;
   const progressState = progress?.state;
+  const currentStage = progress?.currentStage;
   const etaCountdownMs = useEtaCountdown(progress?.etaMs, progressState === 'building');
   const etaLabel = formatDuration(etaCountdownMs);
   const etaOverdue = etaCountdownMs != null && etaCountdownMs < 0;
   const readyPhaseCount = Math.max(0, Math.min(readyPhases, totalPhases || 0));
-  const phaseLabel = totalPhases > 0 ? `Phase ${readyPhaseCount}/${totalPhases}` : null;
-  const progressLabel = phaseLabel ? `${phaseLabel}${etaLabel ? ` · ${etaLabel}` : ''}` : null;
+
+  // Show progress even when totalPhases is 0 but we're building
+  const isBuilding = progressState === 'building';
+  const stageLabel = currentStage === 'fetching' ? 'Fetching...' : currentStage === 'skeleton' ? 'Analyzing structure...' : null;
+  const phaseLabel = totalPhases > 0 ? `Phase ${readyPhaseCount}/${totalPhases}` : (isBuilding ? stageLabel : null);
+  const progressLabel = phaseLabel ? `${phaseLabel}${etaLabel ? ` · ${etaLabel}` : ''}` : (isBuilding ? 'Starting compilation...' : null);
   const blocks: Array<{ pali: string; english: string | null }> = [];
   const CHUNK_SIZE = 8;
 
@@ -101,36 +107,43 @@ export function SuttaStudioFallback({
         </svg>
       </a>
 
-      {progressLabel && (
-        <div className="absolute top-6 right-6 flex items-center gap-2">
-          <div
-            className={`text-xs border rounded-full px-3 py-1 flex items-center gap-2 ${
-              etaOverdue ? 'text-rose-400 border-rose-500/60' : 'text-slate-400 border-slate-800'
-            }`}
-          >
-            <span
-              className={`inline-block w-2 h-2 rounded-full animate-pulse ${
-                etaOverdue ? 'bg-rose-400' : 'bg-emerald-400'
-              }`}
-            />
-            {progressLabel}
-          </div>
-          {(phaseLabel || etaLabel) && (
+      <div className="absolute top-6 right-6 flex items-center gap-2">
+        <SuttaStudioDebugButton
+          packet={chapter?.suttaStudio ?? null}
+          uid={chapter?.suttaStudio?.source?.workId ?? null}
+        />
+        {progressLabel && (
+          <>
             <div
-              className={`hidden md:flex flex-col items-end text-[11px] border rounded-2xl px-3 py-2 bg-slate-950/70 ${
+              className={`text-xs border rounded-full px-3 py-1 flex items-center gap-2 ${
                 etaOverdue ? 'text-rose-400 border-rose-500/60' : 'text-slate-400 border-slate-800'
               }`}
             >
-              {phaseLabel && <div>{phaseLabel}</div>}
-              {etaLabel && <div>{etaLabel}</div>}
+              <span
+                className={`inline-block w-2 h-2 rounded-full animate-pulse ${
+                  etaOverdue ? 'bg-rose-400' : 'bg-emerald-400'
+                }`}
+              />
+              {progressLabel}
             </div>
-          )}
-        </div>
-      )}
+            {/* Only show expanded details when we have phase counts (not just stage label) */}
+            {totalPhases > 0 && (phaseLabel || etaLabel) && (
+              <div
+                className={`hidden md:flex flex-col items-end text-[11px] border rounded-2xl px-3 py-2 bg-slate-950/70 ${
+                  etaOverdue ? 'text-rose-400 border-rose-500/60' : 'text-slate-400 border-slate-800'
+                }`}
+              >
+                {phaseLabel && <div>{phaseLabel}</div>}
+                {etaLabel && <div>{etaLabel}</div>}
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       <div className="w-full max-w-5xl mt-20 space-y-10">
-        {groupedBlocks.length === 0 && (
-          <div className="text-slate-400">Loading...</div>
+        {groupedBlocks.length === 0 && !isBuilding && (
+          <div className="text-slate-400">No content available.</div>
         )}
         {groupedBlocks.map((group, groupIndex) => (
           <div key={groupIndex} className="border-b border-slate-900 pb-8 space-y-6">
