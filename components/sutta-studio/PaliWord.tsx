@@ -1,11 +1,23 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { PaliWord, WordSegment } from '../../types/suttaStudio';
+import type { PaliWord, WordClass, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
-import { RELATION_COLORS } from './palette';
-import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, wordDomId } from './utils';
+import { RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
+import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, wordDomId } from './utils';
 import { Tooltip } from './Tooltip';
+
+/**
+ * Derive text color from wordClass.
+ * content → green (semantic words)
+ * function → white (grammatical glue)
+ */
+const getWordColor = (wordClass?: WordClass, fallbackColor?: string): string => {
+  if (wordClass === 'content') return 'text-emerald-400';
+  if (wordClass === 'function') return 'text-slate-200';
+  // Fallback to explicit color or default white
+  return fallbackColor || 'text-white';
+};
 
 export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId,
@@ -32,6 +44,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   const isWordFocused = (pinned?.wordId ?? hovered?.wordId) === wordData.id;
 
   const onWordClick = () => {
+    console.log('[PaliWord] CLICK', { wordId: wordData.id, surface: wordData.segments.map(s => s.text).join(''), hasSelection: hasTextSelection() });
     if (hasTextSelection()) return;
     cycle(wordData.id);
   };
@@ -47,15 +60,32 @@ export const PaliWordEngine = memo(function PaliWordEngine({
       onClick={onWordClick}
       title="Click: rotate meaning"
     >
-      <div className={`text-3xl md:text-5xl font-serif flex items-end ${wordData.color || 'text-white'}`}>
+      <div className={`text-3xl md:text-5xl lg:text-6xl font-serif flex items-end ${getWordColor(wordData.wordClass, wordData.color)}`}>
         {wordData.segments.map((seg: WordSegment, i: number) => {
-          const sDomId = segDomId(phaseId, wordData.id, i);
+          // Use segment ID if available, fall back to index-based ID
+          const sDomId = seg.id
+            ? segmentIdToDomId(phaseId, seg.id)
+            : segDomId(phaseId, wordData.id, i);
           const isHovered = hovered?.kind === 'segment' && hovered.segmentDomId === sDomId;
           const isPinned = pinned?.kind === 'segment' && pinned.segmentDomId === sDomId;
 
           const activeSenseId = resolveSenseId(wordData, activeIndex);
           const tooltipText = seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
           const showTooltip = studyMode && isHovered && !pinned;
+
+          // Debug: log tooltip decision when hovered
+          if (isHovered) {
+            console.log('[PaliWord] TOOLTIP_CHECK', {
+              segmentText: seg.text,
+              showTooltip,
+              studyMode,
+              isHovered,
+              pinned: !!pinned,
+              tooltipText: tooltipText || '(empty)',
+              segTooltips: seg.tooltips,
+              segTooltip: seg.tooltip,
+            });
+          }
 
           const showHook = false;
           const relationStyle = seg.relation ? RELATION_COLORS[seg.relation.type] : null;
@@ -77,16 +107,19 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                   : 'border-b-2 border-transparent pb-0'
               } ${segmentClass} ${studyMode ? 'cursor-help' : ''}`}
               onMouseEnter={() => {
+                console.log('[PaliWord] HOVER_ENTER', { segmentText: seg.text, segmentId: seg.id, sDomId, pinned: !!pinned, studyMode, tooltipText });
                 if (pinned) return;
                 setHovered({
                   kind: 'segment',
                   wordId: wordData.id,
+                  segmentId: seg.id,
                   segmentIndex: i,
                   segmentDomId: sDomId,
                   data: seg,
                 });
               }}
               onMouseLeave={() => {
+                console.log('[PaliWord] HOVER_LEAVE', { segmentText: seg.text, sDomId, pinned: !!pinned });
                 if (pinned) return;
                 setHovered(null);
               }}

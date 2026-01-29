@@ -28,14 +28,15 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       paliWords: [
         {
           id: 'p1',
-          color: 'text-emerald-400',
+          wordClass: 'content',
           segments: [
             {
+              id: 'p1s1',
               text: 'Ek',
               type: 'root',
               tooltips: ['Eka: One / Singular', 'Eka: Alone', 'Eka: Unified'],
             },
-            { text: 'āyano', type: 'suffix', tooltips: ['Going / Way'] },
+            { id: 'p1s2', text: 'āyano', type: 'suffix', tooltips: ['Going / Way'] },
           ],
           senses: [
             { english: 'Direct', nuance: 'Linear' },
@@ -49,9 +50,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p2',
-          color: 'text-slate-400',
+          wordClass: 'function',
           segments: [
             {
+              id: 'p2s1',
               text: 'ayaṁ',
               type: 'stem',
               tooltips: ["Roots: 'Iron' (Ayas) | 'Good Fortune' (Aya) | 'This' (Ima)"],
@@ -61,10 +63,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p3',
-          color: 'text-amber-400',
+          wordClass: 'content',
           segments: [
-            { text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
-            { text: 'ave', type: 'suffix', tooltips: ['Function: Addressing the crowd'] },
+            { id: 'p3s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
+            { id: 'p3s2', text: 'ave', type: 'suffix', tooltips: ['Function: Addressing the crowd'] },
           ],
           senses: [
             { english: 'Mendicants,', nuance: 'Alms-men' },
@@ -74,8 +76,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p4',
-          color: 'text-emerald-400',
-          segments: [{ text: 'maggo', type: 'stem', tooltips: ['√magg: Tracking (Road/Method)'] }],
+          wordClass: 'content',
+          segments: [{ id: 'p4s1', text: 'maggo', type: 'stem', tooltips: ['√magg: Tracking (Road/Method)'] }],
           senses: [{ english: 'path', nuance: 'Method' }],
         },
       ],
@@ -92,16 +94,17 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       paliWords: [
         {
           id: 'p4_anchor',
-          color: 'text-emerald-400',
-          segments: [{ text: 'maggo', type: 'stem', tooltips: ['Context Anchor'] }],
+          wordClass: 'content',
+          segments: [{ id: 'p4_anchors1', text: 'maggo', type: 'stem', tooltips: ['Context Anchor'] }],
           senses: [{ english: '(path)', nuance: '' }],
           isAnchor: true,
         },
         {
           id: 'p5',
-          color: 'text-yellow-400',
+          wordClass: 'content',
           segments: [
             {
+              id: 'p5s1',
               text: 'satt',
               type: 'root',
               tooltips: [
@@ -111,10 +114,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               ],
             },
             {
+              id: 'p5s2',
               text: 'ānaṁ',
               type: 'suffix',
               tooltips: ['Function: Marks the Group/Owner'],
-              relation: { targetId: 'p6', type: 'ownership', label: 'Belongs To' },
+              relation: { targetWordId: 'p6', type: 'ownership', label: 'Belongs To' },
             },
           ],
           senses: [
@@ -125,11 +129,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p6',
-          color: 'text-blue-400',
+          wordClass: 'content',
           segments: [
-            { text: 'vi', type: 'prefix', tooltips: ['Intensive'] },
-            { text: 'suddhi', type: 'root', tooltips: ['√sudh: Purity'] },
-            { text: 'yā', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p6s1', text: 'vi', type: 'prefix', tooltips: ['Intensive'] },
+            { id: 'p6s2', text: 'suddhi', type: 'root', tooltips: ['√sudh: Purity'] },
+            { id: 'p6s3', text: 'yā', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
           senses: [
             { english: 'purification', nuance: 'Cleaning' },
@@ -149,15 +153,16 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       paliWords: [
         {
           id: 'p7',
-          color: 'text-rose-400',
+          wordClass: 'content',
           segments: [
-            { text: 'soka', type: 'root', tooltips: ['√suc: Burning / Dryness'] },
-            { text: 'parideva', type: 'root', tooltips: ['Crying out all around'] },
+            { id: 'p7s1', text: 'soka', type: 'root', tooltips: ['√suc: Burning / Dryness'] },
+            { id: 'p7s2', text: 'parideva', type: 'root', tooltips: ['Crying out all around'] },
             {
+              id: 'p7s3',
               text: 'ānaṁ',
               type: 'suffix',
               tooltips: ['Function: Marks the Object'],
-              relation: { targetId: 'p8', type: 'direction', label: 'Target Of' },
+              relation: { targetWordId: 'p8', type: 'direction', label: 'Target Of' },
             },
           ],
           senses: [
@@ -167,12 +172,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p8',
-          color: 'text-blue-400',
+          wordClass: 'content',
           segments: [
-            { text: 'sam', type: 'prefix', tooltips: ['Together'] },
-            { text: 'ati', type: 'prefix', tooltips: ['Over / Beyond'] },
-            { text: 'kkam', type: 'root', tooltips: ['√kam: Stepping'] },
-            { text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p8s1', text: 'sam', type: 'prefix', tooltips: ['Together'] },
+            { id: 'p8s2', text: 'ati', type: 'prefix', tooltips: ['Over / Beyond'] },
+            { id: 'p8s3', text: 'kkam', type: 'root', tooltips: ['√kam: Stepping'] },
+            { id: 'p8s4', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
           senses: [
             { english: 'surmounting', nuance: 'Crossing over' },
@@ -192,15 +197,16 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       paliWords: [
         {
           id: 'p9',
-          color: 'text-rose-400',
+          wordClass: 'content',
           segments: [
-            { text: 'dukkha', type: 'root', tooltips: ['Du (Bad) + Kha (Axle space)'] },
-            { text: 'domanass', type: 'root', tooltips: ['Mental Pain (Bad Mind)'] },
+            { id: 'p9s1', text: 'dukkha', type: 'root', tooltips: ['Du (Bad) + Kha (Axle space)'] },
+            { id: 'p9s2', text: 'domanass', type: 'root', tooltips: ['Mental Pain (Bad Mind)'] },
             {
+              id: 'p9s3',
               text: 'ānaṁ',
               type: 'suffix',
               tooltips: ['Function: Marks the Object'],
-              relation: { targetId: 'p10', type: 'direction', label: 'Target Of' },
+              relation: { targetWordId: 'p10', type: 'direction', label: 'Target Of' },
             },
           ],
           senses: [
@@ -210,11 +216,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p10',
-          color: 'text-blue-400',
+          wordClass: 'content',
           segments: [
-            { text: 'atthaṅ', type: 'root', tooltips: ['Attha: Home / Setting'] },
-            { text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
-            { text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p10s1', text: 'atthaṅ', type: 'root', tooltips: ['Attha: Home / Setting'] },
+            { id: 'p10s2', text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
+            { id: 'p10s3', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
           senses: [
             { english: 'disappearance', nuance: 'Going home' },
@@ -235,14 +241,15 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       paliWords: [
         {
           id: 'p11',
-          color: 'text-yellow-400',
+          wordClass: 'content',
           segments: [
-            { text: 'ñāya', type: 'root', tooltips: ['Method / System / Truth'] },
+            { id: 'p11s1', text: 'ñāya', type: 'root', tooltips: ['Method / System / Truth'] },
             {
+              id: 'p11s2',
               text: 'ssa',
               type: 'suffix',
               tooltips: ['Function: Marks ownership'],
-              relation: { targetId: 'p12', type: 'ownership', label: 'Belongs To' },
+              relation: { targetWordId: 'p12', type: 'ownership', label: 'Belongs To' },
             },
           ],
           senses: [
@@ -252,11 +259,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p12',
-          color: 'text-blue-400',
+          wordClass: 'content',
           segments: [
-            { text: 'adhi', type: 'prefix', tooltips: ['Onto / Towards'] },
-            { text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
-            { text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p12s1', text: 'adhi', type: 'prefix', tooltips: ['Onto / Towards'] },
+            { id: 'p12s2', text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
+            { id: 'p12s3', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
           senses: [
             { english: 'attainment', nuance: 'Reaching' },
@@ -275,14 +282,15 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       paliWords: [
         {
           id: 'p13',
-          color: 'text-indigo-400',
+          wordClass: 'content',
           segments: [
-            { text: 'nibbān', type: 'root', tooltips: ['Ni (Out) + Vana (Fire)'] },
+            { id: 'p13s1', text: 'nibbān', type: 'root', tooltips: ['Ni (Out) + Vana (Fire)'] },
             {
+              id: 'p13s2',
               text: 'assa',
               type: 'suffix',
               tooltips: ['Function: Marks the Object'],
-              relation: { targetId: 'p14', type: 'direction', label: 'Target Of' },
+              relation: { targetWordId: 'p14', type: 'direction', label: 'Target Of' },
             },
           ],
           senses: [
@@ -292,11 +300,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
         {
           id: 'p14',
-          color: 'text-blue-400',
+          wordClass: 'content',
           segments: [
-            { text: 'sacchi', type: 'root', tooltips: ['With eyes / Directly'] },
-            { text: 'kiriy', type: 'root', tooltips: ['Karo: Making / Doing'] },
-            { text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p14s1', text: 'sacchi', type: 'root', tooltips: ['With eyes / Directly'] },
+            { id: 'p14s2', text: 'kiriy', type: 'root', tooltips: ['Karo: Making / Doing'] },
+            { id: 'p14s3', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
           senses: [
             { english: 'realization', nuance: 'Making real' },
@@ -315,25 +323,25 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       paliWords: [
         {
           id: 'p15',
-          color: 'text-slate-400',
+          wordClass: 'function',
           segments: [
-            { text: 'yad', type: 'root', tooltips: ['Which'] },
-            { text: 'idaṁ', type: 'root', tooltips: ['This'] },
+            { id: 'p15s1', text: 'yad', type: 'root', tooltips: ['Which'] },
+            { id: 'p15s2', text: 'idaṁ', type: 'root', tooltips: ['This'] },
           ],
           senses: [{ english: 'namely', nuance: 'Identity' }],
         },
         {
           id: 'p16',
-          color: 'text-emerald-400',
-          segments: [{ text: 'cattāro', type: 'stem', tooltips: ['Four (4)'] }],
+          wordClass: 'content',
+          segments: [{ id: 'p16s1', text: 'cattāro', type: 'stem', tooltips: ['Four (4)'] }],
           senses: [{ english: 'the four', nuance: 'Quantity' }],
         },
         {
           id: 'p17',
-          color: 'text-emerald-400',
+          wordClass: 'content',
           segments: [
-            { text: 'sati', type: 'root', tooltips: ['Memory / Presence'] },
-            { text: 'paṭṭhānā', type: 'root', tooltips: ['Foundation / Establishing'] },
+            { id: 'p17s1', text: 'sati', type: 'root', tooltips: ['Memory / Presence'] },
+            { id: 'p17s2', text: 'paṭṭhānā', type: 'root', tooltips: ['Foundation / Establishing'] },
           ],
           senses: [
             { english: 'foundations of mindfulness', nuance: 'Standard' },

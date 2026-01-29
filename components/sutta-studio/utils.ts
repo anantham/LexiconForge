@@ -16,6 +16,9 @@ export const safeSlug = (s: string) =>
 export const wordDomId = (phaseId: string, wordId: string) => `${phaseId}-${wordId}`;
 export const segDomId = (phaseId: string, wordId: string, segIndex: number) =>
   `${phaseId}-${wordId}-seg-${segIndex}`;
+/** Generate DOM ID from segment ID directly (e.g., "p1s1" → "${phaseId}-seg-p1s1") */
+export const segmentIdToDomId = (phaseId: string, segmentId: string) =>
+  `${phaseId}-seg-${segmentId}`;
 export const targetDomId = (phaseId: string, structureId: string) =>
   `${phaseId}-target-${structureId}`;
 

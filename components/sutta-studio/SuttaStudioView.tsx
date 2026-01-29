@@ -6,11 +6,12 @@ import { EnglishWordEngine } from './EnglishWord';
 import { PaliWordEngine } from './PaliWord';
 import { RELATION_COLORS, RELATION_HOOK } from './palette';
 import type { Focus } from './types';
-import { formatDuration, segDomId, targetDomId, wordDomId } from './utils';
+import { formatDuration, segDomId, segmentIdToDomId, targetDomId, wordDomId } from './utils';
 import { XarrowUpdater } from './XarrowUpdater';
 import { StudioHeader } from './StudioHeader';
 import { usePhaseNavigation } from './hooks/usePhaseNavigation';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
+import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 
 export function SuttaStudioView({
   packet,
@@ -191,6 +192,7 @@ export function SuttaStudioView({
         progressOverdue={etaOverdue}
         studyMode={studyMode}
         onToggleStudy={toggleStudy}
+        debugButton={<SuttaStudioDebugButton packet={packet} uid={packet.source?.workId} />}
       />
 
       <Xwrapper>
@@ -222,7 +224,7 @@ export function SuttaStudioView({
                 const englishTokens = englishBlocks[blockIndex] || [];
                 return (
                   <div key={`block-${blockIndex}`} className="flex flex-col items-center w-full">
-                    <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 relative z-10 pt-10 overflow-visible">
+                    <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-16 relative z-10 pt-10 overflow-visible">
                       {blockWords.map((word) => (
                         <div key={word.id} className="relative">
                           <PaliWordEngine
@@ -239,7 +241,10 @@ export function SuttaStudioView({
 
                           {showRelationArrows &&
                             word.segments.map((seg, i) => {
-                              const sId = segDomId(phaseId, word.id, i);
+                              // Use segment ID if available, fall back to index-based
+                              const sId = seg.id
+                                ? segmentIdToDomId(phaseId, seg.id)
+                                : segDomId(phaseId, word.id, i);
                               const focusedSegmentId =
                                 (hovered?.kind === 'segment' && hovered.segmentDomId) || null;
 
@@ -247,25 +252,33 @@ export function SuttaStudioView({
                               const isFocused = focusedSegmentId === sId;
                               const style = RELATION_COLORS[seg.relation.type];
                               const isOwnership = seg.relation.type === 'ownership';
-                              const targetId = wordDomId(phaseId, seg.relation.targetId);
-                              const above = isTargetAbove(sId, targetId);
+                              // Support segment-to-segment or segment-to-word relations
+                              const targetDomIdStr = seg.relation.targetSegmentId
+                                ? segmentIdToDomId(phaseId, seg.relation.targetSegmentId)
+                                : seg.relation.targetWordId
+                                  ? wordDomId(phaseId, seg.relation.targetWordId)
+                                  : null;
+                              if (!targetDomIdStr) return null;
+                              const above = isTargetAbove(sId, targetDomIdStr);
                               const isArrowHovered = hoveredRelation === sId;
                               const baseArc = isOwnership
-                                ? 2.4
+                                ? 3.0
                                 : seg.relation.type === 'direction'
-                                  ? 1.7
-                                  : 1.5;
-                              const arc = above ? baseArc + 0.4 : baseArc;
-                              const extendCanvas = isOwnership ? 48 : 32;
-                              const canvasStyle = { overflow: 'visible', pointerEvents: 'auto' as const };
+                                  ? 2.2
+                                  : 2.0;
+                              const arc = above ? baseArc + 0.6 : baseArc;
+                              const extendCanvas = isOwnership ? 64 : 48;
+                              // pointerEvents: 'none' so SVG canvas doesn't block word hover/click
+                              const canvasStyle = { overflow: 'visible', pointerEvents: 'none' as const };
+                              // Both anchors 'top' so arrow arcs ABOVE words without crossing
                               const startAnchor = 'top';
-                              const endAnchor = above ? 'bottom' : 'top';
+                              const endAnchor = 'top';
 
                               return (
                                 <Xarrow
                                   key={`arrow-${sId}`}
                                   start={sId}
-                                  end={targetId}
+                                  end={targetDomIdStr}
                                   color={style.color}
                                   strokeWidth={isFocused ? 2.2 : 1.2}
                                   path="smooth"
@@ -316,11 +329,21 @@ export function SuttaStudioView({
                               ghostOpacity={ghostOpacity}
                             />
 
-                            {showAlignmentArrows && item.linkedPaliId && (() => {
-                              const isFocused = focusWordId === item.linkedPaliId;
+                            {showAlignmentArrows && (item.linkedSegmentId || item.linkedPaliId) && (() => {
+                              // Segment-level linking takes priority over word-level
+                              const startId = item.linkedSegmentId
+                                ? segmentIdToDomId(phaseId, item.linkedSegmentId)
+                                : wordDomId(phaseId, item.linkedPaliId!);
+
+                              // Check if focused via segment or word
+                              const focusedSegmentId = hovered?.kind === 'segment' ? hovered.segmentId : null;
+                              const isFocused = item.linkedSegmentId
+                                ? focusedSegmentId === item.linkedSegmentId
+                                : focusWordId === item.linkedPaliId;
+
                               return (
                                 <Xarrow
-                                  start={wordDomId(phaseId, item.linkedPaliId)}
+                                  start={startId}
                                   end={targetDomId(phaseId, item.id)}
                                   color={isFocused ? '#34d399' : 'rgba(148,163,184,0.35)'}
                                   strokeWidth={isFocused ? 2 : 1}
@@ -328,7 +351,7 @@ export function SuttaStudioView({
                                   startAnchor="bottom"
                                   endAnchor="top"
                                   path="smooth"
-                                  curveness={0.5}
+                                  curveness={0.8}
                                   dashness={isFocused ? false : { strokeLen: 3, nonStrokeLen: 6 }}
                                   zIndex={0}
                                 />

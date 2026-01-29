@@ -34,7 +34,7 @@ export const validatePhase = (
       if (fallback && fallback.length) {
         segments = fallback;
       } else {
-        segments = [{ text: '…', type: 'stem' }];
+        segments = [{ id: `${word.id}s1`, text: '…', type: 'stem' }];
       }
       issues.push({
         level: 'warn',
