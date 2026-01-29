@@ -135,6 +135,22 @@ export class TranslationRepository implements ITranslationRepository {
     translation: TranslationResult,
     settings: TranslationSettingsSnapshot
   ): Promise<TranslationRecord> {
+    // Validate required fields - fail fast if model/provider missing
+    if (!settings.model || settings.model === 'unknown') {
+      console.error('[TranslationRepository] Missing model in settings:', settings);
+      throw new Error(
+        'Cannot store translation: model is required. ' +
+        'This indicates a bug in the translation pipeline - the model should be set from AppSettings.'
+      );
+    }
+    if (!settings.provider) {
+      console.error('[TranslationRepository] Missing provider in settings:', settings);
+      throw new Error(
+        'Cannot store translation: provider is required. ' +
+        'This indicates a bug in the translation pipeline - the provider should be set from AppSettings.'
+      );
+    }
+
     const existing = await this.fetchTranslationsByUrl(chapterUrl);
     const chapter = await this.loadChapter(chapterUrl);
     const stableId =

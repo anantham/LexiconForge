@@ -9,6 +9,7 @@ import {
   MappingsOps,
   NavigationOps,
 } from '../../services/db/operations';
+import { ensureModelFieldsRepaired } from '../../services/db/migrationService';
 
 const bootstrapLog = (message: string, payload?: any) => {
   if (typeof payload === 'undefined') {
@@ -25,6 +26,15 @@ export const createInitializeStore = (ctx: BootstrapContext): SessionActions['in
     try {
       ctx.get().loadSettings();
       bootstrapLog('loadSettings invoked');
+
+      // Repair legacy translations missing model/provider fields
+      try {
+        bootstrapLog('ensureModelFieldsRepaired start');
+        await ensureModelFieldsRepaired();
+        bootstrapLog('ensureModelFieldsRepaired complete');
+      } catch (e) {
+        console.warn('[Store] Model field repair failed (non-fatal):', e);
+      }
 
       try {
         bootstrapLog('loadPromptTemplates start');

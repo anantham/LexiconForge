@@ -1,23 +1,21 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppStore } from '../store';
-import { MODEL_ABBREVIATIONS } from '../config/constants';
 import SettingsIcon from './icons/SettingsIcon';
 import TrashIcon from './icons/TrashIcon';
 
 import { ImportTransformationService } from '../services/importTransformationService';
-import type { ChapterSummary } from '../types';
+import {
+  formatVersionLabel,
+  formatVersionLabelShort,
+  formatVersionLabelLong,
+  formatVersionTimestamp,
+} from '../utils/versionFormatting';
+import { useChapterDropdownOptions } from '../hooks/useChapterDropdownOptions';
 import type { NovelEntry } from '../types/novel';
 import { telemetryService } from '../services/telemetryService';
 import { ChapterOps } from '../services/db/operations';
 import { ExportService } from '../services/exportService';
-
-// Prefer a human-facing number if the title contains "Chapter 147", "Ch 147", etc.
-const numberFromTitle = (s?: string): number | undefined => {
-    if (!s) return undefined;
-    const m = s.match(/\b(?:Ch(?:apter)?\.?\s*)(\d{1,5})\b/i);
-    return m ? parseInt(m[1], 10) : undefined;
-};
 
 const getTimestamp = () =>
     (typeof performance !== 'undefined' && typeof performance.now === 'function'
@@ -108,9 +106,12 @@ const SessionInfo: React.FC = () => {
 
     const [showExportModal, setShowExportModal] = useState(false);
     const [showVersionPicker, setShowVersionPicker] = useState(false);
-    const [isExporting, setIsExporting] = useState(false);
-    const [chapterOptions, setChapterOptions] = useState<ChapterSummary[]>([]);
-    const [summariesLoading, setSummariesLoading] = useState<boolean>(true);
+
+    // Use hook for chapter dropdown options (single source of truth)
+    const { options: chapterOptions, isLoading: summariesLoading, isEmpty: sessionIsEmpty } = useChapterDropdownOptions();
+
+    // Derive isExporting from exportProgress (single source of truth)
+    const isExporting = exportProgress !== null && exportProgress.phase !== 'done';
     const [versions, setVersions] = useState<any[]>([]);
     const [selectedVersion, setSelectedVersion] = useState<number | ''>('');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -188,108 +189,7 @@ const SessionInfo: React.FC = () => {
         };
     }, [showExportModal]);
 
-    useEffect(() => {
-        let cancelled = false;
-        const summaryLoadStart = getTimestamp();
-        let resolvedCount = 0;
-        (async () => {
-            try {
-                setSummariesLoading(true);
-                console.log(`[🎯 DROPDOWN] Starting dropdown population, chapters in store: ${chapters.size}`);
-
-                const summaries = await ImportTransformationService.getChapterSummaries();
-                if (cancelled) return;
-
-                console.log(`[📊 DROPDOWN] Received ${summaries.length} summaries from IndexedDB`);
-
-                const byId = new Map<string, ChapterSummary>();
-                summaries.forEach(summary => byId.set(summary.stableId, { ...summary }));
-
-                console.log(`[🔍 DROPDOWN] Merging with Zustand store (${chapters.size} chapters)`);
-
-                if (chapters.size > 0) {
-                    for (const [stableId, ch] of chapters.entries()) {
-                        const existing = byId.get(stableId);
-                        const candidate: ChapterSummary = existing ? { ...existing } : {
-                            stableId,
-                            canonicalUrl: (ch as any).canonicalUrl || ch.originalUrl,
-                            title: ch.title || 'Untitled Chapter',
-                            translatedTitle: ch.translationResult?.translatedTitle || undefined,
-                            chapterNumber: ch.chapterNumber,
-                            hasTranslation: Boolean(ch.translationResult),
-                            hasImages: Boolean(ch.translationResult?.suggestedIllustrations?.some((ill: any) => !!ill?.url || !!ill?.generatedImage)),
-                            lastAccessed: undefined,
-                            lastTranslatedAt: undefined,
-                        };
-
-                        if (!existing) {
-                            console.log(`[⚠️ DROPDOWN] Chapter in store but NO SUMMARY in IndexedDB: #${ch.chapterNumber} "${ch.title}"`);
-                        }
-
-                        if ((ch as any).canonicalUrl) {
-                            candidate.canonicalUrl = (ch as any).canonicalUrl;
-                        }
-                        if (ch.title && ch.title !== candidate.title) {
-                            candidate.title = ch.title;
-                        }
-                        if (typeof ch.chapterNumber === 'number') {
-                            candidate.chapterNumber = ch.chapterNumber;
-                        }
-                        if (ch.translationResult?.translatedTitle) {
-                            candidate.translatedTitle = ch.translationResult.translatedTitle;
-                        }
-                        if (ch.translationResult) {
-                            candidate.hasTranslation = true;
-                            const hasImages = ch.translationResult.suggestedIllustrations?.some((ill: any) => !!ill?.url || !!ill?.generatedImage) || false;
-                            candidate.hasImages = candidate.hasImages || hasImages;
-                            candidate.lastTranslatedAt = candidate.lastTranslatedAt || new Date().toISOString();
-                        }
-
-                        byId.set(stableId, candidate);
-                    }
-                }
-
-                const list = Array.from(byId.values());
-                console.log(`[📝 DROPDOWN] Final merged list has ${list.length} items`);
-
-                list.sort((a, b) => {
-                    const aTranslated = a.translatedTitle;
-                    const bTranslated = b.translatedTitle;
-                    const aNumFromTitle = numberFromTitle(aTranslated);
-                    const bNumFromTitle = numberFromTitle(bTranslated);
-                    const aDisplay = aNumFromTitle ?? a.chapterNumber ?? Number.POSITIVE_INFINITY;
-                    const bDisplay = bNumFromTitle ?? b.chapterNumber ?? Number.POSITIVE_INFINITY;
-
-                    if (aDisplay !== bDisplay) return aDisplay - bDisplay;
-                    return (a.title || '').localeCompare(b.title || '');
-                });
-
-                console.log(`[🔢 DROPDOWN] Sorted dropdown list:`);
-                list.forEach((item, idx) => {
-                    console.log(`[📌 DROPDOWN]   ${idx + 1}. Ch #${item.chapterNumber}: "${item.translatedTitle || item.title}"`);
-                });
-
-                setChapterOptions(list);
-                resolvedCount = list.length;
-            } catch (error) {
-                if (!cancelled) {
-                    console.error('[SessionInfo] Failed to load chapters for rendering:', error);
-                    setChapterOptions([]);
-                }
-            } finally {
-                if (!cancelled) {
-                    setSummariesLoading(false);
-                    telemetryService.capturePerformance('ux:component:SessionInfo:summariesLoad', getTimestamp() - summaryLoadStart, {
-                        resultCount: resolvedCount,
-                        chaptersInStore: chapters.size,
-                    });
-                }
-            }
-        })();
-        return () => { cancelled = true; };
-    }, [chapters]);
-
-    const sessionIsEmpty = chapterOptions.length === 0;
+    // Chapter dropdown options are now provided by useChapterDropdownOptions hook
 
     // Load translation versions for current chapter
     useEffect(() => {
@@ -454,13 +354,14 @@ const SessionInfo: React.FC = () => {
     };
 
     const handleExportFormat = async (format: 'json' | 'epub') => {
-        setIsExporting(true);
-        setExportProgress(null); // Reset progress at start
+        // Signal export starting (isExporting is derived from this)
+        setExportProgress({ phase: 'preparing', current: 0, total: 1, message: 'Starting export...' });
         try {
             if (format === 'json') {
                 const hasContent = exportOptions.includeChapters || exportOptions.includeTelemetry || exportOptions.includeImages;
                 if (!hasContent) {
                     alert('Select at least one data type to include in the JSON export.');
+                    setExportProgress(null);
                     return;
                 }
                 await exportSessionData(exportOptions);
@@ -484,7 +385,7 @@ const SessionInfo: React.FC = () => {
                         `(Click Cancel to go to Settings → Novel Info to fill in the details)`
                     );
                     if (!proceed) {
-                        setIsExporting(false);
+                        setExportProgress(null);
                         setShowExportModal(false);
                         setShowSettingsModal(true);
                         return;
@@ -499,7 +400,7 @@ const SessionInfo: React.FC = () => {
                         `(Click Cancel to go to Settings → Novel Info to select a cover from your gallery)`
                     );
                     if (!proceed) {
-                        setIsExporting(false);
+                        setExportProgress(null);
                         setShowExportModal(false);
                         setShowSettingsModal(true);
                         return;
@@ -513,7 +414,6 @@ const SessionInfo: React.FC = () => {
             console.error('[Export] Export failed:', error);
             alert(`Export failed: ${error.message || 'Unknown error'}`);
         } finally {
-            setIsExporting(false);
             // Clear progress after a short delay so user sees completion
             setTimeout(() => setExportProgress(null), 1500);
         }
@@ -696,21 +596,11 @@ const SessionInfo: React.FC = () => {
               className="flex-grow w-full sm:w-auto min-w-[12rem] max-w-full px-3 py-2 text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-2 border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               aria-label="Select a chapter to navigate to"
             >
-              {chapterOptions.map((chapter) => {
-                  const titleNum = numberFromTitle(chapter.translatedTitle);
-                  const dbNum = chapter.chapterNumber as number | undefined;
-                  const displayNum = titleNum ?? dbNum;
-
-                  const numPrefix = Number.isFinite(displayNum) && (displayNum as number) > 0 ? `Ch ${displayNum}: ` : '';
-                  const title = chapter.translatedTitle || chapter.title || 'Untitled Chapter';
-                  const label = `${numPrefix}${title}`;
-
-                  return (
-                    <option key={chapter.stableId} value={chapter.stableId}>
-                      {label}
-                    </option>
-                  );
-              })}
+              {chapterOptions.map((chapter) => (
+                <option key={chapter.stableId} value={chapter.stableId}>
+                  {chapter.displayLabel}
+                </option>
+              ))}
             </select>
           )}
         </div>
@@ -726,12 +616,8 @@ const SessionInfo: React.FC = () => {
                 className="px-2 py-1 text-xs text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded max-w-[22rem]"
               >
                 {versions.sort((a: any,b: any)=>a.version-b.version).map((v: any) => {
-                  // Handle undefined/unknown model gracefully
-                  const modelName = v.model && v.model !== 'unknown' ? v.model : null;
-                  const abbr = modelName ? (MODEL_ABBREVIATIONS[modelName] || modelName) : 'Unknown';
-                  const ts = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, { month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
-                  const baseLabel = ts ? `v${v.version} — ${abbr} • ${ts}` : `v${v.version} — ${abbr}`;
-                  const label = v.customVersionLabel ? `${baseLabel} • ${v.customVersionLabel}` : baseLabel;
+                  const label = formatVersionLabel(v);
+                  const ts = formatVersionTimestamp(v.createdAt);
                   return (
                     <option key={v.id} value={v.version} title={ts}>{label}</option>
                   );
@@ -755,11 +641,7 @@ const SessionInfo: React.FC = () => {
               {(() => {
                 const current = versions.find(v => v.version === selectedVersion);
                 if (!current) return 'Select version';
-                // Handle undefined/unknown model gracefully
-                const modelName = current.model && current.model !== 'unknown' ? current.model : null;
-                const abbr = modelName ? (MODEL_ABBREVIATIONS[modelName] || modelName) : 'Unknown';
-                const base = `v${current.version} — ${abbr}`;
-                return current.customVersionLabel ? `${base} • ${current.customVersionLabel}` : base;
+                return formatVersionLabelShort(current);
               })()}
             </button>
 
@@ -835,8 +717,8 @@ const SessionInfo: React.FC = () => {
                     </label>
                   </fieldset>
 
-                  {/* Export Progress Bar */}
-                  {isExporting && exportProgress && (
+                  {/* Export Progress Bar - show while exporting OR showing completion state */}
+                  {exportProgress && (
                     <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
@@ -917,36 +799,25 @@ const SessionInfo: React.FC = () => {
                 <div className="flex-1 overflow-y-auto p-4">
                   <ul className="space-y-1">
                     {versions.sort((a: any, b: any) => a.version - b.version).map((v: any) => {
-                      // Handle undefined/unknown model gracefully
-                      const modelName = v.model && v.model !== 'unknown' ? v.model : null;
-                      const abbr = modelName ? (MODEL_ABBREVIATIONS[modelName] || modelName) : 'Unknown';
-                      const tsLong = v.createdAt ? new Date(v.createdAt).toLocaleString(undefined, {
-                        weekday: 'short',
-                        month: 'short',
-                        day: '2-digit',
-                        year: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      }) : '';
-                      
+                      const { title, subtitle } = formatVersionLabelLong(v);
+
                       return (
                         <li key={v.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                          <input 
-                            type="radio" 
+                          <input
+                            type="radio"
                             id={`version-${v.version}`}
-                            name="version" 
+                            name="version"
                             checked={selectedVersion === v.version}
                             onChange={() => handleVersionPickerSelect(v.version)}
                             className="mt-1 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400"
                           />
                           <label htmlFor={`version-${v.version}`} className="flex-1 cursor-pointer">
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              v{v.version} — {abbr}
+                              {title}
                             </div>
-                            {tsLong && (
+                            {subtitle && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {tsLong}
+                                {subtitle}
                               </div>
                             )}
                           </label>
