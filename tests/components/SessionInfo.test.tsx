@@ -1211,10 +1211,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
@@ -1289,10 +1293,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
@@ -1339,10 +1347,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
@@ -1443,10 +1455,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
@@ -1496,10 +1512,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
@@ -1551,10 +1571,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
@@ -1601,10 +1625,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
@@ -1661,10 +1689,14 @@ describe('SessionInfo: Critical Flows', () => {
         metadata: {
           id: 'test-novel',
           title: 'Test Novel',
-          author: 'Test Author',
-          originalLanguage: 'Korean',
-          genres: [],
-          description: '',
+          metadata: {
+            author: 'Test Author',
+            originalLanguage: 'Korean',
+            genres: [],
+            description: '',
+            chapterCount: 0,
+            lastUpdated: '',
+          },
           versions: [],
         },
       });
