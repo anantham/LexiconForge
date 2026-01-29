@@ -10,13 +10,14 @@ Context:
 export const SUTTA_STUDIO_SKELETON_CONTEXT = `
 Skeleton guidance:
 - Group segments into SMALL study phases for focused learning.
-- HARD LIMIT: Maximum 8 Pali words per phase. Split if exceeding this.
-- Typical phase: 1-3 segments (a single sentence or clause).
+- HARD LIMIT: Maximum 5 Pali words OR 9 segments per phase. Split if exceeding this.
+- Typical phase: 1-2 segments (a single sentence or short clause).
 - Title segments (work title, sutta name) should be their own phase.
 - Opening formulas (Evaṁ me sutaṁ) should be their own phase.
 - Group by grammatical/semantic dependency (case chains, relative clauses).
 - Avoid splitting mid-clause if a relation crosses segment boundaries.
 - If a boundary map is provided, do not cross chapter boundaries unless explicitly allowed.
+- Prefer smaller phases over larger ones - users can navigate quickly between phases.
 `.trim();
 
 export const SUTTA_STUDIO_PHASE_CONTEXT = `
@@ -49,6 +50,14 @@ COMPOUND WORDS (e.g., Satipaṭṭhānasutta):
 - Example: Satipaṭṭhānasutta → segments: [p1s1:"Sati", p1s2:"paṭṭhāna", p1s3:"sutta"]
 - Relations: p1s1→p1s2 (ownership: "Mindfulness of"), p1s2→p1s3 (location: "Foundation in")
 
+PLACE NAME COMPOUNDS (ALWAYS segment these):
+- Place names often have meaningful etymology - segment them.
+- Example: kammāsadhammaṁ → segments: [p6s1:"kammā", p6s2:"sa", p6s3:"dhammaṁ"]
+  - kammā = actions/deeds, sa = with, dhammaṁ = qualities
+- Example: Rājagaha → segments: [p1s1:"Rāja", p1s2:"gaha"]
+  - Rāja = king, gaha = house → "King's house"
+- Even if treated as a proper noun, users benefit from seeing the etymology.
+
 SEGMENT TYPES:
 - "root": √verb roots (e.g., √su, √bhū, √gam)
 - "prefix": vi-, sam-, pa-, upa-, etc.
@@ -65,7 +74,13 @@ RELATIONS (for grammar arrows in study mode):
 - Attach to the segment that carries the grammatical marker (usually suffix).
 - Use targetSegmentId for segment-to-segment (within compounds).
 - Use targetWordId for segment-to-word (between words).
-- Types: ownership (genitive), direction (dative), location (locative), action (instrumental).
+- Types:
+  - ownership (genitive): "of X", "X's"
+  - direction (dative): "to X", "for X"
+  - location (locative): "in X", "at X"
+  - action (instrumental): "by X", "with X"
+  - naming: "called X", "named X" - use when "nāma" introduces a proper noun
+- Example: "nigamo nāma kammāsadhammaṁ" → nāma segment has relation to kammāsadhammaṁ with type "naming"
 `.trim();
 
 export const SUTTA_STUDIO_LEXICO_CONTEXT = `
@@ -94,22 +109,29 @@ Weaver pass:
 - Goal: map pre-tokenized English tokens to Pali segments or words. Do NOT reword or reorder.
 - You receive: (1) tokenized English with indices, (2) Pali words with segment IDs, (3) senses for context.
 
-SEGMENT-LEVEL LINKING (preferred):
+SEGMENT-LEVEL LINKING (REQUIRED for compounds):
 - Use linkedSegmentId to link English tokens to specific Pali segments.
-- This is the PRIMARY linking method, especially for compound words.
-- Example: Satipaṭṭhānasutta (p1) with segments p1s1="sati", p1s2="paṭṭhāna", p1s3="sutta"
-  - English "Mindfulness" → linkedSegmentId: "p1s1"
-  - English "Meditation" → linkedSegmentId: "p1s2"
-  - English "Discourse" → linkedSegmentId: "p1s3" (if present)
+- This is the PRIMARY linking method. CHECK SEGMENT IDs BEFORE USING linkedPaliId.
+- CRITICAL: If a word has multiple segments (compound), you MUST use linkedSegmentId.
 
-WORD-LEVEL LINKING (fallback):
-- Use linkedPaliId when segment-level linking is not applicable.
-- For simple (non-compound) words where the whole word maps to one English word.
-- Example: "Evaṁ" (p1) → English "Thus" linkedPaliId: "p1"
+Example 1 - Compound word (MUST use linkedSegmentId):
+  Pali: Satipaṭṭhānasutta (p17) with segments p17s1="sati", p17s2="paṭṭhānā"
+  English tokens to map:
+    - "Mindfulness" → { linkedSegmentId: "p17s1" }  ✓ CORRECT
+    - "Foundation" → { linkedSegmentId: "p17s2" }   ✓ CORRECT
+    - "Mindfulness" → { linkedPaliId: "p17" }       ✗ WRONG - loses segment specificity
+
+Example 2 - Simple word (linkedPaliId is OK):
+  Pali: Evaṁ (p1) with single segment p1s1="Evaṁ"
+  English: "Thus" → { linkedPaliId: "p1" }  ✓ OK for single-segment words
+
+WORD-LEVEL LINKING (fallback only):
+- Use linkedPaliId ONLY for simple words with a single segment.
+- NEVER use linkedPaliId when the Pali word has multiple segments.
 
 COMPOUND WORDS (CRITICAL):
 - A single Pali compound translates to multiple English words.
-- Link EACH English word to its corresponding SEGMENT, not word.
+- Link EACH English word to its corresponding SEGMENT using linkedSegmentId.
 - These are NOT ghosts - they have Pali source (the segment).
 
 GHOST CLASSIFICATION (use ONLY when English word has NO Pali source):
@@ -120,6 +142,7 @@ RULES:
 - Whitespace and punctuation tokens: pass through (not linked, not ghost).
 - Do NOT change token text. Only provide mapping metadata.
 - If a token could map to multiple segments, choose the primary semantic match.
+- ALWAYS check if word has multiple segments before deciding between linkedSegmentId vs linkedPaliId.
 `.trim();
 
 export const SUTTA_STUDIO_TYPESETTER_CONTEXT = `

@@ -1681,7 +1681,7 @@ export const compileSuttaStudioPacket = async (options: {
                 { role: 'user', content: weaverPrompt },
               ],
               signal,
-              4000,
+              8000,
               {
                 schemaName: `sutta_studio_weaver_${phase.id}`,
                 schema: weaverResponseSchema,
@@ -1802,7 +1802,7 @@ export const compileSuttaStudioPacket = async (options: {
           { role: 'user', content: phasePrompt },
         ],
         signal,
-        4000,
+        8000,
         {
           schemaName: `sutta_studio_${phase.id}`,
           schema: phaseResponseSchema,

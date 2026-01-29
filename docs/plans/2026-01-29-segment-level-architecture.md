@@ -112,3 +112,56 @@ Relations (study mode):
 | Enter/Space | Cycle focused segment's sense |
 | Escape | Clear focus/pin |
 | S | Toggle study mode |
+
+## Bug Investigation (2026-01-29)
+
+### Confirmed Issues via Pipeline Logs
+
+#### Phase-4: kammāsadhammaṁ nāma
+**Symptoms:**
+- kammāsadhammaṁ rendered as single segment (no morpheme breakdown)
+- nāma shows "belongs to" but no grammar arrow visible
+
+**Root Cause (CONFIRMED via API logs):**
+1. **Anatomist returned kammāsadhammaṁ as single segment** - AI treated it as opaque proper noun despite prompt requesting compound segmentation
+2. **nāma relation EXISTS** - Anatomist returned r6: `fromSegmentId: "p7s1", targetWordId: "p6", type: "action", label: "Qualifier"` - relation type is wrong (should be "naming")
+3. **9 words is correct** - The sentence has 9 space-separated tokens
+
+**Fixes Implemented:**
+- [x] Add "naming" relation type to Anatomist prompt examples
+- [x] Add place name compound segmentation example (kammāsadhammaṁ → kammā + āsa + dhammaṁ)
+
+#### Phase-7: Satipaṭṭhānasutta linked as single word
+**Symptoms:**
+- "Satipaṭṭhānasutta" linked to single English word, not segments
+
+**Root Cause (CONFIRMED via API logs):**
+1. **Anatomist returned CORRECT 17 words with 43 segments** - p17 has segments p17s1="sati", p17s2="paṭṭhānā"
+2. **Weaver ignored linkedSegmentId** - AI returned `linkedPaliId: "p17"` instead of `linkedSegmentId: "p17s1"` despite explicit examples
+3. **Truncation AFTER passes** - "unbalanced_json: Truncated JSON payload" occurred during final assembly, not API calls
+
+**Fixes Implemented:**
+- [x] Stronger examples in Weaver prompt for segment-level linking (explicit WRONG vs CORRECT examples)
+- [x] Increase max tokens to prevent truncation (4000 → 8000 for Weaver and PhaseView)
+- [x] Add validation to log when Weaver uses linkedPaliId instead of linkedSegmentId
+
+#### Phase-8: Too many words
+**Symptoms:**
+- Phase has 14 words, feels too large
+
+**Root Cause (CONFIRMED via API logs):**
+1. **14 words is expected** - Phase combines mn10:3.1 + mn10:3.2 (2 canonical segments)
+2. **Issue is skeleton segmentation** - Compiler groups too many canonical segments per phase
+
+**Fixes Implemented:**
+- [x] Update skeleton context prompt to limit phases to 5 words OR 9 segments max
+
+### Summary of AI Limitations vs Pipeline Issues
+
+| Issue | Type | Evidence |
+|-------|------|----------|
+| Weaver ignores linkedSegmentId | AI Intelligence | Explicit examples in prompt, AI used linkedPaliId anyway |
+| Anatomist doesn't segment place names | AI Intelligence | Prompt shows compound examples, AI treated as opaque noun |
+| Relations use wrong types | AI Intelligence | "action/Qualifier" instead of "naming" |
+| Phase truncation | Pipeline | JSON too large after successful API calls |
+| Phases too large | Pipeline | Skeleton groups too many canonical segments |
