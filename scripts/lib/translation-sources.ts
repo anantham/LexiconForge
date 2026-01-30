@@ -431,7 +431,7 @@ export class PolyglottaJsonAdapter implements TranslationSourceAdapter {
       paragraphs: (ch.polyglotContent || []).map((p: any) => ({
         id: p.id,
         text: p.versions?.sanskrit?.text ||
-              Object.values(p.versions || {})[0]?.text || '',
+              (Object.values(p.versions || {})[0] as { text?: string } | undefined)?.text || '',
       }))
     }));
 
