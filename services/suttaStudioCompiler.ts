@@ -42,6 +42,13 @@ import {
 import { logPipelineEvent } from './suttaStudioPipelineLog';
 import { DictionaryCache } from './localDictionaryCache';
 import {
+  segmentCache,
+  morphologyCache,
+  resetSegmentCache,
+  getPipelineCacheStats,
+  initializePipelineCaches,
+} from './suttaStudioPipelineCache';
+import {
   buildSegmentsMapFromAnatomist,
   rehydratePhase,
   dedupeEnglishStructure,
@@ -751,7 +758,45 @@ const fetchCanonicalSegmentsForUid = async (
   return buildCanonicalSegments(uid, rootText, translationText);
 };
 
-type SkeletonPhase = { id: string; title?: string; segmentIds: string[] };
+type SkeletonPhase = {
+  id: string;
+  title?: string;
+  segmentIds: string[];
+  wordRange?: [number, number]; // [start, end) indices into Pali words for sub-segment splitting
+};
+
+/**
+ * Apply wordRange slicing to phase segments when sub-segment splitting is used.
+ * When wordRange is present, slice the Pali text to only include the specified word indices.
+ * English is NOT sliced - the full text is passed through for the weaver to handle mapping.
+ */
+const applyWordRangeToSegments = (
+  segments: CanonicalSegment[],
+  wordRange?: [number, number]
+): CanonicalSegment[] => {
+  if (!wordRange) return segments;
+
+  const [start, end] = wordRange;
+  const fullPali = segments.map((s) => s.pali).join(' ');
+  const paliWords = fullPali.split(/\s+/).filter(Boolean);
+  const slicedPali = paliWords.slice(start, end).join(' ');
+
+  // Return a single "virtual" segment with the sliced Pali
+  // Keep full English for weaver to map
+  const fullEnglish = segments
+    .map((s) => s.baseEnglish || '')
+    .filter(Boolean)
+    .join(' ');
+
+  return [
+    {
+      ref: segments[0].ref, // Keep the original segment reference
+      order: segments[0].order,
+      pali: slicedPali,
+      baseEnglish: fullEnglish || undefined,
+    },
+  ];
+};
 
 const chunkPhases = (
   segments: CanonicalSegment[],
@@ -1385,6 +1430,10 @@ export const compileSuttaStudioPacket = async (options: {
   const uidList = Array.from(new Set([uid, ...(uids || [])].filter(Boolean)));
   const uidKey = uidList.join('+');
   log(`Starting compiler for ${uidKey} (${lang}/${author})`);
+
+  // Initialize and reset caches
+  await initializePipelineCaches();
+  resetSegmentCache(); // Clear segment cache for this compilation run
   if (!settings?.model) {
     throw new Error('No model selected for Sutta Studio compiler. Please select a model in Settings.');
   }
@@ -1556,16 +1605,48 @@ export const compileSuttaStudioPacket = async (options: {
     const segmentSet = new Set(phase.segmentIds);
     const phaseSegments = canonicalWithOrder.filter((seg) => segmentSet.has(seg.ref.segmentId));
 
+    // Apply wordRange slicing if present (for sub-segment splitting)
+    // This slices Pali text but keeps full English for weaver to map
+    const effectiveSegments = applyWordRangeToSegments(phaseSegments, phase.wordRange);
+    if (phase.wordRange) {
+      log(`  wordRange: [${phase.wordRange[0]}, ${phase.wordRange[1]}) applied - Pali: "${effectiveSegments[0]?.pali}"`);
+    }
+
     try {
       log(`Compiling ${phase.id} (${i + 1}/${phaseSkeleton.length})...`);
       const phaseStart = performance.now();
+
+      // Check segment cache for exact Pali match (L5 cache - refrain deduplication)
+      const paliText = effectiveSegments.map((s) => s.pali).join(' ');
+      const cachedSegment = segmentCache.get(paliText);
+
+      // Log cache check
+      const cacheHit = !!cachedSegment;
+      logPipelineEvent({
+        level: 'info',
+        stage: 'cache',
+        phaseId: phase.id,
+        message: cacheHit ? 'segment_cache.hit' : 'segment_cache.miss',
+        data: {
+          paliLength: paliText.length,
+          paliPreview: paliText.slice(0, 50) + (paliText.length > 50 ? '...' : ''),
+          hasCachedAnatomist: !!cachedSegment?.anatomist,
+          hasCachedLexicographer: !!cachedSegment?.lexicographer,
+          hasCachedWeaver: !!cachedSegment?.weaver,
+          hasCachedTypesetter: !!cachedSegment?.typesetter,
+        },
+      });
+
       const retrievalContext = buildRetrievalContext({
         canonicalSegments: canonicalWithOrder,
-        phaseSegments,
+        phaseSegments, // Use original segments for retrieval context
         allowCrossChapter: Boolean(allowCrossChapter),
       });
-      let anatomistOutput: AnatomistPass | null = null;
-      let lexicographerOutput: LexicographerPass | null = null;
+      let anatomistOutput: AnatomistPass | null = cachedSegment?.anatomist || null;
+      let lexicographerOutput: LexicographerPass | null = cachedSegment?.lexicographer || null;
+
+      // Only run anatomist if not cached
+      if (!anatomistOutput) {
       try {
         log(`Anatomist pass for ${phase.id}...`);
         packet = { ...packet, progress: { ...packet.progress, currentPassName: 'Anatomist' } };
@@ -1573,14 +1654,14 @@ export const compileSuttaStudioPacket = async (options: {
         const phaseState = buildPhaseStateEnvelope({
           workId: uidKey,
           phaseId: phase.id,
-          segments: phaseSegments,
+          segments: effectiveSegments, // Use sliced segments for anatomist
           currentStageLabel: 'Anatomist (1/4)',
           currentStageKey: 'anatomist',
           completed: {},
         });
         const anatomistPrompt = buildAnatomistPrompt(
           phase.id,
-          phaseSegments,
+          effectiveSegments, // Use sliced segments for anatomist
           phaseState,
           retrievalContext || undefined
         );
@@ -1608,6 +1689,9 @@ export const compileSuttaStudioPacket = async (options: {
           message: 'anatomist.complete',
           data: { wordCount: anatomistOutput.words.length, segmentCount: anatomistOutput.segments.length },
         });
+
+        // Cache the anatomist output (L5 segment cache)
+        segmentCache.setAnatomist(paliText, anatomistOutput);
       } catch (e) {
         warn(`Anatomist pass failed for ${phase.id}; continuing without it.`, e);
         logPipelineEvent({
@@ -1618,8 +1702,16 @@ export const compileSuttaStudioPacket = async (options: {
           data: { error: e instanceof Error ? e.message : String(e) },
         });
       }
+      } else {
+        log(`  Using cached anatomist output for ${phase.id}`);
+      }
 
       if (anatomistOutput) {
+        // Check if lexicographer is already cached
+        if (cachedSegment?.lexicographer) {
+          lexicographerOutput = cachedSegment.lexicographer;
+          log(`  Using cached lexicographer output for ${phase.id}`);
+        } else {
         try {
           const contentWords = anatomistOutput.words.filter((word) => word.wordClass === 'content');
           const lexStart = performance.now();
@@ -1678,14 +1770,14 @@ export const compileSuttaStudioPacket = async (options: {
           const phaseState = buildPhaseStateEnvelope({
             workId: uidKey,
             phaseId: phase.id,
-            segments: phaseSegments,
+            segments: effectiveSegments, // Use sliced segments
             currentStageLabel: 'Lexicographer (2/4)',
             currentStageKey: 'lexicographer',
             completed: { anatomist: true },
           });
           const lexicographerPrompt = buildLexicographerPrompt(
             phase.id,
-            phaseSegments,
+            effectiveSegments, // Use sliced segments
             phaseState,
             anatomistOutput,
             dictionaryEntries,
@@ -1716,6 +1808,9 @@ export const compileSuttaStudioPacket = async (options: {
             message: 'lexicographer.complete',
             data: { senseEntries: lexicographerOutput.senses.length },
           });
+
+          // Cache the lexicographer output (L5 segment cache)
+          segmentCache.setLexicographer(paliText, lexicographerOutput);
         } catch (e) {
           warn(`Lexicographer pass failed for ${phase.id}; continuing without it.`, e);
           logPipelineEvent({
@@ -1726,15 +1821,28 @@ export const compileSuttaStudioPacket = async (options: {
             data: { error: e instanceof Error ? e.message : String(e) },
           });
         }
+        } // end if (!cachedSegment?.lexicographer)
       }
 
       // Weaver pass: map English tokens to Pali words
-      let weaverOutput: WeaverPass | null = null;
+      let weaverOutput: WeaverPass | null = cachedSegment?.weaver || null;
       let englishTokens: EnglishTokenInput[] = [];
       if (anatomistOutput && lexicographerOutput) {
+        // Check if weaver is already cached
+        if (weaverOutput) {
+          log(`  Using cached weaver output for ${phase.id}`);
+          // Still need to tokenize English for later use
+          const englishText = effectiveSegments
+            .map((seg) => seg.baseEnglish || '')
+            .filter(Boolean)
+            .join(' ');
+          if (englishText) {
+            englishTokens = tokenizeEnglish(englishText);
+          }
+        } else {
         try {
-          // Collect English text from segments
-          const englishText = phaseSegments
+          // Collect English text from effectiveSegments (full English preserved even with wordRange)
+          const englishText = effectiveSegments
             .map((seg) => seg.baseEnglish || '')
             .filter(Boolean)
             .join(' ');
@@ -1748,7 +1856,7 @@ export const compileSuttaStudioPacket = async (options: {
             const weaverPhaseState = buildPhaseStateEnvelope({
               workId: uidKey,
               phaseId: phase.id,
-              segments: phaseSegments,
+              segments: effectiveSegments, // Use sliced segments
               currentStageLabel: 'Weaver (3/4)',
               currentStageKey: 'weaver',
               completed: { anatomist: true, lexicographer: true },
@@ -1756,7 +1864,7 @@ export const compileSuttaStudioPacket = async (options: {
 
             const weaverPrompt = buildWeaverPrompt(
               phase.id,
-              phaseSegments,
+              effectiveSegments, // Use sliced segments
               weaverPhaseState,
               anatomistOutput,
               lexicographerOutput,
@@ -1788,6 +1896,9 @@ export const compileSuttaStudioPacket = async (options: {
               message: 'weaver.complete',
               data: { tokenCount: weaverOutput.tokens.length },
             });
+
+            // Cache the weaver output (L5 segment cache)
+            segmentCache.setWeaver(paliText, weaverOutput);
           } else {
             log(`Skipping Weaver pass for ${phase.id} (no English text).`);
           }
@@ -1801,11 +1912,16 @@ export const compileSuttaStudioPacket = async (options: {
             data: { error: e instanceof Error ? e.message : String(e) },
           });
         }
+        } // end if (!weaverOutput) - not cached
       }
 
       // Typesetter pass: arrange words into layout blocks
-      let typesetterOutput: TypesetterPass | null = null;
+      let typesetterOutput: TypesetterPass | null = cachedSegment?.typesetter || null;
       if (anatomistOutput && weaverOutput) {
+        // Check if typesetter is already cached
+        if (typesetterOutput) {
+          log(`  Using cached typesetter output for ${phase.id}`);
+        } else {
         try {
           log(`Typesetter pass for ${phase.id}...`);
           packet = { ...packet, progress: { ...packet.progress, currentPassName: 'Typesetter' } };
@@ -1813,7 +1929,7 @@ export const compileSuttaStudioPacket = async (options: {
           const typesetterPhaseState = buildPhaseStateEnvelope({
             workId: uidKey,
             phaseId: phase.id,
-            segments: phaseSegments,
+            segments: effectiveSegments, // Use sliced segments
             currentStageLabel: 'Typesetter (4/4)',
             currentStageKey: 'typesetter',
             completed: { anatomist: true, lexicographer: true, weaver: true },
@@ -1824,7 +1940,7 @@ export const compileSuttaStudioPacket = async (options: {
             typesetterPhaseState,
             anatomistOutput,
             weaverOutput,
-            phaseSegments
+            effectiveSegments // Use sliced segments
           );
 
           // Log Typesetter input for debugging
@@ -1870,6 +1986,9 @@ export const compileSuttaStudioPacket = async (options: {
               handoff: typesetterOutput.handoff,
             },
           });
+
+          // Cache the typesetter output (L5 segment cache)
+          segmentCache.setTypesetter(paliText, typesetterOutput);
         } catch (e) {
           warn(`Typesetter pass failed for ${phase.id}; continuing without it.`, e);
           logPipelineEvent({
@@ -1880,12 +1999,13 @@ export const compileSuttaStudioPacket = async (options: {
             data: { error: e instanceof Error ? e.message : String(e) },
           });
         }
+        } // end if (!typesetterOutput) - not cached
       }
 
       const phaseState = buildPhaseStateEnvelope({
         workId: uidKey,
         phaseId: phase.id,
-        segments: phaseSegments,
+        segments: effectiveSegments, // Use sliced segments
         currentStageLabel: 'PhaseView (fallback)',
         completed: {
           anatomist: Boolean(anatomistOutput),
@@ -1896,7 +2016,7 @@ export const compileSuttaStudioPacket = async (options: {
       });
       const phasePrompt = buildPhasePrompt(
         phase.id,
-        phaseSegments,
+        effectiveSegments, // Use sliced segments
         renderDefaults,
         retrievalContext || undefined,
         {
@@ -1976,7 +2096,7 @@ export const compileSuttaStudioPacket = async (options: {
         // Run morphology pass only when Anatomist didn't provide segments
         try {
           log(`Morphology pass for ${phase.id}...`);
-          const morphPrompt = buildMorphologyPrompt(phase.id, normalized, phaseSegments, retrievalContext || undefined);
+          const morphPrompt = buildMorphologyPrompt(phase.id, normalized, effectiveSegments, retrievalContext || undefined);
           await throttle(signal);
           const morphRaw = await callCompilerLLM(
             settings,
@@ -2060,8 +2180,8 @@ export const compileSuttaStudioPacket = async (options: {
       err(`Phase ${phase.id} failed, creating degraded view`, e);
 
       const degradedSourceSpan = buildSourceRefs(phase.segmentIds, segmentIdToWorkId, uidList[0]);
-      const paliTexts = phaseSegments.map((seg) => ({ surface: seg.pali }));
-      const englishTexts = phaseSegments
+      const paliTexts = effectiveSegments.map((seg) => ({ surface: seg.pali }));
+      const englishTexts = effectiveSegments
         .map((seg) => seg.baseEnglish)
         .filter((text): text is string => Boolean(text));
 
@@ -2132,11 +2252,28 @@ export const compileSuttaStudioPacket = async (options: {
   };
 
   onProgress?.({ packet, stage: 'complete', message: 'Compilation complete' });
+
+  // Log final cache statistics
+  const cacheStats = getPipelineCacheStats();
+  logPipelineEvent({
+    level: 'info',
+    stage: 'cache',
+    message: 'cache.stats',
+    data: {
+      morphology: cacheStats.morphology,
+      segment: cacheStats.segment,
+      estimatedSavingsPercent: cacheStats.estimatedSavingsPercent,
+    },
+  });
+  log(`Cache stats: Segment cache ${cacheStats.segment.hitRate} hit rate (${cacheStats.segment.hits} hits, ${cacheStats.segment.misses} misses)`);
+  log(`Cache stats: Morphology cache ${cacheStats.morphology.hitRate} hit rate (${cacheStats.morphology.hits} hits, ${cacheStats.morphology.misses} misses)`);
+  log(`Estimated savings: ~${cacheStats.estimatedSavingsPercent}%`);
+
   logPipelineEvent({
     level: 'info',
     stage: 'compile',
     message: 'compile.complete',
-    data: { totalPhases: phaseSkeleton.length },
+    data: { totalPhases: phaseSkeleton.length, cacheStats },
   });
   log('Compiler completed successfully.');
   return packet;
