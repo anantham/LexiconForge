@@ -52,8 +52,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'a3',
           wordClass: 'content',
           segments: [
-            { id: 'a3s1', text: 'sut', type: 'root', tooltips: ['√su: To hear', 'Past participle'] },
-            { id: 'a3s2', text: 'aṁ', type: 'suffix', tooltips: ['"The thing heard" — names what was received', 'Past participle: action already completed'] },
+            { id: 'a3s1', text: 'sut', type: 'root', tooltips: ['√su: To hear', '"Heard" — already happened'] },
+            { id: 'a3s2', text: 'aṁ', type: 'suffix', tooltips: ['"The thing heard" — names what was received', 'Done and complete, not still happening'] },
           ],
           senses: [
             { english: 'heard', nuance: 'Standard' },
@@ -842,7 +842,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'z2s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection', 'Object of observation'] },
             { id: 'z2s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Repeatedly / Closely', 'Implies sustained, close observation'] },
             { id: 'z2s3', text: 'pass', type: 'root', tooltips: ['√dṛś (Pali √pass): To see', 'Anupassati = observe repeatedly/closely'] },
-            { id: 'z2s4', text: 'ī', type: 'suffix', tooltips: ['AGENT NOUN suffix -in (Nom. -ī)', 'NOT a participle (-anto)', 'Identity transformation: one BECOMES an observer', '"One whose nature is body-observing"'] },
+            { id: 'z2s4', text: 'ī', type: 'suffix', tooltips: ['-ī = "one who does this"', 'Not just doing it now — it\'s who you ARE', 'Identity shift: you become an observer', '"One whose nature is body-observing"'] },
           ],
           senses: [
             { english: 'a body-observer', nuance: 'Agent/Identity' },
