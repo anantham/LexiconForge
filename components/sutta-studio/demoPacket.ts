@@ -41,7 +41,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'a2',
           wordClass: 'function',
           segments: [
-            { id: 'a2s1', text: 'me', type: 'stem', tooltips: ['From ahaṁ (I)', '"By me" — marks who did the hearing'] },
+            { id: 'a2s1', text: 'me', type: 'stem', tooltips: ['"Me" — the narrator (Ānanda)', 'Marks who received the teaching'] },
           ],
           senses: [
             { english: 'by me', nuance: 'Instrumental' },
