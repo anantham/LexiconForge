@@ -1,0 +1,262 @@
+{
+  "_description": "Golden test data for Sutta Studio pipeline. Review this for completeness.",
+  "_lastUpdated": "2026-01-30",
+  "_source": "MN10 Satipaṭṭhānasutta (manually curated)",
+
+  "phase1": {
+    "_title": "MN10 Title Block",
+    "_pali": "Majjhima Nikāya 10 / Satipaṭṭhānasutta",
+    "_english": "Middle Discourses 10 / Mindfulness Meditation",
+    "_expectedLayout": "Row 1: [Majjhima Nikāya 10] Row 2: [Satipaṭṭhānasutta]",
+
+    "canonicalSegments": [
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:0.1" },
+        "order": 0,
+        "pali": "Majjhima Nikāya 10",
+        "baseEnglish": "Middle Discourses 10"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:0.2" },
+        "order": 1,
+        "pali": "Satipaṭṭhānasutta",
+        "baseEnglish": "Mindfulness Meditation"
+      }
+    ],
+
+    "anatomist": {
+      "id": "anatomist-phase-1",
+      "words": [
+        { "id": "p1", "surface": "Majjhima", "wordClass": "content", "segmentIds": ["p1s1"] },
+        { "id": "p2", "surface": "Nikāya", "wordClass": "content", "segmentIds": ["p2s1"] },
+        { "id": "p3", "surface": "10", "wordClass": "content", "segmentIds": ["p3s1"] },
+        { "id": "p4", "surface": "Satipaṭṭhānasutta", "wordClass": "content", "segmentIds": ["p4s1", "p4s2", "p4s3"], "isAnchor": true }
+      ],
+      "segments": [
+        { "id": "p1s1", "wordId": "p1", "text": "Majjhima", "type": "stem", "tooltips": ["Majjhima: Middle"] },
+        { "id": "p2s1", "wordId": "p2", "text": "Nikāya", "type": "stem", "tooltips": ["Nikāya: Collection / Group / Volume"] },
+        { "id": "p3s1", "wordId": "p3", "text": "10", "type": "stem" },
+        { "id": "p4s1", "wordId": "p4", "text": "Sati", "type": "root", "tooltips": ["Sati: Mindfulness / Awareness / Memory"] },
+        { "id": "p4s2", "wordId": "p4", "text": "paṭṭhāna", "type": "stem", "tooltips": ["Paṭṭhāna: Foundation / Establishment / Application"] },
+        { "id": "p4s3", "wordId": "p4", "text": "sutta", "type": "suffix", "tooltips": ["Sutta: Discourse / Text"] }
+      ],
+      "relations": [
+        { "id": "r1", "fromSegmentId": "p1s1", "targetWordId": "p2", "type": "ownership", "label": "of" }
+      ],
+      "handoff": { "confidence": "high" }
+    },
+
+    "lexicographer": {
+      "id": "lexicographer-phase-1",
+      "senses": [
+        { "wordId": "p1", "wordClass": "content", "senses": [{ "english": "Middle", "nuance": "middle, medium" }] },
+        { "wordId": "p2", "wordClass": "content", "senses": [
+          { "english": "Collection", "nuance": "collection, group" },
+          { "english": "Group", "nuance": "" },
+          { "english": "Volume", "nuance": "" }
+        ]},
+        { "wordId": "p3", "wordClass": "content", "senses": [{ "english": "10", "nuance": "number ten" }] },
+        { "wordId": "p4", "wordClass": "content", "senses": [{ "english": "Mindfulness Meditation", "nuance": "discourse on mindfulness" }] }
+      ],
+      "segmentSenses": [
+        { "segmentId": "p4s1", "senses": [
+          { "english": "Mindfulness", "nuance": "" },
+          { "english": "Awareness", "nuance": "" },
+          { "english": "Memory", "nuance": "" }
+        ]},
+        { "segmentId": "p4s2", "senses": [
+          { "english": "Foundation", "nuance": "" },
+          { "english": "Establishment", "nuance": "" },
+          { "english": "Application", "nuance": "" }
+        ]}
+      ],
+      "handoff": { "confidence": "high" }
+    },
+
+    "weaver": {
+      "id": "weaver-phase-1",
+      "_originalEnglish": "Middle Discourses 10 Mindfulness Meditation",
+      "tokens": [
+        { "tokenIndex": 0, "text": "Middle", "linkedSegmentId": "p1s1", "isGhost": false },
+        { "tokenIndex": 2, "text": "Discourses", "linkedSegmentId": "p2s1", "isGhost": false },
+        { "tokenIndex": 4, "text": "10", "linkedSegmentId": "p3s1", "isGhost": false },
+        { "tokenIndex": 6, "text": "Mindfulness", "linkedSegmentId": "p4s1", "isGhost": false },
+        { "tokenIndex": 8, "text": "Meditation", "linkedSegmentId": "p4s2", "isGhost": false }
+      ],
+      "handoff": { "confidence": "high", "unmappedTokens": [], "notes": "p4s3 (sutta) has no direct English equivalent" }
+    },
+
+    "typesetter": {
+      "id": "typesetter-phase-1",
+      "layoutBlocks": [["p1", "p2", "p3"], ["p4"]],
+      "handoff": { "confidence": "high", "notes": "Title (seg 1) grouped together, sutta name (seg 2) separate row" }
+    },
+
+    "expectedPhaseView": {
+      "id": "phase-1",
+      "layoutBlocks": [["p1", "p2", "p3"], ["p4"]],
+      "paliWords": [
+        {
+          "id": "p1",
+          "wordClass": "content",
+          "segments": [{ "id": "p1s1", "text": "Majjhima", "type": "stem", "tooltips": ["Majjhima: Middle"] }],
+          "senses": [{ "english": "Middle", "nuance": "middle, medium" }]
+        },
+        {
+          "id": "p2",
+          "wordClass": "content",
+          "segments": [{ "id": "p2s1", "text": "Nikāya", "type": "stem", "tooltips": ["Nikāya: Collection / Group / Volume"] }],
+          "senses": [{ "english": "Collection", "nuance": "" }, { "english": "Group", "nuance": "" }]
+        },
+        {
+          "id": "p3",
+          "wordClass": "content",
+          "segments": [{ "id": "p3s1", "text": "10", "type": "stem" }],
+          "senses": [{ "english": "10", "nuance": "number ten" }]
+        },
+        {
+          "id": "p4",
+          "wordClass": "content",
+          "isAnchor": true,
+          "segments": [
+            { "id": "p4s1", "text": "Sati", "type": "root", "tooltips": ["Sati: Mindfulness / Awareness / Memory"], "senses": [{ "english": "Mindfulness", "nuance": "" }, { "english": "Awareness", "nuance": "" }] },
+            { "id": "p4s2", "text": "paṭṭhāna", "type": "stem", "tooltips": ["Paṭṭhāna: Foundation / Establishment / Application"], "senses": [{ "english": "Foundation", "nuance": "" }, { "english": "Establishment", "nuance": "" }] },
+            { "id": "p4s3", "text": "sutta", "type": "suffix", "tooltips": ["Sutta: Discourse / Text"] }
+          ],
+          "senses": [{ "english": "Mindfulness Meditation", "nuance": "discourse on mindfulness" }]
+        }
+      ],
+      "englishStructure": [
+        { "id": "e0", "linkedSegmentId": "p1s1" },
+        { "id": "e1", "linkedSegmentId": "p2s1" },
+        { "id": "e2", "linkedSegmentId": "p3s1" },
+        { "id": "e3", "linkedSegmentId": "p4s1" },
+        { "id": "e4", "linkedSegmentId": "p4s2" }
+      ]
+    }
+  },
+
+  "phase2": {
+    "_title": "Opening Formula",
+    "_pali": "Evaṁ me sutaṁ—",
+    "_english": "So I have heard.",
+    "_expectedLayout": "Row 1: [Evaṁ me sutaṁ—]",
+
+    "canonicalSegments": [
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:1.1" },
+        "order": 2,
+        "pali": "Evaṁ me sutaṁ—",
+        "baseEnglish": "So I have heard."
+      }
+    ],
+
+    "anatomist": {
+      "id": "anatomist-phase-2",
+      "words": [
+        { "id": "p1", "surface": "Evaṁ", "wordClass": "function", "segmentIds": ["p1s1"] },
+        { "id": "p2", "surface": "me", "wordClass": "function", "segmentIds": ["p2s1"] },
+        { "id": "p3", "surface": "sutaṁ", "wordClass": "content", "segmentIds": ["p3s1"], "isAnchor": true }
+      ],
+      "segments": [
+        { "id": "p1s1", "wordId": "p1", "text": "Evaṁ", "type": "stem", "tooltips": ["Evaṁ: Thus / In this way"] },
+        { "id": "p2s1", "wordId": "p2", "text": "me", "type": "stem", "tooltips": ["Me: By me (instrumental)"], "morph": { "case": "ins", "number": "sg" } },
+        { "id": "p3s1", "wordId": "p3", "text": "sutaṁ", "type": "stem", "tooltips": ["Sutaṁ: Heard (past participle)"] }
+      ],
+      "handoff": { "confidence": "high" }
+    },
+
+    "lexicographer": {
+      "id": "lexicographer-phase-2",
+      "senses": [
+        { "wordId": "p1", "wordClass": "function", "senses": [
+          { "english": "Thus", "nuance": "in this way" },
+          { "english": "So", "nuance": "" }
+        ]},
+        { "wordId": "p2", "wordClass": "function", "senses": [
+          { "english": "I", "nuance": "by me" },
+          { "english": "me", "nuance": "" }
+        ]},
+        { "wordId": "p3", "wordClass": "content", "senses": [{ "english": "heard", "nuance": "was heard" }] }
+      ],
+      "handoff": { "confidence": "high" }
+    },
+
+    "weaver": {
+      "id": "weaver-phase-2",
+      "_originalEnglish": "So I have heard.",
+      "tokens": [
+        { "tokenIndex": 0, "text": "So", "linkedPaliId": "p1", "isGhost": false },
+        { "tokenIndex": 2, "text": "I", "linkedPaliId": "p2", "isGhost": false },
+        { "tokenIndex": 4, "text": "have", "isGhost": true, "ghostKind": "required" },
+        { "tokenIndex": 6, "text": "heard", "linkedPaliId": "p3", "isGhost": false }
+      ],
+      "handoff": { "confidence": "high", "notes": "'have' is auxiliary verb (ghost)" }
+    },
+
+    "typesetter": {
+      "id": "typesetter-phase-2",
+      "layoutBlocks": [["p1", "p2", "p3"]],
+      "handoff": { "confidence": "high" }
+    },
+
+    "expectedPhaseView": {
+      "id": "phase-2",
+      "layoutBlocks": [["p1", "p2", "p3"]],
+      "paliWords": [
+        {
+          "id": "p1",
+          "wordClass": "function",
+          "segments": [{ "id": "p1s1", "text": "Evaṁ", "type": "stem" }],
+          "senses": [{ "english": "Thus", "nuance": "" }, { "english": "So", "nuance": "" }]
+        },
+        {
+          "id": "p2",
+          "wordClass": "function",
+          "segments": [{ "id": "p2s1", "text": "me", "type": "stem", "morph": { "case": "ins", "number": "sg" } }],
+          "senses": [{ "english": "I", "nuance": "by me" }]
+        },
+        {
+          "id": "p3",
+          "wordClass": "content",
+          "isAnchor": true,
+          "segments": [{ "id": "p3s1", "text": "sutaṁ", "type": "stem" }],
+          "senses": [{ "english": "heard", "nuance": "was heard" }]
+        }
+      ],
+      "englishStructure": [
+        { "id": "e0", "linkedPaliId": "p1" },
+        { "id": "e1", "linkedPaliId": "p2" },
+        { "id": "e2", "label": "have", "isGhost": true, "ghostKind": "required" },
+        { "id": "e3", "linkedPaliId": "p3" }
+      ]
+    }
+  },
+
+  "validationRules": {
+    "anatomist": [
+      "Every word must have at least one segment",
+      "Segment IDs must be unique within a phase",
+      "wordId in segments must match a word in words array",
+      "Compound words should have multiple segments (root, suffix, etc.)",
+      "isAnchor should mark the semantic head of the phrase"
+    ],
+    "lexicographer": [
+      "Every content word should have at least one sense",
+      "Function words may have simpler senses",
+      "Compound words should have segmentSenses for cyclable meanings",
+      "nuance field helps users understand connotations"
+    ],
+    "weaver": [
+      "Every non-ghost English token should link to a Pali word or segment",
+      "Ghost tokens should have ghostKind: 'required' (grammatical) or 'interpretive' (clarifying)",
+      "tokenIndex should match the tokenizer output",
+      "Segment-level linking (linkedSegmentId) preferred for compounds"
+    ],
+    "typesetter": [
+      "Words from same canonical segment should be in same block",
+      "Each block should have at most 5 words",
+      "Related words (via relations) should be in same or adjacent blocks"
+    ]
+  }
+}
