@@ -32,6 +32,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       // Literal: "Thus by me [it has been] heard." (Passive construction)
       // Implied: "I recite this exactly as I remember; I add nothing."
       id: 'phase-a',
+      canonicalSegmentIds: ['mn10:1.1'],
       paliWords: [
         {
           id: 'a1',
@@ -78,6 +79,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       // Standard sutta opening: "At one time the Blessed One..."
       // ekaṁ samayaṁ = Accusative of Time (adverbial phrase, not direct object)
       id: 'phase-b',
+      canonicalSegmentIds: ['mn10:1.2'],
       paliWords: [
         {
           id: 'b1',
@@ -126,6 +128,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       // mn10:1.2 (part 2) — "...kurūsu viharati..."
       // "was dwelling among the Kurus" (historical present in Pali)
       id: 'phase-c',
+      canonicalSegmentIds: ['mn10:1.2'],
       paliWords: [
         {
           id: 'c1',
@@ -162,6 +165,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       // mn10:1.2 (part 3) — "...kammāsadhammaṁ nāma kurūnaṁ nigamo."
       // "a market town of the Kurus named Kammāsadhamma"
       id: 'phase-d',
+      canonicalSegmentIds: ['mn10:1.2'],
       paliWords: [
         {
           id: 'd1',
@@ -223,6 +227,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       // mn10:1.3 — "Tatra kho bhagavā bhikkhū āmantesi:"
       // "There the Blessed One addressed the bhikkhus:"
       id: 'phase-e',
+      canonicalSegmentIds: ['mn10:1.3'],
       paliWords: [
         {
           id: 'e1',
@@ -291,6 +296,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-f',
+      canonicalSegmentIds: ['mn10:1.4'],
       paliWords: [
         {
           id: 'f1',
@@ -322,6 +328,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       // mn10:1.5 — "Bhadante"ti te bhikkhū bhagavato paccassosuṁ.
       // "Venerable sir!" the bhikkhus replied to the Blessed One.
       id: 'phase-g',
+      canonicalSegmentIds: ['mn10:1.5'],
       paliWords: [
         {
           id: 'g1',
@@ -398,6 +405,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       // "The Blessed One said this:" — introduces the main teaching
       // Note: "etadavoca" is one word in manuscript (sandhi), split here for clarity
       id: 'phase-h',
+      canonicalSegmentIds: ['mn10:1.6'],
       paliWords: [
         {
           id: 'h1',
@@ -443,6 +451,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ============================================================
     {
       id: 'phase-1',
+      canonicalSegmentIds: ['mn10:2.1'],
       paliWords: [
         {
           id: 'p1',
@@ -515,6 +524,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-2',
+      canonicalSegmentIds: ['mn10:2.1'],
       paliWords: [
         {
           id: 'p5',
@@ -570,6 +580,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-3',
+      canonicalSegmentIds: ['mn10:2.1'],
       layoutBlocks: [['p7', 'p8']],
       paliWords: [
         {
@@ -618,6 +629,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-4',
+      canonicalSegmentIds: ['mn10:2.1'],
       layoutBlocks: [['p9', 'p10']],
       paliWords: [
         {
@@ -663,6 +675,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-5',
+      canonicalSegmentIds: ['mn10:2.1'],
       layoutBlocks: [['p11', 'p12']],
       paliWords: [
         {
@@ -705,6 +718,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-6',
+      canonicalSegmentIds: ['mn10:2.1'],
       layoutBlocks: [['p13', 'p14']],
       paliWords: [
         {
@@ -753,6 +767,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-7',
+      canonicalSegmentIds: ['mn10:2.1'],
       paliWords: [
         {
           id: 'p15',
@@ -797,13 +812,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ============================================================
     {
       id: 'phase-x',
+      canonicalSegmentIds: ['mn10:3.1'],
       paliWords: [
         {
           id: 'x1',
           wordClass: 'function',
           segments: [
-            { id: 'x1s1', text: 'Kat', type: 'root', tooltips: ['Ka: Interrogative stem'] },
-            { id: 'x1s2', text: 'ame', type: 'suffix', tooltips: ['❓ "Which ones?" — asking about a group'] },
+            { id: 'x1s1', text: 'Kat', type: 'root', tooltips: ['[Interrogative] Ka-stem', 'Asking a question'] },
+            { id: 'x1s2', text: 'ame', type: 'suffix', tooltips: ['[Nominative Plural Masculine]', '❓ "Which ones?" — asking about a group'] },
           ],
           senses: [
             { english: 'What', nuance: 'Interrogative' },
@@ -814,7 +830,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'x2',
           wordClass: 'content',
           segments: [
-            { id: 'x2s1', text: 'cattāro', type: 'stem', tooltips: ['Four (4)', 'The four things being named'] },
+            { id: 'x2s1', text: 'cattāro', type: 'stem', tooltips: ['[Numeral] Four (4)', '[Nominative Plural Masculine]'] },
           ],
           senses: [{ english: 'four', nuance: 'Number' }],
         },
@@ -827,12 +843,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-y',
+      canonicalSegmentIds: ['mn10:3.2'],
       paliWords: [
         {
           id: 'y1',
           wordClass: 'function',
           segments: [
-            { id: 'y1s1', text: 'Idha', type: 'stem', tooltips: ['Here / In this teaching', '📍 Sets the context'] },
+            { id: 'y1s1', text: 'Idha', type: 'stem', tooltips: ['[Indeclinable] Here, in this case', '📍 Sets the context for what follows'] },
           ],
           senses: [
             { english: 'Here', nuance: 'In this teaching' },
@@ -844,8 +861,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'y2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'y2s2', text: 'ave', type: 'suffix', tooltips: ['📢 Calling out to the group'] },
+            { id: 'y2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share, beg', 'One who lives on alms'] },
+            { id: 'y2s2', text: 'ave', type: 'suffix', tooltips: ['[Vocative Plural] O monks!', '📢 Calling out to the group'] },
           ],
           senses: [{ english: 'bhikkhus', nuance: 'Address' }],
         },
@@ -854,8 +871,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'y3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'y3s2', text: 'u', type: 'suffix', tooltips: ['One person — "a bhikkhu"', 'The practitioner being described'] },
+            { id: 'y3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share, beg'] },
+            { id: 'y3s2', text: 'u', type: 'suffix', tooltips: ['[Nominative Singular] A bhikkhu', 'The practitioner being described'] },
           ],
           senses: [
             { english: 'a bhikkhu', nuance: 'Subject' },
@@ -871,13 +888,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-z',
+      canonicalSegmentIds: ['mn10:3.2'],
       paliWords: [
         {
           id: 'z1',
           wordClass: 'content',
           segments: [
-            { id: 'z1s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection / Heap'] },
-            { id: 'z1s2', text: 'e', type: 'suffix', tooltips: ['📍 "In the..." — where attention rests', '"Body in body" = seeing body AS body', '• Not as "mine" or "self"', '• Not mixed with feelings or thoughts', '• Just the raw phenomenon'] },
+            { id: 'z1s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body, collection, heap'] },
+            { id: 'z1s2', text: 'e', type: 'suffix', tooltips: ['[Locative Singular] 📍 "In the..."', '"Body in body" = seeing body AS body', '• Not as "mine" or "self"', '• Just the raw phenomenon'] },
           ],
           senses: [
             { english: 'in the body', nuance: 'Physical form' },
@@ -891,10 +909,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'z2',
           wordClass: 'content',
           segments: [
-            { id: 'z2s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection', 'Object of observation'] },
-            { id: 'z2s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Repeatedly / Closely', 'Implies sustained, close observation'] },
-            { id: 'z2s3', text: 'pass', type: 'root', tooltips: ['👁️ √dṛś (Pali √pass): To see', 'Anupassati = observe repeatedly/closely'] },
-            { id: 'z2s4', text: 'ī', type: 'suffix', tooltips: ['-ī = "one who does this"', 'Not just doing it now — it\'s who you ARE', 'Identity shift: you become an observer', '"One whose nature is body-observing"'] },
+            { id: 'z2s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body, collection', 'Object of observation'] },
+            { id: 'z2s2', text: 'ānu', type: 'prefix', tooltips: ['[Prefix] Anu: along, repeatedly, closely', 'Implies sustained observation'] },
+            { id: 'z2s3', text: 'pass', type: 'root', tooltips: ['👁️ √dṛś (Pali √pass): To see', 'Anupassati = observe closely'] },
+            { id: 'z2s4', text: 'ī', type: 'suffix', tooltips: ['[Agent noun suffix] "One who does this"', 'Identity shift: you become an observer'] },
           ],
           senses: [
             { english: 'observing body', nuance: 'Action' },
@@ -908,9 +926,9 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'z3',
           wordClass: 'content',
           segments: [
-            { id: 'z3s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
-            { id: 'z3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To carry / Dwell'] },
-            { id: 'z3s3', text: 'ati', type: 'suffix', tooltips: ['He/she is doing this now'] },
+            { id: 'z3s1', text: 'vi', type: 'prefix', tooltips: ['[Prefix] Apart, specially'] },
+            { id: 'z3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To carry, dwell'] },
+            { id: 'z3s3', text: 'ati', type: 'suffix', tooltips: ['[Present 3rd singular] He/she does this'] },
           ],
           senses: [
             { english: 'dwells', nuance: 'Lives this way' },
@@ -929,14 +947,15 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-aa',
+      canonicalSegmentIds: ['mn10:3.2'],
       paliWords: [
         {
           id: 'aa1',
           wordClass: 'content',
           refrainId: 'formula-ardent',
           segments: [
-            { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn / Heat', 'Vedic tapas = ascetic heat', 'Buddhist inversion:', '• Not self-mortification', '• But burning of defilements', '= Right Effort (sammā-vāyāma)', 'The "fuel" of the practice'] },
-            { id: 'aa1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has ardor', 'Prevents sinking into lethargy'] },
+            { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn, heat', 'Vedic tapas = ascetic heat', 'Buddhist: burning of defilements', '= Right Effort (sammā-vāyāma)'] },
+            { id: 'aa1s2', text: 'ī', type: 'suffix', tooltips: ['[Possessive suffix] One who has ardor', 'Prevents sinking into lethargy'] },
           ],
           senses: [
             { english: 'ardent', nuance: 'Burning effort' },
@@ -950,10 +969,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'formula-ardent',
           segments: [
-            { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['Sam: Together / Completely'] },
-            { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Forward'] },
-            { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know', 'Sampajañña = Clear Comprehension', '📚 Four types (Visuddhimagga):', '1. Sātthaka: Purpose — is this beneficial?', '2. Sappāya: Suitability — right time/place?', '3. Gocara: Domain — not losing the object', '4. Asammoha: Non-delusion — seeing anattā'] },
-            { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['One who thoroughly knows', 'The wisdom aspect of the triad'] },
+            { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['[Prefix] Sam: together, completely'] },
+            { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['[Prefix] Pa/Pra: forth, forward'] },
+            { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know', 'Sampajañña = Clear Comprehension'] },
+            { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular Masculine] One who knows', 'The wisdom aspect of the triad'] },
           ],
           senses: [
             { english: 'clearly knowing', nuance: 'Full awareness' },
@@ -986,13 +1005,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-ab',
+      canonicalSegmentIds: ['mn10:3.2'],
       paliWords: [
         {
           id: 'ab1',
           wordClass: 'content',
           refrainId: 'formula-removing',
           segments: [
-            { id: 'ab1s1', text: 'vi', type: 'prefix', tooltips: ['Vi: Away / Out / Apart', 'Same root as VINAYA (discipline)'] },
+            { id: 'ab1s1', text: 'vi', type: 'prefix', tooltips: ['[Prefix] Vi: Away / Out / Apart', 'Same root as VINAYA (discipline)'] },
             { id: 'ab1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead (vi-nī = lead away)', 'Vineti = to discipline, remove, train'] },
             { id: 'ab1s3', text: 'ya', type: 'suffix', tooltips: ['⚖️ THE GREAT DEBATE:', '• "Having removed" (sequential):', '  → First jhāna, then insight', '  → Samatha-first approach', '• "While removing" (simultaneous):', '  → Mindfulness IS the removing', '  → Dry insight approach', '⚡ Both readings are grammatically valid'] },
           ],
@@ -1049,6 +1069,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ============================================================
     {
       id: 'phase-ac',
+      canonicalSegmentIds: ['mn10:3.3'],
       paliWords: [
         {
           id: 'ac1',
@@ -1101,6 +1122,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-ad',
+      canonicalSegmentIds: ['mn10:3.3'],
       paliWords: [
         {
           id: 'ad1',
@@ -1143,6 +1165,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-ae',
+      canonicalSegmentIds: ['mn10:3.3'],
       paliWords: [
         {
           id: 'ae1',
@@ -1192,6 +1215,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ============================================================
     {
       id: 'phase-af',
+      canonicalSegmentIds: ['mn10:3.4'],
       paliWords: [
         {
           id: 'af1',
@@ -1241,6 +1265,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-ag',
+      canonicalSegmentIds: ['mn10:3.4'],
       paliWords: [
         {
           id: 'ag1',
@@ -1281,6 +1306,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-ah',
+      canonicalSegmentIds: ['mn10:3.4'],
       paliWords: [
         {
           id: 'ah1',
@@ -1326,6 +1352,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ============================================================
     {
       id: 'phase-ai',
+      canonicalSegmentIds: ['mn10:3.5'],
       paliWords: [
         {
           id: 'ai1',
@@ -1376,6 +1403,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-aj',
+      canonicalSegmentIds: ['mn10:3.5'],
       paliWords: [
         {
           id: 'aj1',
@@ -1416,6 +1444,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     },
     {
       id: 'phase-ak',
+      canonicalSegmentIds: ['mn10:3.5'],
       paliWords: [
         {
           id: 'ak1',
@@ -1460,6 +1489,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ============================================================
     {
       id: 'phase-al',
+      canonicalSegmentIds: ['mn10:3.6'],
       paliWords: [
         {
           id: 'al1',
@@ -1502,6 +1532,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // Kathañca, bhikkhave, bhikkhu kāye kāyānupassī viharati?
     {
       id: 'phase-am',
+      canonicalSegmentIds: ['mn10:4.1'],
       paliWords: [
         {
           id: 'am1',
@@ -1580,6 +1611,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā
     {
       id: 'phase-an',
+      canonicalSegmentIds: ['mn10:4.2'],
       paliWords: [
         {
           id: 'an1',
@@ -1672,6 +1704,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // nisīdati pallaṅkaṁ ābhujitvā ujuṁ kāyaṁ paṇidhāya
     {
       id: 'phase-ao',
+      canonicalSegmentIds: ['mn10:4.2'],
       paliWords: [
         {
           id: 'ao1',
@@ -1759,6 +1792,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // parimukhaṁ satiṁ upaṭṭhapetvā
     {
       id: 'phase-ap',
+      canonicalSegmentIds: ['mn10:4.2'],
       paliWords: [
         {
           id: 'ap1',
@@ -1808,6 +1842,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // So satova assasati, satova passasati.
     {
       id: 'phase-aq',
+      canonicalSegmentIds: ['mn10:4.3'],
       paliWords: [
         {
           id: 'aq1',
@@ -1878,6 +1913,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // dīghaṁ vā passasanto 'dīghaṁ passasāmī'ti pajānāti.
     {
       id: 'phase-ar',
+      canonicalSegmentIds: ['mn10:4.4'],
       paliWords: [
         {
           id: 'ar1',
@@ -1954,6 +1990,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // rassaṁ vā passasanto 'rassaṁ passasāmī'ti pajānāti.
     {
       id: 'phase-as',
+      canonicalSegmentIds: ['mn10:4.5'],
       paliWords: [
         {
           id: 'as1',
@@ -2025,6 +2062,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // 'sabbakāyapaṭisaṁvedī passasissāmī'ti sikkhati.
     {
       id: 'phase-at',
+      canonicalSegmentIds: ['mn10:4.6'],
       paliWords: [
         {
           id: 'at1',
@@ -2088,6 +2126,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // 'passambhayaṁ kāyasaṅkhāraṁ passasissāmī'ti sikkhati.
     {
       id: 'phase-au',
+      canonicalSegmentIds: ['mn10:4.7'],
       paliWords: [
         {
           id: 'au1',
@@ -2159,6 +2198,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // rassaṁ vā añchanto 'rassaṁ añchāmī'ti pajānāti;
     {
       id: 'phase-av',
+      canonicalSegmentIds: ['mn10:4.8'],
       paliWords: [
         {
           id: 'av1',
@@ -2241,6 +2281,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // dīghaṁ vā añchanto 'dīghaṁ añchāmī'ti pajānāti
     {
       id: 'phase-aw',
+      canonicalSegmentIds: ['mn10:4.9'],
       paliWords: [
         {
           id: 'aw1',
@@ -2322,6 +2363,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // evameva kho, bhikkhave, bhikkhu...
     {
       id: 'phase-ax',
+      canonicalSegmentIds: ['mn10:4.10'],
       paliWords: [
         {
           id: 'ax1',
@@ -2371,6 +2413,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ajjhattabahiddhā vā kāye kāyānupassī viharati.
     {
       id: 'phase-ay',
+      canonicalSegmentIds: ['mn10:4.11'],
       paliWords: [
         {
           id: 'ay1',
@@ -2450,6 +2493,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // bahiddhā vā kāye kāyānupassī viharati
     {
       id: 'phase-az',
+      canonicalSegmentIds: ['mn10:4.11'],
       paliWords: [
         {
           id: 'az1',
@@ -2509,6 +2553,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // ajjhattabahiddhā vā kāye kāyānupassī viharati
     {
       id: 'phase-ba',
+      canonicalSegmentIds: ['mn10:4.11'],
       paliWords: [
         {
           id: 'ba1',
@@ -2568,6 +2613,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // Samudayadhammānupassī vā kāyasmiṁ viharati
     {
       id: 'phase-bb',
+      canonicalSegmentIds: ['mn10:4.12'],
       paliWords: [
         {
           id: 'bb1',
@@ -2622,6 +2668,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // vayadhammānupassī vā kāyasmiṁ viharati
     {
       id: 'phase-bc',
+      canonicalSegmentIds: ['mn10:4.12'],
       paliWords: [
         {
           id: 'bc1',
@@ -2675,6 +2722,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // samudayavayadhammānupassī vā kāyasmiṁ viharati
     {
       id: 'phase-bd',
+      canonicalSegmentIds: ['mn10:4.12'],
       paliWords: [
         {
           id: 'bd1',
@@ -2729,6 +2777,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // 'Atthi kāyo'ti vā panassa sati paccupaṭṭhitā hoti
     {
       id: 'phase-be',
+      canonicalSegmentIds: ['mn10:4.13'],
       paliWords: [
         {
           id: 'be1',
@@ -2821,6 +2870,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // anissito ca viharati, na ca kiñci loke upādiyati.
     {
       id: 'phase-bf',
+      canonicalSegmentIds: ['mn10:4.14'],
       paliWords: [
         {
           id: 'bf1',
@@ -2872,6 +2922,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // anissito ca viharati, na ca kiñci loke upādiyati
     {
       id: 'phase-bg',
+      canonicalSegmentIds: ['mn10:4.15'],
       paliWords: [
         {
           id: 'bg1',
