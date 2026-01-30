@@ -1,11 +1,34 @@
 import type { AnatomistPass, LexicographerPass, PhaseView, WeaverPass, TypesetterPass } from '../types/suttaStudio';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Skeleton Example: Shows correct grouping patterns
+// KEY: Title block segments (collection + sutta name) go TOGETHER
+// ─────────────────────────────────────────────────────────────────────────────
 export const SUTTA_STUDIO_SKELETON_EXAMPLE = {
   phases: [
     {
+      // Rule 1: Collection name + sutta title = ONE phase
       id: 'phase-1',
-      title: '',
-      segmentIds: ['mn10:1.1', 'mn10:1.2'],
+      title: 'Title Block',
+      segmentIds: ['mn10:0.1', 'mn10:0.2'],  // "Majjhima Nikāya 10" + "Satipaṭṭhānasutta"
+    },
+    {
+      // Rule 2: Opening formula = its own phase
+      id: 'phase-2',
+      title: 'Opening Formula',
+      segmentIds: ['mn10:1.1'],  // "Evaṁ me sutaṁ—"
+    },
+    {
+      // Rule 3: Setting/nidāna grouped together
+      id: 'phase-3',
+      title: 'Setting',
+      segmentIds: ['mn10:1.2'],  // "ekaṁ samayaṁ bhagavā..."
+    },
+    {
+      // Rule 4: Speaker + vocative + verb
+      id: 'phase-4',
+      title: 'Address',
+      segmentIds: ['mn10:1.3', 'mn10:1.4'],  // "Tatra kho bhagavā bhikkhū āmantesi"
     },
   ],
 } as const;

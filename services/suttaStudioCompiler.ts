@@ -53,6 +53,7 @@ import {
   getWordTokens,
   type EnglishTokenInput,
 } from './suttaStudioTokenizer';
+import { SUTTA_STUDIO_PROMPT_VERSION } from './suttaStudioPromptVersion';
 
 const log = (message: string, ...args: any[]) =>
   console.log(`[SuttaStudioCompiler] ${message}`, ...args);
@@ -61,7 +62,7 @@ const warn = (message: string, ...args: any[]) =>
 const err = (message: string, ...args: any[]) =>
   console.error(`[SuttaStudioCompiler] ${message}`, ...args);
 
-export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v9-tooltips';
+export { SUTTA_STUDIO_PROMPT_VERSION } from './suttaStudioPromptVersion';
 const COMPILER_MIN_CALL_GAP_MS = 1000;
 
 /// DEBUG: Limit phases for testing (set to 0 for unlimited)

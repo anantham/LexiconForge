@@ -3,6 +3,153 @@
   "_lastUpdated": "2026-01-30",
   "_source": "MN10 Satipaṭṭhānasutta (manually curated)",
 
+  "skeleton": {
+    "_title": "MN10 Opening (Extended)",
+    "_notes": "Initial segments covering title, opening, setting, and address — tests grouping patterns.",
+    "canonicalSegments": [
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:0.1" },
+        "order": 0,
+        "pali": "Majjhima Nikāya 10",
+        "baseEnglish": "Middle Discourses 10"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:0.2" },
+        "order": 1,
+        "pali": "Satipaṭṭhānasutta",
+        "baseEnglish": "Mindfulness Meditation"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:1.1" },
+        "order": 2,
+        "pali": "Evaṁ me sutaṁ—",
+        "baseEnglish": "So I have heard."
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:1.2" },
+        "order": 3,
+        "pali": "ekaṁ samayaṁ bhagavā kurūsu viharati kammāsadhammaṁ nāma kurūnaṁ nigamo.",
+        "baseEnglish": "At one time the Buddha was staying in the land of the Kurus, near the Kuru town named Kammāsadhamma."
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:1.3" },
+        "order": 4,
+        "pali": "Tatra kho bhagavā bhikkhū āmantesi:",
+        "baseEnglish": "There the Buddha addressed the bhikkhus:"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:1.4" },
+        "order": 5,
+        "pali": "\"bhikkhavo\"ti.",
+        "baseEnglish": "\"Bhikkhus!\""
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:1.5" },
+        "order": 6,
+        "pali": "\"Bhadante\"ti te bhikkhū bhagavato paccassosuṁ.",
+        "baseEnglish": "\"Venerable sir,\" they replied."
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:1.6" },
+        "order": 7,
+        "pali": "Bhagavā etadavoca:",
+        "baseEnglish": "The Buddha said this:"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:2.1" },
+        "order": 8,
+        "pali": "\"Ekāyano ayaṁ, bhikkhave, maggo sattānaṁ visuddhiyā,",
+        "baseEnglish": "\"Bhikkhus, this is the direct path for the purification of beings,"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:2.2" },
+        "order": 9,
+        "pali": "sokaparidevānaṁ samatikkamāya,",
+        "baseEnglish": "for the overcoming of grief and lamentation,"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:2.3" },
+        "order": 10,
+        "pali": "dukkhadomanassānaṁ atthaṅgamāya,",
+        "baseEnglish": "for the ending of pain and sadness,"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:2.4" },
+        "order": 11,
+        "pali": "ñāyassa adhigamāya,",
+        "baseEnglish": "for the attainment of the true method,"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:2.5" },
+        "order": 12,
+        "pali": "nibbānassa sacchikiriyāya,",
+        "baseEnglish": "for the realization of Nibbāna,"
+      },
+      {
+        "ref": { "provider": "suttacentral", "workId": "mn10", "segmentId": "mn10:2.6" },
+        "order": 13,
+        "pali": "yadidaṁ—cattāro satipaṭṭhānā.",
+        "baseEnglish": "namely, the four kinds of mindfulness meditation."
+      }
+    ],
+    "expectedPhases": [
+      {
+        "id": "phase-1",
+        "title": "Title Block",
+        "segmentIds": ["mn10:0.1", "mn10:0.2"],
+        "_rule": "Collection + sutta title = one phase"
+      },
+      {
+        "id": "phase-2",
+        "title": "Opening Formula",
+        "segmentIds": ["mn10:1.1"],
+        "_rule": "Standard opening gets own phase"
+      },
+      {
+        "id": "phase-3",
+        "title": "Setting (Nidāna)",
+        "segmentIds": ["mn10:1.2"],
+        "_rule": "Place/time/occasion grouped"
+      },
+      {
+        "id": "phase-4",
+        "title": "Address",
+        "segmentIds": ["mn10:1.3", "mn10:1.4"],
+        "_rule": "Speaker + vocative + verb together"
+      },
+      {
+        "id": "phase-5",
+        "title": "Response",
+        "segmentIds": ["mn10:1.5", "mn10:1.6"],
+        "_rule": "Reply + transition together"
+      },
+      {
+        "id": "phase-6",
+        "title": "Main Declaration",
+        "segmentIds": ["mn10:2.1"],
+        "_rule": "Opening of main teaching"
+      },
+      {
+        "id": "phase-7",
+        "title": "Benefits (Pair 1)",
+        "segmentIds": ["mn10:2.2", "mn10:2.3"],
+        "_rule": "Parallel constructions grouped (grief/pain)"
+      },
+      {
+        "id": "phase-8",
+        "title": "Benefits (Pair 2)",
+        "segmentIds": ["mn10:2.4", "mn10:2.5"],
+        "_rule": "Parallel constructions grouped (method/nibbana)"
+      },
+      {
+        "id": "phase-9",
+        "title": "Conclusion",
+        "segmentIds": ["mn10:2.6"],
+        "_rule": "Naming the practice"
+      }
+    ]
+  },
+
   "phase1": {
     "_title": "MN10 Title Block",
     "_pali": "Majjhima Nikāya 10 / Satipaṭṭhānasutta",

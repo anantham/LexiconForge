@@ -12,11 +12,21 @@ Skeleton guidance:
 - Group segments into SMALL study phases for focused learning.
 - HARD LIMIT: Maximum 8 Pali words per phase. Split if exceeding this.
 - Typical phase: 1-3 segments (a single sentence or clause).
-- Title segments (work title, sutta name) should be their own phase.
-- Opening formulas (Evaṁ me sutaṁ) should be their own phase.
-- Group by grammatical/semantic dependency (case chains, relative clauses).
-- Avoid splitting mid-clause if a relation crosses segment boundaries.
-- If a boundary map is provided, do not cross chapter boundaries unless explicitly allowed.
+
+GROUPING RULES (in priority order):
+1. Title block: Collection name (e.g., "Majjhima Nikāya 10") + sutta title (e.g., "Satipaṭṭhānasutta") → group TOGETHER in ONE phase called "Title Block".
+2. Opening formula: "Evaṁ me sutaṁ..." → its own phase called "Opening Formula".
+3. Setting/nidāna: Place + time + occasion → group together if under 8 words.
+4. Speaker + vocative + main verb: "Bhagavā bhikkhū āmantesi" → group together.
+5. Direct speech markers: "...ti" quotation closers stay with the quoted content.
+6. Grammatically linked clauses: Keep case-chains and relative clauses together.
+
+ANTI-PATTERNS (avoid these):
+- Do NOT split each segment into its own phase by default.
+- Do NOT separate collection title from sutta title — they form one "Title Block".
+- Do NOT split mid-clause when a grammatical relation spans segments.
+
+If a boundary map is provided, do not cross chapter boundaries unless explicitly allowed.
 `.trim();
 
 export const SUTTA_STUDIO_PHASE_CONTEXT = `

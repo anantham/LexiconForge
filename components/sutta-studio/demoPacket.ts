@@ -6,8 +6,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
   canonicalSegments: [],
   citations: [],
   progress: {
-    totalPhases: 30,
-    readyPhases: 30,
+    totalPhases: 39,
+    readyPhases: 39,
     state: 'complete',
   },
   renderDefaults: {
@@ -1469,6 +1469,665 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       englishStructure: [
         { id: 'eal1', linkedSegmentId: 'al1s1' },
         { id: 'eal2', linkedSegmentId: 'al2s1' },
+      ],
+    },
+
+    // ============================================================
+    // ĀNĀPĀNAPABBA: Mindfulness of Breathing (mn10:4.1-4.7)
+    // ============================================================
+
+    // mn10:4.1 - Transition question
+    // Kathañca, bhikkhave, bhikkhu kāye kāyānupassī viharati?
+    {
+      id: 'phase-am',
+      paliWords: [
+        {
+          id: 'am1',
+          wordClass: 'function',
+          segments: [
+            { id: 'am1s1', text: 'Kathañ', type: 'root', tooltips: ['Kathaṁ: How / In what way', '❓ Interrogative — asking for method'] },
+            { id: 'am1s2', text: 'ca', type: 'suffix', tooltips: ['Ca: And (connective)', 'Sandhi: kathaṁ + ca → kathañca'] },
+          ],
+          senses: [
+            { english: 'And how', nuance: 'Transition' },
+            { english: 'In what way', nuance: 'Method question' },
+          ],
+        },
+        {
+          id: 'am2',
+          wordClass: 'content',
+          refrainId: 'bhikkhu',
+          segments: [
+            { id: 'am2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'am2s2', text: 'ave', type: 'suffix', tooltips: ['📢 Vocative — addressing the group'] },
+          ],
+          senses: [{ english: 'bhikkhus', nuance: 'Address' }],
+        },
+        {
+          id: 'am3',
+          wordClass: 'content',
+          refrainId: 'bhikkhu',
+          segments: [
+            { id: 'am3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'am3s2', text: 'u', type: 'suffix', tooltips: ['Nominative singular — the practitioner'] },
+          ],
+          senses: [{ english: 'a bhikkhu', nuance: 'Subject' }],
+        },
+        {
+          id: 'am4',
+          wordClass: 'content',
+          segments: [
+            { id: 'am4s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection'] },
+            { id: 'am4s2', text: 'e', type: 'suffix', tooltips: ['📍 "In the..."'] },
+          ],
+          senses: [{ english: 'in the body', nuance: 'Domain' }],
+        },
+        {
+          id: 'am5',
+          wordClass: 'content',
+          segments: [
+            { id: 'am5s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
+            { id: 'am5s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Closely'] },
+            { id: 'am5s3', text: 'pass', type: 'root', tooltips: ['👁️ √pass: To see'] },
+            { id: 'am5s4', text: 'ī', type: 'suffix', tooltips: ['One who does this'] },
+          ],
+          senses: [{ english: 'observing body', nuance: 'Action' }],
+        },
+        {
+          id: 'am6',
+          wordClass: 'content',
+          segments: [
+            { id: 'am6s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
+            { id: 'am6s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To dwell'] },
+            { id: 'am6s3', text: 'ati', type: 'suffix', tooltips: ['Ongoing action'] },
+          ],
+          senses: [{ english: 'dwell', nuance: 'Abide' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eam1', linkedPaliId: 'am1' },
+        { id: 'eam1g', label: 'does', isGhost: true, ghostKind: 'required' },
+        { id: 'eam3', linkedSegmentId: 'am3s1' },
+        { id: 'eam6', linkedSegmentId: 'am6s2' },
+        { id: 'eam5', linkedPaliId: 'am5' },
+        { id: 'eam4', linkedSegmentId: 'am4s1' },
+      ],
+    },
+
+    // mn10:4.2a - Going to wilderness, tree root, or empty hut
+    // Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā
+    {
+      id: 'phase-an',
+      paliWords: [
+        {
+          id: 'an1',
+          wordClass: 'function',
+          segments: [
+            { id: 'an1s1', text: 'Idha', type: 'stem', tooltips: ['Here / In this teaching', '📍 Sets the context'] },
+          ],
+          senses: [{ english: 'Here', nuance: 'In this case' }],
+        },
+        {
+          id: 'an2',
+          wordClass: 'content',
+          refrainId: 'bhikkhu',
+          segments: [
+            { id: 'an2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'an2s2', text: 'ave', type: 'suffix', tooltips: ['📢 Vocative'] },
+          ],
+          senses: [{ english: 'bhikkhus', nuance: 'Address' }],
+        },
+        {
+          id: 'an3',
+          wordClass: 'content',
+          refrainId: 'bhikkhu',
+          segments: [
+            { id: 'an3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'an3s2', text: 'u', type: 'suffix', tooltips: ['Nominative singular'] },
+          ],
+          senses: [{ english: 'a bhikkhu', nuance: 'Subject' }],
+        },
+        {
+          id: 'an4',
+          wordClass: 'content',
+          segments: [
+            { id: 'an4s1', text: 'arañña', type: 'root', tooltips: ['🌲 Araṇya: Forest / Wilderness', 'From √ṛ: to go (remote, where one goes away)', 'Canonical: 500 bow-lengths from village', 'Space for undisturbed practice'] },
+            { id: 'an4s2', text: 'gato', type: 'suffix', tooltips: ['√gam: Gone to', 'Past participle — having gone'] },
+          ],
+          senses: [
+            { english: 'gone to the wilderness', nuance: 'Remote' },
+            { english: 'forest-gone', nuance: 'Compound' },
+          ],
+        },
+        {
+          id: 'an5',
+          wordClass: 'function',
+          segments: [
+            { id: 'an5s1', text: 'vā', type: 'stem', tooltips: ['Or — disjunctive particle', 'Presents alternatives'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'an6',
+          wordClass: 'content',
+          segments: [
+            { id: 'an6s1', text: 'rukkha', type: 'root', tooltips: ['🌳 Rukkha: Tree', 'From Sanskrit vṛkṣa'] },
+            { id: 'an6s2', text: 'mūla', type: 'root', tooltips: ['Mūla: Root / Base / Foundation', 'The shaded spot at the base of a tree'] },
+            { id: 'an6s3', text: 'gato', type: 'suffix', tooltips: ['Gone to'] },
+          ],
+          senses: [
+            { english: 'gone to a tree root', nuance: 'Shelter' },
+            { english: 'at the foot of a tree', nuance: 'Traditional spot' },
+          ],
+        },
+        {
+          id: 'an7',
+          wordClass: 'content',
+          segments: [
+            { id: 'an7s1', text: 'suñña', type: 'root', tooltips: ['Suñña: Empty / Void', 'Same root as suññatā (emptiness)', 'Empty of disturbances/people'] },
+            { id: 'an7s2', text: 'āgāra', type: 'root', tooltips: ['Āgāra: House / Building / Hut', 'A dwelling, shelter'] },
+            { id: 'an7s3', text: 'gato', type: 'suffix', tooltips: ['Gone to'] },
+          ],
+          senses: [
+            { english: 'gone to an empty hut', nuance: 'Solitude' },
+            { english: 'in an empty building', nuance: 'Shelter' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ean1', linkedPaliId: 'an1' },
+        { id: 'ean3', linkedSegmentId: 'an3s1' },
+        { id: 'ean1g', label: 'has', isGhost: true, ghostKind: 'required' },
+        { id: 'ean4', linkedPaliId: 'an4' },
+        { id: 'ean5', linkedPaliId: 'an5' },
+        { id: 'ean6', linkedPaliId: 'an6' },
+        { id: 'ean5b', linkedPaliId: 'an5' },
+        { id: 'ean7', linkedPaliId: 'an7' },
+      ],
+    },
+
+    // mn10:4.2b - Sitting posture
+    // nisīdati pallaṅkaṁ ābhujitvā ujuṁ kāyaṁ paṇidhāya
+    {
+      id: 'phase-ao',
+      paliWords: [
+        {
+          id: 'ao1',
+          wordClass: 'content',
+          segments: [
+            { id: 'ao1s1', text: 'ni', type: 'prefix', tooltips: ['Ni: Down / Into'] },
+            { id: 'ao1s2', text: 'sīd', type: 'root', tooltips: ['√sad: To sit', 'Ni + sad = sit down, settle'] },
+            { id: 'ao1s3', text: 'ati', type: 'suffix', tooltips: ['Present tense — ongoing action'] },
+          ],
+          senses: [
+            { english: 'sits down', nuance: 'Action' },
+            { english: 'settles', nuance: 'Establishes' },
+          ],
+        },
+        {
+          id: 'ao2',
+          wordClass: 'content',
+          segments: [
+            { id: 'ao2s1', text: 'pallaṅk', type: 'root', tooltips: ['Pallaṅka: Cross-legged posture', 'Paryaṅka in Sanskrit', '🧘 The meditation seat/throne', 'Can mean full lotus or seated posture'] },
+            { id: 'ao2s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — the object being adopted'] },
+          ],
+          senses: [
+            { english: 'cross-legged', nuance: 'Posture' },
+            { english: 'in lotus position', nuance: 'Traditional' },
+          ],
+        },
+        {
+          id: 'ao3',
+          wordClass: 'content',
+          segments: [
+            { id: 'ao3s1', text: 'ā', type: 'prefix', tooltips: ['Ā: Towards / Completely'] },
+            { id: 'ao3s2', text: 'bhuj', type: 'root', tooltips: ['√bhuj: To bend / Fold', 'Ābhujati = to bend, fold (legs)'] },
+            { id: 'ao3s3', text: 'itvā', type: 'suffix', tooltips: ['Absolutive: "having done X"', 'Sequence: first bend, then...'] },
+          ],
+          senses: [
+            { english: 'having folded', nuance: 'Legs crossed' },
+            { english: 'having bent', nuance: 'Arranging limbs' },
+          ],
+        },
+        {
+          id: 'ao4',
+          wordClass: 'content',
+          segments: [
+            { id: 'ao4s1', text: 'uju', type: 'root', tooltips: ['Uju: Straight / Upright / Direct', 'Sanskrit ṛju', '📐 Physical AND ethical straightness'] },
+            { id: 'ao4s2', text: 'ṁ', type: 'suffix', tooltips: ['Accusative — describing what is made straight'] },
+          ],
+          senses: [
+            { english: 'straight', nuance: 'Upright' },
+            { english: 'erect', nuance: 'Aligned' },
+          ],
+        },
+        {
+          id: 'ao5',
+          wordClass: 'content',
+          segments: [
+            { id: 'ao5s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
+            { id: 'ao5s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — the thing made straight'] },
+          ],
+          senses: [{ english: 'the body', nuance: 'Physical form' }],
+        },
+        {
+          id: 'ao6',
+          wordClass: 'content',
+          segments: [
+            { id: 'ao6s1', text: 'paṇi', type: 'prefix', tooltips: ['Pra + ni: Forth + down', 'Directed forward'] },
+            { id: 'ao6s2', text: 'dhā', type: 'root', tooltips: ['√dhā: To place / Set / Establish', 'Paṇidhāya = having placed forward, having directed'] },
+            { id: 'ao6s3', text: 'ya', type: 'suffix', tooltips: ['Absolutive: "having done X"'] },
+          ],
+          senses: [
+            { english: 'having set up', nuance: 'Established' },
+            { english: 'having directed', nuance: 'Oriented' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eao1', linkedSegmentId: 'ao1s2' },
+        { id: 'eao2', linkedPaliId: 'ao2' },
+        { id: 'eao4', linkedPaliId: 'ao4' },
+        { id: 'eao5', linkedSegmentId: 'ao5s1' },
+        { id: 'eao6', linkedSegmentId: 'ao6s2' },
+      ],
+    },
+
+    // mn10:4.2c - Establishing mindfulness in front
+    // parimukhaṁ satiṁ upaṭṭhapetvā
+    {
+      id: 'phase-ap',
+      paliWords: [
+        {
+          id: 'ap1',
+          wordClass: 'content',
+          segments: [
+            { id: 'ap1s1', text: 'pari', type: 'prefix', tooltips: ['Pari: Around / Encompassing'] },
+            { id: 'ap1s2', text: 'mukh', type: 'root', tooltips: ['Mukha: Face / Mouth / Front', '📍 INTERPRETIVE DEBATE:', '• "In front" — before the face', '• "Around the mouth" — nostrils', '• "Foremost" — primary, paramount', 'All three readings have support'] },
+            { id: 'ap1s3', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — describing where/how'] },
+          ],
+          senses: [
+            { english: 'in front', nuance: 'Before the face' },
+            { english: 'around the nostrils', nuance: 'Breath spot' },
+            { english: 'as foremost', nuance: 'Primary focus' },
+          ],
+        },
+        {
+          id: 'ap2',
+          wordClass: 'content',
+          segments: [
+            { id: 'ap2s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: Mindfulness / Awareness', 'The thing being established'] },
+            { id: 'ap2s2', text: 'ṁ', type: 'suffix', tooltips: ['Accusative — object of upaṭṭhapetvā'] },
+          ],
+          senses: [{ english: 'mindfulness', nuance: 'Awareness' }],
+        },
+        {
+          id: 'ap3',
+          wordClass: 'content',
+          segments: [
+            { id: 'ap3s1', text: 'upa', type: 'prefix', tooltips: ['Upa: Near / Towards'] },
+            { id: 'ap3s2', text: 'ṭṭhap', type: 'root', tooltips: ['√sthā (Causative): To cause to stand', 'Upaṭṭhapeti = to establish, set up, make present'] },
+            { id: 'ap3s3', text: 'etvā', type: 'suffix', tooltips: ['Absolutive: "having done X"', 'After this, the breathing begins'] },
+          ],
+          senses: [
+            { english: 'having established', nuance: 'Set up' },
+            { english: 'having made present', nuance: 'Activated' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eap3', linkedSegmentId: 'ap3s2' },
+        { id: 'eap2', linkedSegmentId: 'ap2s1' },
+        { id: 'eap1', linkedPaliId: 'ap1' },
+      ],
+    },
+
+    // mn10:4.3 - Mindful breathing
+    // So satova assasati, satova passasati.
+    {
+      id: 'phase-aq',
+      paliWords: [
+        {
+          id: 'aq1',
+          wordClass: 'function',
+          segments: [
+            { id: 'aq1s1', text: 'So', type: 'stem', tooltips: ['Sa: He / That one', 'Refers back to the bhikkhu'] },
+          ],
+          senses: [{ english: 'He', nuance: 'That practitioner' }],
+        },
+        {
+          id: 'aq2',
+          wordClass: 'content',
+          segments: [
+            { id: 'aq2s1', text: 'sat', type: 'root', tooltips: ['💭 √smṛ: Memory / Mindfulness', '📝 KEY: Sato (not satimā)!', '• Satimā = POSSESSING the faculty', '• Sato = APPLYING it NOW', 'Active, moment-to-moment awareness', 'Here: mindfully doing the breathing'] },
+            { id: 'aq2s2', text: 'o', type: 'suffix', tooltips: ['Nominative singular — describing "he"', 'Adverbial sense: "mindfully"'] },
+          ],
+          senses: [
+            { english: 'mindfully', nuance: 'Adverbial' },
+            { english: 'with awareness', nuance: 'Applied sati' },
+            { english: 'recollected', nuance: 'Present' },
+          ],
+        },
+        {
+          id: 'aq3',
+          wordClass: 'function',
+          segments: [
+            { id: 'aq3s1', text: 'va', type: 'stem', tooltips: ['Eva → va: Just / Only / Indeed', 'Emphatic particle', '"Just mindfully" — nothing else'] },
+          ],
+          senses: [{ english: 'just', nuance: 'Emphasis' }],
+        },
+        {
+          id: 'aq4',
+          wordClass: 'content',
+          segments: [
+            { id: 'aq4s1', text: 'assas', type: 'root', tooltips: ['🌬️ Ā + √śvas: To breathe in', 'Ā = towards, in-drawing', 'Assāsa = in-breath', '⚡ WHY IN-BREATH FIRST?', 'Debate on sequence significance'] },
+            { id: 'aq4s2', text: 'ati', type: 'suffix', tooltips: ['Present tense — ongoing action'] },
+          ],
+          senses: [
+            { english: 'breathes in', nuance: 'Inhalation' },
+            { english: 'inhales', nuance: 'Standard' },
+          ],
+        },
+        {
+          id: 'aq5',
+          wordClass: 'content',
+          segments: [
+            { id: 'aq5s1', text: 'passas', type: 'root', tooltips: ['🌬️ Pra + √śvas: To breathe out', 'Pra = forth, out-going', 'Passāsa = out-breath'] },
+            { id: 'aq5s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+          ],
+          senses: [
+            { english: 'breathes out', nuance: 'Exhalation' },
+            { english: 'exhales', nuance: 'Standard' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eaq1', linkedPaliId: 'aq1' },
+        { id: 'eaq3', linkedPaliId: 'aq3' },
+        { id: 'eaq2', linkedSegmentId: 'aq2s1' },
+        { id: 'eaq4', linkedSegmentId: 'aq4s1' },
+        { id: 'eaq2b', linkedSegmentId: 'aq2s1' },
+        { id: 'eaq5', linkedSegmentId: 'aq5s1' },
+      ],
+    },
+
+    // mn10:4.4 - Long breath awareness
+    // Dīghaṁ vā assasanto 'dīghaṁ assasāmī'ti pajānāti,
+    // dīghaṁ vā passasanto 'dīghaṁ passasāmī'ti pajānāti.
+    {
+      id: 'phase-ar',
+      paliWords: [
+        {
+          id: 'ar1',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar1s1', text: 'Dīgh', type: 'root', tooltips: ['Dīgha: Long (in space or time)', 'Sanskrit dīrgha', '🌬️ A long, slow breath', 'Not forced — just noticing duration'] },
+            { id: 'ar1s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative adverbial — "long-ly"', 'Describing manner of breathing'] },
+          ],
+          senses: [
+            { english: 'long', nuance: 'Duration' },
+            { english: 'slowly', nuance: 'Manner' },
+            { english: 'deeply', nuance: 'Extent' },
+          ],
+        },
+        {
+          id: 'ar2',
+          wordClass: 'function',
+          segments: [
+            { id: 'ar2s1', text: 'vā', type: 'stem', tooltips: ['Or — disjunctive', 'Long OR short...'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'ar3',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar3s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'ar3s2', text: 'anto', type: 'suffix', tooltips: ['Present participle: "while doing"', 'Simultaneous action'] },
+          ],
+          senses: [{ english: 'breathing in', nuance: 'While inhaling' }],
+        },
+        {
+          id: 'ar4',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar4s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'ar4s2', text: 'āmī', type: 'suffix', tooltips: ['1st person singular: "I am doing"', 'Direct knowledge: knowing "I breathe"'] },
+          ],
+          senses: [{ english: 'I breathe in', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'ar5',
+          wordClass: 'function',
+          segments: [
+            { id: 'ar5s1', text: 'ti', type: 'stem', tooltips: ['Iti: Quotation marker', 'End of inner speech'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote' }],
+        },
+        {
+          id: 'ar6',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar6s1', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Fully'] },
+            { id: 'ar6s2', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know', 'Pajānāti = clearly knows, understands', 'Direct experiential knowing'] },
+            { id: 'ar6s3', text: 'āti', type: 'suffix', tooltips: ['Present tense: "knows"'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct experience' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ear3', linkedSegmentId: 'ar3s1' },
+        { id: 'ear1', linkedSegmentId: 'ar1s1' },
+        { id: 'ear6', linkedSegmentId: 'ar6s2' },
+        { id: 'ear4g', label: '"I breathe in long"', isGhost: true, ghostKind: 'clarifying' },
+      ],
+    },
+
+    // mn10:4.5 - Short breath awareness
+    // Rassaṁ vā assasanto 'rassaṁ assasāmī'ti pajānāti,
+    // rassaṁ vā passasanto 'rassaṁ passasāmī'ti pajānāti.
+    {
+      id: 'phase-as',
+      paliWords: [
+        {
+          id: 'as1',
+          wordClass: 'content',
+          segments: [
+            { id: 'as1s1', text: 'Rass', type: 'root', tooltips: ['Rassa: Short (in space or time)', 'Sanskrit hrasva', '🌬️ A short, quick breath', 'Natural variation — not controlled'] },
+            { id: 'as1s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative adverbial'] },
+          ],
+          senses: [
+            { english: 'short', nuance: 'Brief' },
+            { english: 'quickly', nuance: 'Manner' },
+            { english: 'lightly', nuance: 'Gentle' },
+          ],
+        },
+        {
+          id: 'as2',
+          wordClass: 'function',
+          segments: [
+            { id: 'as2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'as3',
+          wordClass: 'content',
+          segments: [
+            { id: 'as3s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'as3s2', text: 'anto', type: 'suffix', tooltips: ['Present participle'] },
+          ],
+          senses: [{ english: 'breathing in', nuance: 'While inhaling' }],
+        },
+        {
+          id: 'as4',
+          wordClass: 'content',
+          segments: [
+            { id: 'as4s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'as4s2', text: 'āmī', type: 'suffix', tooltips: ['1st person: "I am doing"'] },
+          ],
+          senses: [{ english: 'I breathe in', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'as5',
+          wordClass: 'function',
+          segments: [
+            { id: 'as5s1', text: 'ti', type: 'stem', tooltips: ['Quote marker'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote' }],
+        },
+        {
+          id: 'as6',
+          wordClass: 'content',
+          segments: [
+            { id: 'as6s1', text: 'pajān', type: 'root', tooltips: ['🧠 √jñā: Clearly knows'] },
+            { id: 'as6s2', text: 'āti', type: 'suffix', tooltips: ['Present tense'] },
+          ],
+          senses: [{ english: 'knows', nuance: 'Discerns' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eas3', linkedSegmentId: 'as3s1' },
+        { id: 'eas1', linkedSegmentId: 'as1s1' },
+        { id: 'eas6', linkedSegmentId: 'as6s1' },
+        { id: 'eas4g', label: '"I breathe in short"', isGhost: true, ghostKind: 'clarifying' },
+      ],
+    },
+
+    // mn10:4.6 - Whole body training
+    // 'Sabbakāyapaṭisaṁvedī assasissāmī'ti sikkhati,
+    // 'sabbakāyapaṭisaṁvedī passasissāmī'ti sikkhati.
+    {
+      id: 'phase-at',
+      paliWords: [
+        {
+          id: 'at1',
+          wordClass: 'content',
+          segments: [
+            { id: 'at1s1', text: 'Sabba', type: 'root', tooltips: ['Sabba: All / Entire / Whole', 'Complete, total'] },
+            { id: 'at1s2', text: 'kāya', type: 'root', tooltips: ['⚡ MAJOR INTERPRETIVE DEBATE:', '🏛️ Commentarial: "breath-body"', '  = the whole breathing process', '  = complete in-out cycle', '📜 Sutta-only: "physical body"', '  = whole body pervaded', '  = full-body awareness', 'Both readings have merit'] },
+            { id: 'at1s3', text: 'paṭi', type: 'prefix', tooltips: ['Paṭi: Towards / In response'] },
+            { id: 'at1s4', text: 'saṁ', type: 'prefix', tooltips: ['Saṁ: Together / Fully'] },
+            { id: 'at1s5', text: 'ved', type: 'root', tooltips: ['√vid: To know / Experience', 'Paṭisaṁvedī = fully experiencing'] },
+            { id: 'at1s6', text: 'ī', type: 'suffix', tooltips: ['One who experiences'] },
+          ],
+          senses: [
+            { english: 'experiencing the whole body', nuance: 'Physical body' },
+            { english: 'experiencing the whole breath', nuance: 'Breath-body' },
+            { english: 'sensitive to the entire form', nuance: 'Full awareness' },
+          ],
+        },
+        {
+          id: 'at2',
+          wordClass: 'content',
+          segments: [
+            { id: 'at2s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'at2s2', text: 'issāmī', type: 'suffix', tooltips: ['Future tense 1st person: "I will"', 'Intentional: setting up training'] },
+          ],
+          senses: [{ english: 'I will breathe in', nuance: 'Resolution' }],
+        },
+        {
+          id: 'at3',
+          wordClass: 'function',
+          segments: [
+            { id: 'at3s1', text: 'ti', type: 'stem', tooltips: ['Quote marker'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote' }],
+        },
+        {
+          id: 'at4',
+          wordClass: 'content',
+          segments: [
+            { id: 'at4s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train / Practice / Learn', '📝 SHIFT from pajānāti to sikkhati!', '• Pajānāti = simple knowing (4.4-4.5)', '• Sikkhati = active TRAINING (4.6-4.7)', 'From observation → cultivation', 'This is deliberate practice'] },
+            { id: 'at4s2', text: 'ati', type: 'suffix', tooltips: ['Present tense: "trains"'] },
+          ],
+          senses: [
+            { english: 'trains', nuance: 'Practices' },
+            { english: 'learns', nuance: 'Develops' },
+            { english: 'cultivates', nuance: 'Active work' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eat4', linkedSegmentId: 'at4s1' },
+        { id: 'eat4g', label: ':', isGhost: true, ghostKind: 'required' },
+        { id: 'eat1', linkedPaliId: 'at1' },
+        { id: 'eat2g', label: 'I will', isGhost: true, ghostKind: 'required' },
+        { id: 'eat2', linkedSegmentId: 'at2s1' },
+      ],
+    },
+
+    // mn10:4.7 - Stilling the body-formation
+    // 'Passambhayaṁ kāyasaṅkhāraṁ assasissāmī'ti sikkhati,
+    // 'passambhayaṁ kāyasaṅkhāraṁ passasissāmī'ti sikkhati.
+    {
+      id: 'phase-au',
+      paliWords: [
+        {
+          id: 'au1',
+          wordClass: 'content',
+          segments: [
+            { id: 'au1s1', text: 'Passamb', type: 'root', tooltips: ['√śram (Pali √sambh): To become calm', 'Passambhati = stills, calms, tranquilizes', 'Related to passaddhi (tranquility)', '🧘 The breath naturally becomes subtle'] },
+            { id: 'au1s2', text: 'hayaṁ', type: 'suffix', tooltips: ['Causative present participle', '"While causing to calm" / "stilling"', 'Active cultivation of tranquility'] },
+          ],
+          senses: [
+            { english: 'stilling', nuance: 'Calming' },
+            { english: 'tranquilizing', nuance: 'Pacifying' },
+            { english: 'letting settle', nuance: 'Allowing calm' },
+          ],
+        },
+        {
+          id: 'au2',
+          wordClass: 'content',
+          segments: [
+            { id: 'au2s1', text: 'kāya', type: 'root', tooltips: ['Kāya: Body'] },
+            { id: 'au2s2', text: 'saṅkhār', type: 'root', tooltips: ['⚙️ Saṅkhāra: Formation / Fabrication', '√kṛ: To make/do + saṁ: together', 'Kāyasaṅkhāra = body-formation', '📜 DEFINED in suttas as:', '"The in-breath & out-breath are', 'kāyasaṅkhāra" (MN 44)', 'Breath = that which shapes/conditions', 'the physical body'] },
+            { id: 'au2s3', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — object of stilling'] },
+          ],
+          senses: [
+            { english: 'the bodily formation', nuance: 'What conditions body' },
+            { english: 'the breath', nuance: 'Sutta definition' },
+            { english: 'physical fabrication', nuance: 'Conditioning factor' },
+          ],
+        },
+        {
+          id: 'au3',
+          wordClass: 'content',
+          segments: [
+            { id: 'au3s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'au3s2', text: 'issāmī', type: 'suffix', tooltips: ['Future 1st person'] },
+          ],
+          senses: [{ english: 'I will breathe in', nuance: 'Intention' }],
+        },
+        {
+          id: 'au4',
+          wordClass: 'function',
+          segments: [
+            { id: 'au4s1', text: 'ti', type: 'stem', tooltips: ['Quote marker'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote' }],
+        },
+        {
+          id: 'au5',
+          wordClass: 'content',
+          segments: [
+            { id: 'au5s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train'] },
+            { id: 'au5s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+          ],
+          senses: [{ english: 'trains', nuance: 'Practices' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eau5', linkedSegmentId: 'au5s1' },
+        { id: 'eau5g', label: ':', isGhost: true, ghostKind: 'required' },
+        { id: 'eau1', linkedSegmentId: 'au1s1' },
+        { id: 'eau2', linkedPaliId: 'au2' },
+        { id: 'eau3g', label: 'I will', isGhost: true, ghostKind: 'required' },
+        { id: 'eau3', linkedSegmentId: 'au3s1' },
       ],
     },
   ],
