@@ -3,6 +3,7 @@ import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { PaliWord, WordClass, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
+import type { StudioSettings } from './SettingsPanel';
 import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
 import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, wordDomId } from './utils';
 import { Tooltip } from './Tooltip';
@@ -23,7 +24,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId,
   wordData,
   activeIndex,
-  studyMode,
+  settings,
   cycle,
   hovered,
   pinned,
@@ -33,7 +34,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId: string;
   wordData: PaliWord;
   activeIndex: number;
-  studyMode: boolean;
+  settings: StudioSettings;
   cycle: (wordId: string) => void;
   hovered: Focus | null;
   pinned: Focus | null;
@@ -43,8 +44,8 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   const wDomId = wordDomId(phaseId, wordData.id);
   const isWordFocused = (pinned?.wordId ?? hovered?.wordId) === wordData.id;
 
-  // Refrain colors (for repeated formulas) - only in study mode
-  const refrainStyle = wordData.refrainId && studyMode ? REFRAIN_COLORS[wordData.refrainId] : null;
+  // Refrain colors (for repeated formulas) - gated by settings
+  const refrainStyle = wordData.refrainId && settings.refrainColors ? REFRAIN_COLORS[wordData.refrainId] : null;
 
   const onWordClick = () => {
     console.log('[PaliWord] CLICK', { wordId: wordData.id, surface: wordData.segments.map(s => s.text).join(''), hasSelection: hasTextSelection() });
@@ -74,14 +75,14 @@ export const PaliWordEngine = memo(function PaliWordEngine({
 
           const activeSenseId = resolveSenseId(wordData, activeIndex);
           const tooltipText = seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
-          const showTooltip = studyMode && isHovered && !pinned;
+          const showTooltip = settings.tooltips && isHovered && !pinned;
 
           // Debug: log tooltip decision when hovered
           if (isHovered) {
             console.log('[PaliWord] TOOLTIP_CHECK', {
               segmentText: seg.text,
               showTooltip,
-              studyMode,
+              tooltipsEnabled: settings.tooltips,
               isHovered,
               pinned: !!pinned,
               tooltipText: tooltipText || '(empty)',
@@ -92,10 +93,11 @@ export const PaliWordEngine = memo(function PaliWordEngine({
 
           const showHook = false;
           const relationStyle = seg.relation ? RELATION_COLORS[seg.relation.type] : null;
+          // Grammar styling shown when grammar arrows enabled
           const segmentClass =
-            studyMode && relationStyle
+            settings.grammarArrows && relationStyle
               ? `${relationStyle.tailwind} font-semibold border-b border-slate-700/40 pb-0.5`
-              : studyMode
+              : settings.grammarArrows
                 ? 'border-b border-slate-700/30 pb-0.5'
                 : '';
 
@@ -108,9 +110,9 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 isHovered || isPinned
                   ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
                   : 'border-b-2 border-transparent pb-0'
-              } ${segmentClass} ${studyMode ? 'cursor-help' : ''}`}
+              } ${segmentClass} ${settings.tooltips ? 'cursor-help' : ''}`}
               onMouseEnter={() => {
-                console.log('[PaliWord] HOVER_ENTER', { segmentText: seg.text, segmentId: seg.id, sDomId, pinned: !!pinned, studyMode, tooltipText });
+                console.log('[PaliWord] HOVER_ENTER', { segmentText: seg.text, segmentId: seg.id, sDomId, pinned: !!pinned, tooltipsEnabled: settings.tooltips, tooltipText });
                 if (pinned) return;
                 setHovered({
                   kind: 'segment',
@@ -126,7 +128,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 if (pinned) return;
                 setHovered(null);
               }}
-              title={studyMode && !showTooltip ? 'Hover: segment details' : ''}
+              title={settings.tooltips && !showTooltip ? 'Hover: segment details' : ''}
             >
               {seg.text}
 

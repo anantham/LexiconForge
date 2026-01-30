@@ -16,6 +16,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   setPinned,
   cycle,
   ghostOpacity,
+  showGhosts = true,
 }: {
   phaseId: string;
   structure: EnglishToken;
@@ -27,6 +28,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   setPinned: Dispatch<SetStateAction<Focus | null>>;
   cycle: (wordId: string) => void;
   ghostOpacity: number;
+  showGhosts?: boolean;
 }) {
   let content = structure.label ?? '';
   let isActive = false;
@@ -92,6 +94,11 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
 
   const isGhost = Boolean(structure.isGhost);
   const ghostKind = structure.ghostKind ?? (structure.id.startsWith('ghost') ? 'required' : 'interpretive');
+
+  // Hide ghost words when showGhosts is false
+  if (isGhost && !showGhosts) {
+    return null;
+  }
 
   return (
     <motion.div

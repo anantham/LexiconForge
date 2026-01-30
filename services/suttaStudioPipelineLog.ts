@@ -1,6 +1,6 @@
 import { isSuttaFlowDebug } from './suttaStudioDebug';
 
-export type PipelineLogLevel = 'info' | 'warn' | 'error';
+export type PipelineLogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export type PipelineLogEntry = {
   ts: string;
@@ -40,6 +40,8 @@ export const logPipelineEvent = (entry: Omit<PipelineLogEntry, 'ts'>) => {
     console.error(label, entry.data || {});
   } else if (entry.level === 'warn') {
     console.warn(label, entry.data || {});
+  } else if (entry.level === 'debug') {
+    console.debug(label, entry.data || {});
   } else {
     console.log(label, entry.data || {});
   }

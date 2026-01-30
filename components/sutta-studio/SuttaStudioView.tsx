@@ -11,6 +11,7 @@ import { XarrowUpdater } from './XarrowUpdater';
 import { StudioHeader } from './StudioHeader';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
+import { loadSettings, saveSettings, type StudioSettings } from './SettingsPanel';
 
 export function SuttaStudioView({
   packet,
@@ -24,9 +25,7 @@ export function SuttaStudioView({
   const pinned: Focus | null = null;
   const setPinned = useCallback(() => {}, []);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
-  const [studyMode, setStudyMode] = useState<boolean>(
-    packet.renderDefaults?.studyToggleDefault ?? true
-  );
+  const [settings, setSettings] = useState<StudioSettings>(() => loadSettings());
   const [layoutTick, setLayoutTick] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -44,8 +43,9 @@ export function SuttaStudioView({
   const focus = hovered;
   const focusWordId = focus?.kind === 'word' ? focus.wordId : focus?.wordId ?? null;
 
-  const showRelationArrows = studyMode;
-  const showAlignmentArrows = true;
+  // Derive feature flags from settings
+  const showRelationArrows = settings.grammarArrows;
+  const showAlignmentArrows = settings.alignmentLines;
   const ghostOpacity = packet.renderDefaults?.ghostOpacity ?? 0.3;
   const englishVisible = packet.renderDefaults?.englishVisible ?? true;
   const showProgressChip = totalPhases > 0 && readyPhases < totalPhases;
@@ -70,9 +70,12 @@ export function SuttaStudioView({
 
   useLayoutEffect(() => {
     setLayoutTick((tick) => tick + 1);
-  }, [studyMode, visiblePhases.length]);
+  }, [settings, visiblePhases.length]);
 
-  const toggleStudy = () => setStudyMode((v) => !v);
+  const handleSettingsChange = useCallback((newSettings: StudioSettings) => {
+    setSettings(newSettings);
+    saveSettings(newSettings);
+  }, []);
 
   // Returns position info for arrow rendering
   type ArrowGeometry = {
@@ -203,15 +206,16 @@ export function SuttaStudioView({
         showProgress={showProgressChip}
         progressLabel={progressLabel}
         progressOverdue={etaOverdue}
-        studyMode={studyMode}
-        onToggleStudy={toggleStudy}
+        settings={settings}
+        onSettingsChange={handleSettingsChange}
         debugButton={<SuttaStudioDebugButton packet={packet} uid={packet.source?.workId} />}
       />
 
       <Xwrapper>
         <XarrowUpdater
           deps={[
-            studyMode,
+            settings.grammarArrows,
+            settings.alignmentLines,
             hovered?.kind,
             hovered?.wordId,
             hovered?.kind === 'segment' ? hovered.segmentDomId : '',
@@ -248,7 +252,7 @@ export function SuttaStudioView({
                                 phaseId={phaseId}
                                 wordData={word}
                                 activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
-                                studyMode={studyMode}
+                                settings={settings}
                                 cycle={(wordId) => cycle(wordId, phaseId)}
                                 hovered={hovered}
                                 pinned={pinned}
@@ -355,6 +359,7 @@ export function SuttaStudioView({
                                   setPinned={setPinned}
                                   cycle={(wordId) => cycle(wordId, phaseId)}
                                   ghostOpacity={ghostOpacity}
+                                  showGhosts={settings.ghostWords}
                                 />
 
                                 {showAlignmentArrows && (item.linkedSegmentId || item.linkedPaliId) && (() => {
