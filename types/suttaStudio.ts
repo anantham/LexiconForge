@@ -81,6 +81,8 @@ export type AnatomistWord = {
   wordClass: WordClass;
   segmentIds: string[];
   isAnchor?: boolean;
+  /** Refrain ID for visual rhythm - words with same ID share color (e.g., 'bhagava', 'bhikkhu') */
+  refrainId?: string;
 };
 
 export type AnatomistSegment = {
@@ -234,6 +236,8 @@ export type EnglishToken = {
 
 export type PhaseView = {
   id: string;
+  /** Canonical segment IDs from bilara-data (e.g., ['mn10:1.1']) */
+  canonicalSegmentIds?: string[];
   title?: string;
   sourceSpan?: SourceRef[];
   layoutBlocks?: string[][];
