@@ -64,4 +64,21 @@ export const REFRAIN_COLORS: Record<string, { underline: string; bg: string }> =
     underline: 'border-teal-400',
     bg: 'bg-teal-400/10',
   },
+  // Satipaṭṭhāna refrain elements
+  'refrain-scope': {
+    underline: 'border-amber-400',
+    bg: 'bg-amber-400/10',
+  },
+  'refrain-arising': {
+    underline: 'border-teal-400',
+    bg: 'bg-teal-400/10',
+  },
+  'refrain-atthi': {
+    underline: 'border-violet-400',
+    bg: 'bg-violet-400/10',
+  },
+  'refrain-anissito': {
+    underline: 'border-rose-400',
+    bg: 'bg-rose-400/10',
+  },
 };
