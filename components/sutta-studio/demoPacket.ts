@@ -6,8 +6,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
   canonicalSegments: [],
   citations: [],
   progress: {
-    totalPhases: 7,
-    readyPhases: 7,
+    totalPhases: 20,
+    readyPhases: 20,
     state: 'complete',
   },
   renderDefaults: {
@@ -23,6 +23,396 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     sourceDigest: 'demo',
   },
   phases: [
+    // ============================================================
+    // INTRO: Evaṁ me sutaṁ → Bhagavā etadavoca
+    // ============================================================
+    {
+      id: 'phase-a',
+      paliWords: [
+        {
+          id: 'a1',
+          wordClass: 'function',
+          segments: [
+            { id: 'a1s1', text: 'Evaṁ', type: 'stem', tooltips: ['Eva: Thus / In this way', 'Indeclinable particle'] },
+          ],
+          senses: [{ english: 'Thus', nuance: 'Formulaic' }],
+        },
+        {
+          id: 'a2',
+          wordClass: 'function',
+          segments: [
+            { id: 'a2s1', text: 'me', type: 'stem', tooltips: ['Instrumental of ahaṁ (I)', 'By me'] },
+          ],
+          senses: [
+            { english: 'by me', nuance: 'Instrumental' },
+            { english: 'it was', nuance: 'Impersonal' },
+          ],
+        },
+        {
+          id: 'a3',
+          wordClass: 'content',
+          segments: [
+            { id: 'a3s1', text: 'sut', type: 'root', tooltips: ['√su: To hear', 'Past participle'] },
+            { id: 'a3s2', text: 'aṁ', type: 'suffix', tooltips: ['Nominative neuter singular', 'Past participle ending'] },
+          ],
+          senses: [
+            { english: 'heard', nuance: 'Standard' },
+            { english: 'received', nuance: 'Transmitted' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ea1', linkedPaliId: 'a1' },
+        { id: 'ea2g', label: 'have', isGhost: true, ghostKind: 'required' },
+        { id: 'ea2', linkedSegmentId: 'a2s1' },
+        { id: 'ea3', linkedSegmentId: 'a3s1' },
+      ],
+    },
+    {
+      id: 'phase-b',
+      paliWords: [
+        {
+          id: 'b1',
+          wordClass: 'function',
+          segments: [
+            { id: 'b1s1', text: 'ekaṁ', type: 'stem', tooltips: ['Eka: One', 'Accusative neuter'] },
+          ],
+          senses: [{ english: 'one', nuance: 'Singular' }],
+        },
+        {
+          id: 'b2',
+          wordClass: 'content',
+          segments: [
+            { id: 'b2s1', text: 'sam', type: 'root', tooltips: ['√sam: To come together', 'Occasion / Meeting'] },
+            { id: 'b2s2', text: 'ayaṁ', type: 'suffix', tooltips: ['Accusative singular', 'Time expression'] },
+          ],
+          senses: [
+            { english: 'time', nuance: 'Occasion' },
+            { english: 'occasion', nuance: 'Meeting' },
+          ],
+        },
+        {
+          id: 'b3',
+          wordClass: 'content',
+          segments: [
+            { id: 'b3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share', 'One who shares / Fortunate'] },
+            { id: 'b3s2', text: 'avā', type: 'suffix', tooltips: ['Nominative singular', '-vant suffix (possessor of)'] },
+          ],
+          senses: [
+            { english: 'the Blessed One', nuance: 'Standard' },
+            { english: 'the Fortunate One', nuance: 'Etymology' },
+            { english: 'the Buddha', nuance: 'Explicit' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eb1g', label: 'At', isGhost: true, ghostKind: 'required' },
+        { id: 'eb1', linkedPaliId: 'b1' },
+        { id: 'eb2', linkedSegmentId: 'b2s1' },
+        { id: 'eb3', linkedSegmentId: 'b3s1' },
+      ],
+    },
+    {
+      id: 'phase-c',
+      paliWords: [
+        {
+          id: 'c1',
+          wordClass: 'content',
+          segments: [
+            { id: 'c1s1', text: 'Kur', type: 'root', tooltips: ['Kuru: Name of a people/region', 'Ancient Indian clan'] },
+            { id: 'c1s2', text: 'ūsu', type: 'suffix', tooltips: ['Locative plural', 'Among the...'] },
+          ],
+          senses: [
+            { english: 'among the Kurus', nuance: 'Location' },
+          ],
+        },
+        {
+          id: 'c2',
+          wordClass: 'content',
+          segments: [
+            { id: 'c2s1', text: 'vi', type: 'prefix', tooltips: ['Prefix: Apart / Special'] },
+            { id: 'c2s2', text: 'har', type: 'root', tooltips: ['√hṛ: To carry / Hold', 'To dwell / Abide'] },
+            { id: 'c2s3', text: 'ati', type: 'suffix', tooltips: ['Present tense 3rd singular', 'Ongoing action'] },
+          ],
+          senses: [
+            { english: 'was dwelling', nuance: 'Residing' },
+            { english: 'was staying', nuance: 'Temporary' },
+            { english: 'was living', nuance: 'Abiding' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ec2', linkedSegmentId: 'c2s2' },
+        { id: 'ec1', linkedSegmentId: 'c1s1' },
+      ],
+    },
+    {
+      id: 'phase-d',
+      paliWords: [
+        {
+          id: 'd1',
+          wordClass: 'content',
+          segments: [
+            { id: 'd1s1', text: 'Kammāsa', type: 'root', tooltips: ['Spotted / Variegated', 'Place name element'] },
+            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['Dhamma: Teaching / Nature', 'Place name element'] },
+          ],
+          senses: [
+            { english: 'Kammāsadhamma', nuance: 'Place name' },
+          ],
+        },
+        {
+          id: 'd2',
+          wordClass: 'function',
+          segments: [
+            { id: 'd2s1', text: 'nāma', type: 'stem', tooltips: ['Name / Called', 'Indeclinable'] },
+          ],
+          senses: [
+            { english: 'named', nuance: 'Called' },
+            { english: 'by name', nuance: 'Identity' },
+          ],
+        },
+        {
+          id: 'd3',
+          wordClass: 'content',
+          segments: [
+            { id: 'd3s1', text: 'Kur', type: 'root', tooltips: ['Kuru: The people'] },
+            { id: 'd3s2', text: 'ūnaṁ', type: 'suffix', tooltips: ['Genitive plural', 'Of the...'] },
+          ],
+          senses: [
+            { english: 'of the Kurus', nuance: 'Possession' },
+          ],
+        },
+        {
+          id: 'd4',
+          wordClass: 'content',
+          segments: [
+            { id: 'd4s1', text: 'ni', type: 'prefix', tooltips: ['Down / Settled'] },
+            { id: 'd4s2', text: 'gam', type: 'root', tooltips: ['√gam: To go', 'Settlement / Town'] },
+            { id: 'd4s3', text: 'o', type: 'suffix', tooltips: ['Nominative singular'] },
+          ],
+          senses: [
+            { english: 'a market town', nuance: 'Settlement' },
+            { english: 'a town', nuance: 'Standard' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ed1g', label: 'at', isGhost: true, ghostKind: 'required' },
+        { id: 'ed4', linkedSegmentId: 'd4s2' },
+        { id: 'ed3', linkedSegmentId: 'd3s1' },
+        { id: 'ed2', linkedPaliId: 'd2' },
+        { id: 'ed1', linkedPaliId: 'd1' },
+      ],
+    },
+    {
+      id: 'phase-e',
+      paliWords: [
+        {
+          id: 'e1',
+          wordClass: 'function',
+          segments: [
+            { id: 'e1s1', text: 'Tatra', type: 'stem', tooltips: ['There / In that place', 'Locative adverb'] },
+          ],
+          senses: [{ english: 'There', nuance: 'Location' }],
+        },
+        {
+          id: 'e2',
+          wordClass: 'function',
+          segments: [
+            { id: 'e2s1', text: 'kho', type: 'stem', tooltips: ['Indeed / Emphatic particle', 'Khalu → kho'] },
+          ],
+          senses: [
+            { english: 'indeed', nuance: 'Emphasis' },
+            { english: '', nuance: 'Often untranslated' },
+          ],
+        },
+        {
+          id: 'e3',
+          wordClass: 'content',
+          segments: [
+            { id: 'e3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share'] },
+            { id: 'e3s2', text: 'avā', type: 'suffix', tooltips: ['Nominative singular'] },
+          ],
+          senses: [{ english: 'the Blessed One', nuance: 'Subject' }],
+        },
+        {
+          id: 'e4',
+          wordClass: 'content',
+          segments: [
+            { id: 'e4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg / Share'] },
+            { id: 'e4s2', text: 'ū', type: 'suffix', tooltips: ['Accusative plural', 'Direct object'] },
+          ],
+          senses: [
+            { english: 'the bhikkhus', nuance: 'Object' },
+            { english: 'the monks', nuance: 'Standard' },
+          ],
+        },
+        {
+          id: 'e5',
+          wordClass: 'content',
+          segments: [
+            { id: 'e5s1', text: 'ā', type: 'prefix', tooltips: ['Towards / To'] },
+            { id: 'e5s2', text: 'mant', type: 'root', tooltips: ['√mant: To counsel / Address'] },
+            { id: 'e5s3', text: 'esi', type: 'suffix', tooltips: ['Aorist 3rd singular', 'Past action'] },
+          ],
+          senses: [
+            { english: 'addressed', nuance: 'Spoke to' },
+            { english: 'called to', nuance: 'Summoned' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ee1', linkedPaliId: 'e1' },
+        { id: 'ee3', linkedSegmentId: 'e3s1' },
+        { id: 'ee5', linkedSegmentId: 'e5s2' },
+        { id: 'ee4', linkedSegmentId: 'e4s1' },
+      ],
+    },
+    {
+      id: 'phase-f',
+      paliWords: [
+        {
+          id: 'f1',
+          wordClass: 'content',
+          segments: [
+            { id: 'f1s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
+            { id: 'f1s2', text: 'avo', type: 'suffix', tooltips: ['Vocative plural', 'Direct address'] },
+          ],
+          senses: [
+            { english: 'Bhikkhus!', nuance: 'Call' },
+            { english: 'Monks!', nuance: 'Standard' },
+          ],
+        },
+        {
+          id: 'f2',
+          wordClass: 'function',
+          segments: [
+            { id: 'f2s1', text: 'ti', type: 'stem', tooltips: ['Iti: Quotation marker', 'End of speech'] },
+          ],
+          senses: [{ english: '"', nuance: 'Quote marker' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'ef1', linkedSegmentId: 'f1s1' },
+      ],
+    },
+    {
+      id: 'phase-g',
+      paliWords: [
+        {
+          id: 'g1',
+          wordClass: 'content',
+          segments: [
+            { id: 'g1s1', text: 'Bhad', type: 'root', tooltips: ['Bhadra: Good / Auspicious'] },
+            { id: 'g1s2', text: 'ante', type: 'suffix', tooltips: ['Vocative singular', 'Respectful address'] },
+          ],
+          senses: [
+            { english: 'Venerable sir', nuance: 'Respectful' },
+            { english: 'Lord', nuance: 'Formal' },
+          ],
+        },
+        {
+          id: 'g2',
+          wordClass: 'function',
+          segments: [
+            { id: 'g2s1', text: 'ti', type: 'stem', tooltips: ['Iti: Quotation marker'] },
+          ],
+          senses: [{ english: '"', nuance: 'Quote end' }],
+        },
+        {
+          id: 'g3',
+          wordClass: 'function',
+          segments: [
+            { id: 'g3s1', text: 'te', type: 'stem', tooltips: ['Those / They', 'Nominative plural'] },
+          ],
+          senses: [{ english: 'those', nuance: 'Demonstrative' }],
+        },
+        {
+          id: 'g4',
+          wordClass: 'content',
+          segments: [
+            { id: 'g4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'g4s2', text: 'ū', type: 'suffix', tooltips: ['Nominative plural', 'Subject'] },
+          ],
+          senses: [{ english: 'bhikkhus', nuance: 'Subject' }],
+        },
+        {
+          id: 'g5',
+          wordClass: 'content',
+          segments: [
+            { id: 'g5s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
+            { id: 'g5s2', text: 'avato', type: 'suffix', tooltips: ['Dative/Genitive singular', 'To/Of the...'] },
+          ],
+          senses: [
+            { english: 'to the Blessed One', nuance: 'Dative' },
+          ],
+        },
+        {
+          id: 'g6',
+          wordClass: 'content',
+          segments: [
+            { id: 'g6s1', text: 'pacc', type: 'prefix', tooltips: ['Paṭi: Back / In return'] },
+            { id: 'g6s2', text: 'assosun', type: 'root', tooltips: ['√su: To hear', 'Aorist: heard back → replied'] },
+            { id: 'g6s3', text: 'ṁ', type: 'suffix', tooltips: ['3rd person plural', 'They...'] },
+          ],
+          senses: [
+            { english: 'replied', nuance: 'Responded' },
+            { english: 'answered', nuance: 'Standard' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eg1', linkedSegmentId: 'g1s1' },
+        { id: 'eg4', linkedSegmentId: 'g4s1' },
+        { id: 'eg6', linkedSegmentId: 'g6s2' },
+        { id: 'eg5g', label: 'to', isGhost: true, ghostKind: 'required' },
+        { id: 'eg5', linkedSegmentId: 'g5s1' },
+      ],
+    },
+    {
+      id: 'phase-h',
+      paliWords: [
+        {
+          id: 'h1',
+          wordClass: 'content',
+          segments: [
+            { id: 'h1s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
+            { id: 'h1s2', text: 'avā', type: 'suffix', tooltips: ['Nominative singular'] },
+          ],
+          senses: [{ english: 'The Blessed One', nuance: 'Subject' }],
+        },
+        {
+          id: 'h2',
+          wordClass: 'function',
+          segments: [
+            { id: 'h2s1', text: 'etad', type: 'stem', tooltips: ['Eta: This', 'Accusative neuter'] },
+          ],
+          senses: [{ english: 'this', nuance: 'Object' }],
+        },
+        {
+          id: 'h3',
+          wordClass: 'content',
+          segments: [
+            { id: 'h3s1', text: 'a', type: 'prefix', tooltips: ['Aorist prefix'] },
+            { id: 'h3s2', text: 'voc', type: 'root', tooltips: ['√vac: To speak / Say'] },
+            { id: 'h3s3', text: 'a', type: 'suffix', tooltips: ['Aorist 3rd singular'] },
+          ],
+          senses: [
+            { english: 'said', nuance: 'Spoke' },
+            { english: 'declared', nuance: 'Formal' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eh1', linkedSegmentId: 'h1s1' },
+        { id: 'eh3', linkedSegmentId: 'h3s2' },
+        { id: 'eh2', linkedPaliId: 'h2' },
+      ],
+    },
+
+    // ============================================================
+    // MAIN DECLARATION: Ekāyano ayaṁ... satipaṭṭhānā (existing phases 1-7)
+    // ============================================================
     {
       id: 'phase-1',
       paliWords: [
@@ -82,23 +472,16 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
       ],
       englishStructure: [
-        { id: 'e1', linkedSegmentId: 'p3s1' },  // Link to 'Bhikkh' root, not 'ave' suffix
-        { id: 'e2', linkedSegmentId: 'p2s1' },  // Link to 'ayaṁ' stem
+        { id: 'e1', linkedSegmentId: 'p3s1' },
+        { id: 'e2', linkedSegmentId: 'p2s1' },
         { id: 'ghost1', label: 'is the', isGhost: true, ghostKind: 'required' },
-        { id: 'e3', linkedSegmentId: 'p1s1' },  // Link to 'Ek' root, not 'āyano' suffix
-        { id: 'e4', linkedSegmentId: 'p4s1' },  // Link to 'maggo' stem
+        { id: 'e3', linkedSegmentId: 'p1s1' },
+        { id: 'e4', linkedSegmentId: 'p4s1' },
       ],
     },
     {
       id: 'phase-2',
       paliWords: [
-        {
-          id: 'p4_anchor',
-          wordClass: 'content',
-          segments: [{ id: 'p4_anchors1', text: 'maggo', type: 'stem', tooltips: ['Context Anchor'] }],
-          senses: [{ english: '(path)', nuance: '' }],
-          isAnchor: true,
-        },
         {
           id: 'p5',
           wordClass: 'content',
@@ -143,14 +526,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e5', linkedSegmentId: 'p6s2' },  // Link to 'suddhi' root, not suffix
+        { id: 'e5', linkedSegmentId: 'p6s2' },
         { id: 'g2', label: 'of', isGhost: true, ghostKind: 'required' },
-        { id: 'e6', linkedSegmentId: 'p5s1' },  // Link to 'satt' root, not ānaṁ suffix
+        { id: 'e6', linkedSegmentId: 'p5s1' },
       ],
     },
     {
       id: 'phase-3',
-      layoutBlocks: [['p7', 'p8']],  // Both words on same line
+      layoutBlocks: [['p7', 'p8']],
       paliWords: [
         {
           id: 'p7',
@@ -188,14 +571,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e7', linkedSegmentId: 'p8s3' },  // Link to 'kkam' root (stepping)
+        { id: 'e7', linkedSegmentId: 'p8s3' },
         { id: 'g2', label: 'of', isGhost: true, ghostKind: 'required' },
-        { id: 'e8', linkedSegmentId: 'p7s1' },  // Link to 'soka' root, not ānaṁ suffix
+        { id: 'e8', linkedSegmentId: 'p7s1' },
       ],
     },
     {
       id: 'phase-4',
-      layoutBlocks: [['p9', 'p10']],  // Both words on same line above English
+      layoutBlocks: [['p9', 'p10']],
       paliWords: [
         {
           id: 'p9',
@@ -233,14 +616,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e9', linkedSegmentId: 'p10s1' },  // Link to 'atthaṅ' root, not āya suffix
+        { id: 'e9', linkedSegmentId: 'p10s1' },
         { id: 'g2', label: 'of', isGhost: true, ghostKind: 'required' },
-        { id: 'e10', linkedSegmentId: 'p9s1' },  // Link to 'dukkha' root, not ānaṁ suffix
+        { id: 'e10', linkedSegmentId: 'p9s1' },
       ],
     },
     {
       id: 'phase-5',
-      layoutBlocks: [['p11', 'p12']],  // Both words on same line
+      layoutBlocks: [['p11', 'p12']],
       paliWords: [
         {
           id: 'p11',
@@ -276,13 +659,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e11', linkedSegmentId: 'p12s2' },  // Link to 'gam' root, not āya suffix
-        { id: 'e12', linkedSegmentId: 'p11s1' },  // Link to 'ñāya' root, not ssa suffix
+        { id: 'e11', linkedSegmentId: 'p12s2' },
+        { id: 'e12', linkedSegmentId: 'p11s1' },
       ],
     },
     {
       id: 'phase-6',
-      layoutBlocks: [['p13', 'p14']],  // Both words on same line
+      layoutBlocks: [['p13', 'p14']],
       paliWords: [
         {
           id: 'p13',
@@ -318,8 +701,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e13', linkedSegmentId: 'p14s1' },  // Link to 'sacchi' root, not āya suffix
-        { id: 'e14', linkedSegmentId: 'p13s1' },  // Link to 'nibbān' root, not assa suffix
+        { id: 'e13', linkedSegmentId: 'p14s1' },
+        { id: 'e14', linkedSegmentId: 'p13s1' },
       ],
     },
     {
@@ -344,8 +727,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p17',
           wordClass: 'content',
           segments: [
-            { id: 'p17s1', text: 'sati', type: 'root', tooltips: ['Memory / Presence'] },
-            { id: 'p17s2', text: 'paṭṭhānā', type: 'root', tooltips: ['Foundation / Establishing'] },
+            { id: 'p17s1', text: 'sati', type: 'root', tooltips: ['√smṛ: Memory / Presence'] },
+            { id: 'p17s2', text: 'paṭṭhānā', type: 'root', tooltips: ['Paṭi + √sthā: Establishing / Foundation'] },
           ],
           senses: [
             { english: 'foundations of mindfulness', nuance: 'Standard' },
@@ -354,9 +737,231 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
       ],
       englishStructure: [
-        { id: 'e15', linkedPaliId: 'p15' },  // Compound: yad+idaṁ → "namely"
-        { id: 'e16', linkedSegmentId: 'p16s1' },  // Single segment: cattāro
-        { id: 'e17', linkedPaliId: 'p17' },  // Compound: sati+paṭṭhānā → "foundations of mindfulness"
+        { id: 'e15', linkedPaliId: 'p15' },
+        { id: 'e16', linkedSegmentId: 'p16s1' },
+        { id: 'e17', linkedPaliId: 'p17' },
+      ],
+    },
+
+    // ============================================================
+    // CONCLUSION: Katame cattāro? ... abhijjhādomanassaṁ
+    // ============================================================
+    {
+      id: 'phase-x',
+      paliWords: [
+        {
+          id: 'x1',
+          wordClass: 'function',
+          segments: [
+            { id: 'x1s1', text: 'Kat', type: 'root', tooltips: ['Ka: Interrogative stem'] },
+            { id: 'x1s2', text: 'ame', type: 'suffix', tooltips: ['Nominative plural', 'Which ones?'] },
+          ],
+          senses: [
+            { english: 'What', nuance: 'Interrogative' },
+            { english: 'Which', nuance: 'Specific' },
+          ],
+        },
+        {
+          id: 'x2',
+          wordClass: 'content',
+          segments: [
+            { id: 'x2s1', text: 'cattāro', type: 'stem', tooltips: ['Four (4)', 'Nominative plural'] },
+          ],
+          senses: [{ english: 'four', nuance: 'Number' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'ex1', linkedSegmentId: 'x1s1' },
+        { id: 'ex1g', label: 'are the', isGhost: true, ghostKind: 'required' },
+        { id: 'ex2', linkedPaliId: 'x2' },
+      ],
+    },
+    {
+      id: 'phase-y',
+      paliWords: [
+        {
+          id: 'y1',
+          wordClass: 'function',
+          segments: [
+            { id: 'y1s1', text: 'Idha', type: 'stem', tooltips: ['Here / In this teaching', 'Locative adverb'] },
+          ],
+          senses: [
+            { english: 'Here', nuance: 'In this teaching' },
+            { english: 'In this case', nuance: 'Context' },
+          ],
+        },
+        {
+          id: 'y2',
+          wordClass: 'content',
+          segments: [
+            { id: 'y2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'y2s2', text: 'ave', type: 'suffix', tooltips: ['Vocative plural'] },
+          ],
+          senses: [{ english: 'bhikkhus', nuance: 'Address' }],
+        },
+        {
+          id: 'y3',
+          wordClass: 'content',
+          segments: [
+            { id: 'y3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'y3s2', text: 'u', type: 'suffix', tooltips: ['Nominative singular', 'A bhikkhu'] },
+          ],
+          senses: [
+            { english: 'a bhikkhu', nuance: 'Subject' },
+            { english: 'a practitioner', nuance: 'Generic' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ey1', linkedPaliId: 'y1' },
+        { id: 'ey2', linkedSegmentId: 'y2s1' },
+        { id: 'ey3', linkedSegmentId: 'y3s1' },
+      ],
+    },
+    {
+      id: 'phase-z',
+      paliWords: [
+        {
+          id: 'z1',
+          wordClass: 'content',
+          segments: [
+            { id: 'z1s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection'] },
+            { id: 'z1s2', text: 'e', type: 'suffix', tooltips: ['Locative singular', 'In the body'] },
+          ],
+          senses: [
+            { english: 'in the body', nuance: 'Location' },
+          ],
+        },
+        {
+          id: 'z2',
+          wordClass: 'content',
+          segments: [
+            { id: 'z2s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
+            { id: 'z2s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Following / Along with'] },
+            { id: 'z2s3', text: 'pass', type: 'root', tooltips: ['√dṛś (Pali: pass): To see / Observe'] },
+            { id: 'z2s4', text: 'ī', type: 'suffix', tooltips: ['Agent noun: One who...'] },
+          ],
+          senses: [
+            { english: 'contemplating the body', nuance: 'Observing' },
+            { english: 'watching body phenomena', nuance: 'Technical' },
+          ],
+        },
+        {
+          id: 'z3',
+          wordClass: 'content',
+          segments: [
+            { id: 'z3s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
+            { id: 'z3s2', text: 'har', type: 'root', tooltips: ['√hṛ: To carry / Dwell'] },
+            { id: 'z3s3', text: 'ati', type: 'suffix', tooltips: ['Present 3rd singular'] },
+          ],
+          senses: [
+            { english: 'dwells', nuance: 'Abides' },
+            { english: 'remains', nuance: 'Continues' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ez3', linkedSegmentId: 'z3s2' },
+        { id: 'ez2', linkedPaliId: 'z2' },
+        { id: 'ez1', linkedSegmentId: 'z1s1' },
+      ],
+    },
+    {
+      id: 'phase-aa',
+      paliWords: [
+        {
+          id: 'aa1',
+          wordClass: 'content',
+          segments: [
+            { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['√tap: To burn / Heat', 'Ardor / Energy'] },
+            { id: 'aa1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has...'] },
+          ],
+          senses: [
+            { english: 'ardent', nuance: 'Energetic' },
+            { english: 'burning with effort', nuance: 'Etymology' },
+          ],
+        },
+        {
+          id: 'aa2',
+          wordClass: 'content',
+          segments: [
+            { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['Sam: Together / Complete'] },
+            { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth / Forward'] },
+            { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['Nominative singular'] },
+          ],
+          senses: [
+            { english: 'clearly comprehending', nuance: 'Full awareness' },
+            { english: 'fully knowing', nuance: 'Technical' },
+          ],
+        },
+        {
+          id: 'aa3',
+          wordClass: 'content',
+          segments: [
+            { id: 'aa3s1', text: 'sati', type: 'root', tooltips: ['√smṛ: Memory / Mindfulness'] },
+            { id: 'aa3s2', text: 'mā', type: 'suffix', tooltips: ['-mant: Possessive suffix', 'One who has mindfulness'] },
+          ],
+          senses: [
+            { english: 'mindful', nuance: 'Standard' },
+            { english: 'with presence', nuance: 'Awareness' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eaa1', linkedSegmentId: 'aa1s1' },
+        { id: 'eaa2', linkedSegmentId: 'aa2s3' },
+        { id: 'eaa3', linkedSegmentId: 'aa3s1' },
+      ],
+    },
+    {
+      id: 'phase-ab',
+      paliWords: [
+        {
+          id: 'ab1',
+          wordClass: 'content',
+          segments: [
+            { id: 'ab1s1', text: 'vi', type: 'prefix', tooltips: ['Vi: Away / Apart'] },
+            { id: 'ab1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead', 'Gerund: Having led away'] },
+            { id: 'ab1s3', text: 'ya', type: 'suffix', tooltips: ['Absolutive/Gerund ending', 'Having done...'] },
+          ],
+          senses: [
+            { english: 'having removed', nuance: 'Gerund' },
+            { english: 'having dispelled', nuance: 'Freed from' },
+          ],
+        },
+        {
+          id: 'ab2',
+          wordClass: 'content',
+          segments: [
+            { id: 'ab2s1', text: 'lok', type: 'root', tooltips: ['Loka: World / Realm'] },
+            { id: 'ab2s2', text: 'e', type: 'suffix', tooltips: ['Locative singular', 'In regard to the world'] },
+          ],
+          senses: [
+            { english: 'regarding the world', nuance: 'Scope' },
+            { english: 'in the world', nuance: 'Location' },
+          ],
+        },
+        {
+          id: 'ab3',
+          wordClass: 'content',
+          segments: [
+            { id: 'ab3s1', text: 'abhi', type: 'prefix', tooltips: ['Abhi: Towards / Intensely'] },
+            { id: 'ab3s2', text: 'jjhā', type: 'root', tooltips: ['√jhā (related to √dhyai): Longing / Covetousness'] },
+            { id: 'ab3s3', text: 'domanass', type: 'root', tooltips: ['Du + Manas: Bad-mind / Displeasure'] },
+            { id: 'ab3s4', text: 'aṁ', type: 'suffix', tooltips: ['Accusative singular', 'Direct object'] },
+          ],
+          senses: [
+            { english: 'covetousness & displeasure', nuance: 'Compound' },
+            { english: 'longing & aversion', nuance: 'Technical' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eab1', linkedSegmentId: 'ab1s2' },
+        { id: 'eab3', linkedPaliId: 'ab3' },
+        { id: 'eab2g', label: 'regarding', isGhost: true, ghostKind: 'required' },
+        { id: 'eab2', linkedSegmentId: 'ab2s1' },
       ],
     },
   ],
