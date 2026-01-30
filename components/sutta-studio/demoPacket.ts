@@ -94,6 +94,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'b3',
           wordClass: 'content',
+          refrainId: 'bhagava',
           segments: [
             { id: 'b3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share', 'One who shares / Fortunate'] },
             { id: 'b3s2', text: 'avā', type: 'suffix', tooltips: ['The one doing the action', '-vant = "one who possesses" (fortune, blessings)'] },
@@ -232,6 +233,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'e3',
           wordClass: 'content',
+          refrainId: 'bhagava',
           segments: [
             { id: 'e3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share'] },
             { id: 'e3s2', text: 'avā', type: 'suffix', tooltips: ['The one doing the action'] },
@@ -241,6 +243,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'e4',
           wordClass: 'content',
+          refrainId: 'bhikkhu',
           segments: [
             { id: 'e4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg / Share'] },
             { id: 'e4s2', text: 'ū', type: 'suffix', tooltips: ['👥 Them — the group being addressed', 'The ones receiving the teaching'] },
@@ -278,6 +281,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'f1',
           wordClass: 'content',
+          refrainId: 'bhikkhu',
           segments: [
             { id: 'f1s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
             { id: 'f1s2', text: 'avo', type: 'suffix', tooltips: ['📢 "Hey you all!" — calling out to a group', 'Like saying "O monks!"'] },
@@ -334,6 +338,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'g4',
           wordClass: 'content',
+          refrainId: 'bhikkhu',
           segments: [
             { id: 'g4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
             { id: 'g4s2', text: 'ū', type: 'suffix', tooltips: ['👥 They — the group doing the action', 'The bhikkhus who replied'] },
@@ -343,6 +348,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'g5',
           wordClass: 'content',
+          refrainId: 'bhagava',
           segments: [
             { id: 'g5s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
             { id: 'g5s2', text: 'avato', type: 'suffix', tooltips: ['🎯 "To him" — receiving the reply', 'The one being addressed'] },
@@ -379,6 +385,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'h1',
           wordClass: 'content',
+          refrainId: 'bhagava',
           segments: [
             { id: 'h1s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
             { id: 'h1s2', text: 'avā', type: 'suffix', tooltips: ['The one speaking'] },
@@ -456,6 +463,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'p3',
           wordClass: 'content',
+          refrainId: 'bhikkhu',
           segments: [
             { id: 'p3s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
             { id: 'p3s2', text: 'ave', type: 'suffix', tooltips: ['📢 "Hey friends!" — calling out to the group'] },
@@ -812,6 +820,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'y2',
           wordClass: 'content',
+          refrainId: 'bhikkhu',
           segments: [
             { id: 'y2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
             { id: 'y2s2', text: 'ave', type: 'suffix', tooltips: ['📢 Calling out to the group'] },
@@ -821,6 +830,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'y3',
           wordClass: 'content',
+          refrainId: 'bhikkhu',
           segments: [
             { id: 'y3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
             { id: 'y3s2', text: 'u', type: 'suffix', tooltips: ['One person — "a bhikkhu"', 'The practitioner being described'] },
@@ -901,6 +911,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'aa1',
           wordClass: 'content',
+          refrainId: 'formula-ardent',
           segments: [
             { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn / Heat', 'Ardor / Energy'] },
             { id: 'aa1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has...'] },
@@ -916,6 +927,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'aa2',
           wordClass: 'content',
+          refrainId: 'formula-ardent',
           segments: [
             { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['Sam: Together / Completely / Thoroughly'] },
             { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Forward / Fully'] },
@@ -933,6 +945,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'aa3',
           wordClass: 'content',
+          refrainId: 'formula-ardent',
           segments: [
             { id: 'aa3s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ (Pali sar): Memory / Mindfulness', 'The faculty of retention and presence'] },
             { id: 'aa3s2', text: 'mā', type: 'suffix', tooltips: ['-mant/-vant: Possessive suffix (Nom. -mā)', 'FACULTY: "equipped with" / "possessing"', 'Contrast with sato (actively mindful)', 'Satimā = having the capacity', 'Sato = deploying it actively'] },
@@ -958,6 +971,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'ab1',
           wordClass: 'content',
+          refrainId: 'formula-removing',
           segments: [
             { id: 'ab1s1', text: 'vi', type: 'prefix', tooltips: ['Vi: Away / Out / Apart', 'Vineti = to lead away, remove, train'] },
             { id: 'ab1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead (vi-nī = lead away)', 'Present stem vine- influences form'] },
@@ -974,6 +988,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'ab2',
           wordClass: 'content',
+          refrainId: 'formula-removing',
           segments: [
             { id: 'ab2s1', text: 'lok', type: 'root', tooltips: ['Loka: World / Realm'] },
             { id: 'ab2s2', text: 'e', type: 'suffix', tooltips: ['📍 "In/regarding the..." — scope of action', 'What the removing applies to'] },
@@ -986,6 +1001,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'ab3',
           wordClass: 'content',
+          refrainId: 'formula-removing',
           segments: [
             { id: 'ab3s1', text: 'abhi', type: 'prefix', tooltips: ['Abhi: Towards / Intensely'] },
             { id: 'ab3s2', text: 'jjhā', type: 'root', tooltips: ['√jhā (related to √dhyai): Longing / Covetousness'] },

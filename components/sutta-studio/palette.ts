@@ -40,3 +40,28 @@ export const RELATION_HOOK: Record<RelationType, string> = {
   location: 'IN/AT',
   action: 'BY/WITH',
 };
+
+// Refrain colors - for repeated formulas/phrases across phases
+// Shows visual rhythm in study mode (as underline)
+export const REFRAIN_COLORS: Record<string, { underline: string; bg: string }> = {
+  bhikkhu: {
+    underline: 'border-blue-400',
+    bg: 'bg-blue-400/10',
+  },
+  bhagava: {
+    underline: 'border-yellow-400',
+    bg: 'bg-yellow-400/10',
+  },
+  'formula-ardent': {
+    underline: 'border-green-400',
+    bg: 'bg-green-400/10',
+  },
+  'formula-removing': {
+    underline: 'border-purple-400',
+    bg: 'bg-purple-400/10',
+  },
+  'four-objects': {
+    underline: 'border-teal-400',
+    bg: 'bg-teal-400/10',
+  },
+};

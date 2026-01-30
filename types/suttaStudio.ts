@@ -215,6 +215,8 @@ export type PaliWord = {
   sourceRefs?: SourceRef[];
   /** Word class for color coding: content (green), function (white), vocative (yellow) */
   wordClass?: WordClass;
+  /** Refrain ID for visual rhythm - words with same ID share color (study mode only) */
+  refrainId?: string;
 };
 
 export type EnglishToken = {

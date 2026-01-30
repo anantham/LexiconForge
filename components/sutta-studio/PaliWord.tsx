@@ -3,7 +3,7 @@ import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { PaliWord, WordClass, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
-import { RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
+import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
 import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, wordDomId } from './utils';
 import { Tooltip } from './Tooltip';
 
@@ -43,6 +43,9 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   const wDomId = wordDomId(phaseId, wordData.id);
   const isWordFocused = (pinned?.wordId ?? hovered?.wordId) === wordData.id;
 
+  // Refrain colors (for repeated formulas) - only in study mode
+  const refrainStyle = wordData.refrainId && studyMode ? REFRAIN_COLORS[wordData.refrainId] : null;
+
   const onWordClick = () => {
     console.log('[PaliWord] CLICK', { wordId: wordData.id, surface: wordData.segments.map(s => s.text).join(''), hasSelection: hasTextSelection() });
     if (hasTextSelection()) return;
@@ -56,7 +59,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
       data-interactive="true"
       className={`flex flex-col items-center mx-1 md:mx-2 bg-slate-950 relative z-10 ${
         isWordFocused ? 'ring-1 ring-emerald-900/50 rounded' : ''
-      }`}
+      } ${refrainStyle ? `border-b-2 ${refrainStyle.underline} pb-1` : ''}`}
       onClick={onWordClick}
       title="Click: rotate meaning"
     >
