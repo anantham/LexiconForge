@@ -1637,7 +1637,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           refrainId: 'bhikkhu',
           segments: [
             { id: 'an3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'an3s2', text: 'u', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'an3s2', text: 'u', type: 'suffix', tooltips: ['[Nominative Singular]'] },
           ],
           senses: [{ english: 'a bhikkhu', nuance: 'Subject' }],
         },
@@ -1890,7 +1890,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'aq5s1', text: 'passas', type: 'root', tooltips: ['🌬️ Pra + √śvas: To breathe out', 'Sanskrit praśvas → Pali passasati', 'Pra = forth (pro-spirare in Latin)', '• Release phase of the cycle', '• Calming, letting go', '• Leads to passambhayaṁ (stilling)'] },
-            { id: 'aq5s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+            { id: 'aq5s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [
             { english: 'breathes out', nuance: 'Exhalation' },
@@ -1997,7 +1997,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'as1s1', text: 'Rass', type: 'root', tooltips: ['Rassa: Short (in space or time)', 'Sanskrit hrasva', '🌬️ A short, quick breath', '🪵 Turner "making a short turn"', 'Ancient reciprocating bow-lathe:', 'back-forth mirrors in-out breath', 'The turner knows through DOING'] },
-            { id: 'as1s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative adverbial'] },
+            { id: 'as1s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
           ],
           senses: [
             { english: 'short', nuance: 'Brief' },
@@ -2044,7 +2044,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'as6s1', text: 'pajān', type: 'root', tooltips: ['🧠 √jñā: Clearly knows'] },
-            { id: 'as6s2', text: 'āti', type: 'suffix', tooltips: ['Present tense'] },
+            { id: 'as6s2', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [{ english: 'knows', nuance: 'Discerns' }],
         },
@@ -2177,7 +2177,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'au5s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train'] },
-            { id: 'au5s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+            { id: 'au5s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [{ english: 'trains', nuance: 'Practices' }],
         },
@@ -2205,7 +2205,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'function',
           segments: [
             { id: 'av1s1', text: 'Seyyathā', type: 'stem', tooltips: ['Seyyathā: Just as / Like', 'Introduces a simile (upamā)', 'Pedagogical device for meditation'] },
-            { id: 'av1s2', text: 'pi', type: 'suffix', tooltips: ['Api: Also / Even', 'Emphatic particle'] },
+            { id: 'av1s2', text: 'pi', type: 'suffix', tooltips: ['Api: Also / Even', '[Emphatic Particle]'] },
           ],
           senses: [{ english: 'just as', nuance: 'Simile marker' }],
         },
@@ -2214,7 +2214,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'function',
           segments: [
             { id: 'av2s1', text: 'bhikkha', type: 'root', tooltips: ['Bhikkhu: Monk'] },
-            { id: 'av2s2', text: 've', type: 'suffix', tooltips: ['Vocative plural'] },
+            { id: 'av2s2', text: 've', type: 'suffix', tooltips: ['[Vocative Plural] Addressing the group'] },
           ],
           senses: [{ english: 'monks', nuance: 'Address' }],
         },
@@ -2223,7 +2223,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'av3s1', text: 'dakkh', type: 'root', tooltips: ['Dakkha: Skilled / Expert', 'Sanskrit dakṣa', '📝 The turner is not a passive', 'observer — he is a craftsman', 'with developed sensitivity'] },
-            { id: 'av3s2', text: 'o', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'av3s2', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular]'] },
           ],
           senses: [
             { english: 'skilled', nuance: 'Expert' },
@@ -2236,7 +2236,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'av4s1', text: 'bhama', type: 'root', tooltips: ['🪵 Bhama: Lathe / Turning-wheel', 'From √bhram: to turn, rotate', 'Ancient reciprocating bow-lathe:', 'Turner pulls strap back-forth', 'to spin the wood — mirrors', 'the in-out rhythm of breath'] },
             { id: 'av4s2', text: 'kār', type: 'root', tooltips: ['√kṛ: Maker / Doer', 'Bhamakāra = "lathe-worker"', 'A turner who shapes wood'] },
-            { id: 'av4s3', text: 'o', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'av4s3', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular]'] },
           ],
           senses: [
             { english: 'turner', nuance: 'Craftsman' },
@@ -2259,7 +2259,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'av6s2', text: 'kār', type: 'root', tooltips: ['Maker'] },
             { id: 'av6s3', text: 'ante', type: 'stem', tooltips: ['Anta: End / Near', 'Antevāsī = one who dwells near', '= apprentice (learning close by)'] },
             { id: 'av6s4', text: 'vās', type: 'root', tooltips: ['√vas: To dwell'] },
-            { id: 'av6s5', text: 'ī', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'av6s5', text: 'ī', type: 'suffix', tooltips: ['[Nominative Singular]'] },
           ],
           senses: [
             { english: "turner's apprentice", nuance: 'Student' },
@@ -2288,7 +2288,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'aw1s1', text: 'dīgh', type: 'root', tooltips: ['Long'] },
-            { id: 'aw1s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative adverbial'] },
+            { id: 'aw1s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
           ],
           senses: [{ english: 'long', nuance: 'Duration' }],
         },
@@ -2326,7 +2326,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'aw5s1', text: 'añch', type: 'root', tooltips: ['To pull'] },
-            { id: 'aw5s2', text: 'āmī', type: 'suffix', tooltips: ['1st person: "I am pulling"'] },
+            { id: 'aw5s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person] "I am pulling"'] },
           ],
           senses: [{ english: 'I pull', nuance: 'Self-aware action' }],
         },
@@ -2343,7 +2343,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'aw7s1', text: 'pajān', type: 'root', tooltips: ['🧠 Knows / Discerns', '📝 The simile teaches:', 'The POINT OF COMPARISON is', 'the precision of knowing', 'The turner knows through MAKING', '→ meditator knows through', 'sensitive ENGAGEMENT'] },
-            { id: 'aw7s2', text: 'āti', type: 'suffix', tooltips: ['Present tense'] },
+            { id: 'aw7s2', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [
             { english: 'knows', nuance: 'Understands' },
@@ -2378,7 +2378,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'ax2',
           wordClass: 'function',
           segments: [
-            { id: 'ax2s1', text: 'kho', type: 'stem', tooltips: ['Kho: Indeed / Certainly', 'Emphatic particle'] },
+            { id: 'ax2s1', text: 'kho', type: 'stem', tooltips: ['Kho: Indeed / Certainly', '[Emphatic Particle]'] },
           ],
           senses: [{ english: 'indeed', nuance: 'Emphasis' }],
         },
@@ -2387,7 +2387,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'function',
           segments: [
             { id: 'ax3s1', text: 'bhikkha', type: 'root', tooltips: ['Bhikkhu: Monk'] },
-            { id: 'ax3s2', text: 've', type: 'suffix', tooltips: ['Vocative plural'] },
+            { id: 'ax3s2', text: 've', type: 'suffix', tooltips: ['[Vocative Plural] Addressing the group'] },
           ],
           senses: [{ english: 'monks', nuance: 'Address' }],
         },
@@ -2429,7 +2429,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ay2s1', text: 'ajjh', type: 'prefix', tooltips: ['Adhi: Over / Upon / Inner', 'Sanskrit adhyātma'] },
             { id: 'ay2s2', text: 'att', type: 'root', tooltips: ['Attan: Self', 'Ajjhatta = internal, within oneself', '📍 THREE SCOPES:', '• Ajjhattaṁ = one\'s own body', '• Bahiddhā = others\' bodies', '• Both = seeing universality'] },
-            { id: 'ay2s3', text: 'aṁ', type: 'suffix', tooltips: ['Accusative adverbial: "internally"'] },
+            { id: 'ay2s3', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial] "internally"'] },
           ],
           senses: [
             { english: 'internally', nuance: 'Within oneself' },
@@ -2449,7 +2449,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'ay4s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
-            { id: 'ay4s2', text: 'e', type: 'suffix', tooltips: ['Locative: "in the body"'] },
+            { id: 'ay4s2', text: 'e', type: 'suffix', tooltips: ['[Locative] "in the body"'] },
           ],
           senses: [{ english: 'in the body', nuance: 'Location' }],
         },
@@ -2460,7 +2460,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ay5s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
             { id: 'ay5s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Following', 'Repeated contemplation'] },
             { id: 'ay5s3', text: 'pass', type: 'root', tooltips: ['√paś/dṛś: To see / Observe', 'Anupassī = repeatedly seeing'] },
-            { id: 'ay5s4', text: 'ī', type: 'suffix', tooltips: ['Agent noun: "one who..."'] },
+            { id: 'ay5s4', text: 'ī', type: 'suffix', tooltips: ['[Agent Noun] "one who..."'] },
           ],
           senses: [
             { english: 'contemplating the body', nuance: 'Observing' },
@@ -2472,7 +2472,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'ay6s1', text: 'vihar', type: 'root', tooltips: ['√hṛ + vi: To dwell / Abide', 'Viharati = lives, remains, abides', '📝 Not momentary but sustained', 'dwelling in the practice'] },
-            { id: 'ay6s2', text: 'ati', type: 'suffix', tooltips: ['Present tense: "dwells"'] },
+            { id: 'ay6s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense] "dwells"'] },
           ],
           senses: [
             { english: 'dwells', nuance: 'Abides' },
@@ -2500,7 +2500,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'az1s1', text: 'bahid', type: 'root', tooltips: ['Bahis: Outside / External', 'Sanskrit bahis'] },
-            { id: 'az1s2', text: 'dhā', type: 'suffix', tooltips: ['Adverbial: "externally"', '📍 EXTERNAL SCOPE:', '• Others\' bodies (living beings)', '• Or: external aspects of one\'s', '  own body (skin, posture)', '🔗 Develops universal insight'] },
+            { id: 'az1s2', text: 'dhā', type: 'suffix', tooltips: ['[Adverbial] "externally"', '📍 EXTERNAL SCOPE:', '• Others\' bodies (living beings)', '• Or: external aspects of one\'s', '  own body (skin, posture)', '🔗 Develops universal insight'] },
           ],
           senses: [
             { english: 'externally', nuance: 'Outside oneself' },
@@ -2536,7 +2536,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'az5s1', text: 'vihar', type: 'root', tooltips: ['Dwells'] },
-            { id: 'az5s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+            { id: 'az5s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [{ english: 'dwells', nuance: 'Abides' }],
         },
@@ -2624,7 +2624,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'bb1s3', text: 'dhamma', type: 'root', tooltips: ['Dhamma: Nature / Quality / Phenomenon', '"Arising-nature" = subject to arising'] },
             { id: 'bb1s4', text: 'ānu', type: 'prefix', tooltips: ['Anu: Following / Repeatedly'] },
             { id: 'bb1s5', text: 'pass', type: 'root', tooltips: ['√paś: Seeing'] },
-            { id: 'bb1s6', text: 'ī', type: 'suffix', tooltips: ['Agent: "one who sees..."'] },
+            { id: 'bb1s6', text: 'ī', type: 'suffix', tooltips: ['[Agent Suffix] "one who sees..."'] },
           ],
           senses: [
             { english: 'observing the arising nature', nuance: 'Origin' },
@@ -2644,7 +2644,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'bb3s1', text: 'kāya', type: 'root', tooltips: ['Body'] },
-            { id: 'bb3s2', text: 'smiṁ', type: 'suffix', tooltips: ['Locative: "in regard to body"'] },
+            { id: 'bb3s2', text: 'smiṁ', type: 'suffix', tooltips: ['[Locative] "in regard to body"'] },
           ],
           senses: [{ english: 'in regard to body', nuance: 'Location' }],
         },
@@ -2930,7 +2930,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'bg1s1', text: 'a', type: 'prefix', tooltips: ['A-: Not / Without (negative)'] },
             { id: 'bg1s2', text: 'nissit', type: 'root', tooltips: ['Nissita: Dependent / Leaning on', 'From ni + √śri: to lean', 'Anissita = INDEPENDENT', '⚡ KEY RESULT:', 'Not leaning on craving', 'Not leaning on views', 'Self-sufficient awareness'] },
-            { id: 'bg1s3', text: 'o', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'bg1s3', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular]'] },
           ],
           senses: [
             { english: 'independent', nuance: 'Not leaning' },
@@ -2950,7 +2950,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'bg3s1', text: 'vihar', type: 'root', tooltips: ['Dwells'] },
-            { id: 'bg3s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+            { id: 'bg3s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [{ english: 'dwells', nuance: 'Abides' }],
         },
