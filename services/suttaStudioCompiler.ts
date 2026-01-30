@@ -67,7 +67,7 @@ const COMPILER_MIN_CALL_GAP_MS = 1000;
 
 /// DEBUG: Limit phases for testing (set to 0 for unlimited)
 const DEBUG_PHASE_LIMIT = 6;
-const DICTIONARY_LOOKUP_BASE = 'https://suttacentral.net/api/dictionaries/lookup?from=pali&to=en&q=';
+const DICTIONARY_LOOKUP_BASE = 'https://suttacentral.net/api/dictionary_full/';
 
 const skeletonResponseSchema = {
   type: 'object',
