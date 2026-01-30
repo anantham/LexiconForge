@@ -113,6 +113,131 @@ Use ⚡ for translation choices that fundamentally change practice meaning:
 ✓ Consensus: observation itself removes
 ```
 
+## Content Categories
+
+Tooltips should draw from multiple dimensions of understanding:
+
+### 1. Etymology & Root Meaning
+
+The word's origins and literal components.
+
+| Element | Example |
+|---------|---------|
+| Root | √su: "to hear" |
+| Compounds | Du (bad) + Kha (axle-hole) = dukkha |
+| Sandhi | paṭi + a → pacc (sound changes) |
+| Derivation | How the word was built |
+
+### 2. Semantic Range
+
+The spectrum of valid translations.
+
+| Approach | Example for "sati" |
+|----------|-------------------|
+| Standard | mindfulness |
+| Etymological | remembering, memory |
+| Practice-oriented | presence, lucidity |
+| Poetic | keeping in mind |
+| Tradition-specific | recollection (Theravāda) |
+
+### 3. Cultural & Historical Context
+
+What this word meant in its world.
+
+| Element | Example |
+|---------|---------|
+| Social role | Bhikkhu = one who shares, lives on alms |
+| Place names | Kammāsadamma = "Where the Spotted One was Tamed" (ogre legend) |
+| Ritual context | "Evaṁ me sutaṁ" = oral transmission formula |
+| Who spoke | Ānanda reciting at First Council |
+
+### 4. Scholarly Debates
+
+Where experts disagree — marked with ⚖️
+
+| Topic | Example |
+|-------|---------|
+| Spelling variants | Damma vs Dhamma (taming vs teaching) |
+| Translation choices | "Ekāyano" — direct? solitary? convergent? |
+| Grammatical analysis | Is this a gerund or participle? |
+
+### 5. Interpretation Traditions
+
+How different schools read the same text.
+
+| Tradition | Might emphasize |
+|-----------|-----------------|
+| Theravāda | Technical precision, commentarial tradition |
+| Mahāyāna | Broader metaphorical readings |
+| Secular/Modern | Psychological, phenomenological framing |
+| Academic | Historical-critical, comparative |
+
+### 6. Practice Implications
+
+What this means for actual meditation — marked with ⚡ when critical.
+
+| Element | Example |
+|---------|---------|
+| Instructions | "Kāye kāyānupassī" = observe body AS body (not as self) |
+| Common mistakes | Thinking you must be pure BEFORE practicing |
+| Key insights | Observation IS the method of removal |
+| Temporal reading | "Having removed" vs "removing" changes everything |
+
+### 7. Grammatical Function
+
+What role this word plays in the sentence.
+
+| Function | Emoji | Plain English |
+|----------|-------|---------------|
+| Subject | — | The one doing it |
+| Object | — | The thing being acted on |
+| Location | 📍 | Where it happens |
+| Belonging | 🔗 | Whose / of whom |
+| Receiving | 🎯 | To whom |
+| Calling | 📢 | Addressing someone |
+| Questioning | ❓ | Asking |
+| Time | ⏰ | When |
+| Purpose | 🎯 | For the sake of |
+
+### 8. Morphological Notes
+
+How the word changes form — explained accessibly.
+
+| Term | Explanation | Example |
+|------|-------------|---------|
+| Indeclinable | Never changes form | nāma, evaṁ |
+| Agent noun | "One who does X" — identity | kāyānupassī |
+| Absolutive | Action completed before main verb | vineyya |
+| Causative | Making someone do X | āmantesi (made them listen) |
+
+### 9. Evidence & Sources
+
+Claims should be grounded. Types of evidence:
+
+| Type | Example | How to cite |
+|------|---------|-------------|
+| Dictionary | PTS Pali-English Dictionary | "PTS: ..." |
+| Commentary | Buddhaghosa's Visuddhimagga | "Vism: ..." |
+| Comparative | Sanskrit cognate confirms meaning | "Skt √śru confirms..." |
+| Textual | Same word used elsewhere | "cf. DN 22, MN 118" |
+| Scholarly | Academic analysis | "Anālayo argues..." |
+| Manuscript | Variant readings | "Some mss. read..." |
+
+**Evidence markers:**
+- ✓ = Scholarly consensus
+- ⚖️ = Debated among scholars
+- 📚 = See commentary for more
+- 🔍 = Comparative evidence
+
+**Example with evidence:**
+```
+'√su (Skt √śru): To hear',
+'Sigmatic Aorist: su → so (guṇa) + s-marker',
+'✓ Geminated -ss- preserves Skt śr cluster weight'
+```
+
+---
+
 ## Consequences
 
 **Positive:**
