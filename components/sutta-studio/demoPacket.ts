@@ -256,7 +256,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'e5s1', text: 'ā', type: 'prefix', tooltips: ['Ā: Towards / Intensifier', 'Augment coalesces with prefix (a + ā → ā)'] },
             { id: 'e5s2', text: 'mant', type: 'root', tooltips: ['√mant (Skt mantr): To counsel / Advise', 'Source of "mantra" (counsel/spell)', 'Causative/Class X stem implies deliberate initiation'] },
-            { id: 'e5s3', text: 'esi', type: 'suffix', tooltips: ['Sigmatic Aorist: -e- (caus.) + -s- + -i', 'Pattern: deseti→desesi, katheti→kathesi'] },
+            { id: 'e5s3', text: 'esi', type: 'suffix', tooltips: ['⏮️ Past tense — "he addressed"', 'The -s- sound marks completed action'] },
           ],
           senses: [
             { english: 'addressed', nuance: 'Formally invited' },
@@ -356,7 +356,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'g6s1', text: 'pacc', type: 'prefix', tooltips: ['Paṭi → Pacc (sandhi: paṭi + a-augment → paty-a → pacc-a)', 'Back / In return / Towards'] },
-            { id: 'g6s2', text: 'assosuṁ', type: 'root', tooltips: ['√su (Skt √śru): To hear', 'Sigmatic Aorist: su → so (guṇa) + s-marker', 'Geminated -ss- preserves weight of Skt śr cluster', 'Paṭi-su = "to hear back" → reply/assent'] },
+            { id: 'g6s2', text: 'assosuṁ', type: 'root', tooltips: ['👂 √su: To hear', '⏮️ Past tense — "they replied"', 'Double -ss- from older Sanskrit sound', 'Paṭi + su = "hear back" → reply'] },
           ],
           senses: [
             { english: 'replied', nuance: 'Responded' },
