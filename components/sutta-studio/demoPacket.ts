@@ -41,7 +41,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'a2',
           wordClass: 'function',
           segments: [
-            { id: 'a2s1', text: 'me', type: 'stem', tooltips: ['Instrumental of ahaṁ (I)', 'By me'] },
+            { id: 'a2s1', text: 'me', type: 'stem', tooltips: ['From ahaṁ (I)', '"By me" — marks who did the hearing'] },
           ],
           senses: [
             { english: 'by me', nuance: 'Instrumental' },
@@ -53,7 +53,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'a3s1', text: 'sut', type: 'root', tooltips: ['√su: To hear', 'Past participle'] },
-            { id: 'a3s2', text: 'aṁ', type: 'suffix', tooltips: ['Nominative neuter singular', 'Past participle ending'] },
+            { id: 'a3s2', text: 'aṁ', type: 'suffix', tooltips: ['"The thing heard" — names what was received', 'Past participle: action already completed'] },
           ],
           senses: [
             { english: 'heard', nuance: 'Standard' },
@@ -75,7 +75,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'b1',
           wordClass: 'function',
           segments: [
-            { id: 'b1s1', text: 'ekaṁ', type: 'stem', tooltips: ['Eka: One', 'Accusative neuter'] },
+            { id: 'b1s1', text: 'ekaṁ', type: 'stem', tooltips: ['Eka: One', 'Points to which occasion'] },
           ],
           senses: [{ english: 'one', nuance: 'Singular' }],
         },
@@ -84,7 +84,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'b2s1', text: 'sam', type: 'root', tooltips: ['√sam: To come together', 'Occasion / Meeting'] },
-            { id: 'b2s2', text: 'ayaṁ', type: 'suffix', tooltips: ['Accusative singular', 'Time expression'] },
+            { id: 'b2s2', text: 'ayaṁ', type: 'suffix', tooltips: ['Marks a point in time', '"At one time..."'] },
           ],
           senses: [
             { english: 'time', nuance: 'Occasion' },
@@ -96,7 +96,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'b3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share', 'One who shares / Fortunate'] },
-            { id: 'b3s2', text: 'avā', type: 'suffix', tooltips: ['Nominative singular', '-vant suffix (possessor of)'] },
+            { id: 'b3s2', text: 'avā', type: 'suffix', tooltips: ['The one doing the action', '-vant = "one who possesses" (fortune, blessings)'] },
           ],
           senses: [
             { english: 'the Blessed One', nuance: 'Standard' },
@@ -120,7 +120,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'c1s1', text: 'Kur', type: 'root', tooltips: ['Kuru: Name of a people/region', 'Ancient Indian clan'] },
-            { id: 'c1s2', text: 'ūsu', type: 'suffix', tooltips: ['Locative plural', 'Among the...'] },
+            { id: 'c1s2', text: 'ūsu', type: 'suffix', tooltips: ['📍 "Among the..." — where it happened', 'Multiple people/places'] },
           ],
           senses: [
             { english: 'among the Kurus', nuance: 'Location' },
@@ -132,7 +132,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'c2s1', text: 'vi', type: 'prefix', tooltips: ['Prefix: Apart / Special'] },
             { id: 'c2s2', text: 'har', type: 'root', tooltips: ['√hṛ: To carry / Hold', 'To dwell / Abide'] },
-            { id: 'c2s3', text: 'ati', type: 'suffix', tooltips: ['Present tense 3rd singular', 'Ongoing action'] },
+            { id: 'c2s3', text: 'ati', type: 'suffix', tooltips: ['He/she/it is doing this now', 'Ongoing action'] },
           ],
           senses: [
             { english: 'was dwelling', nuance: 'Residing' },
@@ -154,7 +154,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'd1s1', text: 'Kammāsa', type: 'root', tooltips: ['Spotted / Variegated / Speckled', 'Refers to King Kammāsapāda ("Speckled Foot")', 'A cannibal ogre-king in Jātaka legend'] },
-            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['DEBATE: Damma vs Dhamma', '• Damma (√dam): "Taming" - where the ogre was tamed', '• Dhamma: "Teaching" - the Kuru code of conduct', 'Both converge: taming accomplished through teaching', 'Neuter nominative (verified by -aṁ ending)'] },
+            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['DEBATE: Damma vs Dhamma', '• Damma (√dam): "Taming" - where the ogre was tamed', '• Dhamma: "Teaching" - the Kuru code of conduct', 'Both converge: taming accomplished through teaching', 'The -aṁ ending names the place'] },
           ],
           senses: [
             { english: 'Kammāsadhamma', nuance: 'Place of Taming' },
@@ -177,7 +177,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'd3s1', text: 'Kur', type: 'root', tooltips: ['Kuru: The people'] },
-            { id: 'd3s2', text: 'ūnaṁ', type: 'suffix', tooltips: ['Genitive plural', 'Of the...'] },
+            { id: 'd3s2', text: 'ūnaṁ', type: 'suffix', tooltips: ['🔗 "Of the..." — belonging to the Kurus', 'Their town, their territory'] },
           ],
           senses: [
             { english: 'of the Kurus', nuance: 'Possession' },
@@ -189,7 +189,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'd4s1', text: 'ni', type: 'prefix', tooltips: ['Down / Settled'] },
             { id: 'd4s2', text: 'gam', type: 'root', tooltips: ['√gam: To go', 'Settlement / Town'] },
-            { id: 'd4s3', text: 'o', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'd4s3', text: 'o', type: 'suffix', tooltips: ['The subject — "a town"'] },
           ],
           senses: [
             { english: 'a market town', nuance: 'Settlement' },
@@ -212,7 +212,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'e1',
           wordClass: 'function',
           segments: [
-            { id: 'e1s1', text: 'Tatra', type: 'stem', tooltips: ['There / In that place', 'Locative adverb'] },
+            { id: 'e1s1', text: 'Tatra', type: 'stem', tooltips: ['There / In that place', '📍 Points to a location'] },
           ],
           senses: [{ english: 'There', nuance: 'Location' }],
         },
@@ -232,7 +232,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'e3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share'] },
-            { id: 'e3s2', text: 'avā', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'e3s2', text: 'avā', type: 'suffix', tooltips: ['The one doing the action'] },
           ],
           senses: [{ english: 'the Blessed One', nuance: 'Subject' }],
         },
@@ -241,7 +241,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'e4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg / Share'] },
-            { id: 'e4s2', text: 'ū', type: 'suffix', tooltips: ['Accusative plural', 'Direct object'] },
+            { id: 'e4s2', text: 'ū', type: 'suffix', tooltips: ['👥 Them — the group being addressed', 'The ones receiving the teaching'] },
           ],
           senses: [
             { english: 'the bhikkhus', nuance: 'Object' },
@@ -278,7 +278,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'f1s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
-            { id: 'f1s2', text: 'avo', type: 'suffix', tooltips: ['Vocative plural', 'Direct address'] },
+            { id: 'f1s2', text: 'avo', type: 'suffix', tooltips: ['📢 "Hey you all!" — calling out to a group', 'Like saying "O monks!"'] },
           ],
           senses: [
             { english: 'Bhikkhus!', nuance: 'Call' },
@@ -306,7 +306,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'g1s1', text: 'Bhad', type: 'root', tooltips: ['Bhadra: Good / Auspicious'] },
-            { id: 'g1s2', text: 'ante', type: 'suffix', tooltips: ['Vocative singular', 'Respectful address'] },
+            { id: 'g1s2', text: 'ante', type: 'suffix', tooltips: ['📢 "O Sir!" — respectfully calling one person', 'Like bowing while addressing'] },
           ],
           senses: [
             { english: 'Venerable sir', nuance: 'Respectful' },
@@ -325,7 +325,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'g3',
           wordClass: 'function',
           segments: [
-            { id: 'g3s1', text: 'te', type: 'stem', tooltips: ['Those / They', 'Nominative plural'] },
+            { id: 'g3s1', text: 'te', type: 'stem', tooltips: ['Those / They', 'The ones doing the action'] },
           ],
           senses: [{ english: 'those', nuance: 'Demonstrative' }],
         },
@@ -334,7 +334,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'g4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'g4s2', text: 'ū', type: 'suffix', tooltips: ['Nominative plural', 'Subject'] },
+            { id: 'g4s2', text: 'ū', type: 'suffix', tooltips: ['👥 They — the group doing the action', 'The bhikkhus who replied'] },
           ],
           senses: [{ english: 'bhikkhus', nuance: 'Subject' }],
         },
@@ -343,7 +343,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'g5s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
-            { id: 'g5s2', text: 'avato', type: 'suffix', tooltips: ['Dative/Genitive singular', 'To/Of the...'] },
+            { id: 'g5s2', text: 'avato', type: 'suffix', tooltips: ['🎯 "To him" — receiving the reply', 'The one being addressed'] },
           ],
           senses: [
             { english: 'to the Blessed One', nuance: 'Dative' },
@@ -379,7 +379,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'h1s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
-            { id: 'h1s2', text: 'avā', type: 'suffix', tooltips: ['Nominative singular'] },
+            { id: 'h1s2', text: 'avā', type: 'suffix', tooltips: ['The one speaking'] },
           ],
           senses: [{ english: 'The Blessed One', nuance: 'Subject' }],
         },
@@ -387,7 +387,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'h2',
           wordClass: 'function',
           segments: [
-            { id: 'h2s1', text: 'etad', type: 'stem', tooltips: ['Eta: This', 'Accusative neuter'] },
+            { id: 'h2s1', text: 'etad', type: 'stem', tooltips: ['Eta: This', 'What was said — the teaching'] },
           ],
           senses: [{ english: 'this', nuance: 'Object' }],
         },
@@ -397,7 +397,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'h3s1', text: 'a', type: 'prefix', tooltips: ['Aorist prefix'] },
             { id: 'h3s2', text: 'voc', type: 'root', tooltips: ['√vac: To speak / Say'] },
-            { id: 'h3s3', text: 'a', type: 'suffix', tooltips: ['Aorist 3rd singular'] },
+            { id: 'h3s3', text: 'a', type: 'suffix', tooltips: ['He spoke (past, completed)'] },
           ],
           senses: [
             { english: 'said', nuance: 'Spoke' },
@@ -458,7 +458,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'p3s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
-            { id: 'p3s2', text: 'ave', type: 'suffix', tooltips: ['Function: Addressing the crowd'] },
+            { id: 'p3s2', text: 'ave', type: 'suffix', tooltips: ['📢 "Hey friends!" — calling out to the group'] },
           ],
           senses: [
             { english: 'Mendicants,', nuance: 'Alms-men' },
@@ -756,7 +756,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'function',
           segments: [
             { id: 'x1s1', text: 'Kat', type: 'root', tooltips: ['Ka: Interrogative stem'] },
-            { id: 'x1s2', text: 'ame', type: 'suffix', tooltips: ['Nominative plural', 'Which ones?'] },
+            { id: 'x1s2', text: 'ame', type: 'suffix', tooltips: ['❓ "Which ones?" — asking about a group'] },
           ],
           senses: [
             { english: 'What', nuance: 'Interrogative' },
@@ -767,7 +767,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'x2',
           wordClass: 'content',
           segments: [
-            { id: 'x2s1', text: 'cattāro', type: 'stem', tooltips: ['Four (4)', 'Nominative plural'] },
+            { id: 'x2s1', text: 'cattāro', type: 'stem', tooltips: ['Four (4)', 'The four things being named'] },
           ],
           senses: [{ english: 'four', nuance: 'Number' }],
         },
@@ -785,7 +785,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'y1',
           wordClass: 'function',
           segments: [
-            { id: 'y1s1', text: 'Idha', type: 'stem', tooltips: ['Here / In this teaching', 'Locative adverb'] },
+            { id: 'y1s1', text: 'Idha', type: 'stem', tooltips: ['Here / In this teaching', '📍 Sets the context'] },
           ],
           senses: [
             { english: 'Here', nuance: 'In this teaching' },
@@ -797,7 +797,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'y2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'y2s2', text: 'ave', type: 'suffix', tooltips: ['Vocative plural'] },
+            { id: 'y2s2', text: 'ave', type: 'suffix', tooltips: ['📢 Calling out to the group'] },
           ],
           senses: [{ english: 'bhikkhus', nuance: 'Address' }],
         },
@@ -806,7 +806,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'y3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'y3s2', text: 'u', type: 'suffix', tooltips: ['Nominative singular', 'A bhikkhu'] },
+            { id: 'y3s2', text: 'u', type: 'suffix', tooltips: ['One person — "a bhikkhu"', 'The practitioner being described'] },
           ],
           senses: [
             { english: 'a bhikkhu', nuance: 'Subject' },
@@ -828,7 +828,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'z1s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection / Heap'] },
-            { id: 'z1s2', text: 'e', type: 'suffix', tooltips: ['Locative singular', '"Kāye kāyānupassī" = body IN body', 'INTERPRETATIONS:', '• Isolation: body only, not self/feelings', '• Anatomical: penetrating to true nature', '• Phenomenological: staying with the object'] },
+            { id: 'z1s2', text: 'e', type: 'suffix', tooltips: ['📍 "In the..." — where attention rests', '"Body in body" = seeing body AS body', '• Not as "mine" or "self"', '• Not mixed with feelings or thoughts', '• Just the raw phenomenon'] },
           ],
           senses: [
             { english: 'in the body', nuance: 'Field of observation' },
@@ -855,7 +855,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'z3s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
             { id: 'z3s2', text: 'har', type: 'root', tooltips: ['√hṛ: To carry / Dwell'] },
-            { id: 'z3s3', text: 'ati', type: 'suffix', tooltips: ['Present 3rd singular'] },
+            { id: 'z3s3', text: 'ati', type: 'suffix', tooltips: ['He/she is doing this now'] },
           ],
           senses: [
             { english: 'dwells', nuance: 'Abides' },
@@ -891,7 +891,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['Sam: Together / Completely / Thoroughly'] },
             { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Forward / Fully'] },
             { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['√jñā (Pali √ñā): To know', 'Sampajañña = clear comprehension', 'Knowing the purpose, suitability, domain, reality'] },
-            { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['Nominative singular masculine', 'Present participle → agent quality'] },
+            { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['The one doing this — describes the practitioner', 'Quality of thorough knowing'] },
           ],
           senses: [
             { english: 'clearly comprehending', nuance: 'Full awareness' },
@@ -939,7 +939,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'ab2s1', text: 'lok', type: 'root', tooltips: ['Loka: World / Realm'] },
-            { id: 'ab2s2', text: 'e', type: 'suffix', tooltips: ['Locative singular', 'In regard to the world'] },
+            { id: 'ab2s2', text: 'e', type: 'suffix', tooltips: ['📍 "In/regarding the..." — scope of action', 'What the removing applies to'] },
           ],
           senses: [
             { english: 'regarding the world', nuance: 'Scope' },
@@ -953,7 +953,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ab3s1', text: 'abhi', type: 'prefix', tooltips: ['Abhi: Towards / Intensely'] },
             { id: 'ab3s2', text: 'jjhā', type: 'root', tooltips: ['√jhā (related to √dhyai): Longing / Covetousness'] },
             { id: 'ab3s3', text: 'domanass', type: 'root', tooltips: ['Du + Manas: Bad-mind / Displeasure'] },
-            { id: 'ab3s4', text: 'aṁ', type: 'suffix', tooltips: ['Accusative singular', 'Direct object'] },
+            { id: 'ab3s4', text: 'aṁ', type: 'suffix', tooltips: ['The thing being removed', 'Target of the "leading away"'] },
           ],
           senses: [
             { english: 'covetousness & displeasure', nuance: 'Compound' },
