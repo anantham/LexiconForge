@@ -36,7 +36,12 @@ export type BoundaryNote = {
   afterSegmentId?: string;
 };
 
-export type SkeletonPhase = { id: string; title?: string; segmentIds: string[] };
+export type SkeletonPhase = {
+  id: string;
+  title?: string;
+  segmentIds: string[];
+  wordRange?: [number, number]; // [start, end) indices into Pali words for sub-segment splitting
+};
 
 export const skeletonResponseSchema = {
   type: 'object',
@@ -51,6 +56,13 @@ export const skeletonResponseSchema = {
           segmentIds: {
             type: 'array',
             items: { type: 'string' },
+          },
+          wordRange: {
+            type: 'array',
+            items: { type: 'number' },
+            minItems: 2,
+            maxItems: 2,
+            description: '[start, end) indices into Pali words for sub-segment splitting',
           },
         },
         required: ['id', 'segmentIds'],
@@ -76,6 +88,7 @@ export const anatomistResponseSchema = {
           wordClass: { type: 'string', enum: ['content', 'function'] },
           segmentIds: { type: 'array', items: { type: 'string' } },
           isAnchor: { type: 'boolean' },
+          refrainId: { type: 'string' },
         },
         required: ['id', 'surface', 'wordClass', 'segmentIds'],
         additionalProperties: false,

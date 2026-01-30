@@ -1,7 +1,7 @@
 import type { AnatomistPass, LexicographerPass, PhaseView, WeaverPass, TypesetterPass } from '../types/suttaStudio';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Skeleton Example: Shows correct grouping patterns
+// Skeleton Example: Shows correct grouping patterns (mostly 1 segment per phase)
 // KEY: Title block segments (collection + sutta name) go TOGETHER
 // ─────────────────────────────────────────────────────────────────────────────
 export const SUTTA_STUDIO_SKELETON_EXAMPLE = {
@@ -19,16 +19,65 @@ export const SUTTA_STUDIO_SKELETON_EXAMPLE = {
       segmentIds: ['mn10:1.1'],  // "Evaṁ me sutaṁ—"
     },
     {
-      // Rule 3: Setting/nidāna grouped together
+      // Rule 3: Setting stays as a single phase (do not split)
       id: 'phase-3',
       title: 'Setting',
       segmentIds: ['mn10:1.2'],  // "ekaṁ samayaṁ bhagavā..."
     },
     {
-      // Rule 4: Speaker + vocative + verb
+      // Rule 4: Speaker line is separate
       id: 'phase-4',
       title: 'Address',
-      segmentIds: ['mn10:1.3', 'mn10:1.4'],  // "Tatra kho bhagavā bhikkhū āmantesi"
+      segmentIds: ['mn10:1.3'],  // "Tatra kho bhagavā bhikkhū āmantesi"
+    },
+    {
+      // Rule 4b: Vocative stays separate
+      id: 'phase-5',
+      title: 'Vocative',
+      segmentIds: ['mn10:1.4'],  // "bhikkhavo"ti
+    },
+    {
+      // Response and transition are separate phases
+      id: 'phase-6',
+      title: 'Response',
+      segmentIds: ['mn10:1.5'],  // "Bhadante"ti te bhikkhū ...
+    },
+    {
+      id: 'phase-7',
+      title: 'Transition',
+      segmentIds: ['mn10:1.6'],  // "Bhagavā etadavoca:"
+    },
+    {
+      // Main declaration line is its own phase
+      id: 'phase-8',
+      title: 'Main Declaration',
+      segmentIds: ['mn10:2.1'],
+    },
+    {
+      // Parallel benefit lines are separate phases
+      id: 'phase-9',
+      title: 'Benefit: Grief & Lamentation',
+      segmentIds: ['mn10:2.2'],
+    },
+    {
+      id: 'phase-10',
+      title: 'Benefit: Pain & Sadness',
+      segmentIds: ['mn10:2.3'],
+    },
+    {
+      id: 'phase-11',
+      title: 'Benefit: Attainment',
+      segmentIds: ['mn10:2.4'],
+    },
+    {
+      id: 'phase-12',
+      title: 'Benefit: Realization',
+      segmentIds: ['mn10:2.5'],
+    },
+    {
+      id: 'phase-13',
+      title: 'Conclusion',
+      segmentIds: ['mn10:2.6'],
     },
   ],
 } as const;
@@ -188,25 +237,36 @@ export const SUTTA_STUDIO_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_CO
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Anatomist Example: Segment-level output with IDs
+// NOTE: Demonstrates correct granular segmentation - -ṁ is ALWAYS a separate suffix
 // ─────────────────────────────────────────────────────────────────────────────
 export const SUTTA_STUDIO_ANATOMIST_EXAMPLE: AnatomistPass = {
   id: 'phase-1',
   words: [
-    { id: 'p1', surface: 'Evaṁ', wordClass: 'function', segmentIds: ['p1s1'] },
+    // CRITICAL: Surface forms are CLEAN - strip all punctuation!
+    // Input "Evaṁ," → surface: "evaṁ" (lowercase, no comma)
+    // Input "sutaṁ—" → surface: "sutaṁ" (no em-dash)
+    { id: 'p1', surface: 'evaṁ', wordClass: 'function', segmentIds: ['p1s1', 'p1s2'] },  // 2 segments!
     { id: 'p2', surface: 'me', wordClass: 'function', segmentIds: ['p2s1'] },
-    { id: 'p3', surface: 'sutaṁ', wordClass: 'content', segmentIds: ['p3s1', 'p3s2'], isAnchor: true },
+    { id: 'p3', surface: 'sutaṁ', wordClass: 'content', segmentIds: ['p3s1', 'p3s2', 'p3s3'], isAnchor: true },  // 3 segments!
+    // Example with refrainId - bhagavā appears multiple times across phases
+    { id: 'p4', surface: 'bhagavā', wordClass: 'content', segmentIds: ['p4s1', 'p4s2'], refrainId: 'bhagava' },
   ],
   segments: [
-    { id: 'p1s1', wordId: 'p1', text: 'Evaṁ', type: 'stem', tooltips: ['Evaṁ: Thus / In this way / So it is'] },
-    { id: 'p2s1', wordId: 'p2', text: 'me', type: 'stem', morph: { case: 'ins', number: 'sg', note: 'Instrumental: by me' }, tooltips: ['Me: By me (instrumental singular)'] },
-    { id: 'p3s1', wordId: 'p3', text: 'su', type: 'root', tooltips: ['√su: To hear / Listen'] },
-    { id: 'p3s2', wordId: 'p3', text: 'taṁ', type: 'suffix', morph: { case: 'nom', number: 'sg', note: 'Past participle, nominative' }, tooltips: ['-taṁ: Past participle marker (that which was...)'] },
+    // evaṁ = eva (stem) + ṁ (adverbial suffix) - SPLIT the -ṁ!
+    { id: 'p1s1', wordId: 'p1', text: 'eva', type: 'stem', tooltips: ['[Emphatic particle] "Just so"', 'Points back to the occasion'] },
+    { id: 'p1s2', wordId: 'p1', text: 'ṁ', type: 'suffix', tooltips: ['[Adverbial ending] Makes it "in this way"'] },
+    // me = single stem
+    { id: 'p2s1', wordId: 'p2', text: 'me', type: 'stem', morph: { case: 'ins', number: 'sg', note: 'Instrumental: by me' }, tooltips: ['Ānanda speaking: "by me"', '[Genitive/Agent] Form is "of me", function is "by me"'] },
+    // sutaṁ = su (root) + ta (past participle) + ṁ (nominative) - SPLIT into 3!
+    { id: 'p3s1', wordId: 'p3', text: 'su', type: 'root', tooltips: ['√su: To hear (suṇāti)', 'The act of receiving teaching'] },
+    { id: 'p3s2', wordId: 'p3', text: 'ta', type: 'suffix', tooltips: ['[Past participle] Marks completed action: "heard"'] },
+    { id: 'p3s3', wordId: 'p3', text: 'ṁ', type: 'suffix', morph: { case: 'nom', number: 'sg', note: 'Neuter singular nominative' }, tooltips: ['[Neuter singular] "the thing that..."', 'Makes it the subject of the sentence'] },
   ],
   relations: [
     // Segment-to-word relation: "me" (agent) acts on "sutaṁ" (what was heard)
-    { id: 'r1', fromSegmentId: 'p2s1', targetWordId: 'p3', type: 'action', label: 'Agent of', status: 'confirmed' },
+    { id: 'r1', fromSegmentId: 'p2s1', targetWordId: 'p3', type: 'action', label: 'Heard BY', status: 'confirmed' },
   ],
-  handoff: { confidence: 'high', notes: 'Surface text preserved. All segments have IDs and tooltips.' },
+  handoff: { confidence: 'high', notes: 'Granular segmentation: -ṁ split as separate suffix. Rich contextual tooltips.' },
 };
 
 // Anatomist example for compound words
