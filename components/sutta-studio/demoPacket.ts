@@ -52,7 +52,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'a3',
           wordClass: 'content',
           segments: [
-            { id: 'a3s1', text: 'sut', type: 'root', tooltips: ['√su: To hear', '"Heard" — already happened'] },
+            { id: 'a3s1', text: 'sut', type: 'root', tooltips: ['👂 √su: To hear', '"Heard" — already happened'] },
             { id: 'a3s2', text: 'aṁ', type: 'suffix', tooltips: ['"The thing heard" — names what was received', 'Done and complete, not still happening'] },
           ],
           senses: [
@@ -132,8 +132,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'c2',
           wordClass: 'content',
           segments: [
-            { id: 'c2s1', text: 'vi', type: 'prefix', tooltips: ['Prefix: Apart / Special'] },
-            { id: 'c2s2', text: 'har', type: 'root', tooltips: ['√hṛ: To carry / Hold', 'To dwell / Abide'] },
+            { id: 'c2s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
+            { id: 'c2s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To carry / Hold', 'To dwell / Abide'] },
             { id: 'c2s3', text: 'ati', type: 'suffix', tooltips: ['He/she/it is doing this now', 'Ongoing action'] },
           ],
           senses: [
@@ -397,8 +397,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'h3',
           wordClass: 'content',
           segments: [
-            { id: 'h3s1', text: 'a', type: 'prefix', tooltips: ['Aorist prefix'] },
-            { id: 'h3s2', text: 'voc', type: 'root', tooltips: ['√vac: To speak / Say'] },
+            { id: 'h3s1', text: 'a', type: 'prefix', tooltips: ['Marks past tense'] },
+            { id: 'h3s2', text: 'voc', type: 'root', tooltips: ['🗣️ √vac: To speak / Say'] },
             { id: 'h3s3', text: 'a', type: 'suffix', tooltips: ['He spoke (past, completed)'] },
           ],
           senses: [
@@ -519,7 +519,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'p6s1', text: 'vi', type: 'prefix', tooltips: ['Intensive'] },
-            { id: 'p6s2', text: 'suddhi', type: 'root', tooltips: ['√sudh: Purity'] },
+            { id: 'p6s2', text: 'suddhi', type: 'root', tooltips: ['✨ √sudh: Purity'] },
             { id: 'p6s3', text: 'yā', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
           senses: [
@@ -546,8 +546,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p7',
           wordClass: 'content',
           segments: [
-            { id: 'p7s1', text: 'soka', type: 'root', tooltips: ['√suc: Burning / Dryness'] },
-            { id: 'p7s2', text: 'parideva', type: 'root', tooltips: ['Crying out all around'] },
+            { id: 'p7s1', text: 'soka', type: 'root', tooltips: ['😢 √suc: Burning / Dryness'] },
+            { id: 'p7s2', text: 'parideva', type: 'root', tooltips: ['😭 Crying out all around'] },
             {
               id: 'p7s3',
               text: 'ānaṁ',
@@ -567,7 +567,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'p8s1', text: 'sam', type: 'prefix', tooltips: ['Together'] },
             { id: 'p8s2', text: 'ati', type: 'prefix', tooltips: ['Over / Beyond'] },
-            { id: 'p8s3', text: 'kkam', type: 'root', tooltips: ['√kam: Stepping'] },
+            { id: 'p8s3', text: 'kkam', type: 'root', tooltips: ['🌊 √kam: Stepping / Crossing over'] },
             { id: 'p8s4', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
           senses: [
@@ -681,7 +681,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p13',
           wordClass: 'content',
           segments: [
-            { id: 'p13s1', text: 'nibbān', type: 'root', tooltips: ['Ni (Out) + Vana (Fire)'] },
+            { id: 'p13s1', text: 'nibbān', type: 'root', tooltips: ['🕯️ Ni (Out) + Vāna (Blowing)', 'Fire going out / Cooling'] },
             {
               id: 'p13s2',
               text: 'assa',
@@ -702,7 +702,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p14',
           wordClass: 'content',
           segments: [
-            { id: 'p14s1', text: 'sacchi', type: 'root', tooltips: ['With eyes / Directly'] },
+            { id: 'p14s1', text: 'sacchi', type: 'root', tooltips: ['👀 With own eyes / Directly'] },
             { id: 'p14s2', text: 'kiriy', type: 'root', tooltips: ['Karo: Making / Doing'] },
             { id: 'p14s3', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
           ],
@@ -743,7 +743,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p17',
           wordClass: 'content',
           segments: [
-            { id: 'p17s1', text: 'sati', type: 'root', tooltips: ['√smṛ: Memory / Presence'] },
+            { id: 'p17s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: Memory / Presence'] },
             { id: 'p17s2', text: 'paṭṭhānā', type: 'root', tooltips: ['Paṭi + √sthā: Establishing / Foundation'] },
           ],
           senses: [
@@ -861,7 +861,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'z2s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection', 'Object of observation'] },
             { id: 'z2s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Repeatedly / Closely', 'Implies sustained, close observation'] },
-            { id: 'z2s3', text: 'pass', type: 'root', tooltips: ['√dṛś (Pali √pass): To see', 'Anupassati = observe repeatedly/closely'] },
+            { id: 'z2s3', text: 'pass', type: 'root', tooltips: ['👁️ √dṛś (Pali √pass): To see', 'Anupassati = observe repeatedly/closely'] },
             { id: 'z2s4', text: 'ī', type: 'suffix', tooltips: ['-ī = "one who does this"', 'Not just doing it now — it\'s who you ARE', 'Identity shift: you become an observer', '"One whose nature is body-observing"'] },
           ],
           senses: [
@@ -877,7 +877,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'z3s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
-            { id: 'z3s2', text: 'har', type: 'root', tooltips: ['√hṛ: To carry / Dwell'] },
+            { id: 'z3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To carry / Dwell'] },
             { id: 'z3s3', text: 'ati', type: 'suffix', tooltips: ['He/she is doing this now'] },
           ],
           senses: [
@@ -902,7 +902,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'aa1',
           wordClass: 'content',
           segments: [
-            { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['√tap: To burn / Heat', 'Ardor / Energy'] },
+            { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn / Heat', 'Ardor / Energy'] },
             { id: 'aa1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has...'] },
           ],
           senses: [
@@ -919,7 +919,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['Sam: Together / Completely / Thoroughly'] },
             { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Forward / Fully'] },
-            { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['√jñā (Pali √ñā): To know', 'Sampajañña = clear comprehension', 'Knowing the purpose, suitability, domain, reality'] },
+            { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['🧠 √jñā (Pali √ñā): To know', 'Sampajañña = clear comprehension', 'Knowing the purpose, suitability, domain, reality'] },
             { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['The one doing this — describes the practitioner', 'Quality of thorough knowing'] },
           ],
           senses: [
@@ -934,7 +934,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'aa3',
           wordClass: 'content',
           segments: [
-            { id: 'aa3s1', text: 'sati', type: 'root', tooltips: ['√smṛ (Pali sar): Memory / Mindfulness', 'The faculty of retention and presence'] },
+            { id: 'aa3s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ (Pali sar): Memory / Mindfulness', 'The faculty of retention and presence'] },
             { id: 'aa3s2', text: 'mā', type: 'suffix', tooltips: ['-mant/-vant: Possessive suffix (Nom. -mā)', 'FACULTY: "equipped with" / "possessing"', 'Contrast with sato (actively mindful)', 'Satimā = having the capacity', 'Sato = deploying it actively'] },
           ],
           senses: [
