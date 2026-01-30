@@ -9,8 +9,10 @@ import { useProvidersPanelStore } from '../../hooks/useProvidersPanelStore';
 const mockHandleSettingChange = vi.fn();
 const mockSetParameterSupport = vi.fn();
 
+type TestProviderName = 'Gemini' | 'DeepSeek' | 'OpenRouter' | 'Claude' | 'OpenAI';
+
 const defaultSettings = {
-  provider: 'Gemini' as const,
+  provider: 'Gemini' as TestProviderName,
   model: 'gemini-2.0-flash',
   imageModel: 'none',
   contextDepth: 2,
@@ -499,6 +501,7 @@ describe('ProvidersPanel', () => {
         openRouterKeyUsage: {
           remainingCredits: 50.25,
           totalCredits: 100,
+          totalUsage: 49.75,
           fetchedAt: new Date().toISOString(),
         },
       });
@@ -512,6 +515,8 @@ describe('ProvidersPanel', () => {
       setupDefaultMocks({}, {
         providerCredits: {
           DeepSeek: {
+            provider: 'DeepSeek',
+            type: 'balance',
             remaining: 25.50,
             currency: 'USD',
             fetchedAt: new Date().toISOString(),

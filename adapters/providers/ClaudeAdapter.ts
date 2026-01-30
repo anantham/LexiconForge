@@ -54,7 +54,7 @@ export class ClaudeAdapter implements TranslationProvider, Provider {
     const claudeMessages = messages
       .filter((msg) => msg.role !== 'system')
       .map((msg) => ({
-        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        role: (msg.role === 'assistant' ? 'assistant' : 'user') as 'user' | 'assistant',
         content: [{ type: 'text' as const, text: msg.content }],
       }));
 

@@ -165,18 +165,23 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     // Check rate limits
     await rateLimitService.canMakeRequest(model);
 
-    const temperature = validateAndClampParameter(
-      input.temperature ?? settings.temperature ?? 0.2,
-      'temperature'
-    );
     const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? undefined;
 
     const requestOptions: any = {
       model,
       messages,
-      temperature,
       max_tokens: maxTokens,
     };
+
+    // Only add temperature if model supports it (e.g., gpt-5.2-chat doesn't)
+    const supportsTemp = await supportsParameters(settings.provider, model, ['temperature']);
+    if (supportsTemp) {
+      const temperature = validateAndClampParameter(
+        input.temperature ?? settings.temperature ?? 0.2,
+        'temperature'
+      );
+      requestOptions.temperature = temperature;
+    }
 
     const hasStructuredOutputs = Boolean(input.schema) && Boolean(
       input.structuredOutputs ?? (await supportsStructuredOutputs(settings.provider, model))
