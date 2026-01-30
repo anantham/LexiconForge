@@ -48,6 +48,7 @@ Use emojis as instant visual markers for grammatical functions:
 | 🗣️ | Speaking | √vac |
 | 🏷️ | Naming | nāma |
 | 📜 | Formula | Opening/closing formulas |
+| ⏮️ | Past tense | Completed actions |
 
 ### 3. Replace Latin Grammar Terms
 
