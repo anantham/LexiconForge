@@ -5,7 +5,7 @@ import type { PaliWord, WordClass, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
 import type { StudioSettings } from './SettingsPanel';
 import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
-import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, wordDomId } from './utils';
+import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, stripEmoji, stripGrammarTerms, wordDomId } from './utils';
 import { Tooltip } from './Tooltip';
 
 /**
@@ -74,7 +74,11 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           const isPinned = pinned?.kind === 'segment' && pinned.segmentDomId === sDomId;
 
           const activeSenseId = resolveSenseId(wordData, activeIndex);
-          const tooltipText = seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
+          const rawTooltip = seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
+          // Apply filters based on settings
+          let tooltipText = rawTooltip;
+          if (!settings.grammarTerms) tooltipText = stripGrammarTerms(tooltipText);
+          if (!settings.emojiInTooltips) tooltipText = stripEmoji(tooltipText);
           const showTooltip = settings.tooltips && isHovered && !pinned;
 
           // Debug: log tooltip decision when hovered

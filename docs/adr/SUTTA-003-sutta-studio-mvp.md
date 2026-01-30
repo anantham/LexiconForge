@@ -191,4 +191,97 @@ Replace "Skeleton → Phase Deltas → Validator" with:
 - **Ghost word precision**: link ghosts to word IDs (stable), not segment IDs (fragile).
 
 ### Notes
-This amendment aligns the compiler pipeline with the **Indra’s Net** vision: preserving ambiguity, revealing structure, and avoiding forced fluency. It is a deliberate shift toward depth over speed.
+This amendment aligns the compiler pipeline with the **Indra's Net** vision: preserving ambiguity, revealing structure, and avoiding forced fluency. It is a deliberate shift toward depth over speed.
+
+---
+
+## Amendment — 2026-01-30: Tooltip & Content Quality Guidelines
+
+**Status:** Accepted
+**Authors:** Aditya + Claude
+**Scope:** Standards for morpheme segmentation, tooltips, and grounding in source data
+
+### Rationale
+During manual validation of the MN10 demo, we identified patterns that make tooltips more engaging and accurate. These guidelines prevent hallucination and ensure content is both pedagogically useful and aesthetically clean.
+
+### Decision
+
+#### 1. Ground Truth Sourcing
+All content must be grounded in verifiable sources:
+- **Canonical text**: Fetch from SuttaCentral bilara-data API before segmentation
+- **Dictionary**: Use `/api/dictionary_full/{word}` for meanings, etymology, grammar
+- **Explicit sourcing**: When validating, show canonical text + dictionary data side-by-side
+
+#### 2. Text Integrity Rule
+**Concatenated segments must exactly match canonical text.**
+
+| Wrong | Right |
+|-------|-------|
+| `kuru` + `su` → "kurusu" | `kurū` + `su` → "kurūsu" |
+| `bhaga` + `v` + `ā` → "bhagavā" | `bhaga` + `vā` → "bhagavā" |
+
+Show the **surface form** in segments, not underlying phonology. If sandhi/lengthening occurs, reflect it in the segment text.
+
+#### 3. Clean Segmentation
+Prefer fewer, meaningful segments over hyper-granular splits:
+
+| Avoid | Prefer |
+|-------|--------|
+| `vi` + `har` + `a` + `ti` (4 segments) | `vi` + `har` + `ati` (3 segments) — unless each part needs a tooltip |
+| `bhaga` + `v` + `ā` (3 segments) | `bhaga` + `vā` (2 segments) — cleaner, `-vā` is the surface form |
+
+Rule of thumb: If a segment would have no meaningful tooltip, merge it.
+
+#### 4. Grammar Terms Toggle
+Technical grammar terms are **gated behind a settings toggle** (default: OFF).
+
+**How it works:**
+- Write tooltips with terms in `[brackets]`: `"[Nominative] Subject — who does the action"`
+- When toggle OFF: brackets stripped → `"Subject — who does the action"`
+- When toggle ON: full text shown → `"[Nominative] Subject — who does the action"`
+
+**Examples:**
+```
+"[Locative] Place — where it happened"     → "Place — where it happened"
+"[Emphatic particle] Adds weight, 'indeed'" → "Adds weight, 'indeed'"
+"[Accusative of Time] Tells us 'when'"      → "Tells us 'when'"
+```
+
+**Rationale:** Plain language by default for accessibility. Learners who want to build grammar vocabulary can opt in.
+
+#### 5. Tooltip Content Hierarchy
+Each tooltip should prioritize:
+1. **What it means** (first line)
+2. **Why it matters** (context, function in sentence)
+3. **Etymology/grammar** (optional, for curious learners)
+
+Example:
+```
+Good:
+- "Fortune, good luck"
+- "From √bhaj: to share"
+
+Bad:
+- "From √bhaj (j → g phonetic shift in Pali derivatives)"
+- "Nominal stem with possessive suffix -vant in contracted form"
+```
+
+#### 6. Engaging Details Win
+Include memorable context that aids retention:
+- Place names: "One of 16 Great Nations, near modern Delhi"
+- Etymology stories: "Where the man-eating ogre was tamed"
+- Grammatical insights: "Pali uses present tense to tell past events"
+
+#### 7. Refrain Consistency
+Words marked with `refrainId` (e.g., bhagavā, bhikkhu) should have consistent segmentation and tooltips across all phases. Update all occurrences together.
+
+### Validation Workflow
+When creating or validating demo content:
+1. Fetch canonical segment from bilara-data
+2. Fetch dictionary entries for each word
+3. Present both sources explicitly before proposing segmentation
+4. Check: do concatenated segments match canonical text exactly?
+5. Check: are tooltips jargon-free and engaging?
+
+### Notes
+These guidelines emerged from hands-on validation of Phases A–F of the MN10 demo. They prioritize learner experience over linguistic completeness.

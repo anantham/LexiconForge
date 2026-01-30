@@ -6,8 +6,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
   canonicalSegments: [],
   citations: [],
   progress: {
-    totalPhases: 41,
-    readyPhases: 41,
+    totalPhases: 51,
+    readyPhases: 51,
     state: 'complete',
   },
   renderDefaults: {
@@ -27,37 +27,42 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // INTRO: Evaṁ me sutaṁ → Bhagavā etadavoca
     // ============================================================
     {
+      // mn10:1.1 — "Evaṁ me sutaṁ—"
+      // Voice of Ven. Ānanda reciting at the First Council after Buddha's passing.
+      // Literal: "Thus by me [it has been] heard." (Passive construction)
+      // Implied: "I recite this exactly as I remember; I add nothing."
       id: 'phase-a',
       paliWords: [
         {
           id: 'a1',
           wordClass: 'function',
           segments: [
-            { id: 'a1s1', text: 'Evaṁ', type: 'stem', tooltips: ['📜 "Thus" / "In this way"', 'Indeclinable — never changes form'] },
+            { id: 'a1s1', text: 'eva', type: 'stem', tooltips: ['[Emphatic particle] "Just so"', 'Points back to the occasion'] },
+            { id: 'a1s2', text: 'ṁ', type: 'suffix', tooltips: ['[Adverbial ending] Makes it "in this way"'] },
           ],
-          senses: [{ english: 'Thus', nuance: 'Formulaic' }],
+          senses: [{ english: 'Thus', nuance: 'Refers to what follows' }],
         },
         {
           id: 'a2',
           wordClass: 'function',
           segments: [
-            { id: 'a2s1', text: 'me', type: 'stem', tooltips: ['"Me" — the narrator (Ānanda)', 'Marks who received the teaching'] },
+            { id: 'a2s1', text: 'me', type: 'stem', tooltips: ['Ānanda speaking: "by me"', '[Genitive/Agent] Form is "of me", function is "by me"'], relation: { targetWordId: 'a3', type: 'action', label: 'Heard BY' } },
           ],
           senses: [
-            { english: 'by me', nuance: 'Instrumental' },
-            { english: 'it was', nuance: 'Impersonal' },
+            { english: 'by me', nuance: 'Agent in passive' },
           ],
         },
         {
           id: 'a3',
           wordClass: 'content',
           segments: [
-            { id: 'a3s1', text: 'sut', type: 'root', tooltips: ['👂 √su: To hear', '"Heard" — already happened'] },
-            { id: 'a3s2', text: 'aṁ', type: 'suffix', tooltips: ['"The thing heard" — names what was received', 'Done and complete, not still happening'] },
+            { id: 'a3s1', text: 'su', type: 'root', tooltips: ['√su: To hear (suṇāti)', 'The act of receiving teaching'] },
+            { id: 'a3s2', text: 'ta', type: 'suffix', tooltips: ['[Past participle] Marks completed action: "heard"'] },
+            { id: 'a3s3', text: 'ṁ', type: 'suffix', tooltips: ['[Neuter singular] "the thing that..."', 'Makes it the subject of the sentence'] },
           ],
           senses: [
-            { english: 'heard', nuance: 'Standard' },
-            { english: 'received', nuance: 'Transmitted' },
+            { english: 'heard', nuance: 'Past participle' },
+            { english: 'what was heard', nuance: 'The teaching itself' },
           ],
         },
       ],
@@ -69,26 +74,31 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
     {
+      // mn10:1.2 (part 1) — "ekaṁ samayaṁ bhagavā..."
+      // Standard sutta opening: "At one time the Blessed One..."
+      // ekaṁ samayaṁ = Accusative of Time (adverbial phrase, not direct object)
       id: 'phase-b',
       paliWords: [
         {
           id: 'b1',
           wordClass: 'function',
           segments: [
-            { id: 'b1s1', text: 'ekaṁ', type: 'stem', tooltips: ['Eka: One', 'Points to which occasion'] },
+            { id: 'b1s1', text: 'eka', type: 'stem', tooltips: ['[Adjective] One, a certain', 'Modifies samayaṁ'] },
+            { id: 'b1s2', text: 'ṁ', type: 'suffix', tooltips: ['[Accusative of Time] "at/on"', 'Tells us when, not what'] },
           ],
-          senses: [{ english: 'one', nuance: 'Singular' }],
+          senses: [{ english: 'one', nuance: 'At one (time)' }],
         },
         {
           id: 'b2',
           wordClass: 'content',
           segments: [
-            { id: 'b2s1', text: 'sam', type: 'root', tooltips: ['√sam: To come together', 'Occasion / Meeting'] },
-            { id: 'b2s2', text: 'ayaṁ', type: 'suffix', tooltips: ['Marks a point in time', '"At one time..."'] },
+            { id: 'b2s1', text: 'sam', type: 'prefix', tooltips: ['[Prefix] Together, completely', 'Not a root!'] },
+            { id: 'b2s2', text: 'aya', type: 'root', tooltips: ['From √i: to go', 'aya = going, course', 'sam + aya = "a coming together"'] },
+            { id: 'b2s3', text: 'ṁ', type: 'suffix', tooltips: ['[Accusative of Time] "At this occasion"'] },
           ],
           senses: [
-            { english: 'time', nuance: 'Occasion' },
-            { english: 'occasion', nuance: 'Meeting' },
+            { english: 'occasion', nuance: 'A coming together' },
+            { english: 'time', nuance: 'The specific event' },
           ],
         },
         {
@@ -96,34 +106,33 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhagava',
           segments: [
-            { id: 'b3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share', 'One who shares / Fortunate'] },
-            { id: 'b3s2', text: 'avā', type: 'suffix', tooltips: ['The one doing the action', '-vant = "one who possesses" (fortune, blessings)'] },
+            { id: 'b3s1', text: 'bhaga', type: 'root', tooltips: ['Fortune, good luck', 'From √bhaj: to share'] },
+            { id: 'b3s2', text: 'vā', type: 'suffix', tooltips: ['[Possessive suffix] "One who has..."', 'The Fortunate One'] },
           ],
           senses: [
             { english: 'the Blessed One', nuance: 'Standard' },
-            { english: 'the Fortunate One', nuance: 'Good karma' },
-            { english: 'the Buddha', nuance: 'Awakened' },
-            { english: 'the Teacher', nuance: 'Role' },
-            { english: 'the Sharer of Truth', nuance: 'Etymology: √bhaj' },
+            { english: 'the Fortunate One', nuance: 'Literal' },
           ],
         },
       ],
       englishStructure: [
         { id: 'eb1g', label: 'At', isGhost: true, ghostKind: 'required' },
         { id: 'eb1', linkedPaliId: 'b1' },
-        { id: 'eb2', linkedSegmentId: 'b2s1' },
+        { id: 'eb2', linkedSegmentId: 'b2s2' },
         { id: 'eb3', linkedSegmentId: 'b3s1' },
       ],
     },
     {
+      // mn10:1.2 (part 2) — "...kurūsu viharati..."
+      // "was dwelling among the Kurus" (historical present in Pali)
       id: 'phase-c',
       paliWords: [
         {
           id: 'c1',
           wordClass: 'content',
           segments: [
-            { id: 'c1s1', text: 'Kur', type: 'root', tooltips: ['Kuru: Name of a people/region', 'Ancient Indian clan'] },
-            { id: 'c1s2', text: 'ūsu', type: 'suffix', tooltips: ['📍 "Among the..." — where it happened', 'Multiple people/places'] },
+            { id: 'c1s1', text: 'kurū', type: 'stem', tooltips: ['[Stem] Kuru (the Kuru people)', 'Lengthened to kurū before -su', 'One of 16 Great Nations (mahājanapada)'] },
+            { id: 'c1s2', text: 'su', type: 'suffix', tooltips: ['[Locative Plural] Where it happens', '"Among the..."'], relation: { targetWordId: 'c2', type: 'location', label: 'Dwelling IN' } },
           ],
           senses: [
             { english: 'among the Kurus', nuance: 'Location' },
@@ -133,14 +142,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'c2',
           wordClass: 'content',
           segments: [
-            { id: 'c2s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
-            { id: 'c2s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To carry / Hold', 'To dwell / Abide'] },
-            { id: 'c2s3', text: 'ati', type: 'suffix', tooltips: ['He/she/it is doing this now', 'Ongoing action'] },
+            { id: 'c2s1', text: 'vi', type: 'prefix', tooltips: ['[Prefix] Apart, asunder', 'Changes √hṛ meaning', 'vi + hṛ = to dwell'] },
+            { id: 'c2s2', text: 'har', type: 'root', tooltips: ['√hṛ: to carry, hold', 'With vi-: to dwell, abide', 'Also: to live, behave'] },
+            { id: 'c2s3', text: 'a', type: 'suffix', tooltips: ['[Thematic vowel] Class I verb marker'] },
+            { id: 'c2s4', text: 'ti', type: 'suffix', tooltips: ['[Present 3rd singular] He/she/it', 'Pali tells past events in present', 'Translates as: "was dwelling"'] },
           ],
           senses: [
-            { english: 'was dwelling', nuance: 'Residing' },
-            { english: 'was staying', nuance: 'Temporary' },
-            { english: 'was living', nuance: 'Abiding' },
+            { english: 'was dwelling', nuance: 'Historical present' },
+            { english: 'was staying', nuance: 'Sojourning' },
           ],
         },
       ],
@@ -150,53 +159,55 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
     {
+      // mn10:1.2 (part 3) — "...kammāsadhammaṁ nāma kurūnaṁ nigamo."
+      // "a market town of the Kurus named Kammāsadhamma"
       id: 'phase-d',
       paliWords: [
         {
           id: 'd1',
           wordClass: 'content',
           segments: [
-            { id: 'd1s1', text: 'Kammāsa', type: 'root', tooltips: ['Spotted / Variegated / Speckled', 'Refers to King Kammāsapāda ("Speckled Foot")', 'A cannibal ogre-king in Jātaka legend'] },
-            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['⚖️ Damma or Dhamma?', '• Damma = "Taming" — where the ogre was tamed', '• Dhamma = "Teaching" — the Kuru way', 'Both work: taming through teaching'] },
+            { id: 'd1s1', text: 'Kammāsa', type: 'stem', tooltips: ['Spotted / Speckled', 'Name of a man-eating ogre (porisāda)', 'From Jātaka: King Kammāsapāda'] },
+            { id: 'd1s2', text: 'dhamma', type: 'stem', tooltips: ['Likely from √dam: to tame', 'Where the ogre was "tamed"', 'Sanskritized spelling: dhamma'] },
+            { id: 'd1s3', text: 'ṁ', type: 'suffix', tooltips: ['Name ending', 'Labels the town that follows'] },
           ],
           senses: [
-            { english: 'Kammāsadhamma', nuance: 'Place of Taming' },
-            { english: '"Where the Spotted One was Tamed"', nuance: 'Mythological' },
+            { english: 'Kammāsadhamma', nuance: 'Place name' },
+            { english: '"Where the Spotted One was Tamed"', nuance: 'Etymology' },
           ],
         },
         {
           id: 'd2',
           wordClass: 'function',
           segments: [
-            { id: 'd2s1', text: 'nāma', type: 'stem', tooltips: ['🏷️ "Named" / "Called"', 'Indeclinable — never changes form'] },
+            { id: 'd2s1', text: 'nāma', type: 'stem', tooltips: ['[Indeclinable] "named, by name"', 'Links proper name to common noun', '"X nāma Y" = "Y named X"'] },
           ],
           senses: [
             { english: 'named', nuance: 'Called' },
-            { english: 'by name', nuance: 'Identity' },
           ],
         },
         {
           id: 'd3',
           wordClass: 'content',
           segments: [
-            { id: 'd3s1', text: 'Kur', type: 'root', tooltips: ['Kuru: The people'] },
-            { id: 'd3s2', text: 'ūnaṁ', type: 'suffix', tooltips: ['🔗 "Of the..." — belonging to the Kurus', 'Their town, their territory'] },
+            { id: 'd3s1', text: 'kurū', type: 'stem', tooltips: ['[Stem] Kuru (the Kuru people)', 'Lengthened to kurū before -naṁ'] },
+            { id: 'd3s2', text: 'naṁ', type: 'suffix', tooltips: ['[Genitive Plural] Possession', '"Of the Kurus" — their town'], relation: { targetWordId: 'd4', type: 'ownership', label: 'Town OF' } },
           ],
           senses: [
-            { english: 'of the Kurus', nuance: 'Possession' },
+            { english: 'of the Kurus', nuance: 'Genitive Plural' },
           ],
         },
         {
           id: 'd4',
           wordClass: 'content',
           segments: [
-            { id: 'd4s1', text: 'ni', type: 'prefix', tooltips: ['Down / Settled'] },
-            { id: 'd4s2', text: 'gam', type: 'root', tooltips: ['√gam: To go', 'Settlement / Town'] },
-            { id: 'd4s3', text: 'o', type: 'suffix', tooltips: ['The subject — "a town"'] },
+            { id: 'd4s1', text: 'ni', type: 'prefix', tooltips: ['[Prefix] Down / Into', 'Where people go down to'] },
+            { id: 'd4s2', text: 'gam', type: 'root', tooltips: ['√gam: to go', 'Place people resort to (for trade)'] },
+            { id: 'd4s3', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular] Subject marker', '"A town" — what we are talking about'] },
           ],
           senses: [
-            { english: 'a market town', nuance: 'Settlement' },
-            { english: 'a town', nuance: 'Standard' },
+            { english: 'a market town', nuance: 'Larger than gāma (village)' },
+            { english: 'a township', nuance: 'Smaller than nagara (city)' },
           ],
         },
       ],
@@ -209,21 +220,24 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
     {
+      // mn10:1.3 — "Tatra kho bhagavā bhikkhū āmantesi:"
+      // "There the Blessed One addressed the bhikkhus:"
       id: 'phase-e',
       paliWords: [
         {
           id: 'e1',
           wordClass: 'function',
           segments: [
-            { id: 'e1s1', text: 'Tatra', type: 'stem', tooltips: ['There / In that place', '📍 Points to a location'] },
+            { id: 'e1s1', text: 'ta', type: 'stem', tooltips: ['[Demonstrative] Stem: that', 'Points to the place just mentioned'] },
+            { id: 'e1s2', text: 'tra', type: 'suffix', tooltips: ['[Locative suffix] "in that place"', 'ta + tra = tatra'] },
           ],
-          senses: [{ english: 'There', nuance: 'Location' }],
+          senses: [{ english: 'There', nuance: 'At that place' }],
         },
         {
           id: 'e2',
           wordClass: 'function',
           segments: [
-            { id: 'e2s1', text: 'kho', type: 'stem', tooltips: ['Indeed / Emphatic particle', 'Khalu → kho'] },
+            { id: 'e2s1', text: 'kho', type: 'stem', tooltips: ['[Emphatic particle] "Indeed, surely"', 'From khalu', 'Marks narrative transition'] },
           ],
           senses: [
             { english: 'indeed', nuance: 'Emphasis' },
@@ -235,8 +249,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhagava',
           segments: [
-            { id: 'e3s1', text: 'Bhag', type: 'root', tooltips: ['√bhaj: To divide / Share'] },
-            { id: 'e3s2', text: 'avā', type: 'suffix', tooltips: ['The one doing the action'] },
+            { id: 'e3s1', text: 'bhaga', type: 'root', tooltips: ['Fortune, good luck', 'From √bhaj: to share'] },
+            { id: 'e3s2', text: 'vā', type: 'suffix', tooltips: ['[Possessive suffix] "One who has..."', 'The Fortunate One'], relation: { targetWordId: 'e5', type: 'action', label: 'Addressed BY' } },
           ],
           senses: [{ english: 'the Blessed One', nuance: 'Subject' }],
         },
@@ -245,11 +259,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'e4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg / Share'] },
-            { id: 'e4s2', text: 'ū', type: 'suffix', tooltips: ['👥 Them — the group being addressed', 'The ones receiving the teaching'] },
+            { id: 'e4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: to beg', 'From √bhaj: to share', 'One who lives on alms'] },
+            { id: 'e4s2', text: 'ū', type: 'suffix', tooltips: ['[Accusative Plural] Object', 'The ones being addressed'], relation: { targetWordId: 'e5', type: 'direction', label: 'Addressed TO' } },
           ],
           senses: [
-            { english: 'the bhikkhus', nuance: 'Object' },
+            { english: 'the bhikkhus', nuance: 'Accusative object' },
             { english: 'the monks', nuance: 'Standard' },
           ],
         },
@@ -257,14 +271,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'e5',
           wordClass: 'content',
           segments: [
-            { id: 'e5s1', text: 'ā', type: 'prefix', tooltips: ['Ā: Towards / Intensifier', 'Augment coalesces with prefix (a + ā → ā)'] },
-            { id: 'e5s2', text: 'mant', type: 'root', tooltips: ['√mant (Skt mantr): To counsel / Advise', 'Source of "mantra" (counsel/spell)', 'Causative/Class X stem implies deliberate initiation'] },
-            { id: 'e5s3', text: 'esi', type: 'suffix', tooltips: ['⏮️ Past tense — "he addressed"', 'The -s- sound marks completed action'] },
+            { id: 'e5s1', text: 'ā', type: 'prefix', tooltips: ['[Prefix] Towards', 'Intensifies the action'] },
+            { id: 'e5s2', text: 'mant', type: 'root', tooltips: ['√mant: to counsel, advise', 'Source of "mantra"', '[Denominative verb] From noun "mantra"'] },
+            { id: 'e5s3', text: 'e', type: 'suffix', tooltips: ['[Causative suffix] Makes it "to address"'] },
+            { id: 'e5s4', text: 'si', type: 'suffix', tooltips: ['[Aorist 3rd singular] Past tense: he did this', '"He addressed"'] },
           ],
           senses: [
-            { english: 'addressed', nuance: 'Formally invited' },
-            { english: 'counseled', nuance: 'Initiated teaching' },
-            { english: 'called to', nuance: 'Summoned attention' },
+            { english: 'addressed', nuance: 'Aorist' },
+            { english: 'summoned', nuance: 'Called to attention' },
           ],
         },
       ],
@@ -284,7 +298,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           refrainId: 'bhikkhu',
           segments: [
             { id: 'f1s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
-            { id: 'f1s2', text: 'avo', type: 'suffix', tooltips: ['📢 "Hey you all!" — calling out to a group', 'Like saying "O monks!"'] },
+            { id: 'f1s2', text: 'avo', type: 'suffix', tooltips: ['[Vocative Plural] 📢 "Hey you all!"', 'Calling out to a group', 'Like saying "O monks!"'] },
           ],
           senses: [
             { english: 'Bhikkhus!', nuance: 'Call' },
@@ -295,7 +309,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'f2',
           wordClass: 'function',
           segments: [
-            { id: 'f2s1', text: 'ti', type: 'stem', tooltips: ['Iti: Quotation marker', 'End of speech'] },
+            { id: 'f2s1', text: 'ti', type: 'stem', tooltips: ['[Quotation marker] From iti', 'End of speech'] },
           ],
           senses: [{ english: '"', nuance: 'Quote marker' }],
         },
@@ -305,33 +319,34 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
     {
+      // mn10:1.5 — "Bhadante"ti te bhikkhū bhagavato paccassosuṁ.
+      // "Venerable sir!" the bhikkhus replied to the Blessed One.
       id: 'phase-g',
       paliWords: [
         {
           id: 'g1',
           wordClass: 'content',
           segments: [
-            { id: 'g1s1', text: 'Bhad', type: 'root', tooltips: ['Bhadra: Good / Auspicious'] },
-            { id: 'g1s2', text: 'ante', type: 'suffix', tooltips: ['📢 "O Sir!" — respectfully calling one person', 'Like bowing while addressing'] },
+            { id: 'g1s1', text: 'Bhad', type: 'root', tooltips: ['√bhad: good, auspicious', 'Related to bhadra (fortunate)'] },
+            { id: 'g1s2', text: 'ante', type: 'suffix', tooltips: ['[Vocative] Calling out: "O Sir!"', 'Respectful address'] },
           ],
           senses: [
-            { english: 'Venerable sir', nuance: 'Respectful' },
-            { english: 'Lord', nuance: 'Formal' },
+            { english: 'Venerable sir!', nuance: 'Respectful reply' },
           ],
         },
         {
           id: 'g2',
           wordClass: 'function',
           segments: [
-            { id: 'g2s1', text: 'ti', type: 'stem', tooltips: ['Iti: Quotation marker'] },
+            { id: 'g2s1', text: 'ti', type: 'stem', tooltips: ['[Quotation marker] From iti', 'Marks the speech just ended'] },
           ],
-          senses: [{ english: '"', nuance: 'Quote end' }],
+          senses: [{ english: '"', nuance: 'Close quote' }],
         },
         {
           id: 'g3',
           wordClass: 'function',
           segments: [
-            { id: 'g3s1', text: 'te', type: 'stem', tooltips: ['Those / They', 'The ones doing the action'] },
+            { id: 'g3s1', text: 'te', type: 'stem', tooltips: ['[Demonstrative Pronoun] Those, they', 'The ones who replied'] },
           ],
           senses: [{ english: 'those', nuance: 'Demonstrative' }],
         },
@@ -340,8 +355,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'g4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'g4s2', text: 'ū', type: 'suffix', tooltips: ['👥 They — the group doing the action', 'The bhikkhus who replied'] },
+            { id: 'g4s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: to beg, share', 'One who lives on alms'] },
+            { id: 'g4s2', text: 'ū', type: 'suffix', tooltips: ['[Nominative Plural] They', 'The monks who replied'], relation: { targetWordId: 'g6', type: 'action', label: 'Replied BY' } },
           ],
           senses: [{ english: 'bhikkhus', nuance: 'Subject' }],
         },
@@ -350,8 +365,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhagava',
           segments: [
-            { id: 'g5s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
-            { id: 'g5s2', text: 'avato', type: 'suffix', tooltips: ['🎯 "To him" — receiving the reply', 'The one being addressed'] },
+            { id: 'g5s1', text: 'bhaga', type: 'root', tooltips: ['Fortune, good luck', 'From √bhaj: to share'] },
+            { id: 'g5s2', text: 'vato', type: 'suffix', tooltips: ['[Dative/Genitive] "To/of the Fortunate One"', 'Who they replied to'], relation: { targetWordId: 'g6', type: 'direction', label: 'Replied TO' } },
           ],
           senses: [
             { english: 'to the Blessed One', nuance: 'Dative' },
@@ -361,13 +376,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'g6',
           wordClass: 'content',
           segments: [
-            { id: 'g6s1', text: 'pacc', type: 'prefix', tooltips: ['Paṭi → Pacc (sandhi: paṭi + a-augment → paty-a → pacc-a)', 'Back / In return / Towards'] },
-            { id: 'g6s2', text: 'assosuṁ', type: 'root', tooltips: ['👂 √su: To hear', '⏮️ Past tense — "they replied"', 'Double -ss- from older Sanskrit sound', 'Paṭi + su = "hear back" → reply'] },
+            { id: 'g6s1', text: 'pacc', type: 'prefix', tooltips: ['[Prefix] From paṭi: back, in return', 'Sandhi before vowel'] },
+            { id: 'g6s2', text: 'assosuṁ', type: 'root', tooltips: ['√su: to hear', '[Aorist 3rd plural] "they heard back"', 'paṭi + su = to reply'] },
           ],
           senses: [
-            { english: 'replied', nuance: 'Responded' },
-            { english: 'answered', nuance: 'Assented' },
-            { english: 'heard back', nuance: 'Etymological' },
+            { english: 'replied', nuance: 'Assented' },
+            { english: 'answered', nuance: 'Responded' },
           ],
         },
       ],
@@ -380,6 +394,9 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
     {
+      // mn10:1.6 — "Bhagavā etadavoca:"
+      // "The Blessed One said this:" — introduces the main teaching
+      // Note: "etadavoca" is one word in manuscript (sandhi), split here for clarity
       id: 'phase-h',
       paliWords: [
         {
@@ -387,8 +404,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhagava',
           segments: [
-            { id: 'h1s1', text: 'Bhag', type: 'root', tooltips: ['The Blessed One'] },
-            { id: 'h1s2', text: 'avā', type: 'suffix', tooltips: ['The one speaking'] },
+            { id: 'h1s1', text: 'Bhaga', type: 'root', tooltips: ['Fortune, good luck', 'From √bhaj: to share'] },
+            { id: 'h1s2', text: 'vā', type: 'suffix', tooltips: ['[Possessive suffix] "One who has..."', '[Nominative] Subject — the speaker'], relation: { targetWordId: 'h3', type: 'action', label: 'Said BY' } },
           ],
           senses: [{ english: 'The Blessed One', nuance: 'Subject' }],
         },
@@ -396,17 +413,17 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'h2',
           wordClass: 'function',
           segments: [
-            { id: 'h2s1', text: 'etad', type: 'stem', tooltips: ['Eta: This', 'What was said — the teaching'] },
+            { id: 'h2s1', text: 'etad', type: 'stem', tooltips: ['[Demonstrative Pronoun] "This"', '[Neuter Accusative] Points to what follows', 'More emphatic than "tad"'], relation: { targetWordId: 'h3', type: 'direction', label: 'Said WHAT' } },
           ],
-          senses: [{ english: 'this', nuance: 'Object' }],
+          senses: [{ english: 'this', nuance: 'The teaching that follows' }],
         },
         {
           id: 'h3',
           wordClass: 'content',
           segments: [
-            { id: 'h3s1', text: 'a', type: 'prefix', tooltips: ['Marks past tense'] },
-            { id: 'h3s2', text: 'voc', type: 'root', tooltips: ['🗣️ √vac: To speak / Say'] },
-            { id: 'h3s3', text: 'a', type: 'suffix', tooltips: ['He spoke (past, completed)'] },
+            { id: 'h3s1', text: 'a', type: 'prefix', tooltips: ['[Augment] Marks past tense', 'Like "a-" in Greek aorist'] },
+            { id: 'h3s2', text: 'voc', type: 'root', tooltips: ['√vac: To speak, say', 'Source of Latin "vox", English "voice"'] },
+            { id: 'h3s3', text: 'a', type: 'suffix', tooltips: ['[Aorist 3rd singular] He spoke', 'Completed action in the past'] },
           ],
           senses: [
             { english: 'said', nuance: 'Spoke' },
@@ -435,9 +452,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               id: 'p1s1',
               text: 'Ek',
               type: 'root',
-              tooltips: ['Eka: One / Singular', 'Eka: Alone', 'Eka: Unified'],
+              tooltips: ['[Adjective] One, singular', 'Also: alone, unified'],
             },
-            { id: 'p1s2', text: 'āyano', type: 'suffix', tooltips: ['Going / Way'] },
+            { id: 'p1s2', text: 'āyan', type: 'stem', tooltips: ['From √i: to go', 'āyana = going, way, goal'], relation: { targetWordId: 'p4', type: 'ownership', label: 'Way TO' } },
+            { id: 'p1s3', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular] Subject marker'] },
           ],
           senses: [
             { english: 'direct', nuance: 'No detours', ripples: { ghost1: 'is the' } },
@@ -455,18 +473,19 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               id: 'p2s1',
               text: 'ayaṁ',
               type: 'stem',
-              tooltips: ["Roots: 'Iron' (Ayas) | 'Good Fortune' (Aya) | 'This' (Ima)"],
+              tooltips: ['[Demonstrative Pronoun] "This"', '[Nominative Masculine Singular] From stem ima', 'Points to maggo (the path)'],
+              relation: { targetWordId: 'p4', type: 'direction', label: 'This IS' },
             },
           ],
-          senses: [{ english: 'this', nuance: 'Pointer' }],
+          senses: [{ english: 'this', nuance: 'Pointer to the path' }],
         },
         {
           id: 'p3',
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'p3s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg'] },
-            { id: 'p3s2', text: 'ave', type: 'suffix', tooltips: ['📢 "Hey friends!" — calling out to the group'] },
+            { id: 'p3s1', text: 'Bhikkh', type: 'root', tooltips: ['√bhikkh: To share / beg', 'One who lives on alms'] },
+            { id: 'p3s2', text: 'ave', type: 'suffix', tooltips: ['[Vocative Plural] 📢 "O monks!"', 'Calling out to the group'] },
           ],
           senses: [
             { english: 'Mendicants,', nuance: 'Those who beg' },
@@ -479,8 +498,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'p4',
           wordClass: 'content',
-          segments: [{ id: 'p4s1', text: 'maggo', type: 'stem', tooltips: ['√magg: Tracking (Road/Method)'] }],
-          senses: [{ english: 'path', nuance: 'Method' }],
+          segments: [
+            { id: 'p4s1', text: 'magg', type: 'root', tooltips: ['√magg: to track, seek', 'A road, way, path'] },
+            { id: 'p4s2', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular] Subject marker'] },
+          ],
+          senses: [{ english: 'path', nuance: 'The way' }],
         },
       ],
       englishStructure: [
@@ -503,17 +525,17 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               text: 'satt',
               type: 'root',
               tooltips: [
-                '√as: To be / Living',
-                '√saj: To cling / Stick',
-                'Satta: Seven (7) / Components',
+                'From sat/sant: existing, being',
+                'Also √saj: to cling (the "stuck" ones)',
+                'Also satta: seven (7)',
               ],
             },
             {
               id: 'p5s2',
               text: 'ānaṁ',
               type: 'suffix',
-              tooltips: ['🔗 Shows who it belongs to'],
-              relation: { targetWordId: 'p6', type: 'ownership', label: 'Belongs To' },
+              tooltips: ['[Genitive Plural] Of beings', '🔗 Shows who it belongs to'],
+              relation: { targetWordId: 'p6', type: 'ownership', label: 'Purification OF' },
             },
           ],
           senses: [
@@ -526,9 +548,9 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p6',
           wordClass: 'content',
           segments: [
-            { id: 'p6s1', text: 'vi', type: 'prefix', tooltips: ['Intensive'] },
-            { id: 'p6s2', text: 'suddhi', type: 'root', tooltips: ['✨ √sudh: Purity'] },
-            { id: 'p6s3', text: 'yā', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
+            { id: 'p6s1', text: 'vi', type: 'prefix', tooltips: ['[Prefix] Intensive / completely'] },
+            { id: 'p6s2', text: 'suddhi', type: 'root', tooltips: ['√sudh: Purity, brightness', '✨ To be clean, clear'] },
+            { id: 'p6s3', text: 'yā', type: 'suffix', tooltips: ['[Dative] For the sake of', '🎯 Purpose marker'] },
           ],
           senses: [
             { english: 'purification', nuance: 'Cleaning out' },
@@ -554,14 +576,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p7',
           wordClass: 'content',
           segments: [
-            { id: 'p7s1', text: 'soka', type: 'root', tooltips: ['😢 √suc: Burning / Dryness'] },
-            { id: 'p7s2', text: 'parideva', type: 'root', tooltips: ['😭 Crying out all around'] },
+            { id: 'p7s1', text: 'soka', type: 'root', tooltips: ['√suc: Burning, drying up', '😢 Grief, sorrow'] },
+            { id: 'p7s2', text: 'parideva', type: 'root', tooltips: ['[Compound] pari + deva', '😭 Crying out all around, lamentation'] },
             {
               id: 'p7s3',
               text: 'ānaṁ',
               type: 'suffix',
-              tooltips: ['🎯 Points to the target'],
-              relation: { targetWordId: 'p8', type: 'direction', label: 'Target Of' },
+              tooltips: ['[Genitive Plural] Of grief & lamentation'],
+              relation: { targetWordId: 'p8', type: 'ownership', label: 'Surmounting OF' },
             },
           ],
           senses: [
@@ -573,10 +595,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p8',
           wordClass: 'content',
           segments: [
-            { id: 'p8s1', text: 'sam', type: 'prefix', tooltips: ['Together'] },
-            { id: 'p8s2', text: 'ati', type: 'prefix', tooltips: ['Over / Beyond'] },
-            { id: 'p8s3', text: 'kkam', type: 'root', tooltips: ['🌊 √kam: Stepping / Crossing over'] },
-            { id: 'p8s4', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
+            { id: 'p8s1', text: 'sam', type: 'prefix', tooltips: ['[Prefix] Together, completely'] },
+            { id: 'p8s2', text: 'ati', type: 'prefix', tooltips: ['[Prefix] Over, beyond'] },
+            { id: 'p8s3', text: 'kkam', type: 'root', tooltips: ['√kram: To step, stride', '🌊 Crossing over'] },
+            { id: 'p8s4', text: 'āya', type: 'suffix', tooltips: ['[Dative] For the sake of', '🎯 Purpose marker'] },
           ],
           senses: [
             { english: 'surmounting', nuance: 'Climbing over' },
@@ -602,14 +624,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p9',
           wordClass: 'content',
           segments: [
-            { id: 'p9s1', text: 'dukkha', type: 'root', tooltips: ['Du (Bad) + Kha (Axle space)'] },
-            { id: 'p9s2', text: 'domanass', type: 'root', tooltips: ['Mental Pain (Bad Mind)'] },
+            { id: 'p9s1', text: 'dukkha', type: 'root', tooltips: ['[Compound] du (bad) + kha (space)', 'Physical pain, suffering'] },
+            { id: 'p9s2', text: 'domanass', type: 'root', tooltips: ['[Compound] du (bad) + manas (mind)', 'Mental distress, displeasure'] },
             {
               id: 'p9s3',
               text: 'ānaṁ',
               type: 'suffix',
-              tooltips: ['🎯 Points to the target'],
-              relation: { targetWordId: 'p10', type: 'direction', label: 'Target Of' },
+              tooltips: ['[Genitive Plural] Of pain & distress'],
+              relation: { targetWordId: 'p10', type: 'ownership', label: 'Ending OF' },
             },
           ],
           senses: [
@@ -621,9 +643,9 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p10',
           wordClass: 'content',
           segments: [
-            { id: 'p10s1', text: 'atthaṅ', type: 'root', tooltips: ['Attha: Home / Setting'] },
-            { id: 'p10s2', text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
-            { id: 'p10s3', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
+            { id: 'p10s1', text: 'atthaṅ', type: 'root', tooltips: ['From √as: to set (like the sun)', 'Home, setting, disappearing'] },
+            { id: 'p10s2', text: 'gam', type: 'root', tooltips: ['√gam: to go', 'atthaṅgama = going to its setting'] },
+            { id: 'p10s3', text: 'āya', type: 'suffix', tooltips: ['[Dative] For the sake of', '🎯 Purpose marker'] },
           ],
           senses: [
             { english: 'disappearance', nuance: 'Going home' },
@@ -647,13 +669,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p11',
           wordClass: 'content',
           segments: [
-            { id: 'p11s1', text: 'ñāya', type: 'root', tooltips: ['Method / System / Truth'] },
+            { id: 'p11s1', text: 'ñāya', type: 'root', tooltips: ['√ñā: to know', 'Method, system, right way, truth'] },
             {
               id: 'p11s2',
               text: 'ssa',
               type: 'suffix',
-              tooltips: ['🔗 Shows whose it is'],
-              relation: { targetWordId: 'p12', type: 'ownership', label: 'Belongs To' },
+              tooltips: ['[Genitive Singular] Of the method'],
+              relation: { targetWordId: 'p12', type: 'ownership', label: 'Attainment OF' },
             },
           ],
           senses: [
@@ -665,9 +687,9 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p12',
           wordClass: 'content',
           segments: [
-            { id: 'p12s1', text: 'adhi', type: 'prefix', tooltips: ['Onto / Towards'] },
-            { id: 'p12s2', text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
-            { id: 'p12s3', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
+            { id: 'p12s1', text: 'adhi', type: 'prefix', tooltips: ['[Prefix] Onto, towards, over'] },
+            { id: 'p12s2', text: 'gam', type: 'root', tooltips: ['√gam: to go', 'adhigama = reaching, attaining'] },
+            { id: 'p12s3', text: 'āya', type: 'suffix', tooltips: ['[Dative] For the sake of', '🎯 Purpose marker'] },
           ],
           senses: [
             { english: 'attainment', nuance: 'Reaching' },
@@ -689,13 +711,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p13',
           wordClass: 'content',
           segments: [
-            { id: 'p13s1', text: 'nibbān', type: 'root', tooltips: ['🕯️ Ni (Out) + Vāna (Blowing)', 'Fire going out / Cooling'] },
+            { id: 'p13s1', text: 'nibbān', type: 'root', tooltips: ['ni (out) + vāna (blowing)', '🕯️ Fire going out, cooling, peace'] },
             {
               id: 'p13s2',
               text: 'assa',
               type: 'suffix',
-              tooltips: ['🎯 Points to the target'],
-              relation: { targetWordId: 'p14', type: 'direction', label: 'Target Of' },
+              tooltips: ['[Genitive Singular] Of Nibbana'],
+              relation: { targetWordId: 'p14', type: 'ownership', label: 'Realization OF' },
             },
           ],
           senses: [
@@ -710,9 +732,9 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p14',
           wordClass: 'content',
           segments: [
-            { id: 'p14s1', text: 'sacchi', type: 'root', tooltips: ['👀 With own eyes / Directly'] },
-            { id: 'p14s2', text: 'kiriy', type: 'root', tooltips: ['Karo: Making / Doing'] },
-            { id: 'p14s3', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
+            { id: 'p14s1', text: 'sacchi', type: 'root', tooltips: ['[Compound] sa + akkhi (with eyes)', '👀 Seeing directly, witnessing'] },
+            { id: 'p14s2', text: 'kiriy', type: 'root', tooltips: ['√kṛ: to do, make', 'Making real, accomplishing'] },
+            { id: 'p14s3', text: 'āya', type: 'suffix', tooltips: ['[Dative] For the sake of', '🎯 Purpose marker'] },
           ],
           senses: [
             { english: 'realization', nuance: 'Making real' },
@@ -736,23 +758,23 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'p15',
           wordClass: 'function',
           segments: [
-            { id: 'p15s1', text: 'yad', type: 'root', tooltips: ['Which'] },
-            { id: 'p15s2', text: 'idaṁ', type: 'root', tooltips: ['This'] },
+            { id: 'p15s1', text: 'yad', type: 'root', tooltips: ['[Relative Pronoun] Which, what'] },
+            { id: 'p15s2', text: 'idaṁ', type: 'root', tooltips: ['[Demonstrative] This', 'yad + idaṁ = "namely, that is to say"'] },
           ],
-          senses: [{ english: 'namely', nuance: 'Identity' }],
+          senses: [{ english: 'namely', nuance: 'Introduces what follows' }],
         },
         {
           id: 'p16',
           wordClass: 'content',
-          segments: [{ id: 'p16s1', text: 'cattāro', type: 'stem', tooltips: ['Four (4)'] }],
+          segments: [{ id: 'p16s1', text: 'cattāro', type: 'stem', tooltips: ['[Numeral] Four (4)', '[Nominative Plural Masculine]'] }],
           senses: [{ english: 'the four', nuance: 'Quantity' }],
         },
         {
           id: 'p17',
           wordClass: 'content',
           segments: [
-            { id: 'p17s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: Memory / Presence'] },
-            { id: 'p17s2', text: 'paṭṭhānā', type: 'root', tooltips: ['Paṭi + √sthā: Establishing / Foundation'] },
+            { id: 'p17s1', text: 'sati', type: 'root', tooltips: ['√smṛ: to remember', '💭 Mindfulness, presence, awareness'] },
+            { id: 'p17s2', text: 'paṭṭhānā', type: 'root', tooltips: ['[Compound] paṭi + √sthā: to stand', 'Establishing, foundation, setting up'] },
           ],
           senses: [
             { english: 'foundations of mindfulness', nuance: 'Standard translation' },
@@ -2293,6 +2315,649 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         { id: 'eaw1', linkedSegmentId: 'aw1s1' },
         { id: 'eaw7', linkedSegmentId: 'aw7s1' },
         { id: 'eaw5g', label: '"I pull long"', isGhost: true, ghostKind: 'interpretive' },
+      ],
+    },
+
+    // mn10:4.10 - Simile application
+    // evameva kho, bhikkhave, bhikkhu...
+    {
+      id: 'phase-ax',
+      paliWords: [
+        {
+          id: 'ax1',
+          wordClass: 'function',
+          segments: [
+            { id: 'ax1s1', text: 'Evam', type: 'stem', tooltips: ['Evam: Thus / In this way', 'Connects simile to practice'] },
+            { id: 'ax1s2', text: 'eva', type: 'stem', tooltips: ['Eva: Just so / Exactly', 'Emphatic: "just so..."'] },
+          ],
+          senses: [{ english: 'just so', nuance: 'Application' }],
+        },
+        {
+          id: 'ax2',
+          wordClass: 'function',
+          segments: [
+            { id: 'ax2s1', text: 'kho', type: 'stem', tooltips: ['Kho: Indeed / Certainly', 'Emphatic particle'] },
+          ],
+          senses: [{ english: 'indeed', nuance: 'Emphasis' }],
+        },
+        {
+          id: 'ax3',
+          wordClass: 'function',
+          segments: [
+            { id: 'ax3s1', text: 'bhikkha', type: 'root', tooltips: ['Bhikkhu: Monk'] },
+            { id: 'ax3s2', text: 've', type: 'suffix', tooltips: ['Vocative plural'] },
+          ],
+          senses: [{ english: 'monks', nuance: 'Address' }],
+        },
+        {
+          id: 'ax4',
+          wordClass: 'content',
+          segments: [
+            { id: 'ax4s1', text: 'bhikkhu', type: 'stem', tooltips: ['Bhikkhu: Monk / Practitioner', 'The one applying the simile'] },
+          ],
+          senses: [{ english: 'a monk', nuance: 'Practitioner' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eax1', linkedPaliId: 'ax1' },
+        { id: 'eax4', linkedSegmentId: 'ax4s1' },
+        { id: 'eax4g', label: 'practices', isGhost: true, ghostKind: 'interpretive' },
+      ],
+    },
+
+    // mn10:4.11 - Internal/External refrain (THE REFRAIN begins)
+    // Iti ajjhattaṁ vā kāye kāyānupassī viharati,
+    // bahiddhā vā kāye kāyānupassī viharati,
+    // ajjhattabahiddhā vā kāye kāyānupassī viharati.
+    {
+      id: 'phase-ay',
+      paliWords: [
+        {
+          id: 'ay1',
+          wordClass: 'function',
+          segments: [
+            { id: 'ay1s1', text: 'Iti', type: 'stem', tooltips: ['Iti: Thus / In this way', 'Marks transition to refrain', '🔁 THE REFRAIN BEGINS:', 'This formula repeats after', 'EVERY contemplation section'] },
+          ],
+          senses: [{ english: 'thus', nuance: 'Transition' }],
+        },
+        {
+          id: 'ay2',
+          wordClass: 'content',
+          segments: [
+            { id: 'ay2s1', text: 'ajjh', type: 'prefix', tooltips: ['Adhi: Over / Upon / Inner', 'Sanskrit adhyātma'] },
+            { id: 'ay2s2', text: 'att', type: 'root', tooltips: ['Attan: Self', 'Ajjhatta = internal, within oneself', '📍 THREE SCOPES:', '• Ajjhattaṁ = one\'s own body', '• Bahiddhā = others\' bodies', '• Both = seeing universality'] },
+            { id: 'ay2s3', text: 'aṁ', type: 'suffix', tooltips: ['Accusative adverbial: "internally"'] },
+          ],
+          senses: [
+            { english: 'internally', nuance: 'Within oneself' },
+            { english: 'in one\'s own', nuance: 'Personal' },
+          ],
+        },
+        {
+          id: 'ay3',
+          wordClass: 'function',
+          segments: [
+            { id: 'ay3s1', text: 'vā', type: 'stem', tooltips: ['Or — alternative'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'ay4',
+          wordClass: 'content',
+          segments: [
+            { id: 'ay4s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
+            { id: 'ay4s2', text: 'e', type: 'suffix', tooltips: ['Locative: "in the body"'] },
+          ],
+          senses: [{ english: 'in the body', nuance: 'Location' }],
+        },
+        {
+          id: 'ay5',
+          wordClass: 'content',
+          segments: [
+            { id: 'ay5s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
+            { id: 'ay5s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Following', 'Repeated contemplation'] },
+            { id: 'ay5s3', text: 'pass', type: 'root', tooltips: ['√paś/dṛś: To see / Observe', 'Anupassī = repeatedly seeing'] },
+            { id: 'ay5s4', text: 'ī', type: 'suffix', tooltips: ['Agent noun: "one who..."'] },
+          ],
+          senses: [
+            { english: 'contemplating the body', nuance: 'Observing' },
+            { english: 'body-observer', nuance: 'Agent' },
+          ],
+        },
+        {
+          id: 'ay6',
+          wordClass: 'content',
+          segments: [
+            { id: 'ay6s1', text: 'vihar', type: 'root', tooltips: ['√hṛ + vi: To dwell / Abide', 'Viharati = lives, remains, abides', '📝 Not momentary but sustained', 'dwelling in the practice'] },
+            { id: 'ay6s2', text: 'ati', type: 'suffix', tooltips: ['Present tense: "dwells"'] },
+          ],
+          senses: [
+            { english: 'dwells', nuance: 'Abides' },
+            { english: 'remains', nuance: 'Sustained' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eay1', linkedSegmentId: 'ay1s1' },
+        { id: 'eay1g', label: 'one', isGhost: true, ghostKind: 'required' },
+        { id: 'eay6', linkedSegmentId: 'ay6s1' },
+        { id: 'eay5', linkedPaliId: 'ay5' },
+        { id: 'eay2', linkedPaliId: 'ay2' },
+      ],
+    },
+
+    // mn10:4.11b - External contemplation
+    // bahiddhā vā kāye kāyānupassī viharati
+    {
+      id: 'phase-az',
+      paliWords: [
+        {
+          id: 'az1',
+          wordClass: 'content',
+          segments: [
+            { id: 'az1s1', text: 'bahid', type: 'root', tooltips: ['Bahis: Outside / External', 'Sanskrit bahis'] },
+            { id: 'az1s2', text: 'dhā', type: 'suffix', tooltips: ['Adverbial: "externally"', '📍 EXTERNAL SCOPE:', '• Others\' bodies (living beings)', '• Or: external aspects of one\'s', '  own body (skin, posture)', '🔗 Develops universal insight'] },
+          ],
+          senses: [
+            { english: 'externally', nuance: 'Outside oneself' },
+            { english: 'in others', nuance: 'Universal' },
+          ],
+        },
+        {
+          id: 'az2',
+          wordClass: 'function',
+          segments: [
+            { id: 'az2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'az3',
+          wordClass: 'content',
+          segments: [
+            { id: 'az3s1', text: 'kāye', type: 'stem', tooltips: ['In the body'] },
+          ],
+          senses: [{ english: 'in the body', nuance: 'Location' }],
+        },
+        {
+          id: 'az4',
+          wordClass: 'content',
+          segments: [
+            { id: 'az4s1', text: 'kāyānupassī', type: 'stem', tooltips: ['Body-contemplator'] },
+          ],
+          senses: [{ english: 'contemplating body', nuance: 'Observing' }],
+        },
+        {
+          id: 'az5',
+          wordClass: 'content',
+          segments: [
+            { id: 'az5s1', text: 'vihar', type: 'root', tooltips: ['Dwells'] },
+            { id: 'az5s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eaz1g', label: 'or', isGhost: true, ghostKind: 'required' },
+        { id: 'eaz1', linkedPaliId: 'az1' },
+        { id: 'eaz5', linkedSegmentId: 'az5s1' },
+        { id: 'eaz4', linkedSegmentId: 'az4s1' },
+      ],
+    },
+
+    // mn10:4.11c - Both internal and external
+    // ajjhattabahiddhā vā kāye kāyānupassī viharati
+    {
+      id: 'phase-ba',
+      paliWords: [
+        {
+          id: 'ba1',
+          wordClass: 'content',
+          segments: [
+            { id: 'ba1s1', text: 'ajjhatta', type: 'stem', tooltips: ['Internal'] },
+            { id: 'ba1s2', text: 'bahid', type: 'root', tooltips: ['External'] },
+            { id: 'ba1s3', text: 'dhā', type: 'suffix', tooltips: ['⚡ BOTH TOGETHER:', 'Seeing the SAME patterns', 'in self and others', '→ Universality of experience', '→ Breaking self/other duality', '→ Foundation for compassion'] },
+          ],
+          senses: [
+            { english: 'both internally and externally', nuance: 'Universal' },
+            { english: 'in oneself and others', nuance: 'Complete' },
+          ],
+        },
+        {
+          id: 'ba2',
+          wordClass: 'function',
+          segments: [
+            { id: 'ba2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'ba3',
+          wordClass: 'content',
+          segments: [
+            { id: 'ba3s1', text: 'kāye', type: 'stem', tooltips: ['In the body'] },
+          ],
+          senses: [{ english: 'in the body', nuance: 'Location' }],
+        },
+        {
+          id: 'ba4',
+          wordClass: 'content',
+          segments: [
+            { id: 'ba4s1', text: 'kāyānupassī', type: 'stem', tooltips: ['Body-contemplator'] },
+          ],
+          senses: [{ english: 'contemplating body', nuance: 'Observing' }],
+        },
+        {
+          id: 'ba5',
+          wordClass: 'content',
+          segments: [
+            { id: 'ba5s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eba1g', label: 'or', isGhost: true, ghostKind: 'required' },
+        { id: 'eba1', linkedPaliId: 'ba1' },
+        { id: 'eba5', linkedSegmentId: 'ba5s1' },
+        { id: 'eba4', linkedSegmentId: 'ba4s1' },
+      ],
+    },
+
+    // mn10:4.12 - Arising nature
+    // Samudayadhammānupassī vā kāyasmiṁ viharati
+    {
+      id: 'phase-bb',
+      paliWords: [
+        {
+          id: 'bb1',
+          wordClass: 'content',
+          segments: [
+            { id: 'bb1s1', text: 'Sam', type: 'prefix', tooltips: ['Saṁ: Together / Completely'] },
+            { id: 'bb1s2', text: 'udaya', type: 'root', tooltips: ['Ud + i: Rising up / Origin', 'Samudaya = arising, origination', '⚡ FIRST NOBLE TRUTH echo:', 'dukkhasamudaya = origin of suffering', 'Here: seeing HOW things arise'] },
+            { id: 'bb1s3', text: 'dhamma', type: 'root', tooltips: ['Dhamma: Nature / Quality / Phenomenon', '"Arising-nature" = subject to arising'] },
+            { id: 'bb1s4', text: 'ānu', type: 'prefix', tooltips: ['Anu: Following / Repeatedly'] },
+            { id: 'bb1s5', text: 'pass', type: 'root', tooltips: ['√paś: Seeing'] },
+            { id: 'bb1s6', text: 'ī', type: 'suffix', tooltips: ['Agent: "one who sees..."'] },
+          ],
+          senses: [
+            { english: 'observing the arising nature', nuance: 'Origin' },
+            { english: 'seeing how things come to be', nuance: 'Genesis' },
+          ],
+        },
+        {
+          id: 'bb2',
+          wordClass: 'function',
+          segments: [
+            { id: 'bb2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'bb3',
+          wordClass: 'content',
+          segments: [
+            { id: 'bb3s1', text: 'kāya', type: 'root', tooltips: ['Body'] },
+            { id: 'bb3s2', text: 'smiṁ', type: 'suffix', tooltips: ['Locative: "in regard to body"'] },
+          ],
+          senses: [{ english: 'in regard to body', nuance: 'Location' }],
+        },
+        {
+          id: 'bb4',
+          wordClass: 'content',
+          segments: [
+            { id: 'bb4s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'ebb4', linkedSegmentId: 'bb4s1' },
+        { id: 'ebb1', linkedPaliId: 'bb1' },
+        { id: 'ebb3', linkedPaliId: 'bb3' },
+      ],
+    },
+
+    // mn10:4.12b - Passing away nature
+    // vayadhammānupassī vā kāyasmiṁ viharati
+    {
+      id: 'phase-bc',
+      paliWords: [
+        {
+          id: 'bc1',
+          wordClass: 'content',
+          segments: [
+            { id: 'bc1s1', text: 'vaya', type: 'root', tooltips: ['Vaya: Decay / Passing away / Cessation', 'From vi + i: going away', '⚡ ANICCA direct insight:', 'Everything that arises, passes', 'This is vipassanā proper'] },
+            { id: 'bc1s2', text: 'dhamma', type: 'root', tooltips: ['Nature / Quality', '"Passing-nature" = subject to decay'] },
+            { id: 'bc1s3', text: 'ānu', type: 'prefix', tooltips: ['Repeatedly'] },
+            { id: 'bc1s4', text: 'pass', type: 'root', tooltips: ['Seeing'] },
+            { id: 'bc1s5', text: 'ī', type: 'suffix', tooltips: ['Agent'] },
+          ],
+          senses: [
+            { english: 'observing the passing nature', nuance: 'Decay' },
+            { english: 'seeing how things cease', nuance: 'Impermanence' },
+          ],
+        },
+        {
+          id: 'bc2',
+          wordClass: 'function',
+          segments: [
+            { id: 'bc2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'bc3',
+          wordClass: 'content',
+          segments: [
+            { id: 'bc3s1', text: 'kāyasmiṁ', type: 'stem', tooltips: ['In regard to body'] },
+          ],
+          senses: [{ english: 'in regard to body', nuance: 'Location' }],
+        },
+        {
+          id: 'bc4',
+          wordClass: 'content',
+          segments: [
+            { id: 'bc4s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'ebc2g', label: 'or', isGhost: true, ghostKind: 'required' },
+        { id: 'ebc4', linkedSegmentId: 'bc4s1' },
+        { id: 'ebc1', linkedPaliId: 'bc1' },
+        { id: 'ebc3', linkedSegmentId: 'bc3s1' },
+      ],
+    },
+
+    // mn10:4.12c - Both arising and passing
+    // samudayavayadhammānupassī vā kāyasmiṁ viharati
+    {
+      id: 'phase-bd',
+      paliWords: [
+        {
+          id: 'bd1',
+          wordClass: 'content',
+          segments: [
+            { id: 'bd1s1', text: 'samudaya', type: 'stem', tooltips: ['Arising'] },
+            { id: 'bd1s2', text: 'vaya', type: 'root', tooltips: ['And passing', '⚡ COMPLETE ANICCA:', 'Seeing the FULL CYCLE', 'Arising-and-passing together', '→ Nothing to cling to', '→ Dependent origination direct'] },
+            { id: 'bd1s3', text: 'dhamma', type: 'root', tooltips: ['Nature'] },
+            { id: 'bd1s4', text: 'ānu', type: 'prefix', tooltips: ['Repeatedly'] },
+            { id: 'bd1s5', text: 'pass', type: 'root', tooltips: ['Seeing'] },
+            { id: 'bd1s6', text: 'ī', type: 'suffix', tooltips: ['Agent'] },
+          ],
+          senses: [
+            { english: 'observing arising-and-passing nature', nuance: 'Complete cycle' },
+            { english: 'seeing impermanence fully', nuance: 'Anicca' },
+          ],
+        },
+        {
+          id: 'bd2',
+          wordClass: 'function',
+          segments: [
+            { id: 'bd2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'bd3',
+          wordClass: 'content',
+          segments: [
+            { id: 'bd3s1', text: 'kāyasmiṁ', type: 'stem', tooltips: ['In regard to body'] },
+          ],
+          senses: [{ english: 'in regard to body', nuance: 'Location' }],
+        },
+        {
+          id: 'bd4',
+          wordClass: 'content',
+          segments: [
+            { id: 'bd4s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'ebd2g', label: 'or', isGhost: true, ghostKind: 'required' },
+        { id: 'ebd4', linkedSegmentId: 'bd4s1' },
+        { id: 'ebd1', linkedPaliId: 'bd1' },
+        { id: 'ebd3', linkedSegmentId: 'bd3s1' },
+      ],
+    },
+
+    // mn10:4.13 - "Atthi kāyo" establishment
+    // 'Atthi kāyo'ti vā panassa sati paccupaṭṭhitā hoti
+    {
+      id: 'phase-be',
+      paliWords: [
+        {
+          id: 'be1',
+          wordClass: 'content',
+          segments: [
+            { id: 'be1s1', text: 'Atthi', type: 'stem', tooltips: ['Atthi: There is / Exists', 'From √as: to be', '📝 BARE KNOWING:', 'Just: "There is body"', 'No elaboration, no story', 'Pure presence of phenomenon'] },
+          ],
+          senses: [
+            { english: 'there is', nuance: 'Existence' },
+            { english: 'exists', nuance: 'Presence' },
+          ],
+        },
+        {
+          id: 'be2',
+          wordClass: 'content',
+          segments: [
+            { id: 'be2s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body', 'Just "body" — no "my body"', 'Depersonalized awareness'] },
+            { id: 'be2s2', text: 'o', type: 'suffix', tooltips: ['Nominative: subject'] },
+          ],
+          senses: [{ english: 'body', nuance: 'Phenomenon' }],
+        },
+        {
+          id: 'be3',
+          wordClass: 'function',
+          segments: [
+            { id: 'be3s1', text: 'ti', type: 'stem', tooltips: ['Quote marker: "..."'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote' }],
+        },
+        {
+          id: 'be4',
+          wordClass: 'function',
+          segments: [
+            { id: 'be4s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'be5',
+          wordClass: 'function',
+          segments: [
+            { id: 'be5s1', text: 'pan', type: 'stem', tooltips: ['Pana: Moreover / And / But', 'Connective particle'] },
+            { id: 'be5s2', text: 'assa', type: 'suffix', tooltips: ['Assa: His / Of him', 'Genitive/Dative pronoun'] },
+          ],
+          senses: [{ english: 'moreover, his', nuance: 'Connection' }],
+        },
+        {
+          id: 'be6',
+          wordClass: 'content',
+          segments: [
+            { id: 'be6s1', text: 'sati', type: 'stem', tooltips: ['Sati: Mindfulness'] },
+          ],
+          senses: [{ english: 'mindfulness', nuance: 'Awareness' }],
+        },
+        {
+          id: 'be7',
+          wordClass: 'content',
+          segments: [
+            { id: 'be7s1', text: 'pacc', type: 'prefix', tooltips: ['Pati: Back / In response'] },
+            { id: 'be7s2', text: 'upa', type: 'prefix', tooltips: ['Upa: Near'] },
+            { id: 'be7s3', text: 'ṭṭhi', type: 'root', tooltips: ['√sthā: To stand', 'Paccupaṭṭhita = established, present'] },
+            { id: 'be7s4', text: 'tā', type: 'suffix', tooltips: ['Past participle'] },
+          ],
+          senses: [
+            { english: 'is established', nuance: 'Present' },
+            { english: 'stands present', nuance: 'Available' },
+          ],
+        },
+        {
+          id: 'be8',
+          wordClass: 'function',
+          segments: [
+            { id: 'be8s1', text: 'hoti', type: 'stem', tooltips: ['Is / Becomes'] },
+          ],
+          senses: [{ english: 'is', nuance: 'State' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'ebe5g', label: 'Or moreover,', isGhost: true, ghostKind: 'required' },
+        { id: 'ebe6', linkedSegmentId: 'be6s1' },
+        { id: 'ebe7', linkedPaliId: 'be7' },
+        { id: 'ebe7g', label: ':', isGhost: true, ghostKind: 'required' },
+        { id: 'ebe1', linkedSegmentId: 'be1s1' },
+        { id: 'ebe2', linkedSegmentId: 'be2s1' },
+      ],
+    },
+
+    // mn10:4.14 - Non-clinging conclusion
+    // yāvadeva ñāṇamattāya paṭissatimattāya,
+    // anissito ca viharati, na ca kiñci loke upādiyati.
+    {
+      id: 'phase-bf',
+      paliWords: [
+        {
+          id: 'bf1',
+          wordClass: 'function',
+          segments: [
+            { id: 'bf1s1', text: 'yāvad', type: 'stem', tooltips: ['Yāva: As far as / To the extent'] },
+            { id: 'bf1s2', text: 'eva', type: 'stem', tooltips: ['Eva: Just / Only', 'Yāvadeva = just to the extent'] },
+          ],
+          senses: [{ english: 'just to the extent', nuance: 'Limitation' }],
+        },
+        {
+          id: 'bf2',
+          wordClass: 'content',
+          segments: [
+            { id: 'bf2s1', text: 'ñāṇa', type: 'root', tooltips: ['Ñāṇa: Knowledge / Gnosis', 'From √jñā: to know'] },
+            { id: 'bf2s2', text: 'matt', type: 'root', tooltips: ['Matta: Mere / Only / Just', '📝 JUST for knowledge\'s sake', 'Not for ego, not for becoming', 'Pure knowing without grasping'] },
+            { id: 'bf2s3', text: 'āya', type: 'suffix', tooltips: ['Dative: "for the purpose of"'] },
+          ],
+          senses: [
+            { english: 'for bare knowledge', nuance: 'Purpose' },
+            { english: 'just for knowing', nuance: 'Minimal' },
+          ],
+        },
+        {
+          id: 'bf3',
+          wordClass: 'content',
+          segments: [
+            { id: 'bf3s1', text: 'paṭi', type: 'prefix', tooltips: ['Paṭi: Back / Again'] },
+            { id: 'bf3s2', text: 'ssati', type: 'root', tooltips: ['Sati: Mindfulness', 'Paṭissati = continued mindfulness'] },
+            { id: 'bf3s3', text: 'matt', type: 'root', tooltips: ['Mere / Just'] },
+            { id: 'bf3s4', text: 'āya', type: 'suffix', tooltips: ['Dative: "for"'] },
+          ],
+          senses: [
+            { english: 'for bare mindfulness', nuance: 'Purpose' },
+            { english: 'just for awareness', nuance: 'Minimal' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ebf1', linkedPaliId: 'bf1' },
+        { id: 'ebf1g', label: 'needed', isGhost: true, ghostKind: 'required' },
+        { id: 'ebf2', linkedPaliId: 'bf2' },
+        { id: 'ebf2g', label: 'and', isGhost: true, ghostKind: 'required' },
+        { id: 'ebf3', linkedPaliId: 'bf3' },
+      ],
+    },
+
+    // mn10:4.14b - Independence and non-clinging
+    // anissito ca viharati, na ca kiñci loke upādiyati
+    {
+      id: 'phase-bg',
+      paliWords: [
+        {
+          id: 'bg1',
+          wordClass: 'content',
+          segments: [
+            { id: 'bg1s1', text: 'a', type: 'prefix', tooltips: ['A-: Not / Without (negative)'] },
+            { id: 'bg1s2', text: 'nissit', type: 'root', tooltips: ['Nissita: Dependent / Leaning on', 'From ni + √śri: to lean', 'Anissita = INDEPENDENT', '⚡ KEY RESULT:', 'Not leaning on craving', 'Not leaning on views', 'Self-sufficient awareness'] },
+            { id: 'bg1s3', text: 'o', type: 'suffix', tooltips: ['Nominative singular'] },
+          ],
+          senses: [
+            { english: 'independent', nuance: 'Not leaning' },
+            { english: 'not dependent', nuance: 'Free' },
+          ],
+        },
+        {
+          id: 'bg2',
+          wordClass: 'function',
+          segments: [
+            { id: 'bg2s1', text: 'ca', type: 'stem', tooltips: ['And'] },
+          ],
+          senses: [{ english: 'and', nuance: 'Connection' }],
+        },
+        {
+          id: 'bg3',
+          wordClass: 'content',
+          segments: [
+            { id: 'bg3s1', text: 'vihar', type: 'root', tooltips: ['Dwells'] },
+            { id: 'bg3s2', text: 'ati', type: 'suffix', tooltips: ['Present tense'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+        {
+          id: 'bg4',
+          wordClass: 'function',
+          segments: [
+            { id: 'bg4s1', text: 'na', type: 'stem', tooltips: ['Not'] },
+          ],
+          senses: [{ english: 'not', nuance: 'Negative' }],
+        },
+        {
+          id: 'bg5',
+          wordClass: 'function',
+          segments: [
+            { id: 'bg5s1', text: 'ca', type: 'stem', tooltips: ['And'] },
+          ],
+          senses: [{ english: 'and', nuance: 'Connection' }],
+        },
+        {
+          id: 'bg6',
+          wordClass: 'content',
+          segments: [
+            { id: 'bg6s1', text: 'kiñci', type: 'stem', tooltips: ['Kiñci: Anything / Something', 'Indefinite pronoun', 'With na = "not anything"'] },
+          ],
+          senses: [{ english: 'anything', nuance: 'Indefinite' }],
+        },
+        {
+          id: 'bg7',
+          wordClass: 'content',
+          segments: [
+            { id: 'bg7s1', text: 'lok', type: 'root', tooltips: ['Loka: World', '📍 In the world = in experience', 'All of saṁsāric existence'] },
+            { id: 'bg7s2', text: 'e', type: 'suffix', tooltips: ['Locative: "in the world"'] },
+          ],
+          senses: [{ english: 'in the world', nuance: 'Experience' }],
+        },
+        {
+          id: 'bg8',
+          wordClass: 'content',
+          segments: [
+            { id: 'bg8s1', text: 'upa', type: 'prefix', tooltips: ['Upa: Towards / Near'] },
+            { id: 'bg8s2', text: 'ādi', type: 'root', tooltips: ['√dā: To take', 'Upādāna = clinging, grasping', '⚡ THE GOAL:', 'Na upādiyati = does NOT cling', 'Freedom from the 4 upādānas:', '• Sensual clinging', '• View clinging', '• Rite/ritual clinging', '• Self-doctrine clinging'] },
+            { id: 'bg8s3', text: 'yati', type: 'suffix', tooltips: ['Present tense: "clings"'] },
+          ],
+          senses: [
+            { english: 'clings to', nuance: 'Grasps' },
+            { english: 'takes up', nuance: 'Attaches' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'ebg1g', label: 'One', isGhost: true, ghostKind: 'required' },
+        { id: 'ebg3', linkedSegmentId: 'bg3s1' },
+        { id: 'ebg1', linkedPaliId: 'bg1' },
+        { id: 'ebg4', linkedSegmentId: 'bg4s1' },
+        { id: 'ebg8', linkedPaliId: 'bg8' },
+        { id: 'ebg6', linkedSegmentId: 'bg6s1' },
+        { id: 'ebg7', linkedPaliId: 'bg7' },
       ],
     },
   ],

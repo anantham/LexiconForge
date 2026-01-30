@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 
 export type StudioSettings = {
   tooltips: boolean;
+  emojiInTooltips: boolean;
+  grammarTerms: boolean;
   grammarArrows: boolean;
   refrainColors: boolean;
   alignmentLines: boolean;
@@ -11,6 +13,8 @@ export type StudioSettings = {
 
 export const DEFAULT_SETTINGS: StudioSettings = {
   tooltips: true,
+  emojiInTooltips: true,
+  grammarTerms: false,
   grammarArrows: true,
   refrainColors: false,
   alignmentLines: true,
@@ -127,6 +131,16 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               label="Tooltips"
               checked={settings.tooltips}
               onChange={(v) => updateSetting('tooltips', v)}
+            />
+            <SettingToggle
+              label="Emoji in tooltips"
+              checked={settings.emojiInTooltips}
+              onChange={(v) => updateSetting('emojiInTooltips', v)}
+            />
+            <SettingToggle
+              label="Grammar terms"
+              checked={settings.grammarTerms}
+              onChange={(v) => updateSetting('grammarTerms', v)}
             />
             <SettingToggle
               label="Grammar arrows"

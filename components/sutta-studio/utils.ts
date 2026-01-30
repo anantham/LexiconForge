@@ -40,6 +40,14 @@ export const resolveSegmentTooltip = (
   return arr[activeIndex] || arr[0] || '';
 };
 
+/** Strip emoji characters from text */
+export const stripEmoji = (text: string): string =>
+  text.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+
+/** Strip grammar terms in [brackets] from text */
+export const stripGrammarTerms = (text: string): string =>
+  text.replace(/\[.*?\]\s*/g, '').trim();
+
 export const formatDuration = (ms?: number | null) => {
   if (ms == null) return null;
   const isNegative = ms < 0;
