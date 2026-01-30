@@ -64,8 +64,8 @@ const err = (message: string, ...args: any[]) =>
 export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v9-tooltips';
 const COMPILER_MIN_CALL_GAP_MS = 1000;
 
-// DEBUG: Limit phases for testing (set to 0 for unlimited)
-const DEBUG_PHASE_LIMIT = 8;
+/// DEBUG: Limit phases for testing (set to 0 for unlimited)
+const DEBUG_PHASE_LIMIT = 6;
 const DICTIONARY_LOOKUP_BASE = 'https://suttacentral.net/api/dictionaries/lookup?from=pali&to=en&q=';
 
 const skeletonResponseSchema = {
@@ -187,8 +187,16 @@ const lexicographerResponseSchema = {
                 notes: { type: 'string' },
                 citationIds: { type: 'array', items: { type: 'string' } },
                 ripples: {
-                  type: 'object',
-                  additionalProperties: { type: 'string' },
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      tradition: { type: 'string' },
+                      rendering: { type: 'string' },
+                    },
+                    required: ['tradition', 'rendering'],
+                    additionalProperties: false,
+                  },
                 },
               },
               required: ['english', 'nuance'],
@@ -225,6 +233,7 @@ const weaverResponseSchema = {
         properties: {
           tokenIndex: { type: 'number' },
           text: { type: 'string' },
+          linkedSegmentId: { type: 'string' },
           linkedPaliId: { type: 'string' },
           isGhost: { type: 'boolean' },
           ghostKind: { type: 'string', enum: ['required', 'interpretive'] },
@@ -300,8 +309,16 @@ const phaseResponseSchema = {
                 tooltips: { type: 'array', items: { type: 'string' } },
                 tooltip: { type: 'string' },
                 tooltipsBySense: {
-                  type: 'object',
-                  additionalProperties: { type: 'string' },
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      senseId: { type: 'string' },
+                      tooltip: { type: 'string' },
+                    },
+                    required: ['senseId', 'tooltip'],
+                    additionalProperties: false,
+                  },
                 },
                 relation: {
                   type: 'object',
@@ -339,8 +356,16 @@ const phaseResponseSchema = {
                 notes: { type: 'string' },
                 citationIds: { type: 'array', items: { type: 'string' } },
                 ripples: {
-                  type: 'object',
-                  additionalProperties: { type: 'string' },
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      tradition: { type: 'string' },
+                      rendering: { type: 'string' },
+                    },
+                    required: ['tradition', 'rendering'],
+                    additionalProperties: false,
+                  },
                 },
               },
               required: ['english', 'nuance'],
@@ -392,8 +417,16 @@ const morphResponseSchema = {
                 tooltips: { type: 'array', items: { type: 'string' } },
                 tooltip: { type: 'string' },
                 tooltipsBySense: {
-                  type: 'object',
-                  additionalProperties: { type: 'string' },
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      senseId: { type: 'string' },
+                      tooltip: { type: 'string' },
+                    },
+                    required: ['senseId', 'tooltip'],
+                    additionalProperties: false,
+                  },
                 },
                 relation: {
                   type: 'object',
@@ -756,6 +789,7 @@ const runSkeletonPass = async ({
   signal,
   throttle,
   chunkSize = 50,
+  onChunkProgress,
 }: {
   segments: CanonicalSegment[];
   boundaries: BoundaryNote[];
@@ -765,6 +799,7 @@ const runSkeletonPass = async ({
   signal?: AbortSignal;
   throttle?: (signal?: AbortSignal) => Promise<void>;
   chunkSize?: number;
+  onChunkProgress?: (chunkIndex: number, chunkCount: number, segmentCount: number) => void;
 }): Promise<SkeletonPhase[]> => {
   const phases: SkeletonPhase[] = [];
   const safeChunkSize = Math.max(1, Math.min(chunkSize, segments.length));
@@ -782,6 +817,7 @@ const runSkeletonPass = async ({
 
     try {
       log(`Running skeleton pass (chunk ${chunkIndex + 1}/${chunkCount}, ${chunkSegments.length} segments)...`);
+      onChunkProgress?.(chunkIndex, chunkCount, chunkSegments.length);
       const skeletonPrompt = buildSkeletonPrompt(chunkSegments, {
         exampleSegmentId: chunkSegments[0]?.ref.segmentId,
         boundaries: chunkBoundaries,
@@ -939,6 +975,8 @@ const callCompilerLLM = async (
       model: effectiveSettings.model,
       maxTokens,
       messages,
+      schema: options?.schema ?? null,
+      structuredOutputs: options?.structuredOutputs ?? false,
     },
   });
 
@@ -968,6 +1006,8 @@ const callCompilerLLM = async (
         provider: effectiveSettings.provider,
         model: effectiveSettings.model,
         error: e?.message || String(e),
+        errorBody: e?.response?.data ?? e?.body ?? e?.cause ?? null,
+        errorStack: e?.stack ?? null,
       },
     });
     throw e;
@@ -1191,7 +1231,8 @@ const buildTypesetterPrompt = (
   phaseId: string,
   phaseState: string,
   anatomist: AnatomistPass,
-  weaver: WeaverPass
+  weaver: WeaverPass,
+  canonicalSegments?: CanonicalSegment[]
 ) => {
   // Build word list with relations
   const wordsList = anatomist.words
@@ -1205,10 +1246,30 @@ const buildTypesetterPrompt = (
     .join('\n');
 
   // Build English token order from Weaver (non-ghost tokens linked to Pali)
-  const englishOrder = weaver.tokens
-    .filter((t) => !t.isGhost && t.linkedPaliId)
-    .map((t) => t.linkedPaliId)
+  // Include both word-level (linkedPaliId) and segment-level (linkedSegmentId) links
+  const englishTokensWithLinks = weaver.tokens.filter((t) => !t.isGhost && (t.linkedPaliId || t.linkedSegmentId));
+  const englishOrder = englishTokensWithLinks
+    .map((t) => {
+      if (t.linkedPaliId) return t.linkedPaliId;
+      // For segment-linked tokens, find the parent word
+      const parentWord = anatomist.words.find((w) =>
+        anatomist.segments.some((s) => s.wordId === w.id && s.id === t.linkedSegmentId)
+      );
+      return parentWord?.id ?? t.linkedSegmentId;
+    })
     .join(' → ');
+
+  // Build canonical segment info to help with grouping
+  const segmentInfo = canonicalSegments?.map((seg) =>
+    `${seg.ref.segmentId}: "${seg.pali.trim()}"`
+  ).join('\n') || '';
+
+  // Log detailed Typesetter inputs
+  log(`[Typesetter] Building prompt for ${phaseId}`);
+  log(`[Typesetter] Words: ${anatomist.words.map((w) => `${w.id}=${w.surface}`).join(', ')}`);
+  log(`[Typesetter] Weaver tokens (linked): ${englishTokensWithLinks.map((t) => `"${t.text}"→${t.linkedPaliId || t.linkedSegmentId}`).join(', ')}`);
+  log(`[Typesetter] English order: ${englishOrder}`);
+  log(`[Typesetter] Canonical segments: ${canonicalSegments?.length ?? 0}`);
 
   return `You are DeepLoomCompiler.
 
@@ -1224,9 +1285,13 @@ Rules:
 - Output JSON ONLY.
 - Use the exact phase id: ${phaseId}.
 - Each block should have at most 5 word IDs.
+- IMPORTANT: Words from the same canonical segment should be kept in the SAME block.
 - Order blocks to minimize crossing lines between related words.
 - Consider the English token order as a guide for reading flow.
 - If words are related (e.g., genitive modifier + head noun), keep them in the same or adjacent blocks.
+
+Canonical segments (words from same segment should be in same block):
+${segmentInfo || '(not available)'}
 
 Return JSON ONLY with this shape:
 {
@@ -1301,7 +1366,7 @@ const buildMorphologyPrompt = (
 
 export type CompileProgress = {
   packet: DeepLoomPacket;
-  stage: 'init' | 'skeleton' | 'phase' | 'complete' | 'error';
+  stage: 'fetching' | 'init' | 'skeleton' | 'phase' | 'complete' | 'error';
   message?: string;
 };
 
@@ -1429,6 +1494,14 @@ export const compileSuttaStudioPacket = async (options: {
       signal,
       throttle,
       chunkSize: 50,
+      onChunkProgress: (chunkIndex, chunkCount, segmentCount) => {
+        const stageMessage = `Analyzing structure (chunk ${chunkIndex + 1}/${chunkCount}, ${segmentCount} segments)...`;
+        packet = {
+          ...packet,
+          progress: { ...packet.progress, stageMessage },
+        };
+        onProgress?.({ packet, stage: 'skeleton', message: stageMessage });
+      },
     });
   } catch (e) {
     warn('Skeleton pass failed; falling back to chunked phases.', e);
@@ -1444,15 +1517,20 @@ export const compileSuttaStudioPacket = async (options: {
 
   let readySegments = 0;
   const totalSegments = canonicalWithOrder.length;
+  const phaseLimit = DEBUG_PHASE_LIMIT > 0 ? Math.min(DEBUG_PHASE_LIMIT, phaseSkeleton.length) : phaseSkeleton.length;
+  if (DEBUG_PHASE_LIMIT > 0) {
+    log(`DEBUG MODE: Limiting to ${phaseLimit} phases (set DEBUG_PHASE_LIMIT=0 for full compilation)`);
+  }
+
   const seededAvgPhaseMs = getAveragePhaseDuration(uidKey) ?? undefined;
   const seededEtaMs =
-    seededAvgPhaseMs && phaseSkeleton.length > 0
-      ? seededAvgPhaseMs * phaseSkeleton.length
+    seededAvgPhaseMs && phaseLimit > 0
+      ? seededAvgPhaseMs * phaseLimit
       : undefined;
   packet = {
     ...packet,
     progress: {
-      totalPhases: phaseSkeleton.length,
+      totalPhases: phaseLimit,
       readyPhases: 0,
       totalSegments,
       readySegments,
@@ -1469,13 +1547,8 @@ export const compileSuttaStudioPacket = async (options: {
     level: 'info',
     stage: 'skeleton',
     message: 'skeleton.ready',
-    data: { phaseCount: phaseSkeleton.length },
+    data: { phaseCount: phaseSkeleton.length, phaseLimit },
   });
-
-  const phaseLimit = DEBUG_PHASE_LIMIT > 0 ? Math.min(DEBUG_PHASE_LIMIT, phaseSkeleton.length) : phaseSkeleton.length;
-  if (DEBUG_PHASE_LIMIT > 0) {
-    log(`DEBUG MODE: Limiting to ${phaseLimit} phases (set DEBUG_PHASE_LIMIT=0 for full compilation)`);
-  }
 
   for (let i = 0; i < phaseLimit; i++) {
     const phase = phaseSkeleton[i];
@@ -1494,6 +1567,8 @@ export const compileSuttaStudioPacket = async (options: {
       let lexicographerOutput: LexicographerPass | null = null;
       try {
         log(`Anatomist pass for ${phase.id}...`);
+        packet = { ...packet, progress: { ...packet.progress, currentPassName: 'Anatomist' } };
+        onProgress?.({ packet, stage: 'phase', message: `${phase.id}: Anatomist` });
         const phaseState = buildPhaseStateEnvelope({
           workId: uidKey,
           phaseId: phase.id,
@@ -1518,7 +1593,7 @@ export const compileSuttaStudioPacket = async (options: {
           signal,
           8000,
           {
-            schemaName: `sutta_studio_anatomist_${phase.id}`,
+            schemaName: `sutta_studio_anatomist_${phase.id.replace(/-/g, '_')}`,
             schema: anatomistResponseSchema,
             structuredOutputs,
             meta: { stage: 'anatomist', phaseId: phase.id, requestName: 'anatomist' },
@@ -1563,6 +1638,8 @@ export const compileSuttaStudioPacket = async (options: {
 
           const cacheHits = contentWords.length - cacheMisses.length;
           log(`Lexicographer pass for ${phase.id} - ${cacheHits} cached, ${cacheMisses.length} to fetch (parallel)...`);
+          packet = { ...packet, progress: { ...packet.progress, currentPassName: 'Lexicographer' } };
+          onProgress?.({ packet, stage: 'phase', message: `${phase.id}: Lexicographer` });
 
           // Fetch cache misses in parallel
           if (cacheMisses.length > 0) {
@@ -1624,7 +1701,7 @@ export const compileSuttaStudioPacket = async (options: {
             signal,
             8000,
             {
-              schemaName: `sutta_studio_lexico_${phase.id}`,
+              schemaName: `sutta_studio_lexico_${phase.id.replace(/-/g, '_')}`,
               schema: lexicographerResponseSchema,
               structuredOutputs,
               meta: { stage: 'lexicographer', phaseId: phase.id, requestName: 'lexicographer' },
@@ -1664,6 +1741,8 @@ export const compileSuttaStudioPacket = async (options: {
           if (englishText) {
             englishTokens = tokenizeEnglish(englishText);
             log(`Weaver pass for ${phase.id} (${getWordTokens(englishTokens).length} word tokens)...`);
+            packet = { ...packet, progress: { ...packet.progress, currentPassName: 'Weaver' } };
+            onProgress?.({ packet, stage: 'phase', message: `${phase.id}: Weaver` });
 
             const weaverPhaseState = buildPhaseStateEnvelope({
               workId: uidKey,
@@ -1693,7 +1772,7 @@ export const compileSuttaStudioPacket = async (options: {
               signal,
               4000,
               {
-                schemaName: `sutta_studio_weaver_${phase.id}`,
+                schemaName: `sutta_studio_weaver_${phase.id.replace(/-/g, '_')}`,
                 schema: weaverResponseSchema,
                 structuredOutputs,
                 meta: { stage: 'weaver', phaseId: phase.id, requestName: 'weaver' },
@@ -1728,6 +1807,8 @@ export const compileSuttaStudioPacket = async (options: {
       if (anatomistOutput && weaverOutput) {
         try {
           log(`Typesetter pass for ${phase.id}...`);
+          packet = { ...packet, progress: { ...packet.progress, currentPassName: 'Typesetter' } };
+          onProgress?.({ packet, stage: 'phase', message: `${phase.id}: Typesetter` });
           const typesetterPhaseState = buildPhaseStateEnvelope({
             workId: uidKey,
             phaseId: phase.id,
@@ -1741,8 +1822,23 @@ export const compileSuttaStudioPacket = async (options: {
             phase.id,
             typesetterPhaseState,
             anatomistOutput,
-            weaverOutput
+            weaverOutput,
+            phaseSegments
           );
+
+          // Log Typesetter input for debugging
+          const wordIds = anatomistOutput.words.map((w) => w.id).join(', ');
+          const englishOrderDebug = weaverOutput.tokens
+            .filter((t) => !t.isGhost && (t.linkedPaliId || t.linkedSegmentId))
+            .map((t) => t.linkedPaliId || t.linkedSegmentId)
+            .join(' → ');
+          logPipelineEvent({
+            level: 'debug',
+            stage: 'typesetter',
+            phaseId: phase.id,
+            message: 'typesetter.input',
+            data: { wordIds, englishOrder: englishOrderDebug },
+          });
 
           await throttle(signal);
           const typesetterRaw = await callCompilerLLM(
@@ -1754,7 +1850,7 @@ export const compileSuttaStudioPacket = async (options: {
             signal,
             3000,
             {
-              schemaName: `sutta_studio_typesetter_${phase.id}`,
+              schemaName: `sutta_studio_typesetter_${phase.id.replace(/-/g, '_')}`,
               schema: typesetterResponseSchema,
               structuredOutputs,
               meta: { stage: 'typesetter', phaseId: phase.id, requestName: 'typesetter' },
@@ -1767,7 +1863,11 @@ export const compileSuttaStudioPacket = async (options: {
             stage: 'typesetter',
             phaseId: phase.id,
             message: 'typesetter.complete',
-            data: { blockCount: typesetterOutput.layoutBlocks.length },
+            data: {
+              blockCount: typesetterOutput.layoutBlocks.length,
+              layoutBlocks: typesetterOutput.layoutBlocks,
+              handoff: typesetterOutput.handoff,
+            },
           });
         } catch (e) {
           warn(`Typesetter pass failed for ${phase.id}; continuing without it.`, e);
@@ -1814,7 +1914,7 @@ export const compileSuttaStudioPacket = async (options: {
         signal,
         4000,
         {
-          schemaName: `sutta_studio_${phase.id}`,
+          schemaName: `sutta_studio_${phase.id.replace(/-/g, '_')}`,
           schema: phaseResponseSchema,
           structuredOutputs,
           meta: { stage: 'phase', phaseId: phase.id, requestName: 'phase_view' },
@@ -1886,7 +1986,7 @@ export const compileSuttaStudioPacket = async (options: {
             signal,
             3000,
             {
-              schemaName: `sutta_studio_morph_${phase.id}`,
+              schemaName: `sutta_studio_morph_${phase.id.replace(/-/g, '_')}`,
               schema: morphResponseSchema,
               structuredOutputs,
               meta: { stage: 'morph', phaseId: phase.id, requestName: 'morphology' },
@@ -1929,7 +2029,7 @@ export const compileSuttaStudioPacket = async (options: {
         phases: [...packet.phases, normalized],
         compiler: updatedCompiler,
         progress: {
-          totalPhases: phaseSkeleton.length,
+          totalPhases: phaseLimit,
           readyPhases: i + 1,
           totalSegments,
           readySegments,
@@ -1951,7 +2051,7 @@ export const compileSuttaStudioPacket = async (options: {
         data: {
           phaseMs,
           readyPhases: i + 1,
-          totalPhases: phaseSkeleton.length,
+          totalPhases: phaseLimit,
         },
       });
     } catch (e: any) {
@@ -1978,7 +2078,7 @@ export const compileSuttaStudioPacket = async (options: {
         ...packet,
         phases: [...packet.phases, degradedPhase],
         progress: {
-          totalPhases: phaseSkeleton.length,
+          totalPhases: phaseLimit,
           readyPhases: i + 1,
           totalSegments,
           readySegments,
@@ -2018,7 +2118,7 @@ export const compileSuttaStudioPacket = async (options: {
     ...packetValidation.packet,
     compiler: finalCompiler,
     progress: {
-      totalPhases: phaseSkeleton.length,
+      totalPhases: phaseLimit,
       readyPhases: phaseSkeleton.length,
       totalSegments,
       readySegments: totalSegments,

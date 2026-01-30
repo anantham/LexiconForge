@@ -25,6 +25,9 @@ import type { EnglishTokenInput } from './suttaStudioTokenizer';
 const warn = (message: string, ...args: any[]) =>
   console.warn(`[SuttaStudioRehydrator] ${message}`, ...args);
 
+const log = (message: string, ...args: any[]) =>
+  console.log(`[SuttaStudioRehydrator] ${message}`, ...args);
+
 /**
  * Build a map of wordId -> WordSegment[] from Anatomist output.
  * Also attaches relations to the appropriate segments.
@@ -117,58 +120,26 @@ export const buildSegmentSensesMapFromLexicographer = (
 };
 
 /**
- * Deduplicate consecutive English tokens that resolve to the same text.
- * Supports both segment-level and word-level linking.
+ * Filter English tokens for display.
+ *
+ * Previous versions attempted to deduplicate tokens that resolved to the same
+ * sense text. This caused bugs where distinct English words (e.g., "Mindfulness"
+ * and "Meditation") were incorrectly dropped when they both linked to the same
+ * Pali compound word.
+ *
+ * Each token from the Weaver has a unique tokenIndex, so no deduplication is
+ * needed. This function now only filters out invalid/empty tokens.
  */
 export const dedupeEnglishStructure = (
   english: EnglishToken[],
-  paliWords: PaliWord[]
+  _paliWords: PaliWord[]
 ): EnglishToken[] => {
   if (!english || english.length === 0) return [];
 
-  // Build segment lookup for segment-level linking
-  const segmentLookup = new Map<string, { word: PaliWord; segment: WordSegment }>();
-  for (const word of paliWords) {
-    for (const seg of word.segments) {
-      if (seg.id) {
-        segmentLookup.set(seg.id, { word, segment: seg });
-      }
-    }
-  }
-
-  const resolveText = (item: EnglishToken): string => {
-    // Try segment-level linking first
-    if (item.linkedSegmentId) {
-      const entry = segmentLookup.get(item.linkedSegmentId);
-      if (entry?.segment.senses?.[0]?.english) {
-        return entry.segment.senses[0].english.trim().toLowerCase();
-      }
-      // Fallback to word-level senses if segment has no senses
-      if (entry?.word.senses?.[0]?.english) {
-        return entry.word.senses[0].english.trim().toLowerCase();
-      }
-    }
-    // Fall back to word-level linking
-    if (item.linkedPaliId) {
-      const word = paliWords.find((w) => w.id === item.linkedPaliId);
-      return (word?.senses?.[0]?.english || '').trim().toLowerCase();
-    }
-    return (item.label || '').trim().toLowerCase();
-  };
-
-  const deduped: EnglishToken[] = [];
-  let prevText = '';
-
-  for (const item of english) {
-    const text = resolveText(item);
-    if (text && text === prevText) {
-      continue;
-    }
-    deduped.push(item);
-    prevText = text;
-  }
-
-  return deduped;
+  // Filter out tokens with no link and no label (invalid tokens)
+  return english.filter(
+    (token) => token.linkedSegmentId || token.linkedPaliId || token.label || token.isGhost
+  );
 };
 
 /**
@@ -299,14 +270,22 @@ export const rehydratePhase = (params: RehydrateParams): PhaseView => {
 
   // Get englishStructure: prefer Weaver output, fall back to LLM output
   let englishStructure: EnglishToken[] = [];
+  let englishSource: string = 'none';
   if (weaver && englishTokens) {
     // Build from Weaver pass output
     englishStructure = buildEnglishStructureFromWeaver(weaver, englishTokens);
+    englishSource = 'weaver';
   } else if (fallbackPhaseView?.englishStructure) {
     // Fall back to LLM-generated englishStructure
     englishStructure = fallbackPhaseView.englishStructure;
+    englishSource = 'fallbackPhaseView';
   }
+  const beforeDedupeCount = englishStructure.length;
+  const linkedBefore = englishStructure.filter((t) => t.linkedPaliId || t.linkedSegmentId).length;
   englishStructure = dedupeEnglishStructure(englishStructure, paliWords);
+  const afterDedupeCount = englishStructure.length;
+  const linkedAfter = englishStructure.filter((t) => t.linkedPaliId || t.linkedSegmentId).length;
+  log(`rehydratePhase(${phaseId}): englishSource=${englishSource}, tokens=${beforeDedupeCount}->${afterDedupeCount}, linked=${linkedBefore}->${linkedAfter}`);
 
   // Get layoutBlocks: prefer Typesetter, fall back to LLM output
   let layoutBlocks: string[][] | undefined;
@@ -360,6 +339,8 @@ export const buildDegradedPhaseView = (params: {
       ghostKind: 'interpretive' as const,
     })
   );
+
+  log(`buildDegradedPhaseView(${phaseId}): paliWords=${paliWords.length}, englishTokens=${englishStructure.length}, linkedTokens=0, reason="${reason}"`);
 
   return {
     id: phaseId,
