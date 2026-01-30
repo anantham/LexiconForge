@@ -1132,7 +1132,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ad1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn / Heat'] },
             { id: 'ad1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has...'] },
           ],
-          senses: [{ english: 'ardent', nuance: 'On fire' }],
+          senses: [
+            { english: 'ardent', nuance: 'Burning effort' },
+            { english: 'with heat', nuance: 'Transformative fire' },
+            { english: 'diligent', nuance: 'Steady energy' },
+            { english: 'keen', nuance: 'Sharp attention' },
+          ],
         },
         {
           id: 'ad2',
@@ -1144,7 +1149,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ad2s3', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know'] },
             { id: 'ad2s4', text: 'o', type: 'suffix', tooltips: ['The one doing this'] },
           ],
-          senses: [{ english: 'clearly knowing', nuance: 'Full awareness' }],
+          senses: [
+            { english: 'clearly knowing', nuance: 'Full awareness' },
+            { english: 'with clear comprehension', nuance: 'Four types' },
+            { english: 'discerning', nuance: 'Purpose-aware' },
+            { english: 'fully aware', nuance: 'Context-aware' },
+          ],
         },
         {
           id: 'ad3',
@@ -1154,7 +1164,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ad3s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: Memory / Mindfulness'] },
             { id: 'ad3s2', text: 'mā', type: 'suffix', tooltips: ['-mant: Possessing the faculty'] },
           ],
-          senses: [{ english: 'mindful', nuance: 'Present' }],
+          senses: [
+            { english: 'possessing mindfulness', nuance: 'Faculty' },
+            { english: 'mindful', nuance: 'Standard' },
+            { english: 'equipped with awareness', nuance: 'Capacity' },
+            { english: 'recollected', nuance: 'Gathered' },
+          ],
         },
       ],
       englishStructure: [
@@ -1176,7 +1191,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ae1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead'] },
             { id: 'ae1s3', text: 'ya', type: 'suffix', tooltips: ['⚡ Observing IS removing'] },
           ],
-          senses: [{ english: 'putting aside', nuance: 'Releasing' }],
+          senses: [
+            { english: 'putting aside', nuance: 'Simultaneous view' },
+            { english: 'having removed', nuance: 'Sequential view' },
+            { english: 'disciplining', nuance: 'Vinaya connection' },
+            { english: 'training away', nuance: 'Gradual' },
+            { english: 'freeing from', nuance: 'Liberation' },
+          ],
         },
         {
           id: 'ae2',
@@ -1186,7 +1207,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ae2s1', text: 'lok', type: 'root', tooltips: ['Loka: World'] },
             { id: 'ae2s2', text: 'e', type: 'suffix', tooltips: ['📍 "Regarding the..."'] },
           ],
-          senses: [{ english: 'regarding the world', nuance: 'Scope' }],
+          senses: [
+            { english: 'regarding the world', nuance: 'Scope' },
+            { english: 'in the world', nuance: 'Location' },
+          ],
         },
         {
           id: 'ae3',
@@ -1197,7 +1221,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ae3s2', text: 'domanass', type: 'root', tooltips: ['Displeasure / Aversion'] },
             { id: 'ae3s3', text: 'aṁ', type: 'suffix', tooltips: ['The thing being removed'] },
           ],
-          senses: [{ english: 'covetousness & displeasure', nuance: 'What is released' }],
+          senses: [
+            { english: 'covetousness & displeasure', nuance: 'Literal pair' },
+            { english: 'the five hindrances', nuance: 'Synecdoche' },
+            { english: 'wanting & not-wanting', nuance: 'Craving poles' },
+          ],
         },
       ],
       englishStructure: [
@@ -1254,7 +1282,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'af3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To dwell'] },
             { id: 'af3s3', text: 'ati', type: 'suffix', tooltips: ['Ongoing action'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
       ],
       englishStructure: [
@@ -1275,7 +1309,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ag1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: Ardor'] },
             { id: 'ag1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive'] },
           ],
-          senses: [{ english: 'ardent', nuance: 'Diligent' }],
+          senses: [
+            { english: 'ardent', nuance: 'Burning effort' },
+            { english: 'with heat', nuance: 'Transformative fire' },
+            { english: 'diligent', nuance: 'Steady energy' },
+            { english: 'keen', nuance: 'Sharp attention' },
+          ],
         },
         {
           id: 'ag2',
@@ -1285,7 +1324,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ag2s1', text: 'sampajān', type: 'root', tooltips: ['🧠 Clear comprehension'] },
             { id: 'ag2s2', text: 'o', type: 'suffix', tooltips: ['One who knows'] },
           ],
-          senses: [{ english: 'clearly knowing', nuance: 'Alert' }],
+          senses: [
+            { english: 'clearly knowing', nuance: 'Full awareness' },
+            { english: 'with clear comprehension', nuance: 'Four types' },
+            { english: 'discerning', nuance: 'Purpose-aware' },
+            { english: 'fully aware', nuance: 'Context-aware' },
+          ],
         },
         {
           id: 'ag3',
@@ -1295,7 +1339,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ag3s1', text: 'sati', type: 'root', tooltips: ['💭 Mindfulness'] },
             { id: 'ag3s2', text: 'mā', type: 'suffix', tooltips: ['Possessing'] },
           ],
-          senses: [{ english: 'mindful', nuance: 'Present' }],
+          senses: [
+            { english: 'possessing mindfulness', nuance: 'Faculty' },
+            { english: 'mindful', nuance: 'Standard' },
+            { english: 'equipped with awareness', nuance: 'Capacity' },
+            { english: 'recollected', nuance: 'Gathered' },
+          ],
         },
       ],
       englishStructure: [
@@ -1315,7 +1364,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ah1s1', text: 'vineyya', type: 'stem', tooltips: ['Vi + √nī: Leading away', '⚡ Removing through observation'] },
           ],
-          senses: [{ english: 'putting aside', nuance: 'Releasing' }],
+          senses: [
+            { english: 'putting aside', nuance: 'Simultaneous view' },
+            { english: 'having removed', nuance: 'Sequential view' },
+            { english: 'disciplining', nuance: 'Vinaya connection' },
+            { english: 'training away', nuance: 'Gradual' },
+            { english: 'freeing from', nuance: 'Liberation' },
+          ],
         },
         {
           id: 'ah2',
@@ -1324,7 +1379,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ah2s1', text: 'loke', type: 'stem', tooltips: ['📍 World / Realm'] },
           ],
-          senses: [{ english: 'regarding the world', nuance: 'Scope' }],
+          senses: [
+            { english: 'regarding the world', nuance: 'Scope' },
+            { english: 'in the world', nuance: 'Location' },
+          ],
         },
         {
           id: 'ah3',
@@ -1334,7 +1392,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ah3s1', text: 'abhijjhā', type: 'root', tooltips: ['Covetousness'] },
             { id: 'ah3s2', text: 'domanassaṁ', type: 'root', tooltips: ['Displeasure'] },
           ],
-          senses: [{ english: 'covetousness & displeasure', nuance: 'Released' }],
+          senses: [
+            { english: 'covetousness & displeasure', nuance: 'Literal pair' },
+            { english: 'the five hindrances', nuance: 'Synecdoche' },
+            { english: 'wanting & not-wanting', nuance: 'Craving poles' },
+          ],
         },
       ],
       englishStructure: [
@@ -1392,7 +1454,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ai3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To dwell'] },
             { id: 'ai3s3', text: 'ati', type: 'suffix', tooltips: ['Ongoing action'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
       ],
       englishStructure: [
@@ -1413,7 +1481,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'aj1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: Ardor'] },
             { id: 'aj1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive'] },
           ],
-          senses: [{ english: 'ardent', nuance: 'Diligent' }],
+          senses: [
+            { english: 'ardent', nuance: 'Burning effort' },
+            { english: 'with heat', nuance: 'Transformative fire' },
+            { english: 'diligent', nuance: 'Steady energy' },
+            { english: 'keen', nuance: 'Sharp attention' },
+          ],
         },
         {
           id: 'aj2',
@@ -1423,7 +1496,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'aj2s1', text: 'sampajān', type: 'root', tooltips: ['🧠 Clear comprehension'] },
             { id: 'aj2s2', text: 'o', type: 'suffix', tooltips: ['One who knows'] },
           ],
-          senses: [{ english: 'clearly knowing', nuance: 'Alert' }],
+          senses: [
+            { english: 'clearly knowing', nuance: 'Full awareness' },
+            { english: 'with clear comprehension', nuance: 'Four types' },
+            { english: 'discerning', nuance: 'Purpose-aware' },
+            { english: 'fully aware', nuance: 'Context-aware' },
+          ],
         },
         {
           id: 'aj3',
@@ -1433,7 +1511,12 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'aj3s1', text: 'sati', type: 'root', tooltips: ['💭 Mindfulness'] },
             { id: 'aj3s2', text: 'mā', type: 'suffix', tooltips: ['Possessing'] },
           ],
-          senses: [{ english: 'mindful', nuance: 'Present' }],
+          senses: [
+            { english: 'possessing mindfulness', nuance: 'Faculty' },
+            { english: 'mindful', nuance: 'Standard' },
+            { english: 'equipped with awareness', nuance: 'Capacity' },
+            { english: 'recollected', nuance: 'Gathered' },
+          ],
         },
       ],
       englishStructure: [
@@ -1453,7 +1536,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ak1s1', text: 'vineyya', type: 'stem', tooltips: ['Vi + √nī: Leading away', '⚡ Removing through observation'] },
           ],
-          senses: [{ english: 'putting aside', nuance: 'Releasing' }],
+          senses: [
+            { english: 'putting aside', nuance: 'Simultaneous view' },
+            { english: 'having removed', nuance: 'Sequential view' },
+            { english: 'disciplining', nuance: 'Vinaya connection' },
+            { english: 'training away', nuance: 'Gradual' },
+            { english: 'freeing from', nuance: 'Liberation' },
+          ],
         },
         {
           id: 'ak2',
@@ -1462,7 +1551,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ak2s1', text: 'loke', type: 'stem', tooltips: ['📍 World / Realm'] },
           ],
-          senses: [{ english: 'regarding the world', nuance: 'Scope' }],
+          senses: [
+            { english: 'regarding the world', nuance: 'Scope' },
+            { english: 'in the world', nuance: 'Location' },
+          ],
         },
         {
           id: 'ak3',
@@ -1472,7 +1564,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ak3s1', text: 'abhijjhā', type: 'root', tooltips: ['Covetousness'] },
             { id: 'ak3s2', text: 'domanassaṁ', type: 'root', tooltips: ['Displeasure'] },
           ],
-          senses: [{ english: 'covetousness & displeasure', nuance: 'Released' }],
+          senses: [
+            { english: 'covetousness & displeasure', nuance: 'Literal pair' },
+            { english: 'the five hindrances', nuance: 'Synecdoche' },
+            { english: 'wanting & not-wanting', nuance: 'Craving poles' },
+          ],
         },
       ],
       englishStructure: [
@@ -1509,7 +1605,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'al2s1', text: 'niṭṭhit', type: 'root', tooltips: ['Ni + √sthā: To stand / Be established', 'Niṭṭhita = finished, completed, concluded'] },
-            { id: 'al2s2', text: 'o', type: 'suffix', tooltips: ['Masculine singular — describing the uddesa'] },
+            { id: 'al2s2', text: 'o', type: 'suffix', tooltips: ['[Masculine Singular] describing the uddesa'] },
           ],
           senses: [
             { english: 'is complete', nuance: 'Finished' },
@@ -1551,8 +1647,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'am2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'am2s2', text: 'ave', type: 'suffix', tooltips: ['📢 Vocative — addressing the group'] },
+            { id: 'am2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg alms (from √bhaj: to share)'] },
+            { id: 'am2s2', text: 'ave', type: 'suffix', tooltips: ['[Vocative Plural] 📢 addressing the group'] },
           ],
           senses: [{ english: 'bhikkhus', nuance: 'Address' }],
         },
@@ -1561,8 +1657,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'am3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'am3s2', text: 'u', type: 'suffix', tooltips: ['Nominative singular — the practitioner'] },
+            { id: 'am3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg alms (from √bhaj: to share)'] },
+            { id: 'am3s2', text: 'u', type: 'suffix', tooltips: ['[Nominative Singular] the practitioner'] },
           ],
           senses: [{ english: 'a bhikkhu', nuance: 'Subject' }],
         },
@@ -1573,7 +1669,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'am4s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body / Collection'] },
             { id: 'am4s2', text: 'e', type: 'suffix', tooltips: ['📍 "In the..."'] },
           ],
-          senses: [{ english: 'in the body', nuance: 'Domain' }],
+          senses: [
+            { english: 'in the body', nuance: 'Physical form' },
+            { english: 'in this heap', nuance: 'Collection of parts' },
+            { english: 'in this mass', nuance: 'Aggregate' },
+            { english: 'body as body', nuance: 'Just phenomena' },
+            { english: 'in what\'s assembled', nuance: 'Not-self view' },
+          ],
         },
         {
           id: 'am5',
@@ -1584,7 +1686,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'am5s3', text: 'pass', type: 'root', tooltips: ['👁️ √pass: To see'] },
             { id: 'am5s4', text: 'ī', type: 'suffix', tooltips: ['One who does this'] },
           ],
-          senses: [{ english: 'observing body', nuance: 'Action' }],
+          senses: [
+            { english: 'observing body', nuance: 'Action' },
+            { english: 'a body-watcher', nuance: 'Identity' },
+            { english: 'contemplating form', nuance: 'Sustained attention' },
+            { english: 'tracking the physical', nuance: 'Following closely' },
+            { english: 'seeing body as body', nuance: 'Phenomenological' },
+          ],
         },
         {
           id: 'am6',
@@ -1626,8 +1734,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'an2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
-            { id: 'an2s2', text: 'ave', type: 'suffix', tooltips: ['📢 Vocative'] },
+            { id: 'an2s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg alms (from √bhaj: to share)'] },
+            { id: 'an2s2', text: 'ave', type: 'suffix', tooltips: ['[Vocative Plural] 📢'] },
           ],
           senses: [{ english: 'bhikkhus', nuance: 'Address' }],
         },
@@ -1636,7 +1744,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'bhikkhu',
           segments: [
-            { id: 'an3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To share'] },
+            { id: 'an3s1', text: 'bhikkh', type: 'root', tooltips: ['√bhikkh: To beg alms (from √bhaj: to share)'] },
             { id: 'an3s2', text: 'u', type: 'suffix', tooltips: ['[Nominative Singular]'] },
           ],
           senses: [{ english: 'a bhikkhu', nuance: 'Subject' }],
@@ -1645,7 +1753,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'an4',
           wordClass: 'content',
           segments: [
-            { id: 'an4s1', text: 'arañña', type: 'root', tooltips: ['🌲 Araṇya: Forest / Wilderness', 'From √ṛ: to go (remote, where one goes away)', 'Canonical: 500 bow-lengths from village', 'Space for undisturbed practice'] },
+            { id: 'an4s1', text: 'arañña', type: 'root', tooltips: ['🌲 Araṇya: Forest / Wilderness', 'From araṇa (remote) + ya', 'Canonical: 500 bow-lengths from village', 'Space for undisturbed practice'] },
             { id: 'an4s2', text: 'gato', type: 'suffix', tooltips: ['√gam: Gone to', 'Past participle — having gone'] },
           ],
           senses: [
@@ -1724,7 +1832,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'ao2s1', text: 'pallaṅk', type: 'root', tooltips: ['Pallaṅka: Cross-legged posture', 'Paryaṅka in Sanskrit', '🧘 The meditation seat/throne', 'Can mean full lotus or seated posture'] },
-            { id: 'ao2s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — the object being adopted'] },
+            { id: 'ao2s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative] the object being adopted'] },
           ],
           senses: [
             { english: 'cross-legged', nuance: 'Posture' },
@@ -1737,7 +1845,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ao3s1', text: 'ā', type: 'prefix', tooltips: ['Ā: Towards / Completely'] },
             { id: 'ao3s2', text: 'bhuj', type: 'root', tooltips: ['√bhuj: To bend / Fold', 'Ābhujati = to bend, fold (legs)'] },
-            { id: 'ao3s3', text: 'itvā', type: 'suffix', tooltips: ['Absolutive: "having done X"', 'Sequence: first bend, then...'] },
+            { id: 'ao3s3', text: 'itvā', type: 'suffix', tooltips: ['[Absolutive] "having done X"', 'Sequence: first bend, then...'] },
           ],
           senses: [
             { english: 'having folded', nuance: 'Legs crossed' },
@@ -1749,7 +1857,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'ao4s1', text: 'uju', type: 'root', tooltips: ['Uju: Straight / Upright / Direct', 'Sanskrit ṛju', '📐 Physical AND ethical straightness'] },
-            { id: 'ao4s2', text: 'ṁ', type: 'suffix', tooltips: ['Accusative — describing what is made straight'] },
+            { id: 'ao4s2', text: 'ṁ', type: 'suffix', tooltips: ['[Accusative] describing what is made straight'] },
           ],
           senses: [
             { english: 'straight', nuance: 'Upright' },
@@ -1761,7 +1869,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'ao5s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
-            { id: 'ao5s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — the thing made straight'] },
+            { id: 'ao5s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative] the thing made straight'] },
           ],
           senses: [{ english: 'the body', nuance: 'Physical form' }],
         },
@@ -1771,7 +1879,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ao6s1', text: 'paṇi', type: 'prefix', tooltips: ['Pra + ni: Forth + down', 'Directed forward'] },
             { id: 'ao6s2', text: 'dhā', type: 'root', tooltips: ['√dhā: To place / Set / Establish', 'Paṇidhāya = having placed forward, having directed'] },
-            { id: 'ao6s3', text: 'ya', type: 'suffix', tooltips: ['Absolutive: "having done X"'] },
+            { id: 'ao6s3', text: 'ya', type: 'suffix', tooltips: ['[Absolutive] "having done X"'] },
           ],
           senses: [
             { english: 'having set up', nuance: 'Established' },
@@ -1800,7 +1908,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ap1s1', text: 'pari', type: 'prefix', tooltips: ['Pari: Around / Encompassing'] },
             { id: 'ap1s2', text: 'mukh', type: 'root', tooltips: ['Mukha: Face / Mouth / Front', '📍 THREE INTERPRETATIONS:', '🏛️ Vibhaṅga: Nose-tip (nāsikagge)', '  or upper lip (uttaroṭṭhe)', '  "Long-nosed man" = nostril tip', '  "Short-nosed man" = upper lip', '📖 Vinaya: "To the fore"', '  = mental priority, not location', '  (Cv.V.27.4 uses for "chest")', '🧘 Synthesis: Anchor → Expand', '  Face region → then sabbakāya'] },
-            { id: 'ap1s3', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — describing where/how'] },
+            { id: 'ap1s3', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative] describing where/how'] },
           ],
           senses: [
             { english: 'in front', nuance: 'Before the face' },
@@ -1813,7 +1921,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'ap2s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: Mindfulness / Awareness', 'The thing being established'] },
-            { id: 'ap2s2', text: 'ṁ', type: 'suffix', tooltips: ['Accusative — object of upaṭṭhapetvā'] },
+            { id: 'ap2s2', text: 'ṁ', type: 'suffix', tooltips: ['[Accusative] object of upaṭṭhapetvā'] },
           ],
           senses: [{ english: 'mindfulness', nuance: 'Awareness' }],
         },
@@ -1823,7 +1931,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ap3s1', text: 'upa', type: 'prefix', tooltips: ['Upa: Near / Towards'] },
             { id: 'ap3s2', text: 'ṭṭhap', type: 'root', tooltips: ['√sthā (Causative): To cause to stand', 'Upaṭṭhapeti = to establish, set up, make present'] },
-            { id: 'ap3s3', text: 'etvā', type: 'suffix', tooltips: ['Absolutive: "having done X"', 'After this, the breathing begins'] },
+            { id: 'ap3s3', text: 'etvā', type: 'suffix', tooltips: ['[Absolutive] "having done X"', 'After this, the breathing begins'] },
           ],
           senses: [
             { english: 'having established', nuance: 'Set up' },
@@ -1857,7 +1965,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'aq2s1', text: 'sat', type: 'root', tooltips: ['💭 √smṛ: Memory / Mindfulness', '📝 KEY: Sato (not satimā)!', '• Satimā = POSSESSING the faculty', '• Sato = APPLYING it NOW', 'Active, moment-to-moment awareness', 'Here: mindfully doing the breathing'] },
-            { id: 'aq2s2', text: 'o', type: 'suffix', tooltips: ['Nominative singular — describing "he"', 'Adverbial sense: "mindfully"'] },
+            { id: 'aq2s2', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular] describing "he"', 'Adverbial sense: "mindfully"'] },
           ],
           senses: [
             { english: 'mindfully', nuance: 'Adverbial' },
@@ -1915,12 +2023,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       id: 'phase-ar',
       canonicalSegmentIds: ['mn10:4.4'],
       paliWords: [
+        // === IN-BREATH CLAUSE ===
         {
           id: 'ar1',
           wordClass: 'content',
           segments: [
-            { id: 'ar1s1', text: 'Dīgh', type: 'root', tooltips: ['Dīgha: Long (in space or time)', 'Sanskrit dīrgha', '🌬️ A long, slow breath', '🪵 TURNER SIMILE (bhamakāra):', 'Like a skilled lathe-turner who', '"making a long turn, knows I make', 'a long turn" — active, sensitive', 'knowing, not passive watching'] },
-            { id: 'ar1s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative adverbial — "long-ly"', 'Describing manner of breathing'] },
+            { id: 'ar1s1', text: 'Dīgh', type: 'root', tooltips: ['Dīgha: Long (in space or time)', 'Sanskrit dīrgha, from Ved. *dlāgh', '🌬️ A long, slow breath', '🪵 TURNER SIMILE (bhamakāra):', 'Like a skilled lathe-turner who', '"making a long turn, knows I make', 'a long turn" — active, sensitive', 'knowing, not passive watching'] },
+            { id: 'ar1s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial] "long-ly"', 'Describing manner of breathing'] },
           ],
           senses: [
             { english: 'long', nuance: 'Duration' },
@@ -1940,35 +2049,133 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'ar3',
           wordClass: 'content',
           segments: [
-            { id: 'ar3s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
-            { id: 'ar3s2', text: 'anto', type: 'suffix', tooltips: ['Present participle: "while doing"', 'Simultaneous action'] },
+            { id: 'ar3s1', text: 'assas', type: 'root', tooltips: ['√śvas: To breathe', 'ā + śvas = breathe toward (inhale)', 'Note: semantic inversion in Pali', 'assasati = standard "breathe in"'] },
+            { id: 'ar3s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle] "while doing"', 'Simultaneous action'] },
           ],
-          senses: [{ english: 'breathing in', nuance: 'While inhaling' }],
+          senses: [
+            { english: 'breathing in', nuance: 'While inhaling' },
+            { english: 'inhaling', nuance: 'Drawing breath' },
+            { english: 'taking a breath', nuance: 'Active' },
+          ],
+        },
+        // Quoted dīghaṁ inside the speech
+        {
+          id: 'ar3b',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar3bs1', text: "'dīgh", type: 'root', tooltips: ['Opening quote mark', 'Inner speech: what meditator knows'] },
+            { id: 'ar3bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative] Object of knowing'] },
+          ],
+          senses: [{ english: 'long', nuance: 'Quoted awareness' }],
         },
         {
           id: 'ar4',
           wordClass: 'content',
           segments: [
-            { id: 'ar4s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
-            { id: 'ar4s2', text: 'āmī', type: 'suffix', tooltips: ['1st person singular: "I am doing"', 'Direct knowledge: knowing "I breathe"'] },
+            { id: 'ar4s1', text: 'assas', type: 'root', tooltips: ['Breathing in (inside quote)'] },
+            { id: 'ar4s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular] "I am doing"', 'Direct knowledge: knowing "I breathe"'] },
           ],
-          senses: [{ english: 'I breathe in', nuance: 'Self-aware' }],
+          senses: [
+            { english: 'I breathe in', nuance: 'Self-aware' },
+            { english: 'I inhale', nuance: 'Direct' },
+          ],
         },
         {
           id: 'ar5',
           wordClass: 'function',
           segments: [
-            { id: 'ar5s1', text: 'ti', type: 'stem', tooltips: ['Iti: Quotation marker', 'End of inner speech'] },
+            { id: 'ar5s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation marker', 'End of inner speech', 'Closes the "I breathe long"'] },
           ],
-          senses: [{ english: '—', nuance: 'Quote' }],
+          senses: [{ english: '—', nuance: 'Quote end' }],
         },
         {
           id: 'ar6',
           wordClass: 'content',
+          refrainId: 'pajanati',
           segments: [
-            { id: 'ar6s1', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Fully'] },
+            { id: 'ar6s1', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Fully', 'Intensifying prefix'] },
             { id: 'ar6s2', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know', 'Pajānāti = discriminative knowing', '📝 DESCRIPTIVE MODE:', '• The breath IS moving', '• Meditator DISCERNS its quality', '• Foundation of vipassanā:', '  seeing anicca (change) in breath', '⚠️ Note: Steps 1-2 use pajānāti', '  Steps 3-4 shift to SIKKHATI'] },
-            { id: 'ar6s3', text: 'āti', type: 'suffix', tooltips: ['Present tense: "knows"'] },
+            { id: 'ar6s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense] "knows"'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct experience' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
+        // === OUT-BREATH CLAUSE ===
+        {
+          id: 'ar7',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar7s1', text: 'dīgh', type: 'root', tooltips: ['Long (repeated for out-breath)'] },
+            { id: 'ar7s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+          ],
+          senses: [
+            { english: 'long', nuance: 'Duration' },
+            { english: 'slowly', nuance: 'Manner' },
+            { english: 'deeply', nuance: 'Extent' },
+          ],
+        },
+        {
+          id: 'ar8',
+          wordClass: 'function',
+          segments: [
+            { id: 'ar8s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'ar9',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar9s1', text: 'passas', type: 'root', tooltips: ['√śvas: To breathe', 'pa + śvas = breathe forth (exhale)', 'Note: semantic inversion in Pali', 'passasati = standard "breathe out"'] },
+            { id: 'ar9s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle] "while doing"'] },
+          ],
+          senses: [
+            { english: 'breathing out', nuance: 'While exhaling' },
+            { english: 'exhaling', nuance: 'Releasing breath' },
+            { english: 'letting go', nuance: 'Release' },
+          ],
+        },
+        // Quoted dīghaṁ for out-breath
+        {
+          id: 'ar9b',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar9bs1', text: "'dīgh", type: 'root', tooltips: ['Opening quote'] },
+            { id: 'ar9bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'long', nuance: 'Quoted awareness' }],
+        },
+        {
+          id: 'ar10',
+          wordClass: 'content',
+          segments: [
+            { id: 'ar10s1', text: 'passas', type: 'root', tooltips: ['Breathing out (inside quote)'] },
+            { id: 'ar10s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [
+            { english: 'I breathe out', nuance: 'Self-aware' },
+            { english: 'I exhale', nuance: 'Direct' },
+          ],
+        },
+        {
+          id: 'ar11',
+          wordClass: 'function',
+          segments: [
+            { id: 'ar11s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'ar12',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'ar12s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'ar12s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'ar12s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [
             { english: 'knows', nuance: 'Understands' },
@@ -1978,10 +2185,16 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
       ],
       englishStructure: [
-        { id: 'ear3', linkedSegmentId: 'ar3s1' },
-        { id: 'ear1', linkedSegmentId: 'ar1s1' },
-        { id: 'ear6', linkedSegmentId: 'ar6s2' },
+        // In-breath
+        { id: 'ear3', linkedPaliId: 'ar3' },
+        { id: 'ear1', linkedPaliId: 'ar1' },
+        { id: 'ear6', linkedPaliId: 'ar6' },
         { id: 'ear4g', label: '"I breathe in long"', isGhost: true, ghostKind: 'interpretive' },
+        // Out-breath
+        { id: 'ear9', linkedPaliId: 'ar9' },
+        { id: 'ear7', linkedPaliId: 'ar7' },
+        { id: 'ear12', linkedPaliId: 'ar12' },
+        { id: 'ear10g', label: '"I breathe out long"', isGhost: true, ghostKind: 'interpretive' },
       ],
     },
 
@@ -1992,12 +2205,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       id: 'phase-as',
       canonicalSegmentIds: ['mn10:4.5'],
       paliWords: [
+        // === IN-BREATH CLAUSE ===
         {
           id: 'as1',
           wordClass: 'content',
           segments: [
-            { id: 'as1s1', text: 'Rass', type: 'root', tooltips: ['Rassa: Short (in space or time)', 'Sanskrit hrasva', '🌬️ A short, quick breath', '🪵 Turner "making a short turn"', 'Ancient reciprocating bow-lathe:', 'back-forth mirrors in-out breath', 'The turner knows through DOING'] },
-            { id: 'as1s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+            { id: 'as1s1', text: 'Rass', type: 'root', tooltips: ['Rassa: Short (in space or time)', 'Sanskrit hrasva (h → r in Pali)', '🌬️ A short, quick breath', '🪵 Turner "making a short turn"', 'Ancient reciprocating bow-lathe:', 'back-forth mirrors in-out breath', 'The turner knows through DOING'] },
+            { id: 'as1s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial] "short-ly"', 'Describing manner of breathing'] },
           ],
           senses: [
             { english: 'short', nuance: 'Brief' },
@@ -2009,7 +2223,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'as2',
           wordClass: 'function',
           segments: [
-            { id: 'as2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+            { id: 'as2s1', text: 'vā', type: 'stem', tooltips: ['Or — disjunctive'] },
           ],
           senses: [{ english: 'or', nuance: 'Alternative' }],
         },
@@ -2017,43 +2231,152 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'as3',
           wordClass: 'content',
           segments: [
-            { id: 'as3s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
-            { id: 'as3s2', text: 'anto', type: 'suffix', tooltips: ['Present participle'] },
+            { id: 'as3s1', text: 'assas', type: 'root', tooltips: ['√śvas: To breathe', 'ā + śvas = breathe in'] },
+            { id: 'as3s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle] "while doing"'] },
           ],
-          senses: [{ english: 'breathing in', nuance: 'While inhaling' }],
+          senses: [
+            { english: 'breathing in', nuance: 'While inhaling' },
+            { english: 'inhaling', nuance: 'Drawing breath' },
+            { english: 'taking a breath', nuance: 'Active' },
+          ],
+        },
+        // Quoted rassaṁ inside the speech
+        {
+          id: 'as3b',
+          wordClass: 'content',
+          segments: [
+            { id: 'as3bs1', text: "'rass", type: 'root', tooltips: ['Opening quote mark', 'Inner speech: what meditator knows'] },
+            { id: 'as3bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative] Object of knowing'] },
+          ],
+          senses: [{ english: 'short', nuance: 'Quoted awareness' }],
         },
         {
           id: 'as4',
           wordClass: 'content',
           segments: [
-            { id: 'as4s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
-            { id: 'as4s2', text: 'āmī', type: 'suffix', tooltips: ['1st person: "I am doing"'] },
+            { id: 'as4s1', text: 'assas', type: 'root', tooltips: ['Breathing in (inside quote)'] },
+            { id: 'as4s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular] "I am doing"'] },
           ],
-          senses: [{ english: 'I breathe in', nuance: 'Self-aware' }],
+          senses: [
+            { english: 'I breathe in', nuance: 'Self-aware' },
+            { english: 'I inhale', nuance: 'Direct' },
+          ],
         },
         {
           id: 'as5',
           wordClass: 'function',
           segments: [
-            { id: 'as5s1', text: 'ti', type: 'stem', tooltips: ['Quote marker'] },
+            { id: 'as5s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation end'] },
           ],
-          senses: [{ english: '—', nuance: 'Quote' }],
+          senses: [{ english: '—', nuance: 'Quote end' }],
         },
         {
           id: 'as6',
           wordClass: 'content',
+          refrainId: 'pajanati',
           segments: [
-            { id: 'as6s1', text: 'pajān', type: 'root', tooltips: ['🧠 √jñā: Clearly knows'] },
-            { id: 'as6s2', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+            { id: 'as6s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth / Fully'] },
+            { id: 'as6s2', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know'] },
+            { id: 'as6s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense] "knows"'] },
           ],
-          senses: [{ english: 'knows', nuance: 'Discerns' }],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct experience' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
+        // === OUT-BREATH CLAUSE ===
+        {
+          id: 'as7',
+          wordClass: 'content',
+          segments: [
+            { id: 'as7s1', text: 'rass', type: 'root', tooltips: ['Short (repeated for out-breath)'] },
+            { id: 'as7s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+          ],
+          senses: [
+            { english: 'short', nuance: 'Brief' },
+            { english: 'quickly', nuance: 'Manner' },
+            { english: 'lightly', nuance: 'Gentle' },
+          ],
+        },
+        {
+          id: 'as8',
+          wordClass: 'function',
+          segments: [
+            { id: 'as8s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'as9',
+          wordClass: 'content',
+          segments: [
+            { id: 'as9s1', text: 'passas', type: 'root', tooltips: ['√śvas: To breathe', 'pa + śvas = breathe out'] },
+            { id: 'as9s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle]'] },
+          ],
+          senses: [
+            { english: 'breathing out', nuance: 'While exhaling' },
+            { english: 'exhaling', nuance: 'Releasing breath' },
+            { english: 'letting go', nuance: 'Release' },
+          ],
+        },
+        // Quoted rassaṁ for out-breath
+        {
+          id: 'as9b',
+          wordClass: 'content',
+          segments: [
+            { id: 'as9bs1', text: "'rass", type: 'root', tooltips: ['Opening quote'] },
+            { id: 'as9bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'short', nuance: 'Quoted awareness' }],
+        },
+        {
+          id: 'as10',
+          wordClass: 'content',
+          segments: [
+            { id: 'as10s1', text: 'passas', type: 'root', tooltips: ['Breathing out (inside quote)'] },
+            { id: 'as10s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [
+            { english: 'I breathe out', nuance: 'Self-aware' },
+            { english: 'I exhale', nuance: 'Direct' },
+          ],
+        },
+        {
+          id: 'as11',
+          wordClass: 'function',
+          segments: [
+            { id: 'as11s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'as12',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'as12s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'as12s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'as12s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct experience' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
         },
       ],
       englishStructure: [
-        { id: 'eas3', linkedSegmentId: 'as3s1' },
-        { id: 'eas1', linkedSegmentId: 'as1s1' },
-        { id: 'eas6', linkedSegmentId: 'as6s1' },
+        // In-breath
+        { id: 'eas3', linkedPaliId: 'as3' },
+        { id: 'eas1', linkedPaliId: 'as1' },
+        { id: 'eas6', linkedPaliId: 'as6' },
         { id: 'eas4g', label: '"I breathe in short"', isGhost: true, ghostKind: 'interpretive' },
+        // Out-breath
+        { id: 'eas9', linkedPaliId: 'as9' },
+        { id: 'eas7', linkedPaliId: 'as7' },
+        { id: 'eas12', linkedPaliId: 'as12' },
+        { id: 'eas10g', label: '"I breathe out short"', isGhost: true, ghostKind: 'interpretive' },
       ],
     },
 
@@ -2064,16 +2387,17 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       id: 'phase-at',
       canonicalSegmentIds: ['mn10:4.6'],
       paliWords: [
+        // === IN-BREATH CLAUSE ===
         {
           id: 'at1',
           wordClass: 'content',
           segments: [
-            { id: 'at1s1', text: 'Sabba', type: 'root', tooltips: ['Sabba: All / Entire / Whole', 'Complete, total'] },
+            { id: 'at1s1', text: "'Sabba", type: 'root', tooltips: ['Sabba: All / Entire / Whole', 'Skt. sarva, Greek ὅλος (holo-)', 'Opening quote mark'] },
             { id: 'at1s2', text: 'kāya', type: 'root', tooltips: ['⚡ THREE TRADITIONS:', '🏛️ Visuddhimagga: "breath-body"', '  = whole breath at nostril', '  Purpose: nimitta for jhāna', '📜 Sutta (MN119): "physical body"', '  = body pervaded like bathman', '  kneading soap-ball with water', '📚 Sarvastivāda: "all bodies"', '  = mental + physical groups', 'Each has methodological merit'] },
             { id: 'at1s3', text: 'paṭi', type: 'prefix', tooltips: ['Paṭi: Towards / In response'] },
             { id: 'at1s4', text: 'saṁ', type: 'prefix', tooltips: ['Saṁ: Together / Fully'] },
             { id: 'at1s5', text: 'ved', type: 'root', tooltips: ['√vid: To know / Experience', 'Paṭisaṁvedī = fully experiencing'] },
-            { id: 'at1s6', text: 'ī', type: 'suffix', tooltips: ['One who experiences'] },
+            { id: 'at1s6', text: 'ī', type: 'suffix', tooltips: ['[Agent Suffix] One who experiences'] },
           ],
           senses: [
             { english: 'experiencing the whole body', nuance: 'Physical body' },
@@ -2085,25 +2409,81 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'at2',
           wordClass: 'content',
           segments: [
-            { id: 'at2s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
-            { id: 'at2s2', text: 'issāmī', type: 'suffix', tooltips: ['Future tense 1st person: "I will"', 'Intentional: setting up training'] },
+            { id: 'at2s1', text: 'assas', type: 'root', tooltips: ['√śvas: To breathe', 'ā + śvas = breathe in'] },
+            { id: 'at2s2', text: 'issāmī', type: 'suffix', tooltips: ['[Future 1st Person] "I will"', 'Intentional: setting up training'] },
           ],
-          senses: [{ english: 'I will breathe in', nuance: 'Resolution' }],
+          senses: [
+            { english: 'I will breathe in', nuance: 'Resolution' },
+            { english: 'I shall inhale', nuance: 'Commitment' },
+          ],
         },
         {
           id: 'at3',
           wordClass: 'function',
           segments: [
-            { id: 'at3s1', text: 'ti', type: 'stem', tooltips: ['Quote marker'] },
+            { id: 'at3s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation end'] },
           ],
-          senses: [{ english: '—', nuance: 'Quote' }],
+          senses: [{ english: '—', nuance: 'Quote end' }],
         },
         {
           id: 'at4',
           wordClass: 'content',
+          refrainId: 'sikkhati',
           segments: [
-            { id: 'at4s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train / Practice / Learn', '📝 PRESCRIPTIVE MODE:', '• Pajānāti (4.4-4.5) = descriptive', '• Sikkhati (4.6-4.7) = prescriptive', '⚡ KEY INDICATORS:', '• Future tense (assasissāmī)', '• Intentional cultivation', '• Same verb as monastic precepts:', '  sikkhāpada = training rules', 'Active shaping, not just watching'] },
-            { id: 'at4s2', text: 'ati', type: 'suffix', tooltips: ['Present tense: "trains"'] },
+            { id: 'at4s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train / Practice / Learn', 'Desiderative of √śak (to be able)', '📝 PRESCRIPTIVE MODE:', '• Pajānāti (4.4-4.5) = descriptive', '• Sikkhati (4.6-4.7) = prescriptive', '⚡ KEY INDICATORS:', '• Future tense (assasissāmī)', '• Intentional cultivation', '• Same verb as monastic precepts:', '  sikkhāpada = training rules', 'Active shaping, not just watching'] },
+            { id: 'at4s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense] "trains"'] },
+          ],
+          senses: [
+            { english: 'trains', nuance: 'Practices' },
+            { english: 'learns', nuance: 'Develops' },
+            { english: 'cultivates', nuance: 'Active work' },
+          ],
+        },
+        // === OUT-BREATH CLAUSE ===
+        {
+          id: 'at5',
+          wordClass: 'content',
+          segments: [
+            { id: 'at5s1', text: "'sabba", type: 'root', tooltips: ['All / Whole (repeated)'] },
+            { id: 'at5s2', text: 'kāya', type: 'root', tooltips: ['Body (same three traditions)'] },
+            { id: 'at5s3', text: 'paṭi', type: 'prefix', tooltips: ['Towards'] },
+            { id: 'at5s4', text: 'saṁ', type: 'prefix', tooltips: ['Fully'] },
+            { id: 'at5s5', text: 'ved', type: 'root', tooltips: ['√vid: Experience'] },
+            { id: 'at5s6', text: 'ī', type: 'suffix', tooltips: ['[Agent Suffix]'] },
+          ],
+          senses: [
+            { english: 'experiencing the whole body', nuance: 'Physical body' },
+            { english: 'experiencing the whole breath', nuance: 'Breath-body' },
+            { english: 'sensitive to the entire form', nuance: 'Full awareness' },
+          ],
+        },
+        {
+          id: 'at6',
+          wordClass: 'content',
+          segments: [
+            { id: 'at6s1', text: 'passas', type: 'root', tooltips: ['√śvas: To breathe', 'pa + śvas = breathe out'] },
+            { id: 'at6s2', text: 'issāmī', type: 'suffix', tooltips: ['[Future 1st Person]'] },
+          ],
+          senses: [
+            { english: 'I will breathe out', nuance: 'Resolution' },
+            { english: 'I shall exhale', nuance: 'Commitment' },
+          ],
+        },
+        {
+          id: 'at7',
+          wordClass: 'function',
+          segments: [
+            { id: 'at7s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'at8',
+          wordClass: 'content',
+          refrainId: 'sikkhati',
+          segments: [
+            { id: 'at8s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: Trains'] },
+            { id: 'at8s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [
             { english: 'trains', nuance: 'Practices' },
@@ -2113,11 +2493,18 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
       ],
       englishStructure: [
-        { id: 'eat4', linkedSegmentId: 'at4s1' },
+        // In-breath
+        { id: 'eat4', linkedPaliId: 'at4' },
         { id: 'eat4g', label: ':', isGhost: true, ghostKind: 'required' },
         { id: 'eat1', linkedPaliId: 'at1' },
         { id: 'eat2g', label: 'I will', isGhost: true, ghostKind: 'required' },
-        { id: 'eat2', linkedSegmentId: 'at2s1' },
+        { id: 'eat2', linkedPaliId: 'at2' },
+        // Out-breath
+        { id: 'eat8', linkedPaliId: 'at8' },
+        { id: 'eat8g', label: ':', isGhost: true, ghostKind: 'required' },
+        { id: 'eat5', linkedPaliId: 'at5' },
+        { id: 'eat6g', label: 'I will', isGhost: true, ghostKind: 'required' },
+        { id: 'eat6', linkedPaliId: 'at6' },
       ],
     },
 
@@ -2128,12 +2515,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       id: 'phase-au',
       canonicalSegmentIds: ['mn10:4.7'],
       paliWords: [
+        // === IN-BREATH CLAUSE ===
         {
           id: 'au1',
           wordClass: 'content',
           segments: [
-            { id: 'au1s1', text: 'Passamb', type: 'root', tooltips: ['√śram (Pali √sambh): To become calm', 'Passambhati = stills, tranquilizes', 'Related to passaddhi (tranquility)', '🧘 The breath naturally becomes subtle', '⚡ GOAL: As body relaxes,', 'breath requires less oxygen,', 'naturally slows → deep calm'] },
-            { id: 'au1s2', text: 'hayaṁ', type: 'suffix', tooltips: ['Causative present participle', '"While causing to calm" / "stilling"', 'Active cultivation of tranquility'] },
+            { id: 'au1s1', text: "'Passamb", type: 'root', tooltips: ['pa + √śrambh: To become calm', 'Passambhati = stills, tranquilizes', 'Related to passaddhi (tranquility)', '🧘 The breath naturally becomes subtle', '⚡ GOAL: As body relaxes,', 'breath requires less oxygen,', 'naturally slows → deep calm', 'Opening quote mark'] },
+            { id: 'au1s2', text: 'hayaṁ', type: 'suffix', tooltips: ['[Causative Participle]', '"While causing to calm" / "stilling"', 'Active cultivation of tranquility'] },
           ],
           senses: [
             { english: 'stilling', nuance: 'Calming' },
@@ -2146,8 +2534,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'au2s1', text: 'kāya', type: 'root', tooltips: ['Kāya: Body'] },
-            { id: 'au2s2', text: 'saṅkhār', type: 'root', tooltips: ['⚙️ Saṅkhāra: Formation / Fabrication', '√kṛ: To make/do + saṁ: together', '📜 MN 44 Cūḷavedalla defines:', '"In-breaths & out-breaths are', 'kāyasaṅkhāra because they are', 'bodily, bound up with the body"', '🔄 FEEDBACK LOOP:', '• Calm attention → calm breath', '• Calm breath → calm body', '• Trajectory: 4th jhāna = breath', '  ceases entirely (niruddha)'] },
-            { id: 'au2s3', text: 'aṁ', type: 'suffix', tooltips: ['Accusative — object of stilling'] },
+            { id: 'au2s2', text: 'saṅkhār', type: 'root', tooltips: ['⚙️ Saṅkhāra: Formation / Fabrication', 'saṁ + √kṛ: To make together', '📜 MN 44 Cūḷavedalla defines:', '"In-breaths & out-breaths are', 'kāyasaṅkhāra because they are', 'bodily, bound up with the body"', '🔄 FEEDBACK LOOP:', '• Calm attention → calm breath', '• Calm breath → calm body', '• Trajectory: 4th jhāna = breath', '  ceases entirely (niruddha)'] },
+            { id: 'au2s3', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative] Object of stilling'] },
           ],
           senses: [
             { english: 'the bodily formation', nuance: 'What conditions body' },
@@ -2159,36 +2547,114 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'au3',
           wordClass: 'content',
           segments: [
-            { id: 'au3s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
-            { id: 'au3s2', text: 'issāmī', type: 'suffix', tooltips: ['Future 1st person'] },
+            { id: 'au3s1', text: 'assas', type: 'root', tooltips: ['√śvas: To breathe', 'ā + śvas = breathe in'] },
+            { id: 'au3s2', text: 'issāmī', type: 'suffix', tooltips: ['[Future 1st Person] "I will"'] },
           ],
-          senses: [{ english: 'I will breathe in', nuance: 'Intention' }],
+          senses: [
+            { english: 'I will breathe in', nuance: 'Intention' },
+            { english: 'I shall inhale', nuance: 'Resolution' },
+          ],
         },
         {
           id: 'au4',
           wordClass: 'function',
           segments: [
-            { id: 'au4s1', text: 'ti', type: 'stem', tooltips: ['Quote marker'] },
+            { id: 'au4s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation end'] },
           ],
-          senses: [{ english: '—', nuance: 'Quote' }],
+          senses: [{ english: '—', nuance: 'Quote end' }],
         },
         {
           id: 'au5',
           wordClass: 'content',
+          refrainId: 'sikkhati',
           segments: [
-            { id: 'au5s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train'] },
+            { id: 'au5s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train / Practice', 'Desiderative of √śak (to be able)'] },
             { id: 'au5s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
-          senses: [{ english: 'trains', nuance: 'Practices' }],
+          senses: [
+            { english: 'trains', nuance: 'Practices' },
+            { english: 'learns', nuance: 'Develops' },
+            { english: 'cultivates', nuance: 'Active work' },
+          ],
+        },
+        // === OUT-BREATH CLAUSE ===
+        {
+          id: 'au6',
+          wordClass: 'content',
+          segments: [
+            { id: 'au6s1', text: "'passamb", type: 'root', tooltips: ['Stilling (repeated)'] },
+            { id: 'au6s2', text: 'hayaṁ', type: 'suffix', tooltips: ['[Causative Participle]'] },
+          ],
+          senses: [
+            { english: 'stilling', nuance: 'Calming' },
+            { english: 'tranquilizing', nuance: 'Pacifying' },
+            { english: 'letting settle', nuance: 'Allowing calm' },
+          ],
+        },
+        {
+          id: 'au7',
+          wordClass: 'content',
+          segments: [
+            { id: 'au7s1', text: 'kāya', type: 'root', tooltips: ['Body'] },
+            { id: 'au7s2', text: 'saṅkhār', type: 'root', tooltips: ['Formation / Fabrication'] },
+            { id: 'au7s3', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [
+            { english: 'the bodily formation', nuance: 'What conditions body' },
+            { english: 'the breath', nuance: 'Sutta definition' },
+            { english: 'physical fabrication', nuance: 'Conditioning factor' },
+          ],
+        },
+        {
+          id: 'au8',
+          wordClass: 'content',
+          segments: [
+            { id: 'au8s1', text: 'passas', type: 'root', tooltips: ['√śvas: To breathe', 'pa + śvas = breathe out'] },
+            { id: 'au8s2', text: 'issāmī', type: 'suffix', tooltips: ['[Future 1st Person]'] },
+          ],
+          senses: [
+            { english: 'I will breathe out', nuance: 'Intention' },
+            { english: 'I shall exhale', nuance: 'Resolution' },
+          ],
+        },
+        {
+          id: 'au9',
+          wordClass: 'function',
+          segments: [
+            { id: 'au9s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quotation end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'au10',
+          wordClass: 'content',
+          refrainId: 'sikkhati',
+          segments: [
+            { id: 'au10s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: Trains'] },
+            { id: 'au10s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'trains', nuance: 'Practices' },
+            { english: 'learns', nuance: 'Develops' },
+            { english: 'cultivates', nuance: 'Active work' },
+          ],
         },
       ],
       englishStructure: [
-        { id: 'eau5', linkedSegmentId: 'au5s1' },
+        // In-breath
+        { id: 'eau5', linkedPaliId: 'au5' },
         { id: 'eau5g', label: ':', isGhost: true, ghostKind: 'required' },
-        { id: 'eau1', linkedSegmentId: 'au1s1' },
+        { id: 'eau1', linkedPaliId: 'au1' },
         { id: 'eau2', linkedPaliId: 'au2' },
         { id: 'eau3g', label: 'I will', isGhost: true, ghostKind: 'required' },
-        { id: 'eau3', linkedSegmentId: 'au3s1' },
+        { id: 'eau3', linkedPaliId: 'au3' },
+        // Out-breath
+        { id: 'eau10', linkedPaliId: 'au10' },
+        { id: 'eau10g', label: ':', isGhost: true, ghostKind: 'required' },
+        { id: 'eau6', linkedPaliId: 'au6' },
+        { id: 'eau7', linkedPaliId: 'au7' },
+        { id: 'eau8g', label: 'I will', isGhost: true, ghostKind: 'required' },
+        { id: 'eau8', linkedPaliId: 'au8' },
       ],
     },
 
@@ -2200,6 +2666,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       id: 'phase-av',
       canonicalSegmentIds: ['mn10:4.8'],
       paliWords: [
+        // === SIMILE INTRODUCTION ===
         {
           id: 'av1',
           wordClass: 'function',
@@ -2212,6 +2679,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'av2',
           wordClass: 'function',
+          refrainId: 'bhikkhu',
           segments: [
             { id: 'av2s1', text: 'bhikkha', type: 'root', tooltips: ['Bhikkhu: Monk'] },
             { id: 'av2s2', text: 've', type: 'suffix', tooltips: ['[Vocative Plural] Addressing the group'] },
@@ -2222,12 +2690,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'av3',
           wordClass: 'content',
           segments: [
-            { id: 'av3s1', text: 'dakkh', type: 'root', tooltips: ['Dakkha: Skilled / Expert', 'Sanskrit dakṣa', '📝 The turner is not a passive', 'observer — he is a craftsman', 'with developed sensitivity'] },
+            { id: 'av3s1', text: 'dakkh', type: 'root', tooltips: ['Dakkha: Skilled / Expert', 'Vedic dakṣa, Greek δεξιός, Latin decet', '📝 The turner is not a passive', 'observer — he is a craftsman', 'with developed sensitivity'] },
             { id: 'av3s2', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular]'] },
           ],
           senses: [
             { english: 'skilled', nuance: 'Expert' },
             { english: 'dexterous', nuance: 'Trained' },
+            { english: 'deft', nuance: 'Practiced' },
           ],
         },
         {
@@ -2247,7 +2716,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'av5',
           wordClass: 'function',
           segments: [
-            { id: 'av5s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+            { id: 'av5s1', text: 'vā', type: 'stem', tooltips: ['Or — disjunctive'] },
           ],
           senses: [{ english: 'or', nuance: 'Alternative' }],
         },
@@ -2266,154 +2735,678 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { english: 'trainee turner', nuance: 'Learning' },
           ],
         },
+        {
+          id: 'av7',
+          wordClass: 'function',
+          segments: [
+            { id: 'av7s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        // === LONG PULL CLAUSE ===
+        {
+          id: 'av8',
+          wordClass: 'content',
+          segments: [
+            { id: 'av8s1', text: 'dīgh', type: 'root', tooltips: ['Dīgha: Long', 'A long, slow pull on the lathe'] },
+            { id: 'av8s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+          ],
+          senses: [
+            { english: 'long', nuance: 'Extended' },
+            { english: 'deep', nuance: 'Sujato translation' },
+          ],
+        },
+        {
+          id: 'av9',
+          wordClass: 'function',
+          segments: [
+            { id: 'av9s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'av10',
+          wordClass: 'content',
+          segments: [
+            { id: 'av10s1', text: 'añch', type: 'root', tooltips: ['√añch: To pull, drag', 'PTS: "to turn on a lathe"', '🪵 The turner PULLS the strap', 'to rotate the workpiece', '= active, embodied knowing'] },
+            { id: 'av10s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle] "while pulling"'] },
+          ],
+          senses: [
+            { english: 'pulling', nuance: 'Drawing' },
+            { english: 'making a turn', nuance: 'Lathe work' },
+            { english: 'making a cut', nuance: 'Sujato' },
+          ],
+        },
+        // Quoted dīghaṁ añchāmī
+        {
+          id: 'av10b',
+          wordClass: 'content',
+          segments: [
+            { id: 'av10bs1', text: "'dīgh", type: 'root', tooltips: ['Opening quote'] },
+            { id: 'av10bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'long', nuance: 'Quoted' }],
+        },
+        {
+          id: 'av11',
+          wordClass: 'content',
+          segments: [
+            { id: 'av11s1', text: 'añch', type: 'root', tooltips: ['Pulling (inside quote)'] },
+            { id: 'av11s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [{ english: 'I pull', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'av12',
+          wordClass: 'function',
+          segments: [
+            { id: 'av12s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'av13',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'av13s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'av13s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'av13s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
+        // === SHORT PULL CLAUSE ===
+        {
+          id: 'av14',
+          wordClass: 'content',
+          segments: [
+            { id: 'av14s1', text: 'rass', type: 'root', tooltips: ['Rassa: Short', 'A short, quick pull'] },
+            { id: 'av14s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+          ],
+          senses: [
+            { english: 'short', nuance: 'Brief' },
+            { english: 'shallow', nuance: 'Sujato' },
+          ],
+        },
+        {
+          id: 'av15',
+          wordClass: 'function',
+          segments: [
+            { id: 'av15s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'av16',
+          wordClass: 'content',
+          segments: [
+            { id: 'av16s1', text: 'añch', type: 'root', tooltips: ['Pulling'] },
+            { id: 'av16s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle]'] },
+          ],
+          senses: [
+            { english: 'pulling', nuance: 'Drawing' },
+            { english: 'making a turn', nuance: 'Lathe work' },
+          ],
+        },
+        // Quoted rassaṁ añchāmī
+        {
+          id: 'av16b',
+          wordClass: 'content',
+          segments: [
+            { id: 'av16bs1', text: "'rass", type: 'root', tooltips: ['Opening quote'] },
+            { id: 'av16bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'short', nuance: 'Quoted' }],
+        },
+        {
+          id: 'av17',
+          wordClass: 'content',
+          segments: [
+            { id: 'av17s1', text: 'añch', type: 'root', tooltips: ['Pulling'] },
+            { id: 'av17s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [{ english: 'I pull', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'av18',
+          wordClass: 'function',
+          segments: [
+            { id: 'av18s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'av19',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'av19s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'av19s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'av19s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
       ],
       englishStructure: [
-        { id: 'eav1', linkedSegmentId: 'av1s1' },
-        { id: 'eav3', linkedSegmentId: 'av3s1' },
+        // Introduction
+        { id: 'eav1', linkedPaliId: 'av1' },
+        { id: 'eav3', linkedPaliId: 'av3' },
         { id: 'eav4', linkedPaliId: 'av4' },
-        { id: 'eav5', linkedSegmentId: 'av5s1' },
+        { id: 'eav5', linkedPaliId: 'av5' },
         { id: 'eav6g', label: 'his', isGhost: true, ghostKind: 'required' },
         { id: 'eav6', linkedPaliId: 'av6' },
+        // Long pull
+        { id: 'eav10', linkedPaliId: 'av10' },
+        { id: 'eav8', linkedPaliId: 'av8' },
+        { id: 'eav13', linkedPaliId: 'av13' },
+        { id: 'eav11g', label: '"I pull long"', isGhost: true, ghostKind: 'interpretive' },
+        // Short pull
+        { id: 'eav16', linkedPaliId: 'av16' },
+        { id: 'eav14', linkedPaliId: 'av14' },
+        { id: 'eav19', linkedPaliId: 'av19' },
+        { id: 'eav17g', label: '"I pull short"', isGhost: true, ghostKind: 'interpretive' },
       ],
     },
 
     // mn10:4.9 - Turner simile action
     // dīghaṁ vā añchanto 'dīghaṁ añchāmī'ti pajānāti
     {
+      // mn10:4.9 - Simile application: "Even so, monks, a monk..."
+      // evameva kho, bhikkhave, bhikkhu dīghaṁ vā assasanto 'dīghaṁ assasāmī'ti pajānāti,
+      // dīghaṁ vā passasanto 'dīghaṁ passasāmī'ti pajānāti,
+      // rassaṁ vā assasanto 'rassaṁ assasāmī'ti pajānāti,
+      // rassaṁ vā passasanto 'rassaṁ passasāmī'ti pajānāti;
       id: 'phase-aw',
       canonicalSegmentIds: ['mn10:4.9'],
       paliWords: [
+        // === SIMILE APPLICATION INTRO ===
         {
           id: 'aw1',
-          wordClass: 'content',
+          wordClass: 'function',
           segments: [
-            { id: 'aw1s1', text: 'dīgh', type: 'root', tooltips: ['Long'] },
-            { id: 'aw1s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+            { id: 'aw1s1', text: 'Evam', type: 'stem', tooltips: ['Evam: Thus / In this way'] },
+            { id: 'aw1s2', text: 'eva', type: 'stem', tooltips: ['Eva: Just so / Exactly', 'Connects simile to practice'] },
           ],
-          senses: [{ english: 'long', nuance: 'Duration' }],
+          senses: [{ english: 'just so', nuance: 'Application' }],
         },
         {
           id: 'aw2',
           wordClass: 'function',
           segments: [
-            { id: 'aw2s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+            { id: 'aw2s1', text: 'kho', type: 'stem', tooltips: ['Kho: Indeed', '[Emphatic Particle]'] },
           ],
-          senses: [{ english: '—', nuance: 'Alternative' }],
+          senses: [{ english: 'indeed', nuance: 'Emphasis' }],
         },
         {
           id: 'aw3',
-          wordClass: 'content',
+          wordClass: 'function',
+          refrainId: 'bhikkhu',
           segments: [
-            { id: 'aw3s1', text: 'añch', type: 'root', tooltips: ['⚡ √añc/kṛṣ: To pull / Draw / Drag', 'The turner PULLS the strap', 'to rotate the lathe', '📝 ACTIVE AGENCY:', 'The turner MAKES the turn', '— not passive observation!', 'Knowing through doing'] },
-            { id: 'aw3s2', text: 'anto', type: 'suffix', tooltips: ['Present participle: "while pulling"'] },
+            { id: 'aw3s1', text: 'bhikkha', type: 'root', tooltips: ['Bhikkhu: Monk'] },
+            { id: 'aw3s2', text: 've', type: 'suffix', tooltips: ['[Vocative Plural]'] },
           ],
-          senses: [
-            { english: 'pulling', nuance: 'Action' },
-            { english: 'drawing', nuance: 'Making turn' },
-          ],
+          senses: [{ english: 'monks', nuance: 'Address' }],
         },
         {
           id: 'aw4',
           wordClass: 'content',
+          refrainId: 'bhikkhu',
           segments: [
-            { id: 'aw4s1', text: 'dīgh', type: 'root', tooltips: ['Long'] },
-            { id: 'aw4s2', text: 'aṁ', type: 'suffix', tooltips: ['Accusative'] },
+            { id: 'aw4s1', text: 'bhikkhu', type: 'stem', tooltips: ['Bhikkhu: Monk / Practitioner', 'Now applying the simile'] },
           ],
-          senses: [{ english: 'long', nuance: 'Duration' }],
+          senses: [{ english: 'a monk', nuance: 'Practitioner' }],
         },
+        // === LONG IN-BREATH ===
         {
           id: 'aw5',
           wordClass: 'content',
           segments: [
-            { id: 'aw5s1', text: 'añch', type: 'root', tooltips: ['To pull'] },
-            { id: 'aw5s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person] "I am pulling"'] },
+            { id: 'aw5s1', text: 'dīgh', type: 'root', tooltips: ['Long'] },
+            { id: 'aw5s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
           ],
-          senses: [{ english: 'I pull', nuance: 'Self-aware action' }],
+          senses: [{ english: 'long', nuance: 'Duration' }],
         },
         {
           id: 'aw6',
           wordClass: 'function',
           segments: [
-            { id: 'aw6s1', text: 'ti', type: 'stem', tooltips: ['Quote marker'] },
+            { id: 'aw6s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
           ],
-          senses: [{ english: '—', nuance: 'Quote' }],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
         },
         {
           id: 'aw7',
           wordClass: 'content',
           segments: [
-            { id: 'aw7s1', text: 'pajān', type: 'root', tooltips: ['🧠 Knows / Discerns', '📝 The simile teaches:', 'The POINT OF COMPARISON is', 'the precision of knowing', 'The turner knows through MAKING', '→ meditator knows through', 'sensitive ENGAGEMENT'] },
-            { id: 'aw7s2', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+            { id: 'aw7s1', text: 'assas', type: 'root', tooltips: ['√śvas: To breathe', 'ā + śvas = breathe in', '📝 Like the turner who KNOWS', 'while pulling — the meditator', 'KNOWS while breathing'] },
+            { id: 'aw7s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle]'] },
+          ],
+          senses: [
+            { english: 'breathing in', nuance: 'While inhaling' },
+            { english: 'inhaling', nuance: 'Drawing breath' },
+          ],
+        },
+        {
+          id: 'aw7b',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw7bs1', text: "'dīgh", type: 'root', tooltips: ['Quoted: long'] },
+            { id: 'aw7bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'long', nuance: 'Quoted' }],
+        },
+        {
+          id: 'aw8',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw8s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'aw8s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [{ english: 'I breathe in', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'aw9',
+          wordClass: 'function',
+          segments: [
+            { id: 'aw9s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'aw10',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'aw10s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'aw10s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'aw10s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
           senses: [
             { english: 'knows', nuance: 'Understands' },
             { english: 'clearly knows', nuance: 'Direct' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
+        // === LONG OUT-BREATH ===
+        {
+          id: 'aw11',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw11s1', text: 'dīgh', type: 'root', tooltips: ['Long'] },
+            { id: 'aw11s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+          ],
+          senses: [{ english: 'long', nuance: 'Duration' }],
+        },
+        {
+          id: 'aw12',
+          wordClass: 'function',
+          segments: [
+            { id: 'aw12s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'aw13',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw13s1', text: 'passas', type: 'root', tooltips: ['√śvas: To breathe', 'pa + śvas = breathe out'] },
+            { id: 'aw13s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle]'] },
+          ],
+          senses: [
+            { english: 'breathing out', nuance: 'While exhaling' },
+            { english: 'exhaling', nuance: 'Releasing' },
+          ],
+        },
+        {
+          id: 'aw13b',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw13bs1', text: "'dīgh", type: 'root', tooltips: ['Quoted: long'] },
+            { id: 'aw13bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'long', nuance: 'Quoted' }],
+        },
+        {
+          id: 'aw14',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw14s1', text: 'passas', type: 'root', tooltips: ['Breathing out'] },
+            { id: 'aw14s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [{ english: 'I breathe out', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'aw15',
+          wordClass: 'function',
+          segments: [
+            { id: 'aw15s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'aw16',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'aw16s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'aw16s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'aw16s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
+        // === SHORT IN-BREATH ===
+        {
+          id: 'aw17',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw17s1', text: 'rass', type: 'root', tooltips: ['Short'] },
+            { id: 'aw17s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+          ],
+          senses: [{ english: 'short', nuance: 'Brief' }],
+        },
+        {
+          id: 'aw18',
+          wordClass: 'function',
+          segments: [
+            { id: 'aw18s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'aw19',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw19s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'aw19s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle]'] },
+          ],
+          senses: [{ english: 'breathing in', nuance: 'While inhaling' }],
+        },
+        {
+          id: 'aw19b',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw19bs1', text: "'rass", type: 'root', tooltips: ['Quoted: short'] },
+            { id: 'aw19bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'short', nuance: 'Quoted' }],
+        },
+        {
+          id: 'aw20',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw20s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'aw20s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [{ english: 'I breathe in', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'aw21',
+          wordClass: 'function',
+          segments: [
+            { id: 'aw21s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'aw22',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'aw22s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'aw22s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'aw22s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct' },
+            { english: 'discerns', nuance: 'Recognizes' },
+          ],
+        },
+        // === SHORT OUT-BREATH ===
+        {
+          id: 'aw23',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw23s1', text: 'rass', type: 'root', tooltips: ['Short'] },
+            { id: 'aw23s2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative Adverbial]'] },
+          ],
+          senses: [{ english: 'short', nuance: 'Brief' }],
+        },
+        {
+          id: 'aw24',
+          wordClass: 'function',
+          segments: [
+            { id: 'aw24s1', text: 'vā', type: 'stem', tooltips: ['Or'] },
+          ],
+          senses: [{ english: 'or', nuance: 'Alternative' }],
+        },
+        {
+          id: 'aw25',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw25s1', text: 'passas', type: 'root', tooltips: ['Breathing out'] },
+            { id: 'aw25s2', text: 'anto', type: 'suffix', tooltips: ['[Present Participle]'] },
+          ],
+          senses: [{ english: 'breathing out', nuance: 'While exhaling' }],
+        },
+        {
+          id: 'aw25b',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw25bs1', text: "'rass", type: 'root', tooltips: ['Quoted: short'] },
+            { id: 'aw25bs2', text: 'aṁ', type: 'suffix', tooltips: ['[Accusative]'] },
+          ],
+          senses: [{ english: 'short', nuance: 'Quoted' }],
+        },
+        {
+          id: 'aw26',
+          wordClass: 'content',
+          segments: [
+            { id: 'aw26s1', text: 'passas', type: 'root', tooltips: ['Breathing out'] },
+            { id: 'aw26s2', text: 'āmī', type: 'suffix', tooltips: ['[1st Person Singular]'] },
+          ],
+          senses: [{ english: 'I breathe out', nuance: 'Self-aware' }],
+        },
+        {
+          id: 'aw27',
+          wordClass: 'function',
+          segments: [
+            { id: 'aw27s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'aw28',
+          wordClass: 'content',
+          refrainId: 'pajanati',
+          segments: [
+            { id: 'aw28s1', text: 'pa', type: 'prefix', tooltips: ['Pa: Forth'] },
+            { id: 'aw28s2', text: 'jān', type: 'root', tooltips: ['√jñā: To know'] },
+            { id: 'aw28s3', text: 'āti', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'knows', nuance: 'Understands' },
+            { english: 'clearly knows', nuance: 'Direct' },
+            { english: 'discerns', nuance: 'Recognizes' },
           ],
         },
       ],
       englishStructure: [
-        { id: 'eaw3', linkedSegmentId: 'aw3s1' },
-        { id: 'eaw1', linkedSegmentId: 'aw1s1' },
-        { id: 'eaw7', linkedSegmentId: 'aw7s1' },
-        { id: 'eaw5g', label: '"I pull long"', isGhost: true, ghostKind: 'interpretive' },
+        // Intro
+        { id: 'eaw1', linkedPaliId: 'aw1' },
+        { id: 'eaw3', linkedPaliId: 'aw3' },
+        { id: 'eaw4', linkedPaliId: 'aw4' },
+        // Long in
+        { id: 'eaw7', linkedPaliId: 'aw7' },
+        { id: 'eaw5', linkedPaliId: 'aw5' },
+        { id: 'eaw10', linkedPaliId: 'aw10' },
+        { id: 'eaw8g', label: '"I breathe in long"', isGhost: true, ghostKind: 'interpretive' },
+        // Long out
+        { id: 'eaw13', linkedPaliId: 'aw13' },
+        { id: 'eaw11', linkedPaliId: 'aw11' },
+        { id: 'eaw16', linkedPaliId: 'aw16' },
+        { id: 'eaw14g', label: '"I breathe out long"', isGhost: true, ghostKind: 'interpretive' },
+        // Short in
+        { id: 'eaw19', linkedPaliId: 'aw19' },
+        { id: 'eaw17', linkedPaliId: 'aw17' },
+        { id: 'eaw22', linkedPaliId: 'aw22' },
+        { id: 'eaw20g', label: '"I breathe in short"', isGhost: true, ghostKind: 'interpretive' },
+        // Short out
+        { id: 'eaw25', linkedPaliId: 'aw25' },
+        { id: 'eaw23', linkedPaliId: 'aw23' },
+        { id: 'eaw28', linkedPaliId: 'aw28' },
+        { id: 'eaw26g', label: '"I breathe out short"', isGhost: true, ghostKind: 'interpretive' },
       ],
     },
 
     // mn10:4.10 - Simile application
     // evameva kho, bhikkhave, bhikkhu...
     {
+      // mn10:4.10 - Whole body training (continued from simile application)
+      // 'sabbakāyapaṭisaṁvedī assasissāmī'ti sikkhati,
+      // 'sabbakāyapaṭisaṁvedī passasissāmī'ti sikkhati;
       id: 'phase-ax',
       canonicalSegmentIds: ['mn10:4.10'],
       paliWords: [
+        // === IN-BREATH CLAUSE ===
         {
           id: 'ax1',
-          wordClass: 'function',
+          wordClass: 'content',
           segments: [
-            { id: 'ax1s1', text: 'Evam', type: 'stem', tooltips: ['Evam: Thus / In this way', 'Connects simile to practice'] },
-            { id: 'ax1s2', text: 'eva', type: 'stem', tooltips: ['Eva: Just so / Exactly', 'Emphatic: "just so..."'] },
+            { id: 'ax1s1', text: "'Sabba", type: 'root', tooltips: ['Sabba: All / Whole', 'Opening quote'] },
+            { id: 'ax1s2', text: 'kāya', type: 'root', tooltips: ['Kāya: Body', '⚡ THREE TRADITIONS:', '🏛️ Visuddhimagga: breath-body', '📜 Sutta: physical body', '📚 Sarvastivāda: all bodies'] },
+            { id: 'ax1s3', text: 'paṭi', type: 'prefix', tooltips: ['Paṭi: Towards'] },
+            { id: 'ax1s4', text: 'saṁ', type: 'prefix', tooltips: ['Saṁ: Fully'] },
+            { id: 'ax1s5', text: 'ved', type: 'root', tooltips: ['√vid: Experience'] },
+            { id: 'ax1s6', text: 'ī', type: 'suffix', tooltips: ['[Agent Suffix]'] },
           ],
-          senses: [{ english: 'just so', nuance: 'Application' }],
+          senses: [
+            { english: 'experiencing the whole body', nuance: 'Physical' },
+            { english: 'experiencing the whole breath', nuance: 'Breath-body' },
+            { english: 'sensitive to entire form', nuance: 'Full awareness' },
+          ],
         },
         {
           id: 'ax2',
-          wordClass: 'function',
+          wordClass: 'content',
           segments: [
-            { id: 'ax2s1', text: 'kho', type: 'stem', tooltips: ['Kho: Indeed / Certainly', '[Emphatic Particle]'] },
+            { id: 'ax2s1', text: 'assas', type: 'root', tooltips: ['Breathing in'] },
+            { id: 'ax2s2', text: 'issāmī', type: 'suffix', tooltips: ['[Future 1st Person]'] },
           ],
-          senses: [{ english: 'indeed', nuance: 'Emphasis' }],
+          senses: [
+            { english: 'I will breathe in', nuance: 'Resolution' },
+            { english: 'I shall inhale', nuance: 'Commitment' },
+          ],
         },
         {
           id: 'ax3',
           wordClass: 'function',
           segments: [
-            { id: 'ax3s1', text: 'bhikkha', type: 'root', tooltips: ['Bhikkhu: Monk'] },
-            { id: 'ax3s2', text: 've', type: 'suffix', tooltips: ['[Vocative Plural] Addressing the group'] },
+            { id: 'ax3s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
           ],
-          senses: [{ english: 'monks', nuance: 'Address' }],
+          senses: [{ english: '—', nuance: 'Quote end' }],
         },
         {
           id: 'ax4',
           wordClass: 'content',
+          refrainId: 'sikkhati',
           segments: [
-            { id: 'ax4s1', text: 'bhikkhu', type: 'stem', tooltips: ['Bhikkhu: Monk / Practitioner', 'The one applying the simile'] },
+            { id: 'ax4s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: To train'] },
+            { id: 'ax4s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
-          senses: [{ english: 'a monk', nuance: 'Practitioner' }],
+          senses: [
+            { english: 'trains', nuance: 'Practices' },
+            { english: 'learns', nuance: 'Develops' },
+            { english: 'cultivates', nuance: 'Active work' },
+          ],
+        },
+        // === OUT-BREATH CLAUSE ===
+        {
+          id: 'ax5',
+          wordClass: 'content',
+          segments: [
+            { id: 'ax5s1', text: "'sabba", type: 'root', tooltips: ['All / Whole'] },
+            { id: 'ax5s2', text: 'kāya', type: 'root', tooltips: ['Body'] },
+            { id: 'ax5s3', text: 'paṭi', type: 'prefix', tooltips: ['Towards'] },
+            { id: 'ax5s4', text: 'saṁ', type: 'prefix', tooltips: ['Fully'] },
+            { id: 'ax5s5', text: 'ved', type: 'root', tooltips: ['Experience'] },
+            { id: 'ax5s6', text: 'ī', type: 'suffix', tooltips: ['[Agent Suffix]'] },
+          ],
+          senses: [
+            { english: 'experiencing the whole body', nuance: 'Physical' },
+            { english: 'experiencing the whole breath', nuance: 'Breath-body' },
+          ],
+        },
+        {
+          id: 'ax6',
+          wordClass: 'content',
+          segments: [
+            { id: 'ax6s1', text: 'passas', type: 'root', tooltips: ['Breathing out'] },
+            { id: 'ax6s2', text: 'issāmī', type: 'suffix', tooltips: ['[Future 1st Person]'] },
+          ],
+          senses: [
+            { english: 'I will breathe out', nuance: 'Resolution' },
+            { english: 'I shall exhale', nuance: 'Commitment' },
+          ],
+        },
+        {
+          id: 'ax7',
+          wordClass: 'function',
+          segments: [
+            { id: 'ax7s1', text: "'ti", type: 'stem', tooltips: ['Iti: Quote end'] },
+          ],
+          senses: [{ english: '—', nuance: 'Quote end' }],
+        },
+        {
+          id: 'ax8',
+          wordClass: 'content',
+          refrainId: 'sikkhati',
+          segments: [
+            { id: 'ax8s1', text: 'sikkh', type: 'root', tooltips: ['√śikṣ: Trains'] },
+            { id: 'ax8s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
+          ],
+          senses: [
+            { english: 'trains', nuance: 'Practices' },
+            { english: 'learns', nuance: 'Develops' },
+            { english: 'cultivates', nuance: 'Active work' },
+          ],
         },
       ],
       englishStructure: [
+        // In-breath
+        { id: 'eax4', linkedPaliId: 'ax4' },
+        { id: 'eax4g', label: ':', isGhost: true, ghostKind: 'required' },
         { id: 'eax1', linkedPaliId: 'ax1' },
-        { id: 'eax4', linkedSegmentId: 'ax4s1' },
-        { id: 'eax4g', label: 'practices', isGhost: true, ghostKind: 'interpretive' },
+        { id: 'eax2g', label: 'I will', isGhost: true, ghostKind: 'required' },
+        { id: 'eax2', linkedPaliId: 'ax2' },
+        // Out-breath
+        { id: 'eax8', linkedPaliId: 'ax8' },
+        { id: 'eax8g', label: ':', isGhost: true, ghostKind: 'required' },
+        { id: 'eax5', linkedPaliId: 'ax5' },
+        { id: 'eax6g', label: 'I will', isGhost: true, ghostKind: 'required' },
+        { id: 'eax6', linkedPaliId: 'ax6' },
       ],
     },
 
-    // mn10:4.11 - Internal/External refrain (THE REFRAIN begins)
+    // mn10:5.1 - Internal/External refrain (THE REFRAIN begins)
     // Iti ajjhattaṁ vā kāye kāyānupassī viharati,
     // bahiddhā vā kāye kāyānupassī viharati,
     // ajjhattabahiddhā vā kāye kāyānupassī viharati.
     {
       id: 'phase-ay',
-      canonicalSegmentIds: ['mn10:4.11'],
+      canonicalSegmentIds: ['mn10:5.1'],
       paliWords: [
         {
           id: 'ay1',
@@ -2451,7 +3444,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'ay4s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body'] },
             { id: 'ay4s2', text: 'e', type: 'suffix', tooltips: ['[Locative] "in the body"'] },
           ],
-          senses: [{ english: 'in the body', nuance: 'Location' }],
+          senses: [
+            { english: 'in the body', nuance: 'Physical form' },
+            { english: 'in this heap', nuance: 'Collection of parts' },
+            { english: 'in this mass', nuance: 'Aggregate' },
+            { english: 'body as body', nuance: 'Just phenomena' },
+            { english: 'in what\'s assembled', nuance: 'Not-self view' },
+          ],
         },
         {
           id: 'ay5',
@@ -2489,11 +3488,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
 
-    // mn10:4.11b - External contemplation
+    // mn10:5.1b - External contemplation
     // bahiddhā vā kāye kāyānupassī viharati
     {
       id: 'phase-az',
-      canonicalSegmentIds: ['mn10:4.11'],
+      canonicalSegmentIds: ['mn10:5.1'],
       paliWords: [
         {
           id: 'az1',
@@ -2521,7 +3520,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'az3s1', text: 'kāye', type: 'stem', tooltips: ['In the body'] },
           ],
-          senses: [{ english: 'in the body', nuance: 'Location' }],
+          senses: [
+            { english: 'in the body', nuance: 'Physical form' },
+            { english: 'in this heap', nuance: 'Collection of parts' },
+            { english: 'in this mass', nuance: 'Aggregate' },
+            { english: 'body as body', nuance: 'Just phenomena' },
+            { english: 'in what\'s assembled', nuance: 'Not-self view' },
+          ],
         },
         {
           id: 'az4',
@@ -2529,7 +3534,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'az4s1', text: 'kāyānupassī', type: 'stem', tooltips: ['Body-contemplator'] },
           ],
-          senses: [{ english: 'contemplating body', nuance: 'Observing' }],
+          senses: [
+            { english: 'observing body', nuance: 'Action' },
+            { english: 'a body-watcher', nuance: 'Identity' },
+            { english: 'contemplating form', nuance: 'Sustained attention' },
+            { english: 'tracking the physical', nuance: 'Following closely' },
+            { english: 'seeing body as body', nuance: 'Phenomenological' },
+          ],
         },
         {
           id: 'az5',
@@ -2538,7 +3549,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'az5s1', text: 'vihar', type: 'root', tooltips: ['Dwells'] },
             { id: 'az5s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
       ],
       englishStructure: [
@@ -2549,11 +3566,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
 
-    // mn10:4.11c - Both internal and external
+    // mn10:5.1c - Both internal and external
     // ajjhattabahiddhā vā kāye kāyānupassī viharati
     {
       id: 'phase-ba',
-      canonicalSegmentIds: ['mn10:4.11'],
+      canonicalSegmentIds: ['mn10:5.1'],
       paliWords: [
         {
           id: 'ba1',
@@ -2582,7 +3599,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ba3s1', text: 'kāye', type: 'stem', tooltips: ['In the body'] },
           ],
-          senses: [{ english: 'in the body', nuance: 'Location' }],
+          senses: [
+            { english: 'in the body', nuance: 'Physical form' },
+            { english: 'in this heap', nuance: 'Collection of parts' },
+            { english: 'in this mass', nuance: 'Aggregate' },
+            { english: 'body as body', nuance: 'Just phenomena' },
+            { english: 'in what\'s assembled', nuance: 'Not-self view' },
+          ],
         },
         {
           id: 'ba4',
@@ -2590,7 +3613,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ba4s1', text: 'kāyānupassī', type: 'stem', tooltips: ['Body-contemplator'] },
           ],
-          senses: [{ english: 'contemplating body', nuance: 'Observing' }],
+          senses: [
+            { english: 'observing body', nuance: 'Action' },
+            { english: 'a body-watcher', nuance: 'Identity' },
+            { english: 'contemplating form', nuance: 'Sustained attention' },
+            { english: 'tracking the physical', nuance: 'Following closely' },
+            { english: 'seeing body as body', nuance: 'Phenomenological' },
+          ],
         },
         {
           id: 'ba5',
@@ -2598,7 +3627,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ba5s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
       ],
       englishStructure: [
@@ -2609,17 +3644,17 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
 
-    // mn10:4.12 - Arising nature
+    // mn10:5.2 - Arising nature
     // Samudayadhammānupassī vā kāyasmiṁ viharati
     {
       id: 'phase-bb',
-      canonicalSegmentIds: ['mn10:4.12'],
+      canonicalSegmentIds: ['mn10:5.2'],
       paliWords: [
         {
           id: 'bb1',
           wordClass: 'content',
           segments: [
-            { id: 'bb1s1', text: 'Sam', type: 'prefix', tooltips: ['Saṁ: Together / Completely'] },
+            { id: 'bb1s1', text: 'sam', type: 'prefix', tooltips: ['Saṁ: Together / Completely'] },
             { id: 'bb1s2', text: 'udaya', type: 'root', tooltips: ['Ud + i: Rising up / Origin', 'Samudaya = arising, origination', '⚡ FIRST NOBLE TRUTH echo:', 'dukkhasamudaya = origin of suffering', 'Here: seeing HOW things arise'] },
             { id: 'bb1s3', text: 'dhamma', type: 'root', tooltips: ['Dhamma: Nature / Quality / Phenomenon', '"Arising-nature" = subject to arising'] },
             { id: 'bb1s4', text: 'ānu', type: 'prefix', tooltips: ['Anu: Following / Repeatedly'] },
@@ -2654,7 +3689,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'bb4s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
       ],
       englishStructure: [
@@ -2664,11 +3705,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
 
-    // mn10:4.12b - Passing away nature
+    // mn10:5.2b - Passing away nature
     // vayadhammānupassī vā kāyasmiṁ viharati
     {
       id: 'phase-bc',
-      canonicalSegmentIds: ['mn10:4.12'],
+      canonicalSegmentIds: ['mn10:5.2'],
       paliWords: [
         {
           id: 'bc1',
@@ -2678,7 +3719,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'bc1s2', text: 'dhamma', type: 'root', tooltips: ['Nature / Quality', '"Passing-nature" = subject to decay'] },
             { id: 'bc1s3', text: 'ānu', type: 'prefix', tooltips: ['Repeatedly'] },
             { id: 'bc1s4', text: 'pass', type: 'root', tooltips: ['Seeing'] },
-            { id: 'bc1s5', text: 'ī', type: 'suffix', tooltips: ['Agent'] },
+            { id: 'bc1s5', text: 'ī', type: 'suffix', tooltips: ['[Agent]'] },
           ],
           senses: [
             { english: 'observing the passing nature', nuance: 'Decay' },
@@ -2707,7 +3748,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'bc4s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
       ],
       englishStructure: [
@@ -2718,11 +3765,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
     },
 
-    // mn10:4.12c - Both arising and passing
+    // mn10:5.2c - Both arising and passing
     // samudayavayadhammānupassī vā kāyasmiṁ viharati
     {
       id: 'phase-bd',
-      canonicalSegmentIds: ['mn10:4.12'],
+      canonicalSegmentIds: ['mn10:5.2'],
       paliWords: [
         {
           id: 'bd1',
@@ -2733,7 +3780,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'bd1s3', text: 'dhamma', type: 'root', tooltips: ['Nature'] },
             { id: 'bd1s4', text: 'ānu', type: 'prefix', tooltips: ['Repeatedly'] },
             { id: 'bd1s5', text: 'pass', type: 'root', tooltips: ['Seeing'] },
-            { id: 'bd1s6', text: 'ī', type: 'suffix', tooltips: ['Agent'] },
+            { id: 'bd1s6', text: 'ī', type: 'suffix', tooltips: ['[Agent]'] },
           ],
           senses: [
             { english: 'observing arising-and-passing nature', nuance: 'Complete cycle' },
@@ -2762,7 +3809,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'bd4s1', text: 'viharati', type: 'stem', tooltips: ['Dwells'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
       ],
       englishStructure: [
@@ -2777,13 +3830,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // 'Atthi kāyo'ti vā panassa sati paccupaṭṭhitā hoti
     {
       id: 'phase-be',
-      canonicalSegmentIds: ['mn10:4.13'],
+      canonicalSegmentIds: ['mn10:5.3'],
       paliWords: [
         {
           id: 'be1',
           wordClass: 'content',
           segments: [
-            { id: 'be1s1', text: 'Atthi', type: 'stem', tooltips: ['Atthi: There is / Exists', 'From √as: to be', '📝 BARE KNOWING:', 'Just: "There is body"', 'No elaboration, no story', 'Pure presence of phenomenon'] },
+            { id: 'be1s1', text: "'Atthi", type: 'stem', tooltips: ['Atthi: There is / Exists', 'From √as: to be', '📝 BARE KNOWING:', 'Just: "There is body"', 'No elaboration, no story', 'Pure presence of phenomenon'] },
           ],
           senses: [
             { english: 'there is', nuance: 'Existence' },
@@ -2795,7 +3848,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'be2s1', text: 'kāy', type: 'root', tooltips: ['Kāya: Body', 'Just "body" — no "my body"', 'Depersonalized awareness'] },
-            { id: 'be2s2', text: 'o', type: 'suffix', tooltips: ['Nominative: subject'] },
+            { id: 'be2s2', text: 'o', type: 'suffix', tooltips: ['[Nominative] Subject'] },
           ],
           senses: [{ english: 'body', nuance: 'Phenomenon' }],
         },
@@ -2803,7 +3856,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'be3',
           wordClass: 'function',
           segments: [
-            { id: 'be3s1', text: 'ti', type: 'stem', tooltips: ['Quote marker: "..."'] },
+            { id: 'be3s1', text: "'ti", type: 'stem', tooltips: ['Quote marker: "..."'] },
           ],
           senses: [{ english: '—', nuance: 'Quote' }],
         },
@@ -2820,7 +3873,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'function',
           segments: [
             { id: 'be5s1', text: 'pan', type: 'stem', tooltips: ['Pana: Moreover / And / But', 'Connective particle'] },
-            { id: 'be5s2', text: 'assa', type: 'suffix', tooltips: ['Assa: His / Of him', 'Genitive/Dative pronoun'] },
+            { id: 'be5s2', text: 'assa', type: 'suffix', tooltips: ['Assa: His / Of him', '[Genitive/Dative] pronoun'] },
           ],
           senses: [{ english: 'moreover, his', nuance: 'Connection' }],
         },
@@ -2870,7 +3923,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // anissito ca viharati, na ca kiñci loke upādiyati.
     {
       id: 'phase-bf',
-      canonicalSegmentIds: ['mn10:4.14'],
+      canonicalSegmentIds: ['mn10:5.3'],
       paliWords: [
         {
           id: 'bf1',
@@ -2887,7 +3940,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'bf2s1', text: 'ñāṇa', type: 'root', tooltips: ['Ñāṇa: Knowledge / Gnosis', 'From √jñā: to know'] },
             { id: 'bf2s2', text: 'matt', type: 'root', tooltips: ['Matta: Mere / Only / Just', '📝 JUST for knowledge\'s sake', 'Not for ego, not for becoming', 'Pure knowing without grasping'] },
-            { id: 'bf2s3', text: 'āya', type: 'suffix', tooltips: ['Dative: "for the purpose of"'] },
+            { id: 'bf2s3', text: 'āya', type: 'suffix', tooltips: ['[Dative] "for the purpose of"'] },
           ],
           senses: [
             { english: 'for bare knowledge', nuance: 'Purpose' },
@@ -2901,7 +3954,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'bf3s1', text: 'paṭi', type: 'prefix', tooltips: ['Paṭi: Back / Again'] },
             { id: 'bf3s2', text: 'ssati', type: 'root', tooltips: ['Sati: Mindfulness', 'Paṭissati = continued mindfulness'] },
             { id: 'bf3s3', text: 'matt', type: 'root', tooltips: ['Mere / Just'] },
-            { id: 'bf3s4', text: 'āya', type: 'suffix', tooltips: ['Dative: "for"'] },
+            { id: 'bf3s4', text: 'āya', type: 'suffix', tooltips: ['[Dative] "for"'] },
           ],
           senses: [
             { english: 'for bare mindfulness', nuance: 'Purpose' },
@@ -2922,7 +3975,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
     // anissito ca viharati, na ca kiñci loke upādiyati
     {
       id: 'phase-bg',
-      canonicalSegmentIds: ['mn10:4.15'],
+      canonicalSegmentIds: ['mn10:5.3'],
       paliWords: [
         {
           id: 'bg1',
@@ -2952,7 +4005,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'bg3s1', text: 'vihar', type: 'root', tooltips: ['Dwells'] },
             { id: 'bg3s2', text: 'ati', type: 'suffix', tooltips: ['[Present Tense]'] },
           ],
-          senses: [{ english: 'dwells', nuance: 'Abides' }],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+            { english: 'remains', nuance: 'Stays put' },
+            { english: 'lives', nuance: 'Way of being' },
+            { english: 'keeps at it', nuance: 'Continuous practice' },
+          ],
         },
         {
           id: 'bg4',
@@ -2981,9 +4040,10 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         {
           id: 'bg7',
           wordClass: 'content',
+          refrainId: 'formula-removing',
           segments: [
             { id: 'bg7s1', text: 'lok', type: 'root', tooltips: ['Loka: World', '📍 In the world = in experience', 'All of saṁsāric existence'] },
-            { id: 'bg7s2', text: 'e', type: 'suffix', tooltips: ['Locative: "in the world"'] },
+            { id: 'bg7s2', text: 'e', type: 'suffix', tooltips: ['[Locative] "in the world"'] },
           ],
           senses: [{ english: 'in the world', nuance: 'Experience' }],
         },
