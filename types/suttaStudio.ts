@@ -263,6 +263,10 @@ export type DeepLoomPacket = {
     etaMs?: number;
     /** Error message when state is 'error' */
     errorMessage?: string;
+    /** Detailed stage message (e.g., "Analyzing structure (chunk 2/5)...") */
+    stageMessage?: string;
+    /** Current pass within a phase (e.g., "Anatomist", "Lexicographer", "Weaver") */
+    currentPassName?: string;
   };
   renderDefaults: {
     ghostOpacity: number;

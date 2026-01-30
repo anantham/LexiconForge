@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { Chapter } from '../../types';
+import type { EnhancedChapter } from '../../services/stableIdService';
 import type { CanonicalSegment, DeepLoomPacket } from '../../types/suttaStudio';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { formatDuration } from './utils';
@@ -12,7 +12,7 @@ export function SuttaStudioFallback({
   progress,
   canonicalSegments,
 }: {
-  chapter: Chapter | null;
+  chapter: EnhancedChapter | null;
   backToReaderUrl: string;
   progress?: DeepLoomPacket['progress'] | null;
   canonicalSegments?: CanonicalSegment[] | null;
@@ -30,8 +30,11 @@ export function SuttaStudioFallback({
   const isBuilding = progressState === 'building';
   const isError = progressState === 'error';
   const errorMessage = progress?.errorMessage;
-  const stageLabel = currentStage === 'fetching' ? 'Fetching...' : currentStage === 'skeleton' ? 'Analyzing structure...' : null;
-  const phaseLabel = totalPhases > 0 ? `Phase ${readyPhaseCount}/${totalPhases}` : (isBuilding ? stageLabel : null);
+  const stageMessage = progress?.stageMessage;
+  const currentPassName = progress?.currentPassName;
+  const stageLabel = stageMessage ?? (currentStage === 'fetching' ? 'Fetching...' : currentStage === 'skeleton' ? 'Analyzing structure...' : null);
+  const passLabel = currentPassName ? ` (${currentPassName})` : '';
+  const phaseLabel = totalPhases > 0 ? `Phase ${readyPhaseCount}/${totalPhases}${passLabel}` : (isBuilding ? stageLabel : null);
   const progressLabel = phaseLabel ? `${phaseLabel}${etaLabel ? ` · ${etaLabel}` : ''}` : (isBuilding ? 'Starting compilation...' : null);
   const blocks: Array<{ pali: string; english: string | null }> = [];
   const CHUNK_SIZE = 8;

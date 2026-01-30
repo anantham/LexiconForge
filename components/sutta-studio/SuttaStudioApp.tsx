@@ -381,6 +381,10 @@ export function SuttaStudioApp() {
 
   const totalPhases = progressPacket?.progress?.totalPhases ?? progressPacket?.phases?.length ?? 0;
   const readyPhases = progressPacket?.progress?.readyPhases ?? progressPacket?.phases?.length ?? 0;
+  const progressState = progressPacket?.progress?.state;
+  const allPhasesDegraded = progressPacket?.phases?.length > 0 &&
+    progressPacket.phases.every((p: { degraded?: boolean }) => p.degraded);
+  const hasError = progressState === 'error' || allPhasesDegraded;
 
   useEffect(() => {
     if (!isSuttaFlowDebug()) return;
@@ -464,6 +468,25 @@ export function SuttaStudioApp() {
         chapter={chapter}
         backToReaderUrl={backToReaderUrl}
         progress={progressPacket?.progress ?? null}
+        canonicalSegments={progressPacket?.canonicalSegments ?? null}
+      />
+    );
+  }
+
+  // Show fallback with error when all phases are degraded
+  if (hasError) {
+    const errorProgress = {
+      ...progressPacket?.progress,
+      state: 'error' as const,
+      errorMessage: allPhasesDegraded
+        ? `All ${progressPacket?.phases?.length} phases degraded: ${progressPacket?.phases?.[0]?.degradedReason || 'Unknown error'}`
+        : progressPacket?.progress?.errorMessage,
+    };
+    return (
+      <SuttaStudioFallback
+        chapter={chapter}
+        backToReaderUrl={backToReaderUrl}
+        progress={errorProgress}
         canonicalSegments={progressPacket?.canonicalSegments ?? null}
       />
     );
