@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useXarrow } from 'react-xarrows';
 
 export function XarrowUpdater({ deps }: { deps: React.DependencyList }) {

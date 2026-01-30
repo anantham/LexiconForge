@@ -1,5 +1,5 @@
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { LayoutGroup } from 'framer-motion';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Xarrow, { Xwrapper } from 'react-xarrows';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
 import { EnglishWordEngine } from './EnglishWord';
@@ -9,7 +9,6 @@ import type { Focus } from './types';
 import { formatDuration, segDomId, segmentIdToDomId, targetDomId, wordDomId } from './utils';
 import { XarrowUpdater } from './XarrowUpdater';
 import { StudioHeader } from './StudioHeader';
-import { usePhaseNavigation } from './hooks/usePhaseNavigation';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 
@@ -20,7 +19,6 @@ export function SuttaStudioView({
   packet: DeepLoomPacket;
   backToReaderUrl?: string | null;
 }) {
-  const [phaseIndex, setPhaseIndex] = useState(0);
   const [hovered, setHovered] = useState<Focus | null>(null);
   const [hoveredRelation, setHoveredRelation] = useState<string | null>(null);
   const pinned: Focus | null = null;
@@ -30,6 +28,7 @@ export function SuttaStudioView({
     packet.renderDefaults?.studyToggleDefault ?? true
   );
   const [layoutTick, setLayoutTick] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const phases = packet.phases ?? [];
   const totalPhases =
@@ -42,7 +41,6 @@ export function SuttaStudioView({
   const etaOverdue = etaCountdownMs != null && etaCountdownMs < 0;
   const readyPhaseCount = Math.max(0, Math.min(readyPhases, totalPhases || 0));
   const visiblePhases = phases.slice(0, Math.max(readyPhases, 0));
-  const currentPhase = visiblePhases[phaseIndex];
   const focus = hovered;
   const focusWordId = focus?.kind === 'word' ? focus.wordId : focus?.wordId ?? null;
 
@@ -56,73 +54,61 @@ export function SuttaStudioView({
       ? `Phase ${readyPhaseCount}/${totalPhases}${etaLabel ? ` · ${etaLabel}` : ''}`
       : '';
 
-  const goNext = useCallback(() => {
-    setPhaseIndex((i) =>
-      Math.min(visiblePhases.length > 0 ? visiblePhases.length - 1 : 0, i + 1)
-    );
-  }, [visiblePhases.length]);
-
-  const goPrev = useCallback(() => {
-    setPhaseIndex((i) => Math.max(0, i - 1));
-  }, []);
-
+  // Hash navigation: scroll to element on load
   useEffect(() => {
-    setHovered(null);
-    setHoveredRelation(null);
-  }, [phaseIndex]);
-
-  useEffect(() => {
-    if (visiblePhases.length === 0) return;
-    if (phaseIndex > visiblePhases.length - 1) {
-      setPhaseIndex(visiblePhases.length - 1);
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      // Small delay to ensure DOM is ready
+      requestAnimationFrame(() => {
+        const el = document.getElementById(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
     }
-  }, [phaseIndex, visiblePhases.length]);
+  }, []);
 
   useLayoutEffect(() => {
     setLayoutTick((tick) => tick + 1);
-  }, [phaseIndex, studyMode, visiblePhases.length]);
-
-  const cycle = useCallback(
-    (wordId: string) => {
-      const word = currentPhase?.paliWords.find((w) => w.id === wordId);
-      if (!word) return;
-      setActiveIndices((prev) => {
-        const current = prev[wordId] ?? 0;
-        const next = (current + 1) % word.senses.length;
-        return { ...prev, [wordId]: next };
-      });
-    },
-    [currentPhase]
-  );
-
-  const setActiveIndex = useCallback((wordId: string, idx: number) => {
-    setActiveIndices((prev) => ({ ...prev, [wordId]: idx }));
-  }, []);
-
-  const { onPointerDown, onPointerUp } = usePhaseNavigation({
-    onNext: goNext,
-    onPrev: goPrev,
-    onEscape: () => {},
-    disabled: false,
-  });
+  }, [studyMode, visiblePhases.length]);
 
   const toggleStudy = () => setStudyMode((v) => !v);
 
-  const phaseId = currentPhase?.id ?? 'phase-1';
-
-  const isTargetAbove = (startId: string, endId: string) => {
-    if (!layoutTick || typeof window === 'undefined') return false;
-    const startEl = document.getElementById(startId);
-    const endEl = document.getElementById(endId);
-    if (!startEl || !endEl) return false;
-    const startRect = startEl.getBoundingClientRect();
-    const endRect = endEl.getBoundingClientRect();
-    const startCenter = startRect.top + startRect.height / 2;
-    const endCenter = endRect.top + endRect.height / 2;
-    return endCenter < startCenter - 4;
+  // Returns position info for arrow rendering
+  type ArrowGeometry = {
+    verticalPos: 'above' | 'below' | 'same';
+    horizontalDist: number; // pixel distance between centers
+    isLeftToRight: boolean; // true if target is to the right of start
   };
 
-  if (!currentPhase) {
+  const getArrowGeometry = (startId: string, endId: string): ArrowGeometry => {
+    const defaultResult: ArrowGeometry = { verticalPos: 'same', horizontalDist: 100, isLeftToRight: true };
+    if (!layoutTick || typeof window === 'undefined') return defaultResult;
+    const startEl = document.getElementById(startId);
+    const endEl = document.getElementById(endId);
+    if (!startEl || !endEl) return defaultResult;
+
+    const startRect = startEl.getBoundingClientRect();
+    const endRect = endEl.getBoundingClientRect();
+
+    // Vertical position
+    const startCenterY = startRect.top + startRect.height / 2;
+    const endCenterY = endRect.top + endRect.height / 2;
+    const vertThreshold = 20;
+    let verticalPos: 'above' | 'below' | 'same' = 'same';
+    if (endCenterY < startCenterY - vertThreshold) verticalPos = 'above';
+    else if (endCenterY > startCenterY + vertThreshold) verticalPos = 'below';
+
+    // Horizontal distance
+    const startCenterX = startRect.left + startRect.width / 2;
+    const endCenterX = endRect.left + endRect.width / 2;
+    const horizontalDist = Math.abs(endCenterX - startCenterX);
+    const isLeftToRight = endCenterX > startCenterX;
+
+    return { verticalPos, horizontalDist, isLeftToRight };
+  };
+
+  if (visiblePhases.length === 0) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center">
         <div className="text-slate-500">No phases available for this packet.</div>
@@ -130,7 +116,22 @@ export function SuttaStudioView({
     );
   }
 
-  const resolveBlocks = (phase: typeof currentPhase) => {
+  // Cycle through senses for a word (searches across all phases)
+  const cycle = (wordId: string, phaseId: string) => {
+    const phase = visiblePhases.find((p) => p.id === phaseId);
+    const word = phase?.paliWords.find((w) => w.id === wordId);
+    if (!word) return;
+    const key = `${phaseId}-${wordId}`;
+    setActiveIndices((prev) => {
+      const current = prev[key] ?? 0;
+      const next = (current + 1) % word.senses.length;
+      return { ...prev, [key]: next };
+    });
+  };
+
+  type PhaseType = (typeof visiblePhases)[0];
+
+  const resolveBlocks = (phase: PhaseType) => {
     const wordIds = phase.paliWords.map((w) => w.id);
     if (phase.layoutBlocks && phase.layoutBlocks.length > 0) {
       const normalized = phase.layoutBlocks
@@ -151,23 +152,39 @@ export function SuttaStudioView({
     return [wordIds];
   };
 
-  const assignEnglishBlocks = (phase: typeof currentPhase, blocks: string[][]) => {
+  const assignEnglishBlocks = (phase: PhaseType, blocks: string[][]) => {
     const blockIndex = new Map<string, number>();
     blocks.forEach((block, idx) => {
       block.forEach((id) => blockIndex.set(id, idx));
     });
+
+    // Build segment-to-word lookup for segment-linked tokens
+    const segmentToWord = new Map<string, string>();
+    phase.paliWords.forEach((word) => {
+      word.segments.forEach((seg) => {
+        if (seg.id) segmentToWord.set(seg.id, word.id);
+      });
+    });
+
+    // Helper to get the linked word ID (handles both linkedPaliId and linkedSegmentId)
+    const getLinkedWordId = (token: (typeof phase.englishStructure)[0]): string | null => {
+      if (token.linkedPaliId) return token.linkedPaliId;
+      if (token.linkedSegmentId) return segmentToWord.get(token.linkedSegmentId) ?? null;
+      return null;
+    };
+
     const tokens = phase.englishStructure;
     const nextLinked: Array<string | null> = new Array(tokens.length).fill(null);
     let upcoming: string | null = null;
     for (let i = tokens.length - 1; i >= 0; i--) {
-      const id = tokens[i].linkedPaliId ?? null;
+      const id = getLinkedWordId(tokens[i]);
       if (id) upcoming = id;
       nextLinked[i] = upcoming;
     }
     const blocksOut: typeof tokens[] = blocks.map(() => []);
     let lastLinked: string | null = null;
     tokens.forEach((token, idx) => {
-      const linked = token.linkedPaliId ?? null;
+      const linked = getLinkedWordId(token);
       if (linked) lastLinked = linked;
       const targetId = linked || lastLinked || nextLinked[idx];
       const idxBlock = targetId && blockIndex.has(targetId) ? blockIndex.get(targetId)! : 0;
@@ -176,14 +193,10 @@ export function SuttaStudioView({
     return blocksOut;
   };
 
-  const blocks = resolveBlocks(currentPhase);
-  const englishBlocks = assignEnglishBlocks(currentPhase, blocks);
-
   return (
     <div
-      className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-x-hidden overflow-y-visible"
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
+      ref={scrollContainerRef}
+      className="min-h-screen bg-slate-950 text-slate-100 overflow-y-auto overflow-x-hidden"
     >
       <StudioHeader
         backToReaderUrl={backToReaderUrl}
@@ -198,200 +211,190 @@ export function SuttaStudioView({
       <Xwrapper>
         <XarrowUpdater
           deps={[
-            phaseIndex,
             studyMode,
             hovered?.kind,
             hovered?.wordId,
             hovered?.kind === 'segment' ? hovered.segmentDomId : '',
             JSON.stringify(activeIndices),
+            visiblePhases.length,
           ]}
         />
 
-        <AnimatePresence mode="popLayout" custom={phaseIndex}>
-          <motion.div
-            key={phaseIndex}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3, ease: 'anticipate' }}
-            className="flex flex-col items-center w-full max-w-5xl"
-          >
-            <LayoutGroup>
-              {blocks.map((block, blockIndex) => {
-                const blockWords = block
-                  .map((id) => currentPhase.paliWords.find((w) => w.id === id))
-                  .filter(Boolean) as typeof currentPhase.paliWords;
-                const englishTokens = englishBlocks[blockIndex] || [];
-                return (
-                  <div key={`block-${blockIndex}`} className="flex flex-col items-center w-full">
-                    <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-16 relative z-10 pt-10 overflow-visible">
-                      {blockWords.map((word) => (
-                        <div key={word.id} className="relative">
-                          <PaliWordEngine
-                            phaseId={phaseId}
-                            wordData={word}
-                            activeIndex={activeIndices[word.id] ?? 0}
-                            studyMode={studyMode}
-                            cycle={cycle}
-                            hovered={hovered}
-                            pinned={pinned}
-                            setHovered={setHovered}
-                            setPinned={setPinned}
-                          />
+        <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 py-8">
+          <LayoutGroup>
+            {visiblePhases.map((phase) => {
+              const phaseId = phase.id;
+              const blocks = resolveBlocks(phase);
+              const englishBlocks = assignEnglishBlocks(phase, blocks);
 
-                          {showRelationArrows &&
-                            word.segments.map((seg, i) => {
-                              // Use segment ID if available, fall back to index-based
-                              const sId = seg.id
-                                ? segmentIdToDomId(phaseId, seg.id)
-                                : segDomId(phaseId, word.id, i);
-                              const focusedSegmentId =
-                                (hovered?.kind === 'segment' && hovered.segmentDomId) || null;
+              return (
+                <section
+                  key={phaseId}
+                  id={phaseId}
+                  className="w-full mb-12"
+                >
+                  {blocks.map((block, blockIdx) => {
+                    const blockWords = block
+                      .map((id) => phase.paliWords.find((w) => w.id === id))
+                      .filter(Boolean) as typeof phase.paliWords;
+                    const englishTokens = englishBlocks[blockIdx] || [];
 
-                              if (!seg.relation) return null;
-                              const isFocused = focusedSegmentId === sId;
-                              const style = RELATION_COLORS[seg.relation.type];
-                              const isOwnership = seg.relation.type === 'ownership';
-                              // Support segment-to-segment or segment-to-word relations
-                              const targetDomIdStr = seg.relation.targetSegmentId
-                                ? segmentIdToDomId(phaseId, seg.relation.targetSegmentId)
-                                : seg.relation.targetWordId
-                                  ? wordDomId(phaseId, seg.relation.targetWordId)
-                                  : null;
-                              if (!targetDomIdStr) return null;
-                              const above = isTargetAbove(sId, targetDomIdStr);
-                              const isArrowHovered = hoveredRelation === sId;
-                              const baseArc = isOwnership
-                                ? 3.0
-                                : seg.relation.type === 'direction'
-                                  ? 2.2
-                                  : 2.0;
-                              const arc = above ? baseArc + 0.6 : baseArc;
-                              const extendCanvas = isOwnership ? 64 : 48;
-                              // pointerEvents: 'none' so SVG canvas doesn't block word hover/click
-                              const canvasStyle = { overflow: 'visible', pointerEvents: 'none' as const };
-                              // Both anchors 'top' so arrow arcs ABOVE words without crossing
-                              const startAnchor = 'top';
-                              const endAnchor = 'top';
+                    return (
+                      <div key={`${phaseId}-block-${blockIdx}`} className="flex flex-col items-center w-full">
+                        <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-16 relative z-10 pt-10 overflow-visible">
+                          {blockWords.map((word) => (
+                            <div key={word.id} id={`${phaseId}-${word.id}`} className="relative">
+                              <PaliWordEngine
+                                phaseId={phaseId}
+                                wordData={word}
+                                activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
+                                studyMode={studyMode}
+                                cycle={(wordId) => cycle(wordId, phaseId)}
+                                hovered={hovered}
+                                pinned={pinned}
+                                setHovered={setHovered}
+                                setPinned={setPinned}
+                              />
 
-                              return (
-                                <Xarrow
-                                  key={`arrow-${sId}`}
-                                  start={sId}
-                                  end={targetDomIdStr}
-                                  color={style.color}
-                                  strokeWidth={isFocused ? 2.2 : 1.2}
-                                  path="smooth"
-                                  curveness={arc}
-                                  _extendSVGcanvas={extendCanvas}
-                                  SVGcanvasStyle={canvasStyle}
-                                  passProps={{
-                                    pointerEvents: 'stroke',
-                                    onMouseEnter: () => setHoveredRelation(sId),
-                                    onMouseLeave: () =>
-                                      setHoveredRelation((current) => (current === sId ? null : current)),
-                                  }}
-                                  dashness={isFocused ? false : { strokeLen: 4, nonStrokeLen: 6 }}
-                                  showHead={true}
-                                  startAnchor={startAnchor}
-                                  endAnchor={endAnchor}
-                                  zIndex={1}
-                                  labels={
-                                    isArrowHovered ? (
-                                      <div
-                                        className={`bg-slate-900 text-[10px] ${style.tailwind} px-2 py-1 border ${style.border} rounded -translate-y-4 shadow-lg pointer-events-none select-none`}
-                                      >
-                                        {RELATION_HOOK[seg.relation.type]}
-                                      </div>
-                                    ) : null
-                                  }
-                                />
-                              );
-                            })}
+                              {showRelationArrows &&
+                                word.segments.map((seg, i) => {
+                                  const sId = seg.id
+                                    ? segmentIdToDomId(phaseId, seg.id)
+                                    : segDomId(phaseId, word.id, i);
+                                  const focusedSegmentId =
+                                    (hovered?.kind === 'segment' && hovered.segmentDomId) || null;
+
+                                  if (!seg.relation) return null;
+                                  // Highlight arrow when hovering source segment OR any segment of target word
+                                  const isFocused = focusedSegmentId === sId ||
+                                    (hovered?.wordId === seg.relation.targetWordId);
+                                  const style = RELATION_COLORS[seg.relation.type];
+                                  const isOwnership = seg.relation.type === 'ownership';
+                                  const targetDomIdStr = seg.relation.targetSegmentId
+                                    ? segmentIdToDomId(phaseId, seg.relation.targetSegmentId)
+                                    : seg.relation.targetWordId
+                                      ? wordDomId(phaseId, seg.relation.targetWordId)
+                                      : null;
+                                  if (!targetDomIdStr) return null;
+                                  const geom = getArrowGeometry(sId, targetDomIdStr);
+                                  const isArrowHovered = hoveredRelation === sId;
+                                  const extendCanvas = isOwnership ? 80 : 60;
+                                  const canvasStyle = { overflow: 'visible', pointerEvents: 'none' as const };
+
+                                  // Anchors: both top for same-row, bottom->top for target-below
+                                  const startAnchor = geom.verticalPos === 'below' ? 'bottom' : 'top';
+                                  const endAnchor = 'top';
+
+                                  // Control point offsets for same-row arrows:
+                                  // CP1 above (negative) = curve arcs up from start
+                                  // CP2 below (positive) = curve descends into endpoint, arrowhead points DOWN
+                                  const arcHeight = geom.verticalPos === 'same'
+                                    ? Math.max(50, Math.min(100, geom.horizontalDist * 0.5))
+                                    : 0;
+                                  const cpy1Offset = -arcHeight;  // First CP above - curve goes up
+                                  const cpy2Offset = arcHeight * 0.2;  // Second CP below - curve descends, arrow points down
+
+                                  // Visual weight: prominent when focused, subtle when not
+                                  const arrowOpacity = isFocused ? 0.9 : 0.4;
+                                  const arrowColor = isFocused ? style.color : style.color + '99'; // Add alpha
+
+                                  return (
+                                    <Xarrow
+                                      key={`arrow-${sId}`}
+                                      start={sId}
+                                      end={targetDomIdStr}
+                                      color={arrowColor}
+                                      strokeWidth={isFocused ? 2 : 1}
+                                      path="smooth"
+                                      curveness={0.8}
+                                      _cpy1Offset={cpy1Offset}
+                                      _cpy2Offset={cpy2Offset}
+                                      _extendSVGcanvas={extendCanvas}
+                                      SVGcanvasStyle={canvasStyle}
+                                      passProps={{
+                                        pointerEvents: 'stroke',
+                                        opacity: arrowOpacity,
+                                        onMouseEnter: () => setHoveredRelation(sId),
+                                        onMouseLeave: () =>
+                                          setHoveredRelation((current) => (current === sId ? null : current)),
+                                      }}
+                                      dashness={isFocused ? false : { strokeLen: 3, nonStrokeLen: 5 }}
+                                      showHead={isFocused && geom.verticalPos !== 'same'}
+                                      headSize={4}
+                                      startAnchor={startAnchor}
+                                      endAnchor={endAnchor}
+                                      zIndex={-1}
+                                      labels={
+                                        isArrowHovered ? (
+                                          <div
+                                            className={`bg-slate-900 text-[10px] ${style.tailwind} px-2 py-1 border ${style.border} rounded -translate-y-4 shadow-lg pointer-events-none select-none`}
+                                          >
+                                            {RELATION_HOOK[seg.relation.type]}
+                                          </div>
+                                        ) : null
+                                      }
+                                    />
+                                  );
+                                })}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
 
-                    {englishVisible && (
-                      <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 w-full pb-8 border-b border-slate-900/50">
-                        {englishTokens.map((item, i) => (
-                          <div key={`${item.id}-${blockIndex}-${i}`} className="relative">
-                            <EnglishWordEngine
-                              phaseId={phaseId}
-                              structure={item}
-                              paliWords={currentPhase.paliWords}
-                              activeIndices={activeIndices}
-                              hovered={hovered}
-                              pinned={pinned}
-                              setHovered={setHovered}
-                              setPinned={setPinned}
-                              cycle={cycle}
-                              ghostOpacity={ghostOpacity}
-                            />
-
-                            {showAlignmentArrows && (item.linkedSegmentId || item.linkedPaliId) && (() => {
-                              // Segment-level linking takes priority over word-level
-                              const startId = item.linkedSegmentId
-                                ? segmentIdToDomId(phaseId, item.linkedSegmentId)
-                                : wordDomId(phaseId, item.linkedPaliId!);
-
-                              // Check if focused via segment or word
-                              const focusedSegmentId = hovered?.kind === 'segment' ? hovered.segmentId : null;
-                              const isFocused = item.linkedSegmentId
-                                ? focusedSegmentId === item.linkedSegmentId
-                                : focusWordId === item.linkedPaliId;
-
-                              return (
-                                <Xarrow
-                                  start={startId}
-                                  end={targetDomId(phaseId, item.id)}
-                                  color={isFocused ? '#34d399' : 'rgba(148,163,184,0.35)'}
-                                  strokeWidth={isFocused ? 2 : 1}
-                                  showHead={false}
-                                  startAnchor="bottom"
-                                  endAnchor="top"
-                                  path="smooth"
-                                  curveness={0.8}
-                                  dashness={isFocused ? false : { strokeLen: 3, nonStrokeLen: 6 }}
-                                  zIndex={0}
+                        {englishVisible && (
+                          <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 w-full pb-8 border-b border-slate-900/50">
+                            {englishTokens.map((item, i) => (
+                              <div key={`${item.id}-${blockIdx}-${i}`} className="relative">
+                                <EnglishWordEngine
+                                  phaseId={phaseId}
+                                  structure={item}
+                                  paliWords={phase.paliWords}
+                                  activeIndices={activeIndices}
+                                  hovered={hovered}
+                                  pinned={pinned}
+                                  setHovered={setHovered}
+                                  setPinned={setPinned}
+                                  cycle={(wordId) => cycle(wordId, phaseId)}
+                                  ghostOpacity={ghostOpacity}
                                 />
-                              );
-                            })()}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </LayoutGroup>
-          </motion.div>
-        </AnimatePresence>
-      </Xwrapper>
 
-      <div className="fixed bottom-10 flex items-center gap-6 z-50 select-none">
-        <button
-          data-interactive="true"
-          onClick={goPrev}
-          disabled={phaseIndex === 0}
-          className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xl"
-          title="Previous (←)"
-        >
-          ←
-        </button>
-        <div className="text-slate-500 font-mono text-sm tracking-widest">
-          {phaseIndex + 1} / {visiblePhases.length}
+                                {showAlignmentArrows && (item.linkedSegmentId || item.linkedPaliId) && (() => {
+                                  const startId = item.linkedSegmentId
+                                    ? segmentIdToDomId(phaseId, item.linkedSegmentId)
+                                    : wordDomId(phaseId, item.linkedPaliId!);
+
+                                  const focusedSegmentId = hovered?.kind === 'segment' ? hovered.segmentId : null;
+                                  const isFocused = item.linkedSegmentId
+                                    ? focusedSegmentId === item.linkedSegmentId
+                                    : focusWordId === item.linkedPaliId;
+
+                                  return (
+                                    <Xarrow
+                                      start={startId}
+                                      end={targetDomId(phaseId, item.id)}
+                                      color={isFocused ? '#34d399' : 'rgba(148,163,184,0.25)'}
+                                      strokeWidth={isFocused ? 1.5 : 0.75}
+                                      showHead={false}
+                                      startAnchor="bottom"
+                                      endAnchor="top"
+                                      path="smooth"
+                                      curveness={0.8}
+                                      dashness={isFocused ? false : { strokeLen: 3, nonStrokeLen: 6 }}
+                                    />
+                                  );
+                                })()}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </section>
+              );
+            })}
+          </LayoutGroup>
         </div>
-        <button
-          data-interactive="true"
-          onClick={goNext}
-          disabled={phaseIndex === visiblePhases.length - 1}
-          className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-xl"
-          title="Next (→)"
-        >
-          →
-        </button>
-      </div>
+      </Xwrapper>
     </div>
   );
 }

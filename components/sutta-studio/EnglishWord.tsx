@@ -33,17 +33,40 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   let paliWordId: string | undefined;
 
   if (structure.linkedPaliId) {
+    // Word-level linking
     paliWordId = structure.linkedPaliId;
     const paliWord = paliWords.find((p) => p.id === structure.linkedPaliId);
     if (paliWord) {
-      const idx = activeIndices[paliWord.id] ?? 0;
+      const idx = activeIndices[`${phaseId}-${paliWord.id}`] ?? 0;
       content = paliWord.senses[idx]?.english ?? '';
       const focusedWordId = pinned?.wordId ?? hovered?.wordId;
       isActive = focusedWordId === paliWord.id;
     }
+  } else if (structure.linkedSegmentId) {
+    // Segment-level linking: find the parent word that contains this segment
+    const parentWord = paliWords.find((word) =>
+      word.segments.some((seg) => seg.id === structure.linkedSegmentId)
+    );
+    if (parentWord) {
+      paliWordId = parentWord.id;
+      const idx = activeIndices[`${phaseId}-${parentWord.id}`] ?? 0;
+      const linkedSegment = parentWord.segments.find((seg) => seg.id === structure.linkedSegmentId);
+      const segmentSenses = linkedSegment?.senses;
+
+      if (segmentSenses && segmentSenses.length > 0) {
+        // 1. Segment has its own senses - use them
+        content = segmentSenses[idx % segmentSenses.length]?.english ?? '';
+      } else {
+        // 2. Fall back to word-level senses (NOT tooltip - word senses contain the translation)
+        content = parentWord.senses[idx % parentWord.senses.length]?.english ?? '';
+      }
+      const focusedWordId = pinned?.wordId ?? hovered?.wordId;
+      isActive = focusedWordId === parentWord.id;
+    }
   } else {
+    // Check for ripple overrides from active senses
     paliWords.forEach((word) => {
-      const idx = activeIndices[word.id] ?? 0;
+      const idx = activeIndices[`${phaseId}-${word.id}`] ?? 0;
       const t = word.senses[idx];
       if (t?.ripples && t.ripples[structure.id]) content = t.ripples[structure.id];
     });
@@ -62,9 +85,9 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   };
 
   const onClick = () => {
-    if (!structure.linkedPaliId) return;
+    if (!paliWordId) return; // Works for both linkedPaliId and linkedSegmentId
     if (hasTextSelection()) return;
-    cycle(structure.linkedPaliId);
+    cycle(paliWordId);
   };
 
   const isGhost = Boolean(structure.isGhost);
@@ -95,7 +118,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
       `}
       style={isGhost ? { opacity: ghostOpacity } : undefined}
       title={
-        structure.linkedPaliId
+        paliWordId
           ? 'Click: rotate meaning'
           : isGhost
             ? 'Ghost word (English scaffolding)'

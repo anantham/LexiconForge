@@ -82,11 +82,11 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
       ],
       englishStructure: [
-        { id: 'e1', linkedPaliId: 'p3' },
-        { id: 'e2', linkedPaliId: 'p2' },
+        { id: 'e1', linkedSegmentId: 'p3s1' },  // Link to 'Bhikkh' root, not 'ave' suffix
+        { id: 'e2', linkedSegmentId: 'p2s1' },  // Link to 'ayaṁ' stem
         { id: 'ghost1', label: 'is the', isGhost: true, ghostKind: 'required' },
-        { id: 'e3', linkedPaliId: 'p1' },
-        { id: 'e4', linkedPaliId: 'p4' },
+        { id: 'e3', linkedSegmentId: 'p1s1' },  // Link to 'Ek' root, not 'āyano' suffix
+        { id: 'e4', linkedSegmentId: 'p4s1' },  // Link to 'maggo' stem
       ],
     },
     {
@@ -143,13 +143,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e5', linkedPaliId: 'p6' },
+        { id: 'e5', linkedSegmentId: 'p6s2' },  // Link to 'suddhi' root, not suffix
         { id: 'g2', label: 'of', isGhost: true, ghostKind: 'required' },
-        { id: 'e6', linkedPaliId: 'p5' },
+        { id: 'e6', linkedSegmentId: 'p5s1' },  // Link to 'satt' root, not ānaṁ suffix
       ],
     },
     {
       id: 'phase-3',
+      layoutBlocks: [['p7', 'p8']],  // Both words on same line
       paliWords: [
         {
           id: 'p7',
@@ -187,13 +188,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e7', linkedPaliId: 'p8' },
+        { id: 'e7', linkedSegmentId: 'p8s3' },  // Link to 'kkam' root (stepping)
         { id: 'g2', label: 'of', isGhost: true, ghostKind: 'required' },
-        { id: 'e8', linkedPaliId: 'p7' },
+        { id: 'e8', linkedSegmentId: 'p7s1' },  // Link to 'soka' root, not ānaṁ suffix
       ],
     },
     {
       id: 'phase-4',
+      layoutBlocks: [['p9', 'p10']],  // Both words on same line above English
       paliWords: [
         {
           id: 'p9',
@@ -231,13 +233,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e9', linkedPaliId: 'p10' },
+        { id: 'e9', linkedSegmentId: 'p10s1' },  // Link to 'atthaṅ' root, not āya suffix
         { id: 'g2', label: 'of', isGhost: true, ghostKind: 'required' },
-        { id: 'e10', linkedPaliId: 'p9' },
+        { id: 'e10', linkedSegmentId: 'p9s1' },  // Link to 'dukkha' root, not ānaṁ suffix
       ],
     },
     {
       id: 'phase-5',
+      layoutBlocks: [['p11', 'p12']],  // Both words on same line
       paliWords: [
         {
           id: 'p11',
@@ -273,12 +276,13 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e11', linkedPaliId: 'p12' },
-        { id: 'e12', linkedPaliId: 'p11' },
+        { id: 'e11', linkedSegmentId: 'p12s2' },  // Link to 'gam' root, not āya suffix
+        { id: 'e12', linkedSegmentId: 'p11s1' },  // Link to 'ñāya' root, not ssa suffix
       ],
     },
     {
       id: 'phase-6',
+      layoutBlocks: [['p13', 'p14']],  // Both words on same line
       paliWords: [
         {
           id: 'p13',
@@ -314,8 +318,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
       ],
       englishStructure: [
         { id: 'g1', label: 'for the', isGhost: true, ghostKind: 'required' },
-        { id: 'e13', linkedPaliId: 'p14' },
-        { id: 'e14', linkedPaliId: 'p13' },
+        { id: 'e13', linkedSegmentId: 'p14s1' },  // Link to 'sacchi' root, not āya suffix
+        { id: 'e14', linkedSegmentId: 'p13s1' },  // Link to 'nibbān' root, not assa suffix
       ],
     },
     {
@@ -350,9 +354,9 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         },
       ],
       englishStructure: [
-        { id: 'e15', linkedPaliId: 'p15' },
-        { id: 'e16', linkedPaliId: 'p16' },
-        { id: 'e17', linkedPaliId: 'p17' },
+        { id: 'e15', linkedPaliId: 'p15' },  // Compound: yad+idaṁ → "namely"
+        { id: 'e16', linkedSegmentId: 'p16s1' },  // Single segment: cattāro
+        { id: 'e17', linkedPaliId: 'p17' },  // Compound: sati+paṭṭhānā → "foundations of mindfulness"
       ],
     },
   ],
