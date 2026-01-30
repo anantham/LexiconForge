@@ -961,7 +961,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'ab1s1', text: 'vi', type: 'prefix', tooltips: ['Vi: Away / Out / Apart', 'Vineti = to lead away, remove, train'] },
             { id: 'ab1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead (vi-nī = lead away)', 'Present stem vine- influences form'] },
-            { id: 'ab1s3', text: 'ya', type: 'suffix', tooltips: ['⚡ THIS CHANGES EVERYTHING:', '"Having removed" vs "Removing" vs "So as to remove"', '• "Already removed" → practice requires purity first', '• "Removing" → observation IS the removing', '• "So as to remove" → this is the purpose', '✓ Consensus: observation itself removes', 'You don\'t purify then practice — practice IS purification'] },
+            { id: 'ab1s3', text: 'ya', type: 'suffix', tooltips: ['⚡ Observation IS purification', 'This suffix (-ya) can mean:', '• "Having removed" → must be pure first', '• "Removing" → observing does the removing', '• "So as to remove" → this is the goal', '✓ You don\'t prepare then practice — practice IS the work'] },
           ],
           senses: [
             { english: 'putting aside', nuance: 'Gentle' },
