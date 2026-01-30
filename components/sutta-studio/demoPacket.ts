@@ -33,7 +33,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'a1',
           wordClass: 'function',
           segments: [
-            { id: 'a1s1', text: 'Evaṁ', type: 'stem', tooltips: ['Eva: Thus / In this way', 'Indeclinable particle'] },
+            { id: 'a1s1', text: 'Evaṁ', type: 'stem', tooltips: ['📜 "Thus" / "In this way"', 'Opening formula word — never changes'] },
           ],
           senses: [{ english: 'Thus', nuance: 'Formulaic' }],
         },
@@ -156,7 +156,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'd1s1', text: 'Kammāsa', type: 'root', tooltips: ['Spotted / Variegated / Speckled', 'Refers to King Kammāsapāda ("Speckled Foot")', 'A cannibal ogre-king in Jātaka legend'] },
-            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['⚖️ Two readings:', '• Damma (√dam): "Taming" — where the ogre was tamed', '• Dhamma: "Teaching" — the Kuru code of conduct', 'Both work: taming through teaching'] },
+            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['⚖️ Damma or Dhamma?', '• Damma = "Taming" — where the ogre was tamed', '• Dhamma = "Teaching" — the Kuru way', 'Both work: taming through teaching'] },
           ],
           senses: [
             { english: 'Kammāsadhamma', nuance: 'Place of Taming' },
@@ -167,7 +167,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'd2',
           wordClass: 'function',
           segments: [
-            { id: 'd2s1', text: 'nāma', type: 'stem', tooltips: ['Name / Called', 'Indeclinable'] },
+            { id: 'd2s1', text: 'nāma', type: 'stem', tooltips: ['🏷️ "Named" / "Called"', 'Always this form — never changes'] },
           ],
           senses: [
             { english: 'named', nuance: 'Called' },
