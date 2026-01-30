@@ -33,7 +33,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'a1',
           wordClass: 'function',
           segments: [
-            { id: 'a1s1', text: 'Evaṁ', type: 'stem', tooltips: ['📜 "Thus" / "In this way"', 'Opening formula word — never changes'] },
+            { id: 'a1s1', text: 'Evaṁ', type: 'stem', tooltips: ['📜 "Thus" / "In this way"', 'Indeclinable — never changes form'] },
           ],
           senses: [{ english: 'Thus', nuance: 'Formulaic' }],
         },
@@ -167,7 +167,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           id: 'd2',
           wordClass: 'function',
           segments: [
-            { id: 'd2s1', text: 'nāma', type: 'stem', tooltips: ['🏷️ "Named" / "Called"', 'Always this form — never changes'] },
+            { id: 'd2s1', text: 'nāma', type: 'stem', tooltips: ['🏷️ "Named" / "Called"', 'Indeclinable — never changes form'] },
           ],
           senses: [
             { english: 'named', nuance: 'Called' },
