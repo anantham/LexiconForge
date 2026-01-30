@@ -504,7 +504,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               id: 'p5s2',
               text: 'ānaṁ',
               type: 'suffix',
-              tooltips: ['Function: Marks the Group/Owner'],
+              tooltips: ['🔗 Shows who it belongs to'],
               relation: { targetWordId: 'p6', type: 'ownership', label: 'Belongs To' },
             },
           ],
@@ -520,7 +520,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'p6s1', text: 'vi', type: 'prefix', tooltips: ['Intensive'] },
             { id: 'p6s2', text: 'suddhi', type: 'root', tooltips: ['✨ √sudh: Purity'] },
-            { id: 'p6s3', text: 'yā', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p6s3', text: 'yā', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
           ],
           senses: [
             { english: 'purification', nuance: 'Cleaning out' },
@@ -552,7 +552,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               id: 'p7s3',
               text: 'ānaṁ',
               type: 'suffix',
-              tooltips: ['Function: Marks the Object'],
+              tooltips: ['🎯 Points to what's being acted on'],
               relation: { targetWordId: 'p8', type: 'direction', label: 'Target Of' },
             },
           ],
@@ -568,7 +568,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
             { id: 'p8s1', text: 'sam', type: 'prefix', tooltips: ['Together'] },
             { id: 'p8s2', text: 'ati', type: 'prefix', tooltips: ['Over / Beyond'] },
             { id: 'p8s3', text: 'kkam', type: 'root', tooltips: ['🌊 √kam: Stepping / Crossing over'] },
-            { id: 'p8s4', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p8s4', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
           ],
           senses: [
             { english: 'surmounting', nuance: 'Climbing over' },
@@ -600,7 +600,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               id: 'p9s3',
               text: 'ānaṁ',
               type: 'suffix',
-              tooltips: ['Function: Marks the Object'],
+              tooltips: ['🎯 Points to what's being acted on'],
               relation: { targetWordId: 'p10', type: 'direction', label: 'Target Of' },
             },
           ],
@@ -615,7 +615,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'p10s1', text: 'atthaṅ', type: 'root', tooltips: ['Attha: Home / Setting'] },
             { id: 'p10s2', text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
-            { id: 'p10s3', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p10s3', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
           ],
           senses: [
             { english: 'disappearance', nuance: 'Going home' },
@@ -644,7 +644,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               id: 'p11s2',
               text: 'ssa',
               type: 'suffix',
-              tooltips: ['Function: Marks ownership'],
+              tooltips: ['🔗 Shows whose it is'],
               relation: { targetWordId: 'p12', type: 'ownership', label: 'Belongs To' },
             },
           ],
@@ -659,7 +659,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'p12s1', text: 'adhi', type: 'prefix', tooltips: ['Onto / Towards'] },
             { id: 'p12s2', text: 'gam', type: 'root', tooltips: ['Gama: Going'] },
-            { id: 'p12s3', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p12s3', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
           ],
           senses: [
             { english: 'attainment', nuance: 'Reaching' },
@@ -686,7 +686,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
               id: 'p13s2',
               text: 'assa',
               type: 'suffix',
-              tooltips: ['Function: Marks the Object'],
+              tooltips: ['🎯 Points to what's being acted on'],
               relation: { targetWordId: 'p14', type: 'direction', label: 'Target Of' },
             },
           ],
@@ -704,7 +704,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           segments: [
             { id: 'p14s1', text: 'sacchi', type: 'root', tooltips: ['👀 With own eyes / Directly'] },
             { id: 'p14s2', text: 'kiriy', type: 'root', tooltips: ['Karo: Making / Doing'] },
-            { id: 'p14s3', text: 'āya', type: 'suffix', tooltips: ['Function: For the purpose of'] },
+            { id: 'p14s3', text: 'āya', type: 'suffix', tooltips: ['🎯 "For the sake of..."'] },
           ],
           senses: [
             { english: 'realization', nuance: 'Making real' },
