@@ -156,7 +156,7 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           segments: [
             { id: 'd1s1', text: 'Kammāsa', type: 'root', tooltips: ['Spotted / Variegated / Speckled', 'Refers to King Kammāsapāda ("Speckled Foot")', 'A cannibal ogre-king in Jātaka legend'] },
-            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['DEBATE: Damma vs Dhamma', '• Damma (√dam): "Taming" - where the ogre was tamed', '• Dhamma: "Teaching" - the Kuru code of conduct', 'Both converge: taming accomplished through teaching', 'The -aṁ ending names the place'] },
+            { id: 'd1s2', text: 'dhammaṁ', type: 'root', tooltips: ['⚖️ Two readings:', '• Damma (√dam): "Taming" — where the ogre was tamed', '• Dhamma: "Teaching" — the Kuru code of conduct', 'Both work: taming through teaching'] },
           ],
           senses: [
             { english: 'Kammāsadhamma', nuance: 'Place of Taming' },
