@@ -31,6 +31,15 @@ type BenchIndexEntry = {
   runId: string;
   provider?: string | null;
   model?: string | null;
+  durationMsTotal?: number | null;
+  costUsdTotal?: number | null;
+  tokensPromptTotal?: number | null;
+  tokensCompletionTotal?: number | null;
+  tokensTotal?: number | null;
+  rowCount?: number | null;
+  missingDurationCount?: number | null;
+  missingCostCount?: number | null;
+  missingTokenCount?: number | null;
   path: string;
   label?: string | null;
 };
@@ -39,6 +48,39 @@ type BenchIndexPayload = {
   generatedAt: string;
   latestTimestamp?: string | null;
   entries: BenchIndexEntry[];
+};
+
+type BenchProgressPointer = {
+  updatedAt: string;
+  status: 'running' | 'complete' | 'error';
+  progressPath: string;
+  timestamp: string;
+  stepsCompleted: number;
+  stepsTotal: number;
+  percent: number;
+  errors?: Array<{
+    at: string;
+    runId: string;
+    pass: string | null;
+    stage: string | null;
+    message: string;
+    chunkIndex?: number | null;
+    chunkCount?: number | null;
+  }>;
+  current?: {
+    runId: string;
+    model: string | null;
+    provider: string | null;
+    pass: string | null;
+    stage: string | null;
+    passIndex: number | null;
+    runIndex: number | null;
+    repeatIndex: number | null;
+    chunkIndex: number | null;
+    chunkCount: number | null;
+  } | null;
+  message?: string | null;
+  error?: string | null;
 };
 
 const buildLabel = (entry: BenchIndexEntry) => {
@@ -52,6 +94,7 @@ const sortEntries = (entries: BenchIndexEntry[]) =>
   [...entries].sort((a, b) => {
     const timeCmp = b.timestamp.localeCompare(a.timestamp);
     if (timeCmp !== 0) return timeCmp;
+    if (a.kind !== b.kind) return a.kind === 'golden' ? -1 : 1;
     return a.runId.localeCompare(b.runId);
   });
 
@@ -82,10 +125,10 @@ const PhaseList: React.FC<{ phases: SkeletonPhase[] }> = ({ phases }) => {
 
 const BenchCard: React.FC<{
   entry: BenchEntry | null;
-  entries: BenchEntry[];
+  options: BenchIndexEntry[];
   value: string;
   onChange: (value: string) => void;
-}> = ({ entry, entries, value, onChange }) => {
+}> = ({ entry, options, value, onChange }) => {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-2">
@@ -97,9 +140,9 @@ const BenchCard: React.FC<{
           value={value}
           onChange={(event) => onChange(event.target.value)}
         >
-          {entries.map((item) => (
+          {options.map((item) => (
             <option key={item.id} value={item.id}>
-              {item.label}
+              {buildLabel(item)}
             </option>
           ))}
         </select>
@@ -135,6 +178,8 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = React.useState<string | null>(null);
+  const [progress, setProgress] = React.useState<BenchProgressPointer | null>(null);
+  const [progressError, setProgressError] = React.useState<string | null>(null);
 
   const fetchIndex = React.useCallback(async () => {
     setIsLoading(true);
@@ -161,6 +206,43 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   React.useEffect(() => {
     void fetchIndex();
   }, [fetchIndex]);
+
+  React.useEffect(() => {
+    let active = true;
+    const fetchProgress = async () => {
+      try {
+        const response = await fetch(`/reports/sutta-studio/active-run.json?ts=${Date.now()}`, {
+          cache: 'no-store',
+        });
+        if (!response.ok) {
+          if (response.status === 404) {
+            if (active) {
+              setProgress(null);
+              setProgressError(null);
+            }
+            return;
+          }
+          throw new Error(`Failed to load progress: ${response.status}`);
+        }
+        const payload = (await response.json()) as BenchProgressPointer;
+        if (active) {
+          setProgress(payload);
+          setProgressError(null);
+        }
+      } catch (err: any) {
+        if (active) {
+          setProgressError(err?.message || 'Failed to load progress.');
+        }
+      }
+    };
+
+    void fetchProgress();
+    const interval = window.setInterval(fetchProgress, 3000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!entries.length) {
@@ -276,6 +358,74 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
           </div>
         </header>
 
+        {progress ? (
+          <div className="rounded border border-gray-200 bg-white p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="text-sm font-semibold text-gray-700">
+                Benchmark {progress.status === 'running' ? 'running' : progress.status}
+              </div>
+              <div className="text-xs text-gray-500">
+                Updated {new Date(progress.updatedAt).toLocaleTimeString()}
+              </div>
+            </div>
+            <div className="mt-2 h-2 w-full rounded bg-gray-200">
+              <div
+                className="h-2 rounded bg-emerald-500"
+                style={{ width: `${Math.min(100, Math.max(0, progress.percent))}%` }}
+              />
+            </div>
+            <div className="mt-2 text-xs text-gray-600">
+              {progress.stepsCompleted} / {progress.stepsTotal} steps · {progress.percent}%
+            </div>
+            {progress.current && (
+              <div className="mt-2 text-sm text-gray-700">
+                {progress.current.runId} · {progress.current.pass}
+                {progress.current.chunkCount !== null && progress.current.chunkIndex !== null
+                  ? ` · chunk ${progress.current.chunkIndex + 1}/${progress.current.chunkCount}`
+                  : ''}
+              </div>
+            )}
+            {progress.message && (
+              <div className="mt-1 text-xs text-gray-500">{progress.message}</div>
+            )}
+            {progress.error && (
+              <div className="mt-2 text-xs text-red-600">{progress.error}</div>
+            )}
+            {progress.errors?.length ? (
+              <div className="mt-3 rounded border border-red-100 bg-red-50 p-3">
+                <div className="text-xs font-semibold text-red-700">
+                  Errors ({progress.errors.length})
+                </div>
+                <div className="mt-2 max-h-40 space-y-1 overflow-auto text-xs text-red-700">
+                  {progress.errors.map((err, index) => {
+                    const chunkInfo =
+                      err.chunkIndex !== null &&
+                      err.chunkIndex !== undefined &&
+                      err.chunkCount !== null &&
+                      err.chunkCount !== undefined
+                        ? ` · chunk ${err.chunkIndex + 1}/${err.chunkCount}`
+                        : '';
+                    const passInfo = err.pass ? ` · ${err.pass}` : '';
+                    const stageInfo = err.stage ? ` · ${err.stage}` : '';
+                    return (
+                      <div key={`${err.at}-${index}`}>
+                        [{new Date(err.at).toLocaleTimeString()}] {err.runId}
+                        {passInfo}
+                        {stageInfo}
+                        {chunkInfo}: {err.message}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : progressError ? (
+          <div className="rounded border border-red-200 bg-white p-4 text-sm text-red-600">
+            {progressError}
+          </div>
+        ) : null}
+
         {isLoading ? (
           <div className="rounded border border-gray-200 bg-white p-6 text-sm text-gray-600">
             Loading benchmark index...
@@ -291,8 +441,8 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <BenchCard entry={leftEntry} entries={entries} value={leftId} onChange={setLeftId} />
-            <BenchCard entry={rightEntry} entries={entries} value={rightId} onChange={setRightId} />
+            <BenchCard entry={leftEntry} options={entries} value={leftId} onChange={setLeftId} />
+            <BenchCard entry={rightEntry} options={entries} value={rightId} onChange={setRightId} />
           </div>
         )}
       </div>

@@ -460,6 +460,15 @@
 - Why: Keep top progress label consistent with ready/total counts and remove unused phase resolver import.
 - Details: Fallback now renders "Phase {readyPhases}/{totalPhases}" directly with clamped ready count; cleaned unused import in studio view.
 - Tests: Not run (local).
+2026-01-30 07:36 UTC - Sutta Studio pass runner + benchmark harness (complete)
+- Files: services/suttaStudioPromptVersion.ts:1; services/suttaStudioLLM.ts:1-149; services/suttaStudioPassPrompts.ts:1-706; services/suttaStudioPassRunners.ts:1-584; services/suttaStudioCompiler.ts:56,65; scripts/sutta-studio/benchmark.ts:1-594; scripts/sutta-studio/benchmark-config.ts:1-74; docs/benchmarks/sutta-studio.md:1-77; docs/roadmaps/REFACTOR_CANDIDATES.md:18-20; docs/WORKLOG.md
+- Why: Provide per-pass benchmarking with JSON/CSV telemetry plus reusable pass runners and prompt helpers.
+- Details:
+  - Added shared prompt+schema module and LLM caller helper for pass-level benchmarking.
+  - Added per-pass runner module (skeleton/anatomist/lexicographer/weaver/typesetter/morphology) with injectable LLM caller.
+  - Added benchmark script + config to run passes and write `reports/sutta-studio/<timestamp>/metrics.json|csv`.
+  - Documented benchmark usage/fields and logged new >300 LOC files as refactor candidates.
+- Tests: Not run (not requested).
 2026-01-28 10:18 UTC - Add compiler throttling between LLM calls (in progress)
 - Files: services/suttaStudioCompiler.ts:38, 278-311, 448-498, 714-879; docs/WORKLOG.md
 - Why: Reduce bursty LLM traffic and lower the chance of 429s during multi-phase compilation.
@@ -475,4 +484,138 @@
   - Added Anatomist JSON schema, phase state envelope, prompt builder, and compiler call (structured outputs).
   - Use anatomist segments to override phase output and skip morphology when anatomist succeeds.
   - Bumped prompt version to v7 to invalidate cached packets.
+- Tests: Not run (not requested).
+2026-01-30 10:45 UTC - Sutta Studio pass runner + benchmark harness (starting)
+- Status: Starting
+- Task: Add per-pass runners (skeleton/anatomist/lexico/weaver/typesetter/morph) with injectable LLM caller, plus JSON/CSV benchmark outputs.
+- Files likely: services/suttaStudioCompiler.ts; services/suttaStudioPassRunners.ts (new); scripts/sutta-studio/benchmark.ts (new); scripts/sutta-studio/benchmark-config.ts (new); tests/sutta-studio/* (new); test-fixtures/sutta-studio/* (new); docs/benchmarks/sutta-studio.md (new); docs/WORKLOG.md
+- Notes: Will add line-number details once edits land.
+2026-01-30 10:45 UTC - Sutta Studio pass runner + benchmark harness (starting)
+- Status: Starting
+- Task: Add per-pass runners (skeleton/anatomist/lexico/weaver/typesetter/morph) with injectable LLM caller, plus JSON/CSV benchmark outputs.
+- Files likely: services/suttaStudioCompiler.ts; services/suttaStudioPassRunners.ts (new); scripts/sutta-studio/benchmark.ts (new); scripts/sutta-studio/benchmark-config.ts (new); tests/sutta-studio/* (new); test-fixtures/sutta-studio/* (new); docs/benchmarks/sutta-studio.md (new); docs/WORKLOG.md
+- Notes: Will add line-number details once edits land.
+2026-01-30 08:03 UTC - Skeleton-only benchmark outputs + repeat runs
+- Files: scripts/sutta-studio/benchmark.ts:13-739; test-fixtures/sutta-studio-golden-data.json:6-40; docs/benchmarks/sutta-studio.md:30-75; docs/WORKLOG.md
+- Why: Capture skeleton outputs for manual diffing and enable repeated runs per model.
+- Details:
+  - Added skeleton fixture parsing with fallback to phase1+phase2 segments and recorded skeleton source metadata.
+  - Wrote skeleton golden baseline + per-run chunk/aggregate outputs under `reports/sutta-studio/<timestamp>/outputs/`.
+  - Added repeatRuns and captureOutputs metadata to metrics payload.
+  - Documented new config knobs and output folder layout.
+- Tests: Not run (not requested).
+2026-01-30 09:03 UTC - Skeleton benchmark run (OpenRouter models) + script fixes
+- Files: scripts/sutta-studio/benchmark.ts:1-746; scripts/sutta-studio/benchmark-config.ts:1-145; services/suttaStudioPassRunners.ts:1-60; docs/WORKLOG.md
+- Why: Run manual-diff benchmark against multiple OpenRouter models without Vite-only imports.
+- Details:
+  - Added direct OpenRouter LLM caller in benchmark script and injected it into all pass runners to avoid loading translator prompt dependencies.
+  - Added a missing loop-closing brace before metrics write to fix a parse error.
+  - Removed session default settings import; added minimal BASE_SETTINGS to avoid `.md` import chain.
+  - Updated benchmark config with OpenRouter model list (Gemini 3 Flash, Gemini 2.5 Flash, Kimi K2/K2.5, GLM 4.7/4.7 Flash, DeepSeek v3.2).
+  - Benchmark output written to `reports/sutta-studio/2026-01-30T08-56-47-761Z/` (metrics + outputs).
+- Tests: `./node_modules/.bin/tsx scripts/sutta-studio/benchmark.ts`
+2026-01-30 09:43 UTC - Add Sutta Studio benchmark viewer route
+- Files: App.tsx:1-22; components/bench/SuttaStudioBenchmarkView.tsx:1-203; docs/WORKLOG.md
+- Why: Provide a minimal side-by-side viewer for skeleton aggregate outputs with golden baseline.
+- Details:
+  - Added `/bench/sutta-studio` route in App to render the benchmark viewer.
+  - Viewer loads `reports/sutta-studio/**/outputs/**/skeleton-aggregate.json` plus `skeleton-golden.json` via `import.meta.glob`.
+  - Minimal UI with two dropdowns and plain cards listing phases/segments.
+- Tests: Not run (UI route only).
+2026-01-30 15:40 UTC - Add benchmark index + runtime refresh for Sutta Studio bench
+- Files: scripts/sutta-studio/benchmark.ts; components/bench/SuttaStudioBenchmarkView.tsx; docs/benchmarks/sutta-studio.md
+- Why: Avoid Vite import.meta.glob cache; allow new benchmark runs to appear in /bench/sutta-studio without dev-server restart.
+- Details:
+  - Benchmark now writes reports/sutta-studio/index.json by scanning outputs for skeleton aggregates + golden baselines.
+  - Bench view fetches the index at runtime with a Refresh button and lazy-loads selected outputs.
+  - Docs updated to mention index.json and live refresh behavior.
+- Tests: Not run (not requested).
+2026-01-30 16:10 UTC - Add per-run cost/time summaries to benchmark index
+- Files: scripts/sutta-studio/benchmark.ts; components/bench/SuttaStudioBenchmarkView.tsx; docs/benchmarks/sutta-studio.md
+- Why: Provide run-level totals in reports/sutta-studio/index.json for future UI rollups.
+- Details:
+  - Index builder now reads metrics.json and aggregates duration/cost/token totals per run.
+  - Summaries avoid double-counting by using skeleton chunk rows + pass rows (excluding aggregate rows).
+  - Bench view index types updated; docs mention summary fields.
+- Tests: Not run (not requested).
+
+2026-01-30 16:35 UTC - Add live benchmark progress tracking
+- Files: scripts/sutta-studio/benchmark.ts:150,358,625-1280; components/bench/SuttaStudioBenchmarkView.tsx:171,204,351; docs/benchmarks/sutta-studio.md:42-63
+- Why: Surface per-model/pass/chunk progress during long benchmark runs.
+- Details:
+  - Benchmark writes progress snapshots to reports/sutta-studio/<timestamp>/progress.json and a root active-run.json pointer.
+  - Bench UI polls active-run.json and renders a live progress bar with current run/pass/chunk.
+  - Progress totals include per-chunk skeleton steps to reflect chunk-level work.
+- Tests: Not run (not requested).
+2026-01-30 16:48 UTC - Limit benchmark models to two for cheaper runs
+- Files: scripts/sutta-studio/benchmark-config.ts:36-90
+- Why: Reduce token spend while iterating on benchmark workflow.
+- Details:
+  - Kept only openrouter-gemini-3-flash and openrouter-kimi-k2.5 in BENCHMARK_CONFIG.runs.
+  - Temporarily removed other OpenRouter models from the run list.
+- Tests: Not run (not requested).
+2026-01-30 16:12 UTC - Fix benchmark runner try/catch block
+- Files: scripts/sutta-studio/benchmark.ts:1274-1276
+- Why: tsx build failed with “Unexpected catch” due to missing try block closure.
+- Details:
+  - Added missing closing brace before the catch block in runBenchmark().
+- Tests: Running benchmark (in progress).
+
+2026-01-30 16:52 UTC - Incrementally refresh benchmark index during runs
+- Files: scripts/sutta-studio/benchmark.ts:659,842
+- Why: Allow /bench/sutta-studio to show partial results while a run is still executing.
+- Details:
+  - Write index.json after skeleton-golden is created and after each skeleton-aggregate output.
+- Tests: Not run (not requested).
+
+2026-01-30 16:58 UTC - Fast benchmark mode (skeleton-only, single repeat)
+- Files: scripts/sutta-studio/benchmark-config.ts:24-33
+- Why: Speed up experimental loops while keeping 2-model coverage.
+- Details:
+  - repeatRuns set to 1
+  - passes limited to ['skeleton']
+- Tests: Not run (not requested).
+2026-01-30 17:02 UTC - Fix bench dropdown labels for index-driven options
+- Files: components/bench/SuttaStudioBenchmarkView.tsx:72-117,388-389
+- Why: Dropdown options were blank because BenchCard expected BenchEntry labels while receiving index entries.
+- Details:
+  - BenchCard now accepts BenchIndexEntry options and uses buildLabel() for option text.
+- Tests: Not run (not requested).
+
+2026-01-30 17:10 UTC - Sort benchmark dropdown by newest timestamp
+- Files: components/bench/SuttaStudioBenchmarkView.tsx:45-51
+- Why: Make recent runs easier to select in the bench dropdowns.
+- Details:
+  - Sorting now prioritizes newest timestamps, then golden entries, then runId.
+- Tests: Not run (not requested).
+
+2026-01-30 17:28 UTC - Add demo-based skeleton map + generator
+- Files: test-fixtures/sutta-studio-demo-map.json; scripts/sutta-studio/generate-golden-from-demo.ts; test-fixtures/sutta-studio-golden-from-demo.json
+- Why: Create a golden skeleton fixture derived from the demo packet with explicit phase-to-segment mapping.
+- Details:
+  - Added demo→segment mapping for mn10:1.1–2.6 (merging demo sub-phases that share a single canonical segment).
+  - Generator reads the mapping + base fixture and writes a filtered golden file.
+- Tests: Ran `./node_modules/.bin/tsx scripts/sutta-studio/generate-golden-from-demo.ts`.
+
+2026-01-30 17:34 UTC - Point benchmark fixture to demo-derived golden
+- Files: scripts/sutta-studio/benchmark-config.ts:18-23
+- Why: Use demo-derived golden fixture for skeleton benchmarking.
+- Details:
+  - fixture.path now points to test-fixtures/sutta-studio-golden-from-demo.json
+- Tests: Not run (not requested).
+
+2026-01-30 17:42 UTC - Align skeleton prompt + example to demo-derived golden
+- Files: config/suttaStudioPromptContext.ts:8-27; config/suttaStudioExamples.ts:6-64
+- Why: Reduce over-grouping and match demo-derived golden expectations (mostly one segment per phase).
+- Details:
+  - Skeleton guidance now defaults to one segment per phase and explicitly avoids merging response/transition and benefit lines.
+  - Skeleton example updated to show separate phases for 1.3/1.4/1.5/1.6 and 2.2–2.6.
+- Tests: Not run (not requested).
+2026-01-30 12:57 UTC - Add retries + stacked errors for Sutta Studio benchmark (in progress)
+- Files: scripts/sutta-studio/benchmark.ts:367-568, 706-903, 1002-1315, 1348-1358; components/bench/SuttaStudioBenchmarkView.tsx:53-84, 361-421
+- Why: Retry transient 429/5xx failures and surface all errors in the bench UI without digging into files.
+- Details:
+  - Added retry/backoff with Retry-After support for OpenRouter calls; network/timeouts retry once.
+  - Progress state now accumulates per-chunk/pass errors and writes them to active-run.json.
+  - Bench UI shows a stacked error list with timestamps/run/pass/chunk context.
 - Tests: Not run (not requested).
