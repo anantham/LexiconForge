@@ -38,8 +38,8 @@ Replace the carousel with a **vertically scrollable stack** of all phases.
 
 **Negative:**
 - More content rendered (mitigated by lazy loading)
-- Cross-phase arrows add complexity
 - Loss of "focused" single-phase view
+- Refrain colors require consistent palette management
 
 ---
 
@@ -80,21 +80,34 @@ useEffect(() => {
 }, []);
 ```
 
-## Phase 2: Cross-Phase Relation Arrows
-**Goal:** Show Pali-to-Pali connections across phases
+## Phase 2: Refrain Colors (Replaces Cross-Phase Arrows)
+**Goal:** Visually mark repeated phrases/refrains with consistent colors
 
-### 2.1 Track all relation targets globally
-- Build a map of `segmentId → targetWordId` across all phases
-- Identify cross-phase connections
+### Why not arrows?
+Cross-phase arrows were considered but rejected:
+- Most repetitions are formulaic (Bhagavā, bhikkhu) — arrows add clutter, not insight
+- Arrows require viewport tracking and complex rendering
+- Sutta structure is *rhythmic* — color captures this better
 
-### 2.2 Render cross-phase arrows on hover
-- When hovering a word, find all related words in other phases
-- Draw Xarrows connecting them
-- Use different styling (e.g., longer dash, lower opacity)
+### 2.1 Define refrain palette
+| Refrain | Color | Used for |
+|---------|-------|----------|
+| bhikkhu | blue | Addressing the monks |
+| Bhagavā | gold | The Buddha speaking |
+| ātāpī sampajāno satimā | green | "Ardent, aware, mindful" formula |
+| vineyya loke abhijjhādomanassaṁ | purple | "Removing covetousness" refrain |
+| kāye/vedanāsu/citte/dhammesu | teal | The four objects |
 
-### 2.3 Handle viewport visibility
-- Only render arrows when both endpoints are in viewport
-- Use Intersection Observer to track visible phases
+### 2.2 Add `refrainId` to data model
+```typescript
+// In PaliWord or EnglishToken
+refrainId?: string;  // e.g., "ardent-formula", "removing-refrain"
+```
+
+### 2.3 Render with consistent colors
+- Words with same `refrainId` get same color class
+- Creates visual rhythm as you scroll
+- No hover/arrow complexity needed
 
 ## Phase 3: Progress Indicator
 **Goal:** Show scroll progress, visible only while scrolling
@@ -164,7 +177,7 @@ For the 7-phase demo:
 - [x] Phase 1.2: Render phases vertically
 - [x] Phase 1.3: Add word-level IDs
 - [x] Phase 1.4: Hash scroll-to on load
-- [ ] Phase 2: Cross-phase arrows (on hover)
+- [ ] Phase 2: Refrain colors (replaces cross-phase arrows)
 - [ ] Phase 3: Progress indicator
 - [ ] Phase 4: Remove context anchors from demo
 - [ ] Phase 5: Lazy loading (production only)
