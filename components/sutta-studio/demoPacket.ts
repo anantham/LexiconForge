@@ -6,8 +6,8 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
   canonicalSegments: [],
   citations: [],
   progress: {
-    totalPhases: 20,
-    readyPhases: 20,
+    totalPhases: 30,
+    readyPhases: 30,
     state: 'complete',
   },
   renderDefaults: {
@@ -913,15 +913,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'formula-ardent',
           segments: [
-            { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn / Heat', 'Ardor / Energy'] },
-            { id: 'aa1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has...'] },
+            { id: 'aa1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn / Heat', 'Vedic tapas = ascetic heat', 'Buddhist inversion:', '• Not self-mortification', '• But burning of defilements', '= Right Effort (sammā-vāyāma)', 'The "fuel" of the practice'] },
+            { id: 'aa1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has ardor', 'Prevents sinking into lethargy'] },
           ],
           senses: [
-            { english: 'ardent', nuance: 'On fire' },
-            { english: 'diligent', nuance: 'Steady effort' },
-            { english: 'burning', nuance: 'Heat of practice' },
+            { english: 'ardent', nuance: 'Burning effort' },
+            { english: 'with heat', nuance: 'Transformative fire' },
+            { english: 'diligent', nuance: 'Steady energy' },
             { english: 'keen', nuance: 'Sharp attention' },
-            { english: 'wholehearted', nuance: 'Full commitment' },
           ],
         },
         {
@@ -929,17 +928,16 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'formula-ardent',
           segments: [
-            { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['Sam: Together / Completely / Thoroughly'] },
-            { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Forward / Fully'] },
-            { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['🧠 √jñā (Pali √ñā): To know', 'Sampajañña = clear comprehension', 'Knowing the purpose, suitability, domain, reality'] },
-            { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['The one doing this — describes the practitioner', 'Quality of thorough knowing'] },
+            { id: 'aa2s1', text: 'sam', type: 'prefix', tooltips: ['Sam: Together / Completely'] },
+            { id: 'aa2s2', text: 'pa', type: 'prefix', tooltips: ['Pa/Pra: Forth / Forward'] },
+            { id: 'aa2s3', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know', 'Sampajañña = Clear Comprehension', '📚 Four types (Visuddhimagga):', '1. Sātthaka: Purpose — is this beneficial?', '2. Sappāya: Suitability — right time/place?', '3. Gocara: Domain — not losing the object', '4. Asammoha: Non-delusion — seeing anattā'] },
+            { id: 'aa2s4', text: 'o', type: 'suffix', tooltips: ['One who thoroughly knows', 'The wisdom aspect of the triad'] },
           ],
           senses: [
             { english: 'clearly knowing', nuance: 'Full awareness' },
-            { english: 'understanding', nuance: 'Wisdom' },
-            { english: 'alert', nuance: 'Sharp' },
-            { english: 'discerning', nuance: 'Seeing clearly' },
-            { english: 'fully aware', nuance: 'Nothing missed' },
+            { english: 'with clear comprehension', nuance: 'Four types' },
+            { english: 'discerning', nuance: 'Purpose-aware' },
+            { english: 'fully aware', nuance: 'Context-aware' },
           ],
         },
         {
@@ -947,15 +945,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'formula-ardent',
           segments: [
-            { id: 'aa3s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ (Pali sar): Memory / Mindfulness', 'The faculty of retention and presence'] },
-            { id: 'aa3s2', text: 'mā', type: 'suffix', tooltips: ['-mant/-vant: Possessive suffix (Nom. -mā)', 'FACULTY: "equipped with" / "possessing"', 'Contrast with sato (actively mindful)', 'Satimā = having the capacity', 'Sato = deploying it actively'] },
+            { id: 'aa3s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: To remember', 'Sati = mindfulness / presence / retention', 'The "holding" function of mind'] },
+            { id: 'aa3s2', text: 'mā', type: 'suffix', tooltips: ['-mant: Possessive suffix', '📝 Key distinction:', '• Satimā = POSSESSING the faculty', '  (foundational disposition)', '• Sato = APPLYING it moment-to-moment', '  (e.g., "sato va assasati")', 'Here: establishing the capacity'] },
           ],
           senses: [
+            { english: 'possessing mindfulness', nuance: 'Faculty' },
             { english: 'mindful', nuance: 'Standard' },
-            { english: 'remembering', nuance: 'Memory root' },
-            { english: 'present', nuance: 'Here-now' },
-            { english: 'lucid', nuance: 'Clear-minded' },
-            { english: 'recollected', nuance: 'Gathered attention' },
+            { english: 'equipped with awareness', nuance: 'Capacity' },
+            { english: 'recollected', nuance: 'Gathered' },
           ],
         },
       ],
@@ -973,14 +970,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           wordClass: 'content',
           refrainId: 'formula-removing',
           segments: [
-            { id: 'ab1s1', text: 'vi', type: 'prefix', tooltips: ['Vi: Away / Out / Apart', 'Vineti = to lead away, remove, train'] },
-            { id: 'ab1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead (vi-nī = lead away)', 'Present stem vine- influences form'] },
-            { id: 'ab1s3', text: 'ya', type: 'suffix', tooltips: ['⚡ Observation IS purification', 'This suffix (-ya) can mean:', '• "Having removed" → must be pure first', '• "Removing" → observing does the removing', '• "So as to remove" → this is the goal', '✓ You don\'t prepare then practice — practice IS the work'] },
+            { id: 'ab1s1', text: 'vi', type: 'prefix', tooltips: ['Vi: Away / Out / Apart', 'Same root as VINAYA (discipline)'] },
+            { id: 'ab1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead (vi-nī = lead away)', 'Vineti = to discipline, remove, train'] },
+            { id: 'ab1s3', text: 'ya', type: 'suffix', tooltips: ['⚖️ THE GREAT DEBATE:', '• "Having removed" (sequential):', '  → First jhāna, then insight', '  → Samatha-first approach', '• "While removing" (simultaneous):', '  → Mindfulness IS the removing', '  → Dry insight approach', '⚡ Both readings are grammatically valid'] },
           ],
           senses: [
-            { english: 'putting aside', nuance: 'Gentle' },
-            { english: 'removing', nuance: 'Active' },
-            { english: 'letting go of', nuance: 'Release' },
+            { english: 'putting aside', nuance: 'Simultaneous view' },
+            { english: 'having removed', nuance: 'Sequential view' },
+            { english: 'disciplining', nuance: 'Vinaya connection' },
             { english: 'training away', nuance: 'Gradual' },
             { english: 'freeing from', nuance: 'Liberation' },
           ],
@@ -1004,13 +1001,14 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
           refrainId: 'formula-removing',
           segments: [
             { id: 'ab3s1', text: 'abhi', type: 'prefix', tooltips: ['Abhi: Towards / Intensely'] },
-            { id: 'ab3s2', text: 'jjhā', type: 'root', tooltips: ['√jhā (related to √dhyai): Longing / Covetousness'] },
-            { id: 'ab3s3', text: 'domanass', type: 'root', tooltips: ['Du + Manas: Bad-mind / Displeasure'] },
-            { id: 'ab3s4', text: 'aṁ', type: 'suffix', tooltips: ['The thing being removed', 'Target of the "leading away"'] },
+            { id: 'ab3s2', text: 'jjhā', type: 'root', tooltips: ['√jhā (√dhyai): Longing / Covetousness', '= First Hindrance (kāmacchanda)'] },
+            { id: 'ab3s3', text: 'domanass', type: 'root', tooltips: ['Du + Manas: Bad-mind / Displeasure', '= Second Hindrance (byāpāda/ill-will)'] },
+            { id: 'ab3s4', text: 'aṁ', type: 'suffix', tooltips: ['📝 SYNECDOCHE:', 'These two stand for ALL FIVE Hindrances:', '1. Sensory desire (abhijjhā)', '2. Ill-will (domanassa)', '3. Sloth & torpor', '4. Restlessness & remorse', '5. Doubt'] },
           ],
           senses: [
-            { english: 'covetousness & displeasure', nuance: 'Compound' },
-            { english: 'longing & aversion', nuance: 'Technical' },
+            { english: 'covetousness & displeasure', nuance: 'Literal pair' },
+            { english: 'the five hindrances', nuance: 'Synecdoche' },
+            { english: 'wanting & not-wanting', nuance: 'Craving poles' },
           ],
         },
       ],
@@ -1019,6 +1017,458 @@ export const DEMO_PACKET_MN10: DeepLoomPacket = {
         { id: 'eab3', linkedPaliId: 'ab3' },
         { id: 'eab2g', label: 'regarding', isGhost: true, ghostKind: 'required' },
         { id: 'eab2', linkedSegmentId: 'ab2s1' },
+      ],
+    },
+
+    // ============================================================
+    // SECOND SATIPAṬṬHĀNA: Vedanānupassanā (mn10:3.3)
+    // vedanāsu vedanānupassī viharati ātāpī sampajāno satimā,
+    // vineyya loke abhijjhādomanassaṁ
+    // ============================================================
+    {
+      id: 'phase-ac',
+      paliWords: [
+        {
+          id: 'ac1',
+          wordClass: 'content',
+          segments: [
+            { id: 'ac1s1', text: 'vedan', type: 'root', tooltips: ['💫 √vid: To know (same root as Veda)', 'Vedanā = "the knowing of the taste"', 'NOT emotion — strictly hedonic tone:', '• Pleasant (sukha)', '• Painful (dukkha)', '• Neutral (adukkhamasukha)', '⚡ The PIVOT in dependent origination:', 'Contact → Vedanā → [cut here] → Craving'] },
+            { id: 'ac1s2', text: 'āsu', type: 'suffix', tooltips: ['📍 "Among the..." — locative plural', 'All three tones are the domain'] },
+          ],
+          senses: [
+            { english: 'in feelings', nuance: 'Hedonic tones' },
+            { english: 'regarding felt tones', nuance: 'Pleasant/painful/neutral' },
+            { english: 'within sensations', nuance: 'Raw valence' },
+          ],
+        },
+        {
+          id: 'ac2',
+          wordClass: 'content',
+          segments: [
+            { id: 'ac2s1', text: 'vedan', type: 'root', tooltips: ['Vedanā: The felt quality', 'Pleasant, painful, or neutral'] },
+            { id: 'ac2s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Repeatedly / Closely'] },
+            { id: 'ac2s3', text: 'pass', type: 'root', tooltips: ['👁️ √dṛś (Pali √pass): To see'] },
+            { id: 'ac2s4', text: 'ī', type: 'suffix', tooltips: ['-ī = "one who does this"', 'Identity: a feeling-observer'] },
+          ],
+          senses: [
+            { english: 'observing feelings', nuance: 'Action' },
+            { english: 'a feeling-watcher', nuance: 'Identity' },
+            { english: 'tracking sensations', nuance: 'Following closely' },
+            { english: 'seeing feeling as feeling', nuance: 'Phenomenological' },
+          ],
+        },
+        {
+          id: 'ac3',
+          wordClass: 'content',
+          segments: [
+            { id: 'ac3s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
+            { id: 'ac3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To carry / Dwell'] },
+            { id: 'ac3s3', text: 'ati', type: 'suffix', tooltips: ['He/she is doing this now'] },
+          ],
+          senses: [
+            { english: 'dwells', nuance: 'Lives this way' },
+            { english: 'abides', nuance: 'Rests here' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eac3', linkedSegmentId: 'ac3s2' },
+        { id: 'eac2', linkedPaliId: 'ac2' },
+        { id: 'eac1', linkedSegmentId: 'ac1s1' },
+      ],
+    },
+    {
+      id: 'phase-ad',
+      paliWords: [
+        {
+          id: 'ad1',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'ad1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn / Heat'] },
+            { id: 'ad1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive: One who has...'] },
+          ],
+          senses: [{ english: 'ardent', nuance: 'On fire' }],
+        },
+        {
+          id: 'ad2',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'ad2s1', text: 'sam', type: 'prefix', tooltips: ['Together / Completely'] },
+            { id: 'ad2s2', text: 'pa', type: 'prefix', tooltips: ['Forth / Forward'] },
+            { id: 'ad2s3', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know'] },
+            { id: 'ad2s4', text: 'o', type: 'suffix', tooltips: ['The one doing this'] },
+          ],
+          senses: [{ english: 'clearly knowing', nuance: 'Full awareness' }],
+        },
+        {
+          id: 'ad3',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'ad3s1', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: Memory / Mindfulness'] },
+            { id: 'ad3s2', text: 'mā', type: 'suffix', tooltips: ['-mant: Possessing the faculty'] },
+          ],
+          senses: [{ english: 'mindful', nuance: 'Present' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'ead1', linkedSegmentId: 'ad1s1' },
+        { id: 'ead2', linkedSegmentId: 'ad2s3' },
+        { id: 'ead3', linkedSegmentId: 'ad3s1' },
+      ],
+    },
+    {
+      id: 'phase-ae',
+      paliWords: [
+        {
+          id: 'ae1',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ae1s1', text: 'vi', type: 'prefix', tooltips: ['Away / Apart'] },
+            { id: 'ae1s2', text: 'ney', type: 'root', tooltips: ['√nī: To lead'] },
+            { id: 'ae1s3', text: 'ya', type: 'suffix', tooltips: ['⚡ Observing IS removing'] },
+          ],
+          senses: [{ english: 'putting aside', nuance: 'Releasing' }],
+        },
+        {
+          id: 'ae2',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ae2s1', text: 'lok', type: 'root', tooltips: ['Loka: World'] },
+            { id: 'ae2s2', text: 'e', type: 'suffix', tooltips: ['📍 "Regarding the..."'] },
+          ],
+          senses: [{ english: 'regarding the world', nuance: 'Scope' }],
+        },
+        {
+          id: 'ae3',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ae3s1', text: 'abhijjhā', type: 'root', tooltips: ['Longing / Covetousness'] },
+            { id: 'ae3s2', text: 'domanass', type: 'root', tooltips: ['Displeasure / Aversion'] },
+            { id: 'ae3s3', text: 'aṁ', type: 'suffix', tooltips: ['The thing being removed'] },
+          ],
+          senses: [{ english: 'covetousness & displeasure', nuance: 'What is released' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eae1', linkedSegmentId: 'ae1s2' },
+        { id: 'eae3', linkedPaliId: 'ae3' },
+        { id: 'eae2g', label: 'regarding', isGhost: true, ghostKind: 'required' },
+        { id: 'eae2', linkedSegmentId: 'ae2s1' },
+      ],
+    },
+
+    // ============================================================
+    // THIRD SATIPAṬṬHĀNA: Cittānupassanā (mn10:3.4)
+    // citte cittānupassī viharati ātāpī sampajāno satimā,
+    // vineyya loke abhijjhādomanassaṁ
+    // ============================================================
+    {
+      id: 'phase-af',
+      paliWords: [
+        {
+          id: 'af1',
+          wordClass: 'content',
+          segments: [
+            { id: 'af1s1', text: 'citt', type: 'root', tooltips: ['🧠 Double etymology:', '• √cit: To perceive / To think', '• √ci: To accumulate / Heap up', 'Citta = "Heart-Mind"', '• Agent of cognition', '• Repository of kamma', 'Not thoughts — the STATE of consciousness', '(lustful, clear, contracted, exalted...)'] },
+            { id: 'af1s2', text: 'e', type: 'suffix', tooltips: ['📍 "In the..." — locative singular', 'The 16 states: sarāga/vītarāga, sadosa/vītadosa...'] },
+          ],
+          senses: [
+            { english: 'in the mind', nuance: 'Cognitive aspect' },
+            { english: 'in the heart', nuance: 'Affective aspect' },
+            { english: 'regarding consciousness', nuance: 'State-awareness' },
+          ],
+        },
+        {
+          id: 'af2',
+          wordClass: 'content',
+          segments: [
+            { id: 'af2s1', text: 'citt', type: 'root', tooltips: ['Citta: Mind / Heart / Consciousness'] },
+            { id: 'af2s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Repeatedly'] },
+            { id: 'af2s3', text: 'pass', type: 'root', tooltips: ['👁️ √dṛś (Pali √pass): To see'] },
+            { id: 'af2s4', text: 'ī', type: 'suffix', tooltips: ['-ī = "one who does this"', 'Identity: a mind-observer'] },
+          ],
+          senses: [
+            { english: 'observing mind', nuance: 'Action' },
+            { english: 'a mind-watcher', nuance: 'Identity' },
+            { english: 'tracking consciousness', nuance: 'Following closely' },
+            { english: 'seeing mind as mind', nuance: 'Phenomenological' },
+          ],
+        },
+        {
+          id: 'af3',
+          wordClass: 'content',
+          segments: [
+            { id: 'af3s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
+            { id: 'af3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To dwell'] },
+            { id: 'af3s3', text: 'ati', type: 'suffix', tooltips: ['Ongoing action'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eaf3', linkedSegmentId: 'af3s2' },
+        { id: 'eaf2', linkedPaliId: 'af2' },
+        { id: 'eaf1', linkedSegmentId: 'af1s1' },
+      ],
+    },
+    {
+      id: 'phase-ag',
+      paliWords: [
+        {
+          id: 'ag1',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'ag1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: Ardor'] },
+            { id: 'ag1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive'] },
+          ],
+          senses: [{ english: 'ardent', nuance: 'Diligent' }],
+        },
+        {
+          id: 'ag2',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'ag2s1', text: 'sampajān', type: 'root', tooltips: ['🧠 Clear comprehension'] },
+            { id: 'ag2s2', text: 'o', type: 'suffix', tooltips: ['One who knows'] },
+          ],
+          senses: [{ english: 'clearly knowing', nuance: 'Alert' }],
+        },
+        {
+          id: 'ag3',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'ag3s1', text: 'sati', type: 'root', tooltips: ['💭 Mindfulness'] },
+            { id: 'ag3s2', text: 'mā', type: 'suffix', tooltips: ['Possessing'] },
+          ],
+          senses: [{ english: 'mindful', nuance: 'Present' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eag1', linkedSegmentId: 'ag1s1' },
+        { id: 'eag2', linkedSegmentId: 'ag2s1' },
+        { id: 'eag3', linkedSegmentId: 'ag3s1' },
+      ],
+    },
+    {
+      id: 'phase-ah',
+      paliWords: [
+        {
+          id: 'ah1',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ah1s1', text: 'vineyya', type: 'stem', tooltips: ['Vi + √nī: Leading away', '⚡ Removing through observation'] },
+          ],
+          senses: [{ english: 'putting aside', nuance: 'Releasing' }],
+        },
+        {
+          id: 'ah2',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ah2s1', text: 'loke', type: 'stem', tooltips: ['📍 World / Realm'] },
+          ],
+          senses: [{ english: 'regarding the world', nuance: 'Scope' }],
+        },
+        {
+          id: 'ah3',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ah3s1', text: 'abhijjhā', type: 'root', tooltips: ['Covetousness'] },
+            { id: 'ah3s2', text: 'domanassaṁ', type: 'root', tooltips: ['Displeasure'] },
+          ],
+          senses: [{ english: 'covetousness & displeasure', nuance: 'Released' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eah1', linkedPaliId: 'ah1' },
+        { id: 'eah3', linkedPaliId: 'ah3' },
+        { id: 'eah2g', label: 'regarding', isGhost: true, ghostKind: 'required' },
+        { id: 'eah2', linkedPaliId: 'ah2' },
+      ],
+    },
+
+    // ============================================================
+    // FOURTH SATIPAṬṬHĀNA: Dhammānupassanā (mn10:3.5)
+    // dhammesu dhammānupassī viharati ātāpī sampajāno satimā,
+    // vineyya loke abhijjhādomanassaṁ
+    // ============================================================
+    {
+      id: 'phase-ai',
+      paliWords: [
+        {
+          id: 'ai1',
+          wordClass: 'content',
+          segments: [
+            { id: 'ai1s1', text: 'dhamm', type: 'root', tooltips: ['⚖️ √dhṛ: To hold / Support / Sustain', 'Dhamma = "that which holds"', 'Here NOT "The Dhamma" (singular/Doctrine)', 'But "dhammas" (plural) = PATTERNS:', '1. Five Hindrances', '2. Five Aggregates', '3. Six Sense Bases', '4. Seven Awakening Factors', '5. Four Noble Truths', '🔬 Domain of Vipassanā — causal laws'] },
+            { id: 'ai1s2', text: 'esu', type: 'suffix', tooltips: ['📍 "Among the..." — locative PLURAL', 'Not "in Dhamma" but "in dhammas"', 'Observing principles, not things'] },
+          ],
+          senses: [
+            { english: 'in principles', nuance: 'Causal patterns' },
+            { english: 'regarding phenomena', nuance: 'Mental factors' },
+            { english: 'within the categories', nuance: 'The five sections' },
+            { english: 'in the way things work', nuance: 'Laws of mind' },
+          ],
+        },
+        {
+          id: 'ai2',
+          wordClass: 'content',
+          segments: [
+            { id: 'ai2s1', text: 'dhamm', type: 'root', tooltips: ['Dhamma: Phenomena / Principles'] },
+            { id: 'ai2s2', text: 'ānu', type: 'prefix', tooltips: ['Anu: Along / Closely'] },
+            { id: 'ai2s3', text: 'pass', type: 'root', tooltips: ['👁️ √dṛś (Pali √pass): To see'] },
+            { id: 'ai2s4', text: 'ī', type: 'suffix', tooltips: ['-ī = "one who does this"', 'Identity: a dhamma-observer'] },
+          ],
+          senses: [
+            { english: 'observing phenomena', nuance: 'Action' },
+            { english: 'a dhamma-watcher', nuance: 'Identity' },
+            { english: 'tracking principles', nuance: 'Following closely' },
+            { english: 'seeing dhamma as dhamma', nuance: 'Phenomenological' },
+          ],
+        },
+        {
+          id: 'ai3',
+          wordClass: 'content',
+          segments: [
+            { id: 'ai3s1', text: 'vi', type: 'prefix', tooltips: ['Apart / Special'] },
+            { id: 'ai3s2', text: 'har', type: 'root', tooltips: ['🏠 √hṛ: To dwell'] },
+            { id: 'ai3s3', text: 'ati', type: 'suffix', tooltips: ['Ongoing action'] },
+          ],
+          senses: [{ english: 'dwells', nuance: 'Abides' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eai3', linkedSegmentId: 'ai3s2' },
+        { id: 'eai2', linkedPaliId: 'ai2' },
+        { id: 'eai1', linkedSegmentId: 'ai1s1' },
+      ],
+    },
+    {
+      id: 'phase-aj',
+      paliWords: [
+        {
+          id: 'aj1',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'aj1s1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: Ardor'] },
+            { id: 'aj1s2', text: 'ī', type: 'suffix', tooltips: ['Possessive'] },
+          ],
+          senses: [{ english: 'ardent', nuance: 'Diligent' }],
+        },
+        {
+          id: 'aj2',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'aj2s1', text: 'sampajān', type: 'root', tooltips: ['🧠 Clear comprehension'] },
+            { id: 'aj2s2', text: 'o', type: 'suffix', tooltips: ['One who knows'] },
+          ],
+          senses: [{ english: 'clearly knowing', nuance: 'Alert' }],
+        },
+        {
+          id: 'aj3',
+          wordClass: 'content',
+          refrainId: 'formula-ardent',
+          segments: [
+            { id: 'aj3s1', text: 'sati', type: 'root', tooltips: ['💭 Mindfulness'] },
+            { id: 'aj3s2', text: 'mā', type: 'suffix', tooltips: ['Possessing'] },
+          ],
+          senses: [{ english: 'mindful', nuance: 'Present' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eaj1', linkedSegmentId: 'aj1s1' },
+        { id: 'eaj2', linkedSegmentId: 'aj2s1' },
+        { id: 'eaj3', linkedSegmentId: 'aj3s1' },
+      ],
+    },
+    {
+      id: 'phase-ak',
+      paliWords: [
+        {
+          id: 'ak1',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ak1s1', text: 'vineyya', type: 'stem', tooltips: ['Vi + √nī: Leading away', '⚡ Removing through observation'] },
+          ],
+          senses: [{ english: 'putting aside', nuance: 'Releasing' }],
+        },
+        {
+          id: 'ak2',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ak2s1', text: 'loke', type: 'stem', tooltips: ['📍 World / Realm'] },
+          ],
+          senses: [{ english: 'regarding the world', nuance: 'Scope' }],
+        },
+        {
+          id: 'ak3',
+          wordClass: 'content',
+          refrainId: 'formula-removing',
+          segments: [
+            { id: 'ak3s1', text: 'abhijjhā', type: 'root', tooltips: ['Covetousness'] },
+            { id: 'ak3s2', text: 'domanassaṁ', type: 'root', tooltips: ['Displeasure'] },
+          ],
+          senses: [{ english: 'covetousness & displeasure', nuance: 'Released' }],
+        },
+      ],
+      englishStructure: [
+        { id: 'eak1', linkedPaliId: 'ak1' },
+        { id: 'eak3', linkedPaliId: 'ak3' },
+        { id: 'eak2g', label: 'regarding', isGhost: true, ghostKind: 'required' },
+        { id: 'eak2', linkedPaliId: 'ak2' },
+      ],
+    },
+
+    // ============================================================
+    // UDDESA CONCLUSION (mn10:3.6)
+    // Uddeso niṭṭhito.
+    // ============================================================
+    {
+      id: 'phase-al',
+      paliWords: [
+        {
+          id: 'al1',
+          wordClass: 'content',
+          segments: [
+            { id: 'al1s1', text: 'Uddes', type: 'root', tooltips: ['Ud + √diś: To point out / Indicate', 'Uddesa = outline, summary, pointing out', 'The brief statement before detailed explanation'] },
+            { id: 'al1s2', text: 'o', type: 'suffix', tooltips: ['The thing itself — "the outline"'] },
+          ],
+          senses: [
+            { english: 'The outline', nuance: 'Summary' },
+            { english: 'The overview', nuance: 'Introduction' },
+            { english: 'The pointing-out', nuance: 'Etymological' },
+          ],
+        },
+        {
+          id: 'al2',
+          wordClass: 'content',
+          segments: [
+            { id: 'al2s1', text: 'niṭṭhit', type: 'root', tooltips: ['Ni + √sthā: To stand / Be established', 'Niṭṭhita = finished, completed, concluded'] },
+            { id: 'al2s2', text: 'o', type: 'suffix', tooltips: ['Masculine singular — describing the uddesa'] },
+          ],
+          senses: [
+            { english: 'is complete', nuance: 'Finished' },
+            { english: 'is concluded', nuance: 'Ended' },
+            { english: 'stands established', nuance: 'Done' },
+          ],
+        },
+      ],
+      englishStructure: [
+        { id: 'eal1', linkedSegmentId: 'al1s1' },
+        { id: 'eal2', linkedSegmentId: 'al2s1' },
       ],
     },
   ],
