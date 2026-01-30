@@ -22,6 +22,10 @@ import type {
   WeaverPass,
 } from '../../types/suttaStudio';
 import { BENCHMARK_CONFIG, resolveSettingsForModel, type AnatomistFixtureConfig } from './benchmark-config';
+import {
+  assemblePipelineToPacket,
+  type PipelinePhaseOutput,
+} from '../../services/suttaStudioPipelineAssembler';
 
 type MetricRow = {
   timestamp: string;
@@ -57,6 +61,7 @@ type FixturePhase = {
   weaver: WeaverPass;
   typesetter: TypesetterPass;
   expectedPhaseView: PhaseView;
+  _title?: string;
   _english?: string;
 };
 
@@ -83,8 +88,41 @@ type AnatomistGoldenFixture = {
     wordCount: number;
     segmentCount: number;
     relationCount: number;
+    wordRange?: [number, number]; // [start, end) indices for sub-segment splitting
   }>;
   anatomist: Record<string, AnatomistPass>;
+};
+
+type LexicographerGoldenFixture = {
+  _description: string;
+  _generatedAt: string;
+  _source: string;
+  _phases: Array<{ phaseId: string; wordSenseCount: number; segmentSenseCount: number }>;
+  lexicographer: Record<string, LexicographerPass>;
+};
+
+type WeaverGoldenFixture = {
+  _description: string;
+  _generatedAt: string;
+  _source: string;
+  _phases: Array<{ phaseId: string; tokenCount: number; ghostCount: number; linkedCount: number }>;
+  weaver: Record<string, WeaverPass>;
+};
+
+type TypesetterGoldenFixture = {
+  _description: string;
+  _generatedAt: string;
+  _source: string;
+  _phases: Array<{ phaseId: string; blockCount: number; totalWords: number }>;
+  typesetter: Record<string, TypesetterPass>;
+};
+
+type AllGoldenFixtures = {
+  anatomist: AnatomistGoldenFixture;
+  lexicographer: LexicographerGoldenFixture;
+  weaver: WeaverGoldenFixture;
+  typesetter: TypesetterGoldenFixture;
+  allSegments: CanonicalSegment[];
 };
 
 const CSV_HEADERS: Array<keyof MetricRow> = [
@@ -714,6 +752,210 @@ const loadAnatomistFixture = async (): Promise<{
   return { goldenData, allSegments };
 };
 
+const loadAllGoldenFixtures = async (): Promise<AllGoldenFixtures> => {
+  // Load all golden fixtures
+  const [anatomistRaw, lexicographerRaw, weaverRaw, typesetterRaw, mainRaw] = await Promise.all([
+    fs.readFile(path.resolve(BENCHMARK_CONFIG.anatomistFixture.path), 'utf8'),
+    fs.readFile(path.resolve(BENCHMARK_CONFIG.lexicographerFixture.path), 'utf8'),
+    fs.readFile(path.resolve(BENCHMARK_CONFIG.weaverFixture.path), 'utf8'),
+    fs.readFile(path.resolve(BENCHMARK_CONFIG.typesetterFixture.path), 'utf8'),
+    fs.readFile(path.resolve(BENCHMARK_CONFIG.fixture.path), 'utf8'),
+  ]);
+
+  const anatomist = JSON.parse(anatomistRaw) as AnatomistGoldenFixture;
+  const lexicographer = JSON.parse(lexicographerRaw) as LexicographerGoldenFixture;
+  const weaver = JSON.parse(weaverRaw) as WeaverGoldenFixture;
+  const typesetter = JSON.parse(typesetterRaw) as TypesetterGoldenFixture;
+  const mainParsed = JSON.parse(mainRaw) as GoldenFixture;
+
+  let allSegments: CanonicalSegment[] = [];
+  if (mainParsed.skeleton?.canonicalSegments?.length) {
+    allSegments = mainParsed.skeleton.canonicalSegments;
+  }
+
+  return { anatomist, lexicographer, weaver, typesetter, allSegments };
+};
+
+/**
+ * Apply wordRange slicing to segments when sub-segment splitting is used.
+ * When wordRange is present, slice the Pali text to only include the specified word indices.
+ * English is NOT sliced - the full text is passed through for the weaver to handle mapping.
+ */
+const applyWordRangeToSegments = (
+  segments: CanonicalSegment[],
+  wordRange?: [number, number]
+): CanonicalSegment[] => {
+  if (!wordRange) return segments;
+
+  const [start, end] = wordRange;
+  const fullPali = segments.map((s) => s.pali).join(' ');
+  const paliWords = fullPali.split(/\s+/).filter(Boolean);
+  const slicedPali = paliWords.slice(start, end).join(' ');
+
+  // Return a single "virtual" segment with the sliced Pali
+  // Keep full English for weaver to map
+  const fullEnglish = segments
+    .map((s) => s.baseEnglish || '')
+    .filter(Boolean)
+    .join(' ');
+
+  return [
+    {
+      ref: segments[0].ref, // Keep the original segment reference
+      order: segments[0].order,
+      pali: slicedPali,
+      baseEnglish: fullEnglish || undefined,
+    },
+  ];
+};
+
+const getSegmentsForPhase = (
+  phaseId: string,
+  goldenFixtures: AllGoldenFixtures
+): CanonicalSegment[] => {
+  const phaseMeta = goldenFixtures.anatomist._phases.find((p) => p.phaseId === phaseId);
+  if (!phaseMeta) return [];
+  const segments = goldenFixtures.allSegments.filter((seg) =>
+    phaseMeta.canonicalSegmentIds.includes(seg.ref.segmentId)
+  );
+  // Apply wordRange if present in phase metadata (for sub-segment splitting)
+  const wordRange = (phaseMeta as any).wordRange as [number, number] | undefined;
+  return applyWordRangeToSegments(segments, wordRange);
+};
+
+const getEnglishTextForSegments = (segments: CanonicalSegment[]): string => {
+  return segments
+    .map((seg) => seg.baseEnglish || '')
+    .filter(Boolean)
+    .join(' ');
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Per-Phase Pipeline Runner
+// ─────────────────────────────────────────────────────────────────────────────
+type PipelinePhaseResult = {
+  phaseId: string;
+  anatomist: { output: AnatomistPass | null; error: string | null; llm: any };
+  lexicographer: { output: LexicographerPass | null; error: string | null; llm: any };
+  weaver: { output: WeaverPass | null; error: string | null; llm: any };
+  typesetter: { output: TypesetterPass | null; error: string | null; llm: any };
+};
+
+const runPipelineForPhase = async (params: {
+  phaseId: string;
+  workId: string;
+  segments: CanonicalSegment[];
+  englishText: string;
+  settings: any;
+  structuredOutputs: boolean;
+  maxTokens?: number;
+  goldenFixtures: AllGoldenFixtures;
+  dependencyMode: 'live' | 'fixture';
+}): Promise<PipelinePhaseResult> => {
+  const { phaseId, workId, segments, englishText, settings, structuredOutputs, maxTokens, goldenFixtures, dependencyMode } = params;
+
+  const result: PipelinePhaseResult = {
+    phaseId,
+    anatomist: { output: null, error: null, llm: null },
+    lexicographer: { output: null, error: null, llm: null },
+    weaver: { output: null, error: null, llm: null },
+    typesetter: { output: null, error: null, llm: null },
+  };
+
+  // 1. ANATOMIST
+  const anatomistResult = await runAnatomistPass({
+    phaseId,
+    workId,
+    segments,
+    settings,
+    structuredOutputs,
+    llmCaller: openRouterLLMCaller,
+    maxTokens,
+  });
+  result.anatomist = {
+    output: anatomistResult.output ?? null,
+    error: anatomistResult.error ?? null,
+    llm: anatomistResult.llm,
+  };
+
+  // Get anatomist input for downstream passes
+  const anatomistForDownstream = dependencyMode === 'live' && anatomistResult.output
+    ? anatomistResult.output
+    : goldenFixtures.anatomist.anatomist[phaseId] ?? null;
+
+  if (!anatomistForDownstream) {
+    console.warn(`[Pipeline] No anatomist data for ${phaseId}, skipping downstream passes`);
+    return result;
+  }
+
+  // 2. LEXICOGRAPHER
+  const lexicographerResult = await runLexicographerPass({
+    phaseId,
+    workId,
+    segments,
+    anatomist: anatomistForDownstream,
+    dictionaryEntries: {},
+    settings,
+    structuredOutputs,
+    llmCaller: openRouterLLMCaller,
+    maxTokens,
+  });
+  result.lexicographer = {
+    output: lexicographerResult.output ?? null,
+    error: lexicographerResult.error ?? null,
+    llm: lexicographerResult.llm,
+  };
+
+  // Get lexicographer input for downstream
+  const lexicographerForDownstream = dependencyMode === 'live' && lexicographerResult.output
+    ? lexicographerResult.output
+    : goldenFixtures.lexicographer.lexicographer[phaseId] ?? null;
+
+  // 3. WEAVER
+  const weaverResult = await runWeaverPass({
+    phaseId,
+    workId,
+    segments,
+    anatomist: anatomistForDownstream,
+    lexicographer: lexicographerForDownstream ?? { id: phaseId, senses: [] },
+    englishText,
+    settings,
+    structuredOutputs,
+    llmCaller: openRouterLLMCaller,
+    maxTokens,
+  });
+  result.weaver = {
+    output: weaverResult.output ?? null,
+    error: weaverResult.error ?? null,
+    llm: weaverResult.llm,
+  };
+
+  // Get weaver input for downstream
+  const weaverForDownstream = dependencyMode === 'live' && weaverResult.output
+    ? weaverResult.output
+    : goldenFixtures.weaver.weaver[phaseId] ?? null;
+
+  // 4. TYPESETTER
+  const typesetterResult = await runTypesetterPass({
+    phaseId,
+    workId,
+    segments,
+    anatomist: anatomistForDownstream,
+    weaver: weaverForDownstream ?? { id: phaseId, tokens: [] },
+    settings,
+    structuredOutputs,
+    llmCaller: openRouterLLMCaller,
+    maxTokens,
+  });
+  result.typesetter = {
+    output: typesetterResult.output ?? null,
+    error: typesetterResult.error ?? null,
+    llm: typesetterResult.llm,
+  };
+
+  return result;
+};
+
 const buildEnglishText = (phase: FixturePhase, segments: CanonicalSegment[]): string => {
   if (phase._english) return phase._english;
   return segments
@@ -750,14 +992,13 @@ const runBenchmark = async () => {
   const runsTotal = BENCHMARK_CONFIG.runs.length;
   const passesTotal = BENCHMARK_CONFIG.passes.length;
   const hasSkeleton = BENCHMARK_CONFIG.passes.includes('skeleton');
-  const hasAnatomist = BENCHMARK_CONFIG.passes.includes('anatomist');
-  const anatomistPhaseCount = BENCHMARK_CONFIG.anatomistFixture?.phases?.length ?? 1;
-  const stepsPerRun =
-    passesTotal -
-    (hasSkeleton ? 1 : 0) -
-    (hasAnatomist ? 1 : 0) +
-    (hasSkeleton ? skeletonChunkEstimate : 0) +
-    (hasAnatomist ? anatomistPhaseCount : 0);
+  const usePerPhasePipeline = Boolean(BENCHMARK_CONFIG.phasesToTest?.length);
+  const phasesToTestCount = BENCHMARK_CONFIG.phasesToTest?.length ?? 0;
+
+  // Calculate steps: skeleton chunks + (4 passes per phase in pipeline mode)
+  const stepsPerRun = usePerPhasePipeline
+    ? (hasSkeleton ? skeletonChunkEstimate : 0) + (phasesToTestCount * 4) // 4 passes per phase
+    : passesTotal; // legacy mode
   const stepsTotal = runsTotal * repeatRuns * Math.max(1, stepsPerRun);
   const progressState: BenchProgressState = {
     status: 'running',
@@ -1026,6 +1267,208 @@ const runBenchmark = async () => {
             continue;
           }
 
+        // ─────────────────────────────────────────────────────────────────────
+        // PER-PHASE PIPELINE MODE
+        // When phasesToTest is configured, run full pipeline for each phase
+        // ─────────────────────────────────────────────────────────────────────
+        if (pass === 'anatomist' && BENCHMARK_CONFIG.phasesToTest?.length) {
+          // Load all golden fixtures once
+          const goldenFixtures = await loadAllGoldenFixtures();
+          const phasesToTest = BENCHMARK_CONFIG.phasesToTest;
+
+          console.log(`[Pipeline] Running full pipeline for ${phasesToTest.length} phases...`);
+
+          // Collect phase outputs for assembly into DeepLoomPacket
+          const pipelinePhaseOutputs: PipelinePhaseOutput[] = [];
+
+          for (const testPhaseId of phasesToTest) {
+            const phaseSegments = getSegmentsForPhase(testPhaseId, goldenFixtures);
+            if (phaseSegments.length === 0) {
+              console.warn(`[Pipeline] No segments found for phase ${testPhaseId}, skipping`);
+              continue;
+            }
+
+            const englishText = getEnglishTextForSegments(phaseSegments);
+
+            console.log(`[Pipeline] Phase ${testPhaseId}: ${phaseSegments.length} segments`);
+
+            // Run full pipeline for this phase
+            const pipelineResult = await runPipelineForPhase({
+              phaseId: testPhaseId,
+              workId,
+              segments: phaseSegments,
+              englishText,
+              settings,
+              structuredOutputs,
+              maxTokens: maxTokens ?? undefined,
+              goldenFixtures,
+              dependencyMode: dependencyMode as 'live' | 'fixture',
+            });
+
+            // Record metrics for each pass in the pipeline
+            const passNames: Array<'anatomist' | 'lexicographer' | 'weaver' | 'typesetter'> = [
+              'anatomist', 'lexicographer', 'weaver', 'typesetter'
+            ];
+
+            for (const passName of passNames) {
+              const passResult = pipelineResult[passName];
+              const llm = passResult.llm;
+
+              rows.push(
+                toMetricRow({
+                  runId,
+                  pass: passName,
+                  stage: 'pass',
+                  provider: llm?.provider ?? settings.provider,
+                  model: llm?.model ?? settings.model,
+                  promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
+                  structuredOutputs,
+                  durationMs: llm?.durationMs ?? null,
+                  costUsd: llm?.costUsd ?? null,
+                  tokensPrompt: llm?.tokens?.prompt ?? null,
+                  tokensCompletion: llm?.tokens?.completion ?? null,
+                  tokensTotal: llm?.tokens?.total ?? null,
+                  success: !passResult.error,
+                  errorMessage: passResult.error ?? null,
+                  schemaName: null,
+                  requestName: passName,
+                  phaseId: testPhaseId,
+                  chunkIndex: null,
+                  chunkCount: null,
+                  segmentCount: phaseSegments.length,
+                  dependencyMode,
+                  fixturePhase: phaseKey,
+                  workId,
+                })
+              );
+
+              if (passResult.error) {
+                addProgressError(progressState, {
+                  runId,
+                  pass: passName,
+                  stage: 'pass',
+                  message: passResult.error,
+                });
+              }
+            }
+
+            // Save pipeline outputs for this phase
+            if (runOutputDir) {
+              const goldenAnatomist = goldenFixtures.anatomist.anatomist[testPhaseId];
+              const goldenLexicographer = goldenFixtures.lexicographer.lexicographer[testPhaseId];
+              const goldenWeaver = goldenFixtures.weaver.weaver[testPhaseId];
+              const goldenTypesetter = goldenFixtures.typesetter.typesetter[testPhaseId];
+
+              const pipelinePayload = {
+                generatedAt: new Date().toISOString(),
+                runId,
+                phaseId: testPhaseId,
+                dependencyMode,
+                segments: phaseSegments,
+                englishText,
+                golden: {
+                  anatomist: goldenAnatomist ?? null,
+                  lexicographer: goldenLexicographer ?? null,
+                  weaver: goldenWeaver ?? null,
+                  typesetter: goldenTypesetter ?? null,
+                },
+                output: {
+                  anatomist: pipelineResult.anatomist.output,
+                  lexicographer: pipelineResult.lexicographer.output,
+                  weaver: pipelineResult.weaver.output,
+                  typesetter: pipelineResult.typesetter.output,
+                },
+                errors: {
+                  anatomist: pipelineResult.anatomist.error,
+                  lexicographer: pipelineResult.lexicographer.error,
+                  weaver: pipelineResult.weaver.error,
+                  typesetter: pipelineResult.typesetter.error,
+                },
+                llm: {
+                  anatomist: pipelineResult.anatomist.llm,
+                  lexicographer: pipelineResult.lexicographer.llm,
+                  weaver: pipelineResult.weaver.llm,
+                  typesetter: pipelineResult.typesetter.llm,
+                },
+              };
+
+              await fs.writeFile(
+                path.join(runOutputDir, `pipeline-${testPhaseId}.json`),
+                JSON.stringify(pipelinePayload, null, 2),
+                'utf8'
+              );
+
+              // Collect for packet assembly
+              pipelinePhaseOutputs.push({
+                phaseId: testPhaseId,
+                segments: phaseSegments,
+                englishText,
+                output: {
+                  anatomist: pipelineResult.anatomist.output,
+                  lexicographer: pipelineResult.lexicographer.output,
+                  weaver: pipelineResult.weaver.output,
+                  typesetter: pipelineResult.typesetter.output,
+                },
+                errors: {
+                  anatomist: pipelineResult.anatomist.error,
+                  lexicographer: pipelineResult.lexicographer.error,
+                  weaver: pipelineResult.weaver.error,
+                  typesetter: pipelineResult.typesetter.error,
+                },
+              });
+            }
+
+            // Update progress
+            progressState.stepsCompleted += 4; // 4 passes per phase
+            progressState.updatedAt = new Date().toISOString();
+            progressState.percent = Math.min(
+              100,
+              Math.round((progressState.stepsCompleted / progressState.stepsTotal) * 100)
+            );
+            progressState.current = {
+              runId,
+              model: settings.model,
+              provider: settings.provider,
+              pass: 'typesetter',
+              stage: 'pass',
+              passIndex: BENCHMARK_CONFIG.passes.indexOf('typesetter'),
+              runIndex,
+              repeatIndex,
+              chunkIndex: null,
+              chunkCount: null,
+            };
+            progressState.message = `Completed pipeline for ${testPhaseId}`;
+            await writeProgressState(BENCHMARK_CONFIG.outputRoot, progressPath, progressState);
+          }
+
+          // ─────────────────────────────────────────────────────────────────────
+          // ASSEMBLE AND SAVE PACKET
+          // After all phases complete, assemble into a DeepLoomPacket for UI viewing
+          // ─────────────────────────────────────────────────────────────────────
+          if (runOutputDir && pipelinePhaseOutputs.length > 0) {
+            console.log(`[Pipeline] Assembling packet from ${pipelinePhaseOutputs.length} phases...`);
+            const assembledPacket = assemblePipelineToPacket({
+              workId,
+              phases: pipelinePhaseOutputs,
+              modelId: settings.model,
+              promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
+            });
+
+            await fs.writeFile(
+              path.join(runOutputDir, 'packet.json'),
+              JSON.stringify(assembledPacket, null, 2),
+              'utf8'
+            );
+            console.log(`[Pipeline] Saved assembled packet to ${path.join(runOutputDir, 'packet.json')}`);
+          }
+
+          // Skip remaining passes in the old loop - we've handled them all
+          continue;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // LEGACY MODE: Old per-pass logic (when phasesToTest not configured)
+        // ─────────────────────────────────────────────────────────────────────
         if (pass === 'anatomist') {
           // Check if we're using multi-phase anatomist benchmark
           const anatomistConfig = BENCHMARK_CONFIG.anatomistFixture;
