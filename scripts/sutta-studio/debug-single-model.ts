@@ -84,7 +84,7 @@ async function main() {
   console.log('\nSettings:');
   console.log(`  Provider: ${settings.provider}`);
   console.log(`  Model: ${settings.model}`);
-  console.log(`  API key: ${settings.apiKey.slice(0, 10)}...`);
+  console.log(`  API key: [REDACTED]`);
 
   // Prepare input based on pass
   console.log('\n' + '─'.repeat(80));
