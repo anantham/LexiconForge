@@ -9,69 +9,28 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import type {
+  AnatomistPass,
+  LexicographerPass,
+  WeaverPass,
+  TypesetterPass,
+} from '../../types/suttaStudio';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────────────────────────────────
 
-type PipelineOutput = {
+export type PipelineOutput = {
   output: {
-    anatomist: AnatomistOutput;
-    lexicographer: LexicographerOutput;
-    weaver: WeaverOutput;
-    typesetter: TypesetterOutput;
+    anatomist: AnatomistPass;
+    lexicographer: LexicographerPass;
+    weaver: WeaverPass;
+    typesetter: TypesetterPass | null;
   };
   segments: Array<{ pali: string }>;
 };
 
-type AnatomistOutput = {
-  words: Array<{
-    id: string;
-    surface: string;
-    wordClass: 'content' | 'function';
-    segmentIds: string[];
-  }>;
-  segments: Array<{
-    id: string;
-    wordId: string;
-    text: string;
-    type: string;
-    tooltips: string[];
-    morph?: object;
-  }>;
-  relations: Array<{
-    id: string;
-    fromSegmentId: string;
-    targetWordId: string;
-    type?: string;
-    label?: string;
-    status?: string;
-  }>;
-};
-
-type LexicographerOutput = {
-  senses: Array<{
-    wordId: string;
-    wordClass: 'content' | 'function';
-    senses: Array<{ english: string; nuance: string }>;
-  }>;
-};
-
-type WeaverOutput = {
-  tokens: Array<{
-    tokenIndex: number;
-    text: string;
-    isGhost: boolean;
-    linkedSegmentId?: string;
-    linkedPaliId?: string;
-  }>;
-};
-
-type TypesetterOutput = {
-  layoutBlocks: string[][];
-};
-
-type QualityScore = {
+export type QualityScore = {
   phase: string;
   model: string;
   // Coverage
@@ -98,10 +57,10 @@ type QualityScore = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SCORING FUNCTIONS
+// SCORING FUNCTIONS (exported for use in benchmark.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
-function scoreAnatomist(data: AnatomistOutput, inputPali: string): {
+export function scoreAnatomist(data: AnatomistPass, inputPali: string): {
   paliWordCoverage: number;
   noEmptySegments: number;
   textIntegrity: number;
@@ -154,7 +113,7 @@ function scoreAnatomist(data: AnatomistOutput, inputPali: string): {
   };
 }
 
-function scoreLexicographer(data: LexicographerOutput): {
+export function scoreLexicographer(data: LexicographerPass): {
   sensePolysemy: number;
 } {
   // Content words should have 3 senses, function words 1-2
@@ -172,7 +131,7 @@ function scoreLexicographer(data: LexicographerOutput): {
   return { sensePolysemy };
 }
 
-function scoreWeaver(data: WeaverOutput): {
+export function scoreWeaver(data: WeaverPass): {
   englishMappingRatio: number;
   noDuplicateMappings: number;
 } {
@@ -194,7 +153,7 @@ function scoreWeaver(data: WeaverOutput): {
   return { englishMappingRatio, noDuplicateMappings };
 }
 
-function scoreGrammar(data: AnatomistOutput): {
+export function scoreGrammar(data: AnatomistPass): {
   relationCount: number;
   relationDensity: number;
   relationsValid: number;
@@ -217,15 +176,17 @@ function scoreGrammar(data: AnatomistOutput): {
   let validCount = 0;
   for (const rel of relations) {
     const fromValid = segmentIds.has(rel.fromSegmentId);
-    const toValid = wordIds.has(rel.targetWordId);
-    if (fromValid && toValid) validCount++;
+    // Relations can target words OR segments, check both
+    const toWordValid = rel.targetWordId ? wordIds.has(rel.targetWordId) : false;
+    const toSegmentValid = rel.targetSegmentId ? segmentIds.has(rel.targetSegmentId) : false;
+    if (fromValid && (toWordValid || toSegmentValid)) validCount++;
   }
   const relationsValid = relationCount > 0 ? validCount / relationCount : 1;
 
   return { relationCount, relationDensity, relationsValid };
 }
 
-function computeOverallScore(scores: Omit<QualityScore, 'overallScore'>): number {
+export function computeOverallScore(scores: Omit<QualityScore, 'overallScore'>): number {
   // Weighted average
   const weights = {
     coverage: 0.25,
@@ -242,7 +203,7 @@ function computeOverallScore(scores: Omit<QualityScore, 'overallScore'>): number
   );
 }
 
-function scorePhase(data: PipelineOutput, phase: string, model: string): QualityScore {
+export function scorePhase(data: PipelineOutput, phase: string, model: string): QualityScore {
   const inputPali = data.segments.map(s => s.pali).join(' ');
 
   const anatomistScores = scoreAnatomist(data.output.anatomist, inputPali);

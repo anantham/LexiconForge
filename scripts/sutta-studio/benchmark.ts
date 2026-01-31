@@ -26,6 +26,11 @@ import {
   assemblePipelineToPacket,
   type PipelinePhaseOutput,
 } from '../../services/suttaStudioPipelineAssembler';
+import {
+  scorePhase,
+  type PipelineOutput,
+  type QualityScore,
+} from './quality-scorer';
 
 type MetricRow = {
   timestamp: string;
@@ -525,13 +530,26 @@ const isRetryableNetworkError = (error: any) => {
   );
 };
 
-const openRouterLLMCaller: LLMCaller = async ({ settings, messages, signal, maxTokens, options }) => {
-  const apiKey = (settings as any).apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error('Missing OPENROUTER_API_KEY for benchmark runs.');
-  }
+type ProviderPreferences = {
+  order?: string[];
+  allow_fallbacks?: boolean;
+};
 
-  const useStructured = Boolean(options?.schema) && Boolean(options?.structuredOutputs);
+/** Factory function to create an LLMCaller with optional provider preferences */
+const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LLMCaller => {
+  return async ({ settings, messages, signal, maxTokens, options }) => {
+    const apiKey = (settings as any).apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error('Missing OPENROUTER_API_KEY for benchmark runs.');
+    }
+
+    // Merge model-level provider preferences with any request-level preferences
+    const providerPreferences = {
+      ...modelProviderPrefs,
+      ...options?.providerPreferences,
+    };
+
+    const useStructured = Boolean(options?.schema) && Boolean(options?.structuredOutputs);
   let requestBody: Record<string, any> = {
     model: settings.model,
     messages,
@@ -539,19 +557,26 @@ const openRouterLLMCaller: LLMCaller = async ({ settings, messages, signal, maxT
     temperature: 0.2,
   };
 
-  if (useStructured && options?.schema) {
-    requestBody.response_format = {
-      type: 'json_schema',
-      json_schema: {
-        name: options.schemaName || 'sutta_studio_response',
-        schema: options.schema,
-        strict: true,
-      },
-    };
-    requestBody.provider = { require_parameters: true };
-  } else {
-    requestBody.response_format = { type: 'json_object' };
-  }
+    if (useStructured && options?.schema) {
+      requestBody.response_format = {
+        type: 'json_schema',
+        json_schema: {
+          name: options.schemaName || 'sutta_studio_response',
+          schema: options.schema,
+          strict: true,
+        },
+      };
+      requestBody.provider = {
+        require_parameters: true,
+        ...providerPreferences,
+      };
+    } else {
+      requestBody.response_format = { type: 'json_object' };
+      // Still apply provider preferences for non-structured outputs
+      if (Object.keys(providerPreferences).length > 0) {
+        requestBody.provider = { ...providerPreferences };
+      }
+    }
 
   const start = performance.now();
   const doFetch = async (body: Record<string, any>) => {
@@ -647,20 +672,24 @@ const openRouterLLMCaller: LLMCaller = async ({ settings, messages, signal, maxT
     }
   }
 
-  return {
-    text,
-    tokens: {
-      prompt: typeof promptTokens === 'number' ? promptTokens : undefined,
-      completion: typeof completionTokens === 'number' ? completionTokens : undefined,
-      total: typeof totalTokens === 'number' ? totalTokens : undefined,
-    },
-    costUsd: costUsd ?? undefined,
-    model: response?.model ?? settings.model,
-    raw: response,
-    provider: settings.provider,
-    durationMs,
+    return {
+      text,
+      tokens: {
+        prompt: typeof promptTokens === 'number' ? promptTokens : undefined,
+        completion: typeof completionTokens === 'number' ? completionTokens : undefined,
+        total: typeof totalTokens === 'number' ? totalTokens : undefined,
+      },
+      costUsd: costUsd ?? undefined,
+      model: response?.model ?? settings.model,
+      raw: response,
+      provider: settings.provider,
+      durationMs,
+    };
   };
 };
+
+// Default caller without provider preferences (for backward compatibility)
+const openRouterLLMCaller = createOpenRouterLLMCaller();
 
 const normalizePhaseId = <T extends { id: string }>(input: T, phaseId: string): T => ({
   ...input,
@@ -851,8 +880,9 @@ const runPipelineForPhase = async (params: {
   maxTokens?: number;
   goldenFixtures: AllGoldenFixtures;
   dependencyMode: 'live' | 'fixture';
+  llmCaller?: LLMCaller;
 }): Promise<PipelinePhaseResult> => {
-  const { phaseId, workId, segments, englishText, settings, structuredOutputs, maxTokens, goldenFixtures, dependencyMode } = params;
+  const { phaseId, workId, segments, englishText, settings, structuredOutputs, maxTokens, goldenFixtures, dependencyMode, llmCaller: caller = openRouterLLMCaller } = params;
 
   const result: PipelinePhaseResult = {
     phaseId,
@@ -869,7 +899,7 @@ const runPipelineForPhase = async (params: {
     segments,
     settings,
     structuredOutputs,
-    llmCaller: openRouterLLMCaller,
+    llmCaller: caller,
     maxTokens,
   });
   result.anatomist = {
@@ -897,7 +927,7 @@ const runPipelineForPhase = async (params: {
     dictionaryEntries: {},
     settings,
     structuredOutputs,
-    llmCaller: openRouterLLMCaller,
+    llmCaller: caller,
     maxTokens,
   });
   result.lexicographer = {
@@ -921,7 +951,7 @@ const runPipelineForPhase = async (params: {
     englishText,
     settings,
     structuredOutputs,
-    llmCaller: openRouterLLMCaller,
+    llmCaller: caller,
     maxTokens,
   });
   result.weaver = {
@@ -944,7 +974,7 @@ const runPipelineForPhase = async (params: {
     weaver: weaverForDownstream ?? { id: phaseId, tokens: [] },
     settings,
     structuredOutputs,
-    llmCaller: openRouterLLMCaller,
+    llmCaller: caller,
     maxTokens,
   });
   result.typesetter = {
@@ -1046,6 +1076,10 @@ const runBenchmark = async () => {
       const runIndex = BENCHMARK_CONFIG.runs.indexOf(run);
       const baseSettings = resolveSettingsForModel(run.model);
       const dependencyMode = BENCHMARK_CONFIG.dependencyMode;
+      // Create LLMCaller with model's provider preferences (e.g., routing through Together)
+      const llmCaller = run.model.providerPreferences
+        ? createOpenRouterLLMCaller(run.model.providerPreferences)
+        : openRouterLLMCaller;
 
       for (let repeatIndex = 0; repeatIndex < repeatRuns; repeatIndex++) {
         const runId =
@@ -1081,7 +1115,7 @@ const runBenchmark = async () => {
               allowCrossChapter: false,
               settings,
               structuredOutputs,
-              llmCaller: openRouterLLMCaller,
+              llmCaller,
               maxTokens: maxTokens ?? undefined,
             });
 
@@ -1280,6 +1314,8 @@ const runBenchmark = async () => {
 
           // Collect phase outputs for assembly into DeepLoomPacket
           const pipelinePhaseOutputs: PipelinePhaseOutput[] = [];
+          // Collect quality scores for each phase
+          const qualityScores: QualityScore[] = [];
 
           for (const testPhaseId of phasesToTest) {
             const phaseSegments = getSegmentsForPhase(testPhaseId, goldenFixtures);
@@ -1303,6 +1339,7 @@ const runBenchmark = async () => {
               maxTokens: maxTokens ?? undefined,
               goldenFixtures,
               dependencyMode: dependencyMode as 'live' | 'fixture',
+              llmCaller,
             });
 
             // Record metrics for each pass in the pipeline
@@ -1398,6 +1435,29 @@ const runBenchmark = async () => {
                 'utf8'
               );
 
+              // Score quality if we have complete outputs
+              if (
+                pipelineResult.anatomist.output &&
+                pipelineResult.lexicographer.output &&
+                pipelineResult.weaver.output
+              ) {
+                try {
+                  const scoringInput: PipelineOutput = {
+                    output: {
+                      anatomist: pipelineResult.anatomist.output,
+                      lexicographer: pipelineResult.lexicographer.output,
+                      weaver: pipelineResult.weaver.output,
+                      typesetter: pipelineResult.typesetter.output,
+                    },
+                    segments: phaseSegments.map(s => ({ pali: s.pali })),
+                  };
+                  const score = scorePhase(scoringInput, testPhaseId, settings.model);
+                  qualityScores.push(score);
+                } catch (scoreError) {
+                  console.warn(`[Pipeline] Quality scoring failed for ${testPhaseId}:`, scoreError);
+                }
+              }
+
               // Collect for packet assembly
               pipelinePhaseOutputs.push({
                 phaseId: testPhaseId,
@@ -1460,6 +1520,41 @@ const runBenchmark = async () => {
               'utf8'
             );
             console.log(`[Pipeline] Saved assembled packet to ${path.join(runOutputDir, 'packet.json')}`);
+
+            // Save quality scores summary
+            if (qualityScores.length > 0) {
+              const avgCoverage = qualityScores.reduce((s, q) => s + q.coverageScore, 0) / qualityScores.length;
+              const avgValidity = qualityScores.reduce((s, q) => s + q.validityScore, 0) / qualityScores.length;
+              const avgRichness = qualityScores.reduce((s, q) => s + q.richnessScore, 0) / qualityScores.length;
+              const avgGrammar = qualityScores.reduce((s, q) => s + q.grammarScore, 0) / qualityScores.length;
+              const avgOverall = qualityScores.reduce((s, q) => s + q.overallScore, 0) / qualityScores.length;
+
+              const qualitySummary = {
+                generatedAt: new Date().toISOString(),
+                runId,
+                model: settings.model,
+                provider: settings.provider,
+                promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
+                phaseCount: qualityScores.length,
+                averages: {
+                  coverage: avgCoverage,
+                  validity: avgValidity,
+                  richness: avgRichness,
+                  grammar: avgGrammar,
+                  overall: avgOverall,
+                },
+                phases: qualityScores,
+              };
+
+              await fs.writeFile(
+                path.join(runOutputDir, 'quality-scores.json'),
+                JSON.stringify(qualitySummary, null, 2),
+                'utf8'
+              );
+              console.log(
+                `[Pipeline] Quality scores: coverage=${avgCoverage.toFixed(2)}, validity=${avgValidity.toFixed(2)}, richness=${avgRichness.toFixed(2)}, grammar=${avgGrammar.toFixed(2)}, overall=${avgOverall.toFixed(2)}`
+              );
+            }
           }
 
           // Skip remaining passes in the old loop - we've handled them all
@@ -1502,7 +1597,7 @@ const runBenchmark = async () => {
                 segments: phaseSegments,
                 settings,
                 structuredOutputs,
-                llmCaller: openRouterLLMCaller,
+                llmCaller,
                 maxTokens: maxTokens ?? undefined,
               });
 
@@ -1609,7 +1704,7 @@ const runBenchmark = async () => {
             segments,
             settings,
             structuredOutputs,
-            llmCaller: openRouterLLMCaller,
+            llmCaller,
             maxTokens: maxTokens ?? undefined,
           });
 
@@ -1688,7 +1783,7 @@ const runBenchmark = async () => {
           dictionaryEntries: {},
           settings,
           structuredOutputs,
-          llmCaller: openRouterLLMCaller,
+          llmCaller,
           maxTokens: maxTokens ?? undefined,
         });
 
@@ -1797,7 +1892,7 @@ const runBenchmark = async () => {
           englishText,
           settings,
           structuredOutputs,
-          llmCaller: openRouterLLMCaller,
+          llmCaller,
           maxTokens: maxTokens ?? undefined,
         });
 
@@ -1869,7 +1964,7 @@ const runBenchmark = async () => {
           weaver: weaverInput,
           settings,
           structuredOutputs,
-          llmCaller: openRouterLLMCaller,
+          llmCaller,
           maxTokens: maxTokens ?? undefined,
         });
 
@@ -1934,7 +2029,7 @@ const runBenchmark = async () => {
           phaseView: phaseViewInput,
           settings,
           structuredOutputs,
-          llmCaller: openRouterLLMCaller,
+          llmCaller,
           maxTokens: maxTokens ?? undefined,
         });
 
