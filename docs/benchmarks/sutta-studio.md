@@ -114,8 +114,9 @@ After each benchmark run, the harness computes quality scores for each model. Th
 
 ### Coverage Metrics
 
-- **Pali Word Coverage**: Ratio of output words to input Pali words (split by whitespace)
-- **English Mapping Ratio**: Ratio of mapped English tokens to total tokens (non-ghost tokens)
+- **Pali Word Coverage** (33%): Ratio of output words to input Pali words (split by whitespace)
+- **English Mapping Ratio** (17%): Ratio of non-ghost English tokens to total tokens
+- **Alignment Coverage** (50%): Ratio of English tokens with actual Pali segment links (`linkedSegmentId`) to non-ghost tokens. This is the critical metric for visible alignment edges in the UI.
 
 ### Validity Metrics
 
@@ -145,10 +146,20 @@ overall = coverage * 0.25 + validity * 0.35 + richness * 0.20 + grammar * 0.20
 
 ### Leaderboard
 
-The leaderboard shows the **best run per model** ranked by overall score. It includes:
-- Quality scores across all dimensions
-- Token usage and cost
-- Link to view the output in Sutta Studio
+The leaderboard aggregates scores across **ALL unique phases** completed by each model across all benchmark runs. This gives a true representation of model capability across the full test set (15 phases).
+
+Each entry includes:
+- Quality scores averaged across all completed phases
+- Number of phases successfully scored (out of 15 total)
+- Token usage and cost (aggregated across runs)
+- Link to view the best output in Sutta Studio
+
+**Aggregation rules**:
+- Scores are averaged across all unique phase IDs per model
+- When a model has multiple runs with the same phase, the best score is used
+- The packet link points to the run with the most completed phases
+
+**Interpreting results**: Models with fewer phases completed may have high scores on easy phases but struggle with complex ones. A model with 15/15 phases has proven reliability across the full test set, while 1/15 is not representative.
 
 Generate/update the leaderboard:
 ```bash

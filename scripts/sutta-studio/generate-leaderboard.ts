@@ -1,8 +1,9 @@
 /**
  * Generate Leaderboard for Sutta Studio Benchmarks
  *
- * Scans all benchmark runs, finds the best run per model (by overall quality score),
- * and writes a leaderboard.json file.
+ * Scans all benchmark runs and aggregates ALL phase scores across ALL runs
+ * per model. This gives a true representation of model capability across
+ * the full test set (15 phases).
  *
  * Run standalone: npx tsx scripts/sutta-studio/generate-leaderboard.ts
  * Or called from benchmark.ts after each run completes.
@@ -15,6 +16,17 @@ import { BENCHMARK_CONFIG } from './benchmark-config';
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────────────────────────────────
+
+type PhaseScore = {
+  phase: string;
+  model: string;
+  coverageScore: number;
+  validityScore: number;
+  richnessScore: number;
+  grammarScore: number;
+  overallScore: number;
+  alignmentCoverage: number;
+};
 
 type QualityScores = {
   generatedAt: string;
@@ -30,6 +42,7 @@ type QualityScores = {
     grammar: number;
     overall: number;
   };
+  phases: PhaseScore[];
 };
 
 type LeaderboardEntry = {
@@ -62,7 +75,8 @@ type Leaderboard = {
   methodology: {
     docsUrl: string;
     rankingMetric: 'overallScore';
-    aggregation: 'bestPerModel';
+    aggregation: 'allPhasesPerModel';
+    description: string;
   };
   entries: LeaderboardEntry[];
 };
@@ -191,41 +205,128 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 
   console.log(`[Leaderboard] Found ${allRuns.length} model runs with quality scores`);
 
-  // Find best run per model (highest overall score)
-  const bestPerModel = new Map<string, ModelRun>();
+  // Aggregate ALL phases across ALL runs per model
+  // This gives a true representation across the full test set
+  type ModelAggregate = {
+    modelId: string;
+    modelName: string;
+    allPhases: PhaseScore[];
+    // Track unique phases by phase ID to avoid double-counting same phase from multiple runs
+    uniquePhases: Map<string, PhaseScore>;
+    // Keep the run with most phases for the packet link
+    bestRun: ModelRun;
+    totalTokens: number;
+    totalDuration: number;
+    totalCost: number | null;
+  };
+
+  const modelAggregates = new Map<string, ModelAggregate>();
+
   for (const run of allRuns) {
-    const existing = bestPerModel.get(run.modelId);
-    if (!existing || run.qualityScores.averages.overall > existing.qualityScores.averages.overall) {
-      bestPerModel.set(run.modelId, run);
+    const phases = run.qualityScores.phases || [];
+    let agg = modelAggregates.get(run.modelId);
+
+    if (!agg) {
+      agg = {
+        modelId: run.modelId,
+        modelName: run.modelName,
+        allPhases: [],
+        uniquePhases: new Map(),
+        bestRun: run,
+        totalTokens: 0,
+        totalDuration: 0,
+        totalCost: null,
+      };
+      modelAggregates.set(run.modelId, agg);
+    }
+
+    // Add each phase score, using the best score per phase ID
+    for (const phase of phases) {
+      const existing = agg.uniquePhases.get(phase.phase);
+      if (!existing || phase.overallScore > existing.overallScore) {
+        agg.uniquePhases.set(phase.phase, phase);
+      }
+    }
+
+    // Track best run (most phases) for packet link
+    if (phases.length > (agg.bestRun.qualityScores.phases?.length || 0)) {
+      agg.bestRun = run;
+    }
+
+    // Aggregate metrics
+    agg.totalTokens += run.metrics.tokensTotal;
+    agg.totalDuration += run.metrics.durationMs;
+    if (run.metrics.costUsd !== null) {
+      agg.totalCost = (agg.totalCost || 0) + run.metrics.costUsd;
     }
   }
 
-  console.log(`[Leaderboard] ${bestPerModel.size} unique models with best runs`);
+  console.log(`[Leaderboard] ${modelAggregates.size} unique models with aggregated phases`);
+
+  // Compute averages across all unique phases per model
+  const modelScores: Array<{
+    modelId: string;
+    modelName: string;
+    avgOverall: number;
+    avgCoverage: number;
+    avgValidity: number;
+    avgRichness: number;
+    avgGrammar: number;
+    phasesCount: number;
+    metrics: { tokensTotal: number; durationMs: number; costUsd: number | null };
+    bestRun: ModelRun;
+  }> = [];
+
+  for (const agg of modelAggregates.values()) {
+    const phases = Array.from(agg.uniquePhases.values());
+    if (phases.length === 0) continue;
+
+    const avgOverall = phases.reduce((s, p) => s + p.overallScore, 0) / phases.length;
+    const avgCoverage = phases.reduce((s, p) => s + p.coverageScore, 0) / phases.length;
+    const avgValidity = phases.reduce((s, p) => s + p.validityScore, 0) / phases.length;
+    const avgRichness = phases.reduce((s, p) => s + p.richnessScore, 0) / phases.length;
+    const avgGrammar = phases.reduce((s, p) => s + p.grammarScore, 0) / phases.length;
+
+    modelScores.push({
+      modelId: agg.modelId,
+      modelName: agg.modelName,
+      avgOverall,
+      avgCoverage,
+      avgValidity,
+      avgRichness,
+      avgGrammar,
+      phasesCount: phases.length,
+      metrics: {
+        tokensTotal: agg.totalTokens,
+        durationMs: agg.totalDuration,
+        costUsd: agg.totalCost,
+      },
+      bestRun: agg.bestRun,
+    });
+  }
 
   // Sort by overall score and assign ranks
-  const sortedModels = Array.from(bestPerModel.values()).sort(
-    (a, b) => b.qualityScores.averages.overall - a.qualityScores.averages.overall
-  );
+  modelScores.sort((a, b) => b.avgOverall - a.avgOverall);
 
   // Get latest prompt version from most recent run
   const latestPromptVersion = allRuns[0]?.qualityScores.promptVersion || 'unknown';
 
-  const entries: LeaderboardEntry[] = sortedModels.map((run, index) => ({
+  const entries: LeaderboardEntry[] = modelScores.map((m, index) => ({
     rank: index + 1,
-    modelId: run.modelId,
-    modelName: run.modelName,
-    overallScore: run.qualityScores.averages.overall,
-    coverageScore: run.qualityScores.averages.coverage,
-    validityScore: run.qualityScores.averages.validity,
-    richnessScore: run.qualityScores.averages.richness,
-    grammarScore: run.qualityScores.averages.grammar,
-    tokensTotal: run.metrics.tokensTotal,
-    durationMs: run.metrics.durationMs,
-    costUsd: run.metrics.costUsd,
-    phasesCount: run.qualityScores.phaseCount,
-    runTimestamp: run.runTimestamp,
-    runId: run.runId,
-    packetPath: run.packetPath,
+    modelId: m.modelId,
+    modelName: m.modelName,
+    overallScore: m.avgOverall,
+    coverageScore: m.avgCoverage,
+    validityScore: m.avgValidity,
+    richnessScore: m.avgRichness,
+    grammarScore: m.avgGrammar,
+    tokensTotal: m.metrics.tokensTotal,
+    durationMs: m.metrics.durationMs,
+    costUsd: m.metrics.costUsd,
+    phasesCount: m.phasesCount,
+    runTimestamp: m.bestRun.runTimestamp,
+    runId: m.bestRun.runId,
+    packetPath: m.bestRun.packetPath,
   }));
 
   const leaderboard: Leaderboard = {
@@ -235,7 +336,9 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       docsUrl:
         'https://github.com/anthropics/lexiconforge/blob/main/docs/benchmarks/sutta-studio.md#quality-scoring',
       rankingMetric: 'overallScore',
-      aggregation: 'bestPerModel',
+      aggregation: 'allPhasesPerModel',
+      description:
+        'Scores are averaged across ALL unique phases completed by each model. Uses best score per phase when a model has multiple runs.',
     },
     entries,
   };
@@ -256,16 +359,15 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 async function main() {
   const leaderboard = await generateLeaderboard();
 
-  console.log('\n=== LEADERBOARD ===\n');
-  console.log('Rank | Model            | Overall | Valid. | Rich.  | Tokens  | Cost');
-  console.log('-----|------------------|---------|--------|--------|---------|-------');
+  console.log('\n=== LEADERBOARD (All Phases Aggregated) ===\n');
+  console.log('Rank | Model            | Phases | Overall | Covg.  | Valid. | Rich.  | Gram.');
+  console.log('-----|------------------|--------|---------|--------|--------|--------|-------');
   for (const entry of leaderboard.entries) {
-    const cost = entry.costUsd ? `$${entry.costUsd.toFixed(3)}` : 'free';
-    const tokens = entry.tokensTotal > 1000 ? `${(entry.tokensTotal / 1000).toFixed(1)}k` : entry.tokensTotal;
     console.log(
-      `  ${entry.rank.toString().padStart(2)} | ${entry.modelId.padEnd(16)} | ${entry.overallScore.toFixed(2).padStart(6)}  | ${entry.validityScore.toFixed(2).padStart(5)}  | ${entry.richnessScore.toFixed(2).padStart(5)}  | ${String(tokens).padStart(7)} | ${cost}`
+      `  ${entry.rank.toString().padStart(2)} | ${entry.modelId.padEnd(16)} | ${entry.phasesCount.toString().padStart(5)}/15 | ${entry.overallScore.toFixed(2).padStart(6)}  | ${entry.coverageScore.toFixed(2).padStart(5)}  | ${entry.validityScore.toFixed(2).padStart(5)}  | ${entry.richnessScore.toFixed(2).padStart(5)}  | ${entry.grammarScore.toFixed(2).padStart(5)}`
     );
   }
+  console.log('\nNote: Scores averaged across ALL unique phases per model.');
 }
 
 main().catch((error) => {

@@ -36,6 +36,7 @@ export type QualityScore = {
   // Coverage
   paliWordCoverage: number;
   englishMappingRatio: number;
+  alignmentCoverage: number;
   // Validity
   noEmptySegments: number;
   noDuplicateMappings: number;
@@ -133,12 +134,20 @@ export function scoreLexicographer(data: LexicographerPass): {
 
 export function scoreWeaver(data: WeaverPass): {
   englishMappingRatio: number;
+  alignmentCoverage: number;
   noDuplicateMappings: number;
 } {
   const tokens = data?.tokens || [];
   const totalTokens = tokens.length;
-  const mappedTokens = tokens.filter(t => !t.isGhost).length;
-  const englishMappingRatio = totalTokens > 0 ? mappedTokens / totalTokens : 0;
+
+  // Non-ghost tokens (visible in UI)
+  const nonGhostTokens = tokens.filter(t => !t.isGhost).length;
+  const englishMappingRatio = totalTokens > 0 ? nonGhostTokens / totalTokens : 0;
+
+  // Alignment coverage: tokens with actual Pali segment links
+  // This is the critical metric for alignment edges in the UI
+  const linkedTokens = tokens.filter(t => !t.isGhost && t.linkedSegmentId).length;
+  const alignmentCoverage = nonGhostTokens > 0 ? linkedTokens / nonGhostTokens : 0;
 
   // Check for duplicate segment mappings
   const segmentLinks = tokens
@@ -150,7 +159,7 @@ export function scoreWeaver(data: WeaverPass): {
     ? 1 - (duplicateCount / segmentLinks.length)
     : 1;
 
-  return { englishMappingRatio, noDuplicateMappings };
+  return { englishMappingRatio, alignmentCoverage, noDuplicateMappings };
 }
 
 export function scoreGrammar(data: AnatomistPass): {
@@ -211,7 +220,13 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
   const weaverScores = scoreWeaver(data.output.weaver);
   const grammarScores = scoreGrammar(data.output.anatomist);
 
-  const coverageScore = (anatomistScores.paliWordCoverage + weaverScores.englishMappingRatio) / 2;
+  // Coverage now includes alignment coverage as the most important factor for visible alignment edges
+  // Weight: paliWordCoverage (33%) + englishMappingRatio (17%) + alignmentCoverage (50%)
+  const coverageScore = (
+    anatomistScores.paliWordCoverage * 0.33 +
+    weaverScores.englishMappingRatio * 0.17 +
+    weaverScores.alignmentCoverage * 0.50
+  );
   const validityScore = (
     anatomistScores.noEmptySegments +
     weaverScores.noDuplicateMappings +
@@ -318,6 +333,7 @@ async function main() {
     console.log(`  Coverage:`);
     console.log(`    Pali Word Coverage:     ${(r.paliWordCoverage * 100).toFixed(0)}%`);
     console.log(`    English Mapping Ratio:  ${(r.englishMappingRatio * 100).toFixed(0)}%`);
+    console.log(`    Alignment Coverage:     ${(r.alignmentCoverage * 100).toFixed(0)}% ← links between Pali/English`);
     console.log(`  Validity:`);
     console.log(`    No Empty Segments:      ${(r.noEmptySegments * 100).toFixed(0)}%`);
     console.log(`    No Duplicate Mappings:  ${(r.noDuplicateMappings * 100).toFixed(0)}%`);
