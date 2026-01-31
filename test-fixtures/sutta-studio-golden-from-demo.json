@@ -1,0 +1,164 @@
+{
+  "_description": "Golden test data generated from SuttaCentral API",
+  "_source": "Generated from demo map (test-fixtures/sutta-studio-demo-map.json)",
+  "_lastUpdated": "2026-01-30",
+  "_workId": "mn10",
+  "_apiSource": "https://suttacentral.net/api/bilarasuttas/mn10/sujato",
+  "skeleton": {
+    "_title": "MN10 (from demo packet)",
+    "_notes": "Canonical segments fetched from SuttaCentral API",
+    "canonicalSegments": [
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:1.1"
+        },
+        "order": 0,
+        "pali": "Evaṁ me sutaṁ—",
+        "baseEnglish": "So I have heard. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:1.2"
+        },
+        "order": 1,
+        "pali": "ekaṁ samayaṁ bhagavā kurūsu viharati kammāsadhammaṁ nāma kurūnaṁ nigamo. ",
+        "baseEnglish": "At one time the Buddha was staying in the land of the Kurus, near the Kuru town named Kammāsadamma. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:1.3"
+        },
+        "order": 2,
+        "pali": "Tatra kho bhagavā bhikkhū āmantesi: ",
+        "baseEnglish": "There the Buddha addressed the mendicants, "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:1.4"
+        },
+        "order": 3,
+        "pali": "“bhikkhavo”ti. ",
+        "baseEnglish": "“Mendicants!” "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:1.5"
+        },
+        "order": 4,
+        "pali": "“Bhadante”ti te bhikkhū bhagavato paccassosuṁ. ",
+        "baseEnglish": "“Venerable sir,” they replied. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:1.6"
+        },
+        "order": 5,
+        "pali": "Bhagavā etadavoca: ",
+        "baseEnglish": "The Buddha said this: "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:2.1"
+        },
+        "order": 6,
+        "pali": "“Ekāyano ayaṁ, bhikkhave, maggo sattānaṁ visuddhiyā, sokaparidevānaṁ samatikkamāya, dukkhadomanassānaṁ atthaṅgamāya, ñāyassa adhigamāya, nibbānassa sacchikiriyāya, yadidaṁ cattāro satipaṭṭhānā. ",
+        "baseEnglish": "“Mendicants, the four kinds of mindfulness meditation are the path to convergence. They are in order to purify sentient beings, to get past sorrow and crying, to make an end of pain and sadness, to discover the system, and to realize extinguishment. "
+      }
+    ],
+    "expectedPhases": [
+      {
+        "id": "phase-1",
+        "title": "Opening Formula",
+        "segmentIds": [
+          "mn10:1.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-a"
+        ]
+      },
+      {
+        "id": "phase-2",
+        "title": "Setting (Nidāna)",
+        "segmentIds": [
+          "mn10:1.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-b",
+          "phase-c",
+          "phase-d"
+        ]
+      },
+      {
+        "id": "phase-3",
+        "title": "Address",
+        "segmentIds": [
+          "mn10:1.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-e"
+        ]
+      },
+      {
+        "id": "phase-4",
+        "title": "Vocative",
+        "segmentIds": [
+          "mn10:1.4"
+        ],
+        "_sourceDemoPhases": [
+          "phase-f"
+        ]
+      },
+      {
+        "id": "phase-5",
+        "title": "Response",
+        "segmentIds": [
+          "mn10:1.5"
+        ],
+        "_sourceDemoPhases": [
+          "phase-g"
+        ]
+      },
+      {
+        "id": "phase-6",
+        "title": "Transition to Teaching",
+        "segmentIds": [
+          "mn10:1.6"
+        ],
+        "_sourceDemoPhases": [
+          "phase-h"
+        ]
+      },
+      {
+        "id": "phase-7",
+        "title": "Uddesa (Complete)",
+        "segmentIds": [
+          "mn10:2.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-1",
+          "phase-2",
+          "phase-3",
+          "phase-4",
+          "phase-5",
+          "phase-6",
+          "phase-7"
+        ],
+        "_notes": "mn10:2.1 contains the entire uddesa. demoPacket uses wordRange to create multiple sub-phases."
+      }
+    ]
+  }
+}

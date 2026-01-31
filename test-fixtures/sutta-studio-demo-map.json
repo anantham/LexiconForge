@@ -1,0 +1,51 @@
+{
+  "_description": "Mapping from demoPacket phases to canonical MN10 segments for skeleton goldens.",
+  "_sourceDemoPacket": "components/sutta-studio/demoPacket.ts",
+  "_workId": "mn10",
+  "_notes": "Uses only segment IDs that exist in SuttaCentral. Demo phases use wordRange to slice segments.",
+  "skeletonPhases": [
+    {
+      "id": "phase-1",
+      "title": "Opening Formula",
+      "segmentIds": ["mn10:1.1"],
+      "_sourceDemoPhases": ["phase-a"]
+    },
+    {
+      "id": "phase-2",
+      "title": "Setting (Nidāna)",
+      "segmentIds": ["mn10:1.2"],
+      "_sourceDemoPhases": ["phase-b", "phase-c", "phase-d"]
+    },
+    {
+      "id": "phase-3",
+      "title": "Address",
+      "segmentIds": ["mn10:1.3"],
+      "_sourceDemoPhases": ["phase-e"]
+    },
+    {
+      "id": "phase-4",
+      "title": "Vocative",
+      "segmentIds": ["mn10:1.4"],
+      "_sourceDemoPhases": ["phase-f"]
+    },
+    {
+      "id": "phase-5",
+      "title": "Response",
+      "segmentIds": ["mn10:1.5"],
+      "_sourceDemoPhases": ["phase-g"]
+    },
+    {
+      "id": "phase-6",
+      "title": "Transition to Teaching",
+      "segmentIds": ["mn10:1.6"],
+      "_sourceDemoPhases": ["phase-h"]
+    },
+    {
+      "id": "phase-7",
+      "title": "Uddesa (Complete)",
+      "segmentIds": ["mn10:2.1"],
+      "_sourceDemoPhases": ["phase-1", "phase-2", "phase-3", "phase-4", "phase-5", "phase-6", "phase-7"],
+      "_notes": "mn10:2.1 contains the entire uddesa. demoPacket uses wordRange to create multiple sub-phases."
+    }
+  ]
+}

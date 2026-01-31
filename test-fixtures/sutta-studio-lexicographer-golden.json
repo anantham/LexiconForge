@@ -1,0 +1,5240 @@
+{
+  "_description": "Lexicographer golden data extracted from demoPacket for benchmarking",
+  "_generatedAt": "2026-01-30T18:13:38.930Z",
+  "_source": "components/sutta-studio/demoPacket.ts",
+  "_phases": [
+    {
+      "phaseId": "phase-a",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-b",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-c",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-d",
+      "wordSenseCount": 4,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-e",
+      "wordSenseCount": 5,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-f",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-g",
+      "wordSenseCount": 6,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-h",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-1",
+      "wordSenseCount": 4,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-2",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-3",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-4",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-5",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-6",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-7",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-x",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-y",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-z",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-aa",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ab",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ac",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ad",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ae",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-af",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ag",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ah",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ai",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-aj",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ak",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-al",
+      "wordSenseCount": 2,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-am",
+      "wordSenseCount": 6,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-an",
+      "wordSenseCount": 7,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ao",
+      "wordSenseCount": 6,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ap",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-aq",
+      "wordSenseCount": 5,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ar",
+      "wordSenseCount": 14,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-as",
+      "wordSenseCount": 14,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-at",
+      "wordSenseCount": 8,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-au",
+      "wordSenseCount": 10,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-av",
+      "wordSenseCount": 21,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-aw",
+      "wordSenseCount": 32,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ax",
+      "wordSenseCount": 8,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ay",
+      "wordSenseCount": 6,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-az",
+      "wordSenseCount": 5,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-ba",
+      "wordSenseCount": 5,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-bb",
+      "wordSenseCount": 4,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-bc",
+      "wordSenseCount": 4,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-bd",
+      "wordSenseCount": 4,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-be",
+      "wordSenseCount": 8,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-bf",
+      "wordSenseCount": 3,
+      "segmentSenseCount": 0
+    },
+    {
+      "phaseId": "phase-bg",
+      "wordSenseCount": 8,
+      "segmentSenseCount": 0
+    }
+  ],
+  "lexicographer": {
+    "phase-a": {
+      "id": "phase-a",
+      "senses": [
+        {
+          "wordId": "a1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "Thus",
+              "nuance": "Refers to what follows"
+            }
+          ]
+        },
+        {
+          "wordId": "a2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "by me",
+              "nuance": "Agent in passive"
+            }
+          ]
+        },
+        {
+          "wordId": "a3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "heard",
+              "nuance": "Past participle"
+            },
+            {
+              "english": "what was heard",
+              "nuance": "The teaching itself"
+            },
+            {
+              "english": "that which has been received",
+              "nuance": "Orally transmitted"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-b": {
+      "id": "phase-b",
+      "senses": [
+        {
+          "wordId": "b1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "one",
+              "nuance": "At one (time)"
+            }
+          ]
+        },
+        {
+          "wordId": "b2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "occasion",
+              "nuance": "A coming together"
+            },
+            {
+              "english": "time",
+              "nuance": "The specific event"
+            },
+            {
+              "english": "opportunity",
+              "nuance": "Suitable moment"
+            }
+          ]
+        },
+        {
+          "wordId": "b3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "the Blessed One",
+              "nuance": "Standard"
+            },
+            {
+              "english": "the Fortunate One",
+              "nuance": "Literal"
+            },
+            {
+              "english": "the Lucky One",
+              "nuance": "Fortune-bearer"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-c": {
+      "id": "phase-c",
+      "senses": [
+        {
+          "wordId": "c1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "among the Kurus",
+              "nuance": "Location"
+            },
+            {
+              "english": "in Kuru territory",
+              "nuance": "Geographical"
+            },
+            {
+              "english": "with the Kuru people",
+              "nuance": "Among inhabitants"
+            }
+          ]
+        },
+        {
+          "wordId": "c2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "was dwelling",
+              "nuance": "Historical present"
+            },
+            {
+              "english": "was staying",
+              "nuance": "Sojourning"
+            },
+            {
+              "english": "was abiding",
+              "nuance": "Remaining"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-d": {
+      "id": "phase-d",
+      "senses": [
+        {
+          "wordId": "d1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "Kammāsadhamma",
+              "nuance": "Place name"
+            },
+            {
+              "english": "\"Where the Spotted One was Tamed\"",
+              "nuance": "Etymology"
+            },
+            {
+              "english": "the spotted-dhamma place",
+              "nuance": "Literal compound"
+            }
+          ]
+        },
+        {
+          "wordId": "d2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "named",
+              "nuance": "Called"
+            }
+          ]
+        },
+        {
+          "wordId": "d3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "of the Kurus",
+              "nuance": "Genitive Plural"
+            },
+            {
+              "english": "belonging to the Kurus",
+              "nuance": "Possessive"
+            },
+            {
+              "english": "the Kurus'",
+              "nuance": "Ownership"
+            }
+          ]
+        },
+        {
+          "wordId": "d4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "a market town",
+              "nuance": "Larger than gāma (village)"
+            },
+            {
+              "english": "a township",
+              "nuance": "Smaller than nagara (city)"
+            },
+            {
+              "english": "a trading center",
+              "nuance": "Commercial gathering place"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-e": {
+      "id": "phase-e",
+      "senses": [
+        {
+          "wordId": "e1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "There",
+              "nuance": "At that place"
+            }
+          ]
+        },
+        {
+          "wordId": "e2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "indeed",
+              "nuance": "Emphasis"
+            },
+            {
+              "english": "",
+              "nuance": "Often untranslated"
+            }
+          ]
+        },
+        {
+          "wordId": "e3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "the Blessed One",
+              "nuance": "Subject"
+            },
+            {
+              "english": "the Fortunate One",
+              "nuance": "Literal"
+            },
+            {
+              "english": "the Lucky One",
+              "nuance": "Fortune-bearer"
+            }
+          ]
+        },
+        {
+          "wordId": "e4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "the bhikkhus",
+              "nuance": "Accusative object"
+            },
+            {
+              "english": "the monks",
+              "nuance": "Standard"
+            },
+            {
+              "english": "the mendicants",
+              "nuance": "Those who beg"
+            }
+          ]
+        },
+        {
+          "wordId": "e5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "addressed",
+              "nuance": "Aorist"
+            },
+            {
+              "english": "summoned",
+              "nuance": "Called to attention"
+            },
+            {
+              "english": "spoke to",
+              "nuance": "Directly addressed"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-f": {
+      "id": "phase-f",
+      "senses": [
+        {
+          "wordId": "f1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "Bhikkhus!",
+              "nuance": "Call"
+            },
+            {
+              "english": "Monks!",
+              "nuance": "Standard"
+            },
+            {
+              "english": "Mendicants!",
+              "nuance": "Those who beg"
+            }
+          ]
+        },
+        {
+          "wordId": "f2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "\"",
+              "nuance": "Quote marker"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-g": {
+      "id": "phase-g",
+      "senses": [
+        {
+          "wordId": "g1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "Venerable sir!",
+              "nuance": "Respectful reply"
+            },
+            {
+              "english": "Good sir!",
+              "nuance": "Literally good one"
+            },
+            {
+              "english": "Reverend!",
+              "nuance": "Respectful address"
+            }
+          ]
+        },
+        {
+          "wordId": "g2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "\"",
+              "nuance": "Close quote"
+            }
+          ]
+        },
+        {
+          "wordId": "g3",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "those",
+              "nuance": "Demonstrative"
+            }
+          ]
+        },
+        {
+          "wordId": "g4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "bhikkhus",
+              "nuance": "Subject"
+            },
+            {
+              "english": "monks",
+              "nuance": "Standard"
+            },
+            {
+              "english": "mendicants",
+              "nuance": "Those who beg"
+            }
+          ]
+        },
+        {
+          "wordId": "g5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "to the Blessed One",
+              "nuance": "Dative"
+            },
+            {
+              "english": "to the Fortunate One",
+              "nuance": "Literal"
+            },
+            {
+              "english": "to the Lucky One",
+              "nuance": "Fortune-bearer"
+            }
+          ]
+        },
+        {
+          "wordId": "g6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "replied",
+              "nuance": "Assented"
+            },
+            {
+              "english": "answered",
+              "nuance": "Responded"
+            },
+            {
+              "english": "acknowledged",
+              "nuance": "Heard and accepted"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-h": {
+      "id": "phase-h",
+      "senses": [
+        {
+          "wordId": "h1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "The Blessed One",
+              "nuance": "Subject"
+            },
+            {
+              "english": "The Fortunate One",
+              "nuance": "Literal"
+            },
+            {
+              "english": "The Lucky One",
+              "nuance": "Fortune-bearer"
+            }
+          ]
+        },
+        {
+          "wordId": "h2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "this",
+              "nuance": "The teaching that follows"
+            }
+          ]
+        },
+        {
+          "wordId": "h3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "said",
+              "nuance": "Spoke"
+            },
+            {
+              "english": "declared",
+              "nuance": "Formal"
+            },
+            {
+              "english": "spoke",
+              "nuance": "Uttered"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-1": {
+      "id": "phase-1",
+      "senses": [
+        {
+          "wordId": "p1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "direct",
+              "nuance": "No detours",
+              "ripples": {
+                "ghost1": "is the"
+              }
+            },
+            {
+              "english": "one-way",
+              "nuance": "Single track",
+              "ripples": {
+                "ghost1": "is the"
+              }
+            },
+            {
+              "english": "solitary",
+              "nuance": "Walk alone",
+              "ripples": {
+                "ghost1": "is a"
+              }
+            },
+            {
+              "english": "convergent",
+              "nuance": "All paths merge here",
+              "ripples": {
+                "ghost1": "is the point of"
+              }
+            },
+            {
+              "english": "only",
+              "nuance": "No alternative",
+              "ripples": {
+                "ghost1": "is the"
+              }
+            }
+          ]
+        },
+        {
+          "wordId": "p2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "this",
+              "nuance": "Pointer to the path"
+            }
+          ]
+        },
+        {
+          "wordId": "p3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "Mendicants,",
+              "nuance": "Those who beg"
+            },
+            {
+              "english": "Monks,",
+              "nuance": "Standard"
+            },
+            {
+              "english": "Sharers,",
+              "nuance": "Those who share the path"
+            },
+            {
+              "english": "Seekers,",
+              "nuance": "Those who see danger"
+            },
+            {
+              "english": "Friends,",
+              "nuance": "Intimate"
+            }
+          ]
+        },
+        {
+          "wordId": "p4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "path",
+              "nuance": "The way"
+            },
+            {
+              "english": "road",
+              "nuance": "Track to follow"
+            },
+            {
+              "english": "method",
+              "nuance": "Systematic approach"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-2": {
+      "id": "phase-2",
+      "senses": [
+        {
+          "wordId": "p5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "beings",
+              "nuance": "Living entities"
+            },
+            {
+              "english": "stuck ones",
+              "nuance": "Attached"
+            },
+            {
+              "english": "seven types",
+              "nuance": "Numerical"
+            }
+          ]
+        },
+        {
+          "wordId": "p6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "purification",
+              "nuance": "Cleaning out"
+            },
+            {
+              "english": "clarity",
+              "nuance": "Seeing clearly"
+            },
+            {
+              "english": "cleansing",
+              "nuance": "Washing away"
+            },
+            {
+              "english": "brightening",
+              "nuance": "Light emerging"
+            },
+            {
+              "english": "refinement",
+              "nuance": "Polishing"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-3": {
+      "id": "phase-3",
+      "senses": [
+        {
+          "wordId": "p7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "grief & lamentation",
+              "nuance": "Literal"
+            },
+            {
+              "english": "burning & crying",
+              "nuance": "Etymological"
+            },
+            {
+              "english": "sorrow & wailing",
+              "nuance": "Emotional suffering"
+            }
+          ]
+        },
+        {
+          "wordId": "p8",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "surmounting",
+              "nuance": "Climbing over"
+            },
+            {
+              "english": "transcending",
+              "nuance": "Going beyond"
+            },
+            {
+              "english": "overcoming",
+              "nuance": "Getting past"
+            },
+            {
+              "english": "crossing over",
+              "nuance": "To the other shore"
+            },
+            {
+              "english": "leaving behind",
+              "nuance": "Moving on"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-4": {
+      "id": "phase-4",
+      "senses": [
+        {
+          "wordId": "p9",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "pain & distress",
+              "nuance": "Physical/Mental"
+            },
+            {
+              "english": "suffering & sadness",
+              "nuance": "Standard"
+            },
+            {
+              "english": "discomfort & displeasure",
+              "nuance": "Unpleasant feelings"
+            }
+          ]
+        },
+        {
+          "wordId": "p10",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "disappearance",
+              "nuance": "Going home"
+            },
+            {
+              "english": "ending",
+              "nuance": "Setting down"
+            },
+            {
+              "english": "extinguishing",
+              "nuance": "Fading"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-5": {
+      "id": "phase-5",
+      "senses": [
+        {
+          "wordId": "p11",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "of the true method",
+              "nuance": "Systematic"
+            },
+            {
+              "english": "of the truth",
+              "nuance": "Ultimate"
+            },
+            {
+              "english": "of the right way",
+              "nuance": "Correct path"
+            }
+          ]
+        },
+        {
+          "wordId": "p12",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "attainment",
+              "nuance": "Reaching"
+            },
+            {
+              "english": "acquisition",
+              "nuance": "Getting"
+            },
+            {
+              "english": "realization",
+              "nuance": "Making real"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-6": {
+      "id": "phase-6",
+      "senses": [
+        {
+          "wordId": "p13",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "of Nibbana",
+              "nuance": "The goal"
+            },
+            {
+              "english": "of Unbinding",
+              "nuance": "Freedom from"
+            },
+            {
+              "english": "of extinguishing",
+              "nuance": "Fire going out"
+            },
+            {
+              "english": "of cooling",
+              "nuance": "Peace"
+            },
+            {
+              "english": "of liberation",
+              "nuance": "Release"
+            }
+          ]
+        },
+        {
+          "wordId": "p14",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "realization",
+              "nuance": "Making real"
+            },
+            {
+              "english": "witnessing",
+              "nuance": "Seeing directly"
+            },
+            {
+              "english": "direct experience",
+              "nuance": "First-hand"
+            },
+            {
+              "english": "making visible",
+              "nuance": "With own eyes"
+            },
+            {
+              "english": "touching",
+              "nuance": "Personal contact"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-7": {
+      "id": "phase-7",
+      "senses": [
+        {
+          "wordId": "p15",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "namely",
+              "nuance": "Introduces what follows"
+            }
+          ]
+        },
+        {
+          "wordId": "p16",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "the four",
+              "nuance": "Quantity"
+            },
+            {
+              "english": "four",
+              "nuance": "Number"
+            },
+            {
+              "english": "the quartet",
+              "nuance": "Group of four"
+            }
+          ]
+        },
+        {
+          "wordId": "p17",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "foundations of mindfulness",
+              "nuance": "Standard translation"
+            },
+            {
+              "english": "establishments of awareness",
+              "nuance": "Active placing"
+            },
+            {
+              "english": "presencings of remembering",
+              "nuance": "Memory aspect"
+            },
+            {
+              "english": "ways of keeping present",
+              "nuance": "Practice-oriented"
+            },
+            {
+              "english": "lucid abodes",
+              "nuance": "Clarity emphasis"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-x": {
+      "id": "phase-x",
+      "senses": [
+        {
+          "wordId": "x1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "What",
+              "nuance": "Interrogative"
+            },
+            {
+              "english": "Which",
+              "nuance": "Specific"
+            }
+          ]
+        },
+        {
+          "wordId": "x2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "four",
+              "nuance": "Cardinal number"
+            },
+            {
+              "english": "the four",
+              "nuance": "Specific set"
+            },
+            {
+              "english": "a tetrad",
+              "nuance": "Complete group"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-y": {
+      "id": "phase-y",
+      "senses": [
+        {
+          "wordId": "y1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "Here",
+              "nuance": "In this teaching"
+            },
+            {
+              "english": "In this case",
+              "nuance": "Context"
+            }
+          ]
+        },
+        {
+          "wordId": "y2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "bhikkhus",
+              "nuance": "Address form"
+            },
+            {
+              "english": "O monks",
+              "nuance": "Vocative"
+            },
+            {
+              "english": "fellow practitioners",
+              "nuance": "Communal"
+            }
+          ]
+        },
+        {
+          "wordId": "y3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "a bhikkhu",
+              "nuance": "Subject"
+            },
+            {
+              "english": "a practitioner",
+              "nuance": "Generic"
+            },
+            {
+              "english": "a mendicant",
+              "nuance": "One who begs alms"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-z": {
+      "id": "phase-z",
+      "senses": [
+        {
+          "wordId": "z1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in the body",
+              "nuance": "Physical form"
+            },
+            {
+              "english": "in this heap",
+              "nuance": "Collection of parts"
+            },
+            {
+              "english": "in this mass",
+              "nuance": "Aggregate"
+            },
+            {
+              "english": "body as body",
+              "nuance": "Just phenomena"
+            },
+            {
+              "english": "in what's assembled",
+              "nuance": "Not-self view"
+            }
+          ]
+        },
+        {
+          "wordId": "z2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing body",
+              "nuance": "Action"
+            },
+            {
+              "english": "a body-watcher",
+              "nuance": "Identity"
+            },
+            {
+              "english": "contemplating form",
+              "nuance": "Sustained attention"
+            },
+            {
+              "english": "tracking the physical",
+              "nuance": "Following closely"
+            },
+            {
+              "english": "seeing body as body",
+              "nuance": "Phenomenological"
+            }
+          ]
+        },
+        {
+          "wordId": "z3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aa": {
+      "id": "phase-aa",
+      "senses": [
+        {
+          "wordId": "aa1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "ardent",
+              "nuance": "Burning effort"
+            },
+            {
+              "english": "with heat",
+              "nuance": "Transformative fire"
+            },
+            {
+              "english": "diligent",
+              "nuance": "Steady energy"
+            },
+            {
+              "english": "keen",
+              "nuance": "Sharp attention"
+            }
+          ]
+        },
+        {
+          "wordId": "aa2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "clearly knowing",
+              "nuance": "Full awareness"
+            },
+            {
+              "english": "with clear comprehension",
+              "nuance": "Four types"
+            },
+            {
+              "english": "discerning",
+              "nuance": "Purpose-aware"
+            },
+            {
+              "english": "fully aware",
+              "nuance": "Context-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "aa3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "possessing mindfulness",
+              "nuance": "Faculty"
+            },
+            {
+              "english": "mindful",
+              "nuance": "Standard"
+            },
+            {
+              "english": "equipped with awareness",
+              "nuance": "Capacity"
+            },
+            {
+              "english": "recollected",
+              "nuance": "Gathered"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ab": {
+      "id": "phase-ab",
+      "senses": [
+        {
+          "wordId": "ab1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "putting aside",
+              "nuance": "Simultaneous view"
+            },
+            {
+              "english": "having removed",
+              "nuance": "Sequential view"
+            },
+            {
+              "english": "disciplining",
+              "nuance": "Vinaya connection"
+            },
+            {
+              "english": "training away",
+              "nuance": "Gradual"
+            },
+            {
+              "english": "freeing from",
+              "nuance": "Liberation"
+            }
+          ]
+        },
+        {
+          "wordId": "ab2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "regarding the world",
+              "nuance": "Scope"
+            },
+            {
+              "english": "in the world",
+              "nuance": "Location"
+            },
+            {
+              "english": "concerning experience",
+              "nuance": "Domain"
+            }
+          ]
+        },
+        {
+          "wordId": "ab3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "covetousness & displeasure",
+              "nuance": "Literal pair"
+            },
+            {
+              "english": "the five hindrances",
+              "nuance": "Synecdoche"
+            },
+            {
+              "english": "wanting & not-wanting",
+              "nuance": "Craving poles"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ac": {
+      "id": "phase-ac",
+      "senses": [
+        {
+          "wordId": "ac1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in feelings",
+              "nuance": "Hedonic tones"
+            },
+            {
+              "english": "regarding felt tones",
+              "nuance": "Pleasant/painful/neutral"
+            },
+            {
+              "english": "within sensations",
+              "nuance": "Raw valence"
+            }
+          ]
+        },
+        {
+          "wordId": "ac2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing feelings",
+              "nuance": "Action"
+            },
+            {
+              "english": "a feeling-watcher",
+              "nuance": "Identity"
+            },
+            {
+              "english": "tracking sensations",
+              "nuance": "Following closely"
+            },
+            {
+              "english": "seeing feeling as feeling",
+              "nuance": "Phenomenological"
+            }
+          ]
+        },
+        {
+          "wordId": "ac3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ad": {
+      "id": "phase-ad",
+      "senses": [
+        {
+          "wordId": "ad1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "ardent",
+              "nuance": "Burning effort"
+            },
+            {
+              "english": "with heat",
+              "nuance": "Transformative fire"
+            },
+            {
+              "english": "diligent",
+              "nuance": "Steady energy"
+            },
+            {
+              "english": "keen",
+              "nuance": "Sharp attention"
+            }
+          ]
+        },
+        {
+          "wordId": "ad2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "clearly knowing",
+              "nuance": "Full awareness"
+            },
+            {
+              "english": "with clear comprehension",
+              "nuance": "Four types"
+            },
+            {
+              "english": "discerning",
+              "nuance": "Purpose-aware"
+            },
+            {
+              "english": "fully aware",
+              "nuance": "Context-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "ad3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "possessing mindfulness",
+              "nuance": "Faculty"
+            },
+            {
+              "english": "mindful",
+              "nuance": "Standard"
+            },
+            {
+              "english": "equipped with awareness",
+              "nuance": "Capacity"
+            },
+            {
+              "english": "recollected",
+              "nuance": "Gathered"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ae": {
+      "id": "phase-ae",
+      "senses": [
+        {
+          "wordId": "ae1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "putting aside",
+              "nuance": "Simultaneous view"
+            },
+            {
+              "english": "having removed",
+              "nuance": "Sequential view"
+            },
+            {
+              "english": "disciplining",
+              "nuance": "Vinaya connection"
+            },
+            {
+              "english": "training away",
+              "nuance": "Gradual"
+            },
+            {
+              "english": "freeing from",
+              "nuance": "Liberation"
+            }
+          ]
+        },
+        {
+          "wordId": "ae2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "regarding the world",
+              "nuance": "Scope"
+            },
+            {
+              "english": "in the world",
+              "nuance": "Location"
+            },
+            {
+              "english": "concerning experience",
+              "nuance": "Domain"
+            }
+          ]
+        },
+        {
+          "wordId": "ae3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "covetousness & displeasure",
+              "nuance": "Literal pair"
+            },
+            {
+              "english": "the five hindrances",
+              "nuance": "Synecdoche"
+            },
+            {
+              "english": "wanting & not-wanting",
+              "nuance": "Craving poles"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-af": {
+      "id": "phase-af",
+      "senses": [
+        {
+          "wordId": "af1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in the mind",
+              "nuance": "Cognitive aspect"
+            },
+            {
+              "english": "in the heart",
+              "nuance": "Affective aspect"
+            },
+            {
+              "english": "regarding consciousness",
+              "nuance": "State-awareness"
+            }
+          ]
+        },
+        {
+          "wordId": "af2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing mind",
+              "nuance": "Action"
+            },
+            {
+              "english": "a mind-watcher",
+              "nuance": "Identity"
+            },
+            {
+              "english": "tracking consciousness",
+              "nuance": "Following closely"
+            },
+            {
+              "english": "seeing mind as mind",
+              "nuance": "Phenomenological"
+            }
+          ]
+        },
+        {
+          "wordId": "af3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ag": {
+      "id": "phase-ag",
+      "senses": [
+        {
+          "wordId": "ag1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "ardent",
+              "nuance": "Burning effort"
+            },
+            {
+              "english": "with heat",
+              "nuance": "Transformative fire"
+            },
+            {
+              "english": "diligent",
+              "nuance": "Steady energy"
+            },
+            {
+              "english": "keen",
+              "nuance": "Sharp attention"
+            }
+          ]
+        },
+        {
+          "wordId": "ag2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "clearly knowing",
+              "nuance": "Full awareness"
+            },
+            {
+              "english": "with clear comprehension",
+              "nuance": "Four types"
+            },
+            {
+              "english": "discerning",
+              "nuance": "Purpose-aware"
+            },
+            {
+              "english": "fully aware",
+              "nuance": "Context-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "ag3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "possessing mindfulness",
+              "nuance": "Faculty"
+            },
+            {
+              "english": "mindful",
+              "nuance": "Standard"
+            },
+            {
+              "english": "equipped with awareness",
+              "nuance": "Capacity"
+            },
+            {
+              "english": "recollected",
+              "nuance": "Gathered"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ah": {
+      "id": "phase-ah",
+      "senses": [
+        {
+          "wordId": "ah1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "putting aside",
+              "nuance": "Simultaneous view"
+            },
+            {
+              "english": "having removed",
+              "nuance": "Sequential view"
+            },
+            {
+              "english": "disciplining",
+              "nuance": "Vinaya connection"
+            },
+            {
+              "english": "training away",
+              "nuance": "Gradual"
+            },
+            {
+              "english": "freeing from",
+              "nuance": "Liberation"
+            }
+          ]
+        },
+        {
+          "wordId": "ah2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "regarding the world",
+              "nuance": "Scope"
+            },
+            {
+              "english": "in the world",
+              "nuance": "Location"
+            },
+            {
+              "english": "concerning experience",
+              "nuance": "Domain"
+            }
+          ]
+        },
+        {
+          "wordId": "ah3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "covetousness & displeasure",
+              "nuance": "Literal pair"
+            },
+            {
+              "english": "the five hindrances",
+              "nuance": "Synecdoche"
+            },
+            {
+              "english": "wanting & not-wanting",
+              "nuance": "Craving poles"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ai": {
+      "id": "phase-ai",
+      "senses": [
+        {
+          "wordId": "ai1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in principles",
+              "nuance": "Causal patterns"
+            },
+            {
+              "english": "regarding phenomena",
+              "nuance": "Mental factors"
+            },
+            {
+              "english": "within the categories",
+              "nuance": "The five sections"
+            },
+            {
+              "english": "in the way things work",
+              "nuance": "Laws of mind"
+            }
+          ]
+        },
+        {
+          "wordId": "ai2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing phenomena",
+              "nuance": "Action"
+            },
+            {
+              "english": "a dhamma-watcher",
+              "nuance": "Identity"
+            },
+            {
+              "english": "tracking principles",
+              "nuance": "Following closely"
+            },
+            {
+              "english": "seeing dhamma as dhamma",
+              "nuance": "Phenomenological"
+            }
+          ]
+        },
+        {
+          "wordId": "ai3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aj": {
+      "id": "phase-aj",
+      "senses": [
+        {
+          "wordId": "aj1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "ardent",
+              "nuance": "Burning effort"
+            },
+            {
+              "english": "with heat",
+              "nuance": "Transformative fire"
+            },
+            {
+              "english": "diligent",
+              "nuance": "Steady energy"
+            },
+            {
+              "english": "keen",
+              "nuance": "Sharp attention"
+            }
+          ]
+        },
+        {
+          "wordId": "aj2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "clearly knowing",
+              "nuance": "Full awareness"
+            },
+            {
+              "english": "with clear comprehension",
+              "nuance": "Four types"
+            },
+            {
+              "english": "discerning",
+              "nuance": "Purpose-aware"
+            },
+            {
+              "english": "fully aware",
+              "nuance": "Context-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "aj3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "possessing mindfulness",
+              "nuance": "Faculty"
+            },
+            {
+              "english": "mindful",
+              "nuance": "Standard"
+            },
+            {
+              "english": "equipped with awareness",
+              "nuance": "Capacity"
+            },
+            {
+              "english": "recollected",
+              "nuance": "Gathered"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ak": {
+      "id": "phase-ak",
+      "senses": [
+        {
+          "wordId": "ak1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "putting aside",
+              "nuance": "Simultaneous view"
+            },
+            {
+              "english": "having removed",
+              "nuance": "Sequential view"
+            },
+            {
+              "english": "disciplining",
+              "nuance": "Vinaya connection"
+            },
+            {
+              "english": "training away",
+              "nuance": "Gradual"
+            },
+            {
+              "english": "freeing from",
+              "nuance": "Liberation"
+            }
+          ]
+        },
+        {
+          "wordId": "ak2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "regarding the world",
+              "nuance": "Scope"
+            },
+            {
+              "english": "in the world",
+              "nuance": "Location"
+            },
+            {
+              "english": "concerning experience",
+              "nuance": "Domain"
+            }
+          ]
+        },
+        {
+          "wordId": "ak3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "covetousness & displeasure",
+              "nuance": "Literal pair"
+            },
+            {
+              "english": "the five hindrances",
+              "nuance": "Synecdoche"
+            },
+            {
+              "english": "wanting & not-wanting",
+              "nuance": "Craving poles"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-al": {
+      "id": "phase-al",
+      "senses": [
+        {
+          "wordId": "al1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "The outline",
+              "nuance": "Summary"
+            },
+            {
+              "english": "The overview",
+              "nuance": "Introduction"
+            },
+            {
+              "english": "The pointing-out",
+              "nuance": "Etymological"
+            }
+          ]
+        },
+        {
+          "wordId": "al2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "is complete",
+              "nuance": "Finished"
+            },
+            {
+              "english": "is concluded",
+              "nuance": "Ended"
+            },
+            {
+              "english": "stands established",
+              "nuance": "Done"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-am": {
+      "id": "phase-am",
+      "senses": [
+        {
+          "wordId": "am1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "And how",
+              "nuance": "Transition"
+            },
+            {
+              "english": "In what way",
+              "nuance": "Method question"
+            }
+          ]
+        },
+        {
+          "wordId": "am2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "monks",
+              "nuance": "Address form"
+            },
+            {
+              "english": "O monastics",
+              "nuance": "Vocative"
+            },
+            {
+              "english": "mendicants",
+              "nuance": "Addressing group of alms-beggars"
+            }
+          ]
+        },
+        {
+          "wordId": "am3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "a monk",
+              "nuance": "Subject"
+            },
+            {
+              "english": "a monastic",
+              "nuance": "Ordained one"
+            },
+            {
+              "english": "a mendicant",
+              "nuance": "One who begs alms"
+            }
+          ]
+        },
+        {
+          "wordId": "am4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in the body",
+              "nuance": "Physical form"
+            },
+            {
+              "english": "in this heap",
+              "nuance": "Collection of parts"
+            },
+            {
+              "english": "in this mass",
+              "nuance": "Aggregate"
+            },
+            {
+              "english": "body as body",
+              "nuance": "Just phenomena"
+            },
+            {
+              "english": "in what's assembled",
+              "nuance": "Not-self view"
+            }
+          ]
+        },
+        {
+          "wordId": "am5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing body",
+              "nuance": "Action"
+            },
+            {
+              "english": "a body-watcher",
+              "nuance": "Identity"
+            },
+            {
+              "english": "contemplating form",
+              "nuance": "Sustained attention"
+            },
+            {
+              "english": "tracking the physical",
+              "nuance": "Following closely"
+            },
+            {
+              "english": "seeing body as body",
+              "nuance": "Phenomenological"
+            }
+          ]
+        },
+        {
+          "wordId": "am6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-an": {
+      "id": "phase-an",
+      "senses": [
+        {
+          "wordId": "an1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "Here",
+              "nuance": "In this case"
+            }
+          ]
+        },
+        {
+          "wordId": "an2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "monks",
+              "nuance": "Address form"
+            },
+            {
+              "english": "O monastics",
+              "nuance": "Vocative"
+            },
+            {
+              "english": "mendicants",
+              "nuance": "Addressing group of alms-beggars"
+            }
+          ]
+        },
+        {
+          "wordId": "an3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "a monk",
+              "nuance": "Subject"
+            },
+            {
+              "english": "a monastic",
+              "nuance": "Ordained one"
+            },
+            {
+              "english": "a mendicant",
+              "nuance": "One who begs alms"
+            }
+          ]
+        },
+        {
+          "wordId": "an4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "gone to the wilderness",
+              "nuance": "Remote location"
+            },
+            {
+              "english": "gone to the forest",
+              "nuance": "Natural setting"
+            },
+            {
+              "english": "gone to the wild",
+              "nuance": "Untamed place"
+            }
+          ]
+        },
+        {
+          "wordId": "an5",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "an6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "gone to a tree root",
+              "nuance": "Meditation spot"
+            },
+            {
+              "english": "at the foot of a tree",
+              "nuance": "Traditional location"
+            },
+            {
+              "english": "to the base of a tree",
+              "nuance": "Foundation/bottom"
+            }
+          ]
+        },
+        {
+          "wordId": "an7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "gone to an empty house",
+              "nuance": "Vacant dwelling"
+            },
+            {
+              "english": "in an empty building",
+              "nuance": "Shelter without people"
+            },
+            {
+              "english": "to a void dwelling place",
+              "nuance": "Empty refuge"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ao": {
+      "id": "phase-ao",
+      "senses": [
+        {
+          "wordId": "ao1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "sits down",
+              "nuance": "Action"
+            },
+            {
+              "english": "is seated",
+              "nuance": "State"
+            },
+            {
+              "english": "sits",
+              "nuance": "General"
+            }
+          ]
+        },
+        {
+          "wordId": "ao2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "cross-legged",
+              "nuance": "Posture"
+            },
+            {
+              "english": "in lotus position",
+              "nuance": "Traditional"
+            },
+            {
+              "english": "folded",
+              "nuance": "Bent position"
+            }
+          ]
+        },
+        {
+          "wordId": "ao3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "having bent",
+              "nuance": "Arranging limbs"
+            },
+            {
+              "english": "having coiled",
+              "nuance": "Wrapped position"
+            },
+            {
+              "english": "having contracted",
+              "nuance": "Drawn in"
+            }
+          ]
+        },
+        {
+          "wordId": "ao4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "straight",
+              "nuance": "Not bent"
+            },
+            {
+              "english": "upright",
+              "nuance": "Vertical"
+            },
+            {
+              "english": "erect",
+              "nuance": "Extended up"
+            }
+          ]
+        },
+        {
+          "wordId": "ao5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "the body",
+              "nuance": "Physical form"
+            },
+            {
+              "english": "the frame",
+              "nuance": "Physical structure"
+            },
+            {
+              "english": "the torso",
+              "nuance": "Physical mass"
+            }
+          ]
+        },
+        {
+          "wordId": "ao6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "having directed",
+              "nuance": "Oriented forward"
+            },
+            {
+              "english": "having set",
+              "nuance": "Established in place"
+            },
+            {
+              "english": "having determined",
+              "nuance": "Fixed position"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ap": {
+      "id": "phase-ap",
+      "senses": [
+        {
+          "wordId": "ap1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in front",
+              "nuance": "Before the face"
+            },
+            {
+              "english": "around the nostrils",
+              "nuance": "Breath spot"
+            },
+            {
+              "english": "as foremost",
+              "nuance": "Primary focus"
+            }
+          ]
+        },
+        {
+          "wordId": "ap2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "mindfulness",
+              "nuance": "Awareness"
+            },
+            {
+              "english": "recollection",
+              "nuance": "Memory faculty"
+            },
+            {
+              "english": "presence of mind",
+              "nuance": "Attentiveness"
+            }
+          ]
+        },
+        {
+          "wordId": "ap3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "having set up",
+              "nuance": "Prepared"
+            },
+            {
+              "english": "having brought near",
+              "nuance": "Made present"
+            },
+            {
+              "english": "having readied",
+              "nuance": "Made ready"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aq": {
+      "id": "phase-aq",
+      "senses": [
+        {
+          "wordId": "aq1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "He",
+              "nuance": "That practitioner"
+            }
+          ]
+        },
+        {
+          "wordId": "aq2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "mindfully",
+              "nuance": "Adverbial"
+            },
+            {
+              "english": "with awareness",
+              "nuance": "Applied sati"
+            },
+            {
+              "english": "recollected",
+              "nuance": "Present"
+            }
+          ]
+        },
+        {
+          "wordId": "aq3",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "just",
+              "nuance": "Emphasis"
+            }
+          ]
+        },
+        {
+          "wordId": "aq4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathes in",
+              "nuance": "Inhalation"
+            },
+            {
+              "english": "inhales",
+              "nuance": "Drawing breath in"
+            },
+            {
+              "english": "breathes",
+              "nuance": "General breathing"
+            }
+          ]
+        },
+        {
+          "wordId": "aq5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathes out",
+              "nuance": "Exhalation"
+            },
+            {
+              "english": "exhales",
+              "nuance": "Releasing breath"
+            },
+            {
+              "english": "out-breathes",
+              "nuance": "Breathing forth"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ar": {
+      "id": "phase-ar",
+      "senses": [
+        {
+          "wordId": "ar1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Duration"
+            },
+            {
+              "english": "slowly",
+              "nuance": "Manner"
+            },
+            {
+              "english": "deeply",
+              "nuance": "Extent"
+            }
+          ]
+        },
+        {
+          "wordId": "ar2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "ar3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing in",
+              "nuance": "While inhaling"
+            },
+            {
+              "english": "inhaling",
+              "nuance": "Drawing breath"
+            },
+            {
+              "english": "taking a breath",
+              "nuance": "Active"
+            }
+          ]
+        },
+        {
+          "wordId": "ar3b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Extended in time"
+            },
+            {
+              "english": "deep",
+              "nuance": "Spacious breath"
+            },
+            {
+              "english": "tall",
+              "nuance": "Full breath"
+            }
+          ]
+        },
+        {
+          "wordId": "ar4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe in",
+              "nuance": "First person inhalation"
+            },
+            {
+              "english": "I inhale",
+              "nuance": "Drawing breath"
+            },
+            {
+              "english": "I am breathing in",
+              "nuance": "Present progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "ar5",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "ar6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct experience"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        },
+        {
+          "wordId": "ar7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Duration"
+            },
+            {
+              "english": "slowly",
+              "nuance": "Manner"
+            },
+            {
+              "english": "deeply",
+              "nuance": "Extent"
+            }
+          ]
+        },
+        {
+          "wordId": "ar8",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "ar9",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing out",
+              "nuance": "While exhaling"
+            },
+            {
+              "english": "exhaling",
+              "nuance": "Releasing breath"
+            },
+            {
+              "english": "letting go",
+              "nuance": "Release"
+            }
+          ]
+        },
+        {
+          "wordId": "ar9b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Extended in time"
+            },
+            {
+              "english": "deep",
+              "nuance": "Spacious breath"
+            },
+            {
+              "english": "tall",
+              "nuance": "Full breath"
+            }
+          ]
+        },
+        {
+          "wordId": "ar10",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe out",
+              "nuance": "First person exhalation"
+            },
+            {
+              "english": "I exhale",
+              "nuance": "Releasing breath"
+            },
+            {
+              "english": "I am breathing out",
+              "nuance": "Present progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "ar11",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "ar12",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct experience"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-as": {
+      "id": "phase-as",
+      "senses": [
+        {
+          "wordId": "as1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief"
+            },
+            {
+              "english": "quickly",
+              "nuance": "Manner"
+            },
+            {
+              "english": "lightly",
+              "nuance": "Gentle"
+            }
+          ]
+        },
+        {
+          "wordId": "as2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "as3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing in",
+              "nuance": "While inhaling"
+            },
+            {
+              "english": "inhaling",
+              "nuance": "Drawing breath"
+            },
+            {
+              "english": "taking a breath",
+              "nuance": "Active"
+            }
+          ]
+        },
+        {
+          "wordId": "as3b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief in duration"
+            },
+            {
+              "english": "dwarfish",
+              "nuance": "Small breath"
+            },
+            {
+              "english": "stunted",
+              "nuance": "Shallow"
+            }
+          ]
+        },
+        {
+          "wordId": "as4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe in",
+              "nuance": "First person inhalation"
+            },
+            {
+              "english": "I inhale",
+              "nuance": "Drawing breath"
+            },
+            {
+              "english": "I am breathing in",
+              "nuance": "Present progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "as5",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "as6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct experience"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        },
+        {
+          "wordId": "as7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief"
+            },
+            {
+              "english": "quickly",
+              "nuance": "Manner"
+            },
+            {
+              "english": "lightly",
+              "nuance": "Gentle"
+            }
+          ]
+        },
+        {
+          "wordId": "as8",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "as9",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing out",
+              "nuance": "While exhaling"
+            },
+            {
+              "english": "exhaling",
+              "nuance": "Releasing breath"
+            },
+            {
+              "english": "letting go",
+              "nuance": "Release"
+            }
+          ]
+        },
+        {
+          "wordId": "as9b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief in duration"
+            },
+            {
+              "english": "dwarfish",
+              "nuance": "Small breath"
+            },
+            {
+              "english": "stunted",
+              "nuance": "Shallow"
+            }
+          ]
+        },
+        {
+          "wordId": "as10",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe out",
+              "nuance": "First person exhalation"
+            },
+            {
+              "english": "I exhale",
+              "nuance": "Releasing breath"
+            },
+            {
+              "english": "I am breathing out",
+              "nuance": "Present progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "as11",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "as12",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct experience"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-at": {
+      "id": "phase-at",
+      "senses": [
+        {
+          "wordId": "at1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "experiencing the whole body",
+              "nuance": "Physical body"
+            },
+            {
+              "english": "experiencing the whole breath",
+              "nuance": "Breath-body"
+            },
+            {
+              "english": "sensitive to the entire form",
+              "nuance": "Full awareness"
+            }
+          ]
+        },
+        {
+          "wordId": "at2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I will breathe in",
+              "nuance": "Future intention"
+            },
+            {
+              "english": "I shall inhale",
+              "nuance": "Volitional in-breath"
+            },
+            {
+              "english": "I will be breathing in",
+              "nuance": "Future progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "at3",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "at4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "trains",
+              "nuance": "Practices"
+            },
+            {
+              "english": "learns",
+              "nuance": "Develops"
+            },
+            {
+              "english": "cultivates",
+              "nuance": "Active work"
+            }
+          ]
+        },
+        {
+          "wordId": "at5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "experiencing the whole body",
+              "nuance": "Physical body"
+            },
+            {
+              "english": "experiencing the whole breath",
+              "nuance": "Breath-body"
+            },
+            {
+              "english": "sensitive to the entire form",
+              "nuance": "Full awareness"
+            }
+          ]
+        },
+        {
+          "wordId": "at6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I will breathe out",
+              "nuance": "Future intention"
+            },
+            {
+              "english": "I shall exhale",
+              "nuance": "Volitional out-breath"
+            },
+            {
+              "english": "I will be breathing out",
+              "nuance": "Future progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "at7",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "at8",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "trains",
+              "nuance": "Practices"
+            },
+            {
+              "english": "learns",
+              "nuance": "Develops"
+            },
+            {
+              "english": "cultivates",
+              "nuance": "Active work"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-au": {
+      "id": "phase-au",
+      "senses": [
+        {
+          "wordId": "au1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "stilling",
+              "nuance": "Calming"
+            },
+            {
+              "english": "tranquilizing",
+              "nuance": "Pacifying"
+            },
+            {
+              "english": "letting settle",
+              "nuance": "Allowing calm"
+            }
+          ]
+        },
+        {
+          "wordId": "au2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "the bodily formation",
+              "nuance": "What conditions body"
+            },
+            {
+              "english": "the breath",
+              "nuance": "Sutta definition"
+            },
+            {
+              "english": "physical fabrication",
+              "nuance": "Conditioning factor"
+            }
+          ]
+        },
+        {
+          "wordId": "au3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I will breathe in",
+              "nuance": "Future intention"
+            },
+            {
+              "english": "I shall inhale",
+              "nuance": "Volitional in-breath"
+            },
+            {
+              "english": "I will be breathing in",
+              "nuance": "Future progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "au4",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "au5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "trains",
+              "nuance": "Practices"
+            },
+            {
+              "english": "learns",
+              "nuance": "Develops"
+            },
+            {
+              "english": "cultivates",
+              "nuance": "Active work"
+            }
+          ]
+        },
+        {
+          "wordId": "au6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "stilling",
+              "nuance": "Calming"
+            },
+            {
+              "english": "tranquilizing",
+              "nuance": "Pacifying"
+            },
+            {
+              "english": "letting settle",
+              "nuance": "Allowing calm"
+            }
+          ]
+        },
+        {
+          "wordId": "au7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "the bodily formation",
+              "nuance": "What conditions body"
+            },
+            {
+              "english": "the breath",
+              "nuance": "Sutta definition"
+            },
+            {
+              "english": "physical fabrication",
+              "nuance": "Conditioning factor"
+            }
+          ]
+        },
+        {
+          "wordId": "au8",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I will breathe out",
+              "nuance": "Future intention"
+            },
+            {
+              "english": "I shall exhale",
+              "nuance": "Volitional out-breath"
+            },
+            {
+              "english": "I will be breathing out",
+              "nuance": "Future progressive"
+            }
+          ]
+        },
+        {
+          "wordId": "au9",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "au10",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "trains",
+              "nuance": "Practices"
+            },
+            {
+              "english": "learns",
+              "nuance": "Develops"
+            },
+            {
+              "english": "cultivates",
+              "nuance": "Active work"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-av": {
+      "id": "phase-av",
+      "senses": [
+        {
+          "wordId": "av1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "just as",
+              "nuance": "Simile marker"
+            }
+          ]
+        },
+        {
+          "wordId": "av2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "monks",
+              "nuance": "Address"
+            }
+          ]
+        },
+        {
+          "wordId": "av3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "skilled",
+              "nuance": "Expert"
+            },
+            {
+              "english": "dexterous",
+              "nuance": "Trained"
+            },
+            {
+              "english": "deft",
+              "nuance": "Practiced"
+            }
+          ]
+        },
+        {
+          "wordId": "av4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "a turner",
+              "nuance": "Lathe craftsman"
+            },
+            {
+              "english": "turner",
+              "nuance": "Wood-worker"
+            },
+            {
+              "english": "lathe operator",
+              "nuance": "One who turns"
+            }
+          ]
+        },
+        {
+          "wordId": "av5",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "av6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "a turner's apprentice",
+              "nuance": "Student of turner"
+            },
+            {
+              "english": "turner's student",
+              "nuance": "Learning the trade"
+            },
+            {
+              "english": "apprentice turner",
+              "nuance": "Trainee"
+            }
+          ]
+        },
+        {
+          "wordId": "av7",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "av8",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Extended in time or space"
+            },
+            {
+              "english": "tall",
+              "nuance": "Full extent"
+            },
+            {
+              "english": "deep",
+              "nuance": "Thorough pull"
+            }
+          ]
+        },
+        {
+          "wordId": "av9",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "av10",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "pulling",
+              "nuance": "Drawing the strap"
+            },
+            {
+              "english": "stretching",
+              "nuance": "Extending motion"
+            },
+            {
+              "english": "turns",
+              "nuance": "On a lathe"
+            }
+          ]
+        },
+        {
+          "wordId": "av10b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Extended in time or space"
+            },
+            {
+              "english": "tall",
+              "nuance": "Full extent"
+            },
+            {
+              "english": "deep",
+              "nuance": "Spacious"
+            }
+          ]
+        },
+        {
+          "wordId": "av11",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I pull",
+              "nuance": "First person pulling"
+            },
+            {
+              "english": "I stretch",
+              "nuance": "Extending motion"
+            },
+            {
+              "english": "I turn",
+              "nuance": "On the lathe"
+            }
+          ]
+        },
+        {
+          "wordId": "av12",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "av13",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        },
+        {
+          "wordId": "av14",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief in duration"
+            },
+            {
+              "english": "dwarfish",
+              "nuance": "Small pull"
+            },
+            {
+              "english": "stunted",
+              "nuance": "Quick motion"
+            }
+          ]
+        },
+        {
+          "wordId": "av15",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "av16",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "pulling",
+              "nuance": "Drawing motion"
+            },
+            {
+              "english": "stretching",
+              "nuance": "Extending"
+            },
+            {
+              "english": "turning",
+              "nuance": "On a lathe"
+            }
+          ]
+        },
+        {
+          "wordId": "av16b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief in duration"
+            },
+            {
+              "english": "dwarfish",
+              "nuance": "Small"
+            },
+            {
+              "english": "stunted",
+              "nuance": "Shallow"
+            }
+          ]
+        },
+        {
+          "wordId": "av17",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I pull",
+              "nuance": "First person pulling"
+            },
+            {
+              "english": "I stretch",
+              "nuance": "Extending motion"
+            },
+            {
+              "english": "I turn",
+              "nuance": "On the lathe"
+            }
+          ]
+        },
+        {
+          "wordId": "av18",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "av19",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aw": {
+      "id": "phase-aw",
+      "senses": [
+        {
+          "wordId": "aw1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "just so",
+              "nuance": "Application"
+            }
+          ]
+        },
+        {
+          "wordId": "aw2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "indeed",
+              "nuance": "Emphasis"
+            }
+          ]
+        },
+        {
+          "wordId": "aw3",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "monks",
+              "nuance": "Address"
+            }
+          ]
+        },
+        {
+          "wordId": "aw4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "a monk",
+              "nuance": "Practitioner"
+            }
+          ]
+        },
+        {
+          "wordId": "aw5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Duration"
+            }
+          ]
+        },
+        {
+          "wordId": "aw6",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "aw7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing in",
+              "nuance": "While inhaling"
+            },
+            {
+              "english": "inhaling",
+              "nuance": "Drawing breath"
+            },
+            {
+              "english": "breathing",
+              "nuance": "General breathing action"
+            }
+          ]
+        },
+        {
+          "wordId": "aw7b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Extended in time or space"
+            },
+            {
+              "english": "tall",
+              "nuance": "Full extent"
+            },
+            {
+              "english": "deep",
+              "nuance": "Spacious"
+            }
+          ]
+        },
+        {
+          "wordId": "aw8",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe in",
+              "nuance": "Self-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "aw9",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "aw10",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        },
+        {
+          "wordId": "aw11",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Duration"
+            }
+          ]
+        },
+        {
+          "wordId": "aw12",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "aw13",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing out",
+              "nuance": "While exhaling"
+            },
+            {
+              "english": "exhaling",
+              "nuance": "Releasing breath"
+            },
+            {
+              "english": "out-breathing",
+              "nuance": "Forth-breathing"
+            }
+          ]
+        },
+        {
+          "wordId": "aw13b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "long",
+              "nuance": "Extended in time or space"
+            },
+            {
+              "english": "tall",
+              "nuance": "Full extent"
+            },
+            {
+              "english": "deep",
+              "nuance": "Spacious"
+            }
+          ]
+        },
+        {
+          "wordId": "aw14",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe out",
+              "nuance": "Self-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "aw15",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "aw16",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        },
+        {
+          "wordId": "aw17",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief"
+            }
+          ]
+        },
+        {
+          "wordId": "aw18",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "aw19",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing in",
+              "nuance": "While inhaling"
+            }
+          ]
+        },
+        {
+          "wordId": "aw19b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief in duration"
+            },
+            {
+              "english": "dwarfish",
+              "nuance": "Small"
+            },
+            {
+              "english": "stunted",
+              "nuance": "Shallow"
+            }
+          ]
+        },
+        {
+          "wordId": "aw20",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe in",
+              "nuance": "Self-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "aw21",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "aw22",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        },
+        {
+          "wordId": "aw23",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief"
+            }
+          ]
+        },
+        {
+          "wordId": "aw24",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "aw25",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "breathing out",
+              "nuance": "While exhaling"
+            }
+          ]
+        },
+        {
+          "wordId": "aw25b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "short",
+              "nuance": "Brief in duration"
+            },
+            {
+              "english": "dwarfish",
+              "nuance": "Small"
+            },
+            {
+              "english": "stunted",
+              "nuance": "Shallow"
+            }
+          ]
+        },
+        {
+          "wordId": "aw26",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I breathe out",
+              "nuance": "Self-aware"
+            }
+          ]
+        },
+        {
+          "wordId": "aw27",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "aw28",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "knows",
+              "nuance": "Understands"
+            },
+            {
+              "english": "clearly knows",
+              "nuance": "Direct"
+            },
+            {
+              "english": "discerns",
+              "nuance": "Recognizes"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ax": {
+      "id": "phase-ax",
+      "senses": [
+        {
+          "wordId": "ax1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "experiencing the whole body",
+              "nuance": "Physical"
+            },
+            {
+              "english": "experiencing the whole breath",
+              "nuance": "Breath-body"
+            },
+            {
+              "english": "sensitive to entire form",
+              "nuance": "Full awareness"
+            }
+          ]
+        },
+        {
+          "wordId": "ax2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I will breathe in",
+              "nuance": "Resolution"
+            },
+            {
+              "english": "I shall inhale",
+              "nuance": "Commitment"
+            },
+            {
+              "english": "breathing in will occur",
+              "nuance": "Future action"
+            }
+          ]
+        },
+        {
+          "wordId": "ax3",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "ax4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "trains",
+              "nuance": "Practices"
+            },
+            {
+              "english": "learns",
+              "nuance": "Develops"
+            },
+            {
+              "english": "cultivates",
+              "nuance": "Active work"
+            }
+          ]
+        },
+        {
+          "wordId": "ax5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "experiencing the whole body",
+              "nuance": "Physical"
+            },
+            {
+              "english": "experiencing the whole breath",
+              "nuance": "Breath-body"
+            }
+          ]
+        },
+        {
+          "wordId": "ax6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "I will breathe out",
+              "nuance": "Resolution"
+            },
+            {
+              "english": "I shall exhale",
+              "nuance": "Commitment"
+            },
+            {
+              "english": "breathing out will occur",
+              "nuance": "Future action"
+            }
+          ]
+        },
+        {
+          "wordId": "ax7",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote end"
+            }
+          ]
+        },
+        {
+          "wordId": "ax8",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "trains",
+              "nuance": "Practices"
+            },
+            {
+              "english": "learns",
+              "nuance": "Develops"
+            },
+            {
+              "english": "cultivates",
+              "nuance": "Active work"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ay": {
+      "id": "phase-ay",
+      "senses": [
+        {
+          "wordId": "ay1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "thus",
+              "nuance": "Transition"
+            }
+          ]
+        },
+        {
+          "wordId": "ay2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "internally",
+              "nuance": "Within oneself"
+            },
+            {
+              "english": "in one's own",
+              "nuance": "Personal"
+            },
+            {
+              "english": "inwardly",
+              "nuance": "Subjective experience"
+            }
+          ]
+        },
+        {
+          "wordId": "ay3",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "ay4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in the body",
+              "nuance": "Physical form"
+            },
+            {
+              "english": "in this heap",
+              "nuance": "Collection of parts"
+            },
+            {
+              "english": "in this mass",
+              "nuance": "Aggregate"
+            },
+            {
+              "english": "body as body",
+              "nuance": "Just phenomena"
+            },
+            {
+              "english": "in what's assembled",
+              "nuance": "Not-self view"
+            }
+          ]
+        },
+        {
+          "wordId": "ay5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "contemplating the body",
+              "nuance": "Observing"
+            },
+            {
+              "english": "body-observer",
+              "nuance": "Agent"
+            }
+          ]
+        },
+        {
+          "wordId": "ay6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Abides"
+            },
+            {
+              "english": "remains",
+              "nuance": "Sustained"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-az": {
+      "id": "phase-az",
+      "senses": [
+        {
+          "wordId": "az1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "externally",
+              "nuance": "Outside oneself"
+            },
+            {
+              "english": "in others",
+              "nuance": "Universal"
+            },
+            {
+              "english": "outwardly",
+              "nuance": "Objective observation"
+            }
+          ]
+        },
+        {
+          "wordId": "az2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "az3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in the body",
+              "nuance": "Physical form"
+            },
+            {
+              "english": "in this heap",
+              "nuance": "Collection of parts"
+            },
+            {
+              "english": "in this mass",
+              "nuance": "Aggregate"
+            },
+            {
+              "english": "body as body",
+              "nuance": "Just phenomena"
+            },
+            {
+              "english": "in what's assembled",
+              "nuance": "Not-self view"
+            }
+          ]
+        },
+        {
+          "wordId": "az4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing body",
+              "nuance": "Action"
+            },
+            {
+              "english": "a body-watcher",
+              "nuance": "Identity"
+            },
+            {
+              "english": "contemplating form",
+              "nuance": "Sustained attention"
+            },
+            {
+              "english": "tracking the physical",
+              "nuance": "Following closely"
+            },
+            {
+              "english": "seeing body as body",
+              "nuance": "Phenomenological"
+            }
+          ]
+        },
+        {
+          "wordId": "az5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ba": {
+      "id": "phase-ba",
+      "senses": [
+        {
+          "wordId": "ba1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "both internally and externally",
+              "nuance": "Universal"
+            },
+            {
+              "english": "in oneself and others",
+              "nuance": "Complete"
+            },
+            {
+              "english": "inwardly and outwardly",
+              "nuance": "Comprehensive scope"
+            }
+          ]
+        },
+        {
+          "wordId": "ba2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "ba3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in the body",
+              "nuance": "Physical form"
+            },
+            {
+              "english": "in this heap",
+              "nuance": "Collection of parts"
+            },
+            {
+              "english": "in this mass",
+              "nuance": "Aggregate"
+            },
+            {
+              "english": "body as body",
+              "nuance": "Just phenomena"
+            },
+            {
+              "english": "in what's assembled",
+              "nuance": "Not-self view"
+            }
+          ]
+        },
+        {
+          "wordId": "ba4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing body",
+              "nuance": "Action"
+            },
+            {
+              "english": "a body-watcher",
+              "nuance": "Identity"
+            },
+            {
+              "english": "contemplating form",
+              "nuance": "Sustained attention"
+            },
+            {
+              "english": "tracking the physical",
+              "nuance": "Following closely"
+            },
+            {
+              "english": "seeing body as body",
+              "nuance": "Phenomenological"
+            }
+          ]
+        },
+        {
+          "wordId": "ba5",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bb": {
+      "id": "phase-bb",
+      "senses": [
+        {
+          "wordId": "bb1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing the arising nature",
+              "nuance": "Origin"
+            },
+            {
+              "english": "seeing how things come to be",
+              "nuance": "Genesis"
+            },
+            {
+              "english": "watching phenomena originate",
+              "nuance": "Dependent arising"
+            }
+          ]
+        },
+        {
+          "wordId": "bb2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "bb3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in regard to body",
+              "nuance": "Location"
+            },
+            {
+              "english": "concerning the body",
+              "nuance": "Domain"
+            },
+            {
+              "english": "in the body",
+              "nuance": "Sphere"
+            }
+          ]
+        },
+        {
+          "wordId": "bb4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bc": {
+      "id": "phase-bc",
+      "senses": [
+        {
+          "wordId": "bc1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing the passing nature",
+              "nuance": "Decay"
+            },
+            {
+              "english": "seeing how things cease",
+              "nuance": "Impermanence"
+            },
+            {
+              "english": "watching phenomena vanish",
+              "nuance": "Anicca realization"
+            }
+          ]
+        },
+        {
+          "wordId": "bc2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "bc3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in regard to body",
+              "nuance": "Location"
+            },
+            {
+              "english": "concerning the body",
+              "nuance": "Domain"
+            },
+            {
+              "english": "in the body",
+              "nuance": "Sphere"
+            }
+          ]
+        },
+        {
+          "wordId": "bc4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bd": {
+      "id": "phase-bd",
+      "senses": [
+        {
+          "wordId": "bd1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "observing arising-and-passing nature",
+              "nuance": "Complete cycle"
+            },
+            {
+              "english": "seeing impermanence fully",
+              "nuance": "Anicca"
+            },
+            {
+              "english": "watching the full flux",
+              "nuance": "Total transience"
+            }
+          ]
+        },
+        {
+          "wordId": "bd2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "bd3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in regard to body",
+              "nuance": "Location"
+            },
+            {
+              "english": "concerning the body",
+              "nuance": "Domain"
+            },
+            {
+              "english": "in the body",
+              "nuance": "Sphere"
+            }
+          ]
+        },
+        {
+          "wordId": "bd4",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-be": {
+      "id": "phase-be",
+      "senses": [
+        {
+          "wordId": "be1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "there is",
+              "nuance": "Existence"
+            },
+            {
+              "english": "exists",
+              "nuance": "Presence"
+            },
+            {
+              "english": "is present",
+              "nuance": "Simple being"
+            }
+          ]
+        },
+        {
+          "wordId": "be2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "body",
+              "nuance": "Phenomenon"
+            },
+            {
+              "english": "a body",
+              "nuance": "Impersonal"
+            },
+            {
+              "english": "physical form",
+              "nuance": "Just matter"
+            }
+          ]
+        },
+        {
+          "wordId": "be3",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "—",
+              "nuance": "Quote"
+            }
+          ]
+        },
+        {
+          "wordId": "be4",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ]
+        },
+        {
+          "wordId": "be5",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "moreover, his",
+              "nuance": "Connection"
+            }
+          ]
+        },
+        {
+          "wordId": "be6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "mindfulness",
+              "nuance": "Awareness"
+            },
+            {
+              "english": "remembrance",
+              "nuance": "Recollection"
+            },
+            {
+              "english": "presence of mind",
+              "nuance": "Attentiveness"
+            }
+          ]
+        },
+        {
+          "wordId": "be7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "is established",
+              "nuance": "Present"
+            },
+            {
+              "english": "stands present",
+              "nuance": "Available"
+            },
+            {
+              "english": "appears clearly",
+              "nuance": "Manifest"
+            }
+          ]
+        },
+        {
+          "wordId": "be8",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "is",
+              "nuance": "State"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bf": {
+      "id": "phase-bf",
+      "senses": [
+        {
+          "wordId": "bf1",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "just to the extent",
+              "nuance": "Limitation"
+            }
+          ]
+        },
+        {
+          "wordId": "bf2",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "for bare knowledge",
+              "nuance": "Purpose"
+            },
+            {
+              "english": "just for knowing",
+              "nuance": "Minimal"
+            }
+          ]
+        },
+        {
+          "wordId": "bf3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "for bare mindfulness",
+              "nuance": "Purpose"
+            },
+            {
+              "english": "just for awareness",
+              "nuance": "Minimal"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bg": {
+      "id": "phase-bg",
+      "senses": [
+        {
+          "wordId": "bg1",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "independent",
+              "nuance": "Not leaning"
+            },
+            {
+              "english": "not dependent",
+              "nuance": "Free"
+            },
+            {
+              "english": "unsupported",
+              "nuance": "Self-reliant"
+            }
+          ]
+        },
+        {
+          "wordId": "bg2",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "and",
+              "nuance": "Connection"
+            }
+          ]
+        },
+        {
+          "wordId": "bg3",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "dwells",
+              "nuance": "Lives this way"
+            },
+            {
+              "english": "abides",
+              "nuance": "Rests here"
+            },
+            {
+              "english": "remains",
+              "nuance": "Stays put"
+            },
+            {
+              "english": "lives",
+              "nuance": "Way of being"
+            },
+            {
+              "english": "keeps at it",
+              "nuance": "Continuous practice"
+            }
+          ]
+        },
+        {
+          "wordId": "bg4",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "not",
+              "nuance": "Negative"
+            }
+          ]
+        },
+        {
+          "wordId": "bg5",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "and",
+              "nuance": "Connection"
+            }
+          ]
+        },
+        {
+          "wordId": "bg6",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "anything",
+              "nuance": "Indefinite"
+            },
+            {
+              "english": "something",
+              "nuance": "Any object"
+            },
+            {
+              "english": "whatever",
+              "nuance": "No exception"
+            }
+          ]
+        },
+        {
+          "wordId": "bg7",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "in the world",
+              "nuance": "Experience"
+            }
+          ]
+        },
+        {
+          "wordId": "bg8",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "clings to",
+              "nuance": "Grasps"
+            },
+            {
+              "english": "takes up",
+              "nuance": "Attaches"
+            }
+          ]
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    }
+  }
+}

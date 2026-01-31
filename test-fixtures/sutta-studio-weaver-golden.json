@@ -1,0 +1,2292 @@
+{
+  "_description": "Weaver golden data extracted from demoPacket for benchmarking",
+  "_generatedAt": "2026-01-30T18:13:39.613Z",
+  "_source": "components/sutta-studio/demoPacket.ts",
+  "_phases": [
+    {
+      "phaseId": "phase-a",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-b",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-c",
+      "tokenCount": 2,
+      "ghostCount": 0,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-d",
+      "tokenCount": 5,
+      "ghostCount": 1,
+      "linkedCount": 4
+    },
+    {
+      "phaseId": "phase-e",
+      "tokenCount": 4,
+      "ghostCount": 0,
+      "linkedCount": 4
+    },
+    {
+      "phaseId": "phase-f",
+      "tokenCount": 1,
+      "ghostCount": 0,
+      "linkedCount": 1
+    },
+    {
+      "phaseId": "phase-g",
+      "tokenCount": 5,
+      "ghostCount": 1,
+      "linkedCount": 4
+    },
+    {
+      "phaseId": "phase-h",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-1",
+      "tokenCount": 5,
+      "ghostCount": 1,
+      "linkedCount": 4
+    },
+    {
+      "phaseId": "phase-2",
+      "tokenCount": 4,
+      "ghostCount": 2,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-3",
+      "tokenCount": 4,
+      "ghostCount": 2,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-4",
+      "tokenCount": 4,
+      "ghostCount": 2,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-5",
+      "tokenCount": 3,
+      "ghostCount": 1,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-6",
+      "tokenCount": 3,
+      "ghostCount": 1,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-7",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-x",
+      "tokenCount": 3,
+      "ghostCount": 1,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-y",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-z",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-aa",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ab",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ac",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ad",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ae",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-af",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ag",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ah",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ai",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-aj",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ak",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-al",
+      "tokenCount": 2,
+      "ghostCount": 0,
+      "linkedCount": 2
+    },
+    {
+      "phaseId": "phase-am",
+      "tokenCount": 6,
+      "ghostCount": 1,
+      "linkedCount": 5
+    },
+    {
+      "phaseId": "phase-an",
+      "tokenCount": 8,
+      "ghostCount": 1,
+      "linkedCount": 7
+    },
+    {
+      "phaseId": "phase-ao",
+      "tokenCount": 5,
+      "ghostCount": 0,
+      "linkedCount": 5
+    },
+    {
+      "phaseId": "phase-ap",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-aq",
+      "tokenCount": 6,
+      "ghostCount": 0,
+      "linkedCount": 6
+    },
+    {
+      "phaseId": "phase-ar",
+      "tokenCount": 8,
+      "ghostCount": 2,
+      "linkedCount": 6
+    },
+    {
+      "phaseId": "phase-as",
+      "tokenCount": 8,
+      "ghostCount": 2,
+      "linkedCount": 6
+    },
+    {
+      "phaseId": "phase-at",
+      "tokenCount": 10,
+      "ghostCount": 4,
+      "linkedCount": 6
+    },
+    {
+      "phaseId": "phase-au",
+      "tokenCount": 12,
+      "ghostCount": 4,
+      "linkedCount": 8
+    },
+    {
+      "phaseId": "phase-av",
+      "tokenCount": 14,
+      "ghostCount": 3,
+      "linkedCount": 11
+    },
+    {
+      "phaseId": "phase-aw",
+      "tokenCount": 19,
+      "ghostCount": 4,
+      "linkedCount": 15
+    },
+    {
+      "phaseId": "phase-ax",
+      "tokenCount": 10,
+      "ghostCount": 4,
+      "linkedCount": 6
+    },
+    {
+      "phaseId": "phase-ay",
+      "tokenCount": 5,
+      "ghostCount": 1,
+      "linkedCount": 4
+    },
+    {
+      "phaseId": "phase-az",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-ba",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-bb",
+      "tokenCount": 3,
+      "ghostCount": 0,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-bc",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-bd",
+      "tokenCount": 4,
+      "ghostCount": 1,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-be",
+      "tokenCount": 6,
+      "ghostCount": 2,
+      "linkedCount": 4
+    },
+    {
+      "phaseId": "phase-bf",
+      "tokenCount": 5,
+      "ghostCount": 2,
+      "linkedCount": 3
+    },
+    {
+      "phaseId": "phase-bg",
+      "tokenCount": 7,
+      "ghostCount": 1,
+      "linkedCount": 6
+    }
+  ],
+  "weaver": {
+    "phase-a": {
+      "id": "phase-a",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ea1",
+          "isGhost": false,
+          "linkedPaliId": "a1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "have",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ea2",
+          "isGhost": false,
+          "linkedSegmentId": "a2s1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "ea3",
+          "isGhost": false,
+          "linkedSegmentId": "a3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-b": {
+      "id": "phase-b",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "At",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eb1",
+          "isGhost": false,
+          "linkedPaliId": "b1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eb2",
+          "isGhost": false,
+          "linkedSegmentId": "b2s2"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eb3",
+          "isGhost": false,
+          "linkedSegmentId": "b3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-c": {
+      "id": "phase-c",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ec2",
+          "isGhost": false,
+          "linkedSegmentId": "c2s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ec1",
+          "isGhost": false,
+          "linkedSegmentId": "c1s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-d": {
+      "id": "phase-d",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "at",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ed4",
+          "isGhost": false,
+          "linkedSegmentId": "d4s2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ed3",
+          "isGhost": false,
+          "linkedSegmentId": "d3s1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "ed2",
+          "isGhost": false,
+          "linkedPaliId": "d2"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "ed1",
+          "isGhost": false,
+          "linkedPaliId": "d1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-e": {
+      "id": "phase-e",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ee1",
+          "isGhost": false,
+          "linkedPaliId": "e1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ee3",
+          "isGhost": false,
+          "linkedSegmentId": "e3s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ee5",
+          "isGhost": false,
+          "linkedSegmentId": "e5s2"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "ee4",
+          "isGhost": false,
+          "linkedSegmentId": "e4s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-f": {
+      "id": "phase-f",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ef1",
+          "isGhost": false,
+          "linkedSegmentId": "f1s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-g": {
+      "id": "phase-g",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eg1",
+          "isGhost": false,
+          "linkedSegmentId": "g1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eg4",
+          "isGhost": false,
+          "linkedSegmentId": "g4s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eg6",
+          "isGhost": false,
+          "linkedSegmentId": "g6s2"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "to",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eg5",
+          "isGhost": false,
+          "linkedSegmentId": "g5s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-h": {
+      "id": "phase-h",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eh1",
+          "isGhost": false,
+          "linkedSegmentId": "h1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eh3",
+          "isGhost": false,
+          "linkedSegmentId": "h3s2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eh2",
+          "isGhost": false,
+          "linkedPaliId": "h2"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-1": {
+      "id": "phase-1",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "e1",
+          "isGhost": false,
+          "linkedSegmentId": "p3s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "e2",
+          "isGhost": false,
+          "linkedSegmentId": "p2s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "is the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "e3",
+          "isGhost": false,
+          "linkedSegmentId": "p1s1"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "e4",
+          "isGhost": false,
+          "linkedSegmentId": "p4s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-2": {
+      "id": "phase-2",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "for the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "e5",
+          "isGhost": false,
+          "linkedSegmentId": "p6s2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "of",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "e6",
+          "isGhost": false,
+          "linkedSegmentId": "p5s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-3": {
+      "id": "phase-3",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "for the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "e7",
+          "isGhost": false,
+          "linkedSegmentId": "p8s3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "of",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "e8",
+          "isGhost": false,
+          "linkedSegmentId": "p7s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-4": {
+      "id": "phase-4",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "for the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "e9",
+          "isGhost": false,
+          "linkedSegmentId": "p10s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "of",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "e10",
+          "isGhost": false,
+          "linkedSegmentId": "p9s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-5": {
+      "id": "phase-5",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "for the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "e11",
+          "isGhost": false,
+          "linkedSegmentId": "p12s2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "e12",
+          "isGhost": false,
+          "linkedSegmentId": "p11s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-6": {
+      "id": "phase-6",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "for the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "e13",
+          "isGhost": false,
+          "linkedSegmentId": "p14s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "e14",
+          "isGhost": false,
+          "linkedSegmentId": "p13s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-7": {
+      "id": "phase-7",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "e15",
+          "isGhost": false,
+          "linkedPaliId": "p15"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "e16",
+          "isGhost": false,
+          "linkedSegmentId": "p16s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "e17",
+          "isGhost": false,
+          "linkedPaliId": "p17"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-x": {
+      "id": "phase-x",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ex1",
+          "isGhost": false,
+          "linkedSegmentId": "x1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "are the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ex2",
+          "isGhost": false,
+          "linkedPaliId": "x2"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-y": {
+      "id": "phase-y",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ey1",
+          "isGhost": false,
+          "linkedPaliId": "y1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ey2",
+          "isGhost": false,
+          "linkedSegmentId": "y2s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ey3",
+          "isGhost": false,
+          "linkedSegmentId": "y3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-z": {
+      "id": "phase-z",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ez3",
+          "isGhost": false,
+          "linkedSegmentId": "z3s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ez2",
+          "isGhost": false,
+          "linkedPaliId": "z2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ez1",
+          "isGhost": false,
+          "linkedSegmentId": "z1s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aa": {
+      "id": "phase-aa",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eaa1",
+          "isGhost": false,
+          "linkedSegmentId": "aa1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eaa2",
+          "isGhost": false,
+          "linkedSegmentId": "aa2s3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eaa3",
+          "isGhost": false,
+          "linkedSegmentId": "aa3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ab": {
+      "id": "phase-ab",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eab1",
+          "isGhost": false,
+          "linkedSegmentId": "ab1s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eab3",
+          "isGhost": false,
+          "linkedPaliId": "ab3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "regarding",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eab2",
+          "isGhost": false,
+          "linkedSegmentId": "ab2s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ac": {
+      "id": "phase-ac",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eac3",
+          "isGhost": false,
+          "linkedSegmentId": "ac3s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eac2",
+          "isGhost": false,
+          "linkedPaliId": "ac2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eac1",
+          "isGhost": false,
+          "linkedSegmentId": "ac1s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ad": {
+      "id": "phase-ad",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ead1",
+          "isGhost": false,
+          "linkedSegmentId": "ad1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ead2",
+          "isGhost": false,
+          "linkedSegmentId": "ad2s3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ead3",
+          "isGhost": false,
+          "linkedSegmentId": "ad3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ae": {
+      "id": "phase-ae",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eae1",
+          "isGhost": false,
+          "linkedSegmentId": "ae1s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eae3",
+          "isGhost": false,
+          "linkedPaliId": "ae3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "regarding",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eae2",
+          "isGhost": false,
+          "linkedSegmentId": "ae2s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-af": {
+      "id": "phase-af",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eaf3",
+          "isGhost": false,
+          "linkedSegmentId": "af3s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eaf2",
+          "isGhost": false,
+          "linkedPaliId": "af2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eaf1",
+          "isGhost": false,
+          "linkedSegmentId": "af1s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ag": {
+      "id": "phase-ag",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eag1",
+          "isGhost": false,
+          "linkedSegmentId": "ag1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eag2",
+          "isGhost": false,
+          "linkedSegmentId": "ag2s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eag3",
+          "isGhost": false,
+          "linkedSegmentId": "ag3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ah": {
+      "id": "phase-ah",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eah1",
+          "isGhost": false,
+          "linkedPaliId": "ah1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eah3",
+          "isGhost": false,
+          "linkedPaliId": "ah3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "regarding",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eah2",
+          "isGhost": false,
+          "linkedPaliId": "ah2"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ai": {
+      "id": "phase-ai",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eai3",
+          "isGhost": false,
+          "linkedSegmentId": "ai3s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eai2",
+          "isGhost": false,
+          "linkedPaliId": "ai2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eai1",
+          "isGhost": false,
+          "linkedSegmentId": "ai1s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aj": {
+      "id": "phase-aj",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eaj1",
+          "isGhost": false,
+          "linkedSegmentId": "aj1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eaj2",
+          "isGhost": false,
+          "linkedSegmentId": "aj2s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eaj3",
+          "isGhost": false,
+          "linkedSegmentId": "aj3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ak": {
+      "id": "phase-ak",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eak1",
+          "isGhost": false,
+          "linkedPaliId": "ak1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eak3",
+          "isGhost": false,
+          "linkedPaliId": "ak3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "regarding",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eak2",
+          "isGhost": false,
+          "linkedPaliId": "ak2"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-al": {
+      "id": "phase-al",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eal1",
+          "isGhost": false,
+          "linkedSegmentId": "al1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eal2",
+          "isGhost": false,
+          "linkedSegmentId": "al2s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-am": {
+      "id": "phase-am",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eam1",
+          "isGhost": false,
+          "linkedPaliId": "am1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "does",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eam3",
+          "isGhost": false,
+          "linkedSegmentId": "am3s1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eam6",
+          "isGhost": false,
+          "linkedSegmentId": "am6s2"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eam5",
+          "isGhost": false,
+          "linkedPaliId": "am5"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eam4",
+          "isGhost": false,
+          "linkedSegmentId": "am4s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-an": {
+      "id": "phase-an",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ean1",
+          "isGhost": false,
+          "linkedPaliId": "an1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ean3",
+          "isGhost": false,
+          "linkedSegmentId": "an3s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "has",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "ean4",
+          "isGhost": false,
+          "linkedPaliId": "an4"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "ean5",
+          "isGhost": false,
+          "linkedPaliId": "an5"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "ean6",
+          "isGhost": false,
+          "linkedPaliId": "an6"
+        },
+        {
+          "tokenIndex": 6,
+          "text": "ean5b",
+          "isGhost": false,
+          "linkedPaliId": "an5"
+        },
+        {
+          "tokenIndex": 7,
+          "text": "ean7",
+          "isGhost": false,
+          "linkedPaliId": "an7"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ao": {
+      "id": "phase-ao",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eao1",
+          "isGhost": false,
+          "linkedSegmentId": "ao1s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eao2",
+          "isGhost": false,
+          "linkedPaliId": "ao2"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eao4",
+          "isGhost": false,
+          "linkedPaliId": "ao4"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eao5",
+          "isGhost": false,
+          "linkedSegmentId": "ao5s1"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eao6",
+          "isGhost": false,
+          "linkedSegmentId": "ao6s2"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ap": {
+      "id": "phase-ap",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eap3",
+          "isGhost": false,
+          "linkedSegmentId": "ap3s2"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eap2",
+          "isGhost": false,
+          "linkedSegmentId": "ap2s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eap1",
+          "isGhost": false,
+          "linkedPaliId": "ap1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aq": {
+      "id": "phase-aq",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eaq1",
+          "isGhost": false,
+          "linkedPaliId": "aq1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eaq3",
+          "isGhost": false,
+          "linkedPaliId": "aq3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eaq2",
+          "isGhost": false,
+          "linkedSegmentId": "aq2s1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eaq4",
+          "isGhost": false,
+          "linkedSegmentId": "aq4s1"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eaq2b",
+          "isGhost": false,
+          "linkedSegmentId": "aq2s1"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eaq5",
+          "isGhost": false,
+          "linkedSegmentId": "aq5s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ar": {
+      "id": "phase-ar",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ear3",
+          "isGhost": false,
+          "linkedPaliId": "ar3"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ear1",
+          "isGhost": false,
+          "linkedPaliId": "ar1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ear6",
+          "isGhost": false,
+          "linkedPaliId": "ar6"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "\"I breathe in long\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "ear9",
+          "isGhost": false,
+          "linkedPaliId": "ar9"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "ear7",
+          "isGhost": false,
+          "linkedPaliId": "ar7"
+        },
+        {
+          "tokenIndex": 6,
+          "text": "ear12",
+          "isGhost": false,
+          "linkedPaliId": "ar12"
+        },
+        {
+          "tokenIndex": 7,
+          "text": "\"I breathe out long\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-as": {
+      "id": "phase-as",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eas3",
+          "isGhost": false,
+          "linkedPaliId": "as3"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eas1",
+          "isGhost": false,
+          "linkedPaliId": "as1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eas6",
+          "isGhost": false,
+          "linkedPaliId": "as6"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "\"I breathe in short\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eas9",
+          "isGhost": false,
+          "linkedPaliId": "as9"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eas7",
+          "isGhost": false,
+          "linkedPaliId": "as7"
+        },
+        {
+          "tokenIndex": 6,
+          "text": "eas12",
+          "isGhost": false,
+          "linkedPaliId": "as12"
+        },
+        {
+          "tokenIndex": 7,
+          "text": "\"I breathe out short\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-at": {
+      "id": "phase-at",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eat4",
+          "isGhost": false,
+          "linkedPaliId": "at4"
+        },
+        {
+          "tokenIndex": 1,
+          "text": ":",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eat1",
+          "isGhost": false,
+          "linkedPaliId": "at1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "I will",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eat2",
+          "isGhost": false,
+          "linkedPaliId": "at2"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eat8",
+          "isGhost": false,
+          "linkedPaliId": "at8"
+        },
+        {
+          "tokenIndex": 6,
+          "text": ":",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 7,
+          "text": "eat5",
+          "isGhost": false,
+          "linkedPaliId": "at5"
+        },
+        {
+          "tokenIndex": 8,
+          "text": "I will",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 9,
+          "text": "eat6",
+          "isGhost": false,
+          "linkedPaliId": "at6"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-au": {
+      "id": "phase-au",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eau5",
+          "isGhost": false,
+          "linkedPaliId": "au5"
+        },
+        {
+          "tokenIndex": 1,
+          "text": ":",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eau1",
+          "isGhost": false,
+          "linkedPaliId": "au1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eau2",
+          "isGhost": false,
+          "linkedPaliId": "au2"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "I will",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eau3",
+          "isGhost": false,
+          "linkedPaliId": "au3"
+        },
+        {
+          "tokenIndex": 6,
+          "text": "eau10",
+          "isGhost": false,
+          "linkedPaliId": "au10"
+        },
+        {
+          "tokenIndex": 7,
+          "text": ":",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 8,
+          "text": "eau6",
+          "isGhost": false,
+          "linkedPaliId": "au6"
+        },
+        {
+          "tokenIndex": 9,
+          "text": "eau7",
+          "isGhost": false,
+          "linkedPaliId": "au7"
+        },
+        {
+          "tokenIndex": 10,
+          "text": "I will",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 11,
+          "text": "eau8",
+          "isGhost": false,
+          "linkedPaliId": "au8"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-av": {
+      "id": "phase-av",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eav1",
+          "isGhost": false,
+          "linkedPaliId": "av1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eav3",
+          "isGhost": false,
+          "linkedPaliId": "av3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eav4",
+          "isGhost": false,
+          "linkedPaliId": "av4"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eav5",
+          "isGhost": false,
+          "linkedPaliId": "av5"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "his",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eav6",
+          "isGhost": false,
+          "linkedPaliId": "av6"
+        },
+        {
+          "tokenIndex": 6,
+          "text": "eav10",
+          "isGhost": false,
+          "linkedPaliId": "av10"
+        },
+        {
+          "tokenIndex": 7,
+          "text": "eav8",
+          "isGhost": false,
+          "linkedPaliId": "av8"
+        },
+        {
+          "tokenIndex": 8,
+          "text": "eav13",
+          "isGhost": false,
+          "linkedPaliId": "av13"
+        },
+        {
+          "tokenIndex": 9,
+          "text": "\"I pull long\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        },
+        {
+          "tokenIndex": 10,
+          "text": "eav16",
+          "isGhost": false,
+          "linkedPaliId": "av16"
+        },
+        {
+          "tokenIndex": 11,
+          "text": "eav14",
+          "isGhost": false,
+          "linkedPaliId": "av14"
+        },
+        {
+          "tokenIndex": 12,
+          "text": "eav19",
+          "isGhost": false,
+          "linkedPaliId": "av19"
+        },
+        {
+          "tokenIndex": 13,
+          "text": "\"I pull short\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aw": {
+      "id": "phase-aw",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eaw1",
+          "isGhost": false,
+          "linkedPaliId": "aw1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eaw3",
+          "isGhost": false,
+          "linkedPaliId": "aw3"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eaw4",
+          "isGhost": false,
+          "linkedPaliId": "aw4"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eaw7",
+          "isGhost": false,
+          "linkedPaliId": "aw7"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eaw5",
+          "isGhost": false,
+          "linkedPaliId": "aw5"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eaw10",
+          "isGhost": false,
+          "linkedPaliId": "aw10"
+        },
+        {
+          "tokenIndex": 6,
+          "text": "\"I breathe in long\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        },
+        {
+          "tokenIndex": 7,
+          "text": "eaw13",
+          "isGhost": false,
+          "linkedPaliId": "aw13"
+        },
+        {
+          "tokenIndex": 8,
+          "text": "eaw11",
+          "isGhost": false,
+          "linkedPaliId": "aw11"
+        },
+        {
+          "tokenIndex": 9,
+          "text": "eaw16",
+          "isGhost": false,
+          "linkedPaliId": "aw16"
+        },
+        {
+          "tokenIndex": 10,
+          "text": "\"I breathe out long\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        },
+        {
+          "tokenIndex": 11,
+          "text": "eaw19",
+          "isGhost": false,
+          "linkedPaliId": "aw19"
+        },
+        {
+          "tokenIndex": 12,
+          "text": "eaw17",
+          "isGhost": false,
+          "linkedPaliId": "aw17"
+        },
+        {
+          "tokenIndex": 13,
+          "text": "eaw22",
+          "isGhost": false,
+          "linkedPaliId": "aw22"
+        },
+        {
+          "tokenIndex": 14,
+          "text": "\"I breathe in short\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        },
+        {
+          "tokenIndex": 15,
+          "text": "eaw25",
+          "isGhost": false,
+          "linkedPaliId": "aw25"
+        },
+        {
+          "tokenIndex": 16,
+          "text": "eaw23",
+          "isGhost": false,
+          "linkedPaliId": "aw23"
+        },
+        {
+          "tokenIndex": 17,
+          "text": "eaw28",
+          "isGhost": false,
+          "linkedPaliId": "aw28"
+        },
+        {
+          "tokenIndex": 18,
+          "text": "\"I breathe out short\"",
+          "isGhost": true,
+          "ghostKind": "interpretive"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ax": {
+      "id": "phase-ax",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eax4",
+          "isGhost": false,
+          "linkedPaliId": "ax4"
+        },
+        {
+          "tokenIndex": 1,
+          "text": ":",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eax1",
+          "isGhost": false,
+          "linkedPaliId": "ax1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "I will",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eax2",
+          "isGhost": false,
+          "linkedPaliId": "ax2"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "eax8",
+          "isGhost": false,
+          "linkedPaliId": "ax8"
+        },
+        {
+          "tokenIndex": 6,
+          "text": ":",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 7,
+          "text": "eax5",
+          "isGhost": false,
+          "linkedPaliId": "ax5"
+        },
+        {
+          "tokenIndex": 8,
+          "text": "I will",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 9,
+          "text": "eax6",
+          "isGhost": false,
+          "linkedPaliId": "ax6"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ay": {
+      "id": "phase-ay",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "eay1",
+          "isGhost": false,
+          "linkedSegmentId": "ay1s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "one",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eay6",
+          "isGhost": false,
+          "linkedSegmentId": "ay6s1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eay5",
+          "isGhost": false,
+          "linkedPaliId": "ay5"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "eay2",
+          "isGhost": false,
+          "linkedPaliId": "ay2"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-az": {
+      "id": "phase-az",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "or",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eaz1",
+          "isGhost": false,
+          "linkedPaliId": "az1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eaz5",
+          "isGhost": false,
+          "linkedSegmentId": "az5s1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eaz4",
+          "isGhost": false,
+          "linkedSegmentId": "az4s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ba": {
+      "id": "phase-ba",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "or",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "eba1",
+          "isGhost": false,
+          "linkedPaliId": "ba1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "eba5",
+          "isGhost": false,
+          "linkedSegmentId": "ba5s1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "eba4",
+          "isGhost": false,
+          "linkedSegmentId": "ba4s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bb": {
+      "id": "phase-bb",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ebb4",
+          "isGhost": false,
+          "linkedSegmentId": "bb4s1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ebb1",
+          "isGhost": false,
+          "linkedPaliId": "bb1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ebb3",
+          "isGhost": false,
+          "linkedPaliId": "bb3"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bc": {
+      "id": "phase-bc",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "or",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ebc4",
+          "isGhost": false,
+          "linkedSegmentId": "bc4s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ebc1",
+          "isGhost": false,
+          "linkedPaliId": "bc1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "ebc3",
+          "isGhost": false,
+          "linkedSegmentId": "bc3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bd": {
+      "id": "phase-bd",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "or",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ebd4",
+          "isGhost": false,
+          "linkedSegmentId": "bd4s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ebd1",
+          "isGhost": false,
+          "linkedPaliId": "bd1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "ebd3",
+          "isGhost": false,
+          "linkedSegmentId": "bd3s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-be": {
+      "id": "phase-be",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "Or moreover,",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ebe6",
+          "isGhost": false,
+          "linkedSegmentId": "be6s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ebe7",
+          "isGhost": false,
+          "linkedPaliId": "be7"
+        },
+        {
+          "tokenIndex": 3,
+          "text": ":",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "ebe1",
+          "isGhost": false,
+          "linkedSegmentId": "be1s1"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "ebe2",
+          "isGhost": false,
+          "linkedSegmentId": "be2s1"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bf": {
+      "id": "phase-bf",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "ebf1",
+          "isGhost": false,
+          "linkedPaliId": "bf1"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "needed",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ebf2",
+          "isGhost": false,
+          "linkedPaliId": "bf2"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "and",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "ebf3",
+          "isGhost": false,
+          "linkedPaliId": "bf3"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bg": {
+      "id": "phase-bg",
+      "tokens": [
+        {
+          "tokenIndex": 0,
+          "text": "One",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
+          "tokenIndex": 1,
+          "text": "ebg3",
+          "isGhost": false,
+          "linkedSegmentId": "bg3s1"
+        },
+        {
+          "tokenIndex": 2,
+          "text": "ebg1",
+          "isGhost": false,
+          "linkedPaliId": "bg1"
+        },
+        {
+          "tokenIndex": 3,
+          "text": "ebg4",
+          "isGhost": false,
+          "linkedSegmentId": "bg4s1"
+        },
+        {
+          "tokenIndex": 4,
+          "text": "ebg8",
+          "isGhost": false,
+          "linkedPaliId": "bg8"
+        },
+        {
+          "tokenIndex": 5,
+          "text": "ebg6",
+          "isGhost": false,
+          "linkedSegmentId": "bg6s1"
+        },
+        {
+          "tokenIndex": 6,
+          "text": "ebg7",
+          "isGhost": false,
+          "linkedPaliId": "bg7"
+        }
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    }
+  }
+}

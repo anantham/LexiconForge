@@ -1,0 +1,1094 @@
+{
+  "_description": "Typesetter golden data extracted from demoPacket for benchmarking",
+  "_generatedAt": "2026-01-30T18:13:40.274Z",
+  "_source": "components/sutta-studio/demoPacket.ts",
+  "_phases": [
+    {
+      "phaseId": "phase-a",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-b",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-c",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-d",
+      "blockCount": 1,
+      "totalWords": 4
+    },
+    {
+      "phaseId": "phase-e",
+      "blockCount": 1,
+      "totalWords": 5
+    },
+    {
+      "phaseId": "phase-f",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-g",
+      "blockCount": 1,
+      "totalWords": 6
+    },
+    {
+      "phaseId": "phase-h",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-1",
+      "blockCount": 1,
+      "totalWords": 4
+    },
+    {
+      "phaseId": "phase-2",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-3",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-4",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-5",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-6",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-7",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-x",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-y",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-z",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-aa",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ab",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ac",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ad",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ae",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-af",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ag",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ah",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ai",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-aj",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-ak",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-al",
+      "blockCount": 1,
+      "totalWords": 2
+    },
+    {
+      "phaseId": "phase-am",
+      "blockCount": 1,
+      "totalWords": 6
+    },
+    {
+      "phaseId": "phase-an",
+      "blockCount": 1,
+      "totalWords": 7
+    },
+    {
+      "phaseId": "phase-ao",
+      "blockCount": 1,
+      "totalWords": 6
+    },
+    {
+      "phaseId": "phase-ap",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-aq",
+      "blockCount": 1,
+      "totalWords": 5
+    },
+    {
+      "phaseId": "phase-ar",
+      "blockCount": 1,
+      "totalWords": 14
+    },
+    {
+      "phaseId": "phase-as",
+      "blockCount": 1,
+      "totalWords": 14
+    },
+    {
+      "phaseId": "phase-at",
+      "blockCount": 1,
+      "totalWords": 8
+    },
+    {
+      "phaseId": "phase-au",
+      "blockCount": 1,
+      "totalWords": 10
+    },
+    {
+      "phaseId": "phase-av",
+      "blockCount": 1,
+      "totalWords": 21
+    },
+    {
+      "phaseId": "phase-aw",
+      "blockCount": 1,
+      "totalWords": 32
+    },
+    {
+      "phaseId": "phase-ax",
+      "blockCount": 1,
+      "totalWords": 8
+    },
+    {
+      "phaseId": "phase-ay",
+      "blockCount": 1,
+      "totalWords": 6
+    },
+    {
+      "phaseId": "phase-az",
+      "blockCount": 1,
+      "totalWords": 5
+    },
+    {
+      "phaseId": "phase-ba",
+      "blockCount": 1,
+      "totalWords": 5
+    },
+    {
+      "phaseId": "phase-bb",
+      "blockCount": 1,
+      "totalWords": 4
+    },
+    {
+      "phaseId": "phase-bc",
+      "blockCount": 1,
+      "totalWords": 4
+    },
+    {
+      "phaseId": "phase-bd",
+      "blockCount": 1,
+      "totalWords": 4
+    },
+    {
+      "phaseId": "phase-be",
+      "blockCount": 1,
+      "totalWords": 8
+    },
+    {
+      "phaseId": "phase-bf",
+      "blockCount": 1,
+      "totalWords": 3
+    },
+    {
+      "phaseId": "phase-bg",
+      "blockCount": 1,
+      "totalWords": 8
+    }
+  ],
+  "typesetter": {
+    "phase-a": {
+      "id": "phase-a",
+      "layoutBlocks": [
+        [
+          "a1",
+          "a2",
+          "a3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-b": {
+      "id": "phase-b",
+      "layoutBlocks": [
+        [
+          "b1",
+          "b2",
+          "b3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-c": {
+      "id": "phase-c",
+      "layoutBlocks": [
+        [
+          "c1",
+          "c2"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-d": {
+      "id": "phase-d",
+      "layoutBlocks": [
+        [
+          "d1",
+          "d2",
+          "d3",
+          "d4"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-e": {
+      "id": "phase-e",
+      "layoutBlocks": [
+        [
+          "e1",
+          "e2",
+          "e3",
+          "e4",
+          "e5"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-f": {
+      "id": "phase-f",
+      "layoutBlocks": [
+        [
+          "f1",
+          "f2"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-g": {
+      "id": "phase-g",
+      "layoutBlocks": [
+        [
+          "g1",
+          "g2",
+          "g3",
+          "g4",
+          "g5",
+          "g6"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-h": {
+      "id": "phase-h",
+      "layoutBlocks": [
+        [
+          "h1",
+          "h2",
+          "h3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-1": {
+      "id": "phase-1",
+      "layoutBlocks": [
+        [
+          "p1",
+          "p2",
+          "p3",
+          "p4"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-2": {
+      "id": "phase-2",
+      "layoutBlocks": [
+        [
+          "p5",
+          "p6"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-3": {
+      "id": "phase-3",
+      "layoutBlocks": [
+        [
+          "p7",
+          "p8"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-4": {
+      "id": "phase-4",
+      "layoutBlocks": [
+        [
+          "p9",
+          "p10"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-5": {
+      "id": "phase-5",
+      "layoutBlocks": [
+        [
+          "p11",
+          "p12"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-6": {
+      "id": "phase-6",
+      "layoutBlocks": [
+        [
+          "p13",
+          "p14"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-7": {
+      "id": "phase-7",
+      "layoutBlocks": [
+        [
+          "p15",
+          "p16",
+          "p17"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-x": {
+      "id": "phase-x",
+      "layoutBlocks": [
+        [
+          "x1",
+          "x2"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-y": {
+      "id": "phase-y",
+      "layoutBlocks": [
+        [
+          "y1",
+          "y2",
+          "y3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-z": {
+      "id": "phase-z",
+      "layoutBlocks": [
+        [
+          "z1",
+          "z2",
+          "z3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aa": {
+      "id": "phase-aa",
+      "layoutBlocks": [
+        [
+          "aa1",
+          "aa2",
+          "aa3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ab": {
+      "id": "phase-ab",
+      "layoutBlocks": [
+        [
+          "ab1",
+          "ab2",
+          "ab3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ac": {
+      "id": "phase-ac",
+      "layoutBlocks": [
+        [
+          "ac1",
+          "ac2",
+          "ac3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ad": {
+      "id": "phase-ad",
+      "layoutBlocks": [
+        [
+          "ad1",
+          "ad2",
+          "ad3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ae": {
+      "id": "phase-ae",
+      "layoutBlocks": [
+        [
+          "ae1",
+          "ae2",
+          "ae3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-af": {
+      "id": "phase-af",
+      "layoutBlocks": [
+        [
+          "af1",
+          "af2",
+          "af3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ag": {
+      "id": "phase-ag",
+      "layoutBlocks": [
+        [
+          "ag1",
+          "ag2",
+          "ag3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ah": {
+      "id": "phase-ah",
+      "layoutBlocks": [
+        [
+          "ah1",
+          "ah2",
+          "ah3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ai": {
+      "id": "phase-ai",
+      "layoutBlocks": [
+        [
+          "ai1",
+          "ai2",
+          "ai3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aj": {
+      "id": "phase-aj",
+      "layoutBlocks": [
+        [
+          "aj1",
+          "aj2",
+          "aj3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ak": {
+      "id": "phase-ak",
+      "layoutBlocks": [
+        [
+          "ak1",
+          "ak2",
+          "ak3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-al": {
+      "id": "phase-al",
+      "layoutBlocks": [
+        [
+          "al1",
+          "al2"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-am": {
+      "id": "phase-am",
+      "layoutBlocks": [
+        [
+          "am1",
+          "am2",
+          "am3",
+          "am4",
+          "am5",
+          "am6"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-an": {
+      "id": "phase-an",
+      "layoutBlocks": [
+        [
+          "an1",
+          "an2",
+          "an3",
+          "an4",
+          "an5",
+          "an6",
+          "an7"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ao": {
+      "id": "phase-ao",
+      "layoutBlocks": [
+        [
+          "ao1",
+          "ao2",
+          "ao3",
+          "ao4",
+          "ao5",
+          "ao6"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ap": {
+      "id": "phase-ap",
+      "layoutBlocks": [
+        [
+          "ap1",
+          "ap2",
+          "ap3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aq": {
+      "id": "phase-aq",
+      "layoutBlocks": [
+        [
+          "aq1",
+          "aq2",
+          "aq3",
+          "aq4",
+          "aq5"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ar": {
+      "id": "phase-ar",
+      "layoutBlocks": [
+        [
+          "ar1",
+          "ar2",
+          "ar3",
+          "ar3b",
+          "ar4",
+          "ar5",
+          "ar6",
+          "ar7",
+          "ar8",
+          "ar9",
+          "ar9b",
+          "ar10",
+          "ar11",
+          "ar12"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-as": {
+      "id": "phase-as",
+      "layoutBlocks": [
+        [
+          "as1",
+          "as2",
+          "as3",
+          "as3b",
+          "as4",
+          "as5",
+          "as6",
+          "as7",
+          "as8",
+          "as9",
+          "as9b",
+          "as10",
+          "as11",
+          "as12"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-at": {
+      "id": "phase-at",
+      "layoutBlocks": [
+        [
+          "at1",
+          "at2",
+          "at3",
+          "at4",
+          "at5",
+          "at6",
+          "at7",
+          "at8"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-au": {
+      "id": "phase-au",
+      "layoutBlocks": [
+        [
+          "au1",
+          "au2",
+          "au3",
+          "au4",
+          "au5",
+          "au6",
+          "au7",
+          "au8",
+          "au9",
+          "au10"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-av": {
+      "id": "phase-av",
+      "layoutBlocks": [
+        [
+          "av1",
+          "av2",
+          "av3",
+          "av4",
+          "av5",
+          "av6",
+          "av7",
+          "av8",
+          "av9",
+          "av10",
+          "av10b",
+          "av11",
+          "av12",
+          "av13",
+          "av14",
+          "av15",
+          "av16",
+          "av16b",
+          "av17",
+          "av18",
+          "av19"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-aw": {
+      "id": "phase-aw",
+      "layoutBlocks": [
+        [
+          "aw1",
+          "aw2",
+          "aw3",
+          "aw4",
+          "aw5",
+          "aw6",
+          "aw7",
+          "aw7b",
+          "aw8",
+          "aw9",
+          "aw10",
+          "aw11",
+          "aw12",
+          "aw13",
+          "aw13b",
+          "aw14",
+          "aw15",
+          "aw16",
+          "aw17",
+          "aw18",
+          "aw19",
+          "aw19b",
+          "aw20",
+          "aw21",
+          "aw22",
+          "aw23",
+          "aw24",
+          "aw25",
+          "aw25b",
+          "aw26",
+          "aw27",
+          "aw28"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ax": {
+      "id": "phase-ax",
+      "layoutBlocks": [
+        [
+          "ax1",
+          "ax2",
+          "ax3",
+          "ax4",
+          "ax5",
+          "ax6",
+          "ax7",
+          "ax8"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ay": {
+      "id": "phase-ay",
+      "layoutBlocks": [
+        [
+          "ay1",
+          "ay2",
+          "ay3",
+          "ay4",
+          "ay5",
+          "ay6"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-az": {
+      "id": "phase-az",
+      "layoutBlocks": [
+        [
+          "az1",
+          "az2",
+          "az3",
+          "az4",
+          "az5"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-ba": {
+      "id": "phase-ba",
+      "layoutBlocks": [
+        [
+          "ba1",
+          "ba2",
+          "ba3",
+          "ba4",
+          "ba5"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bb": {
+      "id": "phase-bb",
+      "layoutBlocks": [
+        [
+          "bb1",
+          "bb2",
+          "bb3",
+          "bb4"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bc": {
+      "id": "phase-bc",
+      "layoutBlocks": [
+        [
+          "bc1",
+          "bc2",
+          "bc3",
+          "bc4"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bd": {
+      "id": "phase-bd",
+      "layoutBlocks": [
+        [
+          "bd1",
+          "bd2",
+          "bd3",
+          "bd4"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-be": {
+      "id": "phase-be",
+      "layoutBlocks": [
+        [
+          "be1",
+          "be2",
+          "be3",
+          "be4",
+          "be5",
+          "be6",
+          "be7",
+          "be8"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bf": {
+      "id": "phase-bf",
+      "layoutBlocks": [
+        [
+          "bf1",
+          "bf2",
+          "bf3"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    },
+    "phase-bg": {
+      "id": "phase-bg",
+      "layoutBlocks": [
+        [
+          "bg1",
+          "bg2",
+          "bg3",
+          "bg4",
+          "bg5",
+          "bg6",
+          "bg7",
+          "bg8"
+        ]
+      ],
+      "handoff": {
+        "confidence": "high",
+        "notes": "Extracted from demoPacket"
+      }
+    }
+  }
+}
