@@ -267,11 +267,11 @@ export function SuttaStudioView({
                                     : segDomId(phaseId, word.id, i);
                                   const focusedSegmentId =
                                     (hovered?.kind === 'segment' && hovered.segmentDomId) || null;
+                                  const hoveredInThisPhase = hovered?.phaseId === phaseId;
 
                                   if (!seg.relation) return null;
-                                  // Highlight arrow when hovering source segment OR any segment of target word
-                                  const isFocused = focusedSegmentId === sId ||
-                                    (hovered?.wordId === seg.relation.targetWordId);
+                                  // Highlight arrow only when hovering source segment (not target word)
+                                  const isFocused = focusedSegmentId === sId && hoveredInThisPhase;
                                   const style = RELATION_COLORS[seg.relation.type];
                                   const isOwnership = seg.relation.type === 'ownership';
                                   const targetDomIdStr = seg.relation.targetSegmentId
@@ -285,9 +285,12 @@ export function SuttaStudioView({
                                   const extendCanvas = isOwnership ? 80 : 60;
                                   const canvasStyle = { overflow: 'visible', pointerEvents: 'none' as const };
 
-                                  // Anchors: both top for same-row, bottom->top for target-below
+                                  // Anchors based on relative position:
+                                  // - target above: start from top of source, end at bottom of target (arrow points up)
+                                  // - target below: start from bottom of source, end at top of target (arrow points down)
+                                  // - same row: both top
                                   const startAnchor = geom.verticalPos === 'below' ? 'bottom' : 'top';
-                                  const endAnchor = 'top';
+                                  const endAnchor = geom.verticalPos === 'above' ? 'bottom' : 'top';
 
                                   // Control point offsets for same-row arrows:
                                   // CP1 above (negative) = curve arcs up from start
@@ -367,10 +370,11 @@ export function SuttaStudioView({
                                     ? segmentIdToDomId(phaseId, item.linkedSegmentId)
                                     : wordDomId(phaseId, item.linkedPaliId!);
 
+                                  const focusedPhaseId = hovered?.phaseId ?? null;
                                   const focusedSegmentId = hovered?.kind === 'segment' ? hovered.segmentId : null;
-                                  const isFocused = item.linkedSegmentId
+                                  const isFocused = focusedPhaseId === phaseId && (item.linkedSegmentId
                                     ? focusedSegmentId === item.linkedSegmentId
-                                    : focusWordId === item.linkedPaliId;
+                                    : focusWordId === item.linkedPaliId);
 
                                   return (
                                     <Xarrow

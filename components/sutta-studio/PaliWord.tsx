@@ -42,7 +42,8 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   setPinned: Dispatch<SetStateAction<Focus | null>>;
 }) {
   const wDomId = wordDomId(phaseId, wordData.id);
-  const isWordFocused = (pinned?.wordId ?? hovered?.wordId) === wordData.id;
+  const focus = pinned ?? hovered;
+  const isWordFocused = focus?.phaseId === phaseId && focus?.wordId === wordData.id;
 
   // Refrain colors (for repeated formulas) - gated by settings
   const refrainStyle = wordData.refrainId && settings.refrainColors ? REFRAIN_COLORS[wordData.refrainId] : null;
@@ -120,6 +121,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 if (pinned) return;
                 setHovered({
                   kind: 'segment',
+                  phaseId,
                   wordId: wordData.id,
                   segmentId: seg.id,
                   segmentIndex: i,

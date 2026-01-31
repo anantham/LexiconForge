@@ -17,6 +17,7 @@ import type {
 } from '../types/suttaStudio';
 import { rehydratePhase } from './suttaStudioRehydrator';
 import { tokenizeEnglish, type EnglishTokenInput } from './suttaStudioTokenizer';
+import { validatePacket, attachValidationToPacket } from './suttaStudioPacketValidator';
 
 const log = (message: string, ...args: any[]) =>
   console.log(`[PipelineAssembler] ${message}`, ...args);
@@ -76,7 +77,7 @@ export function assemblePipelineToPacket(params: AssemblePacketParams): DeepLoom
 
   log(`Assembled ${phases.length} phases: ${successCount} success, ${degradedCount} degraded`);
 
-  return {
+  let packet: DeepLoomPacket = {
     packetId: `pipeline-${workId}-${Date.now()}`,
     source: { provider: 'suttacentral', workId },
     canonicalSegments: allSegments,
@@ -100,6 +101,15 @@ export function assemblePipelineToPacket(params: AssemblePacketParams): DeepLoom
       sourceDigest: `pipeline-${workId}`,
     },
   };
+
+  // Run post-assembly validation
+  const validationResult = validatePacket(packet, allSegments);
+  if (validationResult.issues.length > 0) {
+    log(`Validation: ${validationResult.issues.length} issues found (${validationResult.stats.duplicateSegments} duplicate segments, ${validationResult.stats.duplicateMappings} duplicate mappings)`);
+    packet = attachValidationToPacket(packet, validationResult);
+  }
+
+  return packet;
 }
 
 /**

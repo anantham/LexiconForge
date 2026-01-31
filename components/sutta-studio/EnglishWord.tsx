@@ -41,8 +41,8 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
     if (paliWord) {
       const idx = activeIndices[`${phaseId}-${paliWord.id}`] ?? 0;
       content = paliWord.senses[idx]?.english ?? '';
-      const focusedWordId = pinned?.wordId ?? hovered?.wordId;
-      isActive = focusedWordId === paliWord.id;
+      const focus = pinned ?? hovered;
+      isActive = focus?.phaseId === phaseId && focus?.wordId === paliWord.id;
     }
   } else if (structure.linkedSegmentId) {
     // Segment-level linking: find the parent word that contains this segment
@@ -62,8 +62,8 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
         // 2. Fall back to word-level senses (NOT tooltip - word senses contain the translation)
         content = parentWord.senses[idx % parentWord.senses.length]?.english ?? '';
       }
-      const focusedWordId = pinned?.wordId ?? hovered?.wordId;
-      isActive = focusedWordId === parentWord.id;
+      const focus = pinned ?? hovered;
+      isActive = focus?.phaseId === phaseId && focus?.wordId === parentWord.id;
     }
   } else {
     // Check for ripple overrides from active senses
@@ -78,7 +78,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
 
   const handleEnter = () => {
     if (!paliWordId) return;
-    setHovered({ kind: 'word', wordId: paliWordId });
+    setHovered({ kind: 'word', phaseId, wordId: paliWordId });
   };
 
   const handleLeave = () => {

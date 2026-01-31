@@ -8,11 +8,15 @@ import { logPipelineEvent } from './suttaStudioPipelineLog';
 const warn = (message: string, ...args: any[]) =>
   console.warn(`[SuttaStudioCompiler] ${message}`, ...args);
 
+import type { ProviderPreferences } from '../adapters/providers/Provider';
+
 export type CompilerLLMOptions = {
   schemaName?: string;
   schema?: any;
   structuredOutputs?: boolean;
   meta?: { stage?: string; phaseId?: string; requestName?: string };
+  /** OpenRouter provider routing preferences */
+  providerPreferences?: ProviderPreferences;
 };
 
 export type CompilerLLMResult = ChatResponse & {
@@ -87,6 +91,7 @@ export const callCompilerLLM = async (
       structuredOutputs: options?.structuredOutputs,
       abortSignal: signal,
       apiType: 'sutta_studio',
+      providerPreferences: options?.providerPreferences,
     });
   } catch (e: any) {
     logPipelineEvent({
