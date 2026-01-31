@@ -44,6 +44,7 @@ type LeaderboardEntry = {
   phasesCount: number;
   runTimestamp: string;
   runId: string;
+  packetPath: string;             // Path to packet.json for "View in Studio" link
 };
 
 type Leaderboard = {
@@ -72,13 +73,13 @@ type Leaderboard = {
 │  Model Leaderboard                    Last updated: 2026-01-31  │
 │  Ranking by: Overall Score            Methodology: [?]          │
 │                                                                 │
-│  ┌───┬────────────────┬───────┬───────┬───────┬───────┬───────┐ │
-│  │ # │ Model          │Overall│Valid. │Rich.  │Tokens │ Cost  │ │
-│  ├───┼────────────────┼───────┼───────┼───────┼───────┼───────┤ │
-│  │ 1 │ minimax-m2     │ 0.79  │ 0.83  │ 0.65  │ 12.4k │ $0.02 │ │
-│  │ 2 │ gemini-2-flash │ 0.77  │ 0.89  │ 0.54  │ 15.1k │ $0.03 │ │
-│  │ 3 │ glm-4.7-flash  │ 0.76  │ 0.72  │ 0.58  │ 11.2k │ free  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
+│  ┌───┬────────────────┬───────┬───────┬───────┬───────┬───────┬──────┐│
+│  │ # │ Model          │Overall│Valid. │Rich.  │Tokens │ Cost  │      ││
+│  ├───┼────────────────┼───────┼───────┼───────┼───────┼───────┼──────┤│
+│  │ 1 │ minimax-m2     │ 0.79  │ 0.83  │ 0.65  │ 12.4k │ $0.02 │ View ││
+│  │ 2 │ gemini-2-flash │ 0.77  │ 0.89  │ 0.54  │ 15.1k │ $0.03 │ View ││
+│  │ 3 │ glm-4.7-flash  │ 0.76  │ 0.72  │ 0.58  │ 11.2k │ free  │ View ││
+│  └──────────────────────────────────────────────────────────────────┘│
 │                                                                 │
 │  Click column headers to sort • Click row to view run details   │
 └─────────────────────────────────────────────────────────────────┘
@@ -87,6 +88,7 @@ type Leaderboard = {
 **Interactions:**
 - Column headers → sort ascending/descending
 - Row click → switch to Run Inspector with that run selected
+- "View" link → opens `/sutta/pipeline?path=<packetPath>` to view output in Sutta Studio
 - `[?]` icon → links to `docs/benchmarks/sutta-studio.md#quality-scoring`
 
 **Visual indicators:**
@@ -109,6 +111,7 @@ type Leaderboard = {
 | Duration (ms) | metrics.json | Yes |
 | Cost (USD) | metrics.json | Yes |
 | Phases Tested | metrics.json | Yes |
+| View | packetPath | No (action link) |
 
 ## Implementation Plan
 
