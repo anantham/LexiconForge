@@ -31,6 +31,7 @@ import {
   type PipelineOutput,
   type QualityScore,
 } from './quality-scorer';
+import { generateLeaderboard } from './generate-leaderboard';
 
 type MetricRow = {
   timestamp: string;
@@ -2119,6 +2120,14 @@ const runBenchmark = async () => {
     await fs.writeFile(jsonPath, JSON.stringify(payload, null, 2), 'utf8');
     await writeCsv(rows, csvPath);
     await writeBenchIndex(BENCHMARK_CONFIG.outputRoot);
+
+    // Generate/update leaderboard with latest results
+    try {
+      await generateLeaderboard();
+    } catch (err) {
+      console.warn('[SuttaStudioBenchmark] Leaderboard generation failed:', err);
+    }
+
     progressState.status = 'complete';
     progressState.updatedAt = new Date().toISOString();
     progressState.percent = 100;

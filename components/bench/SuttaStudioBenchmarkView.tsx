@@ -71,6 +71,35 @@ type BenchIndexEntry = {
 
 type RunStatus = 'complete' | 'partial' | 'failed' | 'golden';
 
+type LeaderboardEntry = {
+  rank: number;
+  modelId: string;
+  modelName: string;
+  overallScore: number;
+  coverageScore: number;
+  validityScore: number;
+  richnessScore: number;
+  grammarScore: number;
+  tokensTotal: number;
+  durationMs: number;
+  costUsd: number | null;
+  phasesCount: number;
+  runTimestamp: string;
+  runId: string;
+  packetPath: string;
+};
+
+type Leaderboard = {
+  generatedAt: string;
+  promptVersion: string;
+  methodology: {
+    docsUrl: string;
+    rankingMetric: string;
+    aggregation: string;
+  };
+  entries: LeaderboardEntry[];
+};
+
 // Derive status from entry metrics
 const getEntryStatus = (entry: BenchIndexEntry): RunStatus => {
   if (entry.kind === 'golden') return 'golden';
@@ -485,6 +514,14 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   const [progressError, setProgressError] = React.useState<string | null>(null);
   const [leftPass, setLeftPass] = React.useState<PassName>('skeleton');
   const [rightPass, setRightPass] = React.useState<PassName>('skeleton');
+  const [activeTab, setActiveTab] = React.useState<'leaderboard' | 'inspector'>('leaderboard');
+
+  // Leaderboard state
+  const [leaderboard, setLeaderboard] = React.useState<Leaderboard | null>(null);
+  const [leaderboardLoading, setLeaderboardLoading] = React.useState<boolean>(true);
+  const [leaderboardError, setLeaderboardError] = React.useState<string | null>(null);
+  const [sortColumn, setSortColumn] = React.useState<keyof LeaderboardEntry>('rank');
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('asc');
 
   // Filters
   const [filterModel, setFilterModel] = React.useState<string>('all');
@@ -555,6 +592,62 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   React.useEffect(() => {
     void fetchIndex();
   }, [fetchIndex]);
+
+  // Fetch leaderboard
+  const fetchLeaderboard = React.useCallback(async () => {
+    setLeaderboardLoading(true);
+    setLeaderboardError(null);
+    try {
+      const response = await fetch(`/reports/sutta-studio/leaderboard.json?ts=${Date.now()}`, {
+        cache: 'no-store',
+      });
+      if (!response.ok) {
+        if (response.status === 404) {
+          setLeaderboardError('Leaderboard not yet generated. Run a benchmark first.');
+          return;
+        }
+        throw new Error(`Failed to load leaderboard: ${response.status}`);
+      }
+      const data = (await response.json()) as Leaderboard;
+      setLeaderboard(data);
+    } catch (err: any) {
+      setLeaderboardError(err?.message || 'Failed to load leaderboard.');
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    void fetchLeaderboard();
+  }, [fetchLeaderboard]);
+
+  // Sorted leaderboard entries
+  const sortedLeaderboardEntries = React.useMemo(() => {
+    if (!leaderboard?.entries) return [];
+    const entries = [...leaderboard.entries];
+    entries.sort((a, b) => {
+      const aVal = a[sortColumn];
+      const bVal = b[sortColumn];
+      if (aVal === null) return 1;
+      if (bVal === null) return -1;
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      return sortDirection === 'asc'
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+    return entries;
+  }, [leaderboard, sortColumn, sortDirection]);
+
+  const handleSort = (column: keyof LeaderboardEntry) => {
+    if (sortColumn === column) {
+      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection(column === 'rank' ? 'asc' : 'desc');
+    }
+  };
 
   React.useEffect(() => {
     let active = true;
@@ -814,16 +907,188 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                 </p>
               )}
             </div>
-            <button
-              type="button"
-              className="rounded border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700 shadow-sm hover:bg-gray-50"
-              onClick={() => void fetchIndex()}
-            >
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="rounded border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700 shadow-sm hover:bg-gray-50"
+                onClick={() => {
+                  void fetchIndex();
+                  void fetchLeaderboard();
+                }}
+              >
               Refresh
-            </button>
+              </button>
+            </div>
           </div>
         </header>
 
+        {/* Tabs */}
+        <div className="flex gap-1 border-b border-gray-200">
+          <button
+            type="button"
+            className={`px-4 py-2 text-sm font-medium rounded-t ${
+              activeTab === 'leaderboard'
+                ? 'bg-white border border-b-0 border-gray-200 text-gray-900'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('leaderboard')}
+          >
+            Leaderboard
+          </button>
+          <button
+            type="button"
+            className={`px-4 py-2 text-sm font-medium rounded-t ${
+              activeTab === 'inspector'
+                ? 'bg-white border border-b-0 border-gray-200 text-gray-900'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('inspector')}
+          >
+            Run Inspector
+          </button>
+        </div>
+
+        {/* Leaderboard Tab */}
+        {activeTab === 'leaderboard' && (
+          <div className="rounded border border-gray-200 bg-white p-4">
+            {leaderboardLoading && (
+              <div className="text-sm text-gray-500">Loading leaderboard...</div>
+            )}
+            {leaderboardError && (
+              <div className="text-sm text-red-600">{leaderboardError}</div>
+            )}
+            {leaderboard && !leaderboardLoading && (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-semibold">Model Leaderboard</h2>
+                    <p className="text-xs text-gray-500">
+                      Ranking by: Overall Score | Best run per model |{' '}
+                      <a
+                        href={leaderboard.methodology.docsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                        title="View scoring methodology"
+                      >
+                        Methodology ?
+                      </a>
+                    </p>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Last updated: {new Date(leaderboard.generatedAt).toLocaleString()}
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('rank')}>
+                          # {sortColumn === 'rank' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('modelId')}>
+                          Model {sortColumn === 'modelId' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('overallScore')}>
+                          Overall {sortColumn === 'overallScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('validityScore')}>
+                          Validity {sortColumn === 'validityScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('richnessScore')}>
+                          Richness {sortColumn === 'richnessScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('coverageScore')}>
+                          Coverage {sortColumn === 'coverageScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('grammarScore')}>
+                          Grammar {sortColumn === 'grammarScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('tokensTotal')}>
+                          Tokens {sortColumn === 'tokensTotal' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('costUsd')}>
+                          Cost {sortColumn === 'costUsd' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2">View</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedLeaderboardEntries.map((entry) => {
+                        const scoreColor = (score: number) =>
+                          score >= 0.8 ? 'text-green-600' : score >= 0.6 ? 'text-amber-600' : 'text-red-600';
+                        const rankBadge =
+                          entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : '';
+                        const cost = entry.costUsd ? `$${entry.costUsd.toFixed(3)}` : 'free';
+                        const tokens =
+                          entry.tokensTotal > 1000
+                            ? `${(entry.tokensTotal / 1000).toFixed(1)}k`
+                            : entry.tokensTotal;
+
+                        return (
+                          <tr
+                            key={entry.modelId}
+                            className="border-b border-gray-100 hover:bg-gray-50"
+                          >
+                            <td className="px-3 py-2 font-medium">
+                              {rankBadge || entry.rank}
+                            </td>
+                            <td className="px-3 py-2">
+                              <div className="font-medium">{entry.modelId}</div>
+                              <div className="text-xs text-gray-400">{entry.modelName}</div>
+                            </td>
+                            <td className={`px-3 py-2 font-semibold ${scoreColor(entry.overallScore)}`}>
+                              {entry.overallScore.toFixed(2)}
+                            </td>
+                            <td className={`px-3 py-2 ${scoreColor(entry.validityScore)}`}>
+                              {entry.validityScore.toFixed(2)}
+                            </td>
+                            <td className={`px-3 py-2 ${scoreColor(entry.richnessScore)}`}>
+                              {entry.richnessScore.toFixed(2)}
+                            </td>
+                            <td className={`px-3 py-2 ${scoreColor(entry.coverageScore)}`}>
+                              {entry.coverageScore.toFixed(2)}
+                            </td>
+                            <td className={`px-3 py-2 ${scoreColor(entry.grammarScore)}`}>
+                              {entry.grammarScore.toFixed(2)}
+                            </td>
+                            <td className="px-3 py-2 text-gray-600">{tokens}</td>
+                            <td className="px-3 py-2 text-gray-600">
+                              {cost === 'free' ? (
+                                <span className="text-green-600">free</span>
+                              ) : (
+                                cost
+                              )}
+                            </td>
+                            <td className="px-3 py-2">
+                              <a
+                                href={`/sutta/pipeline?path=${entry.packetPath}`}
+                                className="text-blue-600 hover:underline text-xs"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                View
+                              </a>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="text-xs text-gray-500">
+                  {leaderboard.entries.length} models | Prompt version: {leaderboard.promptVersion}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Run Inspector Tab */}
+        {activeTab === 'inspector' && (
+          <>
         {/* Filters */}
         {entries.length > 0 && (
           <div className="rounded border border-gray-200 bg-white p-4">
@@ -998,6 +1263,8 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
               onPassChange={setRightPass}
             />
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
