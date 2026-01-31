@@ -17,13 +17,20 @@ export type ValidationIssue = {
     | 'relation_target_missing'
     | 'linked_pali_missing'
     | 'english_token_duplicate'
+    | 'english_mapping_duplicate' // Same Pali segment linked by multiple English tokens
     | 'word_id_duplicate'
-    | 'phase_id_duplicate';
+    | 'phase_id_duplicate'
+    | 'canonical_segment_duplicate' // Same segment appears in multiple phases (often intentional sub-segment split)
+    | 'canonical_segment_missing' // Source segment not represented in output
+    | 'pali_text_mismatch' // Pali text doesn't exactly match source (ERROR - must be 1:1)
+    | 'english_content_missing' // Source English words missing from artifact (artifact should be superset)
+    | 'phase_degraded'; // Phase failed compilation
   message: string;
   phaseId?: string;
   wordId?: string;
   segmentIndex?: number;
   tokenId?: string;
+  canonicalSegmentId?: string;
 };
 
 export type SourceRef = {
