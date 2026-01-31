@@ -15,6 +15,15 @@ type SkeletonPhase = {
   segmentIds: string[];
 };
 
+type ValidationMetrics = {
+  paliMismatch: number;
+  englishMissing: number;
+  duplicateMappings: number;
+  degradedPhases: number;
+  totalIssues: number;
+  hasErrors: boolean;
+};
+
 type BenchEntry = {
   id: string;
   label: string;
@@ -35,6 +44,8 @@ type BenchEntry = {
   }>;
   // Full packet for preview
   packet?: any;
+  // Validation metrics from packet.compiler.validationIssues
+  validation?: ValidationMetrics;
 };
 
 type BenchIndexEntry = {
@@ -130,6 +141,41 @@ const buildLabel = (entry: BenchIndexEntry) => {
   const modelPart = entry.model ? ` · ${entry.model}` : '';
   const suffix = entry.kind === 'golden' ? ' · golden' : '';
   return `${entry.timestamp} · ${entry.runId}${modelPart}${suffix}`;
+};
+
+// Extract validation metrics from packet
+const extractValidationMetrics = (packet: any): ValidationMetrics | undefined => {
+  const issues = packet?.compiler?.validationIssues;
+  if (!issues || !Array.isArray(issues)) return undefined;
+
+  const metrics: ValidationMetrics = {
+    paliMismatch: 0,
+    englishMissing: 0,
+    duplicateMappings: 0,
+    degradedPhases: 0,
+    totalIssues: issues.length,
+    hasErrors: false,
+  };
+
+  for (const issue of issues) {
+    if (issue.level === 'error') metrics.hasErrors = true;
+    switch (issue.code) {
+      case 'pali_text_mismatch':
+        metrics.paliMismatch++;
+        break;
+      case 'english_content_missing':
+        metrics.englishMissing++;
+        break;
+      case 'english_mapping_duplicate':
+        metrics.duplicateMappings++;
+        break;
+      case 'phase_degraded':
+        metrics.degradedPhases++;
+        break;
+    }
+  }
+
+  return metrics;
 };
 
 const sortEntries = (entries: BenchIndexEntry[]) =>
@@ -233,6 +279,37 @@ const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ 
   return <pre className="text-xs overflow-auto max-h-32">{JSON.stringify(data, null, 2)}</pre>;
 };
 
+const ValidationBadges: React.FC<{ validation?: ValidationMetrics }> = ({ validation }) => {
+  if (!validation || validation.totalIssues === 0) {
+    return <span className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">✓ Valid</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {validation.degradedPhases > 0 && (
+        <span className="px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800" title="Phases that failed compilation">
+          {validation.degradedPhases} degraded
+        </span>
+      )}
+      {validation.paliMismatch > 0 && (
+        <span className="px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800" title="Pali text doesn't match source">
+          {validation.paliMismatch} pali mismatch
+        </span>
+      )}
+      {validation.duplicateMappings > 0 && (
+        <span className="px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800" title="Same segment linked by multiple English tokens">
+          {validation.duplicateMappings} dup mappings
+        </span>
+      )}
+      {validation.englishMissing > 0 && (
+        <span className="px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800" title="Source English words missing from output">
+          {validation.englishMissing} missing english
+        </span>
+      )}
+    </div>
+  );
+};
+
 const PhaseList: React.FC<{
   phases: SkeletonPhase[];
   pass: PassName;
@@ -275,18 +352,31 @@ const PhaseList: React.FC<{
 
 const BenchCard: React.FC<{
   entry: BenchEntry | null;
+  indexEntry: BenchIndexEntry | null;
   options: BenchIndexEntry[];
   value: string;
   onChange: (value: string) => void;
   pass: PassName;
   onPassChange: (pass: PassName) => void;
-}> = ({ entry, options, value, onChange, pass, onPassChange }) => {
-  // For golden data, link directly to /sutta/mn10 which shows DEMO_PACKET_MN10
+}> = ({ entry, indexEntry, options, value, onChange, pass, onPassChange }) => {
+  // For golden data, link to /sutta/demo. For runs, use pipeline loader with path param
+  const getPacketPath = () => {
+    if (!indexEntry) return null;
+    if (indexEntry.kind === 'golden') return null; // Golden uses /sutta/demo
+    // Derive packet path from the output path
+    const basePath = indexEntry.path.replace(/\/[^/]+$/, '');
+    return `${basePath}/packet.json`;
+  };
+
+  const packetPath = getPacketPath();
   const viewFullUrl = entry?.kind === 'golden'
-    ? '/sutta/mn10'
-    : entry?.packet
-      ? `/bench/sutta-studio/preview?entry=${encodeURIComponent(entry.id)}`
+    ? '/sutta/demo'
+    : packetPath
+      ? `/sutta/pipeline?path=${encodeURIComponent(packetPath)}`
       : null;
+
+  const status = indexEntry ? getEntryStatus(indexEntry) : null;
+  const statusInfo = status ? STATUS_LABELS[status] : null;
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
@@ -342,11 +432,34 @@ const BenchCard: React.FC<{
         <div className="mt-4 text-sm text-gray-500">No data selected.</div>
       ) : (
         <div className="mt-4 space-y-3">
-          <div className="flex gap-4 text-sm text-gray-700">
-            <div><span className="font-semibold">Kind:</span> {entry.kind}</div>
-            <div><span className="font-semibold">Model:</span> {entry.model ?? 'unknown'}</div>
-            <div><span className="font-semibold">Phases:</span> {entry.phases.length}</div>
+          <div className="flex flex-wrap gap-2 text-sm text-gray-700">
+            {statusInfo && (
+              <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusInfo.color}`}>
+                {statusInfo.label}
+              </span>
+            )}
+            <span className="text-gray-500">
+              {entry.kind === 'golden' ? 'Golden Reference' : (entry.model ?? 'unknown')}
+            </span>
+            <span className="text-gray-400">·</span>
+            <span className="text-gray-500">{entry.phases.length} phases</span>
+            {/* Only show expected mismatch for runs, not golden */}
+            {entry.kind !== 'golden' && indexEntry?.phasesCount != null && entry.phases.length !== indexEntry.phasesCount && (
+              <>
+                <span className="text-gray-400">·</span>
+                <span className="text-amber-600">(expected {indexEntry.phasesCount})</span>
+              </>
+            )}
           </div>
+          {/* Validation metrics */}
+          {entry.kind !== 'golden' && (
+            <div className="border-t border-gray-100 pt-2">
+              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                Validation
+              </div>
+              <ValidationBadges validation={entry.validation} />
+            </div>
+          )}
           <PhaseList
             phases={entry.phases}
             pass={pass}
@@ -372,6 +485,50 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   const [progressError, setProgressError] = React.useState<string | null>(null);
   const [leftPass, setLeftPass] = React.useState<PassName>('skeleton');
   const [rightPass, setRightPass] = React.useState<PassName>('skeleton');
+
+  // Filters
+  const [filterModel, setFilterModel] = React.useState<string>('all');
+  const [filterStatus, setFilterStatus] = React.useState<RunStatus | 'all'>('all');
+  const [filterTimestamp, setFilterTimestamp] = React.useState<string>('all');
+  const [filterMinPhases, setFilterMinPhases] = React.useState<number>(0);
+  const [filterQuality, setFilterQuality] = React.useState<'all' | 'valid' | 'has_issues'>('all');
+
+  // Derive unique values for filter options
+  const uniqueModels = React.useMemo(() => {
+    const models = new Set<string>();
+    entries.forEach((e) => {
+      if (e.model) models.add(e.model);
+    });
+    return Array.from(models).sort();
+  }, [entries]);
+
+  const uniqueTimestamps = React.useMemo(() => {
+    const timestamps = new Set<string>();
+    entries.forEach((e) => timestamps.add(e.timestamp));
+    return Array.from(timestamps).sort().reverse();
+  }, [entries]);
+
+  // Deduplicate golden entries - keep only the latest one since they're all identical
+  const deduplicatedEntries = React.useMemo(() => {
+    const goldenEntries = entries.filter((e) => e.kind === 'golden');
+    const runEntries = entries.filter((e) => e.kind !== 'golden');
+
+    // Keep only the first (latest) golden entry if any exist
+    const latestGolden = goldenEntries.length > 0 ? [goldenEntries[0]] : [];
+
+    return [...latestGolden, ...runEntries];
+  }, [entries]);
+
+  // Apply filters
+  const filteredEntries = React.useMemo(() => {
+    return deduplicatedEntries.filter((e) => {
+      if (filterModel !== 'all' && e.model !== filterModel) return false;
+      if (filterStatus !== 'all' && getEntryStatus(e) !== filterStatus) return false;
+      if (filterTimestamp !== 'all' && e.timestamp !== filterTimestamp) return false;
+      if (filterMinPhases > 0 && (e.phasesCount ?? 0) < filterMinPhases) return false;
+      return true;
+    });
+  }, [deduplicatedEntries, filterModel, filterStatus, filterTimestamp, filterMinPhases]);
 
   const fetchIndex = React.useCallback(async () => {
     setIsLoading(true);
@@ -437,22 +594,23 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (!entries.length) {
+    if (!filteredEntries.length) {
       setLeftId('');
       setRightId('');
       return;
     }
     setLeftId((prev) => {
-      if (prev && entries.some((item) => item.id === prev)) return prev;
-      const firstRun = entries.find((item) => item.kind === 'run');
-      return firstRun?.id ?? entries[0]?.id ?? '';
+      if (prev && filteredEntries.some((item) => item.id === prev)) return prev;
+      const firstComplete = filteredEntries.find((item) => getEntryStatus(item) === 'complete');
+      const firstRun = filteredEntries.find((item) => item.kind === 'run');
+      return firstComplete?.id ?? firstRun?.id ?? filteredEntries[0]?.id ?? '';
     });
     setRightId((prev) => {
-      if (prev && entries.some((item) => item.id === prev)) return prev;
-      const golden = entries.find((item) => item.kind === 'golden');
-      return golden?.id ?? entries[0]?.id ?? '';
+      if (prev && filteredEntries.some((item) => item.id === prev)) return prev;
+      const golden = filteredEntries.find((item) => item.kind === 'golden');
+      return golden?.id ?? filteredEntries[0]?.id ?? '';
     });
-  }, [entries]);
+  }, [filteredEntries]);
 
   const loadEntryData = React.useCallback(
     async (entry: BenchIndexEntry | null): Promise<BenchEntry | null> => {
@@ -580,6 +738,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
         phases: data?.phases ?? [],
         pipelineOutputs,
         packet,
+        validation: extractValidationMetrics(packet),
       };
       setDataCache((prev) => ({ ...prev, [entry.id]: resolved }));
       return resolved;
@@ -587,14 +746,23 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
     [dataCache]
   );
 
+  // Find index entries for passing to BenchCard
+  const leftIndexEntry = React.useMemo(
+    () => filteredEntries.find((item) => item.id === leftId) ?? null,
+    [filteredEntries, leftId]
+  );
+  const rightIndexEntry = React.useMemo(
+    () => filteredEntries.find((item) => item.id === rightId) ?? null,
+    [filteredEntries, rightId]
+  );
+
   React.useEffect(() => {
-    const entry = entries.find((item) => item.id === leftId) ?? null;
-    if (!entry) {
+    if (!leftIndexEntry) {
       setLeftEntry(null);
       return;
     }
     let cancelled = false;
-    loadEntryData(entry)
+    loadEntryData(leftIndexEntry)
       .then((result) => {
         if (!cancelled) setLeftEntry(result);
       })
@@ -607,16 +775,15 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [entries, leftId, loadEntryData]);
+  }, [leftIndexEntry, loadEntryData]);
 
   React.useEffect(() => {
-    const entry = entries.find((item) => item.id === rightId) ?? null;
-    if (!entry) {
+    if (!rightIndexEntry) {
       setRightEntry(null);
       return;
     }
     let cancelled = false;
-    loadEntryData(entry)
+    loadEntryData(rightIndexEntry)
       .then((result) => {
         if (!cancelled) setRightEntry(result);
       })
@@ -629,7 +796,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [entries, rightId, loadEntryData]);
+  }, [rightIndexEntry, loadEntryData]);
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
@@ -656,6 +823,71 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
             </button>
           </div>
         </header>
+
+        {/* Filters */}
+        {entries.length > 0 && (
+          <div className="rounded border border-gray-200 bg-white p-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Filters
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600">Model:</label>
+                <select
+                  className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                  value={filterModel}
+                  onChange={(e) => setFilterModel(e.target.value)}
+                >
+                  <option value="all">All models</option>
+                  {uniqueModels.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600">Status:</label>
+                <select
+                  className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as RunStatus | 'all')}
+                >
+                  <option value="all">All statuses</option>
+                  <option value="complete">Complete</option>
+                  <option value="partial">Partial</option>
+                  <option value="failed">Failed</option>
+                  <option value="golden">Golden</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600">Date:</label>
+                <select
+                  className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                  value={filterTimestamp}
+                  onChange={(e) => setFilterTimestamp(e.target.value)}
+                >
+                  <option value="all">All dates</option>
+                  {uniqueTimestamps.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600">Min phases:</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  className="w-16 rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                  value={filterMinPhases}
+                  onChange={(e) => setFilterMinPhases(Math.max(0, Number(e.target.value) || 0))}
+                />
+              </div>
+              <div className="text-xs text-gray-500">
+                {filteredEntries.length} of {entries.length} entries
+              </div>
+            </div>
+          </div>
+        )}
 
         {progress ? (
           <div className="rounded border border-gray-200 bg-white p-4">
@@ -741,11 +973,16 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
             No benchmark outputs found. Run the benchmark to generate reports under
             <code className="mx-1">reports/sutta-studio</code>.
           </div>
+        ) : filteredEntries.length === 0 ? (
+          <div className="rounded border border-gray-200 bg-white p-6 text-sm text-gray-600">
+            No entries match the current filters. Try adjusting the filters above.
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <BenchCard
               entry={leftEntry}
-              options={entries}
+              indexEntry={leftIndexEntry}
+              options={filteredEntries}
               value={leftId}
               onChange={setLeftId}
               pass={leftPass}
@@ -753,7 +990,8 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
             />
             <BenchCard
               entry={rightEntry}
-              options={entries}
+              indexEntry={rightIndexEntry}
+              options={filteredEntries}
               value={rightId}
               onChange={setRightId}
               pass={rightPass}
