@@ -98,3 +98,66 @@ test-fixtures/sutta-studio-golden-data.json
 ```
 
 The fixture contains canonical segments plus sample pass outputs for MN10. You can swap to a different phase or create a new fixture file and update the config.
+
+## Quality Scoring
+
+After each benchmark run, the harness computes quality scores for each model. These scores are aggregated into a leaderboard at `reports/sutta-studio/leaderboard.json`.
+
+### Scoring Dimensions
+
+| Dimension | Weight | Description |
+|-----------|--------|-------------|
+| **Coverage** | 25% | How well does the output cover the input? |
+| **Validity** | 35% | Is the output structurally correct? |
+| **Richness** | 20% | How informative are tooltips, senses, etc.? |
+| **Grammar** | 20% | Are grammatical relations present and valid? |
+
+### Coverage Metrics
+
+- **Pali Word Coverage**: Ratio of output words to input Pali words (split by whitespace)
+- **English Mapping Ratio**: Ratio of mapped English tokens to total tokens (non-ghost tokens)
+
+### Validity Metrics
+
+- **No Empty Segments**: Percentage of segments with non-empty text
+- **No Duplicate Mappings**: Percentage of segment links that are unique (same Pali segment linked by multiple English tokens is a bug)
+- **Text Integrity**: Do concatenated segments match the word's surface form?
+
+### Richness Metrics
+
+- **Tooltip Density**: Average tooltips per segment, normalized (2 tooltips/segment = 100%)
+- **Sense Polysemy**: Content words expected to have 3 senses, function words 1-2
+- **Morph Data Present**: Percentage of segments with morphological data
+
+### Grammar Metrics
+
+- **Relation Count**: Total grammatical relations in output
+- **Relation Density**: Relations per content word (expect ~0.5-1)
+- **Relations Valid**: Percentage of relations with valid from/to references
+
+### Overall Score
+
+The overall score is a weighted average:
+
+```
+overall = coverage * 0.25 + validity * 0.35 + richness * 0.20 + grammar * 0.20
+```
+
+### Leaderboard
+
+The leaderboard shows the **best run per model** ranked by overall score. It includes:
+- Quality scores across all dimensions
+- Token usage and cost
+- Link to view the output in Sutta Studio
+
+Generate/update the leaderboard:
+```bash
+npx tsx scripts/sutta-studio/generate-leaderboard.ts
+```
+
+Backfill quality scores for existing runs:
+```bash
+npx tsx scripts/sutta-studio/backfill-quality-scores.ts
+```
+
+View the leaderboard at `/bench/sutta-studio` → Leaderboard tab.
