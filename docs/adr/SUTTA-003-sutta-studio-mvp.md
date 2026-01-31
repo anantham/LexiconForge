@@ -285,3 +285,137 @@ When creating or validating demo content:
 
 ### Notes
 These guidelines emerged from hands-on validation of Phases A–F of the MN10 demo. They prioritize learner experience over linguistic completeness.
+
+---
+
+## Amendment — 2026-01-31: Benchmark Philosophy & Quality-Based Scoring
+
+**Status:** Accepted
+**Authors:** Aditya + Claude (Opus)
+**Scope:** Benchmarking approach, settings documentation, quality metrics
+
+### Rationale
+
+During manual inspection of benchmark outputs, we discovered a fundamental mismatch: the benchmark was comparing AI-generated phase structures against hand-crafted golden phases as if they should match exactly. This is the wrong framing.
+
+**Key Insight:** The skeleton pass makes pedagogical choices about how to slice text into phases. These choices are *creative*, not *deterministic*. An AI might legitimately split a segment differently than the golden data—this isn't an error, it's an alternative valid approach.
+
+The goal of Sutta Studio is to produce a **learning artifact** that helps someone understand the Pali. The golden data is one excellent way to achieve this, but not the only valid way.
+
+### Decision
+
+#### 1. Benchmark Philosophy: "Let the AI Cook"
+
+**Old approach (problematic):**
+- Compare AI output structure to golden structure
+- Mark as "degraded" if phase boundaries differ
+- Exact match = success
+
+**New approach (adopted):**
+- Validate structural integrity (no broken JSON, no missing fields)
+- Score *quality* of the output on its own merits
+- Accept that AI may slice differently—evaluate whether the result is useful
+
+The question changes from "Does this match golden?" to "Would a learner understand the Dhamma from this?"
+
+#### 2. Quality Scoring Dimensions
+
+Instead of binary pass/fail, score each output across these dimensions:
+
+| Dimension | Pass | What We Measure |
+|-----------|------|-----------------|
+| **Pali Coverage** | Skeleton | All canonical text accounted for? No dropped words? |
+| **Phase Coherence** | Skeleton | Each phase is a meaningful unit? No mid-sentence cuts? |
+| **Text Integrity** | Anatomist | Concatenated segments === surface form? |
+| **Segmentation Quality** | Anatomist | Meaningful morpheme boundaries? Not over-split? |
+| **Tooltip Richness** | Anatomist | Has etymology, grammar, context? Follows hierarchy? |
+| **Sense Coverage** | Lexicographer | 3 senses for content words, 1-2 for function? |
+| **Sense Appropriateness** | Lexicographer | Contextually relevant? Varied nuances? |
+| **Alignment Completeness** | Weaver | All Pali words have English mappings? |
+| **No Duplicate Mappings** | Weaver | No segment linked by multiple English tokens? |
+| **Ghost Word Accuracy** | Weaver | Required structural words marked as ghosts? |
+| **English Coherence** | Weaver | Word order makes sense? Readable? |
+| **Block Logic** | Typesetter | Related words grouped? Follows grammar relations? |
+| **Block Size** | Typesetter | Max 5 words per block respected? |
+
+#### 3. Structural Validation vs Quality Scoring
+
+Keep these separate:
+
+**Structural Validation** (binary, catches broken output):
+- JSON parses correctly
+- Required fields present
+- IDs are unique and reference correctly
+- Segment concatenation matches surface
+
+**Quality Scoring** (continuous, measures usefulness):
+- Scores 0-1 for each dimension above
+- Aggregated per-pass and per-phase
+- Visualized across models for comparison
+
+A phase can be "valid" (passes structural checks) but have low quality scores.
+
+#### 4. Settings Panel Features
+
+The following UI toggles are available in `SettingsPanel.tsx`. All affect rendering, not data:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `tooltips` | ON | Show tooltips on hover/click |
+| `emojiInTooltips` | ON | Include emoji in tooltip text (🎯, 😢, etc.) |
+| `grammarTerms` | OFF | Show `[bracketed]` grammar terms in tooltips |
+| `grammarArrows` | ON | Show relation arrows between words |
+| `refrainColors` | OFF | Highlight words with same `refrainId` |
+| `alignmentLines` | ON | Show Pali-English alignment connectors |
+| `ghostWords` | ON | Show ghost words at 30% opacity |
+
+**Content implications:**
+- Tooltips should include emoji when `emojiInTooltips` is ON
+- Grammar terms should use `[bracket]` format so they can be stripped when toggle is OFF
+- Refrain words should have consistent `refrainId` assignments across phases
+
+#### 5. Skeleton Divergence is Expected
+
+The demo packet (`demoPacket.ts`) represents hand-crafted, pedagogically optimized phases. When the AI generates its own skeleton:
+
+- Phase boundaries may differ
+- Phase count may differ
+- Word groupings may differ
+
+**This is acceptable** as long as:
+1. All canonical text is covered
+2. Each phase is coherent (not mid-sentence)
+3. Downstream passes produce quality output
+
+**Implication for benchmarking:** Don't compare AI phases to golden phases by ID. Instead:
+- Validate skeleton structure independently
+- Run anatomist/lexicographer/weaver/typesetter on AI's phases
+- Score quality of final output
+
+#### 6. Known Structural Issue: Shared Segments
+
+**Finding:** 35 of 51 phases in the golden fixture share a `canonicalSegmentId` with other phases (e.g., 7 phases all reference `mn10:2.1`). Without `wordRange` metadata, the benchmark gives all these phases the full segment text instead of their intended slice.
+
+**Affected segments:**
+- `mn10:1.2` → 3 phases (phase-b, c, d)
+- `mn10:2.1` → 7 phases (phase-1 through 7)
+- `mn10:3.2` → 4 phases (phase-y, z, aa, ab)
+- Plus 7 more segments with 3 phases each
+
+**Resolution options:**
+1. Add `wordRange: [start, end]` to phase metadata for sub-segment slicing
+2. Embed `paliText` directly in phase metadata
+3. Accept that live-mode skeleton will slice differently anyway
+
+Given the "let the AI cook" philosophy, option 3 is acceptable for live-mode benchmarks. For fixture-mode (testing individual passes with curated input), option 1 or 2 should be implemented.
+
+### Implications
+
+1. **Benchmark reports** should show quality scores, not just pass/fail
+2. **"Degraded" flag** means structural validation failed, not "differs from golden"
+3. **Model comparison** should rank by quality scores across dimensions
+4. **Future work**: LLM-as-judge for semantic quality, embedding similarity for senses
+
+### Notes
+
+This amendment reflects insights from hands-on inspection of Gemini-2-flash, Trinity-large, and other models across 15+ phases. The key realization: translation is creative, and rigid exact-match scoring misses the point of what we're building.
