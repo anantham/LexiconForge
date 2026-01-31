@@ -197,10 +197,17 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         },
       };
       if (settings.provider === 'OpenRouter') {
-        requestOptions.provider = { require_parameters: true };
+        requestOptions.provider = {
+          require_parameters: true,
+          ...input.providerPreferences,
+        };
       }
     } else {
       requestOptions.response_format = { type: 'json_object' };
+      // Still apply provider preferences for non-structured outputs
+      if (settings.provider === 'OpenRouter' && input.providerPreferences) {
+        requestOptions.provider = { ...input.providerPreferences };
+      }
     }
 
     dlog('Making compiler API request', { model, provider: settings.provider });

@@ -8,6 +8,16 @@ export type ChatMessage = {
   content: string;
 };
 
+/** OpenRouter provider routing preferences */
+export interface ProviderPreferences {
+  order?: string[];
+  allow_fallbacks?: boolean;
+  require_parameters?: boolean;
+  data_collection?: 'allow' | 'deny';
+  quantizations?: string[];
+  sort?: 'price' | 'throughput' | 'latency';
+}
+
 export interface ChatRequest {
   settings?: AppSettings;
   messages?: ChatMessage[];
@@ -22,6 +32,8 @@ export interface ChatRequest {
   abortSignal?: AbortSignal;
   apiType?: ApiCallType;
   chapterId?: string;
+  /** OpenRouter provider routing preferences */
+  providerPreferences?: ProviderPreferences;
 }
 
 export interface ChatResponse {
