@@ -236,34 +236,62 @@ export const SUTTA_STUDIO_PHASE_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_PHASE
 export const SUTTA_STUDIO_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_COMPOUND_EXAMPLE, null, 2);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Anatomist Example: Segment-level output with IDs
+// Anatomist Example: Phase-A from MN10 golden data (training phase)
+// "Evaṁ me sutaṁ—" — Opening formula
 // ─────────────────────────────────────────────────────────────────────────────
 export const SUTTA_STUDIO_ANATOMIST_EXAMPLE: AnatomistPass = {
-  id: 'phase-1',
+  id: 'phase-a',
   words: [
-    // Surface forms should be clean (no punctuation): "Evaṁ," → "evaṁ"
-    { id: 'p1', surface: 'evaṁ', wordClass: 'function', segmentIds: ['p1s1', 'p1s2'] },
-    { id: 'p2', surface: 'me', wordClass: 'function', segmentIds: ['p2s1'] },
-    { id: 'p3', surface: 'sutaṁ', wordClass: 'content', segmentIds: ['p3s1', 'p3s2', 'p3s3'], isAnchor: true },  // 3 segments!
-    // Example with refrainId - bhagavā appears multiple times across phases
-    { id: 'p4', surface: 'bhagavā', wordClass: 'content', segmentIds: ['p4s1', 'p4s2'], refrainId: 'bhagava' },
+    // Surface forms should be clean (no punctuation): "Evaṁ" from "Evaṁ—"
+    { id: 'a1', surface: 'Evaṁ', wordClass: 'function', segmentIds: ['a1s1', 'a1s2'] },
+    { id: 'a2', surface: 'me', wordClass: 'function', segmentIds: ['a2s1'] },
+    { id: 'a3', surface: 'sutaṁ', wordClass: 'content', segmentIds: ['a3s1', 'a3s2', 'a3s3'], isAnchor: true },
   ],
   segments: [
-    // evaṁ = eva (stem) + ṁ (adverbial suffix) - SPLIT the -ṁ!
-    { id: 'p1s1', wordId: 'p1', text: 'eva', type: 'stem', tooltips: ['[Emphatic particle] "Just so"', 'Points back to the occasion'] },
-    { id: 'p1s2', wordId: 'p1', text: 'ṁ', type: 'suffix', tooltips: ['[Adverbial ending] Makes it "in this way"'] },
-    // me = single stem
-    { id: 'p2s1', wordId: 'p2', text: 'me', type: 'stem', morph: { case: 'ins', number: 'sg', note: 'Instrumental: by me' }, tooltips: ['Ānanda speaking: "by me"', '[Genitive/Agent] Form is "of me", function is "by me"'] },
-    // sutaṁ = su (root) + ta (past participle) + ṁ (nominative) - SPLIT into 3!
-    { id: 'p3s1', wordId: 'p3', text: 'su', type: 'root', tooltips: ['√su: To hear (suṇāti)', 'The act of receiving teaching'] },
-    { id: 'p3s2', wordId: 'p3', text: 'ta', type: 'suffix', tooltips: ['[Past participle] Marks completed action: "heard"'] },
-    { id: 'p3s3', wordId: 'p3', text: 'ṁ', type: 'suffix', morph: { case: 'nom', number: 'sg', note: 'Neuter singular nominative' }, tooltips: ['[Neuter singular] "the thing that..."', 'Makes it the subject of the sentence'] },
+    // evaṁ = eva (stem) + ṁ (adverbial suffix)
+    { id: 'a1s1', wordId: 'a1', text: 'Eva', type: 'stem', tooltips: ['[Emphatic particle] "Just so"', 'Points back to the occasion'] },
+    { id: 'a1s2', wordId: 'a1', text: 'ṁ', type: 'suffix', tooltips: ['[Adverbial ending] Makes it "in this way"'] },
+    // me = single stem (relation defined in relations array)
+    { id: 'a2s1', wordId: 'a2', text: 'me', type: 'stem', tooltips: ['Ānanda speaking: "by me"', '[Genitive/Agent] Form is "of me", function is "by me"'] },
+    // sutaṁ = su (root) + ta (past participle) + ṁ (nominative)
+    { id: 'a3s1', wordId: 'a3', text: 'su', type: 'root', tooltips: ['√su: To hear (suṇāti)', 'The act of receiving teaching'] },
+    { id: 'a3s2', wordId: 'a3', text: 'ta', type: 'suffix', tooltips: ['[Past participle] Marks completed action: "heard"'] },
+    { id: 'a3s3', wordId: 'a3', text: 'ṁ', type: 'suffix', tooltips: ['[Neuter singular] "the thing that..."', 'Makes it the subject of the sentence'] },
   ],
   relations: [
-    // Segment-to-word relation: "me" (agent) acts on "sutaṁ" (what was heard)
-    { id: 'r1', fromSegmentId: 'p2s1', targetWordId: 'p3', type: 'action', label: 'Heard BY', status: 'confirmed' },
+    // Relation defined on segment a2s1 above, also listed here for clarity
+    { id: 'r1', fromSegmentId: 'a2s1', targetWordId: 'a3', type: 'action', label: 'Heard BY', status: 'confirmed' },
   ],
-  handoff: { confidence: 'high', notes: 'Granular segmentation: -ṁ split as separate suffix. Rich contextual tooltips.' },
+  handoff: { confidence: 'high', notes: 'Golden example from MN10 phase-a. Granular segmentation with contextual tooltips.' },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Anatomist Example 2: Phase-B from MN10 golden data (training phase)
+// "ekaṁ samayaṁ bhagavā..." — Standard sutta opening
+// ─────────────────────────────────────────────────────────────────────────────
+export const SUTTA_STUDIO_ANATOMIST_EXAMPLE_B: AnatomistPass = {
+  id: 'phase-b',
+  words: [
+    { id: 'b1', surface: 'ekaṁ', wordClass: 'function', segmentIds: ['b1s1', 'b1s2'] },
+    { id: 'b2', surface: 'samayaṁ', wordClass: 'content', segmentIds: ['b2s1', 'b2s2', 'b2s3'] },
+    { id: 'b3', surface: 'bhagavā', wordClass: 'content', segmentIds: ['b3s1', 'b3s2'], refrainId: 'bhagava' },
+  ],
+  segments: [
+    // ekaṁ = eka (stem) + ṁ (accusative of time)
+    { id: 'b1s1', wordId: 'b1', text: 'eka', type: 'stem', tooltips: ['[Adjective] One, a certain', 'Modifies samayaṁ'] },
+    { id: 'b1s2', wordId: 'b1', text: 'ṁ', type: 'suffix', tooltips: ['[Accusative of Time] "at/on"', 'Tells us when, not what'], morph: { case: 'acc', number: 'sg', note: 'Accusative of time' } },
+    // samayaṁ = sam (prefix) + aya (root) + ṁ (accusative)
+    { id: 'b2s1', wordId: 'b2', text: 'sam', type: 'prefix', tooltips: ['[Prefix] Together, completely', 'Not a root!'] },
+    { id: 'b2s2', wordId: 'b2', text: 'aya', type: 'root', tooltips: ['From √i: to go', 'aya = going, course', 'sam + aya = "a coming together"'] },
+    { id: 'b2s3', wordId: 'b2', text: 'ṁ', type: 'suffix', tooltips: ['[Accusative of Time] "At this occasion"'], morph: { case: 'acc', number: 'sg', note: 'Accusative of time' } },
+    // bhagavā = bhaga (root) + vā (possessive suffix)
+    { id: 'b3s1', wordId: 'b3', text: 'bhaga', type: 'root', tooltips: ['Fortune, good luck', 'From √bhaj: to share'] },
+    { id: 'b3s2', wordId: 'b3', text: 'vā', type: 'suffix', tooltips: ['[Possessive suffix] "One who has..."', 'The Fortunate One'], morph: { case: 'nom', number: 'sg', note: 'Nominative singular' } },
+  ],
+  relations: [
+    { id: 'r1', fromSegmentId: 'b2s3', targetWordId: 'b3', type: 'location', label: 'Time WHEN', status: 'confirmed' },
+  ],
+  handoff: { confidence: 'high', notes: 'Golden example from MN10 phase-b. Shows morph on case-carrying suffixes.' },
 };
 
 // Anatomist example for compound words
@@ -286,7 +314,37 @@ export const SUTTA_STUDIO_ANATOMIST_COMPOUND_EXAMPLE: AnatomistPass = {
   handoff: { confidence: 'high', notes: 'Compound word with 3 distinct segments, each needing separate English mapping.' },
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Anatomist Example 3: Phase-AA - "ātāpī sampajāno satimā" refrain formula
+// Shows refrain patterns that repeat across many phases
+// ─────────────────────────────────────────────────────────────────────────────
+export const SUTTA_STUDIO_ANATOMIST_EXAMPLE_REFRAIN: AnatomistPass = {
+  id: 'phase-aa',
+  words: [
+    { id: 'aa1', surface: 'ātāpī', wordClass: 'content', segmentIds: ['aa1s1', 'aa1s2'], refrainId: 'formula-ardent' },
+    { id: 'aa2', surface: 'sampajāno', wordClass: 'content', segmentIds: ['aa2s1', 'aa2s2', 'aa2s3', 'aa2s4'], refrainId: 'formula-ardent' },
+    { id: 'aa3', surface: 'satimā', wordClass: 'content', segmentIds: ['aa3s1', 'aa3s2'], refrainId: 'formula-ardent' },
+  ],
+  segments: [
+    // ātāpī = ātāp (root: heat/burning) + ī (possessive)
+    { id: 'aa1s1', wordId: 'aa1', text: 'ātāp', type: 'root', tooltips: ['🔥 √tap: To burn, heat', 'Vedic tapas = ascetic heat', 'Buddhist: burning of defilements'] },
+    { id: 'aa1s2', wordId: 'aa1', text: 'ī', type: 'suffix', tooltips: ['[Possessive suffix] One who has ardor'], morph: { case: 'nom', number: 'sg', note: 'Nominative singular, possessive -ī' } },
+    // sampajāno = sam + pa + jān + o (complex compound)
+    { id: 'aa2s1', wordId: 'aa2', text: 'sam', type: 'prefix', tooltips: ['[Prefix] Sam: together, completely'] },
+    { id: 'aa2s2', wordId: 'aa2', text: 'pa', type: 'prefix', tooltips: ['[Prefix] Pa/Pra: forth, forward'] },
+    { id: 'aa2s3', wordId: 'aa2', text: 'jān', type: 'root', tooltips: ['🧠 √jñā: To know', 'Sampajañña = Clear Comprehension'] },
+    { id: 'aa2s4', wordId: 'aa2', text: 'o', type: 'suffix', tooltips: ['[Nominative Singular Masculine] One who knows'], morph: { case: 'nom', number: 'sg', note: 'Nominative singular' } },
+    // satimā = sati (root) + mā (possessive)
+    { id: 'aa3s1', wordId: 'aa3', text: 'sati', type: 'root', tooltips: ['💭 √smṛ: To remember', 'Sati = mindfulness / presence'] },
+    { id: 'aa3s2', wordId: 'aa3', text: 'mā', type: 'suffix', tooltips: ['-mant → -mā: Possessive suffix', 'One who possesses mindfulness'], morph: { case: 'nom', number: 'sg', note: 'Nominative, possessive -mant contracted' } },
+  ],
+  relations: [],  // No cross-word relations in this phrase
+  handoff: { confidence: 'high', notes: 'Golden example from MN10 phase-aa. Shows refrain pattern with refrainId for visual styling.' },
+};
+
 export const SUTTA_STUDIO_ANATOMIST_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_ANATOMIST_EXAMPLE, null, 2);
+export const SUTTA_STUDIO_ANATOMIST_EXAMPLE_B_JSON = JSON.stringify(SUTTA_STUDIO_ANATOMIST_EXAMPLE_B, null, 2);
+export const SUTTA_STUDIO_ANATOMIST_EXAMPLE_REFRAIN_JSON = JSON.stringify(SUTTA_STUDIO_ANATOMIST_EXAMPLE_REFRAIN, null, 2);
 export const SUTTA_STUDIO_ANATOMIST_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_ANATOMIST_COMPOUND_EXAMPLE, null, 2);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -363,19 +421,42 @@ export const SUTTA_STUDIO_LEXICO_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_LEXI
 export const SUTTA_STUDIO_LEXICO_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_LEXICO_COMPOUND_EXAMPLE, null, 2);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Weaver Example: Segment-level linking
+// Weaver Example: Segment-level linking (Phase-A from MN10 golden data)
 // ─────────────────────────────────────────────────────────────────────────────
 // Token indices: 0:Thus 2:have 4:I 6:heard (whitespace at 1,3,5; punctuation at 7)
 export const SUTTA_STUDIO_WEAVER_EXAMPLE: WeaverPass = {
-  id: 'phase-1',
+  id: 'phase-a',
   tokens: [
-    { tokenIndex: 0, text: 'Thus', linkedSegmentId: 'p1s1', isGhost: false },  // Segment-level
+    { tokenIndex: 0, text: 'Thus', linkedPaliId: 'a1', isGhost: false },       // Word-level for simple words
     { tokenIndex: 2, text: 'have', isGhost: true, ghostKind: 'required' },     // English auxiliary, no Pali
-    { tokenIndex: 4, text: 'I', linkedSegmentId: 'p2s1', isGhost: false },     // Segment-level
-    { tokenIndex: 6, text: 'heard', linkedPaliId: 'p3', isGhost: false },      // Word-level (su+taṁ = heard)
+    { tokenIndex: 4, text: 'I', linkedSegmentId: 'a2s1', isGhost: false },     // Segment-level
+    { tokenIndex: 6, text: 'heard', linkedSegmentId: 'a3s1', isGhost: false }, // Links to root segment
   ],
   handoff: { confidence: 'high', notes: '"have" is English auxiliary with no Pali source.' },
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Weaver ANTI-PATTERN: Duplicate segment mappings (WRONG!)
+// ─────────────────────────────────────────────────────────────────────────────
+// This shows what NOT to do - same segment linked by multiple English tokens
+export const SUTTA_STUDIO_WEAVER_ANTI_PATTERN = `
+❌ WRONG - Duplicate mappings cause "marketplace marketplace" bugs:
+tokens: [
+  { tokenIndex: 0, text: 'land', linkedSegmentId: 'c1s1', isGhost: false },     // c1s1 = kurū
+  { tokenIndex: 2, text: 'Kurus', linkedSegmentId: 'c1s1', isGhost: false },    // c1s1 = kurū AGAIN!
+]
+Result: Both "land" AND "Kurus" link to same segment, causing duplicate rendering.
+
+✓ CORRECT - Each segment linked at most ONCE:
+tokens: [
+  { tokenIndex: 0, text: 'among', isGhost: true, ghostKind: 'required' },       // Ghost for English preposition
+  { tokenIndex: 2, text: 'the', isGhost: true, ghostKind: 'required' },         // Ghost for English article
+  { tokenIndex: 4, text: 'Kurus', linkedSegmentId: 'c1s1', isGhost: false },    // c1s1 linked ONCE
+]
+
+RULE: Each Pali segment can be linked by AT MOST ONE English token.
+If multiple English words express one Pali segment, choose the PRIMARY meaning.
+`;
 
 // Weaver for compound: each English word → segment
 export const SUTTA_STUDIO_WEAVER_COMPOUND_EXAMPLE: WeaverPass = {
