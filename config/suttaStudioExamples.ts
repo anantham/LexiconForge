@@ -421,6 +421,51 @@ export const SUTTA_STUDIO_LEXICO_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_LEXI
 export const SUTTA_STUDIO_LEXICO_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_LEXICO_COMPOUND_EXAMPLE, null, 2);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Lexicographer Example: Ripples for verb tense / ghost word adjustment
+// ─────────────────────────────────────────────────────────────────────────────
+// When selecting different senses, nearby ghost words may need adjustment.
+// Use ripples to override ghost text when sense choice affects grammar.
+//
+// Example: "viharati" with ghost "was" before it
+// - If sense = "dwells" (present) → remove "was" ghost
+// - If sense = "was staying" (past continuous) → keep "was"
+// - If sense = "stayed" (simple past) → remove "was" ghost
+//
+// The ripple key is the English token ID (e.g., "e10" for the ghost "was")
+export const SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE: LexicographerPass = {
+  id: 'phase-ripple',
+  senses: [
+    {
+      wordId: 'p5',  // viharati
+      wordClass: 'content',
+      senses: [
+        // Present tense - remove "was" ghost (e10)
+        { english: 'dwells', nuance: 'habitual residence', ripples: { e10: '' } },
+        // Past continuous - keep "was" as-is (no ripple needed, or explicit)
+        { english: 'staying', nuance: 'temporary residence', ripples: { e10: 'was' } },
+        // Simple past - remove "was" ghost
+        { english: 'stayed', nuance: 'completed action', ripples: { e10: '' } },
+      ],
+    },
+    {
+      wordId: 'p1',  // ekāyano (example with article ripple)
+      wordClass: 'content',
+      senses: [
+        // "the direct path" - uses "the"
+        { english: 'direct', nuance: 'straightforward', ripples: { ghost_article: 'the' } },
+        // "a solitary path" - changes to "a"
+        { english: 'solitary', nuance: 'one-way only', ripples: { ghost_article: 'a' } },
+        // "the only path" - uses "the"
+        { english: 'only', nuance: 'exclusive', ripples: { ghost_article: 'the' } },
+      ],
+    },
+  ],
+  handoff: { confidence: 'high', notes: 'Ripples adjust ghost words based on sense selection.' },
+};
+
+export const SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE, null, 2);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Weaver Example: Segment-level linking (Phase-A from MN10 golden data)
 // ─────────────────────────────────────────────────────────────────────────────
 // Token indices: 0:Thus 2:have 4:I 6:heard (whitespace at 1,3,5; punctuation at 7)

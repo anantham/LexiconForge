@@ -1,3 +1,16 @@
+2026-01-31 14:40 UTC - Ripple examples empirically validated
+- Files: services/suttaStudioPassPrompts.ts, config/suttaStudioExamples.ts, scripts/sutta-studio/benchmark-config.ts
+- Why: Fix "was dwells" grammatical issue where ghost words don't match selected verb tense.
+- Details:
+  - Added ripple example to lexicographer prompt showing how to adjust ghost words based on sense selection
+  - Pre-ripple: trinity-large/minimax-m2 generated 0 ripples for viharati (p5)
+  - Post-ripple: trinity-large generates 3 proper ripples:
+    - "dwells" (habitual) → `ripples: { "e10": "" }` (removes "was")
+    - "stays" (temporary) → `ripples: { "e10": "was" }` (keeps "was")
+    - "abides" (spiritual) → `ripples: { "e10": "" }` (removes "was")
+  - Models now understand when/how to use ripples for grammatical English
+- Tests: Benchmark phase-b with trinity-large confirmed ripple generation.
+
 2026-01-28 13:00 UTC - Full docs/ reorganization into subfolders
 - Files: 38 docs moved from docs/ root into docs/features/, docs/guides/, docs/architecture/, docs/roadmaps/, docs/infrastructure/
 - Why: Flat structure with 41 files was hard to navigate; organize by domain for discoverability.

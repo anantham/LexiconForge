@@ -44,6 +44,8 @@ export interface WeaverScore {
   linkedCount: number;
   ghostRatio: number; // ghosts / total tokens
   unmappedTokens: number;
+  duplicateSegmentMappings: number; // PENALTY: multiple tokens linking to same segment
+  duplicatePaliMappings: number; // PENALTY: multiple tokens linking to same word
 }
 
 export interface TypesetterScore {
@@ -173,6 +175,23 @@ export function scoreWeaver(
   const linkedCount = tokens.filter(t => t.linkedPaliId || t.linkedSegmentId).length;
   const unmappedTokens = tokens.filter(t => !t.isGhost && !t.linkedPaliId && !t.linkedSegmentId).length;
 
+  // Detect duplicate mappings - this is a model error that causes rendering bugs
+  const segmentIdCounts = new Map<string, number>();
+  const paliIdCounts = new Map<string, number>();
+
+  for (const token of tokens) {
+    if (token.linkedSegmentId) {
+      segmentIdCounts.set(token.linkedSegmentId, (segmentIdCounts.get(token.linkedSegmentId) || 0) + 1);
+    } else if (token.linkedPaliId && !token.isGhost) {
+      // Only count word-level duplicates for non-ghosts
+      paliIdCounts.set(token.linkedPaliId, (paliIdCounts.get(token.linkedPaliId) || 0) + 1);
+    }
+  }
+
+  // Count how many IDs have duplicates (count > 1)
+  const duplicateSegmentMappings = Array.from(segmentIdCounts.values()).filter(count => count > 1).reduce((sum, count) => sum + (count - 1), 0);
+  const duplicatePaliMappings = Array.from(paliIdCounts.values()).filter(count => count > 1).reduce((sum, count) => sum + (count - 1), 0);
+
   return {
     tokenCountMatch: tokens.length === goldenTokens.length,
     tokenCountDelta: tokens.length - goldenTokens.length,
@@ -180,6 +199,8 @@ export function scoreWeaver(
     linkedCount,
     ghostRatio: tokens.length > 0 ? Math.round((ghostCount / tokens.length) * 100) / 100 : 0,
     unmappedTokens,
+    duplicateSegmentMappings,
+    duplicatePaliMappings,
   };
 }
 
@@ -276,6 +297,11 @@ function calculateStructuralAccuracy(
   }
   weights += 1;
 
+  // PENALTY: Duplicate mappings cause rendering bugs (e.g., "in Jeta's Grove" x3)
+  // Each duplicate costs 0.5 points from the score
+  const duplicatePenalty = (weaver.duplicateSegmentMappings + weaver.duplicatePaliMappings) * 0.5;
+  score = Math.max(0, score - duplicatePenalty);
+
   return score / weights;
 }
 
@@ -345,7 +371,7 @@ export function formatScoreCSV(scores: PhaseScore[]): string {
     'wordCountDelta', 'segmentsPerWord', 'segmentsPerWordGolden',
     'surfaceAccuracy', 'tooltipCoverage', 'avgTooltipsPerSegment', 'relationCount',
     'senseEntriesDelta', 'avgSensesPerWord', 'avgSensesPerWordGolden',
-    'tokenCountDelta', 'ghostRatio', 'unmappedTokens',
+    'tokenCountDelta', 'ghostRatio', 'unmappedTokens', 'duplicateSegmentMappings', 'duplicatePaliMappings',
     'blockCount', 'blockCountGolden', 'layoutPattern'
   ];
 
@@ -355,7 +381,7 @@ export function formatScoreCSV(scores: PhaseScore[]): string {
     s.anatomist.wordCountDelta, s.anatomist.segmentsPerWord, s.anatomist.segmentsPerWordGolden,
     s.anatomist.surfaceAccuracy, s.anatomist.tooltipCoverage, s.anatomist.avgTooltipsPerSegment, s.anatomist.relationCount,
     s.lexicographer.senseEntriesDelta, s.lexicographer.avgSensesPerWord, s.lexicographer.avgSensesPerWordGolden,
-    s.weaver.tokenCountDelta, s.weaver.ghostRatio, s.weaver.unmappedTokens,
+    s.weaver.tokenCountDelta, s.weaver.ghostRatio, s.weaver.unmappedTokens, s.weaver.duplicateSegmentMappings, s.weaver.duplicatePaliMappings,
     s.typesetter.blockCount, s.typesetter.blockCountGolden, s.typesetter.layoutPattern
   ]);
 

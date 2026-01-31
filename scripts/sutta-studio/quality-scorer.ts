@@ -49,11 +49,18 @@ export type QualityScore = {
   relationCount: number;
   relationDensity: number;  // relations per content word
   relationsValid: number;   // all refs point to existing IDs
+  // Layout (typesetter)
+  blockSizeScore: number;       // % of words in ideal blocks (2-5 words)
+  singleWordBlockRatio: number; // % of blocks that are single-word (lower is better)
+  oversizedBlockRatio: number;  // % of blocks > 5 words (lower is better)
+  englishOrderScore: number;    // 1.0 = English in original order, 0 = scrambled
+  layoutScore: number;          // combined layout quality
   // Aggregates
   coverageScore: number;
   validityScore: number;
   richnessScore: number;
   grammarScore: number;
+  layoutDimension: number;      // layout dimension score
   overallScore: number;
 };
 
@@ -144,19 +151,21 @@ export function scoreWeaver(data: WeaverPass): {
   const nonGhostTokens = tokens.filter(t => !t.isGhost).length;
   const englishMappingRatio = totalTokens > 0 ? nonGhostTokens / totalTokens : 0;
 
-  // Alignment coverage: tokens with actual Pali segment links
-  // This is the critical metric for alignment edges in the UI
-  const linkedTokens = tokens.filter(t => !t.isGhost && t.linkedSegmentId).length;
+  // Alignment coverage: tokens with actual Pali links (segment OR word level)
+  // - linkedSegmentId: links to morphological segment (a1s1, a2s1) - finer granularity
+  // - linkedPaliId: links to Pali word (p1, p2) - coarser granularity
+  // Both are valid alignment strategies, so we accept either
+  const linkedTokens = tokens.filter(t => !t.isGhost && (t.linkedSegmentId || t.linkedPaliId)).length;
   const alignmentCoverage = nonGhostTokens > 0 ? linkedTokens / nonGhostTokens : 0;
 
-  // Check for duplicate segment mappings
-  const segmentLinks = tokens
-    .filter(t => t.linkedSegmentId)
-    .map(t => t.linkedSegmentId!);
-  const uniqueLinks = new Set(segmentLinks);
-  const duplicateCount = segmentLinks.length - uniqueLinks.size;
-  const noDuplicateMappings = segmentLinks.length > 0
-    ? 1 - (duplicateCount / segmentLinks.length)
+  // Check for duplicate mappings (segment or word level)
+  const allLinks = tokens
+    .filter(t => t.linkedSegmentId || t.linkedPaliId)
+    .map(t => t.linkedSegmentId || t.linkedPaliId!);
+  const uniqueLinks = new Set(allLinks);
+  const duplicateCount = allLinks.length - uniqueLinks.size;
+  const noDuplicateMappings = allLinks.length > 0
+    ? 1 - (duplicateCount / allLinks.length)
     : 1;
 
   return { englishMappingRatio, alignmentCoverage, noDuplicateMappings };
@@ -195,20 +204,137 @@ export function scoreGrammar(data: AnatomistPass): {
   return { relationCount, relationDensity, relationsValid };
 }
 
+export function scoreTypesetter(
+  data: TypesetterPass | null,
+  weaver?: WeaverPass | null,
+  anatomist?: AnatomistPass | null
+): {
+  blockSizeScore: number;       // 1.0 = all blocks ideal size (2-5), penalized for too small or large
+  singleWordBlockRatio: number; // 0 = no single-word blocks (lower is better)
+  oversizedBlockRatio: number;  // 0 = no blocks > 5 words (lower is better)
+  englishOrderScore: number;    // 1.0 = English reads in original order, 0 = completely scrambled
+  layoutScore: number;          // Combined metric (higher is better)
+} {
+  const blocks = data?.layoutBlocks || [];
+
+  if (blocks.length === 0) {
+    return { blockSizeScore: 0, singleWordBlockRatio: 0, oversizedBlockRatio: 0, englishOrderScore: 0, layoutScore: 0 };
+  }
+
+  const totalWords = blocks.reduce((sum, b) => sum + b.length, 0);
+  if (totalWords === 0) {
+    return { blockSizeScore: 0, singleWordBlockRatio: 0, oversizedBlockRatio: 0, englishOrderScore: 0, layoutScore: 0 };
+  }
+
+  // Count blocks by size category
+  let singleWordBlocks = 0;
+  let idealBlocks = 0;      // 2-5 words
+  let oversizedBlocks = 0;  // > 5 words
+
+  let wordsInSingle = 0;
+  let wordsInIdeal = 0;
+  let wordsInOversized = 0;
+
+  for (const block of blocks) {
+    const size = block.length;
+    if (size === 1) {
+      singleWordBlocks++;
+      wordsInSingle += size;
+    } else if (size >= 2 && size <= 5) {
+      idealBlocks++;
+      wordsInIdeal += size;
+    } else if (size > 5) {
+      oversizedBlocks++;
+      wordsInOversized += size;
+    }
+  }
+
+  // Ratios (0 = none, 1 = all)
+  const singleWordBlockRatio = singleWordBlocks / blocks.length;
+  const oversizedBlockRatio = oversizedBlocks / blocks.length;
+
+  // Block size score: what % of words are in ideal-sized blocks
+  const blockSizeScore = wordsInIdeal / totalWords;
+
+  // English order score: measure how much displayed order matches original
+  // Uses Kendall tau-like metric: count inversions (pairs out of order)
+  let englishOrderScore = 1; // Default to perfect if we can't compute
+
+  if (weaver?.tokens && anatomist?.words && anatomist.segments) {
+    // Build map: Pali word/segment -> position in layout
+    const paliPositionMap = new Map<string, number>();
+    let pos = 0;
+    for (const block of blocks) {
+      for (const wordId of block) {
+        paliPositionMap.set(wordId, pos);
+        // Also map segments of this word
+        const word = anatomist.words.find(w => w.id === wordId);
+        if (word) {
+          for (const segId of word.segmentIds) {
+            paliPositionMap.set(segId, pos);
+          }
+        }
+        pos++;
+      }
+    }
+
+    // Get linked tokens with their original and display positions
+    const linkedTokens = weaver.tokens
+      .filter(t => t.linkedPaliId || t.linkedSegmentId)
+      .map(t => {
+        const linkTarget = t.linkedSegmentId || t.linkedPaliId!;
+        const displayPos = paliPositionMap.get(linkTarget) ?? -1;
+        return { originalIndex: t.tokenIndex, displayPos };
+      })
+      .filter(t => t.displayPos >= 0);
+
+    // Count inversions: pairs where original order differs from display order
+    let inversions = 0;
+    let pairs = 0;
+    for (let i = 0; i < linkedTokens.length; i++) {
+      for (let j = i + 1; j < linkedTokens.length; j++) {
+        pairs++;
+        const origOrder = linkedTokens[i].originalIndex < linkedTokens[j].originalIndex;
+        const dispOrder = linkedTokens[i].displayPos < linkedTokens[j].displayPos;
+        if (origOrder !== dispOrder) inversions++;
+      }
+    }
+
+    // Score: 1 - (inversions / total_pairs)
+    englishOrderScore = pairs > 0 ? 1 - (inversions / pairs) : 1;
+  }
+
+  // Combined layout score:
+  // - Reward words in ideal blocks (35%)
+  // - Penalize single-word blocks (20%)
+  // - Penalize oversized blocks (15%)
+  // - Reward English reading in correct order (30%)
+  const layoutScore = (
+    blockSizeScore * 0.35 +
+    (1 - singleWordBlockRatio) * 0.20 +
+    (1 - oversizedBlockRatio) * 0.15 +
+    englishOrderScore * 0.30
+  );
+
+  return { blockSizeScore, singleWordBlockRatio, oversizedBlockRatio, englishOrderScore, layoutScore };
+}
+
 export function computeOverallScore(scores: Omit<QualityScore, 'overallScore'>): number {
-  // Weighted average
+  // Weighted average - redistributed to include layout
   const weights = {
     coverage: 0.25,
-    validity: 0.35,
-    richness: 0.20,
-    grammar: 0.20,
+    validity: 0.30,
+    richness: 0.15,
+    grammar: 0.15,
+    layout: 0.15,
   };
 
   return (
     scores.coverageScore * weights.coverage +
     scores.validityScore * weights.validity +
     scores.richnessScore * weights.richness +
-    scores.grammarScore * weights.grammar
+    scores.grammarScore * weights.grammar +
+    scores.layoutDimension * weights.layout
   );
 }
 
@@ -219,6 +345,7 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
   const lexiScores = scoreLexicographer(data.output.lexicographer);
   const weaverScores = scoreWeaver(data.output.weaver);
   const grammarScores = scoreGrammar(data.output.anatomist);
+  const typesetterScores = scoreTypesetter(data.output.typesetter, data.output.weaver, data.output.anatomist);
 
   // Coverage now includes alignment coverage as the most important factor for visible alignment edges
   // Weight: paliWordCoverage (33%) + englishMappingRatio (17%) + alignmentCoverage (50%)
@@ -238,6 +365,7 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
     anatomistScores.morphDataPresent
   ) / 3;
   const grammarScore = (grammarScores.relationDensity + grammarScores.relationsValid) / 2;
+  const layoutDimension = typesetterScores.layoutScore;
 
   const baseScores = {
     phase,
@@ -246,10 +374,12 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
     ...lexiScores,
     ...weaverScores,
     ...grammarScores,
+    ...typesetterScores,
     coverageScore,
     validityScore,
     richnessScore,
     grammarScore,
+    layoutDimension,
   };
 
   return {
@@ -388,4 +518,8 @@ async function main() {
   console.log('\nLegend: Valid=Validity, Rich=Richness, Gram=Grammar, Score=Overall');
 }
 
-main().catch(console.error);
+// Only run when executed directly, not when imported
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+if (isMainModule) {
+  main().catch(console.error);
+}

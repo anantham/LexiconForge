@@ -1,7 +1,7 @@
 {
   "_description": "Golden test data generated from SuttaCentral API",
   "_source": "Generated from demo map (test-fixtures/sutta-studio-demo-map.json)",
-  "_lastUpdated": "2026-01-30",
+  "_lastUpdated": "2026-01-31",
   "_workId": "mn10",
   "_apiSource": "https://suttacentral.net/api/bilarasuttas/mn10/sujato",
   "skeleton": {
@@ -77,12 +77,202 @@
         "order": 6,
         "pali": "“Ekāyano ayaṁ, bhikkhave, maggo sattānaṁ visuddhiyā, sokaparidevānaṁ samatikkamāya, dukkhadomanassānaṁ atthaṅgamāya, ñāyassa adhigamāya, nibbānassa sacchikiriyāya, yadidaṁ cattāro satipaṭṭhānā. ",
         "baseEnglish": "“Mendicants, the four kinds of mindfulness meditation are the path to convergence. They are in order to purify sentient beings, to get past sorrow and crying, to make an end of pain and sadness, to discover the system, and to realize extinguishment. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:3.1"
+        },
+        "order": 7,
+        "pali": "Katame cattāro? ",
+        "baseEnglish": "What four? "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:3.2"
+        },
+        "order": 8,
+        "pali": "Idha, bhikkhave, bhikkhu kāye kāyānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+        "baseEnglish": "It’s when a mendicant meditates by observing an aspect of the body—keen, aware, and mindful, rid of covetousness and displeasure for the world. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:3.3"
+        },
+        "order": 9,
+        "pali": "vedanāsu vedanānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+        "baseEnglish": "They meditate observing an aspect of feelings—keen, aware, and mindful, rid of covetousness and displeasure for the world. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:3.4"
+        },
+        "order": 10,
+        "pali": "citte cittānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+        "baseEnglish": "They meditate observing an aspect of the mind—keen, aware, and mindful, rid of covetousness and displeasure for the world. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:3.5"
+        },
+        "order": 11,
+        "pali": "dhammesu dhammānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ. ",
+        "baseEnglish": "They meditate observing an aspect of principles—keen, aware, and mindful, rid of covetousness and displeasure for the world. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:3.6"
+        },
+        "order": 12,
+        "pali": "Uddeso niṭṭhito. ",
+        "baseEnglish": ""
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.1"
+        },
+        "order": 13,
+        "pali": "Kathañca, bhikkhave, bhikkhu kāye kāyānupassī viharati? ",
+        "baseEnglish": "And how does a mendicant meditate observing an aspect of the body? "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.2"
+        },
+        "order": 14,
+        "pali": "Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā nisīdati, pallaṅkaṁ ābhujitvā, ujuṁ kāyaṁ paṇidhāya, parimukhaṁ satiṁ upaṭṭhapetvā. ",
+        "baseEnglish": "It’s when a mendicant—gone to a wilderness, or to the root of a tree, or to an empty hut—sits down cross-legged, sets their body straight, and establishes mindfulness in their presence. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.3"
+        },
+        "order": 15,
+        "pali": "So satova assasati, satova passasati. ",
+        "baseEnglish": "Just mindful, they breathe in. Mindful, they breathe out. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.4"
+        },
+        "order": 16,
+        "pali": "Dīghaṁ vā assasanto ‘dīghaṁ assasāmī’ti pajānāti, dīghaṁ vā passasanto ‘dīghaṁ passasāmī’ti pajānāti, ",
+        "baseEnglish": "Breathing in heavily they know: ‘I’m breathing in heavily.’ Breathing out heavily they know: ‘I’m breathing out heavily.’ "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.5"
+        },
+        "order": 17,
+        "pali": "rassaṁ vā assasanto ‘rassaṁ assasāmī’ti pajānāti, rassaṁ vā passasanto ‘rassaṁ passasāmī’ti pajānāti. ",
+        "baseEnglish": "When breathing in lightly they know: ‘I’m breathing in lightly.’ Breathing out lightly they know: ‘I’m breathing out lightly.’ "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.6"
+        },
+        "order": 18,
+        "pali": "‘Sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati. ",
+        "baseEnglish": "They practice like this: ‘I’ll breathe in experiencing the whole body.’ They practice like this: ‘I’ll breathe out experiencing the whole body.’"
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.7"
+        },
+        "order": 19,
+        "pali": "‘Passambhayaṁ kāyasaṅkhāraṁ assasissāmī’ti sikkhati, ‘passambhayaṁ kāyasaṅkhāraṁ passasissāmī’ti sikkhati. ",
+        "baseEnglish": "They practice like this: ‘I’ll breathe in stilling the physical process.’ They practice like this: ‘I’ll breathe out stilling the physical process.’ "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.8"
+        },
+        "order": 20,
+        "pali": "Seyyathāpi, bhikkhave, dakkho bhamakāro vā bhamakārantevāsī vā dīghaṁ vā añchanto ‘dīghaṁ añchāmī’ti pajānāti, rassaṁ vā añchanto ‘rassaṁ añchāmī’ti pajānāti; ",
+        "baseEnglish": "It’s like a deft carpenter or carpenter’s apprentice. When making a deep cut they know: ‘I’m making a deep cut,’ and when making a shallow cut they know: ‘I’m making a shallow cut.’ "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.9"
+        },
+        "order": 21,
+        "pali": "evameva kho, bhikkhave, bhikkhu dīghaṁ vā assasanto ‘dīghaṁ assasāmī’ti pajānāti, dīghaṁ vā passasanto ‘dīghaṁ passasāmī’ti pajānāti, rassaṁ vā assasanto ‘rassaṁ assasāmī’ti pajānāti, rassaṁ vā passasanto ‘rassaṁ passasāmī’ti pajānāti; ",
+        "baseEnglish": ""
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:4.10"
+        },
+        "order": 22,
+        "pali": "‘sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati; ",
+        "baseEnglish": ""
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:5.1"
+        },
+        "order": 23,
+        "pali": "Iti ajjhattaṁ vā kāye kāyānupassī viharati, bahiddhā vā kāye kāyānupassī viharati, ajjhattabahiddhā vā kāye kāyānupassī viharati; ",
+        "baseEnglish": "And so they meditate observing an aspect of the body internally, externally, and both internally and externally. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:5.2"
+        },
+        "order": 24,
+        "pali": "samudayadhammānupassī vā kāyasmiṁ viharati, vayadhammānupassī vā kāyasmiṁ viharati, samudayavayadhammānupassī vā kāyasmiṁ viharati. ",
+        "baseEnglish": "They meditate observing the body as liable to originate, as liable to fall, and as liable to both originate and vanish. "
+      },
+      {
+        "ref": {
+          "provider": "suttacentral",
+          "workId": "mn10",
+          "segmentId": "mn10:5.3"
+        },
+        "order": 25,
+        "pali": "‘Atthi kāyo’ti vā panassa sati paccupaṭṭhitā hoti. Yāvadeva ñāṇamattāya paṭissatimattāya anissito ca viharati, na ca kiñci loke upādiyati. ",
+        "baseEnglish": "Or mindfulness is established that the body exists, to the extent necessary for knowledge and mindfulness. They meditate independent, not grasping at anything in the world. "
       }
     ],
     "expectedPhases": [
       {
-        "id": "phase-1",
-        "title": "Opening Formula",
+        "id": "phase-a",
+        "title": null,
         "segmentIds": [
           "mn10:1.1"
         ],
@@ -91,20 +281,38 @@
         ]
       },
       {
-        "id": "phase-2",
-        "title": "Setting (Nidāna)",
+        "id": "phase-b",
+        "title": null,
         "segmentIds": [
           "mn10:1.2"
         ],
         "_sourceDemoPhases": [
-          "phase-b",
-          "phase-c",
+          "phase-b"
+        ]
+      },
+      {
+        "id": "phase-c",
+        "title": null,
+        "segmentIds": [
+          "mn10:1.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-c"
+        ]
+      },
+      {
+        "id": "phase-d",
+        "title": null,
+        "segmentIds": [
+          "mn10:1.2"
+        ],
+        "_sourceDemoPhases": [
           "phase-d"
         ]
       },
       {
-        "id": "phase-3",
-        "title": "Address",
+        "id": "phase-e",
+        "title": null,
         "segmentIds": [
           "mn10:1.3"
         ],
@@ -113,8 +321,8 @@
         ]
       },
       {
-        "id": "phase-4",
-        "title": "Vocative",
+        "id": "phase-f",
+        "title": null,
         "segmentIds": [
           "mn10:1.4"
         ],
@@ -123,8 +331,8 @@
         ]
       },
       {
-        "id": "phase-5",
-        "title": "Response",
+        "id": "phase-g",
+        "title": null,
         "segmentIds": [
           "mn10:1.5"
         ],
@@ -133,8 +341,8 @@
         ]
       },
       {
-        "id": "phase-6",
-        "title": "Transition to Teaching",
+        "id": "phase-h",
+        "title": null,
         "segmentIds": [
           "mn10:1.6"
         ],
@@ -143,21 +351,434 @@
         ]
       },
       {
-        "id": "phase-7",
-        "title": "Uddesa (Complete)",
+        "id": "phase-1",
+        "title": null,
         "segmentIds": [
           "mn10:2.1"
         ],
         "_sourceDemoPhases": [
-          "phase-1",
-          "phase-2",
-          "phase-3",
-          "phase-4",
-          "phase-5",
-          "phase-6",
-          "phase-7"
+          "phase-1"
+        ]
+      },
+      {
+        "id": "phase-2",
+        "title": null,
+        "segmentIds": [
+          "mn10:2.1"
         ],
-        "_notes": "mn10:2.1 contains the entire uddesa. demoPacket uses wordRange to create multiple sub-phases."
+        "_sourceDemoPhases": [
+          "phase-2"
+        ]
+      },
+      {
+        "id": "phase-3",
+        "title": null,
+        "segmentIds": [
+          "mn10:2.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-3"
+        ]
+      },
+      {
+        "id": "phase-4",
+        "title": null,
+        "segmentIds": [
+          "mn10:2.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-4"
+        ]
+      },
+      {
+        "id": "phase-5",
+        "title": null,
+        "segmentIds": [
+          "mn10:2.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-5"
+        ]
+      },
+      {
+        "id": "phase-6",
+        "title": null,
+        "segmentIds": [
+          "mn10:2.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-6"
+        ]
+      },
+      {
+        "id": "phase-7",
+        "title": null,
+        "segmentIds": [
+          "mn10:2.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-7"
+        ]
+      },
+      {
+        "id": "phase-x",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-x"
+        ]
+      },
+      {
+        "id": "phase-y",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-y"
+        ]
+      },
+      {
+        "id": "phase-z",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-z"
+        ]
+      },
+      {
+        "id": "phase-aa",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-aa"
+        ]
+      },
+      {
+        "id": "phase-ab",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ab"
+        ]
+      },
+      {
+        "id": "phase-ac",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ac"
+        ]
+      },
+      {
+        "id": "phase-ad",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ad"
+        ]
+      },
+      {
+        "id": "phase-ae",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ae"
+        ]
+      },
+      {
+        "id": "phase-af",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.4"
+        ],
+        "_sourceDemoPhases": [
+          "phase-af"
+        ]
+      },
+      {
+        "id": "phase-ag",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.4"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ag"
+        ]
+      },
+      {
+        "id": "phase-ah",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.4"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ah"
+        ]
+      },
+      {
+        "id": "phase-ai",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.5"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ai"
+        ]
+      },
+      {
+        "id": "phase-aj",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.5"
+        ],
+        "_sourceDemoPhases": [
+          "phase-aj"
+        ]
+      },
+      {
+        "id": "phase-ak",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.5"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ak"
+        ]
+      },
+      {
+        "id": "phase-al",
+        "title": null,
+        "segmentIds": [
+          "mn10:3.6"
+        ],
+        "_sourceDemoPhases": [
+          "phase-al"
+        ]
+      },
+      {
+        "id": "phase-am",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-am"
+        ]
+      },
+      {
+        "id": "phase-an",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-an"
+        ]
+      },
+      {
+        "id": "phase-ao",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ao"
+        ]
+      },
+      {
+        "id": "phase-ap",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ap"
+        ]
+      },
+      {
+        "id": "phase-aq",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-aq"
+        ]
+      },
+      {
+        "id": "phase-ar",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.4"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ar"
+        ]
+      },
+      {
+        "id": "phase-as",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.5"
+        ],
+        "_sourceDemoPhases": [
+          "phase-as"
+        ]
+      },
+      {
+        "id": "phase-at",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.6"
+        ],
+        "_sourceDemoPhases": [
+          "phase-at"
+        ]
+      },
+      {
+        "id": "phase-au",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.7"
+        ],
+        "_sourceDemoPhases": [
+          "phase-au"
+        ]
+      },
+      {
+        "id": "phase-av",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.8"
+        ],
+        "_sourceDemoPhases": [
+          "phase-av"
+        ]
+      },
+      {
+        "id": "phase-aw",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.9"
+        ],
+        "_sourceDemoPhases": [
+          "phase-aw"
+        ]
+      },
+      {
+        "id": "phase-ax",
+        "title": null,
+        "segmentIds": [
+          "mn10:4.10"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ax"
+        ]
+      },
+      {
+        "id": "phase-ay",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ay"
+        ]
+      },
+      {
+        "id": "phase-az",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-az"
+        ]
+      },
+      {
+        "id": "phase-ba",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.1"
+        ],
+        "_sourceDemoPhases": [
+          "phase-ba"
+        ]
+      },
+      {
+        "id": "phase-bb",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-bb"
+        ]
+      },
+      {
+        "id": "phase-bc",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-bc"
+        ]
+      },
+      {
+        "id": "phase-bd",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.2"
+        ],
+        "_sourceDemoPhases": [
+          "phase-bd"
+        ]
+      },
+      {
+        "id": "phase-be",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-be"
+        ]
+      },
+      {
+        "id": "phase-bf",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-bf"
+        ]
+      },
+      {
+        "id": "phase-bg",
+        "title": null,
+        "segmentIds": [
+          "mn10:5.3"
+        ],
+        "_sourceDemoPhases": [
+          "phase-bg"
+        ]
       }
     ]
   }

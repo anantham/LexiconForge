@@ -146,6 +146,11 @@ export const dedupeEnglishStructure = (
  * Convert WeaverPass tokens to EnglishToken[] for the PhaseView.
  * Only includes word tokens (not whitespace/punctuation).
  * Supports both segment-level linking (preferred) and word-level linking (fallback).
+ *
+ * DEDUPLICATION: If the LLM produces multiple tokens linking to the same segment ID,
+ * only the first one is kept. This prevents rendering bugs like "in Jeta's Grove" x3.
+ * Note: This is different from the old sense-text deduplication which was problematic -
+ * here we dedupe on exact segment/word ID matches, not resolved text.
  */
 export const buildEnglishStructureFromWeaver = (
   weaver: WeaverPass,
@@ -153,6 +158,11 @@ export const buildEnglishStructureFromWeaver = (
 ): EnglishToken[] => {
   const tokenMap = new Map(englishTokens.map((t) => [t.index, t]));
   const result: EnglishToken[] = [];
+
+  // Track used segment IDs to prevent duplicates
+  // Key: linkedSegmentId or linkedPaliId, Value: tokenIndex of first use
+  const usedSegmentIds = new Set<string>();
+  const usedPaliIds = new Set<string>();
 
   for (const weaverToken of weaver.tokens) {
     const originalToken = tokenMap.get(weaverToken.tokenIndex);
@@ -164,6 +174,24 @@ export const buildEnglishStructureFromWeaver = (
     // Skip whitespace and punctuation tokens
     if (originalToken.isWhitespace || originalToken.isPunctuation) {
       continue;
+    }
+
+    // Deduplicate: skip tokens that link to already-used segment IDs
+    // This prevents "in Jeta's Grove" appearing 3 times when LLM outputs duplicates
+    if (weaverToken.linkedSegmentId) {
+      if (usedSegmentIds.has(weaverToken.linkedSegmentId)) {
+        warn(`Duplicate linkedSegmentId "${weaverToken.linkedSegmentId}" at token ${weaverToken.tokenIndex} ("${weaverToken.text}") - skipping`);
+        continue;
+      }
+      usedSegmentIds.add(weaverToken.linkedSegmentId);
+    } else if (weaverToken.linkedPaliId && !weaverToken.isGhost) {
+      // For word-level linking (without segment-level), also dedupe
+      // But only for non-ghosts - ghosts can repeat (e.g., multiple "the")
+      if (usedPaliIds.has(weaverToken.linkedPaliId)) {
+        warn(`Duplicate linkedPaliId "${weaverToken.linkedPaliId}" at token ${weaverToken.tokenIndex} ("${weaverToken.text}") - skipping`);
+        continue;
+      }
+      usedPaliIds.add(weaverToken.linkedPaliId);
     }
 
     const englishToken: EnglishToken = {

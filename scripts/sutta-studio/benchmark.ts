@@ -537,6 +537,9 @@ type ProviderPreferences = {
 };
 
 /** Factory function to create an LLMCaller with optional provider preferences */
+/** Request timeout in ms (10 minutes - some reasoning models take longer) */
+const LLM_REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
+
 const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LLMCaller => {
   return async ({ settings, messages, signal, maxTokens, options }) => {
     const apiKey = (settings as any).apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
@@ -581,35 +584,48 @@ const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LL
 
   const start = performance.now();
   const doFetch = async (body: Record<string, any>) => {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'http://localhost',
-        'X-Title': 'LexiconForge SuttaStudio Benchmark',
-      },
-      body: JSON.stringify(body),
-      signal,
-    });
-    const rawText = await res.text();
-    let json: any = {};
-    if (rawText) {
-      try {
-        json = JSON.parse(rawText);
-      } catch {
-        json = { message: rawText };
+    // Create abort controller with timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), LLM_REQUEST_TIMEOUT_MS);
+
+    // Combine with external signal if provided
+    if (signal) {
+      signal.addEventListener('abort', () => controller.abort());
+    }
+
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost',
+          'X-Title': 'LexiconForge SuttaStudio Benchmark',
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      const rawText = await res.text();
+      let json: any = {};
+      if (rawText) {
+        try {
+          json = JSON.parse(rawText);
+        } catch {
+          json = { message: rawText };
+        }
       }
+      if (!res.ok) {
+        const message = json?.error?.message || json?.message || `HTTP ${res.status}`;
+        const err = new Error(message);
+        (err as any).raw = json;
+        (err as any).status = res.status;
+        (err as any).retryAfterMs = parseRetryAfterMs(res.headers.get('retry-after'));
+        throw err;
+      }
+      return json;
+    } finally {
+      clearTimeout(timeout);
     }
-    if (!res.ok) {
-      const message = json?.error?.message || json?.message || `HTTP ${res.status}`;
-      const err = new Error(message);
-      (err as any).raw = json;
-      (err as any).status = res.status;
-      (err as any).retryAfterMs = parseRetryAfterMs(res.headers.get('retry-after'));
-      throw err;
-    }
-    return json;
   };
 
   const maxRetries = 2;
@@ -650,6 +666,18 @@ const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LL
   const durationMs = Math.max(0, Math.round(performance.now() - start));
   const text = response?.choices?.[0]?.message?.content ?? '';
   if (!text.trim()) {
+    // Debug: log the full response when content is empty
+    console.error('[DEBUG] Empty response from model. Full response:', JSON.stringify({
+      id: response?.id,
+      model: response?.model,
+      choices: response?.choices?.map((c: any) => ({
+        index: c.index,
+        finish_reason: c.finish_reason,
+        message: c.message,
+      })),
+      usage: response?.usage,
+      error: response?.error,
+    }, null, 2));
     throw new Error('Empty compiler response.');
   }
 
@@ -1020,7 +1048,11 @@ const runBenchmark = async () => {
     1,
     Math.ceil(skeletonSegments.length / 50)
   );
-  const runsTotal = BENCHMARK_CONFIG.runs.length;
+  // Filter runs early if onlyRunIds is specified
+  const runsToExecute = (BENCHMARK_CONFIG as any).onlyRunIds?.length
+    ? BENCHMARK_CONFIG.runs.filter((r) => (BENCHMARK_CONFIG as any).onlyRunIds.includes(r.id))
+    : BENCHMARK_CONFIG.runs;
+  const runsTotal = runsToExecute.length;
   const passesTotal = BENCHMARK_CONFIG.passes.length;
   const hasSkeleton = BENCHMARK_CONFIG.passes.includes('skeleton');
   const usePerPhasePipeline = Boolean(BENCHMARK_CONFIG.phasesToTest?.length);
@@ -1073,7 +1105,9 @@ const runBenchmark = async () => {
       await writeBenchIndex(BENCHMARK_CONFIG.outputRoot);
     }
 
-    for (const run of BENCHMARK_CONFIG.runs) {
+    // runsToExecute is now calculated above with runsTotal
+
+    for (const run of runsToExecute) {
       const runIndex = BENCHMARK_CONFIG.runs.indexOf(run);
       const baseSettings = resolveSettingsForModel(run.model);
       const dependencyMode = BENCHMARK_CONFIG.dependencyMode;

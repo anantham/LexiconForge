@@ -22,6 +22,7 @@ import {
   SUTTA_STUDIO_ANATOMIST_EXAMPLE_B_JSON,
   SUTTA_STUDIO_ANATOMIST_EXAMPLE_REFRAIN_JSON,
   SUTTA_STUDIO_LEXICO_EXAMPLE_JSON,
+  SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE_JSON,
   SUTTA_STUDIO_MORPH_EXAMPLE_JSON,
   SUTTA_STUDIO_PHASE_EXAMPLE_JSON,
   SUTTA_STUDIO_SKELETON_EXAMPLE_JSON,
@@ -586,7 +587,7 @@ export const buildLexicographerPrompt = (
     .map(([wordId, entry]) => `- ${wordId}: ${JSON.stringify(entry)}`)
     .join('\n');
 
-  return `You are DeepLoomCompiler.\n\n${SUTTA_STUDIO_BASE_CONTEXT}\n\n${SUTTA_STUDIO_LEXICO_CONTEXT}\n\n${phaseState}\n\nTask: Build the Lexicographer JSON for the words below.\n\nRules:\n- Output JSON ONLY.\n- Use the exact phase id: ${phaseId}.\n- Provide senses for every wordId listed.\n- Content words must have exactly 3 senses. Function words must have 1-2 senses.\n- If dictionary data is present, use it to ground meanings; do not invent etymology.\n\nReturn JSON ONLY with this shape:\n{\n  "id": "phase-1",\n  "senses": [\n    {\n      "wordId": "p1",\n      "wordClass": "function",\n      "senses": [\n        { "english": "Thus", "nuance": "narrative opener" }\n      ]\n    }\n  ],\n  "handoff": { "confidence": "medium", "missingDefinitions": [], "notes": "" }\n}\n\nEXAMPLE (do NOT copy ids):\n${SUTTA_STUDIO_LEXICO_EXAMPLE_JSON}\n\nWords:\n${wordsList}\n\nDictionary entries (raw; do not copy verbatim):\n${dictionaryBlock || '(none)'}\n${retrievalBlock}\nSegment context:\n${segmentLines.join('\n')}`;
+  return `You are DeepLoomCompiler.\n\n${SUTTA_STUDIO_BASE_CONTEXT}\n\n${SUTTA_STUDIO_LEXICO_CONTEXT}\n\n${phaseState}\n\nTask: Build the Lexicographer JSON for the words below.\n\nRules:\n- Output JSON ONLY.\n- Use the exact phase id: ${phaseId}.\n- Provide senses for every wordId listed.\n- Content words must have exactly 3 senses. Function words must have 1-2 senses.\n- If dictionary data is present, use it to ground meanings; do not invent etymology.\n\nRIPPLES - CRITICAL for grammatical English:\n- When a sense changes verb tense or requires different articles, use ripples to adjust ghost words.\n- Ripple format: { "english": "dwells", "nuance": "...", "ripples": { "e10": "" } }\n- The ripple key is the English token ID; the value is the replacement text (empty string to remove).\n- Example: if ghost "was" (e10) precedes verb, and sense is present tense "dwells", add ripples: { "e10": "" } to remove "was".\n- Example: if sense needs "a" instead of "the", add ripples: { "ghost_article": "a" }.\n\nReturn JSON ONLY with this shape:\n{\n  "id": "phase-1",\n  "senses": [\n    {\n      "wordId": "p1",\n      "wordClass": "function",\n      "senses": [\n        { "english": "Thus", "nuance": "narrative opener" }\n      ]\n    }\n  ],\n  "handoff": { "confidence": "medium", "missingDefinitions": [], "notes": "" }\n}\n\nEXAMPLE 1 - Basic senses (do NOT copy ids):\n${SUTTA_STUDIO_LEXICO_EXAMPLE_JSON}\n\nEXAMPLE 2 - Ripples for verb tense and articles:\n${SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE_JSON}\n\nWords:\n${wordsList}\n\nDictionary entries (raw; do not copy verbatim):\n${dictionaryBlock || '(none)'}\n${retrievalBlock}\nSegment context:\n${segmentLines.join('\n')}`;
 };
 
 export const buildWeaverPrompt = (

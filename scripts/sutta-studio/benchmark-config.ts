@@ -56,8 +56,8 @@ export const BENCHMARK_CONFIG = {
     typesetter: true,
   },
   fixture: {
-    path: 'test-fixtures/sutta-studio-golden-data.json',  // Has phase1/phase2 format
-    phaseKey: 'phase1' as const,
+    path: 'test-fixtures/sutta-studio-golden-from-demo.json',  // Generated from demoPacket - 51 phases
+    phaseKey: 'skeleton' as const,  // New format uses skeleton
     workId: 'mn10',
   },
   // ─────────────────────────────────────────────────────────────────────────
@@ -108,26 +108,26 @@ export const BENCHMARK_CONFIG = {
   // ─────────────────────────────────────────────────────────────────────────
   // ALL 51 PHASES - Full coverage benchmark
   // ─────────────────────────────────────────────────────────────────────────
-  // TEMP: Testing problematic models with 2 phases
-  phasesToTest: ['phase-a', 'phase-b'],
-  // FULL LIST (restore after test):
-  // phasesToTest: [
-  //   // Opening/Nidana (8 phases)
-  //   'phase-a', 'phase-b', 'phase-c', 'phase-d', 'phase-e', 'phase-f', 'phase-g', 'phase-h',
-  //   // Uddesa (7 phases - uses wordRange slicing)
-  //   'phase-1', 'phase-2', 'phase-3', 'phase-4', 'phase-5', 'phase-6', 'phase-7',
-  //   // Kāyānupassanā intro (3 phases)
-  //   'phase-x', 'phase-y', 'phase-z',
-  //   // Body contemplation (12 phases)
-  //   'phase-aa', 'phase-ab', 'phase-ac', 'phase-ad', 'phase-ae', 'phase-af',
-  //   'phase-ag', 'phase-ah', 'phase-ai', 'phase-aj', 'phase-ak', 'phase-al',
-  //   // Breathing section (12 phases)
-  //   'phase-am', 'phase-an', 'phase-ao', 'phase-ap', 'phase-aq', 'phase-ar',
-  //   'phase-as', 'phase-at', 'phase-au', 'phase-av', 'phase-aw', 'phase-ax',
-  //   // End sections (9 phases)
-  //   'phase-ay', 'phase-az', 'phase-ba', 'phase-bb', 'phase-bc', 'phase-bd',
-  //   'phase-be', 'phase-bf', 'phase-bg',
-  // ],
+  // FULL phase list (restored after ripple test)
+  phasesToTest: [
+    // Opening/Nidana (8 phases)
+    'phase-a', 'phase-b', 'phase-c', 'phase-d', 'phase-e', 'phase-f', 'phase-g', 'phase-h',
+    // Uddesa (7 phases - uses wordRange slicing)
+    'phase-1', 'phase-2', 'phase-3', 'phase-4', 'phase-5', 'phase-6', 'phase-7',
+    // Kāyānupassanā intro (3 phases)
+    'phase-x', 'phase-y', 'phase-z',
+    // Body contemplation (12 phases)
+    'phase-aa', 'phase-ab', 'phase-ac', 'phase-ad', 'phase-ae', 'phase-af',
+    'phase-ag', 'phase-ah', 'phase-ai', 'phase-aj', 'phase-ak', 'phase-al',
+    // Breathing section (12 phases)
+    'phase-am', 'phase-an', 'phase-ao', 'phase-ap', 'phase-aq', 'phase-ar',
+    'phase-as', 'phase-at', 'phase-au', 'phase-av', 'phase-aw', 'phase-ax',
+    // End sections (9 phases)
+    'phase-ay', 'phase-az', 'phase-ba', 'phase-bb', 'phase-bc', 'phase-bd',
+    'phase-be', 'phase-bf', 'phase-bg',
+  ],
+  // Filter to specific model IDs (empty = all)
+  onlyRunIds: ['gemini-3-flash'] as string[],
   // Fixture configs - all 51 phases available
   anatomistFixture: {
     path: 'test-fixtures/sutta-studio-anatomist-golden.json',
@@ -240,10 +240,15 @@ export const BENCHMARK_CONFIG = {
         provider: 'OpenRouter',
         model: 'moonshotai/kimi-k2.5',
         apiKeyEnv: 'OPENROUTER_API_KEY',
-        providerPreferences: {
-          order: ['Together', 'Atlas-Cloud'],
-          allow_fallbacks: false,
-        },
+        // Removed providerPreferences to allow any available endpoint
+      },
+      // Explicit structured outputs to skip capability API check (which may hang)
+      passOverrides: {
+        skeleton: { structuredOutputs: true },
+        anatomist: { structuredOutputs: true },
+        lexicographer: { structuredOutputs: true },
+        weaver: { structuredOutputs: true },
+        typesetter: { structuredOutputs: true },
       },
     },
     {

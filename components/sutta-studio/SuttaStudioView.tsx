@@ -273,6 +273,11 @@ export function SuttaStudioView({
                                   // Highlight arrow only when hovering source segment (not target word)
                                   const isFocused = focusedSegmentId === sId && hoveredInThisPhase;
                                   const style = RELATION_COLORS[seg.relation.type];
+                                  // Skip unknown relation types to prevent crashes
+                                  if (!style) {
+                                    console.warn(`[SuttaStudioView] Unknown relation type: ${seg.relation.type}`);
+                                    return null;
+                                  }
                                   const isOwnership = seg.relation.type === 'ownership';
                                   const targetDomIdStr = seg.relation.targetSegmentId
                                     ? segmentIdToDomId(phaseId, seg.relation.targetSegmentId)
