@@ -39,6 +39,8 @@ reports/sutta-studio/<timestamp>/metrics.json
 reports/sutta-studio/<timestamp>/metrics.csv
 reports/sutta-studio/<timestamp>/outputs/
 reports/sutta-studio/index.json
+reports/sutta-studio/<timestamp>/progress.json
+reports/sutta-studio/active-run.json
 ```
 
 `metrics.json` includes metadata + a `rows` array. `metrics.csv` is a flat table for charting.
@@ -50,6 +52,15 @@ When `captureOutputs.skeleton` is enabled, the `outputs/` folder includes:
 
 `reports/sutta-studio/index.json` is updated after each benchmark run and powers the
 `/bench/sutta-studio` view without needing a dev-server restart.
+
+Index entries also include per-run summaries (total duration/cost/tokens) derived from
+`metrics.json` to make it easy to surface rollups in the UI.
+
+During a live run, the benchmark script writes:
+- `reports/sutta-studio/<timestamp>/progress.json` (detailed progress state)
+- `reports/sutta-studio/active-run.json` (pointer + latest progress snapshot)
+
+The bench UI polls `active-run.json` to show a live progress bar.
 
 ### Fields captured
 

@@ -15,3 +15,6 @@ Guidelines:
 | components/sutta-studio/SuttaStudioView.tsx | Rendering, arrow layout, focus state, and navigation logic in one file (>350 LOC) | Extract relation arrow renderer, phase block renderer, and navigation controls into separate components/hooks |
 | services/navigationService.ts | Multiple concerns (navigation resolution, hydration, fetch, history) in one file (>1k LOC) | Split into resolver, hydrator, fetcher, and history updater modules |
 | components/sutta-studio/SuttaStudioApp.tsx | Store wiring, navigation, compilation, and render gating in one file (>400 LOC) | Extract route parsing, gate/log hooks, and packet resolution into helpers |
+| services/suttaStudioPassPrompts.ts | Prompt builders + schemas + JSON parsing in one file (>700 LOC) | Split schemas, prompt builders, and parsing helpers into separate modules |
+| services/suttaStudioPassRunners.ts | All per-pass runners in one file (>500 LOC) | Split each pass runner into its own module or group by pipeline stage |
+| scripts/sutta-studio/benchmark.ts | Fixture loading + runner orchestration + CSV/JSON export in one file (>500 LOC) | Extract fixture loader, metrics builder, and report writer into helper modules |
