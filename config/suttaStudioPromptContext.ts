@@ -95,34 +95,25 @@ WHAT YOU DON'T DO (other passes handle these):
 - English-Pali alignment (Weaver does this)
 - Layout arrangement (Typesetter does this)
 
-CRITICAL RULES:
-1. Each space-separated Pali token = ONE word. "Evaṁ me sutaṁ" = 3 words (p1, p2, p3).
-2. STRIP ALL PUNCTUATION from surface forms:
-   - Input: "ayaṁ," → surface: "ayaṁ" (no comma)
-   - Input: "bhikkhave," → surface: "bhikkhave" (no comma)
-   - Input: "sutaṁ—" → surface: "sutaṁ" (no em-dash)
-   - Input: "\"Ekāyano" → surface: "Ekāyano" (no quote)
-   Punctuation is NOT part of the Pali word. Remove it completely.
-3. Every segment MUST have non-empty text. Never create segments with text: "".
+Rules:
+1. Each space-separated Pali token = one word. "Evaṁ me sutaṁ" = 3 words (p1, p2, p3).
+2. Strip punctuation from surface forms:
+   - "ayaṁ," → "ayaṁ", "sutaṁ—" → "sutaṁ", "\"Ekāyano" → "Ekāyano"
+3. Every segment must have non-empty text.
 
 ─────────────────────────────────────────────────────────────────────────────
-SEGMENTATION GRANULARITY - Split suffixes maximally:
+SEGMENTATION - Split suffixes when meaningful:
 
-CRITICAL: Split inflectional endings into their minimal meaningful units.
-The -ṁ suffix is ALWAYS separate when it carries grammatical meaning.
-
-CORRECT segmentation (split -ṁ):
-  evaṁ → [eva (stem), ṁ (suffix: adverbial)]
-  sutaṁ → [su (root: √hear), ta (suffix: past participle), ṁ (suffix: neuter nominative)]
+When suffixes carry distinct grammatical meaning, split them:
+  sutaṁ → [su (root: √hear), ta (suffix: past participle), ṁ (suffix: nominative)]
+  viharati → [vi (prefix), har (root), a (thematic), ti (3rd person)]
   sattānaṁ → [satt (stem), ānaṁ (suffix: genitive plural)]
 
-INCORRECT (combined):
-  evaṁ → [evaṁ (stem)] ❌ loses adverbial marker
-  sutaṁ → [su (root), taṁ (suffix)] ❌ combines -ta and -ṁ
+Short function words can remain unsplit:
+  evaṁ → [evaṁ (stem)] or [eva, ṁ] - either is acceptable
+  ayaṁ → [ayaṁ (stem)]
 
-Each suffix piece has distinct meaning for learners:
-- -ta = "that which was X" (past participle formation)
-- -ṁ = "neuter singular nominative" (subject marker)
+The goal is helping learners see how meaning is built from pieces.
 
 ─────────────────────────────────────────────────────────────────────────────
 SEGMENT IDs - Why they matter:
@@ -146,23 +137,18 @@ SEGMENT TYPES - For morphological analysis:
 - "stem": unsegmented base or unclear morphology
 
 ─────────────────────────────────────────────────────────────────────────────
-TOOLTIPS - Rich context for learners:
-Each segment MUST have 1-3 tooltips explaining its meaning/function.
+TOOLTIPS - Context for learners:
+Each segment should have 1-3 tooltips explaining meaning/function.
 
-Good tooltips are CONTEXTUAL and EDUCATIONAL:
-  ✓ "[Emphatic particle] \"Just so\" - Points back to the occasion"
-  ✓ "√su: To hear (suṇāti) - The act of receiving teaching"
-  ✓ "[Past participle] Marks completed action: \"heard\""
-  ✓ "[Neuter singular] \"the thing that...\" - Makes it the subject"
+Good examples:
+  "[Emphatic particle] Just so - Points back to the occasion"
+  "√su: To hear (suṇāti) - The act of receiving teaching"
+  "[Past participle] Marks completed action"
 
-Bad tooltips are SPARSE and GENERIC:
-  ✗ "Evaṁ: Thus"
-  ✗ "suffix"
-
-Include:
-- [Bracketed grammar terms] for toggleable display
-- Root citations with √ symbol and verbal form
-- Brief semantic/contextual notes explaining WHY this form matters
+Include when relevant:
+- [Bracketed grammar terms] for display toggling
+- Root citations with √ symbol
+- Brief notes on why this form matters in context
 
 ─────────────────────────────────────────────────────────────────────────────
 RELATIONS - Grammar arrows connecting words:
@@ -223,18 +209,18 @@ WORD-LEVEL LINKING (fallback):
 - For simple (non-compound) words where the whole word maps to one English word.
 - Example: "Evaṁ" (p1) → English "Thus" linkedPaliId: "p1"
 
-COMPOUND WORDS (CRITICAL):
+Compound words:
 - A single Pali compound translates to multiple English words.
-- Link EACH English word to its corresponding SEGMENT, not word.
-- These are NOT ghosts - they have Pali source (the segment).
+- Link each English word to its corresponding segment (not word-level).
+- These have Pali source, so they are not ghosts.
 
-GHOST CLASSIFICATION (use ONLY when English word has NO Pali source):
-- "required": grammatically necessary in English (articles, verb helpers, case-implied prepositions)
+Ghost classification (only when English word has no Pali source):
+- "required": grammatically necessary (articles, verb helpers, case-implied prepositions)
 - "interpretive": added for clarity (parentheticals, explanatory additions)
 
-RULES:
+Notes:
 - Whitespace and punctuation tokens: pass through (not linked, not ghost).
-- Do NOT change token text. Only provide mapping metadata.
+- Do not change token text. Only provide mapping metadata.
 - If a token could map to multiple segments, choose the primary semantic match.
 `.trim();
 
@@ -243,8 +229,16 @@ Typesetter pass:
 - Goal: arrange Pali word IDs into layout blocks to minimize visual crossing lines.
 - Input: Pali word IDs with relations, English token ordering.
 - Output: layoutBlocks as arrays of word ID arrays, max 5 words per block.
-- Order blocks to follow English reading order while respecting Pali dependencies.
-- If unsure, use source order chunked into groups of ≤5.
+
+Group words into semantic phrases (not one word per block):
+- "Evaṁ me sutaṁ" (Thus I heard) → [[p1, p2, p3]] (one block)
+- "ekāyano ayaṁ maggo" (this is the direct path) → [[p1, p2, p3]] or [[p1, p2], [p3]]
+- Subject + verb → same block
+- Noun + modifiers → same block
+
+Split at natural phrase boundaries: after verbs, before new clauses.
+Order blocks to follow English reading order while respecting Pali dependencies.
+When unsure, prefer fewer larger blocks over many single-word blocks.
 `.trim();
 
 export const SUTTA_STUDIO_MORPH_CONTEXT = `

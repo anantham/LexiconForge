@@ -30,9 +30,47 @@ export function SuttaStudioPipelineLoader() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const reportParam = params.get('report');
+    const pathParam = params.get('path');
 
-    loadPacket(reportParam);
+    // If a direct path is provided, load from that path
+    if (pathParam) {
+      loadFromPath(pathParam);
+    } else {
+      loadPacket(reportParam);
+    }
   }, []);
+
+  // Load packet directly from a path (e.g., /reports/sutta-studio/.../packet.json)
+  const loadFromPath = async (path: string) => {
+    setState((s) => ({ ...s, status: 'loading', error: null }));
+
+    try {
+      const response = await fetch(`${path}?ts=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(`Failed to load packet from ${path}: ${response.status}`);
+      }
+      const packet = await response.json();
+
+      // Extract report ID from path for display
+      const pathParts = path.split('/');
+      const reportId = pathParts.find((p) => p.match(/^\d{4}-\d{2}-\d{2}/)) || 'direct';
+
+      setState({
+        status: 'ready',
+        packet,
+        error: null,
+        reportId,
+        availableReports: [],
+      });
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      setState((s) => ({
+        ...s,
+        status: 'error',
+        error: errorMessage,
+      }));
+    }
+  };
 
   const loadPacket = async (reportId: string | null) => {
     setState((s) => ({ ...s, status: 'loading', error: null }));

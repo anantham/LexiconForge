@@ -113,7 +113,7 @@ export const runSkeletonPass = async (params: {
     signal,
     llmCaller = defaultLLMCaller,
     chunkSize = 50,
-    maxTokens = 4000,
+    maxTokens = 16000,  // High default for reasoning models (kimi, lfm, etc.)
   } = params;
 
   const phases: SkeletonPhase[] = [];
@@ -244,7 +244,7 @@ export const runAnatomistPass = async (params: {
     retrievalContext,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 4000,
+    maxTokens = 16000,  // High default for reasoning models
   } = params;
 
   const phaseState = buildPhaseStateEnvelope({
@@ -313,7 +313,7 @@ export const runLexicographerPass = async (params: {
     retrievalContext,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 8000,
+    maxTokens = 16000,  // High default for reasoning models
   } = params;
 
   const phaseState = buildPhaseStateEnvelope({
@@ -391,7 +391,7 @@ export const runWeaverPass = async (params: {
     structuredOutputs,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 4000,
+    maxTokens = 16000,  // High default for reasoning models
   } = params;
 
   const phaseState = buildPhaseStateEnvelope({
@@ -476,7 +476,7 @@ export const runTypesetterPass = async (params: {
     structuredOutputs,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 3000,
+    maxTokens = 16000,  // High default for reasoning models
     logger,
   } = params;
 
@@ -549,7 +549,7 @@ export const runMorphologyPass = async (params: {
     retrievalContext,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 3000,
+    maxTokens = 16000,  // High default for reasoning models
   } = params;
 
   const schemaName = `sutta_studio_morph_${phaseId.replace(/-/g, '_')}`;

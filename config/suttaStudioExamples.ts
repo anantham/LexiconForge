@@ -237,15 +237,12 @@ export const SUTTA_STUDIO_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_CO
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Anatomist Example: Segment-level output with IDs
-// NOTE: Demonstrates correct granular segmentation - -ṁ is ALWAYS a separate suffix
 // ─────────────────────────────────────────────────────────────────────────────
 export const SUTTA_STUDIO_ANATOMIST_EXAMPLE: AnatomistPass = {
   id: 'phase-1',
   words: [
-    // CRITICAL: Surface forms are CLEAN - strip all punctuation!
-    // Input "Evaṁ," → surface: "evaṁ" (lowercase, no comma)
-    // Input "sutaṁ—" → surface: "sutaṁ" (no em-dash)
-    { id: 'p1', surface: 'evaṁ', wordClass: 'function', segmentIds: ['p1s1', 'p1s2'] },  // 2 segments!
+    // Surface forms should be clean (no punctuation): "Evaṁ," → "evaṁ"
+    { id: 'p1', surface: 'evaṁ', wordClass: 'function', segmentIds: ['p1s1', 'p1s2'] },
     { id: 'p2', surface: 'me', wordClass: 'function', segmentIds: ['p2s1'] },
     { id: 'p3', surface: 'sutaṁ', wordClass: 'content', segmentIds: ['p3s1', 'p3s2', 'p3s3'], isAnchor: true },  // 3 segments!
     // Example with refrainId - bhagavā appears multiple times across phases
@@ -397,15 +394,25 @@ export const SUTTA_STUDIO_WEAVER_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_ST
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Typesetter Example: Layout blocks
+// Group words into semantic phrases: [[p1, p2, p3]] not [[p1], [p2], [p3]]
 // ─────────────────────────────────────────────────────────────────────────────
+
 export const SUTTA_STUDIO_TYPESETTER_EXAMPLE: TypesetterPass = {
   id: 'phase-1',
   layoutBlocks: [
-    ['p1', 'p2'],  // "Thus" + "I" (subject cluster)
-    ['p3'],        // "heard" (verb, anchor)
+    ['p1', 'p2', 'p3'],  // "Thus I heard" - keep opening phrase together
   ],
-  handoff: { confidence: 'high', notes: 'Simple clause, no crossings.' },
+  handoff: { confidence: 'high', notes: 'Simple clause, kept as single block.' },
 };
+
+// Example with multiple semantic blocks (longer passage):
+// layoutBlocks: [
+//   ['p1', 'p2', 'p3'],     // "Thus I heard" (opening formula)
+//   ['p4', 'p5', 'p6'],     // "at one time" (time phrase)
+//   ['p7', 'p8'],           // "the Blessed One" (subject)
+//   ['p9', 'p10', 'p11'],   // "was dwelling at..." (location phrase)
+// ]
+// Each block = semantic unit. Split at natural phrase boundaries.
 
 export const SUTTA_STUDIO_TYPESETTER_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_TYPESETTER_EXAMPLE, null, 2);
 

@@ -1,4 +1,7 @@
 import React from 'react';
+import { DEMO_PACKET_MN10 } from '../sutta-studio/demoPacket';
+
+type PassName = 'skeleton' | 'anatomist' | 'lexicographer' | 'weaver' | 'typesetter';
 
 type SkeletonSegment = {
   ref: { segmentId: string };
@@ -22,6 +25,16 @@ type BenchEntry = {
   provider?: string | null;
   segments: SkeletonSegment[];
   phases: SkeletonPhase[];
+  // Pipeline outputs per phase
+  pipelineOutputs?: Record<string, {
+    anatomist?: any;
+    lexicographer?: any;
+    weaver?: any;
+    typesetter?: any;
+    errors?: Record<string, string | null>;
+  }>;
+  // Full packet for preview
+  packet?: any;
 };
 
 type BenchIndexEntry = {
@@ -31,6 +44,7 @@ type BenchIndexEntry = {
   runId: string;
   provider?: string | null;
   model?: string | null;
+  phasesCount?: number | null;
   durationMsTotal?: number | null;
   costUsdTotal?: number | null;
   tokensPromptTotal?: number | null;
@@ -42,6 +56,34 @@ type BenchIndexEntry = {
   missingTokenCount?: number | null;
   path: string;
   label?: string | null;
+};
+
+type RunStatus = 'complete' | 'partial' | 'failed' | 'golden';
+
+// Derive status from entry metrics
+const getEntryStatus = (entry: BenchIndexEntry): RunStatus => {
+  if (entry.kind === 'golden') return 'golden';
+
+  // If no phases or very few, it's failed
+  const phases = entry.phasesCount ?? 0;
+  if (phases === 0) return 'failed';
+
+  // If all phases succeeded (no missing metrics), it's complete
+  const missingCount = entry.missingDurationCount ?? 0;
+  if (missingCount === 0 && phases >= 7) return 'complete';
+
+  // If most phases are missing, it's failed
+  const totalExpected = entry.rowCount ?? 0;
+  if (totalExpected > 0 && missingCount > totalExpected * 0.5) return 'failed';
+
+  return 'partial';
+};
+
+const STATUS_LABELS: Record<RunStatus, { label: string; color: string }> = {
+  complete: { label: 'Complete', color: 'bg-emerald-100 text-emerald-800' },
+  partial: { label: 'Partial', color: 'bg-amber-100 text-amber-800' },
+  failed: { label: 'Failed', color: 'bg-red-100 text-red-800' },
+  golden: { label: 'Golden', color: 'bg-purple-100 text-purple-800' },
 };
 
 type BenchIndexPayload = {
@@ -103,22 +145,130 @@ const formatPhaseTitle = (title?: string | null) => {
   return title.trim().length ? title : '(no title)';
 };
 
-const PhaseList: React.FC<{ phases: SkeletonPhase[] }> = ({ phases }) => {
+const PASS_OPTIONS: { value: PassName; label: string }[] = [
+  { value: 'skeleton', label: 'Skeleton (phases)' },
+  { value: 'anatomist', label: 'Anatomist (words/segments)' },
+  { value: 'lexicographer', label: 'Lexicographer (senses)' },
+  { value: 'weaver', label: 'Weaver (english structure)' },
+  { value: 'typesetter', label: 'Typesetter (layout blocks)' },
+];
+
+const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ pass, data, phaseId }) => {
+  if (!data) {
+    return <div className="text-xs text-gray-400 italic">No {pass} output</div>;
+  }
+
+  if (pass === 'anatomist') {
+    const words = data.words || [];
+    const segments = data.segments || [];
+    const relations = data.relations || [];
+    return (
+      <div className="text-xs space-y-1">
+        <div><span className="font-medium">Words:</span> {words.length}</div>
+        <div className="pl-2 space-y-0.5">
+          {words.slice(0, 5).map((w: any) => (
+            <div key={w.id} className="text-gray-600">
+              {w.id}: {w.surface} ({w.wordClass}) → {w.segmentIds?.length || 0} segs
+            </div>
+          ))}
+          {words.length > 5 && <div className="text-gray-400">...and {words.length - 5} more</div>}
+        </div>
+        <div><span className="font-medium">Segments:</span> {segments.length}</div>
+        <div><span className="font-medium">Relations:</span> {relations.length}</div>
+      </div>
+    );
+  }
+
+  if (pass === 'lexicographer') {
+    const senses = data.senses || [];
+    return (
+      <div className="text-xs space-y-1">
+        <div><span className="font-medium">Senses:</span> {senses.length}</div>
+        <div className="pl-2 space-y-0.5">
+          {senses.slice(0, 5).map((s: any, i: number) => (
+            <div key={i} className="text-gray-600">
+              {s.wordId}: {s.senses?.map((sense: any) => sense.english).join(', ') || '(none)'}
+            </div>
+          ))}
+          {senses.length > 5 && <div className="text-gray-400">...and {senses.length - 5} more</div>}
+        </div>
+      </div>
+    );
+  }
+
+  if (pass === 'weaver') {
+    const tokens = data.tokens || data.englishStructure || [];
+    const ghosts = tokens.filter((t: any) => t.isGhost);
+    const linked = tokens.filter((t: any) => t.linkedPaliId || t.linkedSegmentId);
+    return (
+      <div className="text-xs space-y-1">
+        <div><span className="font-medium">Tokens:</span> {tokens.length}</div>
+        <div><span className="font-medium">Ghosts:</span> {ghosts.length}</div>
+        <div><span className="font-medium">Linked:</span> {linked.length}</div>
+      </div>
+    );
+  }
+
+  if (pass === 'typesetter') {
+    const blocks = data.layoutBlocks || [];
+    return (
+      <div className="text-xs space-y-1">
+        <div><span className="font-medium">Layout Blocks:</span> {blocks.length}</div>
+        <div className="pl-2 space-y-0.5">
+          {blocks.map((block: string[], i: number) => (
+            <div key={i} className="text-gray-600">
+              Block {i + 1}: [{block.join(', ')}]
+            </div>
+          ))}
+        </div>
+        {data.handoff && (
+          <div className="text-gray-500 mt-1">
+            Confidence: {data.handoff.confidence}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return <pre className="text-xs overflow-auto max-h-32">{JSON.stringify(data, null, 2)}</pre>;
+};
+
+const PhaseList: React.FC<{
+  phases: SkeletonPhase[];
+  pass: PassName;
+  pipelineOutputs?: BenchEntry['pipelineOutputs'];
+}> = ({ phases, pass, pipelineOutputs }) => {
   if (!phases.length) {
     return <div className="text-sm text-gray-500">No phases generated.</div>;
   }
   return (
     <div className="space-y-2">
-      {phases.map((phase, index) => (
-        <div key={`${phase.id}-${index}`} className="rounded border border-gray-200 p-3">
-          <div className="text-sm font-semibold text-gray-800">
-            {phase.id} · {formatPhaseTitle(phase.title)}
+      {phases.map((phase, index) => {
+        const pipelineData = pipelineOutputs?.[phase.id];
+        const passData = pass === 'skeleton' ? null : pipelineData?.[pass];
+        const passError = pipelineData?.errors?.[pass];
+
+        return (
+          <div key={`${phase.id}-${index}`} className="rounded border border-gray-200 p-3">
+            <div className="text-sm font-semibold text-gray-800">
+              {phase.id} · {formatPhaseTitle(phase.title)}
+            </div>
+            {pass === 'skeleton' ? (
+              <div className="text-xs text-gray-500 mt-1">
+                Segments: {phase.segmentIds.join(', ') || '(none)'}
+              </div>
+            ) : (
+              <div className="mt-2">
+                {passError ? (
+                  <div className="text-xs text-red-600">Error: {passError}</div>
+                ) : (
+                  <PassOutput pass={pass} data={passData} phaseId={phase.id} />
+                )}
+              </div>
+            )}
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            Segments: {phase.segmentIds.join(', ') || '(none)'}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
@@ -128,40 +278,80 @@ const BenchCard: React.FC<{
   options: BenchIndexEntry[];
   value: string;
   onChange: (value: string) => void;
-}> = ({ entry, options, value, onChange }) => {
+  pass: PassName;
+  onPassChange: (pass: PassName) => void;
+}> = ({ entry, options, value, onChange, pass, onPassChange }) => {
+  // For golden data, link directly to /sutta/mn10 which shows DEMO_PACKET_MN10
+  const viewFullUrl = entry?.kind === 'golden'
+    ? '/sutta/mn10'
+    : entry?.packet
+      ? `/bench/sutta-studio/preview?entry=${encodeURIComponent(entry.id)}`
+      : null;
+
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Select output
-        </label>
-        <select
-          className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-        >
-          {options.map((item) => (
-            <option key={item.id} value={item.id}>
-              {buildLabel(item)}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Run
+            </label>
+            <select
+              className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm mt-1"
+              value={value}
+              onChange={(event) => onChange(event.target.value)}
+            >
+              {options.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {buildLabel(item)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="w-48">
+            <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Pass
+            </label>
+            <select
+              className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm mt-1"
+              value={pass}
+              onChange={(event) => onPassChange(event.target.value as PassName)}
+            >
+              {PASS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {viewFullUrl && (
+          <a
+            href={viewFullUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 text-center"
+          >
+            View Full Output ↗
+          </a>
+        )}
       </div>
 
       {!entry ? (
         <div className="mt-4 text-sm text-gray-500">No data selected.</div>
       ) : (
         <div className="mt-4 space-y-3">
-          <div className="text-sm text-gray-700">
-            <span className="font-semibold">Kind:</span> {entry.kind}
+          <div className="flex gap-4 text-sm text-gray-700">
+            <div><span className="font-semibold">Kind:</span> {entry.kind}</div>
+            <div><span className="font-semibold">Model:</span> {entry.model ?? 'unknown'}</div>
+            <div><span className="font-semibold">Phases:</span> {entry.phases.length}</div>
           </div>
-          <div className="text-sm text-gray-700">
-            <span className="font-semibold">Model:</span> {entry.model ?? 'unknown'}
-          </div>
-          <div className="text-sm text-gray-700">
-            <span className="font-semibold">Segments:</span> {entry.segments.length}
-          </div>
-          <PhaseList phases={entry.phases} />
+          <PhaseList
+            phases={entry.phases}
+            pass={pass}
+            pipelineOutputs={entry.pipelineOutputs}
+          />
         </div>
       )}
     </div>
@@ -180,6 +370,8 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   const [lastUpdated, setLastUpdated] = React.useState<string | null>(null);
   const [progress, setProgress] = React.useState<BenchProgressPointer | null>(null);
   const [progressError, setProgressError] = React.useState<string | null>(null);
+  const [leftPass, setLeftPass] = React.useState<PassName>('skeleton');
+  const [rightPass, setRightPass] = React.useState<PassName>('skeleton');
 
   const fetchIndex = React.useCallback(async () => {
     setIsLoading(true);
@@ -266,11 +458,116 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
     async (entry: BenchIndexEntry | null): Promise<BenchEntry | null> => {
       if (!entry) return null;
       if (dataCache[entry.id]) return dataCache[entry.id];
+
+      // For golden entries, extract pass outputs from DEMO_PACKET_MN10
+      if (entry.kind === 'golden') {
+        const goldenPhases = DEMO_PACKET_MN10.phases ?? [];
+        const pipelineOutputs: BenchEntry['pipelineOutputs'] = {};
+
+        // Extract pass outputs from the demo packet's phases
+        for (const phase of goldenPhases) {
+          pipelineOutputs[phase.id] = {
+            anatomist: {
+              words: phase.paliWords?.map((w: any) => ({
+                id: w.id,
+                surface: w.surface,
+                wordClass: w.wordClass,
+                segmentIds: w.segments?.map((s: any) => s.id) ?? [],
+              })) ?? [],
+              segments: phase.paliWords?.flatMap((w: any) => w.segments ?? []) ?? [],
+              relations: phase.paliWords?.flatMap((w: any) =>
+                (w.segments ?? []).filter((s: any) => s.relation).map((s: any) => ({
+                  segmentId: s.id,
+                  ...s.relation,
+                }))
+              ) ?? [],
+            },
+            lexicographer: {
+              senses: phase.paliWords?.map((w: any) => ({
+                wordId: w.id,
+                senses: w.senses ?? [],
+              })) ?? [],
+            },
+            weaver: {
+              tokens: phase.englishStructure ?? [],
+            },
+            typesetter: {
+              layoutBlocks: phase.layoutBlocks ?? [],
+            },
+          };
+        }
+
+        const resolved: BenchEntry = {
+          id: entry.id,
+          label: buildLabel(entry),
+          kind: entry.kind,
+          timestamp: entry.timestamp,
+          runId: entry.runId,
+          model: 'golden (DEMO_PACKET_MN10)',
+          provider: null,
+          segments: [],
+          phases: goldenPhases.map((p: any) => ({
+            id: p.id,
+            title: p.title ?? null,
+            segmentIds: p.canonicalSegmentIds ?? [],
+          })),
+          pipelineOutputs,
+          packet: DEMO_PACKET_MN10,
+        };
+        setDataCache((prev) => ({ ...prev, [entry.id]: resolved }));
+        return resolved;
+      }
+
+      // For benchmark runs, load from files
+      const basePath = entry.path.replace(/\/[^/]+$/, '');
+
       const response = await fetch(`${entry.path}?ts=${Date.now()}`, { cache: 'no-store' });
       if (!response.ok) {
         throw new Error(`Failed to load output: ${response.status}`);
       }
       const data = (await response.json()) as any;
+
+      // Try to load pipeline outputs for each phase
+      const pipelineOutputs: BenchEntry['pipelineOutputs'] = {};
+      const phases = data?.phases ?? [];
+
+      // Load pipeline files for each phase
+      await Promise.all(
+        phases.map(async (phase: SkeletonPhase) => {
+          try {
+            const pipelineResponse = await fetch(
+              `${basePath}/pipeline-${phase.id}.json?ts=${Date.now()}`,
+              { cache: 'no-store' }
+            );
+            if (pipelineResponse.ok) {
+              const pipelineData = await pipelineResponse.json();
+              pipelineOutputs[phase.id] = {
+                anatomist: pipelineData.output?.anatomist,
+                lexicographer: pipelineData.output?.lexicographer,
+                weaver: pipelineData.output?.weaver,
+                typesetter: pipelineData.output?.typesetter,
+                errors: pipelineData.errors,
+              };
+            }
+          } catch {
+            // Ignore pipeline load errors
+          }
+        })
+      );
+
+      // Try to load the packet
+      let packet = null;
+      try {
+        const packetResponse = await fetch(`${basePath}/packet.json?ts=${Date.now()}`, {
+          cache: 'no-store',
+        });
+        if (packetResponse.ok) {
+          packet = await packetResponse.json();
+        }
+      } catch {
+        // Ignore packet load errors
+      }
+
       const resolved: BenchEntry = {
         id: entry.id,
         label: buildLabel(entry),
@@ -281,6 +578,8 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
         provider: entry.provider ?? data?.provider ?? null,
         segments: data?.segments ?? [],
         phases: data?.phases ?? [],
+        pipelineOutputs,
+        packet,
       };
       setDataCache((prev) => ({ ...prev, [entry.id]: resolved }));
       return resolved;
@@ -334,13 +633,13 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         <header>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-semibold">Sutta Studio Bench</h1>
               <p className="text-sm text-gray-600">
-                Side-by-side skeleton aggregate comparison (golden included).
+                Compare pipeline outputs across runs. Select pass to view detailed outputs.
               </p>
               {lastUpdated && (
                 <p className="text-xs text-gray-500 mt-1">
@@ -397,7 +696,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                   Errors ({progress.errors.length})
                 </div>
                 <div className="mt-2 max-h-40 space-y-1 overflow-auto text-xs text-red-700">
-                  {progress.errors.map((err, index) => {
+                  {progress.errors.slice(0, 10).map((err, index) => {
                     const chunkInfo =
                       err.chunkIndex !== null &&
                       err.chunkIndex !== undefined &&
@@ -416,6 +715,9 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                       </div>
                     );
                   })}
+                  {progress.errors.length > 10 && (
+                    <div className="text-red-500">...and {progress.errors.length - 10} more</div>
+                  )}
                 </div>
               </div>
             ) : null}
@@ -440,9 +742,23 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
             <code className="mx-1">reports/sutta-studio</code>.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <BenchCard entry={leftEntry} options={entries} value={leftId} onChange={setLeftId} />
-            <BenchCard entry={rightEntry} options={entries} value={rightId} onChange={setRightId} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BenchCard
+              entry={leftEntry}
+              options={entries}
+              value={leftId}
+              onChange={setLeftId}
+              pass={leftPass}
+              onPassChange={setLeftPass}
+            />
+            <BenchCard
+              entry={rightEntry}
+              options={entries}
+              value={rightId}
+              onChange={setRightId}
+              pass={rightPass}
+              onPassChange={setRightPass}
+            />
           </div>
         )}
       </div>

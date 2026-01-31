@@ -149,6 +149,24 @@ export const BENCHMARK_CONFIG = {
       },
     },
     {
+      id: 'gemini-3-flash',
+      model: {
+        id: 'gemini-3-flash',
+        provider: 'OpenRouter',
+        model: 'google/gemini-3-flash-preview',
+        apiKeyEnv: 'OPENROUTER_API_KEY',
+      },
+    },
+    {
+      id: 'gemini-2.5-flash',
+      model: {
+        id: 'gemini-2.5-flash',
+        provider: 'OpenRouter',
+        model: 'google/gemini-2.5-flash',
+        apiKeyEnv: 'OPENROUTER_API_KEY',
+      },
+    },
+    {
       id: 'kimi-k2.5',
       model: {
         id: 'kimi-k2.5',
