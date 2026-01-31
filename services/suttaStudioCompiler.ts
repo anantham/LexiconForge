@@ -73,7 +73,7 @@ export { SUTTA_STUDIO_PROMPT_VERSION } from './suttaStudioPromptVersion';
 const COMPILER_MIN_CALL_GAP_MS = 1000;
 
 /// DEBUG: Limit phases for testing (set to 0 for unlimited)
-const DEBUG_PHASE_LIMIT = 6;
+const DEBUG_PHASE_LIMIT = 0;
 const DICTIONARY_LOOKUP_BASE = 'https://suttacentral.net/api/dictionary_full/';
 
 const skeletonResponseSchema = {
