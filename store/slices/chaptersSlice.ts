@@ -11,9 +11,10 @@
 
 import type { StateCreator } from 'zustand';
 import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService';
-import { normalizeUrlAggressively } from '../../services/stableIdService';
+import { normalizeUrlAggressively, transformImportedChapters } from '../../services/stableIdService';
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
-import { ChapterOps } from '../../services/db/operations';
+import { ChapterOps, ImportOps } from '../../services/db/operations';
+import type { ImportedChapter } from '../../types';
 import { validateApiKey } from '../../services/aiService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
@@ -73,6 +74,9 @@ export interface ChaptersActions {
   getNovelCount: () => number;
   getChapterStats: () => { total: number; withTranslations: number; withImages: number };
   getMemoryDiagnostics: () => MemoryDiagnostics;
+
+  // Custom text import
+  importCustomText: (title: string, content: string, sourceLanguage?: string) => Promise<string | undefined>;
 
   // Preloading
   preloadNextChapters: () => void;
@@ -461,6 +465,79 @@ export const createChaptersSlice: StateCreator<
     }
   },
   
+  importCustomText: async (title, content, sourceLanguage) => {
+    const uiActions = get() as any;
+    const syntheticUrl = `https://custom.lexiconforge.local/text/${Date.now()}`;
+
+    if (uiActions.setFetchingState) {
+      uiActions.setFetchingState(syntheticUrl, true);
+    }
+
+    try {
+      const dataForTransformation: ImportedChapter = {
+        sourceUrl: syntheticUrl,
+        title: title.trim() || 'Custom Text',
+        originalContent: content,
+        nextUrl: null,
+        prevUrl: null,
+        translationResult: null,
+        feedback: [],
+      };
+
+      const stableData = transformImportedChapters([dataForTransformation]);
+
+      if (stableData.currentChapterId) {
+        const ch = stableData.chapters.get(stableData.currentChapterId);
+        if (ch) {
+          ch.importSource = { ...ch.importSource!, sourceFormat: 'manual' };
+          if (sourceLanguage?.trim()) {
+            ch.sourceLanguage = sourceLanguage.trim();
+          }
+        }
+      }
+
+      await ImportOps.importStableSessionData({
+        novels: stableData.novels,
+        chapters: stableData.chapters,
+        urlIndex: stableData.urlIndex,
+        rawUrlIndex: stableData.rawUrlIndex,
+        currentChapterId: stableData.currentChapterId,
+        navigationHistory: [],
+      });
+
+      set(state => {
+        const newChapters = new Map([...state.chapters, ...stableData.chapters]);
+        const newUrlIndex = new Map([...state.urlIndex, ...stableData.urlIndex]);
+        const newRawUrlIndex = new Map([...state.rawUrlIndex, ...stableData.rawUrlIndex]);
+        const newNovels = new Map([...state.novels, ...stableData.novels]);
+        const newHistory = [...new Set(state.navigationHistory.concat(stableData.currentChapterId!))];
+        return {
+          chapters: newChapters,
+          urlIndex: newUrlIndex,
+          rawUrlIndex: newRawUrlIndex,
+          novels: newNovels,
+          currentChapterId: stableData.currentChapterId,
+          navigationHistory: newHistory,
+        };
+      });
+
+      const chapter = stableData.chapters.get(stableData.currentChapterId!);
+      if (chapter) {
+        NavigationService.updateBrowserHistory(chapter, stableData.currentChapterId!);
+      }
+
+      return stableData.currentChapterId ?? undefined;
+    } catch (e: any) {
+      if (uiActions.setError) {
+        uiActions.setError(`Failed to import custom text: ${e.message}`);
+      }
+    } finally {
+      if (uiActions.setFetchingState) {
+        uiActions.setFetchingState(syntheticUrl, false);
+      }
+    }
+  },
+
   navigateToChapter: (chapterId) => {
     const chapter = get().chapters.get(chapterId);
     if (chapter) {
