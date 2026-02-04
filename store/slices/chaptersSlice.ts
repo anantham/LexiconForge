@@ -526,6 +526,12 @@ export const createChaptersSlice: StateCreator<
         NavigationService.updateBrowserHistory(chapter, stableData.currentChapterId!);
       }
 
+      // Switch to "Original" view so the user sees their pasted text
+      // (default viewMode is 'english' which would show empty since there's no translation yet)
+      if (uiActions.setViewMode) {
+        uiActions.setViewMode('original');
+      }
+
       return stableData.currentChapterId ?? undefined;
     } catch (e: any) {
       if (uiActions.setError) {
