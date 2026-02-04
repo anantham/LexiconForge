@@ -109,7 +109,9 @@ class TelemetryService {
   private rejectionHandler?: (event: PromiseRejectionEvent) => void;
 
   constructor() {
-    this.sessionId = crypto.randomUUID();
+    this.sessionId = typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 
   /**
