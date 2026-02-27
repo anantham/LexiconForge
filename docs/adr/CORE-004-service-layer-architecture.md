@@ -1,9 +1,36 @@
 # CORE-004: Service Layer Architecture with Transaction Injection
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Partially Implemented (Updated 2026-02-27)
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition), DB-002 (Atomic Transactions)
+
+## Status Update (February 2026)
+
+**Implemented:**
+- ✅ Transaction wrapping via functional helpers (`withTxn()`, `withReadTxn()`)
+- ✅ Multi-store transaction support with atomic guarantees
+- ✅ Comprehensive error handling (DbError, RetryPolicy)
+- ✅ Domain/service/operation metadata tracking
+- ✅ Transaction mode enforcement (readwrite vs readonly)
+
+**Deferred:**
+- ⏸️ Class-based `TransactionService` interface → replaced with simpler functional approach
+- ⏸️ Optional `tx?` parameter pattern on service methods for composability
+- ⏸️ `batch()` operations for large imports
+- ⏸️ `Tx` type with enhanced metadata (operationId, timing)
+- ⏸️ Orchestrator layer as described
+
+**Rationale for Deviation:**
+- Functional helpers (`withTxn`/`withReadTxn`) proved simpler and more ergonomic than class-based `TransactionService`
+- Direct transaction management via helpers avoids indirection without losing safety
+- Optional `tx?` composability pattern deferred until cross-service atomic operations required
+- Code achieves the core goal (safe multi-store transactions) with less ceremony
+
+**Preserved Aspirational Goals:**
+- Optional `tx?` injection pattern remains valuable for future UnitOfWork requirements
+- Orchestrator layer design provides good reference for complex cross-store operations
+- Batch import optimization can be added when needed without breaking existing code
 
 ## Context
 

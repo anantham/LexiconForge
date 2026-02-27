@@ -1,9 +1,38 @@
 # CORE-005: Agent-First Code Organization Standards
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Partially Adopted (Updated 2026-02-27)
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition), CORE-004 (Service Architecture)
+
+## Status Update (February 2026)
+
+**Adopted:**
+- ✅ Small, focused files (most services <200 LOC)
+- ✅ TypeScript interfaces and Zod schemas at boundaries
+- ✅ Self-documenting code through clear naming
+- ✅ Directory structure with domain separation
+- ✅ Standardized error handling patterns
+
+**Not Adopted:**
+- ❌ File suffix convention (`.service.ts`, `.hook.ts`, `.util.ts`) → plain naming used instead
+- ❌ Formal ServiceContract with runtime validation
+- ❌ File size enforcement in pre-commit hooks
+- ❌ AI_INSTRUCTIONS header comments
+
+**Rationale:**
+- **File suffixes**: Never adopted across 293 existing files; plain `camelCase.ts` is established convention. Retrofitting would churn git history for negligible benefit.
+- **ServiceContract**: Explicit TypeScript interfaces proved sufficient; runtime validation overhead not justified.
+- **File size enforcement**: Aspirational goal; pragmatically allow larger files when cohesion justifies it.
+- **AI headers**: Self-documenting code and good TypeScript types proved more effective than structured comments.
+
+**Current Reality:**
+The codebase achieved the core goals (modularity, testability, AI-friendliness) through:
+- Functional service design with clear interfaces
+- Zod validation at boundaries
+- Comprehensive JSDoc where needed
+- TypeScript's type system for contracts
+- Standard directory organization without strict naming suffixes
 
 ## Context
 
@@ -160,31 +189,35 @@ export default [ComponentName];
 ```
 
 ### Naming Conventions
+
+**ACTUAL IMPLEMENTATION (as of February 2026):**
 ```typescript
-// File naming patterns
+// File naming patterns (what the codebase actually uses)
 const FILE_NAMING = {
-  services: 'camelCase.service.ts',           // userService.ts
-  components: 'PascalCase.tsx',               // UserProfile.tsx
-  hooks: 'camelCase.hook.ts',                 // useUserData.hook.ts
-  utils: 'camelCase.util.ts',                 // validation.util.ts
-  types: 'camelCase.types.ts',                // user.types.ts
-  constants: 'SCREAMING_SNAKE_CASE.ts',       // API_ENDPOINTS.ts
-  tests: '[filename].test.ts',                // userService.test.ts
-  stories: '[ComponentName].stories.tsx'     // UserProfile.stories.tsx
+  services: 'camelCase.ts',                   // indexeddb.ts, gemini.ts
+  components: 'PascalCase.tsx',               // UserProfile.tsx ✅ (adopted)
+  hooks: 'useCamelCase.ts',                   // useChapterData.ts
+  utils: 'camelCase.ts',                      // validation.ts
+  types: 'types.ts or schema.ts',             // types.ts, schema.ts
+  constants: 'SCREAMING_SNAKE_CASE.ts',       // (rare, usually inline)
+  tests: '[filename].test.ts',                // indexeddb.test.ts ✅ (adopted)
+  stories: '[ComponentName].stories.tsx'      // UserProfile.stories.tsx ✅ (adopted)
 };
 
-// Function naming patterns
+// Function naming patterns (consistently used)
 const FUNCTION_NAMING = {
-  creators: 'create[Thing]',                  // createUserService
-  validators: 'validate[Thing]',              // validateUser
-  transformers: 'transform[Input]To[Output]', // transformUserToProfile
-  predicates: 'is[Condition]',                // isValidUser
-  getters: 'get[Thing]',                      // getUserById
-  handlers: 'handle[Event]',                  // handleUserClick
-  builders: 'build[Thing]',                   // buildQuery
-  formatters: 'format[Input]',                // formatDate
+  creators: 'create[Thing]',                  // createUserService ✅
+  validators: 'validate[Thing]',              // validateUser ✅
+  transformers: 'transform[Input]To[Output]', // transformUserToProfile ✅
+  predicates: 'is[Condition]',                // isValidUser ✅
+  getters: 'get[Thing]',                      // getUserById ✅
+  handlers: 'handle[Event]',                  // handleUserClick ✅
+  builders: 'build[Thing]',                   // buildQuery ✅
+  formatters: 'format[Input]',                // formatDate ✅
 };
 ```
+
+**Note:** The proposed `.service.ts` / `.hook.ts` / `.util.ts` suffix convention was never adopted. The codebase uses plain descriptive names without suffixes, relying on directory structure for categorization.
 
 ### Directory Structure
 ```
