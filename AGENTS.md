@@ -12,7 +12,7 @@ PHILOSOPHY: We are computational peers collaborating with human developers. Oper
 2. **Tests Are Signal:** Failing tests are valuable information about system state. Never "goodhart" by hacking around failures. Investigate root causes with diagnostic logging. 
 3. **Modularity Is Mandatory:** Files approaching ~300 LOC must be split. Large monoliths break agent workflows and context windows. 
 4. **Human Gates Are Sacred:** Architectural changes, solution selection, and root cause confirmation require explicit human validation. The goal is to keep humans in the loop with interfaces designed to make it easy for humans to give feedback frictionlessly.
-5. **Documentation Is Design:** Every feature needs intent documentation. Use ADRs for significant decisions. 
+5. **Documentation Is Design:** Every feature needs intent documentation. Use ADRs for significant decisions. When a PR ships what an ADR proposed, update the ADR status to `Implemented` and add an Implementation Notes section pointing to the actual files — in the same commit or a follow-up doc commit.
 6. **Don't be trigger happy** - When I ask you a question, just answer, don't assume the implicit request is for you to fix it immediately you can offer to fix it with precise plans and I may approve but do not proactively edit files and patch code.
 7. **Epistemic Hygiene** - Every fix proposal includes: assumptions, predicted test outcomes, confidence (0.0–1.0), fallback plan. If confidence < 0.7 or unsafe → "decline & explain" using STOP template
 
@@ -257,11 +257,14 @@ Human picks one for writing to files, testing is done manually and then if it is
 
 ---
 
-## FILE_SIZE_MANAGEMENT 
+## FILE_SIZE_MANAGEMENT
 
-Decomposition protocol for files > 300 LOC  
-Plan: identify files that are monolithic or bloated and log them in `docs/REFACTOR_CANDIDATES.md` with a brief reason + suggested split.  
-Notes: 300 LOC is a rule of thumb; prioritize maintainability, cohesion, and testability over raw line count. No warning is required before reading large files.
+A file is a problem when it has **more than one reason to change**, more than one concept to hold in mind, or when "where does X live?" always points here. LOC is a signal to investigate, not a hard limit.
+
+See `docs/CONVENTIONS.md` §4 for the full friction-based decision framework.
+See `docs/architecture/ARCHITECTURE.md` §7 for the current hotspots list.
+
+> **Note:** The previous 300 LOC hard limit and `docs/REFACTOR_CANDIDATES.md` registry are superseded by the friction-based policy above.
 
 
 ---
