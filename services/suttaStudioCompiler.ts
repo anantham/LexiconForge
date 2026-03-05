@@ -16,7 +16,7 @@ import type {
   WeaverPass,
   TypesetterPass,
 } from '../types/suttaStudio';
-import { PROXIES } from './adapters';
+import { PROXIES } from './scraping/proxy';
 import { getAveragePhaseDuration, recordPhaseDuration } from './suttaStudioTelemetry';
 import { buildRetrievalContext } from './suttaStudioRetrieval';
 import { validatePacket, validatePhase } from './suttaStudioValidator';

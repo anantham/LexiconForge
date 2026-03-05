@@ -71,8 +71,11 @@ const createNavigationContext = (overrides: Partial<NavigationContext> = {}): Na
 // ============================================================================
 
 // Mock adapters
-vi.mock('../../services/adapters', () => ({
+vi.mock('../../services/scraping/fetcher', () => ({
   fetchAndParseUrl: vi.fn(),
+}));
+
+vi.mock('../../services/scraping/urlUtils', () => ({
   isUrlSupported: vi.fn((url: string) => {
     const supported = [
       'kakuyomu.jp',
@@ -477,7 +480,7 @@ describe('NavigationService', () => {
     });
 
     it('fetches and transforms chapter for supported URL', async () => {
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
 
       const mockChapterData = {
         title: 'Fetched Chapter',
@@ -498,7 +501,7 @@ describe('NavigationService', () => {
     });
 
     it('returns error result when fetch fails', async () => {
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
       (fetchAndParseUrl as Mock).mockRejectedValue(new Error('Network error'));
 
       const result = await NavigationService.handleFetch('https://kakuyomu.jp/works/123/episodes/456');
@@ -507,7 +510,7 @@ describe('NavigationService', () => {
     });
 
     it('deduplicates concurrent fetches for same URL', async () => {
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
 
       let resolveFirst: (value: any) => void;
       const firstFetchPromise = new Promise(resolve => {
@@ -558,7 +561,7 @@ describe('NavigationService', () => {
 
       expect(result.currentChapterId).toBe('cached-chapter');
       // fetchAndParseUrl should NOT be called when cache hit
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
       expect(fetchAndParseUrl).not.toHaveBeenCalled();
     });
   });

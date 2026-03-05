@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getSupportedSiteInfo, isUrlSupported } from '../../services/adapters';
+import { getSupportedSiteInfo, isUrlSupported } from '../../services/scraping/urlUtils';
 
 describe('BookToki adapter wiring', () => {
   it('treats BookToki URLs as supported', () => {

@@ -9,7 +9,8 @@
  * - Chapter fetching for new URLs
  */
 
-import { fetchAndParseUrl, isUrlSupported, getSupportedSiteInfo, SupportedSiteInfo } from './adapters';
+import { fetchAndParseUrl } from './scraping/fetcher';
+import { isUrlSupported, getSupportedSiteInfo, SupportedSiteInfo } from './scraping/urlUtils';
 import type { TranslationRecord } from './db/types';
 import { getRepoForService } from './db/index';
 import {
