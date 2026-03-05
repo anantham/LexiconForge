@@ -1,9 +1,16 @@
 # DB-007: Schema Evolution & Migration Strategy
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Implemented (2026-03-05)
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition), DB-003 (Version-Centric Data Model)
+
+## Implementation Notes (2026-03-05)
+Schema evolution strategy fully implemented. Current schema version: 13.
+Key files: `services/db/core/migrationService.ts`, `services/db/core/schema.ts`,
+`services/db/core/migrationBackup.ts`, `services/db/core/migrationRestore.ts`.
+Chunked migration processing and backup/restore are live. See `guides/INDEXEDDB_SCHEMA.md`
+for the current schema reference.
 
 ## Context
 

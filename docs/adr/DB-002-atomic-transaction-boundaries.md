@@ -1,9 +1,14 @@
 # DB-002: Atomic Transaction Boundaries for Critical User Actions
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Implemented (2026-03-05)
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition)
+
+## Implementation Notes (2026-03-05)
+Atomic transaction boundaries enforced via `withTxn()` in `services/db/core/txn.ts`.
+Multi-store transactions use the `storeNames: string[]` parameter. Retry policy and
+error mapping implemented in `services/db/core/errors.ts`.
 
 ## Context
 

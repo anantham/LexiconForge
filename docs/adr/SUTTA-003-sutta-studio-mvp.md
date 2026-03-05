@@ -54,12 +54,25 @@ InterfaceIdea proved the UI mechanics with a static dataset, but the dataset mus
 - Citations live in a separate registry; senses reference citation IDs.
 
 ### LLM Pipeline
-Use CSP-style compiler pipeline:  
-**Skeleton → Phase Deltas → Validator**
+> **Note:** The original 3-pass design below was superseded by an amendment (2026-01-28).
+> See the Amendment section later in this ADR for the current 5-pass architecture.
 
-1) **Skeleton pass**: phases, anchors, ghost scaffolding, rough senses.  
-2) **Phase deltas**: segmentation, senses, relations, ripple rules.  
-3) **Validator**: repair references, enforce schema, list unresolved.
+~~Use CSP-style compiler pipeline:~~
+~~**Skeleton → Phase Deltas → Validator**~~
+
+~~1) **Skeleton pass**: phases, anchors, ghost scaffolding, rough senses.~~
+~~2) **Phase deltas**: segmentation, senses, relations, ripple rules.~~
+~~3) **Validator**: repair references, enforce schema, list unresolved.~~
+
+**Current pipeline (as of 2026-01-28 amendment):**
+**Skeleton → Anatomist → Lexicographer → Weaver → Typesetter → Validator**
+
+1) **Skeleton** (chunked, 50-seg windows): phase segmentation only.
+2) **Anatomist**: Pali word segmentation, morphology, grammar relations.
+3) **Lexicographer**: contextual senses (3 for content words, 1-2 for function words).
+4) **Weaver**: English token mapping, ghost word identification.
+5) **Typesetter**: layout blocks (max 5 words per block).
+6) **Validator**: full schema enforcement after each pass.
 
 ## Options Considered
 

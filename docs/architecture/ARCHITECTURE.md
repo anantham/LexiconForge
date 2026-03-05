@@ -68,6 +68,61 @@
 - **EPUB**: `services/epub/exportService.ts` and worker handle DOM cloning, sanitization, packaging.
 - **Audio**: `services/audio/*.ts` manage generation providers and OPFS storage.
 - **Images**: `services/imageService.ts` with `ImageCacheService` for blob storage.
+- **Sutta Studio Pipeline**: See Section 4.5 below.
+
+
+## 4.5 Sutta Studio Pipeline Services
+
+The Sutta Studio compiler is the largest service subsystem (~5,000 LOC across 8 files).
+It transforms raw SuttaCentral segments into `DeepLoomPacket` IR for the `/sutta/:uid` route
+via a sequential 5-pass assembly line. Each pass is a specialist — no parallelization.
+
+### Pipeline Flow
+
+```
+SuttaCentral segments
+        ↓
+  Skeleton (chunked, 50-seg windows) — phase segmentation only
+        ↓
+  Anatomist — Pali morphology, word segmentation, grammar relations
+        ↓
+  Lexicographer — English senses (3 content / 1-2 function words)
+        ↓
+  Weaver — English token mapping, ghost word identification
+        ↓
+  Typesetter — layout blocks (max 5 words per block)
+        ↓
+  Validator — schema enforcement between passes
+        ↓
+  DeepLoomPacket → stored in chapters.suttaStudio (IndexedDB)
+```
+
+### Key Files
+
+| File | LOC | Responsibility |
+|------|-----|----------------|
+| `services/suttaStudioCompiler.ts` | 2,280 | Pipeline orchestration, JSON schemas, packet assembly |
+| `services/suttaStudioPassPrompts.ts` | 723 | Prompt contracts for all 5 passes |
+| `services/suttaStudioPassRunners.ts` | 586 | Per-pass execution and retry logic |
+| `services/suttaStudioPipelineCache.ts` | 472 | L2 morphology cache + L5 segment cache |
+| `services/suttaStudioRehydrator.ts` | 437 | Reconstructs packets from DB for UI rendering |
+| `services/suttaStudioValidator.ts` | — | Schema validation between passes |
+| `services/suttaStudioLLM.ts` | — | LLM call wrapper with structured outputs |
+| `services/suttaStudioTokenizer.ts` | — | English tokenization standard |
+
+### Caching (SUTTA-006)
+
+- **L2 Morphology Cache** — persisted cross-sutta, keyed by surface word form. Avoids re-segmenting known Pali words across compilations.
+- **L5 Segment Cache** — in-memory per compilation run. Deduplicates identical refrain segments within a single sutta (~15% of MN10 segments are exact duplicates).
+
+### ADRs
+- `SUTTA-003`: MVP architecture, IR schema, 5-pass pipeline decision
+- `SUTTA-004`: Benchmark development phases
+- `SUTTA-005`: Benchmark leaderboard
+- `SUTTA-006`: Pipeline caching architecture (L2/L5)
+
+### IR Types
+Canonical types live in `types/suttaStudio.ts`. See `docs/sutta-studio/IR.md` for design rationale (note: types file is authoritative if they conflict).
 
 
 ## 5. Component Architecture
@@ -109,14 +164,18 @@
 
 ## 7. Current Hotspots
 
-| File | LOC | Status |
-|------|-----|--------|
-| `store/slices/imageSlice.ts` | 1,081 | Mixes API orchestration, cache state, job queue |
-| `store/slices/translationsSlice.ts` | 1,059 | Complex translation pipeline |
-| `store/slices/chaptersSlice.ts` | 825 | Navigation + state management |
-| `store/slices/exportSlice.ts` | 525 | Export orchestration |
+Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split criteria):
 
-These slices exceed the 300 LOC guideline but contain related functionality. Further decomposition may be considered if complexity increases.
+| File | LOC | Verdict | Reason |
+|------|-----|---------|--------|
+| `services/suttaStudioCompiler.ts` | 2,280 | Split candidate | Orchestration + schemas + prompt-builders + assembly — multiple change cadences |
+| `services/adapters.ts` | 914 | Split candidate | 4 provider adapters that change independently |
+| `services/exportService.ts` | 1,054 | Split candidate | EPUB export and session export are unrelated concerns |
+| `components/sutta-studio/demoPacket.ts` | 4,390 | Migrate to JSON | It's data, not logic — should be a `.json` file |
+| `store/slices/imageSlice.ts` | 1,081 | Keep | Single domain, all parts change together |
+| `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
+| `store/slices/chaptersSlice.ts` | 825 | Keep | Single domain |
+| `services/navigationService.ts` | 1,109 | Investigate | Decomposition plan exists (`docs/plans/NAVIGATION-SERVICE-DECOMPOSITION.md`) but not yet executed |
 
 
 ## 8. Testing Strategy
