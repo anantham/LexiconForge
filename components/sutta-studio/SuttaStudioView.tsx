@@ -22,9 +22,9 @@ export function SuttaStudioView({
 }) {
   const [hovered, setHovered] = useState<Focus | null>(null);
   const [hoveredRelation, setHoveredRelation] = useState<string | null>(null);
-  const pinned: Focus | null = null;
-  const setPinned = useCallback(() => {}, []);
+  const [pinned, setPinned] = useState<Focus | null>(null);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
+  const [activeSegmentIndices, setActiveSegmentIndices] = useState<Record<string, number>>({});
   const [settings, setSettings] = useState<StudioSettings>(() => loadSettings());
   const [layoutTick, setLayoutTick] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -132,6 +132,24 @@ export function SuttaStudioView({
     });
   };
 
+  // Cycle through segment-level senses (for compound words with per-segment meanings)
+  const cycleSegment = (phaseId: string, segmentId: string) => {
+    const phase = visiblePhases.find((p) => p.id === phaseId);
+    if (!phase) return;
+    for (const word of phase.paliWords) {
+      const seg = word.segments.find((s) => s.id === segmentId);
+      if (seg?.senses?.length) {
+        const key = `${phaseId}-${segmentId}`;
+        setActiveSegmentIndices((prev) => {
+          const current = prev[key] ?? 0;
+          const next = (current + 1) % seg.senses!.length;
+          return { ...prev, [key]: next };
+        });
+        return;
+      }
+    }
+  };
+
   type PhaseType = (typeof visiblePhases)[0];
 
   const resolveBlocks = (phase: PhaseType) => {
@@ -219,6 +237,7 @@ export function SuttaStudioView({
             hovered?.kind,
             hovered?.wordId,
             hovered?.kind === 'segment' ? hovered.segmentDomId : '',
+            pinned?.kind === 'segment' ? pinned.segmentDomId : '',
             JSON.stringify(activeIndices),
             visiblePhases.length,
           ]}
@@ -252,8 +271,10 @@ export function SuttaStudioView({
                                 phaseId={phaseId}
                                 wordData={word}
                                 activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
+                                activeSegmentIndices={activeSegmentIndices}
                                 settings={settings}
                                 cycle={(wordId) => cycle(wordId, phaseId)}
+                                cycleSegment={cycleSegment}
                                 hovered={hovered}
                                 pinned={pinned}
                                 setHovered={setHovered}

@@ -24,8 +24,10 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId,
   wordData,
   activeIndex,
+  activeSegmentIndices,
   settings,
   cycle,
+  cycleSegment,
   hovered,
   pinned,
   setHovered,
@@ -34,8 +36,10 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId: string;
   wordData: PaliWord;
   activeIndex: number;
+  activeSegmentIndices?: Record<string, number>;
   settings: StudioSettings;
   cycle: (wordId: string) => void;
+  cycleSegment?: (phaseId: string, segmentId: string) => void;
   hovered: Focus | null;
   pinned: Focus | null;
   setHovered: Dispatch<SetStateAction<Focus | null>>;
@@ -74,13 +78,18 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           const isHovered = hovered?.kind === 'segment' && hovered.segmentDomId === sDomId;
           const isPinned = pinned?.kind === 'segment' && pinned.segmentDomId === sDomId;
 
+          // Resolve active sense for this segment (segment-level senses take priority over word-level)
+          const segKey = seg.id ? `${phaseId}-${seg.id}` : null;
+          const activeSegmentIdx = segKey ? (activeSegmentIndices?.[segKey] ?? 0) : 0;
           const activeSenseId = resolveSenseId(wordData, activeIndex);
-          const rawTooltip = seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
+          const segSenseText = seg.senses?.length ? seg.senses[activeSegmentIdx]?.english : null;
+          const rawTooltip = segSenseText || seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
           // Apply filters based on settings
           let tooltipText = rawTooltip;
           if (!settings.grammarTerms) tooltipText = stripGrammarTerms(tooltipText);
           if (!settings.emojiInTooltips) tooltipText = stripEmoji(tooltipText);
-          const showTooltip = settings.tooltips && isHovered && !pinned;
+          // Show tooltip on hover (when nothing pinned) OR persistently when this segment is pinned
+          const showTooltip = settings.tooltips && (isPinned || (isHovered && !pinned));
 
           // Debug: log tooltip decision when hovered
           if (isHovered) {
@@ -116,6 +125,27 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                   ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
                   : 'border-b-2 border-transparent pb-0'
               } ${segmentClass} ${settings.tooltips ? 'cursor-help' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (hasTextSelection()) return;
+                const segFocus: Focus = {
+                  kind: 'segment',
+                  phaseId,
+                  wordId: wordData.id,
+                  segmentId: seg.id,
+                  segmentIndex: i,
+                  segmentDomId: sDomId,
+                  data: seg,
+                };
+                // Toggle pin: click pinned segment → unpin; click elsewhere → pin
+                setPinned((prev) =>
+                  prev?.kind === 'segment' && prev.segmentDomId === sDomId ? null : segFocus
+                );
+                // Cycle segment senses if available
+                if (seg.senses?.length && seg.id) {
+                  cycleSegment?.(phaseId, seg.id);
+                }
+              }}
               onMouseEnter={() => {
                 console.log('[PaliWord] HOVER_ENTER', { segmentText: seg.text, segmentId: seg.id, sDomId, pinned: !!pinned, tooltipsEnabled: settings.tooltips, tooltipText });
                 if (pinned) return;
@@ -134,7 +164,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 if (pinned) return;
                 setHovered(null);
               }}
-              title={settings.tooltips && !showTooltip ? 'Hover: segment details' : ''}
+              title={settings.tooltips && !showTooltip ? 'Click: pin • Hover: segment details' : ''}
             >
               {seg.text}
 
