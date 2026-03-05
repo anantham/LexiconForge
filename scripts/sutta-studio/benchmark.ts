@@ -877,8 +877,7 @@ const getSegmentsForPhase = (
     phaseMeta.canonicalSegmentIds.includes(seg.ref.segmentId)
   );
   // Apply wordRange if present in phase metadata (for sub-segment splitting)
-  const wordRange = (phaseMeta as any).wordRange as [number, number] | undefined;
-  return applyWordRangeToSegments(segments, wordRange);
+  return applyWordRangeToSegments(segments, phaseMeta.wordRange);
 };
 
 const getEnglishTextForSegments = (segments: CanonicalSegment[]): string => {
