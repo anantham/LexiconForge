@@ -1,6 +1,6 @@
 # Tech Debt Status
 
-**Last Updated:** January 28, 2026
+**Last Updated:** March 5, 2026
 
 ## Completed Milestones ✅
 
@@ -10,15 +10,22 @@
 - Legacy facade deleted
 - See: [ADR DB-001](../adr/DB-001-decompose-monolithic-indexeddb.md)
 
-### TypeScript Error Remediation (Nov 2024 - Jan 2026)
-- 172 errors → 7 errors (96% reduction)
-- Remaining errors in active development areas (Sutta Studio)
+### TypeScript Error Remediation (Nov 2024 - Mar 2026)
+- 172 errors → 0 errors (100% reduction)
 - See: [TypeScript Health](../infrastructure/TYPESCRIPT-HEALTH.md)
 
 ### Legacy Repository Retirement (Nov 2025)
 - `adapters/repo/Repo.ts` compatibility shim removed
 - Modern/memory backends only
 - See: [Archive: Retirement Plan](../archive/completed/LEGACY_REPO_RETIREMENT_PLAN.md)
+
+### Component Decomposition (Jan–Mar 2026)
+- `components/SettingsModal.tsx` 2745 LOC → 205 LOC orchestrator + `components/settings/` modules
+- `components/ChapterView.tsx` 1969 LOC → 433 LOC
+- `services/navigationService.ts` 1109 LOC → 4-line shim + `services/navigation/` (8 modules)
+- `services/suttaStudioCompiler.ts` 2280 LOC → 3-line shim + `services/compiler/` (8 modules)
+- `components/sutta-studio/demoPacket.ts` 4390 LOC → 3-line shim + JSON file
+- `services/adapters.ts` → `services/scraping/` modules
 
 ---
 
@@ -28,17 +35,17 @@
 
 | Item | Location | Issue | Status |
 |------|----------|-------|--------|
-| Component Size | `components/SettingsModal.tsx` | 2745 LOC, needs decomposition | ⏳ Planned |
-| Component Size | `components/ChapterView.tsx` | 1969 LOC, needs decomposition | ⏳ Planned |
-
-See: [Component Decomposition Plan](./COMPONENT-DECOMPOSITION-PLAN.md)
+| Test Coverage | `services/compiler/` | 0% coverage on 2027 LOC core pipeline | ⏳ Planned |
+| Test Coverage | `services/navigation/` | 0% coverage on 1104 LOC core infra | ⏳ Planned |
 
 ### 🟡 Medium Priority
 
 | Item | Location | Issue | Status |
 |------|----------|-------|--------|
-| Service Size | `services/navigationService.ts` | >1000 LOC | Watchlist |
-| Component Size | `components/sutta-studio/SuttaStudioView.tsx` | >350 LOC | Watchlist |
+| Type Safety | `services/imageService.ts` | 30+ `as any` casts (untyped API responses) | Watchlist |
+| Service Size | `services/suttaStudioPassPrompts.ts` | 723 LOC, no ADR, no tests | Watchlist |
+| Service Size | `services/suttaStudioPassRunners.ts` | 586 LOC, no ADR, no tests | Watchlist |
+| Component Size | `components/bench/SuttaStudioBenchmarkView.tsx` | 1272 LOC | Watchlist |
 
 See: [Refactor Candidates](./REFACTOR_CANDIDATES.md)
 
@@ -46,18 +53,19 @@ See: [Refactor Candidates](./REFACTOR_CANDIDATES.md)
 
 | Item | Issue | Notes |
 |------|-------|-------|
-| Dual Provider Paths | Some services have legacy/modern code paths | Cleanup after stability confirmed |
-| Test Coverage | 21% overall | Improving via golden tests |
+| Test Coverage | ~19% overall (services root 19%) | Core pipeline modules at 0% |
+| Stale Plans | 5 plans from 2025 with unknown status | Needs archive pass |
 
 ---
 
 ## Metrics
 
-| Metric | Nov 2024 | Jan 2026 | Target |
-|--------|----------|----------|--------|
-| TS Errors | 172 | 7 | < 10 |
-| Test Coverage | ~10% | 21% | 60% |
-| Largest File | 2800 LOC | 2745 LOC | < 500 LOC |
+| Metric | Nov 2024 | Jan 2026 | Mar 2026 | Target |
+|--------|----------|----------|----------|--------|
+| TS Errors | 172 | 7 | **0** | 0 |
+| Test Coverage | ~10% | 21% | ~21% | 60% |
+| Largest File | 2800 LOC | 2745 LOC | **1272 LOC** | < 500 LOC |
+| Services >1000 LOC | many | 3 | **0** | 0 |
 
 ---
 
