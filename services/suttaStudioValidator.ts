@@ -10,11 +10,13 @@ export const validatePhase = (
 ): { phase: PhaseView; issues: ValidationIssue[] } => {
   const issues: ValidationIssue[] = [];
   const wordIds = new Set<string>();
+  const segmentIds = new Set<string>();
   const wordIdDuplicates = new Set<string>();
 
   phase.paliWords.forEach((word) => {
     if (wordIds.has(word.id)) wordIdDuplicates.add(word.id);
     wordIds.add(word.id);
+    word.segments?.forEach((seg) => { if (seg.id) segmentIds.add(seg.id); });
   });
 
   wordIdDuplicates.forEach((id) => {
@@ -46,17 +48,20 @@ export const validatePhase = (
     }
 
     const cleanedSegments = segments.map((seg, index) => {
-      if (seg.relation && !wordIds.has(seg.relation.targetId)) {
-        issues.push({
-          level: 'warn',
-          code: 'relation_target_missing',
-          message: `Relation target "${seg.relation.targetId}" missing; relation removed.`,
-          phaseId: phase.id,
-          wordId: word.id,
-          segmentIndex: index,
-        });
-        const { relation, ...rest } = seg;
-        return rest;
+      if (seg.relation) {
+        const targetId = seg.relation.targetWordId ?? seg.relation.targetSegmentId;
+        if (!targetId || (!wordIds.has(targetId) && !segmentIds.has(targetId))) {
+          issues.push({
+            level: 'warn',
+            code: 'relation_target_missing',
+            message: `Relation target "${targetId ?? '(none)'}" missing; relation removed.`,
+            phaseId: phase.id,
+            wordId: word.id,
+            segmentIndex: index,
+          });
+          const { relation, ...rest } = seg;
+          return rest;
+        }
       }
       return seg;
     });

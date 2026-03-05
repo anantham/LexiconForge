@@ -216,7 +216,10 @@ export function LensPanel({
               {word.segments.map((seg, i) => {
                 if (!seg.relation) return null;
                 const style = RELATION_COLORS[seg.relation.type];
-                const target = phase.paliWords.find((w) => w.id === seg.relation!.targetId);
+                const targetWordId = seg.relation!.targetWordId ?? seg.relation!.targetSegmentId;
+                const target = targetWordId
+                  ? phase.paliWords.find((w) => w.id === targetWordId || w.segments.some((s) => s.id === targetWordId))
+                  : undefined;
                 return (
                   <div
                     key={`${word.id}-rel-${i}`}
@@ -229,7 +232,7 @@ export function LensPanel({
                     <div className="text-slate-500 text-sm mt-1">
                       <span className="text-slate-300 font-serif">{seg.text}</span> →
                       <span className="ml-2 text-slate-300 font-serif">
-                        {target ? buildPaliText(target) : seg.relation.targetId}
+                        {target ? buildPaliText(target) : targetWordId ?? '?'}
                       </span>
                     </div>
                   </div>

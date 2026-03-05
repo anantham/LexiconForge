@@ -51,8 +51,6 @@ export type Relation = {
   targetWordId?: string;
   /** Target segment ID (e.g., "p1s2") - use for segment-to-segment relations */
   targetSegmentId?: string;
-  /** @deprecated Use targetWordId or targetSegmentId instead */
-  targetId?: string;
   type: RelationType;
   label: string;
   status?: 'confirmed' | 'pending';

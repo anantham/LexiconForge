@@ -310,12 +310,13 @@ export const phaseResponseSchema = {
                 relation: {
                   type: 'object',
                   properties: {
-                    targetId: { type: 'string' },
+                    targetWordId: { type: 'string' },
+                    targetSegmentId: { type: 'string' },
                     type: { type: 'string', enum: ['ownership', 'direction', 'location', 'action'] },
                     label: { type: 'string' },
                     status: { type: 'string', enum: ['confirmed', 'pending'] },
                   },
-                  required: ['targetId', 'type', 'label'],
+                  required: ['type', 'label'],
                   additionalProperties: false,
                 },
                 morph: {
@@ -418,12 +419,13 @@ export const morphResponseSchema = {
                 relation: {
                   type: 'object',
                   properties: {
-                    targetId: { type: 'string' },
+                    targetWordId: { type: 'string' },
+                    targetSegmentId: { type: 'string' },
                     type: { type: 'string', enum: ['ownership', 'direction', 'location', 'action'] },
                     label: { type: 'string' },
                     status: { type: 'string', enum: ['confirmed', 'pending'] },
                   },
-                  required: ['targetId', 'type', 'label'],
+                  required: ['type', 'label'],
                   additionalProperties: false,
                 },
                 morph: {
