@@ -4,26 +4,24 @@ import type { TranslationRecord } from '../../../services/db/types';
 
 const baseRecord = (): TranslationRecord => ({
   id: 'tr-1',
-  chapterId: 'ch-1',
-  translation: '<p>Hello</p>',
+  chapterUrl: 'https://example.com/ch1',
+  stableId: 'stable-1',
+  version: 1,
   translatedTitle: 'The Title',
+  translation: '<p>Hello</p>',
+  footnotes: [],
+  suggestedIllustrations: [],
   provider: 'anthropic',
   model: 'claude-3',
-  version: 1,
+  temperature: 0.5,
+  systemPrompt: '',
   totalTokens: 1000,
   promptTokens: 800,
   completionTokens: 200,
   estimatedCost: 0.01,
   requestTime: 1234,
-  createdAt: 1700000000000,
+  createdAt: '2023-11-14T22:13:20.000Z',
   isActive: true,
-  proposal: null,
-  footnotes: [],
-  suggestedIllustrations: [],
-  settingsSnapshot: null,
-  stableId: 'stable-1',
-  chapterUrl: 'https://example.com/ch1',
-  customVersionLabel: undefined,
 });
 
 describe('adaptTranslationRecordToResult', () => {
@@ -76,15 +74,15 @@ describe('adaptTranslationRecordToResult', () => {
 
   it('generates fallback id when record.id is missing', () => {
     const record = { ...baseRecord(), id: undefined as any };
-    const result = adaptTranslationRecordToResult('ch-1', record);
-    expect(result!.id).toContain('ch-1');
+    const result = adaptTranslationRecordToResult('chapter-abc', record);
+    expect(result!.id).toContain('chapter-abc');
     expect(result!.id).toContain('v1');
   });
 
   it('generates legacy fallback id when both id and version missing', () => {
     const record = { ...baseRecord(), id: undefined as any, version: undefined as any };
-    const result = adaptTranslationRecordToResult('ch-1', record);
-    expect(result!.id).toContain('ch-1');
+    const result = adaptTranslationRecordToResult('chapter-abc', record);
+    expect(result!.id).toContain('chapter-abc');
     expect(result!.id).toContain('legacy');
   });
 
