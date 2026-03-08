@@ -89,7 +89,7 @@ export const anatomistResponseSchema = {
         properties: {
           id: { type: 'string' },
           surface: { type: 'string' },
-          wordClass: { type: 'string', enum: ['content', 'function'] },
+          wordClass: { type: 'string', enum: ['content', 'function', 'vocative'] },
           segmentIds: { type: 'array', items: { type: 'string' } },
           isAnchor: { type: 'boolean' },
           refrainId: { type: 'string' },
@@ -162,7 +162,7 @@ export const lexicographerResponseSchema = {
         type: 'object',
         properties: {
           wordId: { type: 'string' },
-          wordClass: { type: 'string', enum: ['content', 'function'] },
+          wordClass: { type: 'string', enum: ['content', 'function', 'vocative'] },
           senses: {
             type: 'array',
             items: {

@@ -128,6 +128,7 @@ WORD CLASS - Why it matters:
 Color coding helps learners distinguish grammatical roles at a glance.
 - "content": nouns, verbs, adjectives → rendered GREEN (carry main meaning)
 - "function": particles, pronouns, connectives → rendered WHITE (grammatical glue)
+- "vocative": direct address forms (bhante, bhikkhave, āvuso) → rendered YELLOW
 
 ─────────────────────────────────────────────────────────────────────────────
 SEGMENT TYPES - For morphological analysis:

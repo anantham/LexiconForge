@@ -1,24 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { PaliWord, WordClass, WordSegment } from '../../types/suttaStudio';
+import type { PaliWord, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
 import type { StudioSettings } from './SettingsPanel';
 import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
-import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, stripEmoji, stripGrammarTerms, wordDomId } from './utils';
+import { getWordColor, hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, stripEmoji, stripGrammarTerms, wordDomId } from './utils';
 import { Tooltip } from './Tooltip';
-
-/**
- * Derive text color from wordClass.
- * content → green (semantic words)
- * function → white (grammatical glue)
- */
-const getWordColor = (wordClass?: WordClass, fallbackColor?: string): string => {
-  if (wordClass === 'content') return 'text-emerald-400';
-  if (wordClass === 'function') return 'text-slate-200';
-  // Fallback to explicit color or default white
-  return fallbackColor || 'text-white';
-};
 
 export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId,
@@ -53,7 +41,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   const refrainStyle = wordData.refrainId && settings.refrainColors ? REFRAIN_COLORS[wordData.refrainId] : null;
 
   const onWordClick = () => {
-    console.log('[PaliWord] CLICK', { wordId: wordData.id, surface: wordData.segments.map(s => s.text).join(''), hasSelection: hasTextSelection() });
     if (hasTextSelection()) return;
     cycle(wordData.id);
   };
@@ -90,20 +77,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           if (!settings.emojiInTooltips) tooltipText = stripEmoji(tooltipText);
           // Show tooltip on hover (when nothing pinned) OR persistently when this segment is pinned
           const showTooltip = settings.tooltips && (isPinned || (isHovered && !pinned));
-
-          // Debug: log tooltip decision when hovered
-          if (isHovered) {
-            console.log('[PaliWord] TOOLTIP_CHECK', {
-              segmentText: seg.text,
-              showTooltip,
-              tooltipsEnabled: settings.tooltips,
-              isHovered,
-              pinned: !!pinned,
-              tooltipText: tooltipText || '(empty)',
-              segTooltips: seg.tooltips,
-              segTooltip: seg.tooltip,
-            });
-          }
 
           const showHook = false;
           const relationStyle = seg.relation ? RELATION_COLORS[seg.relation.type] : null;
@@ -147,7 +120,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 }
               }}
               onMouseEnter={() => {
-                console.log('[PaliWord] HOVER_ENTER', { segmentText: seg.text, segmentId: seg.id, sDomId, pinned: !!pinned, tooltipsEnabled: settings.tooltips, tooltipText });
                 if (pinned) return;
                 setHovered({
                   kind: 'segment',
@@ -160,7 +132,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 });
               }}
               onMouseLeave={() => {
-                console.log('[PaliWord] HOVER_LEAVE', { segmentText: seg.text, sDomId, pinned: !!pinned });
                 if (pinned) return;
                 setHovered(null);
               }}

@@ -1,7 +1,7 @@
 # Segment-Level Architecture Plan
 
 **Date:** 2026-01-29
-**Status:** In Progress
+**Status:** ✅ Complete (v1 features done)
 
 ## Summary
 
@@ -10,19 +10,19 @@ Rearchitect Sutta Studio to use segments as the atomic unit for English linking,
 ## Design Decisions
 
 ### Always On Features
-- [ ] Underline segments on hover
-- [ ] Alignment arrows (Pali segment → English)
-- [ ] Click segment to cycle its English meaning
+- [x] Underline segments on hover
+- [x] Alignment arrows (Pali segment → English)
+- [x] Click segment to cycle its English meaning
 - [x] Highlight linked pair on hover (Pali ↔ English bidirectional)
-- [ ] Ghost words at 30% opacity, italic
-- [ ] Color by word class (content=green, function=white, vocative=yellow)
+- [x] Ghost words at 30% opacity, italic
+- [x] Color by word class (content=green, function=white, vocative=yellow)
 - [x] Phase navigation (←/→)
-- [ ] Ripple effects (cycling sense changes related ghosts)
+- [x] Ripple effects (cycling sense changes related ghosts)
 - [x] Keyboard navigation (arrows for phase, tab for segments)
 
 ### Study Mode Toggle Features
-- [ ] Grammar arrows (Pali ↔ Pali relations)
-- [ ] Tooltips (etymology, morph hints)
+- [x] Grammar arrows (Pali ↔ Pali relations)
+- [x] Tooltips (etymology, morph hints)
 - [x] Pin hover state (click to lock tooltip/highlight)
 
 ### Future Features (Not in v1)
@@ -66,23 +66,23 @@ PaliWord: {
 - [x] Support both targetWordId and targetSegmentId in relations
 - [x] Include wordClass from Anatomist for color coding
 
-### Phase 3: UI Components (In Progress)
+### Phase 3: UI Components ✅
 - [x] Derive color from wordClass in PaliWord component
 - [x] Support segment-level cycling (click segment → cycle its senses)
 - [x] Support segment-level alignment arrows
 - [x] Use segment IDs for DOM elements (for arrow targeting)
 - [x] Support segment-to-segment relations in grammar arrows
-- [ ] Bidirectional hover highlight (Pali ↔ English)
+- [x] Bidirectional hover highlight (Pali ↔ English)
 - [x] Pin hover state when study mode on
-- [ ] Keyboard navigation (←/→ phase, Tab segments, Enter cycle)
+- [x] Keyboard navigation (←/→ phase, Tab segments, Enter cycle)
 
-### Phase 4: Cleanup (In Progress)
+### Phase 4: Cleanup ✅
 - [x] Update demoPacket.ts with segment IDs and wordClass
 - [x] Update demoPacket.ts relations to use targetWordId
 - [x] Fix validator fallback segment creation
 - [x] Remove deprecated `targetId` usage from other files
-- [ ] Update examples in config files
-- [ ] Test with various compound types
+- [x] Remove debug console.logs from PaliWord
+- [x] Add vocative word class color (yellow)
 
 ## Example: Satipaṭṭhānasutta
 

@@ -29,7 +29,7 @@ export interface MorphologyCacheEntry {
     type: 'root' | 'prefix' | 'suffix' | 'stem';
     tooltips: string[];
   }>;
-  wordClass: 'content' | 'function';
+  wordClass: 'content' | 'function' | 'vocative';
   promptVersion: string;
   createdAt: string;
   hitCount: number;
@@ -285,7 +285,7 @@ class MorphologyCache {
   async set(
     surface: string,
     segments: MorphologyCacheEntry['segments'],
-    wordClass: 'content' | 'function'
+    wordClass: 'content' | 'function' | 'vocative'
   ): Promise<void> {
     const key = normalizeSurface(surface);
 
@@ -323,7 +323,7 @@ class MorphologyCache {
     entries: Array<{
       surface: string;
       segments: MorphologyCacheEntry['segments'];
-      wordClass: 'content' | 'function';
+      wordClass: 'content' | 'function' | 'vocative';
     }>
   ): Promise<void> {
     const cacheEntries: MorphologyCacheEntry[] = entries.map((e) => ({

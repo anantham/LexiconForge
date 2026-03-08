@@ -78,7 +78,7 @@ export type WordSegment = {
   senses?: Sense[];
 };
 
-export type WordClass = 'content' | 'function';
+export type WordClass = 'content' | 'function' | 'vocative';
 
 export type AnatomistWord = {
   id: string;
