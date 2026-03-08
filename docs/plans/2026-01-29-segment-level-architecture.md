@@ -13,17 +13,17 @@ Rearchitect Sutta Studio to use segments as the atomic unit for English linking,
 - [ ] Underline segments on hover
 - [ ] Alignment arrows (Pali segment → English)
 - [ ] Click segment to cycle its English meaning
-- [ ] Highlight linked pair on hover (Pali ↔ English bidirectional)
+- [x] Highlight linked pair on hover (Pali ↔ English bidirectional)
 - [ ] Ghost words at 30% opacity, italic
 - [ ] Color by word class (content=green, function=white, vocative=yellow)
-- [ ] Phase navigation (←/→)
+- [x] Phase navigation (←/→)
 - [ ] Ripple effects (cycling sense changes related ghosts)
-- [ ] Keyboard navigation (arrows for phase, tab for segments)
+- [x] Keyboard navigation (arrows for phase, tab for segments)
 
 ### Study Mode Toggle Features
 - [ ] Grammar arrows (Pali ↔ Pali relations)
 - [ ] Tooltips (etymology, morph hints)
-- [ ] Pin hover state (click to lock tooltip/highlight)
+- [x] Pin hover state (click to lock tooltip/highlight)
 
 ### Future Features (Not in v1)
 - Citation display for definitions
