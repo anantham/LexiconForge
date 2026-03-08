@@ -90,16 +90,11 @@ export function getDefaultApiKey(): string | null {
   // Get from environment variable
   const defaultKey = import.meta.env.VITE_DEFAULT_OPENROUTER_KEY;
 
-  // Log detailed environment info for debugging production issues
+  // Log environment availability (no key metadata — security)
   console.log('[DefaultKey] Environment check:', {
     hasDefaultKey: !!defaultKey,
-    keyLength: defaultKey?.length || 0,
-    keyPrefix: defaultKey ? `${defaultKey.slice(0, 8)}...` : 'none',
     usageCount: getDefaultKeyUsage(),
     remainingUses: MAX_DEFAULT_KEY_USES - getDefaultKeyUsage(),
-    env: import.meta.env.MODE,
-    isDev: import.meta.env.DEV,
-    isProd: import.meta.env.PROD,
   });
 
   if (!defaultKey) {

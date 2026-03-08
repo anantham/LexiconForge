@@ -68,19 +68,19 @@ PaliWord: {
 
 ### Phase 3: UI Components (In Progress)
 - [x] Derive color from wordClass in PaliWord component
-- [ ] Support segment-level cycling (click segment → cycle its senses)
+- [x] Support segment-level cycling (click segment → cycle its senses)
 - [x] Support segment-level alignment arrows
 - [x] Use segment IDs for DOM elements (for arrow targeting)
 - [x] Support segment-to-segment relations in grammar arrows
 - [ ] Bidirectional hover highlight (Pali ↔ English)
-- [ ] Pin hover state when study mode on
+- [x] Pin hover state when study mode on
 - [ ] Keyboard navigation (←/→ phase, Tab segments, Enter cycle)
 
 ### Phase 4: Cleanup (In Progress)
 - [x] Update demoPacket.ts with segment IDs and wordClass
 - [x] Update demoPacket.ts relations to use targetWordId
 - [x] Fix validator fallback segment creation
-- [ ] Remove deprecated `targetId` usage from other files
+- [x] Remove deprecated `targetId` usage from other files
 - [ ] Update examples in config files
 - [ ] Test with various compound types
 

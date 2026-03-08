@@ -2,6 +2,9 @@
  * Import Service - Handle session imports from URLs and files
  */
 
+/** Browser memory safety limit for session import downloads */
+const MAX_IMPORT_SIZE_BYTES = 500 * 1024 * 1024; // 500 MB
+
 import { useAppStore } from '../store';
 import type { SessionData } from '../types/session';
 import type {
@@ -129,7 +132,7 @@ export class ImportService {
         const contentLength = response.headers.get('content-length');
         const total = contentLength ? parseInt(contentLength) : 0;
 
-        if (total && total > 500 * 1024 * 1024) {
+        if (total && total > MAX_IMPORT_SIZE_BYTES) {
           throw new Error('Session file too large (>500MB)');
         }
 

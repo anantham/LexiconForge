@@ -87,8 +87,6 @@ const err = (message: string, ...args: any[]) =>
   console.error(`[SuttaStudioCompiler] ${message}`, ...args);
 
 const COMPILER_MIN_CALL_GAP_MS = 1000;
-/// DEBUG: Limit phases for testing (set to 0 for unlimited)
-const DEBUG_PHASE_LIMIT = 0;
 
 export type CompileProgress = {
   packet: DeepLoomPacket;
@@ -233,10 +231,7 @@ export const compileSuttaStudioPacket = async (options: {
 
   let readySegments = 0;
   const totalSegments = canonicalWithOrder.length;
-  const phaseLimit = DEBUG_PHASE_LIMIT > 0 ? Math.min(DEBUG_PHASE_LIMIT, phaseSkeleton.length) : phaseSkeleton.length;
-  if (DEBUG_PHASE_LIMIT > 0) {
-    log(`DEBUG MODE: Limiting to ${phaseLimit} phases (set DEBUG_PHASE_LIMIT=0 for full compilation)`);
-  }
+  const phaseLimit = phaseSkeleton.length;
 
   const seededAvgPhaseMs = getAveragePhaseDuration(uidKey) ?? undefined;
   const seededEtaMs = seededAvgPhaseMs && phaseLimit > 0 ? seededAvgPhaseMs * phaseLimit : undefined;

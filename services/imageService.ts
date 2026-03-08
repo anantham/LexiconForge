@@ -22,6 +22,12 @@ const ierror = (...args: any[]) => { console.error(...args); };
 import { IMAGE_COSTS } from '../config/costs';
 import { getOpenRouterImagePrice } from './openrouterService';
 
+// Image dimension constraints (provider API limits)
+const IMAGE_DIM_MIN = 256;        // Minimum accepted by Gemini/PiAPI
+const IMAGE_DIM_MAX = 4096;       // Maximum accepted by most providers
+const IMAGE_DIM_DEFAULT = 1024;   // Standard HD baseline
+const IMAGE_MAX_PIXELS = 1048576; // 1024×1024 — max total pixel budget for PiAPI
+
 // Typed error extension used by image generation to carry actionable metadata
 interface ImageGenerationError extends Error {
   errorType: string;
@@ -118,14 +124,13 @@ export const generateImage = async (
   version?: number  // NEW: version number for Cache API storage (defaults to 1)
 ): Promise<GeneratedImageResult> => {
     const imageModel = settings.imageModel || 'imagen-3.0-generate-001';
-    const reqW = Math.max(256, Math.min(4096, (settings.imageWidth || 1024)));
-    const reqH = Math.max(256, Math.min(4096, (settings.imageHeight || 1024)));
+    const reqW = Math.max(IMAGE_DIM_MIN, Math.min(IMAGE_DIM_MAX, (settings.imageWidth || IMAGE_DIM_DEFAULT)));
+    const reqH = Math.max(IMAGE_DIM_MIN, Math.min(IMAGE_DIM_MAX, (settings.imageHeight || IMAGE_DIM_DEFAULT)));
     let piW = reqW, piH = reqH;
-    const maxPix = 1048576;
-    if (piW * piH > maxPix) {
-        const scale = Math.sqrt(maxPix / (piW * piH));
-        piW = Math.max(256, Math.floor(piW * scale));
-        piH = Math.max(256, Math.floor(piH * scale));
+    if (piW * piH > IMAGE_MAX_PIXELS) {
+        const scale = Math.sqrt(IMAGE_MAX_PIXELS / (piW * piH));
+        piW = Math.max(IMAGE_DIM_MIN, Math.floor(piW * scale));
+        piH = Math.max(IMAGE_DIM_MIN, Math.floor(piH * scale));
     }
     ilog(`[ImageService] Starting image generation...`);
     ilog(`[ImageService] - Model: ${imageModel}`);

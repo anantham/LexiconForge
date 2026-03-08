@@ -308,7 +308,7 @@ export const createTranslationsSlice: StateCreator<
             fanTranslation: (chapter as any).fanTranslation || null,
             fanTranslationId: null,
             rawText: chapter.content || '',
-            previousVersionFeedback: undefined, // TODO: Add feedback summary if available
+            previousVersionFeedback: undefined, // Feedback aggregation not yet wired
             preferredProvider: relevantSettings?.provider,
             preferredModel: relevantSettings?.model,
             preferredTemperature: relevantSettings?.temperature
