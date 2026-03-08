@@ -1,5 +1,7 @@
 # Publish to Library Feature Design
 
+> **Status:** ✅ Implemented — `ExportService.publishToLibrary()` + `PublishWizard.tsx` fully functional.
+
 **Date:** 2025-12-28
 **Status:** Approved
 

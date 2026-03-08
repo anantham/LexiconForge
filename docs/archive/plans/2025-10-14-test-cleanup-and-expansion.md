@@ -1,5 +1,7 @@
 # Test Suite Cleanup and Expansion Implementation Plan
 
+> **Status:** 🟡 Partial — Test suite expanded from 393 → 866 tests, legacy store tests migrated. Original 127-failure cleanup not tracked to completion.
+
 > **For Claude:** Use `${SUPERPOWERS_SKILLS_ROOT}/skills/collaboration/executing-plans/SKILL.md` to implement this plan task-by-task.
 
 **Goal:** Systematically clean up legacy test code, fix failing tests tied to deprecated store architecture, and expand coverage for critical translation pipeline features.

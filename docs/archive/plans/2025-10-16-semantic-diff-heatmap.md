@@ -1,5 +1,7 @@
 # Semantic Diff Heatmap Implementation Plan
 
+> **Status:** 🟡 Partial — UI toggle (`showDiffHeatmap`) exists in DiffPanel but LLM-based diff engine not implemented. Superseded by implementation plan below.
+
 **Created:** 2025-10-16
 **Status:** Ready for Implementation
 **Complexity:** High

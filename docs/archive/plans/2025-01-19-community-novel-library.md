@@ -1,5 +1,7 @@
 # Community Novel Library Implementation Plan
 
+> **Status:** ✅ Implemented — See `docs/features/NOVEL_LIBRARY.md` and `docs/roadmaps/NOVEL_LIBRARY_STATUS.md` for current state.
+
 > **For Claude:** Use `${SUPERPOWERS_SKILLS_ROOT}/skills/collaboration/executing-plans/SKILL.md` to implement this plan task-by-task.
 
 **Goal:** Transform the novel library into a GitHub-style collaborative translation ecosystem where users can fork, remix, and contribute enhanced versions of novels.

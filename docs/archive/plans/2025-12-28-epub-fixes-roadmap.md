@@ -1,5 +1,7 @@
 # EPUB Generation Fixes Roadmap
 
+> **Status:** ✅ Implemented — All 6 fixes completed (H1 escaping, image extraction, title/stats, cover, metadata, filename).
+
 **Date:** 2025-12-28
 **Status:** Mostly Complete
 

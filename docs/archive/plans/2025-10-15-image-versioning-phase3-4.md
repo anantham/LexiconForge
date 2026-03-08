@@ -1,5 +1,7 @@
 # Image Versioning Phase 3+ Implementation Plan
 
+> **Status:** ✅ Implemented — Version tracking, Cache API migration, and deletion all live in `store/slices/imageSlice.ts` + `services/imageCacheService.ts`.
+
 > **For Claude:** Use `${SUPERPOWERS_SKILLS_ROOT}/skills/collaboration/executing-plans/SKILL.md` to implement this plan task-by-task.
 
 **Goal:** Stabilize the multi-version image workflow by seeding version state, persisting user selections/metadata, migrating legacy images into Cache API, and enabling version deletion with metadata-aware exports.
