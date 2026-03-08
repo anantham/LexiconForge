@@ -1,5 +1,5 @@
 import { LayoutGroup } from 'framer-motion';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Xarrow, { Xwrapper } from 'react-xarrows';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
 import { EnglishWordEngine } from './EnglishWord';
@@ -68,14 +68,114 @@ export function SuttaStudioView({
     }
   }, []);
 
-  useLayoutEffect(() => {
-    setLayoutTick((tick) => tick + 1);
-  }, [settings, visiblePhases.length]);
-
   const handleSettingsChange = useCallback((newSettings: StudioSettings) => {
     setSettings(newSettings);
     saveSettings(newSettings);
   }, []);
+
+  // Build flat segment list for keyboard navigation (Tab through segments)
+  const segmentList = useMemo(() => {
+    const list: Array<{ phaseId: string; wordId: string; segmentId?: string; segmentIndex: number; segDomId: string; data: any }> = [];
+    for (const phase of visiblePhases) {
+      for (const word of phase.paliWords) {
+        word.segments.forEach((seg, i) => {
+          list.push({
+            phaseId: phase.id,
+            wordId: word.id,
+            segmentId: seg.id,
+            segmentIndex: i,
+            segDomId: seg.id
+              ? segmentIdToDomId(phase.id, seg.id)
+              : segDomId(phase.id, word.id, i),
+            data: seg,
+          });
+        });
+      }
+    }
+    return list;
+  }, [visiblePhases]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't capture when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const dir = e.shiftKey ? -1 : 1;
+        const currentIdx = hovered?.kind === 'segment'
+          ? segmentList.findIndex((s) => s.segDomId === hovered.segmentDomId)
+          : -1;
+        const nextIdx = currentIdx === -1
+          ? (dir === 1 ? 0 : segmentList.length - 1)
+          : (currentIdx + dir + segmentList.length) % segmentList.length;
+        const next = segmentList[nextIdx];
+        if (next) {
+          setHovered({
+            kind: 'segment',
+            phaseId: next.phaseId,
+            wordId: next.wordId,
+            segmentId: next.segmentId,
+            segmentIndex: next.segmentIndex,
+            segmentDomId: next.segDomId,
+            data: next.data,
+          });
+          document.getElementById(next.segDomId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        return;
+      }
+
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const focus = pinned ?? hovered;
+        if (focus?.kind === 'segment' && focus.segmentId) {
+          cycleSegment(focus.phaseId, focus.segmentId);
+        } else if (focus) {
+          cycle(focus.wordId, focus.phaseId);
+        }
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        setPinned(null);
+        setHovered(null);
+        return;
+      }
+
+      if (e.key === 's' || e.key === 'S') {
+        // Toggle study mode (tooltips + grammar arrows + grammar terms)
+        const studyOn = settings.tooltips && settings.grammarArrows;
+        handleSettingsChange({
+          ...settings,
+          tooltips: !studyOn,
+          grammarArrows: !studyOn,
+          grammarTerms: !studyOn,
+        });
+        return;
+      }
+
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        // Navigate to prev/next phase
+        const dir = e.key === 'ArrowRight' ? 1 : -1;
+        const currentPhaseId = (pinned ?? hovered)?.phaseId ?? visiblePhases[0]?.id;
+        const currentPhaseIdx = visiblePhases.findIndex((p) => p.id === currentPhaseId);
+        const nextPhaseIdx = Math.max(0, Math.min(visiblePhases.length - 1, currentPhaseIdx + dir));
+        const nextPhase = visiblePhases[nextPhaseIdx];
+        if (nextPhase) {
+          document.getElementById(nextPhase.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [hovered, pinned, segmentList, visiblePhases, settings, handleSettingsChange]);
+
+  useLayoutEffect(() => {
+    setLayoutTick((tick) => tick + 1);
+  }, [settings, visiblePhases.length]);
 
   // Returns position info for arrow rendering
   type ArrowGeometry = {
