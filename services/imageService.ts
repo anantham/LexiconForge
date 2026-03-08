@@ -6,18 +6,10 @@ import { getModelMetadata } from './capabilityService';
 import { imageFileToBase64 } from './imageUtils';
 import { getEnvVar } from './env';
 import { apiMetricsService } from './apiMetricsService';
+import { debugPipelineEnabled, debugLog as _debugLog, debugWarn as _debugWarn } from '../utils/debug';
 
-const imgDebugEnabled = (): boolean => {
-  try {
-    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
-    return lvl === 'summary' || lvl === 'full';
-  } catch { return false; }
-};
-const imgDebugFullEnabled = (): boolean => {
-  try { return localStorage.getItem('LF_AI_DEBUG_LEVEL') === 'full'; } catch { return false; }
-};
-const ilog = (...args: any[]) => { if (imgDebugEnabled()) console.log(...args); };
-const iwarn = (...args: any[]) => { if (imgDebugEnabled()) console.warn(...args); };
+const ilog = (...args: any[]) => { if (debugPipelineEnabled('image')) console.log(...args); };
+const iwarn = (...args: any[]) => { if (debugPipelineEnabled('image')) console.warn(...args); };
 const ierror = (...args: any[]) => { console.error(...args); };
 import { IMAGE_COSTS } from '../config/costs';
 import { getOpenRouterImagePrice } from './openrouterService';
@@ -183,7 +175,7 @@ export const generateImage = async (
                 });
             }
 
-            if (imgDebugFullEnabled()) console.log('[ImageService/Imagen] Full API Response:', JSON.stringify(response, null, 2));
+            if (debugPipelineEnabled('image', 'full')) console.log('[ImageService/Imagen] Full API Response:', JSON.stringify(response, null, 2));
 
             if (!response.generatedImages || response.generatedImages.length === 0 || !response.generatedImages[0].image?.imageBytes) {
                 ierror("[ImageService/Imagen] Unexpected response structure or empty image list:", response);
