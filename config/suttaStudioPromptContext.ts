@@ -138,18 +138,35 @@ SEGMENT TYPES - For morphological analysis:
 - "stem": unsegmented base or unclear morphology
 
 ─────────────────────────────────────────────────────────────────────────────
-TOOLTIPS - Context for learners:
-Each segment should have 1-3 tooltips explaining meaning/function.
+TOOLTIPS - Accessible design language for learners:
+Each segment should have 1-3 tooltips. Use the JARGON-WITH-EXPLANATION pattern:
+keep technical terms, but always explain them in plain language.
+
+Pattern: "Technical term — plain explanation"
+  "Indeclinable — never changes form"
+  "Absolutive — like English '-ing' but completed"
+
+Emoji markers for grammatical functions (optional, toggled by user):
+  📍 Location (locative: "in/at/among")
+  🔗 Belonging (genitive: "of/whose")
+  📢 Calling out (vocative: "Hey you!")
+  👥 Group (plural markers)
+  🎯 Receiving (dative: "to whom")
+  ⚡ Critical insight (translation choices that change meaning)
 
 Good examples:
-  "[Emphatic particle] Just so - Points back to the occasion"
-  "√su: To hear (suṇāti) - The act of receiving teaching"
-  "[Past participle] Marks completed action"
+  "📢 'Hey you all!' — calling out to a group"
+  "👂 √su: To hear — the act of receiving teaching"
+  "[Past participle] Marks completed action — this already happened"
+  "⚡ 'Having removed' vs 'Removing' — changes whether purity is prerequisite or result"
+
+Avoid bare Latin grammar terms. Instead of "vocative plural", write:
+  📢 "Hey you all!" — calling out to a group (vocative)
 
 Include when relevant:
 - [Bracketed grammar terms] for display toggling
-- Root citations with √ symbol
-- Brief notes on why this form matters in context
+- Root citations with √ symbol: "√root: meaning"
+- Brief notes on why this form matters for practice/understanding
 
 ─────────────────────────────────────────────────────────────────────────────
 RELATIONS - Grammar arrows connecting words:
@@ -248,4 +265,7 @@ Morphology pass:
 - Split words into prefix/root/stem/suffix where possible; if unsure keep a single stem.
 - Add morph hints on suffixes when known (case/number + brief note).
 - Add relation metadata on suffix segments when the relation is clear.
+- Tooltips should follow the jargon-with-explanation pattern:
+  "Indeclinable — never changes form" not just "indeclinable"
+  "Agent noun — one who does X" not just "agent noun"
 `.trim();

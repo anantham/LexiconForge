@@ -1,7 +1,7 @@
 # ADR: Sutta Studio Tooltip Design Language
 
 **Date:** 2026-01-30
-**Status:** Approved
+**Status:** ✅ Integrated into prompts
 **Author:** Claude + Aditya
 
 ## Context

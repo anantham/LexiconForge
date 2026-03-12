@@ -1,7 +1,7 @@
 # ADR: Scrollable Stack View for Sutta Studio
 
 **Date:** 2026-01-30
-**Status:** Approved
+**Status:** ✅ Complete (Phases 1-4 done; Phase 5 deferred to production)
 **Author:** Claude + Aditya
 
 ## Context
@@ -177,7 +177,7 @@ For the 7-phase demo:
 - [x] Phase 1.2: Render phases vertically
 - [x] Phase 1.3: Add word-level IDs
 - [x] Phase 1.4: Hash scroll-to on load
-- [ ] Phase 2: Refrain colors (replaces cross-phase arrows)
-- [ ] Phase 3: Progress indicator
-- [ ] Phase 4: Remove context anchors from demo
-- [ ] Phase 5: Lazy loading (production only)
+- [x] Phase 2: Refrain colors (replaces cross-phase arrows)
+- [x] Phase 3: Progress indicator (ScrollProgressBar + useScrollProgress)
+- [x] Phase 4: Context anchors (carousel-era duplicates already removed)
+- [ ] Phase 5: Lazy loading (deferred — not needed for demo)

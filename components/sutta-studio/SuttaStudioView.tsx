@@ -12,6 +12,8 @@ import { StudioHeader } from './StudioHeader';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 import { loadSettings, saveSettings, type StudioSettings } from './SettingsPanel';
+import { ScrollProgressBar } from './ScrollProgressBar';
+import { useScrollProgress } from './hooks/useScrollProgress';
 
 export function SuttaStudioView({
   packet,
@@ -53,6 +55,9 @@ export function SuttaStudioView({
     totalPhases > 0
       ? `Phase ${readyPhaseCount}/${totalPhases}${etaLabel ? ` · ${etaLabel}` : ''}`
       : '';
+
+  const phaseIds = useMemo(() => visiblePhases.map((p) => p.id), [visiblePhases]);
+  const scrollProgress = useScrollProgress(phaseIds, scrollContainerRef);
 
   // Hash navigation: scroll to element on load
   useEffect(() => {
@@ -327,6 +332,13 @@ export function SuttaStudioView({
         settings={settings}
         onSettingsChange={handleSettingsChange}
         debugButton={<SuttaStudioDebugButton packet={packet} uid={packet.source?.workId} />}
+      />
+
+      <ScrollProgressBar
+        currentIndex={scrollProgress.currentIndex}
+        total={scrollProgress.total}
+        visible={scrollProgress.visible}
+        phaseIds={phaseIds}
       />
 
       <Xwrapper>
