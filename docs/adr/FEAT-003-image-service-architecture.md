@@ -4,6 +4,14 @@
 **Date:** 2026-03-08
 **Domain:** Image Generation & Storage
 
+### Implementation Notes (2026-03-20)
+
+Architecture implemented as documented. Key files confirmed at their stated locations:
+- `services/imageService.ts`, `services/imageGenerationService.ts`, `services/imageCacheService.ts`, `services/imageMigrationService.ts`, `services/imageUtils.ts`
+- `store/slices/imageSlice.ts` (1,081 LOC)
+- `config/costs.ts` for provider cost tracking
+- Known debt items (no unit tests, blob URL lifecycle) remain open.
+
 ---
 
 ## Context

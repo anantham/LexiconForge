@@ -1,8 +1,19 @@
 # SUTTA-003: Sutta Studio MVP + Deep Loom IR + Compiler Pipeline
 
-**Date:** 2026-01-26  
-**Status:** Accepted  
+**Date:** 2026-01-26
+**Status:** Implemented (MVP) — 2026-03-20
 **Authors:** Aditya + Codex
+
+### Implementation Notes (2026-03-20)
+
+MVP is shipped and in use. Key files:
+- **Route:** `/sutta/:uid` via `components/sutta-studio/SuttaStudioApp.tsx` (gate/loader) + `SuttaStudioView.tsx` (renderer)
+- **Compiler pipeline:** `services/compiler/` (8 modules, ~2,019 LOC) — Skeleton → Anatomist → Lexicographer → Weaver → Typesetter → Validator
+- **IR types:** `types/suttaStudio.ts` (authoritative)
+- **UI components:** `components/sutta-studio/` — PaliWord, EnglishWord, Tooltip, LensPanel, ScrollProgressBar, StudioHeader, etc.
+- **Caching:** `services/suttaStudioPipelineCache.ts` (L2 morphology + L5 segment)
+- **Benchmarking:** `scripts/sutta-studio/benchmark.ts` + `components/bench/SuttaStudioBenchmarkView.tsx`
+- Three amendments (2026-01-28, 2026-01-30, 2026-01-31) refined the IR schema and pass architecture during development.
 
 ## Context
 
