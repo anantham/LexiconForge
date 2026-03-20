@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Warning-only guardrail. The authoritative file-size policy is friction-based
+// (see docs/CONVENTIONS.md §4). These thresholds flag files for investigation,
+// not automatic rejection. Exit code is always 0.
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';

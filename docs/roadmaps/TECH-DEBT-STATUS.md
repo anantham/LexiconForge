@@ -47,7 +47,7 @@
 | Service Size | `services/suttaStudioPassRunners.ts` | 586 LOC, no ADR, no tests | Watchlist |
 | Component Size | `components/bench/SuttaStudioBenchmarkView.tsx` | 1272 LOC | Watchlist |
 
-See: [Refactor Candidates](./REFACTOR_CANDIDATES.md)
+See: [ARCHITECTURE.md §7 Hotspots](../architecture/ARCHITECTURE.md) (formerly tracked in REFACTOR_CANDIDATES.md, now archived)
 
 ### 🟢 Low Priority
 

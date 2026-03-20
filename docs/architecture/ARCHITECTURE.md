@@ -73,7 +73,7 @@
 
 ## 4.5 Sutta Studio Pipeline Services
 
-The Sutta Studio compiler is the largest service subsystem (~5,000 LOC across 8 files).
+The Sutta Studio compiler is the largest service subsystem (~4,200 LOC across 12 files).
 It transforms raw SuttaCentral segments into `DeepLoomPacket` IR for the `/sutta/:uid` route
 via a sequential 5-pass assembly line. Each pass is a specialist — no parallelization.
 
@@ -99,16 +99,23 @@ SuttaCentral segments
 
 ### Key Files
 
+The compiler was decomposed from a 2,280 LOC monolith into `services/compiler/` (8 modules).
+A backward-compatible shim at `services/suttaStudioCompiler.ts` re-exports from the new location.
+
 | File | LOC | Responsibility |
 |------|-----|----------------|
-| `services/suttaStudioCompiler.ts` | 2,280 | Pipeline orchestration, JSON schemas, packet assembly |
-| `services/suttaStudioPassPrompts.ts` | 723 | Prompt contracts for all 5 passes |
+| `services/compiler/index.ts` | 618 | Pipeline orchestration and packet assembly |
+| `services/compiler/schemas.ts` | 401 | JSON schemas for all passes |
+| `services/compiler/prompts.ts` | 347 | Prompt builders for each pass |
+| `services/compiler/utils.ts` | 218 | Shared compiler utilities |
+| `services/compiler/dictionary.ts` | 137 | Dictionary lookup helpers |
+| `services/compiler/skeleton.ts` | 124 | Skeleton pass logic |
+| `services/compiler/llm.ts` | 123 | LLM call wrapper with structured outputs |
+| `services/compiler/segments.ts` | 51 | Segment processing utilities |
+| `services/suttaStudioPassPrompts.ts` | 725 | Prompt contracts for all 5 passes |
 | `services/suttaStudioPassRunners.ts` | 586 | Per-pass execution and retry logic |
 | `services/suttaStudioPipelineCache.ts` | 472 | L2 morphology cache + L5 segment cache |
 | `services/suttaStudioRehydrator.ts` | 437 | Reconstructs packets from DB for UI rendering |
-| `services/suttaStudioValidator.ts` | — | Schema validation between passes |
-| `services/suttaStudioLLM.ts` | — | LLM call wrapper with structured outputs |
-| `services/suttaStudioTokenizer.ts` | — | English tokenization standard |
 
 ### Caching (SUTTA-006)
 
@@ -141,15 +148,29 @@ Canonical types live in `types/suttaStudio.ts`. See `docs/sutta-studio/IR.md` fo
 - `DisplayPanel.tsx` - Reading display preferences
 - `DiffPanel.tsx` - Diff heatmap settings
 - `GalleryPanel.tsx` - Image gallery with cover selection
-- `ExportPanel.tsx` - Export configuration
+- `SessionExportPanel.tsx` - Session export configuration
 - `MetadataPanel.tsx` - Novel metadata editing
-- `TemplatesPanel.tsx` - Prompt template management
+- `TemplatePanel.tsx` - Prompt template management
+- `AdvancedPanel.tsx` - Advanced settings
+- `ImageGenerationSection.tsx` - Image generation config
+- `ApiKeysSection.tsx` - API key management
+- `CoverCropModal.tsx` - Cover image cropping
 
 ### Chapter Components (`components/chapter/`)
 - `ChapterContent.tsx` - Rendered chapter content
 - `ChapterHeader.tsx` - Navigation and controls
-- `ParagraphRenderer.tsx` - Individual paragraph display
-- `IllustrationPlaceholder.tsx` - Image placement markers
+- `ReaderBody.tsx` - Main reader layout
+- `ReaderView.tsx` - Reader view wrapper
+- `DiffParagraphs.tsx` - Diff-highlighted paragraphs
+- `FooterNavigation.tsx` - Bottom navigation bar
+- `FootnotesPanel.tsx` - Footnotes display panel
+- `TranslationStatusPanel.tsx` - Translation progress
+- `TranslationEditor.tsx` - Inline translation editing
+- `InlineEditToolbar.tsx` - Edit toolbar
+- `SelectionOverlay.tsx` - Text selection overlay
+- `ComparisonPortal.tsx` - Fan translation comparison
+- `DiffMarkersPanel.tsx` - Diff markers display
+- `translationTokens.tsx` - Token-level rendering
 
 
 ## 6. Feature Flags & Environment
@@ -168,21 +189,32 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 
 | File | LOC | Verdict | Reason |
 |------|-----|---------|--------|
-| `services/suttaStudioCompiler.ts` | 2,280 | Split candidate | Orchestration + schemas + prompt-builders + assembly — multiple change cadences |
-| `services/adapters.ts` | 914 | Split candidate | 4 provider adapters that change independently |
-| `services/exportService.ts` | 1,054 | Split candidate | EPUB export and session export are unrelated concerns |
-| `components/sutta-studio/demoPacket.ts` | 4,390 | Migrate to JSON | It's data, not logic — should be a `.json` file |
+| `services/exportService.ts` | ~1,054 | Split candidate | EPUB export and session export are unrelated concerns |
+| `components/bench/SuttaStudioBenchmarkView.tsx` | 1,272 | Split candidate | Fixture loading + runner orchestration + metrics display |
+| `services/suttaStudioPassPrompts.ts` | 725 | Watchlist | Prompt builders + schemas + parsing in one file; no tests |
+| `services/suttaStudioPassRunners.ts` | 586 | Watchlist | All per-pass runners in one file; no tests |
+| `components/sutta-studio/SuttaStudioApp.tsx` | ~498 | Watchlist | Store wiring, navigation, compilation, and render gating |
+| `adapters/providers/OpenAIAdapter.ts` | 717 | Monitor | Largest single adapter; manageable but growing |
 | `store/slices/imageSlice.ts` | 1,081 | Keep | Single domain, all parts change together |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
 | `store/slices/chaptersSlice.ts` | 825 | Keep | Single domain |
-| `services/navigationService.ts` | 1,109 | Investigate | Decomposition plan exists (`docs/plans/NAVIGATION-SERVICE-DECOMPOSITION.md`) but not yet executed |
+| `store/slices/exportSlice.ts` | 605 | Keep | Single domain |
+
+### Completed Decompositions (formerly on this list)
+
+| File | Was | Now |
+|------|-----|-----|
+| `services/suttaStudioCompiler.ts` | 2,280 LOC monolith | 3-line shim → `services/compiler/` (8 modules, ~2,019 LOC) |
+| `services/adapters.ts` | 914 LOC, 4 adapters | Removed → `adapters/providers/` (6 files, ~1,306 LOC) |
+| `services/navigationService.ts` | 1,109 LOC | 3-line shim → `services/navigation/` (8 modules, ~1,112 LOC) |
+| `components/sutta-studio/demoPacket.ts` | 4,390 LOC data | 3-line shim → `demoPacket.json` (12,325 lines) |
 
 
 ## 8. Testing Strategy
 
 - **Unit tests**: Vitest with React Testing Library (`*.test.tsx`)
 - **E2E tests**: Playwright (`tests/e2e/`)
-- **LOC checks**: `npm run check:loc` enforces file size limits
+- **LOC checks**: `npm run check:loc` flags files exceeding guardrail thresholds (warning-only; see `docs/CONVENTIONS.md` §4 for authoritative policy)
 
 ## 9. Documentation
 
@@ -193,5 +225,5 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 
 ---
 
-*Last updated: January 2026*
-*Previous major update: November 2025 (pre-decomposition)*
+*Last updated: March 2026*
+*Previous major update: January 2026*

@@ -281,7 +281,7 @@ Every leg of your roadmap, todo list, uncertainties, discoveries, antipatterns d
     
 2. context overflow (> 80% of window) prepare to make best use of remaining tokens
     
-3. file > 300 LOC without adding it to `docs/REFACTOR_CANDIDATES.md` when it warrants refactoring
+3. file triggers friction signals (see `docs/CONVENTIONS.md` §4) — flag it in `docs/architecture/ARCHITECTURE.md` §7 (Hotspots)
     
 4. security risk (auth/crypto/sanitization/secrets)
     
@@ -553,7 +553,7 @@ footers other than BREAKING CHANGE: <description> may be provided and follow a c
     
 - Unified Diff Format — GNU diffutils manual
     
-- Project docs — docs/PROJECT_STRUCTURE.md, docs/adr/, recent docs/WORKLOG.md
+- Project docs — docs/START_HERE.md, docs/adr/, recent docs/WORKLOG.md
     
 
 ---
@@ -561,8 +561,8 @@ footers other than BREAKING CHANGE: <description> may be provided and follow a c
 REMEMBER  
 "We are peers bridging computational and biological intelligence. Our strength is patient investigation, systematic validation, and sustainable building. When uncertain, pause and seek human wisdom."
 
-Version: 2.0.0  
-Last_Updated: 2025-08-29  
+Version: 2.1.0
+Last_Updated: 2026-03-19
 Next_Review: on first loop‑limit or context‑overflow incident
 
 ---

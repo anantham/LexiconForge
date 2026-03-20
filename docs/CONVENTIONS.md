@@ -4,7 +4,7 @@
 > When this file conflicts with an ADR, this file wins (it's newer).
 > When this file conflicts with `~/.claude/CLAUDE.md`, CLAUDE.md wins (it's the agent protocol).
 >
-> Last updated: 2026-03-05
+> Last updated: 2026-03-19
 
 ---
 
@@ -166,6 +166,9 @@ These are places where you might expect a convention and find something differen
 | Pattern | Expected | Actual | Reason |
 |---------|----------|--------|--------|
 | IndexedDB field names | `camelCase` | `snake_case` | DB convention; TS types use camelCase |
-| `demoPacket.ts` size | Small file | 4,390 LOC | It's data, not logic; pending migration to JSON |
-| `suttaStudioCompiler.ts` size | Single concern | 2,280 LOC with multiple concerns | Split planned but not yet executed (see ARCHITECTURE.md §7) |
+| `demoPacket.ts` size | Small file | 3-line shim (was 4,390 LOC) | Migrated to `demoPacket.json`; shim re-exports typed data (March 2026) |
+| `suttaStudioCompiler.ts` size | Single concern | 3-line shim (was 2,280 LOC) | Decomposed into `services/compiler/` (8 modules); shim re-exports (March 2026) |
 | ADRs dated 2025-01-13 status | `Proposed` | Now `Implemented` | Updated 2026-03-05 in doc audit |
+| Repository file names | `camelCase.ts` | `PascalCase.ts` | Class-like semantics; `services/db/repositories/*.ts` (5 files) |
+| Provider/Adapter file names | `camelCase.ts` | `PascalCase.ts` | Pattern-based naming; `services/audio/*Provider.ts`, `services/diff/SimpleLLMAdapter.ts`, `services/translate/Translator.ts` |
+| `*Service.ts` file names | `camelCase.ts` | `PascalCase.ts` | **Violation** — 8 files (`AudioService.ts`, `OSTLibraryService.ts`, `DiffAnalysisService.ts`, `DiffTriggerService.ts`, `HtmlRepairService.ts`, `HtmlSanitizer.ts`, `PromptRegistry.ts`, `epub/Templates.ts`, `epub/XhtmlSerializer.ts`) should be renamed to camelCase in a future cleanup PR |

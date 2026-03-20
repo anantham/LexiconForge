@@ -1,5 +1,7 @@
 # Refactor Candidates
 
+> **Superseded:** March 2026. Active watchlist items migrated to `docs/architecture/ARCHITECTURE.md` §7 (Current Hotspots). See `docs/CONVENTIONS.md` §4 for the friction-based file-size policy.
+
 Purpose: Track files that are becoming monolithic or hard to maintain. This list is a prompt for future decomposition work (not an immediate to-do).
 
 Guidelines:

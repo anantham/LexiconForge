@@ -40,7 +40,7 @@ curl -s "https://example.com/chapter/1/" | grep -A 10 -B 5 "prev\|next\|前\|次
 
 ### Step 2: Create Adapter Class
 
-**Location**: `services/adapters.ts`
+**Location**: `services/scraping/siteAdapters.ts`
 
 **Template**:
 ```typescript
@@ -97,7 +97,7 @@ export const SUPPORTED_WEBSITES = [
 
 ### Step 4: Register Adapter in Factory Function
 
-**Location**: `services/adapters.ts` in the `getAdapter` function
+**Location**: `services/scraping/siteAdapters.ts` in the `getAdapter` function
 
 **Add condition**:
 ```typescript
@@ -219,7 +219,7 @@ extractContent = () => {
 
 For each new website adapter, you need to modify:
 
-1. **`services/adapters.ts`**:
+1. **`services/scraping/siteAdapters.ts`**:
    - Add new adapter class
    - Update `getAdapter()` function
 

@@ -1,8 +1,15 @@
-# SUTTA-004: Pipeline Caching Architecture
+# SUTTA-006: Pipeline Caching Architecture
 
 **Date:** 2026-01-30
-**Status:** Proposed
+**Status:** Implemented (Phase 1: L2 + L5) — 2026-03-19
 **Deciders:** Aditya
+
+> **Note:** This ADR was originally numbered SUTTA-004 but was renumbered to SUTTA-006 to resolve a conflict with the Benchmark Development Phases ADR. The filename has been SUTTA-006 since creation.
+
+### Implementation Notes (2026-03-19)
+- **L2 Morphology Cache**: Implemented in `services/suttaStudioPipelineCache.ts` (472 LOC). Persisted cross-sutta, keyed by surface word form.
+- **L5 Segment Cache**: Implemented in same file. In-memory per compilation run for refrain deduplication.
+- Phases 2–3 (L3 Senses, L4 Formula, cross-session persistence) remain future work.
 
 ## Context
 

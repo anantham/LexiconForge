@@ -1,4 +1,7 @@
-# ADR 001: Pre-loader Strategy for Cached and Web-based Content
+# FEAT-001: Pre-loader Strategy for Cached and Web-based Content
+
+**Status:** Implemented
+**Date:** 2025 (original)
 
 ## Context
 

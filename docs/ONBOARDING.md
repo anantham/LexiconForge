@@ -51,7 +51,7 @@ Let's walk through the codebase by following two user actions: **Load a chapter*
 ## 4. Key "Do's and Don'ts"
 
 ### ✅ DO
-- **Check File Sizes**: Keep services under 200 lines and components under 250 lines.
+- **Watch File Sizes**: LOC is a signal, not a hard limit — see `docs/CONVENTIONS.md` §4 for the friction-based policy.
 - **Use "Ops" for DB**: Always use `services/db/operations/` to talk to the database. Never import `indexedDB` directly in components.
 - **Run Tests**: `npm test` runs the unit tests. We value tests highly!
 
@@ -61,7 +61,7 @@ Let's walk through the codebase by following two user actions: **Load a chapter*
 
 ## 5. Where to Start?
 
-Check out `ISSUES.md` or look for "Good First Issue" tags on GitHub. Here are some safe areas to explore:
+Check [GitHub Issues](https://github.com/anantham/LexiconForge/issues) or look for "Good First Issue" tags. Here are some safe areas to explore:
 
 - **Icons**: Add a new icon to `components/icons/` and use it.
 - **Prompts**: Tweak translation instructions in `config/prompts.json`.
@@ -69,6 +69,6 @@ Check out `ISSUES.md` or look for "Good First Issue" tags on GitHub. Here are so
 
 ## 6. Need Help?
 
-- Check `docs/PROJECT_STRUCTURE.md` for a map of the folders.
-- Read `docs/ARCHITECTURE.md` for deep dives.
+- Read [START_HERE.md](./START_HERE.md) for a documentation map.
+- Read [ARCHITECTURE.md](./architecture/ARCHITECTURE.md) for deep dives.
 - Ask in our Telegram group or open a GitHub Discussion!

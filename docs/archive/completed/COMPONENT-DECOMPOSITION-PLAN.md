@@ -1,5 +1,5 @@
-> **STATUS: NOT STARTED** - Both components still exceed 300 LOC target.
-> This is the highest-priority tech debt item.
+> **STATUS: ✅ COMPLETE** (Jan–Mar 2026). SettingsModal: 2,745 → 205 LOC + 9 panels. ChapterView: 1,969 → 414 LOC + 14 chapter components.
+> Archived March 2026. See `docs/architecture/ARCHITECTURE.md` §5 and §7 for current state.
 
 # Component Decomposition Plan
 _Targets: `components/SettingsModal.tsx` (2,745 LOC) & `components/ChapterView.tsx` (1,969 LOC)_

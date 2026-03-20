@@ -1,6 +1,6 @@
 # Novel Library - Curated Collection Browser
 
-**Last Updated:** 2025-10-19
+**Last Updated:** 2026-03-19
 
 ---
 
@@ -133,17 +133,24 @@ The library currently features:
 
 ### How It Works
 
-1. **Catalog Registry** (`config/novelCatalog.ts`)
-   - Novels stored as structured metadata
-   - Each entry points to a hosted session JSON file
+> **Architecture note (March 2026):** The library is in a **hybrid state**. The main UI has been migrated to a dynamic remote registry, but deep-link bootstrap still uses the legacy static catalog for backward compatibility.
 
-2. **Import Service** (`services/importService.ts`)
+1. **Dynamic Registry** (`services/registryService.ts`) — **primary path**
+   - `NovelLibrary.tsx` fetches novel metadata from a remote GitHub-hosted `registry.json`
+   - New novels are added by updating the registry, not the codebase
+
+2. **Legacy Static Catalog** (`config/novelCatalog.ts`) — **deprecated, backward compat only**
+   - Marked `@deprecated`; still exported for deep-link URLs (`?novel=<id>`)
+   - `store/bootstrap/initializeStore.ts` imports `getNovelById` from here for deep-link handling
+   - Will be removed once deep-link bootstrap is migrated to RegistryService
+
+3. **Import Service** (`services/importService.ts`)
    - Fetches session JSON from URLs
    - Validates format and structure
    - Handles CORS, timeouts, and errors
    - Supports GitHub, Google Drive, and custom URLs
 
-3. **State Management**
+4. **State Management**
    - Landing page shows when no session active
    - Main app shows after successful import
    - Seamless transition (no page reload)
