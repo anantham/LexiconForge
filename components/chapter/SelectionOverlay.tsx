@@ -99,7 +99,7 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
   clearSelection,
   viewRef,
 }) => {
-  if (viewMode !== 'english' || !selection || inlineEditActive) {
+  if (viewMode === 'original' || !selection || inlineEditActive) {
     return null;
   }
 
