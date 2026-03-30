@@ -38,7 +38,7 @@ Let's walk through the codebase by following two user actions: **Load a chapter*
 
 1. **UI Trigger**: The URL/session loader lives in `components/InputBar.tsx`. On submit, it calls the store’s `handleFetch(url)`.
 2. **State Logic**: `store/slices/chaptersSlice.ts` defines `handleFetch`, which delegates to `NavigationService.handleFetch`.
-3. **Core Service**: `services/navigationService.ts` handles cache/hydration from IndexedDB and (if needed) fetching/parsing via `services/adapters.ts`.
+3. **Core Service**: `services/navigationService.ts` (re-export shim) → `services/navigation/index.ts` handles cache/hydration from IndexedDB and (if needed) fetching/parsing via `services/scraping/siteAdapters.ts`.
 4. **Persistence**: Reads/writes go through `services/db/operations/*` (e.g. `services/db/operations/translations.ts`).
 
 ### B) Translate a chapter

@@ -31,7 +31,7 @@
    - `imageSlice` coordinates `ImageGenerationService`, `ImageCacheService`, and persistence.
 3. **Services** fan out to provider adapters, workers, telemetry, and persistence.
 4. **Persistence**:
-   - All persistence now uses the modular ops layer: `ChapterOps`, `TranslationOps`, `FeedbackOps`, `ImageCacheOps`, `SummaryOps`, `NovelMetadataOps`.
+   - All persistence now uses the modular ops layer: `ChapterOps`, `TranslationOps`, `FeedbackOps`, `ImageOps`, `SettingsOps`, `TemplatesOps`, `AmendmentOps`, `DiffOps`, `ImportOps`, `MaintenanceOps`, `MappingsOps`, `NavigationOps`, `SchemaOps`, `SessionExportOps`.
    - Connection managed via `services/db/core/connection.ts`.
 5. **Workers** call back into services (e.g., `workers/epub.worker.ts` delegates to `services/epub/exportService.ts`).
 
@@ -40,7 +40,7 @@
 
 | Layer | Location | Notes |
 |-------|----------|-------|
-| Operations | `services/db/operations/*.ts` | ChapterOps, TranslationOps, FeedbackOps, ImageCacheOps, SummaryOps, NovelMetadataOps (~3,073 LOC total) |
+| Operations | `services/db/operations/*.ts` | ChapterOps, TranslationOps, FeedbackOps, ImageOps, SettingsOps, TemplatesOps, AmendmentOps, DiffOps, ImportOps, MaintenanceOps, MappingsOps, NavigationOps, SchemaOps, SessionExportOps (~3,086 LOC total) |
 | Connection | `services/db/core/connection.ts` | Manages IndexedDB connection, schema, migrations |
 | Types | `services/db/types.ts` | Shared database record types |
 
@@ -60,7 +60,7 @@
 | `translationsSlice.ts` | 1,059 | TranslationService, ExplanationService | Translation queueing, persistence, footnotes |
 | `chaptersSlice.ts` | 825 | NavigationService, stableIdService | Chapter navigation, URL mapping |
 | `imageSlice.ts` | 1,081 | ImageGenerationService, ImageCacheService | Generation jobs, image caching |
-| `exportSlice.ts` | 525 | Export utilities, imageUtils | EPUB/session export with progress tracking |
+| `exportSlice.ts` | 605 | Export utilities, imageUtils | EPUB/session export with progress tracking |
 
 ### Services & Adapters
 
@@ -139,7 +139,7 @@ Canonical types live in `types/suttaStudio.ts`. See `docs/sutta-studio/IR.md` fo
 | Component | LOC | Subdirectory | Notes |
 |-----------|-----|--------------|-------|
 | `SettingsModal.tsx` | 205 | `components/settings/` | Shell component; panels extracted |
-| `ChapterView.tsx` | 414 | `components/chapter/` | Core reader; helpers extracted |
+| `ChapterView.tsx` | 433 | `components/chapter/` | Core reader; helpers extracted |
 
 ### Settings Panels (`components/settings/`)
 - `ProvidersPanel.tsx` - AI provider configuration

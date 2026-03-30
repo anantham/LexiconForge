@@ -104,9 +104,7 @@ docs/
 ├── roadmaps/              # Plans & tracking
 │   ├── CHANGELOG.md, TECH-DEBT-STATUS.md
 │   ├── REMEDIATION-ROADMAP.md
-│   ├── MEMORY_OPTIMIZATION_ROADMAP.md
-│   ├── COMPONENT-DECOMPOSITION-PLAN.md
-│   └── REFACTOR_CANDIDATES.md
+│   └── MEMORY_OPTIMIZATION_ROADMAP.md
 │
 └── archive/               # Historical docs
     ├── completed/         # Finished plans (IndexedDB, legacy repo)

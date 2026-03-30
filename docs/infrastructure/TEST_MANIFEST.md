@@ -1,11 +1,12 @@
 # Test Manifest
 
-> Auto-generated from disk scan on 2026-03-19.
-> Verify: `find tests/ -name '*.test.*' | sort`
+> Auto-generated from disk scan on 2026-03-19, updated 2026-03-29.
+> Verify: `find tests/ -name '*.test.*' -o -name '*.spec.*' | sort`
+> Note: This manifest also includes 1 archived test under `archive/tests/`.
 
 ## Summary
 
-- **Total test files:** 122
+- **Total test files:** 114 (108 in `tests/`, 5 e2e specs, 1 archived)
 
 ## By Directory
 
@@ -248,6 +249,16 @@
 | tests/services/registryService.test.ts | Registry service tests |
 | tests/services/structured-outputs.test.ts | Structured output parsing tests |
 | tests/services/translation-rendering.test.ts | Translation rendering tests |
+
+### tests/e2e/
+
+| File | Description |
+|------|-------------|
+| tests/e2e/chapterview-large.spec.ts | Large chapter view E2E tests |
+| tests/e2e/chapterview-media.spec.ts | Chapter view media E2E tests |
+| tests/e2e/debug-console.spec.ts | Debug console E2E tests |
+| tests/e2e/diagnostic.spec.ts | Diagnostic E2E tests |
+| tests/e2e/initialization.spec.ts | App initialization E2E tests |
 
 ### tests/smoke/
 

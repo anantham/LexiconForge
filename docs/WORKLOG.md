@@ -632,3 +632,23 @@
   - Progress state now accumulates per-chunk/pass errors and writes them to active-run.json.
   - Bench UI shows a stacked error list with timestamps/run/pass/chunk context.
 - Tests: Not run (not requested).
+2026-03-29 10:32 PDT - Patch book-switching shelf implementation plan before coding
+- Files: docs/superpowers/plans/2026-03-29-book-switching-shelf.md:9,95,274,367,490,663,802,854,968,1277,1425; docs/WORKLOG.md
+- Why: Remove implementation blockers and paper over fewer ambiguities before any code changes for the shelf feature.
+- Details:
+  - Added a Phase 1 scope gate so legacy cached novels without persisted `novelId` are treated as requiring one re-import instead of being silently misclassified as shelf-ready library novels.
+  - Corrected Task 2/4 surface details by removing direct `store/storeTypes.ts` edits, making steady-state DB `novelId` fields `string | null`, and requiring fresh-DB index parity in `services/db/core/connection.ts` alongside the schema upgrade.
+  - Reworked Task 5/6 so canonical `registryNovelId` is threaded through `ImportService` callers, `ensureChapterUrlMappings(...)` preserves mapping `novelId`, and legacy backfill only normalizes `undefined -> null` instead of pretending to recover ambiguous historical identity.
+  - Split hydration planning into `loadNovelIntoStore(novelId)` for library novels and `loadAllIntoStore()` for ephemeral/full-session flows, updated Task 9 replacements accordingly, and clarified that consolidation must preserve caller-owned reader state like `currentChapterId` and `navigationHistory`.
+ - Tightened bootstrap/navigation/new-book tasks so `?novel` imports pass canonical `novel.id`, reader transitions explicitly call `setReaderReady()`, and store-owned navigation sets active novel context after successful deep-link navigation.
+ - Fixed remaining plan nits: corrected `ChapterHeader` test command to `.test.tsx` and expanded verification to include the legacy-cache re-import limitation.
+- Tests: Not run (documentation-only plan patch).
+2026-03-29 21:14 PDT - Conservative git cleanup: preserve live WIP, remove only stale merged local state
+- Files: docs/WORKLOG.md
+- Why: Clean up merged local branches/worktrees without discarding active work or replaying old stashes onto `main`.
+- Details:
+  - Re-read `docs/WORKLOG.md`, inspected local branches/worktrees/stashes, and confirmed `main` is still dirty.
+  - Moved the dirty merged worktrees onto `codex/wip-book-switching-shelf-2026-03-29` and `codex/wip-roadmap-docs-2026-03-29`, then deleted the stale local branches `feat/codex-book-switching-shelf` and `feat/codex-roadmap-docs`.
+  - Preserved `stash@{1}` on `codex/stash-epub-export-modal-2026-03-29` and `stash@{0}` on `codex/stash-gemini-pre-lfs-migrate-2026-03-29`, removed the temporary stash worktrees, and cleared the stash list.
+  - Removed the clean merged `feat/codex-epub-diagnostics` worktree and local branch, and intentionally left dirty `main` plus the unmerged `feat/opus-library-search` worktree/branch untouched.
+- Tests: Not run (git hygiene only).

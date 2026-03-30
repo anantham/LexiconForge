@@ -87,6 +87,17 @@ Merging would couple production error-handling concerns to benchmark flexibility
 
 ---
 
+## Implementation Notes
+
+**Files:**
+- `services/suttaStudioPassPrompts.ts` (~723 LOC) — prompt schemas, builders, types, parsing
+- `services/suttaStudioPassRunners.ts` (~586 LOC) — per-pass async runner functions
+- Primary consumer: `scripts/sutta-studio/benchmark.ts`
+
+**Deviations from proposal:** None — this ADR was written to document existing code, not to propose changes. The two files remain as described above, intentionally separate from `services/compiler/` (the production pipeline).
+
+---
+
 ## Known Debt
 
 | Item | Severity | Notes |
