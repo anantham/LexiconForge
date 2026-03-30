@@ -98,6 +98,12 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   };
 
   const handleStartReading = async (novel: NovelEntry, version?: NovelVersion) => {
+    // Special routing for built-in study entries (e.g., Sutta Studio)
+    if (novel.id === 'sutta-mn10') {
+      window.location.href = '/sutta/demo';
+      return;
+    }
+
     // Determine which session URL to use
     const sessionJsonUrl = version?.sessionJsonUrl || novel.sessionJsonUrl;
     const requestedVersionId = version?.versionId ?? null;
