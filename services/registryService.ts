@@ -13,7 +13,7 @@ const BUILT_IN_ENTRIES: NovelEntry[] = [
       genres: ['Buddhist Canon', 'Study'],
       description: 'Interactive word-by-word Pāli study of the Great Discourse on Mindfulness with morphological analysis, grammar relations, and aligned English translation.',
       author: 'Gotama Buddha (as recorded in the Pāli Canon)',
-      coverImageUrl: undefined,
+      coverImageUrl: '/mn10-cover.png',
       tags: ['pali', 'sutta', 'mindfulness', 'study-tool'],
       publicationStatus: 'Completed' as const,
       lastUpdated: '2026-03-29',
