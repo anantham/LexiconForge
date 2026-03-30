@@ -72,11 +72,28 @@ const parseHeadingMatches = (text: string, pattern: RegExp): HeadingMatch[] => {
   return matches;
 };
 
-const findEnglishBodyStartIndex = (headings: HeadingMatch[]): number => {
+const findEnglishBodyStartIndex = (headings: HeadingMatch[], text?: string): number => {
   if (headings.length === 0) {
     return 0;
   }
 
+  // If we have the text, use body-length heuristic: TOC entries have tiny bodies
+  // (just the next TOC line), real chapters have substantial content.
+  if (text) {
+    for (let index = 0; index < headings.length; index++) {
+      const current = headings[index];
+      const next = headings[index + 1];
+      const bodyLength = next
+        ? next.startOffset - current.endOffset
+        : text.length - current.endOffset;
+      // Real chapter bodies are typically 1000+ chars. TOC entries are <100.
+      if (bodyLength > 500) {
+        return index;
+      }
+    }
+  }
+
+  // Fallback: original gap-based heuristic
   const denseEarlyHeadings = headings.filter((heading) => heading.lineIndex < 400);
   if (denseEarlyHeadings.length < 10) {
     return 0;
@@ -144,7 +161,7 @@ export const parseChineseMonolithicText = (text: string): TranslationSourceChapt
 export const parseEnglishMonolithicText = (text: string): TranslationSourceChapter[] => {
   const normalized = normalizeLineEndings(text);
   const headings = parseHeadingMatches(normalized, ENGLISH_CHAPTER_HEADING);
-  const bodyStartIndex = findEnglishBodyStartIndex(headings);
+  const bodyStartIndex = findEnglishBodyStartIndex(headings, normalized);
   return buildChaptersFromHeadings(normalized, headings.slice(bodyStartIndex), {
     collapseSoftWraps: true,
     titlePrefix: 'Chapter',
@@ -176,11 +193,25 @@ const rejoinBrokenPdfHeadings = (text: string): string => {
 export const parseEnglishPdfText = (text: string): TranslationSourceChapter[] => {
   const normalized = rejoinBrokenPdfHeadings(normalizeLineEndings(text));
   const headings = parseHeadingMatches(normalized, ENGLISH_CHAPTER_HEADING);
-  const bodyStartIndex = findEnglishBodyStartIndex(headings);
-  return buildChaptersFromHeadings(normalized, headings.slice(bodyStartIndex), {
+  const bodyStartIndex = findEnglishBodyStartIndex(headings, normalized);
+  const chapters = buildChaptersFromHeadings(normalized, headings.slice(bodyStartIndex), {
     pdfMode: true,
     titlePrefix: 'Chapter',
   });
+
+  // Deduplicate: PDFs with a Table of Contents produce ghost entries with the
+  // same chapter number as real body chapters. Keep the version with more paragraphs.
+  const byNumber = new Map<number, TranslationSourceChapter>();
+  for (const chapter of chapters) {
+    const existing = byNumber.get(chapter.chapterNumber);
+    if (!existing || chapter.paragraphs.length > existing.paragraphs.length) {
+      byNumber.set(chapter.chapterNumber, chapter);
+    }
+  }
+
+  return Array.from(byNumber.values()).sort(
+    (a, b) => a.chapterNumber - b.chapterNumber
+  );
 };
 
 export const inferMonolithicTextStructure = (
