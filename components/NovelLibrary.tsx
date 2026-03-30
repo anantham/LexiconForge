@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Loader2 } from 'lucide-react';
+import { LibrarySearch } from './LibrarySearch';
+import type { SourceCandidate } from '../services/librarySearch/types';
 import { NovelGrid } from './NovelGrid';
 import { NovelCard } from './NovelCard';
 import { NovelDetailSheet } from './NovelDetailSheet';
@@ -31,6 +33,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const openNovel = useAppStore(s => s.openNovel);
   const openLibrary = useAppStore(s => s.openLibrary);
   const setReaderReady = useAppStore(s => s.setReaderReady);
+  const handleFetch = useAppStore(s => s.handleFetch);
 
   const refreshBookshelfState = async () => {
     try {
@@ -339,6 +342,26 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           </div>
         </section>
       )}
+
+      {/* Novel Search */}
+      <LibrarySearch
+        onSourceSelected={(raw, fan) => {
+          if (raw) {
+            showNotification(
+              `Source selected: ${raw.site} — ${raw.matchedTitle}. Fetching chapters...`,
+              'info'
+            );
+            // Use the existing fetch flow to import from the selected URL
+            handleFetch(raw.url);
+          }
+          if (fan) {
+            showNotification(
+              `Fan translation: ${fan.site} — ${fan.matchedTitle}`,
+              'info'
+            );
+          }
+        }}
+      />
 
       {/* Loading State */}
       {isLoadingRegistry ? (

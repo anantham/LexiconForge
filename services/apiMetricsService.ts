@@ -13,7 +13,7 @@
  * - Export to CSV for accounting
  */
 
-export type ApiCallType = 'translation' | 'image' | 'audio' | 'diff_analysis' | 'sutta_studio';
+export type ApiCallType = 'translation' | 'image' | 'audio' | 'diff_analysis' | 'sutta_studio' | 'library_search';
 
 export interface ApiCallMetric {
   id: string; // UUID
