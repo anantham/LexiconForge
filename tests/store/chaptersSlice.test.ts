@@ -4,15 +4,20 @@
  * Tests memory diagnostics and chapter management functionality
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { create } from 'zustand';
 import { createChaptersSlice, type ChaptersSlice } from '../../store/slices/chaptersSlice';
 import { createMockEnhancedChapter, createMockImageCacheKey, createMockTranslationResult, createMockUsageMetrics } from '../utils/test-data';
+import { ChapterOps } from '../../services/db/operations';
 
 // Create a test store
 const createTestStore = () => {
   return create<ChaptersSlice>()((...args) => createChaptersSlice(...args));
 };
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('chaptersSlice - getMemoryDiagnostics', () => {
   it('calculates memory diagnostics for chapters with mixed image storage strategies', () => {
@@ -185,5 +190,43 @@ describe('chaptersSlice - getMemoryDiagnostics', () => {
     expect(diagnostics.chaptersWithImages).toBe(0);
     expect(diagnostics.imagesInRAM).toBe(0);
     expect(diagnostics.imagesInCache).toBe(0);
+  });
+});
+
+describe('chaptersSlice - preloadNextChapters', () => {
+  it('passes activeNovelId into ChapterOps.findByNumber during preload lookup', async () => {
+    vi.useFakeTimers();
+    const findByNumberSpy = vi.spyOn(ChapterOps, 'findByNumber').mockResolvedValue(null);
+
+    const store = create<any>()((set, get, api) => ({
+      ...createChaptersSlice(set, get, api),
+      activeNovelId: 'orv',
+      activeVersionId: 'alice-v1',
+      settings: {
+        preloadCount: 1,
+      },
+      loadChapterFromIDB: vi.fn(),
+      fetchTranslationVersions: vi.fn().mockResolvedValue([]),
+      isTranslationActive: vi.fn().mockReturnValue(false),
+      handleTranslate: vi.fn(),
+      pendingTranslations: new Set(),
+    }));
+
+    const currentChapter = createMockEnhancedChapter({
+      id: 'ch-1',
+      novelId: 'orv',
+      chapterNumber: 1,
+      title: 'Chapter 1',
+      nextUrl: null,
+      prevUrl: null,
+    });
+
+    store.getState().importChapter(currentChapter);
+    store.setState({ currentChapterId: 'ch-1' });
+
+    store.getState().preloadNextChapters();
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(findByNumberSpy).toHaveBeenCalledWith(2, 'orv', 'alice-v1');
   });
 });
