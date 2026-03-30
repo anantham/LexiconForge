@@ -49,6 +49,20 @@ export class RegistryService {
   }
 
   /**
+   * Fetch a specific novel by registry id
+   */
+  static async fetchNovelById(id: string, registryUrl?: string): Promise<NovelEntry | null> {
+    const registry = await this.fetchRegistry(registryUrl);
+    const entry = registry.novels.find((candidate) => candidate.id === id);
+
+    if (!entry) {
+      return null;
+    }
+
+    return this.fetchNovelMetadata(entry.metadataUrl);
+  }
+
+  /**
    * Fetch all novel metadata from registry
    */
   static async fetchAllNovelMetadata(registryUrl?: string): Promise<NovelEntry[]> {

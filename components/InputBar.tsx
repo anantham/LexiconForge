@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { SUPPORTED_WEBSITES_CONFIG } from '../config/constants';
 import { ImportService, ImportProgress } from '../services/importService';
-import { fetchChaptersForReactRendering } from '../services/db/operations/rendering';
+import { loadAllIntoStore } from '../services/readerHydrationService';
 
 /**
  * Detect if URL points to a session JSON file
@@ -24,9 +24,20 @@ const InputBar: React.FC = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFetch = useAppStore(state => state.handleFetch);
+  const activeNovelId = useAppStore(state => state.activeNovelId);
+  const openLibrary = useAppStore(state => state.openLibrary);
+  const shelveActiveNovel = useAppStore(state => state.shelveActiveNovel);
+  const setReaderLoading = useAppStore(state => state.setReaderLoading);
+  const setReaderReady = useAppStore(state => state.setReaderReady);
   const isLoading = useAppStore(state => state.isLoading.fetching);
   const error = useAppStore(state => state.error);
   const setError = useAppStore(state => state.setError);
+
+  const shelveActiveLibraryNovel = () => {
+    if (activeNovelId) {
+      shelveActiveNovel();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,9 +47,11 @@ const InputBar: React.FC = () => {
     // Detect if this is a session JSON URL
     if (isSessionJsonUrl(trimmedUrl)) {
       console.log('[InputBar] Detected session JSON URL, using streaming import...');
+      shelveActiveLibraryNovel();
       setIsImporting(true);
       setImportProgress(null);
       setError(null);
+      setReaderLoading(null);
 
       try {
         let hasNavigatedToFirstChapter = false;
@@ -56,42 +69,14 @@ const InputBar: React.FC = () => {
             console.log('[InputBar] First 10 chapters ready, navigating...');
 
             const { useAppStore } = await import('../store');
-            const chapters = await fetchChaptersForReactRendering();
-
-            // Hydrate store with first chapters
-            const firstChapters = chapters.slice(0, Math.min(10, chapters.length));
-            const newChapters = new Map<string, any>();
-            for (const ch of firstChapters) {
-              newChapters.set(ch.stableId, {
-                stableId: ch.stableId,
-                url: ch.url || ch.canonicalUrl,
-                title: ch.data?.chapter?.title || ch.title,
-                content: ch.data?.chapter?.content || ch.content,
-                nextUrl: ch.data?.chapter?.nextUrl || ch.nextUrl,
-                prevUrl: ch.data?.chapter?.prevUrl || ch.prevUrl,
-                chapterNumber: ch.chapterNumber || 0,
-                canonicalUrl: ch.url,
-                originalUrl: ch.url,
-                sourceUrls: [ch.url],
-                fanTranslation: ch.data?.chapter?.fanTranslation ?? null,
-                translationResult: ch.data?.translationResult || null,
-                feedback: [],
-              });
-            }
-
-            // Sort and navigate to first
-            const sortedChapters = Array.from(newChapters.entries()).sort((a, b) => {
-              const numA = a[1].chapterNumber || 0;
-              const numB = b[1].chapterNumber || 0;
-              return numA - numB;
-            });
-            const firstChapterId = sortedChapters[0]?.[0];
+            const firstChapterId = await loadAllIntoStore(useAppStore.setState, { limit: 10 });
 
             useAppStore.setState({
-              chapters: newChapters,
               currentChapterId: firstChapterId,
+              appScreen: 'reader',
               error: null,
             });
+            setReaderReady();
 
             // Clear the input
             setUrl('');
@@ -102,6 +87,7 @@ const InputBar: React.FC = () => {
         console.log('[InputBar] All chapters loaded successfully');
       } catch (err: any) {
         console.error('[InputBar] Session import failed:', err);
+        openLibrary();
         setError(`Failed to import session: ${err.message}`);
       } finally {
         setIsImporting(false);
@@ -110,12 +96,14 @@ const InputBar: React.FC = () => {
     } else {
       // Regular chapter URL
       console.log('[InputBar] Detected chapter URL, fetching...');
+      shelveActiveLibraryNovel();
       handleFetch(trimmedUrl);
     }
   };
 
   const handleExampleClick = (exampleUrl: string) => {
     setUrl(exampleUrl);
+    shelveActiveLibraryNovel();
     handleFetch(exampleUrl);
   };
 
@@ -133,6 +121,8 @@ const InputBar: React.FC = () => {
       // For local files, always use regular import
       // Streaming from Blob URL doesn't help (file already in memory) and hits buffer limits
       console.log('[InputBar] Importing file:', file.name, `(${(file.size / 1024 / 1024).toFixed(1)}MB)`);
+      shelveActiveLibraryNovel();
+      setReaderLoading(null);
 
       setImportProgress({
         stage: 'importing',
@@ -152,7 +142,8 @@ const InputBar: React.FC = () => {
       });
       const firstChapterId = sortedChapters[0]?.[0];
       if (firstChapterId) {
-        useAppStore.setState({ currentChapterId: firstChapterId });
+        useAppStore.setState({ currentChapterId: firstChapterId, appScreen: 'reader' });
+        setReaderReady();
       }
 
       console.log('[InputBar] File import successful');
@@ -161,6 +152,7 @@ const InputBar: React.FC = () => {
       setUrl('');
     } catch (err: any) {
       console.error('[InputBar] File import failed:', err);
+      openLibrary();
       setError(`Failed to import file: ${err.message}`);
     } finally {
       setIsImporting(false);

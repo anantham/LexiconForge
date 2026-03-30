@@ -13,6 +13,7 @@ interface ChapterHeaderProps {
   onToggleLanguage: (mode: ViewMode) => void;
   onNavigatePrev?: () => void;
   onNavigateNext?: () => void;
+  onOpenLibrary?: () => void;
   prevDisabled: boolean;
   nextDisabled: boolean;
   showRetranslateButton?: boolean;
@@ -46,6 +47,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
   onToggleLanguage,
   onNavigatePrev,
   onNavigateNext,
+  onOpenLibrary,
   prevDisabled,
   nextDisabled,
   showRetranslateButton,
@@ -98,6 +100,15 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
         </button>
 
         <div className="flex justify-center items-center gap-4 ml-6">
+          {onOpenLibrary && (
+            <button
+              onClick={onOpenLibrary}
+              className="px-4 py-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-semibold rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
+              title="Return to the novel library"
+            >
+              Library
+            </button>
+          )}
           {sourceUrl && (
             <a
               href={sourceUrl}
@@ -156,6 +167,14 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
 
       <div className="md:hidden space-y-3">
         <div className="flex justify-between items-center">
+          {onOpenLibrary && (
+            <button
+              onClick={onOpenLibrary}
+              className="px-4 py-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-medium rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition text-sm"
+            >
+              Library
+            </button>
+          )}
           <button
             onClick={onNavigatePrev}
             disabled={prevDisabled}
