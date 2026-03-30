@@ -28,6 +28,7 @@ export class ChapterRepository implements IChapterRepository {
 
     const record: ChapterRecord = {
       url: originalUrl,
+      novelId: chapter.novelId ?? null,
       title: chapter.title || '',
       content: chapter.content ?? '',
       originalUrl,
@@ -49,6 +50,7 @@ export class ChapterRepository implements IChapterRepository {
       getRequest.onsuccess = () => {
         const existing = getRequest.result as ChapterRecord | undefined;
         if (existing) {
+          record.novelId = existing.novelId ?? record.novelId;
           record.dateAdded = existing.dateAdded;
           record.stableId = existing.stableId || record.stableId;
           record.canonicalUrl = existing.canonicalUrl || record.canonicalUrl;
