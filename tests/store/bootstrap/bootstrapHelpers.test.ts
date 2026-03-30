@@ -11,6 +11,7 @@ const maintenanceOpsMock = vi.hoisted(() => ({
   normalizeStableIds: vi.fn().mockResolvedValue(undefined),
   backfillActiveTranslations: vi.fn().mockResolvedValue(undefined),
   backfillTranslationMetadata: vi.fn().mockResolvedValue(undefined),
+  backfillNovelIds: vi.fn().mockResolvedValue(undefined),
 }));
 
 const settingsOpsMock = vi.hoisted(() => ({
@@ -20,6 +21,11 @@ const settingsOpsMock = vi.hoisted(() => ({
 
 const mappingsOpsMock = vi.hoisted(() => ({
   getAllUrlMappings: vi.fn().mockResolvedValue([]),
+}));
+
+const navigationOpsMock = vi.hoisted(() => ({
+  getHistory: vi.fn().mockResolvedValue(null),
+  getLastActiveChapter: vi.fn().mockResolvedValue(null),
 }));
 
 const importOpsMock = vi.hoisted(() => ({
@@ -39,6 +45,7 @@ vi.mock('../../../services/db/operations', async () => {
     MaintenanceOps: maintenanceOpsMock,
     SettingsOps: settingsOpsMock,
     MappingsOps: mappingsOpsMock,
+    NavigationOps: navigationOpsMock,
     ImportOps: importOpsMock,
   };
 });
@@ -94,6 +101,22 @@ vi.mock('../../../scripts/backfillChapterNumbers', () => ({
   backfillChapterNumbers: vi.fn().mockResolvedValue(undefined),
 }));
 
+const registryServiceMock = vi.hoisted(() => ({
+  fetchNovelById: vi.fn(),
+}));
+
+vi.mock('../../../services/registryService', () => ({
+  RegistryService: registryServiceMock,
+}));
+
+const importServiceMock = vi.hoisted(() => ({
+  importFromUrl: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../../../services/importService', () => ({
+  ImportService: importServiceMock,
+}));
+
 const baseSettings: AppSettings = {
   contextDepth: 2,
   preloadCount: 0,
@@ -109,6 +132,9 @@ const baseSettings: AppSettings = {
 
 const createState = (overrides: Partial<StoreState> = {}): StoreState => {
   const state: Partial<StoreState> = {
+    appScreen: 'library',
+    activeNovelId: null,
+    activeVersionId: null,
     viewMode: 'fan',
     loadPromptTemplates: vi.fn().mockResolvedValue(undefined),
     setError: vi.fn(),
@@ -127,6 +153,7 @@ const createState = (overrides: Partial<StoreState> = {}): StoreState => {
     rawUrlIndex: new Map(),
     navigationHistory: [],
     currentChapterId: null,
+    handleNavigate: vi.fn().mockResolvedValue(undefined),
     pendingTranslations: new Set<string>(),
     sessionProvenance: null,
     sessionVersion: null,
@@ -143,6 +170,29 @@ const createCtx = (state: StoreState): { state: StoreState; ctx: BootstrapContex
     }
   };
   const get = () => state;
+  state.openLibrary = vi.fn(() => {
+    state.appScreen = 'library';
+    state.activeNovelId = null;
+    state.activeVersionId = null;
+  });
+  state.setReaderLoading = vi.fn((novelId?: string | null, versionId?: string | null) => {
+    state.appScreen = 'reader-loading';
+    state.activeNovelId = novelId ?? null;
+    state.activeVersionId = versionId ?? null;
+  });
+  state.openNovel = vi.fn((novelId: string, versionId?: string | null) => {
+    state.appScreen = 'reader-loading';
+    state.activeNovelId = novelId;
+    state.activeVersionId = versionId ?? null;
+  });
+  state.setReaderReady = vi.fn(() => {
+    state.appScreen = 'reader';
+  });
+  state.shelveActiveNovel = vi.fn(() => {
+    state.appScreen = 'library';
+    state.activeNovelId = null;
+    state.activeVersionId = null;
+  });
   return {
     state,
     ctx: {
@@ -187,9 +237,17 @@ describe('bootstrap helpers', () => {
     maintenanceOpsMock.normalizeStableIds.mockReset();
     maintenanceOpsMock.backfillActiveTranslations.mockReset();
     maintenanceOpsMock.backfillTranslationMetadata.mockReset();
+    maintenanceOpsMock.backfillNovelIds.mockReset();
     importOpsMock.importFullSessionData.mockReset();
     renderingOpsMock.getChaptersForReactRendering.mockReset();
     renderingOpsMock.getChaptersForReactRendering.mockResolvedValue([]);
+    navigationOpsMock.getHistory.mockReset();
+    navigationOpsMock.getHistory.mockResolvedValue(null);
+    navigationOpsMock.getLastActiveChapter.mockReset();
+    navigationOpsMock.getLastActiveChapter.mockResolvedValue(null);
+    registryServiceMock.fetchNovelById.mockReset();
+    importServiceMock.importFromUrl.mockReset();
+    importServiceMock.importFromUrl.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -215,6 +273,8 @@ describe('bootstrap helpers', () => {
       expect(state.showSettingsModal).toBe(false);
       expect(state.sessionProvenance).toBeNull();
       expect(state.sessionVersion).toBeNull();
+      expect(state.appScreen).toBe('library');
+      expect(state.activeNovelId).toBeNull();
       expect(state.viewMode).toBe('fan');
       expect(state.chapters instanceof Map).toBe(true);
       expect(state.loadPromptTemplates).toHaveBeenCalledTimes(1);
@@ -299,6 +359,7 @@ describe('bootstrap helpers', () => {
       expect(Array.isArray(state.promptTemplates)).toBe(true);
       expect(state.activePromptTemplate?.id).toBe('default');
       expect(state.settings?.model).toBe('gemini-2.0');
+      expect(state.appScreen).toBe('library');
       expect(state.setInitialized).toHaveBeenCalledWith(true);
       expect(audioWorkerMock.register).toHaveBeenCalled();
     });
@@ -319,6 +380,7 @@ describe('bootstrap helpers', () => {
       expect(sessionServiceMock.initializeSession).not.toHaveBeenCalled();
       expect(state.promptTemplates).toHaveLength(1);
       expect(state.activePromptTemplate?.id).toBe('existing');
+      expect(state.appScreen).toBe('library');
       expect(state.setInitialized).toHaveBeenCalledWith(true);
     });
 
@@ -339,7 +401,135 @@ describe('bootstrap helpers', () => {
 
       await initializeStore();
 
+      expect(state.appScreen).toBe('library');
       expect(state.setInitialized).toHaveBeenCalledWith(true);
+    });
+
+    it('does not restore passive last-active state when a deep-link novel intent is present', async () => {
+      setWindowLocation('?novel=orv');
+      registryServiceMock.fetchNovelById.mockResolvedValue({
+        id: 'orv',
+        title: 'Omniscient Reader',
+        sessionJsonUrl: 'https://example.com/orv/session.json',
+        metadata: { chapterCount: 551 },
+      });
+      navigationOpsMock.getLastActiveChapter.mockResolvedValue({ id: 'old-bookmark' });
+
+      const { ctx, state } = createCtx(createState());
+      const initializeStore = createInitializeStore(ctx);
+
+      await initializeStore();
+
+      expect(importServiceMock.importFromUrl).toHaveBeenCalledWith(
+        'https://example.com/orv/session.json',
+        undefined,
+        { registryNovelId: 'orv', registryVersionId: null }
+      );
+      expect(state.openNovel).toHaveBeenCalledWith('orv', null);
+      expect(state.setReaderReady).toHaveBeenCalled();
+      expect(state.currentChapterId).toBeNull();
+      expect(state.loadChapterFromIDB).not.toHaveBeenCalled();
+    });
+
+    it('treats chapter-only deep links as explicit reader intent and does not restore passive bookmarks', async () => {
+      setWindowLocation('?chapter=' + encodeURIComponent('https://booktoki468.com/novel/3912084'));
+      navigationOpsMock.getLastActiveChapter.mockResolvedValue({ id: 'old-bookmark' });
+
+      const { ctx, state } = createCtx(createState());
+      const initializeStore = createInitializeStore(ctx);
+
+      await initializeStore();
+
+      expect(state.handleNavigate).toHaveBeenCalledWith('https://booktoki468.com/novel/3912084');
+      expect(state.setReaderLoading).toHaveBeenCalledWith(null, null);
+      expect(state.loadChapterFromIDB).not.toHaveBeenCalled();
+    });
+
+    it('loads the requested novel version before navigating to the deep-linked chapter', async () => {
+      setWindowLocation(
+        '?novel=orv&version=v2&chapter=' +
+          encodeURIComponent('https://booktoki468.com/novel/3912084')
+      );
+      registryServiceMock.fetchNovelById.mockResolvedValue({
+        id: 'orv',
+        title: 'Omniscient Reader',
+        metadata: { chapterCount: 551 },
+        versions: [
+          {
+            versionId: 'v1',
+            displayName: 'V1',
+            translator: { name: 'A' },
+            sessionJsonUrl: 'https://example.com/orv-v1/session.json',
+            targetLanguage: 'English',
+            style: 'faithful',
+            features: [],
+            chapterRange: { from: 1, to: 551 },
+            completionStatus: 'Complete',
+            lastUpdated: '2026-03-29',
+            stats: {
+              downloads: 1,
+              fileSize: '1 MB',
+              content: {
+                totalImages: 0,
+                totalFootnotes: 0,
+                totalRawChapters: 551,
+                totalTranslatedChapters: 551,
+                avgImagesPerChapter: 0,
+                avgFootnotesPerChapter: 0,
+              },
+              translation: {
+                translationType: 'human',
+                feedbackCount: 0,
+              },
+            },
+          },
+          {
+            versionId: 'v2',
+            displayName: 'V2',
+            translator: { name: 'B' },
+            sessionJsonUrl: 'https://example.com/orv-v2/session.json',
+            targetLanguage: 'English',
+            style: 'faithful',
+            features: [],
+            chapterRange: { from: 1, to: 551 },
+            completionStatus: 'Complete',
+            lastUpdated: '2026-03-29',
+            stats: {
+              downloads: 1,
+              fileSize: '1 MB',
+              content: {
+                totalImages: 0,
+                totalFootnotes: 0,
+                totalRawChapters: 551,
+                totalTranslatedChapters: 551,
+                avgImagesPerChapter: 0,
+                avgFootnotesPerChapter: 0,
+              },
+              translation: {
+                translationType: 'human',
+                feedbackCount: 0,
+              },
+            },
+          },
+        ],
+      });
+      const { ctx, state } = createCtx(createState());
+      state.handleNavigate = vi.fn().mockImplementation(async () => {
+        state.appScreen = 'reader';
+        state.currentChapterId = 'ch-target';
+      });
+
+      const initializeStore = createInitializeStore(ctx);
+      await initializeStore();
+
+      expect(importServiceMock.importFromUrl).toHaveBeenCalledWith(
+        'https://example.com/orv-v2/session.json',
+        undefined,
+        { registryNovelId: 'orv', registryVersionId: 'v2' }
+      );
+      expect(state.openNovel).toHaveBeenCalledWith('orv', 'v2');
+      expect(state.handleNavigate).toHaveBeenCalledWith('https://booktoki468.com/novel/3912084');
+      expect(state.setReaderReady).not.toHaveBeenCalled();
     });
   });
 });
