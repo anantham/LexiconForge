@@ -1,3 +1,93 @@
+2026-03-29 22:35 PDT - [Agent: Codex] FMC partial artifact finalized for publication
+- Files:
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/metadata.json
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/session.json
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/build-report.json
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/recovery/alignment-maps/hole-766.json
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/recovery/alignment-maps/hole-1911.json
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/recovery/alignment-maps/hole-2187.json
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/recovery/alignment-maps/hole-2348.json
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/cover.jpg
+  - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/registry.json
+- Why:
+  - The FMC partial release needed honest runtime metadata, a local cover asset, and the four verified hole recoveries before any attempt to extend the translation past chapter 2387.
+- Details:
+  - Rebuilt the hosted-library artifact from the GB18030 raw TXT plus the PDF-backed English range and the four manually verified NovelHi recoveries.
+  - Verified chapters 766, 1911, 2187, and 2348 now carry English fan translation, while chapter 2388 remains raw-only.
+  - Added richer title/tag/source metadata and switched the provided cover image to an optimized derived JPEG for publication rather than a 10 MB raw PNG.
+  - Confirmed the build report now shows `translatedChapterCount = 2387` with missing fan-translation warnings beginning at chapter 2388.
+- Tests:
+  - `npx tsx scripts/build-library-session.ts /tmp/fmc-hole-recovery-manifest.json` ✅
+  - targeted JSON inspection of chapters `766`, `1911`, `2187`, `2348`, and `2388` ✅
+
+2026-03-29 21:50 PDT - [Agent: Codex] Hole-resolution prep: adapter-spec aware alignment CLI
+- Files:
+  - scripts/lib/source-input.ts
+  - scripts/discover-chapter-alignment.ts
+  - tests/scripts/source-input.test.ts
+- Why:
+  - The alignment discovery CLI incorrectly treated all source inputs as filesystem paths, which broke `novelhi://...` range specs even though the adapter itself supported them.
+  - FMC hole recovery needs the existing binary-search alignment pipeline to work directly against NovelHi candidate windows.
+- Details:
+  - Added a small source-input helper that preserves URL/custom-scheme adapter specs and only resolves real filesystem paths.
+  - Updated `discover-chapter-alignment.ts` to use the helper for `--raw` and `--fan`.
+  - Added focused tests for URL/spec preservation vs. filesystem path resolution.
+- Tests:
+  - `npx vitest run tests/scripts/source-input.test.ts tests/scripts/novelhi-adapter.test.ts tests/scripts/chapter-alignment-discovery.test.ts tests/scripts/library-session-builder.test.ts` ✅
+
+2026-03-29 17:28 PDT - [Agent: Codex] Starting principled novel import pipeline
+- Status: Starting
+- Task: Build a reusable source-import pipeline for monolithic TXT, PDF, and EPUB inputs that can emit hosted-library `metadata.json + session.json` artifacts, then use it to generate Forty Millenniums of Cultivation with PDF chapters 1-2387 and `@NovelsZaraki.epub` for 2388+.
+- Worktree: ../LexiconForge.worktrees/codex-book-switching-shelf/
+- Branch: feat/codex-book-switching-shelf
+- Files likely affected:
+  - scripts/lib/translation-sources.ts
+  - scripts/lib/*.ts (new importer helpers)
+  - scripts/polyglot-merge.ts or successor builder script
+  - tests/scripts/* or adjacent vitest coverage
+  - docs/WORKLOG.md
+- Why:
+  - Existing importer foundation supports EPUB, TXT directories, and Polyglotta JSON only.
+  - Hosted library artifacts use `lexiconforge-session`, not the richer `lexiconforge-full-1` payload emitted by `polyglot-merge`.
+  - This title needs principled range-based source selection: raw Chinese TXT for `content`, PDF for English `fanTranslation` chapters 1-2387, and `@NovelsZaraki.epub` after that.
+
+2026-03-29 17:04 PDT - Planned future feature: raw source discovery and library search
+- Files:
+  - docs/superpowers/specs/2026-03-29-raw-source-discovery-library-search-design.md
+  - docs/superpowers/plans/2026-03-29-raw-source-discovery-library-search.md
+- Why: Capture the approved future feature for searching fan titles, resolving canonical Chinese novel identity, finding likely raw sources, and adding books to the library without manually hunting for raw sites.
+- Details:
+  - Recorded the approved design direction as a metadata-first resolver: `Novel Updates -> canonical Chinese identity -> official-platform search -> mirror fallback`.
+  - Explicitly classified UUkanshu, Piaotian, Dxmwx, and Kanunu as discovery/fallback sources rather than canonical identity sources.
+  - Marked the feature as approved and waiting for implementation in both the spec and plan docs.
+- Tests: Not run (docs only).
+
+2026-03-29 16:42 PDT - Principled deep links + principled public/developer error split
+- Files:
+  - services/appError.ts:1-54
+  - services/scraping/fetcher.ts:18-34, 199-231
+  - services/navigation/fetcher.ts:11, 175-184
+  - services/navigation/history.ts:4-59
+  - services/navigation/index.ts:393-400
+  - store/slices/chaptersSlice.ts:410-416, 497-504, 522-525
+  - services/registryService.ts:51-63
+  - store/bootstrap/initializeStore.ts:23-35, 137-267
+  - MainApp.tsx:148-165
+  - tests/store/bootstrap/bootstrapHelpers.test.ts
+  - tests/services/navigationService.test.ts
+  - tests/services/registryService.test.ts
+- Why: Shared links only carried `?chapter=...`, so incognito/device-open flows lost the library novel/version context and landed on the library first. Separately, scraper diagnostics were crossing the boundary into UI state, exposing proxy health internals directly to readers.
+- Details:
+  - Added `AppError` so failures can keep a short `userMessage` alongside verbose `developerMessage` and diagnostics.
+  - Updated the scraper fetch path to throw typed public-vs-debug errors instead of one giant user-visible blob.
+  - Updated navigation fetch handling to surface only the public message to UI state while preserving console diagnostics.
+  - Extended reader browser history to preserve `novel`, optional `version`, and `chapter` so links can reconstruct the reading target.
+  - Moved `?chapter` handling fully into bootstrap so `?novel + ?version + ?chapter` composes as import/hydrate first, then navigate, without a library-first flash.
+  - Added registry lookup by `novel.id` so bootstrap can resolve principled shared links from canonical library identity.
+- Tests:
+  - `npx vitest run tests/store/bootstrap/bootstrapHelpers.test.ts tests/services/navigationService.test.ts tests/services/registryService.test.ts tests/current-system/navigation.test.ts tests/components/InputBar.test.tsx tests/store/appScreen.integration.test.tsx` ✅
+  - `npx tsc --noEmit --pretty false` ⚠️ pre-existing failures only in `scripts/sutta-studio/*`
+
 2026-01-31 14:40 UTC - Ripple examples empirically validated
 - Files: services/suttaStudioPassPrompts.ts, config/suttaStudioExamples.ts, scripts/sutta-studio/benchmark-config.ts
 - Why: Fix "was dwells" grammatical issue where ghost words don't match selected verb tense.
@@ -632,3 +722,171 @@
   - Progress state now accumulates per-chunk/pass errors and writes them to active-run.json.
   - Bench UI shows a stacked error list with timestamps/run/pass/chunk context.
 - Tests: Not run (not requested).
+2026-03-29 10:32 PDT - Patch book-switching shelf implementation plan before coding
+- Files: docs/superpowers/plans/2026-03-29-book-switching-shelf.md:9,95,274,367,490,663,802,854,968,1277,1425; docs/WORKLOG.md
+- Why: Remove implementation blockers and paper over fewer ambiguities before any code changes for the shelf feature.
+- Details:
+  - Added a Phase 1 scope gate so legacy cached novels without persisted `novelId` are treated as requiring one re-import instead of being silently misclassified as shelf-ready library novels.
+  - Corrected Task 2/4 surface details by removing direct `store/storeTypes.ts` edits, making steady-state DB `novelId` fields `string | null`, and requiring fresh-DB index parity in `services/db/core/connection.ts` alongside the schema upgrade.
+  - Reworked Task 5/6 so canonical `registryNovelId` is threaded through `ImportService` callers, `ensureChapterUrlMappings(...)` preserves mapping `novelId`, and legacy backfill only normalizes `undefined -> null` instead of pretending to recover ambiguous historical identity.
+  - Split hydration planning into `loadNovelIntoStore(novelId)` for library novels and `loadAllIntoStore()` for ephemeral/full-session flows, updated Task 9 replacements accordingly, and clarified that consolidation must preserve caller-owned reader state like `currentChapterId` and `navigationHistory`.
+  - Tightened bootstrap/navigation/new-book tasks so `?novel` imports pass canonical `novel.id`, reader transitions explicitly call `setReaderReady()`, and store-owned navigation sets active novel context after successful deep-link navigation.
+  - Fixed remaining plan nits: corrected `ChapterHeader` test command to `.test.tsx` and expanded verification to include the legacy-cache re-import limitation.
+- Tests: Not run (documentation-only plan patch).
+### [2026-03-29 10:39 PDT] [Agent: Codex]
+**Status:** Starting
+**Task:** Implement book-switching shelf Phase 0/1 from patched plan, beginning with explicit appScreen routing and novel identity groundwork.
+**Worktree:** ../LexiconForge.worktrees/codex-book-switching-shelf/
+**Branch:** feat/codex-book-switching-shelf
+**Files likely affected:** store/slices/uiSlice.ts; MainApp.tsx; store/bootstrap/initializeStore.ts; services/db/types.ts; services/db/core/schema.ts; services/db/core/connection.ts; services/stableIdService.ts; services/importService.ts; services/db/operations/imports.ts; services/db/operations/chapters.ts; services/db/operations/maintenance.ts; services/navigation/hydration.ts; services/navigation/index.ts; components/NovelLibrary.tsx; components/InputBar.tsx; store/slices/chaptersSlice.ts; components/ChapterView.tsx; components/chapter/ChapterHeader.tsx; tests/store/*; tests/components/*; docs/adr/*; docs/WORKLOG.md
+### [2026-03-29 11:12 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Landed the first feature slice: explicit app shell routing via `appScreen`, with reader entry points now driving library/loading/reader state instead of `MainApp` inferring it from loaded chapters.
+**Files modified (line numbers + why):**
+- MainApp.tsx:51,308-330 - replace derived `hasSession` routing with `appScreen` and add explicit `reader-loading` shell loader.
+- store/slices/uiSlice.ts:14-18,54-60,116-155 - add `appScreen`, `activeNovelId`, and shell transition actions (`openLibrary`, `setReaderLoading`, `openNovel`, `setReaderReady`, `shelveActiveNovel`).
+- store/bootstrap/initializeStore.ts:26,75-116 - initialize boot into library mode, set loading/ready shell state for `?novel` and `?import` deep-link imports, and return to library on failure.
+- store/bootstrap/importSessionData.ts:20,55-56 - set `appScreen` to `reader` when a restored session resolves a current chapter.
+- store/bootstrap/clearSession.ts:7-8 - reset shell routing to library and clear `activeNovelId` on clear-session.
+- store/slices/chaptersSlice.ts:146-152,355-356,442,476 - mark successful chapter selection/navigation/fetch as reader mode.
+- components/InputBar.tsx:27-29,45,97-111,143,163,173 - drive ephemeral import flows through reader loading/ready state and return to library on failures.
+- components/NovelLibrary.tsx:25-27,69,122-125,222-224,266 - mark library-started reads as novel-scoped reader transitions and restore library mode on errors.
+- tests/store/bootstrap/bootstrapHelpers.test.ts:112-113,148-166,239-367 - extend bootstrap test harness/state with shell actions and assert initialize/clear flows keep library as the default shell.
+- tests/store/appScreen.integration.test.tsx (new) - add regression coverage proving `MainApp` renders library vs reader from `appScreen`, not from loaded chapter presence.
+**Tests:** `npx vitest run tests/store/bootstrap/bootstrapHelpers.test.ts tests/store/appScreen.integration.test.tsx` ✅; `npx tsc --noEmit` ⚠️ fails in pre-existing unrelated `scripts/sutta-studio/*` files, not in this slice.
+### [2026-03-29 11:35 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Finished the novel-identity groundwork and consolidated the duplicated reader hydration paths behind a new `readerHydrationService`, while keeping `currentChapterId` and `navigationHistory` caller-owned.
+**Files modified (line numbers + why):**
+- services/db/types.ts:4-17,148-154 - make `novelId` first-class on persisted chapter and URL-mapping records.
+- services/stableIdService.ts:48-58,111-160,200-251 - add `novelId` to runtime `EnhancedChapter` and thread canonical `registryNovelId` through transformed imports.
+- services/db/core/schema.ts:24-25,365-377 - bump schema to v14 and restore missing `novelId` / `novelChapter` indexes as an explicit migration.
+- services/db/core/connection.ts:237-278 - create the same `novelId` and compound mapping indexes on fresh installs.
+- services/db/operations/imports.ts:101-169,237-253,349-374 - persist `novelId` and `chapterNumber` through both full-session and stable-session import paths.
+- services/db/operations/chapters.ts:11-39,124-154,243-266,376-464 - preserve mapping `novelId`, store chapter membership, and make chapter-number lookup optionally novel-scoped.
+- services/db/operations/maintenance.ts:15,36-49,128-145,304-325 - normalize legacy `undefined` `novelId` fields to `null` without pretending to recover ambiguous old library identity.
+- services/db/operations/rendering.ts:30-57,88-127,247-275 - expose `novelId` in rendering records and add `fetchChaptersForNovel(novelId)`.
+- services/db/core/stable-ids.ts:32-36 - stop URL-mapping rewrites from stripping `novelId` / `chapterNumber`.
+- services/importService.ts:18-23,54-58,152-161,700-778 - thread canonical `registryNovelId` through imports and replace inline post-import hydration with `readerHydrationService`.
+- services/readerHydrationService.ts (new) - centralize map/index reconstruction for `loadNovelIntoStore()` and `loadAllIntoStore()` without importing the Zustand store directly.
+- components/NovelLibrary.tsx:11-12,67-98,131-206 - replace both inline hydration branches with `loadNovelIntoStore(novel.id, useAppStore.setState)` and make the cache path novel-scoped instead of global.
+- components/InputBar.tsx:5,61-82 - replace ephemeral streaming hydration with `loadAllIntoStore(useAppStore.setState, { limit: 10 })`.
+- store/bootstrap/importSessionData.ts:1-28 - replace full-session inline hydration with `loadAllIntoStore(...)` and keep navigation/current-chapter restore logic local.
+- services/navigation/hydration.ts:52-80; services/navigation/index.ts:306-313 - propagate `novelId` back into runtime chapters loaded from IDB.
+- services/db/index.ts:153-180,228-242,382-402,429-439; services/db/repositories/ChapterRepository.ts:27-62 - update legacy/memory repo compatibility paths for required persisted `novelId`.
+- tests/db/migrations/fresh-install.test.ts:143-214 - verify fresh installs get the new chapter and URL-mapping indexes.
+- tests/services/importService.test.ts:123-151 - assert `registryNovelId` is threaded into imported session payloads.
+- tests/services/readerHydrationService.test.ts (new) - assert novel-scoped hydration, `novelId` preservation, and `loadAllIntoStore()` behavior.
+- tests/current-system/*.test.ts; tests/services/navigationService.test.ts; tests/store/nullSafety.test.ts; tests/utils/test-data.ts - update helpers/builders to construct `EnhancedChapter` with explicit `novelId`.
+**Tests:** `npx vitest run tests/db/migrations/fresh-install.test.ts tests/store/appScreen.integration.test.tsx tests/services/importService.test.ts tests/store/bootstrap/bootstrapHelpers.test.ts` ✅; `npx vitest run tests/current-system/export-import.test.ts tests/current-system/feedback.test.ts tests/current-system/navigation.test.ts tests/current-system/settings.test.ts tests/current-system/translation.test.ts tests/services/navigationService.test.ts tests/store/nullSafety.test.ts` ✅; `npx vitest run tests/services/readerHydrationService.test.ts tests/services/importService.test.ts tests/store/bootstrap/bootstrapHelpers.test.ts tests/store/appScreen.integration.test.tsx` ✅; `npx tsc --noEmit --pretty false` ⚠️ still fails only in pre-existing unrelated `scripts/sutta-studio/*` files.
+### [2026-03-29 11:38 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Split `initializeStore` into explicit phases and added a bootstrap regression so explicit startup intent (`?novel`, `?import`) no longer competes with passive last-active restoration.
+**Files modified (line numbers + why):**
+- store/bootstrap/initializeStore.ts:1-309 - replace the monolithic bootstrap body with named phase functions (`loadPromptTemplateState`, `runBootRepairs`, `handleBootstrapIntents`, `hydratePersistedState`, `initializeAudioServices`) and gate passive bookmark restoration behind `restoreReaderState`.
+- tests/store/bootstrap/bootstrapHelpers.test.ts:6-57,184-209,357-384 - mock `NavigationOps`, `novelCatalog`, and `ImportService`, then add a deep-link regression proving `?novel` intent is honored without restoring an unrelated last-active chapter.
+**Tests:** `npx vitest run tests/store/bootstrap/bootstrapHelpers.test.ts tests/services/readerHydrationService.test.ts tests/services/importService.test.ts tests/store/appScreen.integration.test.tsx` ✅; `npx tsc --noEmit --pretty false` ⚠️ still fails only in pre-existing unrelated `scripts/sutta-studio/*` files.
+### [2026-03-29 11:46 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Added the first end-to-end shelf layer: persisted `bookshelf-state`, debounced bookmark autosave, explicit shelf flush on “Library”, resume-point resolution, and a “Continue Reading” section in the library.
+**Files modified (line numbers + why):**
+- services/bookshelfStateService.ts (new) - define the `bookshelf-state` settings record, normalize persisted entries, upsert/list bookmarks, and resolve stale resume points by `lastChapterId` then `lastChapterNumber`.
+- store/slices/uiSlice.ts:12,137-161 - flush the active novel’s bookmark immediately when shelving the reader before clearing `activeNovelId`.
+- store/slices/chaptersSlice.ts:15,94-124,159-160,380-381,467-468,494-495 - add debounced bookmark autosave keyed by `activeNovelId` so chapter changes persist reading position without synchronous writes on every navigation.
+- components/chapter/ChapterHeader.tsx:12,43,93-101,161-168 - add a reader-visible `Library` action on desktop and mobile.
+- components/ChapterView.tsx:54,334 - wire the new header action to `shelveActiveNovel()`.
+- components/InputBar.tsx:24-27,102-105 - treat pasted one-off chapter URLs as ephemeral by shelving any active library novel before fetching them.
+- components/NovelCard.tsx:7-15,35-66 - support optional progress badge/label rendering for in-progress shelf cards.
+- components/NovelLibrary.tsx:3-14,18-37,72-151,220-272 - load bookshelf entries on mount, resume cached novels from saved position with stale-bookmark fallback, and render a `Continue Reading` shelf section above the main catalog.
+- tests/services/bookshelfStateService.test.ts (new) - verify bookshelf-state normalization, upsert behavior, and stale-resume fallback.
+- tests/store/bookshelfPersistence.test.ts (new) - verify debounced autosave and immediate shelf flush both write the expected bookmark.
+- tests/components/NovelLibrary.test.tsx:1-163 - mock bookshelf state and assert `Continue Reading` renders with resume metadata.
+- tests/components/chapter/ChapterHeader.test.tsx:6-58 - cover the new library button.
+**Tests:** `npx vitest run tests/services/bookshelfStateService.test.ts tests/components/NovelLibrary.test.tsx tests/components/chapter/ChapterHeader.test.tsx tests/store/bootstrap/bootstrapHelpers.test.ts tests/services/readerHydrationService.test.ts tests/services/importService.test.ts tests/store/appScreen.integration.test.tsx` ✅; `npx vitest run tests/store/bookshelfPersistence.test.ts tests/services/bookshelfStateService.test.ts tests/components/NovelLibrary.test.tsx tests/components/chapter/ChapterHeader.test.tsx tests/store/bootstrap/bootstrapHelpers.test.ts tests/services/readerHydrationService.test.ts tests/services/importService.test.ts tests/store/appScreen.integration.test.tsx` ✅; `npx tsc --noEmit --pretty false` ⚠️ still fails only in pre-existing unrelated `scripts/sutta-studio/*` files.
+### [2026-03-29 13:57 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Refined the shelf UX to remember the last-read library version per novel and resume it directly from shelf cards, while keeping the current IDB model honest by bypassing cache only when the user explicitly switches to a different version.
+**Files modified (line numbers + why):**
+- store/slices/uiSlice.ts:17-21,55-61,118-121,136-181 - add `activeVersionId` to shell state, thread it through `openNovel`/`setReaderLoading`, and persist/clear it when shelving back to the library.
+- store/slices/chaptersSlice.ts:109-127 - include `activeVersionId` in debounced bookshelf autosaves so saved bookmarks know which library version was last read.
+- store/bootstrap/clearSession.ts:5-10 - reset `activeVersionId` alongside `activeNovelId` on full session clears.
+- components/NovelCard.tsx:5-26 - add an optional `onSelect` override so Continue Reading cards can resume directly while the main grid still opens the detail sheet.
+- components/NovelLibrary.tsx:35-70,100-139,153-204,255-330 - persist version-aware resume entries, skip stale cache when the user chooses a different version than the saved one, and turn Continue Reading cards into one-tap resume actions with version labels.
+- tests/components/NovelLibrary.test.tsx:1-258 - replace the shelf test harness with a real mocked store/service boundary, then cover version labels and direct shelf resume into the saved version.
+- tests/services/bookshelfStateService.test.ts:30-71 - verify `versionId` survives bookshelf normalization/upsert.
+- tests/store/bookshelfPersistence.test.ts:17-66 - verify immediate shelf flush and debounced autosave both persist the active version identifier.
+**Tests:** `npx vitest run tests/components/NovelLibrary.test.tsx tests/services/bookshelfStateService.test.ts tests/store/bookshelfPersistence.test.ts tests/components/chapter/ChapterHeader.test.tsx` ✅; `npx vitest run tests/store/appScreen.integration.test.tsx tests/store/bootstrap/bootstrapHelpers.test.ts tests/store/chaptersSlice.test.ts tests/current-system/navigation.test.ts tests/current-system/translation.test.ts tests/services/navigationService.test.ts tests/services/importService.test.ts` ✅; `npx tsc --noEmit --pretty false` ⚠️ still fails only in pre-existing unrelated `scripts/sutta-studio/*` files.
+### [2026-03-29 14:10 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Patched the two confirmed bug families before manual QA: preload now stays novel-scoped, and every reader-switching InputBar import/fetch variant shelves the active library novel before proceeding.
+**Files modified (line numbers + why):**
+- store/slices/chaptersSlice.ts:730-766 - thread `activeNovelId` into the preload worker and pass it to `ChapterOps.findByNumber(...)` so preloading cannot cross into another cached novel.
+- components/InputBar.tsx:26-40,47-55,96-107,120-125 - add a shared `shelveActiveLibraryNovel()` guard and call it for session JSON URL imports, regular chapter fetches, example-site clicks, and local file imports.
+- tests/store/chaptersSlice.test.ts:7-20,196-230 - add a fake-timer preload regression proving the worker calls `findByNumber(…, activeNovelId)`.
+- tests/components/InputBar.test.tsx (new) - add guardrail regressions proving session JSON URL imports, local file imports, and example-link fetches all shelve first when a library novel is active.
+**Tests:** `npx vitest run tests/components/InputBar.test.tsx tests/store/chaptersSlice.test.ts` ✅; `npx vitest run tests/components/InputBar.test.tsx tests/store/chaptersSlice.test.ts tests/store/appScreen.integration.test.tsx tests/store/bootstrap/bootstrapHelpers.test.ts tests/current-system/navigation.test.ts tests/current-system/translation.test.ts tests/services/navigationService.test.ts tests/services/importService.test.ts tests/store/bookshelfPersistence.test.ts tests/components/NovelLibrary.test.tsx` ✅; `npx tsc --noEmit --pretty false` ⚠️ still fails only in pre-existing unrelated `scripts/sutta-studio/*` files.
+### [2026-03-29 14:28 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Investigated broken library/detail-sheet cover images and fixed the actual transport issue instead of masking it. Root cause: some remote hosts, including Imgur, reject direct image requests when the browser sends the local app URL as the `Referer`. Verified with `curl`: the same image returned `200 image/jpeg` with no referer, `403` with `Referer: http://127.0.0.1:4173/`, and `200 image/jpeg` with `Referer: https://imgur.com/`.
+**Files modified (line numbers + why):**
+- components/NovelCoverImage.tsx:1-46 (new) - centralize cover rendering so remote images are requested with `referrerPolicy="no-referrer"`, reset error state when the source changes, and render a consistent placeholder on load failure.
+- components/NovelCard.tsx:4,28-37 - replace the inline cover `<img>` with the shared `NovelCoverImage` component so the library grid uses the same transport-safe behavior.
+- components/NovelDetailSheet.tsx:6,175-185 - replace the inline cover `<img>` with the shared `NovelCoverImage` component so the detail sheet does not regress independently.
+- tests/components/NovelCoverImage.test.tsx:1-69 (new) - verify the `no-referrer` policy, the fallback placeholder on error, and resetting error state when a new image URL arrives.
+**Tests:** `npx vitest run tests/components/NovelCoverImage.test.tsx tests/components/NovelLibrary.test.tsx tests/components/VersionPicker.test.tsx` ✅; `npx vitest run tests/components/NovelCoverImage.test.tsx tests/components/NovelLibrary.test.tsx tests/components/InputBar.test.tsx tests/store/appScreen.integration.test.tsx` ✅; `npx tsc --noEmit --pretty false` ⚠️ still fails only in pre-existing unrelated `scripts/sutta-studio/*` files.
+### [2026-03-29 21:24 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Added a narrow NovelHi chapter adapter so the importer can ingest specific missing fan-translation chapters by URL without broadening into a generic crawler. Verified the real FMC hole URLs (`766`, `1911`, `2187`, `2348`) all return structured chapter bodies with usable paragraph counts, which is enough to support principled hole recovery after raw/PDF cross-checking.
+**Files modified (line numbers + why):**
+- scripts/lib/adapters/novelhi-adapter.ts:1-136 (new) - add a URL-based `NovelHiAdapter`, parse real chapter HTML with `jsdom`, strip ad/script noise from `#showReading`, preserve paragraph boundaries, and return importer-compatible `TranslationSourceOutput`.
+- scripts/lib/translation-sources.ts:12-35 - register/export the new adapter so manifests can point directly at `https://novelhi.com/s/.../<chapter>` URLs.
+- tests/scripts/novelhi-adapter.test.ts:1-66 (new) - cover HTML parsing and adapter extraction with mocked fetch so the behavior stays stable without relying on live network during tests.
+**Tests:** `npx vitest run tests/scripts/novelhi-adapter.test.ts tests/scripts/library-session-builder.test.ts` ✅; `npx tsx -e "import { NovelHiAdapter } from './scripts/lib/adapters/novelhi-adapter.ts'; const run = async () => { const adapter = new NovelHiAdapter(); const urls = ['https://novelhi.com/s/Forty-Millenniums-of-Cultivation/766','https://novelhi.com/s/Forty-Millenniums-of-Cultivation/1911','https://novelhi.com/s/Forty-Millenniums-of-Cultivation/2187','https://novelhi.com/s/Forty-Millenniums-of-Cultivation/2348']; for (const url of urls) { const result = await adapter.extract(url); console.log(JSON.stringify({ url, title: result.chapters[0]?.title, paragraphs: result.chapters[0]?.paragraphs.length, first: result.chapters[0]?.paragraphs[0]?.text.slice(0, 120) }, null, 2)); } }; run().catch((error) => { console.error(error); process.exit(1); });"` ✅
+### [2026-03-29 21:44 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Broadened the NovelHi adapter into a range-capable batch source without turning it into a full crawler. The importer can now fetch local candidate windows like `novelhi://Forty-Millenniums-of-Cultivation?from=765&to=767`, which is exactly what the FMC hole resolver needs for widened local search around drift points.
+**Files modified (line numbers + why):**
+- scripts/lib/adapters/novelhi-adapter.ts:10-25,32-76,159-223 - add explicit range-spec parsing, reuse a single chapter-fetch path for both single and batched inputs, and return multi-chapter outputs for local candidate windows.
+- tests/scripts/novelhi-adapter.test.ts:33-112 - add parser coverage for the custom range input and a mocked multi-fetch regression proving the adapter returns a batch of chapters from a `novelhi://...?...` spec.
+**Tests:** `npx vitest run tests/scripts/novelhi-adapter.test.ts tests/scripts/library-session-builder.test.ts` ✅; `npx tsx -e "import { NovelHiAdapter } from './scripts/lib/adapters/novelhi-adapter.ts'; const run = async () => { const adapter = new NovelHiAdapter(); const out = await adapter.extract('novelhi://Forty-Millenniums-of-Cultivation?from=765&to=767'); console.log(JSON.stringify({ chapterCount: out.chapters.length, numbers: out.chapters.map((ch) => ch.chapterNumber), titles: out.chapters.map((ch) => ch.title) }, null, 2)); }; run().catch((error) => { console.error(error); process.exit(1); });"` ✅
+### [2026-03-29 22:55 PDT] [Agent: Codex]
+**Status:** In Progress
+**Task:** Principled split for book-switching before merge: make version-aware shelf state truthful all the way down to persistence and live navigation.
+**Worktree:** `/Users/aditya/Documents/Ongoing Local/LexiconForge.worktrees/codex-book-switching-shelf`
+**Branch:** `codex/wip-book-switching-shelf-2026-03-29`
+**Hypothesis:** The shelf/version UX is only partially real today because version scope is threaded through library import and hydration, but live chapter fetch/navigation plus some DB summary/mapping paths still operate at novel-only scope. If true, switching versions can still cross-contaminate cached chapters or resume behavior whenever the app fetches new chapters beyond the already-imported set.
+**Files under investigation (line numbers + why):**
+- services/libraryScope.ts:1-40 - define the canonical scoped identity helpers for version-aware bookshelf keys, stable IDs, and synthetic storage URLs.
+- services/stableIdService.ts:190-260 - ensure imported library chapters carry `libraryVersionId` and receive scoped stable IDs.
+- services/importService.ts:150-240,520-610 - keep library imports and streaming imports version-aware at the session payload and per-chapter persistence layers.
+- services/db/core/schema.ts:25-40,360-392 - add compound chapter/url-mapping indexes for `(novelId, libraryVersionId, chapterNumber)` lookups.
+- services/db/operations/imports.ts:60-120,140-240,285-460 - normalize imported full/stable sessions into scoped storage URLs and scoped URL mappings.
+- services/db/operations/chapters.ts:12-95,108-165,257-298,399-505 - persist `libraryVersionId` on chapter records, recompute summaries, and make chapter-number lookups version-aware.
+- services/db/operations/rendering.ts:31-121,252-296 - hydrate only the requested library version and keep rendered `sourceUrls` honest when chapter URLs are synthetic storage keys.
+- services/bookshelfStateService.ts:1-94 - make persisted resume entries version-aware and retain compatibility with older novel-only keys.
+- services/readerHydrationService.ts:12-95,139-193 - hydrate only the requested novel/version slice into the reader store.
+- services/navigation/fetcher.ts:1-210; services/navigation/index.ts:20-40,380-382 - propagate `{ novelId, versionId }` through live chapter fetches so on-demand navigation stores fetched chapters in the correct scoped namespace.
+- store/slices/chaptersSlice.ts:96-124,318-477,730-813 - persist bookshelf positions with version IDs and pass version scope into preload/fetch flows.
+- components/NovelLibrary.tsx:40-230 - continue reading and version-picker flows should use the same version-aware import/hydration contract as the lower layers.
+- tests/services/bookshelfStateService.test.ts, tests/services/readerHydrationService.test.ts, tests/components/NovelLibrary.test.tsx, tests/store/bookshelfPersistence.test.ts, tests/services/navigationService.test.ts, tests/store/chaptersSlice.test.ts, tests/store/appScreen.integration.test.tsx - cover version-aware resume/fetch behavior and catch remaining novel-only assumptions.
+**Diagnostics so far:** `npx vitest run tests/store/appScreen.integration.test.tsx --reporter=verbose` ✅ standalone; earlier mixed-suite timeout appears to be test interaction, not a confirmed shell regression. No version-aware fetch coverage has been run yet after the current storage changes.
+### [2026-03-29 23:07 PDT] [Agent: Codex]
+**Status:** In Progress
+**Progress:** Completed the first principled version-awareness slice. Runtime scope is now threaded through library resume keys, reader hydration, live chapter fetches, scoped cache lookup, and preload. The key corrective change was refusing to fall back to global URL mappings when a library-scoped lookup misses; scoped reads now either resolve inside the requested `(novelId, versionId)` namespace or honestly fetch.
+**Files modified (line numbers + why):**
+- services/bookshelfStateService.ts:13-36,42-74 - preserve the persisted composite key while keeping `entry.novelId` truthful, so `orv::alice-v1` no longer normalizes into a fake novel id.
+- services/navigation/types.ts:17-27 - add explicit optional library fetch scope to the navigation contract.
+- services/navigation/fetcher.ts:9,67-79 - thread scope into fetch-time cache lookup and stable-id transformation.
+- services/navigation/hydration.ts:11,66-89,217-246 - hydrate versioned chapters with real `sourceUrls` instead of synthetic storage URLs and make cache lookup scoped when a library novel/version is active.
+- services/navigation/index.ts:13,40-81,205-243,274-303,404-405 - add scoped IDB lookup before global fallbacks and forbid cross-version global mapping reuse during scoped navigation.
+- services/db/operations/chapters.ts:12-15,72-131,206-262,471-478 - persist summary `libraryVersionId`, add scoped source-url lookup, and expose it through `ChapterOps`.
+- services/db/operations/rendering.ts:31-57,99-118 - retain `novelId`/`libraryVersionId` in hydrated rendering packets so versioned reader hydration remains lossless.
+- store/slices/chaptersSlice.ts:320-329,447-450,803-806 - pass active `(novelId, versionId)` into navigation and preload fetches.
+- tests/services/bookshelfStateService.test.ts:24-50 - lock in composite-key normalization without corrupting `novelId`.
+- tests/store/nullSafety.test.ts:19-34,90-106 - assert `chaptersSlice.handleFetch()` forwards the active version scope.
+- tests/store/chaptersSlice.test.ts:194-231 - assert preload chapter-number lookup is version-aware.
+- tests/current-system/navigation.test.ts:7-15,61-76 - align runtime expectations with scoped `handleFetch` calls.
+- tests/services/readerHydrationService.test.ts:15-79 - assert hydrated chapters preserve `libraryVersionId`.
+- tests/db/migrations/fresh-install.test.ts:357-360; tests/store/bootstrap/bootstrapHelpers.test.ts:420-529; tests/current-system/export-import.test.ts:27-54; tests/current-system/feedback.test.ts:12-37; tests/current-system/settings.test.ts:21-46; tests/current-system/translation.test.ts:21-32; tests/services/navigationService.test.ts:109-121 - update assertions/fixtures to match the now-explicit version-aware contract and `EnhancedChapter` shape.
+- scripts/lib/adapters/novelhi-adapter.ts:131-136 - tighten DOM typing so the branch returns to the pre-existing TypeScript baseline after `EnhancedChapter`/navigation changes.
+**Tests:** `npx vitest run tests/services/bookshelfStateService.test.ts tests/services/readerHydrationService.test.ts tests/store/bookshelfPersistence.test.ts tests/store/nullSafety.test.ts tests/store/chaptersSlice.test.ts tests/current-system/navigation.test.ts tests/services/navigationService.test.ts tests/components/NovelLibrary.test.tsx tests/store/bootstrap/bootstrapHelpers.test.ts tests/store/appScreen.integration.test.tsx tests/db/migrations/fresh-install.test.ts` ✅; `npx vitest run tests/current-system/export-import.test.ts tests/current-system/feedback.test.ts tests/current-system/settings.test.ts tests/current-system/translation.test.ts tests/services/importService.test.ts` ✅; `npx tsc --noEmit --pretty false` ⚠️ only pre-existing `scripts/sutta-studio/*` errors remain.
