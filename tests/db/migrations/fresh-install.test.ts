@@ -1,7 +1,7 @@
 /**
  * Fresh Install Migration Test
  *
- * Tests that a fresh database installation (v0 → v12) creates all required stores
+ * Tests that a fresh database installation creates all required stores
  * and indexes correctly using ONLY the migration system.
  *
  * This validates that migrations are complete and createSchema() is not needed.
@@ -13,7 +13,7 @@ import { SCHEMA_VERSIONS, STORE_NAMES, applyMigrations } from '../../../services
 const TEST_DB_NAME = 'test-fresh-install';
 const DB_VERSION = SCHEMA_VERSIONS.CURRENT;
 
-describe('Fresh Install: v0 → v12 Migration', () => {
+describe('Fresh Install: current schema migration', () => {
   let db: IDBDatabase;
 
   beforeEach(async () => {
@@ -147,6 +147,13 @@ describe('Fresh Install: v0 → v12 Migration', () => {
       expect(store.indexNames.contains('chapterNumber')).toBe(true);
     });
 
+    it('should create novelId index on chapters store', () => {
+      const tx = db.transaction([STORE_NAMES.CHAPTERS], 'readonly');
+      const store = tx.objectStore(STORE_NAMES.CHAPTERS);
+
+      expect(store.indexNames.contains('novelId')).toBe(true);
+    });
+
     it('should create chapterUrl index on translations store', () => {
       const tx = db.transaction([STORE_NAMES.TRANSLATIONS], 'readonly');
       const store = tx.objectStore(STORE_NAMES.TRANSLATIONS);
@@ -190,6 +197,23 @@ describe('Fresh Install: v0 → v12 Migration', () => {
       expect(store.indexNames.contains('stableId')).toBe(true);
     });
 
+    it('should create novelId index on url_mappings store', () => {
+      const tx = db.transaction([STORE_NAMES.URL_MAPPINGS], 'readonly');
+      const store = tx.objectStore(STORE_NAMES.URL_MAPPINGS);
+
+      expect(store.indexNames.contains('novelId')).toBe(true);
+    });
+
+    it('should create novelChapter compound index on url_mappings store', () => {
+      const tx = db.transaction([STORE_NAMES.URL_MAPPINGS], 'readonly');
+      const store = tx.objectStore(STORE_NAMES.URL_MAPPINGS);
+
+      expect(store.indexNames.contains('novelChapter')).toBe(true);
+
+      const index = store.index('novelChapter');
+      expect(index.keyPath).toEqual(['novelId', 'chapterNumber']);
+    });
+
     it('should create action index on amendment_logs store', () => {
       const tx = db.transaction([STORE_NAMES.AMENDMENT_LOGS], 'readonly');
       const store = tx.objectStore(STORE_NAMES.AMENDMENT_LOGS);
@@ -216,6 +240,7 @@ describe('Fresh Install: v0 → v12 Migration', () => {
     it('should allow storing and retrieving a chapter', async () => {
       const chapter = {
         url: 'https://example.com/chapter1',
+        novelId: 'novel-1',
         title: 'Test Chapter',
         content: 'Test content',
         originalUrl: 'https://example.com/chapter1',
@@ -248,6 +273,7 @@ describe('Fresh Install: v0 → v12 Migration', () => {
     it('should allow querying chapters by stableId', async () => {
       const chapter = {
         url: 'https://example.com/chapter2',
+        novelId: 'novel-2',
         title: 'Test Chapter 2',
         content: 'Test content 2',
         originalUrl: 'https://example.com/chapter2',
@@ -331,7 +357,7 @@ describe('Fresh Install: v0 → v12 Migration', () => {
 
     it('should have the correct database version', () => {
       expect(db.version).toBe(DB_VERSION);
-      expect(db.version).toBe(13); // SCHEMA_REPAIR version
+      expect(db.version).toBe(15); // LIBRARY_VERSION_MEMBERSHIP version
     });
 
     it('should not throw errors when accessing all stores', () => {

@@ -106,6 +106,8 @@ export const createMockEnhancedChapter = (overrides: Partial<EnhancedChapter> = 
   const chapter = createMockChapter(overrides);
   return {
     id: overrides.id ?? 'stable-chapter-1',
+    novelId: overrides.novelId ?? chapter.novelId ?? null,
+    libraryVersionId: overrides.libraryVersionId ?? chapter.libraryVersionId ?? null,
     canonicalUrl: overrides.canonicalUrl ?? chapter.originalUrl,
     sourceUrls: overrides.sourceUrls ?? [chapter.originalUrl],
     translationResult: overrides.translationResult ?? null,

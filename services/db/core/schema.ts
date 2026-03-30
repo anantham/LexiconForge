@@ -22,7 +22,9 @@ export const SCHEMA_VERSIONS = {
   AMENDMENT_LOGS: 11,
   DIFF_RESULTS: 12,
   SCHEMA_REPAIR: 13,
-  CURRENT: 13,
+  NOVEL_MEMBERSHIP: 14,
+  LIBRARY_VERSION_MEMBERSHIP: 15,
+  CURRENT: 15,
 } as const;
 
 // Object store definitions
@@ -76,6 +78,8 @@ export const MIGRATIONS: Record<number, MigrationFunction> = {
   11: migrateToV11,
   12: migrateToV12,
   13: migrateToV13,
+  14: migrateToV14,
+  15: migrateToV15,
 };
 
 function ensureStore(
@@ -360,6 +364,31 @@ function migrateToV13(db: IDBDatabase, transaction: IDBTransaction): void {
   // Log final state
   const finalStores = Array.from(db.objectStoreNames);
   console.log('[Migration v13] Schema repair complete. Stores:', finalStores);
+}
+
+/**
+ * Migration to version 14: restore missing novel indexes and add chapter novel membership index.
+ */
+function migrateToV14(db: IDBDatabase, transaction: IDBTransaction): void {
+  const chaptersStore = ensureStore(db, transaction, STORE_NAMES.CHAPTERS, { keyPath: 'url' });
+  ensureIndex(chaptersStore, 'novelId', 'novelId');
+
+  const urlStore = ensureStore(db, transaction, STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+  ensureIndex(urlStore, 'novelId', 'novelId');
+  ensureIndex(urlStore, 'novelChapter', ['novelId', 'chapterNumber']);
+}
+
+/**
+ * Migration to version 15: add library-version membership indexes for chapter/version isolation.
+ */
+function migrateToV15(db: IDBDatabase, transaction: IDBTransaction): void {
+  const chaptersStore = ensureStore(db, transaction, STORE_NAMES.CHAPTERS, { keyPath: 'url' });
+  ensureIndex(chaptersStore, 'novelVersion', ['novelId', 'libraryVersionId']);
+  ensureIndex(chaptersStore, 'novelVersionChapter', ['novelId', 'libraryVersionId', 'chapterNumber']);
+
+  const urlStore = ensureStore(db, transaction, STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
+  ensureIndex(urlStore, 'novelVersion', ['novelId', 'libraryVersionId']);
+  ensureIndex(urlStore, 'novelVersionChapter', ['novelId', 'libraryVersionId', 'chapterNumber']);
 }
 
 /**

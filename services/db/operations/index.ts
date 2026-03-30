@@ -7,7 +7,11 @@ export { FeedbackOps } from './feedback';
 export { MappingsOps } from './mappings';
 export { AmendmentOps } from './amendments';
 export { ImageOps } from './imageVersions';
-export { getChaptersForReactRendering, fetchChaptersForReactRendering } from './rendering';
+export {
+  getChaptersForReactRendering,
+  fetchChaptersForReactRendering,
+  fetchChaptersForNovel,
+} from './rendering';
 export {
   recomputeSummary,
   deleteSummary,

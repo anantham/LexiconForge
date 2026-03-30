@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Loader2 } from 'lucide-react';
 import { NovelGrid } from './NovelGrid';
+import { NovelCard } from './NovelCard';
 import { NovelDetailSheet } from './NovelDetailSheet';
+import {
+  BookshelfStateService,
+  type BookshelfEntry,
+  type BookshelfState,
+} from '../services/bookshelfStateService';
 import { RegistryService } from '../services/registryService';
 import { ImportService, ImportProgress } from '../services/importService';
 import { useAppStore } from '../store';
 import type { NovelEntry, NovelVersion } from '../types/novel';
 import { debugLog } from '../utils/debug';
-import { normalizeUrlAggressively } from '../services/stableIdService';
 import { SettingsOps } from '../services/db/operations';
-import { fetchChaptersForReactRendering } from '../services/db/operations/rendering';
+import { loadNovelIntoStore } from '../services/readerHydrationService';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -18,10 +23,51 @@ interface NovelLibraryProps {
 export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const [selectedNovel, setSelectedNovel] = useState<NovelEntry | null>(null);
   const [novels, setNovels] = useState<NovelEntry[]>([]);
+  const [bookshelfState, setBookshelfState] = useState<BookshelfState>({});
   const [isLoadingRegistry, setIsLoadingRegistry] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
   const showNotification = useAppStore(s => s.showNotification);
+  const openNovel = useAppStore(s => s.openNovel);
+  const openLibrary = useAppStore(s => s.openLibrary);
+  const setReaderReady = useAppStore(s => s.setReaderReady);
+
+  const refreshBookshelfState = async () => {
+    try {
+      const nextState = await BookshelfStateService.getState();
+      setBookshelfState(nextState);
+    } catch (error) {
+      console.warn('[NovelLibrary] Failed to load bookshelf state:', error);
+    }
+  };
+
+  const resolveSavedVersion = (novel: NovelEntry, versionId?: string): NovelVersion | undefined => {
+    if (!versionId) {
+      return undefined;
+    }
+
+    return novel.versions?.find((candidate) => candidate.versionId === versionId);
+  };
+
+  const persistResumeEntry = async (
+    novelId: string,
+    chapterId: string | null,
+    versionId?: string | null
+  ) => {
+    if (!chapterId) {
+      return;
+    }
+
+    const chapter = useAppStore.getState().chapters.get(chapterId);
+    await BookshelfStateService.upsertEntry({
+      novelId,
+      ...(versionId ? { versionId } : {}),
+      lastChapterId: chapterId,
+      lastChapterNumber: chapter?.chapterNumber ?? undefined,
+      lastReadAtIso: new Date().toISOString(),
+    });
+    await refreshBookshelfState();
+  };
 
   // Fetch novels from registry on mount
   useEffect(() => {
@@ -40,6 +86,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     };
 
     loadNovels();
+    void refreshBookshelfState();
   }, [showNotification]);
 
   const handleViewDetails = (novel: NovelEntry) => {
@@ -53,6 +100,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const handleStartReading = async (novel: NovelEntry, version?: NovelVersion) => {
     // Determine which session URL to use
     const sessionJsonUrl = version?.sessionJsonUrl || novel.sessionJsonUrl;
+    const requestedVersionId = version?.versionId ?? null;
     const versionLabel = version ? ` (${version.displayName})` : '';
 
     // Check if session URL exists
@@ -62,63 +110,35 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     }
 
     setIsLoading(true);
-    setImportProgress(null);
+      setImportProgress(null);
+      openNovel(novel.id, requestedVersionId);
 
-    try {
-      // Check if novel is already loaded in IndexedDB (simple cache check)
-      const existingChapters = await fetchChaptersForReactRendering();
+      try {
+      const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);
+      const firstCachedChapterId = await loadNovelIntoStore(novel.id, useAppStore.setState, {
+        versionId: requestedVersionId,
+      });
 
-      if (existingChapters.length > 0) {
-        // Chapters already exist, just load them into store
+      if (firstCachedChapterId) {
         setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
-
-        const { useAppStore } = await import('../store');
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
-        const lastActive = await SettingsOps.getKey<any>('lastActiveChapter').catch(() => null);
+        const resumeChapterId = BookshelfStateService.resolveResumeChapterId(
+          bookshelfEntry,
+          useAppStore.getState().chapters,
+          firstCachedChapterId
+        );
+        useAppStore.setState(state => ({
+          navigationHistory: nav?.stableIds || [],
+          currentChapterId: resumeChapterId,
+          appScreen: resumeChapterId ? 'reader' : state.appScreen,
+        }));
+        if (resumeChapterId) {
+          setReaderReady();
+          await persistResumeEntry(novel.id, resumeChapterId, requestedVersionId);
+        }
 
-        useAppStore.setState(state => {
-          const newChapters = new Map<string, any>();
-          const newUrlIndex = new Map<string, string>();
-          const newRawUrlIndex = new Map<string, string>();
-
-          for (const ch of existingChapters) {
-            const sourceUrls = ch.sourceUrls ?? [ch.url];
-            newChapters.set(ch.stableId, {
-              id: ch.stableId,
-              title: ch.title,
-              content: ch.content,
-              originalUrl: ch.originalUrl,
-              nextUrl: ch.nextUrl ?? null,
-              prevUrl: ch.prevUrl ?? null,
-              chapterNumber: ch.chapterNumber ?? 0,
-              canonicalUrl: ch.canonicalUrl ?? ch.url,
-              sourceUrls,
-              fanTranslation: ch.fanTranslation ?? null,
-              translationResult: ch.translationResult || null,
-              feedback: [],
-            });
-
-            for (const rawUrl of sourceUrls) {
-              if (!rawUrl) continue;
-              newRawUrlIndex.set(rawUrl, ch.stableId);
-              const normalized = normalizeUrlAggressively(rawUrl);
-              if (normalized) {
-                newUrlIndex.set(normalized, ch.stableId);
-              }
-            }
-          }
-
-          return {
-            chapters: newChapters,
-            urlIndex: newUrlIndex,
-            rawUrlIndex: newRawUrlIndex,
-            navigationHistory: nav?.stableIds || [],
-            // Always start at first chapter when loading from Novel Library (new reader)
-            currentChapterId: existingChapters[0]?.stableId || null,
-          };
-        });
-
-        showNotification(`✅ Loaded ${novel.title}${versionLabel} from cache - ${existingChapters.length} chapters!`, 'success');
+        const hydratedCount = useAppStore.getState().chapters.size;
+        showNotification(`✅ Loaded ${novel.title}${versionLabel} from cache - ${hydratedCount} chapters!`, 'success');
 
         // Close the detail sheet
         setSelectedNovel(null);
@@ -152,66 +172,35 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                 }
               );
 
-              const chapters = await fetchChaptersForReactRendering();
-
-              // Hydrate store with first 10 chapters
-              const threshold = Math.min(chapters.length, 10);
-              const firstChapters = chapters.slice(0, threshold);
-              const newChapters = new Map<string, any>();
-              const newUrlIndex = new Map<string, string>();
-              const newRawUrlIndex = new Map<string, string>();
-
-              for (const ch of firstChapters) {
-                const sourceUrls = ch.sourceUrls ?? [ch.url];
-                newChapters.set(ch.stableId, {
-                  id: ch.stableId,
-                  title: ch.title,
-                  content: ch.content,
-                  originalUrl: ch.originalUrl,
-                  nextUrl: ch.nextUrl ?? null,
-                  prevUrl: ch.prevUrl ?? null,
-                  chapterNumber: ch.chapterNumber ?? 0,
-                  canonicalUrl: ch.canonicalUrl ?? ch.url,
-                  sourceUrls,
-                  fanTranslation: ch.fanTranslation ?? null,
-                  translationResult: ch.translationResult || null,
-                  feedback: [],
-                });
-
-                for (const rawUrl of sourceUrls) {
-                  if (!rawUrl) continue;
-                  newRawUrlIndex.set(rawUrl, ch.stableId);
-                  const normalized = normalizeUrlAggressively(rawUrl);
-                  if (normalized) {
-                    newUrlIndex.set(normalized, ch.stableId);
-                  }
-                }
-              }
+              const firstChapterId = await loadNovelIntoStore(
+                novel.id,
+                useAppStore.setState,
+                { limit: 10, versionId: requestedVersionId }
+              );
+              const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);
+              const resumeChapterId = BookshelfStateService.resolveResumeChapterId(
+                bookshelfEntry,
+                useAppStore.getState().chapters,
+                firstChapterId
+              );
 
               debugLog(
                 'import',
                 'summary',
                 '[NovelLibrary] Hydrating initial chapters from stream',
                 {
-                  hydratedCount: firstChapters.length,
-                  availableTotal: chapters.length,
+                  hydratedCount: useAppStore.getState().chapters.size,
                 }
               );
 
-              // Sort by chapter number and navigate to first
-              const sortedChapters = Array.from(newChapters.entries()).sort((a, b) => {
-                const numA = a[1].chapterNumber || 0;
-                const numB = b[1].chapterNumber || 0;
-                return numA - numB;
-              });
-              const firstChapterId = sortedChapters[0]?.[0];
-
               useAppStore.setState({
-                chapters: newChapters,
-                urlIndex: newUrlIndex,
-                rawUrlIndex: newRawUrlIndex,
-                currentChapterId: firstChapterId,
+                currentChapterId: resumeChapterId,
+                appScreen: resumeChapterId ? 'reader' : useAppStore.getState().appScreen,
               });
+              if (resumeChapterId) {
+                setReaderReady();
+                await persistResumeEntry(novel.id, resumeChapterId, requestedVersionId);
+              }
 
               const postHydrationState = useAppStore.getState();
               debugLog(
@@ -244,6 +233,10 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                 'warning'
               );
             }
+          },
+          {
+            registryNovelId: novel.id,
+            registryVersionId: requestedVersionId,
           }
         );
 
@@ -251,12 +244,40 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       }
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);
+      openLibrary();
       showNotification(`Failed to load ${novel.title}${versionLabel}: ${error.message}`, 'error');
     } finally {
       setIsLoading(false);
       setImportProgress(null);
     }
   };
+
+  const handleResumeFromShelf = async (novel: NovelEntry, entry: BookshelfEntry) => {
+    const savedVersion = resolveSavedVersion(novel, entry.versionId);
+
+    if (entry.versionId && novel.versions?.length && !savedVersion) {
+      showNotification(
+        `The saved version for ${novel.title} is no longer available. Pick a version to continue.`,
+        'warning'
+      );
+      setSelectedNovel(novel);
+      return;
+    }
+
+    await handleStartReading(novel, savedVersion);
+  };
+
+  const continueReadingEntries = (Object.values(bookshelfState) as BookshelfEntry[])
+    .map((entry) => ({
+      entry,
+      novel: novels.find((novel) => novel.id === entry.novelId) ?? null,
+      version:
+        novels
+          .find((novel) => novel.id === entry.novelId)
+          ?.versions?.find((candidate) => candidate.versionId === entry.versionId) ?? null,
+    }))
+    .filter((item): item is { entry: BookshelfEntry; novel: NovelEntry; version: NovelVersion | null } => Boolean(item.novel))
+    .sort((a, b) => b.entry.lastReadAtIso.localeCompare(a.entry.lastReadAtIso));
 
   return (
     <div className="space-y-8">
@@ -273,6 +294,45 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           with different translations, enhancements, and styles to choose from.
         </p>
       </div>
+
+      {continueReadingEntries.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                Continue Reading
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Pick up where you left off. Resume points are saved automatically.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-6 lg:gap-8">
+            {continueReadingEntries.map(({ entry, novel, version }) => (
+              <NovelCard
+                key={`continue-${novel.id}-${entry.versionId ?? 'default'}`}
+                novel={novel}
+                onViewDetails={handleViewDetails}
+                onSelect={() => {
+                  void handleResumeFromShelf(novel, entry);
+                }}
+                badgeLabel="In Progress"
+                progressLabel={
+                  [
+                    version?.displayName ?? null,
+                    typeof entry.lastChapterNumber === 'number'
+                      ? `Resume at chapter ${entry.lastChapterNumber}`
+                      : 'Resume reading',
+                  ]
+                    .filter(Boolean)
+                    .join(' • ')
+                }
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Loading State */}
       {isLoadingRegistry ? (

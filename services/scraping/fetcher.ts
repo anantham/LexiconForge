@@ -13,6 +13,7 @@ import {
   getProxyDiagnostics,
 } from './proxy';
 import { deriveChapterNumber } from './chapterNumber';
+import { AppError } from '../appError';
 
 export const fetchAndParseUrl = async (
   url: string,
@@ -23,9 +24,13 @@ export const fetchAndParseUrl = async (
   try {
     targetUrl = new URL(url);
   } catch {
-    throw new Error(
-      `The provided URL is not valid. Please enter a full web address (e.g., "https://...").`
-    );
+    throw new AppError({
+      code: 'FETCH_INVALID_URL',
+      userMessage: 'The provided URL is not valid. Please enter a full web address (for example, "https://...").',
+      developerMessage: `Invalid fetch URL: ${url}`,
+      retryable: false,
+      details: { url },
+    });
   }
 
   const isSuttaCentral = targetUrl.hostname.endsWith('suttacentral.net');
@@ -198,17 +203,32 @@ export const fetchAndParseUrl = async (
     console.log(diagnostics);
     console.groupEnd();
 
-    throw new Error(
+    const developerMessage =
       `Failed to fetch from ${url} after ${MAX_RETRIES} attempts with all proxies and direct fetch.\n\n` +
-        `${diagnostics}\n\n` +
-        `Last proxy error: ${lastError?.message || 'Unknown proxy error'}\n` +
-        `Direct fetch error: ${directFetchError.message}\n\n` +
-        `Troubleshooting tips:\n` +
-        `• Try again in a few minutes (proxies may be rate-limited)\n` +
-        `• Check if the target website is accessible directly\n` +
-        `• Some proxies may be temporarily down - the system will learn and adapt\n` +
-        `• If all proxies consistently fail, the target site may have enhanced anti-bot protection`
-    );
+      `${diagnostics}\n\n` +
+      `Last proxy error: ${lastError?.message || 'Unknown proxy error'}\n` +
+      `Direct fetch error: ${directFetchError.message}\n\n` +
+      `Troubleshooting tips:\n` +
+      `• Try again in a few minutes (proxies may be rate-limited)\n` +
+      `• Check if the target website is accessible directly\n` +
+      `• Some proxies may be temporarily down - the system will learn and adapt\n` +
+      `• If all proxies consistently fail, the target site may have enhanced anti-bot protection`;
+
+    throw new AppError({
+      code: 'FETCH_ALL_PROXIES_FAILED',
+      userMessage: `Couldn't load that chapter from ${targetUrl.hostname} right now. The site or our fetch proxies may be blocking access. Try again later.`,
+      developerMessage,
+      diagnostics,
+      retryable: true,
+      cause: directFetchError,
+      details: {
+        url,
+        hostname: targetUrl.hostname,
+        retries: MAX_RETRIES,
+        lastProxyError: lastError?.message || 'Unknown proxy error',
+        directFetchError: directFetchError.message,
+      },
+    });
   }
 };
 

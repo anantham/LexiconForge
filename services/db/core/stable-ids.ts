@@ -32,6 +32,8 @@ export class StableIdManager {
       const record: UrlMappingRecord = {
         url,
         stableId,
+        novelId: existing?.novelId ?? null,
+        chapterNumber: existing?.chapterNumber,
         isCanonical,
         dateAdded: existing?.dateAdded ?? nowIso,
       };

@@ -12,6 +12,7 @@ const SETTINGS = {
   STABLE_ID_NORMALIZED: 'stableIdNormalized',
   ACTIVE_TRANSLATIONS_V2: 'activeTranslationsBackfilledV2',
   TRANSLATION_METADATA_BACKFILLED: 'translationMetadataBackfilled',
+  NOVEL_ID_BACKFILLED: 'novelIdBackfilled',
 } as const;
 
 const nowIso = () => new Date().toISOString();
@@ -31,10 +32,24 @@ const buildUrlMappingEntries = (record: ChapterRecord): UrlMappingRecord[] => {
   const entries: UrlMappingRecord[] = [];
 
   if (canonical) {
-    entries.push({ url: canonical, stableId, isCanonical: true, dateAdded: timestamp });
+    entries.push({
+      url: canonical,
+      stableId,
+      novelId: record.novelId ?? null,
+      chapterNumber: record.chapterNumber,
+      isCanonical: true,
+      dateAdded: timestamp,
+    });
   }
   if (original && original !== canonical) {
-    entries.push({ url: original, stableId, isCanonical: false, dateAdded: timestamp });
+    entries.push({
+      url: original,
+      stableId,
+      novelId: record.novelId ?? null,
+      chapterNumber: record.chapterNumber,
+      isCanonical: false,
+      dateAdded: timestamp,
+    });
   }
   return entries;
 };
@@ -114,6 +129,8 @@ export class MaintenanceOps {
               mappingsStore.put({
                 url: canonical,
                 stableId: chapter.stableId,
+                novelId: chapter.novelId ?? null,
+                chapterNumber: chapter.chapterNumber,
                 isCanonical: true,
                 dateAdded: timestamp,
               } as UrlMappingRecord)
@@ -124,6 +141,8 @@ export class MaintenanceOps {
                 mappingsStore.put({
                   url: raw,
                   stableId: chapter.stableId,
+                  novelId: chapter.novelId ?? null,
+                  chapterNumber: chapter.chapterNumber,
                   isCanonical: false,
                   dateAdded: timestamp,
                 } as UrlMappingRecord)
@@ -273,6 +292,41 @@ export class MaintenanceOps {
     );
 
     await SettingsOps.set(SETTINGS.TRANSLATION_METADATA_BACKFILLED, true);
+  }
+
+  static async backfillNovelIds(): Promise<void> {
+    const already = await SettingsOps.getKey<boolean>(SETTINGS.NOVEL_ID_BACKFILLED);
+    if (already) return;
+
+    await withWriteTxn(
+      [STORE_NAMES.CHAPTERS, STORE_NAMES.URL_MAPPINGS],
+      async (_txn, stores) => {
+        const chaptersStore = stores[STORE_NAMES.CHAPTERS];
+        const mappingsStore = stores[STORE_NAMES.URL_MAPPINGS];
+
+        const chapters = (await promisifyRequest(chaptersStore.getAll())) as ChapterRecord[];
+        for (const chapter of chapters) {
+          if (typeof chapter.novelId !== 'undefined') continue;
+          await promisifyRequest(chaptersStore.put({ ...chapter, novelId: null }));
+        }
+
+        const mappings = (await promisifyRequest(mappingsStore.getAll())) as UrlMappingRecord[];
+        for (const mapping of mappings) {
+          if (typeof mapping.novelId !== 'undefined') continue;
+          await promisifyRequest(
+            mappingsStore.put({
+              ...mapping,
+              novelId: null,
+            })
+          );
+        }
+      },
+      'maintenance',
+      'backfill',
+      'novelIds'
+    );
+
+    await SettingsOps.set(SETTINGS.NOVEL_ID_BACKFILLED, true);
   }
 
   static async clearAllData(): Promise<void> {

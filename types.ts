@@ -4,6 +4,8 @@ export interface Chapter {
   title: string;
   content: string;
   originalUrl: string;
+  novelId?: string | null;
+  libraryVersionId?: string | null;
   url?: string;
   canonicalUrl?: string;
   stableId?: string;

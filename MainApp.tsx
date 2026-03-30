@@ -48,6 +48,7 @@ useEffect(() => {
 // inside App component, near the top
 // Individual primitive selectors to avoid fresh object creation
 const currentChapterId = useAppStore((s) => s.currentChapterId);
+const appScreen = useAppStore((s) => s.appScreen);
 const viewMode = useAppStore((s) => s.viewMode);
 const isLoading = useAppStore((s) => s.isLoading);
 const settings = useAppStore((s) => s.settings);
@@ -75,14 +76,9 @@ const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
 const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
 const getChapter = useAppStore((s) => s.getChapter);
 const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSettingsChanged);
-const handleNavigate = useAppStore((s) => s.handleNavigate);
 const isInitialized = useAppStore((s) => s.isInitialized);
 console.log('[App:init] isInitialized selector', { isInitialized });
 const initializeStore = useAppStore((s) => s.initializeStore);
-const chapters = useAppStore((s) => s.chapters);
-
-// Determine if we should show landing page or main app
-const hasSession = chapters.size > 0 || currentChapterId !== null;
 
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
@@ -161,16 +157,9 @@ const settingsFingerprint = React.useMemo(
         setDbGate({ status: 'ready', result: versionCheck });
 
         await initializeStore();
-        // Now that the store is initialized, handle any URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const chapterUrl = urlParams.get('chapter');
-        if (chapterUrl) {
-          // Avoid noisy navigation logs in normal dev mode.
-          handleNavigate(decodeURIComponent(chapterUrl));
-        }
       };
       init();
-    }, [initializeStore, handleNavigate]);
+    }, [initializeStore]);
 
     // Boot-time hydration is now handled automatically by the store initialization
 
@@ -308,8 +297,16 @@ const settingsFingerprint = React.useMemo(
 	      );
 	    }
 
-    // Show landing page if no session is loaded
-    if (!hasSession) {
+    if (appScreen === 'reader-loading') {
+      return (
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+          <Loader text="Opening Reader..." />
+        </div>
+      );
+    }
+
+    // Show landing page when the app shell is in library mode
+    if (appScreen === 'library') {
       return (
         <>
           <LandingPage />
@@ -322,7 +319,7 @@ const settingsFingerprint = React.useMemo(
       );
     }
 
-    // Show main app when session is loaded
+    // Show main app when the reader is active
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
             <main className="container mx-auto">

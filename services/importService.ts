@@ -17,11 +17,12 @@ import type {
 import { ChapterOps } from './db/operations/chapters';
 import { TranslationOps } from './db/operations/translations';
 import { SettingsOps } from './db/operations';
-import { fetchChaptersForReactRendering } from './db/operations/rendering';
 import { debugLog } from '../utils/debug';
 import { withRetry, isNetworkError } from '../utils/retry';
-import { normalizeUrlAggressively } from './stableIdService';
 import { telemetryService } from './telemetryService';
+import { loadAllIntoStore, loadNovelIntoStore } from './readerHydrationService';
+import { generateStableChapterId } from './stableIdService';
+import { buildScopedStableId, buildScopedStorageUrl } from './libraryScope';
 import {
   convertBookTokiToLexiconForgeFullPayload,
   isBookTokiScrapePayload,
@@ -40,8 +41,58 @@ export interface ImportProgress {
   canStartReading?: boolean;
 }
 
+export interface ImportOptions {
+  registryNovelId?: string | null;
+  registryVersionId?: string | null;
+}
+
 const MAX_RETRIES = 3;
 const FIRST_BATCH_THRESHOLD = 4;
+
+const getScopedChapterIdentity = (
+  chapter: {
+    stableId?: string;
+    chapterNumber?: number;
+    title?: string;
+    content?: string;
+    url?: string;
+    canonicalUrl?: string;
+  },
+  options: ImportOptions
+): { stableId: string; storageUrl: string; canonicalUrl: string } => {
+  const canonicalUrl = chapter.canonicalUrl || chapter.url || '';
+  const baseStableId =
+    chapter.stableId ||
+    generateStableChapterId(
+      chapter.content || '',
+      chapter.chapterNumber || 0,
+      chapter.title || 'Untitled Chapter'
+    );
+
+  if (!options.registryNovelId) {
+    return {
+      stableId: baseStableId,
+      storageUrl: canonicalUrl,
+      canonicalUrl,
+    };
+  }
+
+  const stableId = buildScopedStableId(
+    baseStableId,
+    options.registryNovelId,
+    options.registryVersionId ?? null
+  );
+
+  return {
+    stableId,
+    storageUrl: buildScopedStorageUrl(
+      stableId,
+      options.registryNovelId,
+      options.registryVersionId ?? null
+    ),
+    canonicalUrl,
+  };
+};
 
 export class ImportService {
   /**
@@ -49,7 +100,8 @@ export class ImportService {
    */
   static async importFromUrl(
     url: string,
-    onProgress?: (progress: ImportProgress) => void
+    onProgress?: (progress: ImportProgress) => void,
+    options: ImportOptions = {}
   ): Promise<any> {
     // Convert GitHub URLs to raw format
     let fetchUrl = url;
@@ -149,6 +201,14 @@ export class ImportService {
             sessionData = convertBookTokiToLexiconForgeFullPayload(sessionData);
           }
 
+          if (typeof options.registryNovelId === 'string') {
+            sessionData = {
+              ...sessionData,
+              novelId: options.registryNovelId,
+              libraryVersionId: options.registryVersionId ?? null,
+            };
+          }
+
           if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
             throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
           }
@@ -196,7 +256,8 @@ export class ImportService {
   static async streamImportFromUrl(
     url: string,
     onProgress?: (progress: ImportProgress) => void,
-    onFirstChaptersReady?: () => void
+    onFirstChaptersReady?: () => void,
+    options: ImportOptions = {}
   ): Promise<any> {
     return new Promise(async (resolve, reject) => {
       console.log('[StreamImport] Starting streaming import from:', url);
@@ -487,6 +548,17 @@ export class ImportService {
             console.warn('[StreamImport] Skipping chapter without URL:', chapter);
             return;
           }
+          const identity = getScopedChapterIdentity(
+            {
+              stableId: chapter.stableId,
+              chapterNumber: chapter.chapterNumber,
+              title: chapter.title,
+              content: chapter.content,
+              url: chapterUrl,
+              canonicalUrl: chapter.canonicalUrl || chapterUrl,
+            },
+            options
+          );
 
           const translationInputs = buildTranslationInputs(chapter);
 
@@ -496,7 +568,9 @@ export class ImportService {
           });
 
           const chapterPayload: Chapter & { stableId?: string; fanTranslation?: string | null } = {
-            stableId: chapter.stableId,
+            stableId: identity.stableId,
+            novelId: options.registryNovelId ?? null,
+            libraryVersionId: options.registryVersionId ?? null,
             originalUrl: chapterUrl,
             title: chapter.title,
             content: chapter.content,
@@ -511,8 +585,8 @@ export class ImportService {
           let activeVersion: number | null = null;
 
           for (const translation of translationInputs) {
-            const stored = await TranslationOps.store({
-              ref: { url: chapterUrl, stableId: chapter.stableId },
+              const stored = await TranslationOps.store({
+              ref: { url: identity.storageUrl, stableId: identity.stableId },
               result: translation.result,
               settings: translation.settings,
             });
@@ -685,60 +759,17 @@ export class ImportService {
           }
         );
 
-        const rendering = await fetchChaptersForReactRendering();
+        const firstChapterId = options.registryNovelId
+          ? await loadNovelIntoStore(options.registryNovelId, useAppStore.setState, {
+              versionId: options.registryVersionId ?? null,
+            })
+          : await loadAllIntoStore(useAppStore.setState);
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
 
         useAppStore.setState(state => {
-          const newChapters = new Map<string, any>();
-          const newUrlIndex = new Map<string, string>();
-          const newRawUrlIndex = new Map<string, string>();
-          for (const ch of rendering) {
-            const chapterData = ch.data?.chapter;
-            const canonicalUrl = ch.url ?? chapterData?.originalUrl ?? null;
-            const originalUrl = chapterData?.originalUrl ?? canonicalUrl ?? null;
-            const title = chapterData?.title ?? ch.title ?? 'Untitled Chapter';
-            const content = chapterData?.content ?? '';
-            const nextUrl = chapterData?.nextUrl ?? null;
-            const prevUrl = chapterData?.prevUrl ?? null;
-            const chapterNumber = ch.chapterNumber ?? chapterData?.chapterNumber ?? 0;
-
-            newChapters.set(ch.stableId, {
-              id: ch.stableId,
-              stableId: ch.stableId,
-              url: canonicalUrl,
-              canonicalUrl,
-              title,
-              content,
-              nextUrl,
-              prevUrl,
-              chapterNumber,
-              fanTranslation: chapterData?.fanTranslation ?? null,
-              translationResult: ch.data?.translationResult || null,
-              feedback: [],
-            });
-
-            if (canonicalUrl) {
-              newRawUrlIndex.set(canonicalUrl, ch.stableId);
-              const normalizedCanonical = normalizeUrlAggressively(canonicalUrl);
-              if (normalizedCanonical) {
-                newUrlIndex.set(normalizedCanonical, ch.stableId);
-              }
-            }
-
-            if (originalUrl) {
-              newRawUrlIndex.set(originalUrl, ch.stableId);
-              const normalizedOriginal = normalizeUrlAggressively(originalUrl);
-              if (normalizedOriginal) {
-                newUrlIndex.set(normalizedOriginal, ch.stableId);
-              }
-            }
-          }
-
           return {
-            chapters: newChapters,
-            urlIndex: newUrlIndex,
-            rawUrlIndex: newRawUrlIndex,
             navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
+            currentChapterId: state.currentChapterId || firstChapterId,
             error: null,
           };
         });
@@ -749,52 +780,22 @@ export class ImportService {
           'summary',
           '[StreamImport] Post-hydration state snapshot',
           {
-            hydratedChapters: rendering.length,
+            hydratedChapters: useAppStore.getState().chapters.size,
             currentChapterId: postHydrationState.currentChapterId,
           }
         );
 
-        if (!postHydrationState.currentChapterId && rendering.length > 0) {
-          const first = rendering[0];
-          const firstUrl = first.url ?? first.data?.chapter?.originalUrl ?? null;
+        if (!postHydrationState.currentChapterId && firstChapterId) {
           debugLog(
             'import',
             'summary',
             '[StreamImport] Selecting first chapter after hydration fallback',
             {
-              firstStableId: first.stableId,
-              firstTitle: first.title,
-              totalHydrated: rendering.length,
+              firstStableId: firstChapterId,
+              totalHydrated: useAppStore.getState().chapters.size,
             }
           );
-          useAppStore.setState(state => {
-            const existing = state.currentChapterId;
-            if (existing) {
-              return state;
-            }
-            const updatedUrlIndex = state.urlIndex instanceof Map ? new Map(state.urlIndex) : new Map<string, string>();
-            const updatedRawUrlIndex = state.rawUrlIndex instanceof Map ? new Map(state.rawUrlIndex) : new Map<string, string>();
-            if (firstUrl) {
-              updatedRawUrlIndex.set(firstUrl, first.stableId);
-              const normalized = normalizeUrlAggressively(firstUrl);
-              if (normalized) {
-                updatedUrlIndex.set(normalized, first.stableId);
-              }
-            }
-            const originalUrl = first.data?.chapter?.originalUrl;
-            if (originalUrl) {
-              updatedRawUrlIndex.set(originalUrl, first.stableId);
-              const normalizedOriginal = normalizeUrlAggressively(originalUrl);
-              if (normalizedOriginal) {
-                updatedUrlIndex.set(normalizedOriginal, first.stableId);
-              }
-            }
-            return {
-              currentChapterId: first.stableId,
-              urlIndex: updatedUrlIndex,
-              rawUrlIndex: updatedRawUrlIndex,
-            };
-          });
+          useAppStore.setState({ currentChapterId: firstChapterId });
         }
 
         resolve({ metadata, chaptersLoaded });

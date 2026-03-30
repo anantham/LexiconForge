@@ -15,16 +15,16 @@ import { getRepoForService } from '../db/index';
 import { normalizeUrlAggressively } from '../stableIdService';
 import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
-import { TranslationOps, SettingsOps } from '../db/operations';
+import { ChapterOps, TranslationOps, SettingsOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
 import { debugLog } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
 import { loadChapterFromIDB, tryServeChapterFromCache } from './hydration';
 import { handleFetch } from './fetcher';
-import { updateBrowserHistory } from './history';
+import { updateBrowserHistory, type ReaderHistoryOptions } from './history';
 import { slog, swarn } from './logging';
-import type { NavigationContext, NavigationResult, FetchResult } from './types';
+import type { NavigationContext, NavigationResult, FetchResult, LibraryFetchScope } from './types';
 
 export type { NavigationContext, NavigationResult, FetchResult };
 
@@ -43,9 +43,11 @@ export class NavigationService {
       : Date.now();
     const telemetryMeta: Record<string, any> = { url };
     try {
-      const { urlIndex, rawUrlIndex, chapters, navigationHistory } = context;
+      const { urlIndex, rawUrlIndex, chapters, navigationHistory, scope } = context;
       const normalizedUrl = normalizeUrlAggressively(url);
       telemetryMeta.normalizedUrl = normalizedUrl || null;
+      telemetryMeta.novelId = scope?.novelId ?? null;
+      telemetryMeta.versionId = scope?.versionId ?? null;
       debugLog(
         'navigation',
         'summary',
@@ -61,6 +63,30 @@ export class NavigationService {
       );
 
       let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
+
+      const tryScopedLookup = async (): Promise<NavigationResult | null> => {
+        if (!scope?.novelId) {
+          return null;
+        }
+
+        const found = await ChapterOps.findBySourceUrl(url, scope.novelId, scope.versionId ?? null);
+        if (!found?.stableId) {
+          return null;
+        }
+
+        const loaded = await loadChapterFromIDBCallback(found.stableId);
+        if (!loaded) {
+          return null;
+        }
+
+        const newHistory = [...new Set(navigationHistory.concat(found.stableId))];
+        return {
+          chapterId: found.stableId,
+          chapter: loaded,
+          shouldUpdateBrowserHistory: true,
+          navigationHistory: newHistory,
+        };
+      };
 
       if (chapterId) {
         const hasChapter = chapters.has(chapterId);
@@ -214,30 +240,40 @@ export class NavigationService {
 
         // Lazy load failed - try URL mapping in IndexedDB before fetching
         try {
-          const norm = normalizedUrl;
-          const repo = getRepoForService('navigationService');
-          const mapping = (norm ? await repo.getUrlMappingForUrl(norm) : null) ||
-                          await repo.getUrlMappingForUrl(url);
-          if (mapping?.stableId) {
-            console.log('[Navigate] Found URL mapping in IndexedDB. Hydrating chapter instead of fetching.');
-            const loaded = await loadChapterFromIDBCallback(mapping.stableId);
-            if (loaded) {
-              const newHistory = [...new Set(navigationHistory.concat(mapping.stableId))];
-              telemetryMeta.outcome = 'idb_hydrated_via_mapping';
-              telemetryMeta.chapterId = mapping.stableId;
-              telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
-              debugLog(
-                'navigation',
-                'summary',
-                '[Navigation] Hydrated via mapping from IndexedDB',
-                { chapterId: mapping.stableId, hasTranslation: Boolean(loaded.translationResult) }
-              );
-              return {
-                chapterId: mapping.stableId,
-                chapter: loaded,
-                shouldUpdateBrowserHistory: true,
-                navigationHistory: newHistory
-              };
+          const scoped = await tryScopedLookup();
+          if (scoped) {
+            telemetryMeta.outcome = 'idb_hydrated_via_scope';
+            telemetryMeta.chapterId = scoped.chapterId ?? null;
+            telemetryMeta.hydratedTranslation = Boolean(scoped.chapter?.translationResult);
+            return scoped;
+          }
+
+          if (!scope?.novelId) {
+            const norm = normalizedUrl;
+            const repo = getRepoForService('navigationService');
+            const mapping = (norm ? await repo.getUrlMappingForUrl(norm) : null) ||
+                            await repo.getUrlMappingForUrl(url);
+            if (mapping?.stableId) {
+              console.log('[Navigate] Found URL mapping in IndexedDB. Hydrating chapter instead of fetching.');
+              const loaded = await loadChapterFromIDBCallback(mapping.stableId);
+              if (loaded) {
+                const newHistory = [...new Set(navigationHistory.concat(mapping.stableId))];
+                telemetryMeta.outcome = 'idb_hydrated_via_mapping';
+                telemetryMeta.chapterId = mapping.stableId;
+                telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
+                debugLog(
+                  'navigation',
+                  'summary',
+                  '[Navigation] Hydrated via mapping from IndexedDB',
+                  { chapterId: mapping.stableId, hasTranslation: Boolean(loaded.translationResult) }
+                );
+                return {
+                  chapterId: mapping.stableId,
+                  chapter: loaded,
+                  shouldUpdateBrowserHistory: true,
+                  navigationHistory: newHistory
+                };
+              }
             }
           }
         } catch (e) {
@@ -273,6 +309,14 @@ export class NavigationService {
       }
 
       // No chapter mapping found
+      const scoped = await tryScopedLookup();
+      if (scoped) {
+        telemetryMeta.outcome = 'idb_hydrated_via_scope';
+        telemetryMeta.chapterId = scoped.chapterId ?? null;
+        telemetryMeta.hydratedTranslation = Boolean(scoped.chapter?.translationResult);
+        return scoped;
+      }
+
       if (isUrlSupported(url)) {
         slog(`[Navigate] No chapter found for ${url}. Attempting to fetch...`);
         debugLog(
@@ -286,6 +330,18 @@ export class NavigationService {
       } else {
         // Try direct IndexedDB lookup as last resort
         try {
+          if (scope?.novelId) {
+            const errorMessage = `Navigation failed: The URL is not from a supported source and the chapter has not been imported for this version.`;
+            console.error(`[Navigate] ${errorMessage}`, {
+              url,
+              novelId: scope.novelId,
+              versionId: scope.versionId ?? null,
+            });
+            telemetryMeta.outcome = 'unsupported_url';
+            telemetryMeta.reason = 'no_scoped_match';
+            return { error: errorMessage };
+          }
+
           const repo = getRepoForService('navigationService');
           const found = await repo.findChapterByUrl(url);
           if (found?.stableId) {
@@ -303,6 +359,8 @@ export class NavigationService {
 
             const enhanced: EnhancedChapter = {
               id: chapterIdFound,
+              novelId: found.novelId ?? null,
+              libraryVersionId: found.libraryVersionId ?? null,
               title: c?.title || 'Untitled Chapter',
               content: c?.content || '',
               originalUrl: canonicalUrl,
@@ -377,8 +435,8 @@ export class NavigationService {
   }
 
   /** Fetch and parse a new chapter from URL */
-  static async handleFetch(url: string): Promise<FetchResult> {
-    return handleFetch(url);
+  static async handleFetch(url: string, scope: LibraryFetchScope = {}): Promise<FetchResult> {
+    return handleFetch(url, scope);
   }
 
   /** Lazy load chapter from IndexedDB with hydration state management */
@@ -390,8 +448,12 @@ export class NavigationService {
   }
 
   /** Update browser history with chapter information */
-  static updateBrowserHistory(chapter: EnhancedChapter, chapterId: string): void {
-    updateBrowserHistory(chapter, chapterId);
+  static updateBrowserHistory(
+    chapter: EnhancedChapter,
+    chapterId: string,
+    options?: ReaderHistoryOptions
+  ): void {
+    updateBrowserHistory(chapter, chapterId, options);
   }
 
   /** Check if URL is from a supported source for fetching */

@@ -2,6 +2,7 @@ import type { ChapterRecord, TranslationRecord } from '../types';
 import type { DeepLoomPacket } from '../../../types/suttaStudio';
 import { generateStableChapterId } from '../../stableIdService';
 import { telemetryService } from '../../telemetryService';
+import { isLibraryStorageUrl } from '../../libraryScope';
 import {
   memoryDetail,
   memorySummary,
@@ -34,6 +35,8 @@ export interface RenderingOpsDeps {
 export interface ChapterRenderingRecord {
   stableId: string;
   id: string;
+  novelId: string | null;
+  libraryVersionId: string | null;
   url: string;
   canonicalUrl: string;
   originalUrl: string;
@@ -51,6 +54,8 @@ export interface ChapterRenderingRecord {
       title: string;
       content: string;
       originalUrl: string;
+      novelId?: string | null;
+      libraryVersionId?: string | null;
       nextUrl: string | null;
       prevUrl: string | null;
       chapterNumber: number;
@@ -60,6 +65,88 @@ export interface ChapterRenderingRecord {
     translationResult: TranslationRecord | null;
   };
 }
+
+const buildChapterRenderingRecords = async (
+  chapters: ChapterRecord[],
+  deps: RenderingOpsDeps
+): Promise<ChapterRenderingRecord[]> => {
+  const chaptersWithStableIds = await Promise.all(
+    chapters.map(async chapter => {
+      const stableId =
+        chapter.stableId ||
+        generateStableChapterId(
+          chapter.content,
+          chapter.chapterNumber || 0,
+          chapter.title
+        );
+
+      let translationResult: TranslationRecord | null = null;
+      try {
+        translationResult = await deps.getActiveTranslation(chapter.url);
+      } catch (error) {
+        dblog(
+          '[IndexedDB] Failed to load translation for chapter:',
+          chapter.url,
+          error
+        );
+      }
+
+      const canonicalUrl = chapter.canonicalUrl || chapter.url;
+      const originalUrl = chapter.originalUrl || chapter.url;
+      const nextUrl = chapter.nextUrl ?? null;
+      const prevUrl = chapter.prevUrl ?? null;
+      const fanTranslation = chapter.fanTranslation ?? null;
+      const suttaStudio = chapter.suttaStudio ?? null;
+      const novelId = chapter.novelId ?? null;
+      const libraryVersionId = chapter.libraryVersionId ?? null;
+      const sourceUrls = Array.from(
+        new Set(
+          [canonicalUrl, originalUrl].filter(Boolean) as string[]
+        )
+      );
+      if (!isLibraryStorageUrl(chapter.url)) {
+        sourceUrls.unshift(chapter.url);
+      }
+
+      return {
+        stableId,
+        id: stableId,
+        novelId,
+        libraryVersionId,
+        url: chapter.url,
+        canonicalUrl,
+        originalUrl,
+        sourceUrls,
+        title: chapter.title,
+        content: chapter.content,
+        nextUrl,
+        prevUrl,
+        chapterNumber: chapter.chapterNumber || 0,
+        fanTranslation,
+        suttaStudio,
+        translationResult,
+        data: {
+          chapter: {
+            title: chapter.title,
+            content: chapter.content,
+            originalUrl,
+            novelId,
+            libraryVersionId,
+            nextUrl,
+            prevUrl,
+            chapterNumber: chapter.chapterNumber,
+            fanTranslation,
+            suttaStudio,
+          },
+          translationResult,
+        },
+      };
+    })
+  );
+
+  chaptersWithStableIds.sort((a, b) => a.chapterNumber - b.chapterNumber);
+  return chaptersWithStableIds;
+};
 
 export const getChaptersForReactRendering = async (
   deps: RenderingOpsDeps
@@ -113,75 +200,7 @@ export const getChaptersForReactRendering = async (
           })),
         });
 
-        const chaptersWithStableIds = await Promise.all(
-          chapters.map(async chapter => {
-            const stableId =
-              chapter.stableId ||
-              generateStableChapterId(
-                chapter.content,
-                chapter.chapterNumber || 0,
-                chapter.title
-              );
-
-            let translationResult: TranslationRecord | null = null;
-            try {
-              translationResult = await deps.getActiveTranslation(chapter.url);
-            } catch (error) {
-              dblog(
-                '[IndexedDB] Failed to load translation for chapter:',
-                chapter.url,
-                error
-              );
-            }
-
-            const canonicalUrl = chapter.canonicalUrl || chapter.url;
-            const originalUrl = chapter.originalUrl || chapter.url;
-            const nextUrl = chapter.nextUrl ?? null;
-            const prevUrl = chapter.prevUrl ?? null;
-            const fanTranslation = chapter.fanTranslation ?? null;
-            const suttaStudio = chapter.suttaStudio ?? null;
-
-            return {
-              stableId,
-              id: stableId,
-              url: chapter.url,
-              canonicalUrl,
-              originalUrl,
-              sourceUrls: Array.from(
-                new Set(
-                  [chapter.url, canonicalUrl, originalUrl].filter(
-                    Boolean
-                  ) as string[]
-                )
-              ),
-              title: chapter.title,
-              content: chapter.content,
-              nextUrl,
-              prevUrl,
-              chapterNumber: chapter.chapterNumber || 0,
-              fanTranslation,
-              suttaStudio,
-              translationResult,
-              data: {
-                chapter: {
-                  title: chapter.title,
-                  content: chapter.content,
-                  originalUrl,
-                  nextUrl,
-                  prevUrl,
-                  chapterNumber: chapter.chapterNumber,
-                  fanTranslation,
-                  suttaStudio,
-                },
-                translationResult,
-              },
-            };
-          })
-        );
-
-        chaptersWithStableIds.sort(
-          (a, b) => a.chapterNumber - b.chapterNumber
-        );
+        const chaptersWithStableIds = await buildChapterRenderingRecords(chapters, deps);
 
         dblog(
           '[IndexedDB] getChaptersForReactRendering:',
@@ -233,4 +252,60 @@ export const fetchChaptersForReactRendering = (): Promise<ChapterRenderingRecord
     openDatabase: () => getConnection(),
     getActiveTranslation: (chapterUrl: string) => TranslationOps.getActiveByUrl(chapterUrl),
   });
+};
+
+export const fetchChaptersForNovel = async (
+  novelId: string,
+  libraryVersionId: string | null = null
+): Promise<ChapterRenderingRecord[]> => {
+  try {
+    const db = await getConnection();
+    const transaction = db.transaction(['chapters'], 'readonly');
+    const store = transaction.objectStore('chapters');
+
+    const chapters = await new Promise<ChapterRecord[]>((resolve, reject) => {
+      if (store.indexNames.contains('novelVersion')) {
+        const index = store.index('novelVersion');
+        const request = index.getAll([novelId, libraryVersionId]);
+        request.onsuccess = () => resolve(request.result as ChapterRecord[]);
+        request.onerror = () => reject(request.error);
+        return;
+      }
+
+      if (store.indexNames.contains('novelId')) {
+        const index = store.index('novelId');
+        const request = index.getAll(novelId);
+        request.onsuccess = () =>
+          resolve(
+            (request.result as ChapterRecord[]).filter((row) => {
+              return (row.libraryVersionId ?? null) === libraryVersionId;
+            })
+          );
+        request.onerror = () => reject(request.error);
+        return;
+      }
+
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const allRows = request.result as ChapterRecord[];
+        resolve(
+          allRows.filter(row => {
+            return (
+              (row.novelId ?? null) === novelId &&
+              (row.libraryVersionId ?? null) === libraryVersionId
+            );
+          })
+        );
+      };
+      request.onerror = () => reject(request.error);
+    });
+
+    return buildChapterRenderingRecords(chapters, {
+      openDatabase: () => Promise.resolve(db),
+      getActiveTranslation: (chapterUrl: string) => TranslationOps.getActiveByUrl(chapterUrl),
+    });
+  } catch (error) {
+    console.error('[IndexedDB] Failed to get chapters for novel:', novelId, error);
+    return [];
+  }
 };

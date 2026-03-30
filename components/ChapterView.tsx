@@ -53,6 +53,7 @@ const ChapterView: React.FC = () => {
   const error = useAppStore(s => s.error);
   const handleToggleLanguage = useAppStore(s => s.setViewMode);
   const handleNavigate = useAppStore(s => s.handleNavigate);
+  const shelveActiveNovel = useAppStore(s => s.shelveActiveNovel);
   const handleRetranslateCurrent = useAppStore(s => s.handleRetranslateCurrent);
   const cancelTranslation = useAppStore(s => s.cancelTranslation);
   const isTranslationActive = useAppStore(s => s.isTranslationActive);
@@ -332,6 +333,7 @@ const ChapterView: React.FC = () => {
     sourceUrl: chapter?.originalUrl,
     suttaStudioUrl,
     onToggleLanguage: handleToggleLanguage,
+    onOpenLibrary: () => shelveActiveNovel(),
     onNavigatePrev: chapter?.prevUrl ? () => handleNavigate(chapter.prevUrl) : undefined,
     onNavigateNext: chapter?.nextUrl ? () => handleNavigate(chapter.nextUrl) : undefined,
     prevDisabled: !chapter?.prevUrl || isLoading.fetching,

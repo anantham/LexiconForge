@@ -4,6 +4,9 @@ import type { BootstrapContext } from './index';
 
 const buildResetState = (state: StoreState): Partial<StoreState> => ({
   // UI slice
+  appScreen: 'library',
+  activeNovelId: null,
+  activeVersionId: null,
   viewMode: state.viewMode || ('english' as const),
   showSettingsModal: false,
   showExportModal: false,
