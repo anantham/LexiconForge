@@ -135,6 +135,40 @@ describe('ImportService', () => {
     expect(mockSetSessionVersion).not.toHaveBeenCalled();
   });
 
+  it('should thread registryNovelId into imported session payloads', async () => {
+    const sessionData = {
+      metadata: {
+        format: 'lexiconforge-full-1',
+        version: '2.0',
+      },
+      chapters: [],
+    };
+
+    const jsonString = JSON.stringify(sessionData);
+    const contentLength = new TextEncoder().encode(jsonString).length;
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({
+        'content-length': contentLength.toString()
+      }),
+      body: createMockReadableStream(sessionData)
+    });
+
+    await ImportService.importFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      { registryNovelId: 'orv' }
+    );
+
+    expect(mockImportSessionData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ format: 'lexiconforge-full-1' }),
+        novelId: 'orv',
+      })
+    );
+  });
+
   it('should import BookToki scrape JSON by converting it to lexiconforge-full-1', async () => {
     const bookTokiPayload = {
       metadata: {
