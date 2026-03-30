@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { parseEnglishMonolithicText } from '../chapter-parsing';
+import { parseEnglishPdfText } from '../chapter-parsing';
 import { extractPdfText } from '../pdf-text';
 import type {
   TranslationSourceAdapter,
@@ -19,7 +19,7 @@ export class PdfAdapter implements TranslationSourceAdapter {
   async extract(pdfPath: string): Promise<TranslationSourceOutput> {
     console.log(`📘 Parsing PDF: ${path.basename(pdfPath)}`);
     const extractedText = extractPdfText(pdfPath);
-    const chapters = parseEnglishMonolithicText(extractedText);
+    const chapters = parseEnglishPdfText(extractedText);
 
     if (chapters.length === 0) {
       throw new Error('No chapter headings could be parsed from PDF.');

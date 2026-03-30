@@ -355,10 +355,13 @@ export const buildHostedLibraryArtifacts = async (
     const fan = resolveFanTranslationForChapter(rawChapter.chapterNumber, fanLoaded);
     warnings.push(...fan.warnings);
 
+    // Use fan translation title (English) when available, fall back to raw title (Chinese)
+    const title = fan.match?.title || rawChapter.title;
+
     return {
       stableId,
       canonicalUrl,
-      title: rawChapter.title,
+      title,
       content,
       fanTranslation: fan.match?.text || null,
       nextUrl: index < allRawChapters.length - 1

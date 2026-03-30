@@ -74,10 +74,74 @@ export const collapseWrappedLines = (text: string): string => text
   .replace(/\s+/g, ' ')
   .trim();
 
+/**
+ * Smarter paragraph splitting for PDF-extracted text where both soft wraps
+ * and real paragraph breaks use single newlines.
+ *
+ * Heuristic: a newline is a real paragraph break when:
+ * - The previous line ends with sentence-ending punctuation (.!?""')
+ *   AND the next line starts with an uppercase letter, quote, or is very short (<40 chars)
+ * - OR the previous line is very short (<40 chars) — likely a heading or short sentence
+ * - OR the next line starts with a quote character
+ */
+export const splitPdfParagraphs = (text: string): string[] => {
+  const lines = normalizePlainText(text)
+    .split('\n')
+    .map((line) => line.trim());
+
+  const paragraphs: string[] = [];
+  let current: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.length === 0) {
+      // Blank line is always a paragraph break
+      if (current.length > 0) {
+        paragraphs.push(current.join(' ').replace(/\s+/g, ' ').trim());
+        current = [];
+      }
+      continue;
+    }
+
+    current.push(line);
+
+    // Decide if we should break after this line
+    const nextLine = lines[i + 1];
+    if (!nextLine || nextLine.length === 0) continue; // blank line or end handles it
+
+    const endsWithPunctuation = /[.!?"\u201C\u201D\u2018\u2019'"]$/.test(line);
+    const nextStartsUpper = /^[A-Z"\u201C\u201D\u2018\u2019'\u2014—]/.test(nextLine);
+    const lineIsShort = line.length < 40;
+    const nextIsQuote = /^[""\u201C\u201D''\u2018\u2019]/.test(nextLine);
+
+    if (
+      (endsWithPunctuation && nextStartsUpper) ||
+      (endsWithPunctuation && nextIsQuote) ||
+      lineIsShort
+    ) {
+      paragraphs.push(current.join(' ').replace(/\s+/g, ' ').trim());
+      current = [];
+    }
+  }
+
+  if (current.length > 0) {
+    paragraphs.push(current.join(' ').replace(/\s+/g, ' ').trim());
+  }
+
+  return paragraphs.filter(Boolean);
+};
+
 export const splitTextIntoParagraphs = (
   text: string,
-  options: { collapseSoftWraps?: boolean } = {}
+  options: { collapseSoftWraps?: boolean; pdfMode?: boolean } = {}
 ): Array<{ text: string }> => {
+  // PDF mode uses smarter heuristic for paragraph detection
+  if (options.pdfMode) {
+    return splitPdfParagraphs(text)
+      .map((block) => ({ text: block }))
+      .filter((paragraph) => paragraph.text.length > 0);
+  }
+
   const normalized = options.collapseSoftWraps
     ? stripSoftWrappedLineBreaks(text)
     : normalizePlainText(text);

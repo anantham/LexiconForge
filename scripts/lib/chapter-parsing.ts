@@ -95,7 +95,7 @@ const findEnglishBodyStartIndex = (headings: HeadingMatch[]): number => {
 const buildChaptersFromHeadings = (
   text: string,
   headings: HeadingMatch[],
-  options: { collapseSoftWraps?: boolean; titlePrefix: 'Chapter' | '第' }
+  options: { collapseSoftWraps?: boolean; pdfMode?: boolean; titlePrefix: 'Chapter' | '第' }
 ): TranslationSourceChapter[] => {
   const chapters: TranslationSourceChapter[] = [];
 
@@ -105,6 +105,7 @@ const buildChaptersFromHeadings = (
     const body = text.slice(current.endOffset, next?.startOffset ?? text.length).trim();
     const paragraphs = splitTextIntoParagraphs(body, {
       collapseSoftWraps: options.collapseSoftWraps,
+      pdfMode: options.pdfMode,
     });
 
     if (paragraphs.length === 0) {
@@ -146,6 +147,38 @@ export const parseEnglishMonolithicText = (text: string): TranslationSourceChapt
   const bodyStartIndex = findEnglishBodyStartIndex(headings);
   return buildChaptersFromHeadings(normalized, headings.slice(bodyStartIndex), {
     collapseSoftWraps: true,
+    titlePrefix: 'Chapter',
+  });
+};
+
+/**
+ * Rejoin chapter headings that pdftotext split across lines.
+ * "Chapter 1: Artifact\nGraveyard" → "Chapter 1: Artifact Graveyard"
+ *
+ * Strategy: only rejoin when the continuation line is short (< 30 chars)
+ * and doesn't end with sentence-ending punctuation (which would indicate
+ * it's a real paragraph, not a wrapped heading).
+ */
+const rejoinBrokenPdfHeadings = (text: string): string => {
+  return text.replace(
+    /^(Chapter\s+\d+(?:-\d+)?(?:\s*[:\-–]\s*.+?))\n(.+)/gm,
+    (match, heading, continuation) => {
+      const trimmed = continuation.trim();
+      // Only rejoin short fragments that don't look like full sentences
+      if (trimmed.length < 30 && !/[.!""']$/.test(trimmed)) {
+        return `${heading} ${trimmed}`;
+      }
+      return match;
+    }
+  );
+};
+
+export const parseEnglishPdfText = (text: string): TranslationSourceChapter[] => {
+  const normalized = rejoinBrokenPdfHeadings(normalizeLineEndings(text));
+  const headings = parseHeadingMatches(normalized, ENGLISH_CHAPTER_HEADING);
+  const bodyStartIndex = findEnglishBodyStartIndex(headings);
+  return buildChaptersFromHeadings(normalized, headings.slice(bodyStartIndex), {
+    pdfMode: true,
     titlePrefix: 'Chapter',
   });
 };
