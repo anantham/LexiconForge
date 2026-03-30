@@ -10,8 +10,16 @@
  */
 
 import type { StateCreator } from 'zustand';
+import { BookshelfStateService } from '../../services/bookshelfStateService';
+
+export type AppScreen = 'library' | 'reader-loading' | 'reader';
 
 export interface UiState {
+  // App shell routing
+  appScreen: AppScreen;
+  activeNovelId: string | null;
+  activeVersionId: string | null;
+
   // View modes
   viewMode: 'original' | 'fan' | 'english';
   
@@ -45,6 +53,13 @@ export interface UiState {
 }
 
 export interface UiActions {
+  // App shell routing actions
+  openLibrary: () => void;
+  setReaderLoading: (novelId?: string | null, versionId?: string | null) => void;
+  openNovel: (novelId: string, versionId?: string | null) => void;
+  setReaderReady: () => void;
+  shelveActiveNovel: () => void;
+
   // View mode actions
   setViewMode: (mode: 'original' | 'fan' | 'english') => void;
   handleToggleLanguage: (mode: 'original' | 'fan' | 'english') => void;
@@ -100,6 +115,11 @@ export const createUiSlice: StateCreator<
   [],
   UiSlice
 > = (set, get) => ({
+  // Initial shell state
+  appScreen: 'library',
+  activeNovelId: null,
+  activeVersionId: null,
+
   // Initial state - load from localStorage
   viewMode: loadViewMode(),
   showSettingsModal: false,
@@ -111,6 +131,55 @@ export const createUiSlice: StateCreator<
   urlLoadingStates: {},
   hydratingChapters: {},
   isInitialized: false,
+
+  // App shell routing actions
+  openLibrary: () => set({
+    appScreen: 'library',
+    activeNovelId: null,
+    activeVersionId: null,
+  }),
+
+  setReaderLoading: (novelId = null, versionId = null) => set({
+    appScreen: 'reader-loading',
+    activeNovelId: novelId,
+    activeVersionId: versionId,
+  }),
+
+  openNovel: (novelId, versionId = null) => set({
+    appScreen: 'reader-loading',
+    activeNovelId: novelId,
+    activeVersionId: versionId,
+  }),
+
+  setReaderReady: () => set({
+    appScreen: 'reader',
+  }),
+
+  shelveActiveNovel: () => {
+    const state = get() as any;
+    const activeNovelId = state.activeNovelId as string | null;
+    const activeVersionId = state.activeVersionId as string | null;
+    const currentChapterId = state.currentChapterId as string | null;
+    const chapter = currentChapterId ? state.chapters?.get?.(currentChapterId) : null;
+
+    if (activeNovelId && currentChapterId && chapter) {
+      void BookshelfStateService.upsertEntry({
+        novelId: activeNovelId,
+        ...(activeVersionId ? { versionId: activeVersionId } : {}),
+        lastChapterId: currentChapterId,
+        lastChapterNumber: chapter.chapterNumber ?? undefined,
+        lastReadAtIso: new Date().toISOString(),
+      }).catch((error) => {
+        console.error('[UI] Failed to persist shelf bookmark while shelving active novel:', error);
+      });
+    }
+
+    set({
+      appScreen: 'library',
+      activeNovelId: null,
+      activeVersionId: null,
+    });
+  },
   
   // View mode actions
   setViewMode: (mode) => {
