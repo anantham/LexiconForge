@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vite
 import { NavigationService, type NavigationContext, type FetchResult } from '../../services/navigationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import type { TranslationRecord } from '../../services/db/types';
+import { AppError } from '../../services/appError';
 
 // ============================================================================
 // Test Fixtures
@@ -16,6 +17,8 @@ import type { TranslationRecord } from '../../services/db/types';
 
 const createMockEnhancedChapter = (overrides: Partial<EnhancedChapter> = {}): EnhancedChapter => ({
   id: 'ch-test-001',
+  novelId: null,
+  libraryVersionId: null,
   title: 'Test Chapter',
   content: 'This is test content for the chapter.',
   originalUrl: 'https://kakuyomu.jp/works/123/episodes/456',
@@ -122,6 +125,7 @@ vi.mock('../../services/stableIdService', () => ({
 vi.mock('../../services/db/operations', () => ({
   ChapterOps: {
     getByStableId: vi.fn(),
+    findBySourceUrl: vi.fn(),
   },
   TranslationOps: {
     getActiveByStableId: vi.fn(),
@@ -509,6 +513,21 @@ describe('NavigationService', () => {
       expect(result.error).toBe('Network error');
     });
 
+    it('returns the user-facing message when fetch fails with an AppError', async () => {
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
+      (fetchAndParseUrl as Mock).mockRejectedValue(
+        new AppError({
+          code: 'FETCH_ALL_PROXIES_FAILED',
+          userMessage: 'Short human message',
+          developerMessage: 'Long proxy diagnostics that should stay out of the UI',
+        })
+      );
+
+      const result = await NavigationService.handleFetch('https://kakuyomu.jp/works/123/episodes/456');
+
+      expect(result.error).toBe('Short human message');
+    });
+
     it('deduplicates concurrent fetches for same URL', async () => {
       const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
 
@@ -606,7 +625,7 @@ describe('NavigationService', () => {
       NavigationService.updateBrowserHistory(chapter, chapter.id);
 
       expect(history.pushState).toHaveBeenCalledWith(
-        { chapterId: chapter.id },
+        { chapterId: chapter.id, novelId: null, versionId: null },
         '',
         expect.stringContaining('chapter=')
       );
@@ -619,6 +638,21 @@ describe('NavigationService', () => {
 
       const call = (history.pushState as Mock).mock.calls[0];
       const url = call[2];
+      expect(url).toContain(`chapter=${encodeURIComponent(chapter.canonicalUrl)}`);
+    });
+
+    it('includes novel and version params when provided', () => {
+      const chapter = createMockEnhancedChapter({ novelId: 'orv' });
+
+      NavigationService.updateBrowserHistory(chapter, chapter.id, {
+        novelId: 'orv',
+        versionId: 'v2',
+      });
+
+      const call = (history.pushState as Mock).mock.calls[0];
+      const url = call[2];
+      expect(url).toContain('novel=orv');
+      expect(url).toContain('version=v2');
       expect(url).toContain(`chapter=${encodeURIComponent(chapter.canonicalUrl)}`);
     });
   });

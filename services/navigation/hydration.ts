@@ -8,9 +8,10 @@ import { telemetryService } from '../telemetryService';
 import { debugLog } from '../../utils/debug';
 import { computeDiffHash } from '../diff/hash';
 import { DIFF_ALGO_VERSION } from '../diff/constants';
+import { isLibraryStorageUrl } from '../libraryScope';
 import { adaptTranslationRecordToResult } from './converters';
 import { slog, swarn } from './logging';
-import type { FetchResult } from './types';
+import type { FetchResult, LibraryFetchScope } from './types';
 
 export async function loadChapterFromIDB(
   chapterId: string,
@@ -68,8 +69,21 @@ export async function loadChapterFromIDB(
     }
 
     // Transform IndexedDB record to EnhancedChapter format
+    const sourceUrls = Array.from(
+      new Set(
+        [rec.canonicalUrl || rec.originalUrl || null, rec.originalUrl || null].filter(
+          (value): value is string => typeof value === 'string' && value.length > 0
+        )
+      )
+    );
+    if (!isLibraryStorageUrl(rec.url)) {
+      sourceUrls.unshift(rec.url || '');
+    }
+
     const enhanced: EnhancedChapter = {
       id: chapterId,
+      novelId: rec.novelId ?? null,
+      libraryVersionId: rec.libraryVersionId ?? null,
       title: rec.title || 'Untitled Chapter',
       content: rec.content || '',
       originalUrl: rec.originalUrl || rec.url || '',
@@ -77,7 +91,7 @@ export async function loadChapterFromIDB(
       nextUrl: rec.nextUrl,
       prevUrl: rec.prevUrl,
       chapterNumber: rec.chapterNumber || 0,
-      sourceUrls: [rec.url || ''],
+      sourceUrls,
       importSource: {
         originalUrl: rec.originalUrl || rec.url || '',
         importDate: new Date(rec.dateAdded || Date.now()),
@@ -224,14 +238,23 @@ export async function loadChapterFromIDB(
 
 export async function tryServeChapterFromCache(
   url: string,
-  telemetryMeta: Record<string, any>
+  telemetryMeta: Record<string, any>,
+  scope: LibraryFetchScope = {}
 ): Promise<FetchResult | null> {
   try {
-    const repo = getRepoForService('navigationService');
     const normalized = normalizeUrlAggressively(url);
-    const mapping =
-      (normalized ? await repo.getUrlMappingForUrl(normalized) : null) ||
-      (await repo.getUrlMappingForUrl(url));
+    const scopedMatch = scope.novelId
+      ? await ChapterOps.findBySourceUrl(url, scope.novelId, scope.versionId ?? null)
+      : null;
+    const mapping = scope.novelId
+      ? (scopedMatch?.stableId ? { stableId: scopedMatch.stableId } : null)
+      : await (async () => {
+          const repo = getRepoForService('navigationService');
+          return (
+            (normalized ? await repo.getUrlMappingForUrl(normalized) : null) ||
+            (await repo.getUrlMappingForUrl(url))
+          );
+        })();
 
     if (!mapping?.stableId) {
       return null;

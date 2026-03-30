@@ -23,6 +23,12 @@ export interface NavigationContext {
   rawUrlIndex: Map<string, string>;
   navigationHistory: string[];
   hydratingChapters: Record<string, boolean>;
+  scope?: LibraryFetchScope;
+}
+
+export interface LibraryFetchScope {
+  novelId?: string | null;
+  versionId?: string | null;
 }
 
 export interface NavigationResult {

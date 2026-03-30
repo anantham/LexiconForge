@@ -7,7 +7,8 @@ import { telemetryService } from '../telemetryService';
 import { debugLog } from '../../utils/debug';
 import { tryServeChapterFromCache } from './hydration';
 import { slog, swarn } from './logging';
-import type { FetchResult, StoredNovelMetadata } from './types';
+import type { FetchResult, LibraryFetchScope, StoredNovelMetadata } from './types';
+import { getUserMessage } from '../appError';
 
 // In-flight fetch management
 const inflightFetches = new Map<string, Promise<void>>();
@@ -63,12 +64,15 @@ async function applySuttaMetadataFromChapter(chapter: Chapter): Promise<void> {
   }
 }
 
-export async function handleFetch(url: string): Promise<FetchResult> {
+export async function handleFetch(
+  url: string,
+  scope: LibraryFetchScope = {}
+): Promise<FetchResult> {
   const telemetryStart = typeof performance !== 'undefined' && typeof performance.now === 'function'
     ? performance.now()
     : Date.now();
   const telemetryMeta: Record<string, any> = { url };
-  const cachedResult = await tryServeChapterFromCache(url, telemetryMeta);
+  const cachedResult = await tryServeChapterFromCache(url, telemetryMeta, scope);
   if (cachedResult) {
     return cachedResult;
   }
@@ -112,7 +116,10 @@ export async function handleFetch(url: string): Promise<FetchResult> {
           fanTranslation: chapterData.fanTranslation ?? null,
           suttaStudio: chapterData.suttaStudio ?? null
         };
-        const stableData = transformImportedChapters([dataForTransformation]);
+        const stableData = transformImportedChapters([dataForTransformation], {
+          registryNovelId: scope.novelId ?? null,
+          libraryVersionId: scope.versionId ?? null,
+        });
         slog(`[Fetch] Stable transformation result:`, {
           chaptersCount: stableData.chapters.size,
           currentChapterId: stableData.currentChapterId,
@@ -175,7 +182,12 @@ export async function handleFetch(url: string): Promise<FetchResult> {
         console.error('[FETCH-ERROR]', e);
         telemetryMeta.outcome = 'error';
         telemetryMeta.error = e?.message ?? String(e);
-        return { error: String(e?.message ?? e ?? 'Fetch failed') };
+        return {
+          error: getUserMessage(
+            e,
+            'Could not load that chapter. Please try again later.'
+          ),
+        };
       }
     })();
 

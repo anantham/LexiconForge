@@ -1,7 +1,16 @@
 import type { EnhancedChapter } from '../stableIdService';
 import { isSuttaFlowDebug, logSuttaFlow } from '../suttaStudioDebug';
 
-export function updateBrowserHistory(chapter: EnhancedChapter, chapterId: string): void {
+export interface ReaderHistoryOptions {
+  novelId?: string | null;
+  versionId?: string | null;
+}
+
+export function updateBrowserHistory(
+  chapter: EnhancedChapter,
+  chapterId: string,
+  options: ReaderHistoryOptions = {}
+): void {
   if (typeof history !== 'undefined' && history.pushState) {
     const currentUrl =
       typeof window !== 'undefined' ? new URL(window.location.href) : null;
@@ -18,6 +27,14 @@ export function updateBrowserHistory(chapter: EnhancedChapter, chapterId: string
       });
     }
 
+    if (options.novelId) {
+      params.set('novel', options.novelId);
+    }
+
+    if (options.versionId) {
+      params.set('version', options.versionId);
+    }
+
     params.set('chapter', chapter.canonicalUrl);
     const search = params.toString();
     const basePath = currentUrl?.pathname || '';
@@ -32,7 +49,11 @@ export function updateBrowserHistory(chapter: EnhancedChapter, chapterId: string
       });
     }
     history.pushState(
-      { chapterId },
+      {
+        chapterId,
+        novelId: options.novelId ?? null,
+        versionId: options.versionId ?? null,
+      },
       '',
       nextUrl
     );
