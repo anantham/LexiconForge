@@ -10,7 +10,7 @@ interface Props {
   comparisonLoading: boolean;
   beginInlineEdit: () => void;
   handleCompareRequest: () => void;
-  handleFeedbackSubmit: (feedback: { type: string; selection: string }) => void;
+  handleFeedbackSubmit: (feedback: { type: string; selection: string; comment?: string }) => void;
   clearSelection: () => void;
   viewRef: React.RefObject<HTMLDivElement>;
 }

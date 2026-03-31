@@ -315,6 +315,8 @@ export interface AppSettings {
     diffAnalysisPrompt?: string;
     // Audio feature
     enableAudio?: boolean;                    // Show audio generation controls (default: false)
+    // Inline comment markers
+    showInlineComments?: boolean;             // Show feedback comments floating near text (default: true)
     // Prompt snapshot metadata
     promptId?: string;
     promptName?: string;

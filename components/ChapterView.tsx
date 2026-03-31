@@ -52,7 +52,11 @@ const ChapterView: React.FC = () => {
   const activePromptTemplate = useAppStore(s => s.activePromptTemplate);
   const error = useAppStore(s => s.error);
   const handleToggleLanguage = useAppStore(s => s.setViewMode);
-  const handleNavigate = useAppStore(s => s.handleNavigate);
+  const _handleNavigate = useAppStore(s => s.handleNavigate);
+  const handleNavigate = useCallback((url: string) => {
+    window.scrollTo({ top: 0 });
+    _handleNavigate(url);
+  }, [_handleNavigate]);
   const shelveActiveNovel = useAppStore(s => s.shelveActiveNovel);
   const handleRetranslateCurrent = useAppStore(s => s.handleRetranslateCurrent);
   const cancelTranslation = useAppStore(s => s.cancelTranslation);

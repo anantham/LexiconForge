@@ -54,6 +54,18 @@ const DisplayPanel: React.FC = () => {
           />
         </div>
       </div>
+      <div className="mt-4 flex items-center gap-3">
+        <input
+          id="showInlineComments"
+          type="checkbox"
+          checked={currentSettings.showInlineComments ?? true}
+          onChange={(e) => handleSettingChange('showInlineComments', e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        <label htmlFor="showInlineComments" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Show inline feedback markers in left gutter
+        </label>
+      </div>
     </fieldset>
   );
 };
