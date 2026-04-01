@@ -39,6 +39,11 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
     const root = ref.current;
     if (!root || typeof window === 'undefined' || typeof document === 'undefined') return;
 
+    // Don't clear selection while user is interacting with an input (e.g., feedback comment box).
+    // Focusing an input collapses the DOM selection, but we want to keep the popover alive.
+    const activeTag = document.activeElement?.tagName;
+    if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+
     if (selDebugEnabled()) console.groupCollapsed('[useTextSelection] Selection Check');
     const currentSelection = window.getSelection && window.getSelection();
 

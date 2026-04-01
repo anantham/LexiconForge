@@ -71,6 +71,7 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
             type="text"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
+            onMouseDown={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
               if (e.key === 'Enter') submitWithComment();
               if (e.key === 'Escape') skipComment();
