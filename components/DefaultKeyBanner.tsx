@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import { getDefaultKeyStatus } from '../services/defaultApiKeyService';
 import { useAppStore } from '../store';
+import { debugLog } from '../utils/debug';
 
 export function DefaultKeyBanner() {
   const [isDismissed, setIsDismissed] = useState(false);
@@ -41,7 +42,7 @@ export function DefaultKeyBanner() {
     });
 
     if (currentState !== lastLoggedState) {
-      console.log('[DefaultKeyBanner] Visibility state changed:', {
+      debugLog('ui', 'full', '[DefaultKeyBanner] Visibility state changed:', {
         provider: settings.provider,
         hasUserKey: !!settings.apiKeyOpenRouter,
         hasUserEnvKey: !!hasUserEnvKey,

@@ -12,6 +12,7 @@ import { DefaultKeyBanner } from './components/DefaultKeyBanner';
 
 import { validateApiKey } from './services/aiService';
 import { prepareConnection } from './services/db/core/connection';
+import { debugLog, debugWarn } from './utils/debug';
 import { shouldBlockApp, type VersionCheckResult } from './services/db/core/versionGate';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -77,7 +78,7 @@ const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
 const getChapter = useAppStore((s) => s.getChapter);
 const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSettingsChanged);
 const isInitialized = useAppStore((s) => s.isInitialized);
-console.log('[App:init] isInitialized selector', { isInitialized });
+debugLog('ui', 'full', '[App:init] isInitialized selector', { isInitialized });
 const initializeStore = useAppStore((s) => s.initializeStore);
 
 // Separate leaf selector for translation result (returns primitive/null)
@@ -165,7 +166,7 @@ const settingsFingerprint = React.useMemo(
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-      console.log(`🔍 [AutoTranslate] Effect triggered @${Date.now()}`, {
+      debugLog('translation', 'full', `[AutoTranslate] Effect triggered @${Date.now()}`, {
         viewMode,
         currentChapterId,
         hasCurrentChapter,
@@ -174,13 +175,13 @@ const settingsFingerprint = React.useMemo(
       });
 
       if (viewMode !== 'english' || !currentChapterId || !hasCurrentChapter) {
-        console.log(`🔍 [AutoTranslate] Early exit - preconditions not met`);
+        debugLog('translation', 'full', `[AutoTranslate] Early exit - preconditions not met`);
         return;
       }
 
       const chapter = getChapter(currentChapterId);
       if (!chapter) {
-        console.log(`🔍 [AutoTranslate] Early exit - chapter not found in map`);
+        debugLog('translation', 'full', `[AutoTranslate] Early exit - chapter not found in map`);
         return;
       }
 
@@ -190,7 +191,7 @@ const settingsFingerprint = React.useMemo(
       const prevSig    = requestedRef.current.get(currentChapterId);
       const alreadyRequested = prevSig === settingsFingerprint;
 
-      console.log(`🔍 [AutoTranslate] Conditions check for ${currentChapterId}:`, {
+      debugLog('translation', 'full', `[AutoTranslate] Conditions check for ${currentChapterId}:`, {
         hasResult,
         translating,
         alreadyRequested,
@@ -208,12 +209,12 @@ const settingsFingerprint = React.useMemo(
       });
 
       if (!hasResult && !translating && !alreadyRequested && !pending) {
-        console.warn(`🚨 [AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
-        console.warn(`🚨 [AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
+        debugWarn('translation', 'summary', `[AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
+        debugWarn('translation', 'summary', `[AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
         requestedRef.current.set(currentChapterId, settingsFingerprint);
         handleTranslate(currentChapterId);
       } else {
-        console.log(`✅ [AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
+        debugLog('translation', 'full', `[AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
       }
     }, [
       viewMode,
