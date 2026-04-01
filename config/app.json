@@ -11,7 +11,7 @@
   },
   "defaultModels": {
     "provider": "OpenRouter",
-    "textModel": "google/gemini-2.5-flash",
+    "textModel": "google/gemini-3.1-flash-lite-preview",
     "imageModel": "none"
   },
   "aiParameters": {
