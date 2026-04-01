@@ -92,7 +92,7 @@ export function DefaultKeyBanner() {
           <p className={`text-sm mt-1 ${isExceeded ? 'text-red-800 dark:text-red-200' : 'text-amber-800 dark:text-amber-200'}`}>
             {isExceeded ? (
               <>
-                You've used all <strong>10 free trial requests</strong>. Add your own API key to continue translating.
+                You've used all <strong>10 free daily requests</strong>. Come back tomorrow or add your own API key to continue now.
               </>
             ) : (
               <>

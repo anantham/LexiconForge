@@ -72,7 +72,7 @@ const buildProviderErrorMessage = (provider: AppSettings['provider'], providerLa
   if (provider === 'OpenRouter') {
     const trialStatus = getDefaultKeyStatus();
     if (trialStatus.hasExceeded) {
-      return `Trial limit reached (${trialStatus.usageCount}/10 free requests used).\n\nGet your own free OpenRouter API key at: https://openrouter.ai/keys\nOr request more trial credits at: https://t.me/everythingisrelative`;
+      return `Daily limit reached (${trialStatus.usageCount}/10 free requests today). Resets tomorrow.\n\nGet your own free OpenRouter API key at: https://openrouter.ai/keys\nOr request more trial credits at: https://t.me/everythingisrelative`;
     }
     return `${providerLabel} API key is missing. Add it in settings or .env file.\n\nGet your API key at: https://openrouter.ai/keys\nOr request free credits at: https://t.me/webnovels`;
   }
