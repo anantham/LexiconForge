@@ -351,13 +351,13 @@ describe('Fresh Install: current schema migration', () => {
   });
 
   describe('Migration Completeness', () => {
-    it('should have created exactly 10 stores (no more, no less)', () => {
-      expect(db.objectStoreNames.length).toBe(10);
+    it('should have created exactly 11 stores (no more, no less)', () => {
+      expect(db.objectStoreNames.length).toBe(11);
     });
 
     it('should have the correct database version', () => {
       expect(db.version).toBe(DB_VERSION);
-      expect(db.version).toBe(15); // LIBRARY_VERSION_MEMBERSHIP version
+      expect(db.version).toBe(16); // API_METRICS version
     });
 
     it('should not throw errors when accessing all stores', () => {
