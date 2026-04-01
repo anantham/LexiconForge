@@ -72,22 +72,22 @@ const toCachePayload = (
 export const openrouterService = {
   // Network fetchers
   async fetchModels(apiKey?: string): Promise<OpenRouterModelsCache> {
-    console.log('[OpenRouter] fetchModels called, apiKey present:', !!apiKey);
+    debugLog('api', 'summary', '[OpenRouter] fetchModels called, apiKey present:', !!apiKey);
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
     const res = await fetch('https://openrouter.ai/api/v1/models', { headers });
-    console.log('[OpenRouter] fetchModels response status:', res.status);
+    debugLog('api', 'summary', '[OpenRouter] fetchModels response status:', res.status);
     if (!res.ok) throw new Error(`OpenRouter models fetch failed: ${res.status}`);
     const json = await res.json();
     const data = (json?.data || []) as any[];
-    console.log('[OpenRouter] fetchModels raw data count:', data.length);
+    debugLog('api', 'summary', '[OpenRouter] fetchModels raw data count:', data.length);
     const mapped: OpenRouterModelRec[] = data.map((m: any) => ({
       id: m.id || m.slug || m.name,
       name: m.name || m.id,
       architecture: m.architecture || {},
       pricing: m.pricing || null,
     }));
-    console.log('[OpenRouter] fetchModels mapped count:', mapped.length);
+    debugLog('api', 'summary', '[OpenRouter] fetchModels mapped count:', mapped.length);
     const cache = { data: mapped, fetchedAt: nowIso() };
     await SettingsOps.set(MODELS_KEY, cache);
     return cache;
@@ -213,17 +213,17 @@ export const getOpenRouterImageModels = async (): Promise<Array<{
   pricePerImage: number | null;
 }>> => {
   let cache = await openrouterService.getCachedModels();
-  console.log('[OpenRouter] getOpenRouterImageModels - cache status:', {
+  debugLog('api', 'summary', '[OpenRouter] getOpenRouterImageModels - cache status:', {
     hasCache: !!cache,
     dataLength: cache?.data?.length ?? 0,
   });
 
   // If cache is empty, try to fetch fresh data
   if (!cache?.data || cache.data.length === 0) {
-    console.log('[OpenRouter] Models cache empty, fetching...');
+    debugLog('api', 'summary', '[OpenRouter] Models cache empty, fetching...');
     try {
       cache = await openrouterService.fetchModels();
-      console.log('[OpenRouter] Fetched models:', cache?.data?.length ?? 0);
+      debugLog('api', 'summary', '[OpenRouter] Fetched models:', cache?.data?.length ?? 0);
     } catch (err) {
       console.error('[OpenRouter] Failed to fetch models:', err);
       return [];
@@ -240,9 +240,9 @@ export const getOpenRouterImageModels = async (): Promise<Array<{
     const p = m.pricing?.image;
     return p !== null && p !== undefined && p !== 0 && p !== '0';
   });
-  console.log('[OpenRouter] Models that can GENERATE images (output_modalities=image):', withOutputModality.length);
-  console.log('[OpenRouter] Models that can ACCEPT images as input (pricing.image, vision):', withImagePricing.length);
-  console.log('[OpenRouter] NOTE: Only output_modalities=image models are shown in image model picker');
+  debugLog('api', 'summary', '[OpenRouter] Models that can GENERATE images (output_modalities=image):', withOutputModality.length);
+  debugLog('api', 'summary', '[OpenRouter] Models that can ACCEPT images as input (pricing.image, vision):', withImagePricing.length);
+  debugLog('api', 'summary', '[OpenRouter] NOTE: Only output_modalities=image models are shown in image model picker');
 
   // Check for specific models user asked about
   const targetModels = ['flux', 'seedream', 'riverflow', 'imagen'];
@@ -250,18 +250,18 @@ export const getOpenRouterImageModels = async (): Promise<Array<{
     targetModels.some(t => m.id.toLowerCase().includes(t))
   );
   if (matchingAny.length > 0) {
-    console.log('[OpenRouter] Found target model patterns:', matchingAny.map(m => ({
+    debugLog('api', 'summary', '[OpenRouter] Found target model patterns:', matchingAny.map(m => ({
       id: m.id,
       outputModalities: m.architecture?.output_modalities,
       imagePrice: m.pricing?.image,
     })));
   } else {
-    console.log('[OpenRouter] No flux/seedream/riverflow/imagen models in cache');
+    debugLog('api', 'summary', '[OpenRouter] No flux/seedream/riverflow/imagen models in cache');
   }
 
   // Filter to image-capable models
   const imageModels = cache.data.filter(isImageCapable);
-  console.log('[OpenRouter] Image-capable models found:', imageModels.length);
+  debugLog('api', 'summary', '[OpenRouter] Image-capable models found:', imageModels.length);
 
   // Log a sample of models with their pricing - EXPANDED for debugging
   if (imageModels.length > 0) {
@@ -272,8 +272,8 @@ export const getOpenRouterImageModels = async (): Promise<Array<{
       imageFieldType: typeof m.pricing?.image,
       allPricingKeys: m.pricing ? Object.keys(m.pricing) : [],
     }));
-    console.log('[OpenRouter] Sample image model pricing (EXPANDED):');
-    samples.forEach(s => console.log('  -', s.id, '| image:', s.imageField, `(${s.imageFieldType})`, '| keys:', s.allPricingKeys));
+    debugLog('api', 'summary', '[OpenRouter] Sample image model pricing (EXPANDED):');
+    samples.forEach(s => debugLog('api', 'summary', '  -', s.id, '| image:', s.imageField, `(${s.imageFieldType})`, '| keys:', s.allPricingKeys));
   }
 
   const mapped = imageModels.map(m => {
@@ -294,8 +294,8 @@ export const getOpenRouterImageModels = async (): Promise<Array<{
   });
 
   // Log final parsed prices
-  console.log('[OpenRouter] Final parsed image prices:');
-  mapped.forEach(m => console.log('  -', m.id, '| pricePerImage:', m.pricePerImage));
+  debugLog('api', 'summary', '[OpenRouter] Final parsed image prices:');
+  mapped.forEach(m => debugLog('api', 'summary', '  -', m.id, '| pricePerImage:', m.pricePerImage));
 
   return mapped
     .sort((a, b) => {

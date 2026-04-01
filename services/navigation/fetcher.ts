@@ -4,7 +4,7 @@ import { SettingsOps, ImportOps } from '../db/operations';
 import { transformImportedChapters } from '../stableIdService';
 import type { Chapter, ImportedChapter } from '../../types';
 import { telemetryService } from '../telemetryService';
-import { debugLog } from '../../utils/debug';
+import { debugLog, debugWarn } from '../../utils/debug';
 import { tryServeChapterFromCache } from './hydration';
 import { slog, swarn } from './logging';
 import type { FetchResult, LibraryFetchScope, StoredNovelMetadata } from './types';
@@ -149,7 +149,7 @@ export async function handleFetch(
             navigationHistory: [],
           });
         } catch (e) {
-          console.warn('[DB] Failed to persist fetched chapter to IndexedDB', e);
+          debugWarn('navigation', 'summary', '[DB] Failed to persist fetched chapter to IndexedDB', e);
         }
 
         telemetryMeta.outcome = 'success';

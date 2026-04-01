@@ -5,7 +5,7 @@ import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
 import { memoryDetail, memoryTimestamp, memoryTiming } from '../../utils/memoryDiagnostics';
 import { telemetryService } from '../telemetryService';
-import { debugLog } from '../../utils/debug';
+import { debugLog, debugWarn } from '../../utils/debug';
 import { computeDiffHash } from '../diff/hash';
 import { DIFF_ALGO_VERSION } from '../diff/constants';
 import { isLibraryStorageUrl } from '../libraryScope';
@@ -59,7 +59,7 @@ export async function loadChapterFromIDB(
     if (rec.fanTranslation) {
       // console.log(`[IDB] ✅ Fan translation found in DB: ${rec.fanTranslation.length} characters`);
     } else {
-      console.log(`[IDB] ❌ No fan translation in DB for chapter: ${rec.title}`);
+      debugLog('navigation', 'full', `[IDB] No fan translation in DB for chapter: ${rec.title}`);
     }
 
     if (!rec) {
@@ -112,13 +112,13 @@ export async function loadChapterFromIDB(
 
     // Load active translation if available (ensure fixes legacy data without isActive flag)
     try {
-      console.log(`🔍 [TranslationLoad] Starting load for chapter: ${chapterId}`);
-      console.log(`🔍 [TranslationLoad] Chapter URL: ${rec.url}, Canonical: ${rec.canonicalUrl}`);
+      debugLog('navigation', 'full', `[TranslationLoad] Starting load for chapter: ${chapterId}`);
+      debugLog('navigation', 'full', `[TranslationLoad] Chapter URL: ${rec.url}, Canonical: ${rec.canonicalUrl}`);
 
       const activeTranslation = await TranslationOps.ensureActiveByStableId(chapterId);
 
       if (activeTranslation) {
-        console.log(`✅ [TranslationLoad] Active translation found for ${chapterId}:`, {
+        debugLog('navigation', 'full', `[TranslationLoad] Active translation found for ${chapterId}`, {
           translationId: activeTranslation.id,
           version: activeTranslation.version,
           isActive: activeTranslation.isActive,
@@ -133,7 +133,7 @@ export async function loadChapterFromIDB(
         enhanced.translationResult = adaptTranslationRecordToResult(chapterId, activeTranslation);
         enhanced.translationSettingsSnapshot = (activeTranslation.settingsSnapshot ??
           null) as TranslationSettingsSnapshot | null;
-        console.log(`✅ [TranslationLoad] Translation adapted to result format`);
+        debugLog('navigation', 'full', `[TranslationLoad] Translation adapted to result format`);
         debugLog(
           'navigation',
           'summary',
@@ -191,11 +191,11 @@ export async function loadChapterFromIDB(
             }
           }
         } catch (diffError) {
-          console.warn('[DiffCache] Failed to hydrate diff markers from cache:', diffError);
+          debugWarn('navigation', 'summary', '[DiffCache] Failed to hydrate diff markers from cache', diffError);
         }
       } else {
-        console.warn(`❌ [TranslationLoad] No active translation found for ${chapterId}`);
-        console.warn(`❌ [TranslationLoad] This chapter will appear untranslated and may trigger auto-translate`);
+        debugWarn('navigation', 'summary', `[TranslationLoad] No active translation found for ${chapterId}`);
+        debugWarn('navigation', 'full', `[TranslationLoad] This chapter will appear untranslated and may trigger auto-translate`);
         debugLog(
           'navigation',
           'summary',

@@ -52,7 +52,6 @@ export interface ApiMetricsSummary {
 }
 
 class ApiMetricsService {
-  private dbName = 'lexicon-forge-db';
   private storeName = 'api_metrics';
   private sessionMetrics: ApiCallMetric[] = [];
 
@@ -205,26 +204,8 @@ class ApiMetricsService {
   // Private helper methods
 
   private async openDatabase(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      // Must match version in localDictionaryCache.ts (shared DB)
-      const request = indexedDB.open(this.dbName, 14);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-
-        // Create api_metrics store if it doesn't exist
-        if (!db.objectStoreNames.contains(this.storeName)) {
-          const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
-          store.createIndex('timestamp', 'timestamp', { unique: false });
-          store.createIndex('apiType', 'apiType', { unique: false });
-          store.createIndex('provider', 'provider', { unique: false });
-          store.createIndex('chapterId', 'chapterId', { unique: false });
-        }
-      };
-    });
+    const { getConnection } = await import('./db/core/connection');
+    return getConnection();
   }
 
   private aggregateMetrics(metrics: ApiCallMetric[]): ApiMetricsSummary['session'] {

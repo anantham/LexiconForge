@@ -4,6 +4,7 @@ import {
   getDefaultKeyStatus,
 } from '../defaultApiKeyService';
 import type { AppSettings } from '../../types';
+import { debugLog } from '../../utils/debug';
 
 const PROVIDER_ENV_MAP: Record<AppSettings['provider'], { env: string; label: string }> = {
   Gemini: { env: 'GEMINI_API_KEY', label: 'Google Gemini' },
@@ -29,7 +30,7 @@ export const validateApiKey = (
     const trialKey = getDefaultApiKey();
     requiredApiKey = userKey || envVarKey || trialKey;
 
-    console.log('[OpenRouter] API Key Priority Check:', {
+    debugLog('api', 'summary', '[OpenRouter] API Key Priority Check:', {
       hasUserKey: !!userKey,
       hasEnvKey: !!envVarKey,
       hasTrialKey: !!trialKey,
@@ -45,7 +46,7 @@ export const validateApiKey = (
 
     if (!userKey && !envVarKey && requiredApiKey) {
       const status = getDefaultKeyStatus();
-      console.log(`[DefaultKey] Using trial key - ${status.remainingUses} requests remaining`);
+      debugLog('api', 'summary', `[DefaultKey] Using trial key - ${status.remainingUses} requests remaining`);
     }
   } else {
     const keyProp = `apiKey${settings.provider}` as keyof AppSettings;

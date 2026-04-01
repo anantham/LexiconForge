@@ -24,7 +24,8 @@ export const SCHEMA_VERSIONS = {
   SCHEMA_REPAIR: 13,
   NOVEL_MEMBERSHIP: 14,
   LIBRARY_VERSION_MEMBERSHIP: 15,
-  CURRENT: 15,
+  API_METRICS: 16,
+  CURRENT: 16,
 } as const;
 
 // Object store definitions
@@ -39,6 +40,7 @@ export const STORE_NAMES = {
   CHAPTER_SUMMARIES: 'chapter_summaries',
   AMENDMENT_LOGS: 'amendment_logs',
   DIFF_RESULTS: 'diffResults',
+  API_METRICS: 'api_metrics',
 } as const;
 
 // Domain-to-stores mapping (for Claude's domain organization)
@@ -80,6 +82,7 @@ export const MIGRATIONS: Record<number, MigrationFunction> = {
   13: migrateToV13,
   14: migrateToV14,
   15: migrateToV15,
+  16: migrateToV16,
 };
 
 function ensureStore(
@@ -389,6 +392,14 @@ function migrateToV15(db: IDBDatabase, transaction: IDBTransaction): void {
   const urlStore = ensureStore(db, transaction, STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
   ensureIndex(urlStore, 'novelVersion', ['novelId', 'libraryVersionId']);
   ensureIndex(urlStore, 'novelVersionChapter', ['novelId', 'libraryVersionId', 'chapterNumber']);
+}
+
+function migrateToV16(db: IDBDatabase, transaction: IDBTransaction): void {
+  const store = ensureStore(db, transaction, STORE_NAMES.API_METRICS, { keyPath: 'id' });
+  ensureIndex(store, 'timestamp', 'timestamp', { unique: false });
+  ensureIndex(store, 'apiType', 'apiType', { unique: false });
+  ensureIndex(store, 'provider', 'provider', { unique: false });
+  ensureIndex(store, 'chapterId', 'chapterId', { unique: false });
 }
 
 /**

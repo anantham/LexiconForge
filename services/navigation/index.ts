@@ -17,7 +17,7 @@ import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
 import { ChapterOps, TranslationOps, SettingsOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
-import { debugLog } from '../../utils/debug';
+import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
 import { loadChapterFromIDB, tryServeChapterFromCache } from './hydration';
@@ -92,7 +92,7 @@ export class NavigationService {
         const hasChapter = chapters.has(chapterId);
         const chapter = chapters.get(chapterId);
         if (NavigationService._storeDebugEnabled()) {
-          console.log(`[Nav] Chapter ${chapterId} status @${Date.now()}:`, {
+          debugLog('navigation', 'full', `[Nav] Chapter ${chapterId} status`, {
             inMemory: hasChapter,
             hasContent: !!chapter?.content,
             contentLength: chapter?.content?.length || 0,
@@ -106,7 +106,7 @@ export class NavigationService {
       if (chapterId && chapters.has(chapterId)) {
         const newHistory = [...new Set(navigationHistory.concat(chapterId))];
         if (NavigationService._storeDebugEnabled()) {
-          console.log(`[Nav] Navigation history update @${Date.now()}:`, {
+          debugLog('navigation', 'full', `[Nav] Navigation history update`, {
             before: navigationHistory,
             after: newHistory,
             currentChapter: chapterId
@@ -130,11 +130,11 @@ export class NavigationService {
 
         // Hydrate translation result if missing
         if (chapter && !chapter.translationResult) {
-          console.log(`🔧 [Navigation] Chapter ${chapterId} in memory but missing translationResult, attempting hydration @${Date.now()}`);
+          debugLog('navigation', 'summary', `[Navigation] Chapter ${chapterId} in memory but missing translationResult, attempting hydration`);
           try {
             const active = await TranslationOps.getActiveByStableId(chapterId);
             if (active) {
-              console.log(`🔧 [Navigation] Found active translation in IDB, hydrating @${Date.now()}`, {
+              debugLog('navigation', 'full', `[Navigation] Found active translation in IDB, hydrating`, {
                 provider: active.provider,
                 model: active.model,
                 cost: active.estimatedCost,
@@ -148,18 +148,18 @@ export class NavigationService {
                   null) as TranslationSettingsSnapshot | null;
                 chapter.translationSettingsSnapshot =
                   activeSnapshot ?? chapter.translationSettingsSnapshot ?? null;
-                console.log(`✅ [Navigation] Hydration successful @${Date.now()}`);
+                debugLog('navigation', 'summary', `[Navigation] Hydration successful`);
               } else {
-                console.warn(`⚠️ [Navigation] Hydration returned null @${Date.now()}`);
+                debugWarn('navigation', 'summary', `[Navigation] Hydration returned null`);
               }
             } else {
-              console.log(`⚠️ [Navigation] No active translation found in IDB for ${chapterId} @${Date.now()}`);
+              debugLog('navigation', 'summary', `[Navigation] No active translation found in IDB for ${chapterId}`);
             }
           } catch (err) {
             console.error(`❌ [Navigation] Hydration error @${Date.now()}:`, err);
           }
         } else if (chapter && chapter.translationResult) {
-          console.log(`✅ [Navigation] Chapter ${chapterId} already has translationResult in memory @${Date.now()}`, {
+          debugLog('navigation', 'full', `[Navigation] Chapter ${chapterId} already has translationResult in memory`, {
             provider: chapter.translationResult.usageMetrics?.provider,
             model: chapter.translationResult.usageMetrics?.model,
             cost: chapter.translationResult.usageMetrics?.estimatedCost
@@ -188,7 +188,7 @@ export class NavigationService {
         try {
           const loaded = await loadChapterFromIDBCallback(chapterId);
           if (NavigationService._storeDebugEnabled()) {
-            console.log(`[Nav] Lazy load result @${Date.now()}:`, {
+            debugLog('navigation', 'full', `[Nav] Lazy load result`, {
               success: !!loaded,
               chapterId,
               title: loaded?.title,
@@ -200,7 +200,7 @@ export class NavigationService {
           if (loaded) {
             const newHistory = [...new Set(navigationHistory.concat(chapterId))];
             if (NavigationService._storeDebugEnabled()) {
-              console.log(`[Nav] Post-lazy-load navigation history @${Date.now()}:`, {
+              debugLog('navigation', 'full', `[Nav] Post-lazy-load navigation history`, {
                 before: navigationHistory,
                 after: newHistory,
                 currentChapter: chapterId
@@ -254,7 +254,7 @@ export class NavigationService {
             const mapping = (norm ? await repo.getUrlMappingForUrl(norm) : null) ||
                             await repo.getUrlMappingForUrl(url);
             if (mapping?.stableId) {
-              console.log('[Navigate] Found URL mapping in IndexedDB. Hydrating chapter instead of fetching.');
+              debugLog('navigation', 'summary', '[Navigate] Found URL mapping in IndexedDB. Hydrating chapter instead of fetching.');
               const loaded = await loadChapterFromIDBCallback(mapping.stableId);
               if (loaded) {
                 const newHistory = [...new Set(navigationHistory.concat(mapping.stableId))];

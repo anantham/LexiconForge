@@ -1,5 +1,6 @@
 import type { TranslationRecord } from '../db/types';
 import type { HydratedTranslationResult } from './types';
+import { debugWarn } from '../../utils/debug';
 
 export const adaptTranslationRecordToResult = (
   chapterId: string,
@@ -11,8 +12,8 @@ export const adaptTranslationRecordToResult = (
   const hasValidProvider = record.provider && record.provider !== 'unknown';
   const hasValidModel = record.model && record.model !== 'unknown';
 
-  if ((!hasValidProvider || !hasValidModel) && typeof window !== 'undefined') {
-    console.warn('[Navigation] Translation has missing/unknown metadata:', {
+  if (!hasValidProvider || !hasValidModel) {
+    debugWarn('navigation', 'summary', '[Navigation] Translation has missing/unknown metadata', {
       chapterId,
       translationId: record.id,
       version: record.version,
@@ -44,8 +45,8 @@ export const adaptTranslationRecordToResult = (
     (record.version ? `${chapterId}-v${record.version}` : `${chapterId}-legacy-${record.createdAt || 'missing-id'}`) as string;
   const translationId = record.id || fallbackId;
 
-  if (!record.id && typeof window !== 'undefined') {
-    console.warn('[Navigation] Hydrated translation is missing a persistent id. Using fallback key.', {
+  if (!record.id) {
+    debugWarn('navigation', 'summary', '[Navigation] Hydrated translation is missing a persistent id. Using fallback key.', {
       chapterId,
       fallbackId: translationId,
     });

@@ -17,7 +17,7 @@ import type {
 import { ChapterOps } from './db/operations/chapters';
 import { TranslationOps } from './db/operations/translations';
 import { SettingsOps } from './db/operations';
-import { debugLog } from '../utils/debug';
+import { debugLog, debugWarn } from '../utils/debug';
 import { withRetry, isNetworkError } from '../utils/retry';
 import { telemetryService } from './telemetryService';
 import { loadAllIntoStore, loadNovelIntoStore } from './readerHydrationService';
@@ -119,7 +119,7 @@ export class ImportService {
         if (apiKey) {
           fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${apiKey}`;
         } else {
-          console.warn('[Import] GOOGLE_DRIVE_API_KEY not found. Set VITE_GOOGLE_DRIVE_API_KEY in .env.local to enable Google Drive downloads.');
+          debugWarn('import', 'summary', '[Import] GOOGLE_DRIVE_API_KEY not found. Set VITE_GOOGLE_DRIVE_API_KEY in .env.local to enable Google Drive downloads.');
           fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
         }
       }
@@ -128,7 +128,7 @@ export class ImportService {
     return withRetry(
       async (attempt) => {
         const attemptMsg = attempt > 0 ? ` (retry ${attempt}/${MAX_RETRIES})` : '';
-        console.log(`[Import] Fetching from: ${fetchUrl}${attemptMsg}`);
+        debugLog('import', 'summary', `[Import] Fetching from: ${fetchUrl}${attemptMsg}`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -224,7 +224,7 @@ export class ImportService {
           await useAppStore.getState().importSessionData(sessionData);
           onProgress?.({ stage: 'complete', progress: 100, message: 'Import complete!' });
 
-          console.log(`[Import] Successfully imported ${sessionData.chapters?.length || 0} chapters`);
+          debugLog('import', 'summary', `[Import] Successfully imported ${sessionData.chapters?.length || 0} chapters`);
           return sessionData;
         } catch (error) {
           clearTimeout(timeoutId);
@@ -236,7 +236,7 @@ export class ImportService {
         initialDelay: 2000,
         isRetryable: isNetworkError,
         onRetry: (attempt, delay) => {
-          console.warn(`[Import] Network error on attempt ${attempt}. Retrying in ${delay}ms...`);
+          debugWarn('import', 'summary', `[Import] Network error on attempt ${attempt}. Retrying in ${delay}ms...`);
           onProgress?.({
             stage: 'downloading',
             progress: 0,
@@ -260,7 +260,7 @@ export class ImportService {
     options: ImportOptions = {}
   ): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      console.log('[StreamImport] Starting streaming import from:', url);
+      debugLog('import', 'summary', '[StreamImport] Starting streaming import from:', url);
 
       // Convert GitHub URLs to raw format
       let fetchUrl = url;
@@ -283,7 +283,7 @@ export class ImportService {
         }
       }
 
-      console.log('[StreamImport] Fetching from:', fetchUrl);
+      debugLog('import', 'summary', '[StreamImport] Fetching from:', fetchUrl);
 
       const now = () =>
         typeof performance !== 'undefined' && typeof performance.now === 'function'
@@ -481,7 +481,7 @@ export class ImportService {
           }
           metadataEmitted = true;
           totalChapters = metadata.chapterCount || 0;
-          console.log('[StreamImport] Metadata loaded:', { totalChapters });
+          debugLog('import', 'summary', '[StreamImport] Metadata loaded:', { totalChapters });
 
           onProgress?.({
             stage: 'streaming',
@@ -545,7 +545,7 @@ export class ImportService {
         const processChapter = async (chapter: any) => {
           const chapterUrl: string | undefined = chapter.url || chapter.canonicalUrl;
           if (!chapterUrl) {
-            console.warn('[StreamImport] Skipping chapter without URL:', chapter);
+            debugWarn('import', 'summary', '[StreamImport] Skipping chapter without URL:', chapter);
             return;
           }
           const identity = getScopedChapterIdentity(
@@ -562,7 +562,7 @@ export class ImportService {
 
           const translationInputs = buildTranslationInputs(chapter);
 
-          console.log(`[📥 IMPORT] Storing chapter #${chapter.chapterNumber}: "${chapter.title}"`, {
+          debugLog('import', 'full', `[IMPORT] Storing chapter #${chapter.chapterNumber}: "${chapter.title}"`, {
             url: chapterUrl,
             translationsFound: translationInputs.length,
           });
@@ -580,7 +580,7 @@ export class ImportService {
             fanTranslation: chapter.fanTranslation ?? null,
           };
           await ChapterOps.store(chapterPayload);
-          console.log(`[✅ IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
+          debugLog('import', 'full', `[IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
 
           let activeVersion: number | null = null;
 
@@ -598,8 +598,9 @@ export class ImportService {
               activeVersion = stored.version;
             }
 
-            console.log(
-              `[✅ IMPORT] Translation stored for chapter #${chapter.chapterNumber}: "${translation.result.translatedTitle}" (version ${stored.version})`
+            debugLog(
+              'import', 'full',
+              `[IMPORT] Translation stored for chapter #${chapter.chapterNumber}: "${translation.result.translatedTitle}" (version ${stored.version})`
             );
           }
 
@@ -678,12 +679,12 @@ export class ImportService {
               });
               firstBatchTelemetrySent = true;
             }
-            console.log('[StreamImport] First batch of chapters ready - user can start reading');
+            debugLog('import', 'summary', '[StreamImport] First batch of chapters ready - user can start reading');
             onFirstChaptersReady?.();
           }
 
           if (chaptersLoaded % 50 === 0) {
-            console.log(`[StreamImport] Progress: ${chaptersLoaded}/${totalChapters || 'unknown'} chapters loaded`);
+            debugLog('import', 'summary', `[StreamImport] Progress: ${chaptersLoaded}/${totalChapters || 'unknown'} chapters loaded`);
           }
         };
 
@@ -733,7 +734,7 @@ export class ImportService {
           totalChapters = chaptersLoaded;
         }
 
-        console.log('[StreamImport] Stream complete:', { chaptersLoaded, totalChapters });
+        debugLog('import', 'summary', '[StreamImport] Stream complete:', { chaptersLoaded, totalChapters });
 
         onProgress?.({
           stage: 'complete',
@@ -842,7 +843,7 @@ export class ImportService {
       // Use store's import method which handles both IndexedDB AND store updates
       await useAppStore.getState().importSessionData(sessionData);
 
-      console.log(`[Import] Successfully imported from file: ${file.name}`);
+      debugLog('import', 'summary', `[Import] Successfully imported from file: ${file.name}`);
 
       return sessionData;
     } catch (error: any) {
