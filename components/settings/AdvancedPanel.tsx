@@ -264,7 +264,7 @@ const AdvancedPanel: React.FC = () => {
           frequencyPenalty={currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}
           presencePenalty={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
           enableAmendments={(currentSettings as any).enableAmendments ?? false}
-          includeFanTranslationInPrompt={(currentSettings as any).includeFanTranslationInPrompt ?? true}
+          includeFanTranslationInPrompt={(currentSettings as any).includeFanTranslationInPrompt ?? false}
           parameterSupport={currentParameterSupport}
           onTemperatureChange={(value) => handleSettingChange('temperature', value)}
           onTopPChange={(value) => handleSettingChange('topP', value)}

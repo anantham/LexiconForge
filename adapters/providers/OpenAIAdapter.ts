@@ -392,7 +392,7 @@ ${schemaString}`;
     messages.push({ role: 'system', content: systemPrompt });
 
     const historyPrompt = history.length > 0 ? formatHistory(history).trim() : '';
-    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? true;
+    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? false;
     const effectiveFanTranslation = includeFanTranslation ? (fanTranslation ?? null) : null;
     const fanTranslationContext = buildFanTranslationContext(effectiveFanTranslation).trim();
     const preface = (
