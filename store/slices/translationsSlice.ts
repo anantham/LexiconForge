@@ -16,6 +16,7 @@ import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { TranslationOps, AmendmentOps } from '../../services/db/operations';
+import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { debugLog, debugWarn } from '../../utils/debug';
 
 export interface TranslationsState {
@@ -112,6 +113,16 @@ export const createTranslationsSlice: StateCreator<
       temperature: context.settings.temperature,
       promptId: context.activePromptTemplate?.id
     });
+
+    // Fail-fast: validate API key BEFORE setting loading state
+    const keyCheck = validateApiKey(context.settings);
+    if (!keyCheck.isValid) {
+      const uiActions = state as any;
+      if (uiActions.setError) {
+        uiActions.setError(keyCheck.errorMessage || 'API key validation failed');
+      }
+      return;
+    }
 
     // Create abort controller for this translation
     const abortController = new AbortController();

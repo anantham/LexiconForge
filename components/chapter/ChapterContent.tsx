@@ -34,6 +34,7 @@ interface ChapterContentProps {
   modelLabel?: string;
   renderEnglishDiffs: boolean;
   showEnglishLoader: boolean;
+  translationError?: string | null;
 }
 
 const ChapterContent: React.FC<ChapterContentProps> = ({
@@ -62,6 +63,7 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
   modelLabel,
   renderEnglishDiffs,
   showEnglishLoader,
+  translationError,
 }) => {
   if (isGlobalLoading) {
     return <Loader text="Fetching chapter raws..." />;
@@ -72,6 +74,17 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
       <div className="text-center py-10 text-gray-500 dark:text-gray-400">
         <h2 className="text-2xl font-bold mb-2">Welcome!</h2>
         <p>Enter a web novel chapter URL above to get started.</p>
+      </div>
+    );
+  }
+
+  if (translationError) {
+    return (
+      <div className="text-center py-10">
+        <div className="inline-block max-w-md p-6 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+          <h3 className="text-lg font-semibold text-red-700 dark:text-red-300 mb-2">Translation Failed</h3>
+          <p className="text-sm text-red-600 dark:text-red-400 whitespace-pre-line">{translationError}</p>
+        </div>
       </div>
     );
   }

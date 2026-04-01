@@ -20,6 +20,7 @@ export interface TranslationProvider {
 export interface TranslationOptions {
   maxRetries?: number;
   initialDelay?: number;
+  timeoutMs?: number;   // Per-attempt timeout (default: 90s)
 }
 
 /**
@@ -44,7 +45,8 @@ export class Translator {
 
     const maxRetries = options.maxRetries ?? request.settings.retryMax ?? 3;
     const initialDelay = options.initialDelay ?? request.settings.retryInitialDelayMs ?? 2000;
-    
+    const timeoutMs = options.timeoutMs ?? 90_000; // 90 seconds per attempt
+
     let lastError: Error | null = null;
 
     // Work on a local copy of the request so we can adjust settings per-attempt without mutating caller state
@@ -59,8 +61,11 @@ export class Translator {
           throw new DOMException('Aborted', 'AbortError');
         }
 
-        const result = await provider.translate(workingRequest);
-        
+        const result = await Promise.race([
+          provider.translate(workingRequest),
+          this.timeout(timeoutMs, workingRequest.abortSignal),
+        ]);
+
         // Post-process translation result
         return this.sanitizeResult(result);
 
@@ -145,6 +150,20 @@ export class Translator {
    */
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Returns a promise that rejects after `ms` milliseconds with a timeout error.
+   * Cleans up if the abort signal fires first.
+   */
+  private timeout(ms: number, abortSignal?: AbortSignal): Promise<never> {
+    return new Promise((_, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error(`Translation timed out after ${Math.round(ms / 1000)}s. The model may be overloaded — try again or switch models.`)),
+        ms
+      );
+      abortSignal?.addEventListener('abort', () => clearTimeout(timer), { once: true });
+    });
   }
 
   /**

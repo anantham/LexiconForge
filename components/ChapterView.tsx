@@ -405,6 +405,7 @@ const ChapterView: React.FC = () => {
       modelLabel: settings.model,
       renderEnglishDiffs: viewMode === 'english',
       showEnglishLoader,
+      translationError: viewMode === 'english' && !translationResult && error ? error : null,
     },
     comparisonPortalProps: {
       comparisonChunk,
