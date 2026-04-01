@@ -113,12 +113,16 @@ export const useComparisonPortal = ({
       return;
     }
 
-    const anchorElement = resolveChunkElement(selectionRange?.anchorNode ?? null);
+    // Use the focus (end) node of the selection so the comparison card appears
+    // after the last selected paragraph, not the first.
+    const range = selectionRange?.rangeCount ? selectionRange.getRangeAt(0) : null;
+    const endNode = range?.endContainer ?? selectionRange?.focusNode ?? selectionRange?.anchorNode ?? null;
+    const endElement = resolveChunkElement(endNode);
     let insertionTarget: HTMLElement | null = null;
-    if (anchorElement) {
-      insertionTarget = (anchorElement.closest('[data-lf-type="text"]') as HTMLElement | null) ?? anchorElement;
-    } else if (selectionRange?.anchorNode instanceof HTMLElement) {
-      insertionTarget = selectionRange.anchorNode;
+    if (endElement) {
+      insertionTarget = (endElement.closest('[data-lf-type="text"]') as HTMLElement | null) ?? endElement;
+    } else if (endNode instanceof HTMLElement) {
+      insertionTarget = endNode;
     }
     const parentElement = insertionTarget?.parentElement ?? contentRef.current;
 
