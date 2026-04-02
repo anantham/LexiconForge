@@ -163,6 +163,7 @@ vi.mock('../../services/telemetryService', () => ({
 // Mock debug utilities
 vi.mock('../../utils/debug', () => ({
   debugLog: vi.fn(),
+  debugWarn: vi.fn(),
 }));
 
 vi.mock('../../utils/memoryDiagnostics', () => ({
@@ -755,12 +756,15 @@ describe('Translation record adaptation', () => {
       url: 'https://kakuyomu.jp/works/123/episodes/456',
     };
 
-    // Minimal translation record (missing optional fields)
+    // Minimal translation record (missing optional metric fields)
     const sparseTranslation: Partial<TranslationRecord> = {
+      id: 'trans-sparse-001',
       stableId: 'ch-sparse',
+      chapterUrl: 'https://kakuyomu.jp/works/123/episodes/456',
       translatedTitle: 'Sparse Title',
       translation: 'Sparse content',
-      // No id, no version, no metrics
+      isActive: true,
+      // No version, no metrics, no provider, no model
     };
 
     (ChapterOps.getByStableId as Mock).mockResolvedValue(mockRecord);
