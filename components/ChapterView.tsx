@@ -51,6 +51,7 @@ const ChapterView: React.FC = () => {
   const settings = useAppStore(s => s.settings);
   const activePromptTemplate = useAppStore(s => s.activePromptTemplate);
   const error = useAppStore(s => s.error);
+  const errorTelemetry = useAppStore(s => s.errorTelemetry);
   const handleToggleLanguage = useAppStore(s => s.setViewMode);
   const _handleNavigate = useAppStore(s => s.handleNavigate);
   const handleNavigate = useCallback((url: string) => {
@@ -406,6 +407,7 @@ const ChapterView: React.FC = () => {
       renderEnglishDiffs: viewMode === 'english',
       showEnglishLoader,
       translationError: viewMode === 'english' && !translationResult && error ? error : null,
+      translationErrorTelemetry: viewMode === 'english' && !translationResult && error ? errorTelemetry : null,
     },
     comparisonPortalProps: {
       comparisonChunk,

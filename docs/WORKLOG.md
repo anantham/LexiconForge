@@ -146,6 +146,123 @@
   - `npx vitest run tests/services/imagePlanPlanner.test.ts tests/store/slices/imageSlice.imagePlan.test.ts tests/services/imagePlanService.test.ts tests/services/structured-outputs.test.ts components/settings/ProvidersPanel.test.tsx tests/services/openrouterImageModelAdapter.test.ts` ✅
   - `npx tsc --noEmit --pretty false` ⚠️ still blocked only by pre-existing unrelated `scripts/sutta-studio/benchmark.ts`, `scripts/sutta-studio/debug-single-model.ts`, and `scripts/sutta-studio/generate-new-phases.ts` errors.
 
+### [2026-04-02 02:22 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Close the remaining app-shell review gap and verify deployed Vercel routing for the client telemetry callback.
+**Files modified / created:**
+- `MainApp.tsx:307-394`
+  - Collapsed the duplicated `NotificationToast` mounts into a single top-level render while preserving the existing branch-specific screen content, so screen transitions no longer remount the toast six times.
+- `docs/guides/DEPLOYMENT.md:67-78`
+  - Recorded the actual Vercel proof results: local `vercel build` recognized the function, deployed `vercel curl` hit the handler on `/api/client-telemetry`, and the current catch-all Vite rewrite did not shadow the API route.
+- `docs/WORKLOG.md:1-13`
+  - Logged the review-follow-up fix and the route-verification evidence so the deployment decision does not have to be re-investigated later.
+**Operational notes:**
+- `vercel pull --yes` linked this isolated worktree to a temporary Vercel project named `codex-telemetry-ux` and downloaded local env/project metadata. I kept those artifacts out of the tracked diff via the local Git exclude file instead of committing generated ignore noise.
+- `vercel build` briefly regenerated `public/steering-images.json` because the build prepare script could not find `public/steering/` in the worktree environment; that generated change was restored so the branch stays scoped to telemetry/app-shell work.
+**Verification:**
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vitest run tests/components/NotificationToast.test.tsx tests/components/DefaultKeyBanner.test.tsx tests/components/chapter/ChapterContent.test.tsx tests/current-system/translation.test.ts tests/services/clientTelemetry.test.ts tests/services/api-key-validation.test.ts` ✅
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npm run build` ✅
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vercel build` ✅
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vercel deploy --prebuilt --archive=tgz --yes` ✅ after one inconclusive raw-upload attempt failed with `FetchError: write EPIPE`
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vercel curl /api/client-telemetry --deployment https://codex-telemetry-fa9kmjyhm-adityas-projects-9c03351d.vercel.app` ✅ returned the function’s `405` JSON for GET
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vercel curl /api/client-telemetry --deployment https://codex-telemetry-fa9kmjyhm-adityas-projects-9c03351d.vercel.app -- --request POST --header 'content-type: application/json' --data '{"event_type":"translation_failed"}'` ✅ returned `200 {"ok":true,...}`
+
+### [2026-04-01 16:51 EDT] [Agent: Codex]
+**Status:** Starting
+**Task:** Implement the approved Phase 0.5 UX fixes for translation failures and add a Vercel `/api/client-telemetry` proof of concept in an isolated worktree.
+**Worktree:** ../LexiconForge.worktrees/codex-telemetry-ux/
+**Branch:** fix/codex-telemetry-ux
+**Files likely affected:**
+- components/DefaultKeyBanner.tsx
+- components/ChapterView.tsx
+- components/chapter/ChapterContent.tsx
+- store/slices/translationsSlice.ts
+- services/translationService.ts
+- services/translate/Translator.ts
+- store/slices/uiSlice.ts
+- MainApp.tsx
+- vercel.json
+- api/client-telemetry.js
+- docs/guides/DEPLOYMENT.md
+- docs/WORKLOG.md
+**Why:**
+- Current production behavior still has three concrete gaps: the trial banner logic is inverted, notifications are written but not rendered, and auto-translate is still fire-and-forget with no catch path.
+- Inline reader errors and provider timeout support are already present on `origin/main`, so this slice will only close the remaining UX and ingress gaps instead of redoing those changes.
+
+### [2026-04-01 17:10 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Phase 0.5 UX fixes and Phase 1 Vercel callback proof completed in the isolated worktree.
+**Files modified / created:**
+- `components/DefaultKeyBanner.tsx:22-30`
+  - Fixed the shared-trial banner gate so it shows when `VITE_DEFAULT_OPENROUTER_KEY` is actually present and no user OpenRouter key is active.
+- `store/slices/translationsSlice.ts:117-130`
+  - Kept fail-fast API-key validation before translation state starts and now explicitly clear stale `ui.error` once validation passes so an old error does not linger into a valid retry.
+- `components/NotificationToast.tsx:1-73` (new)
+  - Added the missing renderer for store-backed notifications with auto-dismiss and manual dismiss so `showNotification()` produces visible UI.
+- `MainApp.tsx:12,216-223,284-385`
+  - Mounted the new notification toast on every app screen and added a `.catch(...)` on the fire-and-forget auto-translate path so unexpected promise failures surface as visible errors instead of disappearing.
+- `api/client-telemetry.js:1-80` (new)
+  - Added a minimal Vercel Node function proof for `POST /api/client-telemetry` with method checks, size guard, basic payload validation, and normalized log output.
+- `docs/guides/DEPLOYMENT.md:61-75`
+  - Documented the callback proof route and the explicit best-effort policy: callback failures must never degrade reader UX and should be dropped silently.
+- `tests/components/chapter/ChapterContent.test.tsx:97-110`
+  - Locked in the user-facing fix that inline translation errors win over the loader.
+- `tests/components/DefaultKeyBanner.test.tsx:1-55` (new)
+  - Added coverage for the corrected trial-banner visibility rules.
+- `tests/components/NotificationToast.test.tsx:1-53` (new)
+  - Added coverage for toast rendering, auto-dismiss, and manual dismiss.
+- `tests/api/client-telemetry.test.ts:1-76` (new)
+  - Added request-shape coverage for the callback proof handler.
+**Verification:**
+- `npx vitest run tests/components/DefaultKeyBanner.test.tsx tests/components/NotificationToast.test.tsx tests/components/chapter/ChapterContent.test.tsx tests/api/client-telemetry.test.ts tests/smoke/critical-components.smoke.test.tsx` ✅
+- `npm run build` ✅
+- `npx vercel build` ❌ blocked locally because the repo does not have Vercel project settings checked in (`No Project Settings found locally. Run vercel pull --yes to retrieve them.`). The handler proof is implemented and unit-tested, but deployed-function verification still needs either `vercel pull --yes` or a preview deployment.
+- Note: the first cold Vitest run timed out once on `tests/smoke/critical-components.smoke.test.tsx > Smoke: App.tsx > imports without error` while the production build was running in parallel. The same smoke test passed immediately on a clean rerun in both the isolated worktree and the untouched root checkout, so this looks like a cache/timing artifact rather than a functional regression from this slice.
+
+### [2026-04-01 17:49 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Implemented the approved v1 client telemetry slice on top of the UX fixes.
+**Files modified / created:**
+- `types/telemetry.ts:1-109` (new)
+  - Added the narrow v1 runtime contract: event/failure/surface enums, callback payload shape, analytics payload shape, and the `TelemetryErrorContext` carried from failure detection to visible render.
+- `services/clientTelemetry.ts:1-286` (new)
+  - Added a single redacting transport layer for analytics + best-effort callback delivery, including route/loading-state capture, payload hashing, dedupe windows, and silent drop on callback failure.
+- `store/slices/uiSlice.ts:38-40,80,131-132,240-248`
+  - Added `errorTelemetry` alongside `error` and taught `setError(...)` to carry optional telemetry metadata so UI render paths know the underlying failure class without re-parsing error strings.
+- `services/ai/apiKeyValidation.ts:18-22,24-33,74-80`
+  - Extended API-key validation to return structured `failureType` values (`trial_limit`, `missing_api_key`, `unknown`) instead of only free-form strings.
+- `services/translationService.ts:30-39,109-117,214-225,232-249`
+  - Extended `TranslateChapterResponse` with `failureType`/`expected` metadata and classified thrown translator errors into `timeout`, `provider_malformed_response`, or `unknown`.
+- `store/slices/translationsSlice.ts:41-43,85-130,146-198,311-359,474-476,791-793`
+  - Added the translation-failure emitter at the slice boundary, recorded fail-fast validation failures in `translationProgress`, propagated telemetry metadata into `setError(...)`, and distinguished `auto_translate` vs `manual_translate`.
+- `services/telemetryService.ts:7,11-19,48-55,138-140,146-186,220-261`
+  - Kept the existing local telemetry buffer/export path but now forwards uncaught errors, unhandled rejections, and queued boot-time failures into the new client telemetry channel.
+- `components/ChapterView.tsx:53-55,409-410`
+  - Passed store-backed error telemetry into the reader content surface when an English translation error is being rendered.
+- `components/chapter/ChapterContent.tsx:10-11,39-40,72-99`
+  - Emitted `ui_error_rendered` from the component that actually renders the inline translation failure state.
+- `components/DefaultKeyBanner.tsx:63-80`
+  - Emitted `ui_error_rendered` when the exceeded-trial banner becomes visible, so trial-limit visibility is measurable rather than inferred.
+- `MainApp.tsx:217-240`
+  - Classified unexpected auto-translate promise failures as `translation_failed` and attached matching telemetry metadata to the surfaced store error.
+- `tests/services/clientTelemetry.test.ts:1-118` (new)
+  - Added transport tests for analytics-only expected failures, callback dedupe for unexpected translation failures, and full-event dedupe for visibility events.
+- `tests/current-system/translation.test.ts:9-17,73-81,137-164`
+  - Added a slice-level assertion that a classified service error becomes a `translation_failed` telemetry event at the store boundary.
+- `tests/components/DefaultKeyBanner.test.tsx:5-7,26-30,68-87`
+  - Added coverage that the visible exceeded-trial banner emits `ui_error_rendered`.
+- `tests/components/chapter/ChapterContent.test.tsx:9-17,111-139`
+  - Added coverage that the inline reader error emits `ui_error_rendered` with the underlying failure type.
+- `tests/services/api-key-validation.test.ts:74-87,188-198`
+  - Locked in the new structured `failureType` outputs for missing-key and unknown-provider cases.
+**Verification:**
+- `npx vitest run tests/services/clientTelemetry.test.ts tests/services/api-key-validation.test.ts tests/current-system/translation.test.ts tests/components/DefaultKeyBanner.test.tsx tests/components/chapter/ChapterContent.test.tsx tests/components/NotificationToast.test.tsx tests/api/client-telemetry.test.ts` ✅
+- `npx vitest run tests/smoke/critical-components.smoke.test.tsx` ✅
+- `npm run build` ✅
+- Notes:
+  - Build still reports the pre-existing dynamic-import chunking warnings from the DB/telemetry/image graph, but the bundle completes successfully.
+  - The `setError stack trace` stderr in `tests/current-system/translation.test.ts` is expected from the existing debug-heavy `uiSlice.setError(...)` implementation and not a test failure.
+
 2026-03-30 05:17 PDT - [Agent: Codex] /metaupdate debt capture workflow
 - Files:
   - AGENTS.md:274-292

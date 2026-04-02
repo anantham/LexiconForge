@@ -972,7 +972,7 @@ export const createChaptersSlice: StateCreator<
         }
 
         debugLog('worker', 'summary', `[Worker] Pre-translating chapter #${targetNumber} (ID: ${nextChapterId})`);
-        await handleTranslate(nextChapterId);
+        await handleTranslate(nextChapterId, 'auto_translate');
       }
     };
 

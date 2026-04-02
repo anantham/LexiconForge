@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import { getDefaultKeyStatus } from '../services/defaultApiKeyService';
+import { clientTelemetry } from '../services/clientTelemetry';
 import { useAppStore } from '../store';
 import { debugLog } from '../utils/debug';
 
@@ -21,13 +22,13 @@ export function DefaultKeyBanner() {
 
   // Check if we should show the banner
   // Show if using OpenRouter without a user key (includes both active trial and exceeded trial)
-  const hasTrialKey = import.meta.env.VITE_DEFAULT_OPENROUTER_KEY;
-  const hasUserEnvKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+  const hasTrialKey = Boolean(import.meta.env.VITE_DEFAULT_OPENROUTER_KEY);
+  const hasUserEnvKey = Boolean(import.meta.env.VITE_OPENROUTER_API_KEY);
   // Don't show banner if user has their own key (either in settings or env)
   const isUsingDefaultKey = settings.provider === 'OpenRouter' &&
     !settings.apiKeyOpenRouter &&
     !hasUserEnvKey &&
-    !hasTrialKey;
+    hasTrialKey;
 
   // Debug logging to understand banner visibility (only log when state changes)
   useEffect(() => {
@@ -58,6 +59,25 @@ export function DefaultKeyBanner() {
       setLastLoggedState(currentState);
     }
   }, [settings.provider, settings.apiKeyOpenRouter, hasUserEnvKey, hasTrialKey, status.usageCount, isUsingDefaultKey, isDismissed, lastLoggedState]);
+
+  useEffect(() => {
+    if (!isUsingDefaultKey || isDismissed || !status.hasExceeded) {
+      return;
+    }
+
+    clientTelemetry.emit({
+      eventType: 'ui_error_rendered',
+      failureType: 'trial_limit',
+      surface: 'ui_render',
+      severity: 'warning',
+      expected: true,
+      userVisible: true,
+      provider: 'OpenRouter',
+      model: settings.model,
+      errorMessage: `Trial banner rendered after daily limit exceeded (${status.usageCount}/10).`,
+      dedupeAll: true,
+    });
+  }, [isDismissed, isUsingDefaultKey, settings.model, status.hasExceeded, status.usageCount]);
 
   if (!isUsingDefaultKey || isDismissed) {
     return null;

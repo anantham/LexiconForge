@@ -33,6 +33,7 @@ import {
   getProposalResponseJsonSchema,
 } from './translate/translationResponseSchema';
 import type { ProviderName } from '../adapters/providers/Provider';
+import type { TelemetryFailureType } from '../types/telemetry';
 
 const slog = (message: string, ...args: any[]) => debugLog('translation', 'summary', message, ...args);
 const swarn = (message: string, ...args: any[]) => debugWarn('translation', 'summary', message, ...args);
@@ -47,6 +48,11 @@ export interface TranslateChapterResponse {
   translationResult?: TranslationResult;
   error?: string;
   aborted?: boolean;
+  failureType?: Extract<
+    TelemetryFailureType,
+    'trial_limit' | 'missing_api_key' | 'timeout' | 'provider_malformed_response' | 'unknown'
+  >;
+  expected?: boolean;
 }
 
 export interface TranslationHistoryOptions {
@@ -215,7 +221,11 @@ export class TranslationService {
     // Validate API credentials
     const apiValidation = validateApiKey(settings);
     if (!apiValidation.isValid) {
-      return { error: `Translation API error: ${apiValidation.errorMessage}` };
+      return {
+        error: `Translation API error: ${apiValidation.errorMessage}`,
+        failureType: apiValidation.failureType ?? 'unknown',
+        expected: apiValidation.failureType === 'trial_limit' || apiValidation.failureType === 'missing_api_key',
+      };
     }
 
     // Cancel any existing translation for this chapter
@@ -348,12 +358,43 @@ export class TranslationService {
         debugLog('translation', 'summary', `Translation for ${chapterId} was aborted.`);
         return { aborted: true };
       } else {
-        return { error: String(e?.message ?? e ?? 'Translate failed') };
+        const failureType = this.classifyFailureType(e);
+        return {
+          error: String(e?.message ?? e ?? 'Translate failed'),
+          failureType,
+          expected: false,
+        };
       }
     } finally {
       this.activeTranslations.delete(chapterId);
       debugLog('translation', 'summary', '🟢 [TranslationService] Translation ended, activeTranslations.delete:', chapterId, '| Active count:', this.activeTranslations.size);
     }
+  }
+
+  private static classifyFailureType(
+    error: unknown
+  ): Extract<TelemetryFailureType, 'timeout' | 'provider_malformed_response' | 'unknown'> {
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+        ? error
+        : '';
+
+    if (message.includes('timed out')) {
+      return 'timeout';
+    }
+
+    if (
+      message.includes('Could not parse translation') ||
+      message.includes('JSON Syntax Error') ||
+      message.includes('malformed response') ||
+      message.includes('Failed to parse JSON response')
+    ) {
+      return 'provider_malformed_response';
+    }
+
+    return 'unknown';
   }
 
   /**

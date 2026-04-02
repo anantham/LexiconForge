@@ -6,6 +6,16 @@ import { TranslationOps } from '../../services/db/operations';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import type { TranslationResult } from '../../types';
 
+const { emitTelemetry } = vi.hoisted(() => ({
+  emitTelemetry: vi.fn(),
+}));
+
+vi.mock('../../services/clientTelemetry', () => ({
+  clientTelemetry: {
+    emit: emitTelemetry,
+  },
+}));
+
 const resetStore = () => {
   useAppStore.setState({
     chapters: new Map(),
@@ -62,6 +72,7 @@ let activeIdsSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  emitTelemetry.mockReset();
   resetStore();
   translationSpy = vi.spyOn(TranslationService, 'translateChapterSequential');
   versionsSpy = vi.spyOn(TranslationOps, 'getVersionsByStableId');
@@ -133,12 +144,23 @@ afterEach(() => {
     }));
 
     versionsSpy.mockResolvedValue([]);
-    translationSpy.mockResolvedValue({ error: 'Provider unavailable' } as any);
+    translationSpy.mockResolvedValue({
+      error: 'Provider unavailable',
+      failureType: 'provider_malformed_response',
+      expected: false,
+    } as any);
 
     await useAppStore.getState().handleTranslate(chapterId);
 
     expect(useAppStore.getState().translationProgress[chapterId]?.status).toBe('failed');
     expect(useAppStore.getState().translationProgress[chapterId]?.error).toBe('Provider unavailable');
+    expect(emitTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'translation_failed',
+        failureType: 'provider_malformed_response',
+        surface: 'manual_translate',
+      })
+    );
   });
 
   it('resets progress when translation is aborted', async () => {

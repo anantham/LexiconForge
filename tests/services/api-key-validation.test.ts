@@ -81,6 +81,7 @@ describe('validateApiKey', () => {
             const result = validateApiKey(settings);
             
             expect(result.isValid).toBe(false);
+            expect(result.failureType).toBe('missing_api_key');
             expect(result.errorMessage).toContain('Google Gemini API key is missing');
             expect(result.errorMessage).toContain('Add it in settings or .env file.');
         });
@@ -193,6 +194,7 @@ describe('validateApiKey', () => {
             const result = validateApiKey(settings);
             
             expect(result.isValid).toBe(false);
+            expect(result.failureType).toBe('unknown');
             expect(result.errorMessage).toContain('Unknown provider: UnknownProvider');
         });
 

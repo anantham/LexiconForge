@@ -58,6 +58,26 @@ DEEPSEEK_API_KEY=your_deepseek_api_key_here
 }
 ```
 
+### **Client Telemetry Callback Proof**
+
+This repo now includes a minimal Vercel function proof at `api/client-telemetry.js`.
+
+- Route: `POST /api/client-telemetry`
+- Purpose: validate that this Vite deployment can accept best-effort client telemetry callbacks before broader telemetry plumbing lands
+- Current behavior:
+  - accepts JSON payloads up to 16 KB
+  - requires `event_type`
+  - logs a normalized summary to the function log
+  - returns `200 { ok: true }` on success
+- Verification status:
+  - `vercel build` recognizes the function and emits `.vercel/output`
+  - a deployed proof was exercised with `vercel curl`, returning `405 {"ok":false,"error":"Method not allowed. Use POST."}` for GET and `200 {"ok":true,...}` for POST
+  - the current Vite catch-all rewrite did not shadow `/api/client-telemetry`, so this setup does not currently need an explicit `/api/*` rewrite exemption
+
+Client telemetry should remain best-effort only:
+- callback failures must never degrade the reader UX
+- if the callback POST fails, the client should drop the payload silently
+
 ## 🔒 **Security Considerations**
 
 ### **⚠️ Critical Security Warning**

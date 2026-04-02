@@ -10,6 +10,8 @@ import MigrationRecovery from './components/MigrationRecovery';
 import { LandingPage } from './components/LandingPage';
 import { DefaultKeyBanner } from './components/DefaultKeyBanner';
 import OscilloscopePanel from './components/oscilloscope/OscilloscopePanel';
+import NotificationToast from './components/NotificationToast';
+import { clientTelemetry } from './services/clientTelemetry';
 
 import { validateApiKey } from './services/aiService';
 import { prepareConnection } from './services/db/core/connection';
@@ -213,7 +215,36 @@ const settingsFingerprint = React.useMemo(
         debugWarn('translation', 'summary', `[AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
         debugWarn('translation', 'summary', `[AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
         requestedRef.current.set(currentChapterId, settingsFingerprint);
-        handleTranslate(currentChapterId);
+        void handleTranslate(currentChapterId, 'auto_translate').catch((error) => {
+          console.error('[AutoTranslate] Unexpected translation failure:', error);
+          requestedRef.current.delete(currentChapterId);
+          const store = useAppStore.getState();
+          const message = error instanceof Error ? error.message : 'Unexpected translation failure';
+          clientTelemetry.emit({
+            eventType: 'translation_failed',
+            failureType: 'unknown',
+            surface: 'auto_translate',
+            severity: 'error',
+            expected: false,
+            userVisible: null,
+            provider: settings.provider,
+            model: settings.model,
+            chapterId: currentChapterId,
+            error,
+            errorMessage: message,
+            dedupeCallback: true,
+          });
+          store.setError?.(message, {
+            sourceEventType: 'translation_failed',
+            failureType: 'unknown',
+            surface: 'auto_translate',
+            expected: false,
+            provider: settings.provider,
+            model: settings.model,
+            chapterId: currentChapterId,
+          });
+          store.showNotification?.(message, 'error');
+        });
       } else {
         debugLog('translation', 'full', `[AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
       }
@@ -274,42 +305,35 @@ const settingsFingerprint = React.useMemo(
       previousChapterIdRef.current = currentChapterId;
     }, [currentChapterId]);
 
-	    if (dbGate.status === 'checking') {
-	      return (
-	        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-	          <Loader text="Checking database..." />
-	        </div>
-	      );
-	    }
+    let content: React.ReactNode;
 
-	    if (dbGate.status === 'blocked' && dbGate.result) {
-	      return (
-	        <MigrationRecovery
-	          versionCheck={dbGate.result}
-	          onRetry={() => window.location.reload()}
-	        />
-	      );
-	    }
-
-	    if (!isInitialized) {
-	      return (
-	        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-	          <Loader text="Initializing Session..." />
-	        </div>
-	      );
-	    }
-
-    if (appScreen === 'reader-loading') {
-      return (
+    if (dbGate.status === 'checking') {
+      content = (
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+          <Loader text="Checking database..." />
+        </div>
+      );
+    } else if (dbGate.status === 'blocked' && dbGate.result) {
+      content = (
+        <MigrationRecovery
+          versionCheck={dbGate.result}
+          onRetry={() => window.location.reload()}
+        />
+      );
+    } else if (!isInitialized) {
+      content = (
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+          <Loader text="Initializing Session..." />
+        </div>
+      );
+    } else if (appScreen === 'reader-loading') {
+      content = (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
           <Loader text="Opening Reader..." />
         </div>
       );
-    }
-
-    // Show landing page when the app shell is in library mode
-    if (appScreen === 'library') {
-      return (
+    } else if (appScreen === 'library') {
+      content = (
         <>
           <LandingPage />
           <SettingsModal
@@ -319,50 +343,56 @@ const settingsFingerprint = React.useMemo(
           {import.meta.env.PROD && <Analytics />}
         </>
       );
+    } else {
+      content = (
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
+          <main className="container mx-auto">
+            <header className="text-center mb-6">
+              <h1 className="text-4xl sm:text-5xl font-bold text-gray-800 dark:text-white">Lexicon Forge</h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">Read web novels with AI-powered, user-refined translations.</p>
+            </header>
+            <DefaultKeyBanner />
+            <InputBar />
+            <SessionInfo />
+            <OscilloscopePanel />
+            <ChapterView />
+            <SettingsModal
+              isOpen={showSettingsModal}
+              onClose={() => setShowSettingsModal(false)}
+            />
+            {amendmentProposals.length > 0 && (
+              <AmendmentModal
+                proposals={amendmentProposals}
+                currentIndex={currentProposalIndex}
+                onAccept={(index) => {
+                  acceptProposal(index);
+                  // After accepting, reset to first proposal if queue still has items
+                  setCurrentProposalIndex(0);
+                }}
+                onReject={(index) => {
+                  rejectProposal(index);
+                  // After rejecting, reset to first proposal if queue still has items
+                  setCurrentProposalIndex(0);
+                }}
+                onEdit={(modifiedChange, index) => {
+                  editAndAcceptProposal(modifiedChange, index);
+                  // After editing and accepting, reset to first proposal if queue still has items
+                  setCurrentProposalIndex(0);
+                }}
+                onNavigate={setCurrentProposalIndex}
+              />
+            )}
+          </main>
+          {import.meta.env.PROD && <Analytics />}
+        </div>
+      );
     }
 
-    // Show main app when the reader is active
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
-            <main className="container mx-auto">
-                <header className="text-center mb-6">
-                    <h1 className="text-4xl sm:text-5xl font-bold text-gray-800 dark:text-white">Lexicon Forge</h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">Read web novels with AI-powered, user-refined translations.</p>
-                </header>
-                <DefaultKeyBanner />
-                <InputBar />
-                <SessionInfo />
-                <OscilloscopePanel />
-                <ChapterView />
-                <SettingsModal
-                  isOpen={showSettingsModal}
-                  onClose={() => setShowSettingsModal(false)}
-                />
-                {amendmentProposals.length > 0 && (
-                    <AmendmentModal
-                        proposals={amendmentProposals}
-                        currentIndex={currentProposalIndex}
-                        onAccept={(index) => {
-                          acceptProposal(index);
-                          // After accepting, reset to first proposal if queue still has items
-                          setCurrentProposalIndex(0);
-                        }}
-                        onReject={(index) => {
-                          rejectProposal(index);
-                          // After rejecting, reset to first proposal if queue still has items
-                          setCurrentProposalIndex(0);
-                        }}
-                        onEdit={(modifiedChange, index) => {
-                          editAndAcceptProposal(modifiedChange, index);
-                          // After editing and accepting, reset to first proposal if queue still has items
-                          setCurrentProposalIndex(0);
-                        }}
-                        onNavigate={setCurrentProposalIndex}
-                    />
-                )}
-            </main>
-            {import.meta.env.PROD && <Analytics />}
-        </div>
+      <>
+        <NotificationToast />
+        {content}
+      </>
     );
 };
 

@@ -4,6 +4,7 @@ import {
   getDefaultKeyStatus,
 } from '../defaultApiKeyService';
 import type { AppSettings } from '../../types';
+import type { TelemetryFailureType } from '../../types/telemetry';
 import { debugLog } from '../../utils/debug';
 
 const PROVIDER_ENV_MAP: Record<AppSettings['provider'], { env: string; label: string }> = {
@@ -14,12 +15,22 @@ const PROVIDER_ENV_MAP: Record<AppSettings['provider'], { env: string; label: st
   Claude: { env: 'CLAUDE_API_KEY', label: 'Claude (Anthropic)' },
 };
 
+export interface ApiKeyValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
+  failureType?: Extract<TelemetryFailureType, 'trial_limit' | 'missing_api_key' | 'unknown'>;
+}
+
 export const validateApiKey = (
   settings: AppSettings
-): { isValid: boolean; errorMessage?: string } => {
+): ApiKeyValidationResult => {
   const providerMeta = PROVIDER_ENV_MAP[settings.provider as AppSettings['provider']];
   if (!providerMeta) {
-    return { isValid: false, errorMessage: `Unknown provider: ${settings.provider}` };
+    return {
+      isValid: false,
+      errorMessage: `Unknown provider: ${settings.provider}`,
+      failureType: 'unknown',
+    };
   }
 
   let requiredApiKey: string | undefined;
@@ -63,6 +74,9 @@ export const validateApiKey = (
     return {
       isValid: false,
       errorMessage: buildProviderErrorMessage(settings.provider, providerMeta.label),
+      failureType: settings.provider === 'OpenRouter' && getDefaultKeyStatus().hasExceeded
+        ? 'trial_limit'
+        : 'missing_api_key',
     };
   }
 
