@@ -273,6 +273,28 @@ Use WORKLOG to ensure valuable context about current work is saved so that if yo
 
 Every leg of your roadmap, todo list, uncertainties, discoveries, antipatterns discovered, friction should be noted that as a form of escalating it to human and to other AI for attention
 
+## DEBT_CAPTURE_PROTOCOL
+
+Use a two-stage debt capture system rather than relying on `docs/WORKLOG.md` alone.
+
+1. **Chronological context stays in `docs/WORKLOG.md`.**
+   - Record what you were doing, what friction you hit, and link or point to the debt receipt.
+   - Prefix debt-related notes in WORKLOG with `[DEBT]` so they are grep-friendly.
+
+2. **Raw findings go into `docs/roadmaps/TECH-DEBT-INBOX.md`.**
+   - This is the append-only inbox for organic findings discovered during implementation.
+   - Create the file on first use if it does not already exist.
+   - Use short receipts with concrete files, symptom, friction, and suggested follow-up.
+   - Prefer grep-friendly prefixes such as `[DEBT][MONOLITH]`, `[DEBT][NAMING]`, `[DEBT][DUPLICATION]`, `[DEBT][TEST]`, `[DEBT][LEGACY]`.
+
+3. **Reviewed debt belongs in `docs/roadmaps/TECH-DEBT-STATUS.md`.**
+   - Promote only curated, triaged items here.
+   - Do not dump every raw observation directly into the curated register.
+
+4. **Structural hotspots belong in `docs/architecture/ARCHITECTURE.md` §7 only.**
+   - Use this for monoliths, recurring friction-heavy files, and architectural hotspots.
+   - Do not use the hotspot list as a generic scratchpad.
+
 ---
 
 # STOP_CONDITIONS (immediate)

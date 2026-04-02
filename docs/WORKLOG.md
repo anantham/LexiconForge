@@ -1,3 +1,15 @@
+2026-03-30 05:17 PDT - [Agent: Codex] /metaupdate debt capture workflow
+- Files:
+  - AGENTS.md:274-292
+  - docs/WORKLOG.md:1-8
+- Why:
+  - The repo had chronology in `WORKLOG` and curated debt in `TECH-DEBT-STATUS`, but no formal inbox for organic maintainability findings discovered during feature work.
+- Details:
+  - Added `DEBT_CAPTURE_PROTOCOL` to `AGENTS.md`.
+  - Standardized the split between `docs/WORKLOG.md` for chronology, `docs/roadmaps/TECH-DEBT-INBOX.md` for append-only raw debt receipts, `docs/roadmaps/TECH-DEBT-STATUS.md` for curated debt, and `docs/architecture/ARCHITECTURE.md` §7 for structural hotspots only.
+  - Added grep-friendly `[DEBT]`-style prefixes so actionable findings can be filtered later instead of disappearing into rotated logs.
+- Tests: Not run (docs/process update only).
+
 2026-03-29 22:35 PDT - [Agent: Codex] FMC partial artifact finalized for publication
 - Files:
   - external repo: /Users/aditya/Documents/Ongoing Local/lexiconforge-novels/novels/forty-millenniums-of-cultivation/metadata.json
