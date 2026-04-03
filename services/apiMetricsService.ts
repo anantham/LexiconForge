@@ -449,6 +449,58 @@ class ApiMetricsService {
   }
 
   /**
+   * Get average translation time for a model, with ensemble fallback.
+   * Priority: exact model → same provider → all translations → 30s default.
+   */
+  async getAverageTranslationTime(model: string, provider?: string): Promise<{
+    avgTimeSeconds: number;
+    sampleCount: number;
+    source: 'model' | 'provider' | 'global' | 'default';
+  }> {
+    try {
+      const db = await this.openDatabase();
+      const tx = db.transaction([this.storeName], 'readonly');
+      const store = tx.objectStore(this.storeName);
+      const request = store.getAll();
+
+      const allMetrics = await new Promise<ApiCallMetric[]>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      const translationMetrics = allMetrics.filter(m =>
+        m.apiType === 'translation' && m.success && typeof m.duration === 'number' && m.duration > 0
+      );
+
+      // Try exact model match
+      const modelMetrics = translationMetrics.filter(m => m.model === model);
+      if (modelMetrics.length >= 2) {
+        const avg = modelMetrics.reduce((s, m) => s + m.duration!, 0) / modelMetrics.length;
+        return { avgTimeSeconds: avg, sampleCount: modelMetrics.length, source: 'model' };
+      }
+
+      // Try same provider
+      if (provider) {
+        const providerMetrics = translationMetrics.filter(m => m.provider === provider);
+        if (providerMetrics.length >= 2) {
+          const avg = providerMetrics.reduce((s, m) => s + m.duration!, 0) / providerMetrics.length;
+          return { avgTimeSeconds: avg, sampleCount: providerMetrics.length, source: 'provider' };
+        }
+      }
+
+      // Global average
+      if (translationMetrics.length >= 1) {
+        const avg = translationMetrics.reduce((s, m) => s + m.duration!, 0) / translationMetrics.length;
+        return { avgTimeSeconds: avg, sampleCount: translationMetrics.length, source: 'global' };
+      }
+
+      return { avgTimeSeconds: 30, sampleCount: 0, source: 'default' };
+    } catch {
+      return { avgTimeSeconds: 30, sampleCount: 0, source: 'default' };
+    }
+  }
+
+  /**
    * Get all image generation models that have historical token data.
    * Useful for building estimated pricing for OpenRouter models.
    */

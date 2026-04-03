@@ -669,6 +669,7 @@ ${schemaString}`;
       provider: settings.provider,
       model: settings.model,
       costUsd,
+      duration: requestTime,
       tokens: {
         prompt: promptTokens,
         completion: completionTokens,
