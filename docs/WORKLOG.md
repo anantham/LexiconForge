@@ -146,6 +146,22 @@
   - `npx vitest run tests/services/imagePlanPlanner.test.ts tests/store/slices/imageSlice.imagePlan.test.ts tests/services/imagePlanService.test.ts tests/services/structured-outputs.test.ts components/settings/ProvidersPanel.test.tsx tests/services/openrouterImageModelAdapter.test.ts` ✅
   - `npx tsc --noEmit --pretty false` ⚠️ still blocked only by pre-existing unrelated `scripts/sutta-studio/benchmark.ts`, `scripts/sutta-studio/debug-single-model.ts`, and `scripts/sutta-studio/generate-new-phases.ts` errors.
 
+### [2026-04-02 23:15 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Address the two concrete PR review bugs without expanding scope into the `translationsSlice.ts` refactor.
+**Files modified / created:**
+- `services/clientTelemetry.ts:104-106`
+  - Removed the `VERCEL_URL` fallback from `getBuildId()` so telemetry only records an actual build identifier (`VERCEL_GIT_COMMIT_SHA`, `VITE_APP_BUILD_ID`) or `null`.
+- `MainApp.tsx:216-245`
+  - Kept the auto-translate fingerprint guard intact on unexpected failures so the same chapter/settings pair is not auto-requested again after a rejected translation attempt.
+- `tests/services/clientTelemetry.test.ts:100-126`
+  - Added focused coverage that `VERCEL_URL` alone does not populate `build_id` in the callback payload.
+- `tests/store/appScreen.integration.test.tsx:36-38,76-77,194-218`
+  - Added a regression test that an unexpected auto-translate failure does not trigger the same chapter again after the component re-renders.
+**Verification:**
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vitest run tests/services/clientTelemetry.test.ts tests/store/appScreen.integration.test.tsx` ✅
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npm run build` ✅
+
 ### [2026-04-02 21:49 EDT] [Agent: Codex]
 **Status:** Progress
 **Task:** Address the post-review async-boundary regression, rebase the telemetry branch onto current `main`, and rerun the merge-blocking checks.

@@ -103,7 +103,7 @@ const getLoadingState = (chapterId?: string | null): LoadingStateSnapshot => {
 
 const getBuildId = (): string | null => {
   const env = getRuntimeEnv();
-  return env.VERCEL_GIT_COMMIT_SHA || env.VITE_APP_BUILD_ID || env.VERCEL_URL || null;
+  return env.VERCEL_GIT_COMMIT_SHA || env.VITE_APP_BUILD_ID || null;
 };
 
 const isCallbackEnabled = (): boolean => {

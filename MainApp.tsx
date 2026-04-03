@@ -219,7 +219,6 @@ const settingsFingerprint = React.useMemo(
           .then(() => handleTranslate(currentChapterId, 'auto_translate'))
           .catch((error) => {
             console.error('[AutoTranslate] Unexpected translation failure:', error);
-            requestedRef.current.delete(currentChapterId);
             const store = useAppStore.getState();
             const message = error instanceof Error ? error.message : 'Unexpected translation failure';
             clientTelemetry.emit({

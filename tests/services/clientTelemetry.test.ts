@@ -115,4 +115,33 @@ describe('clientTelemetry', () => {
     expect(trackMock).toHaveBeenCalledTimes(1);
     expect(fetch).not.toHaveBeenCalled();
   });
+
+  it('does not use VERCEL_URL as a build identifier fallback', async () => {
+    vi.stubEnv('VERCEL_GIT_COMMIT_SHA', '');
+    vi.stubEnv('VITE_APP_BUILD_ID', '');
+    vi.stubEnv('VERCEL_URL', 'lexicon-forge-git-fix-codex-te-ea669e-adityas-projects-9c03351d.vercel.app');
+
+    const { emitClientTelemetryEvent } = await import('../../services/clientTelemetry');
+
+    emitClientTelemetryEvent({
+      eventType: 'translation_failed',
+      failureType: 'timeout',
+      surface: 'auto_translate',
+      severity: 'error',
+      expected: false,
+      userVisible: null,
+      provider: 'OpenRouter',
+      model: 'openrouter/auto',
+      chapterId: 'chapter-1',
+      errorMessage: 'Translation timed out after 90s.',
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [, requestInit] = (fetch as any).mock.calls[0];
+    expect(JSON.parse(requestInit.body)).toEqual(
+      expect.objectContaining({
+        build_id: null,
+      })
+    );
+  });
 });
