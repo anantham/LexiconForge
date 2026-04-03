@@ -57,6 +57,46 @@ export const translationOnlyResponseJsonSchema = {
           imagePrompt: {
             type: 'string',
             description: '' + prompts.illustrationImagePromptDescription
+          },
+          imagePlan: {
+            type: ['object', 'null'],
+            description: '' + prompts.illustrationImagePlanDescription,
+            properties: {
+              subject: { type: 'string', description: '' + prompts.illustrationPlanSubjectDescription },
+              characters: {
+                type: 'array',
+                description: '' + prompts.illustrationPlanCharactersDescription,
+                items: { type: 'string' }
+              },
+              scene: { type: 'string', description: '' + prompts.illustrationPlanSceneDescription },
+              composition: { type: 'string', description: '' + prompts.illustrationPlanCompositionDescription },
+              camera: { type: 'string', description: '' + prompts.illustrationPlanCameraDescription },
+              lighting: { type: 'string', description: '' + prompts.illustrationPlanLightingDescription },
+              style: { type: 'string', description: '' + prompts.illustrationPlanStyleDescription },
+              mood: { type: 'string', description: '' + prompts.illustrationPlanMoodDescription },
+              details: {
+                type: 'array',
+                description: '' + prompts.illustrationPlanDetailsDescription,
+                items: { type: 'string' }
+              },
+              mustKeep: {
+                type: 'array',
+                description: '' + prompts.illustrationPlanMustKeepDescription,
+                items: { type: 'string' }
+              },
+              avoid: {
+                type: 'array',
+                description: '' + prompts.illustrationPlanAvoidDescription,
+                items: { type: 'string' }
+              },
+              negativePrompt: {
+                type: 'array',
+                description: '' + prompts.illustrationPlanNegativePromptDescription,
+                items: { type: 'string' }
+              }
+            },
+            required: ['subject', 'characters', 'scene', 'composition', 'camera', 'lighting', 'style', 'mood', 'details', 'mustKeep', 'avoid', 'negativePrompt'],
+            additionalProperties: false
           }
         },
         required: ['placementMarker', 'imagePrompt'],
@@ -128,6 +168,46 @@ export const translationOnlyResponseGeminiSchema: Schema = {
           imagePrompt: {
             type: SchemaType.STRING,
             description: '' + prompts.illustrationImagePromptDescription
+          },
+          imagePlan: {
+            type: SchemaType.OBJECT,
+            nullable: true,
+            description: '' + prompts.illustrationImagePlanDescription,
+            properties: {
+              subject: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanSubjectDescription },
+              characters: {
+                type: SchemaType.ARRAY,
+                description: '' + prompts.illustrationPlanCharactersDescription,
+                items: { type: SchemaType.STRING }
+              },
+              scene: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanSceneDescription },
+              composition: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanCompositionDescription },
+              camera: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanCameraDescription },
+              lighting: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanLightingDescription },
+              style: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanStyleDescription },
+              mood: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanMoodDescription },
+              details: {
+                type: SchemaType.ARRAY,
+                description: '' + prompts.illustrationPlanDetailsDescription,
+                items: { type: SchemaType.STRING }
+              },
+              mustKeep: {
+                type: SchemaType.ARRAY,
+                description: '' + prompts.illustrationPlanMustKeepDescription,
+                items: { type: SchemaType.STRING }
+              },
+              avoid: {
+                type: SchemaType.ARRAY,
+                description: '' + prompts.illustrationPlanAvoidDescription,
+                items: { type: SchemaType.STRING }
+              },
+              negativePrompt: {
+                type: SchemaType.ARRAY,
+                description: '' + prompts.illustrationPlanNegativePromptDescription,
+                items: { type: SchemaType.STRING }
+              }
+            },
+            required: ['subject', 'characters', 'scene', 'composition', 'camera', 'lighting', 'style', 'mood', 'details', 'mustKeep', 'avoid', 'negativePrompt']
           }
         },
         required: ['placementMarker', 'imagePrompt']

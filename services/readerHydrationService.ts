@@ -33,6 +33,9 @@ const toEnhancedChapter = (chapter: ChapterRenderingRecord): EnhancedChapter => 
     return {
       placementMarker: illustration.placementMarker,
       imagePrompt: illustration.imagePrompt,
+      ...(illustration.imagePlan ? { imagePlan: illustration.imagePlan } : {}),
+      ...(illustration.imagePlanMode ? { imagePlanMode: illustration.imagePlanMode } : {}),
+      ...(illustration.imagePlanSourceCaption ? { imagePlanSourceCaption: illustration.imagePlanSourceCaption } : {}),
       ...(generatedImage ? { generatedImage } : {}),
       ...(illustration.imageCacheKey ? { imageCacheKey: illustration.imageCacheKey } : {}),
       ...(url ? { url } : {}),

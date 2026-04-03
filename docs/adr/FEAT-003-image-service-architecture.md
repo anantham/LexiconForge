@@ -12,6 +12,14 @@ Architecture implemented as documented. Key files confirmed at their stated loca
 - `config/costs.ts` for provider cost tracking
 - Known debt items (no unit tests, blob URL lifecycle) remain open.
 
+### Implementation Notes (2026-04-03)
+
+Image prompting now includes a structured planning layer rather than treating the human-facing caption as the sole machine prompt source:
+- `services/imagePlanPlanner.ts` generates `{ imagePrompt, imagePlan }` via the active text provider/model with schema enforcement where available and caption-derived fallback on planner failure.
+- `services/imagePlanService.ts` normalizes editable `ImagePlan` JSON and compiles provider-aware generation prompts from caption + plan.
+- `components/Illustration.tsx` and `components/illustration/IllustrationPromptEditor.tsx` now expose the JSON plan in the UI, including an explicit `AI Regenerate JSON` action to hand ownership back to the planner.
+- `services/openrouterImageModelAdapter.ts` now serves as the verified OpenRouter image-model catalog for picker and request shaping, replacing the earlier stale static list approach.
+
 ---
 
 ## Context

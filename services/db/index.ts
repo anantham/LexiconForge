@@ -267,6 +267,18 @@ function makeMemoryRepo(): Repo {
       imagePrompt: illustration.imagePrompt,
     };
 
+    if (illustration.imagePlan) {
+      record.imagePlan = illustration.imagePlan;
+    }
+
+    if (illustration.imagePlanMode) {
+      record.imagePlanMode = illustration.imagePlanMode;
+    }
+
+    if (illustration.imagePlanSourceCaption) {
+      record.imagePlanSourceCaption = illustration.imagePlanSourceCaption;
+    }
+
     if (legacy.url) {
       record.url = legacy.url;
     }

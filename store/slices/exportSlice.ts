@@ -122,7 +122,7 @@ export const buildImageCaption = (version: number, metadata: ImageGenerationMeta
   }
 
   const suffix = details.length > 0 ? ` • ${details.join(' • ')}` : '';
-  return `Version ${version}: ${metadata.prompt}${suffix}`;
+  return `Version ${version}: ${metadata.caption || fallbackPrompt}${suffix}`;
 };
 
 export const createExportSlice: StateCreator<

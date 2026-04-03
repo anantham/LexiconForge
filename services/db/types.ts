@@ -1,4 +1,4 @@
-import type { GeneratedImageResult, ImageCacheKey } from '../../types';
+import type { GeneratedImageResult, ImageCacheKey, ImagePlan, ImagePlanMode } from '../../types';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
 
 export interface ChapterRecord {
@@ -61,6 +61,9 @@ export interface TranslationRecord {
   suggestedIllustrations: Array<{
     placementMarker: string;
     imagePrompt: string;
+    imagePlan?: ImagePlan | null;
+    imagePlanMode?: ImagePlanMode;
+    imagePlanSourceCaption?: string | null;
     url?: string;
     generatedImage?: string | GeneratedImageResult;
     imageCacheKey?: ImageCacheKey;

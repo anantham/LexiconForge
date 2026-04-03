@@ -73,7 +73,21 @@ IMPORTANT: You must respond with valid JSON in exactly this format. Ensure all s
   "suggestedIllustrations": [
     {
       "placementMarker": "[ILLUSTRATION-1]",
-      "imagePrompt": "Detailed prompt for AI image generation describing the scene, mood, characters, and visual style"
+      "imagePrompt": "Short human-facing caption for the illustration",
+      "imagePlan": {
+        "subject": "Primary subject of the illustration",
+        "characters": ["Key character 1", "Key character 2"],
+        "scene": "Environment and situation",
+        "composition": "Framing and composition guidance",
+        "camera": "Camera angle or perspective",
+        "lighting": "Lighting and shadow treatment",
+        "style": "Visual style guidance",
+        "mood": "Atmosphere and emotional tone",
+        "details": ["Secondary detail 1", "Secondary detail 2"],
+        "mustKeep": ["Critical detail 1"],
+        "avoid": ["Undesired feature 1"],
+        "negativePrompt": ["Artifact to suppress"]
+      }
     }
   ]
 }

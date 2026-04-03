@@ -191,7 +191,8 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
             <span
               className="ml-2 inline-block text-xs text-gray-500 dark:text-gray-400 cursor-help"
               title={
-                'Image prices are per generated image.\n' +
+                'Image prices are shown per generated image when we have a verified per-image rate.\n' +
+                'OpenRouter entries may instead use estimated or token-based pricing from provider metadata/docs.\n' +
                 'Some image models are previews and may have rate limits or change behavior.'
               }
             >
@@ -212,7 +213,7 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
             ))}
           </select>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Dedicated models like Imagen can produce higher quality images. All image generation requires a Gemini API key.
+            Gemini and Imagen entries use your Gemini API key. OpenRouter and PiAPI entries use their own provider keys when selected.
           </p>
           {imageModel && imageModel.toLowerCase() !== 'none' && (
             <div className="mt-2 flex items-center gap-3">

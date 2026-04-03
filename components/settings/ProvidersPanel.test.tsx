@@ -5,9 +5,30 @@ import ProvidersPanel from './ProvidersPanel';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { useProvidersPanelStore } from '../../hooks/useProvidersPanelStore';
 
-// Mock the context
-const mockHandleSettingChange = vi.fn();
-const mockSetParameterSupport = vi.fn();
+const {
+  mockHandleSettingChange,
+  mockSetParameterSupport,
+  mockLoadOpenRouterCatalogue,
+  mockRefreshOpenRouterCredits,
+  mockGetOpenRouterOptions,
+  mockRefreshProviderCredits,
+  mockLoadProviderCreditsFromCache,
+  mockGetVerifiedOpenRouterImageModels,
+  mockGetLastUsedMap,
+} = vi.hoisted(() => ({
+  mockHandleSettingChange: vi.fn(),
+  mockSetParameterSupport: vi.fn(),
+  mockLoadOpenRouterCatalogue: vi.fn(),
+  mockRefreshOpenRouterCredits: vi.fn(),
+  mockGetOpenRouterOptions: vi.fn(() => []),
+  mockRefreshProviderCredits: vi.fn(),
+  mockLoadProviderCreditsFromCache: vi.fn(),
+  mockGetVerifiedOpenRouterImageModels: vi.fn().mockResolvedValue({
+    data: [],
+    fetchedAt: '2026-04-02T00:00:00.000Z',
+  }),
+  mockGetLastUsedMap: vi.fn().mockResolvedValue({}),
+}));
 
 type TestProviderName = 'Gemini' | 'DeepSeek' | 'OpenRouter' | 'Claude' | 'OpenAI';
 
@@ -31,13 +52,6 @@ vi.mock('./SettingsModalContext', () => ({
   ParameterSupportState: {},
 }));
 
-// Mock the providers panel store
-const mockLoadOpenRouterCatalogue = vi.fn();
-const mockRefreshOpenRouterCredits = vi.fn();
-const mockGetOpenRouterOptions = vi.fn(() => []);
-const mockRefreshProviderCredits = vi.fn();
-const mockLoadProviderCreditsFromCache = vi.fn();
-
 vi.mock('../../hooks/useProvidersPanelStore', () => ({
   useProvidersPanelStore: vi.fn(),
 }));
@@ -50,10 +64,13 @@ vi.mock('../../services/capabilityService', () => ({
 
 // Mock OpenRouter service
 vi.mock('../../services/openrouterService', () => ({
-  getOpenRouterImageModels: vi.fn().mockResolvedValue([]),
   openrouterService: {
-    getLastUsedMap: vi.fn().mockResolvedValue({}),
+    getLastUsedMap: mockGetLastUsedMap,
   },
+}));
+
+vi.mock('../../services/openrouterImageModelAdapter', () => ({
+  getVerifiedOpenRouterImageModels: mockGetVerifiedOpenRouterImageModels,
 }));
 
 // Mock constants
@@ -137,6 +154,8 @@ describe('ProvidersPanel', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetVerifiedOpenRouterImageModels.mockResolvedValue({ data: [], fetchedAt: new Date().toISOString() });
+    mockGetLastUsedMap.mockResolvedValue({});
     setupDefaultMocks();
   });
 
@@ -460,6 +479,29 @@ describe('ProvidersPanel', () => {
       const optionTexts = Array.from(options).map(o => o.textContent);
 
       expect(optionTexts.some(t => t?.includes('GPT-4'))).toBe(true);
+    });
+
+    it('keeps free models ahead of paid recent models', async () => {
+      mockGetOpenRouterOptions.mockReturnValue([
+        { id: 'qwen/qwen3.6-plus:free', label: 'Qwen 3.6 Plus Free — USD 0.00/0.00 per 1M', priceKey: 0 },
+        { id: 'openai/gpt-4-turbo', label: 'GPT-4 Turbo — USD 10.00/30.00 per 1M', priceKey: 40 },
+        { id: 'openai/gpt-4', label: 'GPT-4 — USD 20.00/40.00 per 1M', priceKey: 60 },
+      ]);
+      mockGetLastUsedMap.mockResolvedValue({
+        'openai/gpt-4-turbo': new Date('2026-04-02T22:30:00Z').toISOString(),
+      });
+
+      render(<ProvidersPanel isOpen={true} />);
+
+      await waitFor(() => {
+        expect(mockGetLastUsedMap).toHaveBeenCalled();
+      });
+
+      const modelSelect = screen.getByLabelText(/Text Model/);
+      const options = Array.from(modelSelect.querySelectorAll('option')).map((option) => option.value);
+
+      expect(options[0]).toBe('qwen/qwen3.6-plus:free');
+      expect(options[1]).toBe('openai/gpt-4-turbo');
     });
 
     it('clears search after model selection', async () => {

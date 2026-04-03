@@ -29,6 +29,107 @@
   - Added focused component coverage for both failure preservation and success clearing so the UI contract stays explicit.
 - Tests:
   - `npx vitest run tests/components/InputBar.test.tsx` ✅
+2026-04-02 23:02 EDT - [Agent: Codex]
+- Status: Starting
+- Task: Fix OpenRouter model picker ordering so free text models sort first, and replace the brittle OpenRouter image-model/filter path with a verified adapter aligned to current OpenRouter image-generation docs.
+- Worktree: ../LexiconForge.worktrees/codex-openrouter-image-json/
+- Branch: fix/codex-openrouter-image-json
+- Files likely affected:
+  - store/slices/settingsSlice.ts
+  - services/openrouterService.ts
+  - components/settings/ProvidersPanel.tsx
+  - components/settings/TranslationEngineSection.tsx
+  - services/imageService.ts
+  - services/imageGenerationService.ts
+  - config/constants.ts
+  - tests/components/ProvidersPanel.test.tsx
+  - docs/WORKLOG.md
+- Why:
+  - Free OpenRouter text models currently sort as unknown-price entries and sink to the bottom of the picker.
+  - OpenRouter’s website, `/models` filters, and image-generation docs now expose a clearer image-capable contract than the app’s current mixed static-list plus stale-cache behavior.
+
+2026-04-02 23:19 EDT - [Agent: Codex]
+- Status: Complete
+- Progress:
+  - Treated OpenRouter zero-cost text pricing as real `0.00` pricing in `store/slices/settingsSlice.ts:465-500`, which lets free models participate in price sorting instead of being pushed to the bottom as unknown-price entries.
+  - Reordered the OpenRouter text dropdown in `components/settings/ProvidersPanel.tsx:260-307` so free models are grouped first, followed by paid recents, then the remaining priced models.
+  - Replaced stale OpenRouter image-model UI assembly with a verified adapter in `services/openrouterImageModelAdapter.ts:1-298`, using `https://openrouter.ai/api/v1/models?output_modalities=image`, cache-backed profiles, request modality derivation, and conservative `image_config` shaping for supported Google image models.
+  - Switched the image picker to that verified catalog in `components/settings/ProvidersPanel.tsx:120-131` and `components/settings/ProvidersPanel.tsx:334-379`, and removed stale hardcoded OpenRouter image entries from `config/constants.ts:44-54`.
+  - Updated OpenRouter image execution in `services/imageService.ts:79-97` and `services/imageService.ts:255-333` to validate against the verified catalog before requests, select the correct `modalities`, and attach `image_config` only when the verified model profile supports it.
+  - Corrected image-pricing/help copy in `components/settings/TranslationEngineSection.tsx:203-226` so the UI no longer implies all image generation uses Gemini credentials or fixed per-image pricing.
+  - Added regression coverage in `components/settings/ProvidersPanel.test.tsx:8-31`, `components/settings/ProvidersPanel.test.tsx:155-160`, and `components/settings/ProvidersPanel.test.tsx:493-514`, plus a new adapter suite in `tests/services/openrouterImageModelAdapter.test.ts:1-133`.
+- Validation:
+  - `npx vitest run components/settings/ProvidersPanel.test.tsx tests/services/openrouterImageModelAdapter.test.ts` ✅
+  - `npx tsc --noEmit --pretty false` ⚠️ blocked by pre-existing unrelated `scripts/sutta-studio/*` errors:
+    - `scripts/sutta-studio/benchmark.ts`
+    - `scripts/sutta-studio/debug-single-model.ts`
+    - `scripts/sutta-studio/generate-new-phases.ts`
+- Notes:
+  - Linked the worktree to the main checkout’s existing `node_modules` for validation only; no dependency manifest changes were made.
+
+2026-04-02 23:42 EDT - [Agent: Codex]
+- Status: Complete
+- Task: Add a structured `ImagePlan` layer while keeping the caption human-facing, and expose a JSON editor toggle in the illustration UI.
+- Files:
+  - `types.ts`
+  - `services/imagePlanService.ts`
+  - `services/illustrationService.ts`
+  - `services/ai/responseValidators.ts`
+  - `services/translate/translationResponseSchema.ts`
+  - `services/ai/providers/openai.ts`
+  - `services/ai/providers/gemini.ts`
+  - `services/claudeService.ts`
+  - `services/imageGenerationService.ts`
+  - `store/slices/imageSlice.ts`
+  - `store/slices/translationsSlice.ts`
+  - `components/Illustration.tsx`
+  - `components/illustration/IllustrationPromptEditor.tsx`
+  - `services/db/types.ts`
+  - `services/db/index.ts`
+  - `services/readerHydrationService.ts`
+  - `store/slices/exportSlice.ts`
+  - `tests/services/imagePlanService.test.ts`
+  - `tests/services/structured-outputs.test.ts`
+  - `config/prompts.json`
+- Why:
+  - `imagePrompt` was overloaded as caption, editable prompt, persisted source of truth, and provider payload, which made it impossible to introduce structured prompting without breaking the reader-facing caption flow.
+  - The reader explicitly asked for a visible JSON plan editor rather than a hidden internal plan.
+- Details:
+  - Added typed `ImagePlan` and `imagePlanMode` (`auto` vs `manual`) to suggested illustrations and generation metadata.
+  - Added `services/imagePlanService.ts` to seed plans from captions, normalize/parse editable JSON, and compile provider-aware prompts from caption + plan.
+  - Translation/manual illustration generation now produces or backfills `imagePlan`, while schema-based translation providers may emit it directly.
+  - Image generation now compiles prompts from the structured plan but preserves the human caption separately in metadata/exports.
+  - The illustration UI now exposes caption vs JSON-plan tabs, supports manual JSON edits, and preserves the “caption stays readable” requirement.
+- Validation:
+  - `npx vitest run tests/services/imagePlanService.test.ts tests/services/structured-outputs.test.ts components/settings/ProvidersPanel.test.tsx tests/services/openrouterImageModelAdapter.test.ts` ✅
+  - `npx tsc --noEmit --pretty false` remains blocked by unrelated existing `scripts/sutta-studio/*` errors.
+  - Filtered `tsc` pass over touched files produced no matching errors. ✅
+
+2026-04-03 00:12 EDT - [Agent: Codex]
+- Status: Complete
+- Task: Replace heuristic auto-plan seeding with a real AI-backed `caption -> ImagePlan` planner, and add an explicit UI action to regenerate JSON from the caption.
+- Files:
+  - `config/prompts.json:51-53`
+  - `docs/adr/FEAT-003-image-service-architecture.md:6-14`
+  - `services/imagePlanPlanner.ts:1-431`
+  - `services/illustrationService.ts:1-34`
+  - `store/slices/imageSlice.ts:16-18,51-53,166-189,1085-1207`
+  - `components/Illustration.tsx:23-40,198-206,336-381,474,563,702`
+  - `components/illustration/IllustrationPromptEditor.tsx:9-22,47,101-110`
+  - `tests/services/imagePlanPlanner.test.ts:1-134`
+  - `tests/store/slices/imageSlice.imagePlan.test.ts:1-179`
+- Why:
+  - `auto` mode was still using `buildImagePlanFromCaption(...)`, which only produced a shallow structural seed and did not satisfy the requirement that AI should author the JSON plan from prompt examples.
+  - The JSON toggle needed a recovery path so manual editors could hand control back to AI without writing the schema from scratch.
+- Details:
+  - Updated `docs/adr/FEAT-003-image-service-architecture.md` implementation notes so the image architecture doc reflects the new structured planning layer and verified OpenRouter image-model adapter.
+  - Added `services/imagePlanPlanner.ts` as a provider-aware planner transport for OpenAI/DeepSeek/OpenRouter, Gemini, and Claude, using the new few-shot planner prompts plus JSON/schema enforcement where available and caption-derived fallback only when the planner fails.
+  - Refactored `services/illustrationService.ts` to reuse that shared planner path so selection-based illustration prompts and editor auto-plans follow the same structured prompt contract.
+  - Replaced heuristic auto-plan writes in `store/slices/imageSlice.ts` with planner calls, preserved manual JSON ownership on caption edits, and added `regenerateIllustrationPlanFromCaption(...)` to explicitly switch an illustration back to AI-owned JSON.
+  - Updated the illustration editor UI to expose an `AI Regenerate JSON` action and guard against stomping unsaved local JSON edits.
+- Validation:
+  - `npx vitest run tests/services/imagePlanPlanner.test.ts tests/store/slices/imageSlice.imagePlan.test.ts tests/services/imagePlanService.test.ts tests/services/structured-outputs.test.ts components/settings/ProvidersPanel.test.tsx tests/services/openrouterImageModelAdapter.test.ts` ✅
+  - `npx tsc --noEmit --pretty false` ⚠️ still blocked only by pre-existing unrelated `scripts/sutta-studio/benchmark.ts`, `scripts/sutta-studio/debug-single-model.ts`, and `scripts/sutta-studio/generate-new-phases.ts` errors.
 
 2026-03-30 05:17 PDT - [Agent: Codex] /metaupdate debt capture workflow
 - Files:

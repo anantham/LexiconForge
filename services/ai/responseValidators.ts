@@ -1,6 +1,10 @@
+import type { ImagePlan } from '../../types';
+import { ensureIllustrationPlan } from '../imagePlanService';
+
 type Illustration = {
   placementMarker: string;
   imagePrompt: string;
+  imagePlan?: ImagePlan | null;
 };
 
 type Footnote = {
@@ -13,7 +17,7 @@ export const validateAndFixIllustrations = (
   suggestedIllustrations: Illustration[] | undefined
 ): { translation: string; suggestedIllustrations: Illustration[] } => {
   const textMarkers = translation.match(/\[ILLUSTRATION-\d+[A-Za-z]*\]/g) || [];
-  const jsonIllustrations = suggestedIllustrations || [];
+  const jsonIllustrations = (suggestedIllustrations || []).map((illustration) => ensureIllustrationPlan(illustration));
   const jsonMarkers = jsonIllustrations.map(item => item.placementMarker);
 
   if (textMarkers.length === jsonMarkers.length) {
