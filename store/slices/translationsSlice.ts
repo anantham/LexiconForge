@@ -336,12 +336,13 @@ export const createTranslationsSlice: StateCreator<
         if (imageActions.loadExistingImages) {
           await imageActions.loadExistingImages(chapterId);
         }
-        
+
+        const autoGenerate = (state as any).settings?.autoGenerateImages ?? true;
         const needsGeneration = translationResult.suggestedIllustrations.some(
           (illust: any) => !illust.generatedImage
         );
-        
-        if (needsGeneration && imageActions.handleGenerateImages) {
+
+        if (autoGenerate && needsGeneration && imageActions.handleGenerateImages) {
           imageActions.handleGenerateImages(chapterId);
         }
       }

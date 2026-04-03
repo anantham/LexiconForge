@@ -30,6 +30,7 @@ interface TranslationEngineSectionProps {
   provider: TranslationProvider;
   model: string;
   imageModel: string;
+  autoGenerateImages: boolean;
   contextDepth: number;
   preloadCount: number;
   sourceLanguage: string;
@@ -52,6 +53,7 @@ interface TranslationEngineSectionProps {
   onProviderChange: (provider: TranslationProvider) => void;
   onModelChange: (model: string) => void;
   onImageModelChange: (model: string) => void;
+  onAutoGenerateImagesChange: (value: boolean) => void;
   onContextDepthChange: (value: number) => void;
   onPreloadCountChange: (value: number) => void;
   onSourceLanguageChange: (value: string) => void;
@@ -62,6 +64,7 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
   provider,
   model,
   imageModel,
+  autoGenerateImages,
   contextDepth,
   preloadCount,
   sourceLanguage,
@@ -76,6 +79,7 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
   onProviderChange,
   onModelChange,
   onImageModelChange,
+  onAutoGenerateImagesChange,
   onContextDepthChange,
   onPreloadCountChange,
   onSourceLanguageChange,
@@ -224,6 +228,20 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Dedicated models like Imagen can produce higher quality images. All image generation requires a Gemini API key.
           </p>
+          {imageModel && imageModel.toLowerCase() !== 'none' && (
+            <div className="mt-2 flex items-center gap-3">
+              <input
+                id="autoGenerateImages"
+                type="checkbox"
+                checked={autoGenerateImages}
+                onChange={(e) => onAutoGenerateImagesChange(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="autoGenerateImages" className="text-sm text-gray-700 dark:text-gray-300">
+                Auto-generate illustrations after translation
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Context Depth Slider */}
