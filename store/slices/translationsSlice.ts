@@ -296,7 +296,7 @@ export const createTranslationsSlice: StateCreator<
       }
       // Add amendment proposal to queue if provided and enabled in settings
       if (translationResult.proposal) {
-        const enableAmendments = (state as any).settings?.enableAmendments ?? false;
+        const enableAmendments = (state as any).settings?.enableAmendments ?? true;
         if (enableAmendments) {
           set((prevState) => ({
             amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]

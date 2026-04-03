@@ -263,7 +263,7 @@ const AdvancedPanel: React.FC = () => {
           seed={currentSettings.seed ?? null}
           frequencyPenalty={currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}
           presencePenalty={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
-          enableAmendments={(currentSettings as any).enableAmendments ?? false}
+          enableAmendments={(currentSettings as any).enableAmendments ?? true}
           includeFanTranslationInPrompt={(currentSettings as any).includeFanTranslationInPrompt ?? false}
           parameterSupport={currentParameterSupport}
           onTemperatureChange={(value) => handleSettingChange('temperature', value)}

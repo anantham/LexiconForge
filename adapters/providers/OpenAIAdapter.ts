@@ -340,7 +340,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
 
     // Get effective system prompt (strips Part A if amendments disabled)
-    const enableAmendments = settings.enableAmendments ?? false;
+    const enableAmendments = settings.enableAmendments ?? true;
     let systemPrompt = getEffectiveSystemPrompt(settings.systemPrompt, enableAmendments);
     systemPrompt = replacePlaceholders(systemPrompt, settings);
 
