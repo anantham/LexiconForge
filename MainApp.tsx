@@ -215,36 +215,38 @@ const settingsFingerprint = React.useMemo(
         debugWarn('translation', 'summary', `[AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
         debugWarn('translation', 'summary', `[AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
         requestedRef.current.set(currentChapterId, settingsFingerprint);
-        void handleTranslate(currentChapterId, 'auto_translate').catch((error) => {
-          console.error('[AutoTranslate] Unexpected translation failure:', error);
-          requestedRef.current.delete(currentChapterId);
-          const store = useAppStore.getState();
-          const message = error instanceof Error ? error.message : 'Unexpected translation failure';
-          clientTelemetry.emit({
-            eventType: 'translation_failed',
-            failureType: 'unknown',
-            surface: 'auto_translate',
-            severity: 'error',
-            expected: false,
-            userVisible: null,
-            provider: settings.provider,
-            model: settings.model,
-            chapterId: currentChapterId,
-            error,
-            errorMessage: message,
-            dedupeCallback: true,
+        void Promise.resolve()
+          .then(() => handleTranslate(currentChapterId, 'auto_translate'))
+          .catch((error) => {
+            console.error('[AutoTranslate] Unexpected translation failure:', error);
+            requestedRef.current.delete(currentChapterId);
+            const store = useAppStore.getState();
+            const message = error instanceof Error ? error.message : 'Unexpected translation failure';
+            clientTelemetry.emit({
+              eventType: 'translation_failed',
+              failureType: 'unknown',
+              surface: 'auto_translate',
+              severity: 'error',
+              expected: false,
+              userVisible: null,
+              provider: settings.provider,
+              model: settings.model,
+              chapterId: currentChapterId,
+              error,
+              errorMessage: message,
+              dedupeCallback: true,
+            });
+            store.setError?.(message, {
+              sourceEventType: 'translation_failed',
+              failureType: 'unknown',
+              surface: 'auto_translate',
+              expected: false,
+              provider: settings.provider,
+              model: settings.model,
+              chapterId: currentChapterId,
+            });
+            store.showNotification?.(message, 'error');
           });
-          store.setError?.(message, {
-            sourceEventType: 'translation_failed',
-            failureType: 'unknown',
-            surface: 'auto_translate',
-            expected: false,
-            provider: settings.provider,
-            model: settings.model,
-            chapterId: currentChapterId,
-          });
-          store.showNotification?.(message, 'error');
-        });
       } else {
         debugLog('translation', 'full', `[AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
       }

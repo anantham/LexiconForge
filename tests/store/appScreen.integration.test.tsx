@@ -19,7 +19,7 @@ type MockStoreState = {
   isLoading: { fetching: boolean; translating: boolean };
   settings: { provider: string; model: string; temperature: number };
   isTranslationActive: (chapterId: string) => boolean;
-  handleTranslate: (chapterId: string) => void;
+  handleTranslate: (chapterId: string, origin?: 'auto_translate' | 'manual_translate') => Promise<void> | void;
   handleFetch: (url: string) => Promise<string | undefined>;
   amendmentProposals: any[];
   acceptProposal: (index: number) => void;
@@ -60,7 +60,7 @@ const resetStoreState = () => {
     isLoading: { fetching: false, translating: false },
     settings: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.7 },
     isTranslationActive: vi.fn(() => false),
-    handleTranslate: vi.fn(),
+    handleTranslate: vi.fn().mockResolvedValue(undefined),
     handleFetch: vi.fn().mockResolvedValue(undefined),
     amendmentProposals: [],
     acceptProposal: vi.fn(),
