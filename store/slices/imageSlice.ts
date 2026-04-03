@@ -105,6 +105,9 @@ export const createImageSlice: StateCreator<
     const model = chapterSnapshot.model ?? settings?.model;
     const temperature = chapterSnapshot.temperature ?? settings?.temperature ?? 0.7;
     const systemPrompt = chapterSnapshot.systemPrompt ?? settings?.systemPrompt ?? '';
+    const enableAmendments = chapterSnapshot.enableAmendments ?? settings?.enableAmendments ?? true;
+    const includeFanTranslationInPrompt =
+      chapterSnapshot.includeFanTranslationInPrompt ?? settings?.includeFanTranslationInPrompt ?? false;
 
     if (!provider || !model) {
       return null;
@@ -115,6 +118,8 @@ export const createImageSlice: StateCreator<
       model,
       temperature,
       systemPrompt,
+      enableAmendments,
+      includeFanTranslationInPrompt,
       promptId: promptTemplate?.id,
       promptName: promptTemplate?.name
     };

@@ -12,7 +12,12 @@ const warn = (message: string, error: unknown) => {
 
 export type TranslationSettingsSnapshot = Pick<
   AppSettings,
-  'provider' | 'model' | 'temperature' | 'systemPrompt'
+  | 'provider'
+  | 'model'
+  | 'temperature'
+  | 'systemPrompt'
+  | 'enableAmendments'
+  | 'includeFanTranslationInPrompt'
 > & {
   promptId?: string;
   promptName?: string;

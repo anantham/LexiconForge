@@ -170,8 +170,13 @@ export const createTranslationsSlice: StateCreator<
           const modelMatch = snapshot.model === currentSettings.model;
           const promptMatch = snapshot.systemPrompt === currentSettings.systemPrompt;
           const tempMatch = Math.abs((snapshot.temperature || 0.7) - (currentSettings.temperature || 0.7)) < 0.1;
+          const amendmentsMatch =
+            (snapshot.enableAmendments ?? true) === (currentSettings.enableAmendments ?? true);
+          const fanReferenceMatch =
+            (snapshot.includeFanTranslationInPrompt ?? false) ===
+            (currentSettings.includeFanTranslationInPrompt ?? false);
 
-          return providerMatch && modelMatch && promptMatch && tempMatch;
+          return providerMatch && modelMatch && promptMatch && tempMatch && amendmentsMatch && fanReferenceMatch;
         });
 
         if (matchingVersion) {
@@ -546,6 +551,8 @@ export const createTranslationsSlice: StateCreator<
               model: stateSnapshot.settings.model,
               temperature: stateSnapshot.settings.temperature,
               systemPrompt: stateSnapshot.settings.systemPrompt,
+              enableAmendments: stateSnapshot.settings.enableAmendments,
+              includeFanTranslationInPrompt: stateSnapshot.settings.includeFanTranslationInPrompt,
               promptId: stateSnapshot.activePromptTemplate?.id,
               promptName: stateSnapshot.activePromptTemplate?.name,
             };
@@ -1024,6 +1031,8 @@ export const createTranslationsSlice: StateCreator<
       model: stateSnapshot.settings.model,
       temperature: stateSnapshot.settings.temperature,
       systemPrompt: stateSnapshot.settings.systemPrompt,
+      enableAmendments: stateSnapshot.settings.enableAmendments,
+      includeFanTranslationInPrompt: stateSnapshot.settings.includeFanTranslationInPrompt,
       promptId: stateSnapshot.activePromptTemplate?.id,
       promptName: stateSnapshot.activePromptTemplate?.name,
     };

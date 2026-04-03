@@ -10,12 +10,29 @@
  */
 
 import { translateChapter, validateApiKey } from './aiService';
-import type { AppSettings, HistoricalChapter, TranslationResult, PromptTemplate, TranslationSettingsSnapshot } from '../types';
+import type {
+  AmendmentProposal,
+  AppSettings,
+  HistoricalChapter,
+  TranslationResult,
+  PromptTemplate,
+  TranslationSettingsSnapshot,
+} from '../types';
 import type { EnhancedChapter } from './stableIdService';
 import { normalizeUrlAggressively, generateStableChapterId } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 import { HtmlRepairService } from './translate/HtmlRepairService';
 import { ChapterOps, FeedbackOps, TranslationOps } from './db/operations';
+import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
+import {
+  buildAmendmentReviewSystemPrompt,
+  buildAmendmentReviewUserPrompt,
+} from './prompts';
+import {
+  getProposalResponseGeminiSchema,
+  getProposalResponseJsonSchema,
+} from './translate/translationResponseSchema';
+import type { ProviderName } from '../adapters/providers/Provider';
 
 const slog = (message: string, ...args: any[]) => debugLog('translation', 'summary', message, ...args);
 const swarn = (message: string, ...args: any[]) => debugWarn('translation', 'summary', message, ...args);
@@ -41,6 +58,101 @@ export interface TranslationHistoryOptions {
 export class TranslationService {
   private static activeTranslations = new Map<string, AbortController>();
   private static translationQueue: Promise<void> = Promise.resolve();
+
+  private static isAbortError(error: unknown): boolean {
+    return !!error && typeof error === 'object' && 'name' in error && (error as any).name === 'AbortError';
+  }
+
+  private static normalizeProposal(payload: unknown): AmendmentProposal | null {
+    if (payload == null) return null;
+    if (typeof payload !== 'object' || Array.isArray(payload)) {
+      throw new Error('Malformed amendment proposal response: proposal must be an object or null.');
+    }
+
+    const proposal = payload as Record<string, unknown>;
+    const observation = proposal.observation;
+    const currentRule = proposal.currentRule;
+    const proposedChange = proposal.proposedChange;
+    const reasoning = proposal.reasoning;
+
+    if (
+      typeof observation !== 'string' ||
+      typeof currentRule !== 'string' ||
+      typeof proposedChange !== 'string' ||
+      typeof reasoning !== 'string'
+    ) {
+      throw new Error('Malformed amendment proposal response: proposal fields must all be strings.');
+    }
+
+    return {
+      observation,
+      currentRule,
+      proposedChange,
+      reasoning,
+    };
+  }
+
+  private static parseProposalResponse(text: string): AmendmentProposal | null {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      throw new Error('Empty amendment proposal response.');
+    }
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(trimmed);
+    } catch {
+      parsed = JSON.parse(extractBalancedJson(trimmed));
+    }
+
+    return this.normalizeProposal(parsed?.proposal ?? null);
+  }
+
+  private static async generateAmendmentProposal(
+    chapterId: string,
+    chapter: EnhancedChapter,
+    translationResult: TranslationResult,
+    settings: AppSettings,
+    abortSignal: AbortSignal
+  ): Promise<AmendmentProposal | null> {
+    const { initializeProviders } = await import('../adapters/providers');
+    const { getProvider } = await import('../adapters/providers/registry');
+
+    await initializeProviders();
+
+    const provider = getProvider(settings.provider as ProviderName);
+    const systemPromptUnderReview = replacePlaceholders(settings.systemPrompt || '', settings);
+    const system = buildAmendmentReviewSystemPrompt(systemPromptUnderReview);
+    const user = buildAmendmentReviewUserPrompt({
+      sourceTitle: chapter.title,
+      sourceContent: chapter.content,
+      translatedTitle: translationResult.translatedTitle,
+      translatedContent: translationResult.translation,
+      fanTranslation: chapter.fanTranslation || null,
+    });
+
+    const schema =
+      settings.provider === 'Gemini'
+        ? getProposalResponseGeminiSchema()
+        : getProposalResponseJsonSchema();
+
+    const response = await provider.chatJSON({
+      settings,
+      system,
+      user,
+      model: settings.model,
+      temperature: settings.temperature,
+      maxTokens: Math.min(settings.maxOutputTokens ?? 4096, 4096),
+      schema,
+      schemaName: 'translation_amendment_proposal',
+      structuredOutputs: settings.provider !== 'Claude',
+      abortSignal,
+      apiType: 'translation',
+      chapterId,
+    });
+
+    return this.parseProposalResponse(response.text);
+  }
 
   /**
    * Convert FeedbackRecord from IndexedDB to FeedbackItem format
@@ -179,6 +291,34 @@ export class TranslationService {
         }
       }
 
+      const enableAmendments = settings.enableAmendments ?? true;
+      if (enableAmendments) {
+        try {
+          result.proposal = await this.generateAmendmentProposal(
+            chapterId,
+            chapterToTranslate,
+            result,
+            settings,
+            abortController.signal
+          );
+          slog('[Translate] Amendment proposal pass completed', {
+            chapterId,
+            hasProposal: !!result.proposal,
+          });
+        } catch (proposalError) {
+          if (this.isAbortError(proposalError) || abortController.signal.aborted) {
+            swarn('[Translate] Amendment proposal pass aborted; keeping translation without proposal', {
+              chapterId,
+            });
+          } else {
+            console.warn('[TranslationService] Amendment proposal pass failed; keeping translation without proposal:', proposalError);
+          }
+          result.proposal = null;
+        }
+      } else {
+        result.proposal = null;
+      }
+
       // Persist translation to IndexedDB
       try {
         const storedRecord = await TranslationOps.storeByStableId(chapterId, result as TranslationResult, {
@@ -186,6 +326,8 @@ export class TranslationService {
           model: settings.model,
           temperature: settings.temperature,
           systemPrompt: settings.systemPrompt,
+          enableAmendments: settings.enableAmendments,
+          includeFanTranslationInPrompt: settings.includeFanTranslationInPrompt,
           promptId: activePromptTemplate?.id,
           promptName: activePromptTemplate?.name,
         });
@@ -658,6 +800,8 @@ export class TranslationService {
       seed,
       contextDepth,
       systemPrompt,
+      enableAmendments,
+      includeFanTranslationInPrompt,
       promptId,
       promptName,
     } = settings;
@@ -671,6 +815,8 @@ export class TranslationService {
       seed,
       contextDepth,
       systemPrompt,
+      enableAmendments,
+      includeFanTranslationInPrompt,
       promptId,
       promptName,
     };
@@ -701,8 +847,18 @@ export class TranslationService {
     const modelChanged = snapshot.model !== currentRelevant.model;
     const promptChanged = snapshot.systemPrompt !== currentRelevant.systemPrompt;
     const tempChanged = Math.abs((snapshot.temperature ?? 0.7) - (currentRelevant.temperature ?? 0.7)) > 0.1;
+    const amendmentsChanged = (snapshot.enableAmendments ?? true) !== (currentRelevant.enableAmendments ?? true);
+    const fanReferenceChanged =
+      (snapshot.includeFanTranslationInPrompt ?? false) !==
+      (currentRelevant.includeFanTranslationInPrompt ?? false);
 
-    const hasSettingsChanged = providerChanged || modelChanged || promptChanged || tempChanged;
+    const hasSettingsChanged =
+      providerChanged ||
+      modelChanged ||
+      promptChanged ||
+      tempChanged ||
+      amendmentsChanged ||
+      fanReferenceChanged;
 
     if (hasSettingsChanged) {
       debugLog('translation', 'summary', '[Retranslate] Button enabled: Translation settings changed', {
@@ -711,6 +867,8 @@ export class TranslationService {
         modelChanged,
         promptChanged,
         tempChanged,
+        amendmentsChanged,
+        fanReferenceChanged,
       });
     } else {
       debugLog('translation', 'full', '[Retranslate] Button disabled: Translation settings unchanged', { chapterId });

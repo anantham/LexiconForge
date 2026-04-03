@@ -9,8 +9,8 @@ import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
-import { getTranslationResponseJsonSchema } from '../../services/translate/translationResponseSchema';
-import { getEffectiveSystemPrompt } from '../../utils/promptUtils';
+import { getTranslationOnlyResponseJsonSchema } from '../../services/translate/translationResponseSchema';
+import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
 
@@ -339,17 +339,15 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
   ): Promise<any> {
     const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
 
-    // Get effective system prompt (strips Part A if amendments disabled)
-    const enableAmendments = settings.enableAmendments ?? true;
-    let systemPrompt = getEffectiveSystemPrompt(settings.systemPrompt, enableAmendments);
+    // Translation runs without the amendment protocol; proposals are generated separately.
+    let systemPrompt = getTranslationSystemPrompt(settings.systemPrompt);
     systemPrompt = replacePlaceholders(systemPrompt, settings);
 
     if (!systemPrompt) {
       throw new Error('System prompt cannot be empty');
     }
 
-    // Get conditional schema based on enableAmendments setting
-    const schema = getTranslationResponseJsonSchema(enableAmendments);
+    const schema = getTranslationOnlyResponseJsonSchema();
 
     // Configure response format
     const requestOptions: any = { model: settings.model };

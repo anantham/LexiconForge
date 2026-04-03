@@ -12,7 +12,15 @@ export interface ChapterRef {
 type TranslationStoreRecord = TranslationRecord;
 
 const toSnapshot = (
-  settings: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+  settings: Pick<
+    AppSettings,
+    | 'provider'
+    | 'model'
+    | 'temperature'
+    | 'systemPrompt'
+    | 'enableAmendments'
+    | 'includeFanTranslationInPrompt'
+  > & {
     promptId?: string;
     promptName?: string;
   }
@@ -21,6 +29,8 @@ const toSnapshot = (
   model: settings.model,
   temperature: settings.temperature,
   systemPrompt: settings.systemPrompt,
+  enableAmendments: settings.enableAmendments,
+  includeFanTranslationInPrompt: settings.includeFanTranslationInPrompt,
   promptId: settings.promptId,
   promptName: settings.promptName,
 });
@@ -84,7 +94,15 @@ export class TranslationOps {
   }: {
     ref: ChapterRef;
     result: TranslationResult;
-    settings: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+    settings: Pick<
+      AppSettings,
+      | 'provider'
+      | 'model'
+      | 'temperature'
+      | 'systemPrompt'
+      | 'enableAmendments'
+      | 'includeFanTranslationInPrompt'
+    > & {
       promptId?: string;
       promptName?: string;
     };
@@ -120,7 +138,15 @@ export class TranslationOps {
   static async storeByStableId(
     stableId: string,
     result: TranslationResult,
-    settings: Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
+    settings: Pick<
+      AppSettings,
+      | 'provider'
+      | 'model'
+      | 'temperature'
+      | 'systemPrompt'
+      | 'enableAmendments'
+      | 'includeFanTranslationInPrompt'
+    > & {
       promptId?: string;
       promptName?: string;
     }

@@ -15,7 +15,7 @@ vi.mock('../../../services/prompts', () => ({
 }));
 
 vi.mock('../../../utils/promptUtils', () => ({
-  getEffectiveSystemPrompt: vi.fn((prompt: string) => prompt),
+  getTranslationSystemPrompt: vi.fn((prompt: string) => prompt),
 }));
 
 const usageMetadata = {

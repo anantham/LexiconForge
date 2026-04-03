@@ -16,15 +16,10 @@ export function stripAmendmentProtocol(systemPrompt: string): string {
 }
 
 /**
- * Gets the system prompt to use for translation, conditionally
- * removing the amendment protocol based on settings.
+ * Gets the translation instructions to use for chapter translation.
+ * Translation and amendment review now run as separate passes, so the
+ * translation call should always exclude the Part A amendment protocol.
  */
-export function getEffectiveSystemPrompt(
-  systemPrompt: string,
-  enableAmendments: boolean = true
-): string {
-  if (!enableAmendments) {
-    return stripAmendmentProtocol(systemPrompt);
-  }
-  return systemPrompt;
+export function getTranslationSystemPrompt(systemPrompt: string): string {
+  return stripAmendmentProtocol(systemPrompt);
 }

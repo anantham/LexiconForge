@@ -6,6 +6,7 @@ import { calculateCost } from './aiService';
 import { buildFanTranslationContext, formatHistory } from './prompts';
 import { buildPreambleFromSettings } from './prompts/metadataPreamble';
 import { getEnvVar } from './env';
+import { getTranslationSystemPrompt } from '../utils/promptUtils';
 
 // --- DEBUG UTILITIES ---
 const aiDebugEnabled = (): boolean => {
@@ -53,7 +54,8 @@ export const translateWithClaude = async (
     // Create comprehensive prompt with schema description
     const preface = prompts.translatePrefix + (effectiveFanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction + prompts.translateTitleGuidance;
     const preamble = buildPreambleFromSettings(settings);
-    const sys = ((settings.systemPrompt || '') + '\n\n' + preamble)
+    const translationPrompt = getTranslationSystemPrompt(settings.systemPrompt || '');
+    const sys = ((translationPrompt || '') + '\n\n' + preamble)
       .replaceAll('{{targetLanguage}}', settings.targetLanguage || 'English')
       .replaceAll('{{targetLanguageVariant}}', settings.targetLanguage || 'English');
     const fullPrompt = `${sys}\n\n${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}
@@ -73,18 +75,11 @@ IMPORTANT: You must respond with valid JSON in exactly this format. Ensure all s
       "placementMarker": "[ILLUSTRATION-1]",
       "imagePrompt": "Detailed prompt for AI image generation describing the scene, mood, characters, and visual style"
     }
-  ],
-  "proposal": {
-    "observation": "What translation challenge or feedback pattern triggered this proposal",
-    "currentRule": "Exact text from user's system prompt that could be improved",
-    "proposedChange": "Suggested replacement text with clear improvements", 
-    "reasoning": "Why this change would improve translation quality"
-  }
+  ]
 }
 
 If there are no footnotes, use null or empty array for footnotes.
 If there are no illustrations, use null or empty array for suggestedIllustrations.
-If there is no proposal, use null for proposal.
 
 CRITICAL JSON FORMATTING: Properly escape all special characters:
 - Apostrophes: "don't" → "don\\'t"  
@@ -304,7 +299,7 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
             return {
                 translatedTitle: parsedJson.translatedTitle,
                 translation: fixedTranslation,
-                proposal: parsedJson.proposal || null,
+                proposal: null,
                 footnotes: fixedFootnotes || [],
                 suggestedIllustrations: fixedIllustrations,
                 usageMetrics: usageMetrics,
