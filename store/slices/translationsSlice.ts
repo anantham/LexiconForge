@@ -308,18 +308,27 @@ export const createTranslationsSlice: StateCreator<
       }
 
       // Dispatch translation:complete event for diff analysis (only if diff heatmap is enabled)
-      const chapter = context.chapters.get(chapterId);
-      const isDiffHeatmapEnabled = context.settings?.showDiffHeatmap ?? true; // Default to true for backward compatibility
-      if (chapter && typeof window !== 'undefined' && isDiffHeatmapEnabled) {
+      // Re-read chapter from LIVE store state (not the stale snapshot) to get current fanTranslation
+      const liveState = get() as any;
+      const liveChapter = liveState.chapters?.get?.(chapterId) ?? context.chapters.get(chapterId);
+      const isDiffHeatmapEnabled = liveState.settings?.showDiffHeatmap ?? true;
+      const fanText = liveChapter?.fanTranslation || null;
+      if (liveChapter && typeof window !== 'undefined' && isDiffHeatmapEnabled) {
+        debugLog('diff', 'summary', '[Translation] Diff event payload:', {
+          chapterId,
+          hasFanTranslation: !!fanText,
+          fanTranslationLength: fanText?.length || 0,
+          rawTextLength: liveChapter.content?.length || 0,
+        });
         window.dispatchEvent(new CustomEvent('translation:complete', {
           detail: {
             chapterId,
             aiTranslation: translationResult.translation || '',
             aiTranslationId: (translationResult as any)?.id ?? null,
-            fanTranslation: (chapter as any).fanTranslation || null,
+            fanTranslation: fanText,
             fanTranslationId: null,
-            rawText: chapter.content || '',
-            previousVersionFeedback: undefined, // Feedback aggregation not yet wired
+            rawText: liveChapter.content || '',
+            previousVersionFeedback: undefined,
             preferredProvider: relevantSettings?.provider,
             preferredModel: relevantSettings?.model,
             preferredTemperature: relevantSettings?.temperature
