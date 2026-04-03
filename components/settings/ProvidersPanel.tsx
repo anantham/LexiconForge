@@ -428,8 +428,6 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         onAutoGenerateImagesChange={(v) => handleSettingChange('autoGenerateImages' as any, v)}
         onContextDepthChange={(v) => handleSettingChange('contextDepth', v)}
         onPreloadCountChange={(v) => handleSettingChange('preloadCount', v)}
-        onSourceLanguageChange={(v) => handleSettingChange('sourceLanguage' as any, v)}
-        onTargetLanguageChange={(v) => handleSettingChange('targetLanguage' as any, v)}
       />
 
       <ApiKeysSection
