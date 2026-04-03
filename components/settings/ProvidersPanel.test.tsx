@@ -162,10 +162,12 @@ describe('ProvidersPanel', () => {
       expect(screen.getByText(/Your API keys are stored locally/)).toBeInTheDocument();
     });
 
-    it('renders source and target language inputs', () => {
+    it('renders source and target language as read-only text', () => {
       render(<ProvidersPanel isOpen={true} />);
-      expect(screen.getByLabelText('Source Language')).toBeInTheDocument();
-      expect(screen.getByLabelText('Target Language')).toBeInTheDocument();
+      expect(screen.getByText('Source Language')).toBeInTheDocument();
+      expect(screen.getByText('Target Language')).toBeInTheDocument();
+      expect(screen.getByText('Korean')).toBeInTheDocument();
+      expect(screen.getByText('English')).toBeInTheDocument();
     });
 
     it('renders provider dropdown with all options', () => {
@@ -398,32 +400,21 @@ describe('ProvidersPanel', () => {
   });
 
   describe('Language Settings', () => {
-    it('calls handleSettingChange when source language changes', async () => {
+    it('displays source and target language as read-only from metadata', () => {
       render(<ProvidersPanel isOpen={true} />);
 
-      const input = screen.getByLabelText('Source Language');
-      await userEvent.clear(input);
-      await userEvent.type(input, 'Japanese');
-
-      expect(mockHandleSettingChange).toHaveBeenCalledWith('sourceLanguage', expect.any(String));
+      // Languages are read-only in Translation Engine, editable in Metadata
+      expect(screen.getByText('Korean')).toBeInTheDocument();
+      expect(screen.getByText('English')).toBeInTheDocument();
+      expect(screen.getByText(/Edit in Settings/)).toBeInTheDocument();
     });
 
-    it('calls handleSettingChange when target language changes', async () => {
-      render(<ProvidersPanel isOpen={true} />);
-
-      const input = screen.getByLabelText('Target Language');
-      await userEvent.clear(input);
-      await userEvent.type(input, 'Spanish');
-
-      expect(mockHandleSettingChange).toHaveBeenCalledWith('targetLanguage', expect.any(String));
-    });
-
-    it('displays current language values', () => {
+    it('displays updated language values from metadata', () => {
       updateMockSettings({ sourceLanguage: 'Japanese', targetLanguage: 'French' });
       render(<ProvidersPanel isOpen={true} />);
 
-      expect(screen.getByLabelText('Source Language')).toHaveValue('Japanese');
-      expect(screen.getByLabelText('Target Language')).toHaveValue('French');
+      expect(screen.getByText('Japanese')).toBeInTheDocument();
+      expect(screen.getByText('French')).toBeInTheDocument();
     });
   });
 
