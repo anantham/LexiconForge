@@ -146,6 +146,28 @@
   - `npx vitest run tests/services/imagePlanPlanner.test.ts tests/store/slices/imageSlice.imagePlan.test.ts tests/services/imagePlanService.test.ts tests/services/structured-outputs.test.ts components/settings/ProvidersPanel.test.tsx tests/services/openrouterImageModelAdapter.test.ts` ✅
   - `npx tsc --noEmit --pretty false` ⚠️ still blocked only by pre-existing unrelated `scripts/sutta-studio/benchmark.ts`, `scripts/sutta-studio/debug-single-model.ts`, and `scripts/sutta-studio/generate-new-phases.ts` errors.
 
+### [2026-04-02 21:49 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Address the post-review async-boundary regression, rebase the telemetry branch onto current `main`, and rerun the merge-blocking checks.
+**Files modified / created:**
+- `MainApp.tsx:216-247`
+  - Normalized the auto-translate call through `Promise.resolve().then(...)` so the catch path handles sync throws, `undefined` returns, and real promises uniformly instead of assuming a thenable.
+- `tests/store/appScreen.integration.test.tsx:19-22,60-63`
+  - Updated the mocked `handleTranslate` contract to match the intended async shape and locked in the regression coverage that originally failed on `.catch()` against `undefined`.
+- `docs/WORKLOG.md:1-14`
+  - Recorded the post-review regression fix, the rebase result, and the verification nuance around mixed-suite timeout noise versus isolated passing runs.
+**Rebase / branch maintenance:**
+- Rebasing `fix/codex-telemetry-ux` onto `origin/main` picked up `ff5d821` (fresh-install v16 schema fix) and `54d4279` (navigationService debugWarn mock fix).
+- The only rebase conflict was this worklog file; code paths rebased cleanly.
+**Verification:**
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vitest run tests/store/appScreen.integration.test.tsx` ✅ before rebase
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vitest run tests/store/appScreen.integration.test.tsx tests/db/migrations/fresh-install.test.ts tests/services/navigationService.test.ts tests/components/NotificationToast.test.tsx tests/components/DefaultKeyBanner.test.tsx tests/components/chapter/ChapterContent.test.tsx tests/current-system/translation.test.ts tests/services/clientTelemetry.test.ts tests/services/api-key-validation.test.ts tests/api/client-telemetry.test.ts tests/smoke/critical-components.smoke.test.tsx` ⚠️ `fresh-install` and `navigationService` passed after rebase, but `appScreen.integration` and the smoke import hit timeout-shaped failures under the combined suite.
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vitest run tests/store/appScreen.integration.test.tsx` ✅ after rebase
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npx vitest run tests/smoke/critical-components.smoke.test.tsx` ✅ after rebase
+- `export PATH="$HOME/.nvm/versions/node/v22.17.0/bin:$PATH" && npm run build` ✅
+**Notes:**
+- The remaining timeout-shaped failures reproduced only in the large mixed suite and not in isolated reruns, matching the earlier cold-cache contention pattern already documented for this branch.
+
 ### [2026-04-02 02:22 EDT] [Agent: Codex]
 **Status:** Progress
 **Task:** Close the remaining app-shell review gap and verify deployed Vercel routing for the client telemetry callback.
