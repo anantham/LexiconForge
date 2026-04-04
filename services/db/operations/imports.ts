@@ -14,6 +14,8 @@ import { prepareForStorage as prepareDiffResultForStorage, type StoredDiffResult
 import { getConnection } from '../core/connection';
 import { STORE_NAMES, SCHEMA_VERSIONS } from '../core/schema';
 import { ImageCacheStore } from '../../imageCacheService';
+import { generateStableChapterId } from '../../stableIdService';
+import { buildScopedStableId, buildScopedStorageUrl } from '../../libraryScope';
 
 /**
  * Validates that all required stores exist in the database.
@@ -67,6 +69,50 @@ const BATCH_SIZE = 50;
 
 const nowIso = () => new Date().toISOString();
 
+const resolveStoredChapterIdentity = (
+  chapter: any,
+  sessionNovelId: string | null,
+  sessionLibraryVersionId: string | null
+): {
+  stableId: string;
+  storageUrl: string;
+  canonicalUrl: string;
+  novelId: string | null;
+  libraryVersionId: string | null;
+} => {
+  const canonicalUrl = chapter.canonicalUrl || chapter.url || chapter.originalUrl || '';
+  const novelId =
+    typeof chapter.novelId === 'string'
+      ? chapter.novelId
+      : sessionNovelId;
+  const libraryVersionId =
+    typeof chapter.libraryVersionId === 'string'
+      ? chapter.libraryVersionId
+      : sessionLibraryVersionId;
+  const baseStableId =
+    chapter.stableId ||
+    chapter.id ||
+    generateStableChapterId(
+      chapter.content || '',
+      chapter.chapterNumber || 0,
+      chapter.title || 'Untitled Chapter'
+    );
+
+  const stableId = novelId
+    ? buildScopedStableId(baseStableId, novelId, libraryVersionId)
+    : baseStableId;
+
+  return {
+    stableId,
+    storageUrl: novelId
+      ? buildScopedStorageUrl(stableId, novelId, libraryVersionId)
+      : canonicalUrl,
+    canonicalUrl,
+    novelId: novelId ?? null,
+    libraryVersionId: libraryVersionId ?? null,
+  };
+};
+
 const putSettingsRecord = (
   store: IDBObjectStore,
   key: string,
@@ -97,6 +143,45 @@ export class ImportOps {
       amendmentLogs,
       images: imagesPayload,
     } = payload ?? {};
+    const sessionNovelId =
+      typeof payload?.novelId === 'string'
+        ? payload.novelId
+        : typeof payload?.novel?.id === 'string'
+          ? payload.novel.id
+          : null;
+    const sessionLibraryVersionId =
+      typeof payload?.libraryVersionId === 'string'
+        ? payload.libraryVersionId
+        : null;
+    const chapterMetaByStableId = new Map<
+      string,
+      {
+        stableId: string;
+        storageUrl: string;
+        novelId: string | null;
+        libraryVersionId: string | null;
+        chapterNumber?: number;
+      }
+    >();
+
+    if (Array.isArray(chapters)) {
+      for (const chapter of chapters as any[]) {
+        const identity = resolveStoredChapterIdentity(
+          chapter,
+          sessionNovelId,
+          sessionLibraryVersionId
+        );
+        const sourceStableId = chapter?.stableId || chapter?.id || identity.stableId;
+        chapterMetaByStableId.set(sourceStableId, {
+          stableId: identity.stableId,
+          storageUrl: identity.storageUrl,
+          novelId: identity.novelId,
+          libraryVersionId: identity.libraryVersionId,
+          chapterNumber:
+            typeof chapter.chapterNumber === 'number' ? chapter.chapterNumber : undefined,
+        });
+      }
+    }
 
     onProgress?.('settings', 0, 1, 'Importing settings and metadata…');
 
@@ -134,9 +219,22 @@ export class ImportOps {
       if (Array.isArray(urlMappings)) {
         const urlStore = tx.objectStore(STORE_NAMES.URL_MAPPINGS);
         for (const mapping of urlMappings as UrlMappingRecord[]) {
+          const chapterMeta = chapterMetaByStableId.get(mapping.stableId);
           urlStore.put({
             url: mapping.url,
-            stableId: mapping.stableId,
+            stableId: chapterMeta?.stableId ?? mapping.stableId,
+            novelId:
+              typeof mapping.novelId === 'string'
+                ? mapping.novelId
+                : chapterMeta?.novelId ?? sessionNovelId ?? null,
+            libraryVersionId:
+              typeof mapping.libraryVersionId === 'string'
+                ? mapping.libraryVersionId
+                : chapterMeta?.libraryVersionId ?? sessionLibraryVersionId ?? null,
+            chapterNumber:
+              typeof mapping.chapterNumber === 'number'
+                ? mapping.chapterNumber
+                : chapterMeta?.chapterNumber,
             isCanonical: Boolean(mapping.isCanonical),
             dateAdded: mapping.dateAdded || nowIso(),
           } as UrlMappingRecord);
@@ -202,11 +300,18 @@ export class ImportOps {
           const feedbackStore = tx.objectStore(STORE_NAMES.FEEDBACK);
 
           for (const chapter of batch) {
-            const canonicalUrl = chapter.canonicalUrl || chapter.url;
+            const identity = resolveStoredChapterIdentity(
+              chapter,
+              sessionNovelId,
+              sessionLibraryVersionId
+            );
+            const canonicalUrl = identity.canonicalUrl;
             if (!canonicalUrl) continue;
             const chapterRecord: ChapterRecord = {
-              url: canonicalUrl,
-              stableId: chapter.stableId,
+              url: identity.storageUrl,
+              novelId: identity.novelId,
+              libraryVersionId: identity.libraryVersionId,
+              stableId: identity.stableId,
               title: chapter.title,
               content: chapter.content,
               fanTranslation: chapter.fanTranslation || undefined,
@@ -225,8 +330,8 @@ export class ImportOps {
             for (const translation of translations) {
               translationsStore.put({
                 id: translation.id || crypto.randomUUID(),
-                chapterUrl: canonicalUrl,
-                stableId: chapter.stableId,
+                chapterUrl: identity.storageUrl,
+                stableId: identity.stableId,
                 version: translation.version || 1,
                 translatedTitle: translation.translatedTitle,
                 translation: translation.translation,
@@ -252,7 +357,7 @@ export class ImportOps {
             for (const fb of feedbackItems) {
               feedbackStore.put({
                 id: fb.id || crypto.randomUUID(),
-                chapterUrl: canonicalUrl,
+                chapterUrl: identity.storageUrl,
                 translationId: fb.translationId,
                 type: fb.type,
                 selection: fb.selection,
@@ -310,11 +415,18 @@ export class ImportOps {
       const timestamp = nowIso();
 
       for (const [, chapter] of stableData.chapters || []) {
-        const canonicalUrl = chapter.canonicalUrl || chapter.originalUrl;
+        const identity = resolveStoredChapterIdentity(
+          chapter,
+          chapter.novelId ?? null,
+          chapter.libraryVersionId ?? null
+        );
+        const canonicalUrl = identity.canonicalUrl;
         if (!canonicalUrl) continue;
         const record: ChapterRecord = {
-          url: canonicalUrl,
-          stableId: chapter.stableId || chapter.id || undefined,
+          url: identity.storageUrl,
+          novelId: identity.novelId,
+          libraryVersionId: identity.libraryVersionId,
+          stableId: identity.stableId,
           title: chapter.title || '',
           content: chapter.content || '',
           originalUrl: canonicalUrl,
@@ -331,9 +443,21 @@ export class ImportOps {
       }
 
       const writeMapping = (url: string, stableId: string, isCanonical: boolean) => {
+        const chapter = stableData.chapters.get(stableId);
+        const identity = chapter
+          ? resolveStoredChapterIdentity(
+              chapter,
+              chapter.novelId ?? null,
+              chapter.libraryVersionId ?? null
+            )
+          : null;
         mappingsStore.put({
           url,
-          stableId,
+          stableId: identity?.stableId ?? stableId,
+          novelId: identity?.novelId ?? chapter?.novelId ?? null,
+          libraryVersionId:
+            identity?.libraryVersionId ?? chapter?.libraryVersionId ?? null,
+          chapterNumber: chapter?.chapterNumber,
           isCanonical,
           dateAdded: timestamp,
         } as UrlMappingRecord);

@@ -89,7 +89,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
 
     try {
       // Get conditional schema based on enableAmendments setting
-      const enableAmendments = settings.enableAmendments ?? false;
+      const enableAmendments = settings.enableAmendments ?? true;
       const schema = getTranslationResponseGeminiSchema(enableAmendments);
 
       // Make API call
@@ -238,7 +238,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     fanTranslation?: string | null
   ): string {
     // Get effective system prompt (strips Part A if amendments disabled)
-    const enableAmendments = settings.enableAmendments ?? false;
+    const enableAmendments = settings.enableAmendments ?? true;
     let systemPrompt = getEffectiveSystemPrompt(settings.systemPrompt, enableAmendments);
     systemPrompt = replacePlaceholders(systemPrompt, settings);
 
@@ -252,7 +252,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     }
 
     const historyPrompt = history.length > 0 ? formatHistory(history).trim() : '';
-    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? true;
+    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? false;
     const effectiveFanTranslation = includeFanTranslation ? (fanTranslation ?? null) : null;
     const fanTranslationContext = buildFanTranslationContext(effectiveFanTranslation).trim();
     const preface = (

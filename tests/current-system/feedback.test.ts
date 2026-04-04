@@ -12,6 +12,8 @@ const resetStore = () => {
 
 const makeChapter = (id: string, url: string): EnhancedChapter => ({
   id,
+  novelId: null,
+  libraryVersionId: null,
   title: `Chapter ${id}`,
   content: 'Original chapter content',
   originalUrl: url,

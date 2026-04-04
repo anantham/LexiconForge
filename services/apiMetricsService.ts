@@ -52,7 +52,6 @@ export interface ApiMetricsSummary {
 }
 
 class ApiMetricsService {
-  private dbName = 'lexicon-forge-db';
   private storeName = 'api_metrics';
   private sessionMetrics: ApiCallMetric[] = [];
 
@@ -205,26 +204,8 @@ class ApiMetricsService {
   // Private helper methods
 
   private async openDatabase(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      // Must match version in localDictionaryCache.ts (shared DB)
-      const request = indexedDB.open(this.dbName, 14);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-
-        // Create api_metrics store if it doesn't exist
-        if (!db.objectStoreNames.contains(this.storeName)) {
-          const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
-          store.createIndex('timestamp', 'timestamp', { unique: false });
-          store.createIndex('apiType', 'apiType', { unique: false });
-          store.createIndex('provider', 'provider', { unique: false });
-          store.createIndex('chapterId', 'chapterId', { unique: false });
-        }
-      };
-    });
+    const { getConnection } = await import('./db/core/connection');
+    return getConnection();
   }
 
   private aggregateMetrics(metrics: ApiCallMetric[]): ApiMetricsSummary['session'] {
@@ -464,6 +445,58 @@ class ApiMetricsService {
     } catch (error) {
       console.error('[ApiMetrics] Failed to get average image generation time:', error);
       return null;
+    }
+  }
+
+  /**
+   * Get average translation time for a model, with ensemble fallback.
+   * Priority: exact model → same provider → all translations → 30s default.
+   */
+  async getAverageTranslationTime(model: string, provider?: string): Promise<{
+    avgTimeSeconds: number;
+    sampleCount: number;
+    source: 'model' | 'provider' | 'global' | 'default';
+  }> {
+    try {
+      const db = await this.openDatabase();
+      const tx = db.transaction([this.storeName], 'readonly');
+      const store = tx.objectStore(this.storeName);
+      const request = store.getAll();
+
+      const allMetrics = await new Promise<ApiCallMetric[]>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+
+      const translationMetrics = allMetrics.filter(m =>
+        m.apiType === 'translation' && m.success && typeof m.duration === 'number' && m.duration > 0
+      );
+
+      // Try exact model match
+      const modelMetrics = translationMetrics.filter(m => m.model === model);
+      if (modelMetrics.length >= 2) {
+        const avg = modelMetrics.reduce((s, m) => s + m.duration!, 0) / modelMetrics.length;
+        return { avgTimeSeconds: avg, sampleCount: modelMetrics.length, source: 'model' };
+      }
+
+      // Try same provider
+      if (provider) {
+        const providerMetrics = translationMetrics.filter(m => m.provider === provider);
+        if (providerMetrics.length >= 2) {
+          const avg = providerMetrics.reduce((s, m) => s + m.duration!, 0) / providerMetrics.length;
+          return { avgTimeSeconds: avg, sampleCount: providerMetrics.length, source: 'provider' };
+        }
+      }
+
+      // Global average
+      if (translationMetrics.length >= 1) {
+        const avg = translationMetrics.reduce((s, m) => s + m.duration!, 0) / translationMetrics.length;
+        return { avgTimeSeconds: avg, sampleCount: translationMetrics.length, source: 'global' };
+      }
+
+      return { avgTimeSeconds: 30, sampleCount: 0, source: 'default' };
+    } catch {
+      return { avgTimeSeconds: 30, sampleCount: 0, source: 'default' };
     }
   }
 

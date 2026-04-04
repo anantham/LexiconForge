@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import ChapterHeader from '../../../components/chapter/ChapterHeader';
 
-const createProps = () => ({
+const createProps = (): React.ComponentProps<typeof ChapterHeader> => ({
   title: 'Chapter 1',
   fontStyle: 'serif' as const,
   targetLanguageLabel: 'English',
@@ -43,5 +43,15 @@ describe('ChapterHeader', () => {
     render(<ChapterHeader {...props} />);
     expect(screen.getAllByText(/Next/)).toHaveLength(2);
     expect(screen.getAllByText(/Prev/)).toHaveLength(2);
+  });
+
+  it('renders a library button when provided and invokes it', () => {
+    const props = createProps();
+    props.onOpenLibrary = vi.fn();
+    render(<ChapterHeader {...props} />);
+
+    fireEvent.click(screen.getAllByText('Library')[0]);
+
+    expect(props.onOpenLibrary).toHaveBeenCalledTimes(1);
   });
 });

@@ -13,7 +13,7 @@ The img2img functionality has been successfully implemented using PiAPI's Flux m
 
 ### 1. Steering Image Dropdown
 - Available steering images: `hypno.jpg`, `train.jpg`, `waitinginline.jpg`, `white.jpg`
-- Located in `/data/Illustrations/steering/`
+- Located in ``public/steering/` (manifest: `public/steering-images.json`)`
 - Dropdown appears in all Illustration components
 - Selection persists per illustration marker per chapter
 
@@ -32,7 +32,7 @@ The img2img functionality has been successfully implemented using PiAPI's Flux m
 ### Prerequisites
 1. **PiAPI API Key**: Add your PiAPI API key in Settings
 2. **Image Model**: Set image model to a Qubico/flux model in Settings
-3. **Steering Images**: Ensure the 4 steering images exist in `/data/Illustrations/steering/`
+3. **Steering Images**: Ensure the 4 steering images exist in ``public/steering/` (manifest: `public/steering-images.json`)`
 
 ### Testing Process
 1. **Navigate to a chapter with translation**

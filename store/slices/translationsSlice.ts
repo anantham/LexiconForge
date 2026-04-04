@@ -16,6 +16,7 @@ import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { TranslationOps, AmendmentOps } from '../../services/db/operations';
+import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { debugLog, debugWarn } from '../../utils/debug';
 
 export interface TranslationsState {
@@ -112,6 +113,16 @@ export const createTranslationsSlice: StateCreator<
       temperature: context.settings.temperature,
       promptId: context.activePromptTemplate?.id
     });
+
+    // Fail-fast: validate API key BEFORE setting loading state
+    const keyCheck = validateApiKey(context.settings);
+    if (!keyCheck.isValid) {
+      const uiActions = state as any;
+      if (uiActions.setError) {
+        uiActions.setError(keyCheck.errorMessage || 'API key validation failed');
+      }
+      return;
+    }
 
     // Create abort controller for this translation
     const abortController = new AbortController();
@@ -285,7 +296,7 @@ export const createTranslationsSlice: StateCreator<
       }
       // Add amendment proposal to queue if provided and enabled in settings
       if (translationResult.proposal) {
-        const enableAmendments = (state as any).settings?.enableAmendments ?? false;
+        const enableAmendments = (state as any).settings?.enableAmendments ?? true;
         if (enableAmendments) {
           set((prevState) => ({
             amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]
@@ -297,18 +308,27 @@ export const createTranslationsSlice: StateCreator<
       }
 
       // Dispatch translation:complete event for diff analysis (only if diff heatmap is enabled)
-      const chapter = context.chapters.get(chapterId);
-      const isDiffHeatmapEnabled = context.settings?.showDiffHeatmap ?? true; // Default to true for backward compatibility
-      if (chapter && typeof window !== 'undefined' && isDiffHeatmapEnabled) {
+      // Re-read chapter from LIVE store state (not the stale snapshot) to get current fanTranslation
+      const liveState = get() as any;
+      const liveChapter = liveState.chapters?.get?.(chapterId) ?? context.chapters.get(chapterId);
+      const isDiffHeatmapEnabled = liveState.settings?.showDiffHeatmap ?? true;
+      const fanText = liveChapter?.fanTranslation || null;
+      if (liveChapter && typeof window !== 'undefined' && isDiffHeatmapEnabled) {
+        debugLog('diff', 'summary', '[Translation] Diff event payload:', {
+          chapterId,
+          hasFanTranslation: !!fanText,
+          fanTranslationLength: fanText?.length || 0,
+          rawTextLength: liveChapter.content?.length || 0,
+        });
         window.dispatchEvent(new CustomEvent('translation:complete', {
           detail: {
             chapterId,
             aiTranslation: translationResult.translation || '',
             aiTranslationId: (translationResult as any)?.id ?? null,
-            fanTranslation: (chapter as any).fanTranslation || null,
+            fanTranslation: fanText,
             fanTranslationId: null,
-            rawText: chapter.content || '',
-            previousVersionFeedback: undefined, // TODO: Add feedback summary if available
+            rawText: liveChapter.content || '',
+            previousVersionFeedback: undefined,
             preferredProvider: relevantSettings?.provider,
             preferredModel: relevantSettings?.model,
             preferredTemperature: relevantSettings?.temperature
@@ -325,12 +345,13 @@ export const createTranslationsSlice: StateCreator<
         if (imageActions.loadExistingImages) {
           await imageActions.loadExistingImages(chapterId);
         }
-        
+
+        const autoGenerate = (state as any).settings?.autoGenerateImages ?? true;
         const needsGeneration = translationResult.suggestedIllustrations.some(
           (illust: any) => !illust.generatedImage
         );
-        
-        if (needsGeneration && imageActions.handleGenerateImages) {
+
+        if (autoGenerate && needsGeneration && imageActions.handleGenerateImages) {
           imageActions.handleGenerateImages(chapterId);
         }
       }

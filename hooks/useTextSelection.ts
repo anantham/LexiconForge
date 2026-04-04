@@ -1,5 +1,5 @@
 
-import { useState, useEffect, RefObject, useCallback } from 'react';
+import { useState, useEffect, useRef, RefObject, useCallback } from 'react';
 
 // Local debug gate for selection logs (only at FULL level)
 const selDebugEnabled = (): boolean => {
@@ -35,11 +35,16 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
   };
 
   // Use useCallback with [ref] to create a stable function that always has the latest ref.current
-  const handleMouseUp = useCallback(() => {
+  const checkSelection = useCallback(() => {
     const root = ref.current;
     if (!root || typeof window === 'undefined' || typeof document === 'undefined') return;
 
-    if (selDebugEnabled()) console.groupCollapsed('[useTextSelection] MouseUp Event');
+    // Don't clear selection while user is interacting with an input (e.g., feedback comment box).
+    // Focusing an input collapses the DOM selection, but we want to keep the popover alive.
+    const activeTag = document.activeElement?.tagName;
+    if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+
+    if (selDebugEnabled()) console.groupCollapsed('[useTextSelection] Selection Check');
     const currentSelection = window.getSelection && window.getSelection();
 
     if (
@@ -95,20 +100,29 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
       }
   }, []);
 
+  // Debounced selectionchange handler for touch devices — native selection handles
+  // fire selectionchange rapidly as the user drags; we only care about the final state.
+  const selectionChangeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSelectionChange = useCallback(() => {
+    if (selectionChangeTimerRef.current) clearTimeout(selectionChangeTimerRef.current);
+    selectionChangeTimerRef.current = setTimeout(checkSelection, 200);
+  }, [checkSelection]);
+
   useEffect(() => {
-    // This effect now runs only once on mount and cleans up on unmount.
-    // The handlers are stable thanks to useCallback.
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseup', checkSelection);
+    document.addEventListener('selectionchange', handleSelectionChange);
     document.addEventListener('scroll', clearSelection, { capture: true, passive: true } as any);
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelection(null); };
     document.addEventListener('keydown', onKey);
 
     return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseup', checkSelection);
+      document.removeEventListener('selectionchange', handleSelectionChange);
       document.removeEventListener('scroll', clearSelection, true);
       document.removeEventListener('keydown', onKey);
+      if (selectionChangeTimerRef.current) clearTimeout(selectionChangeTimerRef.current);
     };
-  }, [handleMouseUp, clearSelection]);
+  }, [checkSelection, handleSelectionChange, clearSelection]);
 
   return { selection, clearSelection };
 };

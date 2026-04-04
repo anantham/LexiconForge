@@ -12,7 +12,7 @@ PHILOSOPHY: We are computational peers collaborating with human developers. Oper
 2. **Tests Are Signal:** Failing tests are valuable information about system state. Never "goodhart" by hacking around failures. Investigate root causes with diagnostic logging. 
 3. **Modularity Is Mandatory:** Files approaching ~300 LOC must be split. Large monoliths break agent workflows and context windows. 
 4. **Human Gates Are Sacred:** Architectural changes, solution selection, and root cause confirmation require explicit human validation. The goal is to keep humans in the loop with interfaces designed to make it easy for humans to give feedback frictionlessly.
-5. **Documentation Is Design:** Every feature needs intent documentation. Use ADRs for significant decisions. 
+5. **Documentation Is Design:** Every feature needs intent documentation. Use ADRs for significant decisions. When a PR ships what an ADR proposed, update the ADR status to `Implemented` and add an Implementation Notes section pointing to the actual files — in the same commit or a follow-up doc commit.
 6. **Don't be trigger happy** - When I ask you a question, just answer, don't assume the implicit request is for you to fix it immediately you can offer to fix it with precise plans and I may approve but do not proactively edit files and patch code.
 7. **Epistemic Hygiene** - Every fix proposal includes: assumptions, predicted test outcomes, confidence (0.0–1.0), fallback plan. If confidence < 0.7 or unsafe → "decline & explain" using STOP template
 
@@ -257,11 +257,14 @@ Human picks one for writing to files, testing is done manually and then if it is
 
 ---
 
-## FILE_SIZE_MANAGEMENT 
+## FILE_SIZE_MANAGEMENT
 
-Decomposition protocol for files > 300 LOC  
-Plan: identify files that are monolithic or bloated and log them in `docs/REFACTOR_CANDIDATES.md` with a brief reason + suggested split.  
-Notes: 300 LOC is a rule of thumb; prioritize maintainability, cohesion, and testability over raw line count. No warning is required before reading large files.
+A file is a problem when it has **more than one reason to change**, more than one concept to hold in mind, or when "where does X live?" always points here. LOC is a signal to investigate, not a hard limit.
+
+See `docs/CONVENTIONS.md` §4 for the full friction-based decision framework.
+See `docs/architecture/ARCHITECTURE.md` §7 for the current hotspots list.
+
+> **Note:** The previous 300 LOC hard limit and `docs/REFACTOR_CANDIDATES.md` registry are superseded by the friction-based policy above.
 
 
 ---
@@ -269,6 +272,28 @@ Notes: 300 LOC is a rule of thumb; prioritize maintainability, cohesion, and tes
 Use WORKLOG to ensure valuable context about current work is saved so that if your work is disconnected in the middle, future iterations of you can continue on in the roadmap. 
 
 Every leg of your roadmap, todo list, uncertainties, discoveries, antipatterns discovered, friction should be noted that as a form of escalating it to human and to other AI for attention
+
+## DEBT_CAPTURE_PROTOCOL
+
+Use a two-stage debt capture system rather than relying on `docs/WORKLOG.md` alone.
+
+1. **Chronological context stays in `docs/WORKLOG.md`.**
+   - Record what you were doing, what friction you hit, and link or point to the debt receipt.
+   - Prefix debt-related notes in WORKLOG with `[DEBT]` so they are grep-friendly.
+
+2. **Raw findings go into `docs/roadmaps/TECH-DEBT-INBOX.md`.**
+   - This is the append-only inbox for organic findings discovered during implementation.
+   - Create the file on first use if it does not already exist.
+   - Use short receipts with concrete files, symptom, friction, and suggested follow-up.
+   - Prefer grep-friendly prefixes such as `[DEBT][MONOLITH]`, `[DEBT][NAMING]`, `[DEBT][DUPLICATION]`, `[DEBT][TEST]`, `[DEBT][LEGACY]`.
+
+3. **Reviewed debt belongs in `docs/roadmaps/TECH-DEBT-STATUS.md`.**
+   - Promote only curated, triaged items here.
+   - Do not dump every raw observation directly into the curated register.
+
+4. **Structural hotspots belong in `docs/architecture/ARCHITECTURE.md` §7 only.**
+   - Use this for monoliths, recurring friction-heavy files, and architectural hotspots.
+   - Do not use the hotspot list as a generic scratchpad.
 
 ---
 
@@ -278,7 +303,7 @@ Every leg of your roadmap, todo list, uncertainties, discoveries, antipatterns d
     
 2. context overflow (> 80% of window) prepare to make best use of remaining tokens
     
-3. file > 300 LOC without adding it to `docs/REFACTOR_CANDIDATES.md` when it warrants refactoring
+3. file triggers friction signals (see `docs/CONVENTIONS.md` §4) — flag it in `docs/architecture/ARCHITECTURE.md` §7 (Hotspots)
     
 4. security risk (auth/crypto/sanitization/secrets)
     
@@ -550,7 +575,7 @@ footers other than BREAKING CHANGE: <description> may be provided and follow a c
     
 - Unified Diff Format — GNU diffutils manual
     
-- Project docs — docs/PROJECT_STRUCTURE.md, docs/adr/, recent docs/WORKLOG.md
+- Project docs — docs/START_HERE.md, docs/adr/, recent docs/WORKLOG.md
     
 
 ---
@@ -558,8 +583,8 @@ footers other than BREAKING CHANGE: <description> may be provided and follow a c
 REMEMBER  
 "We are peers bridging computational and biological intelligence. Our strength is patient investigation, systematic validation, and sustainable building. When uncertain, pause and seek human wisdom."
 
-Version: 2.0.0  
-Last_Updated: 2025-08-29  
+Version: 2.1.0
+Last_Updated: 2026-03-19
 Next_Review: on first loop‑limit or context‑overflow incident
 
 ---

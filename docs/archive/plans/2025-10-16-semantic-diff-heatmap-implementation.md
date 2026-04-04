@@ -1,5 +1,7 @@
 # Semantic Diff Heatmap Implementation Plan
 
+> **Status:** 🟡 Partial — UI toggle exists but LLM-based semantic diff engine not implemented. Feature on hold.
+
 > **For Claude:** Use `${SUPERPOWERS_SKILLS_ROOT}/skills/collaboration/executing-plans/SKILL.md` to implement this plan task-by-task.
 
 **Goal:** Add visual diff markers showing where AI translation semantically differs from fan translation and/or raw source text at paragraph level.

@@ -13,7 +13,7 @@ import type { AppSettings, PromptTemplate } from '../../types';
 import type { OpenRouterKeyUsageCache } from '../../services/openrouterService';
 import type { ProviderCreditSummary, SupportedCreditProvider } from '../../services/providerCreditCacheService';
 import { SessionManagementService, defaultSettings } from '../../services/sessionManagementService';
-import { debugLog } from '../../utils/debug';
+import { debugLog, debugWarn } from '../../utils/debug';
 import { providerCreditCacheService } from '../../services/providerCreditCacheService';
 
 export interface SettingsState {
@@ -98,7 +98,7 @@ export const createSettingsSlice: StateCreator<
   loadSettings: () => {
     try {
       const loadedSettings = SessionManagementService.loadSettings();
-      console.log('📥 [SettingsSlice] Loading settings:', { provider: loadedSettings.provider, model: loadedSettings.model });
+      debugLog('ui', 'summary', '📥 [SettingsSlice] Loading settings:', { provider: loadedSettings.provider, model: loadedSettings.model });
       set({
         settings: loadedSettings,
         settingsLoaded: true,
@@ -261,13 +261,13 @@ export const createSettingsSlice: StateCreator<
       if (!currentModels?.data?.length) {
         const persistedCache = await openrouterService.getCachedModels();
         if (persistedCache?.data?.length) {
-          console.log('[SettingsSlice] Loaded models from IndexedDB cache:', persistedCache.data.length);
+          debugLog('api', 'summary', '[SettingsSlice] Loaded models from IndexedDB cache:', persistedCache.data.length);
           set({ openRouterModels: persistedCache });
           currentModels = persistedCache;
         }
       }
 
-      console.log('[SettingsSlice] loadOpenRouterCatalogue called', {
+      debugLog('api', 'summary', '[SettingsSlice] loadOpenRouterCatalogue called', {
         force,
         hasCachedModels: !!currentModels,
         cachedModelCount: currentModels?.data?.length || 0,
@@ -278,7 +278,7 @@ export const createSettingsSlice: StateCreator<
         const age = Date.now() - new Date(currentModels.fetchedAt).getTime();
         // Use cache if less than 1 hour old
         if (age < 60 * 60 * 1000) {
-          console.log('[SettingsSlice] Using cached models, age:', Math.round(age / 1000 / 60), 'minutes');
+          debugLog('api', 'summary', '[SettingsSlice] Using cached models, age:', Math.round(age / 1000 / 60), 'minutes');
           return;
         }
       }
@@ -335,7 +335,7 @@ export const createSettingsSlice: StateCreator<
       }
       
       if (!apiKey) {
-        console.warn('[SettingsSlice] No OpenRouter API key available for credit check (checked settings and env)');
+        debugWarn('api', 'summary', '[SettingsSlice] No OpenRouter API key available for credit check (checked settings and env)');
         return;
       }
       
@@ -386,7 +386,7 @@ export const createSettingsSlice: StateCreator<
       }
 
       if (!apiKey) {
-        console.warn(`[SettingsSlice] No ${provider} API key available for credit check (checked settings and env)`);
+        debugWarn('api', 'summary', `[SettingsSlice] No ${provider} API key available for credit check (checked settings and env)`);
         set(current => ({
           providerCredits: {
             ...current.providerCredits,

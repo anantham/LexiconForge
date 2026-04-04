@@ -1,15 +1,22 @@
 import type { Chapter } from '../../../types';
-import type { ChapterLookupResult, ChapterRecord, ChapterSummaryRecord, TranslationRecord } from '../types';
+import type { ChapterLookupResult, ChapterRecord, ChapterSummaryRecord, TranslationRecord, UrlMappingRecord } from '../types';
 import { StableIdManager } from '../core/stable-ids';
 import { STORE_NAMES } from '../core/schema';
 import { withReadTxn, withWriteTxn, promisifyRequest } from '../core/txn';
 import { generateStableChapterId, normalizeUrlAggressively } from '../../stableIdService';
+import { buildScopedStorageUrl } from '../../libraryScope';
 
 const CHAPTER_DOMAIN = 'chapters';
 
 export type ChapterStoreRecord = ChapterRecord;
 
-export const ensureChapterUrlMappings = async (originalUrl: string, stableId: string): Promise<void> => {
+export const ensureChapterUrlMappings = async (
+  originalUrl: string,
+  stableId: string,
+  novelId: string | null = null,
+  libraryVersionId: string | null = null,
+  chapterNumber?: number
+): Promise<void> => {
   const canonical = normalizeUrlAggressively(originalUrl) || originalUrl;
   const nowIso = new Date().toISOString();
 
@@ -19,13 +26,14 @@ export const ensureChapterUrlMappings = async (originalUrl: string, stableId: st
       const store = stores[STORE_NAMES.URL_MAPPINGS];
 
       const upsert = async (url: string, isCanonical: boolean) => {
-        const existing = (await promisifyRequest(store.get(url))) as
-          | { url: string; stableId: string; isCanonical: boolean; dateAdded: string }
-          | undefined;
+        const existing = (await promisifyRequest(store.get(url))) as UrlMappingRecord | undefined;
 
         const record = {
           url,
           stableId,
+          novelId: existing?.novelId ?? novelId,
+          libraryVersionId: existing?.libraryVersionId ?? libraryVersionId,
+          chapterNumber: existing?.chapterNumber ?? chapterNumber,
           isCanonical,
           dateAdded: existing?.dateAdded ?? nowIso,
         };
@@ -72,6 +80,7 @@ export const recomputeChapterSummary = async (chapter: ChapterRecord): Promise<v
 
   const summary: ChapterSummaryRecord = {
     stableId,
+    libraryVersionId: chapter.libraryVersionId ?? null,
     canonicalUrl: chapter.canonicalUrl,
     title: chapter.title,
     translatedTitle: active?.translatedTitle,
@@ -96,7 +105,58 @@ export const recomputeChapterSummary = async (chapter: ChapterRecord): Promise<v
   });
 };
 
-const storeChapterModern = async (chapter: Chapter & { stableId?: string }) => {
+const matchesChapterSourceUrl = (chapter: ChapterRecord, candidateUrl: string): boolean => {
+  const normalizedCandidate = normalizeUrlAggressively(candidateUrl) || candidateUrl;
+  const urls = [
+    chapter.originalUrl,
+    chapter.canonicalUrl,
+    chapter.url,
+  ].filter((value): value is string => typeof value === 'string' && value.length > 0);
+
+  return urls.some((url) => {
+    if (url === candidateUrl || url === normalizedCandidate) {
+      return true;
+    }
+    const normalizedUrl = normalizeUrlAggressively(url) || url;
+    return normalizedUrl === normalizedCandidate;
+  });
+};
+
+const toChapterLookupResult = (record: ChapterRecord): ChapterLookupResult => {
+  const stableId = record.stableId || generateStableChapterId(record.content || '', record.chapterNumber || 0, record.title || '');
+
+  return {
+    stableId,
+    canonicalUrl: record.canonicalUrl || record.url,
+    novelId: record.novelId ?? null,
+    libraryVersionId: record.libraryVersionId ?? null,
+    title: record.title,
+    content: record.content,
+    nextUrl: record.nextUrl,
+    prevUrl: record.prevUrl,
+    chapterNumber: record.chapterNumber,
+    fanTranslation: record.fanTranslation,
+    suttaStudio: record.suttaStudio ?? null,
+    data: {
+      chapter: {
+        title: record.title,
+        content: record.content,
+        originalUrl: record.originalUrl || record.canonicalUrl || record.url,
+        novelId: record.novelId ?? null,
+        libraryVersionId: record.libraryVersionId ?? null,
+        nextUrl: record.nextUrl,
+        prevUrl: record.prevUrl,
+        chapterNumber: record.chapterNumber,
+        suttaStudio: record.suttaStudio ?? null,
+      },
+      translationResult: null,
+    },
+  };
+};
+
+const storeChapterModern = async (
+  chapter: Chapter & { stableId?: string; novelId?: string | null; libraryVersionId?: string | null }
+) => {
   const originalUrl = chapter.originalUrl || (chapter as any).url;
   if (!originalUrl) {
     throw new Error('[ChapterOps] Chapter must include originalUrl');
@@ -107,15 +167,22 @@ const storeChapterModern = async (chapter: Chapter & { stableId?: string }) => {
   const computedStableId =
     chapter.stableId ||
     generateStableChapterId(chapter.content || '', chapter.chapterNumber || 0, chapter.title || '');
+  const libraryVersionId = chapter.libraryVersionId ?? null;
+  const storageUrl =
+    chapter.novelId
+      ? buildScopedStorageUrl(computedStableId, chapter.novelId, libraryVersionId)
+      : originalUrl;
 
   const record = await withWriteTxn(
     STORE_NAMES.CHAPTERS,
     async (_txn, stores) => {
       const store = stores[STORE_NAMES.CHAPTERS];
-      const existing = (await promisifyRequest(store.get(originalUrl))) as ChapterRecord | undefined;
+      const existing = (await promisifyRequest(store.get(storageUrl))) as ChapterRecord | undefined;
 
       const chapterRecord: ChapterRecord = {
-        url: originalUrl,
+        url: storageUrl,
+        novelId: chapter.novelId ?? existing?.novelId ?? null,
+        libraryVersionId,
         title: chapter.title || existing?.title || '',
         content: chapter.content || existing?.content || '',
         originalUrl,
@@ -139,7 +206,13 @@ const storeChapterModern = async (chapter: Chapter & { stableId?: string }) => {
   );
 
   if (record.stableId) {
-    await ensureChapterUrlMappings(originalUrl, record.stableId);
+    await ensureChapterUrlMappings(
+      originalUrl,
+      record.stableId,
+      record.novelId,
+      record.libraryVersionId ?? null,
+      record.chapterNumber
+    );
   }
 
   await recomputeChapterSummary(record);
@@ -196,47 +269,93 @@ const getAllChaptersModern = async (): Promise<ChapterRecord[]> => {
 const findChapterModernByUrl = async (url: string): Promise<ChapterLookupResult | null> => {
   const record = await getChapterModernByUrl(url);
   if (!record) return null;
-
-  const stableId = record.stableId || generateStableChapterId(record.content || '', record.chapterNumber || 0, record.title || '');
-
-  return {
-    stableId,
-    canonicalUrl: record.canonicalUrl || record.url,
-    title: record.title,
-    content: record.content,
-    nextUrl: record.nextUrl,
-    prevUrl: record.prevUrl,
-    chapterNumber: record.chapterNumber,
-    fanTranslation: record.fanTranslation,
-    suttaStudio: record.suttaStudio ?? null,
-    data: {
-      chapter: {
-        title: record.title,
-        content: record.content,
-        originalUrl: record.url,
-        nextUrl: record.nextUrl,
-        prevUrl: record.prevUrl,
-        chapterNumber: record.chapterNumber,
-        suttaStudio: record.suttaStudio ?? null,
-      },
-      translationResult: null,
-    },
-  };
+  return toChapterLookupResult(record);
 };
 
-const findChapterModernByNumber = async (chapterNumber: number): Promise<ChapterRecord | null> => {
+const findChapterModernBySourceUrl = async (
+  url: string,
+  novelId: string,
+  libraryVersionId: string | null = null
+): Promise<ChapterLookupResult | null> => {
   return withReadTxn(
     STORE_NAMES.CHAPTERS,
     async (_txn, stores) => {
       const store = stores[STORE_NAMES.CHAPTERS];
-      if (store.indexNames.contains('chapterNumber')) {
+      let candidates: ChapterRecord[] = [];
+
+      if (store.indexNames.contains('novelVersion')) {
+        const index = store.index('novelVersion');
+        candidates = (await promisifyRequest(
+          index.getAll([novelId, libraryVersionId])
+        )) as ChapterRecord[];
+      } else if (store.indexNames.contains('novelId')) {
+        const index = store.index('novelId');
+        const rows = (await promisifyRequest(index.getAll(novelId))) as ChapterRecord[];
+        candidates = rows.filter((row) => (row.libraryVersionId ?? null) === libraryVersionId);
+      } else {
+        const rows = (await promisifyRequest(store.getAll())) as ChapterRecord[];
+        candidates = rows.filter((row) => {
+          return (
+            (row.novelId ?? null) === novelId &&
+            (row.libraryVersionId ?? null) === libraryVersionId
+          );
+        });
+      }
+
+      const matched = candidates.find((record) => matchesChapterSourceUrl(record, url)) || null;
+      return matched ? toChapterLookupResult(matched) : null;
+    },
+    CHAPTER_DOMAIN,
+    'operations',
+    'findBySourceUrl'
+  );
+};
+
+const findChapterModernByNumber = async (
+  chapterNumber: number,
+  novelId?: string | null,
+  libraryVersionId?: string | null
+): Promise<ChapterRecord | null> => {
+  return withReadTxn(
+    STORE_NAMES.CHAPTERS,
+    async (_txn, stores) => {
+      const store = stores[STORE_NAMES.CHAPTERS];
+      if (novelId && store.indexNames.contains('novelVersionChapter')) {
+        const index = store.index('novelVersionChapter');
+        const result = (await promisifyRequest(
+          index.get([novelId, libraryVersionId ?? null, chapterNumber])
+        )) as ChapterRecord | undefined;
+        return result || null;
+      }
+
+      if (novelId && store.indexNames.contains('novelId')) {
+        const index = store.index('novelId');
+        const rows = (await promisifyRequest(index.getAll(novelId))) as ChapterRecord[];
+        return (
+          rows.find(ch => {
+            return (
+              ch.chapterNumber === chapterNumber &&
+              (ch.libraryVersionId ?? null) === (libraryVersionId ?? null)
+            );
+          }) || null
+        );
+      }
+
+      if (!novelId && store.indexNames.contains('chapterNumber')) {
         const index = store.index('chapterNumber');
         const result = (await promisifyRequest(index.get(chapterNumber))) as ChapterRecord | undefined;
         return result || null;
       }
 
       const chapters = (await promisifyRequest(store.getAll())) as ChapterRecord[];
-      return chapters.find(ch => ch.chapterNumber === chapterNumber) || null;
+      return chapters.find(
+        ch =>
+          ch.chapterNumber === chapterNumber &&
+          (typeof novelId === 'undefined' ? true : (ch.novelId ?? null) === novelId) &&
+          (typeof novelId === 'undefined'
+            ? true
+            : (ch.libraryVersionId ?? null) === (libraryVersionId ?? null))
+      ) || null;
     },
     CHAPTER_DOMAIN,
     'operations',
@@ -345,7 +464,9 @@ const getMostRecentChapterModern = async (): Promise<ChapterRecord | null> => {
 };
 
 export class ChapterOps {
-  static async store(chapter: Chapter & { stableId?: string }): Promise<void> {
+  static async store(
+    chapter: Chapter & { stableId?: string; novelId?: string | null; libraryVersionId?: string | null }
+  ): Promise<void> {
     await storeChapterModern(chapter);
   }
 
@@ -365,6 +486,14 @@ export class ChapterOps {
     return findChapterModernByUrl(pattern);
   }
 
+  static async findBySourceUrl(
+    url: string,
+    novelId: string,
+    libraryVersionId: string | null = null
+  ): Promise<ChapterLookupResult | null> {
+    return findChapterModernBySourceUrl(url, novelId, libraryVersionId);
+  }
+
   static async storeEnhanced(enhanced: any): Promise<void> {
     const preferredOriginalUrl = enhanced.originalUrl ?? null;
     const fallbackUrl = enhanced.canonicalUrl ?? null;
@@ -379,6 +508,8 @@ export class ChapterOps {
       title: enhanced.title,
       content: enhanced.content,
       originalUrl,
+      novelId: enhanced.novelId ?? null,
+      libraryVersionId: enhanced.libraryVersionId ?? null,
       canonicalUrl,
       nextUrl: enhanced.nextUrl,
       prevUrl: enhanced.prevUrl,
@@ -390,8 +521,12 @@ export class ChapterOps {
     await storeChapterModern({ ...chapter, stableId: enhanced.id });
   }
 
-  static async findByNumber(chapterNumber: number): Promise<ChapterRecord | null> {
-    return findChapterModernByNumber(chapterNumber);
+  static async findByNumber(
+    chapterNumber: number,
+    novelId?: string | null,
+    libraryVersionId?: string | null
+  ): Promise<ChapterRecord | null> {
+    return findChapterModernByNumber(chapterNumber, novelId, libraryVersionId);
   }
 
   static async deleteByUrl(chapterUrl: string): Promise<void> {
@@ -425,8 +560,14 @@ export class ChapterOps {
     };
   }
 
-  static async ensureUrlMappings(originalUrl: string, stableId?: string): Promise<void> {
+  static async ensureUrlMappings(
+    originalUrl: string,
+    stableId?: string,
+    novelId: string | null = null,
+    libraryVersionId: string | null = null,
+    chapterNumber?: number
+  ): Promise<void> {
     if (!originalUrl || !stableId) return;
-    await ensureChapterUrlMappings(originalUrl, stableId);
+    await ensureChapterUrlMappings(originalUrl, stableId, novelId, libraryVersionId, chapterNumber);
   }
 }

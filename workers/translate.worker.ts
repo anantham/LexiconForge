@@ -40,7 +40,7 @@ self.addEventListener('message', async (event) => {
       handleJobCancellation(payload.jobId);
       break;
     case 'PAUSE_TRANSLATION_JOB':
-      // TODO: Implement pause functionality
+      // Pause is not supported — cancel and restart instead
       break;
     default:
       console.warn(`[TranslationWorker] Unknown message type: ${type}`);

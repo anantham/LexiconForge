@@ -25,6 +25,8 @@ const makeTranslationResult = (overrides: Partial<TranslationResult> = {}): Tran
 
 const makeChapter = (id: string, overrides: Partial<EnhancedChapter> = {}): EnhancedChapter => ({
   id,
+  novelId: null,
+  libraryVersionId: null,
   title: `Chapter ${id}`,
   content: `Content for ${id}`,
   originalUrl: `https://example.com/${id}`,
@@ -49,6 +51,8 @@ describe('Null safety regressions in modern slices', () => {
       navigationHistory: [],
       urlIndex: new Map(),
       rawUrlIndex: new Map(),
+      activeNovelId: 'novel-a',
+      activeVersionId: 'alice-v1',
       activeTranslations: {},
       pendingTranslations: new Set(),
       feedbackHistory: {},
@@ -95,6 +99,10 @@ describe('Null safety regressions in modern slices', () => {
       expect(result).toBe('ch-001');
       expect(useAppStore.getState().chapters.get('ch-001')).toBeDefined();
       expect(useAppStore.getState().error).toBeNull();
+      expect(handleFetchSpy).toHaveBeenCalledWith('https://example.com/ch-001', {
+        novelId: 'novel-a',
+        versionId: 'alice-v1',
+      });
     });
   });
 

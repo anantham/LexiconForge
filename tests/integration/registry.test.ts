@@ -80,9 +80,11 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
     const novels = await RegistryService.fetchAllNovelMetadata();
 
-    expect(novels).toHaveLength(2);
-    expect(novels[0].title).toBe('Test Novel 1');
-    expect(novels[1].title).toBe('Test Novel 2');
+    // +1 for the built-in MN10 entry
+    expect(novels).toHaveLength(3);
+    expect(novels[0].id).toBe('sutta-mn10');
+    expect(novels[1].title).toBe('Test Novel 1');
+    expect(novels[2].title).toBe('Test Novel 2');
   });
 
   it('should handle partial failures gracefully', async () => {
@@ -127,9 +129,10 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
     const novels = await RegistryService.fetchAllNovelMetadata();
 
-    // Should return only successful novels
-    expect(novels).toHaveLength(1);
-    expect(novels[0].title).toBe('Test Novel 1');
+    // 1 built-in (MN10) + 1 successful remote
+    expect(novels).toHaveLength(2);
+    expect(novels[0].id).toBe('sutta-mn10');
+    expect(novels[1].title).toBe('Test Novel 1');
   });
 
   it('should support custom registry URL', async () => {
@@ -274,10 +277,11 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       const novels = await RegistryService.fetchAllNovelMetadata();
 
-      expect(novels).toHaveLength(1);
-      expect(novels[0].title).toBe('Minimal Novel');
-      expect(novels[0].metadata).toBeUndefined();
-      expect(novels[0].versions).toBeUndefined();
+      // 1 built-in + 1 remote
+      expect(novels).toHaveLength(2);
+      expect(novels[1].title).toBe('Minimal Novel');
+      expect(novels[1].metadata).toBeUndefined();
+      expect(novels[1].versions).toBeUndefined();
     });
 
     it('should skip novels with empty metadataUrl', async () => {
@@ -299,9 +303,9 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       const novels = await RegistryService.fetchAllNovelMetadata();
 
-      // Should only return the valid novel, not crash on empty URL
-      expect(novels).toHaveLength(1);
-      expect(novels[0].id).toBe('valid');
+      // 1 built-in + 1 valid remote (empty URL skipped)
+      expect(novels).toHaveLength(2);
+      expect(novels[1].id).toBe('valid');
     });
 
     it('should skip novels with missing metadataUrl', async () => {
@@ -322,8 +326,9 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       const novels = await RegistryService.fetchAllNovelMetadata();
 
-      expect(novels).toHaveLength(1);
-      expect(novels[0].id).toBe('valid');
+      // 1 built-in + 1 valid remote (missing URL skipped)
+      expect(novels).toHaveLength(2);
+      expect(novels[1].id).toBe('valid');
     });
 
     it('should handle novel metadata with null/undefined values gracefully', async () => {
@@ -387,10 +392,11 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(customRegistryUrl);
       expect(global.fetch).toHaveBeenCalledWith('https://custom.example.com/novel.json');
-      expect(novels).toHaveLength(1);
-      expect(novels[0].title).toBe('Custom Novel');
-      expect(novels[0].metadata?.originalLanguage).toBe('Chinese');
-      expect(novels[0].versions?.[0]?.versionId).toBe('custom-v1');
+      // 1 built-in + 1 remote
+      expect(novels).toHaveLength(2);
+      expect(novels[1].title).toBe('Custom Novel');
+      expect(novels[1].metadata?.originalLanguage).toBe('Chinese');
+      expect(novels[1].versions?.[0]?.versionId).toBe('custom-v1');
     });
   });
 });

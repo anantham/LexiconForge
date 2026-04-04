@@ -1,5 +1,7 @@
 # Gallery & Sidebar Navigation Implementation Plan
 
+> **Status:** ✅ Implemented — `SettingsSidebar.tsx` replaces tabs; `GalleryPanel.tsx` + `ImageLightbox.tsx` complete with tests.
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Replace horizontal tabs in SettingsModal with sidebar navigation and add an image gallery with cover selection for EPUB export.

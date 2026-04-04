@@ -4,6 +4,7 @@ import {
   getDefaultKeyStatus,
 } from '../defaultApiKeyService';
 import type { AppSettings } from '../../types';
+import { debugLog } from '../../utils/debug';
 
 const PROVIDER_ENV_MAP: Record<AppSettings['provider'], { env: string; label: string }> = {
   Gemini: { env: 'GEMINI_API_KEY', label: 'Google Gemini' },
@@ -29,7 +30,7 @@ export const validateApiKey = (
     const trialKey = getDefaultApiKey();
     requiredApiKey = userKey || envVarKey || trialKey;
 
-    console.log('[OpenRouter] API Key Priority Check:', {
+    debugLog('api', 'summary', '[OpenRouter] API Key Priority Check:', {
       hasUserKey: !!userKey,
       hasEnvKey: !!envVarKey,
       hasTrialKey: !!trialKey,
@@ -45,7 +46,7 @@ export const validateApiKey = (
 
     if (!userKey && !envVarKey && requiredApiKey) {
       const status = getDefaultKeyStatus();
-      console.log(`[DefaultKey] Using trial key - ${status.remainingUses} requests remaining`);
+      debugLog('api', 'summary', `[DefaultKey] Using trial key - ${status.remainingUses} requests remaining`);
     }
   } else {
     const keyProp = `apiKey${settings.provider}` as keyof AppSettings;
@@ -72,7 +73,7 @@ const buildProviderErrorMessage = (provider: AppSettings['provider'], providerLa
   if (provider === 'OpenRouter') {
     const trialStatus = getDefaultKeyStatus();
     if (trialStatus.hasExceeded) {
-      return `Trial limit reached (${trialStatus.usageCount}/10 free requests used).\n\nGet your own free OpenRouter API key at: https://openrouter.ai/keys\nOr request more trial credits at: https://t.me/everythingisrelative`;
+      return `Daily limit reached (${trialStatus.usageCount}/10 free requests today). Resets tomorrow.\n\nGet your own free OpenRouter API key at: https://openrouter.ai/keys\nOr request more trial credits at: https://t.me/everythingisrelative`;
     }
     return `${providerLabel} API key is missing. Add it in settings or .env file.\n\nGet your API key at: https://openrouter.ai/keys\nOr request free credits at: https://t.me/webnovels`;
   }

@@ -83,6 +83,32 @@ export class MappingsOps {
     }
   }
 
+  static async getMappingsForNovel(novelId: string): Promise<UrlMappingRecord[]> {
+    try {
+      return await withReadTxn(
+        STORE_NAMES.URL_MAPPINGS,
+        async (_txn, stores) => {
+          const store = stores[STORE_NAMES.URL_MAPPINGS];
+          if (store.indexNames.contains('novelId')) {
+            const index = store.index('novelId');
+            const rows = (await promisifyRequest(index.getAll(novelId))) as UrlMappingRecord[];
+            return rows.map(row => ({ ...row, isCanonical: Boolean(row.isCanonical) }));
+          }
+
+          const rows = (await promisifyRequest(store.getAll())) as UrlMappingRecord[];
+          return rows
+            .filter(row => (row.novelId ?? null) === novelId)
+            .map(row => ({ ...row, isCanonical: Boolean(row.isCanonical) }));
+        },
+        DOMAIN,
+        'operations',
+        'getMappingsForNovel'
+      );
+    } catch {
+      return [];
+    }
+  }
+
   static async getAllNovels(): Promise<NovelRecord[]> {
     try {
       return await withReadTxn(

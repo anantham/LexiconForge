@@ -1,9 +1,20 @@
 # DB-001: Decompose Monolithic IndexedDB Service into Domain Services
 
-**Date:** 2025-01-13  
-**Status:** Proposed  
-**Authors:** Development Team  
-**Supersedes:** N/A  
+**Date:** 2025-01-13
+**Status:** Implemented (2026-03-05)
+**Authors:** Development Team
+**Supersedes:** N/A
+
+## Implementation Notes (2026-03-05)
+The monolithic `services/indexeddb.ts` (2,288 LOC) was fully removed. The decomposition used
+an operations/repositories/core layer pattern rather than the 8 named domain services proposed
+here (ChapterDataService, TranslationDataService, etc.). Actual structure:
+- `services/db/operations/*.ts` — domain operations (chapters, translations, images, feedback, etc.)
+- `services/db/repositories/*.ts` — repository interfaces + implementations
+- `services/db/core/*.ts` — connection, transactions (`withTxn`), migrations, schema, backup
+- `services/db/types.ts` — shared record types
+
+The spirit of the decomposition (modular, single-responsibility, testable) was achieved.
 
 ## Context
 

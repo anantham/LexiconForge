@@ -1,10 +1,16 @@
 # FEAT-002: TypeScript Debt Remediation Strategy
 
 **Date:** 2025-10-27
-**Status:** Proposed
+**Status:** Implemented (2026-03-05)
 **Authors:** Engineering Team
 **Supersedes:** None
 **References:** `docs/TypeScript-Debt-Inventory-2025-10-27.md`, `diagnostics/tsc-errors-2025-10-27.txt`
+
+## Implementation Notes (2026-03-05)
+Production codebase is clean. Reduced from 301 errors to 16 residual errors, all confined to
+`scripts/sutta-studio/debug-single-model.ts` and `scripts/sutta-studio/generate-new-phases.ts`
+(one-off debug scripts, not production code). All five phases of the remediation program were
+completed across the IndexedDB decomposition, translator pipeline, workers, and store slices.
 
 ## Context
 The repository currently fails `npx tsc --noEmit` with 301 diagnostics spanning translators, IndexedDB DTOs, worker pipelines, and slice-based UI state. Past attempts to quiet the compiler relied on ad-hoc `any` casts or broad `exclude` lists, making it difficult to measure real progress. We need a disciplined remediation plan that:

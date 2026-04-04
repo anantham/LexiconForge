@@ -1,5 +1,27 @@
 import type { Registry, NovelEntry } from '../types/novel';
 
+// Built-in entries that appear alongside the remote registry
+const BUILT_IN_ENTRIES: NovelEntry[] = [
+  {
+    id: 'sutta-mn10',
+    title: 'Mahāsatipaṭṭhānasutta (MN 10)',
+    alternateTitles: ['Great Discourse on Mindfulness', 'Satipatthana Sutta'],
+    metadata: {
+      originalLanguage: 'Pāli',
+      targetLanguage: 'English',
+      chapterCount: 51,
+      genres: ['Buddhist Canon', 'Study'],
+      description: 'Interactive word-by-word Pāli study of the Great Discourse on Mindfulness with morphological analysis, grammar relations, and aligned English translation.',
+      author: 'Gotama Buddha (as recorded in the Pāli Canon)',
+      coverImageUrl: '/mn10-cover.png',
+      tags: ['pali', 'sutta', 'mindfulness', 'study-tool'],
+      publicationStatus: 'Completed' as const,
+      lastUpdated: '2026-03-29',
+    },
+    // No sessionJsonUrl — this entry routes to /sutta/demo instead
+  },
+];
+
 // Always use GitHub registry (contains real data with Git LFS session files)
 const DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/registry.json';
 
@@ -49,6 +71,20 @@ export class RegistryService {
   }
 
   /**
+   * Fetch a specific novel by registry id
+   */
+  static async fetchNovelById(id: string, registryUrl?: string): Promise<NovelEntry | null> {
+    const registry = await this.fetchRegistry(registryUrl);
+    const entry = registry.novels.find((candidate) => candidate.id === id);
+
+    if (!entry) {
+      return null;
+    }
+
+    return this.fetchNovelMetadata(entry.metadataUrl);
+  }
+
+  /**
    * Fetch all novel metadata from registry
    */
   static async fetchAllNovelMetadata(registryUrl?: string): Promise<NovelEntry[]> {
@@ -74,6 +110,6 @@ export class RegistryService {
       }
     });
 
-    return novels;
+    return [...BUILT_IN_ENTRIES, ...novels];
   }
 }

@@ -234,6 +234,7 @@ function createInitialStores(db: IDBDatabase): void {
   if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTERS)) {
     const chaptersStore = db.createObjectStore(STORE_NAMES.CHAPTERS, { keyPath: 'url' });
     chaptersStore.createIndex('stableId', 'stableId', { unique: false });
+    chaptersStore.createIndex('novelId', 'novelId', { unique: false });
     chaptersStore.createIndex('title', 'title', { unique: false });
     chaptersStore.createIndex('canonicalUrl', 'canonicalUrl', { unique: false });
     chaptersStore.createIndex('chapterNumber', 'chapterNumber', { unique: false });
@@ -273,6 +274,8 @@ function createInitialStores(db: IDBDatabase): void {
   if (!db.objectStoreNames.contains(STORE_NAMES.URL_MAPPINGS)) {
     const urlStore = db.createObjectStore(STORE_NAMES.URL_MAPPINGS, { keyPath: 'url' });
     urlStore.createIndex('stableId', 'stableId', { unique: false });
+    urlStore.createIndex('novelId', 'novelId', { unique: false });
+    urlStore.createIndex('novelChapter', ['novelId', 'chapterNumber'], { unique: false });
     urlStore.createIndex('isCanonical', 'isCanonical', { unique: false });
     urlStore.createIndex('dateAdded', 'dateAdded', { unique: false });
   }

@@ -1,5 +1,9 @@
 # Additional Architectural Issues
 
+> **SUPERSEDED** (2026-03-29): This document references `services/indexeddb.ts` and other
+> files that were decomposed in Nov 2025–Mar 2026. For current tech debt tracking, see
+> [TECH-DEBT-STATUS.md](./TECH-DEBT-STATUS.md). This file is retained for historical context only.
+
 **Date**: 2025-11-12
 **Context**: Comprehensive audit beyond the schema drift bug
 **Related**: TECH-DEBT-REDUCTION-PLAN.md, INDEXEDDB-DECOMPOSITION-PLAN.md

@@ -1,5 +1,10 @@
 # Sutta Studio IR (Deep Loom) - MVP Schema
 
+> **Staleness warning:** This document describes the original MVP schema design.
+> The authoritative TypeScript types live in `types/suttaStudio.ts` (298 LOC).
+> When this doc and the types file conflict, the types file wins.
+> Last verified against code: 2026-03-05.
+
 ## Goals
 - Represent Pali source text as canonical segments (stable IDs).
 - Provide a derived phase view for UI rendering (polysemy, ghosts, tethers).

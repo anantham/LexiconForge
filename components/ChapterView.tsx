@@ -52,7 +52,12 @@ const ChapterView: React.FC = () => {
   const activePromptTemplate = useAppStore(s => s.activePromptTemplate);
   const error = useAppStore(s => s.error);
   const handleToggleLanguage = useAppStore(s => s.setViewMode);
-  const handleNavigate = useAppStore(s => s.handleNavigate);
+  const _handleNavigate = useAppStore(s => s.handleNavigate);
+  const handleNavigate = useCallback((url: string) => {
+    window.scrollTo({ top: 0 });
+    _handleNavigate(url);
+  }, [_handleNavigate]);
+  const shelveActiveNovel = useAppStore(s => s.shelveActiveNovel);
   const handleRetranslateCurrent = useAppStore(s => s.handleRetranslateCurrent);
   const cancelTranslation = useAppStore(s => s.cancelTranslation);
   const isTranslationActive = useAppStore(s => s.isTranslationActive);
@@ -332,6 +337,7 @@ const ChapterView: React.FC = () => {
     sourceUrl: chapter?.originalUrl,
     suttaStudioUrl,
     onToggleLanguage: handleToggleLanguage,
+    onOpenLibrary: () => shelveActiveNovel(),
     onNavigatePrev: chapter?.prevUrl ? () => handleNavigate(chapter.prevUrl) : undefined,
     onNavigateNext: chapter?.nextUrl ? () => handleNavigate(chapter.nextUrl) : undefined,
     prevDisabled: !chapter?.prevUrl || isLoading.fetching,
@@ -399,6 +405,7 @@ const ChapterView: React.FC = () => {
       modelLabel: settings.model,
       renderEnglishDiffs: viewMode === 'english',
       showEnglishLoader,
+      translationError: viewMode === 'english' && !translationResult && error ? error : null,
     },
     comparisonPortalProps: {
       comparisonChunk,

@@ -162,12 +162,20 @@ function makeMemoryRepo(): Repo {
     return record.stableId;
   };
 
-  const upsertUrlMapping = (url: string, stableId: string, isCanonical: boolean) => {
+  const upsertUrlMapping = (
+    url: string,
+    stableId: string,
+    isCanonical: boolean,
+    novelId: string | null,
+    chapterNumber?: number
+  ) => {
     const existing = urlMappings.get(url);
     const nowIso = new Date().toISOString();
     urlMappings.set(url, {
       url,
       stableId,
+      novelId: existing?.novelId ?? novelId,
+      chapterNumber: existing?.chapterNumber ?? chapterNumber,
       isCanonical,
       dateAdded: existing?.dateAdded ?? nowIso,
     });
@@ -176,9 +184,9 @@ function makeMemoryRepo(): Repo {
   const registerChapterMappings = (record: ChapterRecord) => {
     const stableId = resolveStableId(record);
     const canonical = record.canonicalUrl || normalizeUrlAggressively(record.url) || record.url;
-    upsertUrlMapping(canonical, stableId, true);
+    upsertUrlMapping(canonical, stableId, true, record.novelId, record.chapterNumber);
     if (canonical !== record.url) {
-      upsertUrlMapping(record.url, stableId, false);
+      upsertUrlMapping(record.url, stableId, false, record.novelId, record.chapterNumber);
     }
   };
 
@@ -232,6 +240,7 @@ function makeMemoryRepo(): Repo {
 
     const record: ChapterRecord = {
       url: originalUrl,
+      novelId: chapter.novelId ?? existing?.novelId ?? null,
       title: chapter.title ?? existing?.title ?? '',
       content: chapter.content ?? existing?.content ?? '',
       originalUrl,
@@ -386,6 +395,7 @@ function makeMemoryRepo(): Repo {
     return {
       stableId,
       canonicalUrl: canonical,
+      novelId: record.novelId ?? null,
       title: record.title,
       content: record.content,
       nextUrl: record.nextUrl,
@@ -397,6 +407,7 @@ function makeMemoryRepo(): Repo {
           title: record.title,
           content: record.content,
           originalUrl: record.url,
+          novelId: record.novelId ?? null,
           nextUrl: record.nextUrl,
           prevUrl: record.prevUrl,
           chapterNumber: record.chapterNumber,
@@ -436,6 +447,7 @@ function makeMemoryRepo(): Repo {
         title: enhanced.title,
         content: enhanced.content,
         originalUrl: enhanced.originalUrl ?? enhanced.canonicalUrl ?? enhanced.url,
+        novelId: enhanced.novelId ?? null,
         canonicalUrl: enhanced.canonicalUrl,
         nextUrl: enhanced.nextUrl,
         prevUrl: enhanced.prevUrl,

@@ -340,7 +340,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
 
     // Get effective system prompt (strips Part A if amendments disabled)
-    const enableAmendments = settings.enableAmendments ?? false;
+    const enableAmendments = settings.enableAmendments ?? true;
     let systemPrompt = getEffectiveSystemPrompt(settings.systemPrompt, enableAmendments);
     systemPrompt = replacePlaceholders(systemPrompt, settings);
 
@@ -392,7 +392,7 @@ ${schemaString}`;
     messages.push({ role: 'system', content: systemPrompt });
 
     const historyPrompt = history.length > 0 ? formatHistory(history).trim() : '';
-    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? true;
+    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? false;
     const effectiveFanTranslation = includeFanTranslation ? (fanTranslation ?? null) : null;
     const fanTranslationContext = buildFanTranslationContext(effectiveFanTranslation).trim();
     const preface = (
@@ -669,6 +669,7 @@ ${schemaString}`;
       provider: settings.provider,
       model: settings.model,
       costUsd,
+      duration: requestTime,
       tokens: {
         prompt: promptTokens,
         completion: completionTokens,

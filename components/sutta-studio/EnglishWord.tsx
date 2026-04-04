@@ -3,7 +3,7 @@ import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { EnglishToken, PaliWord } from '../../types/suttaStudio';
 import type { Focus } from './types';
-import { hasTextSelection, targetDomId } from './utils';
+import { hasTextSelection, segmentIdToDomId, targetDomId } from './utils';
 
 export const EnglishWordEngine = memo(function EnglishWordEngine({
   phaseId,
@@ -34,6 +34,11 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   let isActive = false;
   let paliWordId: string | undefined;
 
+  // Track linked segment info for bidirectional hover
+  let linkedSegmentId: string | undefined;
+  let linkedSegment: (typeof paliWords)[0]['segments'][0] | undefined;
+  let linkedSegmentIndex = 0;
+
   if (structure.linkedPaliId) {
     // Word-level linking
     paliWordId = structure.linkedPaliId;
@@ -46,24 +51,28 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
     }
   } else if (structure.linkedSegmentId) {
     // Segment-level linking: find the parent word that contains this segment
+    linkedSegmentId = structure.linkedSegmentId;
     const parentWord = paliWords.find((word) =>
       word.segments.some((seg) => seg.id === structure.linkedSegmentId)
     );
     if (parentWord) {
       paliWordId = parentWord.id;
       const idx = activeIndices[`${phaseId}-${parentWord.id}`] ?? 0;
-      const linkedSegment = parentWord.segments.find((seg) => seg.id === structure.linkedSegmentId);
+      linkedSegment = parentWord.segments.find((seg) => seg.id === structure.linkedSegmentId);
+      linkedSegmentIndex = parentWord.segments.indexOf(linkedSegment!);
       const segmentSenses = linkedSegment?.senses;
 
       if (segmentSenses && segmentSenses.length > 0) {
-        // 1. Segment has its own senses - use them
         content = segmentSenses[idx % segmentSenses.length]?.english ?? '';
       } else {
-        // 2. Fall back to word-level senses (NOT tooltip - word senses contain the translation)
         content = parentWord.senses[idx % parentWord.senses.length]?.english ?? '';
       }
+      // Segment-precise: only highlight when THIS segment is focused, not the whole word
       const focus = pinned ?? hovered;
-      isActive = focus?.phaseId === phaseId && focus?.wordId === parentWord.id;
+      isActive = focus?.phaseId === phaseId && (
+        (focus?.kind === 'segment' && focus.segmentId === linkedSegmentId) ||
+        (focus?.kind === 'word' && focus.wordId === parentWord.id)
+      );
     }
   } else {
     // Check for ripple overrides from active senses
@@ -77,11 +86,26 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   const domTarget = targetDomId(phaseId, structure.id);
 
   const handleEnter = () => {
+    if (pinned) return;
     if (!paliWordId) return;
+    // Segment-level hover: highlight the specific Pali segment, not just the word
+    if (linkedSegmentId && linkedSegment) {
+      setHovered({
+        kind: 'segment',
+        phaseId,
+        wordId: paliWordId,
+        segmentId: linkedSegmentId,
+        segmentIndex: linkedSegmentIndex,
+        segmentDomId: segmentIdToDomId(phaseId, linkedSegmentId),
+        data: linkedSegment,
+      });
+      return;
+    }
     setHovered({ kind: 'word', phaseId, wordId: paliWordId });
   };
 
   const handleLeave = () => {
+    if (pinned) return;
     if (!paliWordId) return;
     setHovered(null);
   };

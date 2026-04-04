@@ -43,9 +43,9 @@ const parseDebugLevel = (): DebugLevel => {
     const legacySummary = localStorage.getItem(LEGACY_SUMMARY_FLAG) === '1';
     if (legacyFull) return 'full';
     if (legacySummary) return 'summary';
-    return 'full';
+    return 'summary';
   } catch {
-    return 'full';
+    return 'summary';
   }
 };
 
@@ -108,7 +108,8 @@ export const debugPipelineEnabled = (
   if (minimum === 'summary' && level === 'off') return false;
 
   const { pipelines, configured } = parseDebugPipelines();
-  if (!configured || pipelines.length === 0) return true; // default: log all pipelines until explicitly configured or explicitly cleared
+  // No pipelines configured: allow 'summary' from all pipelines (high-level), suppress 'full' (verbose)
+  if (!configured || pipelines.length === 0) return minimum === 'summary';
   return pipelines.includes(pipeline);
 };
 

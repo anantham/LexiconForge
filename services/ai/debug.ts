@@ -1,26 +1,16 @@
-const isLocalStorageAvailable = (): boolean => {
-  try {
-    return typeof localStorage !== 'undefined';
-  } catch {
-    return false;
-  }
-};
+/**
+ * AI debug logging — delegates to the centralized utils/debug.ts pipeline system.
+ *
+ * Legacy callers use aiDebugEnabled/dlog/dlogFull; these now route through
+ * the 'api' pipeline with appropriate level checks.
+ */
+import { debugPipelineEnabled } from '../../utils/debug';
 
-export const aiDebugEnabled = (): boolean => {
-  try {
-    return isLocalStorageAvailable() && localStorage.getItem('LF_AI_DEBUG') === '1';
-  } catch {
-    return false;
-  }
-};
+export const aiDebugEnabled = (): boolean =>
+  debugPipelineEnabled('api', 'summary');
 
-export const aiDebugFullEnabled = (): boolean => {
-  try {
-    return isLocalStorageAvailable() && localStorage.getItem('LF_AI_DEBUG_FULL') === '1';
-  } catch {
-    return false;
-  }
-};
+export const aiDebugFullEnabled = (): boolean =>
+  debugPipelineEnabled('api', 'full');
 
 export const dlog = (...args: any[]) => {
   if (aiDebugEnabled()) console.log(...args);

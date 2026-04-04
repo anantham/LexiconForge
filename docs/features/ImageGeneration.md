@@ -188,11 +188,11 @@ cartoon, anime, childish, amateur
 
 **What It Does:** Uses a reference image to guide composition and style
 
-**Available Images** (in `public/steering/`):
-- `hypno.jpg` - Hypnotic/spiral patterns
-- `train.jpg` - Linear composition
-- `waitinginline.jpg` - Queue/crowd scenes
-- `white.jpg` - Clean, minimalist base
+**Available Images** (21 images in `public/steering/`, loaded dynamically from `public/steering-images.json`):
+
+Includes `art.webp`, `bath.jpeg`, `blow.jpeg`, `elf.jpeg`, `four maids.jpeg`, `gloss.jpeg`, `hair.jpeg`, `hypno.jpg`, `manga.png`, `pinch.jpeg`, `river.jpeg`, `run.jpg`, `shower.jpeg`, `shrine.jpeg`, `soft.webp`, `spoon.jpeg`, `succubus.webp`, `train.jpg`, `waitinginline.jpg`, `white.jpg`, `yuri.jpeg`.
+
+New images are added by placing files in `public/steering/` and updating the manifest.
 
 **How to Use:**
 1. Select steering image from dropdown
