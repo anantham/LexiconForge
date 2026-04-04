@@ -9,6 +9,7 @@ import Loader from './components/Loader';
 import MigrationRecovery from './components/MigrationRecovery';
 import { LandingPage } from './components/LandingPage';
 import { DefaultKeyBanner } from './components/DefaultKeyBanner';
+import OscilloscopePanel from './components/oscilloscope/OscilloscopePanel';
 
 import { validateApiKey } from './services/aiService';
 import { prepareConnection } from './services/db/core/connection';
@@ -331,6 +332,7 @@ const settingsFingerprint = React.useMemo(
                 <DefaultKeyBanner />
                 <InputBar />
                 <SessionInfo />
+                <OscilloscopePanel />
                 <ChapterView />
                 <SettingsModal
                   isOpen={showSettingsModal}
