@@ -2,7 +2,7 @@
  * Site-specific scraping adapters for extracting chapter content from web novel sites.
  * Each adapter handles one site's HTML structure independently.
  *
- * Supported sites: Kakuyomu, Dxmwx, Kanunu, Novelcool, BookToki, Syosetu, SuttaCentral
+ * Supported sites: Kakuyomu, Dxmwx, Kanunu, Novelcool, BookToki, Syosetu, SuttaCentral, Hetushu
  */
 
 import { Chapter } from '../../types';
@@ -240,6 +240,74 @@ class SyosetuAdapter extends BaseAdapter {
 }
 
 /**
+ * Hetushu Adapter — hetushu.com Chinese novel chapters.
+ * Strips fullwidth-obfuscated watermarks via NFKC normalization before filtering.
+ */
+class HetushuAdapter extends BaseAdapter {
+  /** Watermark host fragments to remove (matched after NFKC normalization). */
+  private static readonly WATERMARK_PATTERNS = [
+    'hetushu.com',
+    'hetubook.com',
+    '和图书',
+  ];
+
+  /** Tags used to embed watermark strings inside #content. */
+  private static readonly WATERMARK_TAGS = ['big', 'kbd', 'code', 'cite'];
+
+  private isWatermark(el: Element): boolean {
+    const normalized = el.textContent?.normalize('NFKC') ?? '';
+    return HetushuAdapter.WATERMARK_PATTERNS.some((pattern) =>
+      normalized.includes(pattern)
+    );
+  }
+
+  extractTitle = () =>
+    this.doc.querySelector('#ctitle .title')?.textContent?.trim() ?? null;
+
+  extractContent = (): string | null => {
+    const contentEl = this.doc.querySelector('#content');
+    if (!contentEl) return null;
+
+    // Remove overlay masks
+    contentEl.querySelectorAll('.mask').forEach((el) => el.remove());
+
+    // Remove duplicate heading
+    contentEl.querySelectorAll('h2.h2').forEach((el) => el.remove());
+
+    // Remove watermark elements (big, kbd, code, cite) that contain watermark text
+    const tagSelector = HetushuAdapter.WATERMARK_TAGS.join(', ');
+    contentEl.querySelectorAll(tagSelector).forEach((el) => {
+      if (this.isWatermark(el)) el.remove();
+    });
+
+    // Collect text from child <div> paragraphs
+    const paragraphs = Array.from(contentEl.querySelectorAll(':scope > div'))
+      .map((div) => div.textContent?.trim() ?? '')
+      .filter((text) => text.length > 0);
+
+    if (paragraphs.length > 0) return paragraphs.join('\n\n');
+
+    // Fallback: return all remaining text content
+    const fallback = contentEl.textContent?.trim() ?? '';
+    return fallback.length > 0 ? fallback : null;
+  };
+
+  getPrevLink = (): string | null => {
+    const href = this.doc
+      .querySelector('#right .pre a[href]')
+      ?.getAttribute('href');
+    return href ? new URL(href, this.url).href : null;
+  };
+
+  getNextLink = (): string | null => {
+    const href =
+      this.doc.querySelector('#right a#next[href]')?.getAttribute('href') ??
+      this.doc.querySelector('#right a.next[href]')?.getAttribute('href');
+    return href ? new URL(href, this.url).href : null;
+  };
+}
+
+/**
  * SuttaCentral Adapter — uses JSON APIs (SuttaPlex + Bilara) rather than HTML parsing.
  */
 export class SuttaCentralAdapter extends BaseAdapter {
@@ -421,5 +489,6 @@ export function getAdapter(url: string, doc: Document): BaseAdapter | null {
   if (url.includes('ncode.syosetu.com')) return new SyosetuAdapter(url, doc);
   if (url.includes('booktoki468.com')) return new BookTokiAdapter(url, doc);
   if (url.includes('suttacentral.net')) return new SuttaCentralAdapter(url, doc);
+  if (url.includes('hetushu.com')) return new HetushuAdapter(url, doc);
   return null;
 }

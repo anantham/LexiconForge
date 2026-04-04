@@ -41,6 +41,7 @@ const getExampleUrl = (domain: string): string => {
     'ncode.syosetu.com': 'https://ncode.syosetu.com/n1234ab/1/',
     'booktoki468.com': 'https://booktoki468.com/novel/3913764',
     'suttacentral.net': 'https://suttacentral.net/mn10/en/sujato',
+    'hetushu.com': 'https://hetushu.com/book/2991/2051039.html',
   };
   return examples[domain] || `https://${domain}/example-chapter-url`;
 };
