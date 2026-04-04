@@ -21,6 +21,7 @@ import { createImageSlice, type ImageSlice } from './slices/imageSlice';
 import { createExportSlice, type ExportSlice } from './slices/exportSlice';
 import { createJobsSlice, type JobsSlice } from './slices/jobsSlice';
 import { createAudioSlice, type AudioSlice } from './slices/audioSlice';
+import { createOscilloscopeSlice } from './slices/oscilloscopeSlice';
 import { createBootstrapActions } from './bootstrap';
 import type { AppState, SessionActions, StoreState } from './storeTypes';
 import '../services/imageMigrationService'; // Import for window exposure
@@ -38,6 +39,7 @@ export const useAppStore = create<StoreState>((set, get, store) => ({
   ...createExportSlice(set, get, store),
   ...createJobsSlice(set, get, store),
   ...createAudioSlice(set, get, store),
+  ...createOscilloscopeSlice(set, get, store),
 
   // Session provenance and version state
   sessionProvenance: null,
@@ -67,3 +69,4 @@ export type { TranslationsSlice } from './slices/translationsSlice';
 export type { ImageSlice } from './slices/imageSlice';
 export type { ExportSlice } from './slices/exportSlice';
 export type { JobsSlice } from './slices/jobsSlice';
+export type { OscilloscopeSlice } from '../types/oscilloscope';
