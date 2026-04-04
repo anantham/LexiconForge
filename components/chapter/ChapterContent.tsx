@@ -8,6 +8,8 @@ import type { AppSettings, Chapter, DiffMarkerVisibilitySettings } from '../../t
 import type { TokenizationResult } from './translationTokens';
 import type { UiDiffMarker } from './diffVisibility';
 import type { InlineEditState } from '../../hooks/useInlineTranslationEditor';
+import { clientTelemetry } from '../../services/clientTelemetry';
+import type { TelemetryErrorContext } from '../../types/telemetry';
 
 interface ChapterContentProps {
   chapter: Chapter | null;
@@ -36,6 +38,7 @@ interface ChapterContentProps {
   renderEnglishDiffs: boolean;
   showEnglishLoader: boolean;
   translationError?: string | null;
+  translationErrorTelemetry?: TelemetryErrorContext | null;
 }
 
 const ChapterContent: React.FC<ChapterContentProps> = ({
@@ -65,7 +68,37 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
   renderEnglishDiffs,
   showEnglishLoader,
   translationError,
+  translationErrorTelemetry,
 }) => {
+  React.useEffect(() => {
+    if (!translationError) {
+      return;
+    }
+
+    clientTelemetry.emit({
+      eventType: 'ui_error_rendered',
+      failureType: translationErrorTelemetry?.failureType ?? 'unknown',
+      surface: 'ui_render',
+      severity: translationErrorTelemetry?.expected ? 'warning' : 'error',
+      expected: translationErrorTelemetry?.expected ?? false,
+      userVisible: true,
+      provider: translationErrorTelemetry?.provider ?? settings.provider,
+      model: translationErrorTelemetry?.model ?? settings.model,
+      chapterId: translationErrorTelemetry?.chapterId ?? null,
+      errorMessage: translationError,
+      dedupeAll: true,
+    });
+  }, [
+    settings.model,
+    settings.provider,
+    translationError,
+    translationErrorTelemetry?.chapterId,
+    translationErrorTelemetry?.expected,
+    translationErrorTelemetry?.failureType,
+    translationErrorTelemetry?.model,
+    translationErrorTelemetry?.provider,
+  ]);
+
   if (isGlobalLoading) {
     return <Loader text="Fetching chapter raws..." />;
   }

@@ -10,14 +10,16 @@
  */
 
 import type { StateCreator } from 'zustand';
-import type { FeedbackItem, AmendmentProposal, HistoricalChapter, TranslationResult, Footnote } from '../../types';
+import type { AppSettings, FeedbackItem, AmendmentProposal, HistoricalChapter, TranslationResult, Footnote } from '../../types';
 import { ExplanationService } from '../../services/explanationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { TranslationOps, AmendmentOps } from '../../services/db/operations';
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
+import { clientTelemetry } from '../../services/clientTelemetry';
 import { debugLog, debugWarn } from '../../utils/debug';
+import type { TelemetryErrorContext, TelemetryFailureType, TranslationOrigin } from '../../types/telemetry';
 
 export interface TranslationsState {
   // Active translations
@@ -38,7 +40,7 @@ export interface TranslationsState {
 
 export interface TranslationsActions {
   // Translation operations
-  handleTranslate: (chapterId: string) => Promise<void>;
+  handleTranslate: (chapterId: string, origin?: TranslationOrigin) => Promise<void>;
   handleRetranslateCurrent: () => void;
   cancelTranslation: (chapterId: string) => void;
 
@@ -80,6 +82,53 @@ export interface TranslationsActions {
 
 export type TranslationsSlice = TranslationsState & TranslationsActions;
 
+const emitTranslationFailure = ({
+  chapterId,
+  origin,
+  provider,
+  model,
+  failureType,
+  errorMessage,
+  expected,
+}: {
+  chapterId: string;
+  origin: TranslationOrigin;
+  provider: AppSettings['provider'];
+  model: string;
+  failureType: Extract<
+    TelemetryFailureType,
+    'trial_limit' | 'missing_api_key' | 'timeout' | 'provider_malformed_response' | 'unknown'
+  >;
+  errorMessage: string;
+  expected: boolean;
+}): TelemetryErrorContext => {
+  const sourceEventType = failureType === 'trial_limit' ? 'known_limit_reached' : 'translation_failed';
+
+  clientTelemetry.emit({
+    eventType: sourceEventType,
+    failureType,
+    surface: origin,
+    severity: sourceEventType === 'known_limit_reached' || expected ? 'warning' : 'error',
+    expected,
+    userVisible: null,
+    provider,
+    model,
+    chapterId,
+    errorMessage,
+    dedupeCallback: !expected,
+  });
+
+  return {
+    sourceEventType,
+    failureType,
+    surface: origin,
+    expected,
+    provider,
+    model,
+    chapterId,
+  };
+};
+
 export const createTranslationsSlice: StateCreator<
   any,
   [],
@@ -94,7 +143,7 @@ export const createTranslationsSlice: StateCreator<
   translationProgress: {},
   
   // Translation operations
-  handleTranslate: async (chapterId) => {
+  handleTranslate: async (chapterId, origin = 'manual_translate') => {
     const state = get();
     if (state.pendingTranslations.has(chapterId)) {
       debugLog('translation', 'summary', '[Retranslate] Already translating, ignoring click', { chapterId });
@@ -118,10 +167,34 @@ export const createTranslationsSlice: StateCreator<
     const keyCheck = validateApiKey(context.settings);
     if (!keyCheck.isValid) {
       const uiActions = state as any;
+      const failureMessage = keyCheck.errorMessage || 'API key validation failed';
+      const failureType = keyCheck.failureType ?? 'unknown';
+      const telemetryContext = emitTranslationFailure({
+        chapterId,
+        origin,
+        provider: context.settings.provider,
+        model: context.settings.model,
+        failureType,
+        errorMessage: failureMessage,
+        expected: failureType === 'trial_limit' || failureType === 'missing_api_key',
+      });
+
+      set(prevState => ({
+        translationProgress: {
+          ...prevState.translationProgress,
+          [chapterId]: { status: 'failed', error: failureMessage }
+        }
+      }));
+
       if (uiActions.setError) {
-        uiActions.setError(keyCheck.errorMessage || 'API key validation failed');
+        uiActions.setError(failureMessage, telemetryContext);
       }
       return;
+    }
+
+    const uiActions = state as any;
+    if (uiActions.setError) {
+      uiActions.setError(null);
     }
 
     // Create abort controller for this translation
@@ -144,7 +217,6 @@ export const createTranslationsSlice: StateCreator<
     });
 
     // Update UI loading state
-    const uiActions = state as any;
     if (uiActions.setTranslatingState) {
       uiActions.setTranslatingState(true);
     }
@@ -242,6 +314,18 @@ export const createTranslationsSlice: StateCreator<
       }
       
       if (response?.error) {
+        const failureType = response.failureType ?? 'unknown';
+        const expected = response.expected ?? false;
+        const telemetryContext = emitTranslationFailure({
+          chapterId,
+          origin,
+          provider: context.settings.provider,
+          model: context.settings.model,
+          failureType,
+          errorMessage: response.error,
+          expected,
+        });
+
         set(prevState => ({
           translationProgress: {
             ...prevState.translationProgress,
@@ -250,20 +334,34 @@ export const createTranslationsSlice: StateCreator<
         }));
         
         if (uiActions.setError) {
-          uiActions.setError(response.error);
+          uiActions.setError(response.error, telemetryContext);
         }
         return;
       }
       
       const translationResult = response?.translationResult as TranslationResult | undefined;
       if (!translationResult) {
+        const failureMessage = 'Translation finished without a result.';
+        const telemetryContext = emitTranslationFailure({
+          chapterId,
+          origin,
+          provider: context.settings.provider,
+          model: context.settings.model,
+          failureType: 'unknown',
+          errorMessage: failureMessage,
+          expected: false,
+        });
+
         debugWarn('translation', 'summary', '[Translation] Missing translationResult payload from translateChapterSequential response', response);
         set(prevState => ({
           translationProgress: {
             ...prevState.translationProgress,
-            [chapterId]: { status: 'failed', error: 'Translation finished without a result.' }
+            [chapterId]: { status: 'failed', error: failureMessage }
           }
         }));
+        if (uiActions.setError) {
+          uiActions.setError(failureMessage, telemetryContext);
+        }
         return;
       }
       const relevantSettings = TranslationService.extractSettingsSnapshot(context.settings);
@@ -397,7 +495,7 @@ export const createTranslationsSlice: StateCreator<
   handleRetranslateCurrent: () => {
     const currentChapterId = (get() as any).currentChapterId;
     if (currentChapterId) {
-      get().handleTranslate(currentChapterId);
+      get().handleTranslate(currentChapterId, 'manual_translate');
     }
   },
   
@@ -804,7 +902,7 @@ export const createTranslationsSlice: StateCreator<
   
   retranslateChapters: async (chapterIds) => {
     for (const chapterId of chapterIds) {
-      await get().handleTranslate(chapterId);
+      await get().handleTranslate(chapterId, 'manual_translate');
     }
   },
 

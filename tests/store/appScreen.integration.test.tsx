@@ -19,7 +19,7 @@ type MockStoreState = {
   isLoading: { fetching: boolean; translating: boolean };
   settings: { provider: string; model: string; temperature: number };
   isTranslationActive: (chapterId: string) => boolean;
-  handleTranslate: (chapterId: string) => void;
+  handleTranslate: (chapterId: string, origin?: 'auto_translate' | 'manual_translate') => Promise<void> | void;
   handleFetch: (url: string) => Promise<string | undefined>;
   amendmentProposals: any[];
   acceptProposal: (index: number) => void;
@@ -37,6 +37,8 @@ type MockStoreState = {
   pendingTranslations: Set<string>;
   hasImagesInProgress: () => boolean;
   preloadNextChapters: () => void;
+  setError?: (message: string) => void;
+  showNotification?: (message: string, type?: string) => void;
 };
 
 let storeState: MockStoreState;
@@ -60,7 +62,7 @@ const resetStoreState = () => {
     isLoading: { fetching: false, translating: false },
     settings: { provider: 'Gemini', model: 'gemini-2.5-flash', temperature: 0.7 },
     isTranslationActive: vi.fn(() => false),
-    handleTranslate: vi.fn(),
+    handleTranslate: vi.fn().mockResolvedValue(undefined),
     handleFetch: vi.fn().mockResolvedValue(undefined),
     amendmentProposals: [],
     acceptProposal: vi.fn(),
@@ -78,6 +80,8 @@ const resetStoreState = () => {
     pendingTranslations: new Set<string>(),
     hasImagesInProgress: vi.fn(() => false),
     preloadNextChapters: vi.fn(),
+    setError: vi.fn(),
+    showNotification: vi.fn(),
   };
 };
 
@@ -198,5 +202,30 @@ describe('MainApp appScreen integration', () => {
     expect(screen.getByText('SessionInfoMock')).toBeInTheDocument();
     expect(screen.getByText('ChapterViewMock')).toBeInTheDocument();
     expect(screen.queryByText('LandingPageMock')).not.toBeInTheDocument();
+  });
+
+  it('does not auto-retry the same chapter after an unexpected auto-translate failure', async () => {
+    const chapter = createChapter();
+    storeState.chapters.set(chapter.id, chapter);
+    storeState.currentChapterId = chapter.id;
+    storeState.appScreen = 'reader';
+    storeState.handleTranslate = vi.fn().mockRejectedValue(new Error('network down'));
+
+    const MainApp = (await import('../../MainApp')).default;
+    const { rerender } = render(<MainApp />);
+
+    await waitFor(() => {
+      expect(storeState.handleTranslate).toHaveBeenCalledTimes(1);
+    });
+
+    storeState.chapters.delete(chapter.id);
+    rerender(<MainApp />);
+
+    storeState.chapters.set(chapter.id, chapter);
+    rerender(<MainApp />);
+
+    await waitFor(() => {
+      expect(storeState.handleTranslate).toHaveBeenCalledTimes(1);
+    });
   });
 });

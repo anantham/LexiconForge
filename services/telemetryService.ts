@@ -4,8 +4,19 @@
  * Captures unhandled errors, memory pressure warnings, and custom events
  * for debugging without external dependencies.
  */
+import { clientTelemetry } from './clientTelemetry';
 
 type TelemetryPayload = Record<string, unknown>;
+
+interface EarlyErrorRecord {
+  type: 'error' | 'unhandledrejection';
+  m?: string;
+  s?: string;
+  l?: number;
+  c?: number;
+  e?: unknown;
+  reason?: string;
+}
 
 interface PerformanceMemory {
   usedJSHeapSize: number;
@@ -38,6 +49,8 @@ interface WindowAugments {
   __APP_STORE__?: {
     getState?: () => StoreState;
   };
+  __earlyErrors?: EarlyErrorRecord[];
+  __earlyErrorsFlushed?: boolean;
   exportTelemetry?: () => string;
   telemetrySummary?: () => unknown;
 }
@@ -125,6 +138,7 @@ class TelemetryService {
     }
 
     this.setupGlobalHandlers();
+    this.flushEarlyErrors();
     this.setupMemoryMonitoring();
     this.isInitialized = true;
 
@@ -139,11 +153,34 @@ class TelemetryService {
         colno: event.colno,
       };
       this.captureError('uncaught', event.error ?? event.message, context);
+      clientTelemetry.emit({
+        eventType: 'client_uncaught_error',
+        failureType: 'uncaught_exception',
+        surface: 'global',
+        severity: 'critical',
+        expected: false,
+        userVisible: null,
+        error: event.error ?? event.message,
+        errorMessage: typeof event.message === 'string' ? event.message : undefined,
+        dedupeAll: true,
+        dedupeCallback: true,
+      });
     };
 
     this.rejectionHandler = (event: PromiseRejectionEvent) => {
       this.captureError('unhandledRejection', event.reason, {
         promise: String(event.promise),
+      });
+      clientTelemetry.emit({
+        eventType: 'client_unhandled_rejection',
+        failureType: 'unhandled_rejection',
+        surface: 'global',
+        severity: 'critical',
+        expected: false,
+        userVisible: null,
+        error: event.reason,
+        dedupeAll: true,
+        dedupeCallback: true,
       });
     };
 
@@ -180,6 +217,55 @@ class TelemetryService {
         console.warn('[Telemetry] Memory check failed:', error);
       }
     }, 30000);
+  }
+
+  private flushEarlyErrors() {
+    const browserWindow = typeof window !== 'undefined' ? (window as Window & WindowAugments) : undefined;
+    if (!browserWindow || browserWindow.__earlyErrorsFlushed) {
+      return;
+    }
+
+    const earlyErrors = [...(browserWindow.__earlyErrors ?? [])];
+    browserWindow.__earlyErrorsFlushed = true;
+    browserWindow.__earlyErrors = [];
+
+    for (const record of earlyErrors) {
+      if (record.type === 'unhandledrejection') {
+        this.captureError('earlyUnhandledRejection', record.reason ?? 'Unknown early rejection');
+        clientTelemetry.emit({
+          eventType: 'client_unhandled_rejection',
+          failureType: 'unhandled_rejection',
+          surface: 'global',
+          severity: 'critical',
+          expected: false,
+          userVisible: null,
+          error: record.reason ?? 'Unknown early rejection',
+          route: 'bootstrap',
+          dedupeAll: true,
+          dedupeCallback: true,
+        });
+        continue;
+      }
+
+      this.captureError('earlyUncaught', record.e ?? record.m ?? 'Unknown early error', {
+        filename: record.s,
+        lineno: record.l,
+        colno: record.c,
+      });
+      clientTelemetry.emit({
+        eventType: 'client_uncaught_error',
+        failureType: 'uncaught_exception',
+        surface: 'global',
+        severity: 'critical',
+        expected: false,
+        userVisible: null,
+        error: record.e ?? record.m ?? 'Unknown early error',
+        errorMessage: record.m,
+        route: 'bootstrap',
+        dedupeAll: true,
+        dedupeCallback: true,
+      });
+    }
   }
 
   /**

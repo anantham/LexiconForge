@@ -1,10 +1,20 @@
 import React, { createRef } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import ChapterContent from '../../../components/chapter/ChapterContent';
 import type { AppSettings, Chapter } from '../../../types';
 import type { TokenizationResult } from '../../../components/chapter/translationTokens';
 import type { DiffMarkerVisibilitySettings } from '../../../types';
+
+const { emitTelemetry } = vi.hoisted(() => ({
+  emitTelemetry: vi.fn(),
+}));
+
+vi.mock('../../../services/clientTelemetry', () => ({
+  clientTelemetry: {
+    emit: emitTelemetry,
+  },
+}));
 
 const baseSettings: AppSettings = {
   contextDepth: 1,
@@ -79,6 +89,10 @@ const createProps = (overrides: Partial<React.ComponentProps<typeof ChapterConte
 });
 
 describe('ChapterContent', () => {
+  beforeEach(() => {
+    emitTelemetry.mockReset();
+  });
+
   it('shows global loader when fetching', () => {
     render(<ChapterContent {...createProps({ isGlobalLoading: true })} />);
     expect(screen.getByText(/Fetching chapter raws/i)).toBeInTheDocument();
@@ -92,6 +106,37 @@ describe('ChapterContent', () => {
   it('shows english translation loader when requested', () => {
     render(<ChapterContent {...createProps({ showEnglishLoader: true })} />);
     expect(screen.getByText(/Translating with/)).toBeInTheDocument();
+  });
+
+  it('shows the inline translation error instead of the loader when both are present', () => {
+    render(
+      <ChapterContent
+        {...createProps({
+          showEnglishLoader: true,
+          translationError: 'Daily limit reached',
+          translationErrorTelemetry: {
+            failureType: 'trial_limit',
+            surface: 'auto_translate',
+            expected: true,
+            provider: 'OpenRouter',
+            model: 'openrouter/auto',
+            chapterId: 'chapter-1',
+          },
+        })}
+      />
+    );
+
+    expect(screen.getByText('Translation Failed')).toBeInTheDocument();
+    expect(screen.getByText('Daily limit reached')).toBeInTheDocument();
+    expect(screen.queryByText(/Translating with/)).not.toBeInTheDocument();
+    expect(emitTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'ui_error_rendered',
+        failureType: 'trial_limit',
+        surface: 'ui_render',
+        userVisible: true,
+      })
+    );
   });
 
   it('shows cache loader when hydrating and not translating', () => {

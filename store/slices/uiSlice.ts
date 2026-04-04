@@ -11,6 +11,7 @@
 
 import type { StateCreator } from 'zustand';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
+import type { TelemetryErrorContext } from '../../types/telemetry';
 
 export type AppScreen = 'library' | 'reader-loading' | 'reader';
 
@@ -36,6 +37,7 @@ export interface UiState {
   
   // Error and feedback
   error: string | null;
+  errorTelemetry: TelemetryErrorContext | null;
   notification: {
     message: string;
     type: 'success' | 'error' | 'info' | 'warning';
@@ -75,7 +77,7 @@ export interface UiActions {
   setHydratingState: (chapterId: string, hydrating: boolean) => void;
   
   // Error and notification actions
-  setError: (error: string | null) => void;
+  setError: (error: string | null, telemetry?: TelemetryErrorContext | null) => void;
   showNotification: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
   clearNotification: () => void;
   
@@ -127,6 +129,7 @@ export const createUiSlice: StateCreator<
   showDebugModal: false,
   isLoading: { fetching: false, translating: false },
   error: null,
+  errorTelemetry: null,
   notification: null,
   urlLoadingStates: {},
   hydratingChapters: {},
@@ -234,12 +237,15 @@ export const createUiSlice: StateCreator<
   }),
   
   // Error and notification actions
-  setError: (error) => {
+  setError: (error, telemetry = null) => {
     if (error) {
       console.error("An error was set in the store:", error);
       console.trace("setError stack trace");
     }
-    set({ error });
+    set({
+      error,
+      errorTelemetry: error ? telemetry : null,
+    });
   },
   
   showNotification: (message, type = 'info') => set({
