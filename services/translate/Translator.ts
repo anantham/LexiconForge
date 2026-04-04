@@ -1,4 +1,11 @@
-import type { AppSettings, HistoricalChapter, TranslationResult, Footnote, SuggestedIllustration } from '../../types';
+import type {
+  AppSettings,
+  HistoricalChapter,
+  TranslationResult,
+  Footnote,
+  SuggestedIllustration,
+  TranslationProvider as TranslationProviderName,
+} from '../../types';
 import { sanitizeHtml } from './HtmlSanitizer';
 import { debugLog, debugWarn } from '../../utils/debug';
 
@@ -233,6 +240,14 @@ export class Translator {
    */
   private mergeChunkResults(results: TranslationResult[], chunkCount: number): TranslationResult {
     const first = results[0];
+    const mergedProvider =
+      first.usageMetrics?.provider ??
+      (first.provider as TranslationProviderName | undefined) ??
+      (first.translationSettings?.provider as TranslationProviderName | undefined);
+
+    if (!mergedProvider) {
+      throw new Error('Chunked translation result missing provider metadata.');
+    }
 
     // Stitch translations with a scene break between chunks
     const mergedTranslation = results.map(r => r.translation).join('<br><br>');
@@ -270,7 +285,7 @@ export class Translator {
       totalTokens: results.reduce((s, r) => s + (r.usageMetrics?.totalTokens || 0), 0),
       estimatedCost: results.reduce((s, r) => s + (r.usageMetrics?.estimatedCost || 0), 0),
       requestTime: results.reduce((s, r) => s + (r.usageMetrics?.requestTime || 0), 0),
-      provider: first.usageMetrics?.provider || 'unknown',
+      provider: mergedProvider,
       model: first.usageMetrics?.model || 'unknown',
     };
 
@@ -291,9 +306,9 @@ export class Translator {
       amendments,
       costUsd: results.reduce((s, r) => s + (r.costUsd || 0), 0),
       tokensUsed: {
-        prompt: totalUsage.promptTokens,
-        completion: totalUsage.completionTokens,
-        total: totalUsage.totalTokens,
+        promptTokens: totalUsage.promptTokens,
+        completionTokens: totalUsage.completionTokens,
+        totalTokens: totalUsage.totalTokens,
       },
       model: first.model,
       provider: first.provider,

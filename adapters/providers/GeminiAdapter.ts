@@ -8,8 +8,8 @@ import { apiMetricsService } from '../../services/apiMetricsService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
-import { getTranslationResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
-import { getEffectiveSystemPrompt } from '../../utils/promptUtils';
+import { getTranslationOnlyResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
+import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 
 // Placeholder replacement utility
 const replacePlaceholders = (template: string, settings: AppSettings): string => {
@@ -88,9 +88,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     let result: GenerateContentResult;
 
     try {
-      // Get conditional schema based on enableAmendments setting
-      const enableAmendments = settings.enableAmendments ?? true;
-      const schema = getTranslationResponseGeminiSchema(enableAmendments);
+      const schema = getTranslationOnlyResponseGeminiSchema();
 
       // Make API call
       result = await model.generateContent({
@@ -237,9 +235,8 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     history: HistoricalChapter[],
     fanTranslation?: string | null
   ): string {
-    // Get effective system prompt (strips Part A if amendments disabled)
-    const enableAmendments = settings.enableAmendments ?? true;
-    let systemPrompt = getEffectiveSystemPrompt(settings.systemPrompt, enableAmendments);
+    // Translation runs without the amendment protocol; proposals are generated separately.
+    let systemPrompt = getTranslationSystemPrompt(settings.systemPrompt);
     systemPrompt = replacePlaceholders(systemPrompt, settings);
 
     if (!systemPrompt) {

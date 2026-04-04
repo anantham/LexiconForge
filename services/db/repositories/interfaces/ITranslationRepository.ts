@@ -2,7 +2,15 @@ import type { AppSettings, TranslationResult } from '../../../../types';
 import type { TranslationRecord } from '../../types';
 
 export interface TranslationSettingsSnapshot
-  extends Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> {
+  extends Pick<
+    AppSettings,
+    | 'provider'
+    | 'model'
+    | 'temperature'
+    | 'systemPrompt'
+    | 'enableAmendments'
+    | 'includeFanTranslationInPrompt'
+  > {
   promptId?: string;
   promptName?: string;
 }

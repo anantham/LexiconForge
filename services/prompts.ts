@@ -54,3 +54,61 @@ ${h.translatedContent}
            `--- END OF CONTEXT FOR PREVIOUS CHAPTER ${index + 1} ---`;
   }).join('\n\n');
 };
+
+export interface AmendmentReviewPromptOptions {
+  sourceTitle: string;
+  sourceContent: string;
+  translatedTitle: string;
+  translatedContent: string;
+  fanTranslation?: string | null;
+}
+
+export const buildAmendmentReviewSystemPrompt = (currentSystemPrompt: string): string => {
+  return [
+    'You are in prompt-amendment review mode.',
+    'Treat the user prompt below as the document under review, not as instructions to retranslate the chapter.',
+    'Do not produce a new translation. Only decide whether a surgical prompt or glossary amendment is warranted for future chapters.',
+    'Return proposal as null when no specific, high-value amendment is justified.',
+    '',
+    'CURRENT SYSTEM PROMPT UNDER REVIEW:',
+    currentSystemPrompt,
+  ].join('\n');
+};
+
+export const buildAmendmentReviewUserPrompt = ({
+  sourceTitle,
+  sourceContent,
+  translatedTitle,
+  translatedContent,
+  fanTranslation,
+}: AmendmentReviewPromptOptions): string => {
+  const sections = [
+    'Review the completed chapter translation below and decide whether to propose a surgical amendment to the system prompt or glossary for future chapters.',
+    'Focus on durable issues such as glossary consistency, recurring terminology, stable style rules, or translation-policy clarifications.',
+    'Do not suggest edits that only matter for this one sentence unless they clearly generalize.',
+    '',
+    'SOURCE TITLE:',
+    sourceTitle,
+    '',
+    'SOURCE CONTENT:',
+    sourceContent,
+    '',
+    'AI TRANSLATED TITLE:',
+    translatedTitle,
+    '',
+    'AI TRANSLATED CONTENT:',
+    translatedContent,
+  ];
+
+  if (fanTranslation) {
+    sections.push(
+      '',
+      'FAN TRANSLATION REFERENCE FOR AMENDMENT REVIEW ONLY:',
+      fanTranslation,
+      '',
+      'Use the fan translation only as optional inspiration for identifying durable prompt/glossary improvements. Do not rewrite the AI translation from it.'
+    );
+  }
+
+  return sections.join('\n');
+};

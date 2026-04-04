@@ -197,6 +197,8 @@ export type TranslationSettingsSnapshot = Partial<Pick<
   | 'seed'
   | 'contextDepth'
   | 'systemPrompt'
+  | 'enableAmendments'
+  | 'includeFanTranslationInPrompt'
 >> & {
   promptId?: string;
   promptName?: string;

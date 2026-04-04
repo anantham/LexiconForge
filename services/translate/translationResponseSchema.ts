@@ -7,7 +7,20 @@ import type { AppSettings } from '../../types';
  * Canonical translation response schema used for providers that support
  * structured JSON outputs (OpenAI-compatible JSON schema format).
  */
-export const translationResponseJsonSchema = {
+const proposalProperty = {
+  type: ['object', 'null'],
+  description: '' + prompts.proposalDescription,
+  properties: {
+    observation: { type: 'string', description: '' + prompts.proposalObservationDescription },
+    currentRule: { type: 'string', description: '' + prompts.proposalCurrentRuleDescription },
+    proposedChange: { type: 'string', description: '' + prompts.proposalProposedChangeDescription },
+    reasoning: { type: 'string', description: '' + prompts.proposalReasoningDescription }
+  },
+  required: ['observation', 'currentRule', 'proposedChange', 'reasoning'],
+  additionalProperties: false
+} as const;
+
+export const translationOnlyResponseJsonSchema = {
   type: 'object',
   properties: {
     translatedTitle: {
@@ -49,29 +62,35 @@ export const translationResponseJsonSchema = {
         required: ['placementMarker', 'imagePrompt'],
         additionalProperties: false
       }
-    },
-    proposal: {
-      type: ['object', 'null'],
-      description: '' + prompts.proposalDescription,
-      properties: {
-        observation: { type: 'string', description: '' + prompts.proposalObservationDescription },
-        currentRule: { type: 'string', description: '' + prompts.proposalCurrentRuleDescription },
-        proposedChange: { type: 'string', description: '' + prompts.proposalProposedChangeDescription },
-        reasoning: { type: 'string', description: '' + prompts.proposalReasoningDescription }
-      },
-      required: ['observation', 'currentRule', 'proposedChange', 'reasoning'],
-      additionalProperties: false
     }
   },
-  required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations', 'proposal'],
+  required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations'],
   additionalProperties: false
+};
+
+export const proposalResponseJsonSchema = {
+  type: 'object',
+  properties: {
+    proposal: proposalProperty,
+  },
+  required: ['proposal'],
+  additionalProperties: false,
+};
+
+export const translationResponseJsonSchema = {
+  ...translationOnlyResponseJsonSchema,
+  properties: {
+    ...translationOnlyResponseJsonSchema.properties,
+    proposal: proposalProperty,
+  },
+  required: [...translationOnlyResponseJsonSchema.required, 'proposal'],
 };
 
 /**
  * Gemini-compatible representation of the translation response schema.
  * Mirrors the JSON schema above using the Gemini Schema DSL.
  */
-export const translationResponseGeminiSchema: Schema = {
+export const translationOnlyResponseGeminiSchema: Schema = {
   type: SchemaType.OBJECT,
   properties: {
     translatedTitle: {
@@ -113,21 +132,39 @@ export const translationResponseGeminiSchema: Schema = {
         },
         required: ['placementMarker', 'imagePrompt']
       }
-    },
-    proposal: {
-      type: SchemaType.OBJECT,
-      nullable: true,
-      description: '' + prompts.proposalDescription,
-      properties: {
-        observation: { type: SchemaType.STRING, description: '' + prompts.proposalObservationDescription },
-        currentRule: { type: SchemaType.STRING, description: '' + prompts.proposalCurrentRuleDescription },
-        proposedChange: { type: SchemaType.STRING, description: '' + prompts.proposalProposedChangeDescription },
-        reasoning: { type: SchemaType.STRING, description: '' + prompts.proposalReasoningDescription }
-      },
-      required: ['observation', 'currentRule', 'proposedChange', 'reasoning']
     }
   },
-  required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations', 'proposal']
+  required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations']
+};
+
+const proposalGeminiProperty: Schema = {
+  type: SchemaType.OBJECT,
+  nullable: true,
+  description: '' + prompts.proposalDescription,
+  properties: {
+    observation: { type: SchemaType.STRING, description: '' + prompts.proposalObservationDescription },
+    currentRule: { type: SchemaType.STRING, description: '' + prompts.proposalCurrentRuleDescription },
+    proposedChange: { type: SchemaType.STRING, description: '' + prompts.proposalProposedChangeDescription },
+    reasoning: { type: SchemaType.STRING, description: '' + prompts.proposalReasoningDescription }
+  },
+  required: ['observation', 'currentRule', 'proposedChange', 'reasoning']
+};
+
+export const proposalResponseGeminiSchema: Schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    proposal: proposalGeminiProperty,
+  },
+  required: ['proposal'],
+};
+
+export const translationResponseGeminiSchema: Schema = {
+  ...(translationOnlyResponseGeminiSchema as GeminiObjectSchema),
+  properties: {
+    ...((translationOnlyResponseGeminiSchema as GeminiObjectSchema).properties || {}),
+    proposal: proposalGeminiProperty,
+  },
+  required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations', 'proposal'],
 };
 
 /**
@@ -136,13 +173,7 @@ export const translationResponseGeminiSchema: Schema = {
  */
 export function getTranslationResponseJsonSchema(enableAmendments: boolean = false) {
   if (!enableAmendments) {
-    // Return schema without proposal in required fields
-    const { proposal, ...propsWithoutProposal } = translationResponseJsonSchema.properties;
-    return {
-      ...translationResponseJsonSchema,
-      properties: propsWithoutProposal,
-      required: ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations']
-    };
+    return translationOnlyResponseJsonSchema;
   }
   return translationResponseJsonSchema;
 }
@@ -159,16 +190,23 @@ type GeminiObjectSchema = Schema & {
 
 export function getTranslationResponseGeminiSchema(enableAmendments: boolean = false): Schema {
   if (!enableAmendments) {
-    const clone = JSON.parse(JSON.stringify(translationResponseGeminiSchema)) as Schema;
-    if (clone.type === SchemaType.OBJECT) {
-      const objectClone = clone as GeminiObjectSchema;
-      const props = { ...(objectClone.properties || {}) };
-      delete props.proposal;
-      objectClone.properties = props;
-      objectClone.required = ['translatedTitle', 'translation', 'footnotes', 'suggestedIllustrations'];
-      return objectClone;
-    }
-    return clone;
+    return translationOnlyResponseGeminiSchema;
   }
   return translationResponseGeminiSchema;
+}
+
+export function getProposalResponseJsonSchema() {
+  return proposalResponseJsonSchema;
+}
+
+export function getProposalResponseGeminiSchema(): Schema {
+  return proposalResponseGeminiSchema;
+}
+
+export function getTranslationOnlyResponseJsonSchema() {
+  return translationOnlyResponseJsonSchema;
+}
+
+export function getTranslationOnlyResponseGeminiSchema(): Schema {
+  return translationOnlyResponseGeminiSchema;
 }
