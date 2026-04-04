@@ -26,6 +26,36 @@ const numberFromTitle = (s?: string): number | undefined => {
   return m ? parseInt(m[1], 10) : undefined;
 };
 
+/**
+ * Returns true if the title already begins with "Chapter N" or "Ch N"
+ * (case-insensitive), so we don't prepend a redundant "Ch N: " prefix.
+ */
+const titleAlreadyStartsWithNumber = (title: string, chapterNumber: number): boolean => {
+  const escapedNumber = String(chapterNumber).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^\\s*(?:Ch(?:apter)?\\.?\\s*)${escapedNumber}(?:\\b|\\s*[:\\-–—])`, 'i');
+  return pattern.test(title);
+};
+
+/**
+ * Builds the display label for a chapter in the dropdown.
+ * If the title already starts with a chapter number reference, returns the title
+ * as-is to avoid duplication like "Ch 5: Chapter 5: The Title".
+ */
+export const buildChapterDisplayLabel = (
+  title: string,
+  displayNumber: number | null
+): string => {
+  if (displayNumber === null || displayNumber <= 0) {
+    return title;
+  }
+
+  if (titleAlreadyStartsWithNumber(title, displayNumber)) {
+    return title;
+  }
+
+  return `Ch ${displayNumber}: ${title}`;
+};
+
 const getTimestamp = () =>
   typeof performance !== 'undefined' && typeof performance.now === 'function'
     ? performance.now()
@@ -125,10 +155,8 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
           const dbNum = summary.chapterNumber as number | undefined;
           const displayNumber = titleNum ?? dbNum ?? null;
 
-          const numPrefix =
-            displayNumber !== null && displayNumber > 0 ? `Ch ${displayNumber}: ` : '';
           const title = summary.translatedTitle || summary.title || 'Untitled Chapter';
-          const displayLabel = `${numPrefix}${title}`;
+          const displayLabel = buildChapterDisplayLabel(title, displayNumber);
 
           return {
             ...summary,

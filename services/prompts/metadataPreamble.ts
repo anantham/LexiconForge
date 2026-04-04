@@ -1,10 +1,6 @@
-import type { AppSettings } from '../../types';
+import type { AppSettings, GlossaryEntry } from '../../types';
 
-export interface GlossaryEntry {
-  source: string;
-  target: string;
-  note?: string;
-}
+export type { GlossaryEntry };
 
 export interface MetadataPreamble {
   projectName?: string | null;
@@ -84,7 +80,7 @@ export const buildPreambleFromSettings = (
     footnotePolicy: overrides.footnotePolicy ?? null,
     chapterTitle: overrides.chapterTitle ?? null,
     tags: overrides.tags ?? null,
-    glossary: overrides.glossary ?? null,
+    glossary: overrides.glossary ?? settings.glossary ?? null,
   };
 
   return buildMetadataPreamble(meta);

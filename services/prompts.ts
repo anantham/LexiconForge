@@ -37,6 +37,7 @@ export const formatHistory = (history: HistoricalChapter[]): string => {
            `${prompts.historyOriginalHeader}\n` +
            `TITLE: ${h.originalTitle}\n` +
            `CONTENT:\n${h.originalContent}\n\n` +
+           `${h.fanTranslationReference ? `FAN TRANSLATION REFERENCE FOR THIS PREVIOUS CHAPTER:\n${h.fanTranslationReference}\n\n` : ''}` +
            `${prompts.historyPreviousHeader}\n` +
            `TITLE: ${h.translatedTitle}\n` +
            `CONTENT:

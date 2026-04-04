@@ -65,4 +65,56 @@ describe('metadataPreamble', () => {
     expect(text).toContain('Korean → English');
     expect(text).toContain('| 테스트 | test |');
   });
+
+  it('picks up glossary from settings when no override given', () => {
+    const text = buildPreambleFromSettings({
+      provider: 'Gemini',
+      model: 'gpt',
+      temperature: 0.7,
+      contextDepth: 2,
+      preloadCount: 0,
+      fontSize: 16,
+      fontStyle: 'serif',
+      lineHeight: 1.6,
+      systemPrompt: 'x',
+      imageModel: 'none',
+      showDiffHeatmap: false,
+      maxSessionSize: 10,
+      targetLanguage: 'English',
+      glossary: [
+        { source: '灵气', target: 'Essence Energy', note: 'FMoC-specific' },
+        { source: '丹田', target: 'dantian' },
+      ],
+    } as any);
+
+    expect(text).toContain('| 灵气 | Essence Energy | FMoC-specific |');
+    expect(text).toContain('| 丹田 | dantian |');
+  });
+
+  it('override glossary takes precedence over settings glossary', () => {
+    const text = buildPreambleFromSettings(
+      {
+        provider: 'Gemini',
+        model: 'gpt',
+        temperature: 0.7,
+        contextDepth: 2,
+        preloadCount: 0,
+        fontSize: 16,
+        fontStyle: 'serif',
+        lineHeight: 1.6,
+        systemPrompt: 'x',
+        imageModel: 'none',
+        showDiffHeatmap: false,
+        maxSessionSize: 10,
+        targetLanguage: 'English',
+        glossary: [{ source: '灵气', target: 'Essence Energy' }],
+      } as any,
+      {
+        glossary: [{ source: '灵气', target: 'Spiritual Energy' }],
+      }
+    );
+
+    expect(text).toContain('| 灵气 | Spiritual Energy |');
+    expect(text).not.toContain('Essence Energy');
+  });
 });

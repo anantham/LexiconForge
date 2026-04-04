@@ -48,6 +48,12 @@ export abstract class BaseAdapter {
   abstract getPrevLink(): string | null;
 }
 
+export interface GlossaryEntry {
+  source: string;
+  target: string;
+  note?: string;
+}
+
 export interface FeedbackItem {
   id: string;
   text: string;
@@ -223,6 +229,7 @@ export type TranslationSettingsSnapshot = Partial<Pick<
   | 'systemPrompt'
   | 'enableAmendments'
   | 'includeFanTranslationInPrompt'
+  | 'includeHistoricalFanTranslationsInContext'
 >> & {
   promptId?: string;
   promptName?: string;
@@ -261,6 +268,8 @@ export interface HistoricalChapter {
   originalContent: string;
   translatedTitle: string;
   translatedContent: string;
+  /** Fan translation from a previous chapter, included when includeHistoricalFanTranslationsInContext is enabled */
+  fanTranslationReference?: string | null;
   footnotes: Footnote[];
   feedback: FeedbackItem[];
 }
@@ -335,6 +344,7 @@ export interface AppSettings {
     enableHtmlRepair?: boolean;               // Enable graceful HTML formatting repairs
     enableAmendments?: boolean;               // Enable prompt amendment proposals from AI
     includeFanTranslationInPrompt?: boolean;  // Include fan translation as reference in API calls
+    includeHistoricalFanTranslationsInContext?: boolean; // Include prior chapters' fan translations in context windows
     // Diff heatmap display
     showDiffHeatmap?: boolean;                // Show semantic diff markers in gutter (default: true)
     diffMarkerVisibility?: DiffMarkerVisibilitySettings;
@@ -348,6 +358,8 @@ export interface AppSettings {
     // Prompt snapshot metadata
     promptId?: string;
     promptName?: string;
+    // Merged glossary entries (user → genre → book layers)
+    glossary?: GlossaryEntry[];
 }
 
 export interface DiffMarkerVisibilitySettings {

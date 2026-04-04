@@ -265,6 +265,7 @@ const AdvancedPanel: React.FC = () => {
           presencePenalty={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
           enableAmendments={(currentSettings as any).enableAmendments ?? true}
           includeFanTranslationInPrompt={(currentSettings as any).includeFanTranslationInPrompt ?? false}
+          includeHistoricalFanTranslationsInContext={(currentSettings as any).includeHistoricalFanTranslationsInContext ?? false}
           parameterSupport={currentParameterSupport}
           onTemperatureChange={(value) => handleSettingChange('temperature', value)}
           onTopPChange={(value) => handleSettingChange('topP', value)}
@@ -273,6 +274,7 @@ const AdvancedPanel: React.FC = () => {
           onPresencePenaltyChange={(value) => handleSettingChange('presencePenalty', value)}
           onEnableAmendmentsChange={(value) => handleSettingChange('enableAmendments' as any, value)}
           onIncludeFanTranslationChange={(value) => handleSettingChange('includeFanTranslationInPrompt' as any, value)}
+          onIncludeHistoricalFanTranslationsChange={(value) => handleSettingChange('includeHistoricalFanTranslationsInContext' as any, value)}
         />
 
         <StorageDiagnosticsSection
