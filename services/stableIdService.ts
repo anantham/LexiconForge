@@ -9,6 +9,7 @@
 
 import { Chapter, TranslationResult, AppSettings, FeedbackItem, ImportedChapter } from '../types';
 import { debugLog } from '../utils/debug';
+import { buildScopedStableId } from './libraryScope';
 
 /**
  * Generates a stable chapter ID based on content characteristics
@@ -47,6 +48,8 @@ export const generateStableChapterId = (
  */
 export interface EnhancedChapter extends Chapter {
   id: string;              // Stable chapter ID for React keys
+  novelId: string | null;  // Canonical library novel ID; null for ephemeral imports
+  libraryVersionId: string | null; // Canonical library version ID; null for ephemeral imports/default version
   canonicalUrl: string;    // Single normalized URL
   sourceUrls: string[];    // All URL variants that point to this chapter
   importSource?: {         // Import metadata
@@ -113,7 +116,10 @@ export interface NovelInfo {
 /**
  * Extracts novel information from chapter data
  */
-export const extractNovelInfo = (chapters: ImportedChapter[]): NovelInfo => {
+export const extractNovelInfo = (
+  chapters: ImportedChapter[],
+  registryNovelId: string | null = null
+): NovelInfo => {
   if (chapters.length === 0) {
     throw new Error('No chapters provided for novel info extraction');
   }
@@ -127,6 +133,15 @@ export const extractNovelInfo = (chapters: ImportedChapter[]): NovelInfo => {
   }
   
   try {
+    if (registryNovelId) {
+      return {
+        id: registryNovelId,
+        title: chapters[0].title?.split('-')[0]?.trim(),
+        source: 'library',
+        chapterCount: chapters.length,
+      };
+    }
+
     const urlObj = new URL(firstUrl);
     const domain = urlObj.hostname;
     
@@ -180,11 +195,19 @@ export const transformImportedChapters = (
   const chapters = new Map<string, EnhancedChapter>();
   const urlIndex = new Map<string, string>();
   const rawUrlIndex = new Map<string, string>();
+  const registryNovelId =
+    typeof _importMetadata?.registryNovelId === 'string'
+      ? (_importMetadata.registryNovelId as string)
+      : null;
+  const libraryVersionId =
+    typeof _importMetadata?.libraryVersionId === 'string'
+      ? (_importMetadata.libraryVersionId as string)
+      : null;
   
   const assignedNumbers: number[] = [];
 
   // Extract novel information
-  const novelInfo = extractNovelInfo(importedChapters);
+  const novelInfo = extractNovelInfo(importedChapters, registryNovelId);
   novels.set(novelInfo.id, novelInfo);
   
   // Process each chapter
@@ -206,11 +229,15 @@ export const transformImportedChapters = (
     assignedNumbers[index] = assignedChapterNumber;
 
     // Generate stable chapter ID
-    const stableId = generateStableChapterId(
+    const baseStableId = generateStableChapterId(
       rawChapter.originalContent || '',
       assignedChapterNumber,
       rawChapter.title || 'Untitled'
     );
+    const stableId =
+      registryNovelId
+        ? buildScopedStableId(baseStableId, registryNovelId, libraryVersionId)
+        : baseStableId;
 
     // Collect all URL variants for this chapter
     const sourceUrls = [originalUrl];
@@ -223,6 +250,8 @@ export const transformImportedChapters = (
     // Create enhanced chapter
     const enhancedChapter: EnhancedChapter = {
       id: stableId,
+      novelId: registryNovelId,
+      libraryVersionId,
       title: rawChapter.title || 'Untitled Chapter',
       content: rawChapter.originalContent || '',
       originalUrl: canonicalUrl, // Use canonical URL

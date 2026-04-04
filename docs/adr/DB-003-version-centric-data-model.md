@@ -1,9 +1,15 @@
 # DB-003: Version-Centric Data Model with Cascade Delete Strategy
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Implemented (2026-03-05)
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition), DB-002 (Transaction Boundaries)
+
+## Implementation Notes (2026-03-05)
+Version-centric model implemented with `translation_id` as the stable anchor for all
+version-dependent data (feedback, images, footnotes). Cascade delete semantics enforced
+in `services/db/operations/translations.ts`. Data invariants I1-I7 documented in this ADR
+are checked by `services/db/maintenanceService.ts`.
 
 ## Context
 

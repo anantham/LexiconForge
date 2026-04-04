@@ -4,7 +4,8 @@
  *
  * A unified tool for merging translations from multiple sources:
  * - EPUB files (84000, academic translations)
- * - TXT directories (fan translations)
+ * - TXT directories and monolithic TXT files
+ * - PDF files
  * - Polyglotta JSON (scraped parallel texts)
  * - Existing LexiconForge session JSON
  *
@@ -29,9 +30,6 @@ import * as path from 'path';
 
 import {
   findAdapter,
-  EpubAdapter,
-  TxtDirectoryAdapter,
-  PolyglottaJsonAdapter,
   type TranslationSourceOutput,
   type TranslatorMetadata,
   type PolyglotDocument,
@@ -375,7 +373,9 @@ Options:
 
 Supported Source Types:
   .epub           EPUB files (84000, academic translations)
+  .txt            Monolithic TXT file with numbered chapter headings
   directory/      Directories containing .txt files (fan translations)
+  .pdf            PDF with numbered English chapter headings
   .json           Polyglotta scrape JSON or LexiconForge session
 
 Examples:
@@ -447,7 +447,7 @@ async function main(): Promise<void> {
 
     if (!adapter) {
       console.error(`❌ No adapter found for: ${sourcePath}`);
-      console.error(`   Supported: .epub, .json (Polyglotta), or directory with .txt files`);
+      console.error(`   Supported: .epub, .txt, .pdf, .json (Polyglotta), or directory with .txt files`);
       process.exit(1);
     }
 

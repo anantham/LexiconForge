@@ -255,13 +255,8 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
 
   // Worker management
   initializeWorkers: () => {
-    // Workers are not implemented yet - this is a placeholder for future functionality
+    // Placeholder — worker pool not yet needed (translation runs in main thread)
     debugLog('worker', 'summary', '[Jobs] Worker initialization is not yet implemented');
-    
-    // TODO: Implement workers when needed
-    // - Translation worker for background translation jobs
-    // - EPUB worker for background EPUB generation
-    // - Image worker for background image generation
   },
 
   terminateWorkers: () => {
@@ -279,17 +274,14 @@ export const createJobsSlice: StateCreator<JobsSlice> = (set, get) => ({
   // Worker communication (private methods) - Placeholder implementations
   startWorkerJob: (job: Job) => {
     debugLog('worker', 'summary', `[Jobs] Starting job ${job.id} - workers not yet implemented`);
-    // TODO: Implement actual worker communication when workers are available
   },
 
   cancelWorkerJob: (job: Job) => {
     debugLog('worker', 'summary', `[Jobs] Cancelling job ${job.id} - workers not yet implemented`);
-    // TODO: Implement actual worker cancellation when workers are available
   },
 
   handleWorkerMessage: (event: MessageEvent, workerType: 'translation' | 'epub') => {
     debugLog('worker', 'summary', `[Jobs] Received message from ${workerType} worker - not yet implemented`);
-    // TODO: Implement actual message handling when workers are available
   }
 });
 

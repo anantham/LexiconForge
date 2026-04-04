@@ -3,6 +3,7 @@ import { BookOpen, Star, X, ExternalLink, Globe, User } from 'lucide-react';
 import type { NovelEntry, NovelVersion, ChapterCoverageStats, MediaCorrespondenceAnchor, MediaReference } from '../types/novel';
 import { VersionPicker } from './VersionPicker';
 import { CoverageDistribution } from './CoverageDistribution';
+import { NovelCoverImage } from './NovelCoverImage';
 
 interface NovelDetailSheetProps {
   novel: NovelEntry | null;
@@ -173,17 +174,14 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
           <div className="sm:flex gap-6 mb-6">
             {/* Cover Image */}
             <div className="relative w-[180px] h-[270px] mx-auto sm:mx-0 mb-6 sm:mb-0 shadow-lg rounded-lg overflow-hidden flex-shrink-0">
-              {novel.metadata.coverImageUrl ? (
-                <img
-                  src={novel.metadata.coverImageUrl}
-                  alt={`Cover of ${novel.title}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-800">
-                  <BookOpen className="h-16 w-16 text-gray-400 dark:text-gray-600" />
-                </div>
-              )}
+              <NovelCoverImage
+                src={novel.metadata.coverImageUrl}
+                alt={`Cover of ${novel.title}`}
+                imgClassName="w-full h-full object-cover"
+                placeholderClassName="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-800"
+                iconClassName="h-16 w-16 text-gray-400 dark:text-gray-600"
+                loading="eager"
+              />
             </div>
 
             {/* Quick Metadata */}

@@ -46,7 +46,7 @@ export const translateWithClaude = async (
 
     // Format history for Claude
     const historyPrompt = formatHistory(history);
-    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? true;
+    const includeFanTranslation = settings.includeFanTranslationInPrompt ?? false;
     const effectiveFanTranslation = includeFanTranslation ? (fanTranslation ?? null) : null;
     const fanTranslationContext = buildFanTranslationContext(effectiveFanTranslation);
 

@@ -45,7 +45,7 @@ export async function collectExportData(
   // Sort based on ordering strategy
   const sortedChapters = options.order === 'number'
     ? chaptersArray.sort((a, b) => (a.chapterNumber || 0) - (b.chapterNumber || 0))
-    : chaptersArray; // TODO: Implement navigation-based ordering
+    : chaptersArray; // Fallback: insertion order (nav-based ordering deferred)
 
   let translatedCount = 0;
 

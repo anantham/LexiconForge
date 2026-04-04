@@ -127,12 +127,24 @@ async function handleTranslationComplete(event: Event): Promise<void> {
       );
     }
 
+    // Invalidate stale cache: if cached result had no fan translation but we now have one,
+    // the cached grey markers are wrong and need recomputation
+    if (cachedResult && fanHash && !cachedResult.fanHash) {
+      debugLog('diff', 'summary', '[DiffTrigger] Cache invalidated — fan translation now available but cached result had none', {
+        chapterId,
+        cachedFanHash: cachedResult.fanHash,
+        currentFanHash: fanHash,
+      });
+      cachedResult = null;
+    }
+
     if (cachedResult) {
       debugLog('diff', 'summary', '[DiffTrigger] Cache hit for chapter:', {
         chapterId,
         provider: DIFF_DEFAULT_PROVIDER,
         aiTranslationId,
         aiHash,
+        hasFanInCache: !!cachedResult.fanHash,
       });
       window.dispatchEvent(new CustomEvent('diff:updated', { detail: { chapterId, cacheHit: true } }));
       return;

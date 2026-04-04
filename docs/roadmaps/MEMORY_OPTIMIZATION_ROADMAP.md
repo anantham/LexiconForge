@@ -1,7 +1,7 @@
-> **STATUS: IN PROGRESS**
-> - Phase 1 (Telemetry): ✅ Implemented
-> - Phase 2 (Cache API for images): ⏳ Not started
-> - Phase 3 (Lazy loading): ⏳ Not started
+> **STATUS: MOSTLY IMPLEMENTED** (verified 2026-03-20)
+> - Phase 1 (Telemetry + Cache API foundation): ✅ Implemented — `telemetryService.ts`, `imageCacheService.ts` (used by 17 files), `getMemoryDiagnostics()`, Storage Diagnostics UI
+> - Phase 2 (Migration + integration): ✅ Mostly implemented — `imageMigrationService.ts` (with tests), EPUB asset resolver uses cache, image generation stores to Cache API. **Not adopted:** `isBlobUrl` type flag (Task 3). **Not implemented:** LRU eviction (Task 10).
+> - Phase 3 (Load testing): ⏳ Not started — no evidence of structured load tests
 
 # Memory Optimization Roadmap
 

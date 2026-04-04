@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Loader from '../Loader';
 import DiffParagraphs from './DiffParagraphs';
 import InlineEditToolbar from './InlineEditToolbar';
 import TranslationEditor from './TranslationEditor';
+import { apiMetricsService } from '../../services/apiMetricsService';
 import type { AppSettings, Chapter, DiffMarkerVisibilitySettings } from '../../types';
 import type { TokenizationResult } from './translationTokens';
 import type { UiDiffMarker } from './diffVisibility';
@@ -34,6 +35,7 @@ interface ChapterContentProps {
   modelLabel?: string;
   renderEnglishDiffs: boolean;
   showEnglishLoader: boolean;
+  translationError?: string | null;
 }
 
 const ChapterContent: React.FC<ChapterContentProps> = ({
@@ -62,6 +64,7 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
   modelLabel,
   renderEnglishDiffs,
   showEnglishLoader,
+  translationError,
 }) => {
   if (isGlobalLoading) {
     return <Loader text="Fetching chapter raws..." />;
@@ -76,10 +79,22 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
     );
   }
 
+  if (translationError) {
+    return (
+      <div className="text-center py-10">
+        <div className="inline-block max-w-md p-6 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+          <h3 className="text-lg font-semibold text-red-700 dark:text-red-300 mb-2">Translation Failed</h3>
+          <p className="text-sm text-red-600 dark:text-red-400 whitespace-pre-line">{translationError}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (showEnglishLoader) {
     return (
-      <Loader
-        text={`Translating with ${providerLabel}${modelLabel ? ' — ' + modelLabel : ''}...`}
+      <TranslationCountdownLoader
+        provider={providerLabel}
+        model={modelLabel}
       />
     );
   }
@@ -123,6 +138,62 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
           onToggleNewVersion={toggleInlineNewVersion}
         />
       )}
+    </div>
+  );
+};
+
+/** Countdown loader for translation — uses historical timing data */
+const TranslationCountdownLoader: React.FC<{ provider: string; model?: string }> = ({ provider, model }) => {
+  const [estimatedTotal, setEstimatedTotal] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [source, setSource] = useState<string>('');
+  const startRef = useRef(Date.now());
+  const fetchedRef = useRef(false);
+
+  // Fetch historical average once on mount
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    apiMetricsService.getAverageTranslationTime(model || '', provider).then((data) => {
+      setEstimatedTotal(data.avgTimeSeconds);
+      setSource(data.source === 'default' ? '' : `${data.sampleCount} past calls`);
+    });
+  }, [model, provider]);
+
+  // Tick elapsed every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const remaining = estimatedTotal ? Math.max(0, Math.ceil(estimatedTotal - elapsed)) : null;
+  const progress = estimatedTotal && estimatedTotal > 0
+    ? Math.min(100, (elapsed / estimatedTotal) * 100)
+    : null;
+
+  return (
+    <div className="flex flex-col items-center justify-center text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+      <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+        Translating with {provider}{model ? ` — ${model}` : ''}...
+      </p>
+      {remaining !== null && (
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          {remaining > 0 ? `~${remaining}s remaining` : 'Almost done...'}
+          {source && <span className="ml-1 text-xs text-gray-400">({source})</span>}
+        </p>
+      )}
+      {progress !== null && (
+        <div className="mt-3 w-48 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+      <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">{elapsed}s elapsed</p>
     </div>
   );
 };

@@ -18,6 +18,8 @@
     "test:e2e:debug": "playwright test --debug",
     "merge-fan-translations": "tsx scripts/merge-fan-translations.ts",
     "polyglot-merge": "tsx scripts/polyglot-merge.ts",
+    "build-library-session": "tsx scripts/build-library-session.ts",
+    "discover-chapter-alignment": "tsx scripts/discover-chapter-alignment.ts",
     "check:loc": "node scripts/check-loc.js"
   },
   "dependencies": {

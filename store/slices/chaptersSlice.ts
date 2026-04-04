@@ -15,6 +15,7 @@ import { normalizeUrlAggressively, transformImportedChapters } from '../../servi
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
 import { ChapterOps, ImportOps } from '../../services/db/operations';
 import type { ImportedChapter } from '../../types';
+import { BookshelfStateService } from '../../services/bookshelfStateService';
 import { validateApiKey } from '../../services/aiService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
@@ -106,6 +107,40 @@ const recordChapterCache = (context: string, size: number, extra?: Record<string
   });
 };
 
+const BOOKSHELF_PERSIST_DELAY_MS = 2000;
+let bookshelfPersistTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const persistBookshelfPosition = (state: any) => {
+  const activeNovelId = state.activeNovelId as string | null;
+  const activeVersionId = state.activeVersionId as string | null;
+  const currentChapterId = state.currentChapterId as string | null;
+  const chapter = currentChapterId ? state.chapters?.get?.(currentChapterId) : null;
+
+  if (!activeNovelId || !currentChapterId || !chapter) {
+    return;
+  }
+
+  void BookshelfStateService.upsertEntry({
+    novelId: activeNovelId,
+    ...(activeVersionId ? { versionId: activeVersionId } : {}),
+    lastChapterId: currentChapterId,
+    lastChapterNumber: chapter.chapterNumber ?? undefined,
+    lastReadAtIso: new Date().toISOString(),
+  }).catch((error) => {
+    console.error('[ChaptersSlice] Failed to persist bookshelf position:', error);
+  });
+};
+
+const scheduleBookshelfPositionPersist = (getState: () => any) => {
+  if (bookshelfPersistTimeout) {
+    clearTimeout(bookshelfPersistTimeout);
+  }
+
+  bookshelfPersistTimeout = setTimeout(() => {
+    persistBookshelfPosition(getState());
+  }, BOOKSHELF_PERSIST_DELAY_MS);
+};
+
 export const createChaptersSlice: StateCreator<
   any,
   [],
@@ -147,9 +182,17 @@ export const createChaptersSlice: StateCreator<
 
     set({ currentChapterId: chapterId });
 
+    if (chapterId) {
+      const uiActions = get() as any;
+      if (typeof uiActions.setReaderReady === 'function') {
+        uiActions.setReaderReady();
+      }
+    }
+
     // Add to history if it's a real chapter
     if (chapterId) {
       get().addToHistory(chapterId);
+      scheduleBookshelfPositionPersist(get);
     }
   },
   
@@ -294,7 +337,11 @@ export const createChaptersSlice: StateCreator<
       urlIndex: state.urlIndex,
       rawUrlIndex: state.rawUrlIndex,
       navigationHistory: state.navigationHistory,
-      hydratingChapters: (state as any).hydratingChapters || {}
+      hydratingChapters: (state as any).hydratingChapters || {},
+      scope: {
+        novelId: state.activeNovelId ?? null,
+        versionId: state.activeVersionId ?? null,
+      },
     };
     const normalized = normalizeUrlAggressively(url);
     debugLog(
@@ -349,7 +396,8 @@ export const createChaptersSlice: StateCreator<
     if (result.chapterId && result.chapter) {
       set(state => {
         const updates: any = {
-          currentChapterId: result.chapterId
+          currentChapterId: result.chapterId,
+          appScreen: 'reader',
         };
 
         // Update chapter if provided
@@ -369,7 +417,10 @@ export const createChaptersSlice: StateCreator<
 
       // Update browser history if needed
       if (result.shouldUpdateBrowserHistory && result.chapter) {
-        NavigationService.updateBrowserHistory(result.chapter, result.chapterId);
+        NavigationService.updateBrowserHistory(result.chapter, result.chapterId, {
+          novelId: get().activeNovelId,
+          versionId: get().activeVersionId,
+        });
       }
 
       // Clear any error
@@ -380,6 +431,7 @@ export const createChaptersSlice: StateCreator<
 
       // Memory optimization: lighten previous chapters
       get().lightenNonCurrentChapters(result.chapterId);
+      scheduleBookshelfPositionPersist(get);
     }
   },
   
@@ -400,7 +452,10 @@ export const createChaptersSlice: StateCreator<
     );
     
     try {
-      const result = await NavigationService.handleFetch(url);
+      const result = await NavigationService.handleFetch(url, {
+        novelId: get().activeNovelId ?? null,
+        versionId: get().activeVersionId ?? null,
+      });
       debugLog(
         'navigation',
         'summary',
@@ -435,6 +490,7 @@ export const createChaptersSlice: StateCreator<
             rawUrlIndex: newRawUrlIndex,
             novels: newNovels,
             currentChapterId: result.currentChapterId,
+            appScreen: 'reader',
             navigationHistory: newHistory
           };
         });
@@ -452,8 +508,12 @@ export const createChaptersSlice: StateCreator<
         // Update browser history
         const chapter = result.chapters!.get(result.currentChapterId!);
         if (chapter) {
-          NavigationService.updateBrowserHistory(chapter, result.currentChapterId!);
+          NavigationService.updateBrowserHistory(chapter, result.currentChapterId!, {
+            novelId: get().activeNovelId,
+            versionId: get().activeVersionId,
+          });
         }
+        scheduleBookshelfPositionPersist(get);
         return result.currentChapterId;
       }
       
@@ -547,12 +607,16 @@ export const createChaptersSlice: StateCreator<
   navigateToChapter: (chapterId) => {
     const chapter = get().chapters.get(chapterId);
     if (chapter) {
-      set({ currentChapterId: chapterId });
+      set({ currentChapterId: chapterId, appScreen: 'reader' });
       get().addToHistory(chapterId);
-      NavigationService.updateBrowserHistory(chapter, chapterId);
+      NavigationService.updateBrowserHistory(chapter, chapterId, {
+        novelId: get().activeNovelId,
+        versionId: get().activeVersionId,
+      });
 
       // Memory optimization: lighten previous chapters
       get().lightenNonCurrentChapters(chapterId);
+      scheduleBookshelfPositionPersist(get);
     }
   },
 
@@ -766,6 +830,8 @@ export const createChaptersSlice: StateCreator<
         currentChapterId,
         chapters,
         settings,
+        activeNovelId,
+        activeVersionId,
         loadChapterFromIDB,
         fetchTranslationVersions,
         isTranslationActive,
@@ -796,7 +862,11 @@ export const createChaptersSlice: StateCreator<
         let nextChapterInfo = numberToChapterMap.get(targetNumber);
 
         if (!nextChapterInfo) {
-          const chapterRecord = await ChapterOps.findByNumber(targetNumber);
+          const chapterRecord = await ChapterOps.findByNumber(
+            targetNumber,
+            activeNovelId,
+            activeVersionId
+          );
           if (chapterRecord && chapterRecord.stableId) {
             await loadChapterFromIDB(chapterRecord.stableId);
             const loadedChapter = get().chapters.get(chapterRecord.stableId);
@@ -817,7 +887,10 @@ export const createChaptersSlice: StateCreator<
           }
           debugLog('worker', 'summary', `[Worker] Chapter #${targetNumber} not found locally, attempting web fetch from: ${currentChapter.nextUrl}`);
           try {
-            const fetchResult = await NavigationService.handleFetch(currentChapter.nextUrl);
+            const fetchResult = await NavigationService.handleFetch(currentChapter.nextUrl, {
+              novelId: activeNovelId ?? null,
+              versionId: activeVersionId ?? null,
+            });
             if (fetchResult.chapters && fetchResult.currentChapterId) {
               // Merge fetched chapter into store
               const state = get();

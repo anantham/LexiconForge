@@ -3,6 +3,8 @@ import type { DeepLoomPacket } from '../../types/suttaStudio';
 
 export interface ChapterRecord {
   url: string;
+  novelId: string | null;
+  libraryVersionId?: string | null;
   stableId?: string;
   title: string;
   content: string;
@@ -19,6 +21,7 @@ export interface ChapterRecord {
 
 export interface ChapterSummaryRecord {
   stableId: string;
+  libraryVersionId?: string | null;
   canonicalUrl?: string;
   title: string;
   translatedTitle?: string;
@@ -95,6 +98,8 @@ export interface TranslationRecord {
 export interface ChapterLookupResult {
   stableId: string;
   canonicalUrl: string;
+  novelId?: string | null;
+  libraryVersionId?: string | null;
   title: string;
   content: string;
   nextUrl?: string;
@@ -107,6 +112,8 @@ export interface ChapterLookupResult {
       title: string;
       content: string;
       originalUrl: string;
+      novelId?: string | null;
+      libraryVersionId?: string | null;
       nextUrl?: string;
       prevUrl?: string;
       chapterNumber?: number;
@@ -145,6 +152,9 @@ export interface PromptTemplateRecord {
 export interface UrlMappingRecord {
   url: string;
   stableId: string;
+  novelId: string | null;
+  libraryVersionId?: string | null;
+  chapterNumber?: number;
   isCanonical: boolean;
   dateAdded: string;
 }

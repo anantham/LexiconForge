@@ -1,9 +1,17 @@
 # CORE-005: Agent-First Code Organization Standards
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Implemented (2026-03-05) — file size limits superseded
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition), CORE-004 (Service Architecture)
+
+## Implementation Notes (2026-03-05)
+The agent-first organization principles were adopted (single-purpose files, explicit TypeScript
+contracts, predictable structure). However, the hard LOC limits (200 LOC for services, 250 for
+components) were superseded by a friction-based policy in `~/.claude/CLAUDE.md`. The new policy
+evaluates files on surprise radius, locality of change, findability, and testability — not raw
+line count. Large but cohesive files (e.g., `imageSlice.ts` at 1,081 LOC) are kept; files with
+multiple independent change cadences (e.g., `adapters.ts` at 914 LOC) are flagged for splitting.
 
 ## Context
 

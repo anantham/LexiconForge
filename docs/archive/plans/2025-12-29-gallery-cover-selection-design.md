@@ -1,5 +1,7 @@
 # Image Gallery & Cover Selection Design
 
+> **Status:** ✅ Implemented — `GalleryPanel.tsx`, `ImageLightbox.tsx`, cover selection integrated.
+
 **Date:** 2025-12-29
 **Status:** Approved
 

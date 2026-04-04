@@ -1,31 +1,21 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { PaliWord, WordClass, WordSegment } from '../../types/suttaStudio';
+import type { PaliWord, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
 import type { StudioSettings } from './SettingsPanel';
 import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
-import { hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, stripEmoji, stripGrammarTerms, wordDomId } from './utils';
+import { getWordColor, hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, stripEmoji, stripGrammarTerms, wordDomId } from './utils';
 import { Tooltip } from './Tooltip';
-
-/**
- * Derive text color from wordClass.
- * content → green (semantic words)
- * function → white (grammatical glue)
- */
-const getWordColor = (wordClass?: WordClass, fallbackColor?: string): string => {
-  if (wordClass === 'content') return 'text-emerald-400';
-  if (wordClass === 'function') return 'text-slate-200';
-  // Fallback to explicit color or default white
-  return fallbackColor || 'text-white';
-};
 
 export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId,
   wordData,
   activeIndex,
+  activeSegmentIndices,
   settings,
   cycle,
+  cycleSegment,
   hovered,
   pinned,
   setHovered,
@@ -34,8 +24,10 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId: string;
   wordData: PaliWord;
   activeIndex: number;
+  activeSegmentIndices?: Record<string, number>;
   settings: StudioSettings;
   cycle: (wordId: string) => void;
+  cycleSegment?: (phaseId: string, segmentId: string) => void;
   hovered: Focus | null;
   pinned: Focus | null;
   setHovered: Dispatch<SetStateAction<Focus | null>>;
@@ -49,7 +41,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   const refrainStyle = wordData.refrainId && settings.refrainColors ? REFRAIN_COLORS[wordData.refrainId] : null;
 
   const onWordClick = () => {
-    console.log('[PaliWord] CLICK', { wordId: wordData.id, surface: wordData.segments.map(s => s.text).join(''), hasSelection: hasTextSelection() });
     if (hasTextSelection()) return;
     cycle(wordData.id);
   };
@@ -74,27 +65,18 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           const isHovered = hovered?.kind === 'segment' && hovered.segmentDomId === sDomId;
           const isPinned = pinned?.kind === 'segment' && pinned.segmentDomId === sDomId;
 
+          // Resolve active sense for this segment (segment-level senses take priority over word-level)
+          const segKey = seg.id ? `${phaseId}-${seg.id}` : null;
+          const activeSegmentIdx = segKey ? (activeSegmentIndices?.[segKey] ?? 0) : 0;
           const activeSenseId = resolveSenseId(wordData, activeIndex);
-          const rawTooltip = seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
+          const segSenseText = seg.senses?.length ? seg.senses[activeSegmentIdx]?.english : null;
+          const rawTooltip = segSenseText || seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
           // Apply filters based on settings
           let tooltipText = rawTooltip;
           if (!settings.grammarTerms) tooltipText = stripGrammarTerms(tooltipText);
           if (!settings.emojiInTooltips) tooltipText = stripEmoji(tooltipText);
-          const showTooltip = settings.tooltips && isHovered && !pinned;
-
-          // Debug: log tooltip decision when hovered
-          if (isHovered) {
-            console.log('[PaliWord] TOOLTIP_CHECK', {
-              segmentText: seg.text,
-              showTooltip,
-              tooltipsEnabled: settings.tooltips,
-              isHovered,
-              pinned: !!pinned,
-              tooltipText: tooltipText || '(empty)',
-              segTooltips: seg.tooltips,
-              segTooltip: seg.tooltip,
-            });
-          }
+          // Show tooltip on hover (when nothing pinned) OR persistently when this segment is pinned
+          const showTooltip = settings.tooltips && (isPinned || (isHovered && !pinned));
 
           const showHook = false;
           const relationStyle = seg.relation ? RELATION_COLORS[seg.relation.type] : null;
@@ -116,8 +98,28 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                   ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
                   : 'border-b-2 border-transparent pb-0'
               } ${segmentClass} ${settings.tooltips ? 'cursor-help' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (hasTextSelection()) return;
+                const segFocus: Focus = {
+                  kind: 'segment',
+                  phaseId,
+                  wordId: wordData.id,
+                  segmentId: seg.id,
+                  segmentIndex: i,
+                  segmentDomId: sDomId,
+                  data: seg,
+                };
+                // Toggle pin: click pinned segment → unpin; click elsewhere → pin
+                setPinned((prev) =>
+                  prev?.kind === 'segment' && prev.segmentDomId === sDomId ? null : segFocus
+                );
+                // Cycle segment senses if available
+                if (seg.senses?.length && seg.id) {
+                  cycleSegment?.(phaseId, seg.id);
+                }
+              }}
               onMouseEnter={() => {
-                console.log('[PaliWord] HOVER_ENTER', { segmentText: seg.text, segmentId: seg.id, sDomId, pinned: !!pinned, tooltipsEnabled: settings.tooltips, tooltipText });
                 if (pinned) return;
                 setHovered({
                   kind: 'segment',
@@ -130,11 +132,10 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 });
               }}
               onMouseLeave={() => {
-                console.log('[PaliWord] HOVER_LEAVE', { segmentText: seg.text, sDomId, pinned: !!pinned });
                 if (pinned) return;
                 setHovered(null);
               }}
-              title={settings.tooltips && !showTooltip ? 'Hover: segment details' : ''}
+              title={settings.tooltips && !showTooltip ? 'Click: pin • Hover: segment details' : ''}
             >
               {seg.text}
 

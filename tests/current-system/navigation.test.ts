@@ -7,6 +7,8 @@ import { createMockChapter, MOCK_KAKUYOMU_URLS } from '../utils/test-data';
 const makeEnhancedChapter = (id: string, url: string): EnhancedChapter => ({
   ...createMockChapter({ originalUrl: url, nextUrl: null, prevUrl: null, title: `Chapter for ${id}` }),
   id,
+  novelId: null,
+  libraryVersionId: null,
   canonicalUrl: url,
   sourceUrls: [url],
   translationResult: null,
@@ -69,7 +71,10 @@ describe('Navigation fundamentals', () => {
       const result = await useAppStore.getState().handleFetch(chapterUrl);
 
       expect(result).toBe(chapterId);
-      expect(handleFetchSpy).toHaveBeenCalledWith(chapterUrl);
+      expect(handleFetchSpy).toHaveBeenCalledWith(chapterUrl, {
+        novelId: null,
+        versionId: null,
+      });
       expect(useAppStore.getState().chapters.get(chapterId)).toMatchObject({ id: chapterId });
       expect(useAppStore.getState().currentChapterId).toBe(chapterId);
       expect(useAppStore.getState().navigationHistory).toContain(chapterId);

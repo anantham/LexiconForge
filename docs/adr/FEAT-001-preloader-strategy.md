@@ -1,4 +1,7 @@
-# ADR 001: Pre-loader Strategy for Cached and Web-based Content
+# FEAT-001: Pre-loader Strategy for Cached and Web-based Content
+
+**Status:** Implemented
+**Date:** 2025 (original)
 
 ## Context
 
@@ -33,3 +36,14 @@ Therefore, a second decision was made:
 ### Negative
 - The new logic is slightly less efficient for finding the next chapter, as it may require an iteration to find a chapter by its number rather than a direct lookup via a URL index. However, given the small size of the in-memory chapter map, this performance impact is negligible.
 - This strategy assumes chapters are numbered sequentially. It will not be able to preload chapters across non-sequential gaps (e.g., jumping from chapter 5 to chapter 7). This is considered an acceptable trade-off.
+
+---
+
+## Implementation Notes
+
+**Files:**
+- Pre-loader logic lives in `workers/translate.worker.ts`
+- Chapter numbering resolved via `services/scraping/chapterNumber.ts`
+- Translation version check uses `services/db/operations/translations.ts`
+
+**Deviations from proposal:** The number-based strategy was implemented as described. The "skip if any version exists" optimization is active in the worker's preload loop.

@@ -6,21 +6,28 @@ import { getModelMetadata } from './capabilityService';
 import { imageFileToBase64 } from './imageUtils';
 import { getEnvVar } from './env';
 import { apiMetricsService } from './apiMetricsService';
+import { debugPipelineEnabled, debugLog as _debugLog, debugWarn as _debugWarn } from '../utils/debug';
 
-const imgDebugEnabled = (): boolean => {
-  try {
-    const lvl = localStorage.getItem('LF_AI_DEBUG_LEVEL');
-    return lvl === 'summary' || lvl === 'full';
-  } catch { return false; }
-};
-const imgDebugFullEnabled = (): boolean => {
-  try { return localStorage.getItem('LF_AI_DEBUG_LEVEL') === 'full'; } catch { return false; }
-};
-const ilog = (...args: any[]) => { if (imgDebugEnabled()) console.log(...args); };
-const iwarn = (...args: any[]) => { if (imgDebugEnabled()) console.warn(...args); };
+const ilog = (...args: any[]) => { if (debugPipelineEnabled('image')) console.log(...args); };
+const iwarn = (...args: any[]) => { if (debugPipelineEnabled('image')) console.warn(...args); };
 const ierror = (...args: any[]) => { console.error(...args); };
 import { IMAGE_COSTS } from '../config/costs';
 import { getOpenRouterImagePrice } from './openrouterService';
+
+// Image dimension constraints (provider API limits)
+const IMAGE_DIM_MIN = 256;        // Minimum accepted by Gemini/PiAPI
+const IMAGE_DIM_MAX = 4096;       // Maximum accepted by most providers
+const IMAGE_DIM_DEFAULT = 1024;   // Standard HD baseline
+const IMAGE_MAX_PIXELS = 1048576; // 1024×1024 — max total pixel budget for PiAPI
+
+// Typed error extension used by image generation to carry actionable metadata
+interface ImageGenerationError extends Error {
+  errorType: string;
+  originalError?: unknown;
+  model?: string;
+  canRetry?: boolean;
+  suggestedActions?: string[];
+}
 
 // --- CONSTANTS ---
 // Using a cutting-edge model known for high-quality image generation.
@@ -109,23 +116,22 @@ export const generateImage = async (
   version?: number  // NEW: version number for Cache API storage (defaults to 1)
 ): Promise<GeneratedImageResult> => {
     const imageModel = settings.imageModel || 'imagen-3.0-generate-001';
-    const reqW = Math.max(256, Math.min(4096, (settings.imageWidth || 1024)));
-    const reqH = Math.max(256, Math.min(4096, (settings.imageHeight || 1024)));
+    const reqW = Math.max(IMAGE_DIM_MIN, Math.min(IMAGE_DIM_MAX, (settings.imageWidth || IMAGE_DIM_DEFAULT)));
+    const reqH = Math.max(IMAGE_DIM_MIN, Math.min(IMAGE_DIM_MAX, (settings.imageHeight || IMAGE_DIM_DEFAULT)));
     let piW = reqW, piH = reqH;
-    const maxPix = 1048576;
-    if (piW * piH > maxPix) {
-        const scale = Math.sqrt(maxPix / (piW * piH));
-        piW = Math.max(256, Math.floor(piW * scale));
-        piH = Math.max(256, Math.floor(piH * scale));
+    if (piW * piH > IMAGE_MAX_PIXELS) {
+        const scale = Math.sqrt(IMAGE_MAX_PIXELS / (piW * piH));
+        piW = Math.max(IMAGE_DIM_MIN, Math.floor(piW * scale));
+        piH = Math.max(IMAGE_DIM_MIN, Math.floor(piH * scale));
     }
     ilog(`[ImageService] Starting image generation...`);
     ilog(`[ImageService] - Model: ${imageModel}`);
     ilog(`[ImageService] - Prompt: ${prompt.substring(0, 100)}...`);
     const hasKey = imageModel.startsWith('Qubico/')
-      ? !!(settings.apiKeyPiAPI || (getEnvVar('PIAPI_API_KEY') as any))
+      ? !!(settings.apiKeyPiAPI || getEnvVar('PIAPI_API_KEY'))
       : imageModel.startsWith('openrouter/')
-        ? !!((settings as any).apiKeyOpenRouter || (getEnvVar('OPENROUTER_API_KEY') as any))
-        : !!(settings.apiKeyGemini || (getEnvVar('GEMINI_API_KEY') as any));
+        ? !!(settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'))
+        : !!(settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY'));
     ilog(`[ImageService] - API Key present: ${hasKey}`);
     
     const startTime = performance.now();
@@ -138,7 +144,7 @@ export const generateImage = async (
 
         if (imageModel.startsWith('imagen')) {
             ilog('[ImageService] Using Imagen model:', imageModel);
-            const apiKey = settings.apiKeyGemini || (getEnvVar('GEMINI_API_KEY') as any); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
+            const apiKey = settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
             const ai = new GoogleGenAI({ apiKey });
             let response: any;
             if (imageModel.startsWith('imagen-4.0')) {
@@ -169,7 +175,7 @@ export const generateImage = async (
                 });
             }
 
-            if (imgDebugFullEnabled()) console.log('[ImageService/Imagen] Full API Response:', JSON.stringify(response, null, 2));
+            if (debugPipelineEnabled('image', 'full')) console.log('[ImageService/Imagen] Full API Response:', JSON.stringify(response, null, 2));
 
             if (!response.generatedImages || response.generatedImages.length === 0 || !response.generatedImages[0].image?.imageBytes) {
                 ierror("[ImageService/Imagen] Unexpected response structure or empty image list:", response);
@@ -179,7 +185,7 @@ export const generateImage = async (
 
         } else if (imageModel.startsWith('gemini')) {
             ilog('[ImageService] Using Gemini native image generation:', imageModel);
-            const apiKey = settings.apiKeyGemini || (getEnvVar('GEMINI_API_KEY') as any); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
+            const apiKey = settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({ model: imageModel });
             try {
@@ -223,23 +229,27 @@ export const generateImage = async (
 
                 // Re-throw with guidance for the reader to choose a different model
                 const guidance = 'This Gemini image model rejected the request due to response modality/mime constraints or safety. Try switching to "Gemini 2.5 Flash (Image Preview)" or "Imagen 3.0/4.0" in Settings, then click Retry.';
-                const enhanced = new Error(`${err?.message || 'Image generation failed'}. ${guidance}`) as any;
-                enhanced.errorType = /response_mime_type|requested combination of response modalities/i.test(String(err?.message || '') + String(err?.cause?.message || ''))
-                    ? 'MODALITY_MISMATCH'
-                    : 'GENERIC_ERROR';
-                enhanced.originalError = err;
-                enhanced.canRetry = false;
-                enhanced.suggestedActions = [
-                  'Open Settings → Image model and pick Imagen 3.0 or Gemini 2.5 Image Preview',
-                  'Simplify the prompt (less graphic detail) and Retry'
-                ];
+                const enhanced: ImageGenerationError = Object.assign(
+                  new Error(`${err?.message || 'Image generation failed'}. ${guidance}`),
+                  {
+                    errorType: /response_mime_type|requested combination of response modalities/i.test(String(err?.message || '') + String(err?.cause?.message || ''))
+                      ? 'MODALITY_MISMATCH'
+                      : 'GENERIC_ERROR',
+                    originalError: err,
+                    canRetry: false,
+                    suggestedActions: [
+                      'Open Settings → Image model and pick Imagen 3.0 or Gemini 2.5 Image Preview',
+                      'Simplify the prompt (less graphic detail) and Retry',
+                    ],
+                  }
+                );
                 throw enhanced;
             }
             
         
         } else if (imageModel.startsWith('openrouter/')) {
             // --- OpenRouter image generation via chat completions ---
-            const orKey = (settings as any).apiKeyOpenRouter || (getEnvVar('OPENROUTER_API_KEY') as any);
+            const orKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
             if (!orKey) throw new Error('OpenRouter API key is missing. Please add it in Settings.');
             const modelSlug = imageModel.replace('openrouter/', '');
             
@@ -410,7 +420,7 @@ export const generateImage = async (
 
         } else if (imageModel.startsWith('Qubico/')) {
             // --- PiAPI Flux (task-based) with img2img support ---
-            const apiKeyPi = settings.apiKeyPiAPI || (getEnvVar('PIAPI_API_KEY') as any);
+            const apiKeyPi = settings.apiKeyPiAPI || getEnvVar('PIAPI_API_KEY');
             if (!apiKeyPi) throw new Error('PiAPI API key is missing. Please add it in Settings.');
 
             // Determine task type based on whether steering image is provided
@@ -694,12 +704,13 @@ export const generateImage = async (
         });
 
         // Add error metadata for fallback logic
-        const enhancedError = new Error(message) as any;
-        enhancedError.errorType = errorType;
-        enhancedError.originalError = error;
-        enhancedError.model = imageModel;
-        enhancedError.canRetry = ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType);
-        enhancedError.suggestedActions = getSuggestedActions(errorType, imageModel);
+        const enhancedError: ImageGenerationError = Object.assign(new Error(message), {
+          errorType,
+          originalError: error,
+          model: imageModel,
+          canRetry: ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
+          suggestedActions: getSuggestedActions(errorType, imageModel),
+        });
 
         throw enhancedError;
     }

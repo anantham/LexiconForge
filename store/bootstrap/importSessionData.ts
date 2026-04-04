@@ -1,8 +1,7 @@
-import { normalizeUrlAggressively } from '../../services/stableIdService';
 import type { SessionActions } from '../storeTypes';
 import type { BootstrapContext } from './index';
 import { ImportOps, SettingsOps } from '../../services/db/operations';
-import { fetchChaptersForReactRendering } from '../../services/db/operations/rendering';
+import { loadAllIntoStore, loadNovelIntoStore } from '../../services/readerHydrationService';
 
 export const createImportSessionData = (ctx: BootstrapContext): SessionActions['importSessionData'] => {
   return async (payload, onProgress) => {
@@ -12,46 +11,23 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
       if (obj?.metadata?.format === 'lexiconforge-full-1') {
         await ImportOps.importFullSessionData(obj, onProgress);
 
-        const rendering = await fetchChaptersForReactRendering();
+        if (typeof obj?.novelId === 'string') {
+          await loadNovelIntoStore(obj.novelId, (patch) => ctx.set(patch), {
+            versionId: typeof obj?.libraryVersionId === 'string' ? obj.libraryVersionId : null,
+          });
+        } else {
+          await loadAllIntoStore((patch) => ctx.set(patch));
+        }
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
         const lastActive = await SettingsOps.getKey<any>('lastActiveChapter').catch(() => null);
 
         ctx.set((state) => {
-          const newChapters = new Map<string, any>();
-          const newUrlIndex = new Map<string, string>();
-          const newRawUrlIndex = new Map<string, string>();
-
-          for (const ch of rendering) {
-            const sourceUrls = ch.sourceUrls ?? [ch.url];
-            newChapters.set(ch.stableId, {
-              id: ch.stableId,
-              title: ch.title,
-              content: ch.content,
-              originalUrl: ch.originalUrl,
-              nextUrl: ch.nextUrl ?? null,
-              prevUrl: ch.prevUrl ?? null,
-              chapterNumber: typeof ch.chapterNumber === 'number' ? ch.chapterNumber : 0,
-              canonicalUrl: ch.canonicalUrl ?? ch.url,
-              sourceUrls,
-              fanTranslation: ch.fanTranslation ?? null,
-              translationResult: ch.translationResult || null,
-              feedback: [],
-            });
-
-            for (const rawUrl of sourceUrls) {
-              if (!rawUrl) continue;
-              newRawUrlIndex.set(rawUrl, ch.stableId);
-              const norm = normalizeUrlAggressively(rawUrl);
-              if (norm) newUrlIndex.set(norm, ch.stableId);
-            }
-          }
+          const resolvedCurrentChapterId = lastActive?.id ? lastActive.id : state.currentChapterId;
 
           return {
-            chapters: newChapters,
-            urlIndex: newUrlIndex,
-            rawUrlIndex: newRawUrlIndex,
             navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
-            currentChapterId: lastActive?.id ? lastActive.id : state.currentChapterId,
+            currentChapterId: resolvedCurrentChapterId,
+            appScreen: resolvedCurrentChapterId ? 'reader' : state.appScreen,
             error: null,
           };
         });

@@ -12,6 +12,7 @@ import { DefaultKeyBanner } from './components/DefaultKeyBanner';
 
 import { validateApiKey } from './services/aiService';
 import { prepareConnection } from './services/db/core/connection';
+import { debugLog, debugWarn } from './utils/debug';
 import { shouldBlockApp, type VersionCheckResult } from './services/db/core/versionGate';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -48,6 +49,7 @@ useEffect(() => {
 // inside App component, near the top
 // Individual primitive selectors to avoid fresh object creation
 const currentChapterId = useAppStore((s) => s.currentChapterId);
+const appScreen = useAppStore((s) => s.appScreen);
 const viewMode = useAppStore((s) => s.viewMode);
 const isLoading = useAppStore((s) => s.isLoading);
 const settings = useAppStore((s) => s.settings);
@@ -75,14 +77,9 @@ const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
 const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
 const getChapter = useAppStore((s) => s.getChapter);
 const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSettingsChanged);
-const handleNavigate = useAppStore((s) => s.handleNavigate);
 const isInitialized = useAppStore((s) => s.isInitialized);
-console.log('[App:init] isInitialized selector', { isInitialized });
+debugLog('ui', 'full', '[App:init] isInitialized selector', { isInitialized });
 const initializeStore = useAppStore((s) => s.initializeStore);
-const chapters = useAppStore((s) => s.chapters);
-
-// Determine if we should show landing page or main app
-const hasSession = chapters.size > 0 || currentChapterId !== null;
 
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
@@ -161,22 +158,15 @@ const settingsFingerprint = React.useMemo(
         setDbGate({ status: 'ready', result: versionCheck });
 
         await initializeStore();
-        // Now that the store is initialized, handle any URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const chapterUrl = urlParams.get('chapter');
-        if (chapterUrl) {
-          // Avoid noisy navigation logs in normal dev mode.
-          handleNavigate(decodeURIComponent(chapterUrl));
-        }
       };
       init();
-    }, [initializeStore, handleNavigate]);
+    }, [initializeStore]);
 
     // Boot-time hydration is now handled automatically by the store initialization
 
     // Main translation trigger effect remains here to orchestrate store actions
     useEffect(() => {
-      console.log(`🔍 [AutoTranslate] Effect triggered @${Date.now()}`, {
+      debugLog('translation', 'full', `[AutoTranslate] Effect triggered @${Date.now()}`, {
         viewMode,
         currentChapterId,
         hasCurrentChapter,
@@ -185,13 +175,13 @@ const settingsFingerprint = React.useMemo(
       });
 
       if (viewMode !== 'english' || !currentChapterId || !hasCurrentChapter) {
-        console.log(`🔍 [AutoTranslate] Early exit - preconditions not met`);
+        debugLog('translation', 'full', `[AutoTranslate] Early exit - preconditions not met`);
         return;
       }
 
       const chapter = getChapter(currentChapterId);
       if (!chapter) {
-        console.log(`🔍 [AutoTranslate] Early exit - chapter not found in map`);
+        debugLog('translation', 'full', `[AutoTranslate] Early exit - chapter not found in map`);
         return;
       }
 
@@ -201,7 +191,7 @@ const settingsFingerprint = React.useMemo(
       const prevSig    = requestedRef.current.get(currentChapterId);
       const alreadyRequested = prevSig === settingsFingerprint;
 
-      console.log(`🔍 [AutoTranslate] Conditions check for ${currentChapterId}:`, {
+      debugLog('translation', 'full', `[AutoTranslate] Conditions check for ${currentChapterId}:`, {
         hasResult,
         translating,
         alreadyRequested,
@@ -219,12 +209,12 @@ const settingsFingerprint = React.useMemo(
       });
 
       if (!hasResult && !translating && !alreadyRequested && !pending) {
-        console.warn(`🚨 [AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
-        console.warn(`🚨 [AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
+        debugWarn('translation', 'summary', `[AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
+        debugWarn('translation', 'summary', `[AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
         requestedRef.current.set(currentChapterId, settingsFingerprint);
         handleTranslate(currentChapterId);
       } else {
-        console.log(`✅ [AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
+        debugLog('translation', 'full', `[AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
       }
     }, [
       viewMode,
@@ -308,8 +298,16 @@ const settingsFingerprint = React.useMemo(
 	      );
 	    }
 
-    // Show landing page if no session is loaded
-    if (!hasSession) {
+    if (appScreen === 'reader-loading') {
+      return (
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+          <Loader text="Opening Reader..." />
+        </div>
+      );
+    }
+
+    // Show landing page when the app shell is in library mode
+    if (appScreen === 'library') {
       return (
         <>
           <LandingPage />
@@ -322,7 +320,7 @@ const settingsFingerprint = React.useMemo(
       );
     }
 
-    // Show main app when session is loaded
+    // Show main app when the reader is active
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
             <main className="container mx-auto">

@@ -29,6 +29,8 @@ const resetStore = () => {
 
 const sampleChapter = (id: string, url: string): EnhancedChapter => ({
   id,
+  novelId: null,
+  libraryVersionId: null,
   title: `Title ${id}`,
   content: 'Translated content with <i>styling</i>.',
   originalUrl: url,

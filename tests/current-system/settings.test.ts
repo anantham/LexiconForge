@@ -21,6 +21,8 @@ type Snapshot = Pick<AppSettings, 'provider' | 'model' | 'systemPrompt' | 'tempe
 
 const makeChapter = (id: string, url: string, snapshot: Snapshot): EnhancedChapter => ({
   id,
+  novelId: null,
+  libraryVersionId: null,
   title: `Chapter ${id}`,
   content: 'Translated text',
   originalUrl: url,

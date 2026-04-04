@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import { getDefaultKeyStatus } from '../services/defaultApiKeyService';
 import { useAppStore } from '../store';
+import { debugLog } from '../utils/debug';
 
 export function DefaultKeyBanner() {
   const [isDismissed, setIsDismissed] = useState(false);
@@ -41,7 +42,7 @@ export function DefaultKeyBanner() {
     });
 
     if (currentState !== lastLoggedState) {
-      console.log('[DefaultKeyBanner] Visibility state changed:', {
+      debugLog('ui', 'full', '[DefaultKeyBanner] Visibility state changed:', {
         provider: settings.provider,
         hasUserKey: !!settings.apiKeyOpenRouter,
         hasUserEnvKey: !!hasUserEnvKey,
@@ -91,7 +92,7 @@ export function DefaultKeyBanner() {
           <p className={`text-sm mt-1 ${isExceeded ? 'text-red-800 dark:text-red-200' : 'text-amber-800 dark:text-amber-200'}`}>
             {isExceeded ? (
               <>
-                You've used all <strong>10 free trial requests</strong>. Add your own API key to continue translating.
+                You've used all <strong>10 free daily requests</strong>. Come back tomorrow or add your own API key to continue now.
               </>
             ) : (
               <>

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchAndParseUrl, getSupportedSiteInfo, isUrlSupported } from '../../services/adapters';
+import { fetchAndParseUrl } from '../../services/scraping/fetcher';
+import { getSupportedSiteInfo, isUrlSupported } from '../../services/scraping/urlUtils';
 
 const makeResponse = (body: string) => ({
   ok: true,

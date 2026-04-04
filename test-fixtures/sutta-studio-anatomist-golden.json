@@ -82,7 +82,11 @@
       ],
       "wordCount": 4,
       "segmentCount": 8,
-      "relationCount": 2
+      "relationCount": 2,
+      "wordRange": [
+        0,
+        4
+      ]
     },
     {
       "phaseId": "phase-2",
@@ -91,7 +95,11 @@
       ],
       "wordCount": 2,
       "segmentCount": 5,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        4,
+        6
+      ]
     },
     {
       "phaseId": "phase-3",
@@ -100,7 +108,11 @@
       ],
       "wordCount": 2,
       "segmentCount": 7,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        6,
+        8
+      ]
     },
     {
       "phaseId": "phase-4",
@@ -109,7 +121,11 @@
       ],
       "wordCount": 2,
       "segmentCount": 6,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        8,
+        10
+      ]
     },
     {
       "phaseId": "phase-5",
@@ -118,7 +134,11 @@
       ],
       "wordCount": 2,
       "segmentCount": 5,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        10,
+        12
+      ]
     },
     {
       "phaseId": "phase-6",
@@ -127,7 +147,11 @@
       ],
       "wordCount": 2,
       "segmentCount": 5,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        12,
+        14
+      ]
     },
     {
       "phaseId": "phase-7",
@@ -136,7 +160,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 5,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        14,
+        17
+      ]
     },
     {
       "phaseId": "phase-x",

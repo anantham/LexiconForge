@@ -1,8 +1,19 @@
 # SUTTA-003: Sutta Studio MVP + Deep Loom IR + Compiler Pipeline
 
-**Date:** 2026-01-26  
-**Status:** Accepted  
+**Date:** 2026-01-26
+**Status:** Implemented (MVP) — 2026-03-20
 **Authors:** Aditya + Codex
+
+### Implementation Notes (2026-03-20)
+
+MVP is shipped and in use. Key files:
+- **Route:** `/sutta/:uid` via `components/sutta-studio/SuttaStudioApp.tsx` (gate/loader) + `SuttaStudioView.tsx` (renderer)
+- **Compiler pipeline:** `services/compiler/` (8 modules, ~2,019 LOC) — Skeleton → Anatomist → Lexicographer → Weaver → Typesetter → Validator
+- **IR types:** `types/suttaStudio.ts` (authoritative)
+- **UI components:** `components/sutta-studio/` — PaliWord, EnglishWord, Tooltip, LensPanel, ScrollProgressBar, StudioHeader, etc.
+- **Caching:** `services/suttaStudioPipelineCache.ts` (L2 morphology + L5 segment)
+- **Benchmarking:** `scripts/sutta-studio/benchmark.ts` + `components/bench/SuttaStudioBenchmarkView.tsx`
+- Three amendments (2026-01-28, 2026-01-30, 2026-01-31) refined the IR schema and pass architecture during development.
 
 ## Context
 
@@ -54,12 +65,25 @@ InterfaceIdea proved the UI mechanics with a static dataset, but the dataset mus
 - Citations live in a separate registry; senses reference citation IDs.
 
 ### LLM Pipeline
-Use CSP-style compiler pipeline:  
-**Skeleton → Phase Deltas → Validator**
+> **Note:** The original 3-pass design below was superseded by an amendment (2026-01-28).
+> See the Amendment section later in this ADR for the current 5-pass architecture.
 
-1) **Skeleton pass**: phases, anchors, ghost scaffolding, rough senses.  
-2) **Phase deltas**: segmentation, senses, relations, ripple rules.  
-3) **Validator**: repair references, enforce schema, list unresolved.
+~~Use CSP-style compiler pipeline:~~
+~~**Skeleton → Phase Deltas → Validator**~~
+
+~~1) **Skeleton pass**: phases, anchors, ghost scaffolding, rough senses.~~
+~~2) **Phase deltas**: segmentation, senses, relations, ripple rules.~~
+~~3) **Validator**: repair references, enforce schema, list unresolved.~~
+
+**Current pipeline (as of 2026-01-28 amendment):**
+**Skeleton → Anatomist → Lexicographer → Weaver → Typesetter → Validator**
+
+1) **Skeleton** (chunked, 50-seg windows): phase segmentation only.
+2) **Anatomist**: Pali word segmentation, morphology, grammar relations.
+3) **Lexicographer**: contextual senses (3 for content words, 1-2 for function words).
+4) **Weaver**: English token mapping, ghost word identification.
+5) **Typesetter**: layout blocks (max 5 words per block).
+6) **Validator**: full schema enforcement after each pass.
 
 ## Options Considered
 

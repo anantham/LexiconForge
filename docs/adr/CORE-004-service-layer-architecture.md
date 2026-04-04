@@ -1,9 +1,15 @@
 # CORE-004: Service Layer Architecture with Transaction Injection
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Implemented (2026-03-05)
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition), DB-002 (Atomic Transactions)
+
+## Implementation Notes (2026-03-05)
+The TransactionService interface proposed here was implemented as a functional `withTxn()`
+helper in `services/db/core/txn.ts` rather than a class-based service. The UnitOfWork
+pattern was realized through the `withTxn(storeNames, mode, operation)` signature.
+The optional `tx?` parameter pattern is used across all `services/db/operations/*.ts` files.
 
 ## Context
 

@@ -78,6 +78,41 @@ describe('RegistryService', () => {
     expect(metadata.versions).toHaveLength(1);
   });
 
+  it('should fetch a novel by registry id', async () => {
+    const mockRegistry: Registry = {
+      version: '2.0',
+      lastUpdated: '2025-01-19',
+      novels: [{ id: 'test-novel', metadataUrl: 'https://example.com/novel.json' }],
+    };
+
+    const mockMetadata: NovelEntry = {
+      id: 'test-novel',
+      title: 'Test Novel',
+      metadata: {
+        originalLanguage: 'Korean',
+        chapterCount: 50,
+        genres: ['Fantasy'],
+        description: 'Test description',
+        lastUpdated: '2025-01-19',
+      },
+    };
+
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockRegistry,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockMetadata,
+      });
+
+    const metadata = await RegistryService.fetchNovelById('test-novel');
+
+    expect(metadata?.id).toBe('test-novel');
+  });
+
   it('should handle fetch errors gracefully', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,

@@ -2,6 +2,7 @@ import React from 'react';
 import ChapterContent from './ChapterContent';
 import FootnotesPanel from './FootnotesPanel';
 import ReaderFeedbackPanel from './ReaderFeedbackPanel';
+import InlineCommentMarkers from './InlineCommentMarkers';
 import ChapterSelectionOverlay from './ChapterSelectionOverlay';
 import ComparisonPortal from './ComparisonPortal';
 import FooterNavigation from './FooterNavigation';
@@ -21,7 +22,7 @@ interface ReaderBodyProps {
   comparisonLoading: boolean;
   beginInlineEdit: () => void;
   handleCompareRequest: () => void;
-  handleFeedbackSubmit: (feedback: { type: FeedbackItem['type']; selection: string }) => void;
+  handleFeedbackSubmit: (feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => void;
   clearSelection: () => void;
   viewRef: React.RefObject<HTMLDivElement>;
   chapterContentProps: React.ComponentProps<typeof ChapterContent>;
@@ -57,10 +58,20 @@ const ReaderBody: React.FC<ReaderBodyProps> = ({
   onScrollToText,
 }) => {
   const enableAudio = useAppStore((s) => s.settings.enableAudio ?? false);
+  const showInlineComments = useAppStore((s) => s.settings.showInlineComments ?? true);
 
   return (
     <>
-      <ChapterContent {...chapterContentProps} />
+      <div className="relative">
+        <ChapterContent {...chapterContentProps} />
+        {showInlineComments && viewMode === 'english' && feedbackForChapter.length > 0 && (
+          <InlineCommentMarkers
+            feedback={feedbackForChapter}
+            contentRef={chapterContentProps.contentRef}
+            onScrollToText={onScrollToText}
+          />
+        )}
+      </div>
       <FootnotesPanel
         chapterId={chapter?.id ?? null}
         footnotes={viewMode === 'english' ? translationResult?.footnotes : undefined}

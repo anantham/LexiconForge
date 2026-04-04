@@ -1,4 +1,4 @@
-import type { PaliWord, WordSegment } from '../../types/suttaStudio';
+import type { PaliWord, WordClass, WordSegment } from '../../types/suttaStudio';
 
 export const hasTextSelection = () => {
   if (typeof window === 'undefined') return false;
@@ -23,6 +23,18 @@ export const targetDomId = (phaseId: string, structureId: string) =>
   `${phaseId}-target-${structureId}`;
 
 export const buildPaliText = (w: PaliWord) => w.segments.map((s) => s.text).join('');
+
+/**
+ * Derive Tailwind text color from wordClass.
+ * content → green (semantic words), function → white (grammatical glue),
+ * vocative → yellow (direct address)
+ */
+export const getWordColor = (wordClass?: WordClass, fallbackColor?: string): string => {
+  if (wordClass === 'content') return 'text-emerald-400';
+  if (wordClass === 'function') return 'text-slate-200';
+  if (wordClass === 'vocative') return 'text-yellow-400';
+  return fallbackColor || 'text-white';
+};
 
 export const resolveSenseId = (w: PaliWord, idx: number) => {
   const t = w.senses[idx];

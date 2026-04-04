@@ -1,9 +1,14 @@
 # CORE-006: Tree-Shakeable Service Architecture with Bundle Optimization
 
 **Date:** 2025-01-13
-**Status:** Proposed
+**Status:** Implemented (2026-03-05)
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition), CORE-004 (Service Architecture), CORE-005 (Agent-First Organization)
+
+## Implementation Notes (2026-03-05)
+Pure ESM architecture adopted throughout. No CommonJS in the services layer. Heavy features
+(EPUB, image generation) are lazily loaded. Named exports only — no barrel re-exports in
+service modules. Bundle size targets from this ADR have not been formally re-measured.
 
 ## Context
 

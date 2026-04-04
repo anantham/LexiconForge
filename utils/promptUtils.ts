@@ -21,7 +21,7 @@ export function stripAmendmentProtocol(systemPrompt: string): string {
  */
 export function getEffectiveSystemPrompt(
   systemPrompt: string,
-  enableAmendments: boolean = false
+  enableAmendments: boolean = true
 ): string {
   if (!enableAmendments) {
     return stripAmendmentProtocol(systemPrompt);

@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vite
 import { NavigationService, type NavigationContext, type FetchResult } from '../../services/navigationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import type { TranslationRecord } from '../../services/db/types';
+import { AppError } from '../../services/appError';
 
 // ============================================================================
 // Test Fixtures
@@ -16,6 +17,8 @@ import type { TranslationRecord } from '../../services/db/types';
 
 const createMockEnhancedChapter = (overrides: Partial<EnhancedChapter> = {}): EnhancedChapter => ({
   id: 'ch-test-001',
+  novelId: null,
+  libraryVersionId: null,
   title: 'Test Chapter',
   content: 'This is test content for the chapter.',
   originalUrl: 'https://kakuyomu.jp/works/123/episodes/456',
@@ -71,8 +74,11 @@ const createNavigationContext = (overrides: Partial<NavigationContext> = {}): Na
 // ============================================================================
 
 // Mock adapters
-vi.mock('../../services/adapters', () => ({
+vi.mock('../../services/scraping/fetcher', () => ({
   fetchAndParseUrl: vi.fn(),
+}));
+
+vi.mock('../../services/scraping/urlUtils', () => ({
   isUrlSupported: vi.fn((url: string) => {
     const supported = [
       'kakuyomu.jp',
@@ -119,6 +125,7 @@ vi.mock('../../services/stableIdService', () => ({
 vi.mock('../../services/db/operations', () => ({
   ChapterOps: {
     getByStableId: vi.fn(),
+    findBySourceUrl: vi.fn(),
   },
   TranslationOps: {
     getActiveByStableId: vi.fn(),
@@ -156,6 +163,7 @@ vi.mock('../../services/telemetryService', () => ({
 // Mock debug utilities
 vi.mock('../../utils/debug', () => ({
   debugLog: vi.fn(),
+  debugWarn: vi.fn(),
 }));
 
 vi.mock('../../utils/memoryDiagnostics', () => ({
@@ -477,7 +485,7 @@ describe('NavigationService', () => {
     });
 
     it('fetches and transforms chapter for supported URL', async () => {
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
 
       const mockChapterData = {
         title: 'Fetched Chapter',
@@ -498,7 +506,7 @@ describe('NavigationService', () => {
     });
 
     it('returns error result when fetch fails', async () => {
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
       (fetchAndParseUrl as Mock).mockRejectedValue(new Error('Network error'));
 
       const result = await NavigationService.handleFetch('https://kakuyomu.jp/works/123/episodes/456');
@@ -506,8 +514,23 @@ describe('NavigationService', () => {
       expect(result.error).toBe('Network error');
     });
 
+    it('returns the user-facing message when fetch fails with an AppError', async () => {
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
+      (fetchAndParseUrl as Mock).mockRejectedValue(
+        new AppError({
+          code: 'FETCH_ALL_PROXIES_FAILED',
+          userMessage: 'Short human message',
+          developerMessage: 'Long proxy diagnostics that should stay out of the UI',
+        })
+      );
+
+      const result = await NavigationService.handleFetch('https://kakuyomu.jp/works/123/episodes/456');
+
+      expect(result.error).toBe('Short human message');
+    });
+
     it('deduplicates concurrent fetches for same URL', async () => {
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
 
       let resolveFirst: (value: any) => void;
       const firstFetchPromise = new Promise(resolve => {
@@ -558,7 +581,7 @@ describe('NavigationService', () => {
 
       expect(result.currentChapterId).toBe('cached-chapter');
       // fetchAndParseUrl should NOT be called when cache hit
-      const { fetchAndParseUrl } = await import('../../services/adapters');
+      const { fetchAndParseUrl } = await import('../../services/scraping/fetcher');
       expect(fetchAndParseUrl).not.toHaveBeenCalled();
     });
   });
@@ -603,7 +626,7 @@ describe('NavigationService', () => {
       NavigationService.updateBrowserHistory(chapter, chapter.id);
 
       expect(history.pushState).toHaveBeenCalledWith(
-        { chapterId: chapter.id },
+        { chapterId: chapter.id, novelId: null, versionId: null },
         '',
         expect.stringContaining('chapter=')
       );
@@ -616,6 +639,21 @@ describe('NavigationService', () => {
 
       const call = (history.pushState as Mock).mock.calls[0];
       const url = call[2];
+      expect(url).toContain(`chapter=${encodeURIComponent(chapter.canonicalUrl)}`);
+    });
+
+    it('includes novel and version params when provided', () => {
+      const chapter = createMockEnhancedChapter({ novelId: 'orv' });
+
+      NavigationService.updateBrowserHistory(chapter, chapter.id, {
+        novelId: 'orv',
+        versionId: 'v2',
+      });
+
+      const call = (history.pushState as Mock).mock.calls[0];
+      const url = call[2];
+      expect(url).toContain('novel=orv');
+      expect(url).toContain('version=v2');
       expect(url).toContain(`chapter=${encodeURIComponent(chapter.canonicalUrl)}`);
     });
   });
@@ -718,12 +756,15 @@ describe('Translation record adaptation', () => {
       url: 'https://kakuyomu.jp/works/123/episodes/456',
     };
 
-    // Minimal translation record (missing optional fields)
+    // Minimal translation record (missing optional metric fields)
     const sparseTranslation: Partial<TranslationRecord> = {
+      id: 'trans-sparse-001',
       stableId: 'ch-sparse',
+      chapterUrl: 'https://kakuyomu.jp/works/123/episodes/456',
       translatedTitle: 'Sparse Title',
       translation: 'Sparse content',
-      // No id, no version, no metrics
+      isActive: true,
+      // No version, no metrics, no provider, no model
     };
 
     (ChapterOps.getByStableId as Mock).mockResolvedValue(mockRecord);

@@ -1,8 +1,16 @@
 # SUTTA-005: Benchmark Leaderboard
 
-**Status:** Accepted
+**Status:** Implemented — 2026-03-20
 **Date:** 2026-01-31
 **Author:** Claude + Aditya
+
+### Implementation Notes (2026-03-20)
+
+Leaderboard is implemented end-to-end:
+- **Generation:** `scripts/sutta-studio/generate-leaderboard.ts` aggregates benchmark results into `reports/sutta-studio/leaderboard.json`
+- **Quality scoring:** `scripts/sutta-studio/quality-scorer.ts` + `scoring.ts`
+- **UI:** Leaderboard tab in `components/bench/SuttaStudioBenchmarkView.tsx`
+- **Data:** `reports/sutta-studio/leaderboard.json` exists with results from 13+ models
 
 ## Context
 
