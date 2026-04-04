@@ -29,6 +29,21 @@
   - Added focused component coverage for both failure preservation and success clearing so the UI contract stays explicit.
 - Tests:
   - `npx vitest run tests/components/InputBar.test.tsx` ✅
+2026-04-03 11:40 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Fix the PR #30 review regression where selection-based illustration planning still fails hard when the planner request or JSON parse path breaks.
+- Files:
+  - services/imagePlanPlanner.ts
+  - tests/services/imagePlanPlanner.test.ts
+  - docs/WORKLOG.md
+- Why:
+  - Caption-based planning already fell back to a caption-derived `ImagePlan`, but the text-selection flow still returned `null` on the same planner failures because it skipped that fallback wrapper.
+- Details:
+  - Extracted a shared planner-with-fallback helper so both caption-based and selection-based illustration planning degrade to a caption-derived `ImagePlan`.
+  - Added a regression test that forces the selection planner path to reject and verifies that the returned payload still contains a usable fallback prompt and plan.
+- Tests:
+  - `npx vitest run tests/services/imagePlanPlanner.test.ts` ✅
+
 2026-04-02 23:02 EDT - [Agent: Codex]
 - Status: Starting
 - Task: Fix OpenRouter model picker ordering so free text models sort first, and replace the brittle OpenRouter image-model/filter path with a verified adapter aligned to current OpenRouter image-generation docs.

@@ -390,6 +390,23 @@ const requestPlannedIllustration = async (
   }
 };
 
+const requestPlannedIllustrationWithFallback = async (
+  request: PlannerRequest
+): Promise<PlannedIllustration> => {
+  try {
+    return await requestPlannedIllustration(request);
+  } catch (error) {
+    const warning = error instanceof Error ? error.message : 'Planner request failed; using caption-derived fallback.';
+    console.warn('[ImagePlanPlanner] Falling back to caption-derived plan.', {
+      provider: request.settings.provider,
+      model: request.settings.model,
+      caption: request.fallbackCaption,
+      error,
+    });
+    return buildFallbackPlan(request.fallbackCaption, warning);
+  }
+};
+
 export const generateImagePlanFromCaption = async (
   caption: string,
   settings: AppSettings,
@@ -400,22 +417,11 @@ export const generateImagePlanFromCaption = async (
     .replace('{{caption}}', fallbackCaption)
     .replace('{{context}}', buildPlanningContext(options?.context));
 
-  try {
-    return await requestPlannedIllustration({
-      settings,
-      userPrompt,
-      fallbackCaption,
-    });
-  } catch (error) {
-    const warning = error instanceof Error ? error.message : 'Planner request failed; using caption-derived fallback.';
-    console.warn('[ImagePlanPlanner] Falling back to caption-derived plan.', {
-      provider: settings.provider,
-      model: settings.model,
-      caption: fallbackCaption,
-      error,
-    });
-    return buildFallbackPlan(fallbackCaption, warning);
-  }
+  return requestPlannedIllustrationWithFallback({
+    settings,
+    userPrompt,
+    fallbackCaption,
+  });
 };
 
 export const generateIllustrationFromSelection = async (
@@ -428,7 +434,7 @@ export const generateIllustrationFromSelection = async (
     .replace('{{context}}', buildPlanningContext(context))
     .replace('{{selection}}', fallbackCaption);
 
-  return requestPlannedIllustration({
+  return requestPlannedIllustrationWithFallback({
     settings,
     userPrompt,
     fallbackCaption,

@@ -140,4 +140,19 @@ describe('imagePlanPlanner', () => {
     expect(requestBody.messages[1].content).toContain('User\'s selected phrase');
     expect(requestBody.messages[1].content).toContain('The emperor nodded slowly');
   });
+
+  it('falls back to a caption-derived plan when selection-based planning fails', async () => {
+    openAiCreateMock.mockRejectedValue(new Error('selection planner unavailable'));
+
+    const result = await generateIllustrationFromSelection(
+      'The emperor nodded slowly',
+      '<p>The emperor nodded slowly, his eyes fixed on the young knight before him.</p>',
+      mockSettings as any
+    );
+
+    expect(result.source).toBe('fallback');
+    expect(result.warning).toContain('selection planner unavailable');
+    expect(result.imagePrompt).toBe('The emperor nodded slowly');
+    expect(result.imagePlan.subject).toContain('The emperor nodded slowly');
+  });
 });
