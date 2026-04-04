@@ -27,6 +27,7 @@ interface TranslationParametersSectionProps {
   presencePenalty: number;
   enableAmendments: boolean;
   includeFanTranslationInPrompt: boolean;
+  includeHistoricalFanTranslationsInContext: boolean;
 
   // Parameter support for current model
   parameterSupport: ParameterSupport | undefined;
@@ -39,6 +40,7 @@ interface TranslationParametersSectionProps {
   onPresencePenaltyChange: (value: number) => void;
   onEnableAmendmentsChange: (value: boolean) => void;
   onIncludeFanTranslationChange: (value: boolean) => void;
+  onIncludeHistoricalFanTranslationsChange: (value: boolean) => void;
 }
 
 const SupportIndicator: React.FC<{ support: ParameterSupportStatus; title?: string }> = ({ support, title }) => {
@@ -55,6 +57,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
   presencePenalty,
   enableAmendments,
   includeFanTranslationInPrompt,
+  includeHistoricalFanTranslationsInContext,
   parameterSupport,
   onTemperatureChange,
   onTopPChange,
@@ -63,6 +66,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
   onPresencePenaltyChange,
   onEnableAmendmentsChange,
   onIncludeFanTranslationChange,
+  onIncludeHistoricalFanTranslationsChange,
 }) => {
   return (
     <fieldset>
@@ -205,6 +209,24 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
                 Include fan translation as ground truth reference in API calls when available. Disabling this allows you to test translation
                 quality with only raw text and previous chapters as context. When disabled, the fan translation will be excluded from prompts
                 but still available for comparison.
+              </span>
+            </div>
+          </label>
+        </div>
+
+        <div className="mt-4">
+          <label className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeHistoricalFanTranslationsInContext}
+              onChange={(e) => onIncludeHistoricalFanTranslationsChange(e.target.checked)}
+              className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <div>
+              <span className="block font-medium text-gray-800 dark:text-gray-100">Include Previous Fan Translations in Context</span>
+              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                When context depth is above zero, include prior chapters&apos; fan translations as separate historical reference blocks. This improves
+                terminology and style continuity, but it increases prompt size and cost.
               </span>
             </div>
           </label>

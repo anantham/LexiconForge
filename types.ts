@@ -335,6 +335,7 @@ export interface AppSettings {
     enableHtmlRepair?: boolean;               // Enable graceful HTML formatting repairs
     enableAmendments?: boolean;               // Enable prompt amendment proposals from AI
     includeFanTranslationInPrompt?: boolean;  // Include fan translation as reference in API calls
+    includeHistoricalFanTranslationsInContext?: boolean; // Include prior chapters' fan translations in context windows
     // Diff heatmap display
     showDiffHeatmap?: boolean;                // Show semantic diff markers in gutter (default: true)
     diffMarkerVisibility?: DiffMarkerVisibilitySettings;
