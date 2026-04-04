@@ -37,6 +37,33 @@ const titleAlreadyStartsWithNumber = (title: string, chapterNumber: number): boo
 };
 
 /**
+ * Strips internally-duplicated titles.
+ * Scrapers sometimes produce "Chapter 304: Foggy Booth Chapter 304: Foggy Booth"
+ * where the entire "Chapter N: Name" is repeated. This detects and removes the repeat.
+ */
+const deduplicateTitle = (title: string): string => {
+  const trimmed = title.trim();
+  const len = trimmed.length;
+  if (len < 6) return trimmed;
+
+  // Try splitting at each space near the midpoint to find a repeated half
+  const mid = Math.floor(len / 2);
+  // Search a window around the midpoint for a space
+  for (let offset = 0; offset <= 10; offset++) {
+    for (const delta of [offset, -offset]) {
+      const pos = mid + delta;
+      if (pos <= 0 || pos >= len - 1) continue;
+      if (trimmed[pos] !== ' ') continue;
+      const left = trimmed.slice(0, pos);
+      const right = trimmed.slice(pos + 1);
+      if (left === right) return left;
+    }
+  }
+
+  return trimmed;
+};
+
+/**
  * Builds the display label for a chapter in the dropdown.
  * If the title already starts with a chapter number reference, returns the title
  * as-is to avoid duplication like "Ch 5: Chapter 5: The Title".
@@ -45,15 +72,17 @@ export const buildChapterDisplayLabel = (
   title: string,
   displayNumber: number | null
 ): string => {
+  const cleanTitle = deduplicateTitle(title);
+
   if (displayNumber === null || displayNumber <= 0) {
-    return title;
+    return cleanTitle;
   }
 
-  if (titleAlreadyStartsWithNumber(title, displayNumber)) {
-    return title;
+  if (titleAlreadyStartsWithNumber(cleanTitle, displayNumber)) {
+    return cleanTitle;
   }
 
-  return `Ch ${displayNumber}: ${title}`;
+  return `Ch ${displayNumber}: ${cleanTitle}`;
 };
 
 const getTimestamp = () =>

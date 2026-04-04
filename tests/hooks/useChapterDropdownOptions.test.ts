@@ -37,4 +37,35 @@ describe('buildChapterDisplayLabel', () => {
       'Ch 42: Chapter 5: The Beginning'
     );
   });
+
+  // Internally-duplicated title tests
+  it('deduplicates "Chapter N: Name Chapter N: Name" pattern', () => {
+    expect(buildChapterDisplayLabel('Chapter 304: Foggy Booth Chapter 304: Foggy Booth', 304)).toBe(
+      'Chapter 304: Foggy Booth'
+    );
+  });
+
+  it('deduplicates title with longer name', () => {
+    expect(buildChapterDisplayLabel('Chapter 299: I Love You Chapter 299: I Love You', 299)).toBe(
+      'Chapter 299: I Love You'
+    );
+  });
+
+  it('does not deduplicate a title that is not actually doubled', () => {
+    expect(buildChapterDisplayLabel('Chapter 305: Grand Entrance', 305)).toBe(
+      'Chapter 305: Grand Entrance'
+    );
+  });
+
+  it('deduplicates even without a chapter number prefix', () => {
+    expect(buildChapterDisplayLabel('Foggy Booth Foggy Booth', 304)).toBe(
+      'Ch 304: Foggy Booth'
+    );
+  });
+
+  it('does not false-positive on repeated words within a title', () => {
+    expect(buildChapterDisplayLabel('Chapter 306: Seafood Fried Rice and Egg Fried Rice', 306)).toBe(
+      'Chapter 306: Seafood Fried Rice and Egg Fried Rice'
+    );
+  });
 });
