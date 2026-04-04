@@ -205,9 +205,9 @@ export const createChaptersSlice: StateCreator<
         uiActions.setHydratingState(id, hydrating);
       }
     };
-    
+
     const chapter = await NavigationService.loadChapterFromIDB(chapterId, updateHydratingState);
-    
+
     if (chapter) {
       // Add to chapters map
       set(state => {
@@ -234,8 +234,33 @@ export const createChaptersSlice: StateCreator<
             .catch(error => console.warn('[ChaptersSlice] Failed to hydrate images from IDB:', error));
         }
       }
+
+      // Auto-translate AFTER hydration is complete — this is the ONLY place
+      // where we know for certain whether a translation exists in IDB.
+      // The old MainApp.tsx useEffect was racy: it fired before hydration finished,
+      // saw no translation, and triggered a duplicate translation.
+      const state = get() as any;
+      const isCurrentChapter = state.currentChapterId === chapterId;
+      const viewMode = state.viewMode;
+      const hasTranslation = !!chapter.translationResult;
+
+      if (isCurrentChapter && viewMode === 'english' && !hasTranslation) {
+        const isActive = state.isTranslationActive?.(chapterId);
+        const isPending = state.pendingTranslations?.has(chapterId);
+
+        if (!isActive && !isPending) {
+          debugLog('translation', 'summary',
+            `[ChaptersSlice] Post-hydration auto-translate: no translation found for ${chapterId}`);
+          if (typeof state.handleTranslate === 'function') {
+            void state.handleTranslate(chapterId, 'auto_translate');
+          }
+        } else {
+          debugLog('translation', 'full',
+            `[ChaptersSlice] Post-hydration: translation already active/pending for ${chapterId}`);
+        }
+      }
     }
-    
+
     return chapter;
   },
   

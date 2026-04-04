@@ -167,112 +167,13 @@ const settingsFingerprint = React.useMemo(
 
     // Boot-time hydration is now handled automatically by the store initialization
 
-    // Main translation trigger effect remains here to orchestrate store actions
-    useEffect(() => {
-      debugLog('translation', 'full', `[AutoTranslate] Effect triggered @${Date.now()}`, {
-        viewMode,
-        currentChapterId,
-        hasCurrentChapter,
-        hasTranslationResult: !!currentChapterTranslationResult,
-        translationResultValue: currentChapterTranslationResult ? 'exists' : 'null/undefined'
-      });
+    // Auto-translate is now handled in chaptersSlice.loadChapterFromIDB —
+    // it fires AFTER hydration completes, so it knows whether a translation
+    // already exists in IDB. The old useEffect here was racy: it fired before
+    // hydration finished, saw no translation, and wasted API credits on
+    // duplicate translations. See chaptersSlice.ts loadChapterFromIDB.
 
-      if (viewMode !== 'english' || !currentChapterId || !hasCurrentChapter) {
-        debugLog('translation', 'full', `[AutoTranslate] Early exit - preconditions not met`);
-        return;
-      }
-
-      const chapter = getChapter(currentChapterId);
-      if (!chapter) {
-        debugLog('translation', 'full', `[AutoTranslate] Early exit - chapter not found in map`);
-        return;
-      }
-
-      const translating = isTranslationActive(currentChapterId) || isLoading.translating;
-      const pending = useAppStore.getState().pendingTranslations.has(currentChapterId);
-      const hasResult  = !!currentChapterTranslationResult;
-      const prevSig    = requestedRef.current.get(currentChapterId);
-      const alreadyRequested = prevSig === settingsFingerprint;
-
-      debugLog('translation', 'full', `[AutoTranslate] Conditions check for ${currentChapterId}:`, {
-        hasResult,
-        translating,
-        alreadyRequested,
-        pending,
-        prevSig: prevSig ? 'exists' : 'none',
-        currentSig: settingsFingerprint,
-        chapterHasTranslationResult: !!chapter.translationResult,
-        chapterTranslationMetadata: chapter.translationResult ? {
-          hasId: !!(chapter.translationResult as any).id,
-          hasUsageMetrics: !!chapter.translationResult.usageMetrics,
-          provider: chapter.translationResult.usageMetrics?.provider,
-          model: chapter.translationResult.usageMetrics?.model,
-          cost: chapter.translationResult.usageMetrics?.estimatedCost
-        } : null
-      });
-
-      if (!hasResult && !translating && !alreadyRequested && !pending) {
-        debugWarn('translation', 'summary', `[AutoTranslate] TRIGGERING AUTO-TRANSLATION for chapter ${currentChapterId}`);
-        debugWarn('translation', 'summary', `[AutoTranslate] This may be a HYDRATION RACE if chapter already has translationResult in state!`);
-        requestedRef.current.set(currentChapterId, settingsFingerprint);
-        void Promise.resolve()
-          .then(() => handleTranslate(currentChapterId, 'auto_translate'))
-          .catch((error) => {
-            console.error('[AutoTranslate] Unexpected translation failure:', error);
-            const store = useAppStore.getState();
-            const message = error instanceof Error ? error.message : 'Unexpected translation failure';
-            clientTelemetry.emit({
-              eventType: 'translation_failed',
-              failureType: 'unknown',
-              surface: 'auto_translate',
-              severity: 'error',
-              expected: false,
-              userVisible: null,
-              provider: settings.provider,
-              model: settings.model,
-              chapterId: currentChapterId,
-              error,
-              errorMessage: message,
-              dedupeCallback: true,
-            });
-            store.setError?.(message, {
-              sourceEventType: 'translation_failed',
-              failureType: 'unknown',
-              surface: 'auto_translate',
-              expected: false,
-              provider: settings.provider,
-              model: settings.model,
-              chapterId: currentChapterId,
-            });
-            store.showNotification?.(message, 'error');
-          });
-      } else {
-        debugLog('translation', 'full', `[AutoTranslate] NOT triggering - conditions not met (blocking reason logged above)`);
-      }
-    }, [
-      viewMode,
-      currentChapterId,
-      currentChapterTranslationResult,
-      settingsFingerprint,
-      isLoading.translating,
-      isTranslationActive,
-      handleTranslate,
-      hasCurrentChapter,
-      getChapter,
-    ]);
-
-    // And clear the one-shot once a result lands (or when leaving English):
-    useEffect(() => {
-      if (currentChapterId && currentChapterTranslationResult) {
-        requestedRef.current.delete(currentChapterId);
-      }
-    }, [currentChapterId, currentChapterTranslationResult]);
-
-    useEffect(() => {
-      if (viewMode !== 'english' && currentChapterId) {
-        requestedRef.current.delete(currentChapterId);
-      }
-    }, [viewMode, currentChapterId]);
+    // (requestedRef cleanup effect removed — auto-translate moved to store)
 
     // Sanity check: selector subscription (optional but nice)
     // Optional subscription for debugging
