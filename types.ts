@@ -84,9 +84,29 @@ export interface Footnote {
   text: string;
 }
 
+export type ImagePlanMode = 'auto' | 'manual';
+
+export interface ImagePlan {
+  subject: string;
+  characters: string[];
+  scene: string;
+  composition: string;
+  camera: string;
+  lighting: string;
+  style: string;
+  mood: string;
+  details: string[];
+  mustKeep: string[];
+  avoid: string[];
+  negativePrompt: string[];
+}
+
 export interface SuggestedIllustration {
   placementMarker: string;
   imagePrompt: string;
+  imagePlan?: ImagePlan | null;
+  imagePlanMode?: ImagePlanMode;
+  imagePlanSourceCaption?: string | null;
   generatedImage?: GeneratedImageResult; // Stores the actual generated image data for persistence
   imageCacheKey?: ImageCacheKey; // NEW: Cache key for images stored in Cache API
   url?: string; // Legacy base64 field (deprecated)
@@ -127,6 +147,10 @@ export interface GeneratedImageResult {
 export interface ImageGenerationMetadata {
   version: number;
   prompt: string;
+  caption?: string;
+  imagePlan?: ImagePlan | null;
+  imagePlanMode?: ImagePlanMode | null;
+  imagePlanSourceCaption?: string | null;
   negativePrompt?: string;
   guidanceScale?: number;
   loraModel?: string | null;

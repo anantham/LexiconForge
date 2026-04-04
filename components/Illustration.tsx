@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAppStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
-import PencilIcon from './icons/PencilIcon';
 
 import AdvancedImageControls from './AdvancedImageControls';
 import { isFluxModel } from '../utils/imageModelUtils';
@@ -10,6 +9,8 @@ import { useBlobUrl, isBase64DataUrl } from '../hooks/useBlobUrl';
 import type { ImageCacheKey } from '../types';
 import { debugLog } from '../utils/debug';
 import { apiMetricsService } from '../services/apiMetricsService';
+import IllustrationPromptEditor from './illustration/IllustrationPromptEditor';
+import { buildImagePlanFromCaption, parseImagePlanJson, serializeImagePlan } from '../services/imagePlanService';
 
 interface IllustrationProps {
   marker: string;
@@ -27,6 +28,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     generatedImages,
     handleRetryImage,
     updateIllustrationPrompt,
+    updateIllustrationPlan,
+    regenerateIllustrationPlanFromCaption,
     steeringImages,
     setSteeringImage,
     negativePrompts,
@@ -51,6 +54,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
     updateIllustrationPrompt: s.updateIllustrationPrompt,
+    updateIllustrationPlan: s.updateIllustrationPlan,
+    regenerateIllustrationPlanFromCaption: s.regenerateIllustrationPlanFromCaption,
     steeringImages: s.steeringImages,
     setSteeringImage: s.setSteeringImage,
     negativePrompts: s.negativePrompts,
@@ -179,10 +184,21 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   const base64 = imageUrl; // Keep variable name for backwards compat with rest of component
 
+  const currentPlan = React.useMemo(
+    () => illust?.imagePlan || buildImagePlanFromCaption(illust?.imagePrompt || ''),
+    [illust?.imagePlan, illust?.imagePrompt]
+  );
   const [draftPrompt, setDraftPrompt] = React.useState<string>(illust?.imagePrompt || '');
+  const [draftPlanJson, setDraftPlanJson] = React.useState<string>(serializeImagePlan(currentPlan));
   const [isSaving, setIsSaving] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
+  const [editorMode, setEditorMode] = React.useState<'caption' | 'plan'>('caption');
+  const [editorError, setEditorError] = React.useState<string | null>(null);
   const [captionControlsVisible, setCaptionControlsVisible] = React.useState(false);
+  const currentPlanJson = React.useMemo(
+    () => serializeImagePlan(currentPlan),
+    [currentPlan]
+  );
 
   // Countdown timer state for estimated time remaining
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = React.useState<number | null>(null);
@@ -272,24 +288,104 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   React.useEffect(() => {
     setDraftPrompt(illust?.imagePrompt || '');
-  }, [illust?.imagePrompt, marker, chapter?.id]);
+    setDraftPlanJson(currentPlanJson);
+    setEditorError(null);
+  }, [currentPlanJson, illust?.imagePrompt, marker, chapter?.id]);
 
-  const savePromptIfChanged = async () => {
-    if (!chapter || !illust) return;
+  const savePromptIfChanged = async (): Promise<boolean> => {
+    if (!chapter || !illust) return false;
     const trimmed = (draftPrompt || '').trim();
-    if (trimmed === (illust.imagePrompt || '').trim()) return;
+    if (trimmed === (illust.imagePrompt || '').trim()) return true;
     const targetMarker = illust.placementMarker || marker;
     try {
       setIsSaving(true);
       await updateIllustrationPrompt(chapter.id, targetMarker, trimmed);
+      return true;
+    } catch (error) {
+      console.error('Failed to save illustration caption:', error);
+      return false;
     } finally {
       setIsSaving(false);
     }
   };
 
-  const startEditing = () => setIsEditing(true);
-  const cancelEditing = () => { setDraftPrompt(illust?.imagePrompt || ''); setIsEditing(false); };
-  const saveAndClose = async () => { await savePromptIfChanged(); setIsEditing(false); };
+  const savePlanIfChanged = async (): Promise<boolean> => {
+    if (!chapter || !illust) return false;
+    try {
+      const parsedPlan = parseImagePlanJson(draftPlanJson, draftPrompt || illust.imagePrompt || '');
+      const nextPlanJson = serializeImagePlan(parsedPlan);
+      if (currentPlanJson === nextPlanJson && illust.imagePlanMode === 'manual') {
+        setEditorError(null);
+        return true;
+      }
+
+      setIsSaving(true);
+      setEditorError(null);
+      await updateIllustrationPlan(chapter.id, illust.placementMarker || marker, parsedPlan, 'manual');
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Invalid JSON plan';
+      setEditorError(message);
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveDraftsIfChanged = async (): Promise<boolean> => {
+    const planChanged = draftPlanJson !== currentPlanJson;
+    const promptSaved = await savePromptIfChanged();
+    if (!promptSaved) return false;
+
+    if (!planChanged) return true;
+    return savePlanIfChanged();
+  };
+
+  const startEditing = (mode: 'caption' | 'plan' = editorMode) => {
+    setEditorMode(mode);
+    setEditorError(null);
+    setIsEditing(true);
+  };
+  const cancelEditing = () => {
+    setDraftPrompt(illust?.imagePrompt || '');
+    setDraftPlanJson(serializeImagePlan(currentPlan));
+    setEditorError(null);
+    setIsEditing(false);
+  };
+  const saveAndClose = async () => {
+    const saved = editorMode === 'plan' ? await savePlanIfChanged() : await savePromptIfChanged();
+    if (saved) {
+      setIsEditing(false);
+    }
+  };
+
+  const handleRegeneratePlanFromCaption = async () => {
+    if (!chapter || !illust) return;
+
+    const promptSaved = await savePromptIfChanged();
+    if (!promptSaved) return;
+
+    if (
+      isEditing &&
+      editorMode === 'plan' &&
+      draftPlanJson !== currentPlanJson &&
+      !window.confirm('Discard unsaved JSON edits and regenerate the plan from the caption?')
+    ) {
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setEditorError(null);
+      await regenerateIllustrationPlanFromCaption(chapter.id, illust.placementMarker || marker);
+      setIsEditing(false);
+      setEditorMode('plan');
+    } catch (error) {
+      console.error('Failed to regenerate illustration JSON plan:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleSteeringImageChange = (imagePath: string | null) => {
     if (chapter) {
@@ -360,34 +456,23 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           </div>
           {hasIllust && (
             <div className="w-full max-w-xl text-left mb-3">
-              <div className="flex items-start justify-between gap-2">
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Illustration prompt</label>
-                {!isEditing && (
-                  <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit caption" aria-label="Edit caption">
-                    <PencilIcon className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-              {!isEditing && (
-                <p className="mt-1 text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{illust?.imagePrompt || 'No prompt provided.'}</p>
-              )}
-              {isEditing && (
-                <div>
-                  <textarea
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    value={draftPrompt}
-                    onChange={(e) => setDraftPrompt(e.target.value)}
-                    placeholder="Describe the image you want..."
-                  />
-                  <div className="mt-2 flex gap-2">
-                    <button onClick={saveAndClose} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60" disabled={isSaving}>
-                      {isSaving ? 'Saving…' : 'Save'}
-                    </button>
-                    <button onClick={cancelEditing} className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-xs rounded-md">Cancel</button>
-                  </div>
-                </div>
-              )}
+              <IllustrationPromptEditor
+                caption={draftPrompt}
+                planJson={draftPlanJson}
+                planMode={illust?.imagePlanMode || 'auto'}
+                planSourceCaption={illust?.imagePlanSourceCaption}
+                isEditing={isEditing}
+                isSaving={isSaving}
+                editorMode={editorMode}
+                validationError={editorError}
+                onEditorModeChange={setEditorMode}
+                onStartEditing={startEditing}
+                onCaptionChange={setDraftPrompt}
+                onPlanChange={setDraftPlanJson}
+                onSave={saveAndClose}
+                onCancel={cancelEditing}
+                onRegeneratePlanFromCaption={handleRegeneratePlanFromCaption}
+              />
               <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Edit the prompt and retry to generate a new image.</p>
             </div>
           )}
@@ -415,9 +500,11 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
             {hasIllust && (
               <button
                 onClick={async () => {
-                  await savePromptIfChanged();
-                  setIsEditing(false);
-                  if (chapter) {
+                  const saved = await saveDraftsIfChanged();
+                  if (saved) {
+                    setIsEditing(false);
+                  }
+                  if (chapter && saved) {
                     const retryMarker = illust?.placementMarker ?? marker;
                     handleRetryImage(chapter.id, retryMarker);
                   }
@@ -458,34 +545,23 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
               {/* Collapsible caption controls */}
               {captionControlsVisible && (
                 <div className="mt-3 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Caption</label>
-                    {!isEditing && (
-                      <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit caption" aria-label="Edit caption">
-                        <PencilIcon className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                  {!isEditing && (
-                    <p className="mt-1 text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{illust?.imagePrompt || 'No caption.'}</p>
-                  )}
-                  {isEditing && (
-                    <div>
-                      <textarea
-                        className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows={3}
-                        value={draftPrompt}
-                        onChange={(e) => setDraftPrompt(e.target.value)}
-                        placeholder="Describe or refine the image…"
-                      />
-                      <div className="mt-2 flex gap-2">
-                        <button onClick={saveAndClose} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60" disabled={isSaving}>
-                          {isSaving ? 'Saving…' : 'Save'}
-                        </button>
-                        <button onClick={cancelEditing} className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-xs rounded-md">Cancel</button>
-                      </div>
-                    </div>
-                  )}
+                  <IllustrationPromptEditor
+                    caption={draftPrompt}
+                    planJson={draftPlanJson}
+                    planMode={illust?.imagePlanMode || 'auto'}
+                    planSourceCaption={illust?.imagePlanSourceCaption}
+                    isEditing={isEditing}
+                    isSaving={isSaving}
+                    editorMode={editorMode}
+                    validationError={editorError}
+                    onEditorModeChange={setEditorMode}
+                    onStartEditing={startEditing}
+                    onCaptionChange={setDraftPrompt}
+                    onPlanChange={setDraftPlanJson}
+                    onSave={saveAndClose}
+                    onCancel={cancelEditing}
+                    onRegeneratePlanFromCaption={handleRegeneratePlanFromCaption}
+                  />
                   
                   {/* Advanced Image Controls - Only for Flux models */}
                   {supportsAdvancedFeatures && (
@@ -510,9 +586,11 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={async () => {
-                        await savePromptIfChanged();
-                        setIsEditing(false);
-                        if (chapter) {
+                        const saved = await saveDraftsIfChanged();
+                        if (saved) {
+                          setIsEditing(false);
+                        }
+                        if (chapter && saved) {
                           const retryMarker = illust?.placementMarker ?? marker;
                           handleRetryImage(chapter.id, retryMarker);
                         }
@@ -606,34 +684,23 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
             {/* Collapsible generation controls */}
             {captionControlsVisible && (
                 <div className="mt-3 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">Illustration prompt</label>
-                    {!isEditing && (
-                      <button onClick={startEditing} className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Edit prompt" aria-label="Edit prompt">
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-                {!isEditing && (
-                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">{illust?.imagePrompt || 'No prompt provided.'}</p>
-                )}
-                {isEditing && (
-                  <div>
-                    <textarea
-                      className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows={3}
-                      value={draftPrompt}
-                      onChange={(e) => setDraftPrompt(e.target.value)}
-                      placeholder="Describe the image you want..."
-                    />
-                    <div className="mt-2 flex gap-2">
-                      <button onClick={saveAndClose} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-60" disabled={isSaving}>
-                        {isSaving ? 'Saving…' : 'Save'}
-                      </button>
-                      <button onClick={cancelEditing} className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-xs rounded-md">Cancel</button>
-                    </div>
-                  </div>
-                )}
+                  <IllustrationPromptEditor
+                    caption={draftPrompt}
+                    planJson={draftPlanJson}
+                    planMode={illust?.imagePlanMode || 'auto'}
+                    planSourceCaption={illust?.imagePlanSourceCaption}
+                    isEditing={isEditing}
+                    isSaving={isSaving}
+                    editorMode={editorMode}
+                    validationError={editorError}
+                    onEditorModeChange={setEditorMode}
+                    onStartEditing={startEditing}
+                    onCaptionChange={setDraftPrompt}
+                    onPlanChange={setDraftPlanJson}
+                    onSave={saveAndClose}
+                    onCancel={cancelEditing}
+                    onRegeneratePlanFromCaption={handleRegeneratePlanFromCaption}
+                  />
                 
                 {/* Advanced Image Controls - Only for Flux models */}
                 {supportsAdvancedFeatures && (
@@ -658,9 +725,11 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={async () => {
-                      await savePromptIfChanged();
-                      setIsEditing(false);
-                      if (chapter) {
+                      const saved = await saveDraftsIfChanged();
+                      if (saved) {
+                        setIsEditing(false);
+                      }
+                      if (chapter && saved) {
                         const retryMarker = illust?.placementMarker ?? marker;
                         handleRetryImage(chapter.id, retryMarker);
                       }

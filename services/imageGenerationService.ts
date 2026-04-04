@@ -15,6 +15,7 @@ import { TranslationPersistenceService } from './translationPersistenceService';
 import type { AppSettings, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
 import type { EnhancedChapter } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
+import { compileIllustrationPrompt, ensureIllustrationPlan } from './imagePlanService';
 
 type ConsoleArgs = Parameters<typeof console.log>;
 const slog = (message: string, ...args: ConsoleArgs) => debugLog('image', 'summary', message, ...args);
@@ -174,8 +175,11 @@ export class ImageGenerationService {
         const loraModel = loraModels[key] || null;
         const loraStrength = loraStrengths[key] || 0.8;
 
+        const preparedIllustration = ensureIllustrationPlan(illust);
+        const compiled = compileIllustrationPrompt(preparedIllustration, settings);
+
         const result = await generateImage(
-          illust.imagePrompt,
+          compiled.compiledPrompt,
           settings,
           steeringImagePath,
           negativePrompt,
@@ -190,7 +194,10 @@ export class ImageGenerationService {
         debugLog('image', 'full', '[ImageGen] Generation prompt payload', {
           chapterId,
           placementMarker: illust.placementMarker,
-          prompt: illust.imagePrompt,
+          caption: illust.imagePrompt,
+          prompt: compiled.compiledPrompt,
+          imagePlan: compiled.imagePlan,
+          imagePlanMode: compiled.imagePlanMode,
           steeringImagePath,
           negativePrompt,
           guidanceScale,
@@ -234,7 +241,11 @@ export class ImageGenerationService {
 
             const metadata: ImageGenerationMetadata = {
               version: latestVersion,
-              prompt: illust.imagePrompt,
+              prompt: compiled.compiledPrompt,
+              caption: illust.imagePrompt,
+              imagePlan: compiled.imagePlan,
+              imagePlanMode: compiled.imagePlanMode,
+              imagePlanSourceCaption: compiled.imagePlanSourceCaption,
               negativePrompt,
               guidanceScale,
               loraModel,
@@ -251,6 +262,9 @@ export class ImageGenerationService {
             };
 
             target.generatedImage = enrichedResult;
+            target.imagePlan = compiled.imagePlan;
+            target.imagePlanMode = compiled.imagePlanMode;
+            target.imagePlanSourceCaption = compiled.imagePlanSourceCaption;
             // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
             if (enrichedResult.imageData && enrichedResult.imageData.length > 0) {
               (target as any).url = enrichedResult.imageData;
@@ -383,8 +397,11 @@ export class ImageGenerationService {
       const loraModel = loraModels[key] || null;
       const loraStrength = loraStrengths[key] || 0.8;
 
+      const preparedIllustration = ensureIllustrationPlan(illust);
+      const compiled = compileIllustrationPrompt(preparedIllustration, settings);
+
       const result = await generateImage(
-        illust.imagePrompt,
+        compiled.compiledPrompt,
         settings,
         steeringImagePath,
         negativePrompt,
@@ -399,7 +416,10 @@ export class ImageGenerationService {
       debugLog('image', 'full', '[ImageGen] Retry prompt payload', {
         chapterId,
         placementMarker,
-        prompt: illust.imagePrompt,
+        caption: illust.imagePrompt,
+        prompt: compiled.compiledPrompt,
+        imagePlan: compiled.imagePlan,
+        imagePlanMode: compiled.imagePlanMode,
         steeringImagePath,
         negativePrompt,
         guidanceScale,
@@ -423,7 +443,11 @@ export class ImageGenerationService {
           const activeVersion = requestedVersion;
           const metadata: ImageGenerationMetadata = {
             version: latestVersion,
-            prompt: illust.imagePrompt,
+            prompt: compiled.compiledPrompt,
+            caption: illust.imagePrompt,
+            imagePlan: compiled.imagePlan,
+            imagePlanMode: compiled.imagePlanMode,
+            imagePlanSourceCaption: compiled.imagePlanSourceCaption,
             negativePrompt,
             guidanceScale,
             loraModel,
@@ -440,6 +464,9 @@ export class ImageGenerationService {
           };
 
           target.generatedImage = enrichedResult;
+          target.imagePlan = compiled.imagePlan;
+          target.imagePlanMode = compiled.imagePlanMode;
+          target.imagePlanSourceCaption = compiled.imagePlanSourceCaption;
           // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
           if (enrichedResult.imageData && enrichedResult.imageData.length > 0) {
             (target as any).url = enrichedResult.imageData;

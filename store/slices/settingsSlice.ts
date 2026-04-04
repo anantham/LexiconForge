@@ -465,7 +465,7 @@ export const createSettingsSlice: StateCreator<
     const formatPerMillion = (x?: string | number | null): number | null => {
       if (x === null || x === undefined) return null;
       const n = typeof x === 'string' ? parseFloat(x) : x;
-      if (!isFinite(n) || n <= 0) return null;
+      if (!isFinite(n) || n < 0) return null;
       return n * 1_000_000;
     };
     

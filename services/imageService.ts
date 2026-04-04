@@ -2,7 +2,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AppSettings, GeneratedImageResult } from '../types';
-import { getModelMetadata } from './capabilityService';
 import { imageFileToBase64 } from './imageUtils';
 import { getEnvVar } from './env';
 import { apiMetricsService } from './apiMetricsService';
@@ -12,7 +11,10 @@ const ilog = (...args: any[]) => { if (debugPipelineEnabled('image')) console.lo
 const iwarn = (...args: any[]) => { if (debugPipelineEnabled('image')) console.warn(...args); };
 const ierror = (...args: any[]) => { console.error(...args); };
 import { IMAGE_COSTS } from '../config/costs';
-import { getOpenRouterImagePrice } from './openrouterService';
+import {
+  buildOpenRouterImageRequestConfig,
+  getVerifiedOpenRouterImageModel,
+} from './openrouterImageModelAdapter';
 
 // Image dimension constraints (provider API limits)
 const IMAGE_DIM_MIN = 256;        // Minimum accepted by Gemini/PiAPI
@@ -76,17 +78,20 @@ export const calculateImageCost = (model: string): number => {
  */
 export const fetchOpenRouterImagePrice = async (model: string): Promise<number | null> => {
     console.log('[ImageService] Fetching OpenRouter price for:', model);
-    const price = await getOpenRouterImagePrice(model);
-    console.log('[ImageService] OpenRouter price result:', { model, price });
+    const profile = await getVerifiedOpenRouterImageModel(model);
+    const price = profile?.priceEstimate ?? null;
+    console.log('[ImageService] OpenRouter price result:', {
+        model,
+        price,
+        pricingLabel: profile?.pricingLabel ?? 'unavailable',
+    });
     if (price != null) {
         const cleanId = model.startsWith('openrouter/') ? model.slice(11) : model;
         openRouterPriceCache[cleanId] = price;
         console.log('[ImageService] Cached OpenRouter price:', { cleanId, price });
-        console.warn(`[ImageService] ⚠️ This is per-TOKEN pricing ($${price}/token), not per-image!`);
-        console.warn(`[ImageService] For per-image cost, multiply by average tokens (typically 500-2000 per image)`);
     } else {
         console.warn('[ImageService] No price found for OpenRouter model:', model);
-        console.warn('[ImageService] Model may not exist in OpenRouter catalog or lacks pricing.image field');
+        console.warn('[ImageService] Model may not exist in the verified OpenRouter image catalog');
     }
     return price;
 };
@@ -252,25 +257,20 @@ export const generateImage = async (
             const orKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
             if (!orKey) throw new Error('OpenRouter API key is missing. Please add it in Settings.');
             const modelSlug = imageModel.replace('openrouter/', '');
-            
-            // Validate model capabilities before making request
-            try {
-              const metadata = await getModelMetadata(modelSlug);
-              ilog('[OpenRouter Debug] Model capability check:', {
-                model: modelSlug,
-                hasMetadata: !!metadata,
-                inputModalities: metadata?.architecture?.input_modalities,
-                outputModalities: metadata?.architecture?.output_modalities,
-                supportsImageOutput: metadata?.architecture?.output_modalities?.includes('image')
-              });
-              
-              if (metadata && metadata.architecture?.output_modalities && !metadata.architecture.output_modalities.includes('image')) {
-                throw new Error(`Model ${modelSlug} does not support image generation. Supported output modalities: ${metadata.architecture.output_modalities.join(', ')}`);
-              }
-            } catch (capError: any) {
-              // Don't fail on capability check errors, but log them
-              ilog('[OpenRouter Debug] Capability check failed:', capError.message);
+            const modelProfile = await getVerifiedOpenRouterImageModel(modelSlug);
+            if (!modelProfile) {
+              throw new Error(
+                `Model ${modelSlug} is not in the verified OpenRouter image catalog. Refresh models or select a different image model.`
+              );
             }
+
+            ilog('[OpenRouter Debug] Model capability check:', {
+              model: modelSlug,
+              inputModalities: modelProfile.inputModalities,
+              outputModalities: modelProfile.outputModalities,
+              requestModalities: modelProfile.requestModalities,
+              supportsImageConfig: modelProfile.supportsImageConfig,
+            });
 
             // Optional headers from config/app.json similar to text path
             const extraHeaders: Record<string, string> = {};
@@ -283,8 +283,13 @@ export const generateImage = async (
             const reqBody: any = {
               model: modelSlug,
               messages: [{ role: 'user', content: prompt }],
-              modalities: ['image', 'text'],
+              modalities: modelProfile.requestModalities,
             };
+
+            const imageConfig = buildOpenRouterImageRequestConfig(modelProfile, reqW, reqH);
+            if (imageConfig) {
+              reqBody.image_config = imageConfig;
+            }
 
             const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
               method: 'POST',
@@ -577,7 +582,7 @@ export const generateImage = async (
         }
         else {
             ierror(`[ImageService] Unrecognized model: ${imageModel}`);
-            throw new Error(`Unrecognized image model: ${imageModel}. Supported prefixes: imagen, gemini.`);
+            throw new Error(`Unrecognized image model: ${imageModel}. Supported prefixes: imagen, gemini, openrouter/, Qubico/.`);
         }
 
         const requestTime = (performance.now() - startTime) / 1000; // in seconds
@@ -740,6 +745,20 @@ function getSuggestedActions(errorType: string, model: string): string[] {
                 'Reduce the number of simultaneous generations'
             ];
         case 'INVALID_API_KEY':
+            if (model.startsWith('openrouter/')) {
+                return [
+                    'Check that your OpenRouter API key is correct in Settings',
+                    'Verify the key has access to image-capable models',
+                    'Refresh the OpenRouter model catalog and retry with a verified image model'
+                ];
+            }
+            if (model.startsWith('Qubico/')) {
+                return [
+                    'Check that your PiAPI API key is correct in Settings',
+                    'Verify the key is allowed to create image tasks',
+                    'Retry after confirming your account has remaining balance'
+                ];
+            }
             return [
                 'Check that your Gemini API key is correct in Settings',
                 'Ensure your API key has image generation permissions',

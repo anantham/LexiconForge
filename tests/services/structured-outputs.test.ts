@@ -31,7 +31,27 @@ const openaiResponseSchema = {
                 "type": "object", 
                 "properties": {
                     "placementMarker": {"type": "string", "description": prompts.illustrationPlacementMarkerDescription},
-                    "imagePrompt": {"type": "string", "description": prompts.illustrationImagePromptDescription}
+                    "imagePrompt": {"type": "string", "description": prompts.illustrationImagePromptDescription},
+                    "imagePlan": {
+                        "type": ["object", "null"],
+                        "description": prompts.illustrationImagePlanDescription,
+                        "properties": {
+                            "subject": {"type": "string", "description": prompts.illustrationPlanSubjectDescription},
+                            "characters": {"type": "array", "description": prompts.illustrationPlanCharactersDescription, "items": {"type": "string"}},
+                            "scene": {"type": "string", "description": prompts.illustrationPlanSceneDescription},
+                            "composition": {"type": "string", "description": prompts.illustrationPlanCompositionDescription},
+                            "camera": {"type": "string", "description": prompts.illustrationPlanCameraDescription},
+                            "lighting": {"type": "string", "description": prompts.illustrationPlanLightingDescription},
+                            "style": {"type": "string", "description": prompts.illustrationPlanStyleDescription},
+                            "mood": {"type": "string", "description": prompts.illustrationPlanMoodDescription},
+                            "details": {"type": "array", "description": prompts.illustrationPlanDetailsDescription, "items": {"type": "string"}},
+                            "mustKeep": {"type": "array", "description": prompts.illustrationPlanMustKeepDescription, "items": {"type": "string"}},
+                            "avoid": {"type": "array", "description": prompts.illustrationPlanAvoidDescription, "items": {"type": "string"}},
+                            "negativePrompt": {"type": "array", "description": prompts.illustrationPlanNegativePromptDescription, "items": {"type": "string"}}
+                        },
+                        "required": ["subject", "characters", "scene", "composition", "camera", "lighting", "style", "mood", "details", "mustKeep", "avoid", "negativePrompt"],
+                        "additionalProperties": false
+                    }
                 },
                 "required": ["placementMarker", "imagePrompt"],
                 "additionalProperties": false
@@ -138,6 +158,7 @@ describe('OpenAI Structured Outputs Schema', () => {
             
             expect(footnoteItems.additionalProperties).toBe(false);
             expect(illustrationItems.additionalProperties).toBe(false);
+            expect((illustrationItems.properties.imagePlan as any).additionalProperties).toBe(false);
             expect(proposal.additionalProperties).toBe(false);
         });
     });
@@ -165,7 +186,24 @@ describe('OpenAI Structured Outputs Schema', () => {
                     { marker: "[1]", text: "This is a footnote" }
                 ],
                 suggestedIllustrations: [
-                    { placementMarker: "[ILLUSTRATION-1]", imagePrompt: "A scenic view" }
+                    {
+                        placementMarker: "[ILLUSTRATION-1]",
+                        imagePrompt: "A scenic view",
+                        imagePlan: {
+                            subject: "A scenic view",
+                            characters: [],
+                            scene: "Mountain overlook at dawn",
+                            composition: "Wide shot",
+                            camera: "Eye level",
+                            lighting: "Soft dawn light",
+                            style: "Painterly fantasy",
+                            mood: "Hopeful",
+                            details: ["Wind through tall grass"],
+                            mustKeep: ["Distant mountains"],
+                            avoid: ["Urban skyline"],
+                            negativePrompt: ["watermark"]
+                        }
+                    }
                 ],
                 proposal: null
             };

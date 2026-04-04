@@ -16,7 +16,10 @@ import { supportsStructuredOutputs, supportsParameters } from '../../services/ca
 import { debugLog } from '../../utils/debug';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { useProvidersPanelStore } from '../../hooks/useProvidersPanelStore';
-import { getOpenRouterImageModels } from '../../services/openrouterService';
+import {
+  getVerifiedOpenRouterImageModels,
+  type OpenRouterImageModelProfile,
+} from '../../services/openrouterImageModelAdapter';
 import { TranslationEngineSection } from './TranslationEngineSection';
 import { ApiKeysSection } from './ApiKeysSection';
 
@@ -58,7 +61,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
   const [orSearch, setOrSearch] = useState('');
   const [lastUsedMap, setLastUsedMap] = useState<Record<string, string>>({});
   const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
-  const [dynamicImageModels, setDynamicImageModels] = useState<Array<{ id: string; name: string; pricePerImage: number | null }>>([]);
+  const [dynamicImageModels, setDynamicImageModels] = useState<OpenRouterImageModelProfile[]>([]);
 
   // Check structured output support for a model
   const checkStructuredOutputSupport = useCallback(
@@ -119,10 +122,8 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     if (!isOpen) return;
     (async () => {
       try {
-        const models = await getOpenRouterImageModels();
-        if (models.length > 0) {
-          setDynamicImageModels(models);
-        }
+        const models = await getVerifiedOpenRouterImageModels();
+        setDynamicImageModels(models.data);
       } catch (error) {
         console.error('[ProvidersPanel] Failed to load OpenRouter image models:', error);
       }
@@ -260,19 +261,28 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     if (currentSettings.provider === 'OpenRouter') {
       const options = getOpenRouterOptions(orSearch);
       const withLU = options.map((o) => ({ ...o, lastUsed: lastUsedMap[o.id] }));
+      const free = withLU
+        .filter((o) => o.priceKey === 0)
+        .sort((a, b) => {
+          const aTime = a.lastUsed ? new Date(a.lastUsed).getTime() : 0;
+          const bTime = b.lastUsed ? new Date(b.lastUsed).getTime() : 0;
+          return bTime - aTime || a.id.localeCompare(b.id);
+        });
       const recents = withLU
+        .filter((o) => o.priceKey !== 0)
         .filter((o) => !!o.lastUsed)
         .sort((a, b) => new Date(b.lastUsed!).getTime() - new Date(a.lastUsed!).getTime())
         .slice(0, 10);
       const recentIds = new Set(recents.map((r) => r.id));
       const rest = withLU
+        .filter((o) => o.priceKey !== 0)
         .filter((o) => !recentIds.has(o.id))
         .sort((a, b) => {
           const ak = a.priceKey == null ? Number.POSITIVE_INFINITY : a.priceKey;
           const bk = b.priceKey == null ? Number.POSITIVE_INFINITY : b.priceKey;
           return ak - bk || a.id.localeCompare(b.id);
         });
-      const result = recents.concat(rest).map((m) => ({
+      const result = free.concat(recents, rest).map((m) => ({
         id: m.id,
         name: m.label,
         label: m.label,
@@ -350,15 +360,12 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
       .filter(m => !staticIds.has(`openrouter/${m.id}`))
       .map(m => {
         const fullId = `openrouter/${m.id}`;
-        const priceLabel = m.pricePerImage != null
-          ? `$${m.pricePerImage.toFixed(4)}/image`
-          : 'price unknown';
         return {
           id: fullId,
           name: `${m.name} (OpenRouter)`,
-          description: `Dynamic pricing: ${priceLabel}`,
-          label: `${m.name} — ${priceLabel}`,
-          sortKey: m.pricePerImage ?? Number.POSITIVE_INFINITY,
+          description: `Verified by OpenRouter image catalogue: ${m.pricingLabel}`,
+          label: `${m.name} — ${m.pricingLabel}`,
+          sortKey: m.sortKey ?? Number.POSITIVE_INFINITY,
           provider: getProvider(fullId),
           source: 'dynamic' as const,
         };

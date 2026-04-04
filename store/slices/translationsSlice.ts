@@ -941,9 +941,9 @@ export const createTranslationsSlice: StateCreator<
     }
 
     const context = chapter.translationResult.translation;
-    const imagePrompt = await IllustrationService.generateIllustrationForSelection(selection, context, settings);
+    const illustrationPayload = await IllustrationService.generateIllustrationForSelection(selection, context, settings);
 
-    if (!imagePrompt) {
+    if (!illustrationPayload) {
       if (showNotification) {
         showNotification('Failed to generate illustration prompt', 'error');
       }
@@ -959,7 +959,10 @@ export const createTranslationsSlice: StateCreator<
 
     const newIllustration = {
       placementMarker: newMarker,
-      imagePrompt,
+      imagePrompt: illustrationPayload.imagePrompt,
+      imagePlan: illustrationPayload.imagePlan,
+      imagePlanMode: 'auto' as const,
+      imagePlanSourceCaption: illustrationPayload.imagePrompt,
     };
 
     // Build an HTML-aware regex that matches the selection text even when HTML tags are interspersed

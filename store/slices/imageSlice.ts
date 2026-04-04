@@ -14,8 +14,10 @@ import { ImageGenerationService, type ImageGenerationContext, type ImageState, t
 import { ImageCacheStore } from '../../services/imageCacheService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { debugLog } from '../../utils/debug';
-import type { GeneratedImageResult, ImageGenerationMetadata, ImageVersionStateEntry } from '../../types';
+import type { GeneratedImageResult, ImageGenerationMetadata, ImagePlan, ImagePlanMode, ImageVersionStateEntry } from '../../types';
 import { ImageOps } from '../../services/db/operations';
+import { buildImagePlanFromCaption } from '../../services/imagePlanService';
+import { generateImagePlanFromCaption } from '../../services/imagePlanPlanner';
 
 export interface ImageSliceState {
   // Generated images state
@@ -47,6 +49,8 @@ export interface ImageSliceActions {
   handleRetryImage: (chapterId: string, placementMarker: string) => Promise<void>;
   loadExistingImages: (chapterId: string) => Promise<void>;
   updateIllustrationPrompt: (chapterId: string, placementMarker: string, newPrompt: string) => Promise<void>;
+  updateIllustrationPlan: (chapterId: string, placementMarker: string, imagePlan: ImagePlan, mode?: ImagePlanMode) => Promise<void>;
+  regenerateIllustrationPlanFromCaption: (chapterId: string, placementMarker: string) => Promise<void>;
   
   // Image state management
   setImageState: (key: string, state: ImageState) => void;
@@ -123,6 +127,69 @@ export const createImageSlice: StateCreator<
       promptId: promptTemplate?.id,
       promptName: promptTemplate?.name
     };
+  };
+
+  const persistUpdatedIllustrations = async (
+    chapterId: string,
+    updatedIllustrations: any[]
+  ): Promise<void> => {
+    const state = get() as any;
+    const chapters = state.chapters;
+    const settings = state.settings;
+    const activePromptTemplate = state.activePromptTemplate;
+    const chapter = chapters?.get(chapterId);
+
+    if (!chapter?.translationResult) {
+      console.warn(`[ImageSlice] Cannot persist illustration update: chapter ${chapterId} not found`);
+      return;
+    }
+
+    if (state.updateChapter) {
+      state.updateChapter(chapterId, {
+        translationResult: {
+          ...chapter.translationResult,
+          suggestedIllustrations: updatedIllustrations
+        }
+      });
+    }
+
+    const refreshedChapter = (get() as any).chapters?.get(chapterId) || chapter;
+    await TranslationPersistenceService.persistUpdatedTranslation(
+      chapterId,
+      refreshedChapter.translationResult as any,
+      {
+        provider: settings?.provider,
+        model: settings?.model,
+        temperature: settings?.temperature,
+        systemPrompt: settings?.systemPrompt,
+        promptId: activePromptTemplate?.id,
+        promptName: activePromptTemplate?.name,
+      }
+    );
+  };
+
+  const generateAutoPlan = async (
+    chapterId: string,
+    caption: string
+  ): Promise<Awaited<ReturnType<typeof generateImagePlanFromCaption>>> => {
+    const state = get() as any;
+    const chapter = state.chapters?.get(chapterId);
+
+    return generateImagePlanFromCaption(caption, state.settings, {
+      context: chapter?.translationResult?.translation || '',
+    });
+  };
+
+  const notifyPlannerFallback = (warning?: string) => {
+    const showNotification = (get() as any).showNotification;
+    if (typeof showNotification !== 'function') {
+      return;
+    }
+
+    const message = warning
+      ? `AI JSON planning failed, so LexiconForge kept a simpler caption-derived plan. ${warning}`
+      : 'AI JSON planning failed, so LexiconForge kept a simpler caption-derived plan.';
+    showNotification(message, 'warning');
   };
 
   const persistImageVersionState = async (chapterId: string, placementMarker: string, activeVersion: number) => {
@@ -1022,11 +1089,8 @@ export const createImageSlice: StateCreator<
   // Update illustration prompt and persist to IndexedDB
   updateIllustrationPrompt: async (chapterId, placementMarker, newPrompt) => {
     try {
-      // Get current state to access chapters and settings
       const state = get() as any;
       const chapters = state.chapters;
-      const settings = state.settings;
-      const activePromptTemplate = state.activePromptTemplate;
       
       const chapter = chapters?.get(chapterId);
       if (!chapter || !chapter.translationResult || !Array.isArray(chapter.translationResult.suggestedIllustrations)) {
@@ -1042,44 +1106,112 @@ export const createImageSlice: StateCreator<
         return;
       }
 
-      // Update in-memory state
-      const chaptersActions = state as any;
-      if (chaptersActions.updateChapter) {
-        // Clone the chapter and update the specific illustration
-        const updatedIllustrations = [...chapter.translationResult.suggestedIllustrations];
-        updatedIllustrations[idx] = {
-          ...updatedIllustrations[idx],
-          imagePrompt: newPrompt
-        };
-        
-        chaptersActions.updateChapter(chapterId, {
-          translationResult: {
-            ...chapter.translationResult,
-            suggestedIllustrations: updatedIllustrations
-          }
-        });
-        
-        debugLog('translation', 'summary', `[ImageSlice] ✅ Updated illustration prompt for ${placementMarker} in memory`);
-      }
+      const currentIllustration = chapter.translationResult.suggestedIllustrations[idx];
+      const updatedIllustrations = [...chapter.translationResult.suggestedIllustrations];
+      const preserveManualPlan = currentIllustration.imagePlanMode === 'manual' && currentIllustration.imagePlan;
+      const plannedAutoPayload = preserveManualPlan
+        ? null
+        : await generateAutoPlan(chapterId, newPrompt);
 
-      // Persist to IndexedDB by updating existing translation record
-      await TranslationPersistenceService.persistUpdatedTranslation(
-        chapterId,
-        chapter.translationResult as any,
-        {
-          provider: settings?.provider,
-          model: settings?.model,
-          temperature: settings?.temperature,
-          systemPrompt: settings?.systemPrompt,
-          promptId: activePromptTemplate?.id,
-          promptName: activePromptTemplate?.name,
-        }
-      );
+      updatedIllustrations[idx] = {
+        ...currentIllustration,
+        imagePrompt: newPrompt,
+        ...(preserveManualPlan
+          ? {}
+          : {
+              imagePlan: plannedAutoPayload?.imagePlan || buildImagePlanFromCaption(newPrompt),
+              imagePlanMode: 'auto' as const,
+              imagePlanSourceCaption: newPrompt,
+            }),
+      };
+
+      await persistUpdatedIllustrations(chapterId, updatedIllustrations);
+      if (plannedAutoPayload?.source === 'fallback') {
+        notifyPlannerFallback(plannedAutoPayload.warning);
+      }
       
       debugLog('translation', 'summary', `[ImageSlice] ✅ Updated illustration prompt persisted for ${placementMarker}`);
       
     } catch (error) {
       console.error(`[ImageSlice] Failed to update illustration prompt for ${placementMarker}:`, error);
+    }
+  },
+
+  updateIllustrationPlan: async (chapterId, placementMarker, imagePlan, mode = 'manual') => {
+    try {
+      const state = get() as any;
+      const chapters = state.chapters;
+      const chapter = chapters?.get(chapterId);
+      if (!chapter || !chapter.translationResult || !Array.isArray(chapter.translationResult.suggestedIllustrations)) {
+        console.warn(`[ImageSlice] Cannot update illustration plan: chapter ${chapterId} not found or has no illustrations`);
+        return;
+      }
+
+      const idx = chapter.translationResult.suggestedIllustrations.findIndex(
+        (s: any) => s.placementMarker === placementMarker
+      );
+      if (idx < 0) {
+        console.warn(`[ImageSlice] Illustration with marker ${placementMarker} not found in chapter ${chapterId}`);
+        return;
+      }
+
+      const currentIllustration = chapter.translationResult.suggestedIllustrations[idx];
+      const updatedIllustrations = [...chapter.translationResult.suggestedIllustrations];
+      updatedIllustrations[idx] = {
+        ...currentIllustration,
+        imagePlan,
+        imagePlanMode: mode,
+        imagePlanSourceCaption: currentIllustration.imagePrompt,
+      };
+
+      await persistUpdatedIllustrations(chapterId, updatedIllustrations);
+      debugLog('translation', 'summary', `[ImageSlice] ✅ Updated illustration plan persisted for ${placementMarker}`);
+    } catch (error) {
+      console.error(`[ImageSlice] Failed to update illustration plan for ${placementMarker}:`, error);
+    }
+  },
+
+  regenerateIllustrationPlanFromCaption: async (chapterId, placementMarker) => {
+    try {
+      const state = get() as any;
+      const chapter = state.chapters?.get(chapterId);
+      if (!chapter?.translationResult || !Array.isArray(chapter.translationResult.suggestedIllustrations)) {
+        console.warn(`[ImageSlice] Cannot regenerate illustration plan: chapter ${chapterId} not found or has no illustrations`);
+        return;
+      }
+
+      const idx = chapter.translationResult.suggestedIllustrations.findIndex(
+        (s: any) => s.placementMarker === placementMarker
+      );
+      if (idx < 0) {
+        console.warn(`[ImageSlice] Illustration with marker ${placementMarker} not found in chapter ${chapterId}`);
+        return;
+      }
+
+      const currentIllustration = chapter.translationResult.suggestedIllustrations[idx];
+      const planned = await generateAutoPlan(chapterId, currentIllustration.imagePrompt || '');
+      const updatedIllustrations = [...chapter.translationResult.suggestedIllustrations];
+      updatedIllustrations[idx] = {
+        ...currentIllustration,
+        imagePlan: planned.imagePlan,
+        imagePlanMode: 'auto' as const,
+        imagePlanSourceCaption: currentIllustration.imagePrompt,
+      };
+
+      await persistUpdatedIllustrations(chapterId, updatedIllustrations);
+
+      const showNotification = state.showNotification;
+      if (typeof showNotification === 'function') {
+        if (planned.source === 'fallback') {
+          notifyPlannerFallback(planned.warning);
+        } else {
+          showNotification('JSON plan regenerated from caption.', 'success');
+        }
+      }
+
+      debugLog('translation', 'summary', `[ImageSlice] ✅ Regenerated illustration plan from caption for ${placementMarker}`);
+    } catch (error) {
+      console.error(`[ImageSlice] Failed to regenerate illustration plan for ${placementMarker}:`, error);
     }
   }
 });
