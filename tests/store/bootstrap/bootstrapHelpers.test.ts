@@ -334,8 +334,51 @@ describe('bootstrap helpers', () => {
     it('throws and sets error for unsupported formats', async () => {
       const { ctx, state } = createCtx(createState());
       const importSessionData = createImportSessionData(ctx);
-      await expect(importSessionData(JSON.stringify({ metadata: { format: 'legacy' } }))).rejects.toThrow();
-      expect(state.setError).toHaveBeenCalledWith(expect.stringContaining('Legacy'));
+      await expect(importSessionData(JSON.stringify({ metadata: { format: 'something-else' } }))).rejects.toThrow('Unsupported import format');
+      expect(state.setError).toHaveBeenCalledWith(expect.stringContaining('Unsupported import format'));
+    });
+
+    it('converts lexiconforge-session format and imports successfully', async () => {
+      renderingOpsMock.getChaptersForReactRendering.mockResolvedValueOnce([
+        {
+          stableId: 'ch-1',
+          title: 'Chapter 1',
+          content: '<p>Content</p>',
+          originalUrl: 'https://example.com/ch1',
+          url: 'https://example.com/ch1',
+          sourceUrls: ['https://example.com/ch1'],
+          chapterNumber: 1,
+        },
+      ]);
+      settingsOpsMock.getKey.mockResolvedValue(null);
+
+      const { ctx } = createCtx(createState());
+      const importSessionData = createImportSessionData(ctx);
+      await importSessionData(JSON.stringify({
+        metadata: { format: 'lexiconforge-session', version: '2.0', exportedAt: '2026-04-01T00:00:00Z' },
+        novel: { id: 'test-novel', title: 'Test Novel' },
+        version: { versionId: 'v1', displayName: 'V1' },
+        chapters: [
+          {
+            stableId: 'ch-1',
+            canonicalUrl: 'https://example.com/ch1',
+            title: 'Chapter 1',
+            content: '<p>Content</p>',
+            chapterNumber: 1,
+            translations: [{ id: 't-1', translatedTitle: 'Ch 1', translation: '<p>Translated</p>', version: 1, isActive: true }],
+          },
+        ],
+        settings: {},
+      }));
+
+      // Should have converted format and called importFullSessionData
+      expect(importOpsMock.importFullSessionData).toHaveBeenCalled();
+      const importedPayload = importOpsMock.importFullSessionData.mock.calls[0][0];
+      expect(importedPayload.metadata.format).toBe('lexiconforge-full-1');
+      expect(importedPayload.novels).toHaveLength(1);
+      expect(importedPayload.novels[0].id).toBe('test-novel');
+      expect(importedPayload.urlMappings).toHaveLength(1);
+      expect(importedPayload.urlMappings[0].url).toBe('https://example.com/ch1');
     });
   });
 
