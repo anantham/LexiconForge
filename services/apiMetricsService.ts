@@ -218,6 +218,7 @@ class ApiMetricsService {
         audio: { cost: 0, calls: 0 },
         diff_analysis: { cost: 0, calls: 0 },
         sutta_studio: { cost: 0, calls: 0 },
+        library_search: { cost: 0, calls: 0 },
       },
       byProvider: {},
     };
@@ -252,6 +253,7 @@ class ApiMetricsService {
         audio: { cost: 0, calls: 0 },
         diff_analysis: { cost: 0, calls: 0 },
         sutta_studio: { cost: 0, calls: 0 },
+        library_search: { cost: 0, calls: 0 },
       },
       byProvider: {},
     };

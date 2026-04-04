@@ -28,6 +28,7 @@ function SourceCard({
   selected,
   onSelect,
 }: {
+  key?: string;
   candidate: SourceCandidate;
   selected: boolean;
   onSelect: () => void;
