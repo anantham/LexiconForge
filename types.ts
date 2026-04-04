@@ -48,6 +48,12 @@ export abstract class BaseAdapter {
   abstract getPrevLink(): string | null;
 }
 
+export interface GlossaryEntry {
+  source: string;
+  target: string;
+  note?: string;
+}
+
 export interface FeedbackItem {
   id: string;
   text: string;
@@ -352,6 +358,8 @@ export interface AppSettings {
     // Prompt snapshot metadata
     promptId?: string;
     promptName?: string;
+    // Merged glossary entries (user → genre → book layers)
+    glossary?: GlossaryEntry[];
 }
 
 export interface DiffMarkerVisibilitySettings {
