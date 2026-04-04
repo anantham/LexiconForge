@@ -119,6 +119,13 @@ export const SUPPORTED_WEBSITES_CONFIG: SupportedWebsite[] = [
     homeUrl: 'https://suttacentral.net',
     exampleUrl: 'https://suttacentral.net/mn10/en/sujato'
   },
+  {
+    domain: 'hetushu.com',
+    name: 'Hetushu',
+    category: 'Chinese',
+    homeUrl: 'https://hetushu.com',
+    exampleUrl: 'https://hetushu.com/book/2991/2051039.html'
+  },
 ];
 
 // Legacy array for backward compatibility
