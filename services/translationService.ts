@@ -28,6 +28,7 @@ import {
   buildAmendmentReviewSystemPrompt,
   buildAmendmentReviewUserPrompt,
 } from './prompts';
+import { normalizeTranslationSettingsSnapshot } from './translationSettingsSnapshot';
 import {
   getProposalResponseGeminiSchema,
   getProposalResponseJsonSchema,
@@ -59,6 +60,7 @@ export interface TranslationHistoryOptions {
   contextDepth: number;
   currentChapter: EnhancedChapter;
   chapters: Map<string, EnhancedChapter>;
+  includeHistoricalFanTranslations?: boolean;
 }
 
 export class TranslationService {
@@ -251,7 +253,8 @@ export class TranslationService {
         history = this.buildTranslationHistory({
           contextDepth: contextDepth,
           currentChapter: chapterToTranslate,
-          chapters
+          chapters,
+          includeHistoricalFanTranslations: settings.includeHistoricalFanTranslationsInContext ?? false,
         });
         debugLog('translation', 'summary', `[Translation] Built history via buildTranslationHistory: ${history.length} chapters`);
       }
@@ -283,6 +286,19 @@ export class TranslationService {
         debugLog('translation', 'summary', `Translation for ${chapterId} was cancelled.`);
         return { aborted: true };
       }
+
+      // Attach settings snapshot for reproducibility and retranslation detection
+      result.translationSettings = normalizeTranslationSettingsSnapshot({
+        provider: settings.provider,
+        model: settings.model,
+        temperature: settings.temperature,
+        systemPrompt: settings.systemPrompt,
+        contextDepth: settings.contextDepth,
+        includeFanTranslationInPrompt: settings.includeFanTranslationInPrompt,
+        includeHistoricalFanTranslationsInContext: settings.includeHistoricalFanTranslationsInContext,
+        promptId: activePromptTemplate?.id,
+        promptName: activePromptTemplate?.name,
+      });
 
       // Apply HTML repairs if enabled
       if (settings.enableHtmlRepair && result.translation) {
@@ -575,6 +591,9 @@ export class TranslationService {
           originalContent: chapter.content,
           translatedTitle: chapter.translationResult.translatedTitle,
           translatedContent: chapter.translationResult.translation,
+          fanTranslationReference: options.includeHistoricalFanTranslations
+            ? (chapter.fanTranslation ?? null)
+            : null,
           footnotes: chapter.translationResult.footnotes || [],
           feedback: (chapter as any).feedback ?? [],
         },
@@ -677,6 +696,9 @@ export class TranslationService {
             originalContent: chapterRecord.content,
             translatedTitle: activeTranslation.translatedTitle,
             translatedContent: activeTranslation.translation,
+            fanTranslationReference: options.includeHistoricalFanTranslations
+              ? ((chapterRecord as any).fanTranslation ?? null)
+              : null,
             footnotes: activeTranslation.footnotes || [],
             feedback,
           },
@@ -693,7 +715,7 @@ export class TranslationService {
 
       // Need prevUrl chain fallback
       slog(`[HistoryAsync] Falling back to prevUrl chain (have ${combinedHistory.length}/${contextDepth})`);
-      const chainHistory = await this.buildHistoryByPrevUrlChain(options.currentChapter, contextDepth, options.chapters);
+      const chainHistory = await this.buildHistoryByPrevUrlChain(options.currentChapter, contextDepth, options.chapters, options.includeHistoricalFanTranslations ?? false);
       if (chainHistory.length > 0) {
         const merged = [...combinedHistory];
         for (const entry of chainHistory) {
@@ -720,7 +742,8 @@ export class TranslationService {
   private static async buildHistoryByPrevUrlChain(
     currentChapter: EnhancedChapter,
     depth: number,
-    chapters: Map<string, EnhancedChapter>
+    chapters: Map<string, EnhancedChapter>,
+    includeHistoricalFanTranslations: boolean = false
   ): Promise<HistoricalChapter[]> {
     const results: HistoricalChapter[] = [];
     const links: Array<{ stableId?: string; memChapter?: EnhancedChapter }> = [];
@@ -757,6 +780,9 @@ export class TranslationService {
                 originalContent: content,
                 translatedTitle: active.translatedTitle,
                 translatedContent: active.translation,
+                fanTranslationReference: includeHistoricalFanTranslations
+                  ? ((dbRec.data?.chapter as any)?.fanTranslation ?? (dbRec as any).fanTranslation ?? null)
+                  : null,
                 footnotes: active.footnotes || [],
                 feedback,
               });
@@ -776,6 +802,9 @@ export class TranslationService {
             originalContent: matched.content,
             translatedTitle: matched.translationResult.translatedTitle,
             translatedContent: matched.translationResult.translation,
+            fanTranslationReference: includeHistoricalFanTranslations
+              ? (matched.fanTranslation ?? null)
+              : null,
             footnotes: matched.translationResult.footnotes || [],
             feedback: (matched as any).feedback ?? [],
           });
@@ -843,6 +872,7 @@ export class TranslationService {
       systemPrompt,
       enableAmendments,
       includeFanTranslationInPrompt,
+      includeHistoricalFanTranslationsInContext,
       promptId,
       promptName,
     } = settings;
@@ -858,6 +888,7 @@ export class TranslationService {
       systemPrompt,
       enableAmendments,
       includeFanTranslationInPrompt,
+      includeHistoricalFanTranslationsInContext,
       promptId,
       promptName,
     };
@@ -883,15 +914,20 @@ export class TranslationService {
       return true;
     }
 
-    const currentRelevant = this.extractSettingsSnapshot(settings);
-    const providerChanged = snapshot.provider !== currentRelevant.provider;
-    const modelChanged = snapshot.model !== currentRelevant.model;
-    const promptChanged = snapshot.systemPrompt !== currentRelevant.systemPrompt;
-    const tempChanged = Math.abs((snapshot.temperature ?? 0.7) - (currentRelevant.temperature ?? 0.7)) > 0.1;
-    const amendmentsChanged = (snapshot.enableAmendments ?? true) !== (currentRelevant.enableAmendments ?? true);
+    const rawCurrent = this.extractSettingsSnapshot(settings);
+    const currentRelevant = normalizeTranslationSettingsSnapshot(rawCurrent);
+    const normalizedSnapshot = normalizeTranslationSettingsSnapshot(snapshot);
+    const providerChanged = normalizedSnapshot.provider !== currentRelevant.provider;
+    const modelChanged = normalizedSnapshot.model !== currentRelevant.model;
+    const promptChanged = normalizedSnapshot.systemPrompt !== currentRelevant.systemPrompt;
+    const tempChanged = Math.abs((normalizedSnapshot.temperature ?? 0.7) - (currentRelevant.temperature ?? 0.7)) > 0.1;
+    const amendmentsChanged = (snapshot.enableAmendments ?? true) !== (rawCurrent.enableAmendments ?? true);
     const fanReferenceChanged =
-      (snapshot.includeFanTranslationInPrompt ?? false) !==
+      (normalizedSnapshot.includeFanTranslationInPrompt ?? false) !==
       (currentRelevant.includeFanTranslationInPrompt ?? false);
+    const historicalFanChanged =
+      (normalizedSnapshot.includeHistoricalFanTranslationsInContext ?? false) !==
+      (currentRelevant.includeHistoricalFanTranslationsInContext ?? false);
 
     const hasSettingsChanged =
       providerChanged ||
@@ -899,7 +935,8 @@ export class TranslationService {
       promptChanged ||
       tempChanged ||
       amendmentsChanged ||
-      fanReferenceChanged;
+      fanReferenceChanged ||
+      historicalFanChanged;
 
     if (hasSettingsChanged) {
       debugLog('translation', 'summary', '[Retranslate] Button enabled: Translation settings changed', {
@@ -910,6 +947,7 @@ export class TranslationService {
         tempChanged,
         amendmentsChanged,
         fanReferenceChanged,
+        historicalFanChanged,
       });
     } else {
       debugLog('translation', 'full', '[Retranslate] Button disabled: Translation settings unchanged', { chapterId });

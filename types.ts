@@ -223,6 +223,7 @@ export type TranslationSettingsSnapshot = Partial<Pick<
   | 'systemPrompt'
   | 'enableAmendments'
   | 'includeFanTranslationInPrompt'
+  | 'includeHistoricalFanTranslationsInContext'
 >> & {
   promptId?: string;
   promptName?: string;
@@ -261,6 +262,8 @@ export interface HistoricalChapter {
   originalContent: string;
   translatedTitle: string;
   translatedContent: string;
+  /** Fan translation from a previous chapter, included when includeHistoricalFanTranslationsInContext is enabled */
+  fanTranslationReference?: string | null;
   footnotes: Footnote[];
   feedback: FeedbackItem[];
 }
