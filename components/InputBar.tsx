@@ -119,12 +119,14 @@ const InputBar: React.FC = () => {
 
   const handlePasteSubmit = async () => {
     if (!pasteContent.trim()) return;
+    shelveActiveLibraryNovel();
     const chapterId = await importCustomText(
       pasteTitle.trim() || 'Custom Text',
       pasteContent,
       pasteLanguage.trim() || undefined,
     );
     if (!chapterId) return;
+    setReaderReady();
     setPasteTitle('');
     setPasteContent('');
     setPasteLanguage('');

@@ -58,7 +58,7 @@ vi.mock('../../services/readerHydrationService', () => ({
   loadAllIntoStore: vi.fn().mockResolvedValue(null),
 }));
 
-describe('InputBar', () => {
+describe('InputBar guardrails', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     storeState.handleFetch.mockReset();
@@ -75,70 +75,6 @@ describe('InputBar', () => {
 
     vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({} as any);
     vi.mocked(ImportService.importFromFile).mockResolvedValue({} as any);
-  });
-
-  it('keeps pasted fields intact when custom text import fails', async () => {
-    storeState.importCustomText.mockResolvedValue(undefined);
-
-    render(<InputBar />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Paste Text' }));
-    fireEvent.change(screen.getByLabelText('Title'), {
-      target: { value: 'Custom Chapter' },
-    });
-    fireEvent.change(screen.getByLabelText('Source Language'), {
-      target: { value: 'Chinese' },
-    });
-    fireEvent.change(screen.getByLabelText('Content'), {
-      target: { value: 'Pasted chapter content' },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Import Text' }));
-
-    await waitFor(() => {
-      expect(storeState.importCustomText).toHaveBeenCalledWith(
-        'Custom Chapter',
-        'Pasted chapter content',
-        'Chinese',
-      );
-    });
-
-    expect(screen.getByLabelText('Title')).toHaveValue('Custom Chapter');
-    expect(screen.getByLabelText('Source Language')).toHaveValue('Chinese');
-    expect(screen.getByLabelText('Content')).toHaveValue('Pasted chapter content');
-  });
-
-  it('clears pasted fields after a successful custom text import', async () => {
-    storeState.importCustomText.mockResolvedValue('chapter-1');
-
-    render(<InputBar />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Paste Text' }));
-    fireEvent.change(screen.getByLabelText('Title'), {
-      target: { value: 'Custom Chapter' },
-    });
-    fireEvent.change(screen.getByLabelText('Source Language'), {
-      target: { value: 'Chinese' },
-    });
-    fireEvent.change(screen.getByLabelText('Content'), {
-      target: { value: 'Pasted chapter content' },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Import Text' }));
-
-    await waitFor(() => {
-      expect(storeState.importCustomText).toHaveBeenCalledWith(
-        'Custom Chapter',
-        'Pasted chapter content',
-        'Chinese',
-      );
-    });
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('Title')).toHaveValue('');
-      expect(screen.getByLabelText('Source Language')).toHaveValue('');
-      expect(screen.getByLabelText('Content')).toHaveValue('');
-    });
   });
 
   it('shelves the active library novel before session JSON URL imports', async () => {
@@ -199,5 +135,80 @@ describe('InputBar', () => {
     expect(storeState.shelveActiveNovel.mock.invocationCallOrder[0]).toBeLessThan(
       storeState.handleFetch.mock.invocationCallOrder[0]
     );
+  });
+
+  it('keeps pasted fields intact when custom text import fails', async () => {
+    storeState.importCustomText.mockResolvedValue(undefined);
+
+    render(<InputBar />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Paste Text' }));
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Custom Chapter' },
+    });
+    fireEvent.change(screen.getByLabelText('Source Language'), {
+      target: { value: 'Chinese' },
+    });
+    fireEvent.change(screen.getByLabelText('Content'), {
+      target: { value: 'Pasted chapter content' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Import Text' }));
+
+    await waitFor(() => {
+      expect(storeState.importCustomText).toHaveBeenCalledWith(
+        'Custom Chapter',
+        'Pasted chapter content',
+        'Chinese',
+      );
+    });
+
+    expect(storeState.shelveActiveNovel).toHaveBeenCalledTimes(1);
+    expect(storeState.shelveActiveNovel.mock.invocationCallOrder[0]).toBeLessThan(
+      storeState.importCustomText.mock.invocationCallOrder[0]
+    );
+    expect(storeState.setReaderReady).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Title')).toHaveValue('Custom Chapter');
+    expect(screen.getByLabelText('Source Language')).toHaveValue('Chinese');
+    expect(screen.getByLabelText('Content')).toHaveValue('Pasted chapter content');
+  });
+
+  it('clears pasted fields after a successful custom text import', async () => {
+    storeState.importCustomText.mockResolvedValue('chapter-1');
+
+    render(<InputBar />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Paste Text' }));
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Custom Chapter' },
+    });
+    fireEvent.change(screen.getByLabelText('Source Language'), {
+      target: { value: 'Chinese' },
+    });
+    fireEvent.change(screen.getByLabelText('Content'), {
+      target: { value: 'Pasted chapter content' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Import Text' }));
+
+    await waitFor(() => {
+      expect(storeState.importCustomText).toHaveBeenCalledWith(
+        'Custom Chapter',
+        'Pasted chapter content',
+        'Chinese',
+      );
+    });
+
+    expect(storeState.shelveActiveNovel).toHaveBeenCalledTimes(1);
+    expect(storeState.shelveActiveNovel.mock.invocationCallOrder[0]).toBeLessThan(
+      storeState.importCustomText.mock.invocationCallOrder[0]
+    );
+    expect(storeState.setReaderReady).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Title')).toHaveValue('');
+      expect(screen.getByLabelText('Source Language')).toHaveValue('');
+      expect(screen.getByLabelText('Content')).toHaveValue('');
+    });
   });
 });
