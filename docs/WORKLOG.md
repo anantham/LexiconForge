@@ -1,3 +1,18 @@
+2026-04-03 11:40 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Fix PR #25 review regression where failed custom-text imports clear the paste form and force the user to re-paste everything.
+- Files:
+  - components/InputBar.tsx
+  - tests/components/InputBar.test.tsx
+  - docs/WORKLOG.md
+- Why:
+  - `InputBar` was clearing the paste form unconditionally after awaiting `importCustomText(...)`, even though the store reports failure by returning `undefined` instead of throwing.
+- Details:
+  - Updated the paste-submit path to clear the title/language/content fields only when `importCustomText(...)` returns a chapter id.
+  - Added focused component coverage for both failure preservation and success clearing so the UI contract stays explicit.
+- Tests:
+  - `npx vitest run tests/components/InputBar.test.tsx` ✅
+
 2026-01-31 14:40 UTC - Ripple examples empirically validated
 - Files: services/suttaStudioPassPrompts.ts, config/suttaStudioExamples.ts, scripts/sutta-studio/benchmark-config.ts
 - Why: Fix "was dwells" grammatical issue where ghost words don't match selected verb tense.
