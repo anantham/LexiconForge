@@ -1,3 +1,35 @@
+2026-04-03 23:58 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Resolve PR #25 merge conflicts against `main` without dropping the pasted-text regression fix or the new library/reader guardrails.
+- Files:
+  - components/InputBar.tsx:35-45, 113-133
+  - store/slices/chaptersSlice.ts:12-17
+  - tests/components/InputBar.test.tsx:1-214
+  - docs/WORKLOG.md:1-18
+- Why:
+  - `main` added shelving and reader-handoff behavior around imports while the PR added pasted-text import plus a failure-preservation fix; the merge conflict had to preserve both behaviors, and pasted-text import now needs to re-enter the reader in the newer app shell.
+- Details:
+  - Merged `InputBar` so pasted imports keep the failure-preservation behavior, shelf the active library novel before import, and call `setReaderReady()` only after a successful custom-text import.
+  - Merged `chaptersSlice` imports so the PR keeps `importCustomText(...)` and `main` keeps bookshelf persistence wiring.
+  - Rebuilt the `InputBar` test file to cover both `main`’s shelving guardrails and the custom-text regression path, including the successful paste reader-handoff expectation.
+- Tests:
+  - `npx vitest run tests/components/InputBar.test.tsx` ✅
+
+2026-04-03 11:40 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Fix PR #25 review regression where failed custom-text imports clear the paste form and force the user to re-paste everything.
+- Files:
+  - components/InputBar.tsx
+  - tests/components/InputBar.test.tsx
+  - docs/WORKLOG.md
+- Why:
+  - `InputBar` was clearing the paste form unconditionally after awaiting `importCustomText(...)`, even though the store reports failure by returning `undefined` instead of throwing.
+- Details:
+  - Updated the paste-submit path to clear the title/language/content fields only when `importCustomText(...)` returns a chapter id.
+  - Added focused component coverage for both failure preservation and success clearing so the UI contract stays explicit.
+- Tests:
+  - `npx vitest run tests/components/InputBar.test.tsx` ✅
+
 2026-03-30 05:17 PDT - [Agent: Codex] /metaupdate debt capture workflow
 - Files:
   - AGENTS.md:274-292
