@@ -6,6 +6,7 @@ import type { ImageSlice } from './slices/imageSlice';
 import type { ExportSlice } from './slices/exportSlice';
 import type { JobsSlice } from './slices/jobsSlice';
 import type { AudioSlice } from './slices/audioSlice';
+import type { OscilloscopeSlice } from '../types/oscilloscope';
 import type { SessionProvenance, SessionVersion } from '../types/session';
 
 export type AppState = UiSlice &
@@ -15,7 +16,8 @@ export type AppState = UiSlice &
   ImageSlice &
   ExportSlice &
   JobsSlice &
-  AudioSlice;
+  AudioSlice &
+  OscilloscopeSlice;
 
 export interface SessionActions {
   sessionProvenance: SessionProvenance | null;
