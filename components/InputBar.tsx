@@ -131,11 +131,14 @@ const InputBar: React.FC = () => {
 
   const handlePasteSubmit = async () => {
     if (!pasteContent.trim()) return;
-    await importCustomText(
+    const chapterId = await importCustomText(
       pasteTitle.trim() || 'Custom Text',
       pasteContent,
       pasteLanguage.trim() || undefined,
     );
+    if (!chapterId) {
+      return;
+    }
     setPasteTitle('');
     setPasteContent('');
     setPasteLanguage('');
