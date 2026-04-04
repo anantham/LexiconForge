@@ -124,9 +124,7 @@ const InputBar: React.FC = () => {
       pasteContent,
       pasteLanguage.trim() || undefined,
     );
-    if (!chapterId) {
-      return;
-    }
+    if (!chapterId) return;
     setPasteTitle('');
     setPasteContent('');
     setPasteLanguage('');
