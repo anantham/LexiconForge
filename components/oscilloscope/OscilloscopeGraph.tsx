@@ -62,12 +62,22 @@ function buildTooltipContent(
   // Clear existing content
   tooltipEl.textContent = '';
 
-  // Chapter header
+  // Chapter header with title
+  const titles = (window as any).__oscilloscopeChapterTitles || {};
+  const title = titles[String(chapter)] || `Chapter ${chapter}`;
+
   const header = document.createElement('div');
   header.style.fontWeight = '600';
-  header.style.marginBottom = '4px';
-  header.textContent = `Chapter ${chapter}`;
+  header.style.marginBottom = '2px';
+  header.textContent = title;
   tooltipEl.appendChild(header);
+
+  const hint = document.createElement('div');
+  hint.style.fontSize = '10px';
+  hint.style.color = '#9ca3af';
+  hint.style.marginBottom = '4px';
+  hint.textContent = 'Click to navigate';
+  tooltipEl.appendChild(hint);
 
   // Thread values
   for (let i = 1; i < series.length; i++) {
