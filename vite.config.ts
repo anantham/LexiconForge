@@ -93,6 +93,10 @@ export default defineConfig(({ mode }) => {
       mode
     });
     return {
+      server: {
+        port: 5180,
+        strictPort: true,
+      },
       define: {
         // Legacy support
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
