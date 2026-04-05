@@ -259,13 +259,14 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
   // Create / recreate uPlot
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || activeThreads.length === 0) return;
 
-    // Destroy old instance
+    // Destroy old instance whenever deps change (including when threads go to zero)
     if (plotRef.current) {
       plotRef.current.destroy();
       plotRef.current = null;
     }
+
+    if (!container || activeThreads.length === 0) return;
 
     const containerWidth = container.clientWidth;
     const height = isExpanded ? 280 : 40;
@@ -294,7 +295,7 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
         },
         {
           show: isExpanded,
-          label: 'Value',
+          label: 'Intensity',
           stroke: '#9ca3af',
           grid: { stroke: 'rgba(75, 85, 99, 0.3)' },
           ticks: { stroke: 'rgba(75, 85, 99, 0.3)' },
@@ -332,7 +333,7 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
 
   // Update data without full rebuild when zoom or values change
   useEffect(() => {
-    if (plotRef.current && data.length > 0) {
+    if (plotRef.current && data.length > 1) {
       plotRef.current.setData(data);
     }
   }, [data]);

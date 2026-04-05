@@ -49,7 +49,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
       {versions.map(version => (
         <div
           key={version.versionId}
-          className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-500 transition-colors"
+          className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-amber-500 dark:hover:border-amber-500 transition-colors"
         >
           {/* Header */}
           <div className="flex items-start justify-between mb-2">
@@ -87,10 +87,10 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
           <div className="mb-3">
             <span className={`px-2 py-1 text-xs rounded ${
               version.stats.translation.translationType === 'human'
-                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200'
                 : version.stats.translation.translationType === 'ai'
-                ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200'
-                : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
+                ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200'
+                : 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200'
             }`}>
               {version.stats.translation.translationType === 'human' && '👤 Human Translation'}
               {version.stats.translation.translationType === 'ai' && '🤖 AI Translation'}
@@ -145,7 +145,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div
-                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all"
+                  className="bg-amber-500 dark:bg-amber-500 h-2 rounded-full transition-all"
                   style={{ width: `${calculateAbsoluteCoverage(version, totalNovelChapters)}%` }}
                 />
               </div>
@@ -159,7 +159,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div
-                  className="bg-green-600 dark:bg-green-500 h-2 rounded-full transition-all"
+                  className="bg-emerald-500 dark:bg-emerald-600 h-2 rounded-full transition-all"
                   style={{ width: `${calculateTranslationProgress(version)}%` }}
                 />
               </div>
@@ -169,7 +169,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
           {/* Content Statistics Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
             <div className="text-center">
-              <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+              <div className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {version.stats.content.totalImages}
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">Images</div>
@@ -179,7 +179,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
             </div>
 
             <div className="text-center">
-              <div className="text-lg font-semibold text-purple-600 dark:text-purple-400">
+              <div className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {version.stats.content.totalFootnotes}
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">Footnotes</div>
@@ -189,7 +189,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
             </div>
 
             <div className="text-center">
-              <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+              <div className="text-lg font-semibold text-amber-600 dark:text-amber-400">
                 {version.stats.content.totalTranslatedChapters}
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">Translated</div>
@@ -199,7 +199,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
             </div>
 
             <div className="text-center">
-              <div className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+              <div className="text-lg font-semibold text-amber-600 dark:text-amber-400">
                 {Math.round((version.stats.content.totalTranslatedChapters / version.stats.content.totalRawChapters) * 100)}%
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">Complete</div>
@@ -212,7 +212,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
               {version.features.map(feature => (
                 <span
                   key={feature}
-                  className="px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded"
+                  className="px-2 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded"
                 >
                   {feature}
                 </span>
@@ -242,7 +242,7 @@ export function VersionPicker({ versions, totalNovelChapters, onSelect }: Versio
           {/* Action */}
           <button
             onClick={() => onSelect(version)}
-            className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="w-full py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium"
           >
             Start Reading
           </button>

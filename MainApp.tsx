@@ -249,12 +249,7 @@ const settingsFingerprint = React.useMemo(
       content = (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
           <main className="container mx-auto">
-            <header className="text-center mb-6">
-              <h1 className="text-4xl sm:text-5xl font-bold text-gray-800 dark:text-white">Lexicon Forge</h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">Read web novels with AI-powered, user-refined translations.</p>
-            </header>
             <DefaultKeyBanner />
-            <InputBar />
             <SessionInfo />
             <OscilloscopePanel />
             <ChapterView />

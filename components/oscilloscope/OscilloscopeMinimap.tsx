@@ -134,15 +134,10 @@ const OscilloscopeMinimap: React.FC = () => {
       ctx.fill();
     }
 
-    // Label
-    ctx.fillStyle = '#9ca3af';
-    ctx.font = '10px Inter, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(prominentThread.label, padding + 4, height - 6);
-
     // "Click to expand" hint on right
-    ctx.textAlign = 'right';
     ctx.fillStyle = '#6b7280';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'right';
     ctx.fillText('Click to expand', width - padding - 4, height - 6);
   }, [prominentThread, totalChapters, currentChapterNumber]);
 

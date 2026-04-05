@@ -28,6 +28,9 @@ export interface ProxyHealthStatus {
  * Dynamically re-sorted before each fetch attempt based on past performance.
  */
 export const PROXIES: ProxyConfig[] = [
+  // --- Tier 0: Our own Cloudflare Worker (most reliable) ---
+  { url: 'https://lexiconforge-cors-proxy.lexiconforge.workers.dev/?url=', type: 'param', responseFormat: 'html' },
+
   // --- Tier 1: Modern & Obscure (Highest Priority Start) ---
   { url: 'https://test.cors.workers.dev/', type: 'path', responseFormat: 'html' },
   { url: 'https://proxy.cors.sh/', type: 'path', responseFormat: 'html' },
@@ -120,3 +123,10 @@ export function getProxyDiagnostics(): string {
 
 /** Exported alias used by external callers */
 export const getProxyHealthDiagnostics = getProxyDiagnostics;
+
+/**
+ * Playwright-backed fetch proxy running on our VPS.
+ * Used as a heavyweight fallback when all CORS proxies fail.
+ * Returns raw HTML from a real headless browser — bypasses anti-bot, JS rendering, CORS.
+ */
+export const PLAYWRIGHT_PROXY_URL = 'https://3-99-221-14.sslip.io/fetch-proxy/fetch';

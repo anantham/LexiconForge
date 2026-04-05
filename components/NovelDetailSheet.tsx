@@ -115,7 +115,7 @@ function MediaCell({ reference, type }: { reference: MediaReference; type: 'anim
           href={reference.startUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1 inline-block"
+          className="text-xs text-amber-600 dark:text-amber-400 hover:underline mt-1 inline-block"
         >
           Start here →
         </a>
@@ -139,10 +139,11 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
         onClick={onClose}
       />
 
-      {/* Sheet */}
-      <div className="fixed inset-y-0 right-0 w-full sm:max-w-md md:max-w-lg lg:max-w-xl bg-white dark:bg-gray-900 shadow-2xl z-50 overflow-y-auto">
+      {/* Centered Modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div className="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto ring-1 ring-gray-200 dark:ring-gray-700">
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-start z-10">
+        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-start z-10 rounded-t-2xl">
           <div className="flex-1 pr-4">
             <div className="flex items-baseline gap-3 mb-1">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -207,7 +208,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
                     href={novel.metadata.sourceLinks.novelUpdates}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                    className="inline-flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 hover:underline"
                   >
                     <ExternalLink className="h-4 w-4" />
                     View on Novel Updates
@@ -228,7 +229,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
           ) : (
             <button
               onClick={() => onStartReading(novel)}
-              className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
+              className="w-full px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
             >
               Start Reading
             </button>
@@ -393,7 +394,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
               {novel.metadata.genres.map((genre, index) => (
                 <span
                   key={index}
-                  className="text-xs px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full font-medium border border-blue-200 dark:border-blue-800"
+                  className="text-xs px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 rounded-full font-medium border border-amber-200 dark:border-amber-800"
                 >
                   {genre}
                 </span>
@@ -420,6 +421,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
             </div>
           )}
         </div>
+      </div>
       </div>
     </>
   );

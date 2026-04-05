@@ -7,6 +7,7 @@ import { Chapter } from '../../types';
 import { SuttaCentralAdapter, getAdapter } from './siteAdapters';
 import {
   PROXIES,
+  PLAYWRIGHT_PROXY_URL,
   initializeProxyHealth,
   updateProxyHealth,
   getProxyHealthMap,
@@ -144,6 +145,53 @@ export const fetchAndParseUrl = async (
       console.log(`[Fetch] All proxies failed. Retrying in ${delay / 1000}s...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
+  }
+
+  // Heavyweight fallback: Playwright proxy on VPS (real headless browser)
+  console.log(`[Fetch] Playwright fallback: fetching via headless browser for: ${url}`);
+  try {
+    const playwrightUrl = `${PLAYWRIGHT_PROXY_URL}?url=${encodeURIComponent(url)}`;
+    const startTime = Date.now();
+    const response = await fetch(playwrightUrl, { signal: AbortSignal.timeout(30000) });
+    const elapsed = Date.now() - startTime;
+
+    if (!response.ok) {
+      throw new Error(`Playwright proxy returned ${response.status}`);
+    }
+
+    const htmlString = await response.text();
+    if (!htmlString) throw new Error('Playwright proxy returned empty response');
+
+    if (suttaAdapter) {
+      // For SuttaCentral, re-parse through the adapter
+      const doc = new DOMParser().parseFromString(htmlString, 'text/html');
+      const adapter = new SuttaCentralAdapter(url, doc);
+      const result = await adapter.fetchSutta(async () => htmlString);
+      console.log(`[Fetch] ✅ Playwright fallback succeeded (${elapsed}ms)`);
+      return result;
+    }
+
+    const doc = new DOMParser().parseFromString(htmlString, 'text/html');
+    const adapter = getAdapter(url, doc);
+    if (!adapter) throw new Error(`No adapter for ${targetUrl.hostname}`);
+
+    const title = adapter.extractTitle();
+    const content = adapter.extractContent();
+    if (!title || !content) throw new Error(`Failed to extract content via Playwright`);
+
+    const chapterNumber = deriveChapterNumber(url, title);
+    console.log(`[Fetch] ✅ Playwright fallback succeeded (${elapsed}ms)`);
+    return {
+      title,
+      content,
+      originalUrl: url,
+      nextUrl: adapter.getNextLink(),
+      prevUrl: adapter.getPrevLink(),
+      chapterNumber,
+    };
+  } catch (playwrightError: any) {
+    console.warn(`[Fetch] Playwright fallback failed: ${playwrightError.message}`);
+    lastError = playwrightError;
   }
 
   // Final fallback: attempt direct fetch (may fail due to CORS)

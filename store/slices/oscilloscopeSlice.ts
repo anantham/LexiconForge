@@ -218,15 +218,11 @@ export const createOscilloscopeSlice: StateCreator<
     // -- Build availableThreads metadata -------------------------------------
     const availableThreads: ThreadMetadata[] = Array.from(threads.values()).map(toMetadata);
 
-    // -- Auto-activate top 3 character threads + word_count ------------------
-    const characterMeta = availableThreads
-      .filter(m => m.category === 'character')
-      .sort((a, b) => b.chaptersCovered - a.chaptersCovered)
-      .slice(0, 3);
-
+    // -- Auto-activate default threads: dialogue ratio + combat + romance ----
     const activeThreadIds = new Set<string>([
-      'meta:word_count',
-      ...characterMeta.map(m => m.threadId),
+      'meta:dialogue_ratio',
+      'tone:combat',
+      'tone:romance',
     ]);
 
     set({
