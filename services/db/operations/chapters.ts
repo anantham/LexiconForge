@@ -363,6 +363,38 @@ const findChapterModernByNumber = async (
   );
 };
 
+const getChaptersByNovelAndVersion = async (
+  novelId: string,
+  libraryVersionId: string
+): Promise<ChapterRecord[]> => {
+  return withReadTxn(
+    STORE_NAMES.CHAPTERS,
+    async (_txn, stores) => {
+      const store = stores[STORE_NAMES.CHAPTERS];
+
+      // Use novelId index if available
+      if (store.indexNames.contains('novelId')) {
+        const index = store.index('novelId');
+        const rows = (await promisifyRequest(index.getAll(novelId))) as ChapterRecord[];
+        return rows.filter(
+          ch => (ch.libraryVersionId ?? null) === (libraryVersionId ?? null)
+        );
+      }
+
+      // Fallback: full scan
+      const all = (await promisifyRequest(store.getAll())) as ChapterRecord[];
+      return all.filter(
+        ch =>
+          (ch.novelId ?? null) === novelId &&
+          (ch.libraryVersionId ?? null) === (libraryVersionId ?? null)
+      );
+    },
+    CHAPTER_DOMAIN,
+    'operations',
+    'getByNovelAndVersion'
+  );
+};
+
 const setChapterNumberByStableIdModern = async (stableId: string, chapterNumber: number): Promise<void> => {
   await withWriteTxn(
     STORE_NAMES.CHAPTERS,
@@ -527,6 +559,13 @@ export class ChapterOps {
     libraryVersionId?: string | null
   ): Promise<ChapterRecord | null> {
     return findChapterModernByNumber(chapterNumber, novelId, libraryVersionId);
+  }
+
+  static async getByNovelAndVersion(
+    novelId: string,
+    libraryVersionId: string
+  ): Promise<ChapterRecord[]> {
+    return getChaptersByNovelAndVersion(novelId, libraryVersionId);
   }
 
   static async deleteByUrl(chapterUrl: string): Promise<void> {
