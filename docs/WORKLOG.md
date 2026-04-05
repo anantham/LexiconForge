@@ -1,3 +1,27 @@
+2026-04-05 08:30 EDT - [Agent: Gemini]
+- Status: Complete
+- Task: Resolve four user-reported friction points and bugs across translation, navigation, and UI.
+- Files:
+  - services/translate/Translator.ts
+  - components/NovelLibrary.tsx
+  - components/ChapterView.tsx
+  - components/chapter/ChapterHeader.tsx
+  - components/chapter/DiffMarkersPanel.tsx
+  - docs/roadmaps/TECH-DEBT-STATUS.md
+- Why:
+  - Translation timeouts on OpenRouter lacked exponential backoff, causing immediate (and often failing) retries.
+  - "Continue Reading" was restricted to library-curated novels, hiding manually fetched books.
+  - The reader UI lacked a novel-level indicator, making it hard to track the active book.
+  - Diff heatmap tooltips were cut off by the viewport edge due to fixed right-side positioning.
+- Details:
+  - Updated `Translator.ts` to include exponential backoff for all retryable errors (including timeouts).
+  - Modified `NovelLibrary.tsx` to include and synthesize metadata for manually imported novels in "Continue Reading".
+  - Updated `ChapterView.tsx` and `ChapterHeader.tsx` to resolve and display the novel title above chapter titles.
+  - Flipped `DiffMarkersPanel.tsx` tooltips to `right-full` (left of marker) and added responsive max-width to prevent cutoffs.
+- Tests:
+  - Manual verification of UI layout and logic flow.
+  - `npx tsc --noEmit` (to verify no type regressions in modified files)
+
 2026-04-03 23:58 EDT - [Agent: Codex]
 - Status: Progress
 - Task: Resolve PR #25 merge conflicts against `main` without dropping the pasted-text regression fix or the new library/reader guardrails.

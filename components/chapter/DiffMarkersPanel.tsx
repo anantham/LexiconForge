@@ -57,7 +57,7 @@ export const DiffMarkersPanel: React.FC<DiffMarkersPanelProps> = ({
                   aria-label={`Diff marker for paragraph ${paragraph.position + 1}`}
                 />
                 {marker.displayExplanations.length > 0 && (
-                  <div className="pointer-events-none select-none absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover/marker:opacity-100 transition-opacity duration-150 bg-gray-900 text-white text-sm leading-relaxed rounded-lg px-4 py-3 shadow-xl w-80 z-50 whitespace-normal">
+                  <div className="pointer-events-none select-none absolute right-full mr-3 top-1/2 -translate-y-1/2 opacity-0 group-hover/marker:opacity-100 transition-opacity duration-150 bg-gray-900 text-white text-sm leading-relaxed rounded-lg px-4 py-3 shadow-xl w-80 max-w-[calc(100vw-10rem)] z-50 whitespace-normal">
                     {marker.displayReasons.map((reason, reasonIdx) => (
                       <div key={`${marker.chunkId}-reason-${reasonIdx}`} className="mt-1 first:mt-0">
                         <span className="font-semibold capitalize">{reason.replace(/-/g, ' ')}:</span>

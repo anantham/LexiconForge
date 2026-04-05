@@ -126,9 +126,22 @@ Commit:     5d18e77
 
 See: [ARCHITECTURE.md §7 Hotspots](../architecture/ARCHITECTURE.md) (formerly tracked in REFACTOR_CANDIDATES.md, now archived)
 
-### 🟢 Low Priority
+---
 
-| Item | Issue | Notes |
+## User-Reported & Organic Findings
+
+These items represent friction points, bugs, or UX gaps identified during active usage of the application.
+
+| Item | Context / Location | Issue | Status |
+|------|--------------------|-------|--------|
+| Translation Reliability | `services/translate/Translator.ts` | Translation timeout/overload (e.g., 90s) lacks exponential backoff and retry mechanisms. Seen with Claude 3.5 Sonnet on OpenRouter. | ✅ COMPLETED |
+| Navigation Scope | `services/navigation/` | Does "Continue Reading" only work for library-curated novels (GitHub-hosted) or also for manually fetched URLs? | ✅ COMPLETED |
+| Reader UX | `components/ChapterView.tsx` | The active novel is not clearly indicated in the UI during the reading session. | ✅ COMPLETED |
+| Diff Heatmap UI | `components/diff/` | Tooltips in the diff heatmap are cut off by the outer edge of the viewport; need aggressive wrapping or repositioning logic. | ✅ COMPLETED |
+
+---
+
+## Catch Handler Inventory
 |------|-------|-------|
 | Import paths | `@/` alias used in 3 files (20 import lines) | Localized to `services/ai/providers/` — not systemic |
 | Naming inconsistency | `get` vs `fetch` vs `load` across services | Cognitive load, discoverability |

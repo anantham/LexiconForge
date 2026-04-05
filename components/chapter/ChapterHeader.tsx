@@ -4,6 +4,7 @@ type ViewMode = 'original' | 'fan' | 'english';
 
 interface ChapterHeaderProps {
   title: string;
+  novelTitle?: string | null;
   fontStyle: 'sans' | 'serif';
   targetLanguageLabel: string;
   viewMode: ViewMode;
@@ -38,6 +39,7 @@ const mobileLanguageButtonClasses = (
 
 const ChapterHeader: React.FC<ChapterHeaderProps> = ({
   title,
+  novelTitle,
   fontStyle,
   targetLanguageLabel,
   viewMode,
@@ -82,13 +84,20 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
 
   return (
     <header className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
-      <h1
-        className={`text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 text-center ${
-          fontStyle === 'serif' ? 'font-serif' : 'font-sans'
-        }`}
-      >
-        {title}
-      </h1>
+      <div className="flex flex-col items-center space-y-2">
+        {novelTitle && (
+          <div className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest opacity-80">
+            {novelTitle}
+          </div>
+        )}
+        <h1
+          className={`text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 text-center ${
+            fontStyle === 'serif' ? 'font-serif' : 'font-sans'
+          }`}
+        >
+          {title}
+        </h1>
+      </div>
 
       <div className="hidden md:flex justify-between items-center">
         <button
