@@ -53,10 +53,12 @@ const getStoreState = (): StoreSnapshot | undefined => {
 
 const getRuntimeEnv = (): Record<string, unknown> => {
   const viteEnv = (import.meta as any).env ?? {};
-  const processEnv = typeof process !== 'undefined' ? process.env ?? {} : {};
   return {
-    ...processEnv,
-    ...viteEnv,
+    VERCEL_GIT_COMMIT_SHA: viteEnv.VERCEL_GIT_COMMIT_SHA ?? (typeof process !== 'undefined' ? process.env?.VERCEL_GIT_COMMIT_SHA : undefined),
+    VITE_APP_BUILD_ID: viteEnv.VITE_APP_BUILD_ID,
+    VITE_ENABLE_CLIENT_TELEMETRY: viteEnv.VITE_ENABLE_CLIENT_TELEMETRY,
+    PROD: viteEnv.PROD,
+    NODE_ENV: viteEnv.MODE,
   };
 };
 

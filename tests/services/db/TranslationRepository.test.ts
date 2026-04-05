@@ -220,4 +220,53 @@ describe('TranslationRepository', () => {
     const refreshed = await translationRepo.getActiveTranslationByStableId(stableId);
     expect(refreshed?.version).toBe(versions[0].version);
   });
+
+  // T1: resolveChapterUrl failure during STORE — translation must not be lost
+  it('stores translation via stableId fallback when URL mapping is missing', async () => {
+    const chapterRecord = await chapterRepo.getChapter(baseChapter.originalUrl!);
+    const stableId = chapterRecord!.stableId!;
+    // Do NOT write URL mapping — simulates the race condition / incomplete import
+
+    const record = await translationRepo.storeTranslationByStableId(stableId, baseTranslation, baseSettings);
+    expect(record.stableId).toBe(stableId);
+    expect(record.translation).toBe(baseTranslation.translation);
+    // chapterUrl should be the synthetic fallback since URL mapping was missing
+    expect(record.chapterUrl).toContain('stableId://');
+  });
+
+  // T2: round-trip — store via stableId fallback, read back via getTranslationVersionsByStableId
+  it('round-trips translation through stableId fallback (store → read back)', async () => {
+    const chapterRecord = await chapterRepo.getChapter(baseChapter.originalUrl!);
+    const stableId = chapterRecord!.stableId!;
+    // No URL mapping — forces fallback on both store and read paths
+
+    await translationRepo.storeTranslationByStableId(stableId, baseTranslation, baseSettings);
+
+    // Read back via stableId — should find it via direct stableId index
+    const versions = await translationRepo.getTranslationVersionsByStableId(stableId);
+    expect(versions).toHaveLength(1);
+    expect(versions[0].stableId).toBe(stableId);
+    expect(versions[0].translation).toBe(baseTranslation.translation);
+
+    // ensureActive should also work
+    const active = await translationRepo.ensureActiveTranslationByStableId(stableId);
+    expect(active).not.toBeNull();
+    expect(active!.stableId).toBe(stableId);
+    expect(active!.isActive).toBe(true);
+  });
+
+  // T2b: round-trip with URL mapping present (happy path still works)
+  it('round-trips translation through URL path when mapping exists', async () => {
+    const stableId = await ensureStableMapping();
+
+    await translationRepo.storeTranslationByStableId(stableId, baseTranslation, baseSettings);
+
+    const versions = await translationRepo.getTranslationVersionsByStableId(stableId);
+    expect(versions).toHaveLength(1);
+    expect(versions[0].chapterUrl).toBe(baseChapter.originalUrl);
+
+    const active = await translationRepo.ensureActiveTranslationByStableId(stableId);
+    expect(active).not.toBeNull();
+    expect(active!.translation).toBe(baseTranslation.translation);
+  });
 });

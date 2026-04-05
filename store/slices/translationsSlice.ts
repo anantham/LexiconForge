@@ -297,12 +297,25 @@ export const createTranslationsSlice: StateCreator<
         });
       }
 
+      console.log(`[Translation] 🚀 Starting translateChapterSequential for ${chapterId}`, {
+        provider: context.settings.provider,
+        model: context.settings.model,
+        origin,
+      });
+
       const response = await TranslationService.translateChapterSequential(
         chapterId,
         context,
         (id) => get().buildTranslationHistoryAsync(id)
       );
-      
+
+      console.log(`[Translation] 📦 translateChapterSequential returned for ${chapterId}`, {
+        hasResponse: !!response,
+        aborted: response?.aborted,
+        hasError: !!response?.error,
+        hasResult: !!response?.translationResult,
+      });
+
       if (response?.aborted) {
         set(prevState => ({
           translationProgress: {
@@ -314,6 +327,7 @@ export const createTranslationsSlice: StateCreator<
       }
       
       if (response?.error) {
+        console.error(`[Translation] ❌ Error response for ${chapterId}:`, response.error);
         const failureType = response.failureType ?? 'unknown';
         const expected = response.expected ?? false;
         const telemetryContext = emitTranslationFailure({
@@ -341,6 +355,7 @@ export const createTranslationsSlice: StateCreator<
       
       const translationResult = response?.translationResult as TranslationResult | undefined;
       if (!translationResult) {
+        console.error(`[Translation] ❌ No translationResult in response for ${chapterId}`, response);
         const failureMessage = 'Translation finished without a result.';
         const telemetryContext = emitTranslationFailure({
           chapterId,

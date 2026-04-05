@@ -198,6 +198,7 @@ export const createChaptersSlice: StateCreator<
   
   // Chapter loading and persistence
   loadChapterFromIDB: async (chapterId) => {
+    console.log(`[loadChapterFromIDB] ENTERED for ${chapterId}`);
     const updateHydratingState = (id: string, hydrating: boolean) => {
       // Delegate to UI slice for hydration state
       const uiActions = get() as any;
@@ -244,20 +245,22 @@ export const createChaptersSlice: StateCreator<
       const viewMode = state.viewMode;
       const hasTranslation = !!chapter.translationResult;
 
+      console.log(`[ChaptersSlice] Post-hydration check: chapterId=${chapterId}, isCurrent=${isCurrentChapter}, viewMode=${viewMode}, hasTranslation=${hasTranslation}`);
+
       if (isCurrentChapter && viewMode === 'english' && !hasTranslation) {
         const isActive = state.isTranslationActive?.(chapterId);
         const isPending = state.pendingTranslations?.has(chapterId);
 
         if (!isActive && !isPending) {
-          debugLog('translation', 'summary',
-            `[ChaptersSlice] Post-hydration auto-translate: no translation found for ${chapterId}`);
+          console.warn(`[ChaptersSlice] 🔄 Post-hydration auto-translate TRIGGERED: no translation found for ${chapterId}`);
           if (typeof state.handleTranslate === 'function') {
             void state.handleTranslate(chapterId, 'auto_translate');
           }
         } else {
-          debugLog('translation', 'full',
-            `[ChaptersSlice] Post-hydration: translation already active/pending for ${chapterId}`);
+          console.log(`[ChaptersSlice] Post-hydration: translation already active/pending for ${chapterId}`);
         }
+      } else if (hasTranslation) {
+        console.log(`[ChaptersSlice] ✅ Post-hydration: translation loaded from cache for ${chapterId}`);
       }
     }
 
@@ -631,6 +634,14 @@ export const createChaptersSlice: StateCreator<
 
   navigateToChapter: (chapterId) => {
     const chapter = get().chapters.get(chapterId);
+    console.log(`[navigateToChapter] called`, {
+      chapterId,
+      chapterFound: !!chapter,
+      hasTranslationResult: !!chapter?.translationResult,
+      hasContent: !!chapter?.content,
+      contentLength: chapter?.content?.length ?? 0,
+      viewMode: get().viewMode,
+    });
     if (chapter) {
       set({ currentChapterId: chapterId, appScreen: 'reader' });
       get().addToHistory(chapterId);

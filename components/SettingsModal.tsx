@@ -119,7 +119,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     console.log('💾 [SettingsModal] Saving settings:', {
       provider: currentSettings.provider,
       model: currentSettings.model,
-      fullSettings: currentSettings
+      temperature: currentSettings.temperature,
     });
     updateSettings(currentSettings);
 

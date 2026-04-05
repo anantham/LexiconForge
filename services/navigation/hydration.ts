@@ -39,34 +39,22 @@ export async function loadChapterFromIDB(
 
   try {
     const rec = await ChapterOps.getByStableId(chapterId);
-    slog(`[IDB] Retrieved record:`, {
-      exists: !!rec,
-      title: rec?.title,
-      hasContent: !!rec?.content,
-      contentLength: rec?.content?.length || 0,
-      hasFanTranslation: !!rec?.fanTranslation,
-      fanTranslationLength: rec?.fanTranslation?.length || 0,
-      hasSuttaStudio: !!rec?.suttaStudio,
-      url: rec?.url,
-      canonicalUrl: rec?.canonicalUrl,
-      originalUrl: rec?.originalUrl,
-      chapterNumber: rec?.chapterNumber,
-      nextUrl: rec?.nextUrl,
-      prevUrl: rec?.prevUrl
-    });
-
-    // Log fan translation status specifically
-    if (rec.fanTranslation) {
-      // console.log(`[IDB] ✅ Fan translation found in DB: ${rec.fanTranslation.length} characters`);
-    } else {
-      debugLog('navigation', 'full', `[IDB] No fan translation in DB for chapter: ${rec.title}`);
-    }
 
     if (!rec) {
       swarn(`[IDB] No record found for ${chapterId}`);
       memoryDetail('Chapter hydration missing record', { chapterId });
       return complete('missing_record', {}, null);
     }
+
+    slog(`[IDB] Retrieved record:`, {
+      title: rec.title,
+      hasContent: !!rec.content,
+      contentLength: rec.content?.length || 0,
+      hasFanTranslation: !!rec.fanTranslation,
+      url: rec.url,
+      canonicalUrl: rec.canonicalUrl,
+      chapterNumber: rec.chapterNumber,
+    });
 
     // Transform IndexedDB record to EnhancedChapter format
     const sourceUrls = Array.from(
@@ -112,13 +100,13 @@ export async function loadChapterFromIDB(
 
     // Load active translation if available (ensure fixes legacy data without isActive flag)
     try {
-      debugLog('navigation', 'full', `[TranslationLoad] Starting load for chapter: ${chapterId}`);
-      debugLog('navigation', 'full', `[TranslationLoad] Chapter URL: ${rec.url}, Canonical: ${rec.canonicalUrl}`);
+      console.log(`[TranslationLoad] Starting load for chapter: ${chapterId}`);
+      console.log(`[TranslationLoad] Chapter URL: ${rec.url}, Canonical: ${rec.canonicalUrl}`);
 
       const activeTranslation = await TranslationOps.ensureActiveByStableId(chapterId);
 
       if (activeTranslation) {
-        debugLog('navigation', 'full', `[TranslationLoad] Active translation found for ${chapterId}`, {
+        console.log(`[TranslationLoad] ✅ Active translation found for ${chapterId}`, {
           translationId: activeTranslation.id,
           version: activeTranslation.version,
           isActive: activeTranslation.isActive,
@@ -194,14 +182,7 @@ export async function loadChapterFromIDB(
           debugWarn('navigation', 'summary', '[DiffCache] Failed to hydrate diff markers from cache', diffError);
         }
       } else {
-        debugWarn('navigation', 'summary', `[TranslationLoad] No active translation found for ${chapterId}`);
-        debugWarn('navigation', 'full', `[TranslationLoad] This chapter will appear untranslated and may trigger auto-translate`);
-        debugLog(
-          'navigation',
-          'summary',
-          '[Navigation] No active translation found during hydration',
-          { chapterId }
-        );
+        console.warn(`[TranslationLoad] ⚠️ No active translation found for ${chapterId} — will appear untranslated and may trigger auto-translate`);
       }
     } catch (error) {
       console.error(`🚨 [TranslationLoad] FAILED to load active translation for ${chapterId}:`, error);
@@ -209,16 +190,21 @@ export async function loadChapterFromIDB(
         message: (error as Error)?.message || error,
         stack: (error as Error)?.stack
       });
+      // Mark the error so callers can distinguish "never translated" from "load failed"
+      (enhanced as any)._translationLoadError = (error as Error)?.message || String(error);
       memoryDetail('Chapter hydration translation load failed', {
         chapterId,
         error: (error as Error)?.message || error,
       });
     }
 
-    slog(`[IDB] Successfully loaded chapter ${chapterId} with translation: ${!!enhanced.translationResult}`);
-    return complete('success', {
+    const hasTranslation = Boolean(enhanced.translationResult);
+    const outcome = hasTranslation ? 'success' : 'success_no_translation';
+    console.log(`[IDB] ${hasTranslation ? '✅' : '⚠️'} Loaded chapter ${chapterId} | hasTranslation: ${hasTranslation}`);
+    return complete(outcome, {
       contentLength: enhanced.content.length,
-      hasTranslation: Boolean(enhanced.translationResult),
+      hasTranslation,
+      translationLoadFailed: !hasTranslation && enhanced._translationLoadError ? true : undefined,
     }, enhanced);
 
   } catch (error) {

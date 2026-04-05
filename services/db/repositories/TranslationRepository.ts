@@ -70,6 +70,32 @@ export class TranslationRepository implements ITranslationRepository {
     });
   }
 
+  /**
+   * Direct stableId lookup on the translations store, bypassing URL_MAPPINGS.
+   * Used as a fallback when resolveChapterUrl fails (missing URL mapping).
+   */
+  private async fetchTranslationsByStableId(
+    stableId: string
+  ): Promise<TranslationRecord[]> {
+    const db = await this.deps.getDb();
+    return await new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readonly');
+      const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
+      if (!store.indexNames.contains('stableId')) {
+        resolve([]);
+        return;
+      }
+      const index = store.index('stableId');
+      const request = index.getAll(IDBKeyRange.only(stableId));
+
+      request.onsuccess = () => {
+        const results = (request.result as TranslationRecord[] | undefined) || [];
+        resolve(results.sort((a, b) => b.version - a.version));
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
   private async fetchTranslationById(translationId: string): Promise<TranslationRecord | null> {
     const db = await this.deps.getDb();
     return await new Promise((resolve, reject) => {
@@ -204,10 +230,19 @@ export class TranslationRepository implements ITranslationRepository {
     translation: TranslationResult,
     settings: TranslationSettingsSnapshot
   ): Promise<TranslationRecord> {
-    const chapterUrl = await this.resolveChapterUrl({ stableId });
+    let chapterUrl: string;
+    try {
+      chapterUrl = await this.resolveChapterUrl({ stableId });
+    } catch (urlError) {
+      // URL_MAPPINGS missing — use stableId as the chapterUrl fallback so the translation is not lost
+      console.warn(`[TranslationRepo] resolveChapterUrl failed for stableId=${stableId} during STORE, using stableId as chapterUrl fallback`, urlError);
+      chapterUrl = `stableId://${stableId}`;
+    }
+    console.log(`[TranslationRepo] Storing translation: stableId=${stableId}, chapterUrl=${chapterUrl}, provider=${settings.provider}, model=${settings.model}`);
     const record = await this.storeTranslation(chapterUrl, translation, settings);
     record.stableId = stableId;
     await this.writeTranslation(record);
+    console.log(`[TranslationRepo] ✅ Stored translation: id=${record.id}, version=${record.version}, stableId=${stableId}, chapterUrl=${chapterUrl}`);
     return record;
   }
 
@@ -229,8 +264,32 @@ export class TranslationRepository implements ITranslationRepository {
   }
 
   async getTranslationVersionsByStableId(stableId: string): Promise<TranslationRecord[]> {
-    const chapterUrl = await this.resolveChapterUrl({ stableId });
-    const versions = await this.fetchTranslationsByUrl(chapterUrl);
+    console.log(`[TranslationRepo] getTranslationVersionsByStableId called`, { stableId, caller: new Error().stack?.split('\n')[2]?.trim() });
+    let versions: TranslationRecord[] = [];
+
+    // Primary path: resolve stableId → URL via URL_MAPPINGS, then query by chapterUrl
+    try {
+      const chapterUrl = await this.resolveChapterUrl({ stableId });
+      console.log(`[TranslationRepo] Resolved stableId ${stableId} → URL: ${chapterUrl}`);
+      versions = await this.fetchTranslationsByUrl(chapterUrl);
+      console.log(`[TranslationRepo] Found ${versions.length} translation(s) by URL for ${stableId}`);
+    } catch (urlError) {
+      console.warn(`[TranslationRepo] URL_MAPPINGS miss for stableId ${stableId}`, urlError);
+    }
+
+    // Fallback: direct stableId index on translations store
+    // Triggers when URL_MAPPINGS is missing OR URL resolved but translation stored under a different URL
+    if (versions.length === 0) {
+      console.log(`[TranslationRepo] Trying direct stableId index fallback for ${stableId}`);
+      const directVersions = await this.fetchTranslationsByStableId(stableId);
+      if (directVersions.length > 0) {
+        console.log(`[TranslationRepo] ✅ Direct stableId fallback found ${directVersions.length} translation(s) for ${stableId}`);
+        versions = directVersions;
+      } else {
+        console.log(`[TranslationRepo] No translations found via any path for ${stableId}`);
+      }
+    }
+
     return versions.map(v => ({ ...v, stableId }));
   }
 
@@ -246,12 +305,25 @@ export class TranslationRepository implements ITranslationRepository {
   }
 
   async ensureActiveTranslationByStableId(stableId: string): Promise<TranslationRecord | null> {
+    console.log(`[TranslationRepo] ensureActive: looking up translations for stableId=${stableId}`);
     const versions = await this.getTranslationVersionsByStableId(stableId);
-    if (!versions.length) return null;
+    if (!versions.length) {
+      console.log(`[TranslationRepo] ensureActive: no translations found for ${stableId}`);
+      return null;
+    }
     const active = versions.find(v => v.isActive) || versions[0];
+    console.log(`[TranslationRepo] ensureActive: picked version=${active.version}, isActive=${active.isActive}, provider=${active.provider}, model=${active.model} for ${stableId}`);
     if (active.isActive) return active;
-    await this.setActiveTranslationByStableId(stableId, active.version);
-    return this.getActiveTranslationByStableId(stableId);
+
+    // Need to promote — try URL path first, fall back to returning as-is
+    try {
+      await this.setActiveTranslationByStableId(stableId, active.version);
+      return this.getActiveTranslationByStableId(stableId);
+    } catch (promoteError) {
+      // URL_MAPPINGS missing — can't promote via URL path, just return the version directly
+      console.warn(`[TranslationRepo] ensureActive: promotion via URL failed for ${stableId}, returning version directly`, promoteError);
+      return { ...active, isActive: true, stableId };
+    }
   }
 
   async setActiveTranslation(chapterUrl: string, version: number): Promise<void> {

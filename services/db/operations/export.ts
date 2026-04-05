@@ -281,7 +281,9 @@ export const exportFullSessionToJson = async (
       imagesIncluded: exportOptions.includeImages && imageAssets.length > 0,
       navigationHistoryIncluded: Boolean(navHistory),
     },
-    settings,
+    settings: Object.fromEntries(
+      Object.entries(settings).filter(([k]) => !k.startsWith('apiKey'))
+    ),
     urlMappings,
     novels,
     navigationHistory: navHistory,
