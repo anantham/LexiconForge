@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { AppSettings } from '../types';
 import { useAppStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
@@ -97,8 +97,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const chaptersMap = useAppStore(s => s.chapters);
   const { novelMetadata, handleNovelMetadataChange } = useNovelMetadata(chaptersMap);
 
+  // Track the baseline snapshot so we can diff on save
+  const baselineRef = useRef<AppSettings>(settings);
   useEffect(() => {
     setCurrentSettings(settings);
+    baselineRef.current = settings;
   }, [settings, isOpen]);
 
   const handleSettingChange = useCallback(<K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
@@ -118,12 +121,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   );
 
   const handleSave = () => {
-    console.log('💾 [SettingsModal] Saving settings:', {
-      provider: currentSettings.provider,
-      model: currentSettings.model,
-      temperature: currentSettings.temperature,
-    });
-    updateSettings(currentSettings);
+    // Compute only the fields the user actually changed in the modal,
+    // then merge on top of the latest store state. This prevents overwriting
+    // changes made by other paths (AudioPanel, amendments) while the modal was open.
+    const baseline = baselineRef.current;
+    const changedFields: Partial<AppSettings> = {};
+    for (const key of Object.keys(currentSettings) as (keyof AppSettings)[]) {
+      if (currentSettings[key] !== baseline[key]) {
+        (changedFields as any)[key] = currentSettings[key];
+      }
+    }
+    console.log('💾 [SettingsModal] Saving changed fields:', Object.keys(changedFields));
+    updateSettings(changedFields);
 
     // Verify save worked
     const savedRaw = localStorage.getItem('app-settings');
