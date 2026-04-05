@@ -137,7 +137,7 @@ async function main() {
   const outputDir = path.resolve(`reports/sutta-studio/generated-${timestamp}`);
   await fs.mkdir(outputDir, { recursive: true });
 
-  const settings = { ...BENCHMARK_CONFIG.settingsOverrides, model: MODEL_ID } as any;
+  const settings = { model: MODEL_ID, provider: 'OpenRouter' } as any;
   const results: any[] = [];
 
   for (const phase of phases) {

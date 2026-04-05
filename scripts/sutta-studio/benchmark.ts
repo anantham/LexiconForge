@@ -726,7 +726,7 @@ const normalizePhaseId = <T extends { id: string }>(input: T, phaseId: string): 
 });
 
 const loadFixture = async (): Promise<{
-  phase: FixturePhase;
+  phase: FixturePhase | SkeletonFixture;
   phaseKey: string;
   skeletonSegments: CanonicalSegment[];
   skeletonPhases: SkeletonPhase[] | null;
@@ -736,7 +736,7 @@ const loadFixture = async (): Promise<{
   const raw = await fs.readFile(fixturePath, 'utf8');
   const parsed = JSON.parse(raw) as GoldenFixture;
   const phaseKey = BENCHMARK_CONFIG.fixture.phaseKey;
-  const phase = parsed[phaseKey];
+  const phase = parsed[phaseKey] as FixturePhase | SkeletonFixture | undefined;
   if (!phase) {
     throw new Error(`Fixture phase "${phaseKey}" not found in ${fixturePath}.`);
   }
@@ -1022,11 +1022,19 @@ const buildEnglishText = (phase: FixturePhase, segments: CanonicalSegment[]): st
     .join(' ');
 };
 
+const isFixturePhase = (p: FixturePhase | SkeletonFixture): p is FixturePhase =>
+  'anatomist' in p && 'expectedPhaseView' in p;
+
 const runBenchmark = async () => {
   const { phase, phaseKey, skeletonSegments, skeletonPhases, skeletonSource } =
     await loadFixture();
   const workId = BENCHMARK_CONFIG.fixture.workId;
   const segments = phase.canonicalSegments;
+
+  if (!isFixturePhase(phase)) {
+    throw new Error(`Fixture phase "${phaseKey}" is a skeleton fixture without pass data (anatomist, weaver, etc.). Use a full FixturePhase for benchmarking.`);
+  }
+
   const phaseId = phase.expectedPhaseView?.id || 'phase-1';
 
   const fixtureAnatomist = normalizePhaseId(phase.anatomist, phaseId);

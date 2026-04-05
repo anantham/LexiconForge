@@ -17,6 +17,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { BENCHMARK_CONFIG, type BenchmarkRun } from './benchmark-config';
+import type { AnatomistPass, LexicographerPass } from '../../types/suttaStudio';
 
 // Parse CLI args
 const args = process.argv.slice(2);
@@ -71,7 +72,7 @@ async function main() {
 
   // Build settings for API call
   const settings = {
-    provider: runConfig.model.provider as any,
+    provider: runConfig.model.provider,
     model: runConfig.model.model,
     apiKey: process.env[runConfig.model.apiKeyEnv || 'OPENROUTER_API_KEY'] || '',
   };
@@ -102,9 +103,8 @@ async function main() {
   }
 }
 
-async function runAnatomist(phase: any, settings: any, runConfig: BenchmarkRun) {
+async function runAnatomist(phase: any, settings: any, _runConfig: BenchmarkRun) {
   const { runAnatomistPass } = await import('../../services/suttaStudioPassRunners');
-  const { getSuttaStudioPromptContext } = await import('../../config/suttaStudioPromptContext');
 
   const segments = phase.paliWords.map((w: any, i: number) => ({
     pali: w.surface,
@@ -116,9 +116,6 @@ async function runAnatomist(phase: any, settings: any, runConfig: BenchmarkRun) 
     console.log(`  ${i}: "${s.pali}" → "${s.baseEnglish}"`);
   });
 
-  const promptContext = getSuttaStudioPromptContext();
-  console.log('\nPrompt context version:', promptContext.version);
-
   console.log('\n' + '═'.repeat(80));
   console.log('MAKING API CALL...');
   console.log('═'.repeat(80));
@@ -126,23 +123,23 @@ async function runAnatomist(phase: any, settings: any, runConfig: BenchmarkRun) 
   const startTime = performance.now();
   try {
     const result = await runAnatomistPass({
+      phaseId,
+      workId: 'debug-script',
       segments,
       settings,
-      llm: runConfig.model as any,
-      promptContext,
-      providerPreferences: runConfig.model.providerPreferences,
+      structuredOutputs: true,
     });
 
     const duration = performance.now() - startTime;
     console.log(`\n✓ SUCCESS in ${(duration / 1000).toFixed(2)}s`);
     console.log('\nResult summary:');
-    console.log(`  Words: ${result.data?.words?.length || 0}`);
-    console.log(`  Segments: ${result.data?.segments?.length || 0}`);
-    console.log(`  Relations: ${result.data?.relations?.length || 0}`);
+    console.log(`  Words: ${result.output?.words?.length || 0}`);
+    console.log(`  Segments: ${result.output?.segments?.length || 0}`);
+    console.log(`  Relations: ${result.output?.relations?.length || 0}`);
 
-    if (result.data?.words) {
+    if (result.output?.words) {
       console.log('\nFirst 3 words:');
-      result.data.words.slice(0, 3).forEach((w: any) => {
+      result.output.words.slice(0, 3).forEach((w: any) => {
         console.log(`  ${w.id}: "${w.surface}" (${w.wordClass})`);
       });
     }
@@ -165,12 +162,14 @@ async function runAnatomist(phase: any, settings: any, runConfig: BenchmarkRun) 
   }
 }
 
-async function runWeaver(phase: any, settings: any, runConfig: BenchmarkRun) {
+async function runWeaver(phase: any, settings: any, _runConfig: BenchmarkRun) {
   const { runWeaverPass } = await import('../../services/suttaStudioPassRunners');
-  const { getSuttaStudioPromptContext } = await import('../../config/suttaStudioPromptContext');
 
-  // Weaver needs anatomist output - use phase data as proxy
-  const anatomistOutput = {
+  // Weaver needs anatomist output - use phase data as approximate proxy.
+  // Demo packet shapes don't exactly match pass output types, so we cast
+  // through Partial<> to acknowledge the mismatch explicitly.
+  const anatomist: AnatomistPass = {
+    id: phaseId,
     words: phase.paliWords,
     segments: phase.paliWords.flatMap((w: any) =>
       w.segments.map((s: any) => ({ ...s, wordId: w.id }))
@@ -178,15 +177,24 @@ async function runWeaver(phase: any, settings: any, runConfig: BenchmarkRun) {
     relations: phase.relations || [],
   };
 
+  // Weaver also needs lexicographer output
+  const lexicographer: LexicographerPass = {
+    id: phaseId,
+    senses: [],
+  };
+
+  const segments = phase.paliWords.map((w: any, i: number) => ({
+    pali: w.surface,
+    baseEnglish: phase.englishStructure[i]?.text || '',
+  }));
+
   const englishText = phase.englishStructure
     .filter((t: any) => !t.isGhost)
     .map((t: any) => t.text)
     .join(' ');
 
   console.log('\nEnglish text:', englishText);
-  console.log('Anatomist segments:', anatomistOutput.segments.length);
-
-  const promptContext = getSuttaStudioPromptContext();
+  console.log('Anatomist segments:', anatomist.segments.length);
 
   console.log('\n' + '═'.repeat(80));
   console.log('MAKING API CALL...');
@@ -195,20 +203,22 @@ async function runWeaver(phase: any, settings: any, runConfig: BenchmarkRun) {
   const startTime = performance.now();
   try {
     const result = await runWeaverPass({
-      anatomistOutput,
+      phaseId,
+      workId: 'debug-script',
+      segments,
+      anatomist,
+      lexicographer,
       englishText,
       settings,
-      llm: runConfig.model as any,
-      promptContext,
-      providerPreferences: runConfig.model.providerPreferences,
+      structuredOutputs: true,
     });
 
     const duration = performance.now() - startTime;
     console.log(`\n✓ SUCCESS in ${(duration / 1000).toFixed(2)}s`);
     console.log('\nResult summary:');
-    console.log(`  Tokens: ${result.data?.tokens?.length || 0}`);
+    console.log(`  Tokens: ${result.output?.tokens?.length || 0}`);
 
-    const linked = result.data?.tokens?.filter((t: any) => t.linkedSegmentId).length || 0;
+    const linked = result.output?.tokens?.filter((t: any) => t.linkedSegmentId).length || 0;
     console.log(`  Linked tokens: ${linked}`);
 
     // Save full output
@@ -229,11 +239,11 @@ async function runWeaver(phase: any, settings: any, runConfig: BenchmarkRun) {
   }
 }
 
-async function runLexicographer(phase: any, settings: any, runConfig: BenchmarkRun) {
+async function runLexicographer(phase: any, settings: any, _runConfig: BenchmarkRun) {
   const { runLexicographerPass } = await import('../../services/suttaStudioPassRunners');
-  const { getSuttaStudioPromptContext } = await import('../../config/suttaStudioPromptContext');
 
-  const anatomistOutput = {
+  const anatomist: AnatomistPass = {
+    id: phaseId,
     words: phase.paliWords,
     segments: phase.paliWords.flatMap((w: any) =>
       w.segments.map((s: any) => ({ ...s, wordId: w.id }))
@@ -241,9 +251,12 @@ async function runLexicographer(phase: any, settings: any, runConfig: BenchmarkR
     relations: phase.relations || [],
   };
 
-  console.log('\nAnatomist words:', anatomistOutput.words.length);
+  const segments = phase.paliWords.map((w: any, i: number) => ({
+    pali: w.surface,
+    baseEnglish: phase.englishStructure[i]?.text || '',
+  }));
 
-  const promptContext = getSuttaStudioPromptContext();
+  console.log('\nAnatomist words:', anatomist.words.length);
 
   console.log('\n' + '═'.repeat(80));
   console.log('MAKING API CALL...');
@@ -252,17 +265,18 @@ async function runLexicographer(phase: any, settings: any, runConfig: BenchmarkR
   const startTime = performance.now();
   try {
     const result = await runLexicographerPass({
-      anatomistOutput,
+      phaseId,
+      workId: 'debug-script',
+      segments,
+      anatomist,
       settings,
-      llm: runConfig.model as any,
-      promptContext,
-      providerPreferences: runConfig.model.providerPreferences,
+      structuredOutputs: true,
     });
 
     const duration = performance.now() - startTime;
     console.log(`\n✓ SUCCESS in ${(duration / 1000).toFixed(2)}s`);
     console.log('\nResult summary:');
-    console.log(`  Senses: ${result.data?.senses?.length || 0}`);
+    console.log(`  Senses: ${result.output?.senses?.length || 0}`);
 
     // Save full output
     const outPath = `/tmp/debug-${modelId}-${phaseId}-${passName}.json`;

@@ -51,7 +51,15 @@ const getStoreState = (): StoreSnapshot | undefined => {
   return window.__APP_STORE__?.getState?.();
 };
 
-const getRuntimeEnv = (): Record<string, unknown> => {
+interface RuntimeEnv {
+  VERCEL_GIT_COMMIT_SHA?: string;
+  VITE_APP_BUILD_ID?: string;
+  VITE_ENABLE_CLIENT_TELEMETRY?: string;
+  PROD?: boolean;
+  NODE_ENV?: string;
+}
+
+const getRuntimeEnv = (): RuntimeEnv => {
   const viteEnv = (import.meta as any).env ?? {};
   return {
     VERCEL_GIT_COMMIT_SHA: viteEnv.VERCEL_GIT_COMMIT_SHA ?? (typeof process !== 'undefined' ? process.env?.VERCEL_GIT_COMMIT_SHA : undefined),
@@ -240,7 +248,7 @@ const emitAnalytics = (payload: ClientTelemetryEventV1) => {
     route: payload.route,
   };
 
-  track(payload.event_type, analyticsPayload);
+  track(payload.event_type, { ...analyticsPayload });
 };
 
 const shouldSendCallback = (payload: ClientTelemetryEventV1): boolean => {

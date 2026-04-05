@@ -61,6 +61,8 @@ export interface EnhancedChapter extends Chapter {
   translationResult?: TranslationResult | null;
   translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
   feedback?: FeedbackItem[];
+  /** Set during hydration when translation load fails — distinguishes "never translated" from "load error" */
+  _translationLoadError?: string;
 }
 
 /**
