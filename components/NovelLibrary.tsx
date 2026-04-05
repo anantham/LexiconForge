@@ -117,12 +117,6 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     const requestedVersionId = version?.versionId ?? null;
     const versionLabel = version ? ` (${version.displayName})` : '';
 
-    // Check if session URL exists
-    if (!sessionJsonUrl) {
-      showNotification(`${novel.title}${versionLabel} is not yet available. Check back soon!`, 'error');
-      return;
-    }
-
     setIsLoading(true);
       setImportProgress(null);
       openNovel(novel.id, requestedVersionId);
@@ -159,8 +153,8 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
         // Notify parent that session is loaded
         onSessionLoaded?.();
-      } else {
-        // No cached data, use streaming import
+      } else if (sessionJsonUrl) {
+        // No cached data — stream from session URL
         let hasNavigatedToFirstChapter = false;
 
         await ImportService.streamImportFromUrl(
@@ -255,6 +249,10 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         );
 
         showNotification(`All chapters are now cached and ready to read.${versionLabel}`, 'info');
+      } else {
+        // No cache and no session URL — nothing to load
+        openLibrary();
+        showNotification(`${novel.title}${versionLabel} is not yet available. Check back soon!`, 'error');
       }
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);
@@ -282,15 +280,33 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   };
 
   const continueReadingEntries = (Object.values(bookshelfState) as BookshelfEntry[])
-    .map((entry) => ({
-      entry,
-      novel: novels.find((novel) => novel.id === entry.novelId) ?? null,
-      version:
-        novels
-          .find((novel) => novel.id === entry.novelId)
-          ?.versions?.find((candidate) => candidate.versionId === entry.versionId) ?? null,
-    }))
-    .filter((item): item is { entry: BookshelfEntry; novel: NovelEntry; version: NovelVersion | null } => Boolean(item.novel))
+    .map((entry) => {
+      const registryNovel = novels.find((novel) => novel.id === entry.novelId);
+      
+      // If not in registry, try to find it in the store's novels map (imported/custom)
+      // We can't access store directly here easily in the map, but we can synthesize
+      // basic info if registryNovel is missing.
+      const novel: NovelEntry = registryNovel || {
+        id: entry.novelId,
+        title: entry.novelId.split('_').pop()?.replace(/-/g, ' ') || 'Untitled Novel',
+        sessionJsonUrl: '',
+        metadata: {
+          originalLanguage: 'Unknown',
+          chapterCount: 0,
+          genres: [],
+          description: 'Manually imported novel',
+          publicationStatus: 'Ongoing' as const,
+          lastUpdated: new Date(entry.lastReadAtIso).toLocaleDateString(),
+        }
+      };
+
+      return {
+        entry,
+        novel,
+        version:
+          registryNovel?.versions?.find((candidate) => candidate.versionId === entry.versionId) ?? null,
+      };
+    })
     .sort((a, b) => b.entry.lastReadAtIso.localeCompare(a.entry.lastReadAtIso));
 
   return (

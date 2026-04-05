@@ -94,12 +94,16 @@ export class Translator {
           throw new DOMException('Aborted', 'AbortError');
         }
 
-        const result = await Promise.race([
-          provider.translate(workingRequest),
-          this.timeout(timeoutMs, workingRequest.abortSignal),
-        ]);
-
-        return this.sanitizeResult(result);
+        const { promise: timeoutPromise, cancel: cancelTimeout } = this.timeout(timeoutMs, workingRequest.abortSignal);
+        try {
+          const result = await Promise.race([
+            provider.translate(workingRequest),
+            timeoutPromise,
+          ]);
+          return this.sanitizeResult(result);
+        } finally {
+          cancelTimeout();
+        }
 
       } catch (error: any) {
         lastError = error;
@@ -135,10 +139,14 @@ export class Translator {
           }
         }
 
+        const isTimeout = error.message?.includes('timed out');
         const isRateLimitError = error.message?.includes('429') || error.status === 429;
-        if (isRateLimitError && attempt < maxRetries - 1) {
+
+        if (attempt < maxRetries - 1) {
+          // All other errors (including timeout and 429) get exponential backoff
           const delay = initialDelay * Math.pow(2, attempt);
-          debugWarn('translation', 'summary', `[Translator] Rate limit hit for ${workingRequest.settings.provider}. Retrying in ${delay / 1000}s...`);
+          const errorType = isTimeout ? 'Timeout' : isRateLimitError ? 'Rate limit' : 'Error';
+          debugWarn('translation', 'summary', `[Translator] ${errorType} hit for ${workingRequest.settings.provider}. Retrying attempt ${attempt + 2}/${maxRetries} in ${delay / 1000}s...`);
           await this.delay(delay);
           continue;
         }
@@ -340,14 +348,17 @@ export class Translator {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  private timeout(ms: number, abortSignal?: AbortSignal): Promise<never> {
-    return new Promise((_, reject) => {
-      const timer = setTimeout(
+  private timeout(ms: number, abortSignal?: AbortSignal): { promise: Promise<never>; cancel: () => void } {
+    let timer: ReturnType<typeof setTimeout>;
+    const promise = new Promise<never>((_, reject) => {
+      timer = setTimeout(
         () => reject(new Error(`Translation timed out after ${Math.round(ms / 1000)}s. The model may be overloaded — try again or switch models.`)),
         ms
       );
       abortSignal?.addEventListener('abort', () => clearTimeout(timer), { once: true });
     });
+    const cancel = () => clearTimeout(timer!);
+    return { promise, cancel };
   }
 
   getRegisteredProviders(): string[] {
