@@ -1,6 +1,100 @@
 import path from 'path';
 import fs from 'fs';
+import http from 'http';
+import https from 'https';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
+
+/**
+ * Plugin: local fetch proxy for scraping.
+ * Fetches target URLs server-side (Node.js on the user's machine),
+ * bypassing CORS and Cloudflare bot-detection that blocks server IPs.
+ * Endpoint: GET /api/fetch-proxy?url=<encoded-url>
+ */
+function localFetchProxyPlugin(): Plugin {
+  return {
+    name: 'local-fetch-proxy',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const reqUrl = req.url || '';
+        if (!reqUrl.startsWith('/api/fetch-proxy?')) return next();
+
+        const params = new URL(reqUrl, 'http://localhost').searchParams;
+        const targetUrl = params.get('url');
+
+        if (!targetUrl) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Missing ?url= parameter' }));
+          return;
+        }
+
+        let parsed: URL;
+        try {
+          parsed = new URL(targetUrl);
+        } catch {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid URL' }));
+          return;
+        }
+
+        const transport = parsed.protocol === 'https:' ? https : http;
+        const proxyReq = transport.get(targetUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+          },
+          timeout: 20000,
+        }, (proxyRes) => {
+          // Follow redirects (3xx)
+          if (proxyRes.statusCode && proxyRes.statusCode >= 300 && proxyRes.statusCode < 400 && proxyRes.headers.location) {
+            const redirectUrl = new URL(proxyRes.headers.location, targetUrl).href;
+            // Re-issue as a redirect to ourselves
+            res.writeHead(302, { 'Location': `/api/fetch-proxy?url=${encodeURIComponent(redirectUrl)}` });
+            res.end();
+            return;
+          }
+
+          const chunks: Buffer[] = [];
+          proxyRes.on('data', (chunk: Buffer) => chunks.push(chunk));
+          proxyRes.on('end', () => {
+            const body = Buffer.concat(chunks);
+            // Detect charset from content-type header
+            const contentType = proxyRes.headers['content-type'] || 'text/html';
+            const charsetMatch = contentType.match(/charset=([^\s;]+)/i);
+            const charset = charsetMatch?.[1]?.toLowerCase() || 'utf-8';
+
+            let html: string;
+            try {
+              // Use TextDecoder for proper charset handling (gbk, gb2312, etc.)
+              html = new TextDecoder(charset, { fatal: false }).decode(body);
+            } catch {
+              html = body.toString('utf-8');
+            }
+
+            res.writeHead(proxyRes.statusCode || 200, {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Access-Control-Allow-Origin': '*',
+              'X-Proxy-Source': 'local-fetch-proxy',
+            });
+            res.end(html);
+          });
+        });
+
+        proxyReq.on('error', (err) => {
+          console.error('[local-fetch-proxy] Error:', err.message);
+          res.writeHead(502, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: err.message }));
+        });
+
+        proxyReq.on('timeout', () => {
+          proxyReq.destroy();
+          res.writeHead(504, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Proxy request timed out' }));
+        });
+      });
+    },
+  };
+}
 
 /**
  * Plugin to serve benchmark reports for the /sutta/pipeline route.
@@ -138,6 +232,7 @@ export default defineConfig(({ mode }) => {
         exclude: ['epub-gen'] // don't prebundle node-only lib in the client
       },
       plugins: [
+        localFetchProxyPlugin(),
         suttaStudioReportsPlugin(),
       ],
     };

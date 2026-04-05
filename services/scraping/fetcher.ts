@@ -46,6 +46,67 @@ export const fetchAndParseUrl = async (
   const MAX_RETRIES = 2;
   const proxyHealthMap = getProxyHealthMap();
 
+  // --- Local fetch proxy (dev server or Vercel serverless) ---
+  // Runs server-side on the user's machine / edge, bypassing CORS and Cloudflare bot-detection.
+  const localProxyBase = import.meta.env.DEV
+    ? '/api/fetch-proxy'
+    : '/api/fetch-proxy'; // same path — Vercel serverless handles prod
+  try {
+    const localProxyUrl = `${localProxyBase}?url=${encodeURIComponent(url)}`;
+    console.log(`[Fetch] Trying local proxy for: ${url}`);
+    const startTime = Date.now();
+    const response = await fetch(localProxyUrl, { signal: AbortSignal.timeout(20000) });
+    const elapsed = Date.now() - startTime;
+
+    if (!response.ok) {
+      throw new Error(`Local proxy returned ${response.status}`);
+    }
+
+    const htmlString = await response.text();
+    if (!htmlString || htmlString.length < 200) {
+      throw new Error('Local proxy returned empty or too-short response');
+    }
+
+    if (suttaAdapter) {
+      const doc = new DOMParser().parseFromString(htmlString, 'text/html');
+      const adapter = new SuttaCentralAdapter(url, doc);
+      const result = await adapter.fetchSutta(async () => htmlString);
+      console.log(`[Fetch] ✅ Local proxy succeeded (${elapsed}ms)`);
+      return result;
+    }
+
+    const doc = new DOMParser().parseFromString(htmlString, 'text/html');
+    const adapter = getAdapter(url, doc);
+    if (!adapter) throw new Error(`No adapter for ${targetUrl.hostname}`);
+
+    // Check if this is a TOC/index page that should redirect to first chapter
+    const redirectUrl = adapter.getRedirectUrl();
+    if (redirectUrl) {
+      console.log(`[Fetch] Index page detected, redirecting to first chapter: ${redirectUrl}`);
+      return fetchAndParseUrl(redirectUrl, proxyScores, updateProxyScore);
+    }
+
+    const title = adapter.extractTitle();
+    const content = adapter.extractContent();
+    if (!title || !content) {
+      throw new Error(`Local proxy fetched page but adapter couldn't extract content from ${targetUrl.hostname}`);
+    }
+
+    const chapterNumber = deriveChapterNumber(url, title);
+    console.log(`[Fetch] ✅ Local proxy succeeded (${elapsed}ms)`);
+    return {
+      title,
+      content,
+      originalUrl: url,
+      nextUrl: adapter.getNextLink(),
+      prevUrl: adapter.getPrevLink(),
+      chapterNumber,
+    };
+  } catch (localProxyError: any) {
+    console.warn(`[Fetch] Local proxy failed: ${localProxyError.message}`);
+    lastError = localProxyError;
+  }
+
   // Initialize health for all proxies and sort by reliability
   PROXIES.forEach((proxy) => initializeProxyHealth(proxy.url));
   const sortedProxies = [...PROXIES].sort((a, b) => {
@@ -110,6 +171,13 @@ export const fetchAndParseUrl = async (
           throw new Error(
             `This website (${targetUrl.hostname}) is not supported. No adapter found.`
           );
+
+        // Check if this is a TOC/index page that should redirect to first chapter
+        const redirectUrl = adapter.getRedirectUrl();
+        if (redirectUrl) {
+          console.log(`[Fetch] Index page detected, redirecting to first chapter: ${redirectUrl}`);
+          return fetchAndParseUrl(redirectUrl, proxyScores, updateProxyScore);
+        }
 
         const title = adapter.extractTitle();
         const content = adapter.extractContent();

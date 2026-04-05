@@ -22,6 +22,14 @@ abstract class BaseAdapter {
   abstract extractContent(): string | null;
   abstract getNextLink(): string | null;
   abstract getPrevLink(): string | null;
+
+  /**
+   * If the page is a TOC/index page rather than a chapter, return the first chapter URL.
+   * Returns null for normal chapter pages.
+   */
+  getRedirectUrl(): string | null {
+    return null;
+  }
 }
 
 // --- SITE ADAPTERS ---
@@ -259,6 +267,23 @@ class HetushuAdapter extends BaseAdapter {
     return HetushuAdapter.WATERMARK_PATTERNS.some((pattern) =>
       normalized.includes(pattern)
     );
+  }
+
+  /**
+   * Detect TOC/index pages (e.g. /book/2991/index.html) and return the first chapter URL.
+   */
+  getRedirectUrl(): string | null {
+    // If this is a chapter page (#content exists), no redirect needed
+    if (this.doc.querySelector('#content')) return null;
+
+    // Look for chapter links in the TOC
+    const chapterLinks = this.doc.querySelectorAll('#dir a[href]');
+    if (chapterLinks.length === 0) return null;
+
+    const firstHref = chapterLinks[0].getAttribute('href');
+    if (!firstHref) return null;
+
+    return new URL(firstHref, this.url).href;
   }
 
   extractTitle = () =>
