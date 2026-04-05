@@ -49,10 +49,6 @@ const buildResetState = (state: StoreState): Partial<StoreState> => ({
   imageGenerationMetrics: null,
   imageGenerationProgress: {},
 
-  // Jobs slice
-  jobs: {},
-  workers: {},
-
   // Session metadata
   sessionProvenance: null,
   sessionVersion: null,

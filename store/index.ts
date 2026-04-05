@@ -9,7 +9,6 @@
  * - TranslationsSlice: Translation operations and feedback
  * - ImageSlice: Image generation and advanced controls
  * - ExportSlice: Session and EPUB export functionality
- * - JobsSlice: Background job management
  */
 
 import { create } from 'zustand';
@@ -19,7 +18,6 @@ import { createChaptersSlice, type ChaptersSlice } from './slices/chaptersSlice'
 import { createTranslationsSlice, type TranslationsSlice } from './slices/translationsSlice';
 import { createImageSlice, type ImageSlice } from './slices/imageSlice';
 import { createExportSlice, type ExportSlice } from './slices/exportSlice';
-import { createJobsSlice, type JobsSlice } from './slices/jobsSlice';
 import { createAudioSlice, type AudioSlice } from './slices/audioSlice';
 import { createOscilloscopeSlice } from './slices/oscilloscopeSlice';
 import { createBootstrapActions } from './bootstrap';
@@ -38,7 +36,6 @@ export const useAppStore = create<StoreState>((set, get, store) => ({
   ...createTranslationsSlice(set, get, store),
   ...createImageSlice(set, get, store),
   ...createExportSlice(set, get, store),
-  ...createJobsSlice(set, get, store),
   ...createAudioSlice(set, get, store),
   ...createOscilloscopeSlice(set, get, store),
 
@@ -72,5 +69,4 @@ export type { ChaptersSlice } from './slices/chaptersSlice';
 export type { TranslationsSlice } from './slices/translationsSlice';
 export type { ImageSlice } from './slices/imageSlice';
 export type { ExportSlice } from './slices/exportSlice';
-export type { JobsSlice } from './slices/jobsSlice';
 export type { OscilloscopeSlice } from '../types/oscilloscope';

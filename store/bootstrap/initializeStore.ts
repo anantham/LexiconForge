@@ -415,6 +415,11 @@ const initializeAudioServices = async (ctx: BootstrapContext): Promise<void> => 
 
 export const createInitializeStore = (ctx: BootstrapContext): SessionActions['initializeStore'] => {
   return async () => {
+    // Idempotency guard — prevents StrictMode double-init in dev
+    if (ctx.get().isInitialized) {
+      bootstrapLog('initializeStore – skipped (already initialized)');
+      return;
+    }
     bootstrapLog('initializeStore – begin');
     ctx.get().setInitialized(false);
     ctx.get().openLibrary();

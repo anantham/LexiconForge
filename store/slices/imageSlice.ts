@@ -198,7 +198,7 @@ export const createImageSlice: StateCreator<
     const chapter = chapters.get(chapterId);
     if (!chapter?.translationResult) return;
 
-    const versionStateMap = (chapter.translationResult as any).imageVersionState ?? {};
+    const versionStateMap = chapter.translationResult.imageVersionState ?? {};
     const existingEntry = versionStateMap[placementMarker] as ImageVersionStateEntry | undefined;
     const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
     const latestFromStore = storeState.imageVersions?.[`${chapterId}:${placementMarker}`] ?? 0;
@@ -213,7 +213,7 @@ export const createImageSlice: StateCreator<
       activeVersion,
       versions
     };
-    (chapter.translationResult as any).imageVersionState = versionStateMap;
+    chapter.translationResult.imageVersionState =versionStateMap;
 
     const snapshot = buildPersistenceSnapshot(chapter);
     if (!snapshot) return;
@@ -248,6 +248,13 @@ export const createImageSlice: StateCreator<
 
   // Image generation
   handleGenerateImages: async (chapterId) => {
+    // In-progress guard — prevents auto + manual double-fire
+    const prevProgress = get().imageGenerationProgress[chapterId];
+    if (prevProgress && prevProgress.completed < prevProgress.total) {
+      console.log(`[ImageSlice] Generation already in progress for ${chapterId}, skipping`);
+      return;
+    }
+
     const state = get();
     const context: ImageGenerationContext = {
       chapters: (state as any).chapters || new Map(),
@@ -333,7 +340,7 @@ export const createImageSlice: StateCreator<
           const marker = illust?.placementMarker;
           if (!marker) return;
           const key = `${chapterId}:${marker}`;
-          const versionState = (chapter.translationResult as any)?.imageVersionState?.[marker];
+          const versionState = chapter.translationResult?.imageVersionState?.[marker];
           const version = versionState?.latestVersion ?? illust?.generatedImage?.imageCacheKey?.version ?? 1;
 
           const previousVersion = prevState.imageVersions[key] ?? 0;
@@ -540,7 +547,7 @@ export const createImageSlice: StateCreator<
                 generatedAt: new Date().toISOString()
               };
 
-              const existingState = (chapter.translationResult as any).imageVersionState ?? {};
+              const existingState = chapter.translationResult.imageVersionState ?? {};
               const existingEntry = existingState[marker] as ImageVersionStateEntry | undefined;
               const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
               versions[cacheKey.version] = metadata;
@@ -551,7 +558,7 @@ export const createImageSlice: StateCreator<
                 versions
               };
               const currentVersionState = existingState;
-              (chapter.translationResult as any).imageVersionState = {
+              chapter.translationResult.imageVersionState ={
                 ...currentVersionState,
                 [marker]: versionState
               };
@@ -601,7 +608,7 @@ export const createImageSlice: StateCreator<
         const marker = illust?.placementMarker;
         if (!marker) return;
         const key = `${chapterId}:${marker}`;
-        const versionState = (chapter.translationResult as any)?.imageVersionState?.[marker];
+        const versionState = chapter.translationResult?.imageVersionState?.[marker];
         let version =
           versionState?.latestVersion ??
           illust?.generatedImage?.imageCacheKey?.version ??

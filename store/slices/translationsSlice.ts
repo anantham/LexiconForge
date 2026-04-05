@@ -440,7 +440,7 @@ export const createTranslationsSlice: StateCreator<
           detail: {
             chapterId,
             aiTranslation: translationResult.translation || '',
-            aiTranslationId: (translationResult as any)?.id ?? null,
+            aiTranslationId: translationResult?.id ?? null,
             fanTranslation: fanText,
             fanTranslationId: null,
             rawText: liveChapter.content || '',
@@ -695,7 +695,7 @@ export const createTranslationsSlice: StateCreator<
                 persistenceSettings
               );
 
-              if (stored && !(updatedChapter.translationResult as any).id) {
+              if (stored && !updatedChapter.translationResult?.id) {
                 (get() as any).updateChapter(chapterId, { translationResult: stored as any });
               }
             } catch (error) {
@@ -1176,7 +1176,7 @@ export const createTranslationsSlice: StateCreator<
       updatedChapter.translationResult as any,
       persistenceSettings
     ).then((stored) => {
-      if (stored && !(updatedChapter.translationResult as any).id) {
+      if (stored && !updatedChapter.translationResult?.id) {
         try {
           (get() as any).updateChapter(chapterId, { translationResult: stored as any });
         } catch (e) {

@@ -270,12 +270,12 @@ export class ImageGenerationService {
               (target as any).url = enrichedResult.imageData;
             }
 
-            const currentState = (chapter.translationResult as any).imageVersionState ?? {};
+            const currentState = chapter.translationResult.imageVersionState ?? {};
             const existingEntry = currentState[illust.placementMarker] as ImageVersionStateEntry | undefined;
             const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
             versions[latestVersion] = metadata;
 
-            (chapter.translationResult as any).imageVersionState = {
+            chapter.translationResult.imageVersionState = {
               ...currentState,
               [illust.placementMarker]: {
                 latestVersion,
@@ -472,12 +472,12 @@ export class ImageGenerationService {
             (target as any).url = enrichedResult.imageData;
           }
 
-          const currentState = (chapter.translationResult as any).imageVersionState ?? {};
+          const currentState = chapter.translationResult.imageVersionState ?? {};
           const existingEntry = currentState[placementMarker] as ImageVersionStateEntry | undefined;
           const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
           versions[latestVersion] = metadata;
 
-          (chapter.translationResult as any).imageVersionState = {
+          chapter.translationResult.imageVersionState = {
             ...currentState,
             [placementMarker]: {
               latestVersion,

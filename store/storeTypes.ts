@@ -4,7 +4,6 @@ import type { ChaptersSlice } from './slices/chaptersSlice';
 import type { TranslationsSlice } from './slices/translationsSlice';
 import type { ImageSlice } from './slices/imageSlice';
 import type { ExportSlice } from './slices/exportSlice';
-import type { JobsSlice } from './slices/jobsSlice';
 import type { AudioSlice } from './slices/audioSlice';
 import type { OscilloscopeSlice } from '../types/oscilloscope';
 import type { SessionProvenance, SessionVersion } from '../types/session';
@@ -15,7 +14,6 @@ export type AppState = UiSlice &
   TranslationsSlice &
   ImageSlice &
   ExportSlice &
-  JobsSlice &
   AudioSlice &
   OscilloscopeSlice;
 

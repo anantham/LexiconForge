@@ -136,7 +136,7 @@ export async function loadChapterFromIDB(
 
         try {
           if (typeof window !== 'undefined' && enhanced.translationResult?.translation) {
-            const aiTranslationId = (enhanced.translationResult as any)?.id || activeTranslation.id || null;
+            const aiTranslationId = enhanced.translationResult?.id || activeTranslation.id || null;
             const aiTranslation = enhanced.translationResult.translation || '';
             const rawText = enhanced.content || '';
             const fanText = enhanced.fanTranslation || null;

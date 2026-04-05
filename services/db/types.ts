@@ -90,6 +90,7 @@ export interface TranslationRecord {
     promptId?: string;
     promptName?: string;
   };
+  imageVersionState?: Record<string, import('../../types').ImageVersionStateEntry>;
   proposal?: {
     observation: string;
     currentRule: string;

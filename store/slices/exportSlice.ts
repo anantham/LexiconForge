@@ -377,7 +377,7 @@ export const createExportSlice: StateCreator<
             const version = versionKey
               ? activeImageVersion[versionKey] || imageVersions[versionKey] || 1
               : 1;
-            const versionStateEntry = (active as any).imageVersionState?.[illust.placementMarker];
+            const versionStateEntry = active.imageVersionState?.[illust.placementMarker];
             try {
               if (imageCacheKey && ch.id && imageCacheModule) {
                 // Modern path: Retrieve from Cache API using active version
