@@ -13,6 +13,8 @@ interface Props {
   handleFeedbackSubmit: (feedback: { type: string; selection: string; comment?: string }) => void;
   clearSelection: () => void;
   viewRef: React.RefObject<HTMLDivElement>;
+  onSelfInsert?: () => void;
+  enableSillyTavern?: boolean;
 }
 
 const ChapterSelectionOverlay: React.FC<Props> = (props) => {
