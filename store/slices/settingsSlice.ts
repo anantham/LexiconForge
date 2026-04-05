@@ -374,7 +374,7 @@ export const createSettingsSlice: StateCreator<
           }
         }
       } else if (provider === 'PiAPI') {
-        apiKey = (state.settings as any).apiKeyPiAPI;
+        apiKey = state.settings.apiKeyPiAPI;
         if (!apiKey) {
           try {
             apiKey = import.meta.env.VITE_PIAPI_API_KEY ||
@@ -402,7 +402,7 @@ export const createSettingsSlice: StateCreator<
         'summary',
         `[SettingsSlice] Refreshing ${provider} credits using`,
         provider === 'PiAPI'
-          ? (state.settings as any).apiKeyPiAPI ? 'settings key' : 'environment key'
+          ? state.settings.apiKeyPiAPI ? 'settings key' : 'environment key'
           : state.settings.apiKeyDeepSeek ? 'settings key' : 'environment key'
       );
 

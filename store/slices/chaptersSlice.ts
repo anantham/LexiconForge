@@ -344,7 +344,7 @@ export const createChaptersSlice: StateCreator<
       urlIndex: state.urlIndex,
       rawUrlIndex: state.rawUrlIndex,
       navigationHistory: state.navigationHistory,
-      hydratingChapters: (state as any).hydratingChapters || {},
+      hydratingChapters: state.hydratingChapters || {},
       scope: {
         novelId: state.activeNovelId ?? null,
         versionId: state.activeVersionId ?? null,

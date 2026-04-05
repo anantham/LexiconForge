@@ -151,9 +151,9 @@ export const createTranslationsSlice: StateCreator<
       return;
     }
     const context: TranslationContext = {
-      chapters: (state as any).chapters || new Map(),
-      settings: (state as any).settings,
-      activePromptTemplate: (state as any).activePromptTemplate
+      chapters: state.chapters || new Map(),
+      settings: state.settings,
+      activePromptTemplate: state.activePromptTemplate
     };
 
     debugLog('translation', 'summary', '[Retranslate] Button clicked', {
@@ -263,7 +263,7 @@ export const createTranslationsSlice: StateCreator<
           });
 
           // Show user notification
-          const showNotification = (state as any).showNotification;
+          const showNotification = state.showNotification;
           if (showNotification) {
             showNotification(
               'A translation with these exact settings already exists. Change settings or use the version picker to switch versions.',
@@ -413,7 +413,7 @@ export const createTranslationsSlice: StateCreator<
       }
       // Add amendment proposal to queue if provided and enabled in settings
       if (translationResult.proposal) {
-        const enableAmendments = (state as any).settings?.enableAmendments ?? true;
+        const enableAmendments = state.settings?.enableAmendments ?? true;
         if (enableAmendments) {
           set((prevState) => ({
             amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]
@@ -463,7 +463,7 @@ export const createTranslationsSlice: StateCreator<
           await imageActions.loadExistingImages(chapterId);
         }
 
-        const autoGenerate = (state as any).settings?.autoGenerateImages ?? true;
+        const autoGenerate = state.settings?.autoGenerateImages ?? true;
         const needsGeneration = translationResult.suggestedIllustrations.some(
           (illust: any) => !illust.generatedImage
         );
@@ -518,7 +518,7 @@ export const createTranslationsSlice: StateCreator<
   },
   
   handleRetranslateCurrent: () => {
-    const currentChapterId = (get() as any).currentChapterId;
+    const currentChapterId = get().currentChapterId;
     if (currentChapterId) {
       get().handleTranslate(currentChapterId, 'manual_translate');
     }
@@ -553,8 +553,8 @@ export const createTranslationsSlice: StateCreator<
   // Translation history and context
   buildTranslationHistory: (chapterId) => {
     const state = get();
-    const chapters = (state as any).chapters || new Map();
-    const settings = (state as any).settings;
+    const chapters = state.chapters || new Map();
+    const settings = state.settings;
     const currentChapter = chapters.get(chapterId);
     
     if (!currentChapter) return [];
@@ -568,8 +568,8 @@ export const createTranslationsSlice: StateCreator<
   
   buildTranslationHistoryAsync: async (chapterId) => {
     const state = get();
-    const chapters = (state as any).chapters || new Map();
-    const settings = (state as any).settings;
+    const chapters = state.chapters || new Map();
+    const settings = state.settings;
     const currentChapter = chapters.get(chapterId);
     
     if (!currentChapter) return [];
@@ -670,7 +670,7 @@ export const createTranslationsSlice: StateCreator<
               footnotes: [...existingFootnotes, newFootnote],
             };
 
-            (get() as any).updateChapter(chapterId, { translationResult: updatedTranslationResult });
+            get().updateChapter(chapterId, { translationResult: updatedTranslationResult });
 
             const updatedChapter = (get().chapters as Map<string, EnhancedChapter>).get(chapterId);
             if (!updatedChapter?.translationResult) {
@@ -697,7 +697,7 @@ export const createTranslationsSlice: StateCreator<
               );
 
               if (stored && !updatedChapter.translationResult?.id) {
-                (get() as any).updateChapter(chapterId, { translationResult: stored as any });
+                get().updateChapter(chapterId, { translationResult: stored as any });
               }
             } catch (error) {
               console.warn('[TranslationsSlice] Failed to persist translation after generating footnote:', error);
@@ -894,8 +894,8 @@ export const createTranslationsSlice: StateCreator<
   // Translation validation and retry
   shouldEnableRetranslation: (chapterId) => {
     const state = get();
-    const chapters = (state as any).chapters || new Map();
-    const settings = (state as any).settings;
+    const chapters = state.chapters || new Map();
+    const settings = state.settings;
     
     return TranslationService.shouldEnableRetranslation(chapterId, chapters, settings);
   },
@@ -913,8 +913,8 @@ export const createTranslationsSlice: StateCreator<
   
   hasTranslationSettingsChanged: (chapterId) => {
     const state = get();
-    const chapters = (state as any).chapters || new Map();
-    const settings = (state as any).settings;
+    const chapters = state.chapters || new Map();
+    const settings = state.settings;
     
     return TranslationService.shouldEnableRetranslation(chapterId, chapters, settings);
   },
@@ -1032,7 +1032,7 @@ export const createTranslationsSlice: StateCreator<
     const state = get();
     const chapter = (state.chapters as Map<string, EnhancedChapter>).get(chapterId);
     const settings = state.settings;
-    const showNotification = (state as any).showNotification;
+    const showNotification = state.showNotification;
 
     // Diagnostic: log state of chapter lookup
     debugLog('image', 'summary', '[generateIllustrationForSelection] Chapter lookup:', {
@@ -1143,7 +1143,7 @@ export const createTranslationsSlice: StateCreator<
       suggestedIllustrations: [...existingIllustrations, newIllustration],
     };
 
-    (get() as any).updateChapter(chapterId, { translationResult: updatedTranslationResult });
+    get().updateChapter(chapterId, { translationResult: updatedTranslationResult });
 
     // Diagnostic logs: show current suggestedIllustrations and whether the marker was inserted
     try {
@@ -1179,7 +1179,7 @@ export const createTranslationsSlice: StateCreator<
     ).then((stored) => {
       if (stored && !updatedChapter.translationResult?.id) {
         try {
-          (get() as any).updateChapter(chapterId, { translationResult: stored as any });
+          get().updateChapter(chapterId, { translationResult: stored as any });
         } catch (e) {
           console.warn('[TranslationsSlice] Failed to merge persisted translation after illustration update:', e);
         }
@@ -1194,19 +1194,19 @@ export const createTranslationsSlice: StateCreator<
       debugLog('translation', 'summary', `[TranslationsSlice] Auto-triggering image generation for ${newMarker}`);
 
       // Show feedback that image generation is starting
-      const currentShowNotification = (get() as any).showNotification;
+      const currentShowNotification = get().showNotification;
       if (currentShowNotification) {
         currentShowNotification(`Generating illustration ${newMarker}...`, 'info');
       }
 
       // Trigger image generation for the specific illustration
-      const handleRetryImage = (get() as any).handleRetryImage;
+      const handleRetryImage = get().handleRetryImage;
       if (handleRetryImage) {
         handleRetryImage(chapterId, newMarker);
       }
     } else {
       // No image model configured - just notify that marker was added
-      const currentShowNotification = (get() as any).showNotification;
+      const currentShowNotification = get().showNotification;
       if (currentShowNotification) {
         currentShowNotification(`Illustration marker ${newMarker} added. Select an image model in Settings to generate the image.`, 'info');
       }

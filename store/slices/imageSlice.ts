@@ -102,8 +102,8 @@ export const createImageSlice: StateCreator<
 > = (set, get) => {
   const buildPersistenceSnapshot = (chapter: any): TranslationSettingsSnapshot | null => {
     const storeState = get();
-    const settings = (storeState as any).settings;
-    const promptTemplate = (storeState as any).activePromptTemplate;
+    const settings = storeState.settings;
+    const promptTemplate = storeState.activePromptTemplate;
     const chapterSnapshot = chapter?.translationSettingsSnapshot || {};
 
     const provider = chapterSnapshot.provider ?? settings?.provider;
@@ -134,7 +134,7 @@ export const createImageSlice: StateCreator<
     chapterId: string,
     updatedIllustrations: any[]
   ): Promise<void> => {
-    const state = get() as any;
+    const state = get();
     const chapters = state.chapters;
     const settings = state.settings;
     const activePromptTemplate = state.activePromptTemplate;
@@ -154,7 +154,7 @@ export const createImageSlice: StateCreator<
       });
     }
 
-    const refreshedChapter = (get() as any).chapters?.get(chapterId) || chapter;
+    const refreshedChapter = get().chapters?.get(chapterId) || chapter;
     await TranslationPersistenceService.persistUpdatedTranslation(
       chapterId,
       refreshedChapter.translationResult as any,
@@ -173,7 +173,7 @@ export const createImageSlice: StateCreator<
     chapterId: string,
     caption: string
   ): Promise<Awaited<ReturnType<typeof generateImagePlanFromCaption>>> => {
-    const state = get() as any;
+    const state = get();
     const chapter = state.chapters?.get(chapterId);
 
     return generateImagePlanFromCaption(caption, state.settings, {
@@ -182,7 +182,7 @@ export const createImageSlice: StateCreator<
   };
 
   const notifyPlannerFallback = (warning?: string) => {
-    const showNotification = (get() as any).showNotification;
+    const showNotification = get().showNotification;
     if (typeof showNotification !== 'function') {
       return;
     }
@@ -195,7 +195,7 @@ export const createImageSlice: StateCreator<
 
   const persistImageVersionState = async (chapterId: string, placementMarker: string, activeVersion: number) => {
     const storeState = get();
-    const chapters = (storeState as any).chapters || new Map();
+    const chapters = storeState.chapters || new Map();
     const chapter = chapters.get(chapterId);
     if (!chapter?.translationResult) return;
 
@@ -258,9 +258,9 @@ export const createImageSlice: StateCreator<
 
     const state = get();
     const context: ImageGenerationContext = {
-      chapters: (state as any).chapters || new Map(),
-      settings: (state as any).settings,
-      activePromptTemplate: (state as any).activePromptTemplate,
+      chapters: state.chapters || new Map(),
+      settings: state.settings,
+      activePromptTemplate: state.activePromptTemplate,
       steeringImages: state.steeringImages,
       negativePrompts: state.negativePrompts,
       guidanceScales: state.guidanceScales,
@@ -395,9 +395,9 @@ export const createImageSlice: StateCreator<
     const nextVersion = currentMaxVersion + 1;
 
     const context: ImageGenerationContext = {
-      chapters: (state as any).chapters || new Map(),
-      settings: (state as any).settings,
-      activePromptTemplate: (state as any).activePromptTemplate,
+      chapters: state.chapters || new Map(),
+      settings: state.settings,
+      activePromptTemplate: state.activePromptTemplate,
       steeringImages: state.steeringImages,
       negativePrompts: state.negativePrompts,
       guidanceScales: state.guidanceScales,
@@ -411,7 +411,7 @@ export const createImageSlice: StateCreator<
     const imageModel = context.settings?.imageModel;
     if (!imageModel || imageModel.toLowerCase() === 'none') {
       const message = 'Image generation is disabled. Pick an image model in Settings to generate illustrations.';
-      const showNotification = (state as any).showNotification;
+      const showNotification = state.showNotification;
       if (typeof showNotification === 'function') {
         showNotification(message, 'warning');
       }
@@ -481,7 +481,7 @@ export const createImageSlice: StateCreator<
   },
   
   loadExistingImages: async (chapterId) => {
-    const chapters = (get() as any).chapters || new Map();
+    const chapters = get().chapters || new Map();
     const chapter = chapters.get(chapterId);
 
     // DIAGNOSTIC: Log detailed information before loading
@@ -862,7 +862,7 @@ export const createImageSlice: StateCreator<
   getAdvancedControls: (chapterId, placementMarker) => {
     const key = `${chapterId}:${placementMarker}`;
     const state = get();
-    const settings = (state as any).settings;
+    const settings = state.settings;
     
     return {
       steeringImage: state.steeringImages[key] || null,
@@ -961,7 +961,7 @@ export const createImageSlice: StateCreator<
     const totalVersions = hasKey ? state.imageVersions[key] : 0;
 
     if (totalVersions === 0) {
-      const chapters = (state as any).chapters as Map<string, any> | undefined;
+      const chapters = state.chapters as Map<string, any> | undefined;
       const chapter = chapters?.get(chapterId);
       const hasIllustration = chapter?.translationResult?.suggestedIllustrations?.some(
         (ill: any) => ill?.placementMarker === placementMarker
@@ -1097,7 +1097,7 @@ export const createImageSlice: StateCreator<
   // Update illustration prompt and persist to IndexedDB
   updateIllustrationPrompt: async (chapterId, placementMarker, newPrompt) => {
     try {
-      const state = get() as any;
+      const state = get();
       const chapters = state.chapters;
       
       const chapter = chapters?.get(chapterId);
@@ -1147,7 +1147,7 @@ export const createImageSlice: StateCreator<
 
   updateIllustrationPlan: async (chapterId, placementMarker, imagePlan, mode = 'manual') => {
     try {
-      const state = get() as any;
+      const state = get();
       const chapters = state.chapters;
       const chapter = chapters?.get(chapterId);
       if (!chapter || !chapter.translationResult || !Array.isArray(chapter.translationResult.suggestedIllustrations)) {
@@ -1181,7 +1181,7 @@ export const createImageSlice: StateCreator<
 
   regenerateIllustrationPlanFromCaption: async (chapterId, placementMarker) => {
     try {
-      const state = get() as any;
+      const state = get();
       const chapter = state.chapters?.get(chapterId);
       if (!chapter?.translationResult || !Array.isArray(chapter.translationResult.suggestedIllustrations)) {
         console.warn(`[ImageSlice] Cannot regenerate illustration plan: chapter ${chapterId} not found or has no illustrations`);

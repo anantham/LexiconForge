@@ -160,7 +160,7 @@ export const createUiSlice: StateCreator<
   }),
 
   shelveActiveNovel: () => {
-    const state = get() as any;
+    const state = get();
     const activeNovelId = state.activeNovelId as string | null;
     const activeVersionId = state.activeVersionId as string | null;
     const currentChapterId = state.currentChapterId as string | null;
