@@ -6,6 +6,7 @@ import QuestionMarkIcon from './icons/QuestionMarkIcon';
 import PaintBrushIcon from './icons/PaintBrushIcon';
 import PencilIcon from './icons/PencilIcon';
 import CompareIcon from './icons/CompareIcon';
+import PortalIcon from './icons/PortalIcon';
 import { debugLog } from '../utils/debug';
 
 interface FeedbackPopoverProps {
@@ -16,9 +17,11 @@ interface FeedbackPopoverProps {
   onEdit: () => void;
   onCompare: () => void;
   canCompare: boolean;
+  onSelfInsert?: () => void;
+  enableSillyTavern?: boolean;
 }
 
-const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, position, positioningParentRef, onFeedback, onEdit, onCompare, canCompare }) => {
+const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, position, positioningParentRef, onFeedback, onEdit, onCompare, canCompare, onSelfInsert, enableSillyTavern }) => {
   const [pendingType, setPendingType] = useState<'👍' | '👎' | '?' | null>(null);
   const [comment, setComment] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -97,6 +100,7 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
           <button onClick={() => handleEmojiClick('?')} className="p-2 rounded-full hover:bg-blue-600 transition-colors duration-200">
             <QuestionMarkIcon className="w-5 h-5" />
           </button>
+          <div className="w-px h-5 bg-gray-600 mx-0.5" />
           <button onClick={() => handleEmojiClick('🎨')} className="p-2 rounded-full hover:bg-purple-600 transition-colors duration-200">
             <PaintBrushIcon className="w-5 h-5" />
           </button>
@@ -117,6 +121,18 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
           >
             <CompareIcon className="w-5 h-5" />
           </button>
+          {enableSillyTavern && onSelfInsert && (
+            <>
+              <div className="w-px h-5 bg-gray-600 mx-0.5" />
+              <button
+                onClick={onSelfInsert}
+                className="p-2 rounded-full hover:bg-amber-700 transition-colors duration-200"
+                title="Enter Story — Self-insert into SillyTavern"
+              >
+                <PortalIcon className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
