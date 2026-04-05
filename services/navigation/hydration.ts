@@ -1,6 +1,6 @@
 import { ChapterOps, TranslationOps, DiffOps } from '../db/operations';
 import { getRepoForService } from '../db/index';
-import { normalizeUrlAggressively } from '../stableIdService';
+import { normalizeUrlAggressively, buildEnhancedChapter } from '../stableIdService';
 import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
 import { memoryDetail, memoryTimestamp, memoryTiming } from '../../utils/memoryDiagnostics';
@@ -8,7 +8,6 @@ import { telemetryService } from '../telemetryService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { computeDiffHash } from '../diff/hash';
 import { DIFF_ALGO_VERSION } from '../diff/constants';
-import { isLibraryStorageUrl } from '../libraryScope';
 import { adaptTranslationRecordToResult } from './converters';
 import { slog, swarn } from './logging';
 import type { FetchResult, LibraryFetchScope } from './types';
@@ -56,39 +55,7 @@ export async function loadChapterFromIDB(
       chapterNumber: rec.chapterNumber,
     });
 
-    // Transform IndexedDB record to EnhancedChapter format
-    const sourceUrls = Array.from(
-      new Set(
-        [rec.canonicalUrl || rec.originalUrl || null, rec.originalUrl || null].filter(
-          (value): value is string => typeof value === 'string' && value.length > 0
-        )
-      )
-    );
-    if (!isLibraryStorageUrl(rec.url)) {
-      sourceUrls.unshift(rec.url || '');
-    }
-
-    const enhanced: EnhancedChapter = {
-      id: chapterId,
-      novelId: rec.novelId ?? null,
-      libraryVersionId: rec.libraryVersionId ?? null,
-      title: rec.title || 'Untitled Chapter',
-      content: rec.content || '',
-      originalUrl: rec.originalUrl || rec.url || '',
-      canonicalUrl: rec.canonicalUrl || rec.url || '',
-      nextUrl: rec.nextUrl,
-      prevUrl: rec.prevUrl,
-      chapterNumber: rec.chapterNumber || 0,
-      sourceUrls,
-      importSource: {
-        originalUrl: rec.originalUrl || rec.url || '',
-        importDate: new Date(rec.dateAdded || Date.now()),
-        sourceFormat: 'json'
-      },
-      fanTranslation: rec.fanTranslation || null,
-      suttaStudio: rec.suttaStudio ?? null,
-      translationResult: null,
-    };
+    const enhanced: EnhancedChapter = buildEnhancedChapter(chapterId, rec);
 
     memoryDetail('Chapter hydration record stats', {
       chapterId,

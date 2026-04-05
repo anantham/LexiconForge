@@ -3,7 +3,7 @@ import {
   fetchChaptersForReactRendering,
   type ChapterRenderingRecord,
 } from './db/operations/rendering';
-import { normalizeUrlAggressively, type EnhancedChapter } from './stableIdService';
+import { normalizeUrlAggressively, buildEnhancedChapter, type EnhancedChapter } from './stableIdService';
 import type { StoreState } from '../store/storeTypes';
 import type { TranslationResult } from '../types';
 
@@ -19,9 +19,9 @@ const sortByChapterNumber = (a: ChapterRenderingRecord, b: ChapterRenderingRecor
   return (a.chapterNumber || 0) - (b.chapterNumber || 0);
 };
 
-const toEnhancedChapter = (chapter: ChapterRenderingRecord): EnhancedChapter => {
-  const sourceUrls = chapter.sourceUrls ?? [chapter.url];
-  const suggestedIllustrations = chapter.translationResult?.suggestedIllustrations.map((illustration) => {
+const adaptTranslationFromRenderingRecord = (chapter: ChapterRenderingRecord): TranslationResult | null => {
+  if (!chapter.translationResult) return null;
+  const suggestedIllustrations = chapter.translationResult.suggestedIllustrations.map((illustration) => {
     const generatedImage =
       illustration.generatedImage && typeof illustration.generatedImage !== 'string'
         ? illustration.generatedImage
@@ -29,7 +29,6 @@ const toEnhancedChapter = (chapter: ChapterRenderingRecord): EnhancedChapter => 
     const url =
       illustration.url ??
       (typeof illustration.generatedImage === 'string' ? illustration.generatedImage : undefined);
-
     return {
       placementMarker: illustration.placementMarker,
       imagePrompt: illustration.imagePrompt,
@@ -40,54 +39,42 @@ const toEnhancedChapter = (chapter: ChapterRenderingRecord): EnhancedChapter => 
       ...(illustration.imageCacheKey ? { imageCacheKey: illustration.imageCacheKey } : {}),
       ...(url ? { url } : {}),
     };
-  }) ?? [];
-  const translationResult: TranslationResult | null = chapter.translationResult
-    ? {
-        translatedTitle: chapter.translationResult.translatedTitle,
-        translation: chapter.translationResult.translation,
-        proposal: chapter.translationResult.proposal ?? null,
-        footnotes: chapter.translationResult.footnotes,
-        suggestedIllustrations,
-        usageMetrics: {
-          totalTokens: chapter.translationResult.totalTokens,
-          promptTokens: chapter.translationResult.promptTokens,
-          completionTokens: chapter.translationResult.completionTokens,
-          estimatedCost: chapter.translationResult.estimatedCost,
-          requestTime: chapter.translationResult.requestTime,
-          provider: chapter.translationResult.provider as TranslationResult['usageMetrics']['provider'],
-          model: chapter.translationResult.model,
-        },
-        customVersionLabel: chapter.translationResult.customVersionLabel,
-        id: chapter.translationResult.id,
-        version: chapter.translationResult.version,
-        provider: chapter.translationResult.provider,
-        model: chapter.translationResult.model,
-        temperature: chapter.translationResult.temperature,
-        requestTime: chapter.translationResult.requestTime,
-        promptId: chapter.translationResult.promptId,
-        promptName: chapter.translationResult.promptName,
-      }
-    : null;
-
+  });
   return {
-    id: chapter.stableId,
-    stableId: chapter.stableId,
-    novelId: chapter.novelId ?? null,
-    libraryVersionId: chapter.libraryVersionId ?? null,
-    url: chapter.url,
-    canonicalUrl: chapter.canonicalUrl ?? chapter.url,
-    originalUrl: chapter.originalUrl ?? chapter.url,
-    title: chapter.title,
-    content: chapter.content,
-    nextUrl: chapter.nextUrl ?? null,
-    prevUrl: chapter.prevUrl ?? null,
-    chapterNumber: chapter.chapterNumber ?? 0,
-    sourceUrls,
-    fanTranslation: chapter.fanTranslation ?? null,
-    translationResult,
-    feedback: [],
-    suttaStudio: chapter.suttaStudio ?? null,
+    translatedTitle: chapter.translationResult.translatedTitle,
+    translation: chapter.translationResult.translation,
+    proposal: chapter.translationResult.proposal ?? null,
+    footnotes: chapter.translationResult.footnotes,
+    suggestedIllustrations,
+    usageMetrics: {
+      totalTokens: chapter.translationResult.totalTokens,
+      promptTokens: chapter.translationResult.promptTokens,
+      completionTokens: chapter.translationResult.completionTokens,
+      estimatedCost: chapter.translationResult.estimatedCost,
+      requestTime: chapter.translationResult.requestTime,
+      provider: chapter.translationResult.provider as TranslationResult['usageMetrics']['provider'],
+      model: chapter.translationResult.model,
+    },
+    customVersionLabel: chapter.translationResult.customVersionLabel,
+    id: chapter.translationResult.id,
+    version: chapter.translationResult.version,
+    provider: chapter.translationResult.provider,
+    model: chapter.translationResult.model,
+    temperature: chapter.translationResult.temperature,
+    requestTime: chapter.translationResult.requestTime,
+    promptId: chapter.translationResult.promptId,
+    promptName: chapter.translationResult.promptName,
   };
+};
+
+const toEnhancedChapter = (chapter: ChapterRenderingRecord): EnhancedChapter => {
+  const enhanced = buildEnhancedChapter(chapter.stableId, {
+    ...chapter,
+    stableId: chapter.stableId,
+    sourceUrls: chapter.sourceUrls ?? [chapter.url],
+  });
+  enhanced.translationResult = adaptTranslationFromRenderingRecord(chapter);
+  return enhanced;
 };
 
 const buildHydratedState = (

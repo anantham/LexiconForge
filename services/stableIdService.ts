@@ -10,6 +10,7 @@
 import { Chapter, TranslationResult, AppSettings, FeedbackItem, ImportedChapter } from '../types';
 import { debugLog } from '../utils/debug';
 import { buildScopedStableId } from './libraryScope';
+import { isLibraryStorageUrl } from './libraryScope';
 
 /**
  * Generates a stable chapter ID based on content characteristics
@@ -64,6 +65,76 @@ export interface EnhancedChapter extends Chapter {
   /** Set during hydration when translation load fails — distinguishes "never translated" from "load error" */
   _translationLoadError?: string;
 }
+
+/**
+ * Shared factory for building EnhancedChapter from an IDB ChapterRecord.
+ * Both hydration paths (readerHydrationService and navigation/hydration)
+ * must use this to ensure consistent shape.
+ */
+export interface ChapterRecordLike {
+  stableId?: string;
+  url: string;
+  canonicalUrl?: string | null;
+  originalUrl?: string | null;
+  title: string;
+  content: string;
+  nextUrl?: string | null;
+  prevUrl?: string | null;
+  chapterNumber?: number;
+  novelId?: string | null;
+  libraryVersionId?: string | null;
+  fanTranslation?: string | null;
+  suttaStudio?: any;
+  dateAdded?: string;
+  sourceUrls?: string[];
+}
+
+export const buildEnhancedChapter = (
+  chapterId: string,
+  rec: ChapterRecordLike,
+): EnhancedChapter => {
+  // Build sourceUrls: use provided array, or derive from URL fields
+  let sourceUrls: string[];
+  if (rec.sourceUrls && rec.sourceUrls.length > 0) {
+    sourceUrls = rec.sourceUrls;
+  } else {
+    sourceUrls = Array.from(
+      new Set(
+        [rec.canonicalUrl || rec.originalUrl || null, rec.originalUrl || null].filter(
+          (v): v is string => typeof v === 'string' && v.length > 0
+        )
+      )
+    );
+    if (rec.url && !isLibraryStorageUrl(rec.url)) {
+      sourceUrls.unshift(rec.url);
+    }
+  }
+
+  return {
+    id: chapterId,
+    stableId: chapterId,
+    novelId: rec.novelId ?? null,
+    libraryVersionId: rec.libraryVersionId ?? null,
+    url: rec.url,
+    title: rec.title || 'Untitled Chapter',
+    content: rec.content || '',
+    originalUrl: rec.originalUrl || rec.url || '',
+    canonicalUrl: rec.canonicalUrl || rec.url || '',
+    nextUrl: rec.nextUrl ?? null,
+    prevUrl: rec.prevUrl ?? null,
+    chapterNumber: rec.chapterNumber || 0,
+    sourceUrls,
+    importSource: {
+      originalUrl: rec.originalUrl || rec.url || '',
+      importDate: new Date(rec.dateAdded || Date.now()),
+      sourceFormat: 'json',
+    },
+    fanTranslation: rec.fanTranslation ?? null,
+    suttaStudio: rec.suttaStudio ?? null,
+    translationResult: null,
+    feedback: [],
+  };
+};
 
 /**
  * URL normalization that's more aggressive than the current one
