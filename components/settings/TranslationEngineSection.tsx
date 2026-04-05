@@ -57,6 +57,13 @@ interface TranslationEngineSectionProps {
   onContextDepthChange: (value: number) => void;
   onPreloadCountChange: (value: number) => void;
   // Source/target language are read-only here (editable in Metadata panel)
+
+  // Budget preload
+  preloadMode: 'chapters' | 'budget';
+  preloadBudget: number;
+  novelSpent: number | null;        // DB-derived spent amount, null if loading
+  onPreloadModeChange: (mode: 'chapters' | 'budget') => void;
+  onPreloadBudgetChange: (value: number) => void;
 }
 
 export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> = ({
@@ -81,6 +88,11 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
   onAutoGenerateImagesChange,
   onContextDepthChange,
   onPreloadCountChange,
+  preloadMode,
+  preloadBudget,
+  novelSpent,
+  onPreloadModeChange,
+  onPreloadBudgetChange,
 }) => {
   return (
     <fieldset>
@@ -251,32 +263,91 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
           </p>
         </div>
 
-        {/* Pre-load Count Slider */}
+        {/* Pre-load Mode Toggle + Controls */}
         <div>
-          <label htmlFor="preloadCount" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Pre-load Ahead:
-            <span
-              className={`font-bold ml-1 ${
-                preloadCount === 0 ? 'text-red-500' : 'text-blue-500'
-              }`}
-            >
-              {preloadCount === 0 ? 'DISABLED' : preloadCount}
-            </span>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Pre-load Ahead
           </label>
-          <input
-            id="preloadCount"
-            type="range"
-            min="0"
-            max="50"
-            value={preloadCount}
-            onChange={(e) => onPreloadCountChange(parseInt(e.target.value, 10))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {preloadCount === 0
-              ? '🔴 Background preload is DISABLED. Chapters will only load when you navigate to them.'
-              : 'How many future chapters to fetch and translate in the background (serially). Higher values may increase API usage and hit provider rate limits.'}
-          </p>
+
+          {/* Mode Toggle */}
+          <div className="flex mb-3">
+            <button
+              type="button"
+              className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-l border ${
+                preloadMode === 'chapters'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-transparent text-gray-400 border-gray-600 hover:text-gray-200'
+              }`}
+              onClick={() => onPreloadModeChange('chapters')}
+            >
+              Chapters
+            </button>
+            <button
+              type="button"
+              className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-r border-t border-b border-r ${
+                preloadMode === 'budget'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-transparent text-gray-400 border-gray-600 hover:text-gray-200'
+              }`}
+              onClick={() => onPreloadModeChange('budget')}
+            >
+              Budget
+            </button>
+          </div>
+
+          {/* Chapters Mode */}
+          {preloadMode === 'chapters' && (
+            <>
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`text-sm font-bold ${preloadCount === 0 ? 'text-red-500' : 'text-blue-500'}`}>
+                  {preloadCount === 0 ? 'DISABLED' : preloadCount}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="50"
+                value={preloadCount}
+                onChange={(e) => onPreloadCountChange(parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {preloadCount === 0
+                  ? '🔴 Background preload is DISABLED. Chapters will only load when you navigate to them.'
+                  : 'How many future chapters to fetch and translate in the background (serially).'}
+              </p>
+            </>
+          )}
+
+          {/* Budget Mode */}
+          {preloadMode === 'budget' && (
+            <>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm text-gray-400">$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.50"
+                  value={preloadBudget || ''}
+                  onChange={(e) => onPreloadBudgetChange(parseFloat(e.target.value) || 0)}
+                  placeholder="0.00"
+                  className="w-28 px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-gray-900 dark:text-white"
+                />
+              </div>
+              {preloadBudget > 0 && novelSpent !== null && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Spent: <span className={novelSpent >= preloadBudget ? 'text-red-400 font-bold' : 'text-blue-400'}>
+                    ${novelSpent.toFixed(2)}
+                  </span> / ${preloadBudget.toFixed(2)}
+                </p>
+              )}
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {!preloadBudget || preloadBudget <= 0
+                  ? '🔴 Background preload is DISABLED. Set a budget to enable.'
+                  : 'Preloads chapters until translation spending for this novel reaches the budget cap.'}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </fieldset>
