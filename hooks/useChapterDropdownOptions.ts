@@ -176,6 +176,15 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
 
             byId.set(stableId, candidate);
           }
+
+          // 3a. Filter to only chapters loaded for the current novel.
+          // Without this, IDB summaries from previously opened novels
+          // pollute the dropdown when switching books.
+          for (const key of byId.keys()) {
+            if (!chapters.has(key)) {
+              byId.delete(key);
+            }
+          }
         }
 
         // 4. Convert to array and compute display values

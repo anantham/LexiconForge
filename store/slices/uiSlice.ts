@@ -181,6 +181,11 @@ export const createUiSlice: StateCreator<
       appScreen: 'library',
       activeNovelId: null,
       activeVersionId: null,
+      currentChapterId: null,
+      chapters: new Map(),
+      urlIndex: new Map(),
+      rawUrlIndex: new Map(),
+      navigationHistory: [],
     });
   },
   
