@@ -8,6 +8,7 @@ import MetadataPanel from './settings/MetadataPanel';
 import SessionExportPanel from './settings/SessionExportPanel';
 import AudioPanel from './settings/AudioPanel';
 import DiffPanel from './settings/DiffPanel';
+import SillyTavernPanel from './settings/SillyTavernPanel';
 import PromptPanel from './settings/PromptPanel';
 import TemplatePanel from './settings/TemplatePanel';
 import AdvancedPanel from './settings/AdvancedPanel';
@@ -48,7 +49,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   })));
 
   const [currentSettings, setCurrentSettings] = useState(settings);
-  type SettingsPanelId = 'providers' | 'prompt' | 'advanced' | 'display' | 'audio' | 'diff' | 'templates' | 'metadata' | 'gallery' | 'export';
+  type SettingsPanelId = 'providers' | 'prompt' | 'advanced' | 'display' | 'audio' | 'diff' | 'sillytavern' | 'templates' | 'metadata' | 'gallery' | 'export';
   const [activePanel, setActivePanel] = useState<SettingsPanelId>('providers');
   const sidebarSections: SidebarSection[] = useMemo(
     () => [
@@ -70,6 +71,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           { id: 'display', label: 'Display' },
           { id: 'audio', label: 'Audio', hidden: !settings.enableAudio },
           { id: 'diff', label: 'Diff Heatmap' },
+          { id: 'sillytavern', label: 'SillyTavern' },
         ],
       },
       {
@@ -182,6 +184,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               {activePanel === 'display' && <DisplayPanel />}
               {activePanel === 'audio' && <AudioPanel />}
               {activePanel === 'diff' && <DiffPanel />}
+              {activePanel === 'sillytavern' && <SillyTavernPanel />}
               {activePanel === 'templates' && <TemplatePanel />}
               {activePanel === 'metadata' && <MetadataPanel />}
               {activePanel === 'gallery' && <GalleryPanel />}
