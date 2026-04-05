@@ -147,7 +147,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         }
 
         const hydratedCount = useAppStore.getState().chapters.size;
-        showNotification(`✅ Loaded ${novel.title}${versionLabel} from cache - ${hydratedCount} chapters!`, 'success');
+        debugLog('navigation', 'summary', `Loaded ${novel.title}${versionLabel} from cache - ${hydratedCount} chapters`);
 
         // Close the detail sheet
         setSelectedNovel(null);
