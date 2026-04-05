@@ -32,6 +32,8 @@ interface ReaderBodyProps {
   onDeleteFeedback: (id: string) => void;
   onUpdateFeedback: (id: string, comment: string) => void;
   onScrollToText: (text: string) => void;
+  onSelfInsert?: () => void;
+  enableSillyTavern?: boolean;
 }
 
 const ReaderBody: React.FC<ReaderBodyProps> = ({
@@ -56,6 +58,8 @@ const ReaderBody: React.FC<ReaderBodyProps> = ({
   onDeleteFeedback,
   onUpdateFeedback,
   onScrollToText,
+  onSelfInsert,
+  enableSillyTavern,
 }) => {
   const enableAudio = useAppStore((s) => s.settings.enableAudio ?? false);
   const showInlineComments = useAppStore((s) => s.settings.showInlineComments ?? true);
@@ -95,6 +99,8 @@ const ReaderBody: React.FC<ReaderBodyProps> = ({
         handleFeedbackSubmit={handleFeedbackSubmit}
         clearSelection={clearSelection}
         viewRef={viewRef}
+        onSelfInsert={onSelfInsert}
+        enableSillyTavern={enableSillyTavern}
       />
       <ComparisonPortal viewMode={viewMode} {...comparisonPortalProps} />
       {chapter && <FooterNavigation {...footerProps} />}
