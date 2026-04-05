@@ -93,6 +93,11 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   }, [showNotification]);
 
   const handleViewDetails = (novel: NovelEntry) => {
+    // Skip the detail sheet when there's only one novel — go straight to reading
+    if (novels.length === 1) {
+      void handleStartReading(novel);
+      return;
+    }
     setSelectedNovel(novel);
   };
 
