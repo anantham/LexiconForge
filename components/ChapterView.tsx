@@ -46,6 +46,8 @@ const ChapterView: React.FC = () => {
   // <-- REFACTOR: Use new individual selectors
   const currentChapterId = useAppStore(s => s.currentChapterId);
   const chapters = useAppStore(s => s.chapters);
+  const novels = useAppStore(s => s.novels);
+  const activeNovelId = useAppStore(s => s.activeNovelId);
   const isLoading = useAppStore(s => s.isLoading);
   const viewMode = useAppStore(s => s.viewMode);
   const settings = useAppStore(s => s.settings);
@@ -127,24 +129,9 @@ const ChapterView: React.FC = () => {
   );
   const showEnglishLoader = viewMode === 'english' && !translationResult && (translationInProgress || isHydratingCurrent);
 
-    // DIAGNOSTIC: Log chapter data when it changes
-  // Reactive auto-translate: triggers whenever we're in english mode with no
-  // translation and nothing in progress. Covers all navigation paths (library open,
-  // next/prev, view mode toggle) from one place.
-  useEffect(() => {
-    if (
-      viewMode === 'english' &&
-      currentChapterId &&
-      chapter &&
-      !chapter.translationResult &&
-      !isTranslationActive(currentChapterId) &&
-      !pendingTranslations?.has(currentChapterId) &&
-      !isHydratingCurrent
-    ) {
-      console.warn(`[ChapterView] 🔄 Auto-translate TRIGGERED: english mode, no translation for ${currentChapterId}`);
-      void handleTranslate(currentChapterId, 'auto_translate');
-    }
-  }, [currentChapterId, viewMode, chapter?.translationResult, isHydratingCurrent]);
+    // Auto-translate is handled by chaptersSlice post-hydration guard (loadChapterFromIDB).
+  // A duplicate useEffect here races with the store update and can clear the
+  // translation that was just loaded from cache. See ac6c9fa for details.
 
   useEffect(() => {
     if (chapter && translationResult) {
@@ -311,6 +298,21 @@ const ChapterView: React.FC = () => {
     return chapter?.title ?? '';
   }, [viewMode, chapter, translationResult]);
 
+  const novelTitle = useMemo(() => {
+    const novelId = activeNovelId || chapter?.novelId;
+    if (!novelId) return null;
+    
+    const novel = novels.get(novelId);
+    if (novel?.title) return novel.title;
+    
+    // Fallback: extract from first chapter title if possible
+    if (chapter?.title && chapter.title.includes(' - ')) {
+      return chapter.title.split(' - ')[0].trim();
+    }
+    
+    return novel?.source || null;
+  }, [activeNovelId, chapter?.novelId, chapter?.title, novels]);
+
   const contentToDisplay = useMemo(() => {
     switch (viewMode) {
       case 'english':
@@ -351,6 +353,7 @@ const ChapterView: React.FC = () => {
 
   const headerProps = {
     title: displayTitle,
+    novelTitle,
     fontStyle: settings.fontStyle,
     targetLanguageLabel,
     viewMode,
