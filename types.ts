@@ -362,6 +362,9 @@ export interface AppSettings {
     glossary?: GlossaryEntry[];
     // Toast notifications
     showToastNotifications?: boolean;         // Show pop-up toast notifications (default: false)
+    // Preload mode: chapter count or budget limit
+    preloadMode?: 'chapters' | 'budget';       // Toggle preload limiting strategy (default: 'chapters')
+    preloadBudget?: number;                     // USD cap for budget mode (default: 0 = disabled)
 }
 
 export interface DiffMarkerVisibilitySettings {
