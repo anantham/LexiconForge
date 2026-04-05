@@ -41,7 +41,7 @@ export class ClaudeAdapter implements TranslationProvider, Provider {
 
     const model = input.model || settings.model;
     const temperature = Math.max(0, Math.min(1, input.temperature ?? settings.temperature ?? 0.2));
-    const maxTokens = Math.max(1, Math.min(input.maxTokens ?? settings.maxOutputTokens ?? 4000, 200000));
+    const maxTokens = Math.max(1, Math.min(input.maxTokens ?? settings.maxOutputTokens ?? 16384, 200000));
 
     const messages = input.messages?.length
       ? input.messages

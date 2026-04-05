@@ -165,7 +165,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     // Check rate limits
     await rateLimitService.canMakeRequest(model);
 
-    const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? undefined;
+    const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? 16384;
 
     const requestOptions: any = {
       model,
@@ -447,16 +447,18 @@ ${schemaString}`;
       requestOptions.seed = validateAndClampParameter(settings.seed, 'seed');
     }
 
-    // Add max tokens
-    if (settings.maxOutputTokens && settings.maxOutputTokens > 0) {
-      const modelsThatUseMaxCompletionTokens = ['claude', 'gpt-5'];
-      const useMaxCompletionTokens = modelsThatUseMaxCompletionTokens.some(p => settings.model.startsWith(p));
-      
-      if (useMaxCompletionTokens) {
-        requestOptions.max_completion_tokens = settings.maxOutputTokens;
-      } else {
-        requestOptions.max_tokens = settings.maxOutputTokens;
-      }
+    // Add max tokens — always send a value to avoid API-default truncation.
+    // OpenRouter in particular returns short responses when max_tokens is omitted.
+    const effectiveMaxTokens = (settings.maxOutputTokens && settings.maxOutputTokens > 0)
+      ? settings.maxOutputTokens
+      : 16384; // sensible default matching Claude adapter
+    const modelsThatUseMaxCompletionTokens = ['claude', 'gpt-5'];
+    const useMaxCompletionTokens = modelsThatUseMaxCompletionTokens.some(p => settings.model.startsWith(p));
+
+    if (useMaxCompletionTokens) {
+      requestOptions.max_completion_tokens = effectiveMaxTokens;
+    } else {
+      requestOptions.max_tokens = effectiveMaxTokens;
     }
 
     // Add OpenRouter headers if needed

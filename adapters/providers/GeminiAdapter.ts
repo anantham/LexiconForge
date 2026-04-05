@@ -95,7 +95,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
         contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
         generationConfig: {
           temperature: settings.temperature,
-          maxOutputTokens: settings.maxOutputTokens || undefined,
+          maxOutputTokens: settings.maxOutputTokens || 16384,
           responseMimeType: 'application/json',
           responseSchema: schema
         },
@@ -127,7 +127,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
 
     const modelId = input.model || settings.model;
     const temperature = input.temperature ?? settings.temperature ?? 0.2;
-    const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? undefined;
+    const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? 16384;
 
     const messages = input.messages?.length
       ? input.messages
