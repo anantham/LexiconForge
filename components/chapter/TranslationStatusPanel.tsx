@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import RefreshIcon from '../icons/RefreshIcon';
 import type { UsageMetrics } from '../../types';
 import type { ImageGenerationMetrics } from '../../services/imageGenerationService';
+import { apiMetricsService } from '../../services/apiMetricsService';
 
 interface Props {
   currentChapterId: string | null;
@@ -19,6 +20,37 @@ interface Props {
   imageMetrics: ImageGenerationMetrics | null;
   showImageMetrics: boolean;
 }
+
+/** Compact inline timer for retranslation — shows elapsed and ETA */
+const RetranslationTimer: React.FC<{ provider: string; model?: string }> = ({ provider, model }) => {
+  const [elapsed, setElapsed] = useState(0);
+  const [estimatedTotal, setEstimatedTotal] = useState<number | null>(null);
+  const startRef = useRef(Date.now());
+  const fetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    apiMetricsService.getAverageTranslationTime(model || '', provider).then((data) => {
+      setEstimatedTotal(data.avgTimeSeconds);
+    });
+  }, [model, provider]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const remaining = estimatedTotal ? Math.max(0, Math.ceil(estimatedTotal - elapsed)) : null;
+
+  return (
+    <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-1">
+      · {elapsed}s{remaining !== null && remaining > 0 ? ` / ~${remaining + elapsed}s` : remaining === 0 ? ' · almost done' : ''}
+    </span>
+  );
+};
 
 const formatActualParams = (params?: UsageMetrics['actualParams']) => {
   if (!params) return '';
@@ -61,6 +93,7 @@ const TranslationStatusPanel: React.FC<Props> = ({
         <div className="text-xs text-center text-gray-500 dark:text-gray-400">
           Translating: <span className="font-semibold">{providerLabel}</span>
           {modelLabel ? ` — ${modelLabel}` : ''}
+          <RetranslationTimer provider={providerLabel || ''} model={modelLabel} />
         </div>
       )}
 

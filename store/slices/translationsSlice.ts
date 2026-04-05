@@ -146,7 +146,7 @@ export const createTranslationsSlice: StateCreator<
   handleTranslate: async (chapterId, origin = 'manual_translate') => {
     const state = get();
     if (state.pendingTranslations.has(chapterId)) {
-      debugLog('translation', 'summary', '[Retranslate] Already translating, ignoring click', { chapterId });
+      console.warn('[Retranslate] ⏳ Blocked: translation already in progress for this chapter', { chapterId });
       return;
     }
     const context: TranslationContext = {
@@ -166,6 +166,7 @@ export const createTranslationsSlice: StateCreator<
     // Fail-fast: validate API key BEFORE setting loading state
     const keyCheck = validateApiKey(context.settings);
     if (!keyCheck.isValid) {
+      console.warn('[Retranslate] 🔑 Blocked: API key validation failed', { provider: context.settings.provider, error: keyCheck.errorMessage });
       const uiActions = state as any;
       const failureMessage = keyCheck.errorMessage || 'API key validation failed';
       const failureType = keyCheck.failureType ?? 'unknown';
@@ -252,15 +253,12 @@ export const createTranslationsSlice: StateCreator<
         });
 
         if (matchingVersion) {
-          debugLog('translation', 'summary', '[Retranslate] Blocking: Version with identical settings exists', {
+          console.warn('[Retranslate] 🔁 Blocked: identical settings version already exists', {
             chapterId,
-            existingVersionId: matchingVersion.id,
-            version: matchingVersion.version,
-            settings: {
-              provider: matchingVersion.settingsSnapshot?.provider,
-              model: matchingVersion.settingsSnapshot?.model,
-              temperature: matchingVersion.settingsSnapshot?.temperature
-            }
+            existingVersion: matchingVersion.version,
+            provider: matchingVersion.settingsSnapshot?.provider,
+            model: matchingVersion.settingsSnapshot?.model,
+            temperature: matchingVersion.settingsSnapshot?.temperature,
           });
 
           // Show user notification
@@ -481,6 +479,17 @@ export const createTranslationsSlice: StateCreator<
         }
       }));
       
+    } catch (err) {
+      console.error('[Retranslate] 💥 Unhandled error during translation', { chapterId, error: err });
+      set(prevState => ({
+        translationProgress: {
+          ...prevState.translationProgress,
+          [chapterId]: { status: 'failed', error: String(err) }
+        }
+      }));
+      if (uiActions.setError) {
+        uiActions.setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
       set(prev => {
         const nextPending = new Set(prev.pendingTranslations);
