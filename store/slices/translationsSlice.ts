@@ -192,6 +192,25 @@ export const createTranslationsSlice: StateCreator<
       return;
     }
 
+    // Budget enforcement (budget mode only)
+    if (context.settings.preloadMode === 'budget' && context.settings.preloadBudget && context.settings.preloadBudget > 0) {
+      const { activeNovelId, activeVersionId } = state as any;
+      if (activeNovelId) {
+        const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
+        const spent = await getNovelTranslationCost(activeNovelId, activeVersionId);
+        if (spent >= context.settings.preloadBudget) {
+          const showNotification = (state as any).showNotification;
+          if (showNotification) {
+            showNotification(
+              `Translation budget of $${context.settings.preloadBudget.toFixed(2)} reached for this novel. Increase your budget in Settings > Providers to continue.`,
+              'warning'
+            );
+          }
+          return;
+        }
+      }
+    }
+
     const uiActions = state as any;
     if (uiActions.setError) {
       uiActions.setError(null);
