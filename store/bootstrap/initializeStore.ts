@@ -12,11 +12,75 @@ import {
 import { ensureModelFieldsRepaired } from '../../services/db/migrationService';
 import type { NovelEntry, NovelVersion } from '../../types/novel';
 
+// ---------------------------------------------------------------------------
+// Boot telemetry — captures wall-clock timing for every init step.
+// Results are written to localStorage('boot-telemetry') as JSON so they
+// survive page reloads and can be inspected offline.
+// ---------------------------------------------------------------------------
+interface BootMark {
+  label: string;
+  ts: number;        // absolute timestamp (ms)
+  delta: number;     // ms since previous mark
+  elapsed: number;   // ms since boot start
+  payload?: any;
+}
+
+const bootMarks: BootMark[] = [];
+let bootStart = 0;
+let lastMark = 0;
+
 const bootstrapLog = (message: string, payload?: any) => {
+  const now = performance.now();
+  if (bootMarks.length === 0) {
+    bootStart = now;
+    lastMark = now;
+  }
+  const delta = Math.round(now - lastMark);
+  const elapsed = Math.round(now - bootStart);
+  lastMark = now;
+
+  bootMarks.push({ label: message, ts: now, delta, elapsed, payload });
+
+  const prefix = `[Store:init +${elapsed}ms Δ${delta}ms]`;
   if (typeof payload === 'undefined') {
-    console.log(`[Store:init] ${message}`);
+    console.log(`${prefix} ${message}`);
   } else {
-    console.log(`[Store:init] ${message}`, payload);
+    console.log(`${prefix} ${message}`, payload);
+  }
+};
+
+const flushBootTelemetry = () => {
+  // Console table
+  console.group('[Boot Telemetry] Initialization breakdown');
+  console.table(
+    bootMarks.map(m => ({
+      step: m.label,
+      'delta (ms)': m.delta,
+      'elapsed (ms)': m.elapsed,
+    }))
+  );
+  const total = bootMarks.length > 0 ? bootMarks[bootMarks.length - 1].elapsed : 0;
+  console.log(`Total init time: ${total}ms`);
+  console.groupEnd();
+
+  // Persist to localStorage for offline analysis
+  try {
+    const history = JSON.parse(localStorage.getItem('boot-telemetry-history') || '[]');
+    history.push({
+      timestamp: new Date().toISOString(),
+      totalMs: total,
+      marks: bootMarks.map(m => ({
+        step: m.label,
+        deltaMs: m.delta,
+        elapsedMs: m.elapsed,
+        ...(m.payload ? { payload: m.payload } : {}),
+      })),
+    });
+    // Keep last 10 boots
+    if (history.length > 10) history.splice(0, history.length - 10);
+    localStorage.setItem('boot-telemetry-history', JSON.stringify(history));
+  } catch {
+    // localStorage full or unavailable — ignore
   }
 };
 
@@ -69,52 +133,26 @@ const loadPromptTemplateState = async (ctx: BootstrapContext): Promise<void> => 
 };
 
 const runBootRepairs = async (): Promise<void> => {
-  try {
-    bootstrapLog('ensureModelFieldsRepaired start');
-    await ensureModelFieldsRepaired();
-    bootstrapLog('ensureModelFieldsRepaired complete');
-  } catch (e) {
-    console.warn('[Store] Model field repair failed (non-fatal):', e);
-  }
+  bootstrapLog('bootRepairs start');
 
-  try {
-    bootstrapLog('urlMappingsBackfill start');
-    await MaintenanceOps.backfillUrlMappingsFromChapters();
-    bootstrapLog('urlMappingsBackfill complete');
-  } catch (e) {
-    console.warn('[Store] Failed to backfill URL mappings:', e);
-  }
+  const repairs: Array<{ name: string; fn: () => Promise<void> }> = [
+    { name: 'ensureModelFieldsRepaired', fn: () => ensureModelFieldsRepaired() },
+    { name: 'urlMappingsBackfill', fn: () => MaintenanceOps.backfillUrlMappingsFromChapters() },
+    { name: 'normalizeStableIds', fn: () => MaintenanceOps.normalizeStableIds() },
+    { name: 'backfillActiveTranslations', fn: () => MaintenanceOps.backfillActiveTranslations() },
+    { name: 'translationMetadataBackfill', fn: () => MaintenanceOps.backfillTranslationMetadata() },
+    { name: 'novelIdBackfill', fn: () => MaintenanceOps.backfillNovelIds() },
+  ];
 
-  try {
-    bootstrapLog('normalizeStableIds start');
-    await MaintenanceOps.normalizeStableIds();
-    bootstrapLog('normalizeStableIds complete');
-  } catch (e) {
-    console.warn('[Store] StableId normalization failed:', e);
-  }
-
-  try {
-    bootstrapLog('backfillActiveTranslations start');
-    await MaintenanceOps.backfillActiveTranslations();
-    bootstrapLog('backfillActiveTranslations complete');
-  } catch (e) {
-    console.warn('[Store] Active translations backfill failed:', e);
-  }
-
-  try {
-    bootstrapLog('translationMetadataBackfill start');
-    await MaintenanceOps.backfillTranslationMetadata();
-    bootstrapLog('translationMetadataBackfill complete');
-  } catch (e) {
-    console.warn('[Store] Translation metadata backfill failed:', e);
-  }
-
-  try {
-    bootstrapLog('novelIdBackfill start');
-    await MaintenanceOps.backfillNovelIds();
-    bootstrapLog('novelIdBackfill complete');
-  } catch (e) {
-    console.warn('[Store] Novel ID backfill failed:', e);
+  for (const { name, fn } of repairs) {
+    try {
+      bootstrapLog(`${name} start`);
+      await fn();
+      bootstrapLog(`${name} done`);
+    } catch (e) {
+      bootstrapLog(`${name} failed (non-fatal)`);
+      console.warn(`[Store] ${name} failed:`, e);
+    }
   }
 
   try {
@@ -125,13 +163,16 @@ const runBootRepairs = async (): Promise<void> => {
       bootstrapLog('chapterNumbersBackfill start');
       await backfillChapterNumbers();
       await SettingsOps.set('chapterNumbersBackfilled', true);
-      bootstrapLog('chapterNumbersBackfill complete');
+      bootstrapLog('chapterNumbersBackfill done');
     } else {
-      bootstrapLog('chapterNumbersBackfill skipped (already complete)');
+      bootstrapLog('chapterNumbersBackfill skipped');
     }
   } catch (e) {
+    bootstrapLog('chapterNumbersBackfill failed (non-fatal)');
     console.warn('[Store] Chapter numbers backfill failed:', e);
   }
+
+  bootstrapLog('bootRepairs complete');
 };
 
 const handleNovelIntent = async (
@@ -403,9 +444,11 @@ export const createInitializeStore = (ctx: BootstrapContext): SessionActions['in
 
       ctx.get().setInitialized(true);
       bootstrapLog('initializeStore complete – isInitialized true');
+      flushBootTelemetry();
     } catch (error) {
       console.error('[Store] Failed to initialize:', error);
       ctx.get().setError(`Failed to initialize store: ${error}`);
+      flushBootTelemetry();
     }
   };
 };
