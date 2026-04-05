@@ -10,6 +10,7 @@
  */
 
 import type { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
 import type { TelemetryErrorContext } from '../../types/telemetry';
 
@@ -112,7 +113,7 @@ const saveViewMode = (mode: 'original' | 'fan' | 'english') => {
 };
 
 export const createUiSlice: StateCreator<
-  any,
+  StoreState,
   [],
   [],
   UiSlice

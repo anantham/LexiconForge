@@ -10,6 +10,7 @@
  */
 
 import type { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import type { AppSettings, FeedbackItem, AmendmentProposal, HistoricalChapter, TranslationResult, Footnote } from '../../types';
 import { ExplanationService } from '../../services/explanationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
@@ -130,7 +131,7 @@ const emitTranslationFailure = ({
 };
 
 export const createTranslationsSlice: StateCreator<
-  any,
+  StoreState,
   [],
   [],
   TranslationsSlice

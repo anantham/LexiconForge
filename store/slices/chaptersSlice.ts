@@ -10,6 +10,7 @@
  */
 
 import type { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService';
 import { normalizeUrlAggressively, transformImportedChapters } from '../../services/stableIdService';
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
@@ -142,7 +143,7 @@ const scheduleBookshelfPositionPersist = (getState: () => any) => {
 };
 
 export const createChaptersSlice: StateCreator<
-  any,
+  StoreState,
   [],
   [],
   ChaptersSlice

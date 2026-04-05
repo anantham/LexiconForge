@@ -10,6 +10,7 @@
  */
 
 import type { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import { ImageGenerationService, type ImageGenerationContext, type ImageState, type ImageGenerationMetrics } from '../../services/imageGenerationService';
 import { ImageCacheStore } from '../../services/imageCacheService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
@@ -94,7 +95,7 @@ export interface ImageSliceActions {
 export type ImageSlice = ImageSliceState & ImageSliceActions;
 
 export const createImageSlice: StateCreator<
-  any,
+  StoreState,
   [],
   [],
   ImageSlice

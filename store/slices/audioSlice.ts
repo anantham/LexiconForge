@@ -10,6 +10,7 @@
  */
 
 import type { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import type {
   AudioProvider,
   AudioTaskType,
@@ -112,7 +113,7 @@ const createInitialAudioMetrics = (): AudioMetrics => ({
   }
 });
 
-export const createAudioSlice: StateCreator<AudioSlice> = (set, get) => ({
+export const createAudioSlice: StateCreator<StoreState, [], [], AudioSlice> = (set, get) => ({
   // Initial state
   selectedProvider: 'ace-step',
   selectedTaskType: 'txt2audio',

@@ -1,4 +1,5 @@
 import { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import type { ExportSessionOptions } from '../../services/db/types';
 import type { TelemetryInsights } from '../../services/epubService';
 import { blobToBase64DataUrl } from '../../services/imageUtils';
@@ -126,7 +127,7 @@ export const buildImageCaption = (version: number, metadata: ImageGenerationMeta
 };
 
 export const createExportSlice: StateCreator<
-  any, // We need to accept the full store type here
+  StoreState,
   [],
   [],
   ExportSlice

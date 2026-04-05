@@ -9,6 +9,7 @@
  */
 
 import type { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import type { AppSettings, PromptTemplate } from '../../types';
 import type { OpenRouterKeyUsageCache } from '../../services/openrouterService';
 import type { ProviderCreditSummary, SupportedCreditProvider } from '../../services/providerCreditCacheService';
@@ -65,7 +66,7 @@ export interface SettingsActions {
 export type SettingsSlice = SettingsState & SettingsActions;
 
 export const createSettingsSlice: StateCreator<
-  any,
+  StoreState,
   [],
   [],
   SettingsSlice

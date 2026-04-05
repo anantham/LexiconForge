@@ -13,7 +13,7 @@ import { createMockEnhancedChapter, createMockImageCacheKey, createMockTranslati
 
 // Create a test store
 const createTestStore = () => {
-  return create<ChaptersSlice>()((...args) => createChaptersSlice(...args));
+  return create<ChaptersSlice>()((createChaptersSlice as any));
 };
 
 describe('imageMigrationService', () => {

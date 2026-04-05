@@ -12,7 +12,7 @@ import { ChapterOps } from '../../services/db/operations';
 
 // Create a test store
 const createTestStore = () => {
-  return create<ChaptersSlice>()((...args) => createChaptersSlice(...args));
+  return create<ChaptersSlice>()((createChaptersSlice as any));
 };
 
 afterEach(() => {

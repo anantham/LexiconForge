@@ -9,6 +9,7 @@
  */
 
 import type { StateCreator } from 'zustand';
+import type { StoreState } from '../storeTypes';
 import type {
   OscilloscopeSlice,
   OscilloscopeState,
@@ -100,7 +101,7 @@ const initialState: OscilloscopeState = {
 // ---------------------------------------------------------------------------
 
 export const createOscilloscopeSlice: StateCreator<
-  any,
+  StoreState,
   [],
   [],
   OscilloscopeSlice
