@@ -20,6 +20,7 @@ import { useFootnoteNavigation } from '../hooks/useFootnoteNavigation';
 import { useTokenizedContent } from '../hooks/useTokenizedContent';
 import { useChapterTelemetry } from '../hooks/useChapterTelemetry';
 import ReaderView from './chapter/ReaderView';
+import { requestSelfInsert } from '../services/selfInsertService';
 
 const ChapterView: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -70,6 +71,7 @@ const ChapterView: React.FC = () => {
   const chapterAudioMap = useAppStore(s => s.chapterAudioMap);
   const showNotification = useAppStore(s => s.showNotification);
   const loadExistingImages = useAppStore(s => s.loadExistingImages);
+  const threads = useAppStore(s => s.threads);
 
   const handleTranslate = useAppStore(s => s.handleTranslate);
   const pendingTranslations = useAppStore(s => s.pendingTranslations);
@@ -260,6 +262,72 @@ const ChapterView: React.FC = () => {
     }
     useAppStore.getState().generateIllustrationForSelection(currentChapterId, selection);
   }, [currentChapterId, showNotification]);
+
+  const handleSelfInsert = useCallback(async () => {
+    if (!currentChapterId || !chapter) {
+      showNotification('No chapter loaded', 'warning');
+      return;
+    }
+
+    const chapterNumber = chapter.chapterNumber;
+    if (!chapterNumber) {
+      showNotification('Chapter number not available', 'warning');
+      return;
+    }
+
+    const translation = chapter.translationResult?.translation;
+    if (!translation) {
+      showNotification('No translation available for this chapter', 'warning');
+      return;
+    }
+
+    const chapterTitle = chapter.translationResult?.translatedTitle ?? chapter.title;
+    const selectedText = selection?.text ?? '';
+    if (!selectedText) {
+      showNotification('Select a passage to enter the story at', 'info');
+      return;
+    }
+
+    // Get character names from oscilloscope threads active at this chapter
+    const characterNames: string[] = [];
+    for (const [, thread] of threads) {
+      if (thread.category === 'character' && thread.values[chapterNumber - 1] > 0) {
+        characterNames.push(thread.label);
+      }
+    }
+
+    if (characterNames.length === 0) {
+      showNotification('No characters detected in this chapter', 'warning');
+      return;
+    }
+
+    const bridgeUrl = settings.sillyTavernBridgeUrl || 'http://localhost:5001';
+
+    showNotification('Setting up your story entry...', 'info');
+
+    try {
+      const result = await requestSelfInsert(bridgeUrl, {
+        chapterNumber,
+        characterNames,
+        selectedPassage: selectedText,
+        chapterTranslation: translation,
+        chapterTitle,
+      });
+
+      if (result.success && result.stUrl) {
+        window.open(result.stUrl, '_blank');
+        const loaded = result.charactersLoaded?.join(', ') ?? '';
+        showNotification(`Entered story with ${loaded}`, 'success');
+      } else {
+        showNotification(result.message || 'Failed to set up story entry', 'error');
+      }
+    } catch (e) {
+      showNotification(
+        'Self-insert bridge not available. Start it with `uvicorn bridge:app --port 5001` in novel-analyzer.',
+        'error'
+      );
+    }
+  }, [currentChapterId, chapter, threads, settings, selection, showNotification]);
 
   const { handleFeedbackSubmit, deleteFeedback, updateFeedbackComment } = useFeedbackActions({
     currentChapterId,
@@ -457,6 +525,8 @@ const ChapterView: React.FC = () => {
     onDeleteFeedback: deleteFeedback,
     onUpdateFeedback: updateFeedbackComment,
     onScrollToText: handleScrollToText,
+    onSelfInsert: settings.enableSillyTavern ? handleSelfInsert : undefined,
+    enableSillyTavern: settings.enableSillyTavern,
   };
 
   return <ReaderView viewRef={viewRef} chapter={chapter} headerProps={headerProps} statusProps={statusProps} bodyProps={bodyProps} />;

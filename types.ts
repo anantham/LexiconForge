@@ -362,6 +362,9 @@ export interface AppSettings {
     glossary?: GlossaryEntry[];
     // Toast notifications
     showToastNotifications?: boolean;         // Show pop-up toast notifications (default: false)
+    // SillyTavern self-insert integration
+    enableSillyTavern?: boolean;            // Feature gate (default: false)
+    sillyTavernBridgeUrl?: string;          // Bridge endpoint URL (default: "http://localhost:5001")
 }
 
 export interface DiffMarkerVisibilitySettings {

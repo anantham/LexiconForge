@@ -56,6 +56,8 @@ export const defaultSettings: AppSettings = {
   showDiffHeatmap: false,  // Disabled by default - costs API calls
   // Audio feature - OFF by default
   enableAudio: false,
+  enableSillyTavern: false,
+  sillyTavernBridgeUrl: 'http://localhost:5001',
   diffMarkerVisibility: {
     fan: true,
     rawLoss: true,

@@ -21,6 +21,8 @@ interface SelectionOverlayProps {
   handleFeedbackSubmit: (feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => void;
   clearSelection: () => void;
   viewRef: React.RefObject<HTMLDivElement>;
+  onSelfInsert?: () => void;
+  enableSillyTavern?: boolean;
 }
 
 interface SelectionSheetProps {
@@ -30,6 +32,8 @@ interface SelectionSheetProps {
   onClose: () => void;
   canCompare: boolean;
   isComparing: boolean;
+  onSelfInsert?: () => void;
+  enableSillyTavern?: boolean;
 }
 
 const SelectionSheet: React.FC<SelectionSheetProps> = ({
@@ -39,6 +43,8 @@ const SelectionSheet: React.FC<SelectionSheetProps> = ({
   onClose,
   canCompare,
   isComparing,
+  onSelfInsert,
+  enableSillyTavern,
 }) => {
   const [pendingEmoji, setPendingEmoji] = useState<'👍' | '❤️' | '😂' | null>(null);
   const [comment, setComment] = useState('');
@@ -117,6 +123,12 @@ const SelectionSheet: React.FC<SelectionSheetProps> = ({
             >
               🔍
             </button>
+            {enableSillyTavern && onSelfInsert && (
+              <>
+                <div style={{width: 1, height: 28, background: '#374151'}} />
+                <button className="p-3 text-xl" onClick={onSelfInsert} title="Enter Story">🌀</button>
+              </>
+            )}
             <div className="grow" />
             <button
               className="px-3 py-2 rounded bg-white/10"
@@ -148,6 +160,8 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
   handleFeedbackSubmit,
   clearSelection,
   viewRef,
+  onSelfInsert,
+  enableSillyTavern,
 }) => {
   if (viewMode === 'original' || !selection || inlineEditActive) {
     return null;
@@ -159,6 +173,8 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
         selection={selection}
         canCompare={canCompare}
         isComparing={comparisonLoading}
+        onSelfInsert={onSelfInsert}
+        enableSillyTavern={enableSillyTavern}
         onReact={(emoji, comment) => {
           if (emoji === '✏️') {
             beginInlineEdit();
@@ -189,6 +205,8 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
       onEdit={beginInlineEdit}
       onCompare={handleCompareRequest}
       canCompare={canCompare && !comparisonLoading}
+      onSelfInsert={onSelfInsert}
+      enableSillyTavern={enableSillyTavern}
     />
   );
 };
