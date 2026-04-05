@@ -26,6 +26,7 @@ const STYLE_BY_TYPE = {
 const NotificationToast: React.FC = () => {
   const notification = useAppStore((state) => state.notification);
   const clearNotification = useAppStore((state) => state.clearNotification);
+  const showToasts = useAppStore((state) => (state as any).settings?.showToastNotifications ?? false);
 
   useEffect(() => {
     if (!notification) {
@@ -39,7 +40,7 @@ const NotificationToast: React.FC = () => {
     return () => window.clearTimeout(timeout);
   }, [notification?.timestamp, clearNotification]);
 
-  if (!notification) {
+  if (!notification || !showToasts) {
     return null;
   }
 

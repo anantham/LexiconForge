@@ -66,6 +66,18 @@ const DisplayPanel: React.FC = () => {
           Show inline feedback markers in left gutter
         </label>
       </div>
+      <div className="mt-3 flex items-center gap-3">
+        <input
+          id="showToastNotifications"
+          type="checkbox"
+          checked={currentSettings.showToastNotifications ?? false}
+          onChange={(e) => handleSettingChange('showToastNotifications', e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        <label htmlFor="showToastNotifications" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Show toast notifications
+        </label>
+      </div>
     </fieldset>
   );
 };

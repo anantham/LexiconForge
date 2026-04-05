@@ -621,7 +621,7 @@ export class ImportService {
 
           debugLog(
             'import',
-            'summary',
+            'full',
             '[StreamImport] Progress tick',
             {
               chaptersLoaded,
@@ -647,7 +647,7 @@ export class ImportService {
 
           debugLog(
             'import',
-            'summary',
+            'full',
             '[StreamImport] Evaluating first chapter hydration trigger',
             {
               chaptersLoaded,

@@ -360,6 +360,8 @@ export interface AppSettings {
     promptName?: string;
     // Merged glossary entries (user → genre → book layers)
     glossary?: GlossaryEntry[];
+    // Toast notifications
+    showToastNotifications?: boolean;         // Show pop-up toast notifications (default: false)
 }
 
 export interface DiffMarkerVisibilitySettings {

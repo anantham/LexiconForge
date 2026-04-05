@@ -43,9 +43,9 @@ const parseDebugLevel = (): DebugLevel => {
     const legacySummary = localStorage.getItem(LEGACY_SUMMARY_FLAG) === '1';
     if (legacyFull) return 'full';
     if (legacySummary) return 'summary';
-    return 'summary';
+    return 'off';
   } catch {
-    return 'summary';
+    return 'off';
   }
 };
 
