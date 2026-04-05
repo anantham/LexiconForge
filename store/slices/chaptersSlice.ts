@@ -236,32 +236,10 @@ export const createChaptersSlice: StateCreator<
         }
       }
 
-      // Auto-translate AFTER hydration is complete — this is the ONLY place
-      // where we know for certain whether a translation exists in IDB.
-      // The old MainApp.tsx useEffect was racy: it fired before hydration finished,
-      // saw no translation, and triggered a duplicate translation.
-      const state = get() as any;
-      const isCurrentChapter = state.currentChapterId === chapterId;
-      const viewMode = state.viewMode;
-      const hasTranslation = !!chapter.translationResult;
-
-      console.log(`[ChaptersSlice] Post-hydration check: chapterId=${chapterId}, isCurrent=${isCurrentChapter}, viewMode=${viewMode}, hasTranslation=${hasTranslation}`);
-
-      if (isCurrentChapter && viewMode === 'english' && !hasTranslation) {
-        const isActive = state.isTranslationActive?.(chapterId);
-        const isPending = state.pendingTranslations?.has(chapterId);
-
-        if (!isActive && !isPending) {
-          console.warn(`[ChaptersSlice] 🔄 Post-hydration auto-translate TRIGGERED: no translation found for ${chapterId}`);
-          if (typeof state.handleTranslate === 'function') {
-            void state.handleTranslate(chapterId, 'auto_translate');
-          }
-        } else {
-          console.log(`[ChaptersSlice] Post-hydration: translation already active/pending for ${chapterId}`);
-        }
-      } else if (hasTranslation) {
-        console.log(`[ChaptersSlice] ✅ Post-hydration: translation loaded from cache for ${chapterId}`);
-      }
+      // Auto-translate decision is handled by autoTranslateMediator.ts
+      // (Zustand subscriber that watches state changes and applies a single policy).
+      // The mediator will detect that this chapter was loaded without a translation
+      // and trigger auto-translate if appropriate.
     }
 
     return chapter;

@@ -24,6 +24,7 @@ import { createAudioSlice, type AudioSlice } from './slices/audioSlice';
 import { createOscilloscopeSlice } from './slices/oscilloscopeSlice';
 import { createBootstrapActions } from './bootstrap';
 import type { AppState, SessionActions, StoreState } from './storeTypes';
+import { setupAutoTranslateMediator } from './autoTranslateMediator';
 import '../services/imageMigrationService'; // Import for window exposure
 
 export type { AppState, SessionActions } from './storeTypes';
@@ -53,6 +54,9 @@ export const useAppStore = create<StoreState>((set, get, store) => ({
 }));
 
 // Store is initialized by the App component
+
+// Single mediator for auto-translate decisions (replaces scattered useEffect/inline triggers)
+setupAutoTranslateMediator(useAppStore.subscribe, useAppStore.getState);
 
 // Expose store to window for debugging
 if (typeof window !== 'undefined') {
