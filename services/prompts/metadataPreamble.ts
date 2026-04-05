@@ -73,9 +73,9 @@ export const buildPreambleFromSettings = (
   overrides: Partial<MetadataPreamble> = {}
 ): string => {
   const meta: MetadataPreamble = {
-    projectName: overrides.projectName ?? (settings as any)?.novelTitle ?? null,
-    sourceLanguage: overrides.sourceLanguage ?? (settings as any)?.sourceLanguage ?? null,
-    targetLanguage: overrides.targetLanguage ?? settings.targetLanguage ?? null,
+    projectName: overrides.projectName ?? settings?.novelTitle ?? null,
+    sourceLanguage: overrides.sourceLanguage ?? settings?.sourceLanguage ?? null,
+    targetLanguage: overrides.targetLanguage ?? settings?.targetLanguage ?? null,
     styleNotes: overrides.styleNotes ?? null,
     footnotePolicy: overrides.footnotePolicy ?? null,
     chapterTitle: overrides.chapterTitle ?? null,

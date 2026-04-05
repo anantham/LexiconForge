@@ -58,7 +58,7 @@ export class AudioService {
    * Initialize the audio service with API keys from settings
    */
   initialize(settings: AppSettings) {
-    const piApiKey = settings.apiKeyPiAPI || (getEnvVar('PIAPI_API_KEY') as any);
+    const piApiKey = settings.apiKeyPiAPI || getEnvVar('PIAPI_API_KEY');
     
     if (!piApiKey) {
       console.warn('[AudioService] PiAPI key not found. Audio generation will not be available.');

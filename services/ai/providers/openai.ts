@@ -182,7 +182,7 @@ const resolveApiKey = (settings: AppSettings): { apiKey?: string; baseURL?: stri
       baseURL = 'https://api.deepseek.com/v1';
       break;
     case 'OpenRouter': {
-      const userKey = (settings as any).apiKeyOpenRouter;
+      const userKey = settings.apiKeyOpenRouter;
       const envKey = getEnvVar('OPENROUTER_API_KEY');
       const trialKey = getDefaultApiKey();
       apiKey = userKey || envKey || trialKey || undefined;

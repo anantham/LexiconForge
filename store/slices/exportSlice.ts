@@ -509,10 +509,9 @@ export const createExportSlice: StateCreator<
       } catch {}
 
       const tpl = getDefaultTemplate();
-      const s = settings as any;
-      if (s.epubGratitudeMessage) tpl.gratitudeMessage = s.epubGratitudeMessage;
-      if (s.epubProjectDescription) tpl.projectDescription = s.epubProjectDescription;
-      if (s.epubFooter !== undefined) tpl.customFooter = s.epubFooter || '';
+      if (settings.epubGratitudeMessage) tpl.gratitudeMessage = settings.epubGratitudeMessage;
+      if (settings.epubProjectDescription) tpl.projectDescription = settings.epubProjectDescription;
+      if (settings.epubFooter !== undefined) tpl.customFooter = settings.epubFooter || '';
 
       // Fetch novel metadata and cover image from storage
       let coverImageData: string | undefined;

@@ -307,12 +307,12 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         break;
       case 'OpenRouter':
         // Try user key first, then env var, then trial key
-        apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey() || undefined;
+        apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey() || undefined;
         console.log('[OpenRouter] API Key Priority Check:', {
-          hasUserKey: !!(settings as any).apiKeyOpenRouter,
+          hasUserKey: !!settings.apiKeyOpenRouter,
           hasEnvKey: !!getEnvVar('OPENROUTER_API_KEY'),
           hasTrialKey: !!getDefaultApiKey(),
-          usingSource: (settings as any).apiKeyOpenRouter ? 'user_settings' :
+          usingSource: settings.apiKeyOpenRouter ? 'user_settings' :
                        getEnvVar('OPENROUTER_API_KEY') ? 'env_var' :
                        getDefaultApiKey() ? 'trial_key' : 'none',
           finalKeyAvailable: !!apiKey

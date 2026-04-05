@@ -542,7 +542,7 @@ const LLM_REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
 
 const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LLMCaller => {
   return async ({ settings, messages, signal, maxTokens, options }) => {
-    const apiKey = (settings as any).apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
+    const apiKey = settings.apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       throw new Error('Missing OPENROUTER_API_KEY for benchmark runs.');
     }

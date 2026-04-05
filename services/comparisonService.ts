@@ -193,20 +193,20 @@ function resolveApiConfig(settings: AppSettings): { apiKey?: string; baseURL?: s
       };
     case 'OpenRouter':
       return {
-        apiKey: (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
+        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
     case 'Gemini':
     case 'Claude':
       console.warn('[ComparisonService] Provider not directly supported, defaulting to OpenRouter.');
       return {
-        apiKey: (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
+        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
     default:
       console.warn('[ComparisonService] Unknown provider, defaulting to OpenRouter.');
       return {
-        apiKey: (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
+        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
   }

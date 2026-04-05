@@ -15,7 +15,7 @@ export const translateChapter = async (
 ): Promise<TranslationResult> => {
   const isUsingDefaultKey =
     settings.provider === 'OpenRouter' &&
-    !(settings as any).apiKeyOpenRouter &&
+    !settings.apiKeyOpenRouter &&
     !getEnvVar('OPENROUTER_API_KEY');
 
   const { initializeProviders } = await import('@/adapters/providers');

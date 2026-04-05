@@ -19,8 +19,8 @@ export const TemplatePanel: React.FC = () => {
           <textarea
             id="epub-gratitude"
             rows={3}
-            value={(currentSettings as any).epubGratitudeMessage || defaultTpl.gratitudeMessage || ''}
-            onChange={(e) => handleSettingChange('epubGratitudeMessage' as any, e.target.value)}
+            value={currentSettings.epubGratitudeMessage || defaultTpl.gratitudeMessage || ''}
+            onChange={(e) => handleSettingChange('epubGratitudeMessage', e.target.value)}
             className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
           />
         </div>
@@ -31,8 +31,8 @@ export const TemplatePanel: React.FC = () => {
           <textarea
             id="epub-description"
             rows={3}
-            value={(currentSettings as any).epubProjectDescription || defaultTpl.projectDescription || ''}
-            onChange={(e) => handleSettingChange('epubProjectDescription' as any, e.target.value)}
+            value={currentSettings.epubProjectDescription || defaultTpl.projectDescription || ''}
+            onChange={(e) => handleSettingChange('epubProjectDescription', e.target.value)}
             className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
           />
         </div>
@@ -43,8 +43,8 @@ export const TemplatePanel: React.FC = () => {
           <input
             id="epub-footer"
             type="text"
-            value={(currentSettings as any).epubFooter ?? (defaultTpl.customFooter || '')}
-            onChange={(e) => handleSettingChange('epubFooter' as any, e.target.value)}
+            value={currentSettings.epubFooter ?? (defaultTpl.customFooter || '')}
+            onChange={(e) => handleSettingChange('epubFooter', e.target.value)}
             className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
           />
         </div>

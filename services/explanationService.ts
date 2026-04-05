@@ -42,7 +42,7 @@ export class ExplanationService {
           baseURL = 'https://api.deepseek.com/v1';
           break;
         case 'OpenRouter':
-          apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+          apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
           baseURL = 'https://openrouter.ai/api/v1';
           break;
         case 'Gemini':
@@ -51,18 +51,18 @@ export class ExplanationService {
             // This will likely fail for Gemini until the service is updated to use the Gemini SDK.
             // For now, we fall back to OpenRouter if Gemini is selected.
             warn(`Gemini provider is not yet supported for explanations. Using OpenRouter as a fallback.`);
-            apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+            apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
             baseURL = 'https://openrouter.ai/api/v1';
             break;
         case 'Claude':
             apiKey = settings.apiKeyClaude || getEnvVar('CLAUDE_API_KEY');
             warn(`Claude provider is not yet supported for explanations. Using OpenRouter as a fallback.`);
-            apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+            apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
             baseURL = 'https://openrouter.ai/api/v1';
             break;
         default:
           warn(`Unsupported provider for explanation: ${settings.provider}. Using OpenRouter as fallback.`);
-          apiKey = (settings as any).apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+          apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
           baseURL = 'https://openrouter.ai/api/v1';
       }
 

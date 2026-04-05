@@ -36,7 +36,7 @@ export const validateApiKey = (
   let requiredApiKey: string | undefined;
 
   if (settings.provider === 'OpenRouter') {
-    const userKey = (settings as any).apiKeyOpenRouter;
+    const userKey = settings.apiKeyOpenRouter;
     const envVarKey = getEnvVar(providerMeta.env) as string | undefined;
     const trialKey = getDefaultApiKey();
     requiredApiKey = userKey || envVarKey || trialKey;
