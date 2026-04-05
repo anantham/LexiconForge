@@ -189,7 +189,7 @@ export const createUiSlice: StateCreator<
     saveViewMode(mode);
     set({ viewMode: mode });
   },
-  
+
   handleToggleLanguage: (mode) => {
     saveViewMode(mode);
     set({ viewMode: mode });

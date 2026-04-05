@@ -69,6 +69,8 @@ const ChapterView: React.FC = () => {
   const showNotification = useAppStore(s => s.showNotification);
   const loadExistingImages = useAppStore(s => s.loadExistingImages);
 
+  const handleTranslate = useAppStore(s => s.handleTranslate);
+  const pendingTranslations = useAppStore(s => s.pendingTranslations);
   const editableContainerRef = useRef<HTMLDivElement>(null);
     const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
   const translationResult = chapter?.translationResult;
@@ -123,9 +125,27 @@ const ChapterView: React.FC = () => {
       !translationInProgress &&
       !isHydratingCurrent
   );
-  const showEnglishLoader = viewMode === 'english' && !translationResult && (translationInProgress || !error);
+  const showEnglishLoader = viewMode === 'english' && !translationResult && (translationInProgress || isHydratingCurrent);
 
     // DIAGNOSTIC: Log chapter data when it changes
+  // Reactive auto-translate: triggers whenever we're in english mode with no
+  // translation and nothing in progress. Covers all navigation paths (library open,
+  // next/prev, view mode toggle) from one place.
+  useEffect(() => {
+    if (
+      viewMode === 'english' &&
+      currentChapterId &&
+      chapter &&
+      !chapter.translationResult &&
+      !isTranslationActive(currentChapterId) &&
+      !pendingTranslations?.has(currentChapterId) &&
+      !isHydratingCurrent
+    ) {
+      console.warn(`[ChapterView] 🔄 Auto-translate TRIGGERED: english mode, no translation for ${currentChapterId}`);
+      void handleTranslate(currentChapterId, 'auto_translate');
+    }
+  }, [currentChapterId, viewMode, chapter?.translationResult, isHydratingCurrent]);
+
   useEffect(() => {
     if (chapter && translationResult) {
       debugLog('translation', 'full', '[ChapterView] Chapter Data Update', {
