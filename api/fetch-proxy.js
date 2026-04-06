@@ -48,7 +48,7 @@ function fetchUrl(targetUrl, timeout) {
         timeout,
       },
       (proxyRes) => {
-        // Follow redirects
+        // Follow redirects — re-validate domain on every hop (INV-1)
         if (
           proxyRes.statusCode >= 300 &&
           proxyRes.statusCode < 400 &&
@@ -58,6 +58,11 @@ function fetchUrl(targetUrl, timeout) {
             proxyRes.headers.location,
             targetUrl
           ).href;
+          const redirectHostname = new URL(redirectUrl).hostname;
+          if (!isDomainAllowed(redirectHostname)) {
+            reject(new Error(`Redirect to disallowed domain: ${redirectHostname}`));
+            return;
+          }
           fetchUrl(redirectUrl, timeout).then(resolve, reject);
           return;
         }

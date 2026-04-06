@@ -25,9 +25,16 @@ interface BootMark {
   payload?: any;
 }
 
-const bootMarks: BootMark[] = [];
+let bootMarks: BootMark[] = [];
 let bootStart = 0;
 let lastMark = 0;
+
+/** Reset telemetry state at the start of each init run (INV: per-run state) */
+const resetBootTelemetry = () => {
+  bootMarks = [];
+  bootStart = 0;
+  lastMark = 0;
+};
 
 const bootstrapLog = (message: string, payload?: any) => {
   const now = performance.now();
@@ -420,6 +427,7 @@ export const createInitializeStore = (ctx: BootstrapContext): SessionActions['in
       bootstrapLog('initializeStore – skipped (already initialized)');
       return;
     }
+    resetBootTelemetry();
     bootstrapLog('initializeStore – begin');
     ctx.get().setInitialized(false);
     ctx.get().openLibrary();

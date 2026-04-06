@@ -10,6 +10,26 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
  * bypassing CORS and Cloudflare bot-detection that blocks server IPs.
  * Endpoint: GET /api/fetch-proxy?url=<encoded-url>
  */
+/** Domain allowlist — must match api/fetch-proxy.js (enforced by proxy-parity.test.ts) */
+const ALLOWED_DOMAINS = [
+  'kakuyomu.jp',
+  'dxmwx.org',
+  'kanunu8.com',
+  'kanunu.net',
+  'novelcool.com',
+  'ncode.syosetu.com',
+  'booktoki468.com',
+  'suttacentral.net',
+  'hetushu.com',
+  'hetubook.com',
+];
+
+function isDomainAllowed(hostname: string): boolean {
+  return ALLOWED_DOMAINS.some(
+    (d) => hostname === d || hostname.endsWith('.' + d)
+  );
+}
+
 function localFetchProxyPlugin(): Plugin {
   return {
     name: 'local-fetch-proxy',
@@ -33,6 +53,12 @@ function localFetchProxyPlugin(): Plugin {
         } catch {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Invalid URL' }));
+          return;
+        }
+
+        if (!isDomainAllowed(parsed.hostname)) {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: `Domain ${parsed.hostname} is not in the allowlist` }));
           return;
         }
 
