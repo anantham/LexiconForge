@@ -11,12 +11,13 @@
 
 import type { StateCreator } from 'zustand';
 import type { StoreState } from '../storeTypes';
-import type { AppSettings, FeedbackItem, AmendmentProposal, HistoricalChapter, TranslationResult, Footnote } from '../../types';
+import type { AppSettings, FeedbackItem, AmendmentProposal, HistoricalChapter, TranslationResult, Footnote, UsageMetrics, TranslationProvider } from '../../types';
 import { ExplanationService } from '../../services/explanationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { TranslationOps, AmendmentOps } from '../../services/db/operations';
+import { adaptTranslationRecordToResult } from '../../services/navigation/converters';
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { clientTelemetry } from '../../services/clientTelemetry';
 import { debugLog, debugWarn } from '../../utils/debug';
@@ -168,7 +169,7 @@ export const createTranslationsSlice: StateCreator<
     const keyCheck = validateApiKey(context.settings);
     if (!keyCheck.isValid) {
       console.warn('[Retranslate] 🔑 Blocked: API key validation failed', { provider: context.settings.provider, error: keyCheck.errorMessage });
-      const uiActions = state as any;
+      const uiActions = state;
       const failureMessage = keyCheck.errorMessage || 'API key validation failed';
       const failureType = keyCheck.failureType ?? 'unknown';
       const telemetryContext = emitTranslationFailure({
@@ -194,7 +195,7 @@ export const createTranslationsSlice: StateCreator<
       return;
     }
 
-    const uiActions = state as any;
+    const uiActions = state;
     if (uiActions.setError) {
       uiActions.setError(null);
     }
@@ -262,13 +263,35 @@ export const createTranslationsSlice: StateCreator<
             temperature: matchingVersion.settingsSnapshot?.temperature,
           });
 
-          // Show user notification
-          const showNotification = state.showNotification;
-          if (showNotification) {
-            showNotification(
-              'A translation with these exact settings already exists. Change settings or use the version picker to switch versions.',
-              'info'
-            );
+          // Hydrate the existing translation into memory if it's missing.
+          // This covers the race where auto-translate fires before hydration
+          // loads the translation — the Blocked path used to return empty-handed,
+          // leaving the chapter without translationResult in memory.
+          const chapter = context.chapters.get(chapterId);
+          if (chapter && !chapter.translationResult) {
+            const adapted = adaptTranslationRecordToResult(chapterId, matchingVersion);
+            if (adapted) {
+              console.log('[Retranslate] 🔁 Hydrating existing translation into memory for', chapterId);
+              set(prev => {
+                const newChapters = new Map(prev.chapters);
+                const existing = newChapters.get(chapterId);
+                if (existing) {
+                  newChapters.set(chapterId, { ...existing, translationResult: adapted as any });
+                }
+                return { chapters: newChapters };
+              });
+            }
+          }
+
+          // Only notify on manual retranslate, not auto-translate
+          if (origin !== 'auto_translate') {
+            const showNotification = state.showNotification;
+            if (showNotification) {
+              showNotification(
+                'A translation with these exact settings already exists. Change settings or use the version picker to switch versions.',
+                'info'
+              );
+            }
           }
 
           set(prev => {
@@ -276,9 +299,12 @@ export const createTranslationsSlice: StateCreator<
             nextPending.delete(chapterId);
             const nextProgress = { ...prev.translationProgress };
             delete nextProgress[chapterId];
+            const nextActive = { ...prev.activeTranslations };
+            delete nextActive[chapterId];
             return {
               pendingTranslations: nextPending,
               translationProgress: nextProgress,
+              activeTranslations: nextActive,
             };
           });
           return;
@@ -381,7 +407,7 @@ export const createTranslationsSlice: StateCreator<
       const relevantSettings = TranslationService.extractSettingsSnapshot(context.settings);
 
       // Update chapter with translation result
-      const chaptersActions = state as any;
+      const chaptersActions = state;
       if (chaptersActions.updateChapter) {
         chaptersActions.updateChapter(chapterId, {
           translationResult: translationResult,
@@ -390,7 +416,7 @@ export const createTranslationsSlice: StateCreator<
 
         // Clear stale image state when new translation is saved
         // (new translation = new suggestedIllustrations with different placementMarkers)
-        const imageActions = state as any;
+        const imageActions = state;
         if (imageActions.clearImageState) {
           imageActions.clearImageState(chapterId);
           debugLog('translation', 'summary', `[Translation] Cleared image state for chapter ${chapterId}`);
@@ -426,7 +452,7 @@ export const createTranslationsSlice: StateCreator<
 
       // Dispatch translation:complete event for diff analysis (only if diff heatmap is enabled)
       // Re-read chapter from LIVE store state (not the stale snapshot) to get current fanTranslation
-      const liveState = get() as any;
+      const liveState = get();
       const liveChapter = liveState.chapters?.get?.(chapterId) ?? context.chapters.get(chapterId);
       const isDiffHeatmapEnabled = liveState.settings?.showDiffHeatmap ?? true;
       const fanText = liveChapter?.fanTranslation || null;
@@ -458,7 +484,7 @@ export const createTranslationsSlice: StateCreator<
       
       // Handle image generation if needed
       if (translationResult.suggestedIllustrations?.length > 0) {
-        const imageActions = state as any;
+        const imageActions = state;
         if (imageActions.loadExistingImages) {
           await imageActions.loadExistingImages(chapterId);
         }
@@ -543,7 +569,7 @@ export const createTranslationsSlice: StateCreator<
       
       // Update UI loading state
       const stillTranslating = Object.keys(get().activeTranslations).length > 0;
-      const uiActions = get() as any;
+      const uiActions = get();
       if (uiActions.setTranslatingState) {
         uiActions.setTranslatingState(stillTranslating);
       }
@@ -620,7 +646,7 @@ export const createTranslationsSlice: StateCreator<
     }));
     
     // Update chapter with feedback
-    const chaptersActions = get() as any;
+    const chaptersActions = get();
     if (chaptersActions.updateChapter) {
       const currentFeedback = get().feedbackHistory[chapterId] || [];
       chaptersActions.updateChapter(chapterId, {
@@ -677,7 +703,7 @@ export const createTranslationsSlice: StateCreator<
               return;
             }
 
-            const stateSnapshot = get() as any;
+            const stateSnapshot = get();
             const persistenceSettings: TranslationSettingsSnapshot = {
               provider: stateSnapshot.settings.provider,
               model: stateSnapshot.settings.model,
@@ -727,7 +753,7 @@ export const createTranslationsSlice: StateCreator<
     });
     
     // Update chapter
-    const chaptersActions = get() as any;
+    const chaptersActions = get();
     if (chaptersActions.updateChapter) {
       chaptersActions.updateChapter(chapterId, {
         feedback: []
@@ -737,7 +763,7 @@ export const createTranslationsSlice: StateCreator<
   
   deleteFeedback: (feedbackId) => {
     const state = get();
-    const chaptersActions = state as any;
+    const chaptersActions = state;
     let chapterToUpdate: EnhancedChapter | null = null;
     let chapterIdToUpdate: string | null = null;
 
@@ -785,7 +811,7 @@ export const createTranslationsSlice: StateCreator<
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
-    const state = get() as any;
+    const state = get();
     const settingsActions = state;
     const currentChapterId = state.currentChapterId;
 
@@ -823,7 +849,7 @@ export const createTranslationsSlice: StateCreator<
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
-    const state = get() as any;
+    const state = get();
     const currentChapterId = state.currentChapterId;
 
     // Log the rejected amendment
@@ -848,7 +874,7 @@ export const createTranslationsSlice: StateCreator<
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
-    const state = get() as any;
+    const state = get();
     const settingsActions = state;
     const currentChapterId = state.currentChapterId;
 
@@ -951,24 +977,24 @@ export const createTranslationsSlice: StateCreator<
         console.log(`[TranslationsSlice] Loaded translation version ${version} for chapter ${chapterId}`);
         
         // Update the chapter with the new translation
-        const chaptersActions = get() as any;
+        const chaptersActions = get();
         if (chaptersActions.updateChapter) {
-          const usageMetrics = {
+          const usageMetrics: UsageMetrics = {
             totalTokens: activeTranslation.totalTokens || 0,
             promptTokens: activeTranslation.promptTokens || 0,
             completionTokens: activeTranslation.completionTokens || 0,
             estimatedCost: activeTranslation.estimatedCost || 0,
             requestTime: activeTranslation.requestTime || 0,
-            provider: activeTranslation.provider || 'unknown',
+            provider: (activeTranslation.provider || 'OpenRouter') as TranslationProvider,
             model: activeTranslation.model || 'unknown',
           };
           
-          const translationResult = {
+          const translationResult: TranslationResult = {
             translatedTitle: activeTranslation.translatedTitle,
             translation: activeTranslation.translation,
-            proposal: activeTranslation.proposal || null,
+            proposal: activeTranslation.proposal as TranslationResult['proposal'] ?? null,
             footnotes: activeTranslation.footnotes || [],
-            suggestedIllustrations: activeTranslation.suggestedIllustrations || [],
+            suggestedIllustrations: activeTranslation.suggestedIllustrations as TranslationResult['suggestedIllustrations'] || [],
             usageMetrics,
           };
           
@@ -979,7 +1005,7 @@ export const createTranslationsSlice: StateCreator<
       }
     } catch (error) {
       console.error('[TranslationsSlice] Failed to set active translation version:', error);
-      const uiActions = get() as any;
+      const uiActions = get();
       if (uiActions.setError) {
         uiActions.setError('Failed to switch translation version');
       }
@@ -1003,7 +1029,7 @@ export const createTranslationsSlice: StateCreator<
           debugLog('translation', 'summary', `[TranslationsSlice] Promoted version ${latestVersion.version} to active for chapter ${chapterId}`);
         } else {
           // No versions left, so we clear the translation result from the chapter
-          const chaptersActions = get() as any;
+          const chaptersActions = get();
           if (chaptersActions.updateChapter) {
             chaptersActions.updateChapter(chapterId, {
               translationResult: null,
@@ -1018,7 +1044,7 @@ export const createTranslationsSlice: StateCreator<
 
     } catch (error) {
       console.error('[TranslationsSlice] Failed to delete translation version:', error);
-      const uiActions = get() as any;
+      const uiActions = get();
       if (uiActions.setError) {
         uiActions.setError('Failed to delete translation version');
       }
@@ -1160,7 +1186,7 @@ export const createTranslationsSlice: StateCreator<
       return;
     }
 
-    const stateSnapshot = get() as any;
+    const stateSnapshot = get();
     const persistenceSettings: TranslationSettingsSnapshot = {
       provider: stateSnapshot.settings.provider,
       model: stateSnapshot.settings.model,

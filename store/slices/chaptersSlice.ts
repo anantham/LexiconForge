@@ -174,7 +174,7 @@ export const createChaptersSlice: StateCreator<
     const prevChapterId = get().currentChapterId;
     if (prevChapterId && prevChapterId !== chapterId) {
       debugLog('translation', 'summary', '🚫 [Chapters] Navigation detected, cancelling previous chapter translation:', prevChapterId);
-      const translationsActions = get() as any;
+      const translationsActions = get();
       if (translationsActions.cancelTranslation) {
         translationsActions.cancelTranslation(prevChapterId);
         debugLog('translation', 'summary', '✅ [Chapters] Cancelled translation for:', prevChapterId);
@@ -184,7 +184,7 @@ export const createChaptersSlice: StateCreator<
     set({ currentChapterId: chapterId });
 
     if (chapterId) {
-      const uiActions = get() as any;
+      const uiActions = get();
       if (typeof uiActions.setReaderReady === 'function') {
         uiActions.setReaderReady();
       }
@@ -202,7 +202,7 @@ export const createChaptersSlice: StateCreator<
     console.log(`[loadChapterFromIDB] ENTERED for ${chapterId}`);
     const updateHydratingState = (id: string, hydrating: boolean) => {
       // Delegate to UI slice for hydration state
-      const uiActions = get() as any;
+      const uiActions = get();
       if (uiActions.setHydratingState) {
         uiActions.setHydratingState(id, hydrating);
       }
@@ -229,7 +229,7 @@ export const createChaptersSlice: StateCreator<
         chapter.translationResult?.suggestedIllustrations &&
         chapter.translationResult.suggestedIllustrations.length > 0
       ) {
-        const imageActions = get() as any;
+        const imageActions = get();
         if (typeof imageActions.loadExistingImages === 'function') {
           void imageActions
             .loadExistingImages(chapterId)
@@ -382,7 +382,7 @@ export const createChaptersSlice: StateCreator<
     
     if (result.error !== undefined) {
       // Set error in UI
-      const uiActions = get() as any;
+      const uiActions = get();
       if (uiActions.setError) {
         uiActions.setError(result.error);
       }
@@ -431,7 +431,7 @@ export const createChaptersSlice: StateCreator<
       }
 
       // Clear any error
-      const uiActions = get() as any;
+      const uiActions = get();
       if (uiActions.setError) {
         uiActions.setError(null);
       }
@@ -444,7 +444,7 @@ export const createChaptersSlice: StateCreator<
   
   handleFetch: async (url) => {
     // Set loading state
-    const uiActions = get() as any;
+    const uiActions = get();
     if (uiActions.setFetchingState) {
       uiActions.setFetchingState(url, true);
     }
@@ -533,7 +533,7 @@ export const createChaptersSlice: StateCreator<
   },
   
   importCustomText: async (title, content, sourceLanguage) => {
-    const uiActions = get() as any;
+    const uiActions = get();
     const syntheticUrl = `https://custom.lexiconforge.local/text/${Date.now()}`;
 
     if (uiActions.setFetchingState) {
