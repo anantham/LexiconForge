@@ -62,8 +62,8 @@ const applyAspectAndSize = (
   if (preset === 'CUSTOM') return;
   const long = preset === '2K' ? 2048 : preset === '1K' ? 1024 : 768;
   const parts = ratio.split(':').map((n) => parseInt(n, 10));
-  let w = (currentSettings as any).imageWidth || 1024;
-  let h = (currentSettings as any).imageHeight || 1024;
+  let w = currentSettings.imageWidth || 1024;
+  let h = currentSettings.imageHeight || 1024;
   if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
     const rw = parts[0];
     const rh = parts[1];
@@ -78,8 +78,8 @@ const applyAspectAndSize = (
     w = long;
     h = long;
   }
-  handleSettingChange('imageWidth' as any, w);
-  handleSettingChange('imageHeight' as any, h);
+  handleSettingChange('imageWidth', w);
+  handleSettingChange('imageHeight', h);
 };
 
 const AdvancedPanel: React.FC = () => {
@@ -239,18 +239,18 @@ const AdvancedPanel: React.FC = () => {
         />
 
         <ImageGenerationSection
-          imageWidth={(currentSettings as any).imageWidth || 1024}
-          imageHeight={(currentSettings as any).imageHeight || 1024}
-          imageAspectRatio={(currentSettings as any).imageAspectRatio || '1:1'}
-          imageSizePreset={(currentSettings as any).imageSizePreset || '1K'}
-          onImageWidthChange={(value) => handleSettingChange('imageWidth' as any, value)}
-          onImageHeightChange={(value) => handleSettingChange('imageHeight' as any, value)}
-          onAspectRatioChange={(value) => handleSettingChange('imageAspectRatio' as any, value)}
-          onSizePresetChange={(value) => handleSettingChange('imageSizePreset' as any, value)}
+          imageWidth={currentSettings.imageWidth || 1024}
+          imageHeight={currentSettings.imageHeight || 1024}
+          imageAspectRatio={currentSettings.imageAspectRatio || '1:1'}
+          imageSizePreset={currentSettings.imageSizePreset || '1K'}
+          onImageWidthChange={(value) => handleSettingChange('imageWidth', value)}
+          onImageHeightChange={(value) => handleSettingChange('imageHeight', value)}
+          onAspectRatioChange={(value) => handleSettingChange('imageAspectRatio', value)}
+          onSizePresetChange={(value) => handleSettingChange('imageSizePreset', value)}
           onApplyPreset={() =>
             applyAspectAndSize(
-              ((currentSettings as any).imageAspectRatio as string) || '1:1',
-              (currentSettings as any).imageSizePreset || '1K',
+              (currentSettings.imageAspectRatio as string) || '1:1',
+              currentSettings.imageSizePreset || '1K',
               currentSettings,
               handleSettingChange
             )
@@ -263,18 +263,18 @@ const AdvancedPanel: React.FC = () => {
           seed={currentSettings.seed ?? null}
           frequencyPenalty={currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}
           presencePenalty={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
-          enableAmendments={(currentSettings as any).enableAmendments ?? true}
-          includeFanTranslationInPrompt={(currentSettings as any).includeFanTranslationInPrompt ?? false}
-          includeHistoricalFanTranslationsInContext={(currentSettings as any).includeHistoricalFanTranslationsInContext ?? false}
+          enableAmendments={currentSettings.enableAmendments ?? true}
+          includeFanTranslationInPrompt={currentSettings.includeFanTranslationInPrompt ?? false}
+          includeHistoricalFanTranslationsInContext={currentSettings.includeHistoricalFanTranslationsInContext ?? false}
           parameterSupport={currentParameterSupport}
           onTemperatureChange={(value) => handleSettingChange('temperature', value)}
           onTopPChange={(value) => handleSettingChange('topP', value)}
           onSeedChange={(value) => handleSettingChange('seed', value)}
           onFrequencyPenaltyChange={(value) => handleSettingChange('frequencyPenalty', value)}
           onPresencePenaltyChange={(value) => handleSettingChange('presencePenalty', value)}
-          onEnableAmendmentsChange={(value) => handleSettingChange('enableAmendments' as any, value)}
-          onIncludeFanTranslationChange={(value) => handleSettingChange('includeFanTranslationInPrompt' as any, value)}
-          onIncludeHistoricalFanTranslationsChange={(value) => handleSettingChange('includeHistoricalFanTranslationsInContext' as any, value)}
+          onEnableAmendmentsChange={(value) => handleSettingChange('enableAmendments', value)}
+          onIncludeFanTranslationChange={(value) => handleSettingChange('includeFanTranslationInPrompt', value)}
+          onIncludeHistoricalFanTranslationsChange={(value) => handleSettingChange('includeHistoricalFanTranslationsInContext', value)}
         />
 
         <StorageDiagnosticsSection

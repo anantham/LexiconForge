@@ -56,7 +56,7 @@ export const DiffPanel: React.FC = () => {
       ...currentVisibility,
       [markerType]: checked,
     };
-    handleSettingChange('diffMarkerVisibility' as any, nextVisibility as any);
+    handleSettingChange('diffMarkerVisibility', nextVisibility);
   };
 
   const handleInvalidateDiffMarkers = useCallback(async () => {
@@ -142,7 +142,7 @@ export const DiffPanel: React.FC = () => {
               type="checkbox"
               className="mr-2"
               checked={heatmapEnabled}
-              onChange={(e) => handleSettingChange('showDiffHeatmap' as any, e.target.checked)}
+              onChange={(e) => handleSettingChange('showDiffHeatmap', e.target.checked)}
             />
             Show semantic diff heatmap
           </label>
@@ -186,7 +186,7 @@ export const DiffPanel: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => handleSettingChange('diffAnalysisPrompt' as any, defaultDiffPrompt)}
+              onClick={() => handleSettingChange('diffAnalysisPrompt', defaultDiffPrompt)}
               className="px-3 py-2 rounded-md text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 transition"
             >
               Reset Prompt
@@ -208,7 +208,7 @@ export const DiffPanel: React.FC = () => {
               <textarea
                 rows={14}
                 value={currentSettings.diffAnalysisPrompt ?? defaultDiffPrompt}
-                onChange={(e) => handleSettingChange('diffAnalysisPrompt' as any, e.target.value)}
+                onChange={(e) => handleSettingChange('diffAnalysisPrompt', e.target.value)}
                 disabled={!heatmapEnabled}
                 className={`w-full font-mono text-xs p-3 border rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 ${
                   heatmapEnabled

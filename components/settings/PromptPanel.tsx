@@ -60,8 +60,8 @@ export const PromptPanel: React.FC = () => {
     const template = promptTemplates.find((t) => t.id === templateId);
     if (template) {
       updateSettings({ systemPrompt: template.content, activePromptId: templateId });
-      handleSettingChange('systemPrompt' as any, template.content as any);
-      handleSettingChange('activePromptId' as any, templateId as any);
+      handleSettingChange('systemPrompt', template.content);
+      handleSettingChange('activePromptId', templateId);
       requestAnimationFrame(() => {
         const el = document.getElementById(`prompt-${templateId}`);
         if (el && typeof el.scrollIntoView === 'function') {
@@ -155,7 +155,7 @@ export const PromptPanel: React.FC = () => {
             id="active-prompt-content"
             ref={promptTextareaRef}
             value={currentSettings.systemPrompt}
-            onChange={(e) => handleSettingChange('systemPrompt' as any, e.target.value as any)}
+            onChange={(e) => handleSettingChange('systemPrompt', e.target.value)}
             disabled={!activePromptTemplate}
             className={`w-full h-40 p-3 text-sm rounded-md border ${
               isEditingActive

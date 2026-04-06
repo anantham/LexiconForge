@@ -164,8 +164,8 @@ export const SessionExportPanel: React.FC<SessionExportPanelProps> = ({ onRequir
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Chapter ordering</label>
             <select
-              value={(currentSettings as any).exportOrder || 'number'}
-              onChange={(e) => handleSettingChange('exportOrder' as any, e.target.value as any)}
+              value={currentSettings.exportOrder || 'number'}
+              onChange={(e) => handleSettingChange('exportOrder', e.target.value)}
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
             >
               <option value="number">By chapter number</option>
@@ -177,8 +177,8 @@ export const SessionExportPanel: React.FC<SessionExportPanelProps> = ({ onRequir
               <input
                 type="checkbox"
                 className="mr-2"
-                checked={(currentSettings as any).includeTitlePage !== false}
-                onChange={(e) => handleSettingChange('includeTitlePage' as any, e.target.checked)}
+                checked={currentSettings.includeTitlePage !== false}
+                onChange={(e) => handleSettingChange('includeTitlePage', e.target.checked)}
               />
               Include title page
             </label>
@@ -186,8 +186,8 @@ export const SessionExportPanel: React.FC<SessionExportPanelProps> = ({ onRequir
               <input
                 type="checkbox"
                 className="mr-2"
-                checked={(currentSettings as any).includeStatsPage !== false}
-                onChange={(e) => handleSettingChange('includeStatsPage' as any, e.target.checked)}
+                checked={currentSettings.includeStatsPage !== false}
+                onChange={(e) => handleSettingChange('includeStatsPage', e.target.checked)}
               />
               Include acknowledgments page
             </label>

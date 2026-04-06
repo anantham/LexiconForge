@@ -417,11 +417,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         provider={currentSettings.provider}
         model={currentSettings.model}
         imageModel={currentSettings.imageModel}
-        autoGenerateImages={(currentSettings as any).autoGenerateImages ?? true}
+        autoGenerateImages={currentSettings.autoGenerateImages ?? true}
         contextDepth={currentSettings.contextDepth}
         preloadCount={currentSettings.preloadCount}
-        sourceLanguage={(currentSettings as any).sourceLanguage || 'Korean'}
-        targetLanguage={(currentSettings as any).targetLanguage || 'English'}
+        sourceLanguage={currentSettings.sourceLanguage || 'Korean'}
+        targetLanguage={currentSettings.targetLanguage || 'English'}
         pricedTextModels={pricedTextModels}
         pricedImageModels={pricedImageModels}
         isOpenRouter={currentSettings.provider === 'OpenRouter'}
@@ -432,7 +432,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         onProviderChange={(p) => handleSettingChange('provider', p)}
         onModelChange={handleModelChange}
         onImageModelChange={(m) => handleSettingChange('imageModel', m)}
-        onAutoGenerateImagesChange={(v) => handleSettingChange('autoGenerateImages' as any, v)}
+        onAutoGenerateImagesChange={(v) => handleSettingChange('autoGenerateImages', v)}
         onContextDepthChange={(v) => handleSettingChange('contextDepth', v)}
         onPreloadCountChange={(v) => handleSettingChange('preloadCount', v)}
       />
