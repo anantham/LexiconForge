@@ -349,6 +349,7 @@ export interface AppSettings {
     footnoteStrictMode?: 'append_missing' | 'fail'; // Footnote validation behavior
     enableHtmlRepair?: boolean;               // Enable graceful HTML formatting repairs
     enableAmendments?: boolean;               // Enable prompt amendment proposals from AI
+    autoApproveGlossaryAmendments?: boolean;  // Automatically apply suggested glossary changes
     includeFanTranslationInPrompt?: boolean;  // Include fan translation as reference in API calls
     includeHistoricalFanTranslationsInContext?: boolean; // Include prior chapters' fan translations in context windows
     // Diff heatmap display

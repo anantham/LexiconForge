@@ -474,10 +474,47 @@ export const createTranslationsSlice: StateCreator<
       // Add amendment proposal to queue if provided and enabled in settings
       if (translationResult.proposal) {
         const enableAmendments = state.settings?.enableAmendments ?? true;
+        const autoApproveGlossary = state.settings?.autoApproveGlossaryAmendments ?? false;
+        
         if (enableAmendments) {
-          set((prevState) => ({
-            amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]
-          }));
+          const isGlossary = translationResult.proposal.kind === 'glossary' && !!translationResult.proposal.glossaryEntry;
+          
+          if (isGlossary && autoApproveGlossary) {
+            // Auto-approve glossary proposal
+            debugLog('translation', 'summary', '[Translation] Auto-approving glossary amendment proposal');
+            
+            // We need to wait for a tick to ensure the current state update is processed
+            // or just call the logic directly if possible. 
+            // Since we're inside a set() or about to be, it's safer to use the action.
+            setTimeout(() => {
+              const currentProposals = get().amendmentProposals;
+              const index = currentProposals.indexOf(translationResult.proposal!);
+              if (index !== -1) {
+                get().acceptProposal(index);
+              } else {
+                // If not in queue yet, just add it then approve it? 
+                // Actually, if it's auto-approve, maybe we shouldn't even put it in the queue.
+                // But acceptProposal expects it to be in the queue to log it correctly.
+                
+                // Let's just apply it directly if it's not in the queue.
+                // Or better: add it to the queue in this tick, then accept it in next tick.
+                set((prevState) => ({
+                  amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]
+                }));
+                setTimeout(() => {
+                  const updatedProposals = get().amendmentProposals;
+                  const newIndex = updatedProposals.indexOf(translationResult.proposal!);
+                  if (newIndex !== -1) {
+                    get().acceptProposal(newIndex);
+                  }
+                }, 0);
+              }
+            }, 0);
+          } else {
+            set((prevState) => ({
+              amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]
+            }));
+          }
         } else {
           // Auto-reject if amendments are disabled
           debugLog('translation', 'summary', '[Translation] Auto-rejecting amendment proposal (amendments disabled in settings)');

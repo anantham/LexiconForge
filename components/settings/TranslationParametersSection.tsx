@@ -26,6 +26,7 @@ interface TranslationParametersSectionProps {
   frequencyPenalty: number;
   presencePenalty: number;
   enableAmendments: boolean;
+  autoApproveGlossaryAmendments: boolean;
   includeFanTranslationInPrompt: boolean;
   includeHistoricalFanTranslationsInContext: boolean;
 
@@ -39,6 +40,7 @@ interface TranslationParametersSectionProps {
   onFrequencyPenaltyChange: (value: number) => void;
   onPresencePenaltyChange: (value: number) => void;
   onEnableAmendmentsChange: (value: boolean) => void;
+  onAutoApproveGlossaryAmendmentsChange: (value: boolean) => void;
   onIncludeFanTranslationChange: (value: boolean) => void;
   onIncludeHistoricalFanTranslationsChange: (value: boolean) => void;
 }
@@ -56,6 +58,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
   frequencyPenalty,
   presencePenalty,
   enableAmendments,
+  autoApproveGlossaryAmendments,
   includeFanTranslationInPrompt,
   includeHistoricalFanTranslationsInContext,
   parameterSupport,
@@ -65,6 +68,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
   onFrequencyPenaltyChange,
   onPresencePenaltyChange,
   onEnableAmendmentsChange,
+  onAutoApproveGlossaryAmendmentsChange,
   onIncludeFanTranslationChange,
   onIncludeHistoricalFanTranslationsChange,
 }) => {
@@ -195,6 +199,26 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
             </div>
           </label>
         </div>
+
+        {enableAmendments && (
+          <div className="mt-2 ml-7">
+            <label className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={autoApproveGlossaryAmendments}
+                onChange={(e) => onAutoApproveGlossaryAmendmentsChange(e.target.checked)}
+                className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <div>
+                <span className="block font-medium text-gray-800 dark:text-gray-100">Auto-approve Glossary Amendments</span>
+                <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Automatically apply suggested glossary changes without manual approval. 
+                  This is useful for consistent terminology in batch translations.
+                </span>
+              </div>
+            </label>
+          </div>
+        )}
 
         <div className="mt-4">
           <label className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">

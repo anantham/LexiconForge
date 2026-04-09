@@ -264,6 +264,7 @@ const AdvancedPanel: React.FC = () => {
           frequencyPenalty={currentSettings.frequencyPenalty ?? appConfig.aiParameters.defaults.frequency_penalty}
           presencePenalty={currentSettings.presencePenalty ?? appConfig.aiParameters.defaults.presence_penalty}
           enableAmendments={currentSettings.enableAmendments ?? true}
+          autoApproveGlossaryAmendments={currentSettings.autoApproveGlossaryAmendments ?? false}
           includeFanTranslationInPrompt={currentSettings.includeFanTranslationInPrompt ?? false}
           includeHistoricalFanTranslationsInContext={currentSettings.includeHistoricalFanTranslationsInContext ?? false}
           parameterSupport={currentParameterSupport}
@@ -273,6 +274,7 @@ const AdvancedPanel: React.FC = () => {
           onFrequencyPenaltyChange={(value) => handleSettingChange('frequencyPenalty', value)}
           onPresencePenaltyChange={(value) => handleSettingChange('presencePenalty', value)}
           onEnableAmendmentsChange={(value) => handleSettingChange('enableAmendments', value)}
+          onAutoApproveGlossaryAmendmentsChange={(value) => handleSettingChange('autoApproveGlossaryAmendments', value)}
           onIncludeFanTranslationChange={(value) => handleSettingChange('includeFanTranslationInPrompt', value)}
           onIncludeHistoricalFanTranslationsChange={(value) => handleSettingChange('includeHistoricalFanTranslationsInContext', value)}
         />
