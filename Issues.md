@@ -128,3 +128,9 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 11) when you do comparision with fan then change chapters the dispay thing follows into the next chapter also! http://localhost:5180/?novel=forty-millenniums-of-cultivation&version=v1-composite&chapter=lexiconforge%3A%2F%2Fforty-millenniums-of-cultivation%2Fchapter%2F305 
 
+12) when i move away from the page and get back the background preload ahead chapters are freshly api called rather than showing the calls that were sent in the background... spinner starts from scratch
+
+13) file:///var/folders/68/c0w7ryfj66xdbs8v0yx662h00000gn/T/TemporaryItems/NSIRD_screencaptureui_EXHMpy/Screenshot%202026-04-08%20at%2011.30.08%E2%80%AFPM.png - the eta for how long it will take is generic and should be made model specific, flash models are faster than other models, aggregation ruins the value
+
+14)file:///var/folders/68/c0w7ryfj66xdbs8v0yx662h00000gn/T/TemporaryItems/NSIRD_screencaptureui_E17Pjj/Screenshot%202026-04-08%20at%2011.32.05%E2%80%AFPM.png - if translation fails then the retry red spinner should be clickable it should not just be like this
+
