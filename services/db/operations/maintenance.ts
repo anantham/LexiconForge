@@ -29,6 +29,7 @@ const SETTINGS = {
   ACTIVE_TRANSLATIONS_V2: 'activeTranslationsBackfilledV2',
   TRANSLATION_METADATA_BACKFILLED: 'translationMetadataBackfilled',
   NOVEL_ID_BACKFILLED: 'novelIdBackfilled',
+  SUMMARY_NOVEL_ID_BACKFILLED: 'summaryNovelIdBackfilled',
   SCOPED_IDENTITY_REPAIRED_V2: 'scopedStableIdRepairV2',
 } as const;
 
@@ -501,6 +502,52 @@ export class MaintenanceOps {
     );
 
     await SettingsOps.set(SETTINGS.TRANSLATION_METADATA_BACKFILLED, true);
+  }
+
+  static async backfillSummaryNovelIds(): Promise<void> {
+    const already = await SettingsOps.getKey<boolean>(SETTINGS.SUMMARY_NOVEL_ID_BACKFILLED);
+    if (already) return;
+
+    debugLog('indexeddb', 'summary', '[MaintenanceOps] Backfilling novelId for chapter summaries...');
+
+    await withWriteTxn(
+      STORE_NAMES.CHAPTER_SUMMARIES,
+      async (_txn, stores) => {
+        const summariesStore = stores[STORE_NAMES.CHAPTER_SUMMARIES];
+        const summaries = (await promisifyRequest(summariesStore.getAll())) as ChapterSummaryRecord[];
+
+        let updatedCount = 0;
+        for (const summary of summaries) {
+          if (summary.novelId) continue;
+
+          // Attempt to extract novelId from stableId
+          let novelId: string | null = null;
+          if (isScopedStableId(summary.stableId)) {
+            // Use a simple split if parseScopedStableId is too strict for corrupted ones
+            // Format is lf-library:novelId::versionId:baseId
+            const parts = summary.stableId.split(':');
+            if (parts.length >= 2) {
+              const scopePart = parts[1];
+              if (scopePart.includes('::')) {
+                novelId = scopePart.split('::')[0];
+              }
+            }
+          }
+
+          if (novelId) {
+            summary.novelId = novelId;
+            await promisifyRequest(summariesStore.put(summary));
+            updatedCount += 1;
+          }
+        }
+        debugLog('indexeddb', 'summary', `[MaintenanceOps] Backfilled novelId for ${updatedCount} summaries.`);
+      },
+      'maintenance',
+      'backfill',
+      'summaryNovelId'
+    );
+
+    await SettingsOps.set(SETTINGS.SUMMARY_NOVEL_ID_BACKFILLED, true);
   }
 
   static async backfillNovelIds(): Promise<void> {

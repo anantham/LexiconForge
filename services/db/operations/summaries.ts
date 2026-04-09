@@ -174,6 +174,8 @@ export const fetchNovelChapterCounts = async (): Promise<Record<string, { transl
   const summaries = await fetchChapterSummaries();
   const counts: Record<string, { translatedCount: number; totalCount: number }> = {};
 
+  console.log(`[fetchNovelChapterCounts] Processing ${summaries.length} total summaries`);
+
   for (const summary of summaries) {
     const novelId = summary.novelId || 'unscoped';
     if (!counts[novelId]) {
@@ -183,8 +185,17 @@ export const fetchNovelChapterCounts = async (): Promise<Record<string, { transl
     if (summary.hasTranslation) {
       counts[novelId].translatedCount += 1;
     }
+    
+    if (novelId === 'unscoped' && summaries.length < 50) {
+       console.log(`[fetchNovelChapterCounts] Unscoped summary:`, {
+         stableId: summary.stableId,
+         title: summary.title,
+         hasTranslation: summary.hasTranslation
+       });
+    }
   }
 
+  console.log('[fetchNovelChapterCounts] Aggregated counts:', counts);
   return counts;
 };
 

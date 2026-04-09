@@ -139,6 +139,7 @@ const runBootRepairs = async (): Promise<void> => {
     { name: 'backfillActiveTranslations', fn: () => MaintenanceOps.backfillActiveTranslations() },
     { name: 'translationMetadataBackfill', fn: () => MaintenanceOps.backfillTranslationMetadata() },
     { name: 'novelIdBackfill', fn: () => MaintenanceOps.backfillNovelIds() },
+    { name: 'summaryNovelIdBackfill', fn: () => MaintenanceOps.backfillSummaryNovelIds() },
   ];
 
   for (const { name, fn } of repairs) {
