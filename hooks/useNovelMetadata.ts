@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { SettingsOps } from '../services/db/operations';
 import { debugLog } from '../utils/debug';
 import type { PublisherMetadata, CoverImageRef } from '../components/settings/types';
+import { RegistryService } from '../services/registryService';
+import type { NovelEntry, NovelVersion } from '../types/novel';
 
 const pickFirstNonEmpty = (...values: (string | undefined | null)[]): string | undefined => {
   for (const value of values) {
@@ -109,20 +111,48 @@ const buildMetadataFromChapters = (chapters: any[]): PublisherMetadata | null =>
   return normalizeMetadataDefaults(metadata, chapters.length);
 };
 
-export const useNovelMetadata = (chaptersMap?: Map<string, any> | null) => {
-  const [novelMetadata, setNovelMetadata] = useState<PublisherMetadata | null>(null);
+const buildMetadataFromRegistryNovel = (
+  novel: NovelEntry,
+  version?: NovelVersion | null
+): PublisherMetadata => {
+  const metadata: PublisherMetadata = {
+    title: novel.title,
+    alternateTitles: novel.alternateTitles ?? [],
+    author: novel.metadata.author,
+    description: novel.metadata.description,
+    originalLanguage: novel.metadata.originalLanguage,
+    targetLanguage: version?.targetLanguage || novel.metadata.targetLanguage || 'English',
+    chapterCount: novel.metadata.chapterCount,
+    genres: novel.metadata.genres,
+    coverImageUrl: novel.metadata.coverImageUrl,
+    publicationStatus: novel.metadata.publicationStatus || 'Ongoing',
+    originalPublicationDate: novel.metadata.originalPublicationDate,
+    tags: novel.metadata.tags ?? [],
+    sourceLinks: novel.metadata.sourceLinks,
+    lastUpdated: novel.metadata.lastUpdated,
+    mediaCorrespondence: novel.metadata.mediaCorrespondence,
+    translatorName: version?.translator?.name,
+    translatorWebsite: version?.translator?.link,
+    translatorBio: version?.translator?.bio,
+    versionDescription: version?.description,
+    translationApproach: version?.translationPhilosophy,
+    contentNotes: version?.contentNotes,
+  };
 
-  useEffect(() => {
-    const saved = localStorage.getItem('novelMetadata');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setNovelMetadata(normalizeMetadataDefaults(parsed, parsed?.chapterCount ?? 1));
-      } catch (error) {
-        console.error('Failed to load novel metadata:', error);
-      }
-    }
-  }, []);
+  return normalizeMetadataDefaults(metadata, novel.metadata.chapterCount);
+};
+
+interface UseNovelMetadataOptions {
+  activeNovelId?: string | null;
+  activeVersionId?: string | null;
+}
+
+export const useNovelMetadata = (
+  chaptersMap?: Map<string, any> | null,
+  options: UseNovelMetadataOptions = {}
+) => {
+  const { activeNovelId = null, activeVersionId = null } = options;
+  const [novelMetadata, setNovelMetadata] = useState<PublisherMetadata | null>(null);
 
   const persistNovelMetadata = useCallback(async (metadata: PublisherMetadata) => {
     try {
@@ -198,14 +228,42 @@ export const useNovelMetadata = (chaptersMap?: Map<string, any> | null) => {
           ? chaptersMap
           : new Map<string, any>();
       const chaptersArray = Array.from(safeChaptersMap.values());
-      if (chaptersArray.length === 0) {
-        return;
-      }
       try {
+        if (activeNovelId) {
+          const registryNovel = await RegistryService.fetchNovelById(activeNovelId);
+          if (registryNovel) {
+            const versionResolution = RegistryService.resolveCompatibleVersion(
+              registryNovel,
+              activeVersionId
+            );
+            applyMetadata(
+              buildMetadataFromRegistryNovel(registryNovel, versionResolution.version ?? undefined),
+              registryNovel.metadata.chapterCount,
+              'registry'
+            );
+            return;
+          }
+        }
+
         const savedMetadata = await SettingsOps.getKey<PublisherMetadata>('novelMetadata');
         if (savedMetadata && typeof savedMetadata === 'object') {
           applyMetadata(savedMetadata as PublisherMetadata, chaptersArray.length, 'indexeddb');
           return;
+        }
+
+        const saved = localStorage.getItem('novelMetadata');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            applyMetadata(
+              parsed as PublisherMetadata,
+              chaptersArray.length || parsed?.chapterCount || 1,
+              'localStorage'
+            );
+            return;
+          } catch (error) {
+            console.error('Failed to load novel metadata:', error);
+          }
         }
 
         const sessionInfo = await SettingsOps.getKey<any>('sessionInfo');
@@ -217,9 +275,11 @@ export const useNovelMetadata = (chaptersMap?: Map<string, any> | null) => {
           }
         }
 
-        const generated = buildMetadataFromChapters(chaptersArray);
-        if (generated) {
-          applyMetadata(generated, chaptersArray.length, 'chapterFallback');
+        if (chaptersArray.length > 0) {
+          const generated = buildMetadataFromChapters(chaptersArray);
+          if (generated) {
+            applyMetadata(generated, chaptersArray.length, 'chapterFallback');
+          }
         }
       } catch (error) {
         console.error('Failed to hydrate novel metadata from session:', error);
@@ -227,7 +287,7 @@ export const useNovelMetadata = (chaptersMap?: Map<string, any> | null) => {
     };
 
     loadMetadataFromSession();
-  }, [applyMetadata, chaptersMap, novelMetadata]);
+  }, [activeNovelId, activeVersionId, applyMetadata, chaptersMap, novelMetadata]);
 
   return { novelMetadata, handleNovelMetadataChange, setCoverImage };
 };

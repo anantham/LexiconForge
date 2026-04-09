@@ -35,6 +35,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     getMemoryDiagnostics,
     currentChapterId,
     chapters,
+    activeNovelId,
+    activeVersionId,
     showNotification,
   } = useAppStore(useShallow(state => ({
       settings: state.settings,
@@ -45,6 +47,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       getMemoryDiagnostics: state.getMemoryDiagnostics,
       currentChapterId: state.currentChapterId,
       chapters: state.chapters,
+      activeNovelId: state.activeNovelId,
+      activeVersionId: state.activeVersionId,
       showNotification: state.showNotification,
   })));
 
@@ -95,7 +99,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   );
   const [parameterSupport, setParameterSupport] = useState<Record<string, ParameterSupportState>>({});
   const chaptersMap = useAppStore(s => s.chapters);
-  const { novelMetadata, handleNovelMetadataChange } = useNovelMetadata(chaptersMap);
+  const { novelMetadata, handleNovelMetadataChange } = useNovelMetadata(chaptersMap, {
+    activeNovelId,
+    activeVersionId,
+  });
 
   // Track the baseline snapshot so we can diff on save
   const baselineRef = useRef<AppSettings>(settings);
