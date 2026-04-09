@@ -22,7 +22,13 @@ import { withRetry, isNetworkError } from '../utils/retry';
 import { telemetryService } from './telemetryService';
 import { loadAllIntoStore, loadNovelIntoStore } from './readerHydrationService';
 import { generateStableChapterId } from './stableIdService';
-import { buildScopedStableId, buildScopedStorageUrl } from './libraryScope';
+import {
+  buildLibraryScopeKey,
+  buildScopedStableId,
+  buildScopedStorageUrl,
+  isScopedStableId,
+  parseScopedStableId,
+} from './libraryScope';
 import {
   convertBookTokiToLexiconForgeFullPayload,
   isBookTokiScrapePayload,
@@ -107,6 +113,52 @@ const getScopedChapterIdentity = (
   options: ImportOptions
 ): { stableId: string; storageUrl: string; canonicalUrl: string } => {
   const canonicalUrl = chapter.canonicalUrl || chapter.url || '';
+
+  if (!options.registryNovelId) {
+    const stableId =
+      chapter.stableId ||
+      generateStableChapterId(
+        chapter.content || '',
+        chapter.chapterNumber || 0,
+        chapter.title || 'Untitled Chapter'
+      );
+    return {
+      stableId,
+      storageUrl: canonicalUrl,
+      canonicalUrl,
+    };
+  }
+
+  const expectedScopeKey = buildLibraryScopeKey(
+    options.registryNovelId,
+    options.registryVersionId ?? null
+  );
+
+  if (isScopedStableId(chapter.stableId)) {
+    const parsed = parseScopedStableId(chapter.stableId);
+    if (!parsed) {
+      throw new Error(
+        `[Import] Failed to parse scoped chapter stableId "${chapter.stableId}" for "${chapter.title || canonicalUrl}".`
+      );
+    }
+    if (parsed.scopeKey !== expectedScopeKey) {
+      throw new Error(
+        `[Import] Scoped stableId scope mismatch for "${chapter.title || canonicalUrl}". ` +
+        `expectedScope="${expectedScopeKey}", actualScope="${parsed.scopeKey}", stableId="${chapter.stableId}".`
+      );
+    }
+
+    return {
+      stableId: chapter.stableId,
+      storageUrl: buildScopedStorageUrl(
+        chapter.stableId,
+        options.registryNovelId,
+        options.registryVersionId ?? null
+      ),
+      canonicalUrl,
+    };
+  }
+
   const baseStableId =
     chapter.stableId ||
     generateStableChapterId(
@@ -114,14 +166,6 @@ const getScopedChapterIdentity = (
       chapter.chapterNumber || 0,
       chapter.title || 'Untitled Chapter'
     );
-
-  if (!options.registryNovelId) {
-    return {
-      stableId: baseStableId,
-      storageUrl: canonicalUrl,
-      canonicalUrl,
-    };
-  }
 
   const stableId = buildScopedStableId(
     baseStableId,

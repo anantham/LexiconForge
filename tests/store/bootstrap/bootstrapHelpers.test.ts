@@ -9,6 +9,18 @@ import type { AppSettings } from '../../../types';
 const maintenanceOpsMock = vi.hoisted(() => ({
   backfillUrlMappingsFromChapters: vi.fn().mockResolvedValue(undefined),
   normalizeStableIds: vi.fn().mockResolvedValue(undefined),
+  repairScopedStableIdDuplicates: vi.fn().mockResolvedValue({
+    groupsRepaired: 0,
+    chaptersDeleted: 0,
+    translationsMoved: 0,
+    urlMappingsUpdated: 0,
+    feedbackUpdated: 0,
+    amendmentLogsUpdated: 0,
+    diffResultsUpdated: 0,
+    navigationEntriesUpdated: 0,
+    lastActiveUpdated: false,
+    bookshelfEntriesUpdated: 0,
+  }),
   backfillActiveTranslations: vi.fn().mockResolvedValue(undefined),
   backfillTranslationMetadata: vi.fn().mockResolvedValue(undefined),
   backfillNovelIds: vi.fn().mockResolvedValue(undefined),
@@ -283,10 +295,28 @@ describe('bootstrap helpers', () => {
     mappingsOpsMock.getAllUrlMappings.mockReset();
     mappingsOpsMock.getAllUrlMappings.mockResolvedValue([]);
     maintenanceOpsMock.backfillUrlMappingsFromChapters.mockReset();
+    maintenanceOpsMock.backfillUrlMappingsFromChapters.mockResolvedValue(undefined);
     maintenanceOpsMock.normalizeStableIds.mockReset();
+    maintenanceOpsMock.normalizeStableIds.mockResolvedValue(undefined);
+    maintenanceOpsMock.repairScopedStableIdDuplicates.mockReset();
+    maintenanceOpsMock.repairScopedStableIdDuplicates.mockResolvedValue({
+      groupsRepaired: 0,
+      chaptersDeleted: 0,
+      translationsMoved: 0,
+      urlMappingsUpdated: 0,
+      feedbackUpdated: 0,
+      amendmentLogsUpdated: 0,
+      diffResultsUpdated: 0,
+      navigationEntriesUpdated: 0,
+      lastActiveUpdated: false,
+      bookshelfEntriesUpdated: 0,
+    });
     maintenanceOpsMock.backfillActiveTranslations.mockReset();
+    maintenanceOpsMock.backfillActiveTranslations.mockResolvedValue(undefined);
     maintenanceOpsMock.backfillTranslationMetadata.mockReset();
+    maintenanceOpsMock.backfillTranslationMetadata.mockResolvedValue(undefined);
     maintenanceOpsMock.backfillNovelIds.mockReset();
+    maintenanceOpsMock.backfillNovelIds.mockResolvedValue(undefined);
     importOpsMock.importFullSessionData.mockReset();
     renderingOpsMock.getChaptersForReactRendering.mockReset();
     renderingOpsMock.getChaptersForReactRendering.mockResolvedValue([]);
@@ -486,6 +516,7 @@ describe('bootstrap helpers', () => {
       });
       maintenanceOpsMock.backfillUrlMappingsFromChapters.mockRejectedValueOnce(new Error('url-fail'));
       maintenanceOpsMock.normalizeStableIds.mockRejectedValueOnce(new Error('stable-fail'));
+      maintenanceOpsMock.repairScopedStableIdDuplicates.mockRejectedValueOnce(new Error('repair-fail'));
       maintenanceOpsMock.backfillActiveTranslations.mockRejectedValueOnce(new Error('active-fail'));
 
       const { ctx, state } = createCtx(createState());

@@ -5,9 +5,10 @@ import type { NovelEntry } from '../types/novel';
 interface NovelGridProps {
   novels: NovelEntry[];
   onViewDetails: (novel: NovelEntry) => void;
+  translatedCounts?: Record<string, number>;
 }
 
-export function NovelGrid({ novels, onViewDetails }: NovelGridProps) {
+export function NovelGrid({ novels, onViewDetails, translatedCounts = {} }: NovelGridProps) {
   if (novels.length === 0) {
     return (
       <div className="text-center py-16 px-4">
@@ -20,7 +21,12 @@ export function NovelGrid({ novels, onViewDetails }: NovelGridProps) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-6 lg:gap-8">
       {novels.map((novel) => (
-        <NovelCard key={novel.id} novel={novel} onViewDetails={onViewDetails} />
+        <NovelCard 
+          key={novel.id} 
+          novel={novel} 
+          onViewDetails={onViewDetails} 
+          translatedCount={translatedCounts[novel.id]}
+        />
       ))}
     </div>
   );

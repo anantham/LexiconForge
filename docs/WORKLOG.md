@@ -34,6 +34,26 @@
   - `npx vitest run tests/services/libraryScope.test.ts tests/current-system/export-import.test.ts -t "scoped stableId import boundaries|libraryScope stableId boundaries"` ✅
   - `npx tsc --noEmit --pretty false` ✅
 
+2026-04-09 11:49 EDT - [Agent: Codex]
+- Status: Complete
+- Task: Add and verify a one-time repair pass for already-corrupted scoped chapter identities and duplicate bookshelf resume entries.
+- Files:
+  - services/db/operations/maintenance.ts:1-629
+  - store/bootstrap/initializeStore.ts:133-141
+  - tests/current-system/scoped-identity-repair.test.ts:1-89
+  - tests/store/bootstrap/bootstrapHelpers.test.ts:8-26,293-314,492-495
+- Why:
+  - Guarding new identity creation stops future nested IDs, but the user’s current IndexedDB already contains duplicate chapter rows and duplicate bookshelf-state entries.
+  - The “two books to resume” symptom shows the persisted bookshelf state had duplicate entries for the same novel/version scope in addition to duplicated chapter identities.
+- Details:
+  - Added `MaintenanceOps.repairScopedStableIdDuplicates()` to detect duplicate chapter groups by `(novelId, libraryVersionId, chapterNumber, canonical source URL)`, choose a survivor, collapse nested scoped IDs, and rewrite dependent stores.
+  - The repair rewrites `chapters`, `translations`, `feedback`, `url_mappings`, `chapter_summaries`, `amendment_logs`, `diffResults`, `navigation-history`, `lastActiveChapter`, and `bookshelf-state`.
+  - Added the repair to boot initialization so it runs automatically as part of startup repairs and is tracked by a dedicated settings flag.
+  - Added an integration test that seeds a clean and nested copy of the same chapter plus duplicate bookshelf entries, then verifies the repair collapses them to a single chapter and a single bookshelf scope key.
+- Tests:
+  - `npx vitest run tests/current-system/scoped-identity-repair.test.ts tests/store/bootstrap/bootstrapHelpers.test.ts` ✅
+  - `npx tsc --noEmit --pretty false` ✅
+
 2026-04-09 11:25 EDT - [Agent: Codex]
 - Status: Progress
 - Task: Split amendment proposals into prompt vs glossary kinds and route glossary accepts into a local override layer instead of mutating the imported base glossary.

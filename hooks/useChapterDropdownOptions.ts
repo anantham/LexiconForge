@@ -18,6 +18,7 @@ import { useAppStore } from '../store';
 import { ImportTransformationService } from '../services/importTransformationService';
 import { telemetryService } from '../services/telemetryService';
 import type { ChapterSummary } from '../types';
+import { debugLog } from '../utils/debug';
 
 // Prefer a human-facing number if the title contains "Chapter 147", "Ch 147", etc.
 const numberFromTitle = (s?: string): number | undefined => {
@@ -128,6 +129,16 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
         const byId = new Map<string, ChapterSummary>();
         summaries.forEach(summary => byId.set(summary.stableId, { ...summary }));
 
+        const inMemoryDiagnostics = Array.from(chapters.entries()).map(([stableId, chapter]) => ({
+          stableId,
+          chapterNumber: chapter.chapterNumber ?? null,
+          canonicalUrl: (chapter as any).canonicalUrl || null,
+          originalUrl: chapter.originalUrl || null,
+          title: chapter.title || null,
+          translatedTitle: chapter.translationResult?.translatedTitle || null,
+          hasTranslation: Boolean(chapter.translationResult),
+        }));
+
         // 3. Merge with store data (store takes precedence)
         if (chapters.size > 0) {
           for (const [stableId, ch] of chapters.entries()) {
@@ -212,6 +223,29 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
         });
 
         resolvedCount = list.length;
+        const duplicateNumberGroups = new Map<number, string[]>();
+        list.forEach((entry) => {
+          if (typeof entry.chapterNumber !== 'number') return;
+          const existing = duplicateNumberGroups.get(entry.chapterNumber) || [];
+          existing.push(entry.stableId);
+          duplicateNumberGroups.set(entry.chapterNumber, existing);
+        });
+
+        debugLog('ui', 'summary', '[Dropdown] diagnostics', {
+          summaryStableIds: summaries.map((summary) => summary.stableId),
+          inMemoryDiagnostics,
+          finalOptions: list.map((entry) => ({
+            stableId: entry.stableId,
+            chapterNumber: entry.chapterNumber ?? null,
+            canonicalUrl: entry.canonicalUrl ?? null,
+            title: entry.title ?? null,
+            translatedTitle: entry.translatedTitle ?? null,
+            displayLabel: entry.displayLabel,
+          })),
+          duplicateNumberGroups: Array.from(duplicateNumberGroups.entries())
+            .filter(([, stableIds]) => stableIds.length > 1)
+            .map(([chapterNumber, stableIds]) => ({ chapterNumber, stableIds })),
+        });
         setOptions(list);
       } catch (error) {
         if (!cancelled) {

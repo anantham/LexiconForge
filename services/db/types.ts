@@ -29,6 +29,7 @@ export interface ChapterRecord {
 
 export interface ChapterSummaryRecord {
   stableId: string;
+  novelId?: string | null;
   libraryVersionId?: string | null;
   canonicalUrl?: string;
   title: string;

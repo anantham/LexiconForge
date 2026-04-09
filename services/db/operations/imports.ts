@@ -15,7 +15,13 @@ import { getConnection } from '../core/connection';
 import { STORE_NAMES, SCHEMA_VERSIONS } from '../core/schema';
 import { ImageCacheStore } from '../../imageCacheService';
 import { generateStableChapterId } from '../../stableIdService';
-import { buildScopedStableId, buildScopedStorageUrl } from '../../libraryScope';
+import {
+  buildLibraryScopeKey,
+  buildScopedStableId,
+  buildScopedStorageUrl,
+  isScopedStableId,
+  parseScopedStableId,
+} from '../../libraryScope';
 
 /**
  * Validates that all required stores exist in the database.
@@ -97,6 +103,35 @@ const resolveStoredChapterIdentity = (
       chapter.chapterNumber || 0,
       chapter.title || 'Untitled Chapter'
     );
+
+  const existingScopedStableId = [chapter.stableId, chapter.id].find(candidate =>
+    isScopedStableId(candidate)
+  );
+
+  if (existingScopedStableId && novelId) {
+    const parsed = parseScopedStableId(existingScopedStableId);
+    if (!parsed) {
+      throw new Error(
+        `[Import] Failed to parse scoped stableId "${existingScopedStableId}" while importing "${chapter.title || canonicalUrl}".`
+      );
+    }
+
+    const expectedScopeKey = buildLibraryScopeKey(novelId, libraryVersionId);
+    if (parsed.scopeKey !== expectedScopeKey) {
+      throw new Error(
+        `[Import] Scoped stableId scope mismatch while importing "${chapter.title || canonicalUrl}". ` +
+        `expectedScope="${expectedScopeKey}", actualScope="${parsed.scopeKey}", stableId="${existingScopedStableId}".`
+      );
+    }
+
+    return {
+      stableId: existingScopedStableId,
+      storageUrl: buildScopedStorageUrl(existingScopedStableId, novelId, libraryVersionId),
+      canonicalUrl,
+      novelId: novelId ?? null,
+      libraryVersionId: libraryVersionId ?? null,
+    };
+  }
 
   const stableId = novelId
     ? buildScopedStableId(baseStableId, novelId, libraryVersionId)

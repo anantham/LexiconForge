@@ -135,6 +135,7 @@ const runBootRepairs = async (): Promise<void> => {
     { name: 'ensureModelFieldsRepaired', fn: () => ensureModelFieldsRepaired() },
     { name: 'urlMappingsBackfill', fn: () => MaintenanceOps.backfillUrlMappingsFromChapters() },
     { name: 'normalizeStableIds', fn: () => MaintenanceOps.normalizeStableIds() },
+    { name: 'repairScopedStableIdDuplicates', fn: () => MaintenanceOps.repairScopedStableIdDuplicates().then(() => undefined) },
     { name: 'backfillActiveTranslations', fn: () => MaintenanceOps.backfillActiveTranslations() },
     { name: 'translationMetadataBackfill', fn: () => MaintenanceOps.backfillTranslationMetadata() },
     { name: 'novelIdBackfill', fn: () => MaintenanceOps.backfillNovelIds() },

@@ -3,6 +3,7 @@ import { generateStableChapterId } from '../../stableIdService';
 import { STORE_NAMES } from '../core/schema';
 import { getConnection } from '../core/connection';
 import { ChapterOps } from './chapters';
+import { debugLog } from '../../../utils/debug';
 
 export interface SummaryOpsDeps {
   openDatabase: () => Promise<IDBDatabase>;
@@ -154,6 +155,8 @@ export const buildSummaryRecord = (
 
   const summary: ChapterSummaryRecord = {
     stableId,
+    novelId: chapter.novelId ?? null,
+    libraryVersionId: chapter.libraryVersionId ?? null,
     canonicalUrl: canonical || undefined,
     title: chapter.title,
     translatedTitle: translation?.translatedTitle || undefined,
@@ -165,6 +168,24 @@ export const buildSummaryRecord = (
   };
 
   return { summary, chapterChanged };
+};
+
+export const fetchNovelChapterCounts = async (): Promise<Record<string, { translatedCount: number; totalCount: number }>> => {
+  const summaries = await fetchChapterSummaries();
+  const counts: Record<string, { translatedCount: number; totalCount: number }> = {};
+
+  for (const summary of summaries) {
+    const novelId = summary.novelId || 'unscoped';
+    if (!counts[novelId]) {
+      counts[novelId] = { translatedCount: 0, totalCount: 0 };
+    }
+    counts[novelId].totalCount += 1;
+    if (summary.hasTranslation) {
+      counts[novelId].translatedCount += 1;
+    }
+  }
+
+  return counts;
 };
 
 export const deleteSummary = async (
@@ -247,7 +268,35 @@ export const fetchChapterSummaries = async (): Promise<ChapterSummaryRecord[]> =
       const tx = db.transaction([STORE_NAMES.CHAPTER_SUMMARIES], 'readonly');
       const store = tx.objectStore(STORE_NAMES.CHAPTER_SUMMARIES);
       const req = store.getAll();
-      req.onsuccess = () => resolve((req.result as ChapterSummaryRecord[]) || []);
+      req.onsuccess = () => {
+        const summaries = (req.result as ChapterSummaryRecord[]) || [];
+        const duplicateByChapterNumber = new Map<number, string[]>();
+
+        summaries.forEach((summary) => {
+          if (typeof summary.chapterNumber !== 'number') return;
+          const existing = duplicateByChapterNumber.get(summary.chapterNumber) || [];
+          existing.push(summary.stableId);
+          duplicateByChapterNumber.set(summary.chapterNumber, existing);
+        });
+
+        const duplicateNumberGroups = Array.from(duplicateByChapterNumber.entries())
+          .filter(([, stableIds]) => stableIds.length > 1)
+          .map(([chapterNumber, stableIds]) => ({ chapterNumber, stableIds }));
+
+        debugLog('indexeddb', 'summary', '[Summaries] fetchChapterSummaries', {
+          total: summaries.length,
+          duplicateNumberGroups,
+          sample: summaries.slice(0, 10).map((summary) => ({
+            stableId: summary.stableId,
+            chapterNumber: summary.chapterNumber ?? null,
+            canonicalUrl: summary.canonicalUrl ?? null,
+            title: summary.title ?? null,
+            translatedTitle: summary.translatedTitle ?? null,
+          })),
+        });
+
+        resolve(summaries);
+      };
       req.onerror = () => reject(req.error);
     } catch (error) {
       reject(error as Error);

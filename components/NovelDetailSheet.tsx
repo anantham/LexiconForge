@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Star, X, ExternalLink, Globe, User } from 'lucide-react';
+import { BookOpen, X, ExternalLink, Globe } from 'lucide-react';
 import type { NovelEntry, NovelVersion, ChapterCoverageStats, MediaCorrespondenceAnchor, MediaReference } from '../types/novel';
 import { VersionPicker } from './VersionPicker';
 import { CoverageDistribution } from './CoverageDistribution';
@@ -10,6 +10,7 @@ interface NovelDetailSheetProps {
   isOpen: boolean;
   onClose: () => void;
   onStartReading: (novel: NovelEntry, version?: NovelVersion) => void;
+  translatedCount?: number;
 }
 
 function computeCoverageStats(versions: NovelVersion[]): ChapterCoverageStats | null {
@@ -124,12 +125,16 @@ function MediaCell({ reference, type }: { reference: MediaReference; type: 'anim
   );
 }
 
-export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: NovelDetailSheetProps) {
+export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, translatedCount }: NovelDetailSheetProps) {
   if (!novel || !isOpen) return null;
 
   const coverageStats = novel.versions ? computeCoverageStats(novel.versions) : null;
   const totalChapters = novel.metadata.chapterCount ||
     (novel.versions ? Math.max(...novel.versions.map(v => v.chapterRange.to)) : 0);
+
+  const chapterDisplay = typeof translatedCount === 'number' && translatedCount > 0
+    ? `${translatedCount} / ${totalChapters}`
+    : totalChapters;
 
   return (
     <>
@@ -151,7 +156,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
               </h2>
               {totalChapters > 0 && (
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
-                  {totalChapters} chapters
+                  {chapterDisplay} chapters
                 </span>
               )}
             </div>
@@ -191,7 +196,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading }: Nov
                 {/* Chapter Count */}
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                   <BookOpen className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                  <span>{novel.metadata.chapterCount} chapters</span>
+                  <span>{chapterDisplay} chapters</span>
                 </div>
 
                 {/* Language */}

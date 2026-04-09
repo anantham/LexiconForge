@@ -15,6 +15,7 @@ import {
 } from '../../services/db/operations';
 import * as RenderingOps from '../../services/db/operations/rendering';
 import { normalizeUrlAggressively } from '../../services/stableIdService';
+import { buildScopedStableId } from '../../services/libraryScope';
 import type { DiffMarker } from '../../services/diff/types';
 
 const resetStore = () => {
@@ -297,6 +298,48 @@ describe('Session export/import', () => {
 
       // Import should not throw even without diffResults
       await expect(ImportOps.importFullSessionData(sessionData)).resolves.not.toThrow();
+    });
+  });
+
+  describe('scoped stableId import boundaries', () => {
+    it('preserves an already scoped chapter stableId during full-session import', async () => {
+      const scopedStableId = buildScopedStableId(
+        'ch2_vtcb2d_td5t',
+        'forty-millenniums-of-cultivation',
+        'v1-composite'
+      );
+
+      await ImportOps.importFullSessionData({
+        metadata: { format: 'lexiconforge-full-1', exportedAt: new Date().toISOString() },
+        novelId: 'forty-millenniums-of-cultivation',
+        libraryVersionId: 'v1-composite',
+        settings: {},
+        navigation: { history: [], lastActive: null },
+        urlMappings: [
+          {
+            url: 'https://hetushu.com/book/2991/2051040.html',
+            stableId: scopedStableId,
+            isCanonical: true,
+            chapterNumber: 2,
+          },
+        ],
+        novels: [],
+        promptTemplates: [],
+        chapters: [
+          {
+            stableId: scopedStableId,
+            title: 'Chapter 2',
+            content: 'Test chapter content',
+            canonicalUrl: 'https://hetushu.com/book/2991/2051040.html',
+            chapterNumber: 2,
+          },
+        ],
+      });
+
+      const chapter = await ChapterOps.getByStableId(scopedStableId);
+      expect(chapter).toBeTruthy();
+      expect(chapter?.stableId).toBe(scopedStableId);
+      expect(chapter?.stableId).not.toContain(`:${scopedStableId}`);
     });
   });
 

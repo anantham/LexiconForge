@@ -1,0 +1,88 @@
+{
+  "id": "forty-millenniums-of-cultivation",
+  "title": "Forty Millenniums of Cultivation",
+  "alternateTitles": [
+    "Forty Thousand Years Of Cultivation",
+    "Xiuzhen Si Wan Nian",
+    "Starry Sky Forty Thousand Years (星域四万年)"
+  ],
+  "metadata": {
+    "originalLanguage": "Chinese",
+    "chapterCount": 3521,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy",
+      "Mecha",
+      "School Life",
+      "Sci-fi",
+      "Seinen",
+      "Xuanhuan"
+    ],
+    "description": "In a world teeming with cultivators, Li Yao, who makes his living collecting scrap metal, encounters the soul of a titan powerhouse from forty thousand years in the past. Even if this universe is truly nothing more than a brutal bloody shadowy forest, we Cultivators will burn all that we have just to give off a single weak flickering spark in the darkness!",
+    "author": "The Enlightened Master Crouching Cow (卧牛真人)",
+    "sourceLinks": {
+      "novelUpdates": "https://www.novelupdates.com/series/forty-millenniums-of-cultivation/"
+    },
+    "tags": [
+      "Academy",
+      "Artifact Crafting",
+      "Cultivation",
+      "Cunning Protagonist",
+      "Futuristic Setting",
+      "Genius Protagonist",
+      "Money Grubber",
+      "Outer Space",
+      "Philosophical"
+    ],
+    "coverImageUrl": "/fmc-cover.png",
+    "publicationStatus": "Completed",
+    "lastUpdated": "2026-04-08"
+  },
+  "versions": [
+    {
+      "versionId": "v1-st-enhanced",
+      "displayName": "ST-Enhanced AI Translation",
+      "translator": {
+        "name": "LexiconForge (ST Bridge)",
+        "link": "https://github.com/anantham/LexiconForge"
+      },
+      "sessionJsonUrl": "./session.json",
+      "targetLanguage": "English",
+      "style": "faithful",
+      "features": [
+        "glossary",
+        "character-cards"
+      ],
+      "chapterRange": {
+        "from": 1,
+        "to": 3521
+      },
+      "completionStatus": "In Progress",
+      "lastUpdated": "2026-04-08",
+      "stats": {
+        "downloads": 0,
+        "fileSize": "0MB",
+        "content": {
+          "totalImages": 0,
+          "totalFootnotes": 0,
+          "totalRawChapters": 3521,
+          "totalTranslatedChapters": 0,
+          "avgImagesPerChapter": 0,
+          "avgFootnotesPerChapter": 0
+        },
+        "translation": {
+          "translationType": "ai",
+          "feedbackCount": 0
+        }
+      },
+      "glossaryLayers": [
+        {
+          "tier": "book",
+          "id": "fmc-st-glossary",
+          "url": "./glossary.json"
+        }
+      ]
+    }
+  ]
+}

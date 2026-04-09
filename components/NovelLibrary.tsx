@@ -18,6 +18,7 @@ import { debugLog } from '../utils/debug';
 import { SettingsOps } from '../services/db/operations';
 import { loadNovelIntoStore } from '../services/readerHydrationService';
 import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossaryService';
+import { fetchNovelChapterCounts } from '../services/db/operations/summaries';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -27,6 +28,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const [selectedNovel, setSelectedNovel] = useState<NovelEntry | null>(null);
   const [novels, setNovels] = useState<NovelEntry[]>([]);
   const [bookshelfState, setBookshelfState] = useState<BookshelfState>({});
+  const [chapterCounts, setChapterCounts] = useState<Record<string, { translatedCount: number; totalCount: number }>>({});
   const [isLoadingRegistry, setIsLoadingRegistry] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
@@ -38,10 +40,14 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
   const refreshBookshelfState = async () => {
     try {
-      const nextState = await BookshelfStateService.getState();
+      const [nextState, nextCounts] = await Promise.all([
+        BookshelfStateService.getState(),
+        fetchNovelChapterCounts(),
+      ]);
       setBookshelfState(nextState);
+      setChapterCounts(nextCounts);
     } catch (error) {
-      console.warn('[NovelLibrary] Failed to load bookshelf state:', error);
+      console.warn('[NovelLibrary] Failed to load bookshelf state or chapter counts:', error);
     }
   };
 
@@ -321,7 +327,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         sessionJsonUrl: '',
         metadata: {
           originalLanguage: 'Unknown',
-          chapterCount: 0,
+          chapterCount: chapterCounts[entry.novelId]?.totalCount || 0,
           genres: [],
           description: 'Manually imported novel',
           publicationStatus: 'Ongoing' as const,
@@ -329,9 +335,15 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         }
       };
 
+      // Ensure the metadata chapter count reflects what we actually have in IndexedDB if available
+      if (chapterCounts[novel.id]) {
+        novel.metadata.chapterCount = chapterCounts[novel.id].totalCount;
+      }
+
       return {
         entry,
         novel,
+        translatedCount: chapterCounts[novel.id]?.translatedCount || 0,
         version: registryNovel ? resolveSavedVersion(registryNovel, entry.versionId).version ?? null : null,
       };
     })
@@ -367,7 +379,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-6 lg:gap-8">
-            {continueReadingEntries.map(({ entry, novel, version }) => (
+            {continueReadingEntries.map(({ entry, novel, version, translatedCount }) => (
               <NovelCard
                 key={`continue-${novel.id}-${entry.versionId ?? 'default'}`}
                 novel={novel}
@@ -380,8 +392,9 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                   [
                     version?.displayName ?? null,
                     typeof entry.lastChapterNumber === 'number'
-                      ? `Resume at chapter ${entry.lastChapterNumber}`
+                      ? `Chapter ${entry.lastChapterNumber}`
                       : 'Resume reading',
+                    `${translatedCount}/${novel.metadata.chapterCount} translated`,
                   ]
                     .filter(Boolean)
                     .join(' • ')
@@ -424,7 +437,13 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           <p className="text-gray-600 dark:text-gray-400">No novels available at the moment.</p>
         </div>
       ) : (
-        <NovelGrid novels={novels} onViewDetails={handleViewDetails} />
+        <NovelGrid 
+          novels={novels} 
+          onViewDetails={handleViewDetails} 
+          translatedCounts={Object.fromEntries(
+            Object.entries(chapterCounts).map(([id, stats]) => [id, (stats as { translatedCount: number }).translatedCount])
+          )}
+        />
       )}
 
       {/* Loading Overlay with Progress */}
@@ -484,6 +503,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         isOpen={!!selectedNovel}
         onClose={handleCloseDetails}
         onStartReading={handleStartReading}
+        translatedCount={selectedNovel ? chapterCounts[selectedNovel.id]?.translatedCount : undefined}
       />
     </div>
   );

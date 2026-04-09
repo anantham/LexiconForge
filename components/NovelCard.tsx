@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Star } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import type { NovelEntry } from '../types/novel';
 import { NovelCoverImage } from './NovelCoverImage';
 
@@ -9,6 +9,7 @@ interface NovelCardProps {
   onSelect?: (novel: NovelEntry) => void;
   progressLabel?: string;
   badgeLabel?: string;
+  translatedCount?: number;
 }
 
 export const NovelCard: React.FC<NovelCardProps> = ({
@@ -17,6 +18,7 @@ export const NovelCard: React.FC<NovelCardProps> = ({
   onSelect,
   progressLabel,
   badgeLabel,
+  translatedCount,
 }) => {
   const genres = novel.metadata.genres.slice(0, 2);
 
@@ -66,7 +68,10 @@ export const NovelCard: React.FC<NovelCardProps> = ({
         {/* Chapter Count */}
         <div className="flex items-center mb-3 text-xs text-gray-600 dark:text-gray-400">
           <BookOpen className="h-3.5 w-3.5 mr-1" />
-          <span>{novel.metadata.chapterCount} chapters</span>
+          <span>
+            {typeof translatedCount === 'number' && translatedCount > 0 ? `${translatedCount} / ` : ''}
+            {novel.metadata.chapterCount} chapters
+          </span>
         </div>
 
         {progressLabel && (

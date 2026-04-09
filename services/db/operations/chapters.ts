@@ -5,6 +5,7 @@ import { STORE_NAMES } from '../core/schema';
 import { withReadTxn, withWriteTxn, promisifyRequest } from '../core/txn';
 import { generateStableChapterId, normalizeUrlAggressively } from '../../stableIdService';
 import { buildScopedStorageUrl } from '../../libraryScope';
+import { debugLog, debugWarn } from '../../../utils/debug';
 
 const CHAPTER_DOMAIN = 'chapters';
 
@@ -121,6 +122,19 @@ const matchesChapterSourceUrl = (chapter: ChapterRecord, candidateUrl: string): 
     return normalizedUrl === normalizedCandidate;
   });
 };
+
+const chapterDiagnosticFingerprint = (chapter: ChapterRecord) => ({
+  stableId: chapter.stableId ?? null,
+  url: chapter.url,
+  originalUrl: chapter.originalUrl ?? null,
+  canonicalUrl: chapter.canonicalUrl ?? null,
+  normalizedOriginalUrl: normalizeUrlAggressively(chapter.originalUrl || chapter.url) || chapter.originalUrl || chapter.url,
+  normalizedCanonicalUrl: normalizeUrlAggressively(chapter.canonicalUrl || chapter.url) || chapter.canonicalUrl || chapter.url,
+  chapterNumber: chapter.chapterNumber ?? null,
+  title: chapter.title ?? null,
+  novelId: chapter.novelId ?? null,
+  libraryVersionId: chapter.libraryVersionId ?? null,
+});
 
 const toChapterLookupResult = (record: ChapterRecord): ChapterLookupResult => {
   const stableId = record.stableId || generateStableChapterId(record.content || '', record.chapterNumber || 0, record.title || '');
@@ -390,6 +404,11 @@ const setChapterNumberByStableIdModern = async (stableId: string, chapterNumber:
 };
 
 const deleteChapterModernByUrl = async (chapterUrl: string): Promise<void> => {
+  debugLog('indexeddb', 'summary', '[ChapterOps] deleteByUrl:start', {
+    chapterUrl,
+    normalizedChapterUrl: normalizeUrlAggressively(chapterUrl) || chapterUrl,
+  });
+
   await withWriteTxn(
     [STORE_NAMES.CHAPTERS, STORE_NAMES.CHAPTER_SUMMARIES, STORE_NAMES.TRANSLATIONS],
     async (_txn, stores) => {
@@ -398,7 +417,43 @@ const deleteChapterModernByUrl = async (chapterUrl: string): Promise<void> => {
       const translationsStore = stores[STORE_NAMES.TRANSLATIONS];
 
       const chapter = (await promisifyRequest(chaptersStore.get(chapterUrl))) as ChapterRecord | undefined;
-      if (!chapter) return;
+      if (!chapter) {
+        debugWarn('indexeddb', 'summary', '[ChapterOps] deleteByUrl:chapter_missing', {
+          chapterUrl,
+          normalizedChapterUrl: normalizeUrlAggressively(chapterUrl) || chapterUrl,
+        });
+        return;
+      }
+
+      const allChaptersBefore = (await promisifyRequest(chaptersStore.getAll())) as ChapterRecord[];
+      const targetNormalizedOriginal =
+        normalizeUrlAggressively(chapter.originalUrl || chapter.url) || chapter.originalUrl || chapter.url;
+      const targetNormalizedCanonical =
+        normalizeUrlAggressively(chapter.canonicalUrl || chapter.url) || chapter.canonicalUrl || chapter.url;
+      const duplicateCandidatesBefore = allChaptersBefore
+        .filter((candidate) => {
+          if (candidate.url === chapter.url) return false;
+          const candidateNormalizedOriginal =
+            normalizeUrlAggressively(candidate.originalUrl || candidate.url) || candidate.originalUrl || candidate.url;
+          const candidateNormalizedCanonical =
+            normalizeUrlAggressively(candidate.canonicalUrl || candidate.url) || candidate.canonicalUrl || candidate.url;
+
+          return (
+            (chapter.chapterNumber != null &&
+              candidate.chapterNumber != null &&
+              chapter.chapterNumber === candidate.chapterNumber) ||
+            candidateNormalizedOriginal === targetNormalizedOriginal ||
+            candidateNormalizedOriginal === targetNormalizedCanonical ||
+            candidateNormalizedCanonical === targetNormalizedOriginal ||
+            candidateNormalizedCanonical === targetNormalizedCanonical
+          );
+        })
+        .map(chapterDiagnosticFingerprint);
+
+      debugLog('indexeddb', 'summary', '[ChapterOps] deleteByUrl:resolved_chapter', {
+        target: chapterDiagnosticFingerprint(chapter),
+        duplicateCandidatesBefore,
+      });
 
       await promisifyRequest(chaptersStore.delete(chapterUrl));
       if (chapter.stableId && summariesStore) {
@@ -406,6 +461,7 @@ const deleteChapterModernByUrl = async (chapterUrl: string): Promise<void> => {
       }
 
       const index = translationsStore.index('chapterUrl');
+      let deletedTranslationCount = 0;
       await new Promise<void>((resolve, reject) => {
         const cursorReq = index.openCursor(IDBKeyRange.only(chapter.url));
         cursorReq.onsuccess = () => {
@@ -414,10 +470,38 @@ const deleteChapterModernByUrl = async (chapterUrl: string): Promise<void> => {
             resolve();
             return;
           }
+          deletedTranslationCount += 1;
           cursor.delete();
           cursor.continue();
         };
         cursorReq.onerror = () => reject(cursorReq.error);
+      });
+
+      const remainingChaptersAfter = (await promisifyRequest(chaptersStore.getAll())) as ChapterRecord[];
+      const duplicateCandidatesAfter = remainingChaptersAfter
+        .filter((candidate) => {
+          const candidateNormalizedOriginal =
+            normalizeUrlAggressively(candidate.originalUrl || candidate.url) || candidate.originalUrl || candidate.url;
+          const candidateNormalizedCanonical =
+            normalizeUrlAggressively(candidate.canonicalUrl || candidate.url) || candidate.canonicalUrl || candidate.url;
+
+          return (
+            (chapter.chapterNumber != null &&
+              candidate.chapterNumber != null &&
+              chapter.chapterNumber === candidate.chapterNumber) ||
+            candidateNormalizedOriginal === targetNormalizedOriginal ||
+            candidateNormalizedOriginal === targetNormalizedCanonical ||
+            candidateNormalizedCanonical === targetNormalizedOriginal ||
+            candidateNormalizedCanonical === targetNormalizedCanonical
+          );
+        })
+        .map(chapterDiagnosticFingerprint);
+
+      debugLog('indexeddb', 'summary', '[ChapterOps] deleteByUrl:complete', {
+        target: chapterDiagnosticFingerprint(chapter),
+        deletedSummary: Boolean(chapter.stableId),
+        deletedTranslationCount,
+        duplicateCandidatesAfter,
       });
     },
     CHAPTER_DOMAIN,

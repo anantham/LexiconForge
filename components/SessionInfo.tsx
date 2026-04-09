@@ -18,6 +18,7 @@ import SettingsIcon from './icons/SettingsIcon';
 import { useChapterDropdownOptions } from '../hooks/useChapterDropdownOptions';
 import { telemetryService } from '../services/telemetryService';
 import { ChapterOps } from '../services/db/operations';
+import { debugLog, debugWarn } from '../utils/debug';
 
 import {
   ChapterDropdown,
@@ -191,6 +192,14 @@ const SessionInfo: React.FC = () => {
         const chapter = chapters.get(currentChapterId);
         if (!chapter) return;
 
+        debugLog('ui', 'summary', '[SessionInfo] Requesting chapter delete', {
+          chapterId: currentChapterId,
+          originalUrl: chapter.originalUrl ?? null,
+          canonicalUrl: chapter.canonicalUrl ?? null,
+          chapterNumber: chapter.chapterNumber ?? null,
+          title: chapter.title ?? null,
+        });
+
         await ChapterOps.deleteByUrl(chapter.originalUrl);
 
         const removeChapter = useAppStore.getState().removeChapter;
@@ -200,6 +209,10 @@ const SessionInfo: React.FC = () => {
 
         console.log(`[SessionInfo] Deleted chapter completely: ${currentChapterId}`);
       } catch (error) {
+        debugWarn('ui', 'summary', '[SessionInfo] Chapter delete failed', {
+          chapterId: currentChapterId,
+          error: error instanceof Error ? error.message : String(error),
+        });
         console.error('[SessionInfo] Failed to delete chapter:', error);
         const setError = useAppStore.getState().setError;
         if (setError) {
