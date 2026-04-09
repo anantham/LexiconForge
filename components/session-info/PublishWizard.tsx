@@ -265,9 +265,9 @@ export const PublishWizard: React.FC<PublishWizardProps> = ({
                   onClick={() => handlePublishAction('update-stats')}
                   className="w-full p-4 text-left border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
                 >
-                  <div className="font-medium text-gray-900 dark:text-gray-100">Update Stats Only</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Update Existing Version</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Overwrite session.json and update stats in metadata.json
+                    Overwrite session.json with latest chapters and images, and sync stats in metadata.json
                   </div>
                 </button>
 
@@ -630,11 +630,23 @@ export const PublishWizard: React.FC<PublishWizardProps> = ({
                     )}
                   </div>
 
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-4">
-                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Next steps:</p>
-                    <code className="text-xs text-gray-600 dark:text-gray-400 block">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-4 group relative">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Next steps (Copy to Terminal):</p>
+                    <code className="text-xs text-gray-600 dark:text-gray-400 block break-all">
                       git add . && git commit -m "Update translation" && git push
                     </code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText('git add . && git commit -m "Update translation" && git push');
+                        alert('Copied to clipboard!');
+                      }}
+                      className="absolute top-2 right-2 text-xs bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 italic">
+                    💡 Or run <strong>publish.command</strong> in your novel directory to automate this.
                   </div>
                 </>
               ) : (

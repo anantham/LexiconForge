@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
-import { supportsStructuredOutputs, supportsParameters } from '../../services/capabilityService';
+import { supportsStructuredOutputs, supportsParameters, recordParameterFailure } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/aiService';
 import prompts from '../../config/prompts.json';
@@ -96,7 +96,16 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     } catch (error: any) {
       // Handle parameter errors by retrying without unsupported parameters
       if (this.isParameterError(error)) {
-        dlog('Parameter error detected, retrying without advanced parameters');
+        const errorMsg = (error.message || '').toLowerCase();
+        dlog('Parameter error detected, retrying without advanced parameters', errorMsg);
+        
+        // Record which parameter failed so we don't try it again for this model
+        ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'].forEach(param => {
+          if (errorMsg.includes(param)) {
+            recordParameterFailure(settings.model, param);
+          }
+        });
+
         const simpleOptions = this.removeAdvancedParameters(requestOptions);
         response = await (abortSignal
           ? client.chat.completions.create(simpleOptions, { signal: abortSignal })
@@ -477,14 +486,18 @@ ${schemaString}`;
   }
 
   private isParameterError(error: any): boolean {
-    return error.message?.includes('temperature') || 
-           error.message?.includes('top_p') ||
-           error.message?.includes('frequency_penalty') ||
-           error.message?.includes('presence_penalty') ||
-           error.message?.includes('seed') ||
-           error.message?.includes('not supported');
+    const message = (error.message || '').toLowerCase();
+    return message.includes('temperature') || 
+           message.includes('top_p') ||
+           message.includes('frequency_penalty') ||
+           message.includes('presence_penalty') ||
+           message.includes('seed') ||
+           message.includes('max_tokens') ||
+           message.includes('max_completion_tokens') ||
+           message.includes('not supported') ||
+           message.includes('unexpected parameter') ||
+           message.includes('invalid_request_error');
   }
-
   private removeAdvancedParameters(requestOptions: any): any {
     const cleaned = { ...requestOptions };
     ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'].forEach(param => {

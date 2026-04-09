@@ -17,6 +17,7 @@ import type { NovelEntry, NovelVersion } from '../types/novel';
 import { debugLog } from '../utils/debug';
 import { SettingsOps } from '../services/db/operations';
 import { loadNovelIntoStore } from '../services/readerHydrationService';
+import { fetchAndMergeGlossary } from '../services/glossaryService';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -120,6 +121,18 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     setIsLoading(true);
       setImportProgress(null);
       openNovel(novel.id, requestedVersionId);
+
+      // Load glossary layers if the version defines them
+      if (version?.glossaryLayers?.length) {
+        fetchAndMergeGlossary(version.glossaryLayers)
+          .then(glossary => {
+            if (glossary.length > 0) {
+              useAppStore.getState().updateSettings({ glossary });
+              console.log(`[NovelLibrary] Loaded ${glossary.length} glossary entries for ${novel.title}`);
+            }
+          })
+          .catch(err => console.warn('[NovelLibrary] Glossary fetch failed (non-blocking):', err));
+      }
 
       try {
       const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);

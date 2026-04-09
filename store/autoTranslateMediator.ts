@@ -75,14 +75,31 @@ export function setupAutoTranslateMediator(
     prev = curr;
     if (!changed) return;
 
+    console.log(`[AutoTranslateMediator] State change detected`, {
+      chapterId: curr.currentChapterId,
+      viewMode: curr.viewMode,
+      hasTranslation: curr.hasTranslation,
+      isHydrating: curr.isHydrating,
+      isTranslationActive: curr.isTranslationActive,
+      isPending: curr.isPending,
+    });
+
     if (shouldAutoTranslate(curr)) {
       console.log(`[AutoTranslateMediator] ✅ Triggering auto-translate for ${curr.currentChapterId}`);
       const s = state as any;
       if (typeof s.handleTranslate === 'function') {
         void s.handleTranslate(curr.currentChapterId, 'auto_translate');
       }
-    } else if (curr.viewMode === 'english' && curr.currentChapterId && curr.hasTranslation) {
-      console.log(`[AutoTranslateMediator] Translation already cached for ${curr.currentChapterId}`);
+    } else if (curr.viewMode === 'english' && curr.currentChapterId) {
+      if (curr.hasTranslation) {
+        console.log(`[AutoTranslateMediator] Translation already cached for ${curr.currentChapterId}`);
+      } else {
+        console.log(`[AutoTranslateMediator] ⏸ Skipped auto-translate for ${curr.currentChapterId}`, {
+          isHydrating: curr.isHydrating,
+          isTranslationActive: curr.isTranslationActive,
+          isPending: curr.isPending,
+        });
+      }
     }
   });
 }

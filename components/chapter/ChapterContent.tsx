@@ -104,6 +104,9 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
   }
 
   if (!chapter) {
+    if (isHydrating) {
+      return <Loader text="Loading chapter..." />;
+    }
     return (
       <div className="text-center py-10 text-gray-500 dark:text-gray-400">
         <h2 className="text-2xl font-bold mb-2">Welcome!</h2>

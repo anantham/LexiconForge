@@ -59,6 +59,12 @@ export interface VersionStats {
   coverage?: ChapterCoverageStats; // Optional: for aggregate view
 }
 
+export interface GlossaryLayerRef {
+  tier: 'user' | 'genre' | 'book';
+  id?: string;
+  url: string;
+}
+
 export interface NovelVersion {
   versionId: string;
   displayName: string;
@@ -75,6 +81,7 @@ export interface NovelVersion {
   description?: string;  // What makes this version unique/special
   translationPhilosophy?: string;  // Translator's approach and philosophy
   contentNotes?: string;  // Additional notes about content/style
+  glossaryLayers?: GlossaryLayerRef[];  // Glossary layer URLs (user → genre → book priority)
 }
 
 export interface SourceLinks {

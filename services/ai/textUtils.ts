@@ -5,6 +5,16 @@ export function replacePlaceholders(input: string, settings: AppSettings): strin
   let s = input || '';
   s = s.replaceAll('{{targetLanguage}}', lang);
   s = s.replaceAll('{{targetLanguageVariant}}', lang);
+  
+  if (settings.glossary) {
+    const glossaryText = settings.glossary
+      .map(e => `- ${e.source}: ${e.target}`)
+      .join('\n');
+    s = s.replaceAll('{{glossary}}', glossaryText);
+  } else {
+    s = s.replaceAll('{{glossary}}', '(No glossary entries available)');
+  }
+  
   return s;
 }
 
