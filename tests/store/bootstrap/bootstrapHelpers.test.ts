@@ -103,6 +103,55 @@ vi.mock('../../../scripts/backfillChapterNumbers', () => ({
 
 const registryServiceMock = vi.hoisted(() => ({
   fetchNovelById: vi.fn(),
+  resolveCompatibleVersion: vi.fn((novel: any, requestedVersionId: string | null) => {
+    if (!requestedVersionId) {
+      return {
+        version: null,
+        requestedVersionId,
+        resolvedVersionId: null,
+        warning: null,
+      };
+    }
+
+    const versions = novel.versions ?? [];
+    const directMatch = versions.find((candidate: any) => candidate.versionId === requestedVersionId);
+    if (directMatch) {
+      return {
+        version: directMatch,
+        requestedVersionId,
+        resolvedVersionId: directMatch.versionId,
+        warning: null,
+      };
+    }
+
+    const aliasMatch = versions.find((candidate: any) =>
+      candidate.legacyVersionIds?.includes(requestedVersionId)
+    );
+    if (aliasMatch) {
+      return {
+        version: aliasMatch,
+        requestedVersionId,
+        resolvedVersionId: aliasMatch.versionId,
+        warning: `Saved version "${requestedVersionId}" is now "${aliasMatch.displayName}".`,
+      };
+    }
+
+    if (versions.length === 1) {
+      return {
+        version: versions[0],
+        requestedVersionId,
+        resolvedVersionId: versions[0].versionId,
+        warning: `Saved version "${requestedVersionId}" is no longer available. Using "${versions[0].displayName}" instead.`,
+      };
+    }
+
+    return {
+      version: null,
+      requestedVersionId,
+      resolvedVersionId: null,
+      warning: null,
+    };
+  }),
 }));
 
 vi.mock('../../../services/registryService', () => ({
@@ -573,6 +622,62 @@ describe('bootstrap helpers', () => {
       expect(state.openNovel).toHaveBeenCalledWith('orv', 'v2');
       expect(state.handleNavigate).toHaveBeenCalledWith('https://booktoki468.com/novel/3912084');
       expect(state.setReaderReady).not.toHaveBeenCalled();
+    });
+
+    it('falls back to a compatible version and warns when the requested version is gone', async () => {
+      setWindowLocation('?novel=orv&version=v1-composite');
+      registryServiceMock.fetchNovelById.mockResolvedValue({
+        id: 'orv',
+        title: 'Omniscient Reader',
+        metadata: { chapterCount: 551 },
+        versions: [
+          {
+            versionId: 'v2',
+            displayName: 'V2',
+            legacyVersionIds: ['v1-composite'],
+            translator: { name: 'B' },
+            sessionJsonUrl: 'https://example.com/orv-v2/session.json',
+            targetLanguage: 'English',
+            style: 'faithful',
+            features: [],
+            chapterRange: { from: 1, to: 551 },
+            completionStatus: 'Complete',
+            lastUpdated: '2026-03-29',
+            stats: {
+              downloads: 1,
+              fileSize: '1 MB',
+              content: {
+                totalImages: 0,
+                totalFootnotes: 0,
+                totalRawChapters: 551,
+                totalTranslatedChapters: 551,
+                avgImagesPerChapter: 0,
+                avgFootnotesPerChapter: 0,
+              },
+              translation: {
+                translationType: 'human',
+                feedbackCount: 0,
+              },
+            },
+          },
+        ],
+      });
+
+      const { ctx, state } = createCtx(createState());
+      const initializeStore = createInitializeStore(ctx);
+
+      await initializeStore();
+
+      expect(state.showNotification).toHaveBeenCalledWith(
+        'Saved version "v1-composite" is now "V2".',
+        'warning'
+      );
+      expect(importServiceMock.importFromUrl).toHaveBeenCalledWith(
+        'https://example.com/orv-v2/session.json',
+        undefined,
+        { registryNovelId: 'orv', registryVersionId: 'v2' }
+      );
+      expect(state.openNovel).toHaveBeenCalledWith('orv', 'v2');
     });
   });
 });

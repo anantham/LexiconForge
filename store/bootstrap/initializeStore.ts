@@ -95,17 +95,6 @@ interface BootstrapIntentResult {
   hasExplicitReaderIntent: boolean;
 }
 
-const resolveRequestedVersion = (
-  novel: NovelEntry,
-  versionId: string | null
-): NovelVersion | null => {
-  if (!versionId) {
-    return null;
-  }
-
-  return novel.versions?.find((candidate) => candidate.versionId === versionId) ?? null;
-};
-
 const loadPromptTemplateState = async (ctx: BootstrapContext): Promise<void> => {
   try {
     bootstrapLog('loadPromptTemplates start');
@@ -208,7 +197,15 @@ const handleNovelIntent = async (
     return null;
   }
 
-  const version = resolveRequestedVersion(novel, versionId);
+  const versionResolution = RegistryService.resolveCompatibleVersion(novel, versionId);
+  const version = versionResolution.version as NovelVersion | null;
+  if (versionResolution.warning) {
+    console.warn(
+      `[DeepLink] Requested version ${versionResolution.requestedVersionId} resolved to ${versionResolution.resolvedVersionId} for novel ${novelId}`
+    );
+    ctx.get().showNotification(versionResolution.warning, 'warning');
+  }
+
   if (versionId && !version) {
     console.warn(`[DeepLink] Unknown version ${versionId} for novel ${novelId}`);
     ctx

@@ -32,14 +32,15 @@ describe('RegistryService', () => {
         chapterCount: 50,
         genres: ['Fantasy'],
         description: 'Test description',
-        lastUpdated: '2025-01-19'
+        lastUpdated: '2025-01-19',
+        coverImageUrl: './cover.jpg',
       },
       versions: [
         {
           versionId: 'v1',
           displayName: 'Version 1',
           translator: { name: 'Alice' },
-          sessionJsonUrl: 'https://example.com/session.json',
+          sessionJsonUrl: './session.json',
           targetLanguage: 'English',
           style: 'faithful',
           features: [],
@@ -62,9 +63,15 @@ describe('RegistryService', () => {
               feedbackCount: 0,
               qualityRating: 4.5
             }
-          }
+          },
+          glossaryLayers: [
+            {
+              tier: 'book',
+              url: './glossary.json',
+            },
+          ],
         }
-      ]
+      ],
     };
 
     global.fetch = vi.fn().mockResolvedValue({
@@ -76,6 +83,9 @@ describe('RegistryService', () => {
 
     expect(metadata.id).toBe('test-novel');
     expect(metadata.versions).toHaveLength(1);
+    expect(metadata.versions?.[0].sessionJsonUrl).toBe('https://example.com/session.json');
+    expect(metadata.versions?.[0].glossaryLayers?.[0].url).toBe('https://example.com/glossary.json');
+    expect(metadata.metadata.coverImageUrl).toBe('https://example.com/cover.jpg');
   });
 
   it('should fetch a novel by registry id', async () => {
@@ -120,5 +130,104 @@ describe('RegistryService', () => {
     });
 
     await expect(RegistryService.fetchRegistry()).rejects.toThrow('Failed to fetch registry');
+  });
+
+  it('resolves legacy aliases and falls back to the only remaining version', () => {
+    const aliasResolution = RegistryService.resolveCompatibleVersion(
+      {
+        id: 'test-novel',
+        title: 'Test Novel',
+        metadata: {
+          originalLanguage: 'Korean',
+          chapterCount: 50,
+          genres: ['Fantasy'],
+          description: 'Test description',
+          lastUpdated: '2025-01-19',
+        },
+        versions: [
+          {
+            versionId: 'v2',
+            legacyVersionIds: ['v1-composite'],
+            displayName: 'Version 2',
+            translator: { name: 'Alice' },
+            sessionJsonUrl: 'https://example.com/session.json',
+            targetLanguage: 'English',
+            style: 'faithful',
+            features: [],
+            chapterRange: { from: 1, to: 50 },
+            completionStatus: 'Complete',
+            lastUpdated: '2025-01-19',
+            stats: {
+              downloads: 100,
+              fileSize: '5 MB',
+              content: {
+                totalImages: 0,
+                totalFootnotes: 0,
+                totalRawChapters: 50,
+                totalTranslatedChapters: 50,
+                avgImagesPerChapter: 0,
+                avgFootnotesPerChapter: 0,
+              },
+              translation: {
+                translationType: 'human',
+                feedbackCount: 0,
+              },
+            },
+          },
+        ],
+      },
+      'v1-composite'
+    );
+
+    expect(aliasResolution.version?.versionId).toBe('v2');
+    expect(aliasResolution.warning).toContain('v1-composite');
+
+    const fallbackResolution = RegistryService.resolveCompatibleVersion(
+      {
+        id: 'fallback-novel',
+        title: 'Fallback Novel',
+        metadata: {
+          originalLanguage: 'Chinese',
+          chapterCount: 10,
+          genres: ['Fantasy'],
+          description: 'Fallback test',
+          lastUpdated: '2025-01-19',
+        },
+        versions: [
+          {
+            versionId: 'new-version',
+            displayName: 'New Version',
+            translator: { name: 'Bob' },
+            sessionJsonUrl: 'https://example.com/new.json',
+            targetLanguage: 'English',
+            style: 'faithful',
+            features: [],
+            chapterRange: { from: 1, to: 10 },
+            completionStatus: 'Complete',
+            lastUpdated: '2025-01-19',
+            stats: {
+              downloads: 1,
+              fileSize: '1 MB',
+              content: {
+                totalImages: 0,
+                totalFootnotes: 0,
+                totalRawChapters: 10,
+                totalTranslatedChapters: 10,
+                avgImagesPerChapter: 0,
+                avgFootnotesPerChapter: 0,
+              },
+              translation: {
+                translationType: 'human',
+                feedbackCount: 0,
+              },
+            },
+          },
+        ],
+      },
+      'old-version'
+    );
+
+    expect(fallbackResolution.version?.versionId).toBe('new-version');
+    expect(fallbackResolution.warning).toContain('Using "New Version" instead.');
   });
 });

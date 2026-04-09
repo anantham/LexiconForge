@@ -1272,3 +1272,26 @@
 - `tests/services/translationService.test.ts:1-224` (new) - cover the separate proposal pass, fan-reference inclusion during proposal generation, proposal suppression when amendments are disabled, and retranslation when either toggle changes.
 - `tests/adapters/providers/GeminiAdapter.test.ts:17-18` - update the prompt-utils mock to the renamed translation helper used by the new adapter path.
 **Tests:** `npx vitest run tests/services/translate/Translator.test.ts tests/services/translationService.test.ts tests/adapters/providers/GeminiAdapter.test.ts tests/adapters/providers/OpenAIAdapter.test.ts tests/adapters/providers/ClaudeAdapter.test.ts tests/services/aiService.translateChapter.test.ts` ✅; `./node_modules/.bin/tsc --noEmit 2>&1 | rg "services/translate/Translator.ts|tests/services/translationService.test.ts|tests/adapters/providers/GeminiAdapter.test.ts|services/translationService.ts|adapters/providers/OpenAIAdapter.ts|adapters/providers/GeminiAdapter.ts|services/claudeService.ts|utils/promptUtils.ts|services/translate/translationResponseSchema.ts|services/prompts.ts|store/slices/translationsSlice.ts|types.ts"` ✅ (no matches). Full `tsc` still reports unrelated pre-existing errors in `scripts/sutta-studio/*`.
+2026-04-09 09:10 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Restore library backward compatibility for changed novel metadata so stale version links/bookshelf entries still open cached novels safely.
+- Files:
+  - services/registryService.ts
+  - store/bootstrap/initializeStore.ts
+  - components/NovelLibrary.tsx
+  - types/novel.ts
+  - tests/services/registryService.test.ts
+  - tests/store/bootstrap/bootstrapHelpers.test.ts
+  - tests/components/NovelLibrary.test.tsx
+  - docs/WORKLOG.md
+- Why:
+  - Relative metadata asset URLs like `./session.json` and `./glossary.json` were being consumed as app-root URLs, causing import/glossary 404s.
+  - Stale deep links and bookshelf entries failed hard when an upstream version id was renamed or removed, even when cached chapters were still safe to open.
+- Details:
+  - Added metadata URL normalization in the registry layer so version session files, glossary layers, and cover images resolve relative to the fetched `metadata.json`.
+  - Added version compatibility resolution with explicit legacy aliases plus a conservative single-version fallback when the requested version no longer exists.
+  - Updated bootstrap and library resume flows to warn when a saved version was substituted, but continue loading the compatible cached/remote novel when safe.
+- Tests:
+  - `npx vitest run tests/services/registryService.test.ts` ✅
+  - `npx vitest run tests/store/bootstrap/bootstrapHelpers.test.ts` ✅
+  - `npx vitest run tests/components/NovelLibrary.test.tsx` ✅

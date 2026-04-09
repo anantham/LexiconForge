@@ -39,7 +39,40 @@ const settingsOpsMock = vi.hoisted(() => ({
   set: vi.fn(),
 }));
 
-vi.mock('../../services/registryService');
+const registryServiceMock = vi.hoisted(() => ({
+  fetchAllNovelMetadata: vi.fn(),
+  resolveCompatibleVersion: vi.fn((novel: any, requestedVersionId: string | null) => {
+    if (!requestedVersionId) {
+      return { version: null, requestedVersionId, resolvedVersionId: null, warning: null };
+    }
+
+    const versions = novel.versions ?? [];
+    const directMatch = versions.find((candidate: any) => candidate.versionId === requestedVersionId);
+    if (directMatch) {
+      return {
+        version: directMatch,
+        requestedVersionId,
+        resolvedVersionId: directMatch.versionId,
+        warning: null,
+      };
+    }
+
+    if (versions.length === 1) {
+      return {
+        version: versions[0],
+        requestedVersionId,
+        resolvedVersionId: versions[0].versionId,
+        warning: `Saved version "${requestedVersionId}" is no longer available. Using "${versions[0].displayName}" instead.`,
+      };
+    }
+
+    return { version: null, requestedVersionId, resolvedVersionId: null, warning: null };
+  }),
+}));
+
+vi.mock('../../services/registryService', () => ({
+  RegistryService: registryServiceMock,
+}));
 vi.mock('../../services/importService');
 vi.mock('../../services/readerHydrationService');
 vi.mock('../../services/bookshelfStateService');
@@ -256,5 +289,58 @@ describe('NovelLibrary', () => {
         lastChapterNumber: 12,
       })
     );
+  });
+
+  it('falls back to the only available version and warns when a saved version is gone', async () => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([
+      {
+        ...mockNovel,
+        versions: [
+          {
+            ...mockNovel.versions[0],
+            versionId: 'st-enhanced',
+            displayName: 'ST Enhanced',
+          },
+        ],
+      },
+    ] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::v1-composite': {
+        novelId: 'novel-1',
+        versionId: 'v1-composite',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-03-29T18:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'st-enhanced',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-03-29T18:00:00.000Z',
+    });
+    vi.mocked(loadNovelIntoStore).mockResolvedValue('ch-12');
+    settingsOpsMock.getKey.mockResolvedValue({ stableIds: ['ch-12'] } as any);
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('ST Enhanced • Resume at chapter 12')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('ST Enhanced • Resume at chapter 12'));
+
+    await waitFor(() => {
+      expect(storeState.showNotification).toHaveBeenCalledWith(
+        'Saved version "v1-composite" is no longer available. Using "ST Enhanced" instead.',
+        'warning'
+      );
+    });
+
+    expect(storeState.openNovel).toHaveBeenCalledWith('novel-1', 'st-enhanced');
+    expect(loadNovelIntoStore).toHaveBeenCalledWith('novel-1', expect.any(Function), {
+      versionId: 'st-enhanced',
+    });
   });
 });

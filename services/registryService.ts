@@ -25,6 +25,58 @@ const BUILT_IN_ENTRIES: NovelEntry[] = [
 // Always use GitHub registry (contains real data with Git LFS session files)
 const DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/registry.json';
 
+const resolveMetadataAssetUrl = (value: string | undefined, metadataUrl: string): string | undefined => {
+  if (!value) {
+    return value;
+  }
+
+  try {
+    return new URL(value).href;
+  } catch {
+    return new URL(value, metadataUrl).href;
+  }
+};
+
+const normalizeNovelMetadataUrls = (metadata: NovelEntry, metadataUrl: string): NovelEntry => {
+  return {
+    ...metadata,
+    ...(metadata.sessionJsonUrl
+      ? { sessionJsonUrl: resolveMetadataAssetUrl(metadata.sessionJsonUrl, metadataUrl) }
+      : {}),
+    metadata: {
+      ...metadata.metadata,
+      ...(metadata.metadata.coverImageUrl
+        ? {
+            coverImageUrl: resolveMetadataAssetUrl(metadata.metadata.coverImageUrl, metadataUrl),
+          }
+        : {}),
+    },
+    ...(metadata.versions
+      ? {
+          versions: metadata.versions.map((version) => ({
+            ...version,
+            sessionJsonUrl: resolveMetadataAssetUrl(version.sessionJsonUrl, metadataUrl) ?? version.sessionJsonUrl,
+            ...(version.glossaryLayers
+              ? {
+                  glossaryLayers: version.glossaryLayers.map((layer) => ({
+                    ...layer,
+                    url: resolveMetadataAssetUrl(layer.url, metadataUrl) ?? layer.url,
+                  })),
+                }
+              : {}),
+          })),
+        }
+      : {}),
+  };
+};
+
+export interface VersionCompatibilityResolution {
+  version: NovelEntry['versions'] extends Array<infer T> ? T | null : never;
+  requestedVersionId: string | null;
+  resolvedVersionId: string | null;
+  warning: string | null;
+}
+
 export class RegistryService {
   /**
    * Fetch the main registry file
@@ -59,7 +111,7 @@ export class RegistryService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const metadata: NovelEntry = await response.json();
+      const metadata: NovelEntry = normalizeNovelMetadataUrls(await response.json(), metadataUrl);
 
       console.log(`[Registry] Fetched metadata for ${metadata.title}`);
 
@@ -111,5 +163,58 @@ export class RegistryService {
     });
 
     return [...BUILT_IN_ENTRIES, ...novels];
+  }
+
+  static resolveCompatibleVersion(
+    novel: NovelEntry,
+    requestedVersionId: string | null
+  ): VersionCompatibilityResolution {
+    if (!requestedVersionId) {
+      return {
+        version: null,
+        requestedVersionId,
+        resolvedVersionId: null,
+        warning: null,
+      };
+    }
+
+    const versions = novel.versions ?? [];
+    const directMatch = versions.find((candidate) => candidate.versionId === requestedVersionId);
+    if (directMatch) {
+      return {
+        version: directMatch,
+        requestedVersionId,
+        resolvedVersionId: directMatch.versionId,
+        warning: null,
+      };
+    }
+
+    const legacyAliasMatch = versions.find((candidate) =>
+      candidate.legacyVersionIds?.includes(requestedVersionId)
+    );
+    if (legacyAliasMatch) {
+      return {
+        version: legacyAliasMatch,
+        requestedVersionId,
+        resolvedVersionId: legacyAliasMatch.versionId,
+        warning: `Saved version "${requestedVersionId}" is now "${legacyAliasMatch.displayName}".`,
+      };
+    }
+
+    if (versions.length === 1) {
+      return {
+        version: versions[0],
+        requestedVersionId,
+        resolvedVersionId: versions[0].versionId,
+        warning: `Saved version "${requestedVersionId}" is no longer available. Using "${versions[0].displayName}" instead.`,
+      };
+    }
+
+    return {
+      version: null,
+      requestedVersionId,
+      resolvedVersionId: null,
+      warning: null,
+    };
   }
 }

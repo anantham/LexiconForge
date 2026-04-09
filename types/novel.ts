@@ -67,6 +67,7 @@ export interface GlossaryLayerRef {
 
 export interface NovelVersion {
   versionId: string;
+  legacyVersionIds?: string[];
   displayName: string;
   translator: TranslatorInfo;
   sessionJsonUrl: string;

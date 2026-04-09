@@ -45,12 +45,19 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     }
   };
 
-  const resolveSavedVersion = (novel: NovelEntry, versionId?: string): NovelVersion | undefined => {
+  const resolveSavedVersion = (
+    novel: NovelEntry,
+    versionId?: string
+  ): { version?: NovelVersion; warning?: string | null } => {
     if (!versionId) {
-      return undefined;
+      return {};
     }
 
-    return novel.versions?.find((candidate) => candidate.versionId === versionId);
+    const resolution = RegistryService.resolveCompatibleVersion(novel, versionId);
+    return {
+      version: (resolution.version as NovelVersion | null) ?? undefined,
+      warning: resolution.warning,
+    };
   };
 
   const persistResumeEntry = async (
@@ -278,7 +285,11 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   };
 
   const handleResumeFromShelf = async (novel: NovelEntry, entry: BookshelfEntry) => {
-    const savedVersion = resolveSavedVersion(novel, entry.versionId);
+    const { version: savedVersion, warning } = resolveSavedVersion(novel, entry.versionId);
+
+    if (warning) {
+      showNotification(warning, 'warning');
+    }
 
     if (entry.versionId && novel.versions?.length && !savedVersion) {
       showNotification(
@@ -316,8 +327,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       return {
         entry,
         novel,
-        version:
-          registryNovel?.versions?.find((candidate) => candidate.versionId === entry.versionId) ?? null,
+        version: registryNovel ? resolveSavedVersion(registryNovel, entry.versionId).version ?? null : null,
       };
     })
     .sort((a, b) => b.entry.lastReadAtIso.localeCompare(a.entry.lastReadAtIso));
