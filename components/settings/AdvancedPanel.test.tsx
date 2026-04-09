@@ -195,10 +195,10 @@ describe('AdvancedPanel', () => {
     const handleSettingChange = vi.fn();
     renderPanel({ handleSettingChange });
 
-    expect(screen.getByText(/suggest prompt-rule amendments for future chapters/i)).toBeInTheDocument();
-    expect(screen.queryByText(/prompt or glossary amendments/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/suggest prompt or glossary amendments for future chapters/i)).toBeInTheDocument();
+    expect(screen.getByText(/local override layer on top of the imported book glossary/i)).toBeInTheDocument();
 
-    const toggle = screen.getByLabelText(/enable prompt amendment proposals/i);
+    const toggle = screen.getByLabelText(/enable amendment proposals/i);
     await userEvent.click(toggle);
 
     expect(handleSettingChange).toHaveBeenCalledWith('enableAmendments', false);

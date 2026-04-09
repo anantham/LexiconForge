@@ -44,6 +44,9 @@ export const defaultSettings: AppSettings = {
   enableAmendments: false, // Disable prompt amendment proposals by default
   includeFanTranslationInPrompt: false, // Off by default — fan translation can pollute quality; use glossary instead
   includeHistoricalFanTranslationsInContext: false, // Off by default — increases prompt size and cost
+  glossary: [],
+  glossaryBase: [],
+  glossaryOverrides: [],
   imageWidth: 1024,
   imageHeight: 1024,
   imageAspectRatio: '1:1',

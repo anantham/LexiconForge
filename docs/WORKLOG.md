@@ -1,3 +1,73 @@
+2026-04-09 11:35 EDT - [Agent: Codex]
+- Status: Starting
+- Task: Harden library-scoped chapter identity boundaries so already-scoped stable IDs are not silently re-scoped during import/bootstrap flows.
+- Worktree: none (root checkout intentionally used because the active dev server on `localhost:5180` is serving this checkout)
+- Branch: current checkout
+- Files likely affected:
+  - services/libraryScope.ts
+  - services/importService.ts
+  - services/db/operations/imports.ts
+  - tests/services/stableIdService.test.ts
+  - tests/current-system/export-import.test.ts
+- Why:
+  - Runtime logs show recursively wrapped IDs like `lf-library:...:lf-library:...:ch2...`, which indicates the import boundary is accepting ambiguous `stableId` strings and scoping them more than once.
+  - The current API contract does not distinguish `baseStableId` from `scopedStableId`, so multiple layers can reinterpret identity strings differently.
+
+2026-04-09 11:40 EDT - [Agent: Codex]
+- Status: Complete
+- Task: Harden library-scoped chapter identity boundaries so already-scoped stable IDs are not silently re-scoped during import/bootstrap flows.
+- Files:
+  - services/libraryScope.ts:19-79
+  - services/importService.ts:104-180
+  - services/db/operations/imports.ts:78-148
+  - tests/services/libraryScope.test.ts:1-46
+  - tests/current-system/export-import.test.ts:304-343
+- Why:
+  - `buildScopedStableId(...)` previously accepted any string and relied on callers to know whether it was receiving a base ID or an already-scoped ID.
+  - Import code was sourcing “base” IDs from `chapter.stableId` and `chapter.id`, which allowed pre-scoped exported IDs to be wrapped again.
+- Details:
+  - Added `isScopedStableId(...)` and `parseScopedStableId(...)` so the library identity layer can distinguish base IDs from scoped IDs explicitly.
+  - Made `buildScopedStableId(...)` throw a descriptive error when a caller tries to scope an already-scoped ID, including both the existing and requested scope keys.
+  - Updated `ImportService` and `ImportOps.resolveStoredChapterIdentity(...)` to preserve already-scoped IDs only when their scope matches the active novel/version, and to fail loudly on mismatches instead of silently nesting identities.
+  - Added focused contract tests for the scope helpers and an integration test proving full-session import preserves an already-scoped chapter ID rather than double-scoping it.
+- Tests:
+  - `npx vitest run tests/services/libraryScope.test.ts tests/current-system/export-import.test.ts -t "scoped stableId import boundaries|libraryScope stableId boundaries"` ✅
+  - `npx tsc --noEmit --pretty false` ✅
+
+2026-04-09 11:25 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Split amendment proposals into prompt vs glossary kinds and route glossary accepts into a local override layer instead of mutating the imported base glossary.
+- Files:
+  - types.ts:57-80, 367-372
+  - services/db/types.ts:1-7, 100-109, 190-199
+  - services/glossaryService.ts:38-54
+  - components/NovelLibrary.tsx:132-143
+  - services/sessionManagementService.ts:45-48
+  - services/prompts.ts:67-76, 86-111
+  - services/translate/translationResponseSchema.ts:10-31, 236-254
+  - services/ai/providers/openai.ts:99-124
+  - services/ai/providers/gemini.ts:91-112
+  - services/translationService.ts:74-138
+  - store/slices/translationsSlice.ts:88-119, 843-949
+  - components/AmendmentModal.tsx:22-180
+  - tests/store/amendmentProposal.test.ts:16-49, 70-89, 167-186
+  - tests/services/translationService.test.ts:97-104
+  - tests/services/structured-outputs.test.ts:216-315
+  - tests/utils/test-data.ts:122-128
+- Why:
+  - The old amendment pipeline had no way to distinguish prompt edits from glossary edits, so “glossary amendment” language either lied or risked silently rewriting prompt text instead of term data.
+  - Imported library glossaries should remain the base source of truth, while user-approved term changes need a separate reversible local layer.
+- Details:
+  - Added explicit proposal kind metadata plus optional glossary payload fields, and validated them in the amendment-review response parser.
+  - Introduced `glossaryBase` and `glossaryOverrides` settings fields; library imports now populate the base layer and keep the effective `glossary` as a merged view.
+  - Updated the amendment accept path so glossary proposals write only to the override layer while prompt proposals keep editing `systemPrompt`.
+  - Updated the modal and amendment-copy surfaces so glossary proposals are displayed and labeled differently from prompt proposals.
+- Tests:
+  - `npx vitest run tests/store/amendmentProposal.test.ts` ✅
+  - `npx vitest run tests/services/translationService.test.ts` ✅
+  - `npx vitest run tests/services/structured-outputs.test.ts` ✅
+  - `npx vitest run components/settings/PromptPanel.test.tsx components/settings/AdvancedPanel.test.tsx` ✅
+
 2026-04-09 13:20 EDT - [Agent: Codex]
 - Status: Progress
 - Task: Clarify the amendment/glossary contract and expose the active runtime glossary in the prompt workspace UI.

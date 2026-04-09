@@ -54,6 +54,9 @@ export interface GlossaryEntry {
   note?: string;
 }
 
+export type AmendmentProposalKind = 'prompt' | 'glossary';
+export type GlossaryAmendmentOperation = 'add' | 'replace';
+
 export interface FeedbackItem {
   id: string;
   text: string;
@@ -67,10 +70,13 @@ export interface FeedbackItem {
 }
 
 export interface AmendmentProposal {
+  kind?: AmendmentProposalKind;
   observation: string;
   currentRule: string;
   proposedChange: string;
   reasoning: string;
+  glossaryEntry?: GlossaryEntry;
+  glossaryOperation?: GlossaryAmendmentOperation;
 }
 
 export type AmendmentAction = 'accepted' | 'rejected' | 'modified';
@@ -360,6 +366,10 @@ export interface AppSettings {
     promptName?: string;
     // Merged glossary entries (user → genre → book layers)
     glossary?: GlossaryEntry[];
+    // Imported base glossary for the active library novel/version
+    glossaryBase?: GlossaryEntry[];
+    // Local user-approved amendments layered on top of the imported glossary
+    glossaryOverrides?: GlossaryEntry[];
     // Toast notifications
     showToastNotifications?: boolean;         // Show pop-up toast notifications (default: false)
     // SillyTavern self-insert integration

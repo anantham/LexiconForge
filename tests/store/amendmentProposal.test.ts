@@ -18,10 +18,25 @@ describe('Amendment Proposal System', () => {
     currentRule: string,
     proposedChange: string
   ): AmendmentProposal => ({
+    kind: 'prompt',
     observation: 'Test observation',
     currentRule,
     proposedChange,
     reasoning: 'Test reasoning'
+  });
+
+  const createGlossaryProposal = (): AmendmentProposal => ({
+    kind: 'glossary',
+    observation: 'Recurring term drift',
+    currentRule: 'Current glossary row: 灵气 -> Essence Energy',
+    proposedChange: 'Replace glossary row: 灵气 -> Spiritual Energy',
+    reasoning: 'The novel consistently uses Spiritual Energy elsewhere.',
+    glossaryOperation: 'replace',
+    glossaryEntry: {
+      source: '灵气',
+      target: 'Spiritual Energy',
+      note: 'User-approved override',
+    },
   });
 
   describe('acceptProposal', () => {
@@ -56,6 +71,25 @@ describe('Amendment Proposal System', () => {
       expect(updatedPrompt).toContain('Test Rule: This is the updated rule.');
       expect(updatedPrompt).not.toContain('Test Rule: This is the original rule.');
       expect(useAppStore.getState().amendmentProposals).toHaveLength(0);
+    });
+
+    it('should apply glossary proposals into the local override layer', async () => {
+      const store = useAppStore.getState();
+      store.updateSettings({
+        glossaryBase: [{ source: '灵气', target: 'Essence Energy' }],
+        glossary: [{ source: '灵气', target: 'Essence Energy' }],
+      });
+
+      store.addAmendmentProposal(createGlossaryProposal());
+      await store.acceptProposal();
+
+      const settings = useAppStore.getState().settings;
+      expect(settings.glossaryOverrides).toEqual([
+        { source: '灵气', target: 'Spiritual Energy', note: 'User-approved override' },
+      ]);
+      expect(settings.glossary).toEqual([
+        { source: '灵气', target: 'Spiritual Energy', note: 'User-approved override' },
+      ]);
     });
 
   })
@@ -167,6 +201,26 @@ describe('Amendment Proposal System', () => {
       expect(logs[0].action).toBe('accepted')
       expect(logs[0].proposal.currentRule).toBe('Rule A')
       expect(logs[0].finalPromptChange).toBe('Rule B')
+    })
+
+    it('should log accepted glossary overrides separately from prompt changes', async () => {
+      const store = useAppStore.getState()
+      store.updateSettings({
+        glossaryBase: [{ source: '灵气', target: 'Essence Energy' }],
+        glossary: [{ source: '灵气', target: 'Essence Energy' }],
+      })
+
+      store.addAmendmentProposal(createGlossaryProposal())
+      await store.acceptProposal()
+
+      const logs = await AmendmentOps.getLogs({ action: 'accepted', limit: 1 });
+
+      expect(logs[0].finalPromptChange).toBeUndefined()
+      expect(logs[0].finalGlossaryEntry).toEqual({
+        source: '灵气',
+        target: 'Spiritual Energy',
+        note: 'User-approved override',
+      })
     })
 
     it('should log rejected amendments', async () => {

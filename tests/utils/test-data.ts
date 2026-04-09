@@ -120,6 +120,7 @@ export const createMockEnhancedChapter = (overrides: Partial<EnhancedChapter> = 
 };
 
 export const createMockAmendmentProposal = (overrides: Partial<AmendmentProposal> = {}): AmendmentProposal => ({
+  kind: 'prompt',
   observation: 'This chapter introduces recurring terminology that should be standardized.',
   currentRule: 'Novel-Specific Glossary (Live Document): This glossary will be maintained for consistency.\nRomaji Terms: hitogata, koku, jō, Gashadokuro, ayakashi, onryō, yokai.\nTranslated Terms: Almiraj (Horned Rabbit), Frost Wraith, 認定票 (Adventurer\'s Medallion).',
   proposedChange: '+ Add to Translated Terms: 森人 (Moribito) -> Forestfolk (elf-like race); 死霊兵 -> Necrosoldier(s); 聖騎士 -> Holy Knight (Paladin).\n+ Add to Romaji Terms (for reference only): Moribito.\n- No change to existing entries.',

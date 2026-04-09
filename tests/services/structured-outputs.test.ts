@@ -220,6 +220,7 @@ describe('OpenAI Structured Outputs Schema', () => {
                 footnotes: [],
                 suggestedIllustrations: [],
                 proposal: {
+                    kind: 'prompt',
                     observation: "The system prompt could be clearer",
                     currentRule: "Translate directly",
                     proposedChange: "Add context awareness",
@@ -244,6 +245,7 @@ describe('OpenAI Structured Outputs Schema', () => {
                     { placementMarker: "[ILLUSTRATION-2]", imagePrompt: "Magical explosion" }
                 ],
                 proposal: {
+                    kind: 'prompt',
                     observation: "Combat scenes need more dynamic language",
                     currentRule: "Use standard combat terminology",
                     proposedChange: "Incorporate more vivid action verbs",
@@ -311,10 +313,10 @@ describe('OpenAI Structured Outputs Schema', () => {
             };
             
             const proposalFields = Object.keys(malformedProposal.proposal);
-            const requiredFields = ['observation', 'currentRule', 'proposedChange', 'reasoning'];
+            const requiredFields = ['kind', 'observation', 'currentRule', 'proposedChange', 'reasoning'];
             const missingFields = requiredFields.filter(field => !proposalFields.includes(field));
             
-            expect(missingFields).toHaveLength(3);
+            expect(missingFields).toHaveLength(4);
         });
     });
 

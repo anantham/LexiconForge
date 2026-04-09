@@ -20,6 +20,8 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({
   onNavigate
 }) => {
   const proposal = proposals[currentIndex];
+  const proposalKind = proposal.kind ?? 'prompt';
+  const isGlossaryProposal = proposalKind === 'glossary' && !!proposal.glossaryEntry;
   const [isEditing, setIsEditing] = useState(false);
   const [editedChange, setEditedChange] = useState(proposal.proposedChange);
 
@@ -47,7 +49,7 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({
           <header className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Prompt Amendment Proposal
+                {isGlossaryProposal ? 'Glossary Amendment Proposal' : 'Prompt Amendment Proposal'}
               </h2>
               {proposals.length > 1 && (
                 <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
@@ -74,7 +76,9 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({
               )}
             </div>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              The AI has suggested a change to the translation prompt based on recent feedback.
+              {isGlossaryProposal
+                ? 'The AI has suggested a glossary update for future chapters. Accepting this will update your local glossary override layer.'
+                : 'The AI has suggested a change to the translation prompt based on recent feedback.'}
             </p>
           </header>
 
@@ -91,10 +95,23 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({
                 <code>{proposal.currentRule}</code>
               </pre>
             </div>
+            {isGlossaryProposal && proposal.glossaryEntry && (
+              <div>
+                <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-2">Glossary Entry</h3>
+                <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-gray-700 dark:text-gray-300 text-sm space-y-1">
+                  <p><span className="font-semibold">Operation:</span> {proposal.glossaryOperation || 'replace'}</p>
+                  <p><span className="font-semibold">Source:</span> <code>{proposal.glossaryEntry.source}</code></p>
+                  <p><span className="font-semibold">Target:</span> {proposal.glossaryEntry.target}</p>
+                  {proposal.glossaryEntry.note && (
+                    <p><span className="font-semibold">Note:</span> {proposal.glossaryEntry.note}</p>
+                  )}
+                </div>
+              </div>
+            )}
             <div>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Proposed Change</h3>
-                {onEdit && !isEditing && (
+                {onEdit && !isEditing && !isGlossaryProposal && (
                   <button
                     onClick={() => setIsEditing(true)}
                     className="text-sm px-3 py-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition"
@@ -164,7 +181,7 @@ const AmendmentModal: React.FC<AmendmentModalProps> = ({
               onClick={() => onAccept(currentIndex)}
               className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition"
             >
-              Accept & Update Prompt
+              {isGlossaryProposal ? 'Accept & Update Glossary' : 'Accept & Update Prompt'}
             </button>
           )}
         </footer>

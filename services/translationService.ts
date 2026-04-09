@@ -78,12 +78,16 @@ export class TranslationService {
     }
 
     const proposal = payload as Record<string, unknown>;
+    const kind = proposal.kind;
     const observation = proposal.observation;
     const currentRule = proposal.currentRule;
     const proposedChange = proposal.proposedChange;
     const reasoning = proposal.reasoning;
+    const glossaryEntry = proposal.glossaryEntry;
+    const glossaryOperation = proposal.glossaryOperation;
 
     if (
+      (kind !== 'prompt' && kind !== 'glossary') ||
       typeof observation !== 'string' ||
       typeof currentRule !== 'string' ||
       typeof proposedChange !== 'string' ||
@@ -92,7 +96,41 @@ export class TranslationService {
       throw new Error('Malformed amendment proposal response: proposal fields must all be strings.');
     }
 
+    if (kind === 'glossary') {
+      if (glossaryOperation !== 'add' && glossaryOperation !== 'replace') {
+        throw new Error('Malformed amendment proposal response: glossary proposals must include glossaryOperation.');
+      }
+
+      if (
+        !glossaryEntry ||
+        typeof glossaryEntry !== 'object' ||
+        Array.isArray(glossaryEntry) ||
+        typeof (glossaryEntry as Record<string, unknown>).source !== 'string' ||
+        typeof (glossaryEntry as Record<string, unknown>).target !== 'string'
+      ) {
+        throw new Error('Malformed amendment proposal response: glossary proposals must include glossaryEntry.source and glossaryEntry.target.');
+      }
+
+      return {
+        kind,
+        observation,
+        currentRule,
+        proposedChange,
+        reasoning,
+        glossaryOperation,
+        glossaryEntry: {
+          source: (glossaryEntry as Record<string, unknown>).source as string,
+          target: (glossaryEntry as Record<string, unknown>).target as string,
+          note:
+            typeof (glossaryEntry as Record<string, unknown>).note === 'string'
+              ? ((glossaryEntry as Record<string, unknown>).note as string)
+              : undefined,
+        },
+      };
+    }
+
     return {
+      kind,
       observation,
       currentRule,
       proposedChange,

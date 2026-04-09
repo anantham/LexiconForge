@@ -68,7 +68,10 @@ export const buildAmendmentReviewSystemPrompt = (currentSystemPrompt: string): s
   return [
     'You are in prompt-amendment review mode.',
     'Treat the user prompt below as the document under review, not as instructions to retranslate the chapter.',
-    'Do not produce a new translation. Only decide whether a surgical prompt amendment is warranted for future chapters.',
+    'Do not produce a new translation. Only decide whether a surgical prompt amendment or glossary amendment is warranted for future chapters.',
+    'Return proposal.kind as either "prompt" or "glossary".',
+    'When proposing a glossary change, also return proposal.glossaryEntry with { source, target, note? } and set proposal.glossaryOperation to "add" or "replace".',
+    'When proposing a prompt change, leave glossary-specific fields null or omitted.',
     'Return proposal as null when no specific, high-value amendment is justified.',
     '',
     'CURRENT SYSTEM PROMPT UNDER REVIEW:',
@@ -84,8 +87,9 @@ export const buildAmendmentReviewUserPrompt = ({
   fanTranslation,
 }: AmendmentReviewPromptOptions): string => {
   const sections = [
-    'Review the completed chapter translation below and decide whether to propose a surgical amendment to the system prompt for future chapters.',
-    'Focus on durable issues such as recurring terminology guidance, stable style rules, or translation-policy clarifications.',
+    'Review the completed chapter translation below and decide whether to propose a surgical amendment to the system prompt or glossary for future chapters.',
+    'Focus on durable issues such as recurring terminology guidance, glossary consistency, stable style rules, or translation-policy clarifications.',
+    'If the best fix is a glossary update, return kind="glossary" and include a structured glossaryEntry object.',
     'Do not suggest edits that only matter for this one sentence unless they clearly generalize.',
     '',
     'SOURCE TITLE:',
@@ -107,7 +111,7 @@ export const buildAmendmentReviewUserPrompt = ({
       'FAN TRANSLATION REFERENCE FOR AMENDMENT REVIEW ONLY:',
       fanTranslation,
       '',
-      'Use the fan translation only as optional inspiration for identifying durable prompt improvements. Do not rewrite the AI translation from it.'
+      'Use the fan translation only as optional inspiration for identifying durable prompt or glossary improvements. Do not rewrite the AI translation from it.'
     );
   }
 

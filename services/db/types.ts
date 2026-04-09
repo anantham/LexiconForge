@@ -1,4 +1,12 @@
-import type { GeneratedImageResult, ImageCacheKey, ImagePlan, ImagePlanMode } from '../../types';
+import type {
+  GeneratedImageResult,
+  ImageCacheKey,
+  ImagePlan,
+  ImagePlanMode,
+  GlossaryEntry,
+  AmendmentProposalKind,
+  GlossaryAmendmentOperation,
+} from '../../types';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
 
 export interface ChapterRecord {
@@ -92,10 +100,13 @@ export interface TranslationRecord {
   };
   imageVersionState?: Record<string, import('../../types').ImageVersionStateEntry>;
   proposal?: {
+    kind?: AmendmentProposalKind;
     observation: string;
     currentRule: string;
     proposedChange: string;
     reasoning: string;
+    glossaryEntry?: GlossaryEntry;
+    glossaryOperation?: GlossaryAmendmentOperation;
   };
 }
 
@@ -177,12 +188,16 @@ export interface AmendmentLogRecord {
   timestamp: number;
   chapterId?: string;
   proposal: {
+    kind?: AmendmentProposalKind;
     observation: string;
     currentRule: string;
     proposedChange: string;
     reasoning: string;
+    glossaryEntry?: GlossaryEntry;
+    glossaryOperation?: GlossaryAmendmentOperation;
   };
   action: 'accepted' | 'rejected' | 'modified';
   finalPromptChange?: string;
+  finalGlossaryEntry?: GlossaryEntry;
   notes?: string;
 }

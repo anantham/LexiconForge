@@ -95,6 +95,7 @@ describe('TranslationService', () => {
 
   it('runs a separate amendment proposal pass and always includes the fan translation when available', async () => {
     const proposal: AmendmentProposal = {
+      kind: 'prompt',
       observation: 'Recurring term drift',
       currentRule: 'Old glossary row',
       proposedChange: 'New glossary row',

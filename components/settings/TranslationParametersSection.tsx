@@ -186,9 +186,10 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
               className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <div>
-              <span className="block font-medium text-gray-800 dark:text-gray-100">Enable Prompt Amendment Proposals</span>
+              <span className="block font-medium text-gray-800 dark:text-gray-100">Enable Amendment Proposals</span>
               <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Run a separate follow-up AI pass after each translation to suggest prompt-rule amendments for future chapters.
+                Run a separate follow-up AI pass after each translation to suggest prompt or glossary amendments for future chapters.
+                Glossary accepts update your local override layer on top of the imported book glossary.
                 When disabled, no proposal pass runs. Enabling this adds an extra AI call per translated chapter.
               </span>
             </div>

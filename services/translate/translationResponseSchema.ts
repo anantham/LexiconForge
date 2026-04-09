@@ -11,12 +11,25 @@ const proposalProperty = {
   type: ['object', 'null'],
   description: '' + prompts.proposalDescription,
   properties: {
+    kind: { type: 'string', enum: ['prompt', 'glossary'], description: 'Whether the amendment targets the system prompt or glossary.' },
     observation: { type: 'string', description: '' + prompts.proposalObservationDescription },
     currentRule: { type: 'string', description: '' + prompts.proposalCurrentRuleDescription },
     proposedChange: { type: 'string', description: '' + prompts.proposalProposedChangeDescription },
-    reasoning: { type: 'string', description: '' + prompts.proposalReasoningDescription }
+    reasoning: { type: 'string', description: '' + prompts.proposalReasoningDescription },
+    glossaryOperation: { type: 'string', enum: ['add', 'replace'], description: 'Required when kind is glossary.' },
+    glossaryEntry: {
+      type: ['object', 'null'],
+      description: 'Required when kind is glossary. The concrete glossary row to add or replace.',
+      properties: {
+        source: { type: 'string' },
+        target: { type: 'string' },
+        note: { type: 'string' },
+      },
+      required: ['source', 'target'],
+      additionalProperties: false,
+    },
   },
-  required: ['observation', 'currentRule', 'proposedChange', 'reasoning'],
+  required: ['kind', 'observation', 'currentRule', 'proposedChange', 'reasoning'],
   additionalProperties: false
 } as const;
 
@@ -222,12 +235,25 @@ const proposalGeminiProperty: Schema = {
   nullable: true,
   description: '' + prompts.proposalDescription,
   properties: {
+    kind: { type: SchemaType.STRING, description: 'Whether the amendment targets the system prompt or glossary.' },
     observation: { type: SchemaType.STRING, description: '' + prompts.proposalObservationDescription },
     currentRule: { type: SchemaType.STRING, description: '' + prompts.proposalCurrentRuleDescription },
     proposedChange: { type: SchemaType.STRING, description: '' + prompts.proposalProposedChangeDescription },
-    reasoning: { type: SchemaType.STRING, description: '' + prompts.proposalReasoningDescription }
+    reasoning: { type: SchemaType.STRING, description: '' + prompts.proposalReasoningDescription },
+    glossaryOperation: { type: SchemaType.STRING, description: 'Required when kind is glossary.' },
+    glossaryEntry: {
+      type: SchemaType.OBJECT,
+      nullable: true,
+      description: 'Required when kind is glossary. The concrete glossary row to add or replace.',
+      properties: {
+        source: { type: SchemaType.STRING },
+        target: { type: SchemaType.STRING },
+        note: { type: SchemaType.STRING },
+      },
+      required: ['source', 'target']
+    }
   },
-  required: ['observation', 'currentRule', 'proposedChange', 'reasoning']
+  required: ['kind', 'observation', 'currentRule', 'proposedChange', 'reasoning']
 };
 
 export const proposalResponseGeminiSchema: Schema = {

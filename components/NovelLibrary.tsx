@@ -17,7 +17,7 @@ import type { NovelEntry, NovelVersion } from '../types/novel';
 import { debugLog } from '../utils/debug';
 import { SettingsOps } from '../services/db/operations';
 import { loadNovelIntoStore } from '../services/readerHydrationService';
-import { fetchAndMergeGlossary } from '../services/glossaryService';
+import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossaryService';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -134,7 +134,12 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         fetchAndMergeGlossary(version.glossaryLayers)
           .then(glossary => {
             if (glossary.length > 0) {
-              useAppStore.getState().updateSettings({ glossary });
+              const currentSettings = useAppStore.getState().settings;
+              const glossaryOverrides = currentSettings.glossaryOverrides ?? [];
+              useAppStore.getState().updateSettings({
+                glossaryBase: glossary,
+                glossary: mergeGlossaryEntries(glossary, glossaryOverrides),
+              });
               console.log(`[NovelLibrary] Loaded ${glossary.length} glossary entries for ${novel.title}`);
             }
           })

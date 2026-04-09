@@ -22,6 +22,7 @@ import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { clientTelemetry } from '../../services/clientTelemetry';
 import { debugLog, debugWarn } from '../../utils/debug';
 import type { TelemetryErrorContext, TelemetryFailureType, TranslationOrigin } from '../../types/telemetry';
+import { mergeGlossaryEntries } from '../../services/glossaryService';
 
 export interface TranslationsState {
   // Active translations
@@ -83,6 +84,39 @@ export interface TranslationsActions {
 }
 
 export type TranslationsSlice = TranslationsState & TranslationsActions;
+
+const isGlossaryProposal = (proposal: AmendmentProposal): boolean =>
+  proposal.kind === 'glossary' && !!proposal.glossaryEntry;
+
+const applyGlossaryProposal = (
+  settings: AppSettings,
+  proposal: AmendmentProposal
+): { nextSettings: Partial<AppSettings>; appliedEntry: NonNullable<AmendmentProposal['glossaryEntry']> } | null => {
+  if (!isGlossaryProposal(proposal) || !proposal.glossaryEntry) {
+    return null;
+  }
+
+  const appliedEntry = proposal.glossaryEntry;
+  const glossaryBase = settings.glossaryBase ?? settings.glossary ?? [];
+  const currentOverrides = settings.glossaryOverrides ?? [];
+  const overrideIndex = currentOverrides.findIndex(entry => entry.source === appliedEntry.source);
+  const nextOverrides = [...currentOverrides];
+
+  if (overrideIndex >= 0) {
+    nextOverrides[overrideIndex] = appliedEntry;
+  } else {
+    nextOverrides.push(appliedEntry);
+  }
+
+  return {
+    appliedEntry,
+    nextSettings: {
+      glossaryBase,
+      glossaryOverrides: nextOverrides,
+      glossary: mergeGlossaryEntries(glossaryBase, nextOverrides),
+    },
+  };
+};
 
 const emitTranslationFailure = ({
   chapterId,
@@ -816,14 +850,26 @@ export const createTranslationsSlice: StateCreator<
     const currentChapterId = state.currentChapterId;
 
     if (settingsActions.updateSettings && settingsActions.settings) {
-      const currentSystemPrompt = settingsActions.settings.systemPrompt;
-      const cleanChange = proposal.proposedChange.replace(/^[+-]\s/gm, '');
-      const newPrompt = currentSystemPrompt.replace(
-        proposal.currentRule,
-        cleanChange
-      );
+      let finalPromptChange: string | undefined;
+      let finalGlossaryEntry: typeof proposal.glossaryEntry | undefined;
 
-      settingsActions.updateSettings({ systemPrompt: newPrompt });
+      if (isGlossaryProposal(proposal)) {
+        const glossaryUpdate = applyGlossaryProposal(settingsActions.settings, proposal);
+        if (glossaryUpdate) {
+          settingsActions.updateSettings(glossaryUpdate.nextSettings);
+          finalGlossaryEntry = glossaryUpdate.appliedEntry;
+        }
+      } else {
+        const currentSystemPrompt = settingsActions.settings.systemPrompt;
+        const cleanChange = proposal.proposedChange.replace(/^[+-]\s/gm, '');
+        const newPrompt = currentSystemPrompt.replace(
+          proposal.currentRule,
+          cleanChange
+        );
+
+        settingsActions.updateSettings({ systemPrompt: newPrompt });
+        finalPromptChange = cleanChange;
+      }
 
       // Log the accepted amendment
       try {
@@ -831,7 +877,8 @@ export const createTranslationsSlice: StateCreator<
           chapterId: currentChapterId,
           proposal,
           action: 'accepted',
-          finalPromptChange: cleanChange
+          finalPromptChange,
+          finalGlossaryEntry,
         });
       } catch (error) {
         console.warn('[TranslationsSlice] Failed to log amendment action:', error);
@@ -874,6 +921,10 @@ export const createTranslationsSlice: StateCreator<
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
+    if (isGlossaryProposal(proposal)) {
+      await get().acceptProposal(index);
+      return;
+    }
     const state = get();
     const settingsActions = state;
     const currentChapterId = state.currentChapterId;

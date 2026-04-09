@@ -40,6 +40,23 @@ export const mergeGlossaryLayers = (
   return Array.from(merged.values());
 };
 
+export const mergeGlossaryEntries = (
+  baseEntries: GlossaryEntry[],
+  overrideEntries: GlossaryEntry[]
+): GlossaryEntry[] => {
+  const merged = new Map<string, GlossaryEntry>();
+
+  for (const entry of baseEntries) {
+    merged.set(entry.source, entry);
+  }
+
+  for (const entry of overrideEntries) {
+    merged.set(entry.source, entry);
+  }
+
+  return Array.from(merged.values());
+};
+
 /**
  * Fetch a single glossary JSON from a URL.
  * Returns empty entries array on any failure (network, parse, etc).
