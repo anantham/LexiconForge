@@ -1314,3 +1314,15 @@
 - Tests:
   - `npx vitest run tests/services/registryService.test.ts` ✅
   - `npx vitest run tests/services/importService.test.ts` ✅
+
+2026-04-09 10:26 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Capture temporary library compatibility debt introduced during the FMC/version-migration fix.
+- Files:
+  - docs/roadmaps/TECH-DEBT-INBOX.md
+  - docs/WORKLOG.md
+- Why:
+  - The new library compatibility behavior is intentionally temporary and should be removed once metadata/version migration is complete.
+- Details:
+  - Created `docs/roadmaps/TECH-DEBT-INBOX.md` and added a receipt for the temporary version-alias fallback, raw→media session URL rewrite, and Git LFS pointer guard.
+  - [DEBT] The receipt includes explicit exit criteria so this compatibility code can be removed deliberately rather than forgotten.
