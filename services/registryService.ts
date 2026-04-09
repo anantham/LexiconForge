@@ -37,11 +37,38 @@ const resolveMetadataAssetUrl = (value: string | undefined, metadataUrl: string)
   }
 };
 
+const toMediaGitHubUrl = (value: string): string => {
+  try {
+    const url = new URL(value);
+    if (url.hostname !== 'raw.githubusercontent.com') {
+      return value;
+    }
+
+    const [, owner, repo, ...rest] = url.pathname.split('/');
+    if (!owner || !repo || rest.length === 0) {
+      return value;
+    }
+
+    return `https://media.githubusercontent.com/media/${owner}/${repo}/${rest.join('/')}`;
+  } catch {
+    return value;
+  }
+};
+
+const normalizeSessionArtifactUrl = (value: string | undefined, metadataUrl: string): string | undefined => {
+  const resolved = resolveMetadataAssetUrl(value, metadataUrl);
+  if (!resolved) {
+    return resolved;
+  }
+
+  return /\/session\.json$/i.test(resolved) ? toMediaGitHubUrl(resolved) : resolved;
+};
+
 const normalizeNovelMetadataUrls = (metadata: NovelEntry, metadataUrl: string): NovelEntry => {
   return {
     ...metadata,
     ...(metadata.sessionJsonUrl
-      ? { sessionJsonUrl: resolveMetadataAssetUrl(metadata.sessionJsonUrl, metadataUrl) }
+      ? { sessionJsonUrl: normalizeSessionArtifactUrl(metadata.sessionJsonUrl, metadataUrl) }
       : {}),
     metadata: {
       ...metadata.metadata,
@@ -55,7 +82,8 @@ const normalizeNovelMetadataUrls = (metadata: NovelEntry, metadataUrl: string): 
       ? {
           versions: metadata.versions.map((version) => ({
             ...version,
-            sessionJsonUrl: resolveMetadataAssetUrl(version.sessionJsonUrl, metadataUrl) ?? version.sessionJsonUrl,
+            sessionJsonUrl:
+              normalizeSessionArtifactUrl(version.sessionJsonUrl, metadataUrl) ?? version.sessionJsonUrl,
             ...(version.glossaryLayers
               ? {
                   glossaryLayers: version.glossaryLayers.map((layer) => ({

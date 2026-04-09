@@ -207,4 +207,59 @@ describe('ImportService', () => {
     // ImportService returns the converted payload
     expect(result?.metadata?.format).toBe('lexiconforge-full-1');
   });
+
+  it('rewrites raw GitHub session URLs to media GitHub before fetching', async () => {
+    const sessionData = {
+      metadata: {
+        format: 'lexiconforge-full-1',
+        version: '2.0',
+      },
+      chapters: [],
+    };
+
+    const jsonString = JSON.stringify(sessionData);
+    const contentLength = new TextEncoder().encode(jsonString).length;
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({
+        'content-length': contentLength.toString(),
+      }),
+      body: createMockReadableStream(sessionData),
+    });
+
+    await ImportService.importFromUrl(
+      'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels/fmc/session.json'
+    );
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://media.githubusercontent.com/media/anantham/lexiconforge-novels/main/novels/fmc/session.json',
+      expect.any(Object)
+    );
+  });
+
+  it('surfaces a clear error when a session URL returns a Git LFS pointer', async () => {
+    const pointerBody = `${'version https://git-lfs.github.com/spec/v1'}\noid sha256:test\nsize 123`;
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(pointerBody);
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({
+        'content-length': bytes.length.toString(),
+      }),
+      body: new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      }),
+    });
+
+    await expect(
+      ImportService.importFromUrl(
+        'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels/fmc/session.json'
+      )
+    ).rejects.toThrow('Git LFS pointer instead of JSON');
+  });
 });

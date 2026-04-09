@@ -49,6 +49,52 @@ export interface ImportOptions {
 const MAX_RETRIES = 3;
 const FIRST_BATCH_THRESHOLD = 4;
 
+const GIT_LFS_POINTER_PREFIX = 'version https://git-lfs.github.com/spec/v1';
+
+const convertGitHubUrlToRaw = (url: string): string => {
+  if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
+    return url
+      .replace('github.com', 'raw.githubusercontent.com')
+      .replace('/blob/', '/');
+  }
+
+  return url;
+};
+
+const convertRawGitHubUrlToMedia = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'raw.githubusercontent.com') {
+      return url;
+    }
+
+    const [, owner, repo, ...rest] = parsed.pathname.split('/');
+    if (!owner || !repo || rest.length === 0) {
+      return url;
+    }
+
+    return `https://media.githubusercontent.com/media/${owner}/${repo}/${rest.join('/')}`;
+  } catch {
+    return url;
+  }
+};
+
+const normalizeImportUrl = (url: string): string => {
+  const rawUrl = convertGitHubUrlToRaw(url);
+  return /\/session\.json$/i.test(rawUrl) ? convertRawGitHubUrlToMedia(rawUrl) : rawUrl;
+};
+
+const isGitLfsPointer = (text: string): boolean => text.trimStart().startsWith(GIT_LFS_POINTER_PREFIX);
+
+const buildGitLfsPointerError = (fetchUrl: string): Error => {
+  const mediaSuggestion = fetchUrl.includes('raw.githubusercontent.com')
+    ? ` Try the media URL instead: ${convertRawGitHubUrlToMedia(fetchUrl)}`
+    : '';
+  return new Error(
+    `Session URL returned a Git LFS pointer instead of JSON.${mediaSuggestion}`
+  );
+};
+
 const getScopedChapterIdentity = (
   chapter: {
     stableId?: string;
@@ -104,12 +150,7 @@ export class ImportService {
     options: ImportOptions = {}
   ): Promise<any> {
     // Convert GitHub URLs to raw format
-    let fetchUrl = url;
-    if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
-      fetchUrl = url
-        .replace('github.com', 'raw.githubusercontent.com')
-        .replace('/blob/', '/');
-    }
+    let fetchUrl = normalizeImportUrl(url);
 
     // Convert Google Drive share links to Google Drive API endpoint
     if (url.includes('drive.google.com/file/d/')) {
@@ -195,6 +236,9 @@ export class ImportService {
 
           const blob = new Blob(chunks);
           const text = await blob.text();
+          if (isGitLfsPointer(text)) {
+            throw buildGitLfsPointerError(fetchUrl);
+          }
           let sessionData = JSON.parse(text);
 
           if (isBookTokiScrapePayload(sessionData)) {
@@ -263,12 +307,7 @@ export class ImportService {
       debugLog('import', 'summary', '[StreamImport] Starting streaming import from:', url);
 
       // Convert GitHub URLs to raw format
-      let fetchUrl = url;
-      if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
-        fetchUrl = url
-          .replace('github.com', 'raw.githubusercontent.com')
-          .replace('/blob/', '/');
-      }
+      let fetchUrl = normalizeImportUrl(url);
 
       // Convert Google Drive share links
       if (url.includes('drive.google.com/file/d/')) {
@@ -461,6 +500,10 @@ export class ImportService {
         };
 
         const emitMetadataIfReady = () => {
+          if (!metadataEmitted && isGitLfsPointer(buffer)) {
+            throw buildGitLfsPointerError(fetchUrl);
+          }
+
           if (metadataEmitted) return;
 
           const metadataKey = buffer.indexOf('"metadata"');

@@ -1295,3 +1295,22 @@
   - `npx vitest run tests/services/registryService.test.ts` ✅
   - `npx vitest run tests/store/bootstrap/bootstrapHelpers.test.ts` ✅
   - `npx vitest run tests/components/NovelLibrary.test.tsx` ✅
+
+2026-04-09 09:50 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Fix FMC session artifact resolution so Git LFS-backed `session.json` imports fetch real JSON and fail clearly when a pointer slips through.
+- Files:
+  - services/registryService.ts
+  - services/importService.ts
+  - tests/services/registryService.test.ts
+  - tests/services/importService.test.ts
+  - docs/WORKLOG.md
+- Why:
+  - The FMC metadata now resolved correctly, but `raw.githubusercontent.com` still served the Git LFS pointer for `session.json`, producing `Unexpected token 'v'` during JSON parsing.
+- Details:
+  - Rewrote GitHub raw session artifact URLs to `media.githubusercontent.com` during registry metadata normalization.
+  - Added importer-side GitHub session URL normalization so direct/raw session links are upgraded before fetch.
+  - Added explicit Git LFS pointer detection with a clear error message instead of an opaque JSON parse failure.
+- Tests:
+  - `npx vitest run tests/services/registryService.test.ts` ✅
+  - `npx vitest run tests/services/importService.test.ts` ✅
