@@ -27,11 +27,14 @@ export const PromptPanel: React.FC = () => {
 
   const [showCreatePrompt, setShowCreatePrompt] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<string | null>(null);
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const [newPromptName, setNewPromptName] = useState('');
   const [newPromptDescription, setNewPromptDescription] = useState('');
   const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const isEditingActive = editingPrompt === activePromptTemplate?.id;
+  const glossaryEntries = currentSettings.glossary ?? [];
+  const visibleGlossaryEntries = glossaryEntries.slice(0, 8);
 
   useEffect(() => {
     if (isEditingActive && promptTextareaRef.current) {
@@ -120,7 +123,14 @@ export const PromptPanel: React.FC = () => {
             <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               Active prompt content
             </h4>
-            <div className="space-x-2">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsPromptExpanded((value) => !value)}
+                className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-xs rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                type="button"
+              >
+                {isPromptExpanded ? 'Collapse' : 'Expand'}
+              </button>
               {activePromptTemplate && !isEditingActive && (
                 <button
                   onClick={() => setEditingPrompt(activePromptTemplate.id)}
@@ -157,20 +167,71 @@ export const PromptPanel: React.FC = () => {
             value={currentSettings.systemPrompt}
             onChange={(e) => handleSettingChange('systemPrompt', e.target.value)}
             disabled={!activePromptTemplate}
-            className={`w-full h-40 p-3 text-sm rounded-md border ${
+            spellCheck={false}
+            className={`w-full p-3 text-sm rounded-md border ${
               isEditingActive
                 ? 'border-blue-400 focus:ring-2 focus:ring-blue-400'
                 : 'border-gray-300 dark:border-gray-700'
-            } bg-gray-50 dark:bg-gray-800 dark:text-gray-100`}
+            } ${isPromptExpanded ? 'h-[65vh]' : 'h-56'} bg-gray-50 dark:bg-gray-800 dark:text-gray-100 font-mono leading-6 resize-y`}
             placeholder="Select or create a prompt to edit its content"
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {activePromptTemplate
               ? isEditingActive
                 ? 'Editing active prompt. Click Save to persist changes.'
-                : 'Click Edit to modify the active prompt content.'
+                : 'Click Edit to modify the active prompt content. Expand gives you a roomier read-only/editor view.'
               : 'Select or create a prompt to start editing.'}
           </p>
+        </div>
+
+        <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-white dark:bg-gray-900">
+          <div className="flex items-center justify-between mb-2 gap-4">
+            <div>
+              <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                Active glossary context
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Library-imported glossary layers are loaded into runtime settings and injected into prompts from here, not from the metadata form.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+              {glossaryEntries.length} {glossaryEntries.length === 1 ? 'term' : 'terms'}
+            </span>
+          </div>
+
+          {glossaryEntries.length === 0 ? (
+            <p className="rounded-md border border-dashed border-gray-300 px-3 py-4 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              No glossary is currently loaded into runtime settings for this reading session.
+            </p>
+          ) : (
+            <>
+              <div className="overflow-x-auto rounded-md border border-gray-200 dark:border-gray-700">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Source</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Target</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Note</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {visibleGlossaryEntries.map((entry, index) => (
+                      <tr key={`${entry.source}-${entry.target}-${index}`} className="align-top">
+                        <td className="px-3 py-2 font-mono text-xs text-gray-800 dark:text-gray-200">{entry.source}</td>
+                        <td className="px-3 py-2 text-gray-800 dark:text-gray-200">{entry.target}</td>
+                        <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">{entry.note || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {glossaryEntries.length > visibleGlossaryEntries.length && (
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Showing the first {visibleGlossaryEntries.length} entries. The remaining {glossaryEntries.length - visibleGlossaryEntries.length} terms are still included in prompt context.
+                </p>
+              )}
+            </>
+          )}
         </div>
 
         {showCreatePrompt && (

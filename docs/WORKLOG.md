@@ -1,3 +1,25 @@
+2026-04-09 13:20 EDT - [Agent: Codex]
+- Status: Progress
+- Task: Clarify the amendment/glossary contract and expose the active runtime glossary in the prompt workspace UI.
+- Files:
+  - components/settings/PromptPanel.tsx:28-37, 121-235
+  - components/settings/PromptPanel.test.tsx:9-26, 121-137
+  - components/settings/TranslationParametersSection.tsx:189-193
+  - services/prompts.ts:67-115
+  - components/settings/AdvancedPanel.test.tsx:194-204
+  - docs/WORKLOG.md:1-17
+- Why:
+  - The library-imported glossary is persisted in `settings.glossary` and used in prompt construction, but the amendment UX still implies accepted proposals can update the glossary even though the current accept path only mutates `settings.systemPrompt`.
+  - The active prompt editor is cramped for long prompts, and the loaded glossary is not visible where prompt context is actually managed.
+- Details:
+  - Made the amendment copy prompt-only in both the advanced settings checkbox and the amendment-review prompt builder so the AI no longer proposes glossary edits the accept flow cannot apply.
+  - Added a read-only “Active glossary context” table to the Prompt panel, sourced directly from `currentSettings.glossary`, with term counts and truncation messaging for larger imports.
+  - Improved prompt readability by making the active prompt editor taller, monospace, resizable, spellcheck-free, and expandable/collapsible for long prompt review.
+  - Added focused tests covering the visible glossary summary, prompt editor expansion affordance, and the corrected amendment copy.
+- Tests:
+  - `npx vitest run components/settings/PromptPanel.test.tsx` ✅
+  - `npx vitest run components/settings/AdvancedPanel.test.tsx` ✅
+
 2026-04-05 08:30 EDT - [Agent: Gemini]
 - Status: Complete
 - Task: Resolve four user-reported friction points and bugs across translation, navigation, and UI.

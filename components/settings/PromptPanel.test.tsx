@@ -16,6 +16,10 @@ const baseSettings: AppSettings = {
   fontStyle: 'serif',
   lineHeight: 1.6,
   systemPrompt: 'default prompt',
+  glossary: [
+    { source: '灵气', target: 'spiritual energy', note: 'Use consistently' },
+    { source: '筑基', target: 'Foundation Establishment' },
+  ],
   imageModel: 'none',
   showDiffHeatmap: true,
   maxSessionSize: 10,
@@ -112,5 +116,23 @@ describe('PromptPanel', () => {
     expect(storeState.updatePromptTemplate).toHaveBeenCalledWith(
       expect.objectContaining({ id: '1', content: 'Updated content' })
     );
+  });
+
+  it('shows active glossary context from runtime settings', () => {
+    renderPanel();
+
+    expect(screen.getByText(/active glossary context/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 terms/i)).toBeInTheDocument();
+    expect(screen.getByText('灵气')).toBeInTheDocument();
+    expect(screen.getByText('spiritual energy')).toBeInTheDocument();
+  });
+
+  it('lets the reader expand the prompt editor for readability', async () => {
+    const user = userEvent.setup();
+    renderPanel();
+
+    await user.click(screen.getByRole('button', { name: /expand/i }));
+
+    expect(screen.getByRole('button', { name: /collapse/i })).toBeInTheDocument();
   });
 });

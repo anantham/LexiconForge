@@ -195,6 +195,9 @@ describe('AdvancedPanel', () => {
     const handleSettingChange = vi.fn();
     renderPanel({ handleSettingChange });
 
+    expect(screen.getByText(/suggest prompt-rule amendments for future chapters/i)).toBeInTheDocument();
+    expect(screen.queryByText(/prompt or glossary amendments/i)).not.toBeInTheDocument();
+
     const toggle = screen.getByLabelText(/enable prompt amendment proposals/i);
     await userEvent.click(toggle);
 
