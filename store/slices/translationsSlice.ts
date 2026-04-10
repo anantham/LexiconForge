@@ -344,6 +344,48 @@ export const createTranslationsSlice: StateCreator<
           return;
         }
 
+        // If no matching version found, but this is an auto-translate and ANY version exists, block it.
+        // This prevents re-translation on model change when navigating.
+        if (origin === 'auto_translate') {
+          console.warn('[Retranslate] 🔁 Blocked: any version exists and this is an auto-translate', {
+            chapterId,
+            existingVersionCount: existingVersions.length,
+          });
+
+          // Hydrate the latest version into memory if it's missing (similar to matchingVersion logic)
+          const chapter = context.chapters.get(chapterId);
+          if (chapter && !chapter.translationResult) {
+            const latestVersion = [...existingVersions].sort((a, b) => b.version - a.version)[0];
+            const adapted = adaptTranslationRecordToResult(chapterId, latestVersion);
+            if (adapted) {
+              console.log('[Retranslate] 🔁 Hydrating latest version into memory for', chapterId);
+              set(prev => {
+                const newChapters = new Map(prev.chapters);
+                const existing = newChapters.get(chapterId);
+                if (existing) {
+                  newChapters.set(chapterId, { ...existing, translationResult: adapted as any });
+                }
+                return { chapters: newChapters };
+              });
+            }
+          }
+
+          set(prev => {
+            const nextPending = new Set(prev.pendingTranslations);
+            nextPending.delete(chapterId);
+            const nextProgress = { ...prev.translationProgress };
+            delete nextProgress[chapterId];
+            const nextActive = { ...prev.activeTranslations };
+            delete nextActive[chapterId];
+            return {
+              pendingTranslations: nextPending,
+              translationProgress: nextProgress,
+              activeTranslations: nextActive,
+            };
+          });
+          return;
+        }
+
         // No matching version found, proceed to create new version
         debugLog('translation', 'summary', '[Retranslate] No matching settings version found, creating new version', {
           chapterId,

@@ -88,10 +88,10 @@ afterEach(() => {
   it('stores translation results for the active chapter', async () => {
     const chapterId = 'stable-1';
     const url = 'https://example.com/chapter/1';
-    useAppStore.setState(state => ({
+    useAppStore.setState({
       chapters: new Map([[chapterId, makeChapter(chapterId, url)]]),
-      settings: { ...state.settings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
-    }));
+      settings: { ...defaultSettings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
+    });
 
     versionsSpy.mockResolvedValue([]);
     // Fix: translateChapterSequential returns TranslateChapterResponse, not TranslationResult directly
@@ -110,10 +110,10 @@ afterEach(() => {
   it('skips translation when a stored version already exists', async () => {
     const chapterId = 'stable-2';
     const url = 'https://example.com/chapter/2';
-    useAppStore.setState(state => ({
+    useAppStore.setState({
       chapters: new Map([[chapterId, makeChapter(chapterId, url)]]),
-      settings: { ...state.settings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
-    }));
+      settings: { ...defaultSettings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
+    });
 
     versionsSpy.mockResolvedValue([
       {
@@ -123,7 +123,11 @@ afterEach(() => {
           provider: 'Gemini',
           model: 'gemini-2.5-flash',
           systemPrompt: defaultSettings.systemPrompt,
-          temperature: defaultSettings.temperature,
+          temperature: 0.3,
+          enableAmendments: false,
+          contextDepth: defaultSettings.contextDepth,
+          includeFanTranslationInPrompt: defaultSettings.includeFanTranslationInPrompt,
+          includeHistoricalFanTranslationsInContext: defaultSettings.includeHistoricalFanTranslationsInContext,
         },
       } as any,
     ]);
@@ -137,11 +141,11 @@ afterEach(() => {
   it('records failures when translation returns an error payload', async () => {
     const chapterId = 'stable-3';
     const url = 'https://example.com/chapter/3';
-    useAppStore.setState(state => ({
+    useAppStore.setState({
       chapters: new Map([[chapterId, makeChapter(chapterId, url)]]),
-      settings: { ...state.settings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
+      settings: { ...defaultSettings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
       showNotification: vi.fn(),
-    }));
+    });
 
     versionsSpy.mockResolvedValue([]);
     translationSpy.mockResolvedValue({
@@ -166,10 +170,10 @@ afterEach(() => {
   it('resets progress when translation is aborted', async () => {
     const chapterId = 'stable-4';
     const url = 'https://example.com/chapter/4';
-    useAppStore.setState(state => ({
+    useAppStore.setState({
       chapters: new Map([[chapterId, makeChapter(chapterId, url)]]),
-      settings: { ...state.settings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
-    }));
+      settings: { ...defaultSettings, provider: 'Gemini', model: 'gemini-2.5-flash', apiKeyGemini: 'key' },
+    });
 
     versionsSpy.mockResolvedValue([]);
     translationSpy.mockResolvedValue({ aborted: true } as any);
