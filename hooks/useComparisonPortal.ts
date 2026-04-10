@@ -77,6 +77,12 @@ export const useComparisonPortal = ({
   }, [canCompare, dismissComparison]);
 
   useEffect(() => {
+    if (currentChapterId) {
+      dismissComparison();
+    }
+  }, [currentChapterId, dismissComparison]);
+
+  useEffect(() => {
     if (!comparisonChunk) {
       setComparisonError(null);
       setShowRawComparison(false);
@@ -232,6 +238,7 @@ export const useComparisonPortal = ({
     repairedTranslation,
     contentRef,
     clearSelection,
+    dismissComparison,
   ]);
 
   return {
