@@ -71,14 +71,11 @@ const getActiveTranslationMap = async (db: IDBDatabase): Promise<Map<string, Tra
   });
 };
 
-export const seedChapterSummariesIfEmpty = async (
+export const syncAllChapterSummaries = async (
   deps: SummaryOpsDeps
 ): Promise<void> => {
   const db = await deps.openDatabase();
   if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTER_SUMMARIES)) return;
-
-  const count = await countStoreRecords(db, STORE_NAMES.CHAPTER_SUMMARIES);
-  if (count > 0) return;
 
   const [chapters, activeTranslations] = await Promise.all([
     getAllChapterRecords(db),
@@ -114,6 +111,18 @@ export const seedChapterSummariesIfEmpty = async (
       reject(error as Error);
     }
   });
+};
+
+export const seedChapterSummariesIfEmpty = async (
+  deps: SummaryOpsDeps
+): Promise<void> => {
+  const db = await deps.openDatabase();
+  if (!db.objectStoreNames.contains(STORE_NAMES.CHAPTER_SUMMARIES)) return;
+
+  const count = await countStoreRecords(db, STORE_NAMES.CHAPTER_SUMMARIES);
+  if (count > 0) return;
+
+  await syncAllChapterSummaries(deps);
 };
 
 export interface RecomputeOptions {

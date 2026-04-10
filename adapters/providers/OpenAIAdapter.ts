@@ -283,6 +283,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
       provider: settings.provider,
       model,
       costUsd,
+      duration: (endTime - startTime) / 1000,
       tokens: {
         prompt: promptTokens,
         completion: completionTokens,

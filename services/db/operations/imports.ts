@@ -22,6 +22,7 @@ import {
   isScopedStableId,
   parseScopedStableId,
 } from '../../libraryScope';
+import { MaintenanceOps } from './maintenance';
 
 /**
  * Validates that all required stores exist in the database.
@@ -426,6 +427,9 @@ export class ImportOps {
       await this.restoreImageAssets(imageAssets);
     }
 
+    // Sync summaries after import to ensure they reflect the newly added chapters and translations
+    await MaintenanceOps.syncSummaries(true);
+
     onProgress?.('complete', totalChapters, totalChapters, 'Import complete');
   }
 
@@ -505,6 +509,9 @@ export class ImportOps {
         writeMapping(url, stableId, false);
       }
     });
+
+    // Sync summaries after import
+    await MaintenanceOps.syncSummaries(true);
   }
 
   private static async restoreImageAssets(assets: ExportedImageAsset[]): Promise<void> {

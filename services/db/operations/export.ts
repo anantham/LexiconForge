@@ -282,7 +282,7 @@ export const exportFullSessionToJson = async (
       navigationHistoryIncluded: Boolean(navHistory),
     },
     settings: Object.fromEntries(
-      Object.entries(settings).filter(([k]) => !k.startsWith('apiKey'))
+      Object.entries(settings || {}).filter(([k]) => !k.startsWith('apiKey'))
     ),
     urlMappings,
     novels,

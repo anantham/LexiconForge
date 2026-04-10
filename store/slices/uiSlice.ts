@@ -53,6 +53,9 @@ export interface UiState {
   
   // Store initialization status
   isInitialized: boolean;
+
+  // Track exact start time of user navigation for performance telemetry
+  navigationStartTime: number | null;
 }
 
 export interface UiActions {
@@ -62,6 +65,9 @@ export interface UiActions {
   openNovel: (novelId: string, versionId?: string | null) => void;
   setReaderReady: () => void;
   shelveActiveNovel: () => void;
+
+  // Navigation telemetry
+  setNavigationStartTime: (time: number | null) => void;
 
   // View mode actions
   setViewMode: (mode: 'original' | 'fan' | 'english') => void;
@@ -135,6 +141,7 @@ export const createUiSlice: StateCreator<
   urlLoadingStates: {},
   hydratingChapters: {},
   isInitialized: false,
+  navigationStartTime: null,
 
   // App shell routing actions
   openLibrary: () => set({
@@ -189,6 +196,8 @@ export const createUiSlice: StateCreator<
       navigationHistory: [],
     });
   },
+
+  setNavigationStartTime: (time) => set({ navigationStartTime: time }),
   
   // View mode actions
   setViewMode: (mode) => {

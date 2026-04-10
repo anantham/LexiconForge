@@ -130,27 +130,35 @@ const loadPromptTemplateState = async (ctx: BootstrapContext): Promise<void> => 
 
 const runBootRepairs = async (): Promise<void> => {
   bootstrapLog('bootRepairs start');
+  const bootRepairsDone = await SettingsOps.getKey<boolean>('bootRepairsDone');
 
-  const repairs: Array<{ name: string; fn: () => Promise<void> }> = [
-    { name: 'ensureModelFieldsRepaired', fn: () => ensureModelFieldsRepaired() },
-    { name: 'urlMappingsBackfill', fn: () => MaintenanceOps.backfillUrlMappingsFromChapters() },
-    { name: 'normalizeStableIds', fn: () => MaintenanceOps.normalizeStableIds() },
-    { name: 'repairScopedStableIdDuplicates', fn: () => MaintenanceOps.repairScopedStableIdDuplicates().then(() => undefined) },
-    { name: 'backfillActiveTranslations', fn: () => MaintenanceOps.backfillActiveTranslations() },
-    { name: 'translationMetadataBackfill', fn: () => MaintenanceOps.backfillTranslationMetadata() },
-    { name: 'novelIdBackfill', fn: () => MaintenanceOps.backfillNovelIds() },
-    { name: 'summaryNovelIdBackfill', fn: () => MaintenanceOps.backfillSummaryNovelIds() },
-  ];
+  if (!bootRepairsDone) {
+    const repairs: Array<{ name: string; fn: () => Promise<void> }> = [
+      { name: 'ensureModelFieldsRepaired', fn: () => ensureModelFieldsRepaired() },
+      { name: 'urlMappingsBackfill', fn: () => MaintenanceOps.backfillUrlMappingsFromChapters() },
+      { name: 'normalizeStableIds', fn: () => MaintenanceOps.normalizeStableIds() },
+      { name: 'repairScopedStableIdDuplicates', fn: () => MaintenanceOps.repairScopedStableIdDuplicates().then(() => undefined) },
+      { name: 'backfillActiveTranslations', fn: () => MaintenanceOps.backfillActiveTranslations() },
+      { name: 'translationMetadataBackfill', fn: () => MaintenanceOps.backfillTranslationMetadata() },
+      { name: 'novelIdBackfill', fn: () => MaintenanceOps.backfillNovelIds() },
+      { name: 'summaryNovelIdBackfill', fn: () => MaintenanceOps.backfillSummaryNovelIds() },
+      { name: 'syncSummaries', fn: () => MaintenanceOps.syncSummaries() },
+    ];
 
-  for (const { name, fn } of repairs) {
-    try {
-      bootstrapLog(`${name} start`);
-      await fn();
-      bootstrapLog(`${name} done`);
-    } catch (e) {
-      bootstrapLog(`${name} failed (non-fatal)`);
-      console.warn(`[Store] ${name} failed:`, e);
+    for (const { name, fn } of repairs) {
+      try {
+        bootstrapLog(`${name} start`);
+        await fn();
+        bootstrapLog(`${name} done`);
+      } catch (e) {
+        bootstrapLog(`${name} failed (non-fatal)`);
+        console.warn(`[Store] ${name} failed:`, e);
+      }
     }
+    
+    await SettingsOps.set('bootRepairsDone', true);
+  } else {
+    bootstrapLog('bootRepairs skipped (already done)');
   }
 
   try {
@@ -232,6 +240,21 @@ const handleNovelIntent = async (
   );
 
   try {
+    const { loadNovelIntoStore } = await import('../../services/readerHydrationService');
+    const existingFirstChapterId = await loadNovelIntoStore(novel.id, ctx.set, { versionId: version?.versionId ?? null });
+    
+    if (existingFirstChapterId) {
+      console.log(`[DeepLink] Novel ${novel.id} already cached. Bypassing fetch.`);
+      if (!options.keepReaderLoading) {
+        ctx.get().setReaderReady();
+        ctx.get().showNotification(
+          `✅ Loaded ${novel.title}${version ? ` (${version.displayName})` : ''} from cache!`,
+          'success'
+        );
+      }
+      return novel;
+    }
+
     const { ImportService } = await import('../../services/importService');
     await ImportService.importFromUrl(sessionJsonUrl, undefined, {
       registryNovelId: novel.id,
@@ -388,6 +411,9 @@ const hydratePersistedState = async (
       ctx.set((state) => ({
         currentChapterId: state.currentChapterId || lastChapterData.id,
       }));
+
+      // NEW: Set appScreen to 'reader' since we have a chapter loaded
+      ctx.get().setReaderReady();
 
       if (!currentState.chapters.has(lastChapterData.id)) {
         ctx

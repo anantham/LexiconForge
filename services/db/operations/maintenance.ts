@@ -21,6 +21,16 @@ import {
 } from '../../libraryScope';
 import { debugLog, debugWarn } from '../../../utils/debug';
 
+import {
+  recomputeSummary,
+  deleteSummary,
+  buildSummaryRecord,
+  fetchChapterSummaries,
+  syncAllChapterSummaries,
+} from './summaries';
+import { ChapterOps } from './chapters';
+import { TranslationOps } from './translations';
+
 const URL_MAPPINGS_BACKFILL_VERSION = 2;
 const SETTINGS = {
   URL_BACKFILL_VERSION: 'urlMappingsBackfillVersion',
@@ -31,6 +41,7 @@ const SETTINGS = {
   NOVEL_ID_BACKFILLED: 'novelIdBackfilled',
   SUMMARY_NOVEL_ID_BACKFILLED: 'summaryNovelIdBackfilled',
   SCOPED_IDENTITY_REPAIRED_V2: 'scopedStableIdRepairV2',
+  SUMMARIES_SYNCED: 'summariesSyncedV2',
 } as const;
 
 const nowIso = () => new Date().toISOString();
@@ -1057,6 +1068,26 @@ export class MaintenanceOps {
     await SettingsOps.set(SETTINGS.SCOPED_IDENTITY_REPAIRED_V2, 1);
     debugLog('indexeddb', 'summary', '[MaintenanceOps] Scoped stableId repair complete', summary);
     return summary;
+  }
+
+  static async syncSummaries(force = false): Promise<void> {
+    if (!force) {
+      const already = await SettingsOps.getKey<boolean>(SETTINGS.SUMMARIES_SYNCED);
+      if (already) return;
+    }
+
+    debugLog('indexeddb', 'summary', '[MaintenanceOps] Syncing all chapter summaries...');
+    
+    await syncAllChapterSummaries({
+      openDatabase: () => getConnection(),
+      getChapter: (url) => ChapterOps.get(url),
+      getChapterByStableId: (stableId) => ChapterOps.getByStableId(stableId),
+      getActiveTranslation: (url) => TranslationOps.getActiveByUrl(url),
+      normalizeUrl: (url) => normalizeUrlAggressively(url),
+    });
+
+    await SettingsOps.set(SETTINGS.SUMMARIES_SYNCED, true);
+    debugLog('indexeddb', 'summary', '[MaintenanceOps] Chapter summaries sync complete.');
   }
 
   static async clearAllData(): Promise<void> {

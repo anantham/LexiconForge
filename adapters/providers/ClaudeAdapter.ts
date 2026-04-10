@@ -75,6 +75,7 @@ export class ClaudeAdapter implements TranslationProvider, Provider {
         throw new DOMException('Aborted', 'AbortError');
       }
 
+      const endTime = performance.now();
       const responseContent = response.content[0];
       if (!responseContent || responseContent.type !== 'text') {
         throw new Error('Claude returned non-text response');
@@ -100,6 +101,7 @@ export class ClaudeAdapter implements TranslationProvider, Provider {
         provider: settings.provider,
         model,
         costUsd,
+        duration: (endTime - startTime) / 1000,
         tokens: {
           prompt: promptTokens,
           completion: completionTokens,

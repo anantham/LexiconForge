@@ -132,5 +132,6 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 13) file:///var/folders/68/c0w7ryfj66xdbs8v0yx662h00000gn/T/TemporaryItems/NSIRD_screencaptureui_EXHMpy/Screenshot%202026-04-08%20at%2011.30.08%E2%80%AFPM.png - the eta for how long it will take is generic and should be made model specific, flash models are faster than other models, aggregation ruins the value
 
-14)file:///var/folders/68/c0w7ryfj66xdbs8v0yx662h00000gn/T/TemporaryItems/NSIRD_screencaptureui_E17Pjj/Screenshot%202026-04-08%20at%2011.32.05%E2%80%AFPM.png - if translation fails then the retry red spinner should be clickable it should not just be like this
+14) file:///var/folders/68/c0w7ryfj66xdbs8v0yx662h00000gn/T/TemporaryItems/NSIRD_screencaptureui_E17Pjj/Screenshot%202026-04-08%20at%2011.32.05%E2%80%AFPM.png - if translation fails then the retry red spinner should be clickable it should not just be like this
 
+15) 

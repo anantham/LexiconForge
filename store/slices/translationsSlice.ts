@@ -522,36 +522,25 @@ export const createTranslationsSlice: StateCreator<
           const isGlossary = translationResult.proposal.kind === 'glossary' && !!translationResult.proposal.glossaryEntry;
           
           if (isGlossary && autoApproveGlossary) {
-            // Auto-approve glossary proposal
-            debugLog('translation', 'summary', '[Translation] Auto-approving glossary amendment proposal');
-            
-            // We need to wait for a tick to ensure the current state update is processed
-            // or just call the logic directly if possible. 
-            // Since we're inside a set() or about to be, it's safer to use the action.
-            setTimeout(() => {
-              const currentProposals = get().amendmentProposals;
-              const index = currentProposals.indexOf(translationResult.proposal!);
-              if (index !== -1) {
-                get().acceptProposal(index);
-              } else {
-                // If not in queue yet, just add it then approve it? 
-                // Actually, if it's auto-approve, maybe we shouldn't even put it in the queue.
-                // But acceptProposal expects it to be in the queue to log it correctly.
+            // Auto-approve glossary proposal directly without adding to queue to prevent UI flash
+            debugLog('translation', 'summary', '[Translation] Auto-approving glossary amendment proposal directly');
+            const currentState = get();
+            if (currentState.updateSettings && currentState.settings) {
+              const glossaryUpdate = applyGlossaryProposal(currentState.settings, translationResult.proposal!);
+              if (glossaryUpdate) {
+                currentState.updateSettings(glossaryUpdate.nextSettings);
                 
-                // Let's just apply it directly if it's not in the queue.
-                // Or better: add it to the queue in this tick, then accept it in next tick.
-                set((prevState) => ({
-                  amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]
-                }));
-                setTimeout(() => {
-                  const updatedProposals = get().amendmentProposals;
-                  const newIndex = updatedProposals.indexOf(translationResult.proposal!);
-                  if (newIndex !== -1) {
-                    get().acceptProposal(newIndex);
-                  }
-                }, 0);
+                // Log the auto-accepted amendment asynchronously
+                AmendmentOps.logAction({
+                  chapterId: currentState.currentChapterId,
+                  proposal: translationResult.proposal!,
+                  action: 'accepted',
+                  finalGlossaryEntry: glossaryUpdate.appliedEntry,
+                }).catch(error => {
+                  console.warn('[TranslationsSlice] Failed to log auto-accepted amendment action:', error);
+                });
               }
-            }, 0);
+            }
           } else {
             set((prevState) => ({
               amendmentProposals: [...prevState.amendmentProposals, translationResult.proposal!]

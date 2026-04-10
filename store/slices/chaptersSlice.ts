@@ -339,6 +339,14 @@ export const createChaptersSlice: StateCreator<
   // Navigation
   handleNavigate: async (url) => {
     const state = get();
+    // Record exact time navigation started from user's perspective
+    const uiActions = get() as any;
+    if (uiActions.setNavigationStartTime) {
+      uiActions.setNavigationStartTime(
+        typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now()
+      );
+    }
+    
     const context: NavigationContext = {
       chapters: state.chapters,
       urlIndex: state.urlIndex,

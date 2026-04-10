@@ -8,6 +8,7 @@ import {
   ChapterOps,
   DiffOps,
   ImportOps,
+  MaintenanceOps,
   SessionExportOps,
   SettingsOps,
   TemplatesOps,
@@ -60,8 +61,9 @@ const sampleChapter = (id: string, url: string): EnhancedChapter => ({
 });
 
 describe('Session export/import', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetStore();
+    await MaintenanceOps.clearAllData();
     vi.restoreAllMocks();
   });
 
@@ -465,6 +467,7 @@ describe('Session export/import', () => {
 
   describe('exportSessionData()', () => {
     it('serialises chapters in export JSON', async () => {
+      resetStore();
       const chapterId = 'stable-1';
       const url = 'https://example.com/chapters/1';
       const chapter = sampleChapter(chapterId, url);
@@ -476,12 +479,13 @@ describe('Session export/import', () => {
       const snapshot = JSON.parse(json);
 
       expect(snapshot.chapters).toHaveLength(1);
-      expect(snapshot.chapters[0].canonicalUrl).toBe(url);
+      expect(snapshot.chapters[0].canonicalUrl).toBe(normalizeUrlAggressively(url));
       expect(snapshot.chapters[0].title).toBe(chapter.title);
       expect(snapshot.chapters[0].translations?.[0]?.translatedTitle).toBe('Translated stable-1');
     });
 
     it('returns empty chapter list when no chapters are loaded', async () => {
+      resetStore();
       const json = await useAppStore.getState().exportSessionData();
       const snapshot = JSON.parse(json);
       expect(Array.isArray(snapshot.chapters)).toBe(true);
@@ -550,6 +554,9 @@ describe('Session export/import', () => {
         diffResults: [],
         amendmentLogs: []
       };
+
+      // Reset store state to ensure we are testing hydration from scratch
+      resetStore();
 
       // Perform actual import (NO MOCKS)
       await useAppStore.getState().importSessionData(importPayload);

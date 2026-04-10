@@ -1,6 +1,7 @@
-import { RefObject, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { telemetryService } from '../services/telemetryService';
 import { debugLog } from '../utils/debug';
+import { useAppStore } from '../store';
 
 const getTimestamp = () =>
   (typeof performance !== 'undefined' && typeof performance.now === 'function'
@@ -32,6 +33,9 @@ export const useChapterTelemetry = ({
   viewMode,
   feedbackCount,
 }: UseChapterTelemetryArgs) => {
+  const navigationStartTime = useAppStore(s => s.navigationStartTime);
+  const setNavigationStartTime = useAppStore(s => s.setNavigationStartTime);
+
   useEffect(() => {
     if (selection) {
       debugLog('comparison', 'summary', '[ChapterView] Selection state updated', {
@@ -43,7 +47,6 @@ export const useChapterTelemetry = ({
     }
   }, [selection]);
 
-  const navigationRenderStartRef = useRef<number | null>(null);
   const mountStartRef = useRef<number>(getTimestamp());
   const initialChapterIdRef = useRef<string | null>(currentChapterId);
   const initialHasChapterRef = useRef<boolean>(currentChapterId ? chapters.has(currentChapterId) : false);
@@ -57,25 +60,30 @@ export const useChapterTelemetry = ({
   }, []);
 
   useEffect(() => {
-    if (!currentChapterId) return;
-    navigationRenderStartRef.current = getTimestamp();
-  }, [currentChapterId]);
-
-  useEffect(() => {
     const activeChapterId = currentChapterId;
     if (!activeChapterId) return;
-    if (navigationRenderStartRef.current == null) return;
+    
+    // If navigationStartTime is not set (e.g. initial load or not triggered via handleNavigate),
+    // fallback to a rough estimate by starting the timer now.
+    if (navigationStartTime == null) {
+      setNavigationStartTime(getTimestamp());
+      return;
+    }
+
     if (isLoading.fetching || translationInProgress || isHydratingCurrent) return;
     if (!chapter) return;
+    
     const end = getTimestamp();
-    const duration = end - navigationRenderStartRef.current;
+    const duration = end - navigationStartTime;
     telemetryService.capturePerformance('ux:component:ChapterView:ready', duration, {
       chapterId: activeChapterId,
       hasTranslation: Boolean(translationResult),
       viewMode,
       feedbackCount,
     });
-    navigationRenderStartRef.current = null;
+    
+    // Clear it so we don't log it again for re-renders
+    setNavigationStartTime(null);
   }, [
     chapter,
     translationResult,
@@ -85,5 +93,7 @@ export const useChapterTelemetry = ({
     currentChapterId,
     viewMode,
     feedbackCount,
+    navigationStartTime,
+    setNavigationStartTime
   ]);
 };
