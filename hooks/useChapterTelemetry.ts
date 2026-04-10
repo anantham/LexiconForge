@@ -35,6 +35,7 @@ export const useChapterTelemetry = ({
 }: UseChapterTelemetryArgs) => {
   const navigationStartTime = useAppStore(s => s.navigationStartTime);
   const setNavigationStartTime = useAppStore(s => s.setNavigationStartTime);
+  const lastLoggedChapterRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (selection) {
@@ -63,15 +64,15 @@ export const useChapterTelemetry = ({
     const activeChapterId = currentChapterId;
     if (!activeChapterId) return;
     
-    // If navigationStartTime is not set (e.g. initial load or not triggered via handleNavigate),
-    // fallback to a rough estimate by starting the timer now.
-    if (navigationStartTime == null) {
-      setNavigationStartTime(getTimestamp());
-      return;
-    }
+    // Only proceed if we have a start time to measure against
+    if (navigationStartTime == null) return;
 
     if (isLoading.fetching || translationInProgress || isHydratingCurrent) return;
     if (!chapter) return;
+
+    // Avoid duplicate logging for the same chapter/version state
+    const versionToken = `${activeChapterId}:${Boolean(translationResult)}`;
+    if (lastLoggedChapterRef.current === versionToken) return;
     
     const end = getTimestamp();
     const duration = end - navigationStartTime;
@@ -82,7 +83,7 @@ export const useChapterTelemetry = ({
       feedbackCount,
     });
     
-    // Clear it so we don't log it again for re-renders
+    lastLoggedChapterRef.current = versionToken;
     setNavigationStartTime(null);
   }, [
     chapter,

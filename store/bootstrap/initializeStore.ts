@@ -39,7 +39,10 @@ const resetBootTelemetry = () => {
 const bootstrapLog = (message: string, payload?: any) => {
   const now = performance.now();
   if (bootMarks.length === 0) {
-    bootStart = now;
+    // Anchor to navigation start if available, otherwise use current performance.now()
+    // performance.now() is already relative to navigationStart in modern browsers,
+    // so setting bootStart = 0 would effectively anchor it to navigationStart.
+    bootStart = 0; 
     lastMark = now;
   }
   const delta = Math.round(now - lastMark);
@@ -454,6 +457,11 @@ export const createInitializeStore = (ctx: BootstrapContext): SessionActions['in
     }
     resetBootTelemetry();
     bootstrapLog('initializeStore – begin');
+    
+    // Set navigationStartTime to 0 (relative to page load) 
+    // to track the time until the first chapter is fully ready.
+    ctx.get().setNavigationStartTime(0);
+    
     ctx.get().setInitialized(false);
     ctx.get().openLibrary();
 

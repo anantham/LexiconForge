@@ -214,6 +214,8 @@ const createState = (overrides: Partial<StoreState> = {}): StoreState => {
     rawUrlIndex: new Map(),
     navigationHistory: [],
     currentChapterId: null,
+    navigationStartTime: null,
+    setNavigationStartTime: vi.fn(),
     handleNavigate: vi.fn().mockResolvedValue(undefined),
     pendingTranslations: new Set<string>(),
     sessionProvenance: null,
@@ -253,6 +255,9 @@ const createCtx = (state: StoreState): { state: StoreState; ctx: BootstrapContex
     state.appScreen = 'library';
     state.activeNovelId = null;
     state.activeVersionId = null;
+  });
+  state.setNavigationStartTime = vi.fn((time: number | null) => {
+    state.navigationStartTime = time;
   });
   return {
     state,

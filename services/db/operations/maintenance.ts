@@ -1080,7 +1080,7 @@ export class MaintenanceOps {
     
     await syncAllChapterSummaries({
       openDatabase: () => getConnection(),
-      getChapter: (url) => ChapterOps.get(url),
+      getChapter: (url) => ChapterOps.getByUrl(url),
       getChapterByStableId: (stableId) => ChapterOps.getByStableId(stableId),
       getActiveTranslation: (url) => TranslationOps.getActiveByUrl(url),
       normalizeUrl: (url) => normalizeUrlAggressively(url),
