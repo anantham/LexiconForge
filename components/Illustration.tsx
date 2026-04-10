@@ -527,41 +527,74 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           />
 
           {hasIllust && (
-            <div className="w-full max-w-xl text-left mt-3">
-              {/* Caption toggle button */}
-              <button
-                onClick={() => setCaptionControlsVisible(!captionControlsVisible)}
-                className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-              >
-                <span>{captionControlsVisible ? '▼' : '▶'}</span>
-                <span>Caption controls</span>
-                {!captionControlsVisible && illust?.imagePrompt && (
-                  <span className="text-xs text-gray-500 dark:text-gray-500 truncate max-w-xs ml-1">
-                    — {illust.imagePrompt.slice(0, 50)}{illust.imagePrompt.length > 50 ? '...' : ''}
+            <div className="w-full max-w-xl mt-3">
+              {/* Compact: caption + Edit + Regenerate */}
+              {!captionControlsVisible && (
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 truncate text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                    {illust?.imagePrompt || 'No caption'}
                   </span>
-                )}
-              </button>
+                  <button
+                    onClick={() => setCaptionControlsVisible(true)}
+                    className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 border border-gray-300 dark:border-gray-600 rounded"
+                    title="Edit caption"
+                  >
+                    ✎
+                  </button>
+                </div>
+              )}
 
-              {/* Collapsible caption controls */}
+              {/* Expanded: full controls */}
               {captionControlsVisible && (
-                <div className="mt-3 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
-                  <IllustrationPromptEditor
-                    caption={draftPrompt}
-                    planJson={draftPlanJson}
-                    planMode={illust?.imagePlanMode || 'auto'}
-                    planSourceCaption={illust?.imagePlanSourceCaption}
-                    isEditing={isEditing}
-                    isSaving={isSaving}
-                    editorMode={editorMode}
-                    validationError={editorError}
-                    onEditorModeChange={setEditorMode}
-                    onStartEditing={startEditing}
-                    onCaptionChange={setDraftPrompt}
-                    onPlanChange={setDraftPlanJson}
-                    onSave={saveAndClose}
-                    onCancel={cancelEditing}
-                    onRegeneratePlanFromCaption={handleRegeneratePlanFromCaption}
-                  />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={draftPrompt}
+                      onChange={(e) => setDraftPrompt(e.target.value)}
+                      className="flex-1 px-2 py-1 text-sm border rounded"
+                      placeholder="Caption..."
+                    />
+                    <button
+                      onClick={() => setCaptionControlsVisible(false)}
+                      className="px-2 text-gray-500"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex gap-2 text-xs">
+                    <button
+                      onClick={() => setEditorMode('caption')}
+                      className={`px-2 py-1 rounded ${editorMode === 'caption' ? 'bg-blue-100 font-medium' : 'text-gray-500'}`}
+                    >
+                      Caption
+                    </button>
+                    <button
+                      onClick={() => setEditorMode('plan')}
+                      className={`px-2 py-1 rounded ${editorMode === 'plan' ? 'bg-blue-100 font-medium' : 'text-gray-500'}`}
+                    >
+                      JSON
+                    </button>
+                  </div>
+                  {editorMode === 'plan' && (
+                    <textarea
+                      value={draftPlanJson}
+                      onChange={(e) => setDraftPlanJson(e.target.value)}
+                      className="w-full h-32 text-xs font-mono border rounded"
+                    />
+                  )}
+                  <button
+                    onClick={async () => {
+                      const saved = await saveDraftsIfChanged();
+                      if (saved && chapter) {
+                        handleRetryImage(chapter.id, illust?.placementMarker ?? marker);
+                      }
+                    }}
+                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded"
+                    disabled={isSaving}
+                  >
+                    Regenerate
+                  </button>
                   
                   {/* Advanced Image Controls - Only for Flux models */}
                   {supportsAdvancedFeatures && (
