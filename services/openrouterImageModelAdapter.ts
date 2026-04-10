@@ -53,7 +53,7 @@ export interface OpenRouterImageRequestConfig {
 
 const IMAGE_MODELS_KEY = 'openrouter-image-models-v2';
 const IMAGE_MODEL_CACHE_MS = 60 * 60 * 1000;
-const IMAGE_MODELS_URL = 'https://openrouter.ai/api/v1/models?output_modalities=image';
+const IMAGE_MODELS_URL = 'https://openrouter.ai/api/v1/models';
 
 const STANDARD_ASPECT_RATIOS: AspectRatioOption[] = [
   { label: '1:1', value: 1 / 1 },
@@ -77,6 +77,9 @@ const EXTENDED_ASPECT_RATIOS: AspectRatioOption[] = [
 
 const IMAGE_PRICE_HINTS: Record<string, { estimate: number; label: string }> = {
   'google/gemini-2.5-flash-image': { estimate: 0.03, label: '$0.0300/image (est.)' },
+  'google/gemini-2.5-flash-image-preview': { estimate: 0.039, label: '$0.0390/image' },
+  'google/gemini-3.0-flash-image-preview': { estimate: 0.04, label: '$0.0400/image' },
+  'google/gemini-3.1-flash-image-preview': { estimate: 0.04, label: '$0.0400/image' },
   'google/gemini-3-pro-image-preview': { estimate: 0.12, label: '$0.1200/image (est.)' },
   'openai/gpt-5-image': { estimate: 0.04, label: '$0.0400/image (est.)' },
   'openai/gpt-5-image-mini': { estimate: 0.008, label: '$0.0080/image (est.)' },
@@ -170,6 +173,7 @@ const mapRowToProfile = (row: ORImageModelRow): OpenRouterImageModelProfile | nu
 
   const inputModalities = toLowerCaseSet(row.architecture?.input_modalities);
   const outputModalities = toLowerCaseSet(row.architecture?.output_modalities);
+  // Filter client-side for image-capable models (client-side filter is more reliable than API query param)
   if (!outputModalities.includes('image')) return null;
 
   const requestModalities: Array<'image' | 'text'> = outputModalities.includes('text')
@@ -199,15 +203,18 @@ export async function fetchVerifiedOpenRouterImageModels(
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 
-  debugLog('api', 'summary', '[OpenRouterImageAdapter] Fetching verified image models');
+  debugLog('api', 'summary', '[OpenRouterImageAdapter] Fetching all models (will filter client-side for image-capable)');
   const response = await fetch(IMAGE_MODELS_URL, { headers });
   if (!response.ok) {
-    throw new Error(`OpenRouter image models fetch failed: ${response.status}`);
+    throw new Error(`OpenRouter models fetch failed: ${response.status}`);
   }
 
   const json = await response.json();
-  const rows = Array.isArray(json?.data) ? (json.data as ORImageModelRow[]) : [];
-  const mapped = rows
+  const allRows = Array.isArray(json?.data) ? (json.data as ORImageModelRow[]) : [];
+  debugLog('api', 'summary', `[OpenRouterImageAdapter] Total models from API: ${allRows.length}`);
+
+  // Filter for image-capable models client-side (more reliable than API query param)
+  const mapped = allRows
     .map(mapRowToProfile)
     .filter((profile): profile is OpenRouterImageModelProfile => profile !== null)
     .sort((a, b) => {
@@ -216,6 +223,11 @@ export async function fetchVerifiedOpenRouterImageModels(
       const sortB = b.sortKey ?? Number.POSITIVE_INFINITY;
       return sortA - sortB || providerCompare;
     });
+
+  debugLog('api', 'summary', `[OpenRouterImageAdapter] Image-capable models found: ${mapped.length}`);
+  if (mapped.length === 0 && allRows.length > 0) {
+    console.warn('[OpenRouterImageAdapter] WARNING: No image models found! Check output_modalities filter.');
+  }
 
   const cache: OpenRouterImageModelsCache = {
     data: mapped,
