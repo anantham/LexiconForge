@@ -359,7 +359,7 @@ export interface AppSettings {
     // Audio feature
     enableAudio?: boolean;                    // Show audio generation controls (default: false)
     // Image generation
-    autoGenerateImages?: boolean;             // Auto-generate illustrations after translation (default: true)
+    autoGenerateImages?: boolean;             // Auto-generate illustrations after translation (default: false)
     // Inline comment markers
     showInlineComments?: boolean;             // Show feedback comments floating near text (default: true)
     // Prompt snapshot metadata

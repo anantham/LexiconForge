@@ -60,6 +60,8 @@ export const defaultSettings: AppSettings = {
   // Audio feature - OFF by default
   enableAudio: false,
   enableSillyTavern: false,
+  // Image generation - OFF by default (user must manually trigger)
+  autoGenerateImages: false,
   sillyTavernBridgeUrl: 'http://localhost:5001',
   diffMarkerVisibility: {
     fan: true,

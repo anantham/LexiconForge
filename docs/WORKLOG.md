@@ -1,3 +1,14 @@
+2026-04-10 10:15 EDT - [Agent: Claude]
+- Status: Complete
+- Task: Change autoGenerateImages default to false, add footnote min/max to prompts
+- Files:
+  - services/sessionManagementService.ts:64 (added autoGenerateImages: false)
+  - config/prompts.json:3-4 (updated footnote min/max to 1-3, images optional)
+  - types.ts:362 (updated comment to reflect default: false)
+- Why:
+  - Images were auto-generating after every translation when image model was set, no manual control
+  - Footnotes had no explicit min/max bounds
+
 2026-04-09 11:35 EDT - [Agent: Codex]
 - Status: Starting
 - Task: Harden library-scoped chapter identity boundaries so already-scoped stable IDs are not silently re-scoped during import/bootstrap flows.
@@ -10,7 +21,7 @@
   - tests/services/stableIdService.test.ts
   - tests/current-system/export-import.test.ts
 - Why:
-  - Runtime logs show recursively wrapped IDs like `lf-library:...:lf-library:...:ch2...`, which indicates the import boundary is accepting ambiguous `stableId` strings and scoping them more than once.
+  - Runtime logs show recursively wrapped IDs like `lf-library:...:lf-library:...ch2...`, which indicates the import boundary is accepting ambiguous `stableId` strings and scoping them more than once.
   - The current API contract does not distinguish `baseStableId` from `scopedStableId`, so multiple layers can reinterpret identity strings differently.
 
 2026-04-09 11:40 EDT - [Agent: Codex]
