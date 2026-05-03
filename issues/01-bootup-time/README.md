@@ -228,7 +228,14 @@ The user's table (row 38 → 39):
 ```
 …is exactly the gap left by the un-instrumented `handleBootstrapIntents` phase running between Phase 1 and Phase 3 (line 478 in `initializeStore`).
 
-## 5. Test coverage gap
+## 5b. Action — which kind of fix this is
+
+**`enforce_existing_ADR`** for defects 1, 2, 3, 4, 7. **`fix_local` + `escalate_to_human`** for defects 5, 6.
+
+- **Defects 1-4, 7** (StrictMode dup, telemetry globals, deep-link instrumentation, blocking import, doubled HTTP fetches): all subsumed by enforcing **CORE-006**'s "render app shell immediately, lazy-load non-critical." Add tests that demand it; fix the code to comply. **Cheaper than drafting CORE-008.**
+- **Defects 5, 6** (silent v1-composite → v1-st-enhanced remap; deep-fail scope validation): **needs-human-clarification first.** The fix-direction depends on whether `v1-composite` is a stored snapshot (raw) or a derived view (computable). Without that answer from Aditya, picking either fix-shape is guessing. After clarification, becomes `fix_local` for the chosen shape.
+
+## 6. Test coverage gap & regression-test obligations
 
 Tests that touch `initializeStore`:
 
@@ -243,6 +250,22 @@ Tests that touch `initializeStore`:
 4. **End-to-end boot-time SLO** — Playwright test that boots cold and asserts `totalInitMs < 5000` for the no-deep-link case and `< Xms` for the deep-link case. Would catch regressions even with no understanding of the cause.
 
 None of these exist. The investigation harness in `traces/repro.mjs` is the closest thing the repo has to (4) and could be promoted to a real test.
+
+### Regression-test obligations (HARD GATE for closing this issue)
+
+Each defect must have a test that fails-pre-fix and passes-post-fix, committed in the same PR as the fix. **No "test in a follow-up."**
+
+| Defect | Required regression test | Where it lives |
+|---|---|---|
+| **1** — StrictMode duplicate-pipeline | Mock all bootstrap dependencies; call `createInitializeStore(ctx)()` twice rapidly without awaiting between calls; assert each mocked dep called exactly once | `tests/store/bootstrap/bootstrapHelpers.test.ts` (extend) |
+| **2** — Telemetry module-globals contamination | Run two parallel `initializeStore()` calls; read `boot-telemetry-history` from `localStorage`; assert each run's marks are coherent (no interleaved deltas, no shared `bootMarks` array) | `tests/store/bootstrap/bootstrapHelpers.test.ts` (new) |
+| **3** — Uninstrumented deep-link phase | After fixing, assert `bootstrapLog` is called at minimum: entry/exit of `handleBootstrapIntents`, around `RegistryService.fetchNovelById`, around `loadNovelIntoStore`, around `ImportService.importFromUrl`. Use a spy on the logger | `tests/store/bootstrap/bootstrapHelpers.test.ts` (new) |
+| **4** — Init blocks on full deep-link import (CORE-006 violation) | Playwright: `page.goto('/?novel=…')` returns a render-able shell (i.e. `[data-app-shell]` element visible) within 2000ms regardless of session-JSON download time. Mock the network layer to make the import take 30s+; assert shell is visible far before the import completes | `tests/e2e/init-shell-render.spec.ts` (new file) |
+| **5** — Silent version remap | After Aditya answers the raw-vs-derived question: either (a) assert `RegistryService.resolveCompatibleVersion(novel, 'v1-composite')` returns null/error when v1-composite isn't a real version, OR (b) assert the import path can honor the silently-remapped scope. Choice depends on §5b's clarification | `tests/services/registry.test.ts` (new) |
+| **6** — Deep-fail scope validation | Construct an `ImportService.importFromUrl(url, scope)` call where scope-mismatch is determinable from the request (e.g. URL host or first-byte metadata). Assert it rejects within 200ms, not after streaming chapters | `tests/services/importService.test.ts` (extend) |
+| **7** — Doubled registry HTTP fetches | Spy on `fetch`; mount the app with StrictMode; assert `[Registry] Fetched 3 novels` corresponds to ≤1 underlying network call (single-flighted), not 2-4 | `tests/store/bootstrap/bootstrapHelpers.test.ts` or `tests/services/registry.test.ts` |
+
+Tests 1+2+3+4+7 collectively enforce CORE-006 — they're the test obligation for the `enforce_existing_ADR` action. Tests 5+6 are blocked on §5b's escalation-to-human.
 
 ## 6. Archaeology
 

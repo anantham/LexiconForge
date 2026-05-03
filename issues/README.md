@@ -109,12 +109,44 @@ So `CORE-008-derived-views-recomputed-not-stored` is still worth drafting (cover
 ## Workflow
 
 1. New observation → Aditya appends to `Issues.md`.
-2. Agent creates `issues/NN-slug/` folder, copies the verbatim claim into `README.md`, assigns a *provisional* `(A?, B?, C?)` in the index.
+2. Agent creates `issues/NN-slug/` folder, copies the verbatim claim into `README.md`, sets `Status: not-investigated`, assigns a *provisional* `(A?, B?, C?)` in the index.
 3. Agent reproduces (Playwright at `localhost:5180`), reads relevant code, identifies test gap, runs archaeology.
-4. **Agent finalizes `(A?, B?, C?)`** in section 4 of the per-issue README — promotes from provisional to investigated.
-5. **Agent links to themes** under [`_themes/`](./_themes/), or proposes a new theme if needed.
-6. Agent suggests fix directions but does not implement.
-7. Aditya reviews. The matrix tells him whether the next move is "patch code", "extend ADR", "reconcile docs", or "re-anchor on vision".
+4. **Agent assigns a verdict** (real-bug / already-fixed / cannot-reproduce / confusion / preference / paused-on-repro / **needs-human-clarification** / underspecified-claim).
+5. **Agent finalizes `(A?, B?, C?)`** in section 4 of the per-issue README, links to themes under [`_themes/`](./_themes/), and **picks one Action** (§9 of the template).
+6. **Agent names regression-test obligations** in §6 — specific tests that must pass before close.
+7. Agent suggests fix directions but does not implement.
+8. Aditya reviews. Final `Status:` is set; if action is `escalate_to_human`, Aditya answers the question; if `fixed`, the closing gate (§9a) confirms tests are in.
+
+## State machine
+
+```
+not-investigated  → triaged  → investigated → fixed
+                                            → wontfix
+                                            → superseded
+                                  ↘ if escalate_to_human → blocked-on-aditya → ratified-direction → investigated
+                                  ↘ if paused-on-repro    → blocked-on-user-input → investigated
+                  ↘ if already-fixed / cannot-reproduce / confusion / preference / underspecified-claim → done (no §4-9)
+```
+
+Lightweight verdicts (`already-fixed`, `cannot-reproduce`, `confusion`, `preference`, `underspecified-claim`) close at §3 — no need to fill out the rest of the template. Heavy verdicts (`real-bug`) unlock §4-§9. **No issue closes as `fixed` without §9a's gate satisfied.**
+
+## The Action decision tree (when verdict = real-bug)
+
+After investigation, exactly one of these is the next move:
+
+| Action | When | Cost |
+|---|---|---|
+| `fix_local` | N=1 instance, no shared generator with other issues, contained scope | low |
+| `fix_generator` | Theme N≥2, shared primitive applies to all sites | medium (need primitive + audit) |
+| `enforce_existing_ADR` | Classification is `A1*` (existing ADR drifted from). Add failing test, fix code | low — *cheaper than drafting* |
+| `draft_new_ADR` | `A3` + blast radius large, OR theme N≥3 + design rule emerging | high |
+| `escalate_to_human` | Spec is genuinely ambiguous, ADRs disagree, or fix-direction depends on user intent that isn't documented | low (but blocks until answered) |
+| `wait` | Need user repro, more data, or external dependency | none |
+
+Three rules, in order:
+1. Prefer `enforce_existing_ADR` over `draft_new_ADR` whenever an existing ADR plausibly covers the case. Drafting is the more expensive path.
+2. **ADRs are not sacred.** If two ADRs disagree or an ADR's spirit feels confused, escalate. Don't pick a side.
+3. **Fixed = test in.** No issue closes as `fixed` without a regression test that would have failed against the bug.
 
 ## What the matrix changed about earlier categorizations
 
