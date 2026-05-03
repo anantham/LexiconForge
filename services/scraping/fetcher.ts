@@ -4,7 +4,7 @@
  */
 
 import { Chapter } from '../../types';
-import { SuttaCentralAdapter, getAdapter } from './siteAdapters';
+import { SuttaCentralAdapter, FojinAdapter, getAdapter } from './siteAdapters';
 import {
   PROXIES,
   PLAYWRIGHT_PROXY_URL,
@@ -42,17 +42,25 @@ export const fetchAndParseUrl = async (
     console.log('[Fetch] SuttaCentral URL detected; using API fetch path.');
   }
 
+  const isFojin = targetUrl.hostname.endsWith('fojin.app');
+  const fojinAdapter = isFojin
+    ? new FojinAdapter(url, new DOMParser().parseFromString('', 'text/html'))
+    : null;
+  if (fojinAdapter) {
+    console.log('[Fetch] FoJin URL detected; using API fetch path.');
+  }
+
   let lastError: Error | null = null;
   const MAX_RETRIES = 2;
   const proxyHealthMap = getProxyHealthMap();
 
   // --- Local fetch proxy (dev server or Vercel serverless) ---
   // Runs server-side on the user's machine / edge, bypassing CORS and Cloudflare bot-detection.
-  // INV-2: SuttaCentral uses its own JSON API — skip the HTML proxy entirely.
+  // INV-2: SuttaCentral and FoJin use their own JSON APIs — skip the HTML proxy entirely.
   const localProxyBase = import.meta.env.DEV
     ? '/api/fetch-proxy'
     : '/api/fetch-proxy'; // same path — Vercel serverless handles prod
-  if (!suttaAdapter) try {
+  if (!suttaAdapter && !fojinAdapter) try {
     const localProxyUrl = `${localProxyBase}?url=${encodeURIComponent(url)}`;
     console.log(`[Fetch] Trying local proxy for: ${url}`);
     const startTime = Date.now();
@@ -131,7 +139,7 @@ export const fetchAndParseUrl = async (
       console.log(`[Fetch] Attempt ${attempt}/${MAX_RETRIES} via ${proxyName} for: ${url}`);
 
       try {
-        if (suttaAdapter) {
+        if (suttaAdapter || fojinAdapter) {
           const proxyFetcher = async (apiUrl: string) => {
             const innerUrl =
               proxy.type === 'param'
@@ -147,11 +155,13 @@ export const fetchAndParseUrl = async (
             return await innerResp.text();
           };
 
-          const result = await suttaAdapter.fetchSutta(proxyFetcher);
-          const suttaResponseTime = Date.now() - startTime;
+          const result = suttaAdapter
+            ? await suttaAdapter.fetchSutta(proxyFetcher)
+            : await fojinAdapter!.fetchFojin(proxyFetcher);
+          const apiResponseTime = Date.now() - startTime;
           updateProxyScore(proxy.url, true);
-          updateProxyHealth(proxy.url, true, suttaResponseTime);
-          console.log(`[Fetch] ✅ Success via ${proxyName} (${suttaResponseTime}ms)`);
+          updateProxyHealth(proxy.url, true, apiResponseTime);
+          console.log(`[Fetch] ✅ Success via ${proxyName} (${apiResponseTime}ms)`);
           return result;
         }
 
@@ -240,6 +250,18 @@ export const fetchAndParseUrl = async (
       return result;
     }
 
+    if (fojinAdapter) {
+      // FoJin's fetch is JSON-API based — Playwright HTML body isn't useful here.
+      // Re-issue the API call through a direct fetch (best-effort).
+      const result = await fojinAdapter.fetchFojin(async (apiUrl: string) => {
+        const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(15000) });
+        if (!resp.ok) throw new Error(`Direct API fetch failed: ${resp.status}`);
+        return await resp.text();
+      });
+      console.log(`[Fetch] ✅ FoJin direct API fallback succeeded`);
+      return result;
+    }
+
     const doc = new DOMParser().parseFromString(htmlString, 'text/html');
     const adapter = getAdapter(url, doc);
     if (!adapter) throw new Error(`No adapter for ${targetUrl.hostname}`);
@@ -273,14 +295,16 @@ export const fetchAndParseUrl = async (
   // Final fallback: attempt direct fetch (may fail due to CORS)
   console.log(`[Fetch] Final fallback: attempting direct fetch for: ${url}`);
   try {
-    if (suttaAdapter) {
+    if (suttaAdapter || fojinAdapter) {
       const directFetcher = async (apiUrl: string) => {
         const innerResp = await fetch(apiUrl, { signal: AbortSignal.timeout(10000) });
         if (!innerResp.ok)
           throw new Error(`Direct fetch failed to fetch API: ${innerResp.status}`);
         return await innerResp.text();
       };
-      const result = await suttaAdapter.fetchSutta(directFetcher);
+      const result = suttaAdapter
+        ? await suttaAdapter.fetchSutta(directFetcher)
+        : await fojinAdapter!.fetchFojin(directFetcher);
       console.log(`[Fetch] Direct fetch succeeded for: ${url}`);
       return result;
     }

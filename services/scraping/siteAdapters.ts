@@ -2,7 +2,7 @@
  * Site-specific scraping adapters for extracting chapter content from web novel sites.
  * Each adapter handles one site's HTML structure independently.
  *
- * Supported sites: Kakuyomu, Dxmwx, Kanunu, Novelcool, BookToki, Syosetu, SuttaCentral, Hetushu
+ * Supported sites: Kakuyomu, Dxmwx, Kanunu, Novelcool, BookToki, Syosetu, SuttaCentral, Hetushu, FoJin
  */
 
 import { Chapter } from '../../types';
@@ -503,6 +503,116 @@ export class SuttaCentralAdapter extends BaseAdapter {
   }
 }
 
+export class FojinAdapter extends BaseAdapter {
+  private textId: number | null = null;
+  private juanNum: number = 1;
+
+  constructor(url: string, doc: Document) {
+    super(url, doc);
+    this.parseUrlMetadata(url);
+  }
+
+  private parseUrlMetadata(url: string) {
+    try {
+      const urlObj = new URL(url);
+      // Expected: https://fojin.app/texts/{id}/read?juan={n}
+      // Also accepted: https://fojin.app/texts/{id}/read  (juan defaults to 1)
+      // Also accepted: https://fojin.app/texts/{id}        (juan defaults to 1)
+      const parts = urlObj.pathname.split('/').filter(Boolean);
+      const textsIdx = parts.indexOf('texts');
+      if (textsIdx >= 0 && parts.length > textsIdx + 1) {
+        const idNum = parseInt(parts[textsIdx + 1], 10);
+        if (!Number.isNaN(idNum)) this.textId = idNum;
+      }
+      const juanParam = urlObj.searchParams.get('juan');
+      if (juanParam) {
+        const juanNum = parseInt(juanParam, 10);
+        if (!Number.isNaN(juanNum) && juanNum > 0) this.juanNum = juanNum;
+      }
+    } catch (e) {
+      console.error('[FoJin] Failed to parse URL metadata:', e);
+    }
+  }
+
+  private buildSiblingUrl(juanNum: number | null): string | null {
+    if (juanNum == null || juanNum <= 0 || this.textId == null) return null;
+    return `https://fojin.app/texts/${this.textId}/read?juan=${juanNum}`;
+  }
+
+  extractTitle = () =>
+    this.textId != null ? `FoJin Text ${this.textId} (Juan ${this.juanNum})` : 'FoJin Text';
+
+  extractContent = () => 'Loading FoJin content...';
+
+  getPrevLink = () => this.buildSiblingUrl(this.juanNum - 1);
+  getNextLink = () => this.buildSiblingUrl(this.juanNum + 1);
+
+  /**
+   * Specialized fetcher using the FoJin REST API.
+   */
+  async fetchFojin(fetchFn: (url: string) => Promise<string>): Promise<Chapter> {
+    if (this.textId == null) {
+      throw new Error('Could not identify FoJin text id from URL.');
+    }
+
+    const juanUrl = `https://fojin.app/api/texts/${this.textId}/juans/${this.juanNum}`;
+    const juanResponse = await fetchFn(juanUrl);
+    const juan = JSON.parse(juanResponse);
+
+    if (!juan || typeof juan.content !== 'string' || juan.content.length === 0) {
+      throw new Error(
+        `FoJin text ${this.textId} juan ${this.juanNum} has no content. The text may be catalog-only (linked from CBETA or other source).`
+      );
+    }
+
+    // Optional metadata fetch — best-effort, don't fail if unavailable.
+    let meta: any = null;
+    try {
+      const metaResponse = await fetchFn(`https://fojin.app/api/texts/${this.textId}`);
+      meta = JSON.parse(metaResponse);
+    } catch (e) {
+      console.warn('[FoJin] Failed to fetch text metadata (non-fatal):', e);
+    }
+
+    const baseTitle = juan.title_zh || meta?.title_zh || `FoJin Text ${this.textId}`;
+    const totalJuans = juan.total_juans || meta?.fascicle_count || 1;
+    const finalTitle = totalJuans > 1
+      ? `${baseTitle} 卷${this.juanNum}`
+      : baseTitle;
+
+    const sourceLanguage = mapFojinLang(juan.lang || meta?.lang);
+
+    const prevUrl = this.buildSiblingUrl(juan.prev_juan ?? null);
+    const nextUrl = this.buildSiblingUrl(juan.next_juan ?? null);
+
+    return {
+      title: finalTitle,
+      content: juan.content,
+      originalUrl: this.url,
+      nextUrl,
+      prevUrl,
+      chapterNumber: this.juanNum,
+      sourceLanguage,
+      blurb: meta?.translator || meta?.dynasty
+        ? `${meta?.translator ? `Translator: ${meta.translator}` : ''}${meta?.translator && meta?.dynasty ? ' · ' : ''}${meta?.dynasty ? `Dynasty: ${meta.dynasty}` : ''}`.trim() || null
+        : null,
+    };
+  }
+}
+
+function mapFojinLang(lang: string | undefined | null): string | undefined {
+  if (!lang) return undefined;
+  switch (lang.toLowerCase()) {
+    case 'lzh': return 'Classical Chinese';
+    case 'zh': return 'Chinese';
+    case 'pi': return 'Pali';
+    case 'sa': return 'Sanskrit';
+    case 'bo': return 'Tibetan';
+    case 'en': return 'English';
+    default: return lang;
+  }
+}
+
 // --- FACTORY ---
 
 export function getAdapter(url: string, doc: Document): BaseAdapter | null {
@@ -515,5 +625,6 @@ export function getAdapter(url: string, doc: Document): BaseAdapter | null {
   if (url.includes('booktoki468.com')) return new BookTokiAdapter(url, doc);
   if (url.includes('suttacentral.net')) return new SuttaCentralAdapter(url, doc);
   if (url.includes('hetushu.com')) return new HetushuAdapter(url, doc);
+  if (url.includes('fojin.app')) return new FojinAdapter(url, doc);
   return null;
 }

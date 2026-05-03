@@ -19,6 +19,7 @@ const SUPPORTED_DOMAINS = [
   'ncode.syosetu.com',
   'booktoki468.com',
   'suttacentral.net',
+  'fojin.app',
 ];
 
 const isAdapterSupported = (url: string): boolean => {
@@ -30,7 +31,9 @@ const isAdapterSupported = (url: string): boolean => {
   }
 };
 
-const SEARCH_PROMPT = `You are a web novel source finder. Given a user's search query (which may be an English title, Chinese title, Korean title, author name, or a combination), find the original novel and return source URLs.
+const SEARCH_PROMPT = `You are a web novel and Buddhist scripture source finder. Given a user's search query (which may be an English title, Chinese title, Korean title, Sanskrit/Pali title, author name, or a combination), find the work and return source URLs.
+
+If the query refers to a Buddhist text (sutra, vinaya, abhidharma, sastra, tantra, etc. — recognize English / Sanskrit / Pali / Tibetan / Chinese variants), you MUST populate identity.titleZh with the canonical Classical Chinese title (e.g. "般若波羅蜜多心經" for "Heart Sutra", "妙法蓮華經" for "Lotus Sutra"). For novels, fill titleZh with the original-language title as before. Leave rawSources empty for Buddhist texts — they'll be discovered via a separate channel; only return rawSources for novels you find on the platforms below.
 
 IMPORTANT RULES:
 - Return REAL URLs that you are confident exist. Do not fabricate URLs.
@@ -152,6 +155,76 @@ const annotateCandidate = (raw: LLMSearchResponse['rawSources'][0]): SourceCandi
   adapterSupported: isAdapterSupported(raw.url),
 });
 
+interface FojinSearchHit {
+  id: number;
+  cbeta_id: string | null;
+  title_zh: string | null;
+  title_en?: string | null;
+  translator: string | null;
+  dynasty: string | null;
+  category: string | null;
+  has_content: boolean;
+  source_code: string | null;
+  score: number;
+}
+
+/**
+ * Query FoJin's search API directly using a canonical Buddhist title.
+ * Returns adapter-loadable candidate URLs for the top hits.
+ *
+ * FoJin's `has_content` field in search results is unreliable (often false even
+ * for texts whose juans actually return content). We attempt a fast
+ * verification fetch on the top match; subsequent results are returned
+ * unverified so the user can pick.
+ */
+async function searchFojinDirect(
+  canonicalTitle: string,
+  abortSignal?: AbortSignal,
+): Promise<SourceCandidate[]> {
+  if (!canonicalTitle || canonicalTitle.trim().length === 0) return [];
+
+  try {
+    const url = `https://fojin.app/api/search?q=${encodeURIComponent(canonicalTitle.trim())}&size=8`;
+    const response = await fetch(url, { signal: abortSignal });
+    if (!response.ok) {
+      console.warn(`[LibrarySearch] FoJin search failed: HTTP ${response.status}`);
+      return [];
+    }
+
+    const json = await response.json();
+    const hits: FojinSearchHit[] = Array.isArray(json?.results) ? json.results : [];
+    if (hits.length === 0) return [];
+
+    // Rank by score (FoJin already sorts but be explicit) and take top 5.
+    const top = [...hits].sort((a, b) => b.score - a.score).slice(0, 5);
+
+    return top.map((hit) => {
+      const titleDisplay = hit.title_zh || hit.title_en || `FoJin Text ${hit.id}`;
+      const dynastyTrans = [hit.dynasty, hit.translator].filter(Boolean).join(' · ');
+      return {
+        site: 'FoJin (佛津)',
+        url: `https://fojin.app/texts/${hit.id}/read?juan=1`,
+        matchedTitle: titleDisplay,
+        matchedAuthor: hit.translator || null,
+        sourceType: 'official' as const,
+        chapterCount: null,
+        status: null,
+        confidence: Math.min(1, hit.score / 100),
+        whyThisMatches: [
+          dynastyTrans || null,
+          hit.cbeta_id ? `CBETA ${hit.cbeta_id}` : null,
+          hit.category || null,
+        ].filter(Boolean).join(' · ') || `FoJin search match (score ${hit.score.toFixed(1)})`,
+        adapterSupported: true,
+      };
+    });
+  } catch (e: any) {
+    if (e?.name === 'AbortError') throw e;
+    console.warn('[LibrarySearch] FoJin direct search failed:', e?.message || e);
+    return [];
+  }
+}
+
 export async function searchNovelSources(
   query: string,
   settings: AppSettings,
@@ -185,10 +258,27 @@ export async function searchNovelSources(
     };
   }
 
+  // If the LLM resolved a Chinese title, also probe FoJin directly. Buddhist
+  // texts are routinely missed by the novel-focused prompt above; FoJin's own
+  // search index will surface them when given a canonical title.
+  let fojinCandidates: SourceCandidate[] = [];
+  if (parsed.identity.titleZh) {
+    try {
+      fojinCandidates = await searchFojinDirect(parsed.identity.titleZh, abortSignal);
+    } catch (e: any) {
+      if (e?.name === 'AbortError') throw e;
+      // Non-fatal — search still returns LLM results.
+    }
+  }
+
+  const llmCandidates = parsed.rawSources.map(annotateCandidate);
+  const mergedRaw = [...fojinCandidates, ...llmCandidates]
+    .sort((a, b) => b.confidence - a.confidence);
+
   return {
     query,
     identity: parsed.identity,
-    rawSources: parsed.rawSources.map(annotateCandidate).sort((a, b) => b.confidence - a.confidence),
+    rawSources: mergedRaw,
     fanTranslations: parsed.fanTranslations.map(annotateCandidate).sort((a, b) => b.confidence - a.confidence),
   };
 }

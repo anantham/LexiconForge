@@ -1,3 +1,27 @@
+2026-05-03 18:45 PDT - [Agent: Opus]
+- Status: Complete (worktree)
+- Task: Add FoJin (fojin.app) adapter + LLM-driven Buddhist scripture search integration
+- Worktree: ../LexiconForge.worktrees/opus-fojin / branch: feat/opus-fojin
+- Files:
+  - services/scraping/siteAdapters.ts (added FojinAdapter — REST API based, like SuttaCentral)
+  - services/scraping/fetcher.ts (wired isFojin path through proxy / Playwright / direct fetch fallbacks)
+  - services/scraping/urlUtils.ts (example URL)
+  - config/constants.ts (registered fojin.app in SUPPORTED_WEBSITES_CONFIG)
+  - services/librarySearch/searchService.ts (extended LLM prompt for Buddhist scripture identity; added searchFojinDirect that queries /api/search with the LLM's canonical Chinese title and merges results)
+  - tests/services/adapters.fojin.test.ts (5 tests)
+  - tests/services/librarySearch.fojin.test.ts (4 tests)
+- Why:
+  - User wanted to read Heart Sutra; library search returned nothing because (a) prompt was novel-only, (b) fojin's English search itself is broken ("heart sutra" → "Queen Gentle-heart"), (c) fojin.app wasn't a recognized adapter site.
+  - Fix uses the LLM (already in the search loop) to translate user query into canonical Chinese title (e.g. "Heart Sutra" → "般若波羅蜜多心經"), then queries fojin's API with that — id=9 ranks at score 505.8 cleanly.
+  - Adapter mirrors SuttaCentralAdapter (REST API, not HTML scrape). Uses /api/texts/{id}/juans/{n} for content, prev_juan/next_juan for navigation.
+- Verified:
+  - 9 fojin tests pass + 23 other adapter tests still pass
+  - npm run build succeeds
+  - Live API responses confirmed via curl during development (Heart Sutra T0251 returns 1282-char content)
+- Known caveats:
+  - fojin's `has_content` field in search results is unreliable; we don't filter on it (see adapter test for empty-content error path)
+  - Live browser end-to-end test not done — needs dev server + manual UI
+
 2026-04-10 10:15 EDT - [Agent: Claude]
 - Status: Complete
 - Task: Change autoGenerateImages default to false, add footnote min/max to prompts

@@ -126,6 +126,13 @@ export const SUPPORTED_WEBSITES_CONFIG: SupportedWebsite[] = [
     homeUrl: 'https://hetushu.com',
     exampleUrl: 'https://hetushu.com/book/2991/2051039.html'
   },
+  {
+    domain: 'fojin.app',
+    name: 'FoJin',
+    category: 'Buddhist Texts',
+    homeUrl: 'https://fojin.app',
+    exampleUrl: 'https://fojin.app/texts/9/read?juan=1'
+  },
 ];
 
 // Legacy array for backward compatibility
