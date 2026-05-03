@@ -230,10 +230,12 @@ The user's table (row 38 → 39):
 
 ## 5b. Action — which kind of fix this is
 
-**`enforce_existing_ADR`** for defects 1, 2, 3, 4, 7. **`fix_local` + `escalate_to_human`** for defects 5, 6.
+**`enforce_existing_ADR`** for defects 1, 2, 3, 4, 7. **`fix_local`** for defects 5, 6.
 
 - **Defects 1-4, 7** (StrictMode dup, telemetry globals, deep-link instrumentation, blocking import, doubled HTTP fetches): all subsumed by enforcing **CORE-006**'s "render app shell immediately, lazy-load non-critical." Add tests that demand it; fix the code to comply. **Cheaper than drafting CORE-008.**
-- **Defects 5, 6** (silent v1-composite → v1-st-enhanced remap; deep-fail scope validation): **needs-human-clarification first.** The fix-direction depends on whether `v1-composite` is a stored snapshot (raw) or a derived view (computable). Without that answer from Aditya, picking either fix-shape is guessing. After clarification, becomes `fix_local` for the chosen shape.
+- **Defects 5, 6** (silent v1-composite → v1-st-enhanced remap; deep-fail scope validation): **`fix_local`. Resolved 2026-05-03** — `v1-composite` is rule-based (per CORE-008 v2): a book-version that resolves per-chapter to the active chapter-translation. So:
+  - Defect 5 fix: `RegistryService.resolveCompatibleVersion` should not try to resolve `v1-composite` against stored versions at all. The rule-based name has no storage scope; the registry's job for v1-composite is to recognize it as a rule and let the view layer apply it at read time. The current "silently remap to v1-st-enhanced" is wrong because it's treating a rule-name as a missing storage scope.
+  - Defect 6 fix: session JSON chapter records should be tagged with their actual settings-fingerprint scope (the chapter-translation identity), never with a rule-based book-version name like v1-composite. If existing JSONs are tagged this way, an import-time migration converts them. Scope-validation can then fail fast at request boundary without ambiguity.
 
 ## 6. Test coverage gap & regression-test obligations
 

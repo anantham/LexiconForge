@@ -6,6 +6,10 @@
 
 > _Paste the user's exact text from `Issues.md`, unedited. Quote it so it is unmistakable that this section is not the agent's analysis._
 
+**Calibration rule:** **re-read this section after every architectural decision.** The verbatim claim often already encodes the user's mental model precisely; agents (and humans) gloss it under interpretation pressure and end up debating things the user already decided. If your fix-direction implies a different mental model than the verbatim claim does, you've drifted — fix the drift, don't rationalize past it. (See issue #16 for a worked example: the verbatim "comments tied to that version" was correct; the agent twice tried to "decouple from version" against the claim.)
+
+**Code-first rule:** when investigating, **read the code yourself instead of asking the user "does the system already do X?"** The user's CLAUDE.md anti-pattern "Yes-Bot" exists in the inverse direction too — never let the user become your search engine.
+
 ## 2. Reproduction
 
 **Goal:** can I make this happen on demand?

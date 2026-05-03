@@ -72,7 +72,7 @@ Legend: `R`=Reproduced · `V`=Verdict · `E`=Evidence/code paths · `T`=Test-gap
 | 13 | [eta-not-model-specific](./13-eta-not-model-specific/) | · | · | · | · | · | · | `(A3, B3, C2)` _provisional_ — no ADR on ETA reporting | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 | 14 | [retry-spinner-not-clickable](./14-retry-spinner-not-clickable/) | · | · | · | · | · | · | `(A3, B2, C2)` _provisional_ | [silent-feedback-gaps](./_themes/silent-feedback-gaps.md) |
 | 15 | [comparison-cycle-modes](./15-comparison-cycle-modes/) | · | · | · | · | · | · | `(A3, B3, C3)` _provisional_ — explicit vision contradiction | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
-| 16 | [version-switch-comments-vanish](./16-version-switch-comments-vanish/) | · | · | · | · | · | · | `(A2, B2, C2)` _provisional_ — DB-003 covers cascade DELETE but not cascade VIEW state | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
+| 16 | [version-switch-comments-vanish](./16-version-switch-comments-vanish/) | · | ◐ | ◐ | ✓ | · | ✓ | `(A2, B2, C1)` triaged — **HIGH PRIORITY**: load-bearing override for auto-active. UI re-render fix at chapter-translation switch | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 
 `·` = not yet done · `✓` = done · `◐` = partial · `—` = not applicable · `?` = blocked / open question
 

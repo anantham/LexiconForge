@@ -1,8 +1,10 @@
-# CORE-008 (DRAFT) — Derived Views Are Recomputed, Not Stored
+# CORE-008 (DRAFT) — Two-Level Versioning: Chapter-Translations Are Raw, Book-Versions Are Recipes
 
-> **Status: PROPOSED — DRAFT** · Date: 2026-05-02 · Author: Opus 4.7 (with Aditya as ratifier)
+> **Status: PROPOSED — DRAFT v2 (2026-05-03)** · Author: Opus 4.7 (with Aditya as ratifier)
 >
 > **Not in `docs/adr/` yet.** This draft lives under `issues/_themes/proposed-adrs/` as a working artifact. Move into `docs/adr/` only when Aditya ratifies the principle and sign-offs the scope. **Until ratified, do not enforce.**
+>
+> **v2 changes (2026-05-03):** Conversation with Aditya pinned the load-bearing decisions. The two-level vocabulary (chapter-translation vs book-version) replaces v1's single "raw vs derived" frame; "best" defined as "the user's active flag, not temporal latest"; auto-active on translate explicitly endorsed; materialize-on-demand promoted from "tradeoff" to "required mechanism."
 
 ## Context
 
@@ -33,46 +35,53 @@ This ADR fills the gap.
 
 ## Decision
 
-**Invariant:** Any state that can be derived from raw inputs + a small amount of session/UI context **MUST** be derived, not persisted.
+The system has **two distinct levels of "version"** that must not be conflated:
 
-### Definitions
+### Level 1 — Chapter-translation (raw)
 
-- **Raw input** (sacred, persisted): the untransformed substrate of the system. Specifically:
-  - Source-text chapters (the bytes from kakuyomu/syosetu/dxmwx/etc.)
-  - Fan translations (community-imported, treated as raw input)
-  - AI translation results (the model's output for given settings, treated as raw because the model produced it; the *settings* are the prompt-side raw input)
-  - Glossary entries (user-curated)
-  - Footnotes, illustrations (artifacts of generation, treated as raw)
-  - User feedback (spans, comments, amendments)
-  - User preferences (settings)
+A single immutable translation of one chapter, addressed by `(novel, chapter, provider, model, systemPrompt, settings_hash, generated_at)`. The fundamental raw unit. Stored in IDB `translations` table with an `isActive` boolean.
 
-- **Derived view** (ephemeral, JIT-recomputed): anything reachable from raw input + session/UI context via a deterministic function. Specifically:
-  - Comparison panel state (a function of: current chapter, current selection, current modes-being-compared)
-  - Selected mode in a cycle (raw/fan/google) (a function of: cycle position + chapter)
-  - "v1-composite" version (a function of: raw chapters under v1-st-enhanced + glossary + composition rules)
-  - Per-novel chapter-progress aggregate (a function of: chapter records)
-  - ETA estimate (a function of: queue + per-model historical speed)
-  - Comments-attached-to-view (a function of: comments-against-chapter-spans + current view's text)
+**Rules:**
+- **Immutable.** A new translation with different settings is a *new* chapter-translation, never an overwrite.
+- **`isActive` flag = "what to render right now for this chapter."** Set on creation (auto-active) AND settable explicitly via the dropdown (`setActiveTranslationVersion`). The dropdown override is the load-bearing escape hatch — without it, auto-active becomes a trap.
+- **Comments / feedback / amendments anchor here.** A comment is `(novel, chapter, chapter_translation_id, span)`. Durable because chapter-translations are immutable. Switching chapter-translation away hides the comment; switching back must re-render it (this is issue #16's regression test obligation).
+- **Tier ordering ("which is best?") is NOT defined globally.** The system has no opinion on quality. The user's `isActive` flag is the answer; the system tracks user choices, not external rankings.
 
-- **Anticipative pre-compute** (allowed exemption): a derived view computed eagerly *for a specific user's likely next moment*. To qualify it must:
-  - (a) be scoped to the current session, not shared across users
-  - (b) be invalidated cheaply when its inputs change
-  - (c) **never block rendering** — the absence of the precompute must produce a correct (slower) UX, not a broken one
+### Level 2 — Book-version (recipe over chapter-translations)
 
-  Examples that qualify: chapter preloader (FEAT-001), prompt-template prefetch, OpenRouter model list cached for the dropdown lifecycle.
-  Examples that DO NOT qualify (and are forbidden by this ADR): any precompute the renderer waits on, any precompute that's persisted across sessions, any precompute that becomes a "canonical view" (one shape for all consumers).
+A coherent reading sequence over a novel. Two flavors:
+
+- **Curated** (raw at the book level): an explicit list of chapter-translation IDs. Like an EPUB you've committed to. Stored as a NovelVersion with a `manifest: { [chapterId]: chapterTranslationId }`.
+- **Rule-based** (derived at the book level): a function `chapterId → chapterTranslationId`, resolved at read time. **`v1-composite` is this kind**, and its rule is *"resolve to whichever chapter-translation has `isActive: true` for that chapter."* No stored manifest; nothing in IDB has v1-composite as a scope.
+
+**Rules:**
+- **Rule-based book-versions are NEVER scopes for storage.** No IndexedDB record, no session-JSON chapter, no registry entry should tag content as belonging to v1-composite. Tag it with the chapter-translation's actual settings-fingerprint.
+- **Materialize-on-demand is required, not optional.** A user must be able to take a snapshot ("freeze this reading state") and have it become a curated book-version with provenance pointing back to the rule + the chapter-translations resolved at that moment. EPUB export is the most obvious materialization trigger.
+- **Auto-promote behavior of rule-based books is fine when the override mechanism works.** Generating a fresh chapter-translation auto-actives it (you want to read what you just made); the dropdown lets you switch back if the older one was better. Both behaviors are necessary; auto-active alone without the override would trap users.
+
+### Anticipative pre-compute (allowed exemption — unchanged from v1)
+
+A derived view computed eagerly *for a specific user's likely next moment*. To qualify it must:
+- (a) be scoped to the current session, not shared across users
+- (b) be invalidated cheaply when its inputs change
+- (c) **never block rendering** — the absence of the precompute must produce a correct (slower) UX, not a broken one
+
+Examples that qualify: chapter preloader (FEAT-001), prompt-template prefetch, OpenRouter model list cached for the dropdown lifecycle.
+Examples that DO NOT qualify (and are forbidden by this ADR): any precompute the renderer waits on, any precompute that's persisted across sessions as a canonical-view-for-everyone, any precompute that becomes a stored book-version-as-scope.
 
 ### Required behaviors
 
 1. **Render the requested view from raw input synchronously where possible**, asynchronously where not — but never block rendering on derivation of an *adjacent* view.
-2. **Invalidate derived state on context change.** Hooks/subscribers that hold derived state MUST clear/recompute when their input identifiers change. The fix in `0c5162b` (`useComparisonPortal`'s `useEffect` on `currentChapterId`) is the canonical pattern.
-3. **Never persist a derived view in IndexedDB.** If you find yourself writing a derived shape to a `db/operations/*.ts` write, stop and add a "raw → derive at read time" comment for the next reviewer.
-4. **Surface the cost of view-fork settings.** If a settings change forks the version tree (`includeFanTranslationInPrompt`, system prompt, model), the UI MUST tell the user before the fork happens. (This is a UX commitment, not just a code one.)
+2. **Invalidate derived state on context change.** Hooks/subscribers that hold derived state MUST clear/recompute when their input identifiers change. The fix in `0c5162b` (`useComparisonPortal`'s `useEffect` on `currentChapterId`) is the canonical pattern. The same pattern applies to chapter-translation switches (issue #16): comments and floating-icon overlays MUST re-render when the active chapter-translation changes.
+3. **Never persist a rule-based derived view as a storage scope.** If you find yourself writing chapter records under a book-version-name that isn't a curated manifest, stop. The book-version-name is a label for a rule, not a key.
+4. **Surface the cost of chapter-translation forks.** If a settings change creates a new chapter-translation (always true for any settings-fingerprint change), the UI MUST tell the user a new chapter-translation is being created, not silently. Issue #2's settings-as-identity concern.
+5. **Materialize-on-demand must be reachable from the UI.** At minimum: EPUB export materializes the current resolution into a curated book-version. Optionally: a "save this reading state" button that names + stores the snapshot for later return.
 
 ### Required architectural patterns
 
 - A `useDerivedView(contextId, derive)` hook (or equivalent) that pairs the derived value with an automatic invalidation on `contextId` change. Sites that currently hand-roll this (e.g. `useComparisonPortal`) refactor to use it.
 - A `precompute(key, fn, { invalidatesOn })` utility for the anticipative-precompute exemption. Cache is per-session, invalidates on listed dependencies, never blocks. **Pairs with `CORE-009-single-flight-at-call-sites`** (proposed) for dedup; see that ADR for the dedup primitive.
+- A `materialize(rule, snapshot_at)` operation that takes a rule-based book-version and produces a curated one. Used by EPUB export and any "freeze" feature.
 
 ## Consequences
 
@@ -86,8 +95,9 @@ This ADR fills the gap.
 ### Negative
 
 - Several existing files need refactoring to honor the principle. Estimate: ~15–20 small PRs over a sprint. Not a single big-bang.
-- The "v1-composite" version specifically is a hard call: is it raw (a stored snapshot) or derived (a recomputable view)? The current code treats it as raw, but the silent-remap bug (issue #1, defect 5) suggests it shouldn't be a stored identity. **Aditya call required** — if "derived," the import-fail bug becomes obviously wrong (don't store v1-composite; derive on read); if "raw," then the silent-remap is a separate bug.
+- ~~The "v1-composite" version specifically is a hard call: is it raw or derived?~~ **Resolved 2026-05-03:** v1-composite is rule-based at the book level; its rule is "resolve to the active chapter-translation per chapter." Defect 5 (silent remap) is a bug because v1-composite should never have been a storage scope the registry searches against.
 - This ADR overlaps with FEAT-001 and CORE-006. They become *specific applications* of CORE-008's general principle. No redundancy if their scopes (preload-strategy, bundle-loading) stay narrower than CORE-008's umbrella.
+- Existing IndexedDB records that may have been written under a v1-composite scope (if any — needs verification) would need migration to their actual chapter-translation-fingerprint scope. Migration effort TBD.
 
 ### Tradeoffs
 
@@ -109,12 +119,21 @@ This ADR fills the gap.
 4. **Refactor the gnarly ones.** Issue #6 (image-model picker dynamic), #13 (per-model ETA). These touch more surfaces.
 5. **Decide the v1-composite question.** Defect 5 from issue #1 forces this either way.
 
-## Open questions for ratification
+## Open questions for ratification (post-2026-05-03 conversation)
 
-- **Scope of "raw input."** Are AI translation results truly raw (the model produced them and we shouldn't re-derive) or derived (we COULD re-derive given prompt + model + settings)? Current ADR treats them as raw — please confirm.
-- **`v1-composite` — raw or derived?** This is the load-bearing question for issue #1's defect 5.
-- **Comments-attached-to-view (#16)** — currently coupled to version. Should they couple to (chapter, span) so they re-render in any view? This is a data-model question that touches DB-003.
-- **Settings as identity (#2)** — should `includeFanTranslationInPrompt` continue to fork the version tree, or should it become a view-time directive? Has direct consequences for storage cost and API spend.
+Most v1 questions resolved in conversation. Remaining:
+
+- **AI translation results — raw or re-derivable?** Current draft treats them as raw (the model produced specific bytes; we don't re-derive given prompt + settings, we reuse the stored bytes). Please confirm.
+- **Are there existing IDB records tagged under rule-based book-version names?** If yes, migration plan needed before this ADR can be enforced. If no, the ADR is purely forward-looking.
+- **EPUB export materialization shape.** When an EPUB is exported, is the resulting curated book-version stored back into IDB for future reference, or is it a write-only artifact (file download, gone from app state after)? Current draft says "stored with provenance"; verify that's the desired UX.
+
+## Resolved questions (with answers from 2026-05-03)
+
+- **`v1-composite` — raw or derived?** **Derived (rule-based book-version).** Rule: "per-chapter, resolve to active chapter-translation."
+- **What does "best" mean?** **The user's `isActive` flag.** No global quality ranking; the system tracks user choices.
+- **Auto-active on new translation — bug or feature?** **Feature, because the dropdown override exists.** Auto-active alone without override would be a trap; with override, it's a sensible "you wanted to read what you just made" default.
+- **Comments-attached-to-view (#16)** — anchor to chapter-translation (immutable). The bug is rendering, not data-model: switching chapter-translation away should hide; switching back should re-render. (Issue #16 reclassified to local UI re-render.)
+- **Settings as identity (#2)** — settings-fingerprint forking is by-design; each unique-settings translation is a new chapter-translation. The bug is making fork-cost visible to the user, not eliminating the fork.
 
 ## Related
 
