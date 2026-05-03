@@ -67,7 +67,7 @@ So #1, #9, #12, #6 are **ADR-vs-code drift cases** (the spec says the right thin
 
 1. **Enforce existing ADRs.** Tests that assert CORE-006's "render shell immediately" and FEAT-001's "skip if any version exists" should fail today. Adding them surfaces the drift and creates pressure to fix #1, #9, #12. This is more leverage per hour than any new ADR.
 
-2. **Write the missing umbrella ADR**, scoped to what CORE-006/FEAT-001/FEAT-003 don't cover. Working title: `CORE-008-derived-views-are-recomputed-not-stored`.
+2. **Write the missing umbrella ADR**, scoped to what CORE-006/FEAT-001/FEAT-003 don't cover. **Draft now exists at [`proposed-adrs/CORE-008-derived-views-recomputed-not-stored.md`](./proposed-adrs/CORE-008-derived-views-recomputed-not-stored.md).** Awaiting Aditya ratification before moving to `docs/adr/`.
 
 Content sketch (not committing — this is theme-doc, not the ADR itself):
 

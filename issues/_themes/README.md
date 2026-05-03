@@ -14,10 +14,20 @@ Themes are not bug categories. They are *causal hypotheses*. If we fix the lever
 | Theme | One-line statement | Instances |
 |---|---|---|
 | [jit-vs-precompute](./jit-vs-precompute.md) | Codebase materializes canonical views (full session imports, fixed comparison modes, frozen ETAs) where the vision calls for JIT-derived views | 1, 2, 3, 6, 9, 11, 12, 13, 15, 16 |
-| [completion-only-guards](./completion-only-guards.md) | "Run once" guards check completion state, not in-flight state — under any concurrent caller, both runs go through | 1, 2, 7, 9, 12 |
+| [completion-only-guards](./completion-only-guards.md) | "Run once" guards check completion state, not in-flight state — under any concurrent caller, both runs go through | 1, 7, 9, 12 (#2 refuted) |
 | [silent-feedback-gaps](./silent-feedback-gaps.md) | User clicks → async work begins → no UI signal until much later (or never) | 4, 5, 14 |
 | [silent-failure-deep](./silent-failure-deep.md) | Validation fires deep inside a long pipeline instead of at the request boundary, so the user pays seconds before learning the request couldn't work | 1 |
 | [co-mingled-commits](./co-mingled-commits.md) | Commit title and content disagree — control-flow changes hide inside cleanups, defeating review | 1 |
+
+## Proposed ADRs (drafts)
+
+When a theme reaches "ready to ratify," its draft ADR lands in [`proposed-adrs/`](./proposed-adrs/). Drafts are agent-authored and subject to revision; nothing in `proposed-adrs/` is binding until Aditya ratifies and moves it to `docs/adr/`.
+
+| Draft | For theme | Status |
+|---|---|---|
+| [CORE-008 — Derived Views Are Recomputed, Not Stored](./proposed-adrs/CORE-008-derived-views-recomputed-not-stored.md) | jit-vs-precompute | Draft 1 (2026-05-02) — awaiting Aditya ratification |
+| _CORE-009 — Single-Flight at Call Sites_ (not yet drafted) | completion-only-guards | not yet |
+| _CORE-010 — Immediate Action Feedback_ (not yet drafted) | silent-feedback-gaps | not yet |
 
 ## How a theme gets promoted from "noticed" to "addressed"
 

@@ -26,13 +26,15 @@ Three vision-compatible options:
 
 ## Instances (current)
 
-| # | What runs twice | Provisional class |
-|---|---|---|
-| 1 | `initializeStore` runs end-to-end concurrently under StrictMode (~30 backfill calls each, audio register each, Registry.fetchNovels each, per-novel metadata each). Confirmed live. | `(A2, B2, C2)` |
-| 2 | Fan toggle re-triggers translation; suspected because there's no in-flight check | `(A2, B2, C2)` |
-| 7 | Provider registration runs repeatedly (user's exact words: "registering providers again and again") | `(A2, B2, C1)` |
-| 9 | Suspected — chapter change may re-fire load when navigation effect runs twice | `(A2, B2, C2)` |
-| 12 | Background preload spinner restarts from scratch on tab return — could be in-flight work whose dedup key is per-mount | `(A2, B2, C2)` |
+| # | What runs twice | Class | Status |
+|---|---|---|---|
+| 1 | `initializeStore` runs end-to-end concurrently under StrictMode | `(A1*, B2, C2)` | **confirmed** |
+| 7 | Provider registration runs repeatedly | `(A2, B2, C1)` | suspected |
+| 9 | Suspected — chapter change may re-fire load when navigation effect runs twice | `(A1*, B2, C2)` | suspected |
+| 12 | Background preload spinner restarts from scratch on tab return | `(A1*, B2, C1)` | suspected |
+| ~~2~~ | ~~Fan toggle re-triggers translation~~ | — | **REFUTED** (2026-05-02) — codebase has dual-layer in-flight guards: mediator + `handleTranslate` entry-check. See [issue #2](../02-fan-toggle-restarts-translation/) |
+
+The N=4 (was 5) is meaningful: even after removing one false positive, the theme still has multiple confirmed/suspected instances. It also produced a useful **falsifiable prediction** that was tested — the matrix is doing real work, not just decorating issues.
 
 ## Existing spec coverage (ADR audit — 2026-05-02)
 
