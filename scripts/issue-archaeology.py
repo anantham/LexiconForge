@@ -235,21 +235,45 @@ def git_log_for_path(path: str, max_commits: int = 50):
     return rows
 
 
+def _to_utc(ts: str):
+    """Normalize an ISO-8601 timestamp (Z or +HH:MM offset) to a comparable
+    UTC datetime. Lexicographic comparison of ISO strings is wrong when the
+    operands carry different offsets (e.g. `…-04:00` vs `…Z` can disagree on
+    the day-boundary crossing). Always parse first.
+    """
+    if not ts:
+        return None
+    from datetime import datetime, timezone
+    s = ts.replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
 def best_commit_for_session(commits, ts_min, ts_max):
     """Find the commit whose date falls inside [ts_min, ts_max], or the
-    closest one after ts_max."""
-    if not (ts_min and ts_max):
+    closest one after ts_max. Comparisons are done on UTC-normalized
+    datetimes — string-comparison of ISO timestamps is unreliable when
+    timezone offsets differ (a real bug fixed 2026-05-02 after GPT review).
+    """
+    tmin = _to_utc(ts_min)
+    tmax = _to_utc(ts_max)
+    if not (tmin and tmax):
         return None
-    candidates = []
-    for c in commits:
-        if ts_min <= c["date"] <= ts_max:
-            candidates.append(("inside", c))
+    parsed = [(c, _to_utc(c["date"])) for c in commits]
+    parsed = [(c, dt) for c, dt in parsed if dt is not None]
+    candidates = [c for c, dt in parsed if tmin <= dt <= tmax]
     if candidates:
-        return candidates[-1][1]
-    # else nearest-after
-    after = [c for c in commits if c["date"] > ts_max]
+        # most-recent-inside, since later commits are likelier to be the
+        # session's actual product
+        return max(candidates, key=lambda c: _to_utc(c["date"]))
+    after = [c for c, dt in parsed if dt > tmax]
     if after:
-        return min(after, key=lambda c: c["date"])
+        return min(after, key=lambda c: _to_utc(c["date"]))
     return None
 
 

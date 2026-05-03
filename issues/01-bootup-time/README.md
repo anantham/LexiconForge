@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-**Reproduced live (2026-05-02).** With `?novel=forty-millenniums-of-cultivation&version=v1-composite&chapter=lexiconforge%3A%2F%2F…%2F339`, total init = **21,696 ms** on the user's running dev server — the same order of magnitude as the user's 31.6s trace. The 9s difference is plausibly network speed.
+**Reproduced live (2026-05-02 / 2026-05-03).** With `?novel=forty-millenniums-of-cultivation&version=v1-composite&chapter=lexiconforge%3A%2F%2F…%2F339`, total init = **21,696 ms** (first pass) and **22,926 ms** (persisted re-run, [traces/repro-novel-deeplink-result.json](./traces/repro-novel-deeplink-result.json), 2026-05-03T13:30:13Z) on the user's running dev server — the same order of magnitude as the user's 31.6s trace. The ~9s gap to 31.6s is plausibly network speed; the ~1s spread between the two runs is normal jitter.
 
 But the slow boot is a *symptom*. The real story is:
 
@@ -81,13 +81,13 @@ Neither pipeline ever prints `initializeStore – skipped (already initialized)`
 
 After the user started the dev server and provided the deep-link, I ran [`traces/repro-live.mjs`](./traces/repro-live.mjs) (chapter-only URL — fails fast at navigate, ~1s) and [`traces/repro-novel-deeplink.mjs`](./traces/repro-novel-deeplink.mjs) (full novel+version+chapter URL — the slow path).
 
-**Full deep-link result:**
+**Full deep-link result** (first pass, console-only — re-run with persistence is in `traces/repro-novel-deeplink-result.json` and reports 22,926 ms):
 ```
 URL: /?novel=forty-millenniums-of-cultivation&version=v1-composite
      &chapter=lexiconforge%3A%2F%2Fforty-millenniums-of-cultivation%2Fchapter%2F339
-totalInitMs = 21,696
+totalInitMs = 21,696   (persisted re-run: 22,926)
 begin = 2  (StrictMode duplicate)
-navTime = 24,870 ms
+navTime = 24,870 ms    (persisted re-run: 26,275 ms)
 ```
 
 **Console excerpt (relative timestamps; identical lines doubled = StrictMode pipeline):**
