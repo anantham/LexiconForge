@@ -1,0 +1,750 @@
+[
+  {
+    "scenario": "A_cold_no_deeplink",
+    "url": "/",
+    "marks": [
+      {
+        "raw": "[Store:init +4782ms Δ0ms] initializeStore – begin",
+        "ts": 1777807904975
+      },
+      {
+        "raw": "[Store:init +4783ms Δ1ms] loadSettings invoked",
+        "ts": 1777807904976
+      },
+      {
+        "raw": "[Store:init +4783ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777807904976
+      },
+      {
+        "raw": "[Store:init +4787ms Δ0ms] initializeStore – begin",
+        "ts": 1777807904978
+      },
+      {
+        "raw": "[Store:init +4787ms Δ0ms] loadSettings invoked",
+        "ts": 1777807904979
+      },
+      {
+        "raw": "[Store:init +4787ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777807904979
+      },
+      {
+        "raw": "[Store:init +4857ms Δ71ms] loadPromptTemplates resolved {count: 0, hasActive: false}",
+        "ts": 1777807905050
+      },
+      {
+        "raw": "[Store:init +4857ms Δ0ms] initializeSession start (no active template)",
+        "ts": 1777807905050
+      },
+      {
+        "raw": "[Store:init +4858ms Δ0ms] loadPromptTemplates resolved {count: 0, hasActive: false}",
+        "ts": 1777807905050
+      },
+      {
+        "raw": "[Store:init +4858ms Δ0ms] initializeSession start (no active template)",
+        "ts": 1777807905050
+      },
+      {
+        "raw": "[Store:init +4865ms Δ7ms] initializeSession provided defaults",
+        "ts": 1777807905058
+      },
+      {
+        "raw": "[Store:init +4866ms Δ1ms] bootRepairs start",
+        "ts": 1777807905058
+      },
+      {
+        "raw": "[Store:init +4867ms Δ0ms] ensureModelFieldsRepaired start",
+        "ts": 1777807905060
+      },
+      {
+        "raw": "[Store:init +4867ms Δ1ms] initializeSession provided defaults",
+        "ts": 1777807905061
+      },
+      {
+        "raw": "[Store:init +4868ms Δ1ms] bootRepairs start",
+        "ts": 1777807905063
+      },
+      {
+        "raw": "[Store:init +4869ms Δ0ms] ensureModelFieldsRepaired start",
+        "ts": 1777807905063
+      },
+      {
+        "raw": "[Store:init +4869ms Δ0ms] ensureModelFieldsRepaired done",
+        "ts": 1777807905063
+      },
+      {
+        "raw": "[Store:init +4869ms Δ0ms] urlMappingsBackfill start",
+        "ts": 1777807905063
+      },
+      {
+        "raw": "[Store:init +4870ms Δ1ms] ensureModelFieldsRepaired done",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4870ms Δ0ms] urlMappingsBackfill start",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4870ms Δ0ms] urlMappingsBackfill done",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4870ms Δ0ms] normalizeStableIds start",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4870ms Δ0ms] urlMappingsBackfill done",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4870ms Δ0ms] normalizeStableIds start",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4870ms Δ0ms] normalizeStableIds done",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4870ms Δ0ms] repairScopedStableIdDuplicates start",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4872ms Δ1ms] normalizeStableIds done",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4872ms Δ0ms] repairScopedStableIdDuplicates start",
+        "ts": 1777807905064
+      },
+      {
+        "raw": "[Store:init +4872ms Δ1ms] repairScopedStableIdDuplicates done",
+        "ts": 1777807905065
+      },
+      {
+        "raw": "[Store:init +4872ms Δ0ms] backfillActiveTranslations start",
+        "ts": 1777807905065
+      },
+      {
+        "raw": "[Store:init +4873ms Δ1ms] repairScopedStableIdDuplicates done",
+        "ts": 1777807905065
+      },
+      {
+        "raw": "[Store:init +4873ms Δ0ms] backfillActiveTranslations start",
+        "ts": 1777807905065
+      },
+      {
+        "raw": "[Store:init +4874ms Δ1ms] backfillActiveTranslations done",
+        "ts": 1777807905066
+      },
+      {
+        "raw": "[Store:init +4874ms Δ0ms] translationMetadataBackfill start",
+        "ts": 1777807905066
+      },
+      {
+        "raw": "[Store:init +4874ms Δ0ms] backfillActiveTranslations done",
+        "ts": 1777807905066
+      },
+      {
+        "raw": "[Store:init +4874ms Δ0ms] translationMetadataBackfill start",
+        "ts": 1777807905066
+      },
+      {
+        "raw": "[Store:init +4874ms Δ0ms] translationMetadataBackfill done",
+        "ts": 1777807905067
+      },
+      {
+        "raw": "[Store:init +4874ms Δ0ms] novelIdBackfill start",
+        "ts": 1777807905067
+      },
+      {
+        "raw": "[Store:init +4874ms Δ0ms] translationMetadataBackfill done",
+        "ts": 1777807905067
+      },
+      {
+        "raw": "[Store:init +4874ms Δ0ms] novelIdBackfill start",
+        "ts": 1777807905067
+      },
+      {
+        "raw": "[Store:init +4875ms Δ0ms] novelIdBackfill done",
+        "ts": 1777807905067
+      },
+      {
+        "raw": "[Store:init +4875ms Δ0ms] summaryNovelIdBackfill start",
+        "ts": 1777807905067
+      },
+      {
+        "raw": "[Store:init +4875ms Δ0ms] novelIdBackfill done",
+        "ts": 1777807905067
+      },
+      {
+        "raw": "[Store:init +4875ms Δ0ms] summaryNovelIdBackfill start",
+        "ts": 1777807905068
+      },
+      {
+        "raw": "[Store:init +4875ms Δ0ms] summaryNovelIdBackfill done",
+        "ts": 1777807905068
+      },
+      {
+        "raw": "[Store:init +4875ms Δ0ms] syncSummaries start",
+        "ts": 1777807905068
+      },
+      {
+        "raw": "[Store:init +4875ms Δ0ms] summaryNovelIdBackfill done",
+        "ts": 1777807905070
+      },
+      {
+        "raw": "[Store:init +4876ms Δ0ms] syncSummaries start",
+        "ts": 1777807905070
+      },
+      {
+        "raw": "[Store:init +4876ms Δ1ms] syncSummaries done",
+        "ts": 1777807905072
+      },
+      {
+        "raw": "[Store:init +4876ms Δ0ms] syncSummaries done",
+        "ts": 1777807905072
+      },
+      {
+        "raw": "[Store:init +4877ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777807905072
+      },
+      {
+        "raw": "[Store:init +4877ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777807905072
+      },
+      {
+        "raw": "[Store:init +4933ms Δ56ms] chapterNumbersBackfill start",
+        "ts": 1777807905126
+      },
+      {
+        "raw": "[Store:init +4933ms Δ1ms] chapterNumbersBackfill start",
+        "ts": 1777807905128
+      },
+      {
+        "raw": "[Store:init +4934ms Δ1ms] chapterNumbersBackfill done",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4934ms Δ0ms] bootRepairs complete",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4934ms Δ0ms] loadUrlMappings start",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadNavigationHistory start",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] chapterNumbersBackfill done",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] bootRepairs complete",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadUrlMappings start",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadNavigationHistory start",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadNavigationHistory skipped (none stored)",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadLastActiveChapter start",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadNavigationHistory skipped (none stored)",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadLastActiveChapter start",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] loadLastActiveChapter skipped (none stored)",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4935ms Δ0ms] audio initialization start",
+        "ts": 1777807905129
+      },
+      {
+        "raw": "[Store:init +4937ms Δ2ms] loadLastActiveChapter skipped (none stored)",
+        "ts": 1777807905130
+      },
+      {
+        "raw": "[Store:init +4937ms Δ0ms] audio initialization start",
+        "ts": 1777807905130
+      },
+      {
+        "raw": "[Store:init +4987ms Δ50ms] audio initialization complete",
+        "ts": 1777807905181
+      },
+      {
+        "raw": "[Store:init +4987ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777807905182
+      },
+      {
+        "raw": "[Store:init +5008ms Δ20ms] audio initialization complete",
+        "ts": 1777807905203
+      },
+      {
+        "raw": "[Store:init +5008ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777807905203
+      }
+    ],
+    "totalInitMs": 5008,
+    "beginCount": 2,
+    "skippedCount": 0,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "navTime": 5024
+  },
+  {
+    "scenario": "B_cold_with_deeplink",
+    "url": "/?novel=forty-millenniums-of-cultivation",
+    "marks": [
+      {
+        "raw": "[Store:init +490ms Δ0ms] initializeStore – begin",
+        "ts": 1777807905879
+      },
+      {
+        "raw": "[Store:init +491ms Δ1ms] loadSettings invoked",
+        "ts": 1777807905880
+      },
+      {
+        "raw": "[Store:init +491ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777807905880
+      },
+      {
+        "raw": "[Store:init +492ms Δ0ms] initializeStore – begin",
+        "ts": 1777807905881
+      },
+      {
+        "raw": "[Store:init +492ms Δ0ms] loadSettings invoked",
+        "ts": 1777807905881
+      },
+      {
+        "raw": "[Store:init +492ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777807905881
+      },
+      {
+        "raw": "[Store:init +496ms Δ3ms] loadPromptTemplates resolved {count: 0, hasActive: false}",
+        "ts": 1777807905884
+      },
+      {
+        "raw": "[Store:init +496ms Δ0ms] initializeSession start (no active template)",
+        "ts": 1777807905884
+      },
+      {
+        "raw": "[Store:init +496ms Δ0ms] loadPromptTemplates resolved {count: 0, hasActive: false}",
+        "ts": 1777807905884
+      },
+      {
+        "raw": "[Store:init +496ms Δ0ms] initializeSession start (no active template)",
+        "ts": 1777807905884
+      },
+      {
+        "raw": "[Store:init +497ms Δ2ms] initializeSession provided defaults",
+        "ts": 1777807905886
+      },
+      {
+        "raw": "[Store:init +498ms Δ1ms] bootRepairs start",
+        "ts": 1777807905886
+      },
+      {
+        "raw": "[Store:init +499ms Δ1ms] ensureModelFieldsRepaired start",
+        "ts": 1777807905888
+      },
+      {
+        "raw": "[Store:init +499ms Δ0ms] initializeSession provided defaults",
+        "ts": 1777807905889
+      },
+      {
+        "raw": "[Store:init +500ms Δ1ms] bootRepairs start",
+        "ts": 1777807905890
+      },
+      {
+        "raw": "[Store:init +500ms Δ0ms] ensureModelFieldsRepaired start",
+        "ts": 1777807905890
+      },
+      {
+        "raw": "[Store:init +500ms Δ0ms] ensureModelFieldsRepaired done",
+        "ts": 1777807905890
+      },
+      {
+        "raw": "[Store:init +500ms Δ0ms] urlMappingsBackfill start",
+        "ts": 1777807905890
+      },
+      {
+        "raw": "[Store:init +501ms Δ1ms] ensureModelFieldsRepaired done",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +501ms Δ0ms] urlMappingsBackfill start",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +501ms Δ0ms] urlMappingsBackfill done",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +501ms Δ0ms] normalizeStableIds start",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +501ms Δ0ms] urlMappingsBackfill done",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +501ms Δ0ms] normalizeStableIds start",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +502ms Δ0ms] normalizeStableIds done",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +502ms Δ0ms] repairScopedStableIdDuplicates start",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +503ms Δ1ms] normalizeStableIds done",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +503ms Δ0ms] repairScopedStableIdDuplicates start",
+        "ts": 1777807905891
+      },
+      {
+        "raw": "[Store:init +504ms Δ1ms] repairScopedStableIdDuplicates done",
+        "ts": 1777807905892
+      },
+      {
+        "raw": "[Store:init +504ms Δ0ms] backfillActiveTranslations start",
+        "ts": 1777807905892
+      },
+      {
+        "raw": "[Store:init +505ms Δ1ms] repairScopedStableIdDuplicates done",
+        "ts": 1777807905894
+      },
+      {
+        "raw": "[Store:init +505ms Δ0ms] backfillActiveTranslations start",
+        "ts": 1777807905894
+      },
+      {
+        "raw": "[Store:init +505ms Δ0ms] backfillActiveTranslations done",
+        "ts": 1777807905894
+      },
+      {
+        "raw": "[Store:init +505ms Δ0ms] translationMetadataBackfill start",
+        "ts": 1777807905894
+      },
+      {
+        "raw": "[Store:init +505ms Δ0ms] backfillActiveTranslations done",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +505ms Δ0ms] translationMetadataBackfill start",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] translationMetadataBackfill done",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] novelIdBackfill start",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] translationMetadataBackfill done",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] novelIdBackfill start",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] novelIdBackfill done",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] summaryNovelIdBackfill start",
+        "ts": 1777807905895
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] novelIdBackfill done",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +506ms Δ0ms] summaryNovelIdBackfill start",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] summaryNovelIdBackfill done",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] syncSummaries start",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] summaryNovelIdBackfill done",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] syncSummaries start",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] syncSummaries done",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] syncSummaries done",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +507ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777807905896
+      },
+      {
+        "raw": "[Store:init +509ms Δ2ms] chapterNumbersBackfill start",
+        "ts": 1777807905898
+      },
+      {
+        "raw": "[Store:init +509ms Δ0ms] chapterNumbersBackfill start",
+        "ts": 1777807905900
+      },
+      {
+        "raw": "[Store:init +510ms Δ0ms] chapterNumbersBackfill done",
+        "ts": 1777807905900
+      },
+      {
+        "raw": "[Store:init +510ms Δ0ms] bootRepairs complete",
+        "ts": 1777807905900
+      },
+      {
+        "raw": "[Store:init +510ms Δ1ms] chapterNumbersBackfill done",
+        "ts": 1777807905900
+      },
+      {
+        "raw": "[Store:init +510ms Δ0ms] bootRepairs complete",
+        "ts": 1777807905900
+      },
+      {
+        "raw": "[Store:init +826ms Δ316ms] loadUrlMappings start",
+        "ts": 1777807906214
+      },
+      {
+        "raw": "[Store:init +826ms Δ1ms] loadUrlMappings start",
+        "ts": 1777807906215
+      },
+      {
+        "raw": "[Store:init +826ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777807906215
+      },
+      {
+        "raw": "[Store:init +826ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777807906215
+      },
+      {
+        "raw": "[Store:init +826ms Δ0ms] audio initialization start",
+        "ts": 1777807906215
+      },
+      {
+        "raw": "[Store:init +827ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777807906216
+      },
+      {
+        "raw": "[Store:init +827ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777807906216
+      },
+      {
+        "raw": "[Store:init +827ms Δ0ms] audio initialization start",
+        "ts": 1777807906216
+      },
+      {
+        "raw": "[Store:init +831ms Δ4ms] audio initialization complete",
+        "ts": 1777807906220
+      },
+      {
+        "raw": "[Store:init +831ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777807906220
+      },
+      {
+        "raw": "[Store:init +842ms Δ11ms] audio initialization complete",
+        "ts": 1777807906231
+      },
+      {
+        "raw": "[Store:init +842ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777807906231
+      }
+    ],
+    "totalInitMs": 842,
+    "beginCount": 2,
+    "skippedCount": 0,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "navTime": 981
+  },
+  {
+    "scenario": "C_warm_with_deeplink",
+    "url": "/?novel=forty-millenniums-of-cultivation",
+    "marks": [
+      {
+        "raw": "[Store:init +351ms Δ0ms] initializeStore – begin",
+        "ts": 1777807909217
+      },
+      {
+        "raw": "[Store:init +352ms Δ0ms] loadSettings invoked",
+        "ts": 1777807909217
+      },
+      {
+        "raw": "[Store:init +352ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777807909217
+      },
+      {
+        "raw": "[Store:init +352ms Δ0ms] initializeStore – begin",
+        "ts": 1777807909217
+      },
+      {
+        "raw": "[Store:init +352ms Δ0ms] loadSettings invoked",
+        "ts": 1777807909217
+      },
+      {
+        "raw": "[Store:init +352ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777807909217
+      },
+      {
+        "raw": "[Store:init +354ms Δ2ms] loadPromptTemplates resolved {count: 2, hasActive: true}",
+        "ts": 1777807909218
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] Using existing prompt templates {count: 2}",
+        "ts": 1777807909218
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] bootRepairs start",
+        "ts": 1777807909218
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] loadPromptTemplates resolved {count: 2, hasActive: true}",
+        "ts": 1777807909219
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] Using existing prompt templates {count: 2}",
+        "ts": 1777807909219
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] bootRepairs start",
+        "ts": 1777807909219
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] bootRepairs skipped (already done)",
+        "ts": 1777807909219
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777807909219
+      },
+      {
+        "raw": "[Store:init +354ms Δ0ms] bootRepairs skipped (already done)",
+        "ts": 1777807909219
+      },
+      {
+        "raw": "[Store:init +355ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777807909219
+      },
+      {
+        "raw": "[Store:init +355ms Δ0ms] chapterNumbersBackfill skipped",
+        "ts": 1777807909220
+      },
+      {
+        "raw": "[Store:init +355ms Δ0ms] bootRepairs complete",
+        "ts": 1777807909220
+      },
+      {
+        "raw": "[Store:init +355ms Δ0ms] chapterNumbersBackfill skipped",
+        "ts": 1777807909220
+      },
+      {
+        "raw": "[Store:init +355ms Δ0ms] bootRepairs complete",
+        "ts": 1777807909220
+      },
+      {
+        "raw": "[Store:init +358ms Δ3ms] loadUrlMappings start",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +358ms Δ0ms] loadUrlMappings start",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +358ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +358ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +358ms Δ0ms] audio initialization start",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +358ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +358ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +358ms Δ0ms] audio initialization start",
+        "ts": 1777807909222
+      },
+      {
+        "raw": "[Store:init +359ms Δ1ms] audio initialization complete",
+        "ts": 1777807909223
+      },
+      {
+        "raw": "[Store:init +359ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777807909223
+      },
+      {
+        "raw": "[Store:init +366ms Δ7ms] audio initialization complete",
+        "ts": 1777807909233
+      },
+      {
+        "raw": "[Store:init +366ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777807909235
+      }
+    ],
+    "totalInitMs": 366,
+    "beginCount": 2,
+    "skippedCount": 0,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "navTime": 609
+  }
+]

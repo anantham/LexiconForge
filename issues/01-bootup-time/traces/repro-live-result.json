@@ -1,0 +1,753 @@
+[
+  {
+    "label": "A_cold",
+    "url": "http://localhost:5180/?chapter=lexiconforge%3A%2F%2Fforty-millenniums-of-cultivation%2Fchapter%2F339",
+    "totalInitMs": 995,
+    "beginCount": 2,
+    "skippedCount": 0,
+    "navTime": 3120,
+    "markCount": 70,
+    "marks": [
+      {
+        "raw": "[Store:init +873ms Δ0ms] initializeStore – begin",
+        "ts": 1777814766235
+      },
+      {
+        "raw": "[Store:init +874ms Δ1ms] loadSettings invoked",
+        "ts": 1777814766236
+      },
+      {
+        "raw": "[Store:init +874ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777814766236
+      },
+      {
+        "raw": "[Store:init +875ms Δ0ms] initializeStore – begin",
+        "ts": 1777814766237
+      },
+      {
+        "raw": "[Store:init +876ms Δ0ms] loadSettings invoked",
+        "ts": 1777814766238
+      },
+      {
+        "raw": "[Store:init +876ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777814766238
+      },
+      {
+        "raw": "[Store:init +916ms Δ40ms] loadPromptTemplates resolved {count: 0, hasActive: false}",
+        "ts": 1777814766278
+      },
+      {
+        "raw": "[Store:init +916ms Δ0ms] initializeSession start (no active template)",
+        "ts": 1777814766278
+      },
+      {
+        "raw": "[Store:init +916ms Δ0ms] loadPromptTemplates resolved {count: 0, hasActive: false}",
+        "ts": 1777814766278
+      },
+      {
+        "raw": "[Store:init +916ms Δ0ms] initializeSession start (no active template)",
+        "ts": 1777814766278
+      },
+      {
+        "raw": "[Store:init +919ms Δ4ms] initializeSession provided defaults",
+        "ts": 1777814766281
+      },
+      {
+        "raw": "[Store:init +920ms Δ1ms] bootRepairs start",
+        "ts": 1777814766282
+      },
+      {
+        "raw": "[Store:init +920ms Δ0ms] ensureModelFieldsRepaired start",
+        "ts": 1777814766282
+      },
+      {
+        "raw": "[Store:init +921ms Δ1ms] initializeSession provided defaults",
+        "ts": 1777814766283
+      },
+      {
+        "raw": "[Store:init +921ms Δ0ms] bootRepairs start",
+        "ts": 1777814766284
+      },
+      {
+        "raw": "[Store:init +922ms Δ0ms] ensureModelFieldsRepaired start",
+        "ts": 1777814766284
+      },
+      {
+        "raw": "[Store:init +922ms Δ0ms] ensureModelFieldsRepaired done",
+        "ts": 1777814766284
+      },
+      {
+        "raw": "[Store:init +922ms Δ0ms] urlMappingsBackfill start",
+        "ts": 1777814766284
+      },
+      {
+        "raw": "[Store:init +922ms Δ1ms] ensureModelFieldsRepaired done",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +922ms Δ0ms] urlMappingsBackfill start",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +922ms Δ0ms] urlMappingsBackfill done",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +922ms Δ0ms] normalizeStableIds start",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +923ms Δ0ms] urlMappingsBackfill done",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +923ms Δ0ms] normalizeStableIds start",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +923ms Δ0ms] normalizeStableIds done",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +923ms Δ0ms] repairScopedStableIdDuplicates start",
+        "ts": 1777814766285
+      },
+      {
+        "raw": "[Store:init +924ms Δ1ms] normalizeStableIds done",
+        "ts": 1777814766286
+      },
+      {
+        "raw": "[Store:init +924ms Δ0ms] repairScopedStableIdDuplicates start",
+        "ts": 1777814766286
+      },
+      {
+        "raw": "[Store:init +926ms Δ2ms] repairScopedStableIdDuplicates done",
+        "ts": 1777814766288
+      },
+      {
+        "raw": "[Store:init +926ms Δ0ms] backfillActiveTranslations start",
+        "ts": 1777814766288
+      },
+      {
+        "raw": "[Store:init +926ms Δ1ms] repairScopedStableIdDuplicates done",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +926ms Δ0ms] backfillActiveTranslations start",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] backfillActiveTranslations done",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] translationMetadataBackfill start",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] backfillActiveTranslations done",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] translationMetadataBackfill start",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] translationMetadataBackfill done",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] novelIdBackfill start",
+        "ts": 1777814766289
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] translationMetadataBackfill done",
+        "ts": 1777814766290
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] novelIdBackfill start",
+        "ts": 1777814766290
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] novelIdBackfill done",
+        "ts": 1777814766290
+      },
+      {
+        "raw": "[Store:init +927ms Δ0ms] summaryNovelIdBackfill start",
+        "ts": 1777814766290
+      },
+      {
+        "raw": "[Store:init +928ms Δ0ms] novelIdBackfill done",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +928ms Δ0ms] summaryNovelIdBackfill start",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +928ms Δ0ms] summaryNovelIdBackfill done",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +928ms Δ0ms] syncSummaries start",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +928ms Δ0ms] summaryNovelIdBackfill done",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +928ms Δ0ms] syncSummaries start",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +928ms Δ1ms] syncSummaries done",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +929ms Δ0ms] syncSummaries done",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +929ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +929ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814766292
+      },
+      {
+        "raw": "[Store:init +969ms Δ39ms] chapterNumbersBackfill start",
+        "ts": 1777814766331
+      },
+      {
+        "raw": "[Store:init +969ms Δ0ms] chapterNumbersBackfill start",
+        "ts": 1777814766331
+      },
+      {
+        "raw": "[Store:init +969ms Δ0ms] chapterNumbersBackfill done",
+        "ts": 1777814766331
+      },
+      {
+        "raw": "[Store:init +969ms Δ0ms] bootRepairs complete",
+        "ts": 1777814766331
+      },
+      {
+        "raw": "[Store:init +971ms Δ2ms] loadUrlMappings start",
+        "ts": 1777814766334
+      },
+      {
+        "raw": "[Store:init +972ms Δ0ms] chapterNumbersBackfill done",
+        "ts": 1777814766334
+      },
+      {
+        "raw": "[Store:init +972ms Δ0ms] bootRepairs complete",
+        "ts": 1777814766334
+      },
+      {
+        "raw": "[Store:init +972ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777814766334
+      },
+      {
+        "raw": "[Store:init +972ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814766334
+      },
+      {
+        "raw": "[Store:init +972ms Δ0ms] audio initialization start",
+        "ts": 1777814766334
+      },
+      {
+        "raw": "[Store:init +973ms Δ1ms] loadUrlMappings start",
+        "ts": 1777814766336
+      },
+      {
+        "raw": "[Store:init +973ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777814766336
+      },
+      {
+        "raw": "[Store:init +973ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814766336
+      },
+      {
+        "raw": "[Store:init +973ms Δ0ms] audio initialization start",
+        "ts": 1777814766336
+      },
+      {
+        "raw": "[Store:init +981ms Δ7ms] audio initialization complete",
+        "ts": 1777814766343
+      },
+      {
+        "raw": "[Store:init +981ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777814766343
+      },
+      {
+        "raw": "[Store:init +995ms Δ14ms] audio initialization complete",
+        "ts": 1777814766358
+      },
+      {
+        "raw": "[Store:init +995ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777814766358
+      }
+    ],
+    "errors": [
+      "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next. {url: lexiconforge://forty-millenniums-of-cultivation/chapter/339}",
+      "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next.",
+      "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next. {url: lexiconforge://forty-millenniums-of-cultivation/chapter/339}",
+      "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next."
+    ],
+    "interestingLogs": [
+      {
+        "type": "log",
+        "text": "[Migration v13] Existing stores: [amendment_logs, chapter_summaries, chapters, diffResults, feedback, novels, prompt_templates, settings, translations, url_mappings]",
+        "ts": 1777814766275
+      },
+      {
+        "type": "log",
+        "text": "[Migration v13] Schema repair complete. Stores: [amendment_logs, chapter_summaries, chapters, diffResults, feedback, novels, prompt_templates, settings, translations, url_mappings]",
+        "ts": 1777814766275
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +929ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814766292
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +929ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814766292
+      },
+      {
+        "type": "log",
+        "text": "[Migration] To run backfill, execute: backfillChapterNumbers()",
+        "ts": 1777814766330
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +969ms Δ39ms] chapterNumbersBackfill start",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration] Starting chapter number backfill...",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +969ms Δ0ms] chapterNumbersBackfill start",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration] Starting chapter number backfill...",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration] Found 0 chapters to process",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration]   Updated: 0 chapters",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration]   Skipped: 0 chapters (already had numbers)",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration]   Failed: 0 chapters",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration] Please reload the page to see updated chapter numbers",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration] Found 0 chapters to process",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration]   Updated: 0 chapters",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration]   Skipped: 0 chapters (already had numbers)",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration]   Failed: 0 chapters",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Migration] Please reload the page to see updated chapter numbers",
+        "ts": 1777814766331
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +969ms Δ0ms] chapterNumbersBackfill done",
+        "ts": 1777814766331
+      },
+      {
+        "type": "error",
+        "text": "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n",
+        "ts": 1777814766333
+      },
+      {
+        "type": "error",
+        "text": "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx",
+        "ts": 1777814766333
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +972ms Δ0ms] chapterNumbersBackfill done",
+        "ts": 1777814766334
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +972ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814766334
+      },
+      {
+        "type": "error",
+        "text": "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n",
+        "ts": 1777814766335
+      },
+      {
+        "type": "error",
+        "text": "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx",
+        "ts": 1777814766335
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +973ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814766336
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Processing 0 total summaries",
+        "ts": 1777814766359
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Aggregated counts: {}",
+        "ts": 1777814766359
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Processing 0 total summaries",
+        "ts": 1777814766360
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Aggregated counts: {}",
+        "ts": 1777814766360
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched 3 novels",
+        "ts": 1777814766479
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched 3 novels",
+        "ts": 1777814766479
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Eternal Life",
+        "ts": 1777814766516
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Dungeon Defense (WN)",
+        "ts": 1777814766517
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation",
+        "ts": 1777814766517
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Eternal Life",
+        "ts": 1777814766521
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Dungeon Defense (WN)",
+        "ts": 1777814766522
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation",
+        "ts": 1777814766522
+      }
+    ]
+  },
+  {
+    "label": "B_warm",
+    "url": "http://localhost:5180/?chapter=lexiconforge%3A%2F%2Fforty-millenniums-of-cultivation%2Fchapter%2F339",
+    "totalInitMs": 286,
+    "beginCount": 2,
+    "skippedCount": 0,
+    "navTime": 2537,
+    "markCount": 32,
+    "marks": [
+      {
+        "raw": "[Store:init +276ms Δ0ms] initializeStore – begin",
+        "ts": 1777814773662
+      },
+      {
+        "raw": "[Store:init +276ms Δ0ms] loadSettings invoked",
+        "ts": 1777814773662
+      },
+      {
+        "raw": "[Store:init +276ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777814773662
+      },
+      {
+        "raw": "[Store:init +276ms Δ0ms] initializeStore – begin",
+        "ts": 1777814773662
+      },
+      {
+        "raw": "[Store:init +276ms Δ0ms] loadSettings invoked",
+        "ts": 1777814773664
+      },
+      {
+        "raw": "[Store:init +276ms Δ0ms] loadPromptTemplates start",
+        "ts": 1777814773664
+      },
+      {
+        "raw": "[Store:init +278ms Δ1ms] loadPromptTemplates resolved {count: 2, hasActive: true}",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] Using existing prompt templates {count: 2}",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] bootRepairs start",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] loadPromptTemplates resolved {count: 2, hasActive: true}",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] Using existing prompt templates {count: 2}",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] bootRepairs start",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] bootRepairs skipped (already done)",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] bootRepairs skipped (already done)",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] chapterNumbersBackfill skipped",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +278ms Δ0ms] bootRepairs complete",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +279ms Δ1ms] chapterNumbersBackfill skipped",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +279ms Δ0ms] bootRepairs complete",
+        "ts": 1777814773666
+      },
+      {
+        "raw": "[Store:init +280ms Δ1ms] loadUrlMappings start",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] loadUrlMappings start",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] audio initialization start",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] loadUrlMappings skipped (none found)",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] audio initialization start",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] audio initialization complete",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +280ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777814773667
+      },
+      {
+        "raw": "[Store:init +286ms Δ5ms] audio initialization complete",
+        "ts": 1777814773672
+      },
+      {
+        "raw": "[Store:init +286ms Δ0ms] initializeStore complete – isInitialized true",
+        "ts": 1777814773672
+      }
+    ],
+    "errors": [
+      "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next. {url: lexiconforge://forty-millenniums-of-cultivation/chapter/339}",
+      "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next.",
+      "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next. {url: lexiconforge://forty-millenniums-of-cultivation/chapter/339}",
+      "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n• kanunu8.com (example: https://www.kanunu8.com/book/12345/123456.html)\n• kanunu.net (example: https://kanunu.net/example-chapter-url)\n• novelcool.com (example: https://www.novelcool.com/chapter/Novel-Name-Chapter-1/12345)\n• booktoki468.com (example: https://booktoki468.com/novel/3913764)\n• suttacentral.net (example: https://suttacentral.net/mn10/en/sujato)\n• hetushu.com (example: https://hetushu.com/book/2991/2051039.html)\n\nWant this site added? Please file an issue with:\n• The site URL you're trying to use\n• Example chapter links from the site\n• Site name and description\n\nThis helps us prioritize which sites to support next."
+    ],
+    "interestingLogs": [
+      {
+        "type": "log",
+        "text": "[Store:init +278ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814773666
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +278ms Δ0ms] chapterNumbersBackfill check",
+        "ts": 1777814773666
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +278ms Δ0ms] chapterNumbersBackfill skipped",
+        "ts": 1777814773666
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +279ms Δ1ms] chapterNumbersBackfill skipped",
+        "ts": 1777814773666
+      },
+      {
+        "type": "error",
+        "text": "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n",
+        "ts": 1777814773667
+      },
+      {
+        "type": "error",
+        "text": "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx",
+        "ts": 1777814773667
+      },
+      {
+        "type": "error",
+        "text": "[Navigate] forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx.org/chapter/12345)\n",
+        "ts": 1777814773667
+      },
+      {
+        "type": "error",
+        "text": "An error was set in the store: forty-millenniums-of-cultivation is not currently supported.\n\nCurrently supported sites:\n• kakuyomu.jp (example: https://kakuyomu.jp/works/1234567890/episodes/1)\n• ncode.syosetu.com (example: https://ncode.syosetu.com/n1234ab/1/)\n• dxmwx.org (example: https://www.dxmwx",
+        "ts": 1777814773667
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +280ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814773667
+      },
+      {
+        "type": "log",
+        "text": "[Store:init +280ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)",
+        "ts": 1777814773667
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Processing 0 total summaries",
+        "ts": 1777814773678
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Aggregated counts: {}",
+        "ts": 1777814773678
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched 3 novels",
+        "ts": 1777814773678
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched 3 novels",
+        "ts": 1777814773679
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Processing 0 total summaries",
+        "ts": 1777814773682
+      },
+      {
+        "type": "log",
+        "text": "[fetchNovelChapterCounts] Aggregated counts: {}",
+        "ts": 1777814773682
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Dungeon Defense (WN)",
+        "ts": 1777814773682
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Eternal Life",
+        "ts": 1777814773682
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation",
+        "ts": 1777814773682
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Dungeon Defense (WN)",
+        "ts": 1777814773682
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Eternal Life",
+        "ts": 1777814773682
+      },
+      {
+        "type": "log",
+        "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation",
+        "ts": 1777814773686
+      }
+    ]
+  }
+]

@@ -1,0 +1,101 @@
+{
+  "url": "http://localhost:5180/?novel=forty-millenniums-of-cultivation&version=v1-composite&chapter=lexiconforge%3A%2F%2Fforty-millenniums-of-cultivation%2Fchapter%2F339",
+  "totalInitMs": 22926,
+  "beginCount": 2,
+  "navTimeMs": 26275,
+  "capturedAt": "2026-05-03T13:30:13.193Z",
+  "interestingLogs": [
+    {
+      "ts": 1777814988318,
+      "text": "[Registry] Fetched 3 novels"
+    },
+    {
+      "ts": 1777814988318,
+      "text": "[Registry] Fetched 3 novels"
+    },
+    {
+      "ts": 1777814988353,
+      "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation"
+    },
+    {
+      "ts": 1777814988353,
+      "text": "[DeepLink] Requested version v1-composite resolved to v1-st-enhanced for novel forty-millenniums-of-cultivation"
+    },
+    {
+      "ts": 1777814988354,
+      "text": "[DeepLink] Loading novel: Forty Millenniums of Cultivation"
+    },
+    {
+      "ts": 1777814988354,
+      "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation"
+    },
+    {
+      "ts": 1777814988355,
+      "text": "[DeepLink] Requested version v1-composite resolved to v1-st-enhanced for novel forty-millenniums-of-cultivation"
+    },
+    {
+      "ts": 1777814988355,
+      "text": "[DeepLink] Loading novel: Forty Millenniums of Cultivation"
+    },
+    {
+      "ts": 1777815009696,
+      "text": "[Store] Failed to import session data: Error: [Import] Scoped stableId scope mismatch while importing \"Chapter 1000: Five\". expectedScope=\"forty-millenniums-of-cultivation::v1-st-enhanced\", actualScope=\"forty-millenniums"
+    },
+    {
+      "ts": 1777815009697,
+      "text": "[DeepLink] Failed to load novel: Error: [Import] Scoped stableId scope mismatch while importing \"Chapter 1000: Five\". expectedScope=\"forty-millenniums-of-cultivation::v1-st-enhanced\", actualScope=\"forty-millenniums-of-cu"
+    },
+    {
+      "ts": 1777815009718,
+      "text": "[Store:init +22793ms Δ0ms] persisted reader state hydration skipped (explicit startup intent)"
+    },
+    {
+      "ts": 1777815009906,
+      "text": "[fetchNovelChapterCounts] Processing 0 total summaries"
+    },
+    {
+      "ts": 1777815009906,
+      "text": "[fetchNovelChapterCounts] Aggregated counts: {}"
+    },
+    {
+      "ts": 1777815009911,
+      "text": "[fetchNovelChapterCounts] Processing 0 total summaries"
+    },
+    {
+      "ts": 1777815009911,
+      "text": "[fetchNovelChapterCounts] Aggregated counts: {}"
+    },
+    {
+      "ts": 1777815010154,
+      "text": "[Registry] Fetched 3 novels"
+    },
+    {
+      "ts": 1777815010157,
+      "text": "[Registry] Fetched 3 novels"
+    },
+    {
+      "ts": 1777815010161,
+      "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation"
+    },
+    {
+      "ts": 1777815010161,
+      "text": "[Registry] Fetched metadata for Forty Millenniums of Cultivation"
+    },
+    {
+      "ts": 1777815011265,
+      "text": "[Registry] Fetched metadata for Eternal Life"
+    },
+    {
+      "ts": 1777815011265,
+      "text": "[Registry] Fetched metadata for Eternal Life"
+    },
+    {
+      "ts": 1777815011281,
+      "text": "[Registry] Fetched metadata for Dungeon Defense (WN)"
+    },
+    {
+      "ts": 1777815011288,
+      "text": "[Registry] Fetched metadata for Dungeon Defense (WN)"
+    }
+  ]
+}
