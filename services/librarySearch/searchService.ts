@@ -184,14 +184,27 @@ async function searchFojinDirect(
   if (!canonicalTitle || canonicalTitle.trim().length === 0) return [];
 
   try {
-    const url = `https://fojin.app/api/search?q=${encodeURIComponent(canonicalTitle.trim())}&size=8`;
-    const response = await fetch(url, { signal: abortSignal });
+    // FoJin's API does not send Access-Control-Allow-Origin for arbitrary
+    // origins, so a direct browser fetch fails CORS. Route through the local
+    // fetch-proxy (Vite middleware in dev / Vercel function in prod).
+    const apiUrl = `https://fojin.app/api/search?q=${encodeURIComponent(canonicalTitle.trim())}&size=8`;
+    const proxyUrl = `/api/fetch-proxy?url=${encodeURIComponent(apiUrl)}`;
+    const response = await fetch(proxyUrl, { signal: abortSignal });
     if (!response.ok) {
       console.warn(`[LibrarySearch] FoJin search failed: HTTP ${response.status}`);
       return [];
     }
 
-    const json = await response.json();
+    // The local proxy normalises content-type to text/html; parse the body as JSON
+    // since FoJin returns valid JSON regardless of the wrapper's declared type.
+    const text = await response.text();
+    let json: any;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      console.warn('[LibrarySearch] FoJin response was not valid JSON');
+      return [];
+    }
     const hits: FojinSearchHit[] = Array.isArray(json?.results) ? json.results : [];
     if (hits.length === 0) return [];
 

@@ -58,7 +58,8 @@ describe('searchNovelSources — FoJin integration', () => {
 
     globalThis.fetch = vi.fn(async (input: any) => {
       const url = String(input);
-      if (url.includes('fojin.app/api/search')) {
+      // Proxy route: /api/fetch-proxy?url=<encoded fojin.app/api/search...>
+      if (url.includes('/api/fetch-proxy') && url.includes('fojin.app%2Fapi%2Fsearch')) {
         return new Response(JSON.stringify(fojinResults), { status: 200 });
       }
       throw new Error(`Unexpected fetch: ${url}`);
@@ -119,7 +120,8 @@ describe('searchNovelSources — FoJin integration', () => {
 
     globalThis.fetch = vi.fn(async (input: any) => {
       const url = String(input);
-      if (url.includes('fojin.app/api/search')) {
+      // Proxy route: /api/fetch-proxy?url=<encoded fojin.app/api/search...>
+      if (url.includes('/api/fetch-proxy') && url.includes('fojin.app%2Fapi%2Fsearch')) {
         return new Response(JSON.stringify(fojinResults), { status: 200 });
       }
       throw new Error(`Unexpected fetch: ${url}`);

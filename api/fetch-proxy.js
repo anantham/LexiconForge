@@ -22,6 +22,7 @@ const ALLOWED_DOMAINS = [
   'suttacentral.net',
   'hetushu.com',
   'hetubook.com',
+  'fojin.app',
 ];
 
 function isDomainAllowed(hostname) {
