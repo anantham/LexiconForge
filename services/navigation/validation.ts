@@ -10,24 +10,15 @@ export const validateNavigation = (
       const domain = urlObj.hostname;
       const supportedSites = getSupportedSiteInfo();
 
-      const errorMessage = `${domain} is not currently supported.
-
-Currently supported sites:
-${supportedSites.map(s => `• ${s.domain} (example: ${s.example})`).join('\n')}
-
-Want this site added? Please file an issue with:
-• The site URL you're trying to use
-• Example chapter links from the site
-• Site name and description
-
-This helps us prioritize which sites to support next.`;
-
-      return { error: errorMessage, supportedSites };
+      return {
+        error: `${domain} is not currently supported. See the list of supported sites above.`,
+        supportedSites,
+      };
     } catch {
       const supportedSites = getSupportedSiteInfo();
       return {
-        error: `Invalid URL format. Please provide a valid URL from one of these supported sites:\n${supportedSites.map(s => s.domain).join(', ')}`,
-        supportedSites
+        error: 'Invalid URL format. See the list of supported sites above.',
+        supportedSites,
       };
     }
   }

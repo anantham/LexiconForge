@@ -373,7 +373,7 @@ describe('NavigationService', () => {
 
       expect(result.error).toBeTruthy();
       expect(result.error).toContain('not currently supported');
-      expect(result.error).toContain('kakuyomu.jp');
+      expect(result.error).toContain('unsupported-site.com');
     });
 
     it('returns error for malformed URL', async () => {
