@@ -146,13 +146,39 @@ function classifyFojinRequest(rawUrl: string): 'search' | 'juan' | 'meta' | 'unk
   return 'unknown';
 }
 
+const LLM_ENRICHMENT_RESPONSE = {
+  candidates: [
+    {
+      id: 9,
+      englishDescription: "Xuanzang's famous short version, the one most commonly recited in East Asia.",
+      recommended: true,
+    },
+    {
+      id: 6504,
+      englishDescription: 'Long version with narrative framing; less commonly recited.',
+      recommended: false,
+    },
+  ],
+};
+
 async function setupFojinMocks(page: Page) {
-  // Mock OpenRouter chat completions (LLM identity resolution).
+  // Mock OpenRouter chat completions. Two distinct LLM calls happen during a
+  // Buddhist-text search: identity resolution, then candidate enrichment.
+  // We pick which canned response to return based on the system prompt.
   await page.route('**/openrouter.ai/api/v1/chat/completions', async (route: Route) => {
+    let body: any;
+    try {
+      body = JSON.parse(route.request().postData() || '{}');
+    } catch {
+      body = {};
+    }
+    const systemMsg = (body.messages || []).find((m: any) => m.role === 'system')?.content || '';
+    const isEnrichment = typeof systemMsg === 'string' && systemMsg.includes('disambiguating');
+    const payload = isEnrichment ? LLM_ENRICHMENT_RESPONSE : LLM_IDENTITY_RESPONSE;
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(buildOpenRouterCompletion(LLM_IDENTITY_RESPONSE)),
+      body: JSON.stringify(buildOpenRouterCompletion(payload)),
     });
   });
 
@@ -242,11 +268,15 @@ test.describe('FoJin search-and-load E2E', () => {
     // FoJin search results were merged in).
     await expect(page.getByText('般若波羅蜜多心經').first()).toBeVisible({ timeout: 15_000 });
 
-    // Click the first FoJin result card (the resolved Heart Sutra entry).
+    // Enrichment ran — the recommended Xuanzang version should be flagged.
+    await expect(page.getByText(/★ Recommended/).first()).toBeVisible({ timeout: 5_000 });
+    // English disambiguation should be visible (no longer just Chinese metadata).
+    await expect(page.getByText(/Xuanzang/).first()).toBeVisible();
+
+    // Click the recommended FoJin result card.
     const resultCard = page
       .locator('button')
-      .filter({ hasText: '般若波羅蜜多心經' })
-      .filter({ hasText: '玄奘' })
+      .filter({ hasText: '★ Recommended' })
       .first();
     await expect(resultCard).toBeVisible();
     await resultCard.click();

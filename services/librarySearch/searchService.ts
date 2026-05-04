@@ -168,25 +168,24 @@ interface FojinSearchHit {
   score: number;
 }
 
+interface FojinEnrichment {
+  englishDescription: string;
+  recommended: boolean;
+}
+
 /**
- * Query FoJin's search API directly using a canonical Buddhist title.
- * Returns adapter-loadable candidate URLs for the top hits.
- *
- * FoJin's `has_content` field in search results is unreliable (often false even
- * for texts whose juans actually return content). We attempt a fast
- * verification fetch on the top match; subsequent results are returned
- * unverified so the user can pick.
+ * Query FoJin's search API and return the raw hits.
+ * Routes through the local fetch-proxy because FoJin's CORS only allows
+ * its own domain (verified — direct browser fetches get
+ * `access-control-allow-credentials: true` but no allow-origin header).
  */
-async function searchFojinDirect(
+async function fetchFojinHits(
   canonicalTitle: string,
   abortSignal?: AbortSignal,
-): Promise<SourceCandidate[]> {
+): Promise<FojinSearchHit[]> {
   if (!canonicalTitle || canonicalTitle.trim().length === 0) return [];
 
   try {
-    // FoJin's API does not send Access-Control-Allow-Origin for arbitrary
-    // origins, so a direct browser fetch fails CORS. Route through the local
-    // fetch-proxy (Vite middleware in dev / Vercel function in prod).
     const apiUrl = `https://fojin.app/api/search?q=${encodeURIComponent(canonicalTitle.trim())}&size=8`;
     const proxyUrl = `/api/fetch-proxy?url=${encodeURIComponent(apiUrl)}`;
     const response = await fetch(proxyUrl, { signal: abortSignal });
@@ -195,47 +194,147 @@ async function searchFojinDirect(
       return [];
     }
 
-    // The local proxy normalises content-type to text/html; parse the body as JSON
-    // since FoJin returns valid JSON regardless of the wrapper's declared type.
+    // Local proxy normalises content-type; parse body as JSON since FoJin
+    // returns valid JSON regardless of the wrapper's declared content-type.
     const text = await response.text();
     let json: any;
     try {
       json = JSON.parse(text);
-    } catch (e) {
+    } catch {
       console.warn('[LibrarySearch] FoJin response was not valid JSON');
       return [];
     }
     const hits: FojinSearchHit[] = Array.isArray(json?.results) ? json.results : [];
-    if (hits.length === 0) return [];
-
-    // Rank by score (FoJin already sorts but be explicit) and take top 5.
-    const top = [...hits].sort((a, b) => b.score - a.score).slice(0, 5);
-
-    return top.map((hit) => {
-      const titleDisplay = hit.title_zh || hit.title_en || `FoJin Text ${hit.id}`;
-      const dynastyTrans = [hit.dynasty, hit.translator].filter(Boolean).join(' · ');
-      return {
-        site: 'FoJin (佛津)',
-        url: `https://fojin.app/texts/${hit.id}/read?juan=1`,
-        matchedTitle: titleDisplay,
-        matchedAuthor: hit.translator || null,
-        sourceType: 'official' as const,
-        chapterCount: null,
-        status: null,
-        confidence: Math.min(1, hit.score / 100),
-        whyThisMatches: [
-          dynastyTrans || null,
-          hit.cbeta_id ? `CBETA ${hit.cbeta_id}` : null,
-          hit.category || null,
-        ].filter(Boolean).join(' · ') || `FoJin search match (score ${hit.score.toFixed(1)})`,
-        adapterSupported: true,
-      };
-    });
+    return [...hits].sort((a, b) => b.score - a.score).slice(0, 5);
   } catch (e: any) {
     if (e?.name === 'AbortError') throw e;
     console.warn('[LibrarySearch] FoJin direct search failed:', e?.message || e);
     return [];
   }
+}
+
+/**
+ * Ask the LLM to disambiguate FoJin search hits with English context. FoJin
+ * returns multiple Chinese versions of the same canonical text (e.g. 5 Heart
+ * Sutra translations by different Tang-dynasty translators) and a non-Chinese
+ * reader can't tell them apart from translator names alone. The LLM has
+ * solid background on canonical Buddhist texts; one extra call surfaces the
+ * authoritative version + flags commentaries vs the actual sutra.
+ *
+ * Returns a map keyed by FoJin text id. Best-effort — unmapped hits keep
+ * their original Chinese metadata.
+ */
+async function enrichFojinHitsWithLLM(
+  query: string,
+  identity: LLMSearchResponse['identity'],
+  hits: FojinSearchHit[],
+  settings: AppSettings,
+  abortSignal?: AbortSignal,
+): Promise<Map<number, FojinEnrichment>> {
+  const result = new Map<number, FojinEnrichment>();
+  if (hits.length === 0) return result;
+
+  const candidatesForPrompt = hits.map((h) => ({
+    id: h.id,
+    title_zh: h.title_zh,
+    translator: h.translator,
+    dynasty: h.dynasty,
+    cbeta_id: h.cbeta_id,
+    category: h.category,
+  }));
+
+  const systemPrompt = `You are disambiguating multiple Chinese-canon Buddhist text candidates for an English reader.
+
+The user searched: "${query}"
+Resolved canonical title: "${identity.titleZh ?? '(unknown)'}" (${identity.titleEn ?? 'unknown English title'})
+
+You will receive a list of candidate texts from a Buddhist text database. Each is a real translation/commentary in the Taishō or other canons. For each candidate, write a single English sentence (max ~20 words) that helps the reader choose. Highlight:
+- Which is the most authoritative / most commonly recited version (mark recommended: true on at most ONE)
+- Which is a commentary, abridged version, or alternate framing (so the user knows it's not what they probably want)
+- Distinguishing details: length, dynasty/translator significance, doctrinal lineage
+
+Be concise and concrete. Do not hedge. Do not fabricate facts about texts you don't recognize — for unfamiliar IDs, just describe what's known from the metadata (e.g. "Tang-dynasty translation by Zhihuilun (CBETA T0254); less commonly recited than T0251").
+
+Return ONLY this JSON object:
+{
+  "candidates": [
+    { "id": <fojin id>, "englishDescription": "<sentence>", "recommended": <bool> }
+  ]
+}`;
+
+  try {
+    const provider = getProvider(settings.provider as any);
+    const response = await provider.chatJSON({
+      settings,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: JSON.stringify({ candidates: candidatesForPrompt }) },
+      ],
+      model: settings.model,
+      temperature: 0.2,
+      maxTokens: 1500,
+      apiType: 'library_search',
+      abortSignal,
+    });
+
+    const cleaned = response.text.replace(/^```json?\s*/m, '').replace(/```\s*$/m, '').trim();
+    const parsed = JSON.parse(cleaned);
+    if (!Array.isArray(parsed?.candidates)) return result;
+
+    let recommendedSeen = false;
+    for (const c of parsed.candidates) {
+      if (typeof c?.id !== 'number' || typeof c?.englishDescription !== 'string') continue;
+      // Enforce single recommendation — first wins, in case the model marks several.
+      const recommended = !!c.recommended && !recommendedSeen;
+      if (recommended) recommendedSeen = true;
+      result.set(c.id, { englishDescription: c.englishDescription.trim(), recommended });
+    }
+    return result;
+  } catch (e: any) {
+    if (e?.name === 'AbortError') throw e;
+    console.warn('[LibrarySearch] FoJin enrichment failed (falling back to Chinese metadata):', e?.message || e);
+    return result;
+  }
+}
+
+/**
+ * Convert FoJin hits into adapter-loadable SourceCandidates. If an enrichment
+ * map is provided, each hit's `whyThisMatches` is replaced with the LLM's
+ * English description; recommended hits get a "★ Recommended" prefix on the
+ * matched title and bumped to 1.0 confidence so they sort first.
+ */
+function mapFojinHitsToCandidates(
+  hits: FojinSearchHit[],
+  enrichments: Map<number, FojinEnrichment>,
+): SourceCandidate[] {
+  return hits.map((hit) => {
+    const enrichment = enrichments.get(hit.id);
+    const titleDisplay = hit.title_zh || hit.title_en || `FoJin Text ${hit.id}`;
+    const dynastyTrans = [hit.dynasty, hit.translator].filter(Boolean).join(' · ');
+    const fallbackWhy = [
+      dynastyTrans || null,
+      hit.cbeta_id ? `CBETA ${hit.cbeta_id}` : null,
+      hit.category || null,
+    ].filter(Boolean).join(' · ') || `FoJin search match (score ${hit.score.toFixed(1)})`;
+
+    const whyThisMatches = enrichment
+      ? `${enrichment.englishDescription}${fallbackWhy ? ` — ${fallbackWhy}` : ''}`
+      : fallbackWhy;
+
+    return {
+      site: 'FoJin (佛津)',
+      url: `https://fojin.app/texts/${hit.id}/read?juan=1`,
+      matchedTitle: enrichment?.recommended ? `★ Recommended — ${titleDisplay}` : titleDisplay,
+      matchedAuthor: hit.translator || null,
+      sourceType: 'official' as const,
+      chapterCount: null,
+      status: null,
+      // Recommended → 1.0 (sorts first). Otherwise normalise score with a hard cap.
+      confidence: enrichment?.recommended ? 1 : Math.min(0.99, hit.score / 100),
+      whyThisMatches,
+      adapterSupported: true,
+    };
+  });
 }
 
 export async function searchNovelSources(
@@ -273,11 +372,17 @@ export async function searchNovelSources(
 
   // If the LLM resolved a Chinese title, also probe FoJin directly. Buddhist
   // texts are routinely missed by the novel-focused prompt above; FoJin's own
-  // search index will surface them when given a canonical title.
+  // search index will surface them when given a canonical title. Then ask the
+  // LLM to disambiguate the (typically multiple) Chinese versions for an
+  // English-reading user — without this, you get five identical-looking cards.
   let fojinCandidates: SourceCandidate[] = [];
   if (parsed.identity.titleZh) {
     try {
-      fojinCandidates = await searchFojinDirect(parsed.identity.titleZh, abortSignal);
+      const hits = await fetchFojinHits(parsed.identity.titleZh, abortSignal);
+      const enrichments = hits.length > 0
+        ? await enrichFojinHitsWithLLM(query, parsed.identity, hits, settings, abortSignal)
+        : new Map<number, FojinEnrichment>();
+      fojinCandidates = mapFojinHitsToCandidates(hits, enrichments);
     } catch (e: any) {
       if (e?.name === 'AbortError') throw e;
       // Non-fatal — search still returns LLM results.
