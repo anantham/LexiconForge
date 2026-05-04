@@ -25,6 +25,14 @@
 
 If a Playwright script was used, store it under `traces/repro.spec.ts` (or similar) and link it.
 
+### HARD RULE — added 2026-05-04 after a calibration miss on issue #16
+
+**§2 must NOT be marked `_TBD_` when the issue's status moves to `ready-for-fix`.** Static analysis can support a verdict of `real-bug` provisionally, but **fix-shape claims** (especially regression-test obligations in §6) presuppose a concrete observed symptom. Without §2's live evidence, an agent (or the same agent later) is liable to fix the wrong layer of code that *looks like* it could produce the symptom but doesn't actually.
+
+State-machine invariant: `triaged → ready-for-fix` requires §2.observed_result populated. If §2 is genuinely not reproducible (verdict `cannot-reproduce`), that's a different terminal state — the issue doesn't transition to `ready-for-fix` at all.
+
+The only exception: an `already-fixed` verdict can skip §2 if the fix-commit is identified and its diff plus the user's verbatim claim make the symptom self-evident (issue #11's case).
+
 ## 3. Verdict
 
 One of:

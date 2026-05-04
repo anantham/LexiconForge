@@ -72,7 +72,9 @@ Legend: `R`=Reproduced · `V`=Verdict · `E`=Evidence/code paths · `T`=Test-gap
 | 13 | [eta-not-model-specific](./13-eta-not-model-specific/) | · | · | · | · | · | · | `(A3, B3, C2)` _provisional_ — no ADR on ETA reporting | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 | 14 | [retry-spinner-not-clickable](./14-retry-spinner-not-clickable/) | · | · | · | · | · | · | `(A3, B2, C2)` _provisional_ | [silent-feedback-gaps](./_themes/silent-feedback-gaps.md) |
 | 15 | [comparison-cycle-modes](./15-comparison-cycle-modes/) | · | · | · | · | · | · | `(A3, B3, C3)` _provisional_ — explicit vision contradiction | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
-| 16 | [version-switch-comments-vanish](./16-version-switch-comments-vanish/) | · | ◐ | ◐ | ✓ | · | ✓ | `(A2, B2, C1)` triaged — **HIGH PRIORITY**: load-bearing override for auto-active. UI re-render fix at chapter-translation switch | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
+| 16 | [version-switch-comments-vanish](./16-version-switch-comments-vanish/) | · | ◐ | ✓ | ◐ | · | ✓ | **triaged — needs §2 live repro**. Static analysis revealed bug-shape is not the simple `useEffect`-on-active-id I'd assumed. Probably interacts with #17/#18 | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
+| 17 | [feedback-not-loaded-from-idb](./17-feedback-not-loaded-from-idb/) | · | ✓ | ✓ | ✓ | · | ✓ | `(A2, B2, C2)` agent-surfaced. `loadChapterFromIDB` never reads feedback from IDB. Fix is ~10-15 lines | (none yet — see #16) |
+| 18 | [submit-feedback-not-persisted](./18-submit-feedback-not-persisted/) | · | ✓ | ✓ | ✓ | · | ✓ | `(A2, B2, C2)` agent-surfaced. `submitFeedback` doesn't call `FeedbackOps.store`. Silent data loss every session. Probably regressed during slice refactor | candidate: [co-mingled-commits](./_themes/co-mingled-commits.md) |
 
 `·` = not yet done · `✓` = done · `◐` = partial · `—` = not applicable · `?` = blocked / open question
 
