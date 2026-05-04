@@ -20,6 +20,7 @@ import { loadNovelIntoStore } from '../services/readerHydrationService';
 import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossaryService';
 import { fetchNovelChapterCounts } from '../services/db/operations/summaries';
 import { fetchAndParseUrl } from '../services/scraping/fetcher';
+import { ChapterOps } from '../services/db/operations';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -448,6 +449,18 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                   : fanResult.content;
                 if (fanText && fanText.trim().length > 0) {
                   updateChapter(chapterId, { fanTranslation: fanText });
+                  // Persist to IDB so the fanTranslation survives a hard
+                  // navigation (Sutta Studio button is a plain <a href> that
+                  // triggers a full page load — in-memory store is rebuilt
+                  // from IDB, and unpersisted fields are lost).
+                  const updatedChapter = useAppStore.getState().chapters.get(chapterId);
+                  if (updatedChapter) {
+                    try {
+                      await ChapterOps.storeEnhanced(updatedChapter);
+                    } catch (persistErr: any) {
+                      console.warn('[NovelLibrary][fan] failed to persist fanTranslation to IDB:', persistErr);
+                    }
+                  }
                   showNotification(
                     `Fan translation attached from ${fan.site}.`,
                     'info'

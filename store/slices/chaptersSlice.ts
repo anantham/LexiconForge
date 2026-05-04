@@ -211,11 +211,26 @@ export const createChaptersSlice: StateCreator<
     const chapter = await NavigationService.loadChapterFromIDB(chapterId, updateHydratingState);
 
     if (chapter) {
-      // Add to chapters map
+      // Add to chapters map. Merge with any existing entry so in-memory-only
+      // fields (e.g. fanTranslation attached by the library-search flow when
+      // picking a fan source) survive the IDB hydration. IDB-loaded data
+      // wins for overlapping fields.
       set(state => {
         const newChapters = new Map(state.chapters);
-        const existed = newChapters.has(chapterId);
-        newChapters.set(chapterId, chapter);
+        const existing = newChapters.get(chapterId);
+        const existed = !!existing;
+        // Merge with any existing in-memory entry so user-attached fields
+        // (e.g. fanTranslation set after picking a fan source) survive an
+        // IDB hydration that doesn't carry them. IDB-loaded data wins for
+        // overlapping fields; only fanTranslation is explicitly preserved.
+        const preservedFanTranslation =
+          existing?.fanTranslation && !chapter.fanTranslation
+            ? existing.fanTranslation
+            : chapter.fanTranslation;
+        const merged = existing
+          ? { ...existing, ...chapter, fanTranslation: preservedFanTranslation }
+          : chapter;
+        newChapters.set(chapterId, merged);
         recordChapterCache('chapters.loadFromIDB', newChapters.size, {
           chapterId,
           action: existed ? 'updated' : 'added',
@@ -286,14 +301,14 @@ export const createChaptersSlice: StateCreator<
     set(state => {
       const chapter = state.chapters.get(chapterId);
       if (!chapter) return state;
-      
+
       const newChapters = new Map(state.chapters);
       newChapters.set(chapterId, { ...chapter, ...updates });
       recordChapterCache('chapters.update', newChapters.size, {
         chapterId,
         fields: Object.keys(updates || {}),
       });
-      
+
       return { chapters: newChapters };
     });
   },
@@ -415,10 +430,24 @@ export const createChaptersSlice: StateCreator<
           appScreen: 'reader',
         };
 
-        // Update chapter if provided
+        // Update chapter if provided. We MERGE rather than replace so that
+        // fields populated post-fetch (e.g., fanTranslation attached by the
+        // library-search flow when picking a fan source) survive subsequent
+        // navigation back to the same chapter. Fresh fetched data wins for
+        // overlapping fields; in-memory-only fields are preserved.
         if (result.chapter) {
           const newChapters = new Map(state.chapters);
-          newChapters.set(result.chapterId!, result.chapter);
+          const existing = newChapters.get(result.chapterId!);
+          // Same merge rationale as loadChapterFromIDB: preserve in-memory
+          // fanTranslation across navigation re-resolves.
+          const preservedFanTranslation =
+            existing?.fanTranslation && !result.chapter.fanTranslation
+              ? existing.fanTranslation
+              : result.chapter.fanTranslation;
+          const merged = existing
+            ? { ...existing, ...result.chapter, fanTranslation: preservedFanTranslation }
+            : result.chapter;
+          newChapters.set(result.chapterId!, merged);
           updates.chapters = newChapters;
         }
 
@@ -492,7 +521,25 @@ export const createChaptersSlice: StateCreator<
       
       if (result.chapters && result.currentChapterId) {
         set(state => {
-          const newChapters = new Map([...state.chapters, ...result.chapters!]);
+          // Merge incoming fetched chapters with existing in-memory chapters
+          // entry-by-entry instead of using a blanket Map spread (which would
+          // overwrite duplicates and wipe in-memory-only fields like a
+          // user-attached fanTranslation from a fan-source pick).
+          // Merge fetched chapters entry-by-entry so in-memory-only fields
+          // (e.g. user-attached fanTranslation from a fan-source pick) aren't
+          // overwritten by a subsequent fetch of the same chapter.
+          const newChapters = new Map(state.chapters);
+          for (const [id, fetched] of (result.chapters as Map<string, any>).entries()) {
+            const existing = newChapters.get(id);
+            if (existing) {
+              const preservedFan = existing.fanTranslation && !fetched.fanTranslation
+                ? existing.fanTranslation
+                : fetched.fanTranslation;
+              newChapters.set(id, { ...existing, ...fetched, fanTranslation: preservedFan });
+            } else {
+              newChapters.set(id, fetched);
+            }
+          }
           const newUrlIndex = new Map([...state.urlIndex, ...(result.urlIndex || new Map())]);
           const newRawUrlIndex = new Map([...state.rawUrlIndex, ...(result.rawUrlIndex || new Map())]);
           const newNovels = new Map([...state.novels, ...(result.novels || new Map())]);
