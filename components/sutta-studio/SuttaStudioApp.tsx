@@ -89,6 +89,7 @@ export function SuttaStudioApp() {
 
   const initializeStore = useAppStore((s) => s.initializeStore);
   const handleNavigate = useAppStore((s) => s.handleNavigate);
+  const handleTranslate = useAppStore((s) => (s as any).handleTranslate);
   const chapter = useAppStore((s) =>
     s.currentChapterId ? s.chapters.get(s.currentChapterId) ?? null : null
   );
@@ -435,6 +436,34 @@ export function SuttaStudioApp() {
         }
       });
   }, [author, chapter, chapterMatches, isInitialized, lang, recompile, settings, uid, stitch, allowCrossChapter, updateChapter]);
+
+  // M2: For non-SuttaCentral sources (FoJin), the English column is filled by
+  // the regular AI translation pipeline rather than a parallel canonical text.
+  // Trigger translation once when the chapter is loaded but unsanslated.
+  // handleTranslate is idempotent — it ignores requests when one is already
+  // active or the result is already cached.
+  const fojinTranslateOnce = useRef(false);
+  useEffect(() => {
+    if (source !== 'fojin') return;
+    if (!isInitialized) return;
+    if (!chapterMatches || !chapter?.id) return;
+    if (chapter.translationResult) {
+      fojinTranslateOnce.current = true;
+      return;
+    }
+    if (fojinTranslateOnce.current) return;
+    if (typeof handleTranslate !== 'function') return;
+    fojinTranslateOnce.current = true;
+    logSuttaFlow('fojin auto-translate trigger', { chapterId: chapter.id });
+    void handleTranslate(chapter.id, 'auto_translate');
+  }, [
+    chapter?.id,
+    chapter?.translationResult,
+    chapterMatches,
+    handleTranslate,
+    isInitialized,
+    source,
+  ]);
 
   const packet = chapterMatches ? chapter?.suttaStudio : null;
   const resolvedPacket = packet ?? (!chapterMatches && uid === 'mn10' ? DEMO_PACKET_MN10 : null);

@@ -49,7 +49,14 @@ export function SuttaStudioFallback({
     }
   } else if (chapter?.content) {
     const paliChunks = chapter.content.split(/\n{2,}/);
-    const englishChunks = chapter.fanTranslation ? chapter.fanTranslation.split(/\n{2,}/) : [];
+    // English column priority: pre-existing fan translation (e.g. SuttaCentral
+    // Bilara translation_text) → AI translation result. The latter applies to
+    // sources like FoJin that don't ship their own English; the AI translator
+    // generally preserves paragraph boundaries 1:1, so index-based alignment
+    // works for short texts.
+    const aiTranslation = (chapter as any).translationResult?.translation as string | undefined;
+    const englishSource = chapter.fanTranslation || aiTranslation || '';
+    const englishChunks = englishSource ? englishSource.split(/\n{2,}/) : [];
     const max = Math.max(paliChunks.length, englishChunks.length);
     for (let i = 0; i < max; i++) {
       blocks.push({
