@@ -412,15 +412,29 @@ const ChapterView: React.FC = () => {
     if (!chapter?.originalUrl) return null;
     try {
       const url = new URL(chapter.originalUrl);
-      if (!url.hostname.endsWith('suttacentral.net')) return null;
-      const parts = url.pathname.split('/').filter(Boolean);
-      if (parts.length === 0) return null;
-      const uid = parts[0]?.toLowerCase();
-      const queryLang = url.searchParams.get('lang');
-      const lang = (queryLang ?? parts[1] ?? 'en').toLowerCase();
-      const author = (parts[2] ?? 'sujato').toLowerCase();
-      if (!uid) return null;
-      return `/sutta/${uid}?lang=${encodeURIComponent(lang)}&author=${encodeURIComponent(author)}`;
+      if (url.hostname.endsWith('suttacentral.net')) {
+        const parts = url.pathname.split('/').filter(Boolean);
+        if (parts.length === 0) return null;
+        const uid = parts[0]?.toLowerCase();
+        const queryLang = url.searchParams.get('lang');
+        const lang = (queryLang ?? parts[1] ?? 'en').toLowerCase();
+        const author = (parts[2] ?? 'sujato').toLowerCase();
+        if (!uid) return null;
+        return `/sutta/${uid}?lang=${encodeURIComponent(lang)}&author=${encodeURIComponent(author)}`;
+      }
+      // FoJin URLs: https://fojin.app/texts/{id}/read?juan={n}
+      // Route to /sutta/fojin/{id}?juan={n}; the SuttaStudioApp recognises this
+      // pattern, skips the Pali-specific compiler, and renders the Chinese
+      // content via the existing fallback (parallel-reading layout).
+      if (url.hostname.endsWith('fojin.app')) {
+        const parts = url.pathname.split('/').filter(Boolean);
+        const textsIdx = parts.indexOf('texts');
+        const textId = textsIdx >= 0 ? parts[textsIdx + 1] : null;
+        if (!textId || !/^\d+$/.test(textId)) return null;
+        const juan = url.searchParams.get('juan') || '1';
+        return `/sutta/fojin/${textId}?juan=${encodeURIComponent(juan)}`;
+      }
+      return null;
     } catch {
       return null;
     }

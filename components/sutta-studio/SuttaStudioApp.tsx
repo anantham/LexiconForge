@@ -12,11 +12,52 @@ import { ChapterOps } from '../../services/db/operations/chapters';
 import { isSuttaFlowDebug, logSuttaFlow, warnSuttaFlow } from '../../services/suttaStudioDebug';
 import { resetPipelineLogs } from '../../services/suttaStudioPipelineLog';
 
+type StudioSource = 'suttacentral' | 'fojin';
+
 const parseSuttaRoute = () => {
-  if (typeof window === 'undefined') return { uid: null, lang: 'en', author: 'sujato' };
+  if (typeof window === 'undefined') {
+    return {
+      source: 'suttacentral' as StudioSource,
+      uid: null,
+      lang: 'en',
+      author: 'sujato',
+      fojinTextId: null as string | null,
+      fojinJuan: 1,
+      recompile: false,
+      stitch: [] as string[],
+      allowCrossChapter: false,
+    };
+  }
   const parts = window.location.pathname.split('/').filter(Boolean);
-  const uidRaw = parts[1] || null;
   const params = new URLSearchParams(window.location.search);
+
+  // /sutta/fojin/{textId}?juan={n} — non-Pali Buddhist text path; the existing
+  // compiler is hard-wired to SuttaCentral's Bilara API and prompts assume
+  // Pali grammar, so we render the FoJin chapter via the simpler fallback view
+  // (M1: parallel-reading layout, no morphology). M2 will add 84000 as an
+  // English column; M3 tackles morphology on non-Pali sources.
+  if ((parts[1] || '').toLowerCase() === 'fojin') {
+    const fojinTextId = parts[2] || null;
+    const juanRaw = params.get('juan') || '1';
+    const fojinJuan = (() => {
+      const n = parseInt(juanRaw, 10);
+      return Number.isFinite(n) && n > 0 ? n : 1;
+    })();
+    return {
+      source: 'fojin' as StudioSource,
+      uid: fojinTextId,
+      lang: 'lzh',
+      author: 'fojin',
+      fojinTextId,
+      fojinJuan,
+      recompile: false,
+      stitch: [] as string[],
+      allowCrossChapter: false,
+    };
+  }
+
+  // /sutta/{uid}?lang=&author= — original SuttaCentral path
+  const uidRaw = parts[1] || null;
   const langRaw = params.get('lang') || 'en';
   const authorRaw = params.get('author') || 'sujato';
   const recompileRaw = params.get('recompile');
@@ -27,9 +68,12 @@ const parseSuttaRoute = () => {
     .map((item) => item.trim().toLowerCase())
     .filter((item) => item.length > 0);
   return {
+    source: 'suttacentral' as StudioSource,
     uid: uidRaw ? uidRaw.toLowerCase() : null,
     lang: langRaw.toLowerCase(),
     author: authorRaw.toLowerCase(),
+    fojinTextId: null as string | null,
+    fojinJuan: 1,
     recompile: recompileRaw === '1' || recompileRaw === 'true',
     stitch,
     allowCrossChapter: allowCrossRaw === '1' || allowCrossRaw === 'true',
@@ -54,8 +98,14 @@ export function SuttaStudioApp() {
   const loadChapterFromIDB = useAppStore((s) => s.loadChapterFromIDB);
   const setCurrentChapter = useAppStore((s) => s.setCurrentChapter);
 
-  const { uid, lang, author, recompile, stitch, allowCrossChapter } = useMemo(parseSuttaRoute, []);
-  const targetUrl = uid ? `https://suttacentral.net/${uid}/${lang}/${author}` : null;
+  const { source, uid, lang, author, fojinTextId, fojinJuan, recompile, stitch, allowCrossChapter } =
+    useMemo(parseSuttaRoute, []);
+  const targetUrl = (() => {
+    if (source === 'fojin' && fojinTextId) {
+      return `https://fojin.app/texts/${fojinTextId}/read?juan=${fojinJuan}`;
+    }
+    return uid ? `https://suttacentral.net/${uid}/${lang}/${author}` : null;
+  })();
   const fetchOnce = useRef(false);
   const compileOnce = useRef(false);
   const resolveOnce = useRef(false);
@@ -65,11 +115,17 @@ export function SuttaStudioApp() {
   const navigateGateReason = useRef<string | null>(null);
   const compileGateReason = useRef<string | null>(null);
   const renderGateReason = useRef<string | null>(null);
-  const chapterMatches = chapter?.originalUrl?.includes(`suttacentral.net/${uid}`);
+  const chapterMatches = source === 'fojin'
+    ? Boolean(
+        chapter?.originalUrl &&
+          fojinTextId &&
+          chapter.originalUrl.includes(`fojin.app/texts/${fojinTextId}`)
+      )
+    : chapter?.originalUrl?.includes(`suttacentral.net/${uid}`);
   const routeKey = useMemo(() => {
     const stitched = stitch.join(',');
-    return `${uid ?? ''}|${lang}|${author}|${recompile ? '1' : '0'}|${stitched}|${allowCrossChapter ? '1' : '0'}`;
-  }, [uid, lang, author, recompile, stitch, allowCrossChapter]);
+    return `${source}|${uid ?? ''}|${lang}|${author}|${recompile ? '1' : '0'}|${stitched}|${allowCrossChapter ? '1' : '0'}|${fojinJuan}`;
+  }, [source, uid, lang, author, recompile, stitch, allowCrossChapter, fojinJuan]);
 
   const logGate = (
     gate: string,
@@ -243,6 +299,14 @@ export function SuttaStudioApp() {
         { isInitialized, uid, chapterId: chapter?.id ?? null },
         compileGateReason
       );
+      return;
+    }
+    // M1: FoJin sources skip the Pali-specific compiler entirely. The chapter
+    // is fetched normally and rendered via SuttaStudioFallback, which lays out
+    // raw chapter.content as scrollable paragraphs. Real multi-source compile
+    // (Chinese ↔ English alignment, morphology) is M2/M3.
+    if (source === 'fojin') {
+      logGate('compile', 'fojin_uses_fallback_only', { source, fojinTextId }, compileGateReason);
       return;
     }
     if (!uid) {
