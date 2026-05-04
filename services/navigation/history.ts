@@ -16,7 +16,9 @@ export function updateBrowserHistory(
       typeof window !== 'undefined' ? new URL(window.location.href) : null;
     const flowDebug = isSuttaFlowDebug();
     const params = new URLSearchParams();
-    const preserveKeys = ['lang', 'author', 'recompile'];
+    // Preserve studio-route params: `lang` / `author` / `recompile` for
+    // SuttaCentral; `juan` for FoJin (which juan of the text is being read).
+    const preserveKeys = ['lang', 'author', 'recompile', 'juan'];
 
     if (currentUrl?.pathname.startsWith('/sutta')) {
       preserveKeys.forEach((key) => {

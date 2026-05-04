@@ -585,6 +585,18 @@ export class FojinAdapter extends BaseAdapter {
     const prevUrl = this.buildSiblingUrl(juan.prev_juan ?? null);
     const nextUrl = this.buildSiblingUrl(juan.next_juan ?? null);
 
+    // Build a richer source-metadata blurb so readers can see provenance
+    // (translator, dynasty, CBETA id, Taisho number, canon category) without
+    // having to leave the studio view.
+    const blurbParts = [
+      meta?.translator ? `Translator: ${meta.translator}` : null,
+      meta?.dynasty ? `Dynasty: ${meta.dynasty}` : null,
+      juan.cbeta_id ? `CBETA ${juan.cbeta_id}` : meta?.cbeta_id ? `CBETA ${meta.cbeta_id}` : null,
+      meta?.taisho_id && meta.taisho_id !== juan.cbeta_id ? `Taishō ${meta.taisho_id}` : null,
+      meta?.category && meta.category !== meta?.subcategory ? meta.category : null,
+    ].filter(Boolean);
+    const blurb = blurbParts.length > 0 ? blurbParts.join(' · ') : null;
+
     return {
       title: finalTitle,
       content: juan.content,
@@ -593,9 +605,7 @@ export class FojinAdapter extends BaseAdapter {
       prevUrl,
       chapterNumber: this.juanNum,
       sourceLanguage,
-      blurb: meta?.translator || meta?.dynasty
-        ? `${meta?.translator ? `Translator: ${meta.translator}` : ''}${meta?.translator && meta?.dynasty ? ' · ' : ''}${meta?.dynasty ? `Dynasty: ${meta.dynasty}` : ''}`.trim() || null
-        : null,
+      blurb,
     };
   }
 }

@@ -5,6 +5,7 @@ import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { formatDuration } from './utils';
 import { isSuttaFlowDebug, logSuttaFlow, warnSuttaFlow } from '../../services/suttaStudioDebug';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
+import { makeSpaClickHandler } from '../../utils/spaNavigate';
 
 /**
  * Normalise HTML-formatted AI translation output into plain text with
@@ -71,7 +72,26 @@ export function SuttaStudioFallback({
   const blocks: Array<{ pali: string; english: string | null }> = [];
   const CHUNK_SIZE = 8;
 
-  if (canonicalSegments && canonicalSegments.length > 0) {
+  // Pre-compute the chapter's English source string (raw text, regardless of
+  // layout choice below). HTML-formatted AI translation gets normalised to
+  // text + paragraph breaks before display.
+  const aiTranslation = (chapter as any).translationResult?.translation as string | undefined;
+  const chapterEnglishRaw =
+    chapter?.fanTranslation
+    || (aiTranslation ? htmlTranslationToText(aiTranslation) : '')
+    || '';
+
+  // Decide layout mode:
+  //   PAIRED — when canonicalSegments are aligned 1:1 with English (Bilara
+  //            from SuttaCentral). Each pair stacks vertically.
+  //   COLUMNS — when raw and English come from independent sources (FoJin
+  //            Chinese + 84000 English fan translation, or AI translation).
+  //            Paragraph counts don't match; we render two scrollable
+  //            columns side-by-side instead of forcing wrong alignment.
+  const layoutMode: 'paired' | 'columns' =
+    canonicalSegments && canonicalSegments.length > 0 ? 'paired' : 'columns';
+
+  if (layoutMode === 'paired' && canonicalSegments) {
     const hasProgressCount = typeof progress?.readySegments === 'number';
     const readySegments = hasProgressCount ? Math.max(0, progress?.readySegments || 0) : canonicalSegments.length;
     const lengthToShow = Math.min(readySegments, canonicalSegments.length);
@@ -79,24 +99,10 @@ export function SuttaStudioFallback({
       const seg = canonicalSegments[i];
       blocks.push({ pali: seg.pali, english: seg.baseEnglish ?? null });
     }
-  } else if (chapter?.content) {
-    const paliChunks = chapter.content.split(/\n{2,}/);
-    // English column priority: pre-existing fan translation (e.g. SuttaCentral
-    // Bilara translation_text — already plain text) → AI translation result
-    // (HTML-formatted, must be normalised before paragraph splitting).
-    const aiTranslation = (chapter as any).translationResult?.translation as string | undefined;
-    const englishSource = chapter.fanTranslation
-      || (aiTranslation ? htmlTranslationToText(aiTranslation) : '')
-      || '';
-    const englishChunks = englishSource ? englishSource.split(/\n{2,}/) : [];
-    const max = Math.max(paliChunks.length, englishChunks.length);
-    for (let i = 0; i < max; i++) {
-      blocks.push({
-        pali: paliChunks[i] || '',
-        english: englishChunks[i] || null,
-      });
-    }
   }
+  // For 'columns' mode we don't build the blocks array — the columns layout
+  // renders chapter.content and chapterEnglishRaw directly as two scrollable
+  // panels (see render block below).
 
   const groupedBlocks: Array<Array<{ pali: string; english: string | null }>> = [];
   for (let i = 0; i < blocks.length; i += CHUNK_SIZE) {
@@ -142,6 +148,7 @@ export function SuttaStudioFallback({
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-start p-6">
       <a
         href={backToReaderUrl}
+        onClick={makeSpaClickHandler(backToReaderUrl)}
         className="absolute top-6 left-6 w-10 h-10 rounded-full flex items-center justify-center border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-500 hover:bg-slate-900/60 transition"
         title="Back to Reader"
         aria-label="Back to Reader"
@@ -191,7 +198,29 @@ export function SuttaStudioFallback({
         )}
       </div>
 
-      <div className="w-full max-w-5xl mt-20 space-y-10">
+      <div className="w-full max-w-6xl mt-20 space-y-6">
+        {/* Header: title + source metadata strip. The chapter view's header
+            isn't visible in the studio, so source provenance (translator,
+            dynasty, CBETA id, etc.) gets re-surfaced here. The FoJin adapter
+            populates `blurb` with translator + dynasty; for SuttaCentral
+            chapters the blurb is the SuttaPlex text. */}
+        {chapter?.title && (
+          <header className="space-y-1 border-b border-slate-800 pb-4">
+            <h1 className="text-3xl font-serif text-slate-100">{chapter.title}</h1>
+            {chapter.blurb && (
+              <p className="text-sm text-slate-400 italic">{chapter.blurb}</p>
+            )}
+            {chapter.sourceLanguage && (
+              <p className="text-xs text-slate-500">
+                Source language: {chapter.sourceLanguage}
+                {chapter.originalUrl && (
+                  <> · <a href={chapter.originalUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">source</a></>
+                )}
+              </p>
+            )}
+          </header>
+        )}
+
         {isError && (
           <div className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-4 py-3 text-rose-200">
             <div className="flex items-center gap-2 font-medium text-rose-300">
@@ -207,23 +236,50 @@ export function SuttaStudioFallback({
             )}
           </div>
         )}
-        {groupedBlocks.length === 0 && !isBuilding && !isError && (
-          <div className="text-slate-400">No content available.</div>
-        )}
-        {groupedBlocks.map((group, groupIndex) => (
-          <div key={groupIndex} className="border-b border-slate-900 pb-8 space-y-6">
-            {group.map((seg, idx) => (
-              <div key={`${groupIndex}-${idx}`} className="space-y-2">
-                <div className="text-2xl leading-relaxed font-serif text-slate-100 whitespace-pre-wrap">
-                  {seg.pali || '…'}
-                </div>
-                <div className="text-lg leading-relaxed text-slate-200 whitespace-pre-wrap">
-                  {seg.english || '…'}
-                </div>
+
+        {layoutMode === 'columns' ? (
+          /* Two scrollable columns — used when raw and translation come from
+             independent sources (FoJin Chinese + 84000 English fan, or AI
+             translation). Paragraph counts don't reliably match across
+             sources so we don't try to pair them; users compare visually
+             by scrolling. Stacks on mobile. */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <h2 className="text-xs uppercase tracking-wider text-slate-500 font-semibold">Original</h2>
+              <div className="text-2xl leading-relaxed font-serif text-slate-100 whitespace-pre-wrap">
+                {chapter?.content || <span className="text-slate-500 text-base">No content available.</span>}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                English {chapter?.fanTranslation ? '(Fan translation)' : aiTranslation ? '(AI translation)' : ''}
+              </h2>
+              <div className="text-lg leading-relaxed text-slate-200 whitespace-pre-wrap">
+                {chapterEnglishRaw || <span className="text-slate-500 text-base">English translation not yet loaded.</span>}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {groupedBlocks.length === 0 && !isBuilding && !isError && (
+              <div className="text-slate-400">No content available.</div>
+            )}
+            {groupedBlocks.map((group, groupIndex) => (
+              <div key={groupIndex} className="border-b border-slate-900 pb-8 space-y-6">
+                {group.map((seg, idx) => (
+                  <div key={`${groupIndex}-${idx}`} className="space-y-2">
+                    <div className="text-2xl leading-relaxed font-serif text-slate-100 whitespace-pre-wrap">
+                      {seg.pali || '…'}
+                    </div>
+                    <div className="text-lg leading-relaxed text-slate-200 whitespace-pre-wrap">
+                      {seg.english || '…'}
+                    </div>
+                  </div>
+                ))}
               </div>
             ))}
-          </div>
-        ))}
+          </>
+        )}
       </div>
     </div>
   );

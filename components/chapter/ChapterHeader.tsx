@@ -1,5 +1,6 @@
 import React from 'react';
 import RefreshIcon from '../icons/RefreshIcon';
+import { makeSpaClickHandler } from '../../utils/spaNavigate';
 type ViewMode = 'original' | 'fan' | 'english';
 
 interface ChapterHeaderProps {
@@ -132,6 +133,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
           {suttaStudioUrl && (
             <a
               href={suttaStudioUrl}
+              onClick={makeSpaClickHandler(suttaStudioUrl)}
               className="w-9 h-9 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
               title="Open Sutta Studio"
               aria-label="Open Sutta Studio"
@@ -205,6 +207,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
               {suttaStudioUrl && (
                 <a
                   href={suttaStudioUrl}
+                  onClick={makeSpaClickHandler(suttaStudioUrl)}
                   className="w-8 h-8 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
                   title="Open Sutta Studio"
                   aria-label="Open Sutta Studio"
