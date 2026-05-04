@@ -6,6 +6,38 @@ import { formatDuration } from './utils';
 import { isSuttaFlowDebug, logSuttaFlow, warnSuttaFlow } from '../../services/suttaStudioDebug';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 
+/**
+ * Normalise HTML-formatted AI translation output into plain text with
+ * paragraph boundaries preserved as `\n\n`. The LexiconForge translator
+ * emits HTML (<i>, <em>, <br />, <p>, footnote markers) by design — fine
+ * for the chapter view which renders HTML, but the studio fallback expects
+ * plain text it can split into parallel-reading blocks.
+ */
+function htmlTranslationToText(html: string): string {
+  return html
+    // Block-level tags become paragraph breaks.
+    .replace(/<\/p\s*>/gi, '\n\n')
+    .replace(/<p[^>]*>/gi, '')
+    .replace(/<\/div\s*>/gi, '\n\n')
+    .replace(/<div[^>]*>/gi, '')
+    // Line breaks become single newlines.
+    .replace(/<br\s*\/?>/gi, '\n')
+    // Strip footnote anchor wrappers but keep their text.
+    .replace(/<a[^>]*>(.*?)<\/a>/gi, '$1')
+    // All remaining tags removed (italics, bold, spans, etc.).
+    .replace(/<[^>]+>/g, '')
+    // Decode the handful of entities the translator actually emits.
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    // Collapse 3+ blank lines to exactly one paragraph break.
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 export function SuttaStudioFallback({
   chapter,
   backToReaderUrl,
@@ -50,12 +82,12 @@ export function SuttaStudioFallback({
   } else if (chapter?.content) {
     const paliChunks = chapter.content.split(/\n{2,}/);
     // English column priority: pre-existing fan translation (e.g. SuttaCentral
-    // Bilara translation_text) → AI translation result. The latter applies to
-    // sources like FoJin that don't ship their own English; the AI translator
-    // generally preserves paragraph boundaries 1:1, so index-based alignment
-    // works for short texts.
+    // Bilara translation_text — already plain text) → AI translation result
+    // (HTML-formatted, must be normalised before paragraph splitting).
     const aiTranslation = (chapter as any).translationResult?.translation as string | undefined;
-    const englishSource = chapter.fanTranslation || aiTranslation || '';
+    const englishSource = chapter.fanTranslation
+      || (aiTranslation ? htmlTranslationToText(aiTranslation) : '')
+      || '';
     const englishChunks = englishSource ? englishSource.split(/\n{2,}/) : [];
     const max = Math.max(paliChunks.length, englishChunks.length);
     for (let i = 0; i < max; i++) {

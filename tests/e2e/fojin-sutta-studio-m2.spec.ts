@@ -78,9 +78,14 @@ function buildOpenRouterCompletion(payload: unknown) {
   };
 }
 
+// Translator emits HTML by design (<i>, <br />, <p>, etc.). Studio fallback
+// must normalise this to plain text or the user sees raw tags. We deliberately
+// wrap the canned English in HTML to verify the strip+normalise path.
 const TRANSLATION_PAYLOAD = {
   translatedTitle: 'The Heart Sūtra',
-  translation: HEART_SUTRA_EN,
+  translation: HEART_SUTRA_EN_PARAS
+    .map((p) => `<p>${p}</p>`)
+    .join('') + '<br /><i>(Translator note suppressed)</i>',
   footnotes: null,
   suggestedIllustrations: null,
   proposal: null,
@@ -159,12 +164,21 @@ test.describe('FoJin chapter → Sutta Studio (M2 — AI translation as English 
     await expect(page.getByText(HEART_SUTRA_ZH_PARAS[0].slice(0, 12))).toBeVisible({ timeout: 30_000 });
 
     // …and once the AI translation lands, the matching English paragraphs
-    // appear in the right column. The studio fires handleTranslate exactly
-    // once for FoJin chapters — let it run and assert the result renders.
+    // appear in the right column. HTML tags from the translator must be
+    // stripped before display — assert <p> and <br /> are NOT visible as
+    // raw text anywhere on the page.
     await expect(page.getByText(HEART_SUTRA_EN_PARAS[0].slice(0, 30)))
       .toBeVisible({ timeout: 20_000 });
     await expect(page.getByText(HEART_SUTRA_EN_PARAS[1].slice(0, 30)))
       .toBeVisible({ timeout: 20_000 });
+
+    // Bug regression: literal HTML tags must NOT leak into the rendered text.
+    const bodyText = await page.locator('body').innerText();
+    expect(bodyText).not.toContain('<p>');
+    expect(bodyText).not.toContain('</p>');
+    expect(bodyText).not.toContain('<br />');
+    expect(bodyText).not.toContain('<i>');
+    expect(bodyText).not.toContain('</i>');
 
     // Translation should have been requested at least once. Could be more
     // than one if the translation pipeline retries internally; what matters
