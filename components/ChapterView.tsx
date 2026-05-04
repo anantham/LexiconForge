@@ -21,6 +21,7 @@ import { useTokenizedContent } from '../hooks/useTokenizedContent';
 import { useChapterTelemetry } from '../hooks/useChapterTelemetry';
 import ReaderView from './chapter/ReaderView';
 import { requestSelfInsert } from '../services/selfInsertService';
+import { useSillyTavernBridgeStatus } from '../hooks/useSillyTavernBridgeStatus';
 
 const ChapterView: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -262,6 +263,8 @@ const ChapterView: React.FC = () => {
     }
     useAppStore.getState().generateIllustrationForSelection(currentChapterId, selection);
   }, [currentChapterId, showNotification]);
+
+  const sillyTavernBridge = useSillyTavernBridgeStatus();
 
   const handleSelfInsert = useCallback(async () => {
     if (!currentChapterId || !chapter) {
@@ -525,8 +528,10 @@ const ChapterView: React.FC = () => {
     onDeleteFeedback: deleteFeedback,
     onUpdateFeedback: updateFeedbackComment,
     onScrollToText: handleScrollToText,
-    onSelfInsert: settings.enableSillyTavern ? handleSelfInsert : undefined,
-    enableSillyTavern: settings.enableSillyTavern,
+    // Hide portal button when the SillyTavern bridge isn't reachable
+    // (issue #4 follow-on: a button that can't function shouldn't render).
+    onSelfInsert: sillyTavernBridge.isReachable ? handleSelfInsert : undefined,
+    enableSillyTavern: settings.enableSillyTavern && sillyTavernBridge.isReachable,
   };
 
   return <ReaderView viewRef={viewRef} chapter={chapter} headerProps={headerProps} statusProps={statusProps} bodyProps={bodyProps} />;
