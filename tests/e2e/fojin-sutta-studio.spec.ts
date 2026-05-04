@@ -86,6 +86,8 @@ async function setupFojinApiMocks(page: Page) {
   );
 }
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('FoJin chapter → Sutta Studio (M1)', () => {
   test('button appears, click routes to /sutta/fojin/, studio renders Chinese', async ({ page }) => {
     const errors: string[] = [];

@@ -289,6 +289,99 @@ describe('searchNovelSources — FoJin integration', () => {
     expect(result.fanTranslations[0].url).toBe('https://84000.co/translation/toh21');
   });
 
+  it('replaces LLM-suggested 84000 URL with the curated authoritative toh-ID', async () => {
+    identityResponse = {
+      identity: { titleZh: '般若波羅蜜多心經', titleEn: 'Heart Sutra', authorZh: '玄奘', aliases: [] },
+      rawSources: [],
+      fanTranslations: [
+        // LLM hallucinates a wrong toh-ID; curated table should override.
+        {
+          site: '84000',
+          url: 'https://84000.co/translation/toh50',
+          matchedTitle: 'Some other text',
+          matchedAuthor: null,
+          sourceType: 'official',
+          chapterCount: null,
+          status: null,
+          confidence: 0.7,
+          whyThisMatches: 'wrong guess',
+        },
+      ],
+    };
+
+    globalThis.fetch = vi.fn(async (input: any) => {
+      // Probe path: return 200 for any /api/fetch-proxy URL so candidates
+      // survive the probe; the curated override is the actual fix.
+      const url = String(input);
+      if (url.includes('/api/fetch-proxy')) {
+        return new Response('<html>...</html>', { status: 200 });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    }) as any;
+
+    const result = await searchNovelSources('heart sutra', settings);
+
+    expect(result.fanTranslations).toHaveLength(1);
+    // Curated entry replaced the wrong toh-50 with the authoritative toh-21.
+    expect(result.fanTranslations[0].url).toBe('https://84000.co/translation/toh21');
+    expect(result.fanTranslations[0].matchedTitle).toContain('Heart of the Perfection of Wisdom');
+    expect(result.fanTranslations[0].confidence).toBe(1);
+  });
+
+  it('injects a curated 84000 candidate when the LLM missed it entirely', async () => {
+    identityResponse = {
+      identity: { titleZh: '妙法蓮華經', titleEn: 'Lotus Sutra', authorZh: '鳩摩羅什', aliases: ['Saddharmapuṇḍarīka'] },
+      rawSources: [],
+      fanTranslations: [],
+    };
+
+    globalThis.fetch = vi.fn(async (input: any) => {
+      const url = String(input);
+      if (url.includes('/api/fetch-proxy')) {
+        return new Response('<html>...</html>', { status: 200 });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    }) as any;
+
+    const result = await searchNovelSources('lotus sutra', settings);
+
+    expect(result.fanTranslations).toHaveLength(1);
+    expect(result.fanTranslations[0].url).toBe('https://84000.co/translation/toh113');
+    expect(result.fanTranslations[0].site).toBe('84000');
+  });
+
+  it('does NOT inject a curated 84000 candidate for non-Buddhist queries', async () => {
+    identityResponse = {
+      identity: { titleZh: '某小說', titleEn: 'Random novel', authorZh: null, aliases: [] },
+      rawSources: [],
+      fanTranslations: [
+        {
+          site: 'NovelCool',
+          url: 'https://novelcool.com/some-novel',
+          matchedTitle: 'Some Novel',
+          matchedAuthor: null,
+          sourceType: 'mirror',
+          chapterCount: null,
+          status: null,
+          confidence: 0.6,
+          whyThisMatches: 'novel match',
+        },
+      ],
+    };
+
+    globalThis.fetch = vi.fn(async (input: any) => {
+      const url = String(input);
+      if (url.includes('/api/fetch-proxy')) {
+        return new Response('<html>...</html>', { status: 200 });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    }) as any;
+
+    const result = await searchNovelSources('some novel', settings);
+    expect(result.fanTranslations).toHaveLength(1);
+    expect(result.fanTranslations[0].url).toContain('novelcool.com');
+  });
+
   it('caps recommended count at one even if LLM marks multiple', async () => {
     identityResponse = {
       identity: { titleZh: '般若波羅蜜多心經', titleEn: 'Heart Sutra', authorZh: null, aliases: [] },

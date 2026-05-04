@@ -237,6 +237,14 @@ async function setupFojinMocks(page: Page) {
   );
 }
 
+// FoJin e2e tests share state through the dev server (single Vite instance,
+// registry fetches to GitHub raw with rate limits, etc.). Running them in
+// parallel against a default-config Playwright produces flaky failures even
+// when each test is correct. Force serial within this file; cross-file
+// parallelism between fojin specs is also disabled via fojin-e2e-serial
+// project (see playwright.config.ts).
+test.describe.configure({ mode: 'serial' });
+
 test.describe('FoJin search-and-load E2E', () => {
   test('searches "heart sutra" → loads Heart Sutra content', async ({ page }) => {
     // Capture interesting console output for post-mortem.

@@ -91,6 +91,8 @@ const TRANSLATION_PAYLOAD = {
   proposal: null,
 };
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('FoJin chapter → Sutta Studio (M2 — AI translation as English column)', () => {
   test('AI translation populates the English column alongside Chinese', async ({ page }) => {
     let translationCalls = 0;

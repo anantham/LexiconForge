@@ -9,6 +9,7 @@ import { getProvider } from '../../adapters/providers/registry';
 import { initializeProviders } from '../../adapters/providers';
 import type { AppSettings } from '../../types';
 import type { SearchResult, SourceCandidate } from './types';
+import { lookupKnown84000, build84000Url, type Known84000Entry } from './known84000';
 
 const SUPPORTED_DOMAINS = [
   'kakuyomu.jp',
@@ -468,17 +469,59 @@ export async function searchNovelSources(
   const mergedRaw = [...fojinCandidates, ...llmCandidates]
     .sort((a, b) => b.confidence - a.confidence);
 
-  // Fan translations come straight from the LLM (no real-lookup channel
-  // like FoJin search). The LLM hallucinates URLs for sites that don't
+  // Fan translations come straight from the LLM (no general real-lookup
+  // channel for fan sites). The LLM hallucinates URLs for sites that don't
   // host the requested text — most notoriously SuttaCentral entries for
-  // Mahayana sutras. Probe each URL to drop 404s before showing them.
-  const fanCandidatesUnverified = parsed.fanTranslations.map(annotateCandidate);
-  const fanCandidatesVerified = await probeFanCandidates(fanCandidatesUnverified, abortSignal);
+  // Mahayana sutras, or wrong toh-IDs on 84000.co. Two-layer defence:
+  //   (1) For 84000, consult a curated table of canonical Sanskrit titles
+  //       → toh-IDs. Replace any LLM-suggested 84000 candidate with the
+  //       authoritative one when we have it; inject a candidate when the
+  //       LLM missed 84000 entirely.
+  //   (2) Probe everything else for HTTP 200 to drop URL 404s.
+  const llmFanCandidates = parsed.fanTranslations.map(annotateCandidate);
+  const fanCandidatesAfterCuration = applyKnown84000Override(llmFanCandidates, parsed.identity);
+  const fanCandidatesVerified = await probeFanCandidates(fanCandidatesAfterCuration, abortSignal);
 
   return {
     query,
     identity: parsed.identity,
     rawSources: mergedRaw,
     fanTranslations: fanCandidatesVerified.sort((a, b) => b.confidence - a.confidence),
+  };
+}
+
+/**
+ * If the resolved identity matches a known canonical Buddhist text in our
+ * curated 84000 table, ensure exactly one authoritative 84000 candidate
+ * is present — replacing any LLM-suggested 84000 URL (which may have a
+ * wrong toh-ID) and injecting a fresh one when no 84000 candidate was
+ * suggested at all.
+ */
+function applyKnown84000Override(
+  candidates: SourceCandidate[],
+  identity: { titleZh: string | null; titleEn: string | null; authorZh: string | null; aliases: string[] },
+): SourceCandidate[] {
+  const known = lookupKnown84000(identity);
+  if (!known) return candidates;
+
+  const authoritative: SourceCandidate = build84000Candidate(known);
+  // Drop any existing 84000 entries — the curated one is more trustworthy.
+  const others = candidates.filter((c) => !c.url.includes('84000.co'));
+  // Put curated 84000 first so it sorts above LLM-suggested fans.
+  return [authoritative, ...others];
+}
+
+function build84000Candidate(entry: Known84000Entry): SourceCandidate {
+  return {
+    site: '84000',
+    url: build84000Url(entry.tohId),
+    matchedTitle: entry.englishTitle,
+    matchedAuthor: '84000 Translation Team',
+    sourceType: 'official',
+    chapterCount: null,
+    status: 'completed',
+    confidence: 1,
+    whyThisMatches: entry.note ?? `Verified canonical mapping → ${entry.tohId}`,
+    adapterSupported: true,
   };
 }

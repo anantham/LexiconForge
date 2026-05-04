@@ -176,6 +176,8 @@ function classifyFojinRequest(rawUrl: string): 'search' | 'juan' | 'meta' | 'unk
   return 'unknown';
 }
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Fan-translation flow E2E', () => {
   test('probe drops hallucinated SC card; selecting 84000 fan attaches its English to the studio column', async ({ page }) => {
     let llmCalls: { identity: number; enrichment: number; translation: number } = {
