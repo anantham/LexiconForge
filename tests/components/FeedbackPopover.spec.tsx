@@ -6,7 +6,7 @@
  *          users re-click thinking nothing happened (issue #4 verbatim).
  * Post-fix: button is disabled + shows spinner during in-flight handler.
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import React from 'react';

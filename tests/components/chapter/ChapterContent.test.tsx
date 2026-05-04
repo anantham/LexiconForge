@@ -139,6 +139,115 @@ describe('ChapterContent', () => {
     );
   });
 
+  // Issue #14 — failed-state retry button (silent-feedback-gaps theme).
+  describe('inline retry button (issue #14)', () => {
+    it('does not render the retry button when onRetryTranslation is not provided', () => {
+      render(
+        <ChapterContent
+          {...createProps({
+            translationError: 'Network error',
+          })}
+        />
+      );
+      expect(screen.getByText('Translation Failed')).toBeInTheDocument();
+      expect(screen.queryByTestId('translation-retry-button')).not.toBeInTheDocument();
+    });
+
+    it('renders the retry button when onRetryTranslation is provided', () => {
+      const onRetryTranslation = vi.fn();
+      render(
+        <ChapterContent
+          {...createProps({
+            translationError: 'Network error',
+            onRetryTranslation,
+          })}
+        />
+      );
+      const btn = screen.getByTestId('translation-retry-button');
+      expect(btn).toBeInTheDocument();
+      expect(btn).not.toBeDisabled();
+      expect(btn).toHaveTextContent('Retry translation');
+    });
+
+    it('fires onRetryTranslation on click and shows pending state', () => {
+      const onRetryTranslation = vi.fn();
+      render(
+        <ChapterContent
+          {...createProps({
+            translationError: 'Network error',
+            onRetryTranslation,
+          })}
+        />
+      );
+      const btn = screen.getByTestId('translation-retry-button');
+
+      fireEvent.click(btn);
+
+      expect(onRetryTranslation).toHaveBeenCalledTimes(1);
+      expect(btn).toBeDisabled();
+      expect(btn.getAttribute('aria-busy')).toBe('true');
+      expect(btn).toHaveTextContent('Retrying');
+      expect(btn.querySelector('[aria-label="Loading"]')).not.toBeNull();
+    });
+
+    it('blocks re-clicks while pending', () => {
+      const onRetryTranslation = vi.fn();
+      render(
+        <ChapterContent
+          {...createProps({
+            translationError: 'Network error',
+            onRetryTranslation,
+          })}
+        />
+      );
+      const btn = screen.getByTestId('translation-retry-button');
+
+      fireEvent.click(btn);
+      fireEvent.click(btn);
+      fireEvent.click(btn);
+
+      expect(onRetryTranslation).toHaveBeenCalledTimes(1);
+    });
+
+    it('clears pending state when translationError clears (e.g. retry started)', () => {
+      const onRetryTranslation = vi.fn();
+      const { rerender } = render(
+        <ChapterContent
+          {...createProps({
+            translationError: 'Network error',
+            onRetryTranslation,
+          })}
+        />
+      );
+      const btn = screen.getByTestId('translation-retry-button');
+      fireEvent.click(btn);
+      expect(btn).toBeDisabled();
+
+      // Simulate the next render: error cleared because translation started
+      rerender(
+        <ChapterContent
+          {...createProps({
+            translationError: null,
+            onRetryTranslation,
+            // The component will move past the error UI to the loader/normal flow
+          })}
+        />
+      );
+      // Failure UI is gone now — but were the user to encounter another failure,
+      // the button should not start in a stale-pending state. Simulate that:
+      rerender(
+        <ChapterContent
+          {...createProps({
+            translationError: 'Different error',
+            onRetryTranslation,
+          })}
+        />
+      );
+      const btnAfter = screen.getByTestId('translation-retry-button');
+      expect(btnAfter).not.toBeDisabled();
+    });
+  });
+
   it('shows cache loader when hydrating and not translating', () => {
     render(<ChapterContent {...createProps({ isHydrating: true })} />);
     expect(screen.getByText(/Loading chapter from cache/)).toBeInTheDocument();

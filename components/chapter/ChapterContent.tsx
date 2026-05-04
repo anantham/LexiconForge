@@ -39,6 +39,14 @@ interface ChapterContentProps {
   showEnglishLoader: boolean;
   translationError?: string | null;
   translationErrorTelemetry?: TelemetryErrorContext | null;
+  /**
+   * Optional retry handler for the inline failed-translation UI (issue #14).
+   * When supplied, the failed-state box renders a "Retry translation" button
+   * that calls this handler and shows a pending spinner until the next render
+   * (typically when isTranslating flips to true and the loader replaces the
+   * error UI). Without this prop the failed state is a dead-end.
+   */
+  onRetryTranslation?: () => void;
 }
 
 const ChapterContent: React.FC<ChapterContentProps> = ({
@@ -69,7 +77,20 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
   showEnglishLoader,
   translationError,
   translationErrorTelemetry,
+  onRetryTranslation,
 }) => {
+  // Pending state for the inline retry button — issue #14 + silent-feedback-gaps theme.
+  // The retry click triggers store.handleTranslate which is async; this gives the
+  // button immediate visual feedback while the next render swaps in the loader.
+  const [isRetryPending, setIsRetryPending] = React.useState(false);
+  const isRetryPendingRef = React.useRef(false);
+  // Reset pending when the error clears (e.g. translation started) or on unmount.
+  React.useEffect(() => {
+    if (!translationError) {
+      isRetryPendingRef.current = false;
+      setIsRetryPending(false);
+    }
+  }, [translationError]);
   React.useEffect(() => {
     if (!translationError) {
       return;
@@ -121,6 +142,51 @@ const ChapterContent: React.FC<ChapterContentProps> = ({
         <div className="inline-block max-w-md p-6 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
           <h3 className="text-lg font-semibold text-red-700 dark:text-red-300 mb-2">Translation Failed</h3>
           <p className="text-sm text-red-600 dark:text-red-400 whitespace-pre-line">{translationError}</p>
+          {onRetryTranslation && (
+            <div className="mt-4">
+              <button
+                type="button"
+                data-testid="translation-retry-button"
+                disabled={isRetryPending}
+                aria-busy={isRetryPending}
+                onClick={() => {
+                  if (isRetryPendingRef.current) return;
+                  isRetryPendingRef.current = true;
+                  setIsRetryPending(true);
+                  onRetryTranslation();
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md border transition-colors ${
+                  isRetryPending
+                    ? 'opacity-60 cursor-wait bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-700 dark:text-red-300'
+                    : 'bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 border-red-300 dark:border-red-700 text-red-700 dark:text-red-300'
+                }`}
+              >
+                {isRetryPending ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-label="Loading"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeDasharray="50 100"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    Retrying…
+                  </>
+                ) : (
+                  'Retry translation'
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );

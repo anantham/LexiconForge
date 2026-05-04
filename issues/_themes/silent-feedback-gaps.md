@@ -31,11 +31,16 @@ What's missing: an immediate `setSomeState({ status: 'pending' })` before the aw
 |---|---|---|---|
 | 4 | Portal-icon button has no pending visual state; handler emits toast only at line 306 of `handleSelfInsert`, after 5 validation checks | `(A3, B2, C2)` | **FIXED 2026-05-04** — `useState` + `useRef` pending guard in both `FeedbackPopover.tsx` (desktop) and `SelectionOverlay.tsx` (mobile); 9 regression tests passing |
 | 5 | Illustration-icon button has same shape — no immediate visual feedback between click and prompt construction | `(A3, B2, C2)` | **FIXED 2026-05-04** — twin of #4, fixed mechanically using same pattern; 1200ms minimum-duration acknowledgment in both `FeedbackPopover.tsx` (desktop) and `SelectionOverlay.tsx` (mobile); 2 new regression tests passing |
-| 14 | Failed translation: red retry spinner is visually present but not clickable; failed state is dead-end | `(A3, B2, C2)` | suspected |
+| 14 | Failed translation: header retranslate button disabled (gray); inline failure UI had no retry control. Different fix-shape from #4/#5 — see issue #14 §5 | `(A3, B2, C2)` | **FIXED 2026-05-04** — `canManualRetranslate` extended to include failed state; new "Retry translation" button in inline failure UI with silent-feedback-gaps pending-state pattern; 4 new regression tests passing |
 
 All three are `A3` — there is no UX policy ADR or convention that says "every async user action must emit a signal within Nms."
 
-**Theme promoted from N=3 suspected → N=3 (with one investigated end-to-end) on 2026-05-04.** The investigation of #4 confirmed the generator function's mechanics: `(button) → onClick={asyncHandler}` with no in-flight state on the button itself, only toast/store-side-effect signaling that may lag the click by a noticeable beat. The fix-shape for #4 (`fix_local`: add `useState(false)` + `disabled` + spinner) is also the template for #5 and #14 if they hold up under their own investigations.
+**Theme reaches N=3 confirmed-fixed on 2026-05-04** (was N=3 suspected before the #4 investigation kicked off this session).
+- #4 (portal): fixed with `useState` + `useRef` + spinner-on-click. Async handler awaited.
+- #5 (illustration): fixed with same pattern but timeout-bounded duration (1200ms). Sync fire-and-forget handler.
+- #14 (retry): fixed with same pattern but externally-cleared pending state (clears when `translationError` clears). Plus a separate fix-aspect: enabling `canManualRetranslate` in the failed state.
+
+The three variants share a button-level pending-state shape but differ in pending-bound semantics (await / timeout / external-signal) and re-entry guard mechanism. Generator-fix (`<AsyncButton>` / `useAsyncAction`) is now empirically grounded but needs to support all three shapes — design spec lives in the three issue READMEs collectively. Not extracting in this round; deferred to a dedicated session.
 
 ## Leverage point
 
