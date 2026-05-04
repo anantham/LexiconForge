@@ -17,20 +17,33 @@ interface FeedbackPopoverProps {
   onEdit: () => void;
   onCompare: () => void;
   canCompare: boolean;
-  onSelfInsert?: () => void;
+  onSelfInsert?: () => void | Promise<void>;
   enableSillyTavern?: boolean;
 }
 
 const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, position, positioningParentRef, onFeedback, onEdit, onCompare, canCompare, onSelfInsert, enableSillyTavern }) => {
   const [pendingType, setPendingType] = useState<'👍' | '👎' | '?' | null>(null);
   const [comment, setComment] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  // Pending state for the portal/self-insert button — issue #4 fix.
+  // Ref guards against synchronous re-entry (test environments + StrictMode);
+  // state drives the visible disabled+spinner UI.
+  const [isSelfInsertPending, setIsSelfInsertPending] = useState(false);
+  const isSelfInsertPendingRef = useRef(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (pendingType && inputRef.current) {
-      inputRef.current.focus();
+    if (pendingType && textareaRef.current) {
+      textareaRef.current.focus();
     }
   }, [pendingType]);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.max(40, textarea.scrollHeight)}px`;
+    }
+  };
 
   if (!positioningParentRef.current) return null;
 
@@ -67,27 +80,34 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
       onMouseDown={(e) => e.preventDefault()}
     >
       {pendingType ? (
-        <div className="flex items-center gap-1 p-2">
-          <span className="text-lg pl-1">{pendingType}</span>
-          <input
-            ref={inputRef}
-            type="text"
+        <div className="flex items-start gap-1 p-2">
+          <span className="text-lg pl-1 mt-1">{pendingType}</span>
+          <textarea
+            ref={textareaRef}
             value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(e) => {
+              setComment(e.target.value);
+              adjustTextareaHeight();
+            }}
             onMouseDown={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') submitWithComment();
+              if (e.key === 'Enter' && !e.shiftKey) {
+                submitWithComment();
+              }
               if (e.key === 'Escape') skipComment();
             }}
             placeholder="Add a comment..."
-            className="bg-gray-700 text-white text-sm rounded px-2 py-1 w-48 outline-none focus:ring-1 focus:ring-blue-400 placeholder-gray-400"
+            rows={1}
+            className="bg-gray-700 text-white text-sm rounded px-2 py-1 w-64 min-h-[40px] max-w-80 outline-none focus:ring-1 focus:ring-blue-400 placeholder-gray-400 resize-none overflow-hidden"
           />
-          <button onClick={submitWithComment} className="px-2 py-1 text-xs bg-blue-600 rounded hover:bg-blue-700">
-            Save
-          </button>
-          <button onClick={skipComment} className="px-2 py-1 text-xs bg-gray-600 rounded hover:bg-gray-500">
-            Skip
-          </button>
+          <div className="flex flex-col gap-1">
+            <button onClick={submitWithComment} className="px-2 py-1 text-xs bg-blue-600 rounded hover:bg-blue-700">
+              Save
+            </button>
+            <button onClick={skipComment} className="px-2 py-1 text-xs bg-gray-600 rounded hover:bg-gray-500">
+              Skip
+            </button>
+          </div>
         </div>
       ) : (
         <div className="flex items-center gap-1 p-2">
@@ -125,11 +145,51 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
             <>
               <div className="w-px h-5 bg-gray-600 mx-0.5" />
               <button
-                onClick={onSelfInsert}
-                className="p-2 rounded-full hover:bg-amber-700 transition-colors duration-200"
-                title="Enter Story — Self-insert into SillyTavern"
+                onClick={async () => {
+                  if (isSelfInsertPendingRef.current) return;
+                  isSelfInsertPendingRef.current = true;
+                  setIsSelfInsertPending(true);
+                  try {
+                    await onSelfInsert();
+                  } finally {
+                    isSelfInsertPendingRef.current = false;
+                    setIsSelfInsertPending(false);
+                  }
+                }}
+                disabled={isSelfInsertPending}
+                aria-busy={isSelfInsertPending}
+                data-testid="portal-self-insert-button"
+                className={`p-2 rounded-full transition-colors duration-200 ${
+                  isSelfInsertPending
+                    ? 'opacity-60 cursor-wait'
+                    : 'hover:bg-amber-700'
+                }`}
+                title={
+                  isSelfInsertPending
+                    ? 'Entering Story…'
+                    : 'Enter Story — Self-insert into SillyTavern'
+                }
               >
-                <PortalIcon className="w-5 h-5" />
+                {isSelfInsertPending ? (
+                  <svg
+                    className="w-5 h-5 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-label="Loading"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeDasharray="50 100"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                ) : (
+                  <PortalIcon className="w-5 h-5" />
+                )}
               </button>
             </>
           )}

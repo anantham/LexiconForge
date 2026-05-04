@@ -21,7 +21,7 @@ interface SelectionOverlayProps {
   handleFeedbackSubmit: (feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => void;
   clearSelection: () => void;
   viewRef: React.RefObject<HTMLDivElement>;
-  onSelfInsert?: () => void;
+  onSelfInsert?: () => void | Promise<void>;
   enableSillyTavern?: boolean;
 }
 
@@ -32,7 +32,7 @@ interface SelectionSheetProps {
   onClose: () => void;
   canCompare: boolean;
   isComparing: boolean;
-  onSelfInsert?: () => void;
+  onSelfInsert?: () => void | Promise<void>;
   enableSillyTavern?: boolean;
 }
 
@@ -48,6 +48,10 @@ const SelectionSheet: React.FC<SelectionSheetProps> = ({
 }) => {
   const [pendingEmoji, setPendingEmoji] = useState<'👍' | '❤️' | '😂' | null>(null);
   const [comment, setComment] = useState('');
+  // Pending state for the portal/self-insert button — issue #4 fix (mobile twin).
+  // Ref guards against synchronous re-entry; state drives visible UI.
+  const [isSelfInsertPending, setIsSelfInsertPending] = useState(false);
+  const isSelfInsertPendingRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -126,7 +130,29 @@ const SelectionSheet: React.FC<SelectionSheetProps> = ({
             {enableSillyTavern && onSelfInsert && (
               <>
                 <div style={{width: 1, height: 28, background: '#374151'}} />
-                <button className="p-3 text-xl" onClick={onSelfInsert} title="Enter Story">🌀</button>
+                <button
+                  className="p-3 text-xl"
+                  onClick={async () => {
+                    if (isSelfInsertPendingRef.current) return;
+                    isSelfInsertPendingRef.current = true;
+                    setIsSelfInsertPending(true);
+                    try {
+                      await onSelfInsert();
+                    } finally {
+                      isSelfInsertPendingRef.current = false;
+                      setIsSelfInsertPending(false);
+                    }
+                  }}
+                  disabled={isSelfInsertPending}
+                  aria-busy={isSelfInsertPending}
+                  data-testid="portal-self-insert-button"
+                  style={{ opacity: isSelfInsertPending ? 0.6 : 1, cursor: isSelfInsertPending ? 'wait' : 'pointer' }}
+                  title={isSelfInsertPending ? 'Entering Story…' : 'Enter Story'}
+                >
+                  {isSelfInsertPending ? (
+                    <span className="inline-block animate-spin">⟳</span>
+                  ) : '🌀'}
+                </button>
               </>
             )}
             <div className="grow" />
@@ -196,13 +222,27 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
     );
   }
 
+  // Diagnostic: Track popover lifecycle
+  console.log('[SelectionOverlay] FeedbackPopover rendering', {
+    selectionText: selection.text?.slice(0, 30),
+    position: { top: selection.rect.top, left: selection.rect.left },
+    viewMode,
+    hasInlineEdit: inlineEditActive,
+  });
+
   return (
     <FeedbackPopover
       selectionText={selection.text}
       position={selection.rect}
       positioningParentRef={viewRef}
-      onFeedback={handleFeedbackSubmit}
-      onEdit={beginInlineEdit}
+      onFeedback={(item) => {
+        console.log('[SelectionOverlay] Feedback submitted', item);
+        handleFeedbackSubmit(item);
+      }}
+      onEdit={() => {
+        console.log('[SelectionOverlay] Edit clicked, clearing selection');
+        beginInlineEdit();
+      }}
       onCompare={handleCompareRequest}
       canCompare={canCompare && !comparisonLoading}
       onSelfInsert={onSelfInsert}
