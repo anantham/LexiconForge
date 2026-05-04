@@ -1,4 +1,4 @@
-import { ChapterOps, TranslationOps, DiffOps } from '../db/operations';
+import { ChapterOps, TranslationOps, DiffOps, FeedbackOps, feedbackRecordToItem } from '../db/operations';
 import { getRepoForService } from '../db/index';
 import { normalizeUrlAggressively, buildEnhancedChapter } from '../stableIdService';
 import type { EnhancedChapter } from '../stableIdService';
@@ -57,12 +57,33 @@ export async function loadChapterFromIDB(
 
     const enhanced: EnhancedChapter = buildEnhancedChapter(chapterId, rec);
 
+    // Load persisted feedback for this chapter (issue #17: previously this step
+    // was missing, so chapter.feedback was always [] until the user submitted
+    // a comment in the current session — and even then was lost on reload
+    // because of issue #18).
+    try {
+      const feedbackRecords = await FeedbackOps.get(rec.url).catch(() => []);
+      if (Array.isArray(feedbackRecords) && feedbackRecords.length > 0) {
+        enhanced.feedback = feedbackRecords.map(feedbackRecordToItem);
+        debugLog('navigation', 'summary', '[Navigation] Loaded persisted feedback', {
+          chapterId,
+          count: enhanced.feedback.length,
+        });
+      }
+    } catch (e) {
+      debugWarn('navigation', 'summary', '[Navigation] Failed to load feedback for chapter', {
+        chapterId,
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
+
     memoryDetail('Chapter hydration record stats', {
       chapterId,
       contentLength: enhanced.content.length,
       hasTranslation: Boolean(enhanced.translationResult),
       hasFanTranslation: Boolean(enhanced.fanTranslation),
       chapterNumber: enhanced.chapterNumber,
+      feedbackCount: enhanced.feedback?.length ?? 0,
     });
 
     // Load active translation if available (ensure fixes legacy data without isActive flag)

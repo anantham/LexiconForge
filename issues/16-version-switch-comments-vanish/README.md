@@ -21,13 +21,21 @@ A and B together explain a class of "comments seem to vanish" symptoms that *are
 > changing versions means comments should go away and then come back, its tied to that version! and the floating comment icons also have vanished with version switch!
 
 ## 2. Reproduction
-_TBD — testable manually:_
-1. Open a chapter with multiple chapter-translation versions in the dropdown.
-2. Make a comment on chapter-translation A.
-3. Switch via the dropdown to chapter-translation B. Comment should disappear (correct).
-4. Switch back to A. **Comment + floating-comment icons should reappear. They don't.**
 
-Live repro at `localhost:5180` after a chapter has multiple versions; this gets done when an investigator picks this up. The static-analysis verdict is high enough confidence to act on now without live repro blocking the fix-direction.
+**State-layer repro (2026-05-04, completed):** [`traces/repro-state-only.mjs`](./traces/repro-state-only.mjs) and [result](./traces/repro-state-only-result.json).
+
+The script bypasses the failing deep-link import by injecting a synthetic chapter via `store.importChapter()`, then simulating the lifecycle:
+
+| Step | Observation |
+|---|---|
+| 1. After inject | `chapter.feedback.length === 0` (correct, fresh) |
+| 2. After `submitFeedback` | `chapter.feedback.length === 1` (in-memory comment created) |
+| 3. After `updateChapter({translationResult})` mimicking switch to B | **`chapter.feedback.length === 1` — preserved** |
+| 4. After switch back to A | **`chapter.feedback.length === 1` — still preserved** |
+
+**Conclusion:** the data layer is fine. `setActiveTranslationVersion` → `updateChapter({ translationResult })` does NOT touch `chapter.feedback`. **The bug must be in the render layer.**
+
+**Render-layer repro:** _not yet automated; theoretical based on code reading + the state-only finding._ See §5 for the most likely mechanism. Live UI repro is blocked on having a chapter with multiple translations stored in IDB — would require seeding the IDB or running through the actual translate-twice flow. Current finding is strong enough to identify the fix-direction with high confidence.
 
 ## 3. Verdict
 
@@ -73,22 +81,42 @@ Investigation 2026-05-04 (Opus 4.7), code-reading-only, no live repro:
 
 So `chapter.feedback` only ever has values that were `submitFeedback`'d during the current page session. On any re-hydration (refresh, navigation away+back, deep-link reload), it goes back to `[]`. This isn't strictly the bug the user described, but it bounds the universe in which the user's symptom can occur.
 
-**Plausible bug paths for the user's stated symptom (need live repro to disambiguate):**
-1. Translation switch is somehow triggering re-hydration that wipes `chapter.feedback`. (Unlikely given the code, but possible via some side-effect chain I haven't traced.)
-2. The `findTextTop` lookup in `InlineCommentMarkers.tsx:16` fails when the new translation's text doesn't contain the comment's `selection` string — markers don't render. On switch-back, `useEffect` doesn't re-fire because deps didn't change, so positions stay stale. The icons don't "reappear" because they're not being recomputed against the now-correct DOM.
-3. A different code path I haven't found.
+**Bug path identified (high confidence after live state-test 2026-05-04):**
 
-Path #2 is the most plausible given current code. It would render as: comments visible in side panel (ReaderFeedbackPanel) BUT floating icons mispositioned/missing in body. The user says BOTH go away, which would only fit #2 if the side panel also has a similar conditional render bug — possible since it shares the `feedback.length > 0` predicate but doesn't filter by translation match. Worth checking under live repro.
+Path #1 (re-hydration wipes feedback) ruled out — state-test confirms `chapter.feedback` survives the simulated switch.
+
+Path #2 confirmed as the mechanism for the **floating-icon** part of the symptom:
+
+1. User submits comment on translation A. `feedback` reference becomes a new array. `useCallback`'s `computePositions` re-creates with new deps. `useEffect [computePositions]` fires. Debounced `setTimeout(computePositions, 150)` runs after 150ms. `findTextTop` finds `selection` text in A's DOM. `setPositions(computed)` populates markers. **Visible.**
+
+2. User switches to translation B. `setActiveTranslationVersion` runs `updateChapter({ translationResult })`. `chapter.feedback` reference UNCHANGED. `feedback` prop into `InlineCommentMarkers` is the same reference. `useCallback` returns SAME `computePositions` ref. **`useEffect [computePositions]` does NOT re-fire.** `positions` state stays at its initial value (the A markers).
+
+3. Visually: markers appear at A's top values, but B's text is rendered. May look correct or not, depending on DOM length differences.
+
+4. **Trigger event happens** — a window resize, or a debounced setTimeout call that fires due to React strict mode double-invocation, or any path that calls `computePositions` while B is rendered. `findTextTop` searches for A's `selection` text in B's DOM. Most likely doesn't find it. `setPositions([])`. **Markers disappear.**
+
+5. User switches back to A. `setActiveTranslationVersion(A)` runs. `feedback` ref still unchanged. `useEffect [computePositions]` doesn't re-fire. `positions` stays at `[]` from step 4. **Markers don't return.**
+
+The render-layer fix: make the position-recompute effect depend on something that changes when the translation text changes. Two candidates:
+- Pass `translationResult.translation` (or a hash) as a prop, include in `useCallback`'s deps.
+- Pass `activeTranslationId` as a `key` to `InlineCommentMarkers`, forcing remount on switch.
+
+The first is more efficient; the second is more bulletproof. Either is ~5-line `fix_local`.
+
+**For the side-panel `ReaderFeedbackPanel` ("comments going away"):**
+
+`ReaderFeedbackPanel.tsx:22` only renders when `viewMode === 'english' && feedback.length > 0`. `feedback` ref unchanged across switches, length unchanged. Should stay rendered. **The user's claim of "comments vanish" in this panel may not be accurate** — or there's a separate issue I haven't found. Worth confirming when actually running through the UI: is the side panel still showing the comment after switch, or is the user describing the floating icons (which actually do disappear)? Possible the user conflated the two in their verbatim message.
 
 ## 5b. Action — which kind of fix this is
 
-**`wait` until live repro is done.** Earlier I marked this `fix_local` based on static analysis only; pulling that back. The fix-direction depends on the live-repro outcome:
+**`fix_local`** — render-layer fix at `InlineCommentMarkers.tsx`. Confirmed by 2026-05-04 state-layer repro: data is fine, render is the bug.
 
-- If the symptom is "comments visible during session, but version-switch causes a re-hydration that resets them": fix is at the rehydration site (probably tied to issue #17 — load feedback from IDB during `loadChapterFromIDB`).
-- If the symptom is "InlineCommentMarkers' positions don't recompute on translation-text change": fix is local to the marker hook (still `fix_local`, but a different hook than I'd find without the repro).
-- If the symptom is "ReaderBody's conditional render on `feedbackForChapter.length > 0` flips somehow": deeper trace needed.
+The fix is structurally similar to `0c5162b` (the comparison-portal-on-chapter-change fix from issue #11), but at a different boundary: instead of "invalidate on chapter change," we need "invalidate on translation-content change." Two equivalent shapes, both ~5 lines:
 
-The `0c5162b` shape may or may not apply; without live evidence the assumption is unsafe.
+1. Add `translationResult.translation` (or a hash thereof) to `InlineCommentMarkers`'s prop list and include it in `useCallback`'s deps for `computePositions`. Forces re-fire of position recompute when translation text changes.
+2. Pass `activeTranslationId` as React `key` to `InlineCommentMarkers` from ReaderBody. Forces remount on switch — heavier-handed but unambiguous.
+
+I'd pick (1) for efficiency. (2) might be needed if (1) doesn't catch all the relevant lifecycle events.
 
 ## 6. Test coverage gap & regression-test obligations
 

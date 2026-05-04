@@ -1,0 +1,61 @@
+{
+  "observations": [
+    {
+      "label": "1_after_initial_load",
+      "data": {
+        "chapterId": null,
+        "hasChapter": false,
+        "chapterFeedbackCount": 0,
+        "chapterFeedbackIds": [],
+        "feedbackHistoryCount": 0,
+        "feedbackHistoryIds": [],
+        "hasTranslation": false,
+        "translationLength": 0,
+        "activeVersionId": "v1-st-enhanced",
+        "viewMode": "english"
+      },
+      "ts": 1777871921566
+    },
+    {
+      "label": "2_after_submitFeedback",
+      "data": {
+        "chapterId": null,
+        "hasChapter": false,
+        "chapterFeedbackCount": 0,
+        "chapterFeedbackIds": [],
+        "feedbackHistoryCount": 0,
+        "feedbackHistoryIds": [],
+        "hasTranslation": false,
+        "translationLength": 0,
+        "activeVersionId": "v1-st-enhanced",
+        "viewMode": "english"
+      },
+      "ts": 1777871922452
+    },
+    {
+      "label": "available_versions",
+      "data": {
+        "error": "no fetch action"
+      },
+      "ts": 1777871922594
+    },
+    {
+      "label": "5_after_reload",
+      "data": {
+        "chapterId": null,
+        "hasChapter": false,
+        "chapterFeedbackCount": 0,
+        "chapterFeedbackIds": [],
+        "feedbackHistoryCount": 0,
+        "feedbackHistoryIds": [],
+        "hasTranslation": false,
+        "translationLength": 0,
+        "activeVersionId": "v1-st-enhanced",
+        "viewMode": "english"
+      },
+      "ts": 1777871935617
+    }
+  ],
+  "consoleErrors": [],
+  "capturedAt": "2026-05-04T05:18:55.619Z"
+}

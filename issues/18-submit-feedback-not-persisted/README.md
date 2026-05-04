@@ -1,8 +1,10 @@
 # Issue 18 — `submitFeedback` doesn't persist to IndexedDB
 
-> Status: **triaged** · Last updated: 2026-05-04 · Investigator: Opus 4.7
+> Status: **FIXED** · Last updated: 2026-05-04 · Investigator: Opus 4.7
 >
 > Surfaced during issue #16 investigation. Companion to issue #17 — both halves of the broken feedback-persistence pipeline.
+>
+> **Fix landed in commit `<TBD>` 2026-05-04.** Closing-gate satisfied: 4 regression tests at `tests/current-system/feedback-persistence.test.ts`; verified to fail pre-fix (3 of 4 fail when `submitFeedback` doesn't call `FeedbackOps.store`); all pass post-fix. Persistence is fire-and-forget per legacy pattern (`archive/useAppStore.ts:636`) — failures log via debugWarn but don't disrupt the in-memory update. Possible future improvement: surface a toast on persist failure so users know about silent IDB issues.
 
 ## 1. Claim (agent-surfaced, not from Issues.md)
 

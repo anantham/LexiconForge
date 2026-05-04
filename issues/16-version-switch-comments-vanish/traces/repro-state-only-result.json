@@ -1,0 +1,44 @@
+{
+  "observations": [
+    {
+      "label": "1_after_inject",
+      "hasChapter": true,
+      "feedbackCount": 0,
+      "feedbackIds": [],
+      "translationLength": 67,
+      "translationFirst20": "This is the English "
+    },
+    {
+      "label": "2_after_submit",
+      "hasChapter": true,
+      "feedbackCount": 1,
+      "feedbackIds": [
+        "1a30a2fd-d5dd-40d8-8bfd-88a278600fdb"
+      ],
+      "translationLength": 67,
+      "translationFirst20": "This is the English "
+    },
+    {
+      "label": "3_after_switch_to_B",
+      "hasChapter": true,
+      "feedbackCount": 1,
+      "feedbackIds": [
+        "1a30a2fd-d5dd-40d8-8bfd-88a278600fdb"
+      ],
+      "translationLength": 55,
+      "translationFirst20": "Different translatio"
+    },
+    {
+      "label": "4_after_switch_back_to_A",
+      "hasChapter": true,
+      "feedbackCount": 1,
+      "feedbackIds": [
+        "1a30a2fd-d5dd-40d8-8bfd-88a278600fdb"
+      ],
+      "translationLength": 67,
+      "translationFirst20": "This is the English "
+    }
+  ],
+  "errors": [],
+  "capturedAt": "2026-05-04T05:20:34.309Z"
+}

@@ -3,7 +3,7 @@ export { TranslationOps } from './translations';
 export { ChapterOps } from './chapters';
 export { SettingsOps } from './settings';
 export { TemplatesOps } from './templates';
-export { FeedbackOps } from './feedback';
+export { FeedbackOps, feedbackRecordToItem } from './feedback';
 export { MappingsOps } from './mappings';
 export { AmendmentOps } from './amendments';
 export { ImageOps } from './imageVersions';

@@ -1,8 +1,10 @@
 # Issue 17 — `loadChapterFromIDB` doesn't load feedback from IDB
 
-> Status: **triaged** · Last updated: 2026-05-04 · Investigator: Opus 4.7
+> Status: **FIXED** · Last updated: 2026-05-04 · Investigator: Opus 4.7
 >
 > Surfaced during issue #16 investigation. Not a user-filed claim — agent-discovered upstream gap that probably contributes to #16's symptoms.
+>
+> **Fix landed in commit `<TBD>` 2026-05-04.** Closing-gate satisfied: 3 regression tests at `tests/services/navigation/hydration.test.ts`; verified to fail pre-fix (2 of 3 fail when `loadChapterFromIDB` doesn't call `FeedbackOps.get`); all pass post-fix. Helper `feedbackRecordToItem` added to `services/db/operations/feedback.ts` for shared use; future cleanup should consolidate the duplicate copy in `translationService.ts:206`.
 
 ## 1. Claim (agent-surfaced, not from Issues.md)
 

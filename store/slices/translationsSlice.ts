@@ -16,7 +16,7 @@ import { ExplanationService } from '../../services/explanationService';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import { TranslationService, type TranslationContext } from '../../services/translationService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
-import { TranslationOps, AmendmentOps } from '../../services/db/operations';
+import { TranslationOps, AmendmentOps, FeedbackOps } from '../../services/db/operations';
 import { adaptTranslationRecordToResult } from '../../services/navigation/converters';
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { clientTelemetry } from '../../services/clientTelemetry';
@@ -746,7 +746,7 @@ export const createTranslationsSlice: StateCreator<
         ]
       }
     }));
-    
+
     // Update chapter with feedback
     const chaptersActions = get();
     if (chaptersActions.updateChapter) {
@@ -755,6 +755,37 @@ export const createTranslationsSlice: StateCreator<
         feedback: currentFeedback
       });
     }
+
+    // Persist to IndexedDB (issue #18: this call was lost during the
+    // useAppStore→slices refactor; legacy archive/useAppStore.ts:636 had it).
+    // Without this, comments are session-local and disappear on reload.
+    void (async () => {
+      const state = get() as any;
+      const chapter = (state.chapters as Map<string, EnhancedChapter> | undefined)?.get(chapterId);
+      const chapterUrl = chapter?.canonicalUrl || chapter?.url;
+      if (!chapterUrl) {
+        debugWarn('translation', 'summary', '[Feedback] Cannot persist: no chapterUrl', { chapterId });
+        return;
+      }
+      const translationId =
+        (chapter?.translationResult as any)?.id ||
+        (chapter?.translationResult as any)?.translationId ||
+        undefined;
+      try {
+        await FeedbackOps.store(chapterUrl, newFeedback, translationId);
+        debugLog('translation', 'summary', '[Feedback] Persisted to IDB', {
+          chapterId,
+          chapterUrl,
+          translationId: translationId ?? null,
+          feedbackId: newFeedback.id,
+        });
+      } catch (e) {
+        debugWarn('translation', 'summary', '[Feedback] Persist failed', {
+          chapterId,
+          error: e instanceof Error ? e.message : String(e),
+        });
+      }
+    })();
 
     // --- NEW FEATURE: EXPLANATION FOOTNOTE ---
     if (newFeedback.type === '?') {
