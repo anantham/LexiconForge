@@ -21,6 +21,10 @@ export interface ChapterRecord {
   prevUrl?: string;
   fanTranslation?: string;
   suttaStudio?: DeepLoomPacket | null;
+  /** Source-provenance metadata (translator, dynasty, CBETA id, etc.). */
+  blurb?: string | null;
+  /** Display name of the source language ("Classical Chinese", "Pali"). */
+  sourceLanguage?: string | null;
   dateAdded: string;
   lastAccessed: string;
   chapterNumber?: number;

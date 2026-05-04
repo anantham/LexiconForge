@@ -397,6 +397,13 @@ export interface ImportedChapter {
     chapterNumber?: number;
     fanTranslation?: string | null;
     suttaStudio?: DeepLoomPacket | null;
+    /** Source-provenance metadata surfaced by the adapter (translator, dynasty,
+     *  CBETA id, etc. for FoJin; SuttaPlex blurb for SuttaCentral). Displayed
+     *  in the studio header and chapter view. */
+    blurb?: string | null;
+    /** Display string for the source's natural language ("Classical Chinese",
+     *  "Pali", etc.). Used as a small caption in the studio header. */
+    sourceLanguage?: string | null;
 }
 
 export interface SessionChapterData {

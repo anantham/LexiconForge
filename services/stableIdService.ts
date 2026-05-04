@@ -59,6 +59,11 @@ export interface EnhancedChapter extends Chapter {
     sourceFormat: 'json' | 'scraping' | 'manual';
   };
   fanTranslation?: string | null; // Optional fan translation reference text
+  /** Source-provenance metadata (translator, dynasty, CBETA id, etc. for
+   *  FoJin; SuttaPlex blurb for SuttaCentral). Displayed in studio header. */
+  blurb?: string | null;
+  /** Display name of the source language ("Classical Chinese", "Pali", ...). */
+  sourceLanguage?: string | null;
   translationResult?: TranslationResult | null;
   translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
   feedback?: FeedbackItem[];
@@ -85,6 +90,8 @@ export interface ChapterRecordLike {
   libraryVersionId?: string | null;
   fanTranslation?: string | null;
   suttaStudio?: any;
+  blurb?: string | null;
+  sourceLanguage?: string | null;
   dateAdded?: string;
   sourceUrls?: string[];
 }
@@ -131,6 +138,8 @@ export const buildEnhancedChapter = (
     },
     fanTranslation: rec.fanTranslation ?? null,
     suttaStudio: rec.suttaStudio ?? null,
+    blurb: rec.blurb ?? null,
+    sourceLanguage: rec.sourceLanguage ?? null,
     translationResult: null,
     feedback: [],
   };
@@ -335,6 +344,8 @@ export const transformImportedChapters = (
       sourceUrls: [originalUrl], // Store original URL as source
       fanTranslation: rawChapter.fanTranslation ?? null,
       suttaStudio: rawChapter.suttaStudio ?? null,
+      blurb: rawChapter.blurb ?? null,
+      sourceLanguage: rawChapter.sourceLanguage ?? null,
       importSource: {
         originalUrl,
         importDate: new Date(),

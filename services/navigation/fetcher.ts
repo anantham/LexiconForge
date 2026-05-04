@@ -114,7 +114,9 @@ export async function handleFetch(
           feedback: [],
           chapterNumber: chapterData.chapterNumber,
           fanTranslation: chapterData.fanTranslation ?? null,
-          suttaStudio: chapterData.suttaStudio ?? null
+          suttaStudio: chapterData.suttaStudio ?? null,
+          blurb: chapterData.blurb ?? null,
+          sourceLanguage: chapterData.sourceLanguage ?? null,
         };
         const stableData = transformImportedChapters([dataForTransformation], {
           registryNovelId: scope.novelId ?? null,

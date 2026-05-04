@@ -151,6 +151,8 @@ const toChapterLookupResult = (record: ChapterRecord): ChapterLookupResult => {
     chapterNumber: record.chapterNumber,
     fanTranslation: record.fanTranslation,
     suttaStudio: record.suttaStudio ?? null,
+    blurb: record.blurb ?? null,
+    sourceLanguage: record.sourceLanguage ?? null,
     data: {
       chapter: {
         title: record.title,
@@ -162,6 +164,8 @@ const toChapterLookupResult = (record: ChapterRecord): ChapterLookupResult => {
         prevUrl: record.prevUrl,
         chapterNumber: record.chapterNumber,
         suttaStudio: record.suttaStudio ?? null,
+        blurb: record.blurb ?? null,
+        sourceLanguage: record.sourceLanguage ?? null,
       },
       translationResult: null,
     },
@@ -204,6 +208,8 @@ const storeChapterModern = async (
         prevUrl: chapter.prevUrl ?? existing?.prevUrl,
         fanTranslation: chapter.fanTranslation ?? existing?.fanTranslation,
         suttaStudio: chapter.suttaStudio ?? existing?.suttaStudio ?? null,
+        blurb: (chapter as any).blurb ?? existing?.blurb ?? null,
+        sourceLanguage: (chapter as any).sourceLanguage ?? existing?.sourceLanguage ?? null,
         chapterNumber: chapter.chapterNumber ?? existing?.chapterNumber,
         canonicalUrl: existing?.canonicalUrl || canonical,
         stableId: existing?.stableId || computedStableId,
@@ -600,6 +606,8 @@ export class ChapterOps {
       chapterNumber: enhanced.chapterNumber,
       fanTranslation: enhanced.fanTranslation ?? null,
       suttaStudio: enhanced.suttaStudio ?? null,
+      blurb: enhanced.blurb ?? null,
+      sourceLanguage: enhanced.sourceLanguage ?? null,
     };
 
     await storeChapterModern({ ...chapter, stableId: enhanced.id });
