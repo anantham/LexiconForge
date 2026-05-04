@@ -20,6 +20,7 @@ const SUPPORTED_DOMAINS = [
   'booktoki468.com',
   'suttacentral.net',
   'fojin.app',
+  '84000.co',
 ];
 
 const isAdapterSupported = (url: string): boolean => {
@@ -92,11 +93,13 @@ For raw sources, search these platforms:
 - BookToki for Korean novels
 
 For fan translations, search:
-- NovelCool (novelcool.com)
-- WuxiaWorld
-- WebNovel (webnovel.com)
-- Novel Updates (novelupdates.com)
-- Light Novel World
+- NovelCool (novelcool.com) — for novels
+- WuxiaWorld — for novels
+- WebNovel (webnovel.com) — for novels
+- Novel Updates (novelupdates.com) — for novels
+- Light Novel World — for novels
+- 84000.co — ONLY for Tibetan canonical Buddhist texts (Mahayana sutras with a Tōhoku/Toh number, e.g. Heart Sutra → toh21, Lotus Sutra → toh113). The URL pattern is https://84000.co/translation/toh{N}. Do not invent toh numbers.
+- suttacentral.net — ONLY for Theravada Pali Canon texts (early Buddhist texts with sn/dn/mn/an/sutta-nipata uids). Do NOT suggest SuttaCentral for Mahayana sutras like the Heart Sutra, Lotus Sutra, Vimalakirti, Diamond Sutra — these are Mahayana and not in SuttaCentral's corpus.
 - Any other well-known English translation sites
 
 Return ONLY valid JSON. No markdown, no explanation outside the JSON.`;
@@ -154,6 +157,78 @@ const annotateCandidate = (raw: LLMSearchResponse['rawSources'][0]): SourceCandi
   ...raw,
   adapterSupported: isAdapterSupported(raw.url),
 });
+
+/**
+ * Probe a candidate URL via the local fetch-proxy to confirm it returns
+ * something other than 404/403/5xx. The LLM hallucinates fan-translation
+ * URLs (most notoriously SuttaCentral entries for Mahayana texts that
+ * don't exist there) and the prompt's "only return URLs you're confident
+ * exist" instruction doesn't reliably constrain it. This probe runs
+ * server-side (no CORS issues) and is short-circuited to ~3s timeout to
+ * keep search latency bounded.
+ *
+ * Returns true if the URL probably works, false otherwise. Inconclusive
+ * cases (network failure, proxy down) return TRUE — we don't want a flaky
+ * proxy to drop genuine candidates.
+ */
+async function probeCandidateUrl(
+  url: string,
+  abortSignal?: AbortSignal,
+): Promise<boolean> {
+  try {
+    const proxyUrl = `/api/fetch-proxy?url=${encodeURIComponent(url)}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    // Chain the user-provided abort signal so search-level cancellation works.
+    const onAbort = () => controller.abort();
+    abortSignal?.addEventListener('abort', onAbort);
+    try {
+      const response = await fetch(proxyUrl, { signal: controller.signal });
+      // 4xx / 5xx → likely hallucinated or moved.
+      if (response.status >= 400) {
+        console.log(`[LibrarySearch] Probe dropped ${url} — HTTP ${response.status}`);
+        return false;
+      }
+      return true;
+    } finally {
+      clearTimeout(timeout);
+      abortSignal?.removeEventListener('abort', onAbort);
+    }
+  } catch (e: any) {
+    if (e?.name === 'AbortError') {
+      // If the user cancelled the search, propagate.
+      if (abortSignal?.aborted) throw e;
+      // Otherwise our internal timeout fired — keep the candidate (avoid
+      // dropping real URLs to flaky network).
+      console.warn(`[LibrarySearch] Probe timed out for ${url} — keeping`);
+      return true;
+    }
+    // Other errors: don't drop the candidate just because the proxy failed.
+    console.warn(`[LibrarySearch] Probe inconclusive for ${url}:`, e?.message || e);
+    return true;
+  }
+}
+
+/**
+ * Filter LLM-suggested fan candidates to only those whose URLs probably
+ * exist. Probes run in parallel with bounded concurrency (no need — fan
+ * lists are tiny, ≤5 items). Inconclusive probes survive.
+ */
+async function probeFanCandidates(
+  candidates: SourceCandidate[],
+  abortSignal?: AbortSignal,
+): Promise<SourceCandidate[]> {
+  if (candidates.length === 0) return candidates;
+  const results = await Promise.all(
+    candidates.map((c) => probeCandidateUrl(c.url, abortSignal).then((ok) => ({ c, ok })))
+  );
+  const kept = results.filter((r) => r.ok).map((r) => r.c);
+  const dropped = results.length - kept.length;
+  if (dropped > 0) {
+    console.log(`[LibrarySearch] Probe dropped ${dropped} fan candidate(s)`);
+  }
+  return kept;
+}
 
 interface FojinSearchHit {
   id: number;
@@ -393,10 +468,17 @@ export async function searchNovelSources(
   const mergedRaw = [...fojinCandidates, ...llmCandidates]
     .sort((a, b) => b.confidence - a.confidence);
 
+  // Fan translations come straight from the LLM (no real-lookup channel
+  // like FoJin search). The LLM hallucinates URLs for sites that don't
+  // host the requested text — most notoriously SuttaCentral entries for
+  // Mahayana sutras. Probe each URL to drop 404s before showing them.
+  const fanCandidatesUnverified = parsed.fanTranslations.map(annotateCandidate);
+  const fanCandidatesVerified = await probeFanCandidates(fanCandidatesUnverified, abortSignal);
+
   return {
     query,
     identity: parsed.identity,
     rawSources: mergedRaw,
-    fanTranslations: parsed.fanTranslations.map(annotateCandidate).sort((a, b) => b.confidence - a.confidence),
+    fanTranslations: fanCandidatesVerified.sort((a, b) => b.confidence - a.confidence),
   };
 }

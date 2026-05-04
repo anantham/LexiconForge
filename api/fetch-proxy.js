@@ -23,6 +23,7 @@ const ALLOWED_DOMAINS = [
   'hetushu.com',
   'hetubook.com',
   'fojin.app',
+  '84000.co',
 ];
 
 function isDomainAllowed(hostname) {

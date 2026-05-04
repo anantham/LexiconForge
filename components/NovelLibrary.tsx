@@ -19,6 +19,7 @@ import { SettingsOps } from '../services/db/operations';
 import { loadNovelIntoStore } from '../services/readerHydrationService';
 import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossaryService';
 import { fetchNovelChapterCounts } from '../services/db/operations/summaries';
+import { fetchAndParseUrl } from '../services/scraping/fetcher';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -37,6 +38,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
   const openLibrary = useAppStore(s => s.openLibrary);
   const setReaderReady = useAppStore(s => s.setReaderReady);
   const handleFetch = useAppStore(s => s.handleFetch);
+  const updateChapter = useAppStore(s => s.updateChapter);
 
   const refreshBookshelfState = async () => {
     try {
@@ -407,20 +409,63 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
       {/* Novel Search */}
       <LibrarySearch
-        onSourceSelected={(raw, fan) => {
+        onSourceSelected={async (raw, fan) => {
+          let chapterId: string | null = null;
           if (raw) {
             showNotification(
               `Source selected: ${raw.site} — ${raw.matchedTitle}. Fetching chapters...`,
               'info'
             );
-            // Use the existing fetch flow to import from the selected URL
-            handleFetch(raw.url);
+            await handleFetch(raw.url);
+            // handleFetch's return type lies (`Promise<string|undefined>`); it
+            // actually returns void. Read the freshly-set chapter id from the
+            // store instead.
+            chapterId = useAppStore.getState().currentChapterId ?? null;
           }
           if (fan) {
-            showNotification(
-              `Fan translation: ${fan.site} — ${fan.matchedTitle}`,
-              'info'
-            );
+            if (!fan.adapterSupported) {
+              showNotification(
+                `Fan translation: ${fan.site} requires an adapter that isn't built yet — selection noted, content not fetched.`,
+                'warning'
+              );
+            } else if (!chapterId) {
+              showNotification(
+                `Fan translation: ${fan.site} selected, but no raw chapter to attach it to.`,
+                'warning'
+              );
+            } else {
+              showNotification(
+                `Fetching fan translation: ${fan.site} — ${fan.matchedTitle}...`,
+                'info'
+              );
+              try {
+                const fanResult = await fetchAndParseUrl(fan.url);
+                // SuttaCentral adapter returns Pali in `content` and English
+                // in `fanTranslation`; for everything else (84000, NovelCool,
+                // etc.) the English IS the content.
+                const fanText = fan.url.includes('suttacentral.net')
+                  ? (fanResult.fanTranslation || fanResult.content)
+                  : fanResult.content;
+                if (fanText && fanText.trim().length > 0) {
+                  updateChapter(chapterId, { fanTranslation: fanText });
+                  showNotification(
+                    `Fan translation attached from ${fan.site}.`,
+                    'info'
+                  );
+                } else {
+                  showNotification(
+                    `Fan translation fetch from ${fan.site} returned no content.`,
+                    'warning'
+                  );
+                }
+              } catch (err: any) {
+                console.error('[NovelLibrary] Fan translation fetch failed:', err);
+                showNotification(
+                  `Fan translation fetch failed: ${err?.message || err}`,
+                  'error'
+                );
+              }
+            }
           }
         }}
       />

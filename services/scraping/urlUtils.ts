@@ -43,6 +43,7 @@ const getExampleUrl = (domain: string): string => {
     'suttacentral.net': 'https://suttacentral.net/mn10/en/sujato',
     'hetushu.com': 'https://hetushu.com/book/2991/2051039.html',
     'fojin.app': 'https://fojin.app/texts/9/read?juan=1',
+    '84000.co': 'https://84000.co/translation/toh21',
   };
   return examples[domain] || `https://${domain}/example-chapter-url`;
 };

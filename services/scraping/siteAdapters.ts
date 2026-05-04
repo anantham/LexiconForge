@@ -2,7 +2,7 @@
  * Site-specific scraping adapters for extracting chapter content from web novel sites.
  * Each adapter handles one site's HTML structure independently.
  *
- * Supported sites: Kakuyomu, Dxmwx, Kanunu, Novelcool, BookToki, Syosetu, SuttaCentral, Hetushu, FoJin
+ * Supported sites: Kakuyomu, Dxmwx, Kanunu, Novelcool, BookToki, Syosetu, SuttaCentral, Hetushu, FoJin, 84000
  */
 
 import { Chapter } from '../../types';
@@ -613,6 +613,57 @@ function mapFojinLang(lang: string | undefined | null): string | undefined {
   }
 }
 
+/**
+ * 84000.co — academic Tibetan Buddhist canonical translations from the
+ * Toh (Tōhoku) catalogue. Single HTML page per translation; URL pattern
+ * https://84000.co/translation/toh{N}. The body lives in a single
+ * <section class="part-type-section"> which contains <p id="node-N">
+ * paragraphs interleaved with footnote / glossary anchor wrappers.
+ *
+ * Most pages are single-document (no chapter pagination); we collect all
+ * paragraphs from the translation section and join them with blank-line
+ * separators. Pre-translation matter (summary / acknowledgment /
+ * introduction) and post-translation matter (colophon / end-notes /
+ * bibliography / glossary) are deliberately skipped — users picking this
+ * as a "fan translation" want the translated text, not the apparatus.
+ */
+class Site84000Adapter extends BaseAdapter {
+  extractTitle = () => {
+    const h1 = this.doc.querySelector('h1.main-title') as HTMLElement | null;
+    return h1?.textContent?.trim() ?? null;
+  };
+
+  extractContent = () => {
+    const sections = this.doc.querySelectorAll('section.part-type-section');
+    if (sections.length === 0) return null;
+
+    const paras: string[] = [];
+    sections.forEach((section) => {
+      // Footnote / glossary anchors wrap the actual text — drop the
+      // anchors but keep the inner text. Use the section's owner doc to
+      // create text nodes (jsdom has no global `document`).
+      const ownerDoc = section.ownerDocument ?? this.doc;
+      section
+        .querySelectorAll('a.footnote-link, a.glossary-link')
+        .forEach((a) => {
+          const text = a.textContent ?? '';
+          a.replaceWith(ownerDoc.createTextNode(text));
+        });
+      // Strip footnote-call superscripts that were not anchored.
+      section.querySelectorAll('sup, .footnote-link').forEach((el) => el.remove());
+      section.querySelectorAll('p').forEach((p) => {
+        const text = (p as HTMLElement).textContent?.trim();
+        if (text) paras.push(text);
+      });
+    });
+    return paras.length > 0 ? paras.join('\n\n') : null;
+  };
+
+  // 84000 translations are single-document — no chapter pagination to follow.
+  getPrevLink = () => null;
+  getNextLink = () => null;
+}
+
 // --- FACTORY ---
 
 export function getAdapter(url: string, doc: Document): BaseAdapter | null {
@@ -626,5 +677,6 @@ export function getAdapter(url: string, doc: Document): BaseAdapter | null {
   if (url.includes('suttacentral.net')) return new SuttaCentralAdapter(url, doc);
   if (url.includes('hetushu.com')) return new HetushuAdapter(url, doc);
   if (url.includes('fojin.app')) return new FojinAdapter(url, doc);
+  if (url.includes('84000.co')) return new Site84000Adapter(url, doc);
   return null;
 }

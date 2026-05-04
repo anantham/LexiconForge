@@ -237,6 +237,58 @@ describe('searchNovelSources — FoJin integration', () => {
     expect(enrichmentCallCount).toBe(0); // no enrichment when no FoJin hits
   });
 
+  it('probes fan candidate URLs and drops 404s before returning', async () => {
+    identityResponse = {
+      identity: { titleZh: null, titleEn: 'Heart Sutra', authorZh: null, aliases: [] },
+      rawSources: [],
+      fanTranslations: [
+        // First card: real URL → mock proxy returns 200
+        {
+          site: '84000',
+          url: 'https://84000.co/translation/toh21',
+          matchedTitle: 'The Heart of the Perfection of Wisdom',
+          matchedAuthor: null,
+          sourceType: 'official',
+          chapterCount: null,
+          status: null,
+          confidence: 0.95,
+          whyThisMatches: 'real',
+        },
+        // Second card: hallucinated URL → mock proxy returns 404, must be dropped
+        {
+          site: 'SuttaCentral',
+          url: 'https://suttacentral.net/heart-sutra/en/sujato',
+          matchedTitle: 'Heart Sutra',
+          matchedAuthor: null,
+          sourceType: 'official',
+          chapterCount: null,
+          status: null,
+          confidence: 0.85,
+          whyThisMatches: 'hallucinated',
+        },
+      ],
+    };
+
+    globalThis.fetch = vi.fn(async (input: any) => {
+      const url = String(input);
+      // Local proxy: extract the inner URL from the ?url= param
+      if (url.includes('/api/fetch-proxy?url=')) {
+        const inner = decodeURIComponent(url.split('?url=')[1] || '');
+        if (inner.includes('84000.co')) {
+          return new Response('<html>...</html>', { status: 200 });
+        }
+        if (inner.includes('suttacentral.net/heart-sutra')) {
+          return new Response('Not Found', { status: 404 });
+        }
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    }) as any;
+
+    const result = await searchNovelSources('heart sutra', settings);
+    expect(result.fanTranslations).toHaveLength(1);
+    expect(result.fanTranslations[0].url).toBe('https://84000.co/translation/toh21');
+  });
+
   it('caps recommended count at one even if LLM marks multiple', async () => {
     identityResponse = {
       identity: { titleZh: '般若波羅蜜多心經', titleEn: 'Heart Sutra', authorZh: null, aliases: [] },

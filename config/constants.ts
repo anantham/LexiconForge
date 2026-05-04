@@ -133,6 +133,13 @@ export const SUPPORTED_WEBSITES_CONFIG: SupportedWebsite[] = [
     homeUrl: 'https://fojin.app',
     exampleUrl: 'https://fojin.app/texts/9/read?juan=1'
   },
+  {
+    domain: '84000.co',
+    name: '84000',
+    category: 'Buddhist Texts',
+    homeUrl: 'https://84000.co',
+    exampleUrl: 'https://84000.co/translation/toh21'
+  },
 ];
 
 // Legacy array for backward compatibility
