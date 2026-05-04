@@ -33,18 +33,18 @@ So the codebase has drifted from its own founding principle. The generator: **wh
 
 ## Instances (current)
 
-| # | How it manifests | Provisional class |
-|---|---|---|
-| 1 | `initializeStore` blocks on full deep-link import; cannot render until session JSON is fully materialized | `(A2, B2, C2)` |
-| 2 | Fan-toggle restarts translation rather than reading from the JIT-derivable mix of raw + machine + glossary | `(A2, B2, C2)` |
-| 3 | Glossary terms not loaded; novel metadata empty — derived view that should compose from the three-tier glossary doesn't | `(A2*, B2, C2)` |
-| 6 | Image-model dropdown is a static snapshot, not a live-validated list | `(A2, B2, C2)` |
-| 9 | Chapter change is slow because eager work blocks JIT rendering of the next chapter | `(A2, B2, C2)` |
-| 11 | Comparison panel state survives chapter change — view treated as durable, not derived | `(A2, B2?, C2)` |
-| 12 | Tab return resets background-preload spinners — the anticipative work was done but its progress wasn't durable | `(A2, B2, C2)` |
-| 13 | ETA aggregated across providers — frozen averaged view hides per-model granularity | `(A2, B3, C2)` |
-| 15 | Comparison says "Selected" with repeated text instead of cycling raw/fan/google with faint underline of the focal text — explicit JIT recomposition refused in favor of a frozen mode | `(A2, B3, C3)` |
-| 16 | Version switch loses comments — comments tied to version *identity* rather than to the chapter-as-derived-view | `(A2, B2, C2)` |
+| # | How it manifests | Class | Status |
+|---|---|---|---|
+| 1 | `initializeStore` blocks on full deep-link import; cannot render until session JSON is fully materialized | `(A1*, B2, C2)` | confirmed (investigated end-to-end; CORE-006 violation) |
+| 2 | Fan-toggle restarts translation rather than reading from the JIT-derivable mix of raw + machine + glossary | `(A2, B2, C2)` | suspected |
+| 3 | Glossary terms not loaded; novel metadata empty — derived view that should compose from the three-tier glossary doesn't | `(A2*, B2, C2)` | suspected |
+| 6 | Image-model dropdown is a static snapshot, not a live-validated list | `(A2, B2, C2)` | suspected |
+| 9 | Chapter change is slow because eager work blocks JIT rendering of the next chapter | `(A1*, B2, C2)` | suspected |
+| 11 | Comparison panel state survives chapter change — view treated as durable, not derived | `(A3, B1, C1)` | **addressed** (commit `0c5162b`) |
+| 12 | Tab return resets background-preload spinners — the anticipative work was done but its progress wasn't durable | `(A1*, B2, C1)` | suspected |
+| 13 | ETA aggregated across providers — frozen averaged view hides per-model granularity | `(A3, B3, C2)` | suspected |
+| 15 | Comparison says "Selected" with repeated text instead of cycling raw/fan/google with faint underline of the focal text — explicit JIT recomposition refused in favor of a frozen mode | `(A3, B3, C3)` | suspected |
+| 16 | Version switch loses comments — comments tied to version *identity* rather than to the chapter-as-derived-view | `(A2, B2, C2)` | suspected (deepened — render-layer bug, see issue #16) |
 
 The pattern: **N=10**, all `B2` or `B3`, all `C2` or `C3`, every `A` is `A2` or `A3`. Spec rot is the upstream cause.
 

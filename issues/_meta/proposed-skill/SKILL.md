@@ -1,5 +1,6 @@
 ---
 name: investigation-pipeline
+version: 0.2.0
 description: |
   Systematically investigate a queue of bug claims with verdict classification,
   spec-vs-code matrix (A/B/C), cross-cutting theme noticing, and a hard closing
@@ -15,6 +16,15 @@ when-to-use: |
 when-NOT-to-use: |
   Single quick-fix bug — overkill. No ADR culture — the matrix's A axis becomes
   uninformative. No Claude Code transcripts — archaeology degrades to git-only.
+changelog:
+  0.2.0: |
+    Five patches from skill-update on the LexiconForge load-test:
+    - §3 hard rule: code-reading-confirmed §2 added as a fourth completion mode
+    - §1 Scaffold: twin-issues handling (skip-and-reference for same-shape bugs)
+    - §1 Scaffold: optional Calibration check inline subsection
+    - §7 Archaeology: skip-conditions for structural bugs
+    - §5 Theme-noticing: explicit suspected vs confirmed status with promotion thresholds
+  0.1.0: Initial extraction from LexiconForge investigation framework
 ---
 
 # investigation-pipeline
@@ -47,6 +57,18 @@ For each unfiled item in the queue:
 
 Create `issues/NN-slug/` (number matches queue order; slug is a 2-4 word kebab-case description). Copy the per-issue template. Paste the **verbatim claim** from the queue into §1 — do not paraphrase, do not interpret.
 
+#### Twin issues — skip-and-reference
+
+If this issue is a TWIN of another (same bug shape, different site or surface): scaffold the folder, copy the verbatim claim, then write `Twin of #N — see that issue's investigation. Differences specific to this site: [list].` **Skip §4-§9 if no meaningful differences.** The fix lands as one PR touching all sites; both/all issues close together. Theme roster lists each instance separately so N counting stays accurate.
+
+Examples (LexiconForge load-test): #4 (portal button) and #5 (illustration button) and #14 (retry button) are TWINS — same bug shape (no in-flight visual state on async-triggering button), three different sites. Investigating #4 in full + porting to #5 and #14 mechanically is correct; investigating each in full would 3x the work without 3x the insight.
+
+#### Calibration check — optional inline pattern
+
+When you reach a verdict or fix-direction that depends on a non-obvious reading of the verbatim claim, add a "Calibration check" sub-paragraph in §1 stating which interpretation you're using and why. Future-you (or a reviewer) can quickly compare the claim's literal text against the interpretation; drift becomes visible at the moment of architectural decision.
+
+Use sparingly — only when interpretation pressure is high. Most issues don't need this. The case for: from the LexiconForge load-test, issue #16's verbatim ("comments tied to that version! and the floating comment icons also have vanished with version switch") was correctly read by the user but mis-read by the agent twice in a row before triangulating. A calibration-check note would have prevented at least one of the wrong turns.
+
 ### 2. Triage → assign verdict
 
 One of:
@@ -62,9 +84,22 @@ One of:
 
 ### 3. HARD RULE — §2 (Reproduction) must not be `_TBD_` for `real-bug`
 
-You may set `verdict=real-bug` provisionally based on static analysis, but **`triaged → ready-for-fix` requires §2 (Reproduction) to be filled in with observed evidence.** Live repro at the dev server, or a vitest unit test that reproduces the bug, or a Playwright trace. If you can't reproduce, the verdict is `cannot-reproduce`, not `real-bug`.
+You may set `verdict=real-bug` provisionally based on static analysis, but **`triaged → ready-for-fix` requires §2 (Reproduction) to be filled in with observed evidence.** One of:
 
-This rule exists because static analysis often suggests fix-shapes that look right but address the wrong layer. (LexiconForge case study: issue #16 was repeatedly classified as a `useEffect`-on-`activeTranslationId` fix; live repro revealed the actual bug was in InlineCommentMarkers' position-recompute lifecycle.)
+- **Live repro** at the dev server (Playwright trace, console log, video).
+- **Vitest unit test** that reproduces the bug.
+- **Playwright trace** of the failing user flow.
+- **Code-reading-confirmed** when the bug is mechanically determinable from static analysis without hidden async lifecycle, state-machine, or rendering complexity. **Heuristic:** if you can write the failing-pre-fix unit test directly from reading the code without observing any runtime state, code-reading suffices. If you find yourself saying "we'd have to see what happens at runtime" at any point during analysis, live repro is mandatory.
+
+If you can't reproduce by any of these, the verdict is `cannot-reproduce`, not `real-bug`.
+
+This rule exists because static analysis often suggests fix-shapes that look right but address the wrong layer.
+
+**Examples (LexiconForge load-test):**
+- Issue #16 (comments vanish on chapter-translation switch): code-reading suggested 3 different mechanisms; live repro forced — code-reading would have led to a wrong-layer fix.
+- Issue #4 (portal button no feedback): button has no `disabled` prop, observable directly in JSX. Code-reading-confirmed sufficed; the failing test was directly derivable from the code.
+
+The distinction matters because forcing live-repro on every issue makes simple bugs expensive; allowing code-reading on every issue allows the #16-class trap. The "would I need to see runtime state?" heuristic is the cut.
 
 ### 4. Classify with A/B/C
 
@@ -90,7 +125,29 @@ The matrix tells you what kind of fix the issue needs:
 
 Pattern-match against existing `_themes/*.md` documents. Two issues sharing a *generator function* (not just a symptom) instance the same theme.
 
-If this issue instances an existing theme, add it to that theme's roster table. If you notice a new generator with N≥1 instances, propose a theme name in §8 of the per-issue README. Don't formalize a theme until N≥2 confirmed.
+If this issue instances an existing theme, add it to that theme's roster table. If you notice a new generator, propose a theme name in §8 of the per-issue README.
+
+#### Suspected vs confirmed — explicit status
+
+Theme docs' roster tables MUST distinguish **suspected** from **confirmed**:
+
+- **Suspected**: instance proposed but not investigated end-to-end. The bug shape is asserted from the user's claim or a quick read; A/B/C is provisional; generator articulation is sketch-level.
+- **Confirmed**: investigated end-to-end. A/B/C established. Generator function articulated precisely enough that another instance can be tested against it. §6 test obligations named.
+- **Addressed**: confirmed + fixed via the closing gate.
+
+Roster format (use this column shape in every theme doc):
+
+```
+| # | What's missing / wrong | Class | Status |
+```
+
+#### Promotion thresholds
+
+- N≥2 **confirmed** → consider `fix_generator` action (build the shared primitive).
+- N≥3 suspected, regardless of confirmed count → invest in investigating one to promote it. Suspected-only themes can drift; confirmation forces the generator-function to be articulated precisely.
+- N=1 confirmed + N≥2 suspected → if the confirmed instance's fix shape generalizes cleanly, consider proactive `fix_generator`. Otherwise wait for a second confirmation.
+
+Example (LexiconForge): silent-feedback-gaps reached N=3 suspected, then #4 was investigated end-to-end and fixed → roster became "1 fixed + 2 suspected". After fixing #5 and #14 mechanically (twins), the theme reaches N=3 confirmed-fixed and the generator-fix (`<AsyncButton>` / `useAsyncAction`) becomes a *refactor* not speculation.
 
 ### 6. Action — pick exactly one
 
@@ -108,9 +165,9 @@ For `real-bug` verdicts:
 2. ADRs are not sacred. If two ADRs disagree or an ADR's spirit feels confused, escalate.
 3. Fixed = test in. No issue closes as `fixed` without a regression test that would have failed against the bug.
 
-### 7. Archaeology (optional but recommended)
+### 7. Archaeology (run when introduced; skip when structural)
 
-Run:
+When the bug appears to have been INTRODUCED at some point — when the file used to work or didn't have this code path — run:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/investigation-pipeline/scripts/issue-archaeology.py \
@@ -118,6 +175,12 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/investigation-pipeline/scripts/issue-archae
 ```
 
 Map suspect file edits → Claude Code session → agent model + first user prompt + tools used + sibling files edited. Cross-references with `git log` for commit attribution. Treats the "Likely commit" as a **shortlist hint, not a verdict** — pair with `git blame` on specific lines for line-level attribution.
+
+**Skip archaeology** when the bug is **structural** (missing-state, missing-call, omitted-handler) rather than introduced by a specific commit. Heuristic: if `git log --follow <file>` shows the file always had this shape from inception, archaeology will produce noise — every commit that touched the file, none of which "introduced" the bug. Mark §7 with "skipped — structural bug, no introducing commit" and move on.
+
+Examples:
+- **Run** when: a previously-working flow broke (the StrictMode duplicate-init guard in LexiconForge issue #1 was added in a specific commit that archaeology pinned; commit title hid it).
+- **Skip** when: a feature was never wired up correctly from inception (LexiconForge issue #4's portal button never had a pending state from inception; no introducing commit to find).
 
 ### 8. Test obligations + closing gate
 

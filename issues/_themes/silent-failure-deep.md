@@ -23,9 +23,9 @@ A vision-aligned shape: validate at request creation time. If validation require
 
 ## Instances (current)
 
-| # | What fails late | Provisional class |
-|---|---|---|
-| 1 | `ImportService.importFromUrl` runs ~20s before throwing `Scoped stableId scope mismatch` on Chapter 1000. The mismatch was determinable at request time (caller's `scope` is the silently-remapped `v1-st-enhanced`; URL's chapters are `v1-composite`). | `(A3, B2, C2)` |
+| # | What fails late | Class | Status |
+|---|---|---|---|
+| 1 | `ImportService.importFromUrl` runs ~20s before throwing `Scoped stableId scope mismatch` on Chapter 1000. The mismatch was determinable at request time (caller's `scope` is the silently-remapped `v1-st-enhanced`; URL's chapters are `v1-composite`). | `(A3, B2, C2)` | suspected |
 
 So far only issue #1 is confirmed. Strong candidates that may also instance:
 - Issue 2 (fan toggle) — does the toggle path validate the desired translation early, or attempt and fail?
