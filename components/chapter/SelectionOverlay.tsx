@@ -52,7 +52,18 @@ const SelectionSheet: React.FC<SelectionSheetProps> = ({
   // Ref guards against synchronous re-entry; state drives visible UI.
   const [isSelfInsertPending, setIsSelfInsertPending] = useState(false);
   const isSelfInsertPendingRef = useRef(false);
+  // Pending state for the illustration (🎨) button — issue #5 fix (mobile twin).
+  const [isIllustrationPending, setIsIllustrationPending] = useState(false);
+  const illustrationPendingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (illustrationPendingTimeoutRef.current) {
+        clearTimeout(illustrationPendingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const blockContextMenu = (event: Event) => event.preventDefault();
@@ -65,7 +76,20 @@ const SelectionSheet: React.FC<SelectionSheetProps> = ({
   }, [pendingEmoji]);
 
   const handleEmojiClick = (emoji: '👍' | '❤️' | '😂' | '🎨' | '✏️' | '🔍') => {
-    if (emoji === '🎨' || emoji === '✏️' || emoji === '🔍') {
+    if (emoji === '🎨') {
+      if (isIllustrationPending) return; // ignore double-clicks during pending window
+      // Issue #5 — same minimum-duration acknowledgment pattern as desktop.
+      setIsIllustrationPending(true);
+      onReact(emoji);
+      if (illustrationPendingTimeoutRef.current) {
+        clearTimeout(illustrationPendingTimeoutRef.current);
+      }
+      illustrationPendingTimeoutRef.current = setTimeout(() => {
+        setIsIllustrationPending(false);
+      }, 1200);
+      return;
+    }
+    if (emoji === '✏️' || emoji === '🔍') {
       onReact(emoji);
       return;
     }
@@ -112,7 +136,17 @@ const SelectionSheet: React.FC<SelectionSheetProps> = ({
             <button className="p-3 text-xl" onClick={() => handleEmojiClick('👍')}>👍</button>
             <button className="p-3 text-xl" onClick={() => handleEmojiClick('❤️')}>❤️</button>
             <button className="p-3 text-xl" onClick={() => handleEmojiClick('😂')}>😂</button>
-            <button className="p-3 text-xl" onClick={() => handleEmojiClick('🎨')}>🎨</button>
+            <button
+              className="p-3 text-xl"
+              onClick={() => handleEmojiClick('🎨')}
+              disabled={isIllustrationPending}
+              aria-busy={isIllustrationPending}
+              data-testid="illustration-button"
+              style={{ opacity: isIllustrationPending ? 0.6 : 1, cursor: isIllustrationPending ? 'wait' : 'pointer' }}
+              title={isIllustrationPending ? 'Generating illustration…' : 'Generate illustration'}
+            >
+              {isIllustrationPending ? <span className="inline-block animate-spin">⟳</span> : '🎨'}
+            </button>
             <button className="p-3 text-xl" onClick={() => handleEmojiClick('✏️')}>✏️</button>
             <button
               className={`p-3 text-xl ${canCompare && !isComparing ? '' : 'opacity-40 cursor-not-allowed'}`}

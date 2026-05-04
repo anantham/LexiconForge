@@ -30,7 +30,7 @@ What's missing: an immediate `setSomeState({ status: 'pending' })` before the aw
 | # | What's missing | Class | Status |
 |---|---|---|---|
 | 4 | Portal-icon button has no pending visual state; handler emits toast only at line 306 of `handleSelfInsert`, after 5 validation checks | `(A3, B2, C2)` | **FIXED 2026-05-04** — `useState` + `useRef` pending guard in both `FeedbackPopover.tsx` (desktop) and `SelectionOverlay.tsx` (mobile); 9 regression tests passing |
-| 5 | Illustration-icon button has same shape — no immediate visual feedback between click and prompt construction | `(A3, B2, C2)` | suspected (twin of #4) |
+| 5 | Illustration-icon button has same shape — no immediate visual feedback between click and prompt construction | `(A3, B2, C2)` | **FIXED 2026-05-04** — twin of #4, fixed mechanically using same pattern; 1200ms minimum-duration acknowledgment in both `FeedbackPopover.tsx` (desktop) and `SelectionOverlay.tsx` (mobile); 2 new regression tests passing |
 | 14 | Failed translation: red retry spinner is visually present but not clickable; failed state is dead-end | `(A3, B2, C2)` | suspected |
 
 All three are `A3` — there is no UX policy ADR or convention that says "every async user action must emit a signal within Nms."

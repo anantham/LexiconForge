@@ -29,7 +29,22 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
   // state drives the visible disabled+spinner UI.
   const [isSelfInsertPending, setIsSelfInsertPending] = useState(false);
   const isSelfInsertPendingRef = useRef(false);
+  // Pending state for the illustration (🎨) button — issue #5 fix (twin of #4).
+  // onFeedback is sync fire-and-forget; downstream image generation eventually
+  // shows its own spinner. The gap between click and that spinner is what
+  // confused users into re-clicking. We bridge with a fixed-duration
+  // button-level pending state.
+  const [isIllustrationPending, setIsIllustrationPending] = useState(false);
+  const illustrationPendingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (illustrationPendingTimeoutRef.current) {
+        clearTimeout(illustrationPendingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (pendingType && textareaRef.current) {
@@ -53,7 +68,18 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
 
   const handleEmojiClick = (type: '👍' | '👎' | '?' | '🎨') => {
     if (type === '🎨') {
+      if (isIllustrationPending) return; // ignore double-clicks during pending window
+      // Issue #5 — bridge the silent gap between click and the downstream
+      // image-generation spinner. ~1.2s is long enough to feel like an
+      // acknowledgment without overstaying the downstream UI's welcome.
+      setIsIllustrationPending(true);
       onFeedback({ selection: selectionText, type });
+      if (illustrationPendingTimeoutRef.current) {
+        clearTimeout(illustrationPendingTimeoutRef.current);
+      }
+      illustrationPendingTimeoutRef.current = setTimeout(() => {
+        setIsIllustrationPending(false);
+      }, 1200);
       return;
     }
     setPendingType(type);
@@ -121,8 +147,38 @@ const FeedbackPopover: React.FC<FeedbackPopoverProps> = ({ selectionText, positi
             <QuestionMarkIcon className="w-5 h-5" />
           </button>
           <div className="w-px h-5 bg-gray-600 mx-0.5" />
-          <button onClick={() => handleEmojiClick('🎨')} className="p-2 rounded-full hover:bg-purple-600 transition-colors duration-200">
-            <PaintBrushIcon className="w-5 h-5" />
+          <button
+            onClick={() => handleEmojiClick('🎨')}
+            disabled={isIllustrationPending}
+            aria-busy={isIllustrationPending}
+            data-testid="illustration-button"
+            className={`p-2 rounded-full transition-colors duration-200 ${
+              isIllustrationPending
+                ? 'opacity-60 cursor-wait'
+                : 'hover:bg-purple-600'
+            }`}
+            title={isIllustrationPending ? 'Generating illustration…' : 'Generate illustration'}
+          >
+            {isIllustrationPending ? (
+              <svg
+                className="w-5 h-5 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-label="Loading"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeDasharray="50 100"
+                  strokeLinecap="round"
+                />
+              </svg>
+            ) : (
+              <PaintBrushIcon className="w-5 h-5" />
+            )}
           </button>
           <button onClick={onEdit} className="p-2 rounded-full hover:bg-blue-500 transition-colors duration-200" title="Edit selection">
             <PencilIcon className="w-5 h-5" />

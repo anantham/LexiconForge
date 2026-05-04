@@ -117,3 +117,72 @@ describe('FeedbackPopover — portal button pending state (issue #4)', () => {
     expect(onSelfInsert).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('FeedbackPopover — illustration button pending state (issue #5)', () => {
+  // Use fake timers so we can advance the 1.2s timeout deterministically.
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const baseProps = (onFeedback: any) => {
+    const parent = document.createElement('div');
+    document.body.appendChild(parent);
+    return {
+      selectionText: 'some text',
+      position: makeRect(),
+      positioningParentRef: { current: parent },
+      onFeedback,
+      onEdit: vi.fn(),
+      onCompare: vi.fn(),
+      canCompare: false,
+    };
+  };
+
+  it('shows pending state on click and clears after timeout', () => {
+    const onFeedback = vi.fn();
+    render(<FeedbackPopover {...baseProps(onFeedback)} />);
+
+    const btn = screen.getByTestId('illustration-button');
+    expect(btn).not.toBeDisabled();
+
+    fireEvent.click(btn);
+
+    // Synchronously after click: pending state is on
+    expect(btn).toBeDisabled();
+    expect(btn.getAttribute('aria-busy')).toBe('true');
+    expect(btn.querySelector('[aria-label="Loading"]')).not.toBeNull();
+    expect(onFeedback).toHaveBeenCalledTimes(1);
+    expect(onFeedback.mock.calls[0][0]).toMatchObject({ type: '🎨' });
+
+    // After 1.2s the pending state clears
+    act(() => {
+      vi.advanceTimersByTime(1200);
+    });
+    expect(btn).not.toBeDisabled();
+    expect(btn.getAttribute('aria-busy')).toBe('false');
+  });
+
+  it('blocks re-clicks during the pending window', () => {
+    const onFeedback = vi.fn();
+    render(<FeedbackPopover {...baseProps(onFeedback)} />);
+
+    const btn = screen.getByTestId('illustration-button');
+    fireEvent.click(btn);
+    expect(onFeedback).toHaveBeenCalledTimes(1);
+
+    // Within the pending window, additional clicks don't fire onFeedback
+    fireEvent.click(btn);
+    fireEvent.click(btn);
+    expect(onFeedback).toHaveBeenCalledTimes(1);
+
+    // After the timeout, it can be clicked again
+    act(() => {
+      vi.advanceTimersByTime(1200);
+    });
+    fireEvent.click(btn);
+    expect(onFeedback).toHaveBeenCalledTimes(2);
+  });
+});
