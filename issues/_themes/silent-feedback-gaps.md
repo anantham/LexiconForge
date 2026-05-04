@@ -27,13 +27,15 @@ What's missing: an immediate `setSomeState({ status: 'pending' })` before the aw
 
 ## Instances (current)
 
-| # | What's missing | Provisional class |
-|---|---|---|
-| 4 | Portal symbol click → no portal animation, no spinner, no log, no toast. User keeps clicking. | `(A3, B2, C2)` |
-| 5 | Illustration icon click → no signal until the prompt-construction phase finishes (which itself takes time) | `(A3, B2, C2)` |
-| 14 | Failed translation: red retry spinner is visually present but not clickable; failed state is dead-end | `(A3, B2, C2)` |
+| # | What's missing | Class | Status |
+|---|---|---|---|
+| 4 | Portal-icon button has no pending visual state; handler emits toast only at line 306 of `handleSelfInsert`, after 5 validation checks | `(A3, B2, C2)` | **investigated 2026-05-04** — first end-to-end-confirmed instance |
+| 5 | Illustration-icon button has same shape — no immediate visual feedback between click and prompt construction | `(A3, B2, C2)` | suspected (twin of #4) |
+| 14 | Failed translation: red retry spinner is visually present but not clickable; failed state is dead-end | `(A3, B2, C2)` | suspected |
 
 All three are `A3` — there is no UX policy ADR or convention that says "every async user action must emit a signal within Nms."
+
+**Theme promoted from N=3 suspected → N=3 (with one investigated end-to-end) on 2026-05-04.** The investigation of #4 confirmed the generator function's mechanics: `(button) → onClick={asyncHandler}` with no in-flight state on the button itself, only toast/store-side-effect signaling that may lag the click by a noticeable beat. The fix-shape for #4 (`fix_local`: add `useState(false)` + `disabled` + spinner) is also the template for #5 and #14 if they hold up under their own investigations.
 
 ## Leverage point
 
