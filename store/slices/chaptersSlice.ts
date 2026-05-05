@@ -171,16 +171,10 @@ export const createChaptersSlice: StateCreator<
     // Diagnostic timestamped set for tracing navigation/hydration races
     debugLog('translation', 'summary', `[Chapters] setCurrentChapter -> ${chapterId} @${Date.now()}`);
 
-    // Cancel any active translation from the previous chapter when navigating away
-    const prevChapterId = get().currentChapterId;
-    if (prevChapterId && prevChapterId !== chapterId) {
-      debugLog('translation', 'summary', '🚫 [Chapters] Navigation detected, cancelling previous chapter translation:', prevChapterId);
-      const translationsActions = get();
-      if (translationsActions.cancelTranslation) {
-        translationsActions.cancelTranslation(prevChapterId);
-        debugLog('translation', 'summary', '✅ [Chapters] Cancelled translation for:', prevChapterId);
-      }
-    }
+    // Per CORE-012: in-flight translations survive navigation. Cancellation is
+    // explicit-only (toggle button on the active translate button, future
+    // banner Stop affordance). Do NOT cancel work for prevChapterId here.
+    // See: issues/19-translation-survives-nav-policy/
 
     set({ currentChapterId: chapterId });
 
@@ -1025,7 +1019,7 @@ export const createChaptersSlice: StateCreator<
         }
 
         debugLog('worker', 'summary', `[Worker] Pre-translating chapter #${targetNumber} (ID: ${nextChapterId})`);
-        await handleTranslate(nextChapterId, 'auto_translate');
+        await handleTranslate(nextChapterId, 'auto_preload');
       }
     };
 

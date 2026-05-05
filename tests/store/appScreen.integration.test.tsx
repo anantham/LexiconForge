@@ -19,7 +19,7 @@ type MockStoreState = {
   isLoading: { fetching: boolean; translating: boolean };
   settings: { provider: string; model: string; temperature: number };
   isTranslationActive: (chapterId: string) => boolean;
-  handleTranslate: (chapterId: string, origin?: 'auto_translate' | 'manual_translate') => Promise<void> | void;
+  handleTranslate: (chapterId: string, origin?: 'auto_visit' | 'auto_preload' | 'manual_translate') => Promise<void> | void;
   handleFetch: (url: string) => Promise<string | undefined>;
   amendmentProposals: any[];
   acceptProposal: (index: number) => void;

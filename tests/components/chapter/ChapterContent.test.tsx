@@ -116,7 +116,7 @@ describe('ChapterContent', () => {
           translationError: 'Daily limit reached',
           translationErrorTelemetry: {
             failureType: 'trial_limit',
-            surface: 'auto_translate',
+            surface: 'auto_visit',
             expected: true,
             provider: 'OpenRouter',
             model: 'openrouter/auto',

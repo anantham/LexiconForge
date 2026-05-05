@@ -88,7 +88,7 @@ export function setupAutoTranslateMediator(
       console.log(`[AutoTranslateMediator] ✅ Triggering auto-translate for ${curr.currentChapterId}`);
       const s = state as any;
       if (typeof s.handleTranslate === 'function') {
-        void s.handleTranslate(curr.currentChapterId, 'auto_translate');
+        void s.handleTranslate(curr.currentChapterId, 'auto_visit');
       }
     } else if (curr.viewMode === 'english' && curr.currentChapterId) {
       if (curr.hasTranslation) {

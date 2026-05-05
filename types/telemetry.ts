@@ -15,7 +15,8 @@ export type TelemetryFailureType =
   | 'unknown';
 
 export type TelemetrySurface =
-  | 'auto_translate'
+  | 'auto_visit'
+  | 'auto_preload'
   | 'manual_translate'
   | 'ui_render'
   | 'global';
@@ -89,7 +90,7 @@ export interface TelemetryErrorContext {
   chapterId?: string | null;
 }
 
-export type TranslationOrigin = Extract<TelemetrySurface, 'auto_translate' | 'manual_translate'>;
+export type TranslationOrigin = Extract<TelemetrySurface, 'auto_visit' | 'auto_preload' | 'manual_translate'>;
 
 export interface EmitClientTelemetryInput {
   eventType: TelemetryEventType;

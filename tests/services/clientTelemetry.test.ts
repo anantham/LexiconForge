@@ -46,7 +46,7 @@ describe('clientTelemetry', () => {
     emitClientTelemetryEvent({
       eventType: 'known_limit_reached',
       failureType: 'trial_limit',
-      surface: 'auto_translate',
+      surface: 'auto_visit',
       severity: 'warning',
       expected: true,
       userVisible: null,
@@ -60,7 +60,7 @@ describe('clientTelemetry', () => {
       'known_limit_reached',
       expect.objectContaining({
         failure_type: 'trial_limit',
-        surface: 'auto_translate',
+        surface: 'auto_visit',
         expected: true,
         route: 'reader',
       })
@@ -74,7 +74,7 @@ describe('clientTelemetry', () => {
     const event = {
       eventType: 'translation_failed' as const,
       failureType: 'timeout' as const,
-      surface: 'auto_translate' as const,
+      surface: 'auto_visit' as const,
       severity: 'error' as const,
       expected: false,
       userVisible: null,
@@ -126,7 +126,7 @@ describe('clientTelemetry', () => {
     emitClientTelemetryEvent({
       eventType: 'translation_failed',
       failureType: 'timeout',
-      surface: 'auto_translate',
+      surface: 'auto_visit',
       severity: 'error',
       expected: false,
       userVisible: null,
