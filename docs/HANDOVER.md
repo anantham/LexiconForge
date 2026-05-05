@@ -38,6 +38,38 @@ d19de9a fix(library): persist fan translation through hard nav + e2e for the ful
 
 2. **Push to origin** — 18 + 16 = 34 commits unpushed across two sessions. User has been deliberately holding off. Whenever they're ready: `git push origin main`. No force-push needed (fast-forward).
 
+3. **`beforeunload` "Reload site? Changes you may have made may not be saved" warning fires when user didn't change anything** — `MainApp.tsx:127-140` registers the warning whenever `isTranslationActive(currentChapterId) || hasImagesInProgress()`. Modern browsers strip our custom message ("Translation or image generation in progress…") and show a generic "changes" message that's misleading.
+
+   Two real bugs underneath:
+
+   - **Cleanup-on-error gaps**: `state.activeTranslations` / `state.pendingTranslations` (translationsSlice) and per-chapter `generatedImages[…].isLoading` (imageSlice) get set on task start but aren't reliably cleared on every error / cancellation / nav-away path. Result: flag stays true forever, dialog fires on every refresh. **Audit needed**: every set-to-true site must have a paired clear-on-error.
+   - **No in-app indicator**: even when the warning is correct (translation legitimately in flight), the user can't tell what's blocking. Worth adding a small "Translation in progress for X — refresh will lose it" banner with a Cancel button.
+
+   Diagnostic snippet (paste in DevTools Console at localhost):
+   ```js
+   const s = window.useAppStore.getState();
+   console.log({
+     activeTranslations: Object.keys(s.activeTranslations || {}),
+     pendingTranslations: [...(s.pendingTranslations || [])],
+     stuckImages: Object.fromEntries(
+       Object.entries(s.generatedImages || {})
+         .filter(([_, v]) => v?.isLoading)
+     ),
+     currentChapterId: s.currentChapterId,
+   });
+   ```
+
+   Escape hatch (clears stuck in-memory flags; doesn't lose persisted translations):
+   ```js
+   window.useAppStore.setState({
+     activeTranslations: {},
+     pendingTranslations: new Set(),
+     generatedImages: {},
+   });
+   ```
+
+   This is pre-existing UX debt, not from the FoJin session. Caught by user feedback at end of merge session.
+
 ### Deferred (designed, not implemented)
 
 3. **Chinese pipeline for Sutta Studio** — Two design docs: `docs/sutta-studio/PALI_ENGLISH_DESIGN.md` (what we have, why) and `docs/sutta-studio/CHINESE_DESIGN.md` (what to build). Doc has 17 `❓ OPEN QUESTION` and 8 `🧑‍🏫 NEEDS EXPERT INPUT` callouts to resolve before any implementation. Multi-week project — don't start without addressing those.
