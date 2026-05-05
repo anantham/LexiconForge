@@ -65,19 +65,29 @@ const normalizeSessionArtifactUrl = (value: string | undefined, metadataUrl: str
 };
 
 const normalizeNovelMetadataUrls = (metadata: NovelEntry, metadataUrl: string): NovelEntry => {
+  // Preserve undefined-ness of optional fields. If the source registry entry
+  // has no `metadata` block (minimal entry), don't fabricate an empty one —
+  // earlier code unconditionally emitted `metadata: { ...maybeUndefined }`,
+  // which (a) created a hidden empty object on the output and (b) crashed
+  // when reading `metadata.metadata.coverImageUrl` because metadata.metadata
+  // was undefined.
+  const innerMetadata = metadata.metadata
+    ? {
+        ...metadata.metadata,
+        ...(metadata.metadata.coverImageUrl
+          ? {
+              coverImageUrl: resolveMetadataAssetUrl(metadata.metadata.coverImageUrl, metadataUrl),
+            }
+          : {}),
+      }
+    : undefined;
+
   return {
     ...metadata,
     ...(metadata.sessionJsonUrl
       ? { sessionJsonUrl: normalizeSessionArtifactUrl(metadata.sessionJsonUrl, metadataUrl) }
       : {}),
-    metadata: {
-      ...metadata.metadata,
-      ...(metadata.metadata.coverImageUrl
-        ? {
-            coverImageUrl: resolveMetadataAssetUrl(metadata.metadata.coverImageUrl, metadataUrl),
-          }
-        : {}),
-    },
+    ...(innerMetadata !== undefined ? { metadata: innerMetadata } : {}),
     ...(metadata.versions
       ? {
           versions: metadata.versions.map((version) => ({

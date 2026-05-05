@@ -240,7 +240,7 @@ describe('NovelLibrary', () => {
       expect(screen.getByText('Continue Reading')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Alice Edition • Resume at chapter 12')).toBeInTheDocument();
+    expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
     expect(screen.getByText('In Progress')).toBeInTheDocument();
   });
 
@@ -268,10 +268,10 @@ describe('NovelLibrary', () => {
     render(<NovelLibrary />);
 
     await waitFor(() => {
-      expect(screen.getByText('Alice Edition • Resume at chapter 12')).toBeInTheDocument();
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText('Alice Edition • Resume at chapter 12'));
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
 
     await waitFor(() => {
       expect(storeState.openNovel).toHaveBeenCalledWith('novel-1', 'alice-v1');
@@ -326,10 +326,10 @@ describe('NovelLibrary', () => {
     render(<NovelLibrary />);
 
     await waitFor(() => {
-      expect(screen.getByText('ST Enhanced • Resume at chapter 12')).toBeInTheDocument();
+      expect(screen.getByText('ST Enhanced • Chapter 12 • 0/100 translated')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText('ST Enhanced • Resume at chapter 12'));
+    fireEvent.click(screen.getByText('ST Enhanced • Chapter 12 • 0/100 translated'));
 
     await waitFor(() => {
       expect(storeState.showNotification).toHaveBeenCalledWith(

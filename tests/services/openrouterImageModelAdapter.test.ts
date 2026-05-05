@@ -65,8 +65,12 @@ describe('openrouterImageModelAdapter', () => {
 
     const cache = await fetchVerifiedOpenRouterImageModels();
 
+    // Production now fetches /models without query params and filters
+    // image-capable rows client-side (the API's output_modalities filter
+    // turned out to be less reliable than walking architecture.output_modalities
+    // on each row — see services/openrouterImageModelAdapter.ts:216).
     expect(mockFetch).toHaveBeenCalledWith(
-      'https://openrouter.ai/api/v1/models?output_modalities=image',
+      'https://openrouter.ai/api/v1/models',
       expect.objectContaining({ headers: expect.any(Object) })
     );
     expect(cache.data.map((entry) => entry.id)).toEqual([
@@ -79,7 +83,11 @@ describe('openrouterImageModelAdapter', () => {
     expect(sourceful.pricingLabel).toBe('from $0.0200/image');
 
     expect(google.requestModalities).toEqual(['image', 'text']);
-    expect(google.pricingLabel).toBe('USD 0.50/3.00 per 1M');
+    // openrouterImageModelAdapter uses a curated IMAGE_PRICE_HINTS table
+    // (added after this assertion was written) to surface a friendly
+    // per-image estimate for known models — the prompt+completion-derived
+    // "USD 0.50/3.00 per 1M" label was misleading for image generation.
+    expect(google.pricingLabel).toBe('$0.0400/image');
   });
 
   it('builds OpenRouter image_config only for verified models that support it', async () => {

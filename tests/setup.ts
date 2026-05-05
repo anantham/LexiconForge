@@ -61,6 +61,25 @@ if (typeof global.caches === 'undefined') {
   global.caches = new MockCacheStorage() as any;
 }
 
+// JSDOM doesn't implement window.matchMedia. Components that use media
+// queries (dark-mode detection, responsive helpers) crash without it.
+// Stub a minimum viable implementation that always reports "no match".
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // deprecated but some libs still call this
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(() => false),
+    }),
+  });
+}
+
 // Clear localStorage before each test
 beforeEach(() => {
   if (typeof window !== 'undefined') {

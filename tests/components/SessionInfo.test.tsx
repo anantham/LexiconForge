@@ -956,13 +956,16 @@ describe('SessionInfo: Critical Flows', () => {
         expect(screen.queryByText('Loading chapters…')).not.toBeInTheDocument();
       });
 
-      // Options should have "Ch X:" prefix
+      // Options should carry a chapter-number prefix. The buildChapterDisplayLabel
+      // helper prepends "Ch N:" only when the title doesn't already start with a
+      // chapter reference (it dedupes "Chapter 5: ..." → leaves it alone). The
+      // test fixture's titles already start with "Chapter N:", so we accept
+      // either prefix form here — both signal a numbered chapter.
       const dropdown = screen.getByRole('combobox', { name: /select a chapter/i });
       const options = dropdown.querySelectorAll('option');
 
-      // At least one option should have chapter number prefix
       const hasChapterPrefix = Array.from(options).some(opt =>
-        opt.textContent?.match(/^Ch \d+:/)
+        opt.textContent?.match(/^(Ch|Chapter) \d+[:.]/)
       );
       expect(hasChapterPrefix).toBe(true);
     });
@@ -1243,7 +1246,7 @@ describe('SessionInfo: Critical Flows', () => {
       await waitFor(() => {
         expect(screen.getByText('Existing Book Found')).toBeInTheDocument();
         expect(screen.getByText(/Test Novel/)).toBeInTheDocument();
-        expect(screen.getByText('Update Stats Only')).toBeInTheDocument();
+        expect(screen.getByText('Update Existing Version')).toBeInTheDocument();
         expect(screen.getByText('Add New Version')).toBeInTheDocument();
       });
     });
@@ -1492,8 +1495,8 @@ describe('SessionInfo: Critical Flows', () => {
         expect(screen.getByText('Existing Book Found')).toBeInTheDocument();
       });
 
-      // Click "Update Stats Only" to trigger immediate publish
-      const updateStatsButton = screen.getByText('Update Stats Only').closest('button')!;
+      // Click "Update Existing Version" to trigger immediate publish
+      const updateStatsButton = screen.getByText('Update Existing Version').closest('button')!;
       await userEvent.click(updateStatsButton);
 
       // Should show writing progress
@@ -1550,7 +1553,7 @@ describe('SessionInfo: Critical Flows', () => {
         expect(screen.getByText('Existing Book Found')).toBeInTheDocument();
       });
 
-      const updateStatsButton = screen.getByText('Update Stats Only').closest('button')!;
+      const updateStatsButton = screen.getByText('Update Existing Version').closest('button')!;
       await userEvent.click(updateStatsButton);
 
       // Should show success state
@@ -1605,7 +1608,7 @@ describe('SessionInfo: Critical Flows', () => {
         expect(screen.getByText('Existing Book Found')).toBeInTheDocument();
       });
 
-      const updateStatsButton = screen.getByText('Update Stats Only').closest('button')!;
+      const updateStatsButton = screen.getByText('Update Existing Version').closest('button')!;
       await userEvent.click(updateStatsButton);
 
       // Should show error state
@@ -1662,7 +1665,7 @@ describe('SessionInfo: Critical Flows', () => {
         expect(screen.getByText('Existing Book Found')).toBeInTheDocument();
       });
 
-      const updateStatsButton = screen.getByText('Update Stats Only').closest('button')!;
+      const updateStatsButton = screen.getByText('Update Existing Version').closest('button')!;
       await userEvent.click(updateStatsButton);
 
       await waitFor(() => {

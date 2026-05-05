@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAppStore } from './store';
-import InputBar from './components/InputBar';
+// InputBar is rendered inside LandingPage (the search bar there), not in the
+// reader chrome — keeping the import out avoids dead-code drift.
 import ChapterView from './components/ChapterView';
 import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';

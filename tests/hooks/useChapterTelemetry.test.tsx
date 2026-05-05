@@ -26,6 +26,21 @@ vi.mock('../../utils/debug', () => ({
   debugLog: (...args: unknown[]) => debugLogMock(...args),
 }));
 
+// The hook now reads navigationStartTime from the Zustand store (added when
+// the navigation pipeline was decomposed). Without a non-null value, the
+// "ready" effect bails. Provide a stable timestamp so the ready-time
+// assertion exercises the capturePerformance call.
+const setNavigationStartTimeMock = vi.fn();
+vi.mock('../../store', () => ({
+  useAppStore: vi.fn((selector?: (state: any) => unknown) => {
+    const state = {
+      navigationStartTime: 1000,
+      setNavigationStartTime: setNavigationStartTimeMock,
+    };
+    return selector ? selector(state) : state;
+  }),
+}));
+
 interface TestComponentProps {
   selection?: { text: string; rect: DOMRect } | null;
   currentChapterId?: string | null;

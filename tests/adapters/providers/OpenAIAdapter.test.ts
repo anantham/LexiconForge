@@ -28,6 +28,9 @@ const supportsParametersMock = vi.fn().mockResolvedValue(true);
 vi.mock('../../../services/capabilityService', () => ({
   supportsStructuredOutputs: (...args: any[]) => supportsStructuredOutputsMock(...args),
   supportsParameters: (...args: any[]) => supportsParametersMock(...args),
+  // Added when OpenAIAdapter started recording per-parameter rejection
+  // failures (so future calls skip the offending param). No-op mock.
+  recordParameterFailure: vi.fn(),
 }));
 
 const rateLimitMock = vi.fn().mockResolvedValue(undefined);

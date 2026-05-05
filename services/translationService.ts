@@ -959,7 +959,14 @@ export class TranslationService {
     const modelChanged = normalizedSnapshot.model !== currentRelevant.model;
     const promptChanged = normalizedSnapshot.systemPrompt !== currentRelevant.systemPrompt;
     const tempChanged = Math.abs((normalizedSnapshot.temperature ?? 0.7) - (currentRelevant.temperature ?? 0.7)) > 0.1;
-    const amendmentsChanged = (snapshot.enableAmendments ?? true) !== (rawCurrent.enableAmendments ?? true);
+    // The system default for enableAmendments is `false` (see
+    // sessionManagementService.ts). Earlier code defaulted both sides of the
+    // comparison to `true`, which spuriously reported "settings changed" for
+    // legacy snapshots that didn't capture this field — the snapshot side
+    // resolved to true (default), the current-settings side resolved to
+    // false (real default), and the strict-not-equal fired. Align the
+    // fallback to the real default.
+    const amendmentsChanged = (snapshot.enableAmendments ?? false) !== (rawCurrent.enableAmendments ?? false);
     const fanReferenceChanged =
       (normalizedSnapshot.includeFanTranslationInPrompt ?? false) !==
       (currentRelevant.includeFanTranslationInPrompt ?? false);

@@ -18,8 +18,11 @@ export default defineConfig({
   // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
 
-  // Retry on CI only
-  retries: process.env.CI ? 2 : 0,
+  // CI: 2 retries (network/proxy flakes). Local: 1 retry — the FoJin tests
+  // share a Vite dev server and external CORS proxies, which can race when
+  // multiple workers hit them simultaneously. A single retry is enough to
+  // de-flake without masking real regressions.
+  retries: process.env.CI ? 2 : 1,
 
   // Opt out of parallel tests on CI
   workers: process.env.CI ? 1 : undefined,

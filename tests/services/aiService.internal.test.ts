@@ -52,7 +52,12 @@ describe('aiService internal utilities', () => {
       const prompts = [{ placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'scene' }];
       const result = validateAndFixIllustrations(translation, prompts);
       expect(result.translation).toBe(translation);
-      expect(result.suggestedIllustrations).toEqual(prompts);
+      // The validator runs ensureIllustrationPlan on each entry, which adds
+      // imagePlan / imagePlanMode / imagePlanSourceCaption (introduced after
+      // this test was written). Assert the original two fields survived
+      // rather than strict-equality against the unenriched input.
+      expect(result.suggestedIllustrations).toHaveLength(1);
+      expect(result.suggestedIllustrations[0]).toMatchObject(prompts[0]);
     });
 
     it('appends missing markers when JSON has extras', () => {

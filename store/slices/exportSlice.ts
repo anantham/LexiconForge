@@ -123,7 +123,13 @@ export const buildImageCaption = (version: number, metadata: ImageGenerationMeta
   }
 
   const suffix = details.length > 0 ? ` • ${details.join(' • ')}` : '';
-  return `Version ${version}: ${metadata.caption || fallbackPrompt}${suffix}`;
+  // Caption-text fallback chain: explicit caption → image-generation prompt
+  // → caller-supplied fallback. Earlier code skipped the prompt step, so a
+  // version that was generated from a prompt but lacked a separately-set
+  // caption was attributed to whatever the caller passed (often a
+  // placeholder), losing the actual generation context.
+  const captionText = metadata.caption || metadata.prompt || fallbackPrompt;
+  return `Version ${version}: ${captionText}${suffix}`;
 };
 
 export const createExportSlice: StateCreator<

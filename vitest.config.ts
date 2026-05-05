@@ -8,6 +8,7 @@ export default defineConfig({
     exclude: [
       ...configDefaults.exclude,
       'tests/e2e/**', // Playwright specs (run via `npm run test:e2e`)
+      'issues/**/traces/**', // Playwright reproduction harnesses (issue-specific scripts)
     ],
     setupFiles: ['./tests/setup.ts'],
     coverage: {

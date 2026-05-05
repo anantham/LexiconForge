@@ -11,6 +11,10 @@ const storeState = {
     timestamp: number;
   },
   clearNotification,
+  // Component gates rendering on settings.showToastNotifications (added after
+  // the original test was written). Default to toast-on so existing assertions
+  // exercise the rendering path.
+  settings: { showToastNotifications: true },
 };
 
 vi.mock('../../store', () => ({

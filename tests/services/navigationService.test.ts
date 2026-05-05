@@ -101,7 +101,15 @@ vi.mock('../../services/scraping/urlUtils', () => ({
   ]),
 }));
 
-// Mock stableIdService
+// Mock stableIdService.
+//
+// Note on buildEnhancedChapter: services/navigation/hydration.ts was
+// refactored (commit 5d28b4b) to use a shared buildEnhancedChapter factory
+// from this module. Mocking the whole module without re-exporting that
+// function caused loadChapterFromIDB to call `undefined(...)`, which threw
+// and was swallowed by hydration.ts's try/catch — silently returning null.
+// All 5 hydration-path navigation tests failed downstream. The faithful
+// mock below mirrors the production factory's shape.
 vi.mock('../../services/stableIdService', () => ({
   normalizeUrlAggressively: vi.fn((url: string) => {
     if (!url) return null;
@@ -118,6 +126,39 @@ vi.mock('../../services/stableIdService', () => ({
     urlIndex: new Map([['kakuyomu.jp/works/123/episodes/456', 'ch-new-001']]),
     rawUrlIndex: new Map([['https://kakuyomu.jp/works/123/episodes/456', 'ch-new-001']]),
     currentChapterId: 'ch-new-001',
+  })),
+  buildEnhancedChapter: vi.fn((chapterId: string, rec: any) => ({
+    id: chapterId,
+    stableId: chapterId,
+    novelId: rec.novelId ?? null,
+    libraryVersionId: rec.libraryVersionId ?? null,
+    url: rec.url,
+    title: rec.title || 'Untitled Chapter',
+    content: rec.content || '',
+    originalUrl: rec.originalUrl || rec.url || '',
+    canonicalUrl: rec.canonicalUrl || rec.url || '',
+    nextUrl: rec.nextUrl ?? null,
+    prevUrl: rec.prevUrl ?? null,
+    chapterNumber: rec.chapterNumber || 0,
+    sourceUrls: rec.sourceUrls && rec.sourceUrls.length > 0
+      ? rec.sourceUrls
+      : Array.from(
+          new Set(
+            [rec.canonicalUrl || rec.originalUrl || null, rec.originalUrl || null, rec.url || null]
+              .filter((v: unknown): v is string => typeof v === 'string' && v.length > 0)
+          )
+        ),
+    importSource: {
+      originalUrl: rec.originalUrl || rec.url || '',
+      importDate: new Date(rec.dateAdded || Date.now()),
+      sourceFormat: 'json' as const,
+    },
+    fanTranslation: rec.fanTranslation ?? null,
+    suttaStudio: rec.suttaStudio ?? null,
+    blurb: rec.blurb ?? null,
+    sourceLanguage: rec.sourceLanguage ?? null,
+    translationResult: null,
+    feedback: [],
   })),
 }));
 
