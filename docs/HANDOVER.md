@@ -1,4 +1,143 @@
-# Handover: 2026-05-04
+# Handover: 2026-05-04 (evening — Opus FoJin/Sutta Studio)
+
+> Session led by Claude Opus 4.7 (1M context). Branch: `main`, **18 commits ahead of origin/main, NOT pushed** (on top of an earlier session's 16 commits, which are also still unpushed). User has been deliberately not pushing during local development.
+
+## Session summary
+
+User asked to "make Heart Sutra readable" via the LexiconForge library search. Ended with a full Buddhist-text reading pipeline (search → curated 84000 fan + multiple FoJin raws → click → load → Sutta Studio with side-by-side Chinese/English + provenance metadata) plus comprehensive cleanup of inherited main-branch test debt (33 fails → 0). Branch `feat/opus-fojin` was rebased onto current main, fast-forward-merged, then deleted. The worktree is gone.
+
+## Commits this session (18, all on `main`, NOT pushed)
+
+```
+b937e50 docs(worklog): preserve Codex's pre-merge launcher-port entry alongside fojin wrap-up
+d47fc50 docs(worklog): wrap-up entry for FoJin/Sutta Studio + main-branch test cleanup
+78ba153 chore: clean repo — fix all 28 inherited test failures, root-caused
+e903ffb chore: untrack test-results/.last-run.json
+6f457b7 fix(librarySearch): simplify unsupported-URL error message
+41d1860 feat(chapter): plumb blurb + sourceLanguage through fetch → IDB → studio
+653f9c9 feat(librarySearch): curated 84000 toh-ID lookup + serial-mode for fojin e2e
+687b5c3 refactor(store): generic chapter merge — preserve any in-memory-only field
+085289c feat(sutta-studio): SPA-nav studio button + side-by-side columns + source metadata
+d19de9a fix(library): persist fan translation through hard nav + e2e for the full flow
+5ba1ca2 feat: 84000.co adapter + fan-URL probe + actually fetch the picked fan card
+56f1c27 fix(sutta-studio): strip HTML from AI translation before paragraph splitting
+3fa6c6f docs(sutta-studio): Chinese design intent + open questions for review
+0cba220 docs(sutta-studio): capture Pali/English design rationale before extending
+9e6f229 feat(sutta-studio): M2 — use AI translation as the English column for FoJin
+648a289 feat(sutta-studio): M1 — open FoJin chapters in Sutta Studio (display only)
+336e16e feat(librarySearch): LLM-enrich FoJin candidates with English disambiguation
+597bdc7 fix(librarySearch): route FoJin direct search through local fetch-proxy + e2e
+331bdd6 feat(scraping): add FoJin (fojin.app) Buddhist text adapter + LLM-driven search
+```
+
+## Pending threads
+
+### Continue immediately (or whenever — none urgent)
+
+1. **FMC novel cover image** — local `data/Novels/forty-millenniums-of-cultivation/metadata.json` has `coverImageUrl: /fmc-cover.png`, but the **separate** `anantham/lexiconforge-novels` GitHub repo (which the app actually fetches at runtime) has neither the field nor the image file. User needs to push `cover.png` + the field to that repo. The fix is on the registry side, not in this codebase.
+
+2. **Push to origin** — 18 + 16 = 34 commits unpushed across two sessions. User has been deliberately holding off. Whenever they're ready: `git push origin main`. No force-push needed (fast-forward).
+
+### Deferred (designed, not implemented)
+
+3. **Chinese pipeline for Sutta Studio** — Two design docs: `docs/sutta-studio/PALI_ENGLISH_DESIGN.md` (what we have, why) and `docs/sutta-studio/CHINESE_DESIGN.md` (what to build). Doc has 17 `❓ OPEN QUESTION` and 8 `🧑‍🏫 NEEDS EXPERT INPUT` callouts to resolve before any implementation. Multi-week project — don't start without addressing those.
+
+4. **84000 curated table coverage** — `services/librarySearch/known84000.ts` has 6 entries. For texts not in the table, only the HTTP-200 probe defends against LLM hallucinations. Add by verifying each toh-ID on `https://84000.co/translation/toh{N}`.
+
+5. **Fan-fetch retry UX** — If `fetchAndParseUrl(fan.url)` fails after the user picked a fan card, currently shows error toast with no recovery. Low urgency.
+
+6. **One skipped test, with documented reason** — `tests/store/appScreen.integration.test.tsx` "auto-retry-suppression". Behavior moved from MainApp to `store/autoTranslateMediator.ts`; the test's mocked store doesn't wire up the mediator. Right fix: focused unit test against the mediator directly.
+
+### Codex's pending work (NOT mine, do not touch)
+
+- `Issues.md` — modified, uncommitted on main's working tree (Codex left it pre-session)
+- `hooks/useTextSelection.ts` — modified, uncommitted (Codex)
+- `lexicon-forge-session-20260403052316.json` — untracked file (user export)
+
+## Key context
+
+### What was built end-to-end
+
+- **FoJin adapter** (`services/scraping/siteAdapters.ts:FojinAdapter`) — REST API based, mirrors SuttaCentral. Hits `/api/texts/{id}/juans/{n}`; uses `prev_juan`/`next_juan` for nav.
+- **84000 adapter** (`Site84000Adapter`) — HTML scrape of `<section.part-type-section>`, strips footnote/glossary anchor wrappers.
+- **Library search**:
+  - LLM resolves identity (titleZh/En/aliases)
+  - Buddhist text → query FoJin `/api/search` with canonical Chinese title via local fetch-proxy
+  - LLM-enrich with English disambiguation (1 extra call)
+  - Curated 84000 toh-ID lookup overrides hallucinated LLM URLs
+  - Probe fan URLs to drop 404s
+- **Sutta Studio for FoJin**:
+  - Button gate extended to `fojin.app` URLs
+  - Route `/sutta/fojin/{id}?juan={n}`
+  - SPA nav (no hard reload) via `utils/spaNavigate.ts`
+  - Two-column layout for raw+fan from independent sources (vs Bilara-aligned pairs)
+  - AI translation pipeline auto-fires for English column
+  - Source metadata strip (translator, dynasty, CBETA id, language)
+- **Generic chapter merge** (`utils/mergeChapter.ts`) — replaces 3 field-specific merges in `chaptersSlice.ts`. Rule: take incoming if defined+non-null; else keep existing. Protects in-memory-only fields across IDB/fetch/navigate.
+
+### CORS gotchas
+
+- **fojin.app `/api/*` only sends ACAO for `https://fojin.app`**. Direct browser fetch from any other origin fails. Must route through `/api/fetch-proxy`.
+- **84000.co `/search` returns 504** — public search infra is private/down. Hence curated table.
+
+### Real product bugs surfaced + fixed (commit `78ba153`)
+
+1. `services/registryService.ts` — `normalizeNovelMetadataUrls` crashed on novels missing `metadata` block. Promise.allSettled silently swallowed crash → registry novels with thin schemas disappeared.
+2. `services/translationService.ts` — `enableAmendments` real default is `false`, change-detection used `?? true` on both sides → "Retranslate" lit on every legacy chapter.
+3. `services/clientTelemetry.ts` — `VITE_*` env reads only `import.meta.env`; added `process.env` fallback.
+4. `store/slices/exportSlice.ts` — `buildImageCaption` skipped `metadata.prompt` in fallback chain.
+5. `MainApp.tsx` — removed dead `import InputBar`.
+
+### Verified
+
+- `npx vitest run` → **1153 pass, 1 skip** (was 1136 pass / 33 fail on main pre-session)
+- `npx playwright test tests/e2e/fojin-*.spec.ts` → **4/4 pass**
+- `npx tsx scripts/smoke-real-fojin.ts` → real-network smoke (live OpenRouter, fojin.app, 84000.co) end-to-end
+- `npm run build` → clean
+
+### Worktree / branch state
+
+- `feat/opus-fojin` deleted (merged)
+- `LexiconForge.worktrees/opus-fojin/` removed
+- `/tmp/lf-main-baseline` (used for diffing main's failure baseline) removed
+- Main repo at `b937e50`, on `main` per CLAUDE.md
+
+## Session learnings
+
+### For project (worth surfacing)
+
+- **Multi-agent merge ritual**: before merging a worktree branch, check main's working tree for OTHER agents' uncommitted edits. Stash them, merge fast-forward, then unstash + resolve any conflicts. Don't commit other agents' work — leave it for them. (This session: stashed Codex's pending WORKLOG/Issues/useTextSelection edits, merged, resolved WORKLOG conflict to keep both entries.)
+- **Pre-merge baseline matters**: before claiming "X tests fail because of my work," compare against current main. `git worktree add --detach /tmp/lf-baseline main` + run tests. This session's branch had STRICTLY fewer fails than main, inverting the merge-readiness conversation.
+
+### For ~/.claude/MEMORY.md (cross-project)
+
+- **Real-network smoke beats clever mocks for multi-conversion pipelines**: when a feature touches multiple data-conversion layers (e.g., Chapter → ImportedChapter → EnhancedChapter → ChapterRecord), write a Playwright script that drives the live dev server with real upstream APIs. The fojin `blurb` field was set on the Chapter and dropped at every conversion site; mocked e2e never saw it because the mocks short-circuited around. The real smoke caught it on first run.
+- **`vi.stubEnv` doesn't reliably reach `import.meta.env` in JSDOM** — it stubs `process.env` but `import.meta.env` is mode-dependent. Production code reading `import.meta.env.VITE_*` should fall back to `process.env.VITE_*` for parity.
+- **`Promise.allSettled` + filter-fulfilled silently swallows code bugs**: any crash in the mapped function becomes a rejected entry that gets filtered. Add a `.catch` log or count rejections in production code.
+
+### Potential skill updates
+
+- **handover**: Phase 1 should include `git worktree list` so orphan worktrees (e.g., `/tmp/lf-baseline` from baseline-diffing) get caught.
+- **superpowers:verification-before-completion**: case study from this session — "33 → 28 → 0 fails." User pushed back on me framing pre-existing failures as "not mine," which produced 5 real product bug fixes. Worth a callout: "inherited failures may be undiagnosed, not pre-existing-and-acceptable."
+
+## Running processes
+
+None. Background dev server (was port 5181) killed earlier. All test workers exited.
+
+## Resume instructions
+
+1. **Read this doc** + `docs/sutta-studio/CHINESE_DESIGN.md` if Chinese-pipeline work is on the agenda.
+2. **Check push state**: `git log origin/main..HEAD` — if non-empty, user hasn't pushed yet and it's intentional.
+3. **Test the FoJin flow live**: `npm run dev` then `npx tsx scripts/smoke-real-fojin.ts` (screenshots saved to `test-results/smoke-real-fojin/`).
+4. **For FMC cover**: see Pending threads item 1 — fix lives in the separate `lexiconforge-novels` registry repo.
+5. **Don't merge feat/opus-fojin** — already done; branch is gone.
+
+---
+*Handover by Claude Opus 4.7 (1M) at end of session. Previous session's handover preserved below for continuity.*
+
+---
+
+# Handover: 2026-05-04 (earlier — Codex investigation framework)
 
 > Session led by Claude Opus 4.7 (1M context). Co-designer: Aditya. Branch: `main`, 16 commits ahead of origin (not pushed).
 
