@@ -1,5 +1,28 @@
-2026-05-05 17:25 PDT - [Agent: Opus]
+2026-05-05 17:50 PDT - [Agent: Opus]
 - Status: In progress (worktree)
+- Task: Issue #19 Phase 2 — background-work visibility cleanup
+- Worktree: ../LexiconForge.worktrees/opus-bg-work-visibility / branch: feat/opus-bg-work-visibility (branched off feat/opus-translation-survives-nav)
+- Phase 2 changes (2 commits):
+  - b6216cf fix(images,beforeunload): clear isLoading on throw + widen unload check
+    - imageSlice handleGenerateImages/handleRetryImage now wrap awaits in try/catch
+      and clear isLoading + progress on throw (the leak the handover suspected)
+    - MainApp beforeunload now reads pendingTranslations.size (any in-flight work)
+      not just current chapter — correct after Phase 1 background continuation
+    - 2 regression tests: imageSlice.leak-on-throw.test.ts
+  - 3abcc35 feat(ui): background-work banner for non-current chapter translations
+    - <BackgroundWorkBanner /> floating bottom-right; shows count + first title;
+      click navigates to that chapter so the inline cancel surface is reachable
+    - No Cancel-by-default per CORE-012 Q4; "Stop" affordance is Phase 3 work
+    - 6 tests in BackgroundWorkBanner.test.tsx
+- Verified: npx vitest run → 1165 pass, 16 skip (1157 Phase 1 baseline + 8 new Phase 2 tests, no regressions)
+- Deliberately NOT in Phase 2:
+  - Per-chapter amendment proposal routing — conditional, low priority because
+    enableAmendments default is false (recent fix). Revisit if real use shows noise.
+  - Banner "Stop" button — Phase 3 alongside priority-queue / cost-guardrail work.
+- Pending: Aditya merges feat/opus-translation-survives-nav (Phase 1) + feat/opus-bg-work-visibility (Phase 2) into main when ready.
+
+2026-05-05 17:25 PDT - [Agent: Opus]
+- Status: Ready to merge (worktree)
 - Task: Issue #19 Phase 1 — translation survives SPA navigation
 - Worktree: ../LexiconForge.worktrees/opus-translation-survives-nav / branch: feat/opus-translation-survives-nav
 - Phase 0 docs already on main (commit e05057f): issue #19 spec + CORE-012 ADR draft
