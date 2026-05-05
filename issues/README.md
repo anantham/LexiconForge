@@ -75,6 +75,7 @@ Legend: `R`=Reproduced · `V`=Verdict · `E`=Evidence/code paths · `T`=Test-gap
 | 16 | [version-switch-comments-vanish](./16-version-switch-comments-vanish/) | · | ◐ | ✓ | ◐ | · | ✓ | **triaged — needs §2 live repro**. Static analysis revealed bug-shape is not the simple `useEffect`-on-active-id I'd assumed. Probably interacts with #17/#18 | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 | 17 | [feedback-not-loaded-from-idb](./17-feedback-not-loaded-from-idb/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | **FIXED 2026-05-04** · 3 regression tests · pre-fix: 2 fail | (none) |
 | 18 | [submit-feedback-not-persisted](./18-submit-feedback-not-persisted/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | **FIXED 2026-05-04** · 4 regression tests · pre-fix: 3 fail | candidate: [co-mingled-commits](./_themes/co-mingled-commits.md) |
+| 19 | [translation-survives-nav-policy](./19-translation-survives-nav-policy/) | ◐ | ✓ | ✓ | ✓ | · | ✓ | **investigated (Phase 0 spec)** · `(A2*, B2, C2)` — Shape B confirmed via code; nav cancels in-flight translations; broader root cause that subsumes #12 (preload subset). Needs §2 live repro + D1-D4 ratification before Phase 1 | candidate: `nav-cancels-bg-work` (proposed, N=2 from this issue + #12) |
 
 `·` = not yet done · `✓` = done · `◐` = partial · `—` = not applicable · `?` = blocked / open question
 
