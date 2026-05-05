@@ -57,7 +57,6 @@ const appScreen = useAppStore((s) => s.appScreen);
 const viewMode = useAppStore((s) => s.viewMode);
 const isLoading = useAppStore((s) => s.isLoading);
 const settings = useAppStore((s) => s.settings);
-const isTranslationActive = useAppStore((s) => s.isTranslationActive);
 const handleTranslate = useAppStore((s) => s.handleTranslate);
 const handleFetch = useAppStore((s) => s.handleFetch);
 const amendmentProposals = useAppStore((s) => s.amendmentProposals);
@@ -122,10 +121,15 @@ const requestedRef = React.useRef(new Map<string, string>());
 // Memory optimization: Track previous chapter for cleanup
 const previousChapterIdRef = React.useRef<string | null>(null);
 
-// Warn user before page refresh/close if translation or image generation is in progress
+// Warn user before page refresh/close if ANY translation or image generation is in flight.
+// Per CORE-012: after Phase 1, translations can be running for chapters other than the
+// current one (background work survives navigation). We watch the global pending set,
+// not just the current chapter's flag. The warning is honest: tab close kills the
+// in-tab promise, and durable-queue tab-close survival is out of scope.
 const hasImagesInProgress = useAppStore((s) => s.hasImagesInProgress);
+const pendingTranslationsCount = useAppStore((s) => s.pendingTranslations?.size ?? 0);
 useEffect(() => {
-  const isWorking = isTranslationActive(currentChapterId ?? '') || hasImagesInProgress();
+  const isWorking = pendingTranslationsCount > 0 || hasImagesInProgress();
   if (!isWorking) return;
 
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -137,7 +141,7 @@ useEffect(() => {
 
   window.addEventListener('beforeunload', handleBeforeUnload);
   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-}, [currentChapterId, isTranslationActive, hasImagesInProgress]);
+}, [pendingTranslationsCount, hasImagesInProgress]);
 
 const settingsFingerprint = React.useMemo(
   () =>

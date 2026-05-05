@@ -294,7 +294,9 @@ export const createImageSlice: StateCreator<
       }
     }));
     
-    const result = await ImageGenerationService.generateImages(
+    let result;
+    try {
+      result = await ImageGenerationService.generateImages(
       chapterId,
       context,
       (imageStates, currentMetrics) => {
@@ -330,7 +332,39 @@ export const createImageSlice: StateCreator<
         });
       }
     );
-    
+    } catch (err) {
+      // Issue #19 / CORE-012 image-leak audit: clear any per-image isLoading
+      // flags AND chapter progress when ImageGenerationService throws.
+      // Without this, hasImagesInProgress() returns true forever and the
+      // beforeunload warning fires falsely.
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(`[ImageSlice] handleGenerateImages threw for ${chapterId}:`, err);
+      set(prevState => {
+        const cleared = { ...prevState.generatedImages };
+        if (chapter?.translationResult?.suggestedIllustrations) {
+          chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+            const marker = illust?.placementMarker;
+            if (!marker) return;
+            const ck = `${chapterId}:${marker}`;
+            if (cleared[ck]?.isLoading) {
+              cleared[ck] = {
+                isLoading: false,
+                data: cleared[ck]?.data ?? null,
+                error: message,
+              };
+            }
+          });
+        }
+        const newProgress = { ...prevState.imageGenerationProgress };
+        delete newProgress[chapterId];
+        return {
+          generatedImages: cleared,
+          imageGenerationProgress: newProgress,
+        };
+      });
+      return;
+    }
+
     // Update final states+version tracking
     set(prevState => {
       const versionUpdates: Record<string, number> = {};
@@ -446,7 +480,27 @@ export const createImageSlice: StateCreator<
 
     debugLog('image', 'summary', `[ImageSlice] Retrying image for ${key} - creating version ${nextVersion}`);
 
-    const result = await ImageGenerationService.retryImage(chapterId, placementMarker, context);
+    let result;
+    try {
+      result = await ImageGenerationService.retryImage(chapterId, placementMarker, context);
+    } catch (err) {
+      // Issue #19 / CORE-012 image-leak audit: ensure isLoading is cleared
+      // even when ImageGenerationService throws. Without this, hasImagesInProgress()
+      // returns true forever and the beforeunload warning fires falsely.
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(`[ImageSlice] handleRetryImage threw for ${key}:`, err);
+      set(prevState => ({
+        generatedImages: {
+          ...prevState.generatedImages,
+          [key]: {
+            isLoading: false,
+            data: prevState.generatedImages[key]?.data ?? null,
+            error: message,
+          },
+        },
+      }));
+      return;
+    }
 
     const generationSucceeded = !result.imageState?.error;
 
