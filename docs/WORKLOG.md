@@ -1,3 +1,48 @@
+2026-05-04 20:55 PDT - [Agent: Opus]
+- Status: Complete — merged to main
+- Task: FoJin/Sutta Studio refactor wrap-up + main-branch test debt cleanup
+- Worktree: ../LexiconForge.worktrees/opus-fojin / branch: feat/opus-fojin (17 commits)
+- Headline:
+  - Buddhist text reading end-to-end: search "heart sutra" → curated 84000 fan
+    + multiple FoJin raws → click → load → Sutta Studio with Chinese + English
+    side-by-side + source provenance metadata strip
+  - 4 real product bugs fixed (registry crash on thin schemas, retranslate-button
+    falsely lit, env-var fallback gap, image caption fallback chain)
+  - Unit tests: 1136-failing-or-skipped → 1153 passing, 1 skip with documented
+    reason. Main had 33 fails before; branch ends at 0.
+- Highlights of the 17-commit stack (chronological after rebase):
+  - feat(scraping): FoJin adapter + LLM Buddhist scripture identity resolution
+  - fix(librarySearch): route FoJin search through local fetch-proxy (CORS)
+  - feat(librarySearch): LLM-enrich FoJin candidates with English disambiguation
+  - feat(sutta-studio): M1 — open FoJin chapters in Sutta Studio
+  - feat(sutta-studio): M2 — AI translation as the English column
+  - docs(sutta-studio): Pali/English design rationale + Chinese design intent
+  - fix(sutta-studio): strip HTML from AI translation before paragraph splitting
+  - feat: 84000.co adapter + fan-URL probe + actually fetch picked fan card
+  - fix(library): persist fan translation through hard nav + e2e
+  - feat(sutta-studio): SPA-nav studio button + side-by-side columns + source metadata
+  - refactor(store): generic chapter merge — preserve in-memory-only fields
+  - feat(librarySearch): curated 84000 toh-ID lookup
+  - feat(chapter): plumb blurb + sourceLanguage through fetch → IDB → studio
+  - fix(librarySearch): simplify unsupported-URL error message (carried orphan)
+  - chore: untrack test-results/.last-run.json
+  - chore: clean repo — fix all 28 inherited test failures, root-caused
+- Verified:
+  - npx vitest run: 1153 pass, 1 skip
+  - npx playwright test (4 fojin e2e files): 4/4 pass
+  - npx tsx scripts/smoke-real-fojin.ts: real-network smoke validates the
+    full search → fan-translation-attach → studio-render flow with screenshots
+  - npm run build: clean
+- Notes for next agent:
+  - The 1 skipped test (appScreen auto-retry-suppression) needs a focused unit
+    test against autoTranslateMediator, not MainApp — see comment in
+    tests/store/appScreen.integration.test.tsx
+  - Chinese-pipeline implementation (Sutta Studio for Mahayana texts) is
+    designed but not implemented — see docs/sutta-studio/CHINESE_DESIGN.md
+    open questions before starting
+  - 84000 curated table at services/librarySearch/known84000.ts has 6 entries;
+    add more by verifying toh-IDs on https://84000.co/translation/toh{N}
+
 2026-05-03 18:45 PDT - [Agent: Opus]
 - Status: Complete (worktree)
 - Task: Add FoJin (fojin.app) adapter + LLM-driven Buddhist scripture search integration
