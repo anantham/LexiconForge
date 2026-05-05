@@ -12,6 +12,7 @@ import { LandingPage } from './components/LandingPage';
 import { DefaultKeyBanner } from './components/DefaultKeyBanner';
 import OscilloscopePanel from './components/oscilloscope/OscilloscopePanel';
 import NotificationToast from './components/NotificationToast';
+import BackgroundWorkBanner from './components/BackgroundWorkBanner';
 import { clientTelemetry } from './services/clientTelemetry';
 
 import { validateApiKey } from './services/aiService';
@@ -293,6 +294,7 @@ const settingsFingerprint = React.useMemo(
     return (
       <>
         <NotificationToast />
+        <BackgroundWorkBanner />
         {content}
       </>
     );
