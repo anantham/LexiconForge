@@ -66,6 +66,19 @@
 - Known caveats:
   - fojin's `has_content` field in search results is unreliable; we don't filter on it (see adapter test for empty-content error path)
   - Live browser end-to-end test not done — needs dev server + manual UI
+2026-05-02 18:34 EDT - [Agent: Codex]
+- Status: Complete
+- Task: Align launcher browser URL with Vite dev server port.
+- Worktree: none (single-agent small fix in root checkout)
+- Files:
+  - start-lexiconforge.command:30,46,51
+  - vite.config.ts:217
+- Why:
+  - The launcher was still printing and opening `http://localhost:5173/`, while the Vite dev server is configured with `port: 5180`.
+  - Double-clicking the launcher therefore opened the wrong browser tab even though the app actually started on `localhost:5180`.
+- Details:
+  - Updated the launcher status text and `open` target from `5173` to `5180`.
+  - Left Vite unchanged because it was already correctly pinned to `5180`.
 
 2026-04-10 10:15 EDT - [Agent: Claude]
 - Status: Complete
