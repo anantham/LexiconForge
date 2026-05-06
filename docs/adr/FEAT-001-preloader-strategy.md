@@ -47,3 +47,33 @@ Therefore, a second decision was made:
 - Translation version check uses `services/db/operations/translations.ts`
 
 **Deviations from proposal:** The number-based strategy was implemented as described. The "skip if any version exists" optimization is active in the worker's preload loop.
+
+---
+
+## Amendment 2026-05-06 — Implementation moved out of `workers/`; preload invariant now enforced by CORE-012
+
+### File location update (refactor history)
+
+The implementation pointer above is **stale**. `workers/translate.worker.ts` no longer exists — the only file remaining under `workers/` is `epub.worker.ts`. The preload logic was moved into the store layer at some point during a refactor that this ADR was never updated to reflect.
+
+**Current files (verified 2026-05-06):**
+- Pre-loader entry point: `store/slices/chaptersSlice.ts:preloadNextChapters` (~lines 878-1027). Triggered by setting `currentChapterId`; iterates from `1` to `settings.preloadCount` looking up chapters by `chapterNumber: currentChapter.chapterNumber + i`.
+- Chapter numbering resolution: `services/scraping/chapterNumber.ts` (unchanged from original; still authoritative).
+- Translation version check: `services/db/operations/translations.ts:getVersionsByStableId` (entered via `TranslationOps.getVersionsByStableId`). The "skip if any version exists" optimization is honored at the slice layer in `handleTranslate` — when `existingVersions.length > 0` and `origin === 'auto_preload'`, the translation is blocked.
+
+### Preload invariant: now enforced end-to-end (was previously broken in transit)
+
+This ADR's stated goal — *"ensure a translation is available to prevent waiting"* — was being **defeated at navigation time** by an `setCurrentChapter` side effect that cancelled in-flight translations (including preloaded ones) every time the user navigated to a different chapter. Issue #12 ("when i move away from the page and get back the background preload ahead chapters are freshly api called rather than showing the calls that were sent in the background") is the user-facing report of this invariant break.
+
+[`CORE-012`](./CORE-012-background-work-survives-navigation.md) formalizes the principle this ADR always implied — *"in-flight background work survives navigation; cancellation is explicit-only"* — and ships the fix:
+- The auto-cancel in `setCurrentChapter` is removed
+- Preload-triggered work now uses a distinct `'auto_preload'` origin so future scheduler/cost work has a hook
+- Per-origin policy: preload never auto-fires expensive image generation (image gen is gated to `auto_visit` and `manual_translate` only, where the user is actively engaged with the chapter)
+
+After CORE-012, FEAT-001's preload no longer wastes LLM tokens on chapters the user navigated away from. The reading-flow promise holds end-to-end.
+
+### Related
+
+- [`CORE-012`](./CORE-012-background-work-survives-navigation.md) — restored this ADR's implicit invariant; specifies origin taxonomy and explicit-cancellation rule
+- Issue [`12-background-preload-spinner-restart`](../../issues/12-background-preload-spinner-restart/) — user verbatim claim that surfaced the broken invariant
+- Issue [`19-translation-survives-nav-policy`](../../issues/19-translation-survives-nav-policy/) — the broader investigation, Phase 0 spec, and phased shipping plan

@@ -1,10 +1,10 @@
-# CORE-012 (DRAFT) — Background Work Survives Navigation; Cancellation Is Explicit-Only
+# CORE-012 — Background Work Survives Navigation; Cancellation Is Explicit-Only
 
-> **Status: PROPOSED — DRAFT v1 (2026-05-05)** · Author: Opus 4.7 (with Aditya as ratifier)
+> **Status: Implemented (2026-05-06)** · Author: Opus 4.7 (with Aditya as ratifier)
 >
-> **Not in `docs/adr/` yet.** This draft lives under `issues/_themes/proposed-adrs/` as a working artifact. Move into `docs/adr/` only when Aditya ratifies the principle and signs off the scope. **Until ratified, do not enforce.**
+> Phase 1+2+3 of the originating investigation shipped on branches `feat/opus-translation-survives-nav`, `feat/opus-bg-work-visibility`, `feat/opus-telemetry-and-failure-routing`. See **§ Amendment 2026-05-06** at the end for ratified answers to Q1-Q5 and Implementation Notes pointing to the actual files.
 >
-> **Originating investigation:** [`issues/19-translation-survives-nav-policy/`](../../19-translation-survives-nav-policy/). Closely related to issue [`12-background-preload-spinner-restart`](../../12-background-preload-spinner-restart/) (preload subset of the same root cause).
+> **Originating investigation:** [`issues/19-translation-survives-nav-policy/`](../../issues/19-translation-survives-nav-policy/). Closely related to issue [`12-background-preload-spinner-restart`](../../issues/12-background-preload-spinner-restart/) (preload subset of the same root cause).
 
 ## Context
 
@@ -21,9 +21,9 @@ Same root cause, two surfaces. Both contradict the user's stated mental model: *
 
 ### Why no existing ADR catches this
 
-[`FEAT-001`](../../../docs/adr/FEAT-001-preloader-strategy.md) commits to "ensure *a* translation is available to prevent waiting" — the spirit clearly implies preload work should be retained, but the ADR is silent on the cancellation rule for the navigation case. The implementation honors the goal at start-time but defeats it at navigation-time.
+[`FEAT-001`](./FEAT-001-preloader-strategy.md) commits to "ensure *a* translation is available to prevent waiting" — the spirit clearly implies preload work should be retained, but the ADR is silent on the cancellation rule for the navigation case. The implementation honors the goal at start-time but defeats it at navigation-time.
 
-[`CORE-008`](./CORE-008-derived-views-recomputed-not-stored.md) (proposed) covers JIT derivation but doesn't address in-flight async work. Background translation work is NOT a derived view — it's expensive imperative work that must be initiated, awaited, and persisted. The work itself is raw; the result is what gets persisted.
+[`CORE-008`](../../issues/_themes/proposed-adrs/CORE-008-derived-views-recomputed-not-stored.md) (proposed) covers JIT derivation but doesn't address in-flight async work. Background translation work is NOT a derived view — it's expensive imperative work that must be initiated, awaited, and persisted. The work itself is raw; the result is what gets persisted.
 
 Neither addresses the principle this ADR commits to: **in-flight work that has no logical dependency on the current view must survive navigation that changes the view**.
 
@@ -46,7 +46,7 @@ Verified by code inspection in issue #19:
 
 A user navigation between views (chapters, novels, panels) MUST NOT, as a side effect, cancel work that is logically independent of the navigated-from view. "Logically independent" means: the work's result is keyed by an identifier (e.g. `chapterId`) and persisted to a durable store (IDB) on completion; the user can re-encounter it later by visiting that identifier.
 
-Translation, image generation, and preload work all qualify. UI-local computations (e.g. comparison overlays on the currently-visible chapter, ephemeral hover state) do not — they may be invalidated on view change per [`CORE-008`](./CORE-008-derived-views-recomputed-not-stored.md)'s "invalidate derived state on context change" rule.
+Translation, image generation, and preload work all qualify. UI-local computations (e.g. comparison overlays on the currently-visible chapter, ephemeral hover state) do not — they may be invalidated on view change per [`CORE-008`](../../issues/_themes/proposed-adrs/CORE-008-derived-views-recomputed-not-stored.md)'s "invalidate derived state on context change" rule.
 
 ### Two distinct termination modes
 
@@ -156,12 +156,12 @@ NOT required by this ADR (deferred to future work): job-entry types, priority qu
 
 ## Related
 
-- [`Vision.md`](../../../docs/Vision.md) — uninterrupted reading flow (implicit)
-- [`FEAT-001-preloader-strategy.md`](../../../docs/adr/FEAT-001-preloader-strategy.md) — "ensure *a* translation is available to prevent waiting"; this ADR enforces the invariant FEAT-001 implies but doesn't commit to.
-- [`CORE-008-derived-views-recomputed-not-stored.md`](./CORE-008-derived-views-recomputed-not-stored.md) (proposed) — JIT view derivation; companion principle for *derived state* invalidation. CORE-012 covers *in-flight imperative work* survival. The two together: derived views invalidate freely on context change; in-flight work persists across context change. Distinct invariants for distinct concerns.
-- [`CORE-009-single-flight-at-call-sites`](./) (proposed, not yet drafted) — completion-only-guards theme; complementary for dedup of repeat invocations.
-- Issue [`19-translation-survives-nav-policy`](../../19-translation-survives-nav-policy/) — originating investigation, Phase 0 spec, full implementation plan.
-- Issue [`12-background-preload-spinner-restart`](../../12-background-preload-spinner-restart/) — user's verbatim claim covering the preload subset of this ADR's scope.
+- [`Vision.md`](../Vision.md) — uninterrupted reading flow (implicit)
+- [`FEAT-001-preloader-strategy.md`](./FEAT-001-preloader-strategy.md) — "ensure *a* translation is available to prevent waiting"; this ADR enforces the invariant FEAT-001 implies but doesn't commit to.
+- [`CORE-008-derived-views-recomputed-not-stored.md`](../../issues/_themes/proposed-adrs/CORE-008-derived-views-recomputed-not-stored.md) (proposed) — JIT view derivation; companion principle for *derived state* invalidation. CORE-012 covers *in-flight imperative work* survival. The two together: derived views invalidate freely on context change; in-flight work persists across context change. Distinct invariants for distinct concerns.
+- `CORE-009-single-flight-at-call-sites` (proposed, not yet drafted) — completion-only-guards theme; complementary for dedup of repeat invocations.
+- Issue [`19-translation-survives-nav-policy`](../../issues/19-translation-survives-nav-policy/) — originating investigation, Phase 0 spec, full implementation plan.
+- Issue [`12-background-preload-spinner-restart`](../../issues/12-background-preload-spinner-restart/) — user's verbatim claim covering the preload subset of this ADR's scope.
 - Proposed theme: `nav-cancels-bg-work` (currently N=2 from issues #12 + #19; awaits 3rd instance to ratify per framework).
 
 ## Migration path (sketch)
@@ -171,3 +171,65 @@ NOT required by this ADR (deferred to future work): job-entry types, priority qu
 3. **Issue #19 Phase 2** delivers required behaviors 5-6: failure routing surface, `beforeunload` scope-down, named banner.
 4. **Issue #19 Phase 3** (deferred) adds the priority queue / depth bound / cost guardrails. Reopens this ADR if scheduler design surfaces principle gaps.
 5. **Audit candidate list from issue #19 §8 generator function** for other instances of "navigation cancels work that has no logical view dependency." If 3rd instance found, ratify `nav-cancels-bg-work` as a theme.
+
+---
+
+## Amendment 2026-05-06 — Status: Implemented; Ratified Q1-Q5; Implementation Notes
+
+> Per CONVENTIONS.md §9 ("Don't alter existing ADR content — amend by adding sections"), the original Decision text and open questions above are preserved as written. This amendment captures the ratification answers and points at the shipped implementation. Status moves PROPOSED → Implemented.
+
+### Ratified answers to Q1-Q5
+
+| Question | Ratified answer |
+|---|---|
+| **Q1 (D1):** Auto-image generation on background-completed translation | **Yes — but split by origin.** `auto_preload` translations NEVER auto-fire image generation (image gen is expensive and preload is speculative; user controls image gen manually via toolbar selection). `auto_visit` and `manual_translate` respect the existing `autoGenerateImages` user setting. This is tighter than the ADR's original "fire on background completion" framing — the per-origin gate is what shipped. Revisit with Phase 3 cost guardrails. |
+| **Q2 (D3):** Tab-close survival in scope | **No — out of scope.** Tab-close survival requires durable queue infrastructure (IDB intent replay) or Service Worker — fundamentally different architecture. File a separate ADR if pursued. The current `beforeunload` warning is honest about this gap. |
+| **Q3:** Priority ordering | **Confirmed:** `manual_translate > auto_visit > auto_preload`. Three nodes only — `isBackground` is a derived state, NOT a queue node (see D2 ratification below). |
+| **Q4:** Cancellation surface | **Both, non-overlapping.** Toggle on the active translate button (`ChapterView.tsx:117-119`) covers cancellation for the chapter the user is currently viewing. The Phase 2 banner (`BackgroundWorkBanner`) covers background work the user can't see directly — currently click-to-navigate; explicit "Stop" affordance deferred to Phase 3. The principle: explicit cancellation must be reachable from wherever the user can perceive the work. |
+| **Q5 (load-bearing):** ADR commits to taxonomy only, not scheduler | **Confirmed.** Phase 1 plumbed the origin discriminator + `isBackground` derived state through the system. Phase 3 (priority queue, depth bounds, preemption mechanic, cost guardrails) is deferred until empirical signal from the lifecycle telemetry (see Implementation Notes below) accumulates. Designing the scheduler before observing real usage was rejected as Goodharting risk. |
+
+Additionally, **D2 from issue #19 §9b** is reaffirmed: 3 origins (`manual_translate`, `auto_visit`, `auto_preload`) plus a derived `isBackground` boolean. NOT 4 origins — `background_continuation` is a *state* (derivable from `currentChapterId !== work.chapterId`), not an *origin* (which describes initiation). The taxonomy is intentionally non-mutating: a translation initiated as `auto_visit` becomes background-state when the user navigates away; its origin does not change.
+
+### Implementation Notes
+
+**Phase 1 — Correctness + origin discrimination** (`feat/opus-translation-survives-nav`, commit `72a2a80`):
+- `store/slices/chaptersSlice.ts` (`setCurrentChapter`) — auto-cancel block removed; replaced with a comment pointing back to this ADR
+- `store/slices/chaptersSlice.ts` (`preloadNextChapters`) — preload now passes `'auto_preload'` to `handleTranslate`
+- `store/autoTranslateMediator.ts` — visit-triggered auto-translate now passes `'auto_visit'`
+- `components/sutta-studio/SuttaStudioApp.tsx` — Sutta Studio's auto-translate also passes `'auto_visit'`
+- `types/telemetry.ts` — `TelemetrySurface` literal split: `auto_translate` → `auto_visit | auto_preload`
+- `store/slices/translationsSlice.ts` — internal origin checks updated for both auto modes; `auto_preload` gated out of auto-image-gen
+- `tests/store/slices/setCurrentChapter-survives-nav.test.ts` — 4 regression tests proving the invariant
+
+**Phase 2 — Visibility** (`feat/opus-bg-work-visibility`, commits `b6216cf` + `3abcc35`):
+- `store/slices/imageSlice.ts` — `handleGenerateImages` and `handleRetryImage` now wrap awaits in try/catch and clear `isLoading` + `imageGenerationProgress` on throw (the leak the original handover suspected). Tests in `tests/store/slices/imageSlice.leak-on-throw.test.ts`.
+- `MainApp.tsx` — `beforeunload` warning now reads `pendingTranslations.size` (any in-flight work across all chapters) rather than just the current chapter's flag. Aligns with required behavior #6.
+- `components/BackgroundWorkBanner.tsx` (new) — surfaces in-flight translations for chapters the user is NOT currently viewing. Shows count + first chapter title; click navigates to that chapter so the inline cancel surface is reachable. No "Stop" affordance for v1 (per Q4 above). Tests in `tests/components/BackgroundWorkBanner.test.tsx`.
+
+**Phase 3 (partial) — Telemetry + failure routing** (`feat/opus-telemetry-and-failure-routing`, commit `e2aad08`):
+- `types/telemetry.ts` — new `TelemetryEventType` values: `translation_started | translation_completed | translation_aborted`. New `TelemetryExtras` free-form map for structured fields. `extras` field added to `ClientTelemetryEventV1` and `EmitClientTelemetryInput`.
+- `services/clientTelemetry.ts` — `extras` threaded through `buildPayload` and `emitAnalytics`; flat properties forwarded to Vercel Analytics so dashboards can group by `is_background`, `queue_depth`, `duration_ms`, `cancel_reason`, etc. Lifecycle events are analytics-only (not server callback) to keep server-side aggregation focused on failures and crashes.
+- `store/slices/translationsSlice.ts` — `emitLifecycle` helper fires the three lifecycle events from `handleTranslate` at start, completion, and abort. `isSystemicFailure` helper differentiates `missing_api_key`/`trial_limit` from per-chapter failures. Failure routing: foreground → `setError`; background + systemic → global toast (`showNotification`); background + per-chapter → silent (error sits in `translationProgress[chapterId]` for inline rendering on user return). Tests in `tests/current-system/translation.test.ts` (6 new lifecycle + routing tests).
+
+**Follow-up small UI feature** (`feat/opus-chapter-dropdown-indicators`, commit `7d3cc5f`):
+- `components/session-info/ChapterDropdown.tsx` — translation-status indicator (`●` for translated, `·` placeholder for untranslated) rendered as text prefix on each `<option>`. Uses the `hasTranslation` boolean already exposed by `useChapterDropdownOptions`. Not part of CORE-012's required behaviors but adjacent — surfaces what background translations have completed.
+
+### Deferred per evidence-required design (Phase 3 remainder)
+
+The ADR's "What this ADR does not do" list still applies. Specifically deferred until lifecycle telemetry provides usage data:
+- Priority queue data structure / depth bounds / preemption mechanic
+- Cost guardrails / spend warnings
+- Amendment proposal per-chapter routing (conditional — only if real usage shows out-of-context proposals; `enableAmendments` defaults to `false` so probably no signal at all)
+- Banner "Stop" affordance behind overflow menu
+
+### Test patterns now actually backed by tests
+
+Of the test patterns the original ADR enabled (lines 130-137):
+- ✅ "In-flight translation survives navigation" — `tests/store/slices/setCurrentChapter-survives-nav.test.ts` (Vitest at slice level, not Playwright as originally prescribed; the slice is where the bug lived)
+- ⚠️ "Navigation produces no `cancelling` log" — implicit in the slice test (cancelTranslation spy shows zero calls); no console-assertion test
+- ⚠️ "Return-to-chapter does not re-fire completed translation" — covered by `autoTranslateMediator`'s existing pre-check, not directly asserted in a regression test
+- ✅ "Explicit cancel still aborts" — covered by existing `cancelTranslation` slice action behavior; no NEW test added but the old path is unchanged
+- ✅ "Origin discriminator surfaces in telemetry" — `tests/current-system/translation.test.ts` (lifecycle event tests with origin tags)
+- ⚠️ "Component unmount does not cancel store-layer work" — not directly tested; the ADR principle is enforced by removing the cancel-call rather than asserting against a hypothetical re-introduction
+
+The ⚠️ items are gaps that don't block ratification but could be filled if regression coverage matters (use `expansion:doc-prover` to convert the principle into a formal ASSERTION if desired).

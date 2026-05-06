@@ -12,7 +12,7 @@
  * affordance can land in v2 behind an overflow menu.
  *
  * See: issues/19-translation-survives-nav-policy/README.md
- *      issues/_themes/proposed-adrs/CORE-012-background-work-survives-navigation.md
+ *      docs/adr/CORE-012-background-work-survives-navigation.md
  */
 
 import React from 'react';
