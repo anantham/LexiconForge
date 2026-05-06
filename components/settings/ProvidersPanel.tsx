@@ -20,6 +20,7 @@ import {
   getVerifiedOpenRouterImageModels,
   type OpenRouterImageModelProfile,
 } from '../../services/openrouterImageModelAdapter';
+import { useAppStore } from '../../store';
 import { TranslationEngineSection } from './TranslationEngineSection';
 import { ApiKeysSection } from './ApiKeysSection';
 
@@ -58,10 +59,29 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     loadProviderCreditsFromCache,
   } = useProvidersPanelStore();
 
+  const activeNovelId = useAppStore(state => state.activeNovelId);
+  const activeVersionId = useAppStore(state => state.activeVersionId);
+
   const [orSearch, setOrSearch] = useState('');
   const [lastUsedMap, setLastUsedMap] = useState<Record<string, string>>({});
   const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
   const [dynamicImageModels, setDynamicImageModels] = useState<OpenRouterImageModelProfile[]>([]);
+  const [novelSpent, setNovelSpent] = useState<number | null>(null);
+
+  // Fetch spent amount when in budget mode
+  useEffect(() => {
+    if (currentSettings.preloadMode !== 'budget' || !activeNovelId) {
+      setNovelSpent(null);
+      return;
+    }
+    let cancelled = false;
+    import('../../services/db/operations/budgetOps').then(({ getNovelTranslationCost }) => {
+      getNovelTranslationCost(activeNovelId, activeVersionId).then(cost => {
+        if (!cancelled) setNovelSpent(cost);
+      });
+    });
+    return () => { cancelled = true; };
+  }, [currentSettings.preloadMode, activeNovelId, activeVersionId]);
 
   // Check structured output support for a model
   const checkStructuredOutputSupport = useCallback(
@@ -435,6 +455,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         onAutoGenerateImagesChange={(v) => handleSettingChange('autoGenerateImages', v)}
         onContextDepthChange={(v) => handleSettingChange('contextDepth', v)}
         onPreloadCountChange={(v) => handleSettingChange('preloadCount', v)}
+        preloadMode={currentSettings.preloadMode ?? 'chapters'}
+        preloadBudget={currentSettings.preloadBudget ?? 0}
+        novelSpent={novelSpent}
+        onPreloadModeChange={(m) => handleSettingChange('preloadMode' as any, m)}
+        onPreloadBudgetChange={(v) => handleSettingChange('preloadBudget' as any, v)}
       />
 
       <ApiKeysSection

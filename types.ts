@@ -376,6 +376,9 @@ export interface AppSettings {
     // SillyTavern self-insert integration
     enableSillyTavern?: boolean;            // Feature gate (default: false)
     sillyTavernBridgeUrl?: string;          // Bridge endpoint URL (default: "http://localhost:5001")
+    // Preload mode: chapter count or budget limit
+    preloadMode?: 'chapters' | 'budget';       // Toggle preload limiting strategy (default: 'chapters')
+    preloadBudget?: number;                     // USD cap for budget mode (default: 0 = disabled)
 }
 
 export interface DiffMarkerVisibilitySettings {

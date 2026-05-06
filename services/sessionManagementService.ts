@@ -74,6 +74,9 @@ export const defaultSettings: AppSettings = {
   // EPUB export settings
   includeTitlePage: true,
   includeStatsPage: true,
+  // Preload mode
+  preloadMode: 'chapters' as const,
+  preloadBudget: 0,
 };
 
 export interface SessionData {

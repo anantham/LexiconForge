@@ -885,7 +885,12 @@ export const createChaptersSlice: StateCreator<
         handleTranslate,
       } = get();
 
-      if (!currentChapterId || settings.preloadCount === 0) {
+      const isBudgetMode = settings.preloadMode === 'budget';
+      const isDisabled = isBudgetMode
+        ? !settings.preloadBudget || settings.preloadBudget <= 0
+        : settings.preloadCount === 0;
+
+      if (!currentChapterId || isDisabled) {
         return;
       }
 
@@ -904,7 +909,9 @@ export const createChaptersSlice: StateCreator<
         }
       }
 
-      for (let i = 1; i <= settings.preloadCount; i++) {
+      const BUDGET_MODE_MAX_LOOKAHEAD = 999; // Loop breaks on budget exhaustion or missing chapters
+      const maxAhead = isBudgetMode ? BUDGET_MODE_MAX_LOOKAHEAD : settings.preloadCount;
+      for (let i = 1; i <= maxAhead; i++) {
         const targetNumber = currentChapter.chapterNumber + i;
         let nextChapterInfo = numberToChapterMap.get(targetNumber);
 
@@ -1016,6 +1023,28 @@ export const createChaptersSlice: StateCreator<
         if (!apiValidation.isValid) {
           debugWarn('worker', 'summary', `[Worker] Stopping preload - API key missing: ${apiValidation.errorMessage}`);
           break;
+        }
+
+        // Budget check (re-read settings each iteration for mid-loop changes)
+        if (isBudgetMode) {
+          const latestSettings = get().settings;
+          if (latestSettings.preloadMode !== 'budget' || !latestSettings.preloadBudget) {
+            debugLog('worker', 'summary', '[Worker] Preload mode changed mid-loop, stopping.');
+            break;
+          }
+          const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
+          const spent = await getNovelTranslationCost(activeNovelId!, activeVersionId!);
+          if (spent >= latestSettings.preloadBudget) {
+            const showNotification = (get() as any).showNotification;
+            if (showNotification) {
+              showNotification(
+                `Translation budget of $${latestSettings.preloadBudget.toFixed(2)} reached for this novel. Increase your budget in Settings > Providers to continue.`,
+                'warning'
+              );
+            }
+            debugLog('worker', 'summary', `[Worker] Budget exhausted ($${spent.toFixed(4)} >= $${latestSettings.preloadBudget.toFixed(2)}). Stopping preload.`);
+            break;
+          }
         }
 
         debugLog('worker', 'summary', `[Worker] Pre-translating chapter #${targetNumber} (ID: ${nextChapterId})`);

@@ -74,7 +74,12 @@ vi.mock('../../services/openrouterImageModelAdapter', () => ({
 }));
 
 // Mock constants
+// INITIAL_SYSTEM_PROMPT must be provided because budget-preload's edit to
+// ProvidersPanel.tsx now imports useAppStore, which transitively loads
+// services/sessionManagementService.ts (reads INITIAL_SYSTEM_PROMPT at module
+// init). Pre-merge the test didn't need this; post-merge it does.
 vi.mock('../../config/constants', () => ({
+  INITIAL_SYSTEM_PROMPT: 'test prompt',
   AVAILABLE_MODELS: {
     Gemini: [
       { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
