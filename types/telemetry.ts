@@ -1,6 +1,9 @@
 export type TelemetryEventType =
   | 'known_limit_reached'
   | 'translation_failed'
+  | 'translation_started'
+  | 'translation_completed'
+  | 'translation_aborted'
   | 'client_uncaught_error'
   | 'client_unhandled_rejection'
   | 'ui_error_rendered';
@@ -50,6 +53,15 @@ export interface ClientTelemetryErrorPayload {
   stack_truncated: string | null;
 }
 
+/**
+ * Free-form context key/value pairs attached to a telemetry event.
+ *
+ * Used for lifecycle events (translation_started/completed/aborted) to carry
+ * structured fields like queue_depth, is_background, duration_ms,
+ * cancel_reason. Receivers should treat unknown keys as opaque.
+ */
+export type TelemetryExtras = Record<string, string | number | boolean | null>;
+
 export interface ClientTelemetryEventV1 {
   schema_version: '1.0';
   event_id: string;
@@ -69,6 +81,7 @@ export interface ClientTelemetryEventV1 {
   build_id: string | null;
   loading_state: LoadingStateSnapshot;
   error: ClientTelemetryErrorPayload | null;
+  extras: TelemetryExtras | null;
 }
 
 export interface AnalyticsFailureEventV1 {
@@ -107,4 +120,9 @@ export interface EmitClientTelemetryInput {
   route?: TelemetryRoute;
   dedupeAll?: boolean;
   dedupeCallback?: boolean;
+  /**
+   * Free-form structured context. Used by lifecycle events to carry
+   * queue_depth, is_background, duration_ms, cancel_reason, etc.
+   */
+  extras?: TelemetryExtras;
 }

@@ -238,6 +238,7 @@ const buildPayload = (input: EmitClientTelemetryInput): ClientTelemetryEventV1 =
     build_id: getBuildId(),
     loading_state: getLoadingState(input.chapterId),
     error,
+    extras: input.extras ?? null,
   };
 };
 
@@ -255,7 +256,17 @@ const emitAnalytics = (payload: ClientTelemetryEventV1) => {
     route: payload.route,
   };
 
-  track(payload.event_type, { ...analyticsPayload });
+  // Vercel analytics accepts string|number|boolean values; pass extras through
+  // so dashboards can group by queue_depth, is_background, duration_ms, etc.
+  // Skip null values (analytics SDK rejects them).
+  const extrasForAnalytics: Record<string, string | number | boolean> = {};
+  if (payload.extras) {
+    for (const [k, v] of Object.entries(payload.extras)) {
+      if (v !== null) extrasForAnalytics[k] = v;
+    }
+  }
+
+  track(payload.event_type, { ...analyticsPayload, ...extrasForAnalytics });
 };
 
 const shouldSendCallback = (payload: ClientTelemetryEventV1): boolean => {
@@ -267,6 +278,9 @@ const shouldSendCallback = (payload: ClientTelemetryEventV1): boolean => {
     return true;
   }
 
+  // Lifecycle events (translation_started/completed/aborted) are analytics-only —
+  // they're high-volume and don't need server-side aggregation. Only failures and
+  // crashes get the server callback.
   return payload.event_type === 'translation_failed' && payload.expected === false;
 };
 

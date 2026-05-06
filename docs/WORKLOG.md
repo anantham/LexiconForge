@@ -1,5 +1,32 @@
+2026-05-05 21:55 PDT - [Agent: Opus]
+- Status: Ready to merge (worktree)
+- Task: Issue #19 Phase 3 (partial) — telemetry instrumentation + failure routing
+- Worktree: ../LexiconForge.worktrees/opus-telemetry-and-failure-routing / branch: feat/opus-telemetry-and-failure-routing (branched off feat/opus-bg-work-visibility)
+- 1 commit (e2aad08): feat(telemetry,routing): translation lifecycle events + failure routing
+- What's in:
+  - Lifecycle events: translation_started/completed/aborted with origin,
+    queue_depth, is_background, duration_ms, cancel_reason. Analytics-only
+    (not server callback).
+  - New TelemetryExtras free-form map field, threaded through buildPayload
+    and emitAnalytics so dashboards can group by extras.
+  - isSystemicFailure helper (missing_api_key, trial_limit).
+  - Failure routing: foreground → setError; background+systemic → global toast;
+    background+per-chapter → silent (translationProgress[chapterId] still
+    captures the error for on-return inline rendering).
+  - 6 new regression tests in tests/current-system/translation.test.ts.
+  - Tests set viewMode:'original' explicitly to prevent autoTranslateMediator
+    from racing — caught a real test-environment surprise (mediator fires on
+    setState when viewMode defaults to 'english').
+- What's NOT in (deferred per Phase 3 evidence-required design):
+  - Priority queue / depth bounds / preemption — needs telemetry data first.
+  - Cost guardrails — same.
+  - Amendment proposal routing — conditional, low priority while
+    enableAmendments default is false.
+- Verified: npx vitest run → 1171 pass, 16 skip (1165 baseline + 6 new). TS clean.
+- Pending: Aditya merges chain in order (Phase 1 → Phase 2 → Phase 3 partial).
+
 2026-05-05 17:50 PDT - [Agent: Opus]
-- Status: In progress (worktree)
+- Status: Ready to merge (worktree)
 - Task: Issue #19 Phase 2 — background-work visibility cleanup
 - Worktree: ../LexiconForge.worktrees/opus-bg-work-visibility / branch: feat/opus-bg-work-visibility (branched off feat/opus-translation-survives-nav)
 - Phase 2 changes (2 commits):

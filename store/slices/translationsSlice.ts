@@ -21,7 +21,7 @@ import { adaptTranslationRecordToResult } from '../../services/navigation/conver
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { clientTelemetry } from '../../services/clientTelemetry';
 import { debugLog, debugWarn } from '../../utils/debug';
-import type { TelemetryErrorContext, TelemetryFailureType, TranslationOrigin } from '../../types/telemetry';
+import type { TelemetryErrorContext, TelemetryEventType, TelemetryExtras, TelemetryFailureType, TranslationOrigin } from '../../types/telemetry';
 import { mergeGlossaryEntries } from '../../services/glossaryService';
 
 export interface TranslationsState {
@@ -87,6 +87,47 @@ export type TranslationsSlice = TranslationsState & TranslationsActions;
 
 const isGlossaryProposal = (proposal: AmendmentProposal): boolean =>
   proposal.kind === 'glossary' && !!proposal.glossaryEntry;
+
+/**
+ * CORE-012 failure routing: failures whose root cause makes every subsequent
+ * translation also fail (auth, quota). For these we surface globally and
+ * stop spamming per-chapter errors. Per-chapter failures (timeout,
+ * malformed response) stay local.
+ */
+const isSystemicFailure = (
+  failureType: TelemetryFailureType
+): boolean =>
+  failureType === 'missing_api_key' || failureType === 'trial_limit';
+
+/**
+ * Lifecycle telemetry helper. translation_started / completed / aborted are
+ * not failures, but the schema requires failureType + severity. We use
+ * 'unknown' + 'warning' uniformly so analysts filter by event_type.
+ */
+const emitLifecycle = (args: {
+  eventType: Extract<
+    TelemetryEventType,
+    'translation_started' | 'translation_completed' | 'translation_aborted'
+  >;
+  chapterId: string;
+  origin: TranslationOrigin;
+  provider: AppSettings['provider'];
+  model: string;
+  extras: TelemetryExtras;
+}): void => {
+  clientTelemetry.emit({
+    eventType: args.eventType,
+    failureType: 'unknown',
+    surface: args.origin,
+    severity: 'warning',
+    expected: true,
+    userVisible: null,
+    provider: args.provider,
+    model: args.model,
+    chapterId: args.chapterId,
+    extras: args.extras,
+  });
+};
 
 const applyGlossaryProposal = (
   settings: AppSettings,
@@ -237,6 +278,12 @@ export const createTranslationsSlice: StateCreator<
     // Create abort controller for this translation
     const abortController = new AbortController();
 
+    // Capture lifecycle context BEFORE the set() so queue_depth reflects work
+    // that was already in flight (not including this one).
+    const enqueuedAt = Date.now();
+    const queueDepthAtStart = state.pendingTranslations.size;
+    const isBackgroundAtStart = chapterId !== state.currentChapterId;
+
     set(prevState => {
       const nextPending = new Set(prevState.pendingTranslations);
       nextPending.add(chapterId);
@@ -251,6 +298,18 @@ export const createTranslationsSlice: StateCreator<
           [chapterId]: { status: 'translating', progress: 0 }
         }
       };
+    });
+
+    emitLifecycle({
+      eventType: 'translation_started',
+      chapterId,
+      origin,
+      provider: context.settings.provider,
+      model: context.settings.model,
+      extras: {
+        queue_depth: queueDepthAtStart,
+        is_background_at_start: isBackgroundAtStart,
+      },
     });
 
     // Update UI loading state
@@ -425,9 +484,25 @@ export const createTranslationsSlice: StateCreator<
             [chapterId]: { status: 'pending' }
           }
         }));
+        emitLifecycle({
+          eventType: 'translation_aborted',
+          chapterId,
+          origin,
+          provider: context.settings.provider,
+          model: context.settings.model,
+          extras: {
+            // After Phase 1 the only sanctioned cancel path is explicit user
+            // action (toggle button or future "Stop all"). If a legacy nav-cancel
+            // ever slips through, it'd surface as the same event but the
+            // dashboard can spot it via origin/timing patterns.
+            cancel_reason: 'explicit_user_cancel',
+            duration_ms: Date.now() - enqueuedAt,
+            is_background: chapterId !== get().currentChapterId,
+          },
+        });
         return;
       }
-      
+
       if (response?.error) {
         console.error(`[Translation] ❌ Error response for ${chapterId}:`, response.error);
         const failureType = response.failureType ?? 'unknown';
@@ -448,10 +523,35 @@ export const createTranslationsSlice: StateCreator<
             [chapterId]: { status: 'failed', error: response.error }
           }
         }));
-        
-        if (uiActions.setError) {
-          uiActions.setError(response.error, telemetryContext);
+
+        // CORE-012 failure routing: where the error surfaces depends on whether
+        // the user is currently looking at this chapter, AND on whether the
+        // failure is systemic (auth/quota — every subsequent translation will
+        // also fail) or per-chapter (timeout/malformed — affects only this one).
+        const isBackground = chapterId !== get().currentChapterId;
+        const systemic = isSystemicFailure(failureType);
+
+        if (!isBackground) {
+          // Current chapter — keep the existing setError behavior so the
+          // user sees the error inline where they're reading.
+          if (uiActions.setError) {
+            uiActions.setError(response.error, telemetryContext);
+          }
+        } else if (systemic) {
+          // Background chapter + systemic root cause — surface globally so
+          // the user knows their settings need fixing. dedupeAll prevents the
+          // toast from spamming as the queue chews through more chapters with
+          // the same auth/quota failure. translationProgress[chapterId] still
+          // captures the per-chapter error for surfacing on return.
+          const showNotification = state.showNotification;
+          if (showNotification) {
+            showNotification(response.error, 'error');
+          }
         }
+        // Background per-chapter failure (timeout, malformed): silent here.
+        // The error sits in translationProgress[chapterId] until the user
+        // navigates back to the chapter, at which point the inline error UI
+        // (already wired) renders it.
         return;
       }
       
@@ -614,17 +714,36 @@ export const createTranslationsSlice: StateCreator<
           [chapterId]: { status: 'completed', progress: 100 }
         }
       }));
-      
+
+      emitLifecycle({
+        eventType: 'translation_completed',
+        chapterId,
+        origin,
+        provider: context.settings.provider,
+        model: context.settings.model,
+        extras: {
+          duration_ms: Date.now() - enqueuedAt,
+          // is_background here answers "did the user navigate away while this
+          // was cooking?" — the load-bearing question for whether Phase 1's
+          // background-continuation is being exercised.
+          is_background: chapterId !== get().currentChapterId,
+        },
+      });
+
     } catch (err) {
       console.error('[Retranslate] 💥 Unhandled error during translation', { chapterId, error: err });
+      const message = err instanceof Error ? err.message : String(err);
       set(prevState => ({
         translationProgress: {
           ...prevState.translationProgress,
-          [chapterId]: { status: 'failed', error: String(err) }
+          [chapterId]: { status: 'failed', error: message }
         }
       }));
-      if (uiActions.setError) {
-        uiActions.setError(err instanceof Error ? err.message : String(err));
+      // Same routing rule as response.error: only surface to current-chapter
+      // setError when the user is actually viewing this chapter. Background
+      // unhandled-throw failures sit in translationProgress for on-return surfacing.
+      if (chapterId === get().currentChapterId && uiActions.setError) {
+        uiActions.setError(message);
       }
     } finally {
       set(prev => {
