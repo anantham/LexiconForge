@@ -1443,6 +1443,14 @@
 - tests/db/migrations/fresh-install.test.ts:357-360; tests/store/bootstrap/bootstrapHelpers.test.ts:420-529; tests/current-system/export-import.test.ts:27-54; tests/current-system/feedback.test.ts:12-37; tests/current-system/settings.test.ts:21-46; tests/current-system/translation.test.ts:21-32; tests/services/navigationService.test.ts:109-121 - update assertions/fixtures to match the now-explicit version-aware contract and `EnhancedChapter` shape.
 - scripts/lib/adapters/novelhi-adapter.ts:131-136 - tighten DOM typing so the branch returns to the pre-existing TypeScript baseline after `EnhancedChapter`/navigation changes.
 **Tests:** `npx vitest run tests/services/bookshelfStateService.test.ts tests/services/readerHydrationService.test.ts tests/store/bookshelfPersistence.test.ts tests/store/nullSafety.test.ts tests/store/chaptersSlice.test.ts tests/current-system/navigation.test.ts tests/services/navigationService.test.ts tests/components/NovelLibrary.test.tsx tests/store/bootstrap/bootstrapHelpers.test.ts tests/store/appScreen.integration.test.tsx tests/db/migrations/fresh-install.test.ts` ✅; `npx vitest run tests/current-system/export-import.test.ts tests/current-system/feedback.test.ts tests/current-system/settings.test.ts tests/current-system/translation.test.ts tests/services/importService.test.ts` ✅; `npx tsc --noEmit --pretty false` ⚠️ only pre-existing `scripts/sutta-studio/*` errors remain.
+### [2026-05-05 16:41 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Ratify Phase 1 decisions for issue #19 translation-survives-navigation policy.
+**Files modified (line numbers + why):**
+- `issues/19-translation-survives-nav-policy/README.md:200-205,223` - recorded Aditya's ratification of D1-D4 as written and marked the Phase 1 decision gate complete.
+- `docs/WORKLOG.md` - logged this documentation-only ratification step per project protocol.
+**Tests:** Not run; documentation-only change.
+
 ### [2026-04-02 23:56 EDT] [Agent: Codex]
 **Status:** Starting
 **Task:** Split chapter translation from prompt-amendment proposal generation so raw-only translation can stay fan-blind while amendment proposals can optionally inspect the fan translation as a separate pass.

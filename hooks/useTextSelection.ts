@@ -108,21 +108,38 @@ export const useTextSelection = (ref: RefObject<HTMLElement>) => {
     selectionChangeTimerRef.current = setTimeout(checkSelection, 200);
   }, [checkSelection]);
 
-  useEffect(() => {
-    document.addEventListener('mouseup', checkSelection);
-    document.addEventListener('selectionchange', handleSelectionChange);
-    document.addEventListener('scroll', clearSelection, { capture: true, passive: true } as any);
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelection(null); };
-    document.addEventListener('keydown', onKey);
-
-    return () => {
-      document.removeEventListener('mouseup', checkSelection);
-      document.removeEventListener('selectionchange', handleSelectionChange);
-      document.removeEventListener('scroll', clearSelection, true);
-      document.removeEventListener('keydown', onKey);
-      if (selectionChangeTimerRef.current) clearTimeout(selectionChangeTimerRef.current);
+  // Diagnostic: Track scroll events that clear selection
+    const handleScrollWithLogging = (e: Event) => {
+      const activeTag = document.activeElement?.tagName;
+      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+      console.log('[useTextSelection] Scroll detected, clearing selection', {
+        scrollType: e.type,
+        timestamp: Date.now(),
+      });
+      clearSelection();
     };
-  }, [checkSelection, handleSelectionChange, clearSelection]);
+
+    useEffect(() => {
+      document.addEventListener('mouseup', checkSelection);
+      document.addEventListener('selectionchange', handleSelectionChange);
+      document.addEventListener('scroll', handleScrollWithLogging, { capture: true, passive: true } as any);
+      const onKey = (e: KeyboardEvent) => { 
+        if (e.key !== 'Escape') return;
+        const activeTag = document.activeElement?.tagName;
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+        console.log('[useTextSelection] Escape key pressed, clearing selection');
+        setSelection(null); 
+      };
+      document.addEventListener('keydown', onKey);
+
+      return () => {
+        document.removeEventListener('mouseup', checkSelection);
+        document.removeEventListener('selectionchange', handleSelectionChange);
+        document.removeEventListener('scroll', handleScrollWithLogging, true);
+        document.removeEventListener('keydown', onKey);
+        if (selectionChangeTimerRef.current) clearTimeout(selectionChangeTimerRef.current);
+      };
+    }, [checkSelection, handleSelectionChange, clearSelection]);
 
   return { selection, clearSelection };
 };

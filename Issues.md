@@ -134,4 +134,8 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 14) file:///var/folders/68/c0w7ryfj66xdbs8v0yx662h00000gn/T/TemporaryItems/NSIRD_screencaptureui_E17Pjj/Screenshot%202026-04-08%20at%2011.32.05%E2%80%AFPM.png - if translation fails then the retry red spinner should be clickable it should not just be like this
 
-15) 
+15) in comparison it should cycle between raw, fan and google translate! rather than say "selected" and repeat the text just faint underline the text under scrutiny 
+
+16) changing versions means comments should go away and then come back, its tied to that version! and the floating comment icons also have vanished with version switch!
+
+17) 
