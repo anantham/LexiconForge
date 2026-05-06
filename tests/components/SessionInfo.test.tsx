@@ -964,9 +964,13 @@ describe('SessionInfo: Critical Flows', () => {
       const dropdown = screen.getByRole('combobox', { name: /select a chapter/i });
       const options = dropdown.querySelectorAll('option');
 
-      const hasChapterPrefix = Array.from(options).some(opt =>
-        opt.textContent?.match(/^(Ch|Chapter) \d+[:.]/)
-      );
+      // Per issue #19 dropdown indicator: option textContent now starts with
+      // a translation-status prefix (● or ·) before the chapter reference.
+      // Strip it before matching the chapter prefix pattern.
+      const hasChapterPrefix = Array.from(options).some(opt => {
+        const text = (opt.textContent ?? '').replace(/^[●·]\s+/u, '');
+        return /^(Ch|Chapter) \d+[:.]/.test(text);
+      });
       expect(hasChapterPrefix).toBe(true);
     });
   });
