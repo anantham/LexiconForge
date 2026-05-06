@@ -109,6 +109,8 @@ export interface UseChapterDropdownOptionsResult {
  */
 export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
   const chapters = useAppStore(s => s.chapters);
+  const activeNovelId = useAppStore(s => s.activeNovelId);
+  const activeVersionId = useAppStore(s => s.activeVersionId);
   const [options, setOptions] = useState<ChapterDropdownOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -121,9 +123,32 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
       try {
         setIsLoading(true);
 
-        // 1. Load summaries from IndexedDB
-        const summaries = await ImportTransformationService.getChapterSummaries();
+        const matchesScope = (chapter: {
+          novelId?: string | null;
+          libraryVersionId?: string | null;
+        }): boolean => {
+          if (!activeNovelId) {
+            return true;
+          }
+
+          return (
+            (chapter.novelId ?? null) === activeNovelId &&
+            (chapter.libraryVersionId ?? null) === (activeVersionId ?? null)
+          );
+        };
+
+        // 1. Load summaries from IndexedDB for the active library scope.
+        // Ephemeral/manual sessions without an active novel rely on in-memory chapters only.
+        const summaries = activeNovelId
+          ? await ImportTransformationService.getChapterSummariesByScope(activeNovelId, activeVersionId ?? null)
+          : [];
         if (cancelled) return;
+
+        debugLog('ui', 'summary', '[Dropdown] scoped summaries loaded', {
+          activeNovelId: activeNovelId ?? null,
+          activeVersionId: activeVersionId ?? null,
+          summaryStableIds: summaries.map((summary) => summary.stableId),
+        });
 
         // 2. Build a map for merging
         const byId = new Map<string, ChapterSummary>();
@@ -141,7 +166,16 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
 
         // 3. Merge with store data (store takes precedence)
         if (chapters.size > 0) {
+          const consideredInMemoryStableIds: string[] = [];
+          const skippedInMemoryStableIds: string[] = [];
           for (const [stableId, ch] of chapters.entries()) {
+            if (!matchesScope(ch)) {
+              skippedInMemoryStableIds.push(stableId);
+              continue;
+            }
+
+            consideredInMemoryStableIds.push(stableId);
+
             const existing = byId.get(stableId);
             const candidate: ChapterSummary = existing
               ? { ...existing }
@@ -188,14 +222,15 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
             byId.set(stableId, candidate);
           }
 
-          // 3a. Filter to only chapters loaded for the current novel.
-          // Without this, IDB summaries from previously opened novels
-          // pollute the dropdown when switching books.
-          for (const key of byId.keys()) {
-            if (!chapters.has(key)) {
-              byId.delete(key);
-            }
-          }
+          debugLog('ui', 'summary', '[Dropdown] in-memory merge', {
+            activeNovelId: activeNovelId ?? null,
+            activeVersionId: activeVersionId ?? null,
+            consideredInMemoryStableIds,
+            skippedInMemoryStableIds,
+            reintroducedFromMemoryStableIds: consideredInMemoryStableIds.filter(
+              (stableId) => !summaries.some((summary) => summary.stableId === stableId)
+            ),
+          });
         }
 
         // 4. Convert to array and compute display values
@@ -231,7 +266,11 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
           duplicateNumberGroups.set(entry.chapterNumber, existing);
         });
 
+        // Combined diagnostics: HEAD's duplicate-detection + Codex's scope tracking.
+        // Both serve different debugging needs — keep both.
         debugLog('ui', 'summary', '[Dropdown] diagnostics', {
+          activeNovelId: activeNovelId ?? null,
+          activeVersionId: activeVersionId ?? null,
           summaryStableIds: summaries.map((summary) => summary.stableId),
           inMemoryDiagnostics,
           finalOptions: list.map((entry) => ({
@@ -270,7 +309,7 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
     return () => {
       cancelled = true;
     };
-  }, [chapters]);
+  }, [chapters, activeNovelId, activeVersionId]);
 
   return {
     options,

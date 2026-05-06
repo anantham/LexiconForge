@@ -18,6 +18,7 @@ export {
   buildSummaryRecord,
   fetchChapterSummaries,
   syncAllChapterSummaries,
+  fetchChapterSummariesByScope,
   getChapterSummaryDiagnostics,
   logSummaryDiagnostics,
 } from './summaries';

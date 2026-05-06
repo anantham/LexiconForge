@@ -130,6 +130,11 @@ export interface RecomputeOptions {
   stableId?: string;
 }
 
+export interface ChapterSummaryScope {
+  novelId: string;
+  libraryVersionId?: string | null;
+}
+
 export const buildSummaryRecord = (
   chapter: ChapterRecord,
   translation: TranslationRecord | null,
@@ -322,6 +327,41 @@ export const fetchChapterSummaries = async (): Promise<ChapterSummaryRecord[]> =
       reject(error as Error);
     }
   });
+};
+
+export const fetchChapterSummariesByScope = async (
+  scope: ChapterSummaryScope
+): Promise<ChapterSummaryRecord[]> => {
+  const { novelId, libraryVersionId = null } = scope;
+  const [chapters, summaries] = await Promise.all([ChapterOps.getAll(), fetchChapterSummaries()]);
+
+  const allowedStableIds = new Set(
+    chapters
+      .filter((chapter) => {
+        return (
+          chapter.novelId === novelId &&
+          (chapter.libraryVersionId ?? null) === libraryVersionId &&
+          Boolean(chapter.stableId)
+        );
+      })
+      .map((chapter) => chapter.stableId as string)
+  );
+
+  const scopedSummaries = summaries.filter((summary) => allowedStableIds.has(summary.stableId));
+  const orphanedScopedSummaries = summaries
+    .filter((summary) => !allowedStableIds.has(summary.stableId))
+    .filter((summary) => summary.novelId === novelId && (summary.libraryVersionId ?? null) === libraryVersionId)
+    .map((summary) => summary.stableId);
+
+  debugLog('indexeddb', 'summary', '[Summaries] fetchChapterSummariesByScope', {
+    novelId,
+    libraryVersionId,
+    chapterStableIds: Array.from(allowedStableIds),
+    returnedSummaryStableIds: scopedSummaries.map((summary) => summary.stableId),
+    orphanedScopedSummaryStableIds: orphanedScopedSummaries,
+  });
+
+  return scopedSummaries;
 };
 
 export interface ChapterSummaryDiagnostics {

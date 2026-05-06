@@ -35,6 +35,7 @@ const {
   mockRemoveChapter,
   mockSetError,
   mockGetChapterSummaries,
+  mockGetChapterSummariesByScope,
 } = vi.hoisted(() => ({
   mockExportSessionData: vi.fn().mockResolvedValue(undefined),
   mockExportEpub: vi.fn().mockResolvedValue(undefined),
@@ -47,6 +48,7 @@ const {
   mockRemoveChapter: vi.fn(),
   mockSetError: vi.fn(),
   mockGetChapterSummaries: vi.fn(),
+  mockGetChapterSummariesByScope: vi.fn(),
 }));
 
 // Mock createPortal to render in the same container (easier testing)
@@ -67,6 +69,8 @@ const defaultVersions = [
 const mockChapters = new Map([
   ['chapter-1', {
     id: 'chapter-1',
+    novelId: 'novel-1',
+    libraryVersionId: 'v1',
     title: 'Chapter 1: The Beginning',
     content: 'Content here',
     originalUrl: 'https://example.com/ch1',
@@ -82,6 +86,8 @@ const mockChapters = new Map([
   }],
   ['chapter-2', {
     id: 'chapter-2',
+    novelId: 'novel-1',
+    libraryVersionId: 'v1',
     title: 'Chapter 2: The Journey',
     content: 'More content',
     originalUrl: 'https://example.com/ch2',
@@ -100,6 +106,8 @@ const mockChapterSummaries = [
 const createMockStore = (overrides = {}) => {
   const baseState = {
     currentChapterId: 'chapter-1',
+    activeNovelId: 'novel-1',
+    activeVersionId: 'v1',
     chapters: mockChapters,
     handleNavigate: mockHandleNavigate,
     exportSessionData: mockExportSessionData,
@@ -128,6 +136,8 @@ vi.mock('../../store', () => ({
       getState: () => ({
         removeChapter: mockRemoveChapter,
         setError: mockSetError,
+        activeNovelId: mockStoreState.activeNovelId,
+        activeVersionId: mockStoreState.activeVersionId,
       }),
     }
   ),
@@ -143,6 +153,7 @@ vi.mock('../../services/telemetryService', () => ({
 vi.mock('../../services/db/operations', () => ({
   ChapterOps: {
     deleteByUrl: vi.fn().mockResolvedValue(undefined),
+    deleteByStableId: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -159,6 +170,7 @@ vi.mock('../../services/exportService', () => ({
 vi.mock('../../services/importTransformationService', () => ({
   ImportTransformationService: {
     getChapterSummaries: mockGetChapterSummaries,
+    getChapterSummariesByScope: mockGetChapterSummariesByScope,
   },
 }));
 
@@ -181,6 +193,7 @@ describe('SessionInfo: Critical Flows', () => {
     // Reset versions mock
     mockFetchTranslationVersions.mockResolvedValue(defaultVersions);
     mockGetChapterSummaries.mockResolvedValue(mockChapterSummaries);
+    mockGetChapterSummariesByScope.mockResolvedValue(mockChapterSummaries);
   });
 
   afterEach(() => {
@@ -495,7 +508,10 @@ describe('SessionInfo: Critical Flows', () => {
       await userEvent.click(confirmButton);
 
       await waitFor(() => {
-        expect(ChapterOps.deleteByUrl).toHaveBeenCalledWith('https://example.com/ch1');
+        expect(ChapterOps.deleteByStableId).toHaveBeenCalledWith('chapter-1', {
+          novelId: 'novel-1',
+          libraryVersionId: 'v1',
+        });
         expect(mockRemoveChapter).toHaveBeenCalledWith('chapter-1');
       });
     });
@@ -585,14 +601,55 @@ describe('SessionInfo: Critical Flows', () => {
         expect(mockHandleNavigate).toHaveBeenCalledWith('https://example.com/ch2');
       });
     });
+
+    it('loads chapter options from the active novel scope only', async () => {
+      mockGetChapterSummariesByScope.mockResolvedValue([
+        mockChapterSummaries[0],
+      ]);
+      mockStoreState = createMockStore({
+        chapters: new Map([
+          ...mockChapters,
+          ['chapter-foreign', {
+            id: 'chapter-foreign',
+            novelId: 'novel-2',
+            libraryVersionId: 'v9',
+            title: 'Chapter 99: Foreign Intrusion',
+            content: 'Wrong book',
+            originalUrl: 'https://example.com/foreign',
+            canonicalUrl: 'https://example.com/foreign',
+            chapterNumber: 99,
+            translationResult: {
+              translatedTitle: 'Chapter 99: Wrong Novel',
+              translation: 'Wrong novel text',
+              footnotes: [],
+              suggestedIllustrations: [],
+              usageMetrics: { totalTokens: 1, promptTokens: 1, completionTokens: 0, estimatedCost: 0, requestTime: 1, provider: 'Gemini', model: 'gemini-2.5-flash' },
+            },
+          }],
+        ]),
+      });
+
+      render(<SessionInfo />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading chapters…')).not.toBeInTheDocument();
+      });
+
+      expect(mockGetChapterSummariesByScope).toHaveBeenCalledWith('novel-1', 'v1');
+      expect(screen.getByRole('option', { name: /El Comienzo/i })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /Wrong Novel/i })).not.toBeInTheDocument();
+    });
   });
 
   describe('Empty State', () => {
     it('handles empty session gracefully', async () => {
       // Override to return empty chapters
       mockGetChapterSummaries.mockResolvedValue([]);
+      mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
+        activeNovelId: null,
+        activeVersionId: null,
         chapters: new Map(),
       });
       mockFetchTranslationVersions.mockResolvedValue([]);
@@ -605,8 +662,11 @@ describe('SessionInfo: Critical Flows', () => {
 
     it('shows "No chapter loaded" when session is empty', async () => {
       mockGetChapterSummaries.mockResolvedValue([]);
+      mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
+        activeNovelId: null,
+        activeVersionId: null,
         chapters: new Map(),
       });
       mockFetchTranslationVersions.mockResolvedValue([]);
@@ -622,8 +682,11 @@ describe('SessionInfo: Critical Flows', () => {
 
     it('hides Export Book button when no chapters exist', async () => {
       mockGetChapterSummaries.mockResolvedValue([]);
+      mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
+        activeNovelId: null,
+        activeVersionId: null,
         chapters: new Map(),
       });
       mockFetchTranslationVersions.mockResolvedValue([]);
@@ -650,8 +713,11 @@ describe('SessionInfo: Critical Flows', () => {
 
     it('settings button is always visible regardless of session state', async () => {
       mockGetChapterSummaries.mockResolvedValue([]);
+      mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
+        activeNovelId: null,
+        activeVersionId: null,
         chapters: new Map(),
       });
 
@@ -949,29 +1015,37 @@ describe('SessionInfo: Critical Flows', () => {
       expect(screen.getByText(/Chapter 2/)).toBeInTheDocument();
     });
 
-    it('prefixes with chapter number when available', async () => {
+    it('avoids duplicating chapter prefixes when titles already include chapter numbers', async () => {
       render(<SessionInfo />);
 
       await waitFor(() => {
         expect(screen.queryByText('Loading chapters…')).not.toBeInTheDocument();
       });
 
-      // Options should carry a chapter-number prefix. The buildChapterDisplayLabel
-      // helper prepends "Ch N:" only when the title doesn't already start with a
-      // chapter reference (it dedupes "Chapter 5: ..." → leaves it alone). The
-      // test fixture's titles already start with "Chapter N:", so we accept
-      // either prefix form here — both signal a numbered chapter.
+      // Options should carry a chapter-number prefix exactly once.
+      // buildChapterDisplayLabel prepends "Ch N:" only when the title doesn't
+      // already start with a chapter reference (dedupes "Chapter 5: ..." rather
+      // than producing "Ch 5: Chapter 5: ..."). The fixture titles already
+      // start with "Chapter N:" so either prefix form is valid.
+      // Per issue #19 dropdown indicator: option textContent now starts with
+      // a translation-status prefix (● or ·); strip it before matching.
       const dropdown = screen.getByRole('combobox', { name: /select a chapter/i });
       const options = dropdown.querySelectorAll('option');
 
-      // Per issue #19 dropdown indicator: option textContent now starts with
-      // a translation-status prefix (● or ·) before the chapter reference.
-      // Strip it before matching the chapter prefix pattern.
       const hasChapterPrefix = Array.from(options).some(opt => {
         const text = (opt.textContent ?? '').replace(/^[●·]\s+/u, '');
         return /^(Ch|Chapter) \d+[:.]/.test(text);
       });
       expect(hasChapterPrefix).toBe(true);
+
+      // Per Codex's scoped-delete branch: also assert no duplicated prefix
+      // (catches the "Ch 5: Chapter 5: ..." regression buildChapterDisplayLabel
+      // is supposed to prevent).
+      const hasDuplicatedPrefix = Array.from(options).some(opt => {
+        const text = (opt.textContent ?? '').replace(/^[●·]\s+/u, '');
+        return /^Ch \d+:\s*Chapter \d+/.test(text);
+      });
+      expect(hasDuplicatedPrefix).toBe(false);
     });
   });
 

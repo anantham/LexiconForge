@@ -40,6 +40,8 @@ const SessionInfo: React.FC = () => {
   // Store selectors
   const currentChapterId = useAppStore(s => s.currentChapterId);
   const chapters = useAppStore(s => s.chapters);
+  const activeNovelId = useAppStore(s => s.activeNovelId);
+  const activeVersionId = useAppStore(s => s.activeVersionId);
   const setShowSettingsModal = useAppStore(s => s.setShowSettingsModal);
   const fetchTranslationVersions = useAppStore(s => s.fetchTranslationVersions);
   const setActiveTranslationVersion = useAppStore(s => s.setActiveTranslationVersion);
@@ -192,15 +194,19 @@ const SessionInfo: React.FC = () => {
         const chapter = chapters.get(currentChapterId);
         if (!chapter) return;
 
-        debugLog('ui', 'summary', '[SessionInfo] Requesting chapter delete', {
+        debugLog('ui', 'summary', '[SessionInfo] Requesting scoped chapter delete', {
           chapterId: currentChapterId,
+          activeNovelId,
+          activeVersionId,
           originalUrl: chapter.originalUrl ?? null,
           canonicalUrl: chapter.canonicalUrl ?? null,
-          chapterNumber: chapter.chapterNumber ?? null,
           title: chapter.title ?? null,
         });
 
-        await ChapterOps.deleteByUrl(chapter.originalUrl);
+        await ChapterOps.deleteByStableId(currentChapterId, {
+          novelId: activeNovelId,
+          libraryVersionId: activeVersionId,
+        });
 
         const removeChapter = useAppStore.getState().removeChapter;
         if (removeChapter) {
@@ -209,8 +215,10 @@ const SessionInfo: React.FC = () => {
 
         console.log(`[SessionInfo] Deleted chapter completely: ${currentChapterId}`);
       } catch (error) {
-        debugWarn('ui', 'summary', '[SessionInfo] Chapter delete failed', {
+        debugWarn('ui', 'summary', '[SessionInfo] Scoped chapter delete failed', {
           chapterId: currentChapterId,
+          activeNovelId,
+          activeVersionId,
           error: error instanceof Error ? error.message : String(error),
         });
         console.error('[SessionInfo] Failed to delete chapter:', error);
