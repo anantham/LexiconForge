@@ -8,7 +8,7 @@
  * Cancellation is explicit-only (toggle button, future "Stop all" affordance).
  *
  * See: issues/19-translation-survives-nav-policy/README.md
- *      issues/_themes/proposed-adrs/CORE-012-background-work-survives-navigation.md
+ *      docs/adr/CORE-012-background-work-survives-navigation.md
  */
 
 import { describe, it, expect, vi } from 'vitest';

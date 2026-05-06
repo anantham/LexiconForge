@@ -158,7 +158,7 @@ _Deferred — run `python3 scripts/issue-archaeology.py store/slices/chaptersSli
 This issue requires **two actions in concert**:
 
 1. **`enforce_implicit_intent`** (Phase 1) — FEAT-001 implies background work should survive; remove the auto-cancel and add tests that demand the implied invariant.
-2. **`draft_new_ADR`** (Phase 0 → ratification) — [`CORE-012-background-work-survives-navigation`](../_themes/proposed-adrs/CORE-012-background-work-survives-navigation.md) drafted 2026-05-05. Commits to the principle ("background work survives navigation; cancellation is explicit-only") and the origin/priority taxonomy slot, without committing to scheduler implementation. Awaits Aditya ratification on Q1-Q5 in the ADR.
+2. **`draft_new_ADR`** (Phase 0 → ratification) — [`CORE-012-background-work-survives-navigation`](../../docs/adr/CORE-012-background-work-survives-navigation.md) drafted 2026-05-05; ratified, moved to `docs/adr/`, and status set to Implemented on 2026-05-06 (see CORE-012 § Amendment 2026-05-06). Commits to the principle ("background work survives navigation; cancellation is explicit-only") and the origin/priority taxonomy slot, without committing to scheduler implementation.
 
 ## 9a. Phased shipping plan
 
@@ -221,7 +221,7 @@ Transition to `ready-for-fix` requires:
 
 - [ ] §2 live repro executed (Playwright script committed to `traces/`, run and observed)
 - [x] D1-D4 ratified by Aditya (or alternative chosen) — accepted as written on 2026-05-05
-- [x] Proposed ADR [`CORE-012`](../_themes/proposed-adrs/CORE-012-background-work-survives-navigation.md) drafted in `issues/_themes/proposed-adrs/` (awaits ratification on Q1-Q5)
+- [x] ADR [`CORE-012`](../../docs/adr/CORE-012-background-work-survives-navigation.md) ratified 2026-05-06; moved to `docs/adr/`; status set to Implemented; Q1-Q5 ratified answers captured in the Amendment section
 - [ ] Issue 12 cross-referenced from this README and vice versa
 - [ ] (Optional) Issues.md updated with item 19 if formalization wanted
 
