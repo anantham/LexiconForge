@@ -5,10 +5,16 @@ import { STORE_NAMES } from '../core/schema';
 import { withReadTxn, withWriteTxn, promisifyRequest } from '../core/txn';
 import { generateStableChapterId, normalizeUrlAggressively } from '../../stableIdService';
 import { buildScopedStorageUrl } from '../../libraryScope';
+import { debugLog, debugWarn } from '../../../utils/debug';
 
 const CHAPTER_DOMAIN = 'chapters';
 
 export type ChapterStoreRecord = ChapterRecord;
+
+export interface ChapterDeleteScope {
+  novelId?: string | null;
+  libraryVersionId?: string | null;
+}
 
 export const ensureChapterUrlMappings = async (
   originalUrl: string,
@@ -80,6 +86,7 @@ export const recomputeChapterSummary = async (chapter: ChapterRecord): Promise<v
 
   const summary: ChapterSummaryRecord = {
     stableId,
+    novelId: chapter.novelId ?? null,
     libraryVersionId: chapter.libraryVersionId ?? null,
     canonicalUrl: chapter.canonicalUrl,
     title: chapter.title,
@@ -426,6 +433,137 @@ const deleteChapterModernByUrl = async (chapterUrl: string): Promise<void> => {
   );
 };
 
+const deleteChapterModernByStableId = async (
+  stableId: string,
+  scope: ChapterDeleteScope = {}
+): Promise<void> => {
+  debugLog('indexeddb', 'summary', '[ChapterOps] deleteByStableId:start', {
+    stableId,
+    requestedNovelId: scope.novelId ?? null,
+    requestedLibraryVersionId: scope.libraryVersionId ?? null,
+  });
+
+  await withWriteTxn(
+    [STORE_NAMES.CHAPTERS, STORE_NAMES.CHAPTER_SUMMARIES, STORE_NAMES.TRANSLATIONS, STORE_NAMES.URL_MAPPINGS],
+    async (_txn, stores) => {
+      const chaptersStore = stores[STORE_NAMES.CHAPTERS];
+      const summariesStore = stores[STORE_NAMES.CHAPTER_SUMMARIES];
+      const translationsStore = stores[STORE_NAMES.TRANSLATIONS];
+      const mappingsStore = stores[STORE_NAMES.URL_MAPPINGS];
+
+      let chapter: ChapterRecord | null = null;
+      if (chaptersStore.indexNames.contains('stableId')) {
+        const stableIndex = chaptersStore.index('stableId');
+        chapter = ((await promisifyRequest(stableIndex.get(stableId))) as ChapterRecord | undefined) ?? null;
+      } else {
+        const allChapters = (await promisifyRequest(chaptersStore.getAll())) as ChapterRecord[];
+        chapter = allChapters.find((candidate) => candidate.stableId === stableId) ?? null;
+      }
+
+      if (!chapter) {
+        debugWarn('indexeddb', 'summary', '[ChapterOps] deleteByStableId:chapter_missing', {
+          stableId,
+          requestedNovelId: scope.novelId ?? null,
+          requestedLibraryVersionId: scope.libraryVersionId ?? null,
+        });
+        return;
+      }
+
+      debugLog('indexeddb', 'summary', '[ChapterOps] deleteByStableId:resolved_chapter', {
+        stableId,
+        chapterUrl: chapter.url,
+        originalUrl: chapter.originalUrl ?? null,
+        canonicalUrl: chapter.canonicalUrl ?? null,
+        storedNovelId: chapter.novelId ?? null,
+        storedLibraryVersionId: chapter.libraryVersionId ?? null,
+      });
+
+      if (typeof scope.novelId !== 'undefined' && (chapter.novelId ?? null) !== (scope.novelId ?? null)) {
+        throw new Error(
+          `[ChapterOps] deleteByStableId novel scope mismatch for ${stableId}: stored=${chapter.novelId ?? 'null'} requested=${scope.novelId ?? 'null'}`
+        );
+      }
+
+      if (
+        typeof scope.libraryVersionId !== 'undefined' &&
+        (chapter.libraryVersionId ?? null) !== (scope.libraryVersionId ?? null)
+      ) {
+        throw new Error(
+          `[ChapterOps] deleteByStableId version scope mismatch for ${stableId}: stored=${chapter.libraryVersionId ?? 'null'} requested=${scope.libraryVersionId ?? 'null'}`
+        );
+      }
+
+      await promisifyRequest(chaptersStore.delete(chapter.url));
+      await promisifyRequest(summariesStore.delete(stableId));
+
+      let deletedTranslationCount = 0;
+      if (translationsStore.indexNames.contains('stableId')) {
+        const stableIndex = translationsStore.index('stableId');
+        await new Promise<void>((resolve, reject) => {
+          const cursorReq = stableIndex.openCursor(IDBKeyRange.only(stableId));
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result as IDBCursorWithValue | null;
+            if (!cursor) {
+              resolve();
+              return;
+            }
+            deletedTranslationCount += 1;
+            cursor.delete();
+            cursor.continue();
+          };
+          cursorReq.onerror = () => reject(cursorReq.error);
+        });
+      } else {
+        const chapterUrlIndex = translationsStore.index('chapterUrl');
+        await new Promise<void>((resolve, reject) => {
+          const cursorReq = chapterUrlIndex.openCursor(IDBKeyRange.only(chapter.url));
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result as IDBCursorWithValue | null;
+            if (!cursor) {
+              resolve();
+              return;
+            }
+            deletedTranslationCount += 1;
+            cursor.delete();
+            cursor.continue();
+          };
+          cursorReq.onerror = () => reject(cursorReq.error);
+        });
+      }
+
+      let deletedMappingCount = 0;
+      if (mappingsStore.indexNames.contains('stableId')) {
+        const stableIndex = mappingsStore.index('stableId');
+        await new Promise<void>((resolve, reject) => {
+          const cursorReq = stableIndex.openCursor(IDBKeyRange.only(stableId));
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result as IDBCursorWithValue | null;
+            if (!cursor) {
+              resolve();
+              return;
+            }
+            deletedMappingCount += 1;
+            cursor.delete();
+            cursor.continue();
+          };
+          cursorReq.onerror = () => reject(cursorReq.error);
+        });
+      }
+
+      debugLog('indexeddb', 'summary', '[ChapterOps] deleteByStableId:complete', {
+        stableId,
+        chapterUrl: chapter.url,
+        deletedSummary: true,
+        deletedTranslationCount,
+        deletedMappingCount,
+      });
+    },
+    CHAPTER_DOMAIN,
+    'operations',
+    'deleteByStableId'
+  );
+};
+
 const getMostRecentChapterModern = async (): Promise<ChapterRecord | null> => {
   return withReadTxn(
     STORE_NAMES.CHAPTERS,
@@ -531,6 +669,10 @@ export class ChapterOps {
 
   static async deleteByUrl(chapterUrl: string): Promise<void> {
     await deleteChapterModernByUrl(chapterUrl);
+  }
+
+  static async deleteByStableId(stableId: string, scope: ChapterDeleteScope = {}): Promise<void> {
+    await deleteChapterModernByStableId(stableId, scope);
   }
 
   static async setChapterNumberByStableId(stableId: string, chapterNumber: number): Promise<void> {

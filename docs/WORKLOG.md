@@ -1,3 +1,49 @@
+2026-04-09 10:58 EDT - [Agent: Codex]
+- Status: Starting
+- Task: Implement the principled chapter-deletion fix by moving the delete/dropdown boundaries to stableId + active library scope.
+- Worktree: ../LexiconForge.worktrees/codex-scoped-chapter-delete/
+- Branch: fix/codex-scoped-chapter-delete
+- Files likely affected:
+  - services/db/types.ts
+  - services/db/operations/chapters.ts
+  - services/db/operations/summaries.ts
+  - services/db/operations/index.ts
+  - services/importTransformationService.ts
+  - hooks/useChapterDropdownOptions.ts
+  - components/SessionInfo.tsx
+  - tests/components/SessionInfo.test.tsx
+  - docs/WORKLOG.md
+- Why:
+  - The current delete path uses `originalUrl` from the UI even though chapter persistence may be keyed by scoped storage URLs, so destructive actions can silently miss the actual chapter row.
+  - The chapter dropdown currently consumes unscoped summaries plus in-memory state, which allows chapters from other novels to pollute the active novel’s dropdown and be auto-retranslated after selection.
+
+2026-04-09 11:04 EDT - [Agent: Codex]
+- Status: Complete
+- Task: Implement the principled chapter-deletion fix by moving the delete/dropdown boundaries to stableId + active library scope.
+- Files:
+  - components/SessionInfo.tsx:40-49, 191-203
+  - hooks/useChapterDropdownOptions.ts:109-229
+  - services/db/operations/chapters.ts:13-16, 434-527, 620-622
+  - services/db/operations/summaries.ts:123-126, 160-172, 265-280
+  - services/db/operations/index.ts:12-20
+  - services/db/types.ts:18-28
+  - services/importTransformationService.ts:197-218
+  - tests/components/SessionInfo.test.tsx:69-97, 153-157, 481-516, 605-640, 995-1018
+- Why:
+  - Chapter deletion needed to target the persisted chapter identity (`stableId` + active scope), not whichever URL the UI happened to hold.
+  - Dropdown population needed to be scoped to the active novel/version before merging in-memory chapters so foreign chapters cannot reappear and trigger auto-translate.
+- Details:
+  - Added `ChapterOps.deleteByStableId(...)` with scope validation and cleanup across `chapters`, `chapter_summaries`, `translations`, and `url_mappings`.
+  - Added `fetchChapterSummariesByScope(...)` and exposed it through `ImportTransformationService` so dropdown consumers can query the active library scope directly.
+  - Updated `useChapterDropdownOptions()` to load scoped summaries and merge only in-memory chapters that match the active scope, while still supporting scope-less/manual sessions from memory.
+  - Updated `SessionInfo` to call the new stableId delete contract when the user chooses “Delete chapter from database”.
+  - Added regression coverage for the new delete contract and for excluding foreign-scope chapters from the dropdown; refreshed related formatting expectations to match the current display contract.
+  - Added gated diagnostics on the delete intent, `deleteByStableId(...)` execution, scoped summary query, and final dropdown merge so we can trace whether a ghost chapter survived in IndexedDB summaries or was reintroduced from memory.
+- Tests:
+  - `npx vitest run tests/components/SessionInfo.test.tsx -t "handles chapter delete mode|loads chapter options from the active novel scope only|shows translated title when available|avoids duplicating chapter prefixes"` ✅
+  - `npx tsc --noEmit --pretty false` ✅
+  - `npx vitest run tests/components/SessionInfo.test.tsx` ⚠️ still has pre-existing publish-flow expectation drift around `Update Stats Only` in unrelated tests.
+
 2026-04-05 08:30 EDT - [Agent: Gemini]
 - Status: Complete
 - Task: Resolve four user-reported friction points and bugs across translation, navigation, and UI.

@@ -18,6 +18,7 @@ import {
   ImportOps,
   fetchChaptersForReactRendering,
   fetchChapterSummaries,
+  fetchChapterSummariesByScope,
 } from './db/operations';
 
 // Light debug gate tied to AI debug level
@@ -189,6 +190,29 @@ export class ImportTransformationService {
       }));
     } catch (error) {
       console.error('[ImportTransformation] Failed to load chapter summaries:', error);
+      return [];
+    }
+  }
+
+  static async getChapterSummariesByScope(
+    novelId: string,
+    libraryVersionId: string | null = null
+  ): Promise<ChapterSummary[]> {
+    try {
+      const summaries = await fetchChapterSummariesByScope({ novelId, libraryVersionId });
+      return summaries.map(summary => ({
+        stableId: summary.stableId,
+        canonicalUrl: summary.canonicalUrl,
+        title: summary.title,
+        translatedTitle: summary.translatedTitle,
+        chapterNumber: summary.chapterNumber,
+        hasTranslation: summary.hasTranslation,
+        hasImages: summary.hasImages,
+        lastAccessed: summary.lastAccessed,
+        lastTranslatedAt: summary.lastTranslatedAt,
+      }));
+    } catch (error) {
+      console.error('[ImportTransformation] Failed to load scoped chapter summaries:', error);
       return [];
     }
   }

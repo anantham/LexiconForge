@@ -17,6 +17,7 @@ export {
   deleteSummary,
   buildSummaryRecord,
   fetchChapterSummaries,
+  fetchChapterSummariesByScope,
   getChapterSummaryDiagnostics,
   logSummaryDiagnostics,
 } from './summaries';
