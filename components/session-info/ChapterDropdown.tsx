@@ -48,7 +48,15 @@ export const ChapterDropdown: React.FC<ChapterDropdownProps> = ({ currentChapter
     >
       {chapterOptions.map((chapter) => (
         <option key={chapter.stableId} value={chapter.stableId}>
-          {chapter.displayLabel}
+          {/*
+            Translation-status indicator (issue #19 visibility follow-up):
+            ● = chapter has at least one stored translation (ready to read)
+            ·  = no translation yet (kept as same-width placeholder
+            so chapter titles align vertically in the dropdown).
+            Native <option> does not allow React children or per-character
+            styling, so a unicode prefix is the broadest-compatible signal.
+          */}
+          {chapter.hasTranslation ? '● ' : '· '}{chapter.displayLabel}
         </option>
       ))}
     </select>
