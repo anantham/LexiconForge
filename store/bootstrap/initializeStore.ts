@@ -146,6 +146,7 @@ const runBootRepairs = async (): Promise<void> => {
       { name: 'novelIdBackfill', fn: () => MaintenanceOps.backfillNovelIds() },
       { name: 'summaryNovelIdBackfill', fn: () => MaintenanceOps.backfillSummaryNovelIds() },
       { name: 'syncSummaries', fn: () => MaintenanceOps.syncSummaries() },
+      { name: 'consolidateBookshelfDuplicates', fn: () => MaintenanceOps.consolidateBookshelfDuplicates().then(() => undefined) },
     ];
 
     for (const { name, fn } of repairs) {

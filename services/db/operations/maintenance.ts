@@ -42,6 +42,7 @@ const SETTINGS = {
   SUMMARY_NOVEL_ID_BACKFILLED: 'summaryNovelIdBackfilled',
   SCOPED_IDENTITY_REPAIRED_V2: 'scopedStableIdRepairV2',
   SUMMARIES_SYNCED: 'summariesSyncedV2',
+  BOOKSHELF_DEDUPED_V3: 'bookshelfDedupedV3',
 } as const;
 
 const nowIso = () => new Date().toISOString();
@@ -1088,6 +1089,148 @@ export class MaintenanceOps {
 
     await SettingsOps.set(SETTINGS.SUMMARIES_SYNCED, true);
     debugLog('indexeddb', 'summary', '[MaintenanceOps] Chapter summaries sync complete.');
+  }
+
+  /**
+   * Consolidate duplicate bookshelf-state entries for the same novel.
+   *
+   * Why this exists separately from repairScopedStableIdDuplicates:
+   *   That earlier migration is gated on SCOPED_IDENTITY_REPAIRED_V2 and runs
+   *   once per database. On databases where it already ran (which is most
+   *   of them by now), any bookshelf duplicates created AFTER it ran sit
+   *   there forever. The user's 2026-05-06 screenshot showed two "Continue
+   *   Reading" cards for FMC (chapter 338 and chapter 2) — concrete evidence
+   *   the V2 migration's flag was set but new duplicates accumulated.
+   *
+   * Strategy:
+   *   - Group bookshelf entries by novelId.
+   *   - For each group, keep the entry with the most recent `lastReadAtIso`.
+   *   - Re-key it under `${novelId}::${versionId}` (scoped) — pulling forward
+   *     the winning entry's versionId, or the only versionId among the
+   *     duplicates if the winner was unscoped (legacy).
+   *   - Discard the rest.
+   *   - Persist only if the resulting object differs from the original.
+   *
+   * Idempotent: a clean state passes through unchanged. The render-side
+   * dedup in NovelLibrary.tsx catches duplicates that appear AFTER this
+   * migration runs (the migration won't re-run because its flag is set).
+   */
+  static async consolidateBookshelfDuplicates(): Promise<{
+    duplicateGroupsCollapsed: number;
+    entriesRemoved: number;
+  }> {
+    const already = await SettingsOps.getKey<boolean>(SETTINGS.BOOKSHELF_DEDUPED_V3);
+    if (already) {
+      return { duplicateGroupsCollapsed: 0, entriesRemoved: 0 };
+    }
+
+    let duplicateGroupsCollapsed = 0;
+    let entriesRemoved = 0;
+
+    await withWriteTxn(
+      [STORE_NAMES.SETTINGS],
+      async (_txn, stores) => {
+        const settingsStore = stores[STORE_NAMES.SETTINGS];
+
+        const bookshelfSetting = (await promisifyRequest(settingsStore.get('bookshelf-state'))) as
+          | { key: string; value: Record<string, unknown>; updatedAt?: string }
+          | undefined;
+
+        if (!bookshelfSetting?.value || typeof bookshelfSetting.value !== 'object') {
+          return;
+        }
+
+        const original = bookshelfSetting.value as Record<string, Record<string, unknown>>;
+        const originalCount = Object.keys(original).length;
+
+        // Group by novelId
+        type Entry = Record<string, unknown> & {
+          novelId?: string;
+          versionId?: string | null;
+          lastReadAtIso?: string;
+        };
+        const groups = new Map<string, Array<{ rawKey: string; entry: Entry }>>();
+
+        for (const [rawKey, rawEntry] of Object.entries(original)) {
+          if (!rawEntry || typeof rawEntry !== 'object') continue;
+          const entry = rawEntry as Entry;
+          const novelId =
+            (typeof entry.novelId === 'string' && entry.novelId) ||
+            rawKey.split('::')[0];
+          if (!novelId) continue;
+          const bucket = groups.get(novelId) ?? [];
+          bucket.push({ rawKey, entry });
+          groups.set(novelId, bucket);
+        }
+
+        const next: Record<string, Entry> = {};
+
+        for (const [novelId, bucket] of groups.entries()) {
+          if (bucket.length === 1) {
+            // No duplicates — preserve the original key shape.
+            const { rawKey, entry } = bucket[0];
+            next[rawKey] = entry;
+            continue;
+          }
+
+          duplicateGroupsCollapsed += 1;
+          entriesRemoved += bucket.length - 1;
+
+          // Pick winner by most-recent lastReadAtIso (ISO 8601 sorts lex).
+          const winner = [...bucket].sort((a, b) => {
+            const av = String(a.entry.lastReadAtIso || '');
+            const bv = String(b.entry.lastReadAtIso || '');
+            return bv.localeCompare(av);
+          })[0];
+
+          // Pull forward a non-null versionId if the winner doesn't have one
+          // but a sibling does (legacy unscoped winning over a scoped sibling).
+          let versionId: string | null | undefined = winner.entry.versionId ?? null;
+          if (!versionId) {
+            for (const { entry } of bucket) {
+              if (entry.versionId) {
+                versionId = entry.versionId;
+                break;
+              }
+            }
+          }
+
+          const scopeKey = buildLibraryScopeKey(novelId, versionId ?? null);
+          next[scopeKey] = {
+            ...winner.entry,
+            novelId,
+            ...(versionId ? { versionId } : {}),
+          };
+        }
+
+        // Only write if the result differs (avoids spurious updatedAt churn).
+        if (
+          duplicateGroupsCollapsed > 0 ||
+          Object.keys(next).length !== originalCount
+        ) {
+          await promisifyRequest(
+            settingsStore.put({
+              key: 'bookshelf-state',
+              value: next,
+              updatedAt: nowIso(),
+            })
+          );
+          debugLog(
+            'indexeddb',
+            'summary',
+            `[MaintenanceOps] Bookshelf consolidated: ${duplicateGroupsCollapsed} group(s), removed ${entriesRemoved} duplicate entry(ies).`
+          );
+        } else {
+          debugLog('indexeddb', 'full', '[MaintenanceOps] Bookshelf already clean.');
+        }
+      },
+      'maintenance',
+      'consolidate',
+      'bookshelf'
+    );
+
+    await SettingsOps.set(SETTINGS.BOOKSHELF_DEDUPED_V3, true);
+    return { duplicateGroupsCollapsed, entriesRemoved };
   }
 
   static async clearAllData(): Promise<void> {

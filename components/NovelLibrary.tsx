@@ -317,7 +317,28 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     await handleStartReading(novel, savedVersion);
   };
 
-  const continueReadingEntries = (Object.values(bookshelfState) as BookshelfEntry[])
+  // Dedupe: keep ONE entry per novelId — the most recently read one. Defense
+  // in depth against IDB-resident duplicate bookshelf entries (legacy
+  // unscoped key + scoped key for the same novel). The boot-time
+  // consolidateBookshelfDuplicates migration cleans IDB; this render-side
+  // dedup catches anything that slips past or appears after migration.
+  const dedupedBookshelfEntries = (() => {
+    const byNovel = new Map<string, BookshelfEntry>();
+    for (const entry of Object.values(bookshelfState) as BookshelfEntry[]) {
+      const existing = byNovel.get(entry.novelId);
+      if (!existing) {
+        byNovel.set(entry.novelId, entry);
+        continue;
+      }
+      // Keep the more recent lastReadAtIso. ISO 8601 sorts lexicographically.
+      if ((entry.lastReadAtIso || '') > (existing.lastReadAtIso || '')) {
+        byNovel.set(entry.novelId, entry);
+      }
+    }
+    return Array.from(byNovel.values());
+  })();
+
+  const continueReadingEntries = dedupedBookshelfEntries
     .map((entry) => {
       const registryNovel = novels.find((novel) => novel.id === entry.novelId);
       

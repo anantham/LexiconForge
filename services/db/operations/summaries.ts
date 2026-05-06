@@ -190,23 +190,49 @@ export const fetchNovelChapterCounts = async (): Promise<Record<string, { transl
 
   console.log(`[fetchNovelChapterCounts] Processing ${summaries.length} total summaries`);
 
+  // Dedupe by (novelId, chapterNumber) before counting. Multiple summary rows
+  // may exist for the same logical chapter (different libraryVersionId scopes,
+  // re-imports, legacy unscoped vs scoped). Without deduping, FMC's count
+  // inflates from 3521 → ~6500. Translation status is OR'd across rows: a
+  // chapter counts as translated if ANY of its summary rows has hasTranslation.
+  // Summaries lacking a chapterNumber fall back to stableId for dedup so they
+  // don't all collapse into a single bucket.
+  const seenByNovel = new Map<string, Map<string, { hasTranslation: boolean }>>();
   for (const summary of summaries) {
     const novelId = summary.novelId || 'unscoped';
-    if (!counts[novelId]) {
-      counts[novelId] = { translatedCount: 0, totalCount: 0 };
+    const dedupKey =
+      typeof summary.chapterNumber === 'number'
+        ? `n:${summary.chapterNumber}`
+        : `s:${summary.stableId}`;
+
+    let bucket = seenByNovel.get(novelId);
+    if (!bucket) {
+      bucket = new Map();
+      seenByNovel.set(novelId, bucket);
     }
-    counts[novelId].totalCount += 1;
-    if (summary.hasTranslation) {
-      counts[novelId].translatedCount += 1;
+    const existing = bucket.get(dedupKey);
+    if (existing) {
+      // OR translation status across duplicates — any row reports translated → count it.
+      existing.hasTranslation = existing.hasTranslation || Boolean(summary.hasTranslation);
+    } else {
+      bucket.set(dedupKey, { hasTranslation: Boolean(summary.hasTranslation) });
     }
-    
+
     if (novelId === 'unscoped' && summaries.length < 50) {
-       console.log(`[fetchNovelChapterCounts] Unscoped summary:`, {
-         stableId: summary.stableId,
-         title: summary.title,
-         hasTranslation: summary.hasTranslation
-       });
+      console.log(`[fetchNovelChapterCounts] Unscoped summary:`, {
+        stableId: summary.stableId,
+        title: summary.title,
+        hasTranslation: summary.hasTranslation,
+      });
     }
+  }
+
+  for (const [novelId, bucket] of seenByNovel.entries()) {
+    let translated = 0;
+    for (const v of bucket.values()) {
+      if (v.hasTranslation) translated += 1;
+    }
+    counts[novelId] = { translatedCount: translated, totalCount: bucket.size };
   }
 
   console.log('[fetchNovelChapterCounts] Aggregated counts:', counts);
