@@ -9,6 +9,7 @@ import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
 import { useAppStore } from '../../store';
+import { buildCanonicalUrl } from '../../services/chapterCatalog';
 import type { ThreadData } from '../../types/oscilloscope';
 
 interface OscilloscopeGraphProps {
@@ -121,6 +122,8 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
   const setHoveredChapter = useAppStore((s) => s.setHoveredChapter);
   const setZoomRange = useAppStore((s) => s.setZoomRange);
   const setCurrentChapter = useAppStore((s) => s.setCurrentChapter);
+  const handleNavigate = useAppStore((s) => s.handleNavigate);
+  const activeNovelId = useAppStore((s) => s.activeNovelId);
 
   // Current chapter position for "you are here" marker
   const currentChapterId = useAppStore((s) => s.currentChapterId);
@@ -178,16 +181,26 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
     };
   }, [currentChapterNumber]);
 
-  // Click-to-navigate: click a point on the graph → navigate to that chapter
+  // Click-to-navigate: click a point on the graph → navigate to that chapter.
+  // Fast path: if the chapter is already in memory we can flip currentChapterId
+  // synchronously (no fetch needed). Slow path: fall back to handleNavigate on
+  // the canonical URL, which goes through the existing fetch/hydrate pipeline.
+  // Without the slow path, clicking on graph points for unloaded chapters did
+  // nothing (the bug the user reported on 2026-05-06).
   const navigateToChapter = useCallback((chapterNumber: number) => {
-    // Find the chapter's stableId by matching chapterNumber
     for (const [id, ch] of chapters) {
       if (ch.chapterNumber === chapterNumber) {
         setCurrentChapter(id);
         return;
       }
     }
-  }, [chapters, setCurrentChapter]);
+    // Not in memory — try the registry-based canonical URL.
+    // (handleNavigate handles hydration via loadChapterFromIDB internally.)
+    if (activeNovelId && typeof handleNavigate === 'function') {
+      const canonicalUrl = buildCanonicalUrl(activeNovelId, chapterNumber);
+      void handleNavigate(canonicalUrl);
+    }
+  }, [chapters, setCurrentChapter, handleNavigate, activeNovelId]);
 
   // Tooltip plugin using safe DOM methods
   const tooltipPlugin = useCallback((): uPlot.Plugin => {

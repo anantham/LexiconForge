@@ -17,6 +17,7 @@ import { useState, useEffect } from 'react';
 import { useAppStore } from '../store';
 import { ImportTransformationService } from '../services/importTransformationService';
 import { telemetryService } from '../services/telemetryService';
+import { buildVirtualCatalog, isVirtualStableId } from '../services/chapterCatalog';
 import type { ChapterSummary } from '../types';
 import { debugLog } from '../utils/debug';
 
@@ -137,7 +138,21 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
           );
         };
 
-        // 1. Load summaries from IndexedDB for the active library scope.
+        // 1. Build a virtual catalog from the registry (full novel range).
+        // Without this the dropdown only shows chapters that have ever been
+        // ingested into IDB, which for a 3500-chapter novel where the user
+        // has visited 13 means a 13-row dropdown — defeats the purpose.
+        // Virtual entries are placeholders; clicking one triggers the existing
+        // handleNavigate(canonicalUrl) fetch path.
+        const virtualEntries = activeNovelId
+          ? await buildVirtualCatalog(activeNovelId, activeVersionId ?? null).catch((error) => {
+              console.warn('[Dropdown] virtual catalog fetch failed; falling back to IDB-only', error);
+              return [] as ChapterSummary[];
+            })
+          : [];
+        if (cancelled) return;
+
+        // 2. Load summaries from IndexedDB for the active library scope.
         // Ephemeral/manual sessions without an active novel rely on in-memory chapters only.
         const summaries = activeNovelId
           ? await ImportTransformationService.getChapterSummariesByScope(activeNovelId, activeVersionId ?? null)
@@ -147,11 +162,20 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
         debugLog('ui', 'summary', '[Dropdown] scoped summaries loaded', {
           activeNovelId: activeNovelId ?? null,
           activeVersionId: activeVersionId ?? null,
+          virtualCount: virtualEntries.length,
+          realSummaryCount: summaries.length,
           summaryStableIds: summaries.map((summary) => summary.stableId),
         });
 
-        // 2. Build a map for merging
+        // 3. Build a map for merging.
+        //   Layer order (lowest to highest precedence):
+        //     a. virtual catalog (placeholder for every chapter in range)
+        //     b. real IDB summaries (real titles, hasTranslation, etc.)
+        //     c. in-memory chapters (freshest data, handled below)
+        //   Virtual entries with a real counterpart at the same chapterNumber
+        //   are dropped at the end so the dropdown shows one row per chapter.
         const byId = new Map<string, ChapterSummary>();
+        virtualEntries.forEach(entry => byId.set(entry.stableId, { ...entry }));
         summaries.forEach(summary => byId.set(summary.stableId, { ...summary }));
 
         const inMemoryDiagnostics = Array.from(chapters.entries()).map(([stableId, chapter]) => ({
@@ -230,6 +254,36 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
             reintroducedFromMemoryStableIds: consideredInMemoryStableIds.filter(
               (stableId) => !summaries.some((summary) => summary.stableId === stableId)
             ),
+          });
+        }
+
+        // 3a. Dedupe: when a real summary or in-memory chapter exists for the
+        // same chapterNumber as a virtual placeholder, drop the placeholder
+        // (real data wins). This prevents the dropdown from showing both
+        // "Chapter 339" virtual and "Chapter 339 — First-degree State of War"
+        // real on the same row.
+        const realByNumber = new Map<number, string[]>();
+        for (const entry of byId.values()) {
+          if (typeof entry.chapterNumber !== 'number') continue;
+          if (isVirtualStableId(entry.stableId)) continue;
+          const list = realByNumber.get(entry.chapterNumber) ?? [];
+          list.push(entry.stableId);
+          realByNumber.set(entry.chapterNumber, list);
+        }
+        let droppedVirtuals = 0;
+        for (const entry of [...byId.values()]) {
+          if (
+            isVirtualStableId(entry.stableId) &&
+            typeof entry.chapterNumber === 'number' &&
+            realByNumber.has(entry.chapterNumber)
+          ) {
+            byId.delete(entry.stableId);
+            droppedVirtuals++;
+          }
+        }
+        if (droppedVirtuals > 0) {
+          debugLog('ui', 'full', '[Dropdown] dedupe dropped virtual placeholders', {
+            droppedVirtuals,
           });
         }
 
