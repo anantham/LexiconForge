@@ -59,7 +59,7 @@ describe('api/client-telemetry', () => {
         body: {
           event_type: 'translation_failed',
           failure_type: 'unknown',
-          surface: 'auto_translate',
+          surface: 'auto_visit',
           expected: false,
           user_visible: true,
         },

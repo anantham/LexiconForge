@@ -455,7 +455,7 @@ export function SuttaStudioApp() {
     if (typeof handleTranslate !== 'function') return;
     fojinTranslateOnce.current = true;
     logSuttaFlow('fojin auto-translate trigger', { chapterId: chapter.id });
-    void handleTranslate(chapter.id, 'auto_translate');
+    void handleTranslate(chapter.id, 'auto_visit');
   }, [
     chapter?.id,
     chapter?.translationResult,

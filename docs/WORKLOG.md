@@ -1,3 +1,22 @@
+2026-05-05 17:25 PDT - [Agent: Opus]
+- Status: In progress (worktree)
+- Task: Issue #19 Phase 1 — translation survives SPA navigation
+- Worktree: ../LexiconForge.worktrees/opus-translation-survives-nav / branch: feat/opus-translation-survives-nav
+- Phase 0 docs already on main (commit e05057f): issue #19 spec + CORE-012 ADR draft
+- Phase 1 changes:
+  - Removed auto-cancel in chaptersSlice.setCurrentChapter (the bug — was
+    killing in-flight translations on every nav, dropping LLM work)
+  - Split TranslationOrigin: 'auto_translate' → 'auto_visit' + 'auto_preload'
+  - Updated 3 call sites (autoTranslateMediator, chaptersSlice preload,
+    SuttaStudioApp) and 2 internal checks in translationsSlice
+  - Gated auto-image-gen by origin: 'auto_preload' never auto-fires image
+    generation (per Q1 ratification — preload is speculative, image gen
+    expensive; user explicitly wants manual control via toolbar)
+  - 4 new regression tests in tests/store/slices/setCurrentChapter-survives-nav.test.ts
+- Verified: npx vitest run → 1157 pass, 16 skip (vs baseline 1153/1; +4 my new tests, no regressions)
+- Pending before merge: live Playwright spec for full flow (translation A
+  completes + persists after nav to B); Aditya ratification of CORE-012 Q1-Q5
+
 2026-05-04 20:55 PDT - [Agent: Opus]
 - Status: Complete — merged to main
 - Task: FoJin/Sutta Studio refactor wrap-up + main-branch test debt cleanup
