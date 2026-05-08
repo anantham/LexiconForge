@@ -43,9 +43,164 @@ const SETTINGS = {
   SCOPED_IDENTITY_REPAIRED_V2: 'scopedStableIdRepairV2',
   SUMMARIES_SYNCED: 'summariesSyncedV2',
   BOOKSHELF_DEDUPED_V3: 'bookshelfDedupedV3',
+  CHAPTER_IDS_UNWRAPPED_V4: 'chapterIdsUnwrappedV4',
 } as const;
 
+const BARE_HASH_PATTERN = /^ch[0-9]+_/;
+
 const nowIso = () => new Date().toISOString();
+
+export interface AuditReferenceCounts {
+  summaries: number;
+  translations: number;
+  feedback: number;
+  amendments: number;
+  diffResults: number;
+  urlMappings: number;
+  bookshelfEntries: number;
+  navigationHistoryEntries: number;
+}
+
+export interface AuditDuplicateMember {
+  stableId: string;
+  idForm: 'bare' | 'scoped-encoded' | 'scoped-nested' | 'unknown';
+  titleSnippet: string;
+  titleLength: number;
+  contentHash: string;
+  contentLength: number;
+  hasTranslation: boolean;
+  translationCount: number;
+  canonicalUrl: string | null;
+  originalUrl: string | null;
+  novelId: string | null;
+  libraryVersionId: string | null;
+  lastAccessed: string | null;
+  referencedBy: AuditReferenceCounts;
+}
+
+export interface AuditDuplicateGroup {
+  key: { novelId: string; versionId: string | null; chapterNumber: number };
+  stableIds: string[];
+  members: AuditDuplicateMember[];
+}
+
+export interface AuditOrphanedReferences {
+  summariesWithoutChapter: string[];
+  translationsWithoutChapter: string[];
+  feedbackWithoutChapter: number;
+  bookshelfPointingAtMissing: string[];
+  navigationPointingAtMissing: string[];
+  amendmentsPointingAtMissing: string[];
+}
+
+export interface ChapterIdentityAuditReport {
+  schemaVersion: '1';
+  generatedAt: string;
+  totals: {
+    chapters: number;
+    summaries: number;
+    translations: number;
+    urlMappings: number;
+    feedbackEntries: number;
+    amendmentLogs: number;
+    diffResults: number;
+    bookshelfEntries: number;
+    navigationHistoryEntries: number;
+    lastActiveChapterPresent: boolean;
+  };
+  duplicateGroups: AuditDuplicateGroup[];
+  categorization: {
+    legacyUnscopedPlusScoped: number;
+    contentDriftWithinScope: number;
+    titleDriftWithinScope: number;
+    urlVariation: number;
+    nullScopeRows: number;
+  };
+  orphanedReferences: AuditOrphanedReferences;
+  estimatedDuplicateLoad: {
+    duplicateGroups: number;
+    redundantChapterRows: number;
+    redundantSummaryRows: number;
+    redundantTranslationRows: number;
+  };
+}
+
+export interface UnwrapOptions {
+  /** Default true. When true, scans IDB and returns a plan without writing. */
+  dryRun?: boolean;
+  /**
+   * Per-novel canonical libraryVersionId. Rows whose novelId is not in this map
+   * are reported as orphans and skipped. Example:
+   *   { 'forty-millenniums-of-cultivation': 'v1-st-enhanced' }
+   */
+  canonicalVersions: Record<string, string>;
+  /** When true, ignore the CHAPTER_IDS_UNWRAPPED_V4 flag and re-run anyway. */
+  force?: boolean;
+  /** Limit the number of rewrite rows in the returned sample (default 25). */
+  sampleLimit?: number;
+}
+
+export interface UnwrapRewrite {
+  oldStableId: string;
+  newStableId: string;
+  bareHash: string;
+  novelId: string;
+  oldVersionId: string | null;
+  newVersionId: string;
+  chapterNumber: number | null;
+  titleSnippet: string;
+  url: string;
+  newUrl: string;
+  hasNestedScope: boolean;
+}
+
+export interface UnwrapCollision {
+  newStableId: string;
+  bareHash: string;
+  novelId: string;
+  chapterNumber: number | null;
+  members: Array<{
+    oldStableId: string;
+    contentLength: number;
+    titleSnippet: string;
+    translationCount: number;
+    activeTranslationCount: number;
+    lastAccessed: string | null;
+  }>;
+  chosenSurvivorOldStableId: string;
+}
+
+export interface UnwrapReport {
+  schemaVersion: '1';
+  generatedAt: string;
+  dryRun: boolean;
+  flagAlreadySet: boolean;
+  canonicalVersions: Record<string, string>;
+  totals: {
+    chaptersScanned: number;
+    chaptersWithNestedIds: number;
+    chaptersToRewrite: number;
+    collisionGroups: number;
+    chaptersDeleted: number;
+    translationsRekeyed: number;
+    summariesRekeyed: number;
+    urlMappingsRekeyed: number;
+    amendmentsRekeyed: number;
+    diffResultsRekeyed: number;
+    bookshelfEntriesRekeyed: number;
+    navigationEntriesRekeyed: number;
+    lastActiveRekeyed: boolean;
+  };
+  orphans: {
+    rowsWithoutNovelId: string[];
+    novelsNotInCanonicalMap: string[];
+    malformedBareHashes: Array<{ stableId: string; resolvedBare: string | null }>;
+    translationsWithoutChapter: Array<{ id: string; stableId: string; chapterUrl: string }>;
+    amendmentsWithoutChapter: Array<{ id: string; chapterId: string | null }>;
+  };
+  rewriteSample: UnwrapRewrite[];
+  collisions: UnwrapCollision[];
+}
 
 type ScopedIdentityRepairSummary = {
   groupsRepaired: number;
@@ -91,6 +246,39 @@ const getScopedStableIdDepth = (stableId: string | null | undefined): number => 
   }
 
   return depth;
+};
+
+/**
+ * Strip ALL scope wrappers from a stableId, returning the bare base hash
+ * (or the input unchanged if it was already bare). Unlike collapseScopedStableId,
+ * this does not require inner/outer scopes to match — it peels regardless.
+ *
+ * Why: V4 corruption put scoped stableIds inside other scopes, sometimes with
+ * mismatched novel/version. We need to find the true bare base so we can
+ * re-canonicalize under one scope.
+ *
+ * Returns null only when input is null/undefined. If unwrap fails partway
+ * (malformed scope), returns the deepest reachable string.
+ */
+const peelAllScopes = (stableId: string | null | undefined): string | null => {
+  if (typeof stableId !== 'string' || stableId.length === 0) return null;
+  let current = stableId;
+  const seen = new Set<string>();
+  while (isScopedStableId(current) && !seen.has(current)) {
+    seen.add(current);
+    try {
+      const parsed = parseScopedStableId(current);
+      if (!parsed) break;
+      current = parsed.baseStableId;
+    } catch {
+      break;
+    }
+  }
+  return current;
+};
+
+const isWellFormedBareHash = (s: string | null | undefined): boolean => {
+  return typeof s === 'string' && BARE_HASH_PATTERN.test(s);
 };
 
 const collapseScopedStableId = (
@@ -1233,6 +1421,1014 @@ export class MaintenanceOps {
     return { duplicateGroupsCollapsed, entriesRemoved };
   }
 
+  /**
+   * READ-ONLY diagnostic. Surveys IDB for chapter-identity duplication and
+   * returns a structured report. Does not write or mutate anything.
+   *
+   * Per the empirical-first approach (see conversation 2026-05-07): we want
+   * to know what's actually in the DB before designing the migration. The
+   * audit reports duplicate groups by (novelId, libraryVersionId,
+   * chapterNumber) and how each member is referenced across all stores.
+   * Categorization heuristics distinguish legacy/scoped drift, content
+   * drift, title drift, URL variation, and null-scope rows.
+   */
+  static async auditChapterDuplicates(): Promise<ChapterIdentityAuditReport> {
+    const dbConn = await getConnection();
+    const presentStores = new Set<string>(Array.from(dbConn.objectStoreNames));
+
+    // Helper: getAll for a store, returning [] if the store doesn't exist.
+    const safeGetAll = async <T>(storeName: string): Promise<T[]> => {
+      if (!presentStores.has(storeName)) return [];
+      return await withReadTxn([storeName], async (_txn, stores) => {
+        const store = stores[storeName];
+        return (await promisifyRequest(store.getAll())) as T[];
+      });
+    };
+
+    const [
+      chapters,
+      summaries,
+      translations,
+      urlMappings,
+      feedback,
+      amendments,
+      diffResults,
+    ] = await Promise.all([
+      safeGetAll<ChapterRecord>(STORE_NAMES.CHAPTERS),
+      safeGetAll<ChapterSummaryRecord>(STORE_NAMES.CHAPTER_SUMMARIES),
+      safeGetAll<TranslationRecord>(STORE_NAMES.TRANSLATIONS),
+      safeGetAll<UrlMappingRecord>(STORE_NAMES.URL_MAPPINGS),
+      safeGetAll<FeedbackRecord>(STORE_NAMES.FEEDBACK),
+      safeGetAll<AmendmentLogRecord>(STORE_NAMES.AMENDMENT_LOGS),
+      safeGetAll<DiffResult>(STORE_NAMES.DIFF_RESULTS),
+    ]);
+
+    // Read settings keys we care about
+    let bookshelfState: Record<string, any> = {};
+    let navigationHistory: string[] = [];
+    let lastActiveChapter: { id?: string } | null = null;
+    if (presentStores.has(STORE_NAMES.SETTINGS)) {
+      bookshelfState =
+        (await SettingsOps.getKey<Record<string, any>>('bookshelf-state')) ?? {};
+      const navRaw = await SettingsOps.getKey<{ stableIds?: string[] }>(
+        'navigation-history'
+      );
+      navigationHistory = Array.isArray(navRaw?.stableIds) ? navRaw!.stableIds! : [];
+      lastActiveChapter = await SettingsOps.getKey<{ id?: string }>('lastActiveChapter');
+    }
+
+    // Build chapterByStableId index for orphan detection
+    const chapterByStableId = new Map<string, ChapterRecord>();
+    const chapterByUrl = new Map<string, ChapterRecord>();
+    for (const ch of chapters) {
+      if (ch.stableId) chapterByStableId.set(ch.stableId, ch);
+      if (ch.url) chapterByUrl.set(ch.url, ch);
+    }
+
+    // Build per-stableId reference counts across all stores
+    const refCountsByStableId = new Map<string, AuditReferenceCounts>();
+    const ensureRefBucket = (stableId: string): AuditReferenceCounts => {
+      let bucket = refCountsByStableId.get(stableId);
+      if (!bucket) {
+        bucket = {
+          summaries: 0,
+          translations: 0,
+          feedback: 0,
+          amendments: 0,
+          diffResults: 0,
+          urlMappings: 0,
+          bookshelfEntries: 0,
+          navigationHistoryEntries: 0,
+        };
+        refCountsByStableId.set(stableId, bucket);
+      }
+      return bucket;
+    };
+
+    for (const s of summaries) {
+      if (s.stableId) ensureRefBucket(s.stableId).summaries += 1;
+    }
+    for (const t of translations) {
+      if (t.stableId) ensureRefBucket(t.stableId).translations += 1;
+    }
+    for (const m of urlMappings) {
+      if (m.stableId) ensureRefBucket(m.stableId).urlMappings += 1;
+    }
+    for (const a of amendments) {
+      if (a.chapterId) ensureRefBucket(a.chapterId).amendments += 1;
+    }
+    for (const d of diffResults) {
+      if (d.chapterId) ensureRefBucket(d.chapterId).diffResults += 1;
+    }
+    for (const entry of Object.values(bookshelfState ?? {})) {
+      const id = (entry as any)?.lastChapterId;
+      if (typeof id === 'string') ensureRefBucket(id).bookshelfEntries += 1;
+    }
+    for (const id of navigationHistory) {
+      if (typeof id === 'string') ensureRefBucket(id).navigationHistoryEntries += 1;
+    }
+
+    // Feedback is keyed by URL, not stableId. To attribute it per-stableId we
+    // need to look up the chapter by URL. Feedback for orphaned URLs gets
+    // counted separately.
+    let feedbackOrphanedUrls = 0;
+    for (const f of feedback) {
+      const ch = chapterByUrl.get(f.chapterUrl);
+      if (ch?.stableId) {
+        ensureRefBucket(ch.stableId).feedback += 1;
+      } else if (f.chapterUrl) {
+        feedbackOrphanedUrls += 1;
+      }
+    }
+
+    // Group chapters by (novelId, libraryVersionId, chapterNumber). null
+    // novelId or chapterNumber means we can't slot-identify the row, which
+    // is itself a finding (categorized below).
+    type SlotKey = string;
+    const slotKey = (
+      novelId: string | null,
+      versionId: string | null,
+      chapterNumber: number | undefined | null
+    ): SlotKey => `${novelId ?? '∅'}|${versionId ?? '∅'}|${chapterNumber ?? '∅'}`;
+
+    const slotIndex = new Map<SlotKey, ChapterRecord[]>();
+    for (const ch of chapters) {
+      const key = slotKey(ch.novelId ?? null, ch.libraryVersionId ?? null, ch.chapterNumber);
+      const list = slotIndex.get(key) ?? [];
+      list.push(ch);
+      slotIndex.set(key, list);
+    }
+
+    // Build duplicate groups (slots with > 1 row)
+    const SCOPED_PREFIX = 'lf-library:';
+    const detectIdForm = (
+      stableId: string | undefined
+    ): 'bare' | 'scoped-encoded' | 'scoped-nested' | 'unknown' => {
+      if (!stableId) return 'unknown';
+      if (!stableId.startsWith(SCOPED_PREFIX)) return 'bare';
+      const remainder = stableId.slice(SCOPED_PREFIX.length);
+      // The repaired form has an encoded scope key followed by ':' and a base hash.
+      // The nested-bug form has another `lf-library:` (or encoded scope) embedded.
+      if (
+        remainder.includes(`${SCOPED_PREFIX}`) ||
+        remainder.includes(encodeURIComponent(SCOPED_PREFIX))
+      ) {
+        return 'scoped-nested';
+      }
+      return 'scoped-encoded';
+    };
+
+    const truncate = (s: string | undefined, n: number): string => {
+      if (typeof s !== 'string') return '';
+      return s.length > n ? `${s.slice(0, n - 1)}…` : s;
+    };
+
+    const contentHashShort = (content: string | undefined): string => {
+      if (!content) return '';
+      // Lightweight FNV-style hash, first 8 hex chars. Just for grouping
+      // signature in the report — not a security or migration-grade hash.
+      let h = 2166136261;
+      for (let i = 0; i < content.length; i++) {
+        h ^= content.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0).toString(16).padStart(8, '0').slice(0, 8);
+    };
+
+    const duplicateGroups: AuditDuplicateGroup[] = [];
+    let nullScopeRowCount = 0;
+    let groupsLegacyUnscopedPlusScoped = 0;
+    let groupsContentDriftWithinScope = 0;
+    let groupsTitleDriftWithinScope = 0;
+    let groupsUrlVariation = 0;
+
+    for (const [, members] of slotIndex.entries()) {
+      // Track the null-scope-rows count regardless of duplication
+      for (const ch of members) {
+        if (!ch.novelId || ch.libraryVersionId == null || typeof ch.chapterNumber !== 'number') {
+          nullScopeRowCount += 1;
+        }
+      }
+
+      if (members.length < 2) continue;
+
+      // Skip "duplicate groups" that are only duplicates because they share
+      // the null-scope sentinel — that bucket lumps unrelated rows together.
+      const first = members[0];
+      if (!first.novelId || typeof first.chapterNumber !== 'number') continue;
+
+      const reportedMembers: AuditDuplicateMember[] = members.map((ch) => {
+        const stableId = ch.stableId ?? '';
+        const refs = (stableId && refCountsByStableId.get(stableId)) ?? {
+          summaries: 0,
+          translations: 0,
+          feedback: 0,
+          amendments: 0,
+          diffResults: 0,
+          urlMappings: 0,
+          bookshelfEntries: 0,
+          navigationHistoryEntries: 0,
+        };
+        return {
+          stableId,
+          idForm: detectIdForm(stableId),
+          titleSnippet: truncate(ch.title, 60),
+          titleLength: (ch.title || '').length,
+          contentHash: contentHashShort(ch.content),
+          contentLength: (ch.content || '').length,
+          hasTranslation: refs.translations > 0,
+          translationCount: refs.translations,
+          canonicalUrl: ch.canonicalUrl ?? null,
+          originalUrl: ch.originalUrl ?? null,
+          novelId: ch.novelId ?? null,
+          libraryVersionId: ch.libraryVersionId ?? null,
+          lastAccessed: ch.lastAccessed ?? null,
+          referencedBy: refs,
+        };
+      });
+
+      // Categorize this group
+      const idForms = new Set(reportedMembers.map((m) => m.idForm));
+      const hasBare = idForms.has('bare');
+      const hasScoped = idForms.has('scoped-encoded') || idForms.has('scoped-nested');
+      if (hasBare && hasScoped) groupsLegacyUnscopedPlusScoped += 1;
+
+      const contentHashes = new Set(reportedMembers.map((m) => m.contentHash));
+      if (contentHashes.size > 1) groupsContentDriftWithinScope += 1;
+
+      const titlesNormalized = new Set(
+        reportedMembers.map((m) => (m.titleSnippet || '').toLowerCase())
+      );
+      const titlesRaw = new Set(reportedMembers.map((m) => m.titleSnippet || ''));
+      // Same up to case but different raw → case drift
+      if (titlesNormalized.size === 1 && titlesRaw.size > 1) groupsTitleDriftWithinScope += 1;
+
+      const originalUrls = new Set(
+        reportedMembers.map((m) => m.originalUrl).filter((u): u is string => !!u)
+      );
+      if (originalUrls.size > 1) groupsUrlVariation += 1;
+
+      duplicateGroups.push({
+        key: {
+          novelId: first.novelId,
+          versionId: first.libraryVersionId ?? null,
+          chapterNumber: first.chapterNumber,
+        },
+        stableIds: reportedMembers.map((m) => m.stableId),
+        members: reportedMembers,
+      });
+    }
+
+    // Orphans: references to stableIds with no chapter row
+    const orphanedReferences: AuditOrphanedReferences = {
+      summariesWithoutChapter: [],
+      translationsWithoutChapter: [],
+      feedbackWithoutChapter: feedbackOrphanedUrls,
+      bookshelfPointingAtMissing: [],
+      navigationPointingAtMissing: [],
+      amendmentsPointingAtMissing: [],
+    };
+    for (const s of summaries) {
+      if (s.stableId && !chapterByStableId.has(s.stableId)) {
+        orphanedReferences.summariesWithoutChapter.push(s.stableId);
+      }
+    }
+    for (const t of translations) {
+      if (t.stableId && !chapterByStableId.has(t.stableId)) {
+        orphanedReferences.translationsWithoutChapter.push(t.stableId);
+      }
+    }
+    for (const entry of Object.values(bookshelfState ?? {})) {
+      const id = (entry as any)?.lastChapterId;
+      if (typeof id === 'string' && !chapterByStableId.has(id)) {
+        orphanedReferences.bookshelfPointingAtMissing.push(id);
+      }
+    }
+    for (const id of navigationHistory) {
+      if (typeof id === 'string' && !chapterByStableId.has(id)) {
+        orphanedReferences.navigationPointingAtMissing.push(id);
+      }
+    }
+    for (const a of amendments) {
+      if (a.chapterId && !chapterByStableId.has(a.chapterId)) {
+        orphanedReferences.amendmentsPointingAtMissing.push(a.chapterId);
+      }
+    }
+
+    // Compute redundant-row totals
+    let redundantChapterRows = 0;
+    let redundantSummaryRows = 0;
+    let redundantTranslationRows = 0;
+    for (const group of duplicateGroups) {
+      redundantChapterRows += group.members.length - 1;
+      // Summary rows per stableId in the group (per-stableId; one chapter
+      // can have at most one summary row keyed by stableId, but groups
+      // have multiple stableIds → multiple summary rows)
+      const summariesInGroup = group.members.reduce(
+        (sum, m) => sum + (m.referencedBy.summaries || 0),
+        0
+      );
+      if (summariesInGroup > 1) redundantSummaryRows += summariesInGroup - 1;
+      const translationsInGroup = group.members.reduce(
+        (sum, m) => sum + (m.referencedBy.translations || 0),
+        0
+      );
+      // Translations CAN legitimately have multiple rows per chapter (versions),
+      // so "redundant" here means "rows attached to a duplicate-stableId in a
+      // group" rather than "rows beyond one." Surface raw count for inspection.
+      if (translationsInGroup > 0 && group.members.length > 1) {
+        redundantTranslationRows += translationsInGroup;
+      }
+    }
+
+    return {
+      schemaVersion: '1',
+      generatedAt: nowIso(),
+      totals: {
+        chapters: chapters.length,
+        summaries: summaries.length,
+        translations: translations.length,
+        urlMappings: urlMappings.length,
+        feedbackEntries: feedback.length,
+        amendmentLogs: amendments.length,
+        diffResults: diffResults.length,
+        bookshelfEntries: Object.keys(bookshelfState ?? {}).length,
+        navigationHistoryEntries: navigationHistory.length,
+        lastActiveChapterPresent: !!lastActiveChapter?.id,
+      },
+      duplicateGroups,
+      categorization: {
+        legacyUnscopedPlusScoped: groupsLegacyUnscopedPlusScoped,
+        contentDriftWithinScope: groupsContentDriftWithinScope,
+        titleDriftWithinScope: groupsTitleDriftWithinScope,
+        urlVariation: groupsUrlVariation,
+        nullScopeRows: nullScopeRowCount,
+      },
+      orphanedReferences,
+      estimatedDuplicateLoad: {
+        duplicateGroups: duplicateGroups.length,
+        redundantChapterRows,
+        redundantSummaryRows,
+        redundantTranslationRows,
+      },
+    };
+  }
+
+  /**
+   * V4: Unwrap nested scoped stableIds and canonicalize version aliases.
+   *
+   * Background: an earlier write path produced stableIds whose baseHash was itself
+   * a fully-formed scoped stableId (e.g. lf-library:NOVEL::v1-st-enhanced:lf-library:NOVEL::v1-composite:ch1000_*).
+   * The audit also showed parallel rows under v1-composite (legacy alias) and v1-st-enhanced
+   * (current registry version) for the same chapter content.
+   *
+   * What this does:
+   *   1. For every chapter, peel ALL scope wrappers from stableId to recover bare baseHash (chN_*).
+   *   2. Re-scope under canonicalVersions[novelId] (e.g. v1-st-enhanced) — this collapses the
+   *      v1-composite/v1-st-enhanced split AND removes nested wrappers in one pass.
+   *   3. Re-key all references (summaries, translations, url_mappings, amendments, diffResults,
+   *      bookshelf, navigation, lastActiveChapter).
+   *   4. On collision (multiple old stableIds map to same new stableId), pick a survivor
+   *      preferring most-recent lastAccessed and chapter rows with active translations.
+   *      Translation rows are NEVER dropped — all are re-keyed onto the survivor stableId
+   *      and re-numbered to avoid version conflicts.
+   *
+   * What this does NOT do:
+   *   - Rows whose novelId is not in canonicalVersions are reported as orphans, untouched.
+   *   - Rows with different bare base hashes (different content families) stay as distinct
+   *     stableIds even when they collide on chapterNumber.
+   *   - chapterNumber field correction (separate Phase 2 migration).
+   *   - Cross-novel pollution detection (separate Phase 4 audit).
+   *
+   * Default is dry-run: returns a plan without writing. Pass { dryRun: false, force: true }
+   * to commit. Re-runs after success are gated by CHAPTER_IDS_UNWRAPPED_V4 settings flag.
+   */
+  static async unwrapNestedScopedIds(options: UnwrapOptions): Promise<UnwrapReport> {
+    const {
+      dryRun = true,
+      canonicalVersions,
+      force = false,
+      sampleLimit = 25,
+    } = options;
+
+    if (!canonicalVersions || Object.keys(canonicalVersions).length === 0) {
+      throw new Error(
+        '[MaintenanceOps.unwrapNestedScopedIds] canonicalVersions is required. ' +
+        'Pass a map of novelId -> canonical libraryVersionId, e.g. ' +
+        '{ "forty-millenniums-of-cultivation": "v1-st-enhanced" }'
+      );
+    }
+
+    const flagAlreadySet = Boolean(
+      await SettingsOps.getKey<boolean>(SETTINGS.CHAPTER_IDS_UNWRAPPED_V4)
+    );
+
+    // ─── Phase 1: scan and plan (read-only) ────────────────────────────────
+    const conn = await getConnection();
+    const planTxn = conn.transaction(
+      [
+        STORE_NAMES.CHAPTERS,
+        STORE_NAMES.CHAPTER_SUMMARIES,
+        STORE_NAMES.TRANSLATIONS,
+        STORE_NAMES.URL_MAPPINGS,
+        STORE_NAMES.AMENDMENT_LOGS,
+        STORE_NAMES.DIFF_RESULTS,
+        STORE_NAMES.SETTINGS,
+      ],
+      'readonly'
+    );
+    const chapters = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.CHAPTERS).getAll()
+    )) as ChapterRecord[];
+    const summaries = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.CHAPTER_SUMMARIES).getAll()
+    )) as ChapterSummaryRecord[];
+    const translations = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.TRANSLATIONS).getAll()
+    )) as TranslationRecord[];
+    const mappings = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.URL_MAPPINGS).getAll()
+    )) as UrlMappingRecord[];
+    const amendmentLogs = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.AMENDMENT_LOGS).getAll()
+    )) as AmendmentLogRecord[];
+    const diffResults = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.DIFF_RESULTS).getAll()
+    )) as DiffResult[];
+    const bookshelfSetting = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.SETTINGS).get('bookshelf-state')
+    )) as { key: string; value: Record<string, any>; updatedAt?: string } | undefined;
+    const navigationSetting = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.SETTINGS).get('navigation-history')
+    )) as { key: string; value: { stableIds?: string[] }; updatedAt?: string } | undefined;
+    const lastActiveSetting = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.SETTINGS).get('lastActiveChapter')
+    )) as { key: string; value: { id?: string; url?: string }; updatedAt?: string } | undefined;
+
+    const orphans: UnwrapReport['orphans'] = {
+      rowsWithoutNovelId: [],
+      novelsNotInCanonicalMap: [],
+      malformedBareHashes: [],
+      translationsWithoutChapter: [],
+      amendmentsWithoutChapter: [],
+    };
+    const rewrites: UnwrapRewrite[] = [];
+    const stableIdRemap = new Map<string, string>();
+    const chapterUrlRemap = new Map<string, string>();
+    const novelsNotInMap = new Set<string>();
+    let chaptersWithNestedIds = 0;
+
+    for (const chapter of chapters) {
+      const oldStableId = chapter.stableId || '';
+      if (!oldStableId) continue;
+      const novelId = chapter.novelId;
+      if (!novelId) {
+        orphans.rowsWithoutNovelId.push(oldStableId);
+        continue;
+      }
+      const canonicalVersion = canonicalVersions[novelId];
+      if (!canonicalVersion) {
+        novelsNotInMap.add(novelId);
+        continue;
+      }
+      const bareHash = peelAllScopes(oldStableId);
+      const depth = getScopedStableIdDepth(oldStableId);
+      if (depth > 1) chaptersWithNestedIds += 1;
+
+      if (!isWellFormedBareHash(bareHash)) {
+        orphans.malformedBareHashes.push({ stableId: oldStableId, resolvedBare: bareHash });
+        continue;
+      }
+
+      const newStableId = `lf-library:${encodeURIComponent(
+        buildLibraryScopeKey(novelId, canonicalVersion)
+      )}:${bareHash}`;
+      const newUrl = buildScopedStorageUrl(bareHash!, novelId, canonicalVersion);
+
+      if (oldStableId !== newStableId) {
+        stableIdRemap.set(oldStableId, newStableId);
+      }
+      if (chapter.url !== newUrl) {
+        chapterUrlRemap.set(chapter.url, newUrl);
+      }
+
+      rewrites.push({
+        oldStableId,
+        newStableId,
+        bareHash: bareHash!,
+        novelId,
+        oldVersionId: chapter.libraryVersionId ?? null,
+        newVersionId: canonicalVersion,
+        chapterNumber: typeof chapter.chapterNumber === 'number' ? chapter.chapterNumber : null,
+        titleSnippet: (chapter.title || '').slice(0, 60),
+        url: chapter.url,
+        newUrl,
+        hasNestedScope: depth > 1,
+      });
+    }
+
+    orphans.novelsNotInCanonicalMap = Array.from(novelsNotInMap).sort();
+
+    // Group chapter rewrites by newStableId to detect collisions
+    const groupsByNewStableId = new Map<string, UnwrapRewrite[]>();
+    for (const r of rewrites) {
+      const bucket = groupsByNewStableId.get(r.newStableId) ?? [];
+      bucket.push(r);
+      groupsByNewStableId.set(r.newStableId, bucket);
+    }
+
+    // Translation/active counts keyed by oldStableId for survivor selection
+    const translationCounts = new Map<string, number>();
+    const activeTranslationCounts = new Map<string, number>();
+    for (const t of translations) {
+      const sid = t.stableId || '';
+      if (!sid) continue;
+      translationCounts.set(sid, (translationCounts.get(sid) ?? 0) + 1);
+      if (t.isActive) {
+        activeTranslationCounts.set(sid, (activeTranslationCounts.get(sid) ?? 0) + 1);
+      }
+    }
+    const chaptersByOldStableId = new Map<string, ChapterRecord>();
+    for (const c of chapters) {
+      if (c.stableId) chaptersByOldStableId.set(c.stableId, c);
+    }
+
+    const collisions: UnwrapCollision[] = [];
+    const survivorOldStableIdByNewStableId = new Map<string, string>();
+    for (const [newStableId, bucket] of groupsByNewStableId.entries()) {
+      if (bucket.length < 2) {
+        survivorOldStableIdByNewStableId.set(newStableId, bucket[0].oldStableId);
+        continue;
+      }
+      const memberChapters = bucket
+        .map(r => chaptersByOldStableId.get(r.oldStableId))
+        .filter((c): c is ChapterRecord => Boolean(c));
+      const survivor = chooseSurvivor(memberChapters, translationCounts, activeTranslationCounts);
+      survivorOldStableIdByNewStableId.set(newStableId, survivor.stableId || bucket[0].oldStableId);
+
+      collisions.push({
+        newStableId,
+        bareHash: bucket[0].bareHash,
+        novelId: bucket[0].novelId,
+        chapterNumber: bucket[0].chapterNumber,
+        members: bucket.map(r => {
+          const ch = chaptersByOldStableId.get(r.oldStableId);
+          return {
+            oldStableId: r.oldStableId,
+            contentLength: (ch?.content || '').length,
+            titleSnippet: r.titleSnippet,
+            translationCount: translationCounts.get(r.oldStableId) ?? 0,
+            activeTranslationCount: activeTranslationCounts.get(r.oldStableId) ?? 0,
+            lastAccessed: ch?.lastAccessed ?? null,
+          };
+        }),
+        chosenSurvivorOldStableId: survivor.stableId || bucket[0].oldStableId,
+      });
+    }
+
+    // Orphans: translations and amendments pointing at chapters that don't exist
+    for (const t of translations) {
+      const sid = t.stableId || '';
+      if (!sid) continue;
+      if (!chaptersByOldStableId.has(sid)) {
+        // Could still be valid via chapterUrl lookup — only flag if URL also misses
+        const hasUrlMatch = chapters.some(c => c.url === t.chapterUrl);
+        if (!hasUrlMatch) {
+          orphans.translationsWithoutChapter.push({
+            id: t.id,
+            stableId: sid,
+            chapterUrl: t.chapterUrl,
+          });
+        }
+      }
+    }
+    for (const a of amendmentLogs) {
+      const cid = a.chapterId || null;
+      if (!cid || !chaptersByOldStableId.has(cid)) {
+        orphans.amendmentsWithoutChapter.push({ id: a.id, chapterId: cid });
+      }
+    }
+
+    // Compute rekey impact projections
+    const summariesToRekey = summaries.filter(s => stableIdRemap.has(s.stableId)).length;
+    const translationsToRekey = translations.filter(t =>
+      stableIdRemap.has(t.stableId || '') || chapterUrlRemap.has(t.chapterUrl)
+    ).length;
+    const urlMappingsToRekey = mappings.filter(m =>
+      stableIdRemap.has(m.stableId) || (isLibraryStorageUrl(m.url) && chapterUrlRemap.has(m.url))
+    ).length;
+    const amendmentsToRekey = amendmentLogs.filter(a =>
+      a.chapterId && stableIdRemap.has(a.chapterId)
+    ).length;
+    const diffResultsToRekey = diffResults.filter(d => stableIdRemap.has(d.chapterId)).length;
+    const navigationToRekey = (() => {
+      const ids = navigationSetting?.value?.stableIds || [];
+      return ids.filter(id => stableIdRemap.has(id)).length;
+    })();
+    const bookshelfToRekey = (() => {
+      const state = bookshelfSetting?.value || {};
+      let count = 0;
+      for (const entry of Object.values(state)) {
+        if (entry && typeof entry === 'object') {
+          const e = entry as { lastChapterId?: string };
+          if (e.lastChapterId && stableIdRemap.has(e.lastChapterId)) count += 1;
+        }
+      }
+      // If we are rescoping versions, the bookshelf keys themselves change
+      const keysShouldChange = Object.keys(state).some(k => {
+        const [novelId, ver] = k.split('::');
+        const canonical = canonicalVersions[novelId];
+        return canonical && ver && ver !== canonical;
+      });
+      return count + (keysShouldChange ? Object.keys(state).length : 0);
+    })();
+    const lastActiveToRekey = (() => {
+      const id = lastActiveSetting?.value?.id;
+      return Boolean(id && stableIdRemap.has(id));
+    })();
+
+    const baseReport: UnwrapReport = {
+      schemaVersion: '1',
+      generatedAt: nowIso(),
+      dryRun: true,
+      flagAlreadySet,
+      canonicalVersions,
+      totals: {
+        chaptersScanned: chapters.length,
+        chaptersWithNestedIds,
+        chaptersToRewrite: stableIdRemap.size,
+        collisionGroups: collisions.length,
+        chaptersDeleted: 0,
+        translationsRekeyed: 0,
+        summariesRekeyed: 0,
+        urlMappingsRekeyed: 0,
+        amendmentsRekeyed: 0,
+        diffResultsRekeyed: 0,
+        bookshelfEntriesRekeyed: 0,
+        navigationEntriesRekeyed: 0,
+        lastActiveRekeyed: false,
+      },
+      orphans,
+      rewriteSample: rewrites.slice(0, sampleLimit),
+      collisions: collisions.slice(0, sampleLimit),
+    };
+
+    if (dryRun) {
+      // Fill in projected counts so the user sees what WOULD happen
+      baseReport.totals.summariesRekeyed = summariesToRekey;
+      baseReport.totals.translationsRekeyed = translationsToRekey;
+      baseReport.totals.urlMappingsRekeyed = urlMappingsToRekey;
+      baseReport.totals.amendmentsRekeyed = amendmentsToRekey;
+      baseReport.totals.diffResultsRekeyed = diffResultsToRekey;
+      baseReport.totals.navigationEntriesRekeyed = navigationToRekey;
+      baseReport.totals.bookshelfEntriesRekeyed = bookshelfToRekey;
+      baseReport.totals.lastActiveRekeyed = lastActiveToRekey;
+      // chaptersDeleted projection: each collision group loses (members - 1) rows
+      baseReport.totals.chaptersDeleted = collisions.reduce(
+        (acc, c) => acc + (c.members.length - 1),
+        0
+      );
+      debugLog(
+        'indexeddb',
+        'summary',
+        '[MaintenanceOps.unwrapNestedScopedIds] DRY-RUN plan',
+        baseReport.totals
+      );
+      return baseReport;
+    }
+
+    if (flagAlreadySet && !force) {
+      debugLog(
+        'indexeddb',
+        'summary',
+        '[MaintenanceOps.unwrapNestedScopedIds] Already applied (flag set). Pass force=true to re-run.'
+      );
+      return { ...baseReport, dryRun: false };
+    }
+
+    // ─── Phase 2: commit (write transaction) ───────────────────────────────
+    const commitReport = { ...baseReport, dryRun: false };
+
+    await withWriteTxn(
+      [
+        STORE_NAMES.CHAPTERS,
+        STORE_NAMES.CHAPTER_SUMMARIES,
+        STORE_NAMES.TRANSLATIONS,
+        STORE_NAMES.URL_MAPPINGS,
+        STORE_NAMES.AMENDMENT_LOGS,
+        STORE_NAMES.DIFF_RESULTS,
+        STORE_NAMES.FEEDBACK,
+        STORE_NAMES.SETTINGS,
+      ],
+      async (_txn, stores) => {
+        const chaptersStore = stores[STORE_NAMES.CHAPTERS];
+        const summariesStore = stores[STORE_NAMES.CHAPTER_SUMMARIES];
+        const translationsStore = stores[STORE_NAMES.TRANSLATIONS];
+        const mappingsStore = stores[STORE_NAMES.URL_MAPPINGS];
+        const amendmentsStore = stores[STORE_NAMES.AMENDMENT_LOGS];
+        const diffResultsStore = stores[STORE_NAMES.DIFF_RESULTS];
+        const feedbackStore = stores[STORE_NAMES.FEEDBACK];
+        const settingsStore = stores[STORE_NAMES.SETTINGS];
+
+        // Build chapter merges per collision group
+        const mergedByNewStableId = new Map<string, ChapterRecord>();
+        const survivors = new Set<string>();
+        for (const [newStableId, bucket] of groupsByNewStableId.entries()) {
+          if (bucket.length === 0) continue;
+          const memberChapters = bucket
+            .map(r => chaptersByOldStableId.get(r.oldStableId))
+            .filter((c): c is ChapterRecord => Boolean(c));
+          if (memberChapters.length === 0) continue;
+          const newUrl = bucket[0].newUrl;
+          const merged = mergeChapterRecords(newStableId, newUrl, memberChapters);
+          merged.libraryVersionId = bucket[0].newVersionId;
+          merged.canonicalUrl =
+            merged.canonicalUrl ||
+            normalizeUrlAggressively(merged.originalUrl || merged.url) ||
+            merged.url;
+          mergedByNewStableId.set(newStableId, merged);
+          survivors.add(newStableId);
+        }
+
+        // Delete all old chapter rows that are part of any rewrite
+        const oldUrlsTouched = new Set<string>();
+        for (const r of rewrites) {
+          oldUrlsTouched.add(r.url);
+        }
+        for (const url of oldUrlsTouched) {
+          await promisifyRequest(chaptersStore.delete(url));
+        }
+        // Write merged chapter rows
+        for (const merged of mergedByNewStableId.values()) {
+          await promisifyRequest(chaptersStore.put(merged));
+        }
+        commitReport.totals.chaptersDeleted = oldUrlsTouched.size - mergedByNewStableId.size;
+
+        // ─── Translations: re-key stableId + chapterUrl, renumber on collisions ──
+        const translationsByNewStableId = new Map<string, TranslationRecord[]>();
+        let translationsRekeyed = 0;
+        for (const t of translations) {
+          const oldSid = t.stableId || '';
+          const newSid = stableIdRemap.get(oldSid);
+          const newUrl = chapterUrlRemap.get(t.chapterUrl);
+          if (!newSid && !newUrl) continue;
+          const updated: TranslationRecord = {
+            ...t,
+            stableId: newSid || oldSid,
+            chapterUrl: newUrl || t.chapterUrl,
+          };
+          const targetSid = updated.stableId;
+          const bucket = translationsByNewStableId.get(targetSid) ?? [];
+          bucket.push(updated);
+          translationsByNewStableId.set(targetSid, bucket);
+        }
+        for (const [newSid, bucket] of translationsByNewStableId.entries()) {
+          // Pick the chapter URL from the merged chapter (truth)
+          const merged = mergedByNewStableId.get(newSid);
+          const targetUrl = merged?.url || bucket[0].chapterUrl;
+          // Renumber versions to avoid collisions, preserve isActive on most recent
+          const sorted = [...bucket].sort((l, r) => {
+            const d = translationCreatedAtValue(l) - translationCreatedAtValue(r);
+            if (d !== 0) return d;
+            return (l.version ?? 0) - (r.version ?? 0);
+          });
+          const activeCandidates = sorted.filter(t => t.isActive);
+          const activeId =
+            activeCandidates.length > 0
+              ? [...activeCandidates].sort(
+                  (l, r) => translationCreatedAtValue(r) - translationCreatedAtValue(l)
+                )[0].id
+              : sorted[sorted.length - 1]?.id;
+          const usedVersions = new Set<number>();
+          let nextVersion = 1;
+          for (const record of sorted) {
+            let assignedVersion = record.version ?? nextVersion;
+            while (usedVersions.has(assignedVersion)) {
+              assignedVersion = nextVersion;
+              nextVersion += 1;
+            }
+            usedVersions.add(assignedVersion);
+            nextVersion = Math.max(nextVersion, assignedVersion + 1);
+            record.version = assignedVersion;
+            record.chapterUrl = targetUrl;
+            record.isActive = record.id === activeId;
+            await promisifyRequest(translationsStore.put(record));
+            translationsRekeyed += 1;
+          }
+        }
+        commitReport.totals.translationsRekeyed = translationsRekeyed;
+
+        // ─── Summaries: delete old, regenerate from merged chapter + active translation ──
+        const summaryStableIdsToDelete = new Set<string>();
+        for (const s of summaries) {
+          if (stableIdRemap.has(s.stableId)) summaryStableIdsToDelete.add(s.stableId);
+          else if (survivors.has(s.stableId)) summaryStableIdsToDelete.add(s.stableId);
+        }
+        for (const sid of summaryStableIdsToDelete) {
+          await promisifyRequest(summariesStore.delete(sid));
+        }
+        let summariesRekeyed = 0;
+        for (const merged of mergedByNewStableId.values()) {
+          const newSid = merged.stableId || '';
+          if (!newSid) continue;
+          const trBucket = translationsByNewStableId.get(newSid) ?? [];
+          const active = trBucket.find(t => t.isActive) || null;
+          const rec: ChapterSummaryRecord = {
+            stableId: newSid,
+            novelId: merged.novelId ?? null,
+            libraryVersionId: merged.libraryVersionId ?? null,
+            canonicalUrl: merged.canonicalUrl,
+            title: merged.title,
+            translatedTitle: active?.translatedTitle,
+            chapterNumber: merged.chapterNumber,
+            hasTranslation: trBucket.length > 0,
+            hasImages: Boolean(
+              active?.suggestedIllustrations?.some(
+                i => i?.url || i?.generatedImage
+              )
+            ),
+            lastAccessed: merged.lastAccessed,
+            lastTranslatedAt: active?.createdAt,
+          };
+          await promisifyRequest(summariesStore.put(rec));
+          summariesRekeyed += 1;
+        }
+        commitReport.totals.summariesRekeyed = summariesRekeyed;
+
+        // ─── URL mappings: delete library:// URLs (they get rebuilt), repoint others ──
+        let urlMappingsRekeyed = 0;
+        for (const m of mappings) {
+          const replacementSid = stableIdRemap.get(m.stableId);
+          const isAffected =
+            Boolean(replacementSid) ||
+            (isLibraryStorageUrl(m.url) && chapterUrlRemap.has(m.url));
+          if (!isAffected) continue;
+
+          if (isLibraryStorageUrl(m.url)) {
+            await promisifyRequest(mappingsStore.delete(m.url));
+            urlMappingsRekeyed += 1;
+            continue;
+          }
+          const targetSid = replacementSid || m.stableId;
+          const merged = mergedByNewStableId.get(targetSid);
+          await promisifyRequest(
+            mappingsStore.put({
+              ...m,
+              stableId: targetSid,
+              novelId: merged?.novelId ?? m.novelId ?? null,
+              libraryVersionId: merged?.libraryVersionId ?? m.libraryVersionId ?? null,
+              chapterNumber: merged?.chapterNumber ?? m.chapterNumber,
+            })
+          );
+          urlMappingsRekeyed += 1;
+        }
+        // Re-emit canonical entries for merged chapters
+        for (const merged of mergedByNewStableId.values()) {
+          for (const entry of buildUrlMappingEntries(merged)) {
+            await promisifyRequest(mappingsStore.put(entry));
+          }
+        }
+        commitReport.totals.urlMappingsRekeyed = urlMappingsRekeyed;
+
+        // ─── Amendments: re-key chapterId ─────────────────────────────────
+        let amendmentsRekeyed = 0;
+        for (const a of amendmentLogs) {
+          if (!a.chapterId) continue;
+          const replacement = stableIdRemap.get(a.chapterId);
+          if (!replacement) continue;
+          await promisifyRequest(
+            amendmentsStore.put({ ...a, chapterId: replacement })
+          );
+          amendmentsRekeyed += 1;
+        }
+        commitReport.totals.amendmentsRekeyed = amendmentsRekeyed;
+
+        // ─── Diff results: delete + reinsert with new chapterId ──────────
+        let diffResultsRekeyed = 0;
+        const affectedDiffs = diffResults.filter(d => stableIdRemap.has(d.chapterId));
+        for (const d of affectedDiffs) {
+          await promisifyRequest(diffResultsStore.delete(buildDiffResultKey(d)));
+        }
+        const dedupedDiffs = new Map<string, DiffResult>();
+        for (const d of affectedDiffs) {
+          const updated: DiffResult = {
+            ...d,
+            chapterId: stableIdRemap.get(d.chapterId) || d.chapterId,
+          };
+          const k = JSON.stringify(buildDiffResultKey(updated));
+          const existing = dedupedDiffs.get(k);
+          if (!existing || (updated.analyzedAt || 0) > (existing.analyzedAt || 0)) {
+            dedupedDiffs.set(k, updated);
+          }
+        }
+        for (const d of dedupedDiffs.values()) {
+          await promisifyRequest(diffResultsStore.put(d));
+          diffResultsRekeyed += 1;
+        }
+        commitReport.totals.diffResultsRekeyed = diffResultsRekeyed;
+
+        // ─── Feedback: re-key chapterUrl ─────────────────────────────────
+        const feedback = (await promisifyRequest(feedbackStore.getAll())) as FeedbackRecord[];
+        for (const f of feedback) {
+          const replacement = chapterUrlRemap.get(f.chapterUrl);
+          if (!replacement) continue;
+          await promisifyRequest(feedbackStore.put({ ...f, chapterUrl: replacement }));
+        }
+
+        // ─── Bookshelf: re-key per (novelId, canonicalVersion) ────────────
+        if (bookshelfSetting?.value && typeof bookshelfSetting.value === 'object') {
+          const next: Record<string, any> = {};
+          const byNovel = new Map<string, any[]>();
+          for (const [rawKey, rawEntry] of Object.entries(bookshelfSetting.value)) {
+            if (!rawEntry || typeof rawEntry !== 'object') continue;
+            const e = { ...(rawEntry as Record<string, any>) };
+            if (typeof e.lastChapterId === 'string' && stableIdRemap.has(e.lastChapterId)) {
+              e.lastChapterId = stableIdRemap.get(e.lastChapterId);
+            }
+            const novelId = e.novelId || rawKey.split('::')[0];
+            const bucket = byNovel.get(novelId) ?? [];
+            bucket.push({ ...e, novelId, rawKey });
+            byNovel.set(novelId, bucket);
+          }
+          for (const [novelId, entries] of byNovel.entries()) {
+            const canonical = canonicalVersions[novelId];
+            if (!canonical) {
+              // Novel not managed — preserve as-is
+              for (const e of entries) {
+                next[e.rawKey] = (() => {
+                  const { rawKey: _, ...rest } = e;
+                  return rest;
+                })();
+              }
+              continue;
+            }
+            const winner = [...entries].sort((l, r) =>
+              String(r.lastReadAtIso || '').localeCompare(String(l.lastReadAtIso || ''))
+            )[0];
+            const finalKey = buildLibraryScopeKey(novelId, canonical);
+            const { rawKey: _drop, ...rest } = winner;
+            next[finalKey] = { ...rest, versionId: canonical };
+          }
+          if (JSON.stringify(bookshelfSetting.value) !== JSON.stringify(next)) {
+            await promisifyRequest(
+              settingsStore.put({
+                key: 'bookshelf-state',
+                value: next,
+                updatedAt: nowIso(),
+              })
+            );
+            commitReport.totals.bookshelfEntriesRekeyed = Object.keys(bookshelfSetting.value).length;
+          }
+        }
+
+        // ─── Navigation history: re-key, dedupe ───────────────────────────
+        if (navigationSetting?.value?.stableIds) {
+          const ids = navigationSetting.value.stableIds;
+          const repaired = ids.map(id => stableIdRemap.get(id) || id);
+          const deduped = [...new Set(repaired)];
+          if (JSON.stringify(ids) !== JSON.stringify(deduped)) {
+            await promisifyRequest(
+              settingsStore.put({
+                key: 'navigation-history',
+                value: { stableIds: deduped },
+                updatedAt: nowIso(),
+              })
+            );
+            commitReport.totals.navigationEntriesRekeyed = ids.length;
+          }
+        }
+
+        // ─── Last active chapter ──────────────────────────────────────────
+        const lastActiveId = lastActiveSetting?.value?.id;
+        if (lastActiveId && stableIdRemap.has(lastActiveId)) {
+          await promisifyRequest(
+            settingsStore.put({
+              key: 'lastActiveChapter',
+              value: {
+                ...lastActiveSetting?.value,
+                id: stableIdRemap.get(lastActiveId),
+              },
+              updatedAt: nowIso(),
+            })
+          );
+          commitReport.totals.lastActiveRekeyed = true;
+        }
+      },
+      'maintenance',
+      'unwrap',
+      'nestedScopedIdsV4'
+    );
+
+    await SettingsOps.set(SETTINGS.CHAPTER_IDS_UNWRAPPED_V4, true);
+    debugLog(
+      'indexeddb',
+      'summary',
+      '[MaintenanceOps.unwrapNestedScopedIds] COMMIT complete',
+      commitReport.totals
+    );
+    return commitReport;
+  }
+
   static async clearAllData(): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.deleteDatabase(DB_NAME);
@@ -1268,4 +2464,8 @@ async function updateTranslationsStableId(
     };
     cursorRequest.onerror = () => reject(cursorRequest.error);
   });
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).MaintenanceOps = MaintenanceOps;
 }
