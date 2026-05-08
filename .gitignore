@@ -78,6 +78,9 @@ data/sessions/
 # User-generated exports (large session files)
 Exports/
 session-files/
+# Session JSON exports at any path — defense in depth (these can be 50+ MB)
+lexicon-forge-session-*.json
+novel-translator-session-*.json
 
 # Illustrations (large AI-generated images)
 data/Illustrations/
