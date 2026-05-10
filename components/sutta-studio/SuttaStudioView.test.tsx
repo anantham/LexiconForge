@@ -208,3 +208,35 @@ describe('mock packet structure', () => {
     expect(linkedCount).toBe(5);
   });
 });
+
+// Honest progress chip — issue: backend marks a phase "ready" when Pali
+// extraction completes, but the chip's count should reflect "fully
+// renderable" (Pali + English alignment landed) so users see honest
+// progress. Logic mirrors SuttaStudioView's fullyRenderablePhaseCount.
+const countFullyRenderablePhases = (phases: PhaseView[]): number =>
+  phases.reduce((acc, p) => acc + (p.englishStructure && p.englishStructure.length > 0 ? 1 : 0), 0);
+
+describe('fullyRenderablePhaseCount (chip honesty)', () => {
+  it('counts only phases whose englishStructure is populated', () => {
+    const phaseWithEnglish: PhaseView = {
+      id: 'p-aligned',
+      paliWords: [{ id: 'p1', segments: [{ id: 'p1s1', text: 'Foo', type: 'stem' }], senses: [] }],
+      englishStructure: [{ id: 'e1', label: 'Foo', linkedPaliId: 'p1' }],
+    };
+    const phaseWithoutEnglish: PhaseView = {
+      id: 'p-pali-only',
+      paliWords: [{ id: 'p1', segments: [{ id: 'p1s1', text: 'Bar', type: 'stem' }], senses: [] }],
+      englishStructure: [],
+    };
+
+    expect(countFullyRenderablePhases([phaseWithEnglish, phaseWithoutEnglish])).toBe(1);
+    expect(countFullyRenderablePhases([phaseWithEnglish, phaseWithEnglish])).toBe(2);
+    expect(countFullyRenderablePhases([phaseWithoutEnglish, phaseWithoutEnglish])).toBe(0);
+    expect(countFullyRenderablePhases([])).toBe(0);
+  });
+
+  it('treats undefined englishStructure as not-renderable (defensive)', () => {
+    const phase = { id: 'p1', paliWords: [], englishStructure: undefined } as unknown as PhaseView;
+    expect(countFullyRenderablePhases([phase])).toBe(0);
+  });
+});

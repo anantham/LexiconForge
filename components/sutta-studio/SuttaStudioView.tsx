@@ -50,10 +50,22 @@ export function SuttaStudioView({
   const showAlignmentArrows = settings.alignmentLines;
   const ghostOpacity = packet.renderDefaults?.ghostOpacity ?? 0.3;
   const englishVisible = packet.renderDefaults?.englishVisible ?? true;
-  const showProgressChip = totalPhases > 0 && readyPhases < totalPhases;
+
+  // Honest progress count: a phase is "fully renderable" only when its
+  // English alignment pass has populated englishStructure. The pipeline
+  // increments packet.progress.readyPhases when Pali extraction completes
+  // — but that runs ahead of the English pass, so a phase can be "ready"
+  // by the chip's old definition while rendering as raw Pali with empty
+  // space below (no English gloss). Use the alignment-aware count for the
+  // chip label so users see honest progress.
+  const fullyRenderablePhaseCount = useMemo(
+    () => phases.reduce((acc, p) => acc + (p.englishStructure && p.englishStructure.length > 0 ? 1 : 0), 0),
+    [phases]
+  );
+  const showProgressChip = totalPhases > 0 && fullyRenderablePhaseCount < totalPhases;
   const progressLabel =
     totalPhases > 0
-      ? `Phase ${readyPhaseCount}/${totalPhases}${etaLabel ? ` · ${etaLabel}` : ''}`
+      ? `Phase ${fullyRenderablePhaseCount}/${totalPhases}${etaLabel ? ` · ${etaLabel}` : ''}`
       : '';
 
   const phaseIds = useMemo(() => visiblePhases.map((p) => p.id), [visiblePhases]);
