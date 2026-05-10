@@ -146,7 +146,6 @@ const runBootRepairs = async (): Promise<void> => {
       { name: 'novelIdBackfill', fn: () => MaintenanceOps.backfillNovelIds() },
       { name: 'summaryNovelIdBackfill', fn: () => MaintenanceOps.backfillSummaryNovelIds() },
       { name: 'syncSummaries', fn: () => MaintenanceOps.syncSummaries() },
-      { name: 'consolidateBookshelfDuplicates', fn: () => MaintenanceOps.consolidateBookshelfDuplicates().then(() => undefined) },
     ];
 
     for (const { name, fn } of repairs) {
@@ -159,10 +158,39 @@ const runBootRepairs = async (): Promise<void> => {
         console.warn(`[Store] ${name} failed:`, e);
       }
     }
-    
+
     await SettingsOps.set('bootRepairsDone', true);
   } else {
     bootstrapLog('bootRepairs skipped (already done)');
+  }
+
+  // Run V4 (issue #19) and V5 (issue #20) OUTSIDE the bootRepairsDone gate.
+  // Existing users have bootRepairsDone=true and would otherwise miss these.
+  // Each has its own internal settings flag (CHAPTER_IDS_UNWRAPPED_V4,
+  // CHAPTER_NUMBER_CORRECTED_V5) so re-runs are idempotent no-ops in milliseconds.
+  const postBootRepairs: Array<{ name: string; fn: () => Promise<void> }> = [
+    {
+      name: 'unwrapNestedScopedIdsV4',
+      fn: () =>
+        MaintenanceOps.unwrapNestedScopedIds({
+          dryRun: false,
+          canonicalVersions: { 'forty-millenniums-of-cultivation': 'v1-st-enhanced' },
+        }).then(() => undefined),
+    },
+    {
+      name: 'correctChapterNumberDriftV5',
+      fn: () => MaintenanceOps.correctChapterNumberDrift({ dryRun: false }).then(() => undefined),
+    },
+  ];
+  for (const { name, fn } of postBootRepairs) {
+    try {
+      bootstrapLog(`${name} start`);
+      await fn();
+      bootstrapLog(`${name} done`);
+    } catch (e) {
+      bootstrapLog(`${name} failed (non-fatal)`);
+      console.warn(`[Store] ${name} failed:`, e);
+    }
   }
 
   try {

@@ -44,6 +44,7 @@ const SETTINGS = {
   SUMMARIES_SYNCED: 'summariesSyncedV2',
   BOOKSHELF_DEDUPED_V3: 'bookshelfDedupedV3',
   CHAPTER_IDS_UNWRAPPED_V4: 'chapterIdsUnwrappedV4',
+  CHAPTER_NUMBER_CORRECTED_V5: 'chapterNumberCorrectedV5',
 } as const;
 
 const BARE_HASH_PATTERN = /^ch[0-9]+_/;
@@ -2442,6 +2443,229 @@ export class MaintenanceOps {
       'indexeddb',
       'summary',
       '[MaintenanceOps.unwrapNestedScopedIds] COMMIT complete',
+      commitReport.totals
+    );
+    return commitReport;
+  }
+
+  /**
+   * V5 (issue #20): correct chapter rows whose `chapterNumber` field has
+   * drifted from the chapter number encoded in their `stableId` baseHash.
+   * See issues/20-chapter-number-drift-from-history-walker/README.md.
+   *
+   * Conservative: only restores chapterNumber when stableId baseHash AND
+   * "Chapter N" parsed from title agree on N. Skips rows where signals
+   * don't triangulate. Re-emits chapter_summary so summaries stay in sync.
+   *
+   * Default is dry-run. Pass { dryRun: false, force: true } to commit.
+   * Re-runs gated by CHAPTER_NUMBER_CORRECTED_V5 settings flag.
+   */
+  static async correctChapterNumberDrift(options: {
+    dryRun?: boolean;
+    force?: boolean;
+    sampleLimit?: number;
+  } = {}): Promise<{
+    schemaVersion: '1';
+    generatedAt: string;
+    dryRun: boolean;
+    flagAlreadySet: boolean;
+    totals: {
+      chaptersScanned: number;
+      driftedRows: number;
+      corrected: number;
+      summariesUpdated: number;
+      skipped_noBareHash: number;
+      skipped_titleMissingNumber: number;
+      skipped_bareTitleDisagree: number;
+    };
+    correctionSample: Array<{
+      stableId: string;
+      bareN: number;
+      titleN: number;
+      previousChapterNumber: number | null;
+      title: string;
+    }>;
+    skippedSample: Array<{
+      stableId: string;
+      reason: string;
+      bareN: number | null;
+      titleN: number | null;
+      currentChapterNumber: number | null;
+      titleSnippet: string;
+    }>;
+  }> {
+    const { dryRun = true, force = false, sampleLimit = 25 } = options;
+
+    const flagAlreadySet = Boolean(
+      await SettingsOps.getKey<boolean>(SETTINGS.CHAPTER_NUMBER_CORRECTED_V5)
+    );
+
+    const conn = await getConnection();
+    const planTxn = conn.transaction(
+      [STORE_NAMES.CHAPTERS, STORE_NAMES.CHAPTER_SUMMARIES],
+      'readonly'
+    );
+    const chapters = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.CHAPTERS).getAll()
+    )) as ChapterRecord[];
+    const summaries = (await promisifyRequest(
+      planTxn.objectStore(STORE_NAMES.CHAPTER_SUMMARIES).getAll()
+    )) as ChapterSummaryRecord[];
+    const summariesByStableId = new Map<string, ChapterSummaryRecord>();
+    for (const s of summaries) summariesByStableId.set(s.stableId, s);
+
+    const BARE_RE = /:ch(\d+)_/;
+    const TITLE_RE = /\bChapter\s+(\d+)/i;
+
+    type Drift = {
+      record: ChapterRecord;
+      bareN: number;
+      titleN: number;
+      previousChapterNumber: number | null;
+    };
+    const drifts: Drift[] = [];
+    const skipped_noBareHash: ChapterRecord[] = [];
+    const skipped_titleMissingNumber: ChapterRecord[] = [];
+    const skipped_bareTitleDisagree: Array<{
+      record: ChapterRecord;
+      bareN: number;
+      titleN: number;
+    }> = [];
+
+    for (const ch of chapters) {
+      const sid = ch.stableId || '';
+      const bareMatch = sid.match(BARE_RE);
+      if (!bareMatch) {
+        skipped_noBareHash.push(ch);
+        continue;
+      }
+      const bareN = parseInt(bareMatch[1], 10);
+      if (!Number.isFinite(bareN) || bareN <= 0) {
+        skipped_noBareHash.push(ch);
+        continue;
+      }
+      const titleMatch = (ch.title || '').match(TITLE_RE);
+      if (!titleMatch) {
+        skipped_titleMissingNumber.push(ch);
+        continue;
+      }
+      const titleN = parseInt(titleMatch[1], 10);
+      if (titleN !== bareN) {
+        skipped_bareTitleDisagree.push({ record: ch, bareN, titleN });
+        continue;
+      }
+      if (typeof ch.chapterNumber !== 'number' || ch.chapterNumber !== bareN) {
+        drifts.push({
+          record: ch,
+          bareN,
+          titleN,
+          previousChapterNumber:
+            typeof ch.chapterNumber === 'number' ? ch.chapterNumber : null,
+        });
+      }
+    }
+
+    const baseReport = {
+      schemaVersion: '1' as const,
+      generatedAt: nowIso(),
+      dryRun: true,
+      flagAlreadySet,
+      totals: {
+        chaptersScanned: chapters.length,
+        driftedRows: drifts.length,
+        corrected: 0,
+        summariesUpdated: 0,
+        skipped_noBareHash: skipped_noBareHash.length,
+        skipped_titleMissingNumber: skipped_titleMissingNumber.length,
+        skipped_bareTitleDisagree: skipped_bareTitleDisagree.length,
+      },
+      correctionSample: drifts.slice(0, sampleLimit).map(d => ({
+        stableId: d.record.stableId || '',
+        bareN: d.bareN,
+        titleN: d.titleN,
+        previousChapterNumber: d.previousChapterNumber,
+        title: (d.record.title || '').slice(0, 80),
+      })),
+      skippedSample: [
+        ...skipped_bareTitleDisagree.slice(0, Math.floor(sampleLimit / 2)).map(s => ({
+          stableId: s.record.stableId || '',
+          reason: 'bareN !== titleN',
+          bareN: s.bareN,
+          titleN: s.titleN,
+          currentChapterNumber:
+            typeof s.record.chapterNumber === 'number' ? s.record.chapterNumber : null,
+          titleSnippet: (s.record.title || '').slice(0, 80),
+        })),
+        ...skipped_titleMissingNumber.slice(0, Math.floor(sampleLimit / 2)).map(r => ({
+          stableId: r.stableId || '',
+          reason: 'title has no "Chapter N"',
+          bareN: null,
+          titleN: null,
+          currentChapterNumber:
+            typeof r.chapterNumber === 'number' ? r.chapterNumber : null,
+          titleSnippet: (r.title || '').slice(0, 80),
+        })),
+      ].slice(0, sampleLimit),
+    };
+
+    if (dryRun) {
+      debugLog('indexeddb', 'summary', '[MaintenanceOps.correctChapterNumberDrift] DRY-RUN', baseReport.totals);
+      return baseReport;
+    }
+
+    if (flagAlreadySet && !force) {
+      return { ...baseReport, dryRun: false };
+    }
+
+    if (drifts.length === 0) {
+      await SettingsOps.set(SETTINGS.CHAPTER_NUMBER_CORRECTED_V5, true);
+      return { ...baseReport, dryRun: false };
+    }
+
+    const commitReport = { ...baseReport, dryRun: false };
+    let corrected = 0;
+    let summariesUpdated = 0;
+
+    await withWriteTxn(
+      [STORE_NAMES.CHAPTERS, STORE_NAMES.CHAPTER_SUMMARIES],
+      async (_txn, stores) => {
+        const chaptersStore = stores[STORE_NAMES.CHAPTERS];
+        const summariesStore = stores[STORE_NAMES.CHAPTER_SUMMARIES];
+
+        for (const d of drifts) {
+          const updated: ChapterRecord = {
+            ...d.record,
+            chapterNumber: d.bareN,
+            lastAccessed: nowIso(),
+          };
+          await promisifyRequest(chaptersStore.put(updated));
+          corrected += 1;
+
+          const existingSummary = summariesByStableId.get(d.record.stableId || '');
+          if (existingSummary) {
+            await promisifyRequest(
+              summariesStore.put({
+                ...existingSummary,
+                chapterNumber: d.bareN,
+              })
+            );
+            summariesUpdated += 1;
+          }
+        }
+      },
+      'maintenance',
+      'correct',
+      'chapterNumberDriftV5'
+    );
+
+    commitReport.totals.corrected = corrected;
+    commitReport.totals.summariesUpdated = summariesUpdated;
+
+    await SettingsOps.set(SETTINGS.CHAPTER_NUMBER_CORRECTED_V5, true);
+    debugLog(
+      'indexeddb',
+      'summary',
+      '[MaintenanceOps.correctChapterNumberDrift] COMMIT complete',
       commitReport.totals
     );
     return commitReport;

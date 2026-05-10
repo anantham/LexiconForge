@@ -421,7 +421,31 @@ const getChaptersByNovelAndVersion = async (
   );
 };
 
+// Parse embedded chapter number from a stableId baseHash like
+// "lf-library:NOVEL::VERSION:ch339_60hkvy_65g6" -> 339.
+// Returns null when the stableId does not match the chN_ convention.
+const parseChapterNumberFromStableId = (stableId: string): number | null => {
+  const m = /:ch(\d+)_/.exec(stableId);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
 const setChapterNumberByStableIdModern = async (stableId: string, chapterNumber: number): Promise<void> => {
+  // Defensive guard (issue #20). Historical writers (history walker in
+  // translationService) called this with inferred numbers that disagreed
+  // with the stableId's own baseHash, corrupting chapter rows. Refuse
+  // the write on mismatch.
+  const fromStableId = parseChapterNumberFromStableId(stableId);
+  if (fromStableId !== null && fromStableId !== chapterNumber) {
+    debugWarn('indexeddb', 'summary', '[ChapterOps.setChapterNumberByStableId] REFUSED: argument disagrees with stableId baseHash', {
+      stableId,
+      requestedChapterNumber: chapterNumber,
+      stableIdEncodes: fromStableId,
+    });
+    return;
+  }
+
   await withWriteTxn(
     STORE_NAMES.CHAPTERS,
     async (_txn, stores) => {

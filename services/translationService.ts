@@ -854,24 +854,29 @@ export class TranslationService {
           break;
         }
       }
-      // Persist inferred chapter numbers if current chapter has a number
+      // Infer chapter numbers for in-memory history context only when missing.
+      // Issue #20: previously this block also called ChapterOps.setChapterNumberByStableId,
+      // which corrupted persistent chapter rows whenever the prevUrl chain had gaps
+      // (the walker would assume `inferred = currentNumber - (i+1)` even when links[i]
+      // was a chapter with a different real number). The persistence path is removed;
+      // the in-memory assignment is gated on the value being absent so legitimate
+      // numbers from scrape/URL parsing are never overwritten.
       const currentNumber = currentChapter?.chapterNumber || 0;
       if (currentNumber > 0 && links.length > 0) {
-        try {
-          for (let i = 0; i < links.length; i++) {
-            const inferred = currentNumber - (i + 1);
-            if (inferred <= 0) break;
-            const link = links[i];
-            if (link.stableId) {
-              try { await ChapterOps.setChapterNumberByStableId(link.stableId, inferred); } catch {}
-            }
-            if (link.memChapter) {
-              try { (link.memChapter as any).chapterNumber = inferred; } catch {}
-            }
+        let filled = 0;
+        for (let i = 0; i < links.length; i++) {
+          const inferred = currentNumber - (i + 1);
+          if (inferred <= 0) break;
+          const link = links[i];
+          if (link.memChapter && (link.memChapter as any).chapterNumber == null) {
+            try {
+              (link.memChapter as any).chapterNumber = inferred;
+              filled += 1;
+            } catch {}
           }
-          slog(`[HistoryAsync] Persisted inferred chapter numbers for ${Math.min(links.length, currentNumber - 1)} link(s).`);
-        } catch (e) {
-          swarn('[HistoryAsync] Failed to persist inferred chapter numbers', e);
+        }
+        if (filled > 0) {
+          slog(`[HistoryAsync] Filled ${filled} in-memory chapter number(s) (no persistence — see issue #20).`);
         }
       }
 
