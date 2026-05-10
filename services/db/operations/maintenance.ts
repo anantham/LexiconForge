@@ -2165,22 +2165,29 @@ export class MaintenanceOps {
         commitReport.totals.chaptersDeleted = oldUrlsTouched.size - mergedByNewStableId.size;
 
         // ─── Translations: re-key stableId + chapterUrl, renumber on collisions ──
+        // Bucket every translation by its FINAL stableId (post-remap if any),
+        // including translations already at a canonical stableId. Otherwise an
+        // already-canonical row sharing a target stableId can collide with a
+        // remapped row on the (stableId, version) unique index.
+        const targetStableIds = new Set(stableIdRemap.values());
         const translationsByNewStableId = new Map<string, TranslationRecord[]>();
         let translationsRekeyed = 0;
         for (const t of translations) {
           const oldSid = t.stableId || '';
           const newSid = stableIdRemap.get(oldSid);
           const newUrl = chapterUrlRemap.get(t.chapterUrl);
-          if (!newSid && !newUrl) continue;
+          const finalSid = newSid || oldSid;
+          const isAlreadyAtTarget = !newSid && targetStableIds.has(oldSid);
+          const isRekeyed = Boolean(newSid || newUrl);
+          if (!isRekeyed && !isAlreadyAtTarget) continue;
           const updated: TranslationRecord = {
             ...t,
-            stableId: newSid || oldSid,
+            stableId: finalSid,
             chapterUrl: newUrl || t.chapterUrl,
           };
-          const targetSid = updated.stableId;
-          const bucket = translationsByNewStableId.get(targetSid) ?? [];
+          const bucket = translationsByNewStableId.get(finalSid) ?? [];
           bucket.push(updated);
-          translationsByNewStableId.set(targetSid, bucket);
+          translationsByNewStableId.set(finalSid, bucket);
         }
         for (const [newSid, bucket] of translationsByNewStableId.entries()) {
           // Pick the chapter URL from the merged chapter (truth)
@@ -2199,6 +2206,16 @@ export class MaintenanceOps {
                   (l, r) => translationCreatedAtValue(r) - translationCreatedAtValue(l)
                 )[0].id
               : sorted[sorted.length - 1]?.id;
+
+          // Delete bucket members FIRST so the (stableId, version) unique
+          // index is clear before we re-put with renumbered versions. Without
+          // this, a remapped row's put at version=1 collides with a still-
+          // present canonical row's existing version=1 entry, even though we
+          // plan to renumber that canonical row later in the same loop.
+          for (const record of sorted) {
+            await promisifyRequest(translationsStore.delete(record.id));
+          }
+
           const usedVersions = new Set<number>();
           let nextVersion = 1;
           for (const record of sorted) {
@@ -2210,6 +2227,7 @@ export class MaintenanceOps {
             usedVersions.add(assignedVersion);
             nextVersion = Math.max(nextVersion, assignedVersion + 1);
             record.version = assignedVersion;
+            record.stableId = newSid;
             record.chapterUrl = targetUrl;
             record.isActive = record.id === activeId;
             await promisifyRequest(translationsStore.put(record));

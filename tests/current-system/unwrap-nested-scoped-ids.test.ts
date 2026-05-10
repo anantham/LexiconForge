@@ -149,6 +149,104 @@ describe('unwrapNestedScopedIds (V4)', () => {
     expect(flag).toBe(true);
   });
 
+  it('regression: pre-existing canonical translation does not collide on stableId_version index', async () => {
+    // Real-world failure mode: chapter has 3 translations across 3 stableIds,
+    // one of which is ALREADY canonical. Bug: bucket missed the canonical row,
+    // remapped rows got version=1, collided with existing canonical version=1
+    // on the unique index.
+    const bare = 'ch1_uo070x_2xjw';
+    const legacyId = cleanStableId(bare, legacyVersion);                                  // v1-composite
+    const nestedCanonical = nestedTwoLayer(bare, canonicalVersion, legacyVersion);        // v1-st-enhanced(v1-composite)
+    const cleanCanonical = cleanStableId(bare, canonicalVersion);                         // already canonical
+
+    await ChapterOps.store({
+      stableId: cleanCanonical,
+      novelId,
+      libraryVersionId: canonicalVersion,
+      originalUrl: 'https://hetushu.com/book/2991/2051039.html',
+      canonicalUrl: 'https://hetushu.com/book/2991/2051039.html',
+      title: '第1章 新的冲突',
+      content: 'chinese raw',
+      chapterNumber: 1,
+    });
+    await ChapterOps.store({
+      stableId: legacyId,
+      novelId,
+      libraryVersionId: legacyVersion,
+      originalUrl: 'https://hetushu.com/book/2991/2051039.html',
+      canonicalUrl: 'https://hetushu.com/book/2991/2051039.html',
+      title: '第1章 新的冲突',
+      content: 'chinese raw',
+      chapterNumber: 1,
+    });
+    await ChapterOps.store({
+      stableId: nestedCanonical,
+      novelId,
+      libraryVersionId: canonicalVersion,
+      originalUrl: 'https://hetushu.com/book/2991/2051039.html',
+      canonicalUrl: 'https://hetushu.com/book/2991/2051039.html',
+      title: '第1章 新的冲突',
+      content: 'chinese raw',
+      chapterNumber: 1,
+    });
+
+    // 3 translations, all version=1, distributed across the 3 stableIds
+    await insertTranslation({
+      id: 'tr-already-canonical',
+      stableId: cleanCanonical,
+      chapterUrl: cleanUrl(bare, canonicalVersion),
+      version: 1,
+      translatedTitle: 'Chapter 1 — Canonical (newest)',
+      translation: 'newest', footnotes: [], suggestedIllustrations: [],
+      provider: 'OpenRouter', model: 'm', temperature: 0.5, systemPrompt: 's',
+      totalTokens: 1, promptTokens: 1, completionTokens: 0, estimatedCost: 0, requestTime: 1,
+      createdAt: '2026-04-09T15:42:23.897Z', isActive: true,
+    });
+    await insertTranslation({
+      id: 'tr-from-legacy',
+      stableId: legacyId,
+      chapterUrl: cleanUrl(bare, legacyVersion),
+      version: 1,
+      translatedTitle: 'Chapter 1 — From Legacy',
+      translation: 'legacy', footnotes: [], suggestedIllustrations: [],
+      provider: 'OpenRouter', model: 'm', temperature: 0.5, systemPrompt: 's',
+      totalTokens: 1, promptTokens: 1, completionTokens: 0, estimatedCost: 0, requestTime: 1,
+      createdAt: '2026-04-05T10:00:00.000Z', isActive: true,
+    });
+    await insertTranslation({
+      id: 'tr-from-nested',
+      stableId: nestedCanonical,
+      chapterUrl: nestedUrl(bare, canonicalVersion, legacyVersion),
+      version: 1,
+      translatedTitle: 'Chapter 1 — From Nested',
+      translation: 'nested', footnotes: [], suggestedIllustrations: [],
+      provider: 'OpenRouter', model: 'm', temperature: 0.5, systemPrompt: 's',
+      totalTokens: 1, promptTokens: 1, completionTokens: 0, estimatedCost: 0, requestTime: 1,
+      createdAt: '2026-04-06T19:00:00.000Z', isActive: true,
+    });
+
+    // Pre-fix this would throw ConstraintError
+    const report = await MaintenanceOps.unwrapNestedScopedIds({
+      dryRun: false,
+      force: true,
+      canonicalVersions: { [novelId]: canonicalVersion },
+    });
+
+    expect(report.dryRun).toBe(false);
+    const all = await TranslationOps.getAll();
+    const forBare = all.filter(t => t.stableId === cleanCanonical);
+    expect(forBare).toHaveLength(3);
+    expect(forBare.map(t => t.id).sort()).toEqual([
+      'tr-already-canonical', 'tr-from-legacy', 'tr-from-nested',
+    ]);
+    // All on canonical stableId, distinct versions (no index collision)
+    const versions = forBare.map(t => t.version).sort();
+    expect(versions).toEqual([1, 2, 3]);
+    // Most recent createdAt wins active
+    const active = forBare.find(t => t.isActive);
+    expect(active?.id).toBe('tr-already-canonical');
+  });
+
   it('collision: legacy scope and canonical scope merge, translations preserved', async () => {
     const bare = 'ch500_xxxx_yyyy';
     const legacyId = cleanStableId(bare, legacyVersion);
