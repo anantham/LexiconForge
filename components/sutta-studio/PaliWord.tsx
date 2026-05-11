@@ -105,10 +105,15 @@ export const PaliWordEngine = memo(function PaliWordEngine({
               id={sDomId}
               data-interactive="true"
               className={`relative px-[2px] rounded transition-all duration-150 ${
-                isHovered || isPinned
-                  ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
-                  : 'border-b-2 border-transparent pb-0'
-              } ${segmentClass} ${settings.tooltips ? 'cursor-help' : ''}`}
+                isPinned
+                  // Pinned segment is visually distinct from a hover state:
+                  //   thin emerald ring around the segment, cursor changes to
+                  //   pointer (click target) so the user knows clicking again unpins.
+                  ? 'bg-white/5 z-20 border-b-2 border-emerald-600/70 pb-1 -mb-1 ring-1 ring-emerald-700/40 ring-offset-1 ring-offset-slate-950'
+                  : isHovered
+                    ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
+                    : 'border-b-2 border-transparent pb-0'
+              } ${segmentClass} ${settings.tooltips ? (isPinned ? 'cursor-pointer' : 'cursor-help') : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (hasTextSelection()) return;
@@ -166,7 +171,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 )}
               </AnimatePresence>
 
-              <AnimatePresence>{showTooltip && tooltipText && <Tooltip text={tooltipText} />}</AnimatePresence>
+              <AnimatePresence>{showTooltip && tooltipText && <Tooltip text={tooltipText} pinned={isPinned} />}</AnimatePresence>
             </div>
           );
         })}
