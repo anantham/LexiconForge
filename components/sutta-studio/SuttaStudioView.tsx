@@ -479,8 +479,12 @@ export function SuttaStudioView({
                                   const cpy1Offset = -arcHeight;  // First CP above - curve goes up
                                   const cpy2Offset = arcHeight * 0.2;  // Second CP below - curve descends, arrow points down
 
-                                  // Visual weight: prominent when focused, subtle when not
-                                  const arrowOpacity = isFocused ? 0.9 : 0.4;
+                                  // Visual weight: arrows are interactions, not furniture.
+                                  // Default state is very quiet (0.2) so the hover-summon
+                                  // feels like the arrow appears for you, not always-on clutter.
+                                  // When focused (hovering source segment), the arrow brightens
+                                  // to 0.9 with solid stroke and visible arrowhead.
+                                  const arrowOpacity = isFocused ? 0.9 : 0.2;
                                   const arrowColor = isFocused ? style.color : style.color + '99'; // Add alpha
 
                                   return (

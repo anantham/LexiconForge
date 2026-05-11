@@ -45,6 +45,13 @@ export const PaliWordEngine = memo(function PaliWordEngine({
     cycle(wordData.id);
   };
 
+  // Anchor styling: when a word is the semantic centerpiece of its phase
+  // (PaliWord.isAnchor), give it a subtle warm underline + slight weight increase.
+  // The cue is implicit — no badge, no "★", no label. Just a felt difference.
+  // Refrain styling takes precedence on the wrapper underline; anchor still
+  // gets the slight weight bump.
+  const isAnchor = Boolean(wordData.isAnchor);
+
   return (
     <motion.div
       layoutId={`${phaseId}-${wordData.id}`}
@@ -52,11 +59,15 @@ export const PaliWordEngine = memo(function PaliWordEngine({
       data-interactive="true"
       className={`flex flex-col items-center mx-1 md:mx-2 bg-slate-950 relative z-10 ${
         isWordFocused ? 'ring-1 ring-emerald-900/50 rounded' : ''
-      } ${refrainStyle ? `border-b-2 ${refrainStyle.underline} pb-1` : ''}`}
+      } ${refrainStyle ? `border-b-2 ${refrainStyle.underline} pb-1` : ''} ${
+        isAnchor && !refrainStyle ? 'border-b-2 border-amber-700/30 pb-0.5' : ''
+      }`}
       onClick={onWordClick}
       title="Click: rotate meaning"
     >
-      <div className={`text-3xl md:text-5xl lg:text-6xl font-serif flex items-end ${getWordColor(wordData.wordClass, wordData.color)}`}>
+      <div className={`text-3xl md:text-5xl lg:text-6xl font-serif flex items-end ${getWordColor(wordData.wordClass, wordData.color)} ${
+        isAnchor ? 'font-medium' : ''
+      }`}>
         {wordData.segments.map((seg: WordSegment, i: number) => {
           // Use segment ID if available, fall back to index-based ID
           const sDomId = seg.id
