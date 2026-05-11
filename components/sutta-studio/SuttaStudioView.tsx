@@ -71,6 +71,20 @@ export function SuttaStudioView({
   const phaseIds = useMemo(() => visiblePhases.map((p) => p.id), [visiblePhases]);
   const scrollProgress = useScrollProgress(phaseIds, scrollContainerRef);
 
+  // Build a segmentId -> baseEnglish lookup for partial-phase fallback
+  // rendering. When a phase has no englishStructure (alignment pass not done
+  // yet for this phase), we fall back to the source English from
+  // canonicalSegments so the user sees Pali + plain English instead of
+  // Pali with empty space below.
+  const segmentBaseEnglishById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const seg of packet.canonicalSegments ?? []) {
+      const id = seg.ref?.segmentId;
+      if (id && seg.baseEnglish) map.set(id, seg.baseEnglish);
+    }
+    return map;
+  }, [packet.canonicalSegments]);
+
   // Hash navigation: scroll to element on load
   useEffect(() => {
     const hash = window.location.hash.slice(1);
@@ -373,6 +387,20 @@ export function SuttaStudioView({
               const phaseId = phase.id;
               const blocks = resolveBlocks(phase);
               const englishBlocks = assignEnglishBlocks(phase, blocks);
+              // Partial phase: Pali extracted but English alignment hasn't run yet.
+              // englishStructure is empty so per-block English rows would render
+              // as empty wrappers (visible blank space). Detect once per phase
+              // so we can (a) suppress those empty wrappers and (b) render a
+              // single side-by-side fallback row using baseEnglish from
+              // canonicalSegments. See issue #20-style cleanup follow-up.
+              const isPartialPhase =
+                !phase.englishStructure || phase.englishStructure.length === 0;
+              const fallbackEnglish = isPartialPhase
+                ? (phase.canonicalSegmentIds || [])
+                    .map((id) => segmentBaseEnglishById.get(id))
+                    .filter((s): s is string => Boolean(s && s.trim()))
+                    .join(' ')
+                : '';
 
               return (
                 <section
@@ -497,7 +525,7 @@ export function SuttaStudioView({
                           ))}
                         </div>
 
-                        {englishVisible && (
+                        {englishVisible && englishTokens.length > 0 && (
                           <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 w-full pb-8 border-b border-slate-900/50">
                             {englishTokens.map((item, i) => (
                               <div key={`${item.id}-${blockIdx}-${i}`} className="relative">
@@ -548,6 +576,15 @@ export function SuttaStudioView({
                       </div>
                     );
                   })}
+
+                  {englishVisible && isPartialPhase && fallbackEnglish && (
+                    <div
+                      className="mt-2 px-4 pb-8 border-b border-slate-900/50 text-slate-400 italic opacity-70 text-base text-center max-w-3xl mx-auto"
+                      title="Source English (alignment pass still running)"
+                    >
+                      {fallbackEnglish}
+                    </div>
+                  )}
                 </section>
               );
             })}
