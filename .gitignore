@@ -17,6 +17,9 @@ build/
 .vite/
 .vite-temp/
 
+# Raw upstream data caches (downloaded by build scripts; not committed)
+data/_raw/
+
 # OS generated files
 .DS_Store
 .DS_Store?
