@@ -21,6 +21,7 @@
     "build-library-session": "tsx scripts/build-library-session.ts",
     "discover-chapter-alignment": "tsx scripts/discover-chapter-alignment.ts",
     "build:dpd": "tsx scripts/build-dpd.ts",
+    "sutta:lookup": "tsx scripts/sutta-studio/lookup-phase.ts",
     "check:loc": "node scripts/check-loc.js"
   },
   "dependencies": {
