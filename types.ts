@@ -312,6 +312,12 @@ export interface AppSettings {
     targetLanguage?: string;       // e.g., "English", "Malayalam"
     provider: TranslationProvider;
     model: string; // The ID of the model, e.g., 'gemini-2.5-pro'
+    /** Optional override for Sutta Studio compiler model. Defaults to a cheap fast
+     *  model (see compiler/index.ts SUTTA_STUDIO_DEFAULT_MODEL) so that Studio runs
+     *  don't accidentally use the expensive translation model. Leave undefined to
+     *  use the default; set explicitly via Settings UI to override. */
+    suttaStudioProvider?: TranslationProvider;
+    suttaStudioModel?: string;
     imageModel: string; // The ID of the image model, e.g., 'imagen-4.0-ultra...'
     temperature: number; // 0.0 to 2.0, controls randomness/creativity
     // Expanded AI parameters (OpenAI-compatible)

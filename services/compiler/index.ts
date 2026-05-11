@@ -88,6 +88,31 @@ const err = (message: string, ...args: any[]) =>
 
 const COMPILER_MIN_CALL_GAP_MS = 1000;
 
+/**
+ * Sutta Studio compiler defaults — kept SEPARATE from the global translation
+ * model setting to prevent runaway cost. A long sutta requires ~4 LLM calls
+ * per phase (Anatomist + Lexicographer + Weaver + Typesetter); for a 3000+
+ * phase chapter that's tens of thousands of calls. Defaulting to Claude
+ * Sonnet 4.6 makes this $100-$400 per chapter; defaulting to Gemini Flash
+ * makes it $1-$7. Quality is more than sufficient for Sutta Studio passes
+ * which are structured JSON extraction tasks, not creative translation.
+ *
+ * User can override via settings.suttaStudioModel / suttaStudioProvider
+ * (UI toggle pending). When unset, we use these constants regardless of
+ * the global translation model.
+ */
+export const SUTTA_STUDIO_DEFAULT_PROVIDER: AppSettings['provider'] = 'OpenRouter';
+export const SUTTA_STUDIO_DEFAULT_MODEL = 'google/gemini-3-flash-preview';
+
+export const applySuttaStudioModelOverride = (rawSettings: AppSettings): AppSettings => {
+  const provider = rawSettings.suttaStudioProvider ?? SUTTA_STUDIO_DEFAULT_PROVIDER;
+  const model = rawSettings.suttaStudioModel ?? SUTTA_STUDIO_DEFAULT_MODEL;
+  if (provider === rawSettings.provider && model === rawSettings.model) {
+    return rawSettings;
+  }
+  return { ...rawSettings, provider, model };
+};
+
 export type CompileProgress = {
   packet: DeepLoomPacket;
   stage: 'fetching' | 'init' | 'skeleton' | 'phase' | 'complete' | 'error';
@@ -104,7 +129,11 @@ export const compileSuttaStudioPacket = async (options: {
   signal?: AbortSignal;
   allowCrossChapter?: boolean;
 }): Promise<DeepLoomPacket> => {
-  const { uid, uids, lang, author, settings, onProgress, signal, allowCrossChapter } = options;
+  const { uid, uids, lang, author, settings: rawSettings, onProgress, signal, allowCrossChapter } = options;
+  const settings = applySuttaStudioModelOverride(rawSettings);
+  if (settings !== rawSettings) {
+    log(`Sutta Studio compiler: using ${settings.provider} ${settings.model} (override) instead of global ${rawSettings.provider} ${rawSettings.model}`);
+  }
   const uidList = Array.from(new Set([uid, ...(uids || [])].filter(Boolean)));
   const uidKey = uidList.join('+');
   log(`Starting compiler for ${uidKey} (${lang}/${author})`);
