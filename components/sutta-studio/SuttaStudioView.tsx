@@ -27,6 +27,10 @@ export function SuttaStudioView({
   const [pinned, setPinned] = useState<Focus | null>(null);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
   const [activeSegmentIndices, setActiveSegmentIndices] = useState<Record<string, number>>({});
+  // Per-segment tooltip facet index. Click on a Pāli segment cycles through
+  // its `tooltips[]` array (each string is a distinct facet of explanation —
+  // Meaning / What English hides / Example / etc.). Independent of senses.
+  const [tooltipFacetIndices, setTooltipFacetIndices] = useState<Record<string, number>>({});
   const [settings, setSettings] = useState<StudioSettings>(() => loadSettings());
   const [layoutTick, setLayoutTick] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -281,6 +285,27 @@ export function SuttaStudioView({
     }
   };
 
+  // Advance tooltip facet for a segment. When a segment has multiple
+  // strings in `tooltips[]`, each click on the segment shows the next one.
+  // Wraps endlessly; unpinning happens via the × glyph on the tooltip
+  // (handled in Tooltip.tsx + this component's setPinned).
+  const cycleSegmentTooltipFacet = (phaseId: string, segmentId: string) => {
+    const phase = visiblePhases.find((p) => p.id === phaseId);
+    if (!phase) return;
+    for (const word of phase.paliWords) {
+      const seg = word.segments.find((s) => s.id === segmentId);
+      if (seg && seg.tooltips && seg.tooltips.length > 1) {
+        const key = `${phaseId}-${segmentId}`;
+        setTooltipFacetIndices((prev) => {
+          const current = prev[key] ?? 0;
+          const next = (current + 1) % seg.tooltips!.length;
+          return { ...prev, [key]: next };
+        });
+        return;
+      }
+    }
+  };
+
   type PhaseType = (typeof visiblePhases)[0];
 
   const resolveBlocks = (phase: PhaseType) => {
@@ -424,9 +449,11 @@ export function SuttaStudioView({
                                 wordData={word}
                                 activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
                                 activeSegmentIndices={activeSegmentIndices}
+                                tooltipFacetIndices={tooltipFacetIndices}
                                 settings={settings}
                                 cycle={(wordId) => cycle(wordId, phaseId)}
                                 cycleSegment={cycleSegment}
+                                cycleSegmentTooltipFacet={cycleSegmentTooltipFacet}
                                 hovered={hovered}
                                 pinned={pinned}
                                 setHovered={setHovered}

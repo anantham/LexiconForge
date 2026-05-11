@@ -13,9 +13,11 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   wordData,
   activeIndex,
   activeSegmentIndices,
+  tooltipFacetIndices,
   settings,
   cycle,
   cycleSegment,
+  cycleSegmentTooltipFacet,
   hovered,
   pinned,
   setHovered,
@@ -25,9 +27,11 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   wordData: PaliWord;
   activeIndex: number;
   activeSegmentIndices?: Record<string, number>;
+  tooltipFacetIndices?: Record<string, number>;
   settings: StudioSettings;
   cycle: (wordId: string) => void;
   cycleSegment?: (phaseId: string, segmentId: string) => void;
+  cycleSegmentTooltipFacet?: (phaseId: string, segmentId: string) => void;
   hovered: Focus | null;
   pinned: Focus | null;
   setHovered: Dispatch<SetStateAction<Focus | null>>;
@@ -81,7 +85,16 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           const activeSegmentIdx = segKey ? (activeSegmentIndices?.[segKey] ?? 0) : 0;
           const activeSenseId = resolveSenseId(wordData, activeIndex);
           const segSenseText = seg.senses?.length ? seg.senses[activeSegmentIdx]?.english : null;
-          const rawTooltip = segSenseText || seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
+          // Tooltip facet index — advanced by clicking the Pāli segment.
+          // When a segment has multiple `tooltips[]` strings, each click
+          // cycles to the next facet (Meaning / What English hides / etc.).
+          // If the segment has only one tooltip, this index stays at 0.
+          const tooltipFacetIdx = segKey ? (tooltipFacetIndices?.[segKey] ?? 0) : 0;
+          // Override the default arr[activeIndex] picker with the facet index
+          // so the cycle is driven by clicks, not by sense changes.
+          const tooltipsArr = seg.tooltips ?? [];
+          const facetTooltip = tooltipsArr.length > 0 ? tooltipsArr[tooltipFacetIdx % tooltipsArr.length] : '';
+          const rawTooltip = segSenseText || seg.relation?.label || facetTooltip || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
           // Apply filters based on settings
           let tooltipText = rawTooltip;
           if (!settings.grammarTerms) tooltipText = stripGrammarTerms(tooltipText);
@@ -126,11 +139,20 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                   segmentDomId: sDomId,
                   data: seg,
                 };
-                // Toggle pin: click pinned segment → unpin; click elsewhere → pin
-                setPinned((prev) =>
-                  prev?.kind === 'segment' && prev.segmentDomId === sDomId ? null : segFocus
-                );
-                // Cycle segment senses if available
+                // Always pin on click — clicking a Pāli segment engages with
+                // it. To unpin, click the × glyph on the tooltip (or pin a
+                // different segment, which moves the pin).
+                setPinned(segFocus);
+                // Click cycles through the segment's tooltip facets — the
+                // primary click affordance on Pāli segments per the
+                // grounded-curation UX (CURATION_PROTOCOL.md). Each click
+                // advances to the next string in seg.tooltips[].
+                if (seg.id && (seg.tooltips?.length ?? 0) > 1) {
+                  cycleSegmentTooltipFacet?.(phaseId, seg.id);
+                }
+                // Cycle segment senses if the segment has them (orthogonal
+                // to tooltip facets; applies only to compound words with
+                // per-segment meanings).
                 if (seg.senses?.length && seg.id) {
                   cycleSegment?.(phaseId, seg.id);
                 }
@@ -171,7 +193,17 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 )}
               </AnimatePresence>
 
-              <AnimatePresence>{showTooltip && tooltipText && <Tooltip text={tooltipText} pinned={isPinned} />}</AnimatePresence>
+              <AnimatePresence>
+                {showTooltip && tooltipText && (
+                  <Tooltip
+                    text={tooltipText}
+                    pinned={isPinned}
+                    facetIndex={tooltipsArr.length > 1 ? tooltipFacetIdx % tooltipsArr.length : undefined}
+                    facetTotal={tooltipsArr.length > 1 ? tooltipsArr.length : undefined}
+                    onUnpin={isPinned ? () => setPinned(null) : undefined}
+                  />
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
