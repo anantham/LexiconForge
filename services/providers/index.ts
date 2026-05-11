@@ -11,6 +11,16 @@ export * from './citationHelpers';
 export * from './lexiconRegistry';
 export { SuttaCentralDictionaryProvider, suttaCentralDictionaryProvider } from './suttaCentralDictionary';
 export { DpdProvider, mergeDpdData, type DpdData, type DpdHeadwords, type DpdForms } from './dpd';
+export {
+  SuttaCentralBilaraVariantsProvider,
+  suttaCentralBilaraVariantsProvider,
+  type VariantReading,
+} from './scBilaraVariants';
+export {
+  SuttaCentralSuttaplexParallelProvider,
+  suttaCentralSuttaplexParallelProvider,
+  type SuttaplexParallelRef,
+} from './scSuttaplex';
 
 import { LexiconProviderRegistry } from './lexiconRegistry';
 import { suttaCentralDictionaryProvider } from './suttaCentralDictionary';

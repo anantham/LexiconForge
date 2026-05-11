@@ -28,6 +28,10 @@ import {
   LexiconProviderRegistry,
   SuttaCentralDictionaryProvider,
   DpdProvider,
+  SuttaCentralBilaraVariantsProvider,
+  SuttaCentralSuttaplexParallelProvider,
+  type VariantReading,
+  type SuttaplexParallelRef,
 } from '../../services/providers';
 import { loadDpdSubsetFromFs } from '../../services/providers/dpd-loader-fs';
 import type { LexiconEntry } from '../../services/providers/types';
@@ -119,6 +123,11 @@ const extractPhaseTargets = (packet: DeepLoomPacket, phaseId: string): WordTarge
     surface: (w.segments ?? []).map((s) => s.text).join(''),
     wordClass: w.wordClass,
   }));
+};
+
+const extractPhaseCanonicalSegments = (packet: DeepLoomPacket, phaseId: string): string[] => {
+  const phase = packet.phases.find((p) => p.id === phaseId);
+  return phase?.canonicalSegmentIds ?? [];
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -224,6 +233,7 @@ const main = async (): Promise<void> => {
   // Determine sutta UID + load DPD subset.
   let suttaUid = args.sutta;
   let targets: WordTarget[];
+  let phaseSegmentIds: string[] = [];
 
   if (args.phase) {
     if (!fs.existsSync(args.demoPacketPath)) {
@@ -232,6 +242,7 @@ const main = async (): Promise<void> => {
     const packet = JSON.parse(fs.readFileSync(args.demoPacketPath, 'utf8')) as DeepLoomPacket;
     if (!suttaUid) suttaUid = packet.source?.workId ?? 'mn10';
     targets = extractPhaseTargets(packet, args.phase);
+    phaseSegmentIds = extractPhaseCanonicalSegments(packet, args.phase);
   } else {
     if (!suttaUid) suttaUid = 'mn10';
     targets = (args.lemmas ?? []).map((surface, i) => ({ wordId: `arg-${i}`, surface }));
@@ -247,12 +258,55 @@ const main = async (): Promise<void> => {
     console.warn(`[lookup-phase] continuing with SC dictionary_full only`);
   }
 
+  // Phase-level providers (parallels + variants).
+  const parallelProvider = new SuttaCentralSuttaplexParallelProvider();
+  const variantsProvider = new SuttaCentralBilaraVariantsProvider();
+  let allParallels: SuttaplexParallelRef[] = [];
+  const phaseVariants: Record<string, VariantReading[]> = {};
+  if (args.phase) {
+    try {
+      allParallels = await parallelProvider.getParallels(suttaUid);
+    } catch (e) {
+      console.warn(`[lookup-phase] suttaplex parallels failed: ${e instanceof Error ? e.message : e}`);
+    }
+    for (const segId of phaseSegmentIds) {
+      try {
+        const variants = await variantsProvider.getVariantsForSegment(segId);
+        if (variants.length > 0) phaseVariants[segId] = variants;
+      } catch {
+        // Silent — missing variant files are normal for stable openings.
+      }
+    }
+  }
+
   if (!args.emitJson) {
     console.log(`# Lookup report`);
     console.log(`sutta: ${suttaUid}`);
     if (args.phase) console.log(`phase: ${args.phase}`);
-    console.log(`providers: ${registry.list().map((p) => p.label).join(', ')}`);
+    console.log(`providers: ${registry.list().map((p) => p.label).join(', ')}, SC suttaplex, SC bilara variants`);
     console.log('');
+
+    if (args.phase && (allParallels.length > 0 || Object.keys(phaseVariants).length > 0)) {
+      console.log('## Phase-level evidence');
+      if (allParallels.length > 0) {
+        console.log(`  Parallels for ${suttaUid} (top 8 of ${allParallels.length}):`);
+        for (const p of allParallels.slice(0, 8)) {
+          const seg = p.segmentId ? ` @ ${p.segmentId}` : '';
+          console.log(`    → ${p.workId}${seg}: ${p.note ?? ''}`);
+        }
+      }
+      if (Object.keys(phaseVariants).length > 0) {
+        console.log(`  Variant readings in this phase:`);
+        for (const [segId, variants] of Object.entries(phaseVariants)) {
+          for (const v of variants) {
+            console.log(`    ${segId}: "${v.original}" → "${v.reading}" (witnesses: ${v.witnesses.join(', ')})`);
+          }
+        }
+      } else if (phaseSegmentIds.length > 0) {
+        console.log(`  Variant readings in this phase: (none for ${phaseSegmentIds.join(', ')} — stable across witnesses)`);
+      }
+      console.log('');
+    }
   }
 
   const results: LookupResult[] = [];
@@ -266,7 +320,13 @@ const main = async (): Promise<void> => {
   }
 
   if (args.emitJson) {
-    process.stdout.write(JSON.stringify({ sutta: suttaUid, phase: args.phase, results }, null, 2));
+    process.stdout.write(JSON.stringify({
+      sutta: suttaUid,
+      phase: args.phase,
+      results,
+      parallels: allParallels,
+      variants: phaseVariants,
+    }, null, 2));
   } else {
     console.log(renderSummary(results));
   }
