@@ -1,3 +1,14 @@
+2026-05-11 (continuing — provider build) - [Agent: Opus 4.7 (1M)]
+- Status: Active. Schema (7d38402) + ADR (cfdc48c) pushed to main; provider abstraction work begins in worktree.
+- Task: Tier-1 grounded-curation data layer per ADR SUTTA-008 §Build order. Commit A: provider abstraction + Citation schema extension + refactor services/compiler/dictionary.ts into SuttaCentralDictionaryProvider. Subsequent commits B/C/D/E add DpdProvider, VRI edition + Aṭṭhakathā providers, SC bilara+suttaplex, curation helper. Then phase-by-phase MN10 re-curation (task #14).
+- Branch: feat/opus-grounded-data-layer (worktree: ../LexiconForge.worktrees/opus-grounded-data-layer)
+- Sources of truth: docs/adr/SUTTA-008-grounded-curation-data-layer.md (architecture), docs/sutta-studio/FEATURES.md (schema), docs/HANDOVER.md (prior session).
+- Already on main this session — do not redo:
+  - 7d38402 feat(sutta-studio): additive bilingual schema fields (FEATURES.md §2)
+  - cfdc48c docs(sutta-studio): ratify SUTTA-008 grounded-curation data layer ADR
+
+---
+
 2026-05-11 (long session) - [Agent: Opus 4.7 (1M)]
 - Status: All 8 commits pushed to origin/main. Clean tree.
 - Task: Chapter identity migrations (V4 unwrap + V5 chapter-number drift), Sutta Studio fixes (chip honesty, cheap-model default, partial-phase fallback), Sutta Studio architectural docs (FEATURES + TEXT_GRAPH + POLYGLOT, ~1700 lines).
