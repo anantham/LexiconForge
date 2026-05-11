@@ -392,14 +392,56 @@ Captured for separate follow-up. **NOT** implemented inside this phase's diff.
 
 6. **No first-class "curator inference" marker.** Several decisions above (evaṁ sense, ghostKind='auxiliary', isAnchor=true) are curator-inferred — grammatically grounded but not from a citation. Currently the basis is recorded only in this curation log, not in the packet itself. A `Sense.curatorInferred?: boolean` or `Sense.epistemicBasis: 'inferred'` enum value would let the renderer attribute correctly. Open protocol question §10.3 in CURATION_PROTOCOL.md flags this.
 
+7. **`EpistemicBasis` enum missing `grammatical` / `curatorial` / `philological`.** Several claims in phase-a are grammatical (the agent-in-genitive-of-passive-participle pattern; the adverbial-deictic reading of evaṁ; the substantive use of past participles). Current enum is `'etymological' | 'commentarial' | 'contextual' | 'lexical' | 'comparative'`. Using `etymological` as the closest fit is borderline misleading — etymology is word-history; these are syntactic/grammatical facts. Proposed addition:
+   ```ts
+   export type EpistemicBasis =
+     | 'etymological'   // word-history; sandhi; cognate
+     | 'grammatical'    // syntactic/morphological rule (NEW)
+     | 'commentarial'
+     | 'contextual'
+     | 'lexical'
+     | 'comparative'
+     | 'curatorial';    // explicit curator inference, grammatically grounded (NEW)
+   ```
+   Per the gate's instruction, all `'etymological'` values on phase-a where the claim is grammatical (evaṁ sense, me→a3 relation) are tagged with this issue: they should migrate to `'grammatical'` once the enum extends. Issue to file: `[Schema] Extend EpistemicBasis with 'grammatical' and 'curatorial'`.
+
+8. **`MorphHint` lacks `function` / `semanticRole`.** The current `case: 'gen'` on `a2.s1` records the surface form. The pedagogically load-bearing fact — that this genitive surface is *functioning as agent* — is preserved only in tooltips. Future shape (per gate amendment):
+   ```ts
+   type MorphHint = {
+     // existing fields...
+     function?: 'agent' | 'patient' | 'recipient' | 'instrument' | 'possessor' | 'location' | ...;
+     semanticRole?: string;  // free-form fallback
+   };
+   ```
+   This separates morphology (declensional case) from syntax (function in the clause). Issue to file: `[Schema] Add function/semanticRole to MorphHint to capture oblique-agent and similar form/function divergences`.
+
+9. **`GhostKind` could be more specific.** `'auxiliary'` works for "have" in the perfect construction, but a more precise kind would be `'auxiliary_from_english_perfect'` — naming why the English grammar requires it. Current enum collapses several distinct grammatical motivations under `'auxiliary'`. Defer; revisit after several phases reveal whether the finer distinctions matter pedagogically.
+
 ---
 
 ## 11. Outcome
 
-- **Packet diff:** _(filled at apply step — link to commit)_
-- **Tests run:** _(filled — yes/no, what passed)_
-- **Build verified:** _(filled — Vite build green / not run / failed)_
-- **Renderer inspected:** _(filled — yes/no, screenshot path if captured)_
+- **Packet diff:** applied in same commit as this log update. Seven localized changes in `components/sutta-studio/demoPacket.json` phase-a + four new entries in `packet.citations`. Verified by `python3 -c "json.load(...)"` and field-by-field readback.
+- **Tests run:** ✅ 173/173 pass across 11 suites (services/providers/, services/suttaStudioRehydrator.test, tests/components/sutta-studio-utils.test, tests/services/compiler/, types/suttaStudio.test). No regressions from packet content or schema extensions.
+- **Build verified:** ✅ `npx vite build` succeeds (built in 23.30s). DPD JSON shards bundle in cleanly. Pre-existing chunk-size warnings unrelated.
+- **Renderer inspected:** not in this commit — the live `/sutta/demo` will reflect the change once main is updated. Visual inspection deferred to merge/preview review.
+
+**Date:** 2026-05-11
+**Commit:** (filled at commit time below)
+
+---
+
+## 12. Pre-ratification log: gate-amendment summary
+
+Aditya's verdict on the proposed JSON diff (chat artifact, second gate) was "approve to apply, with small wording/schema-basis amendments before commit." Seven amendments applied:
+
+1. Summary counts corrected to "seven localized changes; four citation entries."
+2. evaṁ `epistemicBasis: 'etymological'` retained for now (enum lacks `'grammatical'`/`'curatorial'`); flagged as schema tension §10.7.
+3. evaṁ tooltip on `a1.s1` softened to "Do not confuse evaṁ with bare eva…"
+4. `a1.s2` tooltip changed to "[Niggahīta -ṁ] Marks the surface form evaṁ…"
+5. me→a3 relation `epistemicBasis: 'etymological'` retained (same enum constraint); flagged §10.7.
+6. `me.morph = { case: 'gen' }` accepted as-is; future `function: 'agent'` extension flagged §10.8.
+7. `ea2g.ghostKind: 'auxiliary'` accepted; future `'auxiliary_from_english_perfect'` flagged §10.9.
 
 ---
 

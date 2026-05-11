@@ -5,7 +5,44 @@
     "workId": "mn10"
   },
   "canonicalSegments": [],
-  "citations": [],
+  "citations": [
+    {
+      "id": "cite:dpd:dpd:53164",
+      "short": "DPD s.v. me (pron — by me)",
+      "provenance": "dpd",
+      "query": "me",
+      "excerpt": "me [pron]: by me",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:63769",
+      "short": "DPD s.v. suta (pp — heard)",
+      "provenance": "dpd",
+      "query": "suta",
+      "excerpt": "suta [pp]: heard",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:63771",
+      "short": "DPD s.v. suta (nt — what is heard)",
+      "provenance": "dpd",
+      "query": "suta",
+      "excerpt": "suta [nt]: what is heard; something heard; lit. heard",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:63770",
+      "short": "DPD s.v. suta (pp — learned)",
+      "provenance": "dpd",
+      "query": "suta",
+      "excerpt": "suta [pp]: learned; lit. heard",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    }
+  ],
   "progress": {
     "totalPhases": 51,
     "readyPhases": 51,
@@ -39,8 +76,8 @@
               "text": "eva",
               "type": "stem",
               "tooltips": [
-                "[Emphatic particle] \"Just so\"",
-                "Points back to the occasion"
+                "Evaṁ: 'thus; in this way.' In the opening formula evaṁ me sutaṁ, frames what follows as recited speech.",
+                "Do not confuse evaṁ with bare eva, whose common senses include 'only', 'just', or 'indeed'. Here evaṁ functions as the adverbial deictic: 'thus; in this way.'"
               ]
             },
             {
@@ -48,14 +85,16 @@
               "text": "ṁ",
               "type": "suffix",
               "tooltips": [
-                "[Adverbial ending] Makes it \"in this way\""
+                "[Niggahīta -ṁ] Marks the surface form evaṁ, the adverbial deictic 'thus; in this way.'"
               ]
             }
           ],
           "senses": [
             {
               "english": "Thus",
-              "nuance": "Refers to what follows"
+              "nuance": "Narrative-opening deictic ('in this way') — points forward to what is about to be recited",
+              "notes": "Not the emphatic-particle senses of bare eva (only/just/indeed). The adverbial evaṁ is grammatically the cataphoric deictic in this formula.",
+              "epistemicBasis": "etymological"
             }
           ]
         },
@@ -67,6 +106,7 @@
               "id": "a2s1",
               "text": "me",
               "type": "stem",
+              "morph": { "case": "gen" },
               "tooltips": [
                 "Ānanda speaking: \"by me\"",
                 "[Genitive/Agent] Form is \"of me\", function is \"by me\""
@@ -74,20 +114,26 @@
               "relation": {
                 "targetWordId": "a3",
                 "type": "action",
-                "label": "Heard BY"
+                "label": "Heard BY",
+                "confidence": "high",
+                "epistemicBasis": "etymological"
               }
             }
           ],
           "senses": [
             {
               "english": "by me",
-              "nuance": "Agent in passive"
+              "nuance": "Agent in passive",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:53164"],
+              "confidence": "high"
             }
           ]
         },
         {
           "id": "a3",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "a3s1",
@@ -102,6 +148,7 @@
               "id": "a3s2",
               "text": "ta",
               "type": "suffix",
+              "morph": { "form": "participle" },
               "tooltips": [
                 "[Past participle] Marks completed action: \"heard\""
               ]
@@ -110,24 +157,34 @@
               "id": "a3s3",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "gender": "n", "number": "sg" },
               "tooltips": [
-                "[Neuter singular] \"the thing that...\"",
-                "Makes it the subject of the sentence"
+                "[Neuter nom/acc singular] Declensional ending. Supports reading sutaṁ as either 'was heard' or 'what was heard' — both grammatical; English perfect collapses them.",
+                "In the formula 'me sutaṁ' (oblique agent + past participle), the participial form can function substantively — giving the phrase its compressed 'Thus by me heard' structure."
               ]
             }
           ],
           "senses": [
             {
               "english": "heard",
-              "nuance": "Past participle"
+              "nuance": "Past participle",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:63769"],
+              "confidence": "high"
             },
             {
               "english": "what was heard",
-              "nuance": "The teaching itself"
+              "nuance": "The teaching itself",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:63771"],
+              "confidence": "high"
             },
             {
               "english": "that which has been received",
-              "nuance": "Orally transmitted"
+              "nuance": "Orally transmitted",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:63770"],
+              "confidence": "medium"
             }
           ]
         }
@@ -141,7 +198,7 @@
           "id": "ea2g",
           "label": "have",
           "isGhost": true,
-          "ghostKind": "required"
+          "ghostKind": "auxiliary"
         },
         {
           "id": "ea2",
