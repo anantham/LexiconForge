@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type {
+  Citation,
+  CitationProvenance,
   CompoundType,
   DeepLoomPacket,
   EpistemicBasis,
@@ -221,5 +223,83 @@ describe('Sutta Studio additive schema fields (FEATURES.md §2)', () => {
     expect(back.phases[0].englishStructure[0].ghostKind).toBe('pronoun_from_verb');
     expect(back.phases[0].spans?.[0].kind).toBe('quoted_speech');
     expect(back.phases[0].parallels?.[0].workId).toBe('mn119');
+  });
+});
+
+describe('Citation provider attribution fields (ADR SUTTA-008)', () => {
+  it('accepts provenance + query + excerpt + license + fetchedAt', () => {
+    const cite: Citation = {
+      id: 'cite:dpd:sati-1234',
+      short: 'DPD s.v. sati',
+      provenance: 'dpd',
+      query: 'sati',
+      excerpt: 'sati, f. mindfulness, awareness, attention; memory.',
+      license: 'CC BY-NC-SA 4.0',
+      fetchedAt: '2026-05-11',
+      url: 'https://dpdict.example/sati',
+    };
+    const back = JSON.parse(JSON.stringify(cite)) as Citation;
+    expect(back.provenance).toBe('dpd');
+    expect(back.query).toBe('sati');
+    expect(back.excerpt).toContain('mindfulness');
+    expect(back.license).toContain('CC BY-NC-SA');
+    expect(back.fetchedAt).toBe('2026-05-11');
+  });
+
+  it('round-trips every CitationProvenance value through JSON', () => {
+    const all: CitationProvenance[] = [
+      'sc-dictionary-full',
+      'dpd',
+      'ms-dpd',
+      'ped-dsal',
+      'cpd',
+      'vri-attha',
+      'vri-cscd',
+      'sc-bilara',
+      'sc-suttaplex',
+      'buddhanexus',
+      'bdrc',
+      'cbeta',
+      'gretil',
+      '84000',
+      'manual',
+    ];
+    const back = JSON.parse(JSON.stringify(all)) as CitationProvenance[];
+    expect(back).toEqual(all);
+  });
+
+  it('packet.citations can carry provider-tagged entries used by Sense.sourceCitationIds', () => {
+    const packet: DeepLoomPacket = {
+      packetId: 'mn10-sample',
+      source: { provider: 'suttacentral', workId: 'mn10' },
+      canonicalSegments: [],
+      phases: [],
+      citations: [
+        {
+          id: 'cite:dpd:sati-1234',
+          short: 'DPD s.v. sati',
+          provenance: 'dpd',
+          query: 'sati',
+          excerpt: 'sati, f. mindfulness.',
+          license: 'CC BY-NC-SA 4.0',
+          fetchedAt: '2026-05-11',
+        },
+        {
+          id: 'cite:sc-dictionary-full:ped:sati:0',
+          short: 'PED s.v. sati',
+          provenance: 'sc-dictionary-full',
+          query: 'sati',
+          excerpt: 'sati: memory, recollection.',
+          fetchedAt: '2026-05-11',
+        },
+      ],
+      renderDefaults: { ghostOpacity: 0.3, englishVisible: true, studyToggleDefault: true },
+    };
+    const back = JSON.parse(JSON.stringify(packet)) as DeepLoomPacket;
+    expect(back.citations).toHaveLength(2);
+    expect(back.citations.every((c) => c.fetchedAt === '2026-05-11')).toBe(true);
+    // Disagreement inspector (ADR UI vision #7) groups by `query`:
+    const sameQuery = back.citations.filter((c) => c.query === 'sati');
+    expect(sameQuery.map((c) => c.provenance).sort()).toEqual(['dpd', 'sc-dictionary-full']);
   });
 });

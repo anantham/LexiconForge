@@ -1,10 +1,52 @@
 export type RelationType = 'ownership' | 'direction' | 'location' | 'action';
 
+/**
+ * Provider tag for a Citation. Identifies which data source the citation came
+ * from so the renderer can attribute correctly and the disagreement inspector
+ * (ADR SUTTA-008 §UI Vision #7) can group competing attestations.
+ *
+ * Extending this enum is additive-safe; renderers should fall through with a
+ * generic attribution for unknown values rather than refuse to render.
+ */
+export type CitationProvenance =
+  | 'sc-dictionary-full'
+  | 'dpd'
+  | 'ms-dpd'
+  | 'ped-dsal'
+  | 'cpd'
+  | 'vri-attha'
+  | 'vri-cscd'
+  | 'sc-bilara'
+  | 'sc-suttaplex'
+  | 'buddhanexus'
+  | 'bdrc'
+  | 'cbeta'
+  | 'gretil'
+  | '84000'
+  | 'manual';
+
 export type Citation = {
   id: string;
   short: string;
   detail?: string;
   url?: string;
+  /**
+   * Provider this citation came from. Per ADR SUTTA-008: every factual
+   * linguistic / textual / bibliographic / parallelism claim traces to a
+   * provider response, and Citation entries are the audit trail.
+   */
+  provenance?: CitationProvenance;
+  /** The lemma / segment id / work id this citation answers a query for. */
+  query?: string;
+  /**
+   * Direct excerpt from the upstream source. Baked into the packet so the
+   * renderer can show the attestation without re-fetching at read time.
+   */
+  excerpt?: string;
+  /** Attribution + license string. Drives the renderer's attribution UI. */
+  license?: string;
+  /** ISO date the upstream was fetched. "As-of" hint for the reader. */
+  fetchedAt?: string;
 };
 
 export type SourceProvider = 'suttacentral';
