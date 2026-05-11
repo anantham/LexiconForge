@@ -1,3 +1,22 @@
+2026-05-11 (long session) - [Agent: Opus 4.7 (1M)]
+- Status: All 8 commits pushed to origin/main. Clean tree.
+- Task: Chapter identity migrations (V4 unwrap + V5 chapter-number drift), Sutta Studio fixes (chip honesty, cheap-model default, partial-phase fallback), Sutta Studio architectural docs (FEATURES + TEXT_GRAPH + POLYGLOT, ~1700 lines).
+- Branch: main (all on main; no worktrees this session — small fixes + docs)
+- Commits: dd0de8c, 3a08f4b (V4 unwrap), bef65dd (V5 chapter-number + boot wiring + issue #20 postmortem), d78b62f (chip honesty), 5cb15b7 (cheap model), 4ff787e (partial-phase fallback), efa7c8f (3 docs), plus repo cleanup commits 851b8d0 / e9dcced.
+- What's in:
+  - V4 unwrap migration: 6544 → 3271 chapters in user's local IDB; 130 translations preserved
+  - V5 chapter-number drift fix + defensive guard at setChapterNumberByStableId + walker IDB write removed
+  - Boot pipeline runs both migrations idempotently for all users on next visit
+  - Sutta Studio compiler defaults to gemini-3-flash-preview (~100x cheaper than Sonnet)
+  - Three architectural docs: FEATURES.md (current bilingual MVP spec), TEXT_GRAPH.md (transmission architecture, design only), POLYGLOT.md (multi-language charter with honest scope warnings)
+  - Issue #20 postmortem at issues/20-chapter-number-drift-from-history-walker/
+- What's NOT in (deferred to next session):
+  - Additive bilingual schema fields (task #16) — MorphHint extensions, CompoundType, expanded GhostKind, Span, EpistemicBasis, Provenance, ParallelRef. All optional, all additive. ~30 min one commit.
+  - MN10 demo phase-by-phase re-curation (task #14). User cleared rhythm: phase-by-phase with clearance. Start with phase-a → continue through phases 1-15 first, then 16-51.
+- Resume: read docs/HANDOVER.md, then task #16, then task #14.
+
+---
+
 2026-05-05 21:55 PDT - [Agent: Opus]
 - Status: Ready to merge (worktree)
 - Task: Issue #19 Phase 3 (partial) — telemetry instrumentation + failure routing
