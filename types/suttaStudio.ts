@@ -54,13 +54,57 @@ export type Relation = {
   type: RelationType;
   label: string;
   status?: 'confirmed' | 'pending';
+  /** Per FEATURES.md §2.5 — calibration, not authority signaling. */
+  confidence?: 'high' | 'medium' | 'low';
+  /** Where this relation analysis comes from. Orthogonal to confidence. */
+  epistemicBasis?: EpistemicBasis;
 };
 
+/**
+ * Where a claim came from. Orthogonal to confidence — a commentarial gloss
+ * can be high-confidence (well attested) or low-confidence (one outlier).
+ * See FEATURES.md §2.5.
+ */
+export type EpistemicBasis =
+  | 'etymological'   // derived from morphology / Sanskrit cognate / sandhi
+  | 'commentarial'   // attested in commentaries (Aṭṭhakathā, Buddhaghosa, …)
+  | 'contextual'     // chosen because of surrounding sutta context
+  | 'lexical'        // dictionary attestation (PED, CPD, MW, …)
+  | 'comparative';   // parallel-passage agreement (Pāli ↔ Chinese ↔ Sanskrit)
+
+/**
+ * Morphological hints. L1 — pure facts about the source word.
+ * The original two fields (case/number) cover noun morphology only;
+ * verb morphology (person/tenseAspect/mood/voice/form), gender, ablative,
+ * and dual were added per FEATURES.md §2.1.
+ */
 export type MorphHint = {
-  case?: 'gen' | 'dat' | 'loc' | 'ins' | 'acc' | 'nom' | 'voc';
-  number?: 'sg' | 'pl';
+  /** 'abl' (ablative) added per §2.1; merges with gen/dat in form but distinct in function. */
+  case?: 'gen' | 'dat' | 'loc' | 'ins' | 'acc' | 'nom' | 'voc' | 'abl';
+  /** 'du' (dual) added per §2.1 — rare in Pāli but real. */
+  number?: 'sg' | 'du' | 'pl';
+  gender?: 'm' | 'f' | 'n';
   note?: string;
+  // Verb morphology (§2.1). All optional, all L1.
+  person?: '1' | '2' | '3';
+  tenseAspect?: 'present' | 'aorist' | 'future' | 'perfect' | 'imperfect' | 'participle';
+  mood?: 'indicative' | 'imperative' | 'optative' | 'conditional';
+  voice?: 'active' | 'middle' | 'passive' | 'causative';
+  /** For absolutives leave tenseAspect unset; the form *is* the tense info. */
+  form?: 'finite' | 'participle' | 'gerund' | 'infinitive' | 'absolutive';
 };
+
+/**
+ * Classical Indic compound classification. Used on PaliWord when the
+ * surface word is a compound. See FEATURES.md §2.2.
+ */
+export type CompoundType =
+  | 'tappurisa'      // dependent (case-relation): kāy[a]-anupassī = "observer of body"
+  | 'kammadhāraya'   // descriptive (apposition): mahā-purisa = "great person"
+  | 'dvandva'        // copulative (and): nāma-rūpa = "name and form"
+  | 'bahubbīhi'      // possessive (exocentric): bahu-ssuta = "one who has heard much"
+  | 'avyayībhāva'    // adverbial: yathā-bala = "according to ability"
+  | 'dvigu';         // numerical kammadhāraya: ti-loka = "three worlds"
 
 export type WordSegment = {
   /** Unique ID for this segment (e.g., "p1s1") - required for segment-level linking */
@@ -158,6 +202,23 @@ export type LexicographerPass = {
 // Weaver Pass (Phase 4): English token mapping
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Reason an English token has no Pali source. The renderer currently
+ * special-cases only 'required' (dotted underline); other values fall
+ * through to default ghost styling. New values per FEATURES.md §2.3 are
+ * additive-safe — old renderers + LLM prompts see them as "some ghost".
+ */
+export type GhostKind =
+  | 'required'              // catch-all when none below fits
+  | 'interpretive'          // translator expansion
+  | 'article'               // "the", "a"
+  | 'copula'                // "is", "are", "was"
+  | 'auxiliary'             // "have", "will", "do" (modal/perfect/future)
+  | 'pronoun_from_verb'     // "I" supplied by 1sg ending; "you" by 2pl ending
+  | 'preposition_from_case' // "at" / "in" / "by" supplied by loc/ins
+  | 'punctuation'           // commas/quotes added for English readability
+  | 'quote_marker';         // 'iti' / 'ti' bracket equivalents
+
 export type WeaverToken = {
   /** Index of the token in the tokenized English array */
   tokenIndex: number;
@@ -169,8 +230,8 @@ export type WeaverToken = {
   linkedPaliId?: string;
   /** True if this token has no Pali equivalent */
   isGhost: boolean;
-  /** Type of ghost: 'required' for grammatical, 'interpretive' for clarifying */
-  ghostKind?: 'required' | 'interpretive';
+  /** Reason for the ghost. See GhostKind. */
+  ghostKind?: GhostKind;
 };
 
 export type WeaverHandoff = {
@@ -207,6 +268,11 @@ export type Sense = {
   notes?: string;
   citationIds?: string[];
   ripples?: Record<string, string>;
+  /** Per FEATURES.md §2.5. Reserve 'high' for genuinely uncontested glosses. */
+  confidence?: 'high' | 'medium' | 'low';
+  epistemicBasis?: EpistemicBasis;
+  /** Per-sense citation pointers into packet.citations (sibling to packet-level Citation list). */
+  sourceCitationIds?: string[];
 };
 
 export type PaliWord = {
@@ -224,6 +290,10 @@ export type PaliWord = {
   wordClass?: WordClass;
   /** Refrain ID for visual rhythm - words with same ID share color (study mode only) */
   refrainId?: string;
+  /** Classical compound type when this word is a compound. Per FEATURES.md §2.2. */
+  compoundType?: CompoundType;
+  /** Optional segment IDs in resolution order (e.g., ["a3s1","a3s2"]). */
+  compoundSegments?: string[];
 };
 
 export type EnglishToken = {
@@ -236,7 +306,32 @@ export type EnglishToken = {
   linkedPaliId?: string;
   /** True if this token has no Pali equivalent (articles, copula, etc.) */
   isGhost?: boolean;
-  ghostKind?: 'required' | 'interpretive';
+  ghostKind?: GhostKind;
+};
+
+/**
+ * A span of words within a phase that the renderer should treat as a unit
+ * (direct speech, cited phrase, parenthetical aside). Per FEATURES.md §2.4.
+ */
+export type Span = {
+  id: string;
+  kind: 'quoted_speech' | 'cited_phrase' | 'parenthetical';
+  startWordId: string;
+  endWordId: string;
+  note?: string;
+};
+
+/**
+ * Pointer to a parallel passage in another work (or another locus in the same work).
+ * Per FEATURES.md §2.7.
+ */
+export type ParallelRef = {
+  /** Free-form work id; resolves against the catalogue when a registry exists. */
+  workId: string;
+  /** Optional segment-level pointer within the parallel work. */
+  segmentId?: string;
+  /** "verbatim" / "near-parallel" / "thematic" / etc. — describe the relationship. */
+  note?: string;
 };
 
 export type PhaseView = {
@@ -252,14 +347,92 @@ export type PhaseView = {
   degraded?: boolean;
   /** Reason for degradation (e.g., "anatomist failed after 3 retries") */
   degradedReason?: string;
+  /** Speech / citation / parenthetical spans, per FEATURES.md §2.4. */
+  spans?: Span[];
+  /** Parallel passages, per FEATURES.md §2.7. */
+  parallels?: ParallelRef[];
+};
+
+/**
+ * Packet-level provenance — the chain of custody from utterance to JSON.
+ * Per FEATURES.md §2.6. Bilingual MVP form; long-term moves to the externalised
+ * TextGraph (see docs/sutta-studio/TEXT_GRAPH.md), at which point packets will
+ * reference graph nodes instead of embedding this object.
+ */
+export type Provenance = {
+  attribution?: {
+    speaker?: string;
+    audience?: string;
+    legendaryDate?: string;
+    legendaryPlace?: string;
+    /** 'traditional' marks claims the tradition makes about itself. */
+    confidence?: 'traditional' | 'attested' | 'disputed';
+  };
+  oralLineage?: {
+    school: string;
+    transmissionLanguage: string;
+    estimatedPeriod?: string;
+    method?: string;
+  };
+  firstWritten?: {
+    estimatedDate?: string;
+    place?: string;
+    medium?: string;
+    citation?: string;
+  };
+  manuscripts?: Array<{
+    id?: string;
+    repository?: string;
+    estimatedDate?: string;
+    script?: string;
+    digitizer?: string;
+    digitizedDate?: string;
+    url?: string;
+  }>;
+  edition?: {
+    name: string;
+    year?: string;
+    council?: string;
+    digitalSource?: string;
+    license?: string;
+  };
+  translation?: {
+    translator: string;
+    year?: string;
+    license?: string;
+    institution?: string;
+    methodology?: string;
+  };
+  external?: Array<{
+    type: 'bdrc' | 'gretil' | 'cbeta' | 'suttacentral' | 'pts' | 'tipitaka.org' | 'other';
+    url: string;
+    note?: string;
+  }>;
+  /** Per-canonical-segment variant readings. Key = canonicalSegmentId. */
+  segmentVariants?: Record<string, Array<{
+    witness: string;
+    reading: string;
+    note?: string;
+  }>>;
 };
 
 export type DeepLoomPacket = {
   packetId: string;
+  /**
+   * Packet schema version. Absent ⇒ 'v1' (pre-versioning). Bump only when
+   * making a breaking semantic change; additive fields don't require a bump.
+   * See FEATURES.md §4.
+   */
+  version?: string;
   source: { provider: SourceProvider; workId: string; workIds?: string[] };
   canonicalSegments: CanonicalSegment[];
   phases: PhaseView[];
   citations: Citation[];
+  /**
+   * Chain-of-custody for the source text. Per FEATURES.md §2.6.
+   * Long-term replaced by TextGraph references (`TEXT_GRAPH.md`).
+   */
+  provenance?: Provenance;
   progress?: {
     totalPhases?: number;
     readyPhases?: number;
