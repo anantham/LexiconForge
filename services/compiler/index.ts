@@ -48,6 +48,9 @@ import { SUTTA_STUDIO_PROMPT_VERSION } from '../suttaStudioPromptVersion';
 import { fetchCanonicalSegmentsForUid } from './segments';
 import { fetchDictionaryEntry } from './dictionary';
 import { callCompilerLLM } from './llm';
+import { DpdProvider } from '../providers/dpd';
+import { getBundledDpdData } from '../providers/dpd-loader-vite';
+import type { LexiconEntry } from '../providers/types';
 import {
   buildAnatomistPrompt,
   buildLexicographerPrompt,
@@ -402,11 +405,36 @@ export const compileSuttaStudioPacket = async (options: {
             const dictMs = Math.round(performance.now() - lexStart);
             log(`  Dictionary done: ${cacheHits} cached + ${cacheMisses.length} fetched = ${dictMs}ms. Calling LLM...`);
 
+            // DPD attestation lookup (additive — per ADR SUTTA-008 Tier-1 commit B.3).
+            // The bundled DPD subset (committed under data/dpd/<sutta>/) gives the
+            // lexicographer LLM grounded morphology + sense data alongside the
+            // raw SC dictionary payload. Local lookup, no network.
+            const dpdLookups: Record<string, LexiconEntry[]> = {};
+            try {
+              const dpdProvider = new DpdProvider(getBundledDpdData());
+              await Promise.all(contentWords.map(async (word) => {
+                const entries = await dpdProvider.lookup(word.surface);
+                if (entries.length > 0) dpdLookups[word.id] = entries;
+              }));
+              const dpdHits = Object.keys(dpdLookups).length;
+              log(`  DPD attestations: ${dpdHits}/${contentWords.length} words matched`);
+            } catch (e) {
+              warn(`  DPD lookup failed; continuing with SC dictionary only`, e);
+            }
+
             const phaseState = buildPhaseStateEnvelope({
               workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
               currentStageLabel: 'Lexicographer (2/4)', currentStageKey: 'lexicographer', completed: { anatomist: true },
             });
-            const lexicographerPrompt = buildLexicographerPrompt(phase.id, effectiveSegments, phaseState, anatomistOutput, dictionaryEntries, retrievalContext || undefined);
+            const lexicographerPrompt = buildLexicographerPrompt(
+              phase.id,
+              effectiveSegments,
+              phaseState,
+              anatomistOutput,
+              dictionaryEntries,
+              retrievalContext || undefined,
+              dpdLookups,
+            );
             await throttle(signal);
             const lexRaw = await callCompilerLLM(
               settings,
