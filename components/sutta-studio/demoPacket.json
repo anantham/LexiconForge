@@ -75,6 +75,51 @@
       "excerpt": "suta [pp]: learned; lit. heard",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:17376",
+      "short": "DPD s.v. eka (card — one)",
+      "provenance": "dpd",
+      "query": "eka",
+      "excerpt": "eka [card]: one (1)",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:17382",
+      "short": "DPD s.v. eka (ind — once)",
+      "provenance": "dpd",
+      "query": "eka",
+      "excerpt": "eka [ind]: once",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:59451",
+      "short": "DPD s.v. samaya (masc — time, occasion)",
+      "provenance": "dpd",
+      "query": "samaya",
+      "excerpt": "samaya [masc]: time; occasion; lit. going together",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:59452",
+      "short": "DPD s.v. samaya (masc — right time, suitable occasion)",
+      "provenance": "dpd",
+      "query": "samaya",
+      "excerpt": "samaya [masc]: right time; suitable occasion; lit. going together",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:49147",
+      "short": "DPD s.v. bhagavā (masc — Sublime/Blessed/Fortunate One; Buddha-epithet)",
+      "provenance": "dpd",
+      "query": "bhagavā",
+      "excerpt": "bhagavā [masc]: Sublime One; Blessed One; Fortunate One; epithet of the Buddha",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
     }
   ],
   "progress": {
@@ -258,6 +303,7 @@
               "id": "b1s1",
               "text": "eka",
               "type": "stem",
+              "morph": { "case": "acc", "number": "sg" },
               "tooltips": [
                 "[Adjective] One, a certain",
                 "Modifies samayaṁ"
@@ -267,6 +313,7 @@
               "id": "b1s2",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "case": "acc" },
               "tooltips": [
                 "[Accusative of Time] \"at/on\"",
                 "Tells us when, not what"
@@ -276,13 +323,17 @@
           "senses": [
             {
               "english": "one",
-              "nuance": "At one (time)"
+              "nuance": "At one (time)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:17376", "cite:dpd:dpd:17382"],
+              "confidence": "high"
             }
           ]
         },
         {
           "id": "b2",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "b2s1",
@@ -297,6 +348,7 @@
               "id": "b2s2",
               "text": "aya",
               "type": "root",
+              "morph": { "gender": "m" },
               "tooltips": [
                 "From √i: to go",
                 "aya = going, course",
@@ -307,28 +359,40 @@
               "id": "b2s3",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "case": "acc", "gender": "m", "number": "sg" },
               "tooltips": [
                 "[Accusative of Time] \"At this occasion\""
               ],
               "relation": {
                 "targetWordId": "b3",
                 "type": "location",
-                "label": "Time WHEN"
+                "label": "Time WHEN",
+                "confidence": "high",
+                "epistemicBasis": "etymological"
               }
             }
           ],
           "senses": [
             {
               "english": "occasion",
-              "nuance": "A coming together"
+              "nuance": "A coming together",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:59451"],
+              "confidence": "high"
             },
             {
               "english": "time",
-              "nuance": "The specific event"
+              "nuance": "The specific event",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:59451"],
+              "confidence": "high"
             },
             {
               "english": "opportunity",
-              "nuance": "Suitable moment"
+              "nuance": "Suitable moment",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:59452"],
+              "confidence": "medium"
             }
           ]
         },
@@ -350,6 +414,7 @@
               "id": "b3s2",
               "text": "vā",
               "type": "suffix",
+              "morph": { "case": "nom", "gender": "m", "number": "sg" },
               "tooltips": [
                 "[Possessive suffix] \"One who has...\"",
                 "The Fortunate One"
@@ -359,15 +424,24 @@
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Lucky One",
-              "nuance": "Fortune-bearer"
+              "nuance": "Fortune-bearer",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "medium"
             }
           ]
         }
@@ -377,7 +451,7 @@
           "id": "eb1g",
           "label": "At",
           "isGhost": true,
-          "ghostKind": "required"
+          "ghostKind": "preposition_from_case"
         },
         {
           "id": "eb1",

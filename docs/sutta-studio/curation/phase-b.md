@@ -2,7 +2,8 @@
 
 **Date:** 2026-05-11
 **Curator:** Adi + assistant (Opus 4.7 1M)
-**Commit:** _(filled at apply)_
+**Commit:** filled in commit metadata below
+**Outcome:** ✅ Applied with gate-2 amendments. 6 localized changes + 5 new citations. Tests + Vite build green. See §8 for amendments record.
 **Pāli:** Ekaṁ samayaṁ bhagavā
 **Readable:** At one time the Blessed One [was dwelling…]
 **Canonical segments:** mn10:1.2
@@ -337,4 +338,26 @@ A **plain-first tooltip rewrite** for phase-b is a separate proposed chunk (matc
 
 ## 7. Schema/UI tensions surfaced (new from phase-b)
 
-- (none beyond phase-a §10's existing list)
+10. **`RelationType` enum lacks `'temporal'`.** Phase-b's `b2s3 → b3` relation expresses "samayaṁ is the temporal frame within which bhagavā [was dwelling]." Currently encoded as `type: 'location'` with label "Time WHEN" — a hack. The 4 enum values (`ownership` / `direction` / `location` / `action`) don't have a clean home for temporal relations. Proposed:
+   ```ts
+   export type RelationType = 'ownership' | 'direction' | 'location' | 'action' | 'temporal';
+   ```
+   - Requires renderer palette update (5th color for temporal — perhaps muted blue-violet to distinguish from `location` green).
+   - Per FEATURES.md §1.3 "Adding a new `type` value would be a breaking change for older renderers (they'd skip rendering, console-warn). Bump version if added."
+   - For now: keep `location` on phase-b, file as **Issue to file: `[Schema] Add 'temporal' RelationType value + renderer color`**.
+
+11. **Note: phase-a §10.7 already flags `EpistemicBasis` enum missing `'grammatical'`/`'curatorial'`.** This phase reinforces the gap — phase-b's relation epistemicBasis is grammatical (accusative-of-time-when syntax rule), not etymological. Currently using `'etymological'` as the closest enum fit; should migrate to `'grammatical'` once the enum extends. No new tension; cross-reference only.
+
+---
+
+## 8. Amendments applied (gate-2 verdict)
+
+Aditya's gate verdict: **approve to apply with two amendments.**
+
+1. **isAnchor moved from b3 (bhagavā) → b2 (samayaṁ).** Reason: the bridge-learning point of phase-b is "ekaṁ samayaṁ → at one time" (the accusative-of-time-when ghost preposition). Anchoring `samayaṁ` aligns visual weight with the pedagogical problem. `bhagavā` retains its `refrainId: 'bhagava'` which is sufficient to mark it as a recurring sacred term.
+2. **Relation epistemicBasis remains `'etymological'`** in code (closest enum fit) but logged in §7.11 as part of the enum gap (`grammatical` / `curatorial` needed). Cross-referenced with phase-a §10.7.
+
+Other approvals:
+- ghostKind `'preposition_from_case'` on "At" ✓
+- morph + citationIds + confidence on all senses ✓
+- Relation type kept as `'location'` (with schema tension §7.10 filed) ✓
