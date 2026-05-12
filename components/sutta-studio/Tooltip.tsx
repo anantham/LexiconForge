@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useLayoutEffect, useRef, useState } from 'react';
+import type { Citation } from '../../types/suttaStudio';
 
 export function Tooltip({
   text,
@@ -7,6 +8,7 @@ export function Tooltip({
   facetIndex,
   facetTotal,
   onUnpin,
+  citations,
 }: {
   text: string;
   pinned?: boolean;
@@ -16,7 +18,15 @@ export function Tooltip({
   facetTotal?: number;
   /** Click handler for the × glyph. Only enables the × when supplied (typically on pinned). */
   onUnpin?: () => void;
+  /**
+   * Citations for the active sense, surfaced as a footer when pinned.
+   * Per ADR SUTTA-008 §UI Vision #4 ("Why does this gloss say X?"). Hidden
+   * on plain hover to avoid cognitive load; shown only when the reader has
+   * pinned a segment for inspection.
+   */
+  citations?: Citation[];
 }) {
+  const hasCitations = pinned && citations && citations.length > 0;
   // Auto-flip tooltip below the segment when there isn't room above. Phase-a
   // (the opening of the sutta) sits at the top of the scroll container; with
   // the default "above the segment" position the tooltip would render off-
@@ -89,6 +99,27 @@ export function Tooltip({
         </button>
       )}
       {text}
+      {hasCitations && (
+        <div className="mt-2 pt-2 border-t border-emerald-900/40 text-[10px] leading-snug text-slate-400 font-normal">
+          <div className="text-emerald-500/70 uppercase tracking-widest text-[9px] mb-1 font-mono">
+            Sources
+          </div>
+          <ul className="space-y-1">
+            {citations!.map((c) => (
+              <li key={c.id} className="flex flex-col">
+                <span className="text-slate-300">
+                  {c.short}
+                </span>
+                {c.excerpt && (
+                  <span className="text-slate-500 italic">
+                    “{c.excerpt}”
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </motion.div>
   );
 }

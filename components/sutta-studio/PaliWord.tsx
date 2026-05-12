@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { PaliWord, WordSegment } from '../../types/suttaStudio';
+import type { Citation, PaliWord, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
 import type { StudioSettings } from './SettingsPanel';
 import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
@@ -14,6 +14,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   activeIndex,
   activeSegmentIndices,
   tooltipFacetIndices,
+  citationsById,
   settings,
   cycle,
   cycleSegment,
@@ -28,6 +29,8 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   activeIndex: number;
   activeSegmentIndices?: Record<string, number>;
   tooltipFacetIndices?: Record<string, number>;
+  /** Lookup table for resolving Sense.sourceCitationIds → Citation excerpts. */
+  citationsById?: Record<string, Citation>;
   settings: StudioSettings;
   cycle: (wordId: string) => void;
   cycleSegment?: (phaseId: string, segmentId: string) => void;
@@ -95,6 +98,17 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           const tooltipsArr = seg.tooltips ?? [];
           const facetTooltip = tooltipsArr.length > 0 ? tooltipsArr[tooltipFacetIdx % tooltipsArr.length] : '';
           const rawTooltip = segSenseText || seg.relation?.label || facetTooltip || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
+          // Resolve citations for the active sense — segment-level if present,
+          // else word-level. Citations surface in the tooltip footer only when
+          // pinned (the audit moment); kept hidden on plain hover to avoid
+          // cognitive load. Per ADR SUTTA-008 §UI Vision #4.
+          const activeSense = seg.senses?.length
+            ? seg.senses[activeSegmentIdx]
+            : wordData.senses?.[activeIndex];
+          const citationIds = activeSense?.sourceCitationIds ?? [];
+          const citations = citationsById && citationIds.length > 0
+            ? citationIds.map((id) => citationsById[id]).filter((c): c is Citation => Boolean(c))
+            : [];
           // Apply filters based on settings
           let tooltipText = rawTooltip;
           if (!settings.grammarTerms) tooltipText = stripGrammarTerms(tooltipText);
@@ -201,6 +215,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                     facetIndex={tooltipsArr.length > 1 ? tooltipFacetIdx % tooltipsArr.length : undefined}
                     facetTotal={tooltipsArr.length > 1 ? tooltipsArr.length : undefined}
                     onUnpin={isPinned ? () => setPinned(null) : undefined}
+                    citations={citations.length > 0 ? citations : undefined}
                   />
                 )}
               </AnimatePresence>

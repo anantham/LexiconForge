@@ -90,6 +90,17 @@ export function SuttaStudioView({
     return map;
   }, [packet.canonicalSegments]);
 
+  // Build a lookup table for Sense.sourceCitationIds → Citation. Computed
+  // once per packet; passed to PaliWord so pinned tooltips can surface the
+  // upstream attestation (ADR SUTTA-008 §UI Vision #4).
+  const citationsById = useMemo(() => {
+    const map: Record<string, typeof packet.citations[number]> = {};
+    for (const c of packet.citations ?? []) {
+      if (c.id) map[c.id] = c;
+    }
+    return map;
+  }, [packet.citations]);
+
   // Hash navigation: scroll to element on load
   useEffect(() => {
     const hash = window.location.hash.slice(1);
@@ -453,6 +464,7 @@ export function SuttaStudioView({
                                 activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
                                 activeSegmentIndices={activeSegmentIndices}
                                 tooltipFacetIndices={tooltipFacetIndices}
+                                citationsById={citationsById}
                                 settings={settings}
                                 cycle={(wordId) => cycle(wordId, phaseId)}
                                 cycleSegment={cycleSegment}
