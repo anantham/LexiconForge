@@ -617,9 +617,9 @@
               "type": "stem",
               "morph": { "number": "pl" },
               "tooltips": [
-                "[Stem] Kuru (the Kuru people)",
-                "Lengthened to kurū before -su",
-                "One of 16 Great Nations (mahājanapada)"
+                "'kurū' is the stem meaning 'Kuru' — a tribal people from the Kuru kingdom in ancient north India.",
+                "The vowel gets stretched (kuru → kurū) before the ending. Pāli often lengthens vowels at word-joins like this.",
+                "One of the 16 'Great Nations' (mahājanapada) of the Buddha's time — the cultural map he lived in."
               ]
             },
             {
@@ -628,8 +628,8 @@
               "type": "suffix",
               "morph": { "case": "loc", "number": "pl" },
               "tooltips": [
-                "[Locative Plural] Where it happens",
-                "\"Among the...\""
+                "The -su ending means 'among the' — Pāli marks 'place where' on the noun itself, with no separate preposition like English 'in' or 'among'.",
+                "'Among the [Kurus]' — the dwelling-place of what the verb describes next."
               ],
               "relation": {
                 "targetWordId": "c2",
@@ -675,9 +675,9 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Apart, asunder",
-                "Changes √hṛ meaning",
-                "vi + hṛ = to dwell"
+                "'vi' is a prefix meaning 'apart' or 'asunder' — like English 'a-' in 'apart'.",
+                "Combined with the root 'hṛ' (carry/hold), the meaning shifts from 'to carry' to 'to dwell' — hold oneself apart in a place.",
+                "vi + hṛ → 'to dwell, to abide'."
               ]
             },
             {
@@ -685,9 +685,9 @@
               "text": "har",
               "type": "root",
               "tooltips": [
-                "√hṛ: to carry, hold",
-                "With vi-: to dwell, abide",
-                "Also: to live, behave"
+                "'hṛ' is a root meaning 'to carry' or 'to hold'.",
+                "With the prefix 'vi-' attached: 'to dwell, to abide' (vihar-).",
+                "Also: 'to live' or 'to conduct oneself' — staying somewhere over time."
               ]
             },
             {
@@ -695,7 +695,7 @@
               "text": "a",
               "type": "suffix",
               "tooltips": [
-                "[Thematic vowel] Class I verb marker"
+                "The 'a' is a connector vowel that lets 'vihar' join the personal ending '-ti' that follows. Pāli often inserts this 'a' to keep words flowing smoothly."
               ]
             },
             {
@@ -704,9 +704,9 @@
               "type": "suffix",
               "morph": { "person": "3", "number": "sg", "tenseAspect": "present", "form": "finite" },
               "tooltips": [
-                "[Present 3rd singular] He/she/it",
-                "Pali tells past events in present",
-                "Translates as: \"was dwelling\""
+                "The -ti ending says the subject is 'he', 'she', or 'it' — Pāli marks the person on the verb itself, no separate pronoun needed.",
+                "Pāli tells past stories in the present tense: viharati ('dwells') reads in English as 'was dwelling'.",
+                "Translates as: 'was dwelling'."
               ]
             }
           ],
