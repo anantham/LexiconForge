@@ -219,6 +219,67 @@ Particularly:
 
 ---
 
+### 3.4 Plain-Register Check (tooltip prose)
+
+Every tooltip's **plain prose** (the part that shows when grammar-terms is off) must stand alone and teach the bridge without requiring the technical chip. Format prescription for the dual-register layout lives in `FEATURES.md §6`; this gate is the *writing discipline* applied during curation steps 5 (translation bridge) and 6 (pedagogy).
+
+**Earlier drafts used a forbidden-words list** (adverbial, deictic, cataphoric, niggahīta, neuter nom/acc singular, declensional ending, past participle, genitive, oblique, …). The list was fragile — it scales poorly to new phases, pattern-matches words instead of concepts, forces euphemism, has arbitrary cutoffs, and risks **mode collapse** (writers avoid the *word* rather than teach the *concept*).
+
+**Replaced with three criteria.** Apply them per-tooltip, not globally.
+
+#### Criterion 1 — Reader profile (default)
+
+Write the plain prose for a single, stated default reader. The current default:
+
+> A thoughtful adult, no Pāli training, possibly familiar with popular Buddhism but not with Indic linguistics. Reading carefully but not academically.
+
+If this reader would stumble on a word in *this* sentence, replace it — even if the same word is fine in another sentence. Decisions are *contextual*, not lexical.
+
+Other readers (Pāli student, Sanskrit scholar, linguist) are served through the structured registers below, not by reshaping the default prose.
+
+#### Criterion 2 — Pay-rent rule
+
+For every technical term you reach for, answer:
+
+1. **What concept does this label that the reader needs precision about?**
+2. **Why is precision needed here?**
+
+If you can't answer both, the term **doesn't pay rent** — replace with plain English.
+
+If you can answer both, the term pays rent — keep it **and** gloss it in the same sentence so the reader doesn't depend on prior knowledge of the term.
+
+Example (pays rent): "The -ṁ is the **accusative** ending — Pāli uses this case where English uses 'at' or 'on' for time." The reader meets *accusative* with a working definition; it's worth the precision because the same ending recurs across many phases.
+
+Example (doesn't pay rent): "The genitive form 'me' functions adverbially." Both technical terms; neither does work the plain English "the form 'of me' here works like 'by me'" can't carry.
+
+#### Criterion 3 — Register layering
+
+The protocol commits to three registers per tooltip, each with its own job:
+
+| Register | Job | When to use technical terms |
+|---|---|---|
+| **Plain prose** (default visible) | Teach the bridge for the default reader | Only when the term pays rent + is glossed in the same sentence |
+| **Grammar chip** (toggle-revealed) | Surface the structural label for readers who want it | Always allowed — that's the chip's whole job |
+| **Audit modal** (citation excerpts) | Show the upstream source verbatim | Whatever the provider says |
+
+Plain prose doing the work of all three registers is the failure mode. Don't make the default reader pay for the scholar's precision.
+
+#### Status of the old forbidden-words list
+
+Preserved as **diagnostic examples** of the failure tone, not as a rule. If the curator finds themselves reaching for one of those words in plain prose, that's a *signal* to pause and check whether plain English carries the load. Sometimes it does (drop the word). Sometimes the term pays rent (keep it, gloss it). Either is acceptable; the answer is contextual.
+
+#### Quick self-check before approving a tooltip
+
+Ask, in order:
+
+1. **Read aloud.** Does the plain prose make sense to the default reader without the bracketed chip?
+2. **Re-read the technical terms.** For each, can you answer the two pay-rent questions?
+3. **Layer check.** Is anything in plain prose that would be better in the grammar chip or the audit modal?
+
+If all three pass, the tooltip is in register.
+
+---
+
 ## 4. Role locks (when single-agent vs multi-agent)
 
 This protocol runs in **single-agent mode by default**. The same instance produces all artifacts and writes the packet diff. The human reviews at the gate.
