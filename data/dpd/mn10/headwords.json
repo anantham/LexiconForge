@@ -284,6 +284,23 @@
       "citationId": "cite:dpd:dpd:75754"
     }
   ],
+  "ajjhattaṁ": [
+    {
+      "lemma": "ajjhattaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "internally; inwardly; personally",
+          "nuance": "ind",
+          "notes": "ind, adv, comp, acc sg of ajjhatta",
+          "citation": "Sanskrit: adhyātma"
+        }
+      ],
+      "rawExcerpt": "ajjhattaṃ, ind. internally; inwardly; personally ✔\n  IPA: /əd͡ʒd͡ʒʰət̪t̪ə̃/\n  Grammar: ind, adv, comp, acc sg of ajjhatta\n  Construction: adhi > adhy > ajjh + atta + aṃ\n  Phonetic Change: dhi > dhy > jjh\n  Compound: abyayībhāva (adhi + attaṃ)\n  Antonym: bahiddhā\n  Sanskrit: adhyātma\n  ID: 1279",
+      "sourceId": "dpd:1279",
+      "citationId": "cite:dpd:dpd:1279"
+    }
+  ],
   "ajjhatta": [
     {
       "lemma": "ajjhatta",
@@ -623,6 +640,23 @@
       "citationId": "cite:dpd:dpd:3913"
     }
   ],
+  "apagatamaṁsalohita": [
+    {
+      "lemma": "apagatamaṁsalohita",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "without flesh and blood",
+          "nuance": "adj",
+          "notes": "adj, comp",
+          "citation": "Sanskrit: apagata + māṃsa + lohita"
+        }
+      ],
+      "rawExcerpt": "apagatamaṃsalohita, adj. without flesh and blood ✔\n  IPA: /əpəgət̪əmə̃s̪əloːɦɪt̪ə/\n  Grammar: adj, comp\n  Construction: apagata + maṃsa + lohita\n  Compound: dutiyā tappurisa (apagata + maṃsalohitaṃ)\n  Sanskrit: apagata + māṃsa + lohita\n  ID: 6044",
+      "sourceId": "dpd:6044",
+      "citationId": "cite:dpd:dpd:6044"
+    }
+  ],
   "apagatasambandha": [
     {
       "lemma": "apagatasambandha",
@@ -765,6 +799,27 @@
       "rawExcerpt": "asamāhita, pp. not meditatively composed; scattered; uncollected; unsettled; distracted; unsteady; lit. not placed together here ✔\n  IPA: /əs̪əmɑːɦɪt̪ə/\n  Grammar: pp of na samādahati, neg\n  Root: saṃ ā √dhā 1 a (place, support)\n  Construction: na > a + saṃ + ā + √dhā > (da)h + ita\n  Derivative: kita (ita)\n  Phonetic Change: ṃā > mā, dhā > h\n  Compound: kammadhāraya (na + samāhita)\n  Antonym: samāhita, susamāhita\n  Synonym: anuvisaṭa, vikkhitta\n  Sanskrit: asamāhita [samādhā]\n  Sanskrit Root: √dhā 1, 2, 3 (put)\n  ID: 9537",
       "sourceId": "dpd:9537",
       "citationId": "cite:dpd:dpd:9537"
+    }
+  ],
+  "asantaṁ": [
+    {
+      "lemma": "asantaṁ",
+      "partOfSpeech": "prp",
+      "senses": [
+        {
+          "english": "not existing; not being; not present",
+          "nuance": "prp",
+          "notes": "prp, nom sg of santa, neg, trans (+acc)",
+          "citation": "Sanskrit: asat [as]"
+        }
+      ],
+      "morphology": {
+        "tenseAspect": "present",
+        "form": "participle"
+      },
+      "rawExcerpt": "asantaṃ, prp. not existing; not being; not present ✔\n  IPA: /əs̪ən̪t̪ə̃/\n  Grammar: prp, nom sg of santa, neg, trans (+acc)\n  Root: √as 1 a (be)\n  Base: √as + a > asa > sa (irreg)\n  Construction: na > a + sa + nta + aṃ\n  Compound: kammadhāraya (na + santaṃ)\n  Antonym: santaṃ\n  Sanskrit: asat [as]\n  Sanskrit Root: √as 2 (be)\n  ID: 9440",
+      "sourceId": "dpd:9440",
+      "citationId": "cite:dpd:dpd:9440"
     }
   ],
   "asanta": [
@@ -1421,6 +1476,23 @@
       "citationId": "cite:dpd:dpd:10650"
     }
   ],
+  "ayaṁ": [
+    {
+      "lemma": "ayaṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "this; this person; this thing",
+          "nuance": "pron",
+          "notes": "pron, masc & fem nom sg of ima",
+          "citation": "Sanskrit: ayam"
+        }
+      ],
+      "rawExcerpt": "ayaṃ, pron. this; this person; this thing ✔\n  IPA: /əjə̃/\n  Grammar: pron, masc & fem nom sg of ima\n  Antonym: nāyaṃ\n  Sanskrit: ayam\n  ID: 8757",
+      "sourceId": "dpd:8757",
+      "citationId": "cite:dpd:dpd:8757"
+    }
+  ],
   "aya": [
     {
       "lemma": "aya",
@@ -1801,6 +1873,77 @@
       "rawExcerpt": "aṭṭhi 2.1, masc. intention; goal; purpose ✔\n  IPA: /əʈʈʰɪ/\n  Grammar: masc, from aṭṭha\n  Root: √ar 1 a (move, attain)\n  Construction: √ar + tha > aṭṭhi\n  Phonetic Change: a > i before √kar, rth > ṭṭh\n  Synonym: aṭṭha, adhippāya, parikappa, saṅkappa\n  Variant: aṭṭhī\n  Sanskrit: arthin [ṛ]\n  Sanskrit Root: √ṛ 1 (go, send)\n  ID: 1854",
       "sourceId": "dpd:1854",
       "citationId": "cite:dpd:dpd:1854"
+    }
+  ],
+  "aṭṭa": [
+    {
+      "lemma": "aṭṭa",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "afflicted (with); suffering (with); hurt (by)",
+          "nuance": "adj",
+          "notes": "adj, from sk ardayati (+instr)",
+          "citation": "Sanskrit: ārta [ard]"
+        }
+      ],
+      "rawExcerpt": "aṭṭa 1.1, adj. afflicted (with); suffering (with); hurt (by) ✔\n  IPA: /əʈʈə/\n  Grammar: adj, from sk ardayati (+instr)\n  Root: √add 8 *e (afflict)\n  Construction: √add > aṭṭ + a\n  Derivative: kita (a)\n  Phonetic Change: dd > ṭṭ\n  Synonym: sabyābajjha\n  Notes: MN commenting on ārta: 'optionally also written ārtta, whence erroneously derived fr. √ṛt or even regarded as irreg. formation fr. √ard'\n  Sanskrit: ārta [ard]\n  Sanskrit Root: √ṛd √ard 1, 6 (stir, dissolve)\n  ID: 1685",
+      "sourceId": "dpd:1685",
+      "citationId": "cite:dpd:dpd:1685"
+    },
+    {
+      "lemma": "aṭṭa",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "tower; turret; watchtower",
+          "nuance": "masc",
+          "notes": "masc",
+          "citation": "Sanskrit: aṭṭāla, aṭṭālaka"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "aṭṭa 2.1, masc. tower; turret; watchtower ✔\n  IPA: /əʈʈə/\n  Grammar: masc\n  Synonym: aṭṭāla, geṇḍu\n  Sanskrit: aṭṭāla, aṭṭālaka\n  ID: 1686",
+      "sourceId": "dpd:1686",
+      "citationId": "cite:dpd:dpd:1686"
+    },
+    {
+      "lemma": "aṭṭa",
+      "partOfSpeech": "nt",
+      "senses": [
+        {
+          "english": "scaffold; platform",
+          "nuance": "nt",
+          "notes": "nt",
+          "citation": "Sanskrit: aṭṭāla, aṭṭālaka"
+        }
+      ],
+      "morphology": {
+        "gender": "n"
+      },
+      "rawExcerpt": "aṭṭa 2.2, nt. scaffold; platform ✔\n  IPA: /əʈʈə/\n  Grammar: nt\n  Sanskrit: aṭṭāla, aṭṭālaka\n  ID: 1687",
+      "sourceId": "dpd:1687",
+      "citationId": "cite:dpd:dpd:1687"
+    },
+    {
+      "lemma": "aṭṭa",
+      "partOfSpeech": "nt",
+      "senses": [
+        {
+          "english": "legal case; lawsuit",
+          "nuance": "nt",
+          "notes": "nt",
+          "citation": "Sanskrit: [aḍḍ]"
+        }
+      ],
+      "morphology": {
+        "gender": "n"
+      },
+      "rawExcerpt": "aṭṭa 3.1, nt. legal case; lawsuit ✔\n  IPA: /əʈʈə/\n  Grammar: nt\n  Root: √aḍḍ 1 a (judge)\n  Construction: √aḍḍ + a\n  Derivative: kita (a)\n  Phonetic Change: ḍḍ > ṭṭ\n  Sanskrit: [aḍḍ]\n  Sanskrit Root: √aḍḍ 1 (argue)\n  ID: 1688",
+      "sourceId": "dpd:1688",
+      "citationId": "cite:dpd:dpd:1688"
     }
   ],
   "aṭṭha": [
@@ -2756,6 +2899,23 @@
       "citationId": "cite:dpd:dpd:25664"
     }
   ],
+  "caparaṁ": [
+    {
+      "lemma": "caparaṁ",
+      "partOfSpeech": "sandhi",
+      "senses": [
+        {
+          "english": "and further; and what is more; furthermore",
+          "nuance": "sandhi",
+          "notes": "sandhi, ind + adv",
+          "citation": "Sanskrit: ca + param"
+        }
+      ],
+      "rawExcerpt": "caparaṃ, sandhi. and further; and what is more; furthermore ✔\n  IPA: /t͡ʃəpəɾə̃/\n  Grammar: sandhi, ind + adv\n  Construction: ca + paraṃ\n  Sanskrit: ca + param\n  ID: 26212",
+      "sourceId": "dpd:26212",
+      "citationId": "cite:dpd:dpd:26212"
+    }
+  ],
   "cattāri": [
     {
       "lemma": "cattāri",
@@ -2840,6 +3000,23 @@
       "rawExcerpt": "catūsu, card. in four; among four ✔\n  IPA: /t͡ʃət̪uːs̪u/\n  Grammar: card, masc fem & nt loc pl of catu\n  Construction: catu + ūsu\n  Sanskrit: caturṣu\n  ID: 26106",
       "sourceId": "dpd:26106",
       "citationId": "cite:dpd:dpd:26106"
+    }
+  ],
+  "catu": [
+    {
+      "lemma": "catu",
+      "partOfSpeech": "card",
+      "senses": [
+        {
+          "english": "four (4)",
+          "nuance": "card",
+          "notes": "card, masc fem & nt pl",
+          "citation": "Sanskrit: catur"
+        }
+      ],
+      "rawExcerpt": "catu, card. four (4) ✔\n  IPA: /t͡ʃət̪u/\n  Grammar: card, masc fem & nt pl\n  Sanskrit: catur\n  ID: 25849",
+      "sourceId": "dpd:25849",
+      "citationId": "cite:dpd:dpd:25849"
     }
   ],
   "cha": [
@@ -4052,6 +4229,23 @@
       "citationId": "cite:dpd:dpd:32949"
     }
   ],
+  "dukkhaṁ": [
+    {
+      "lemma": "dukkhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "badly; with difficulty; uncomfortably",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of dukkha",
+          "citation": "Sanskrit: duḥkham [duḥkh]"
+        }
+      ],
+      "rawExcerpt": "dukkhaṃ, ind. badly; with difficulty; uncomfortably ✔\n  IPA: /d̪ukkʰə̃/\n  Grammar: ind, adv, acc sg of dukkha\n  Root: √dukkh 1 a (be painful)\n  Construction: √dukkh + a + aṃ\n  Antonym: sukhaṃ\n  Synonym: duṭṭhuṃ\n  Sanskrit: duḥkham [duḥkh]\n  Sanskrit Root: duḥkha - (pain)\n  ID: 32985",
+      "sourceId": "dpd:32985",
+      "citationId": "cite:dpd:dpd:32985"
+    }
+  ],
   "dukkha": [
     {
       "lemma": "dukkha",
@@ -4155,6 +4349,38 @@
       "citationId": "cite:dpd:dpd:34460"
     }
   ],
+  "dvinnaṁ": [
+    {
+      "lemma": "dvinnaṁ",
+      "partOfSpeech": "card",
+      "senses": [
+        {
+          "english": "of two",
+          "nuance": "card",
+          "notes": "card, x gen pl of dvi",
+          "citation": "Sanskrit: dvayos"
+        }
+      ],
+      "rawExcerpt": "dvinnaṃ 1, card. of two ✔\n  IPA: /d̪ʋɪn̪n̪ə̃/\n  Grammar: card, x gen pl of dvi\n  Construction: dvi + īnaṃ\n  Phonetic Change: īn > inn\n  English cognate: two, dual, duality\n  Sanskrit: dvayos\n  ID: 34414",
+      "sourceId": "dpd:34414",
+      "citationId": "cite:dpd:dpd:34414"
+    },
+    {
+      "lemma": "dvinnaṁ",
+      "partOfSpeech": "card",
+      "senses": [
+        {
+          "english": "when two",
+          "nuance": "card",
+          "notes": "card, x gen pl of dvi, loc abs",
+          "citation": "Sanskrit: dvayos"
+        }
+      ],
+      "rawExcerpt": "dvinnaṃ 2, card. when two ✔\n  IPA: /d̪ʋɪn̪n̪ə̃/\n  Grammar: card, x gen pl of dvi, loc abs\n  Construction: dvi + ānaṃ\n  English cognate: two, dual, duality\n  Sanskrit: dvayos\n  ID: 34415",
+      "sourceId": "dpd:34415",
+      "citationId": "cite:dpd:dpd:34415"
+    }
+  ],
   "dvīhamata": [
     {
       "lemma": "dvīhamata",
@@ -4170,6 +4396,23 @@
       "rawExcerpt": "dvīhamata, adj. dead for two days; two days deceased ✔\n  IPA: /d̪ʋiːɦəmət̪ə/\n  Grammar: adj, comp\n  Construction: dvi + aha + mata\n  Compound: kammadhāraya (dvīha + mata)\n  Sanskrit: dvyaha + mṛta\n  ID: 34453",
       "sourceId": "dpd:34453",
       "citationId": "cite:dpd:dpd:34453"
+    }
+  ],
+  "dīghaṁ": [
+    {
+      "lemma": "dīghaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "for a long time; deeply",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of dīgha",
+          "citation": "Sanskrit: dīrgham"
+        }
+      ],
+      "rawExcerpt": "dīghaṃ, ind. for a long time; deeply ✔\n  IPA: /d̪iːgʰə̃/\n  Grammar: ind, adv, acc sg of dīgha\n  Construction: dīgha + aṃ\n  Antonym: rassaṃ\n  Sanskrit: dīrgham\n  ID: 32774",
+      "sourceId": "dpd:32774",
+      "citationId": "cite:dpd:dpd:32774"
     }
   ],
   "dīgha": [
@@ -4223,6 +4466,46 @@
       "rawExcerpt": "dīgha 3, masc. (gram) long vowel; metrically more than one measure long ✔\n  IPA: /d̪iːgʰə/\n  Grammar: masc\n  Antonym: rassa\n  Sanskrit: dīrgha\n  ID: 32722",
       "sourceId": "dpd:32722",
       "citationId": "cite:dpd:dpd:32722"
+    }
+  ],
+  "dīpī": [
+    {
+      "lemma": "dīpī",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "leopard; panther",
+          "nuance": "masc",
+          "notes": "masc",
+          "citation": "Sanskrit: dvīpin"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "dīpī, masc. leopard; panther ✔\n  IPA: /d̪iːpiː/\n  Grammar: masc\n  Synonym: dīpika\n  Variant: dīpi\n  Sanskrit: dvīpin\n  ID: 32824",
+      "sourceId": "dpd:32824",
+      "citationId": "cite:dpd:dpd:32824"
+    }
+  ],
+  "dīpi": [
+    {
+      "lemma": "dīpi",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "leopard; panther",
+          "nuance": "masc",
+          "notes": "masc",
+          "citation": "Sanskrit: dvīpin"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "dīpi, masc. leopard; panther ✔\n  IPA: /d̪iːpɪ/\n  Grammar: masc\n  Synonym: dīpika\n  Variant: dīpī\n  Sanskrit: dvīpin\n  ID: 32816",
+      "sourceId": "dpd:32816",
+      "citationId": "cite:dpd:dpd:32816"
     }
   ],
   "eka": [
@@ -4407,6 +4690,38 @@
       "citationId": "cite:dpd:dpd:18114"
     }
   ],
+  "evaṁ": [
+    {
+      "lemma": "evaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "thus; this; like this; similarly; in the same manner; just as; such",
+          "nuance": "ind",
+          "notes": "ind, adv",
+          "citation": "Sanskrit: evam"
+        }
+      ],
+      "rawExcerpt": "evaṃ 1, ind. thus; this; like this; similarly; in the same manner; just as; such ✔\n  IPA: /eːʋə̃/\n  Grammar: ind, adv\n  Construction: eva + aṃ\n  Synonym: iti, itthaṃ, tathā\n  Sanskrit: evam\n  ID: 18134",
+      "sourceId": "dpd:18134",
+      "citationId": "cite:dpd:dpd:18134"
+    },
+    {
+      "lemma": "evaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "yes!; that is right!; correct!",
+          "nuance": "ind",
+          "notes": "ind, excl",
+          "citation": "Sanskrit: evam"
+        }
+      ],
+      "rawExcerpt": "evaṃ 2, ind. yes!; that is right!; correct! ✔\n  IPA: /eːʋə̃/\n  Grammar: ind, excl\n  Construction: eva + aṃ\n  Sanskrit: evam\n  ID: 18135",
+      "sourceId": "dpd:18135",
+      "citationId": "cite:dpd:dpd:18135"
+    }
+  ],
   "eva": [
     {
       "lemma": "eva",
@@ -4482,6 +4797,57 @@
       "rawExcerpt": "eva 5, ind. as soon as ✔\n  IPA: /eːʋə/\n  Grammar: ind, emph\n  Synonym: va\n  Sanskrit: eva\n  ID: 18055",
       "sourceId": "dpd:18055",
       "citationId": "cite:dpd:dpd:18055"
+    }
+  ],
+  "evaṁanatīta": [
+    {
+      "lemma": "evaṁanatīta",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "not past this; subject to this in future; yet to experience this; lit. thus not past",
+          "nuance": "adj",
+          "notes": "adj, comp",
+          "citation": "Sanskrit: evam + atīta"
+        }
+      ],
+      "rawExcerpt": "evaṃanatīta, adj. not past this; subject to this in future; yet to experience this; lit. thus not past ✔\n  IPA: /eːʋə̃ən̪ət̪iːt̪ə/\n  Grammar: adj, comp\n  Construction: evaṃ + anatīta\n  Compound: kammadhāraya (evaṃ + anatīta)\n  Variant: etaṃ anatīta\n  Sanskrit: evam + atīta\n  ID: 18137",
+      "sourceId": "dpd:18137",
+      "citationId": "cite:dpd:dpd:18137"
+    }
+  ],
+  "evaṁbhāvī": [
+    {
+      "lemma": "evaṁbhāvī",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "destined for this; thus fated; going to be such; lit. thus fate",
+          "nuance": "adj",
+          "notes": "adj, comp",
+          "citation": "Sanskrit: evam + bhāvin"
+        }
+      ],
+      "rawExcerpt": "evaṃbhāvī, adj. destined for this; thus fated; going to be such; lit. thus fate ✔\n  IPA: /eːʋə̃bʰɑːʋiː/\n  Grammar: adj, comp\n  Construction: evaṃ + bhāvī\n  Compound: kammadhāraya (evaṃ + bhāvī)\n  Sanskrit: evam + bhāvin\n  ID: 18172",
+      "sourceId": "dpd:18172",
+      "citationId": "cite:dpd:dpd:18172"
+    }
+  ],
+  "evaṁdhamma": [
+    {
+      "lemma": "evaṁdhamma",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "of such nature; of such character; lit. thus nature",
+          "nuance": "adj",
+          "notes": "adj, comp",
+          "citation": "Sanskrit: evam + dharma"
+        }
+      ],
+      "rawExcerpt": "evaṃdhamma, adj. of such nature; of such character; lit. thus nature ✔\n  IPA: /eːʋə̃d̪ʰəmmə/\n  Grammar: adj, comp\n  Construction: evaṃ + dhamma\n  Compound: kammadhāraya > bahubbīhi (evaṃ + dhamma)\n  Synonym: dhammika\n  Sanskrit: evam + dharma\n  ID: 18158",
+      "sourceId": "dpd:18158",
+      "citationId": "cite:dpd:dpd:18158"
     }
   ],
   "gaccha": [
@@ -5020,6 +5386,23 @@
       "citationId": "cite:dpd:dpd:13619"
     }
   ],
+  "idametaṁ": [
+    {
+      "lemma": "idametaṁ",
+      "partOfSpeech": "sandhi",
+      "senses": [
+        {
+          "english": "this (with reference) to that; lit. this that",
+          "nuance": "sandhi",
+          "notes": "sandhi, pron + pron",
+          "citation": "Sanskrit: idam + etam"
+        }
+      ],
+      "rawExcerpt": "idametaṃ, sandhi. this (with reference) to that; lit. this that ✔\n  IPA: /ɪd̪əmeːt̪ə̃/\n  Grammar: sandhi, pron + pron\n  Construction: idaṃ + etaṃ\n  Phonetic Change: ṃe > me\n  Sanskrit: idam + etam\n  ID: 13622",
+      "sourceId": "dpd:13622",
+      "citationId": "cite:dpd:dpd:13622"
+    }
+  ],
   "idha": [
     {
       "lemma": "idha",
@@ -5082,6 +5465,38 @@
       "rawExcerpt": "imameva, sandhi. this very; this exact same; this here ✔\n  IPA: /ɪməmeːʋə/\n  Grammar: sandhi, pron + ind\n  Construction: imaṃ + eva\n  Phonetic Change: ṃe > me\n  Variant: imaṃyeva\n  Sanskrit: ayam + eva\n  ID: 13784",
       "sourceId": "dpd:13784",
       "citationId": "cite:dpd:dpd:13784"
+    }
+  ],
+  "imasmiṁ": [
+    {
+      "lemma": "imasmiṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "in this",
+          "nuance": "pron",
+          "notes": "pron, masc & nt loc sg of ima",
+          "citation": "Sanskrit: asmin"
+        }
+      ],
+      "rawExcerpt": "imasmiṃ 1, pron. in this ✔\n  IPA: /ɪməs̪mɪ̃/\n  Grammar: pron, masc & nt loc sg of ima\n  Construction: ima + smiṃ\n  Synonym: amhi, asmiṃ, imamhi, imāyaṃ, imissaṃ\n  Sanskrit: asmin\n  ID: 13791",
+      "sourceId": "dpd:13791",
+      "citationId": "cite:dpd:dpd:13791"
+    },
+    {
+      "lemma": "imasmiṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "when this",
+          "nuance": "pron",
+          "notes": "pron, masc & nt loc sg of ima, loc abs",
+          "citation": "Sanskrit: asmin"
+        }
+      ],
+      "rawExcerpt": "imasmiṃ 2, pron. when this ✔\n  IPA: /ɪməs̪mɪ̃/\n  Grammar: pron, masc & nt loc sg of ima, loc abs\n  Construction: ima + smiṃ\n  Synonym: asmiṃ\n  Sanskrit: asmin\n  ID: 13792",
+      "sourceId": "dpd:13792",
+      "citationId": "cite:dpd:dpd:13792"
     }
   ],
   "ime": [
@@ -5770,6 +6185,46 @@
       "rawExcerpt": "kura, nt. rice; boiled rice ✔\n  IPA: /kuɾə/\n  Grammar: nt\n  Variant: kūra, sudaṃ\n  Sanskrit: kūra, kuru\n  ID: 22496",
       "sourceId": "dpd:22496",
       "citationId": "cite:dpd:dpd:22496"
+    }
+  ],
+  "kurū": [
+    {
+      "lemma": "kurū",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "name of the people of Kuru; Kurus",
+          "nuance": "masc",
+          "notes": "masc pl of kuru",
+          "citation": "Sanskrit: kuravaḥ < kuru"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "kurū, masc. name of the people of Kuru; Kurus ✔\n  IPA: /kuɾuː/\n  Grammar: masc pl of kuru\n  Construction: kuru + ū\n  Sanskrit: kuravaḥ < kuru\n  ID: 22524",
+      "sourceId": "dpd:22524",
+      "citationId": "cite:dpd:dpd:22524"
+    }
+  ],
+  "kuru": [
+    {
+      "lemma": "kuru",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "name of a country",
+          "nuance": "masc",
+          "notes": "masc",
+          "citation": "Sanskrit: kuru"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "kuru, masc. name of a country ✔\n  IPA: /kuɾu/\n  Grammar: masc\n  Sanskrit: kuru\n  ID: 22502",
+      "sourceId": "dpd:22502",
+      "citationId": "cite:dpd:dpd:22502"
     }
   ],
   "kāka": [
@@ -6700,6 +7155,41 @@
       "citationId": "cite:dpd:dpd:50744"
     }
   ],
+  "maṁsa": [
+    {
+      "lemma": "maṁsa",
+      "partOfSpeech": "nt",
+      "senses": [
+        {
+          "english": "meat; flesh",
+          "nuance": "nt",
+          "notes": "nt",
+          "citation": "Sanskrit: māṃsa"
+        }
+      ],
+      "morphology": {
+        "gender": "n"
+      },
+      "rawExcerpt": "maṃsa 1, nt. meat; flesh ✔\n  IPA: /mə̃s̪ə/\n  Grammar: nt\n  Sanskrit: māṃsa\n  ID: 52105",
+      "sourceId": "dpd:52105",
+      "citationId": "cite:dpd:dpd:52105"
+    },
+    {
+      "lemma": "maṁsa",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "with meat; having flesh",
+          "nuance": "adj",
+          "notes": "adj, in comps",
+          "citation": "Sanskrit: māṃsa"
+        }
+      ],
+      "rawExcerpt": "maṃsa 2, adj. with meat; having flesh ✔\n  IPA: /mə̃s̪ə/\n  Grammar: adj, in comps\n  Sanskrit: māṃsa\n  ID: 52106",
+      "sourceId": "dpd:52106",
+      "citationId": "cite:dpd:dpd:52106"
+    }
+  ],
   "me": [
     {
       "lemma": "me",
@@ -6909,6 +7399,23 @@
       "citationId": "cite:dpd:dpd:52859"
     }
   ],
+  "māsaṁ": [
+    {
+      "lemma": "māsaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "for a month; for a period of one month",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of māsa",
+          "citation": "Sanskrit: māsam [mā]"
+        }
+      ],
+      "rawExcerpt": "māsaṃ, ind. for a month; for a period of one month ✔\n  IPA: /mɑːs̪ə̃/\n  Grammar: ind, adv, acc sg of māsa\n  Root: √mā 5 nā (measure)\n  Construction: √mā + sa + aṃ\n  Sanskrit: māsam [mā]\n  Sanskrit Root: √mā √mi 2, 3, 4 (measure)\n  ID: 82978",
+      "sourceId": "dpd:82978",
+      "citationId": "cite:dpd:dpd:82978"
+    }
+  ],
   "māsa": [
     {
       "lemma": "māsa",
@@ -6983,6 +7490,26 @@
       "rawExcerpt": "mūlapariyāyavagga, masc. Vagga 1 of the Majjhima Nikāya (MN1-10); lit. section on the root cause ✔\n  IPA: /muːləpəɾɪjɑːjəʋəggə/\n  Grammar: masc, comp\n  Construction: mūlapariyāya + vagga\n  Compound: kammadhāraya (mūlapariyāya + vagga)\n  Sanskrit: mūla + paryāya + varga\n  ID: 53124",
       "sourceId": "dpd:53124",
       "citationId": "cite:dpd:dpd:53124"
+    }
+  ],
+  "mūlasusaṁvaradhammadāyādā": [
+    {
+      "lemma": "mūlasusaṁvaradhammadāyādā",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "in reference to MN1 Mūlapariyāyasutta , MN2 Sabbāsavasutta, MN3 Dhammadāyādasutta",
+          "nuance": "masc",
+          "notes": "masc pl, comp",
+          "citation": "Sanskrit: mūla + su + saṃvara + dharma + dāyāda"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "mūlasusaṃvaradhammadāyādā, masc. in reference to MN1 Mūlapariyāyasutta , MN2 Sabbāsavasutta, MN3 Dhammadāyādasutta ✔\n  IPA: /muːləs̪us̪ə̃ʋəɾəd̪ʰəmməd̪ɑːjɑːd̪ɑː/\n  Grammar: masc pl, comp\n  Construction: mūla + susaṃvara + dhammadāyāda + ā\n  Compound: dvanda (mūla ca susaṃvara ca dhammadāyāda ca)\n  Sanskrit: mūla + su + saṃvara + dharma + dāyāda\n  ID: 83269",
+      "sourceId": "dpd:83269",
+      "citationId": "cite:dpd:dpd:83269"
     }
   ],
   "na": [
@@ -7106,6 +7633,23 @@
       "rawExcerpt": "navasivathikapabba, nt. section on the nine charnel ground (contemplations) ✔\n  IPA: /n̪əʋəs̪ɪʋət̪ʰɪkəpəbbə/\n  Grammar: nt, comp\n  Construction: nava + sivathikā + pabba\n  Compound: kammadhāraya (navasivathikā + pabba)\n  Sanskrit: nava + śivālaya + parvan\n  ID: 35937",
       "sourceId": "dpd:35937",
       "citationId": "cite:dpd:dpd:35937"
+    }
+  ],
+  "naṁ": [
+    {
+      "lemma": "naṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "him; her; it; one; that",
+          "nuance": "pron",
+          "notes": "pron, masc fem & nt acc sg of ta",
+          "citation": "Sanskrit: tam"
+        }
+      ],
+      "rawExcerpt": "naṃ, pron. him; her; it; one; that ✔\n  IPA: /n̪ə̃/\n  Grammar: pron, masc fem & nt acc sg of ta\n  Construction: ta > na + aṃ\n  Synonym: enaṃ, tad, taṃ\n  Sanskrit: tam\n  ID: 36019",
+      "sourceId": "dpd:36019",
+      "citationId": "cite:dpd:dpd:36019"
     }
   ],
   "nhāru": [
@@ -7295,6 +7839,23 @@
       "rawExcerpt": "nika, masc. name of a deity ✔\n  IPA: /n̪ɪkə/\n  Grammar: masc\n  Variant: niṅka, nīka\n  Sanskrit: nika\n  ID: 36648",
       "sourceId": "dpd:36648",
       "citationId": "cite:dpd:dpd:36648"
+    }
+  ],
+  "nimaṁsalohitamakkhita": [
+    {
+      "lemma": "nimaṁsalohitamakkhita",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "without flesh and smeared with blood",
+          "nuance": "adj",
+          "notes": "adj, comp",
+          "citation": "Sanskrit: nirmāṃsa + lohita + mrakṣita"
+        }
+      ],
+      "rawExcerpt": "nimaṃsalohitamakkhita, adj. without flesh and smeared with blood ✔\n  IPA: /n̪ɪmə̃s̪əloːɦɪt̪əməkkʰɪt̪ə/\n  Grammar: adj, comp\n  Construction: nimaṃsa + lohitamakkhita\n  Compound: dvanda (nimaṃsa ca lohitamakkhita ca)\n  Notes: wrong for nimmaṃsalohitamakkhita\n  Sanskrit: nirmāṃsa + lohita + mrakṣita\n  ID: 37755",
+      "sourceId": "dpd:37755",
+      "citationId": "cite:dpd:dpd:37755"
     }
   ],
   "nirāmisa": [
@@ -7912,6 +8473,23 @@
       "citationId": "cite:dpd:dpd:39702"
     }
   ],
+  "pajāna": [
+    {
+      "lemma": "pajāna",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "knowing; clearly understanding; comprehending",
+          "nuance": "adj",
+          "notes": "adj, in comps, from pajānāti",
+          "citation": "Sanskrit: prajña [prajñā]"
+        }
+      ],
+      "rawExcerpt": "pajāna, adj. knowing; clearly understanding; comprehending ✔\n  IPA: /pəd͡ʒɑːn̪ə/\n  Grammar: adj, in comps, from pajānāti\n  Root: pa √ñā 5 nā (know)\n  √ In Sandhi: ññā\n  Base: √ñā + nā > ñānā > jānā (irreg)\n  Construction: pa + jānā + a\n  Derivative: kita (a)\n  Phonetic Change: ñ > j\n  Antonym: appajāna\n  Synonym: vijāna\n  Sanskrit: prajña [prajñā]\n  Sanskrit Root: √jñā 9 (know)\n  ID: 39697",
+      "sourceId": "dpd:39697",
+      "citationId": "cite:dpd:dpd:39697"
+    }
+  ],
   "pallaṅka": [
     {
       "lemma": "pallaṅka",
@@ -8002,6 +8580,23 @@
       "rawExcerpt": "papphāsa, nt. lungs ✔\n  IPA: /pəppʰɑːs̪ə/\n  Grammar: nt\n  Sanskrit: pupphusa\n  ID: 42439",
       "sourceId": "dpd:42439",
       "citationId": "cite:dpd:dpd:42439"
+    }
+  ],
+  "parimukhaṁ": [
+    {
+      "lemma": "parimukhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "as first priority; to the fore; (comm) directed towards the meditation object; lit. around the front",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of parimukha",
+          "citation": "Sanskrit: parimukham"
+        }
+      ],
+      "rawExcerpt": "parimukhaṃ 1, ind. as first priority; to the fore; (comm) directed towards the meditation object; lit. around the front ✔\n  IPA: /pəɾɪmukʰə̃/\n  Grammar: ind, adv, acc sg of parimukha\n  Construction: pari + mukha + aṃ\n  Sanskrit: parimukham\n  ID: 43897",
+      "sourceId": "dpd:43897",
+      "citationId": "cite:dpd:dpd:43897"
     }
   ],
   "passaddhisambojjhaṅga": [
@@ -9624,6 +10219,23 @@
       "citationId": "cite:dpd:dpd:54692"
     }
   ],
+  "rassaṁ": [
+    {
+      "lemma": "rassaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "(of breathing) for a short time; shallowly",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of rassa",
+          "citation": "Sanskrit: hrasva"
+        }
+      ],
+      "rawExcerpt": "rassaṃ, ind. (of breathing) for a short time; shallowly ✔\n  IPA: /ɾəs̪s̪ə̃/\n  Grammar: ind, adv, acc sg of rassa\n  Construction: rassa + aṃ\n  Antonym: dīghaṃ\n  Sanskrit: hrasva\n  ID: 54749",
+      "sourceId": "dpd:54749",
+      "citationId": "cite:dpd:dpd:54749"
+    }
+  ],
   "rassa": [
     {
       "lemma": "rassa",
@@ -10125,6 +10737,23 @@
       "citationId": "cite:dpd:dpd:59456"
     }
   ],
+  "samaṁsalohita": [
+    {
+      "lemma": "samaṁsalohita",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "with flesh and blood",
+          "nuance": "adj",
+          "notes": "adj, comp, from maṃsalohita",
+          "citation": "Sanskrit: saha + māṃsa + lohita"
+        }
+      ],
+      "rawExcerpt": "samaṃsalohita, adj. with flesh and blood ✔\n  IPA: /s̪əmə̃s̪əloːɦɪt̪ə/\n  Grammar: adj, comp, from maṃsalohita\n  Construction: sa + maṃsa + lohita\n  Compound: tatiyā tappurisa > bahubbīhi (sa + maṃsalohitena)\n  Sanskrit: saha + māṃsa + lohita\n  ID: 59527",
+      "sourceId": "dpd:59527",
+      "citationId": "cite:dpd:dpd:59527"
+    }
+  ],
   "samiñjita": [
     {
       "lemma": "samiñjita",
@@ -10377,6 +11006,27 @@
       "rawExcerpt": "samāhita 2, pp. having; who has; endowed (with); lit. placed together here ✔\n  IPA: /s̪əmɑːɦɪt̪ə/\n  Grammar: pp of samādahati, in comps (+instr)\n  Root: saṃ ā √dhā 1 a (place, support)\n  Construction: saṃ + ā + √dhā > (da)h + ita\n  Derivative: kita (ita)\n  Phonetic Change: ṃā > mā, dhā > h\n  Synonym: upeta, parikkhata, samannāgata, samāgata, samāyuta, sampanna\n  Sanskrit: samāhita [samādhā]\n  Sanskrit Root: √dhā 1, 2, 3 (put)\n  ID: 59825",
       "sourceId": "dpd:59825",
       "citationId": "cite:dpd:dpd:59825"
+    }
+  ],
+  "santaṁ": [
+    {
+      "lemma": "santaṁ",
+      "partOfSpeech": "prp",
+      "senses": [
+        {
+          "english": "existing; being",
+          "nuance": "prp",
+          "notes": "prp, masc acc sg of santa, trans (+acc)",
+          "citation": "Sanskrit: sat [as]"
+        }
+      ],
+      "morphology": {
+        "tenseAspect": "present",
+        "form": "participle"
+      },
+      "rawExcerpt": "santaṃ, prp. existing; being ✔\n  IPA: /s̪ən̪t̪ə̃/\n  Grammar: prp, masc acc sg of santa, trans (+acc)\n  Root: √as 1 a (be)\n  Base: √as + a > asa > sa (irreg)\n  Construction: sa + nta + aṃ\n  Antonym: asantaṃ\n  Synonym: santa, santī, santo\n  Sanskrit: sat [as]\n  Sanskrit Root: √as 2 (be)\n  ID: 58227",
+      "sourceId": "dpd:58227",
+      "citationId": "cite:dpd:dpd:58227"
     }
   ],
   "santa": [
@@ -11034,6 +11684,23 @@
       "citationId": "cite:dpd:dpd:57679"
     }
   ],
+  "sattāhaṁ": [
+    {
+      "lemma": "sattāhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "for a week; for seven days",
+          "nuance": "ind",
+          "notes": "ind, adv, comp, acc sg of sattāha",
+          "citation": "Sanskrit: saptāham"
+        }
+      ],
+      "rawExcerpt": "sattāhaṃ 1, ind. for a week; for seven days ✔\n  IPA: /s̪ət̪t̪ɑːɦə̃/\n  Grammar: ind, adv, comp, acc sg of sattāha\n  Construction: satta + aha + aṃ\n  Phonetic Change: aa > ā\n  Sanskrit: saptāham\n  ID: 57828",
+      "sourceId": "dpd:57828",
+      "citationId": "cite:dpd:dpd:57828"
+    }
+  ],
   "sattāha": [
     {
       "lemma": "sattāha",
@@ -11237,6 +11904,59 @@
       "rawExcerpt": "saññāya, ger. knowing; perceiving; lit. known together ✔\n  IPA: /s̪əɲɲɑːjə/\n  Grammar: ger of sañjānāti, trans (+acc)\n  Root: saṃ √ñā 5 nā (know)\n  √ In Sandhi: ññā\n  Construction: saṃ + √ñā + ya\n  Phonetic Change: ṃñ > ññ\n  Sanskrit: sañjñīya [saṃjñā]\n  Sanskrit Root: √jñā 9 (know)\n  ID: 82985",
       "sourceId": "dpd:82985",
       "citationId": "cite:dpd:dpd:82985"
+    }
+  ],
+  "saṁyojana": [
+    {
+      "lemma": "saṁyojana",
+      "partOfSpeech": "nt",
+      "senses": [
+        {
+          "english": "fetter; chain; bond; thing which binds; lit. causing to yoke together",
+          "nuance": "nt",
+          "notes": "nt, from saṃyojeti, caus",
+          "citation": "Sanskrit: saṃyojana [saṃyuj]"
+        }
+      ],
+      "morphology": {
+        "gender": "n"
+      },
+      "rawExcerpt": "saṃyojana 1, nt. fetter; chain; bond; thing which binds; lit. causing to yoke together ✔\n  IPA: /s̪ə̃joːd͡ʒən̪ə/\n  Grammar: nt, from saṃyojeti, caus\n  Root: saṃ √yuj 2 *e (yoke, join)\n  Base: √yuj + *e > yoje (caus)\n  Construction: saṃ + yoje + ana\n  Derivative: kita (ana)\n  Phonetic Change: u > o\n  Synonym: bandhana, vinibaddha\n  Variant: saññojana\n  Sanskrit: saṃyojana [saṃyuj]\n  Sanskrit Root: √yuj 2, 7 (join)\n  ID: 61682",
+      "sourceId": "dpd:61682",
+      "citationId": "cite:dpd:dpd:61682"
+    },
+    {
+      "lemma": "saṁyojana",
+      "partOfSpeech": "nt",
+      "senses": [
+        {
+          "english": "connection; link; lit. causing to yoke together",
+          "nuance": "nt",
+          "notes": "nt, from saṃyojeti, caus",
+          "citation": "Sanskrit: saṃyojana [saṃyuj]"
+        }
+      ],
+      "morphology": {
+        "gender": "n"
+      },
+      "rawExcerpt": "saṃyojana 2, nt. connection; link; lit. causing to yoke together ✔\n  IPA: /s̪ə̃joːd͡ʒən̪ə/\n  Grammar: nt, from saṃyojeti, caus\n  Root: saṃ √yuj 2 *e (yoke, join)\n  Base: √yuj + *e > yoje (caus)\n  Construction: saṃ + yoje + ana\n  Derivative: kita (ana)\n  Phonetic Change: u > o\n  Variant: saññojana\n  Sanskrit: saṃyojana [saṃyuj]\n  Sanskrit Root: √yuj 2, 7 (join)\n  ID: 61683",
+      "sourceId": "dpd:61683",
+      "citationId": "cite:dpd:dpd:61683"
+    },
+    {
+      "lemma": "saṁyojana",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "with a fetter; having a chain; about a bond; regarding a thing which binds; lit. causing to yoke together",
+          "nuance": "adj",
+          "notes": "adj, from saṃyojeti, caus",
+          "citation": "Sanskrit: saṃyojana [saṃyuj]"
+        }
+      ],
+      "rawExcerpt": "saṃyojana 3, adj. with a fetter; having a chain; about a bond; regarding a thing which binds; lit. causing to yoke together ✔\n  IPA: /s̪ə̃joːd͡ʒən̪ə/\n  Grammar: adj, from saṃyojeti, caus\n  Root: saṃ √yuj 2 *e (yoke, join)\n  Base: √yuj + *e > yoje (caus)\n  Construction: saṃ + yoje + ana\n  Derivative: kita (ana)\n  Phonetic Change: u > o\n  Sanskrit: saṃyojana [saṃyuj]\n  Sanskrit Root: √yuj 2, 7 (join)\n  ID: 61684",
+      "sourceId": "dpd:61684",
+      "citationId": "cite:dpd:dpd:61684"
     }
   ],
   "saṅghāṭipattacīvaradhāraṇa": [
@@ -11545,6 +12265,23 @@
       "citationId": "cite:dpd:dpd:80933"
     }
   ],
+  "seyyathidaṁ": [
+    {
+      "lemma": "seyyathidaṁ",
+      "partOfSpeech": "sandhi",
+      "senses": [
+        {
+          "english": "i.e.; as follows; lit. that (is) like this",
+          "nuance": "sandhi",
+          "notes": "sandhi, pron + adv + pron",
+          "citation": "Sanskrit: sayathā + idam"
+        }
+      ],
+      "rawExcerpt": "seyyathidaṃ, sandhi. i.e.; as follows; lit. that (is) like this ✔\n  IPA: /s̪eːjjət̪ʰɪd̪ə̃/\n  Grammar: sandhi, pron + adv + pron\n  Construction: se + yathā + idaṃ\n  Phonetic Change: ey > eyy, āi > i\n  Variant: seyyathīdaṃ\n  Sanskrit: sayathā + idam\n  ID: 64954",
+      "sourceId": "dpd:64954",
+      "citationId": "cite:dpd:dpd:64954"
+    }
+  ],
   "seyyathāpi": [
     {
       "lemma": "seyyathāpi",
@@ -11799,6 +12536,23 @@
       "rawExcerpt": "sokaparideva, masc. sorrow and lamentation; sadness and crying ✔\n  IPA: /s̪oːkəpəɾɪd̪eːʋə/\n  Grammar: masc, comp\n  Construction: soka + parideva\n  Compound: dvanda (soka ca parideva ca)\n  Variant: sokapariddava\n  Sanskrit: śoka + parideva\n  ID: 65095",
       "sourceId": "dpd:65095",
       "citationId": "cite:dpd:dpd:65095"
+    }
+  ],
+  "sukhaṁ": [
+    {
+      "lemma": "sukhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "easily; comfortably; pleasantly; happily",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of sukha",
+          "citation": "Sanskrit: sukham [sukh]"
+        }
+      ],
+      "rawExcerpt": "sukhaṃ, ind. easily; comfortably; pleasantly; happily ✔\n  IPA: /s̪ukʰə̃/\n  Grammar: ind, adv, acc sg of sukha\n  Root: √sukh 1 a (please, be comfortable)\n  Construction: √sukh + a + aṃ\n  Antonym: dukkhaṃ\n  Synonym: phāsu, phāsuṃ, sātataṃ, sukhena\n  Sanskrit: sukham [sukh]\n  Sanskrit Root: √sukh 10 (please)\n  ID: 63552",
+      "sourceId": "dpd:63552",
+      "citationId": "cite:dpd:dpd:63552"
     }
   ],
   "sukha": [
@@ -12474,6 +13228,23 @@
       "citationId": "cite:dpd:dpd:29835"
     }
   ],
+  "tamenaṁ": [
+    {
+      "lemma": "tamenaṁ",
+      "partOfSpeech": "sandhi",
+      "senses": [
+        {
+          "english": "that one; him; her; that thing; that person",
+          "nuance": "sandhi",
+          "notes": "sandhi, pron + pron",
+          "citation": "Sanskrit: tam + enam"
+        }
+      ],
+      "rawExcerpt": "tamenaṃ, sandhi. that one; him; her; that thing; that person ✔\n  IPA: /t̪əmeːn̪ə̃/\n  Grammar: sandhi, pron + pron\n  Construction: taṃ + enaṃ\n  Phonetic Change: ṃe > me\n  Sanskrit: tam + enam\n  ID: 30028",
+      "sourceId": "dpd:30028",
+      "citationId": "cite:dpd:dpd:30028"
+    }
+  ],
   "tassa": [
     {
       "lemma": "tassa",
@@ -12566,6 +13337,23 @@
       "rawExcerpt": "tassā 2, pron. of her; hers; of that ✔\n  IPA: /t̪əs̪s̪ɑː/\n  Grammar: pron, fem gen sg of ta\n  Construction: ta + ssā\n  Sanskrit: tāyāḥ\n  ID: 30178",
       "sourceId": "dpd:30178",
       "citationId": "cite:dpd:dpd:30178"
+    }
+  ],
+  "tassuddānaṁ": [
+    {
+      "lemma": "tassuddānaṁ",
+      "partOfSpeech": "sandhi",
+      "senses": [
+        {
+          "english": "summary; a short verse given at the end of each vagga listing the titles or topics of the relevant suttas; lit. tying up of that",
+          "nuance": "sandhi",
+          "notes": "sandhi, pron + nt",
+          "citation": "Sanskrit: tvasya + uddānam"
+        }
+      ],
+      "rawExcerpt": "tassuddānaṃ, sandhi. summary; a short verse given at the end of each vagga listing the titles or topics of the relevant suttas; lit. tying up of that ✔\n  IPA: /t̪əs̪s̪ud̪d̪ɑːn̪ə̃/\n  Grammar: sandhi, pron + nt\n  Construction: tassa + uddānaṃ\n  Sanskrit: tvasya + uddānam\n  ID: 30192",
+      "sourceId": "dpd:30192",
+      "citationId": "cite:dpd:dpd:30192"
     }
   ],
   "tathā": [
@@ -12700,6 +13488,53 @@
       "rawExcerpt": "tañca 2, sandhi. but that ✔\n  IPA: /t̪əɲt͡ʃə/\n  Grammar: sandhi, pron + ind\n  Construction: taṃ + ca\n  Phonetic Change: ṃc > ñc\n  Sanskrit: tam + ca\n  ID: 29296",
       "sourceId": "dpd:29296",
       "citationId": "cite:dpd:dpd:29296"
+    }
+  ],
+  "taṁ": [
+    {
+      "lemma": "taṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "it; that",
+          "nuance": "pron",
+          "notes": "pron, nt nom sg of ta",
+          "citation": "Sanskrit: tam"
+        }
+      ],
+      "rawExcerpt": "taṃ 1.1, pron. it; that ✔\n  IPA: /t̪ə̃/\n  Grammar: pron, nt nom sg of ta\n  Construction: ta + aṃ\n  Antonym: yaṃ\n  Synonym: tad, naṃ, se\n  Sanskrit: tam\n  ID: 30215",
+      "sourceId": "dpd:30215",
+      "citationId": "cite:dpd:dpd:30215"
+    },
+    {
+      "lemma": "taṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "him; her; one; that person; that thing",
+          "nuance": "pron",
+          "notes": "pron, masc fem & nt acc sg of ta",
+          "citation": "Sanskrit: tam"
+        }
+      ],
+      "rawExcerpt": "taṃ 1.2, pron. him; her; one; that person; that thing ✔\n  IPA: /t̪ə̃/\n  Grammar: pron, masc fem & nt acc sg of ta\n  Construction: ta + aṃ\n  Antonym: yaṃ\n  Synonym: enaṃ, naṃ\n  Sanskrit: tam\n  ID: 30216",
+      "sourceId": "dpd:30216",
+      "citationId": "cite:dpd:dpd:30216"
+    },
+    {
+      "lemma": "taṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "you (object)",
+          "nuance": "pron",
+          "notes": "pron, 2nd acc sg of tvaṃ",
+          "citation": "Sanskrit: tvam"
+        }
+      ],
+      "rawExcerpt": "taṃ 2.1, pron. you (object) ✔\n  IPA: /t̪ə̃/\n  Grammar: pron, 2nd acc sg of tvaṃ\n  Construction: tvaṃ + aṃ\n  Synonym: tavaṃ, tumhe, tuvaṃ, te\n  Variant: tvaṃ\n  Sanskrit: tvam\n  ID: 30217",
+      "sourceId": "dpd:30217",
+      "citationId": "cite:dpd:dpd:30217"
     }
   ],
   "taṇḍula": [
@@ -13377,6 +14212,68 @@
       "citationId": "cite:dpd:dpd:15178"
     }
   ],
+  "uddhaṁ": [
+    {
+      "lemma": "uddhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "above; up; on top",
+          "nuance": "ind",
+          "notes": "ind, prep, acc sg of uddha",
+          "citation": "Sanskrit: ūrdhvam"
+        }
+      ],
+      "rawExcerpt": "uddhaṃ 1, ind. above; up; on top ✔\n  IPA: /ud̪d̪ʰə̃/\n  Grammar: ind, prep, acc sg of uddha\n  Construction: ud + dha + aṃ\n  Antonym: adho, anto\n  Variant: ubbha\n  Notes: see SCPN §2\n  Sanskrit: ūrdhvam\n  ID: 15234",
+      "sourceId": "dpd:15234",
+      "citationId": "cite:dpd:dpd:15234"
+    },
+    {
+      "lemma": "uddhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "upwards (from)",
+          "nuance": "ind",
+          "notes": "ind, prep, acc sg of uddha (+abl)",
+          "citation": "Sanskrit: ūrdhvam"
+        }
+      ],
+      "rawExcerpt": "uddhaṃ 2, ind. upwards (from) ✔\n  IPA: /ud̪d̪ʰə̃/\n  Grammar: ind, prep, acc sg of uddha (+abl)\n  Construction: ud + dha + aṃ\n  Antonym: adho, anto\n  Synonym: upari\n  Sanskrit: ūrdhvam\n  ID: 15235",
+      "sourceId": "dpd:15235",
+      "citationId": "cite:dpd:dpd:15235"
+    },
+    {
+      "lemma": "uddhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "after; afterwards",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of uddha (+abl)",
+          "citation": "Sanskrit: ūrdhvam"
+        }
+      ],
+      "rawExcerpt": "uddhaṃ 3, ind. after; afterwards ✔\n  IPA: /ud̪d̪ʰə̃/\n  Grammar: ind, adv, acc sg of uddha (+abl)\n  Construction: ud + dha + aṃ\n  Antonym: anto\n  Synonym: pacchato\n  Sanskrit: ūrdhvam\n  ID: 15236",
+      "sourceId": "dpd:15236",
+      "citationId": "cite:dpd:dpd:15236"
+    },
+    {
+      "lemma": "uddhaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "further; more; all the more",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of uddha",
+          "citation": "Sanskrit: ūrdhvam"
+        }
+      ],
+      "rawExcerpt": "uddhaṃ 4, ind. further; more; all the more ✔\n  IPA: /ud̪d̪ʰə̃/\n  Grammar: ind, adv, acc sg of uddha\n  Construction: ud + dha + aṃ\n  Antonym: anto\n  Sanskrit: ūrdhvam\n  ID: 15237",
+      "sourceId": "dpd:15237",
+      "citationId": "cite:dpd:dpd:15237"
+    }
+  ],
   "uddha": [
     {
       "lemma": "uddha",
@@ -13411,6 +14308,23 @@
       "citationId": "cite:dpd:dpd:15259"
     }
   ],
+  "ujuṁ": [
+    {
+      "lemma": "ujuṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "uprightly; erectly",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of uju",
+          "citation": "Sanskrit: ṛju [ṛñj]"
+        }
+      ],
+      "rawExcerpt": "ujuṃ, ind. uprightly; erectly ✔\n  IPA: /ud͡ʒũ/\n  Grammar: ind, adv, acc sg of uju\n  Root: √uj 1 a (be straight)\n  Construction: √uj + u + uṃ\n  Antonym: jimhaṃ\n  Sanskrit: ṛju [ṛñj]\n  Sanskrit Root: √ṛj √ṛñj 1, 6 (force)\n  ID: 14413",
+      "sourceId": "dpd:14413",
+      "citationId": "cite:dpd:dpd:14413"
+    }
+  ],
   "uju": [
     {
       "lemma": "uju",
@@ -13441,6 +14355,84 @@
       "rawExcerpt": "uju 2, adj. direct; exact; lit. straight ✔\n  IPA: /ud͡ʒu/\n  Grammar: adj, in comps\n  Root: √uj 1 a (be straight)\n  Construction: √uj + u\n  Derivative: kita (u)\n  Variant: ujju\n  Sanskrit: ṛju [ṛñj]\n  Sanskrit Root: √ṛj √ṛñj 1, 6 (force)\n  ID: 14393",
       "sourceId": "dpd:14393",
       "citationId": "cite:dpd:dpd:14393"
+    }
+  ],
+  "upasaṁharati": [
+    {
+      "lemma": "upasaṁharati",
+      "partOfSpeech": "pr",
+      "senses": [
+        {
+          "english": "compares (with); likens (to); lit. brings near together",
+          "nuance": "pr",
+          "notes": "pr, trans (+acc)",
+          "citation": "Sanskrit: upasaṃharati [upasaṃhṛ]"
+        }
+      ],
+      "morphology": {
+        "tenseAspect": "present",
+        "form": "finite"
+      },
+      "rawExcerpt": "upasaṃharati 1, pr. compares (with); likens (to); lit. brings near together ✔\n  IPA: /upəs̪ə̃ɦəɾət̪ɪ/\n  Grammar: pr, trans (+acc)\n  Root: upa saṃ √har 1 a (carry)\n  Base: √har + a > hara\n  Construction: upa + saṃ + hara + ti\n  Sanskrit: upasaṃharati [upasaṃhṛ]\n  Sanskrit Root: √hṛ 1 (take)\n  ID: 16156",
+      "sourceId": "dpd:16156",
+      "citationId": "cite:dpd:dpd:16156"
+    },
+    {
+      "lemma": "upasaṁharati",
+      "partOfSpeech": "pr",
+      "senses": [
+        {
+          "english": "focuses; concentrates; applies; lit. brings near together",
+          "nuance": "pr",
+          "notes": "pr, trans (+acc)",
+          "citation": "Sanskrit: upasaṃharati [upasaṃhṛ]"
+        }
+      ],
+      "morphology": {
+        "tenseAspect": "present",
+        "form": "finite"
+      },
+      "rawExcerpt": "upasaṃharati 2, pr. focuses; concentrates; applies; lit. brings near together ✔\n  IPA: /upəs̪ə̃ɦəɾət̪ɪ/\n  Grammar: pr, trans (+acc)\n  Root: upa saṃ √har 1 a (carry)\n  Base: √har + a > hara\n  Construction: upa + saṃ + hara + ti\n  Synonym: adhiṭṭhāti\n  Sanskrit: upasaṃharati [upasaṃhṛ]\n  Sanskrit Root: √hṛ 1 (take)\n  ID: 16157",
+      "sourceId": "dpd:16157",
+      "citationId": "cite:dpd:dpd:16157"
+    },
+    {
+      "lemma": "upasaṁharati",
+      "partOfSpeech": "pr",
+      "senses": [
+        {
+          "english": "brings; causes; arranges; lit. brings near together",
+          "nuance": "pr",
+          "notes": "pr, trans (+acc)",
+          "citation": "Sanskrit: upasaṃharati [upasaṃhṛ]"
+        }
+      ],
+      "morphology": {
+        "tenseAspect": "present",
+        "form": "finite"
+      },
+      "rawExcerpt": "upasaṃharati 3, pr. brings; causes; arranges; lit. brings near together ✔\n  IPA: /upəs̪ə̃ɦəɾət̪ɪ/\n  Grammar: pr, trans (+acc)\n  Root: upa saṃ √har 1 a (carry)\n  Base: √har + a > hara\n  Construction: upa + saṃ + hara + ti\n  Sanskrit: upasaṃharati [upasaṃhṛ]\n  Sanskrit Root: √hṛ 1 (take)\n  ID: 16158",
+      "sourceId": "dpd:16158",
+      "citationId": "cite:dpd:dpd:16158"
+    },
+    {
+      "lemma": "upasaṁharati",
+      "partOfSpeech": "pr",
+      "senses": [
+        {
+          "english": "puts together; brings together; lit. brings near together",
+          "nuance": "pr",
+          "notes": "pr, trans (+acc)",
+          "citation": "Sanskrit: upasaṃharati [upasaṃhṛ]"
+        }
+      ],
+      "morphology": {
+        "tenseAspect": "present",
+        "form": "finite"
+      },
+      "rawExcerpt": "upasaṃharati 4, pr. puts together; brings together; lit. brings near together ✔\n  IPA: /upəs̪ə̃ɦəɾət̪ɪ/\n  Grammar: pr, trans (+acc)\n  Root: upa saṃ √har 1 a (carry)\n  Base: √har + a > hara\n  Construction: upa + saṃ + hara + ti\n  Sanskrit: upasaṃharati [upasaṃhṛ]\n  Sanskrit Root: √hṛ 1 (take)\n  ID: 16159",
+      "sourceId": "dpd:16159",
+      "citationId": "cite:dpd:dpd:16159"
     }
   ],
   "upaṭṭhapetvā": [
@@ -15205,6 +16197,23 @@
       "citationId": "cite:dpd:dpd:69815"
     }
   ],
+  "yadidaṁ": [
+    {
+      "lemma": "yadidaṁ",
+      "partOfSpeech": "sandhi",
+      "senses": [
+        {
+          "english": "namely; that is; lit. which this",
+          "nuance": "sandhi",
+          "notes": "sandhi, pron + pron",
+          "citation": "Sanskrit: yad + idam"
+        }
+      ],
+      "rawExcerpt": "yadidaṃ, sandhi. namely; that is; lit. which this ✔\n  IPA: /jəd̪ɪd̪ə̃/\n  Grammar: sandhi, pron + pron\n  Construction: yad + idaṃ\n  Phonetic Change: ṃ > d (Kacc 34, 52)\n  Sanskrit: yad + idam\n  ID: 53750",
+      "sourceId": "dpd:53750",
+      "citationId": "cite:dpd:dpd:53750"
+    }
+  ],
   "yakana": [
     {
       "lemma": "yakana",
@@ -15255,6 +16264,23 @@
       "rawExcerpt": "yathā 2, ind. because; since ✔\n  IPA: /jət̪ʰɑː/\n  Grammar: ind, adv, from ya\n  Construction: ya + thā\n  Derivative: taddhita (thā)\n  Antonym: tathā\n  Synonym: yaṃ\n  Sanskrit: yathā\n  ID: 53576",
       "sourceId": "dpd:53576",
       "citationId": "cite:dpd:dpd:53576"
+    }
+  ],
+  "yathābhūtaṁ": [
+    {
+      "lemma": "yathābhūtaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "as it truly is; in reality; lit. like become",
+          "nuance": "ind",
+          "notes": "ind, adv, comp, acc sg of yathābhūta",
+          "citation": "Sanskrit: yathābhūtam"
+        }
+      ],
+      "rawExcerpt": "yathābhūtaṃ, ind. as it truly is; in reality; lit. like become ✔\n  IPA: /jət̪ʰɑːbʰuːt̪ə̃/\n  Grammar: ind, adv, comp, acc sg of yathābhūta\n  Construction: yathā + bhūta + aṃ\n  Compound: abyayībhāva (yathā + bhūtaṃ)\n  Antonym: ayathābhūtaṃ\n  Sanskrit: yathābhūtam\n  ID: 53661",
+      "sourceId": "dpd:53661",
+      "citationId": "cite:dpd:dpd:53661"
     }
   ],
   "yathābhūta": [
@@ -15323,6 +16349,53 @@
       "rawExcerpt": "yañca, sandhi. but whatever; but whoever; and whichever ✔\n  IPA: /jəɲt͡ʃə/\n  Grammar: sandhi, pron + ind\n  Construction: yaṃ + ca\n  Phonetic Change: ṃc > ñc\n  Sanskrit: yat + ca\n  ID: 53493",
       "sourceId": "dpd:53493",
       "citationId": "cite:dpd:dpd:53493"
+    }
+  ],
+  "yaṁ": [
+    {
+      "lemma": "yaṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "which; whoever; whatever; that which",
+          "nuance": "pron",
+          "notes": "pron, nt nom sg of ya",
+          "citation": "Sanskrit: yat"
+        }
+      ],
+      "rawExcerpt": "yaṃ 1, pron. which; whoever; whatever; that which ✔\n  IPA: /jə̃/\n  Grammar: pron, nt nom sg of ya\n  Construction: ya + aṃ\n  Antonym: taṃ\n  Sanskrit: yat\n  ID: 53872",
+      "sourceId": "dpd:53872",
+      "citationId": "cite:dpd:dpd:53872"
+    },
+    {
+      "lemma": "yaṁ",
+      "partOfSpeech": "pron",
+      "senses": [
+        {
+          "english": "whoever; whatever; that which",
+          "nuance": "pron",
+          "notes": "pron, masc fem & nt acc sg of ya",
+          "citation": "Sanskrit: yam"
+        }
+      ],
+      "rawExcerpt": "yaṃ 2, pron. whoever; whatever; that which ✔\n  IPA: /jə̃/\n  Grammar: pron, masc fem & nt acc sg of ya\n  Construction: ya + aṃ\n  Antonym: taṃ\n  Sanskrit: yam\n  ID: 53873",
+      "sourceId": "dpd:53873",
+      "citationId": "cite:dpd:dpd:53873"
+    },
+    {
+      "lemma": "yaṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "because; because of; since; when",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of ya",
+          "citation": "Sanskrit: yad"
+        }
+      ],
+      "rawExcerpt": "yaṃ 3, ind. because; because of; since; when ✔\n  IPA: /jə̃/\n  Grammar: ind, adv, acc sg of ya\n  Construction: ya + aṃ\n  Synonym: yathā\n  Sanskrit: yad\n  ID: 53874",
+      "sourceId": "dpd:53874",
+      "citationId": "cite:dpd:dpd:53874"
     }
   ],
   "yo": [
@@ -15773,6 +16846,23 @@
       "rawExcerpt": "āyatana 6, nt. opportunity ✘\n  IPA: /ɑːjət̪ən̪ə/\n  Root: ā √yat 1 a (stretch, strive)\n  ID: 12203",
       "sourceId": "dpd:12203",
       "citationId": "cite:dpd:dpd:12203"
+    }
+  ],
+  "āyatiṁ": [
+    {
+      "lemma": "āyatiṁ",
+      "partOfSpeech": "ind",
+      "senses": [
+        {
+          "english": "in future",
+          "nuance": "ind",
+          "notes": "ind, adv, acc sg of āyati",
+          "citation": "Sanskrit: āyati [āyat]"
+        }
+      ],
+      "rawExcerpt": "āyatiṃ, ind. in future ✔\n  IPA: /ɑːjət̪ɪ̃/\n  Grammar: ind, adv, acc sg of āyati\n  Root: ā √yat 1 a (stretch, strive)\n  Construction: ā + √yat + i + iṃ\n  Sanskrit: āyati [āyat]\n  Sanskrit Root: √yat 1, 10 (stretch)\n  ID: 12225",
+      "sourceId": "dpd:12225",
+      "citationId": "cite:dpd:dpd:12225"
     }
   ],
   "āyati": [

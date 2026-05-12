@@ -100,6 +100,26 @@ const POS_TO_MORPH: Record<string, MorphFromPos> = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Niggahīta normalization
+//
+// Pāli niggahīta (the nasal-final consonant) has two competing Unicode
+// representations:
+//   ṁ (U+1E41, m-with-dot-ABOVE)  — IAST convention, used by SuttaCentral bilara
+//   ṃ (U+1E43, m-with-dot-BELOW)  — ISO 15919 convention, used by DPD
+//
+// Without normalization, evaṃ (DPD headword for 'thus; in this way') never
+// matches evaṁ (bilara surface form) — same Pāli sound, different bytes.
+// This was the primary cause of phase-a's "evaṁ → eva conflation": the
+// stem-stripper fell through because the direct match failed, and stripped
+// the niggahīta to the unrelated particle `eva`.
+//
+// Convention: normalize DPD's ṃ → bilara's ṁ. The app's existing data uses
+// ṁ throughout, so this preserves byte-compatibility downstream.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const normalizeNiggahita = (s: string): string => s.replace(/ṃ/g, 'ṁ');
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Common Pāli inflection endings — tried in order when stem-stripping.
 //
 // Note: this heuristic stem-stripper is intentionally lossy; per ADR
@@ -108,6 +128,15 @@ const POS_TO_MORPH: Record<string, MorphFromPos> = {
 // baseline for hand-curation; the remainder is documented in manifest.json
 // as `unmatchedSurfaces` and can be tackled either by escalating to SQLite
 // or by curator-provided lemma overrides.
+//
+// Bug-fix history:
+//   - Removed 'ūsu' and 'ūhi' (which were treated as single endings) because
+//     they are stem-vowel-lengthening + -su / -hi. The lengthening before
+//     locative-plural / instrumental-plural is a sandhi phenomenon; the real
+//     ending is just -su / -hi, and the long vowel that precedes it belongs
+//     to the lengthened stem (kuru → kurū before -su). Counting -ūsu as a
+//     3-char single ending caused kurūsu to over-strip to 'kur' and then
+//     match the unrelated noun 'kura' (rice) via the +a candidate.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PALI_ENDINGS: string[] = [
@@ -124,9 +153,16 @@ const PALI_ENDINGS: string[] = [
   // Past-participle declensions (often -ita- + decl)
   'itāya', 'itānaṁ', 'itaṁ', 'itā', 'ite',
   // Noun declensions
+  // NB: 'ūsu' / 'ūhi' removed — those are vowel-lengthening + -su / -hi,
+  // not single morphological endings. See bug-fix note above the array.
+  // The bare 'su' / 'hi' endings (locative pl / instrumental pl for u-stems
+  // and similar after vowel-lengthening) ARE added below. Note that 'hi'
+  // also serves as the 2sg imperative — accept the verb-collision noise
+  // for now; the vowel-shortening rule downstream catches u-stem cases.
   'assa', 'asmā', 'amhā', 'asmiṁ', 'amhi', 'ānaṁ', 'ehi', 'esu', 'āni', 'āya',
-  'ato', 'iya', 'iyaṁ', 'iyo', 'iyā', 'ūnaṁ', 'unaṁ', 'ūsu', 'ūhi',
+  'ato', 'iya', 'iyaṁ', 'iyo', 'iyā', 'ūnaṁ', 'unaṁ',
   'aṁse', 'iṁsu', 'imha', 'tāya', 'tāyo', 'tā',
+  'su', 'hi',  // locative pl / instrumental pl (paired with vowel-shortening below)
   // Verb finite
   'ema', 'esi', 'eti', 'enti', 'etha', 'esā',  // causative present
   'ema', 'eyya',
@@ -164,6 +200,17 @@ const tryStemStrips = (surface: string): string[] => {
         // Cheap: after each strip, also try appending common nominal suffixes.
         candidates.add(stem + 'a');
         candidates.add(stem + 'ā');
+        // Vowel-shortening: locative-plural -su / instrumental-plural -hi
+        // lengthen the stem-final vowel (kuru → kurū before -su, bhikkhu →
+        // bhikkhū before -hi). After stripping, the stem still carries the
+        // lengthened vowel; try shortening it to find the true headword.
+        // Without this, kurūsu → kurū (no DPD match for kurū with long ū;
+        // DPD has kuru with short u).
+        const last = stem.slice(-1);
+        if (last === 'ā' || last === 'ī' || last === 'ū') {
+          const short = last === 'ā' ? 'a' : last === 'ī' ? 'i' : 'u';
+          candidates.add(stem.slice(0, -1) + short);
+        }
       }
     }
   }
@@ -217,7 +264,10 @@ const parseDpdTxt = (txt: string): DpdRecord[] => {
     }
     const record: DpdRecord = {
       id: 0,
-      lemma: lemmaRaw.trim(),
+      // Normalize DPD's ṃ (U+1E43) to bilara's ṁ (U+1E41) so lookups match
+      // across the codepoint boundary. Without this, evaṃ (DPD) ≠ evaṁ (bilara)
+      // and the lookup falls through to the stem-stripper.
+      lemma: normalizeNiggahita(lemmaRaw.trim()),
       homonym,
       pos,
       meaning1,
@@ -359,7 +409,7 @@ const extractSurfaceForms = (segments: BilaraSegments): string[] => {
   const tokens = allText
     .toLowerCase()
     .split(/[\s,.;:!?'"()—–\-]+/)
-    .map((t) => t.trim())
+    .map((t) => normalizeNiggahita(t.trim()))
     .filter((t) => t.length > 0 && !/^\d+$/.test(t));
   return [...new Set(tokens)].sort();
 };
