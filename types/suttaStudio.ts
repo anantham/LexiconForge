@@ -437,6 +437,12 @@ export type Provenance = {
     council?: string;
     digitalSource?: string;
     license?: string;
+    /** Canonical URL for the edition itself (e.g., VRI / Council page). */
+    url?: string;
+    /** Canonical URL for the *digital* source (e.g., bilara-data GitHub). */
+    digitalSourceUrl?: string;
+    /** URL for the license terms (Creative Commons deed, etc.). */
+    licenseUrl?: string;
   };
   translation?: {
     translator: string;
@@ -444,6 +450,10 @@ export type Provenance = {
     license?: string;
     institution?: string;
     methodology?: string;
+    /** Canonical URL for the translation (publisher page, SC sutta page, etc.). */
+    url?: string;
+    /** URL for the license terms. */
+    licenseUrl?: string;
   };
   external?: Array<{
     type: 'bdrc' | 'gretil' | 'cbeta' | 'suttacentral' | 'pts' | 'tipitaka.org' | 'other';
@@ -456,6 +466,23 @@ export type Provenance = {
     reading: string;
     note?: string;
   }>>;
+  /**
+   * Acknowledgments — the works this packet rests on. A flat list so the
+   * renderer can present it as "what we owe gratitude to" rather than as a
+   * separate audit category. Each entry should resolve to a real public
+   * page where the reader can encounter the source on its own terms.
+   * Distinct from `external` (per-text registry links) and from per-sense
+   * `Citation` rows (which attest specific glosses).
+   */
+  references?: Array<{
+    /** Human-readable label. Compose with people + work, e.g. "Bryan Levman et al. — Digital Pāli Dictionary". */
+    label: string;
+    url: string;
+    /** Optional one-line note (license, scope, why it's named here). */
+    note?: string;
+    /** Optional categorisation for renderer grouping; free-form. */
+    category?: 'dictionary' | 'translation' | 'edition' | 'manuscript-archive' | 'scholarly-reference' | 'commentary' | 'other';
+  }>;
 };
 
 export type DeepLoomPacket = {
