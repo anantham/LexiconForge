@@ -214,6 +214,42 @@
       "excerpt": "evaṁ [ind]: thus; this; like this; similarly; in the same manner; just as; such",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:20396",
+      "short": "DPD s.v. kammāsadhamma (nt — name of a town in the Kuru country)",
+      "provenance": "dpd",
+      "query": "Kammāsadhammaṁ",
+      "excerpt": "kammāsadhamma [nt]: name of a town in the Kuru country",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:36427",
+      "short": "DPD s.v. nāma (ind — called, means, by the name of, namely)",
+      "provenance": "dpd",
+      "query": "nāma",
+      "excerpt": "nāma [ind]: called; means; by the name of; namely; lit. name",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:36863",
+      "short": "DPD s.v. nigama (masc — town, market town; lit. going down)",
+      "provenance": "dpd",
+      "query": "nigamo",
+      "excerpt": "nigama [masc]: town; market town; lit. going down",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:74785",
+      "short": "DPD s.v. nigama (nt — town, market town; lit. going down)",
+      "provenance": "dpd",
+      "query": "nigamo",
+      "excerpt": "nigama [nt]: town; market town; lit. going down",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
     }
   ],
   "progress": {
@@ -717,6 +753,7 @@
         {
           "id": "d1",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "d1s1",
@@ -742,24 +779,35 @@
               "id": "d1s3",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "number": "sg", "gender": "n" },
               "tooltips": [
                 "Name ending",
-                "Labels the town that follows"
+                "Labels the town that follows",
+                "Neuter sg — nom/acc are identical in form here; the X-nāma-Y construction does not disambiguate"
               ]
             }
           ],
           "senses": [
             {
               "english": "Kammāsadhamma",
-              "nuance": "Place name"
+              "nuance": "Place name",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:20396"],
+              "confidence": "high"
             },
             {
               "english": "\"Where the Spotted One was Tamed\"",
-              "nuance": "Etymology"
+              "nuance": "Etymology",
+              "epistemicBasis": "curatorial",
+              "notes": "Traditional/commentarial explanation associated with the Kammāsapāda story; not directly attested by the DPD lexical entry, which only gives the proper noun.",
+              "confidence": "medium"
             },
             {
               "english": "the spotted-dhamma place",
-              "nuance": "Literal compound"
+              "nuance": "Literal compound",
+              "epistemicBasis": "etymological",
+              "notes": "Compound parse: kammāsa (spotted/speckled) + dhamma (here in a derived sense, possibly 'practice/place'). The standard morphological breakdown; not the historical/Jātaka etymology above.",
+              "confidence": "medium"
             }
           ]
         },
@@ -781,7 +829,11 @@
           "senses": [
             {
               "english": "named",
-              "nuance": "Called"
+              "nuance": "Called",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:36427"],
+              "confidence": "high",
+              "notes": "The naming particle, indeclinable. DPD: 'called; means; by the name of; namely'. The X-nāma-Y appositional construction."
             }
           ]
         },
@@ -793,6 +845,7 @@
               "id": "d3s1",
               "text": "kurū",
               "type": "stem",
+              "morph": { "number": "pl" },
               "tooltips": [
                 "[Stem] Kuru (the Kuru people)",
                 "Lengthened to kurū before -naṁ"
@@ -802,6 +855,7 @@
               "id": "d3s2",
               "text": "naṁ",
               "type": "suffix",
+              "morph": { "case": "gen", "number": "pl" },
               "tooltips": [
                 "[Genitive Plural] Possession",
                 "\"Of the Kurus\" — their town"
@@ -809,22 +863,33 @@
               "relation": {
                 "targetWordId": "d4",
                 "type": "ownership",
-                "label": "Town OF"
+                "label": "Town OF",
+                "confidence": "high",
+                "epistemicBasis": "grammatical"
               }
             }
           ],
           "senses": [
             {
               "english": "of the Kurus",
-              "nuance": "Genitive Plural"
+              "nuance": "Genitive Plural",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524", "cite:dpd:dpd:22502"],
+              "confidence": "high"
             },
             {
               "english": "belonging to the Kurus",
-              "nuance": "Possessive"
+              "nuance": "Possessive",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "high"
             },
             {
               "english": "the Kurus'",
-              "nuance": "Ownership"
+              "nuance": "Ownership",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "medium"
             }
           ]
         },
@@ -854,6 +919,7 @@
               "id": "d4s3",
               "text": "o",
               "type": "suffix",
+              "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
                 "[Nominative Singular] Subject marker",
                 "\"A town\" — what we are talking about"
@@ -863,15 +929,25 @@
           "senses": [
             {
               "english": "a market town",
-              "nuance": "Larger than gāma (village)"
+              "nuance": "Larger than gāma (village)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:36863", "cite:dpd:dpd:74785"],
+              "confidence": "high"
             },
             {
               "english": "a township",
-              "nuance": "Smaller than nagara (city)"
+              "nuance": "Smaller than nagara (city)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:36863", "cite:dpd:dpd:74785"],
+              "confidence": "high",
+              "notes": "DPD's literal gloss 'going down' (ni+gam) supports the etymological reading already in d4s1/d4s2 tooltips — town as 'place people resort to'."
             },
             {
               "english": "a trading center",
-              "nuance": "Commercial gathering place"
+              "nuance": "Commercial gathering place",
+              "epistemicBasis": "curatorial",
+              "confidence": "low",
+              "notes": "DPD attests 'town; market town' only; the 'commercial center' framing is a curatorial expansion drawing on standard Pāli economic context (nigama vs gāma vs nagara). Not directly DPD-attested."
             }
           ]
         }
