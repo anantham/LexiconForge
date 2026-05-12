@@ -1,3 +1,30 @@
+2026-05-12 (long session — Tier-1 grounded data layer + 3 phases curated + renderer arc) - [Agent: Opus 4.7 (1M)]
+- Status: 25 commits on feat/opus-grounded-data-layer pushed to origin. PR #38 (draft). Worktree at ../LexiconForge.worktrees/opus-grounded-data-layer. Main is unchanged today.
+- Sources of truth: docs/HANDOVER.md (this session's full handover), docs/adr/SUTTA-008-grounded-curation-data-layer.md (architecture), docs/sutta-studio/CURATION_PROTOCOL.md (curation discipline), docs/sutta-studio/curation/phase-{a,b,c}.md (per-phase logs).
+- Task arc (spans two calendar dates because session ran past midnight UTC):
+  1. Tier-1 data-layer architecture (provider abstraction; DPD + SC bilara + suttaplex providers; compiler wired; curation helper)
+  2. Grounded Curation Loop protocol ratified
+  3. Three MN10 phases re-curated (phase-a evaṁ-me-sutaṁ, phase-b ekaṁ-samayaṁ-bhagavā, phase-c kurūsu-viharati)
+  4. Renderer arc — anchor styling, calm-default arrows, pin model, click-cycles-facets, tooltip overflow flip, About-this-text panel with linked acknowledgments, citation chips in pinned tooltips
+  5. Two schema tensions RESOLVED: #1 (DPD stripper conflations, c33b115); #7 (EpistemicBasis enum extension, 4323310)
+- Milestone commits (full list in PR #38):
+  - Tier-1: 9168b5a, 82fae37, 49d3eba, 5ff46c0, bc46e47, 8c82f73
+  - Protocol: b5f56dc, e1a77fa (§3.4 amendment)
+  - Phases applied: 8e7b197, 23b1481, 69b8eda, 3485523 (evaṁ backfill)
+  - Renderer: 00fe9ab, 29d5c35, 8df4aba, b290ff0, e379062, 13164b2, 0515dd4
+  - Provider quality: c33b115 (DPD bug fix; coverage 81.6%→86.5%), 4323310 (EpistemicBasis enum)
+- What's NOT in (next-session pickup list, see HANDOVER for context-cost analysis):
+  - Phase-d curation (batch 2 of CURATION_PROTOCOL §6)
+  - Tooltip plain-first rewrite (§3.4 protocol applied to content)
+  - Renderer Chunk 3 (structured tooltip {plain, grammar, example?} shape)
+  - Tier-1 commit C — VRI edition + Aṭṭhakathā commentary providers
+  - DPD bug-fix unit tests
+  - GitHub issues for remaining schema tensions
+  - PR #38 draft → ready / merge decision
+- Resume: read docs/HANDOVER.md (full session inventory + pending), then pick from the "what's worth doing" matrix in HANDOVER §Pending threads.
+
+---
+
 2026-05-11 (long session) - [Agent: Opus 4.7 (1M)]
 - Status: All 8 commits pushed to origin/main. Clean tree.
 - Task: Chapter identity migrations (V4 unwrap + V5 chapter-number drift), Sutta Studio fixes (chip honesty, cheap-model default, partial-phase fallback), Sutta Studio architectural docs (FEATURES + TEXT_GRAPH + POLYGLOT, ~1700 lines).
