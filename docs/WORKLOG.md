@@ -1,11 +1,27 @@
-2026-05-11 (continuing — provider build) - [Agent: Opus 4.7 (1M)]
-- Status: Active. Schema (7d38402) + ADR (cfdc48c) pushed to main; provider abstraction work begins in worktree.
-- Task: Tier-1 grounded-curation data layer per ADR SUTTA-008 §Build order. Commit A: provider abstraction + Citation schema extension + refactor services/compiler/dictionary.ts into SuttaCentralDictionaryProvider. Subsequent commits B/C/D/E add DpdProvider, VRI edition + Aṭṭhakathā providers, SC bilara+suttaplex, curation helper. Then phase-by-phase MN10 re-curation (task #14).
-- Branch: feat/opus-grounded-data-layer (worktree: ../LexiconForge.worktrees/opus-grounded-data-layer)
-- Sources of truth: docs/adr/SUTTA-008-grounded-curation-data-layer.md (architecture), docs/sutta-studio/FEATURES.md (schema), docs/HANDOVER.md (prior session).
-- Already on main this session — do not redo:
-  - 7d38402 feat(sutta-studio): additive bilingual schema fields (FEATURES.md §2)
-  - cfdc48c docs(sutta-studio): ratify SUTTA-008 grounded-curation data layer ADR
+2026-05-12 (long session — Tier-1 grounded data layer + batch 2 complete + renderer arc) - [Agent: Opus 4.7 (1M)]
+- Status: 28 commits on feat/opus-grounded-data-layer pushed to origin. PR #38 (ready). Worktree at ../LexiconForge.worktrees/opus-grounded-data-layer. Merging back to main this session.
+- Note: supersedes the temporary "2026-05-11 (continuing — provider build)" claim entry that landed on main (1242e43); the work is now done and captured below.
+- Sources of truth: docs/HANDOVER.md (full session inventory), docs/adr/SUTTA-008-grounded-curation-data-layer.md (architecture), docs/sutta-studio/CURATION_PROTOCOL.md (curation discipline), docs/sutta-studio/curation/phase-{a,b,c,d}.md (per-phase logs).
+- Task arc (spans two calendar dates because session ran past midnight UTC, then continued 2026-05-12 afternoon after compact):
+  1. Tier-1 data-layer architecture (provider abstraction; DPD + SC bilara + suttaplex providers; compiler wired; curation helper)
+  2. Grounded Curation Loop protocol ratified
+  3. CURATION_PROTOCOL §6 batch 2 complete — four MN10 phases re-curated (phase-a evaṁ-me-sutaṁ, phase-b ekaṁ-samayaṁ-bhagavā, phase-c kurūsu-viharati, phase-d Kammāsadhammaṁ-nāma-kurūnaṁ-nigamo)
+  4. Renderer arc — anchor styling, calm-default arrows, pin model, click-cycles-facets, tooltip overflow flip, About-this-text panel with linked acknowledgments, citation chips in pinned tooltips
+  5. Schema tension #1 (DPD stripper conflation) FULLY RESOLVED across all u-stem oblique plurals (-su/-hi via c33b115, -naṁ via be2b141, with regression-test coverage via b1b7fdb)
+  6. Schema tension #7 (EpistemicBasis enum) RESOLVED via 4323310; first real load on 'curatorial' in phase-d (Jātaka derivation + trading-center expansion)
+- Milestone commits (full list in PR #38):
+  - Tier-1: 9168b5a, 82fae37, 49d3eba, 5ff46c0, bc46e47, 8c82f73
+  - Protocol: b5f56dc, e1a77fa (§3.4 amendment)
+  - Phases applied: 8e7b197, 23b1481, 69b8eda, 3485523 (evaṁ backfill), b5a52a9 (phase-d)
+  - Renderer: 00fe9ab, 29d5c35, 8df4aba, b290ff0, e379062, 13164b2, 0515dd4
+  - Provider quality: c33b115 (DPD bug fix #1, -su/-hi; coverage 81.6→86.5%), be2b141 (DPD bug fix #2, -naṁ; coverage 86.5→86.9%), b1b7fdb (regression tests for both fixes, 37 cases), 4323310 (EpistemicBasis enum extension)
+- What's NOT in (next-session pickup list, see HANDOVER §Pending threads):
+  - Tooltip plain-first rewrite (§3.4 protocol applied to existing tooltip content — phase-c §6 and phase-d §6 already flag specific tooltips)
+  - Renderer Chunk 3 (structured tooltip {plain, grammar, example?} facet shape replacing string[] arrays)
+  - Tier-1 commit C — VRI edition + Aṭṭhakathā commentary providers (originally deferred per ADR Open Questions #4)
+  - GitHub issues for remaining schema tensions (8 documented in phase logs)
+  - Phase-e through phase-h (batch 3 of CURATION_PROTOCOL §6) — protocol can be re-evaluated first if needed
+- Resume: read docs/HANDOVER.md (full session inventory + pending), then pick from the "what's worth doing" matrix in HANDOVER §Pending threads.
 
 ---
 

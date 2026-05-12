@@ -1,10 +1,52 @@
 export type RelationType = 'ownership' | 'direction' | 'location' | 'action';
 
+/**
+ * Provider tag for a Citation. Identifies which data source the citation came
+ * from so the renderer can attribute correctly and the disagreement inspector
+ * (ADR SUTTA-008 §UI Vision #7) can group competing attestations.
+ *
+ * Extending this enum is additive-safe; renderers should fall through with a
+ * generic attribution for unknown values rather than refuse to render.
+ */
+export type CitationProvenance =
+  | 'sc-dictionary-full'
+  | 'dpd'
+  | 'ms-dpd'
+  | 'ped-dsal'
+  | 'cpd'
+  | 'vri-attha'
+  | 'vri-cscd'
+  | 'sc-bilara'
+  | 'sc-suttaplex'
+  | 'buddhanexus'
+  | 'bdrc'
+  | 'cbeta'
+  | 'gretil'
+  | '84000'
+  | 'manual';
+
 export type Citation = {
   id: string;
   short: string;
   detail?: string;
   url?: string;
+  /**
+   * Provider this citation came from. Per ADR SUTTA-008: every factual
+   * linguistic / textual / bibliographic / parallelism claim traces to a
+   * provider response, and Citation entries are the audit trail.
+   */
+  provenance?: CitationProvenance;
+  /** The lemma / segment id / work id this citation answers a query for. */
+  query?: string;
+  /**
+   * Direct excerpt from the upstream source. Baked into the packet so the
+   * renderer can show the attestation without re-fetching at read time.
+   */
+  excerpt?: string;
+  /** Attribution + license string. Drives the renderer's attribution UI. */
+  license?: string;
+  /** ISO date the upstream was fetched. "As-of" hint for the reader. */
+  fetchedAt?: string;
 };
 
 export type SourceProvider = 'suttacentral';
@@ -64,13 +106,31 @@ export type Relation = {
  * Where a claim came from. Orthogonal to confidence — a commentarial gloss
  * can be high-confidence (well attested) or low-confidence (one outlier).
  * See FEATURES.md §2.5.
+ *
+ * Resolution history:
+ *   - Original (FEATURES.md §2.5, commit 7d38402): 5 values — etymological,
+ *     commentarial, contextual, lexical, comparative.
+ *   - 2026-05-12 (commit pending): added 'grammatical' and 'curatorial'.
+ *     Surfaced in phase-a/b/c curation: claims grounded in *syntactic /
+ *     morphological rules* (agent-in-genitive, accusative-of-time-when,
+ *     locative-as-location) were being labeled 'etymological' as the
+ *     closest fit — but etymology is word-history, not grammatical
+ *     analysis. The placeholder hit 3 of 3 phases (3 relations, 1 sense
+ *     in phase-a). The two new values:
+ *       * 'grammatical' — syntactic or morphological rule (English perfect
+ *         construction, Pāli case-as-preposition, present-tense-finite,
+ *         participle-as-substantive, …)
+ *       * 'curatorial' — explicit curator inference, grammatically grounded
+ *         but not derived from a single attestation
  */
 export type EpistemicBasis =
-  | 'etymological'   // derived from morphology / Sanskrit cognate / sandhi
+  | 'etymological'   // word-history; sandhi; cognate
+  | 'grammatical'    // syntactic / morphological rule
   | 'commentarial'   // attested in commentaries (Aṭṭhakathā, Buddhaghosa, …)
   | 'contextual'     // chosen because of surrounding sutta context
-  | 'lexical'        // dictionary attestation (PED, CPD, MW, …)
-  | 'comparative';   // parallel-passage agreement (Pāli ↔ Chinese ↔ Sanskrit)
+  | 'lexical'        // dictionary attestation (PED, CPD, MW, DPD, …)
+  | 'comparative'    // parallel-passage agreement (Pāli ↔ Chinese ↔ Sanskrit)
+  | 'curatorial';    // explicit curator inference, grammatically grounded
 
 /**
  * Morphological hints. L1 — pure facts about the source word.
@@ -395,6 +455,12 @@ export type Provenance = {
     council?: string;
     digitalSource?: string;
     license?: string;
+    /** Canonical URL for the edition itself (e.g., VRI / Council page). */
+    url?: string;
+    /** Canonical URL for the *digital* source (e.g., bilara-data GitHub). */
+    digitalSourceUrl?: string;
+    /** URL for the license terms (Creative Commons deed, etc.). */
+    licenseUrl?: string;
   };
   translation?: {
     translator: string;
@@ -402,6 +468,10 @@ export type Provenance = {
     license?: string;
     institution?: string;
     methodology?: string;
+    /** Canonical URL for the translation (publisher page, SC sutta page, etc.). */
+    url?: string;
+    /** URL for the license terms. */
+    licenseUrl?: string;
   };
   external?: Array<{
     type: 'bdrc' | 'gretil' | 'cbeta' | 'suttacentral' | 'pts' | 'tipitaka.org' | 'other';
@@ -414,6 +484,23 @@ export type Provenance = {
     reading: string;
     note?: string;
   }>>;
+  /**
+   * Acknowledgments — the works this packet rests on. A flat list so the
+   * renderer can present it as "what we owe gratitude to" rather than as a
+   * separate audit category. Each entry should resolve to a real public
+   * page where the reader can encounter the source on its own terms.
+   * Distinct from `external` (per-text registry links) and from per-sense
+   * `Citation` rows (which attest specific glosses).
+   */
+  references?: Array<{
+    /** Human-readable label. Compose with people + work, e.g. "Bryan Levman et al. — Digital Pāli Dictionary". */
+    label: string;
+    url: string;
+    /** Optional one-line note (license, scope, why it's named here). */
+    note?: string;
+    /** Optional categorisation for renderer grouping; free-form. */
+    category?: 'dictionary' | 'translation' | 'edition' | 'manuscript-archive' | 'scholarly-reference' | 'commentary' | 'other';
+  }>;
 };
 
 export type DeepLoomPacket = {

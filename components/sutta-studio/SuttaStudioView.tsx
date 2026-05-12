@@ -9,6 +9,7 @@ import type { Focus } from './types';
 import { formatDuration, segDomId, segmentIdToDomId, targetDomId, wordDomId } from './utils';
 import { XarrowUpdater } from './XarrowUpdater';
 import { StudioHeader } from './StudioHeader';
+import { AboutThisText } from './AboutThisText';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 import { loadSettings, saveSettings, type StudioSettings } from './SettingsPanel';
@@ -27,6 +28,10 @@ export function SuttaStudioView({
   const [pinned, setPinned] = useState<Focus | null>(null);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
   const [activeSegmentIndices, setActiveSegmentIndices] = useState<Record<string, number>>({});
+  // Per-segment tooltip facet index. Click on a Pāli segment cycles through
+  // its `tooltips[]` array (each string is a distinct facet of explanation —
+  // Meaning / What English hides / Example / etc.). Independent of senses.
+  const [tooltipFacetIndices, setTooltipFacetIndices] = useState<Record<string, number>>({});
   const [settings, setSettings] = useState<StudioSettings>(() => loadSettings());
   const [layoutTick, setLayoutTick] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -84,6 +89,17 @@ export function SuttaStudioView({
     }
     return map;
   }, [packet.canonicalSegments]);
+
+  // Build a lookup table for Sense.sourceCitationIds → Citation. Computed
+  // once per packet; passed to PaliWord so pinned tooltips can surface the
+  // upstream attestation (ADR SUTTA-008 §UI Vision #4).
+  const citationsById = useMemo(() => {
+    const map: Record<string, typeof packet.citations[number]> = {};
+    for (const c of packet.citations ?? []) {
+      if (c.id) map[c.id] = c;
+    }
+    return map;
+  }, [packet.citations]);
 
   // Hash navigation: scroll to element on load
   useEffect(() => {
@@ -281,6 +297,27 @@ export function SuttaStudioView({
     }
   };
 
+  // Advance tooltip facet for a segment. When a segment has multiple
+  // strings in `tooltips[]`, each click on the segment shows the next one.
+  // Wraps endlessly; unpinning happens via the × glyph on the tooltip
+  // (handled in Tooltip.tsx + this component's setPinned).
+  const cycleSegmentTooltipFacet = (phaseId: string, segmentId: string) => {
+    const phase = visiblePhases.find((p) => p.id === phaseId);
+    if (!phase) return;
+    for (const word of phase.paliWords) {
+      const seg = word.segments.find((s) => s.id === segmentId);
+      if (seg && seg.tooltips && seg.tooltips.length > 1) {
+        const key = `${phaseId}-${segmentId}`;
+        setTooltipFacetIndices((prev) => {
+          const current = prev[key] ?? 0;
+          const next = (current + 1) % seg.tooltips!.length;
+          return { ...prev, [key]: next };
+        });
+        return;
+      }
+    }
+  };
+
   type PhaseType = (typeof visiblePhases)[0];
 
   const resolveBlocks = (phase: PhaseType) => {
@@ -367,6 +404,8 @@ export function SuttaStudioView({
         phaseIds={phaseIds}
       />
 
+      <AboutThisText packet={packet} />
+
       <Xwrapper>
         <XarrowUpdater
           deps={[
@@ -424,9 +463,12 @@ export function SuttaStudioView({
                                 wordData={word}
                                 activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
                                 activeSegmentIndices={activeSegmentIndices}
+                                tooltipFacetIndices={tooltipFacetIndices}
+                                citationsById={citationsById}
                                 settings={settings}
                                 cycle={(wordId) => cycle(wordId, phaseId)}
                                 cycleSegment={cycleSegment}
+                                cycleSegmentTooltipFacet={cycleSegmentTooltipFacet}
                                 hovered={hovered}
                                 pinned={pinned}
                                 setHovered={setHovered}
@@ -479,8 +521,12 @@ export function SuttaStudioView({
                                   const cpy1Offset = -arcHeight;  // First CP above - curve goes up
                                   const cpy2Offset = arcHeight * 0.2;  // Second CP below - curve descends, arrow points down
 
-                                  // Visual weight: prominent when focused, subtle when not
-                                  const arrowOpacity = isFocused ? 0.9 : 0.4;
+                                  // Visual weight: arrows are interactions, not furniture.
+                                  // Default state is very quiet (0.2) so the hover-summon
+                                  // feels like the arrow appears for you, not always-on clutter.
+                                  // When focused (hovering source segment), the arrow brightens
+                                  // to 0.9 with solid stroke and visible arrowhead.
+                                  const arrowOpacity = isFocused ? 0.9 : 0.2;
                                   const arrowColor = isFocused ? style.color : style.color + '99'; // Add alpha
 
                                   return (

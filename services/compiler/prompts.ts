@@ -5,6 +5,7 @@ import type {
   PhaseView,
   WeaverPass,
 } from '../../types/suttaStudio';
+import type { LexiconEntry } from '../providers/types';
 import {
   SUTTA_STUDIO_ANATOMIST_EXAMPLE_JSON,
   SUTTA_STUDIO_LEXICO_EXAMPLE_JSON,
@@ -114,13 +115,43 @@ Segments:
 ${lines.join('\n')}`;
 };
 
+/**
+ * Render a structured block summarising DPD attestations per word. Each
+ * entry includes the deterministic citationId so the LLM can reference it
+ * back in Sense.sourceCitationIds (when prompted accordingly in future
+ * iterations).
+ */
+const renderDpdBlock = (dpdLookups: Record<string, LexiconEntry[]>): string => {
+  const lines: string[] = [];
+  for (const [wordId, entries] of Object.entries(dpdLookups)) {
+    if (!entries || entries.length === 0) continue;
+    lines.push(`- ${wordId}:`);
+    // Cap at 5 entries per word to keep the prompt bounded for compound-heavy phases.
+    for (const e of entries.slice(0, 5)) {
+      const sense = e.senses?.[0]?.english ?? '(no sense)';
+      const pos = e.partOfSpeech ? ` [${e.partOfSpeech}]` : '';
+      const morph = e.morphology ? ` ${JSON.stringify(e.morphology)}` : '';
+      const cid = e.citationId ? ` cite=${e.citationId}` : '';
+      lines.push(`    • ${e.lemma}${pos}: ${sense}${morph}${cid}`);
+    }
+  }
+  return lines.join('\n');
+};
+
 export const buildLexicographerPrompt = (
   phaseId: string,
   segments: CanonicalSegment[],
   phaseState: string,
   anatomist: AnatomistPass,
   dictionaryEntries: Record<string, unknown | null>,
-  retrievalContext?: string
+  retrievalContext?: string,
+  /**
+   * Optional DPD attestations per wordId, sourced from the provider registry
+   * (ADR SUTTA-008). When present, rendered as a structured block alongside
+   * the raw SC dictionary entries. Old callers that don't pass this still
+   * get exactly the prior prompt.
+   */
+  dpdLookups?: Record<string, LexiconEntry[]>,
 ) => {
   const segmentLines = segments.map((seg) =>
     `${seg.ref.segmentId} | pali: ${seg.pali}${seg.baseEnglish ? ` | english: ${seg.baseEnglish}` : ''}`
@@ -139,8 +170,12 @@ export const buildLexicographerPrompt = (
   const dictionaryBlock = Object.entries(dictionaryEntries)
     .map(([wordId, entry]) => `- ${wordId}: ${JSON.stringify(entry)}`)
     .join('\n');
+  const dpdBlock = dpdLookups ? renderDpdBlock(dpdLookups) : '';
+  const dpdSection = dpdBlock
+    ? `\n\nDPD attestations (Digital Pāli Dictionary, structured; prefer these for morphology and citations):\n${dpdBlock}`
+    : '';
 
-  return `You are DeepLoomCompiler.\n\n${SUTTA_STUDIO_BASE_CONTEXT}\n\n${SUTTA_STUDIO_LEXICO_CONTEXT}\n\n${phaseState}\n\nTask: Build the Lexicographer JSON for the words below.\n\nRules:\n- Output JSON ONLY.\n- Use the exact phase id: ${phaseId}.\n- Provide senses for every wordId listed.\n- Content words must have exactly 3 senses. Function words must have 1-2 senses.\n- If dictionary data is present, use it to ground meanings; do not invent etymology.\n\nReturn JSON ONLY with this shape:\n{\n  "id": "phase-1",\n  "senses": [\n    {\n      "wordId": "p1",\n      "wordClass": "function",\n      "senses": [\n        { "english": "Thus", "nuance": "narrative opener" }\n      ]\n    }\n  ],\n  "handoff": { "confidence": "medium", "missingDefinitions": [], "notes": "" }\n}\n\nEXAMPLE (do NOT copy ids):\n${SUTTA_STUDIO_LEXICO_EXAMPLE_JSON}\n\nWords:\n${wordsList}\n\nDictionary entries (raw; do not copy verbatim):\n${dictionaryBlock || '(none)'}\n${retrievalBlock}\nSegment context:\n${segmentLines.join('\n')}`;
+  return `You are DeepLoomCompiler.\n\n${SUTTA_STUDIO_BASE_CONTEXT}\n\n${SUTTA_STUDIO_LEXICO_CONTEXT}\n\n${phaseState}\n\nTask: Build the Lexicographer JSON for the words below.\n\nRules:\n- Output JSON ONLY.\n- Use the exact phase id: ${phaseId}.\n- Provide senses for every wordId listed.\n- Content words must have exactly 3 senses. Function words must have 1-2 senses.\n- If dictionary data is present, use it to ground meanings; do not invent etymology.\n\nReturn JSON ONLY with this shape:\n{\n  "id": "phase-1",\n  "senses": [\n    {\n      "wordId": "p1",\n      "wordClass": "function",\n      "senses": [\n        { "english": "Thus", "nuance": "narrative opener" }\n      ]\n    }\n  ],\n  "handoff": { "confidence": "medium", "missingDefinitions": [], "notes": "" }\n}\n\nEXAMPLE (do NOT copy ids):\n${SUTTA_STUDIO_LEXICO_EXAMPLE_JSON}\n\nWords:\n${wordsList}\n\nDictionary entries (raw; do not copy verbatim):\n${dictionaryBlock || '(none)'}${dpdSection}\n${retrievalBlock}\nSegment context:\n${segmentLines.join('\n')}`;
 };
 
 export const buildWeaverPrompt = (

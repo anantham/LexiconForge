@@ -1,211 +1,200 @@
-# Handover: 2026-05-11 (long session — Opus chapter-identity migrations + Sutta Studio fixes + polyglot architecture docs)
+# Handover: 2026-05-12 (long session — Tier-1 grounded data layer + 3 MN10 phases curated + renderer arc)
 
-> Session led by Claude Opus 4.7 (1M context). Branch: `main`, all commits pushed to `origin/main`. Clean working tree (the `MAPLE chants/` untracked directory is user content, not session work).
+> Session led by Claude Opus 4.7 (1M context). Branch: `feat/opus-grounded-data-layer` (worktree at `../LexiconForge.worktrees/opus-grounded-data-layer`). All 25 commits pushed to origin. Open as **PR #38 (draft)**. `main` is unchanged from prior session (`cfdc48c`).
 
 ## Session summary
 
-Started on a leftover thread from the prior session (the misleading `beforeunload` warning being downstream of a deeper chapter-identity corruption). Diagnosed and fixed a 2,500+ chapter-row corruption pattern in the user's local IDB across two principled migrations (V4 unwrap + V5 chapter-number drift). Then pivoted to Sutta Studio: shipped three usability fixes (chip honesty, cheap-model default, partial-phase fallback), and produced the design substrate for everything beyond bilingual MVP — a 1700-line three-doc architectural foundation (`FEATURES.md` / `TEXT_GRAPH.md` / `POLYGLOT.md`). Did NOT start the actual phase-by-phase MN10 re-curation work; that's next session's primary task with the schema scope + plan now landed.
+Started with task #16 (additive schema fields, deferred from prior session) and pivoted into building the entire Tier-1 grounded-curation data layer per ADR SUTTA-008. Architecture, protocol, three phases curated end-to-end, a renderer arc that makes the grounded data *visible*, two schema tensions surfaced and resolved, and a provider-quality bug-fix that increased DPD coverage from 81.6% to 86.5% on MN10.
 
-## Commits this session (8, all pushed to `origin/main`)
+The session validated the ADR's keystone principle ("hand-curation and the LLM compiler share the same data layer") empirically: phase-a/b/c each surfaced real provider tensions that were impossible to predict in pure design; the fix loop closed each one.
+
+## Commits this session (25, all pushed to `feat/opus-grounded-data-layer`)
+
+Categorized chronologically by arc:
 
 ```
-efa7c8f docs(sutta-studio): canonical feature catalogue + architecture/charter docs
-4ff787e fix(sutta-studio): render side-by-side fallback English for partial phases
-5cb15b7 fix(sutta-studio): decouple compiler model from translation, default to cheap
-d78b62f fix(sutta-studio): chip count reflects fully-renderable phases, not just Pali-extracted
-bef65dd fix(maintenance): issue #20 — chapterNumber drift from history walker
-3a08f4b fix(maintenance): V4 unwrap — delete-before-put on translations to clear unique index
-e9dcced chore(repo): untrack files matching existing data/ ignore rules
-851b8d0 chore(repo): move 62MB session JSON to data/sessions/, untrack at root
+Schema + ADR (3, on main from prior session)
+  7d38402 feat(sutta-studio): additive bilingual schema fields (FEATURES.md §2)
+  cfdc48c docs(sutta-studio): ratify SUTTA-008 grounded-curation data layer ADR
+  1242e43 chore(worklog): claim provider abstraction work in feat/opus-grounded-data-layer
+
+Tier-1 build (Commits A-D + E; on the branch)
+  9168b5a feat(sutta-studio): provider abstraction + Citation provider-attribution fields
+  82fae37 feat(sutta-studio): DPD ingestion script + MN10 subset dataset (Tier-1 commit B.1)
+  49d3eba feat(sutta-studio): DpdProvider impl + tests (Tier-1 commit B.2)
+  5ff46c0 feat(sutta-studio): curation helper script — lookup-phase (Tier-1 commit E)
+  bc46e47 feat(sutta-studio): wire DPD into the live lexicographer pass (Tier-1 commit B.3)
+  8c82f73 feat(sutta-studio): SC bilara variants + suttaplex parallels providers (Tier-1 commit D)
+
+Grounded Curation Loop protocol
+  b5f56dc docs(sutta-studio): ratify Grounded Curation Loop protocol + phase-a log skeleton
+  e1a77fa docs(sutta-studio): protocol §3.4 — replace forbidden-words list with principled tooltip-register check
+
+Phase-a (3 commits)
+  c121521 docs(sutta-studio): phase-a curation — fill brief / snapshot / evidence (steps 0-2)
+  fae6752 docs(sutta-studio): phase-a curation — apply gate amendments + fill §3-§10
+  8e7b197 feat(sutta-studio): apply phase-a re-curation diff + close curation log
+
+Renderer arc — making the data visible
+  00fe9ab feat(sutta-studio): chunk 1 — implicit visual grammar (anchor + ghostKind + arrow calm-default)
+  29d5c35 feat(sutta-studio): chunk A — distinguish pinned tooltip from hover tooltip
+  8df4aba feat(sutta-studio): chunk B — click-Pāli cycles tooltip facets
+  b290ff0 fix(sutta-studio): tooltip overflow — wrap + flip-below when near top of viewport
+  e379062 feat(sutta-studio): About This Text provenance panel + populate MN10 provenance
+  9b5b59c feat(sutta-studio): extend Provenance type — URLs + acknowledgments references
+  13164b2 feat(sutta-studio): linked acknowledgments in About-this-text
+  0515dd4 feat(sutta-studio): citation chips in pinned tooltip — make 14 grounded citations visible
+
+Phase-b (2)
+  17413ef docs(sutta-studio): phase-b curation draft — brief, evidence, proposed diff
+  23b1481 feat(sutta-studio): apply phase-b re-curation with gate-2 amendments
+
+Phase-c (2) + provider-quality fix (1) + backfill (1)
+  b46aa64 docs(sutta-studio): phase-c curation draft — brief, evidence, proposed diff (awaiting gate)
+  c33b115 fix(sutta-studio): DPD ingestion — three stripper bugs surfaced by curation
+  69b8eda feat(sutta-studio): apply phase-c re-curation (with DPD-fix in-flight)
+  3485523 feat(sutta-studio): backfill phase-a evaṁ citation — DPD fix made the link honest
+
+Schema tension resolution
+  4323310 feat(sutta-studio): resolve schema tension #7 — add 'grammatical' + 'curatorial' to EpistemicBasis
 ```
 
-(plus `dd0de8c` from earlier in the V4 work arc, also pushed.)
+## What landed (categorized)
 
-## What landed in detail
+### 1. Tier-1 grounded-curation data layer
 
-### 1. Chapter identity migration arc (V4 + V5)
+Six providers + the protocol layer they share with hand-curation:
 
-**Issue:** user's IDB had 6544 chapters where the registry says 3521. Continue Reading showed 2 cards per novel. Dropdown duplicates. Audit revealed two distinct corruption sources:
-- v1-composite/v1-st-enhanced version split (3271 dup groups)
-- nested-scoped stableIds (`lf-library:...v1-st-enhanced:lf-library:...v1-composite:ch1000_*` — scope wrapped a stableId instead of unwrapping first)
+- **`SuttaCentralDictionaryProvider`** wraps `/api/dictionary_full/{lemma}` (was the existing one, refactored into the abstraction).
+- **`DpdProvider`** loads per-sutta JSON subsets built from `dpd-db v0.4.20260501` (CC BY-NC-SA 4.0). Per-sutta ingestion via `scripts/build-dpd.ts`; `data/dpd/mn10/` has 458/534 surface forms matched at 86.5% coverage after the bug-fix.
+- **`SuttaCentralBilaraVariantsProvider`** lazy-fetches `variant-pli-ms.json` from GitHub raw; parses witness disagreements per segment.
+- **`SuttaCentralSuttaplexParallelProvider`** calls `/api/parallels/{uid}` and projects to `ParallelRef[]`.
+- **`LexiconProviderRegistry`** runs providers in parallel; preserves per-source entries via `entriesBySource`; isolates failures.
+- **Compiler wiring** — `services/compiler/index.ts:387` calls DPD alongside SC's `dictionary_full`; lexicographer prompt now includes per-source blocks.
+- **`scripts/sutta-studio/lookup-phase.ts`** is the curation helper: `npm run sutta:lookup -- --phase phase-X` prints structured evidence for every lemma + parallels + variants.
 
-**Solution:**
-- **V4 unwrap migration** (`MaintenanceOps.unwrapNestedScopedIds`) — peels all scope wrappers, re-scopes under canonical version, re-keys all references atomically. Survivor selection for collision groups (depth-first, prefers active-translation-bearing rows). Multi-source pollution preserved (different bareHashes stay distinct). 7 tests.
-- **V5 chapter-number drift** (`MaintenanceOps.correctChapterNumberDrift`) — restores `chapterNumber` for rows where stableId baseHash and title agree on N. Conservative: skips ambiguous rows. 6 tests.
-- **Defensive guard** in `setChapterNumberByStableId` — refuses writes that disagree with stableId baseHash. 3 tests.
-- **History walker fix** in `services/translationService.ts:858-876` — removed the IDB write call. In-memory inference now only fills missing values.
-- **Boot pipeline wiring** — both V4 and V5 run on every user's next visit, idempotent (each gated by its own settings flag).
+### 2. Grounded Curation Loop protocol
 
-**Postmortem:** `issues/20-chapter-number-drift-from-history-walker/README.md` — full root-cause analysis. Bug introduced Sept 2025 (commit `a30647c`); corruption only manifested in chapters near the user's recent translation work because the walker has to fire to corrupt anything.
+`docs/sutta-studio/CURATION_PROTOCOL.md` codifies the 12-step loop, four gates (Evidence / Ghost / Affordance / **Plain-Register** added §3.4), human-gate moments, batch sizing, and role locks. The §3.4 amendment replaced an earlier "forbidden-words list" with a principled three-criterion check (reader profile + pay-rent + register layering).
 
-**User's local data post-migration (verified live):** chapters 6544 → 3271, translations 130 → 130 (zero loss), summaries 6544 → 3271.
+### 3. MN10 phases a/b/c curated
 
-### 2. Sutta Studio fixes (three)
+| Phase | Pāli | Anchor | DPD citations | Schema tensions hit |
+|---|---|---|---|---|
+| **phase-a** | Evaṁ me sutaṁ | `sutaṁ` | 4 (incl. evaṁ backfilled after DPD fix) | #1, #7 (resolved) |
+| **phase-b** | Ekaṁ samayaṁ bhagavā | `samayaṁ` | 5 | #7, #10 (deferred) |
+| **phase-c** | Kurūsu viharati | `viharati` | 4 (DPD bug fixed mid-curation, kurūsu now real) | #7 |
 
-- **Chip honesty** (`d78b62f`) — progress chip counts phases where `englishStructure` is non-empty, not phases where Pali extraction completed. Old chip lied about progress (said "1046/3370" when only 1 was visually rich).
-- **Cheap-model default** (`5cb15b7`) — Sutta Studio compiler defaults to `OpenRouter + google/gemini-3-flash-preview` regardless of global translation model. ~100x cheaper for structured-extraction passes (~$1-7 per long chapter vs ~$135-400 with Sonnet). User can override via `settings.suttaStudioProvider/Model` (no UI yet — dev console only).
-- **Partial-phase fallback** (`4ff787e`) — for phases where alignment hasn't completed, render `baseEnglish` from `canonicalSegments` as side-by-side text below the Pali instead of leaving empty space. Progressive enhancement.
+Total `packet.citations` after the three phases: **14 entries**, with deterministic IDs (`cite:{providerId}:{sourceId}`) and renderer-ready `excerpt` strings baked in. All curation logs in `docs/sutta-studio/curation/phase-{a,b,c}.md` with brief / evidence / proposed diff / gate-amendment record / outcome.
 
-### 3. Sutta Studio design substrate (three docs, ~1700 lines)
+### 4. Renderer arc — data becomes visible
 
-**`docs/sutta-studio/FEATURES.md`** (status: current implementation, bilingual MVP)
-Catalogue of every existing feature. Each has: layer (L1 linguistic / L2 bridge / L3 pedagogy), schema fields, renderer behavior, example JSON, common mistakes, back-compat status. Manifesto: "scripture as a living transmission object." Lists six unused-but-already-in-schema features as immediate wins for MN10 re-curation (refrainId, isAnchor, tooltipsBySense, ripples, citationIds, sense-specific tooltips). Lists small additive bilingual extensions still to add (verb morph, compoundType, expanded ghost kinds, quote spans, EpistemicBasis, provenance, parallels).
+Eight commits added affordances to surface the grounded data without bloating the reading experience:
 
-**`docs/sutta-studio/TEXT_GRAPH.md`** (status: design — implementation deferred)
-Architectural spec for textual transmission. Five entity types (Work / Tradition / Expression / Witness / SourceRef). `Claim<T>` wrapper with two-tier ergonomics. Multi-resolution Alignment. ConceptNode for cross-language anchors. textGraphRefs migration story. TEI as inspiration not implementation; references BDRC, CBETA, SuttaCentral, GRETIL.
+- **Visual hints (chunk 1):** `isAnchor` → subtle amber underline + medium weight; `ghostKind` differentiated underlines per kind; arrow opacity quieted (0.4 → 0.2) so hover summons feel like summoning.
+- **Pin model:** clicking a Pāli segment pins its tooltip (emerald ring + emerald border + × close glyph). Pinned tooltip visually distinct from hover.
+- **Click cycles facets:** clicking a pinned Pāli segment advances through its tooltip facets (when `tooltips[]` has multiple strings). Indicator: `1/3`, `2/3`, etc.
+- **Tooltip overflow:** `whitespace-normal` + `max-w-[min(28rem,90vw)]` + JS `useLayoutEffect` to flip below-segment when near top of viewport.
+- **About-this-text panel:** chip at top of content ("▶ MN10 · Pāli · Theravāda · tr. Bhikkhu Sujato about") expands to a structured provenance panel; Unknowns section makes gaps explicit; **12 outbound links** to upstream sources (DPD, Sujato translation, VRI, SC bilara-data, CC0 deed, etc.) framed as acknowledgement, not citation.
+- **Citation chips in pinned tooltip:** when a segment is pinned AND its active sense has `sourceCitationIds`, the tooltip footer renders "SOURCES" + per-citation short ref + italic excerpt. The 14 grounded citations are now READABLE.
 
-**`docs/sutta-studio/POLYGLOT.md`** (status: charter — multi-month, requires scholar collaboration)
-Per-language decomposition lenses. Manifesto: "each language teaches its own hidden machinery." Sketches: Sanskrit sound ladder, Chinese term kinds with xíngshēng correction (most characters are NOT pictograms), Tibetan syllable stack with Wylie + Sanskrit equivalence. Heart Sutra MVP scope with honest 6-10 week estimate per passage. ContextGraph spec with explicit warning: do not build context lens without sourced scholarship.
+### 5. Provider-quality DPD bug-fix (key empirical win)
 
-### 4. Repo cleanup
+Phase-a's `evaṁ→eva` and phase-c's `kurūsu→kura` both surfaced provider-side mis-resolutions. Three root causes, fixed in commit `c33b115`:
 
-Moved 62 MB session JSON from root → `data/sessions/`. Untracked 47 illustration files + 1 stale FMC metadata file (matched existing ignore rules). Hardened `.gitignore` with `lexicon-forge-session-*.json` patterns. History blobs untouched (not destructive — repo on origin still 769 MB, but future commits stay clean).
+1. **Niggahīta diacritic mismatch** — DPD uses `ṃ` (U+1E43, m-with-dot-below); bilara uses `ṁ` (U+1E41, m-with-dot-above). Normalize on parse + extraction.
+2. **Over-greedy `-ūsu`/`-ūhi` endings** — those aren't single morphological endings; the long vowel belongs to the sandhi-lengthened stem. Removed from PALI_ENDINGS.
+3. **Missing bare `-su`/`-hi` endings + vowel-shortening rule** — needed to reach `kuru` after stripping locative-plural.
 
-## Pending threads
+Coverage: 81.6% → 86.5%. evaṁ now correctly maps to DPD's `evaṃ` headword ("thus; in this way"). kurūsu now maps to both `kurū` (the Kuru people) and `kuru` (the country), neither of which is the unrelated `kura` ("rice").
 
-### Continue immediately (next session start here)
+### 6. Schema tensions
 
-1. **Additive bilingual schema fields (task #16)** — defined in `FEATURES.md §2`, deferred from this session. Add to `types/suttaStudio.ts`:
-   - Extended `MorphHint` (verb morphology + ablative + dual + gender)
-   - `CompoundType` enum + `compoundType`/`compoundSegments` on `PaliWord`
-   - Expanded `GhostKind` enum (article/copula/auxiliary/pronoun_from_verb/preposition_from_case/punctuation/quote_marker/required/interpretive)
-   - `Span` type for quote markers + `spans?` on `PhaseView`
-   - `confidence` + `epistemicBasis` + `sourceCitationIds` on `Sense` and `Relation`
-   - `Provenance` type + `provenance?` on `DeepLoomPacket`
-   - `ParallelRef` + `parallels?` on `PhaseView`
-   - `version?` on `DeepLoomPacket`
+Two of 10 documented tensions resolved this session:
 
-   All optional, all additive — zero renderer changes, zero test breakage. Tiny round-trip test. ~30 min, one commit. Spec lives in FEATURES.md §2.1-§2.7.
+- **#1 DPD stripper conflation** → resolved by `c33b115` (above).
+- **#7 `EpistemicBasis 'grammatical'`/`'curatorial'`** → resolved by `4323310`. Three relation `epistemicBasis` placeholders migrated from `'etymological'` (wrong) to `'grammatical'` (honest).
 
-2. **MN10 demo re-curation (task #14)** — user's stated next priority is **re-curate phases 1-15 first** (the existing rich phases get enriched with the unused-but-in-schema features + new additive features once #16 lands). Then continue 16-51. Workflow user cleared earlier in the session: "go one by one and get my clearance so I know I can trust you."
+The remaining 8 tensions are documented in `docs/sutta-studio/curation/phase-{a,b,c}.md §10/§5/§7` with hit counts per phase.
 
-   For phase-aw (the worst, currently 32 paliWords/0 relations crammed into one phase), user cleared **5-phase split** (intro + 4 parallel breath patterns) with the dual-register tooltip voice from phase-a. The intro phase (`phase-aw-intro`) was DRAFTED in the conversation and cleared by user — that draft is in the conversation but **not yet written to demoPacket.json**. Recover it from the chat or re-draft.
+## Pending threads (next session pickup)
 
-   **Recommended start sequence after #16 lands:** schema additions → walk phase-by-phase from phase-a. For each phase: identify what's missing (refrainId for repeated formulas like "bhikkhave"; isAnchor for the verb that grounds the instruction; ripples for sense-swapping; EpistemicBasis on contested glosses; citationIds for PED/Bodhi/Buddhaghosa attributions; compoundType where compounds exist), draft, show diff, get clearance, edit `components/sutta-studio/demoPacket.json`, commit. Repeat.
+Listed in priority/effort order, with context-cost notes:
 
-### Blocked
+### Continue immediately
 
-None.
+1. **Phase-d curation** — batch 2 of `CURATION_PROTOCOL.md §6` (a, b, c, **d**) before re-evaluating the protocol. Phase-d's content depends on `demoPacket.json`; check it for the next clause. Protocol is well-documented; fresh agent can pick up without prior context.
 
-### Deferred (acknowledged but parked)
+2. **Tooltip plain-first content rewrite** — protocol §3.4 amendment landed but no tooltip content was rewritten under the new register-check discipline. Phase-a/b/c tooltips still use the older "dual-register with [bracket] jargon" pattern. The §3.4 self-check protocol is explicit. ~1 hour per phase to rewrite + clear with user.
 
-1. **Heart Sutra polyglot MVP** — full charter in `POLYGLOT.md`. User explicitly committed: "lets finish mn10 and then do heart sutra carefully so we can with this UI cycle through specific interfaces for EACH language that is as carefully designed as we did for pali to english". I documented the honest scope: 6-10 weeks per passage with three lenses, requires scholar collaboration. Decision to start should be deliberate.
+### Worth doing soon
 
-2. **TextGraph implementation** — full spec in `TEXT_GRAPH.md`. Not blocking bilingual work. Build order in §10. Would land as packets reference graph by ID instead of nesting provenance inline.
+3. **Renderer Chunk 3 — structured tooltip facets** — current `tooltips: string[]` array works but doesn't carry semantic labels (Meaning / What English hides / Example). Schema change: `tooltips?: TooltipFacet[]` where `TooltipFacet = { label, plain, grammar?, example? }`. Migration touches all phases' tooltip data. Renderer changes follow the existing facet-cycle mechanism. ~2 hours.
 
-3. **Multi-source pollution at chapter 1** (FMC) — V4 migration intentionally preserved this (different bare baseHashes stay distinct per "do not merge different bare base IDs" rule). User has Chinese (`第1章 新的冲突` from hetushu) AND English (`Artifact Graveyard`) both tagged chapterNumber:1. Need: classify hetushu/2991 (different novel imported under FMC namespace? or actually FMC raw?) and decide whether to merge or relocate.
+4. **DPD bug-fix unit tests** — `c33b115` shipped with end-to-end verification only. Unit tests for `normalizeNiggahita`, the stem-stripper edge cases (`kurūsu`, `evaṁ`, `bhikkhūsu`, …), and the vowel-shortening logic would catch regressions. ~30 min, ~150 LOC.
 
-4. **Dungeon Defense chapterNumber-collision bug** — separate from FMC drift. Investigation not started.
+5. **File GitHub issues for remaining schema tensions** — 8 tensions documented in curation logs. Filing as actual GitHub issues prevents them from rotting. `gh` available. ~15 min.
 
-5. **Sutta Studio "size guard"** — refuse to compile if phase count > N (e.g. 50) without explicit confirm. Prevents repeat "money is being wasted" panic from this session. ~30 LOC.
+### Larger arcs
 
-6. **Sutta Studio settings UI for compiler model** — currently `suttaStudioProvider/Model` settable only via dev console. Add a small toggle in Settings → AI section.
+6. **Tier-1 commit C — VRI edition + Aṭṭhakathā commentary providers** — originally deferred per ADR Open Questions #4 (VRI XML alignment to bilara segment IDs is the unknown). Buddhaghosa's commentary on the formula `Evaṁ me sutaṁ` would deepen phase-a's transmission-frame tension substantially. Estimated 2-4 hours depending on alignment quality.
 
-7. **Phase parallelism in Sutta Studio compiler** — 3-10x wallclock speedup independent of model choice. Replace sequential `for phase of phases` with concurrency-limited Promise pool. Throttle stays at 1/sec floor.
+7. **Phases e through 51** — batch 2/3/4 of MN10 per protocol §6. Each phase ~30-45 min following the rhythm. Phase 14+ are where the data quality drops (per prior handover); re-curation likely most pedagogically rewarding there.
 
-8. **Migration telemetry** — emit one event per V4/V5 run with affected counts so the user can see how many other users hit this. ~30 LOC.
+### Process / housekeeping
 
-9. **Issue #21 (memory architecture / LRU eviction)** — pre-emptive, no acute pain reported. The V4 migration just dropped chapter count from 6544 → 3271, so immediate pressure reduced.
+8. **PR #38 draft → ready-for-review / merge decision** — 25 commits, all green. User's call on cadence.
 
-10. **Registry-side fixes** for FMC: cover image, `legacyVersionIds: ['v1-composite']` so future imports back-compat. Requires PR to the separate `lexiconforge-novels` repo.
+9. **Schema tension #10 (`RelationType 'temporal'`)** — only 1 hit (phase-b). User's "wait for more data" rule applies. Re-evaluate after phase-d/e.
 
-11. **`beforeunload` warning** — original thread that started this session. The cancellation-cascade root cause was fixed earlier (CORE-012 ADR, "background work survives navigation"). The dialog itself may still fire under specific edge cases (cleanup-on-error gaps in `state.activeTranslations` / `state.pendingTranslations` / per-chapter `generatedImages[…].isLoading`). Diagnostic snippet in the prior `HANDOVER.md` (commit `f4851f0`).
+### Deferred (explicit reasons)
 
-12. **Repo structure cleanup** — `interfaceIdea.tsx` at root, `types.ts` vs `types/` ambiguity, `Features/Diff` orphan, `media/` purpose unclear, `tools/` purpose unclear. Cosmetic; user noted "it looks messy rn" but we deferred most cleanups.
+- **Stand-off annotation refactor** — captured in ADR §Stand-off section with 6-12 session migration cost. Trigger conditions documented; not hit yet.
+- **CBETA / 84000 / GRETIL providers** — Tier-2 (polyglot work); committed to be deferred until Heart Sutra arc begins.
+- **BDRC / BuddhaNexus / PaliNLP** — Tier-3 (TextGraph era); committed to be deferred.
 
 ## Key context (non-obvious things the next instance needs)
 
-### Demo packet anatomy (for MN10 re-curation)
+### The user's curation rhythm
 
-`components/sutta-studio/demoPacket.json` — 12,325 lines, 51 phases, hand-curated 2026-03-05 with `compiler.model: "demo"` (not actual LLM output, hand-authored for showcase). Quality drops sharply after phase 14:
+- "Go one by one and get my clearance so I know I can trust you" — applied as gate-1 (post-evidence) + gate-2 (post-diff) for each phase.
+- Per-phase compact curation log in `docs/sutta-studio/curation/phase-X.md` with §0-§11 sections (brief, snapshot, evidence, alignment, linguistic, bridge, pedagogy, epistemic, decisions, open questions, schema tensions, outcome).
+- Schema/UI tensions get extracted in §10 (or §7 for compact compact format), NEVER implemented mid-phase.
 
-| Phase range | richSegs avg | Notes |
-|---|---|---|
-| 1-14 (phase-a … phase-7) | 1-2 | Hand-curated DeepLoom richness — relation arrows, per-segment senses |
-| 15-30 (phase-x … phase-al) | 0-1 | Sense entries but no relation arrows |
-| 36-41 (phase-ar … phase-aw) | 0 | Long paragraphs (14-32 paliWords each!), zero relations |
-| 42-51 | 0-2 | Recovers somewhat |
+### The DPD bug pattern
 
-User's specific complaint: "first few lines is great but it immediately fucks up." The empty-space issue (partial phases rendering Pali with no English below) is fixed in the renderer now (`4ff787e`); the data-quality drop is what re-curation addresses.
+When a future phase surfaces another DPD mis-resolution, check the `data/dpd/<sutta>/manifest.json` `unmatchedSurfaces` list + run a targeted grep against `data/_raw/dpd/dpd.txt`. If a real DPD lemma exists but the stripper missed it, the fix is local to `scripts/build-dpd.ts`:
+1. Are the ṃ/ṁ codepoints aligned? (covered by `normalizeNiggahita`)
+2. Is the case ending in `PALI_ENDINGS`? (some endings may still be missing)
+3. Does the strip require vowel-shortening? (long-vowel stems before -su/-hi)
 
-### User's curation rhythm (cleared earlier in session)
+### Renderer pinned-tooltip discipline
 
-- "go one by one and get my clearance so I know I can trust you"
-- 5-phase split for phase-aw (intro + 4 parallel breath patterns), not 4
-- Hybrid drafting: Claude draft + Pali knowledge + SC bilara-data fetched via Bash, user reviews each
-- Dual register tooltips (formal `[Genitive/Agent]` + accessible `Form is "of me", function is "by me"`)
-- "bhikkhus" preferred over "monks" in primary display ("monks" smuggles Christian ascetic assumptions)
+- Hover state shows the active tooltip facet only (calm).
+- Pin state shows the same content PLUS the SOURCES footer (audit moment).
+- × button is the only interactive element inside the tooltip (the rest is `pointer-events-none`).
+- Clicking the same pinned segment cycles facet, doesn't unpin. Unpin via × or by pinning a different segment.
 
-### House style for tooltips (codified in FEATURES.md §6)
+### Schema-tension hit-count discipline
 
-```
-[Past participle] Marks completed action: "heard"
-```
+When a phase surfaces a tension, increment its count in §10 (or §7) of the phase log. After batch 2 completes (phase-d), tensions hit 3/3 are strongly supported. Tensions hit ≤1/n where n>2 are likely noise. Don't extend the schema on n=1 evidence.
 
-Format: `[Formal grammatical term]` + `accessible explanation`. Multi-line tooltips per segment separate concerns by line: definition / grammatical role / pedagogical note. Avoid restating the English gloss (gloss lives in `Sense.english`).
+### House style for the gratitude register
 
-### The three-layer mental model (FEATURES.md §0)
-
-When adding ANY new field, identify which layer it belongs to:
-- **L1 linguistic** — facts about the source text (case, sandhi, compound type)
-- **L2 bridge** — source-to-target alignment (linkedPaliId, conceptId, ripples)
-- **L3 pedagogy** — how renderer displays for a learner (refrainId, ghostOpacity, isAnchor)
-
-Several existing fields conflate layers (`wordClass: 'vocative'` is half-L1, half-L3). Future fields should be tagged with their layer at design time.
-
-### The `Claim<T>` wrapper principle (TEXT_GRAPH.md §3)
-
-Two-tier ergonomics:
-- Trivially certain assertions stay as primitives (`case: 'gen'`)
-- Genuinely uncertain or contested assertions get the wrapper (`teachingDate: { value, confidence: 'traditional', note: '...' }`)
-
-This prevents the schema from laundering tradition into fact. **Most important type in TEXT_GRAPH.md.**
-
-### The user's epistemic discipline
-
-The user pushes back hard on lazy framing:
-- "make beliefs pay rent" (tooltips need to teach, not just label)
-- "fake profundity" (don't say "空 means cave-plus-work therefore emptiness means..." for Chinese)
-- "don't collapse transmission into immediacy" (provenance discipline)
-- "context as lens not cause" (don't reduce Buddhism to economics)
-
-Match this register. Don't soften or hand-wave.
-
-### Recurring conversational pattern this session
-
-We zoomed architecturally several times: phase-aw-1 → FEATURES.md → TEXT_GRAPH.md → POLYGLOT.md → context graph. Each level was worth thinking about; **none resulted in actual code curation**. Next session, **start with the actual phase-by-phase work** (after the small schema additions). The architectural docs are landed; the discipline now is to USE them, not extend them further.
-
-## Learnings captured
-
-### For project memory
-
-- **Chapter identity corruption (V4 + V5)** — root caused, fixed, postmortem at `issues/20-chapter-number-drift-from-history-walker/README.md`. Boot pipeline runs both migrations idempotently. Future debugging starts there.
-- **Sutta Studio docs landed 2026-05-11** — three files in `docs/sutta-studio/`. FEATURES.md is the bilingual MVP spec. TEXT_GRAPH.md is the architectural design (not implemented). POLYGLOT.md is the multi-month charter. Read all three before working in this area.
-- **Sutta Studio compiler model is decoupled** — `settings.suttaStudioProvider/Model` overrides global translation model. Default is gemini-3-flash-preview. Don't conflate these two settings.
-
-### For cross-project memory (~/.claude/MEMORY.md)
-
-- **Pattern: visible mass cleanup uncovers next-layer bugs.** V4 unwrap removed 3271 duplicate scoped IDs and the dropdown became clean enough to spot the smaller chapterNumber-drift dedup failure. Layer-by-layer cleanup is the right rhythm.
-- **Pattern: architectural conversations are seductive.** Tonight's session zoomed FEATURES → TEXT_GRAPH → POLYGLOT → context graph. Each was worth thinking about; none resulted in code. Note this pattern when it recurs and pivot to actual implementation.
-
-### Potential ADR (none required)
-
-- **Sutta Studio compiler model decoupling** — small enough to live in commit message + FEATURES.md mention.
-- **TextGraph architecture** — `TEXT_GRAPH.md` itself serves as the spec when this is built. Could become an ADR at implementation time.
+When acknowledging upstream sources (DPD, VRI, Sujato, etc.), write in the **gratitude register**, not the citation register. Phrasing like "We use their May 2026 release" — first-person plural, dated, license-respectful. Each named source gets a real outbound link. The point isn't audit (alone) — it's right-relation to the work that came before. See `components/sutta-studio/AboutThisText.tsx` "What this packet rests on" section as the pattern.
 
 ## Running processes
 
-None at session end.
+None. Dev server at `http://localhost:5191/sutta/demo` was running during the session (worktree, Vite); will need to be restarted for next session. Main repo's dev server (port 5173) was left untouched.
 
 ## Resume instructions
 
-1. **Read this handover doc.**
-2. **Skim** `docs/sutta-studio/FEATURES.md` §1 (existing features), §2 (proposed extensions for MN10), §7 (status table), §8 (where to go from here).
-3. **Skim** `docs/sutta-studio/TEXT_GRAPH.md` §3 (Claim wrapper) and `docs/sutta-studio/POLYGLOT.md` §0 (manifesto) — these inform the voice/discipline for re-curation.
-4. **Pick task #16 from the list above** (additive schema fields). Add the types to `types/suttaStudio.ts` per FEATURES.md §2 specs. One commit, one tiny round-trip test, push.
-5. **Then start task #14** (MN10 phase re-curation). Begin with phase-a. For each phase: identify what's missing, draft, show diff, get user clearance, edit `components/sutta-studio/demoPacket.json`, commit. User cleared this rhythm.
-6. **Don't extend the architectural docs further.** They're landed. The job now is to USE them.
+1. **Read this handover.**
+2. **`cd ../LexiconForge.worktrees/opus-grounded-data-layer`** to enter the feature branch's worktree.
+3. **Skim** `docs/sutta-studio/CURATION_PROTOCOL.md` §0-§3 (the loop + gates) and `docs/sutta-studio/curation/phase-c.md` for the latest curated phase as a template.
+4. **Pick from pending threads** based on your context-budget. For fresh-context sessions, phase-d curation or the tooltip plain-first rewrite are well-scoped. For continuing sessions, the renderer Chunk 3 (structured tooltip facets) is the next architectural step.
+5. **Don't extend the schema speculatively.** Tension hit-counts are documented; re-evaluate after batch 2 completes.
 
 ---
 
-*Handover by Claude Opus 4.7 (1M context) at end of session 2026-05-11. All commits pushed. Clean tree. Estimated context usage at handover: ~85%.*
+*Handover by Claude Opus 4.7 (1M context) at end of session 2026-05-11/12. All 25 commits pushed to `feat/opus-grounded-data-layer`; PR #38 (draft); main unchanged. Estimated context usage at handover: ~60% of 1M.*

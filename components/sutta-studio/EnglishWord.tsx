@@ -164,7 +164,23 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
           exit={{ opacity: 0, y: -5 }}
           transition={{ duration: 0.15 }}
           className={`block whitespace-nowrap ${
-            isGhost && ghostKind === 'required' ? 'border-b border-dotted border-slate-800' : ''
+            // Per-kind ghost styling — implicit visual grammar, not a label.
+            //   auxiliary           → soft solid underline  (English perfect 'have', modal 'will')
+            //   pronoun_from_verb   → faint dotted line     ('I' supplied by 1sg verb ending)
+            //   interpretive        → italics only          (translator's expansion)
+            //   required            → dotted underline      (existing — generic English-grammar ghost)
+            //   article/copula/preposition_from_case/punctuation/quote_marker → no underline
+            isGhost
+              ? ghostKind === 'auxiliary'
+                ? 'border-b border-slate-700/50'
+                : ghostKind === 'pronoun_from_verb'
+                  ? 'border-b border-dotted border-slate-700/70'
+                  : ghostKind === 'interpretive'
+                    ? ''
+                    : ghostKind === 'required'
+                      ? 'border-b border-dotted border-slate-800'
+                      : ''
+              : ''
           }`}
         >
           {content}

@@ -5,7 +5,253 @@
     "workId": "mn10"
   },
   "canonicalSegments": [],
-  "citations": [],
+  "provenance": {
+    "attribution": {
+      "speaker": "Bhagavā (the Buddha)",
+      "audience": "the bhikkhus at Kammāsadhamma",
+      "legendaryDate": "c. 5th century BCE",
+      "legendaryPlace": "Kammāsadhamma, Kuru country",
+      "confidence": "traditional"
+    },
+    "oralLineage": {
+      "school": "Theravāda",
+      "transmissionLanguage": "Pāli",
+      "estimatedPeriod": "c. 5th–1st century BCE",
+      "method": "bhāṇaka recitation (oral memorisation by reciter monks)"
+    },
+    "edition": {
+      "name": "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
+      "year": "1956",
+      "council": "Sixth Buddhist Council",
+      "digitalSource": "Vipassana Research Institute, via SuttaCentral bilara-data",
+      "url": "https://tipitaka.org/",
+      "digitalSourceUrl": "https://github.com/suttacentral/bilara-data",
+      "license": "Freely redistributable per VRI terms"
+    },
+    "translation": {
+      "translator": "Bhikkhu Sujato",
+      "year": "2018",
+      "license": "CC0",
+      "institution": "SuttaCentral",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "external": [
+      {
+        "type": "suttacentral",
+        "url": "https://suttacentral.net/mn10/pli/ms",
+        "note": "root Pāli text + Sujato translation, segment-aligned"
+      }
+    ],
+    "references": [
+      {
+        "label": "Digital Pāli Dictionary (DPD)",
+        "url": "https://dpdict.net/",
+        "note": "Compiled by Bryan Levman and contributors. This packet's lexical glosses are largely backed by DPD release v0.4.20260501. Licence: CC BY-NC-SA 4.0.",
+        "category": "dictionary"
+      },
+      {
+        "label": "DPD source repository",
+        "url": "https://github.com/digitalpalidictionary/dpd-db",
+        "note": "Database source + build pipeline.",
+        "category": "dictionary"
+      },
+      {
+        "label": "SuttaCentral aggregated dictionary",
+        "url": "https://suttacentral.net/define",
+        "note": "Aggregates PED, NCPED, Concise PD, and other classical Pāli lexica.",
+        "category": "dictionary"
+      },
+      {
+        "label": "SuttaCentral · bilara-data",
+        "url": "https://github.com/suttacentral/bilara-data",
+        "note": "Segment-aligned root Pāli + multilingual translations. Source of the mn10:N.N segment IDs this packet uses.",
+        "category": "edition"
+      },
+      {
+        "label": "Bhikkhu Sujato · MN10 translation",
+        "url": "https://suttacentral.net/mn10/en/sujato",
+        "note": "Public-domain English translation (CC0). Our renderable English largely tracks Sujato's translation choices.",
+        "category": "translation"
+      },
+      {
+        "label": "Vipassana Research Institute · Tipiṭaka",
+        "url": "https://tipitaka.org/",
+        "note": "Digital edition of the Chaṭṭha Saṅgāyana (Sixth Council) Pāli Tipiṭaka. Freely redistributable.",
+        "category": "edition"
+      },
+      {
+        "label": "SuttaCentral · MN10 sutta page",
+        "url": "https://suttacentral.net/mn10",
+        "note": "Parallels, translations, bibliographic metadata.",
+        "category": "other"
+      }
+    ]
+  },
+  "citations": [
+    {
+      "id": "cite:dpd:dpd:53164",
+      "short": "DPD s.v. me (pron — by me)",
+      "provenance": "dpd",
+      "query": "me",
+      "excerpt": "me [pron]: by me",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:63769",
+      "short": "DPD s.v. suta (pp — heard)",
+      "provenance": "dpd",
+      "query": "suta",
+      "excerpt": "suta [pp]: heard",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:63771",
+      "short": "DPD s.v. suta (nt — what is heard)",
+      "provenance": "dpd",
+      "query": "suta",
+      "excerpt": "suta [nt]: what is heard; something heard; lit. heard",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:63770",
+      "short": "DPD s.v. suta (pp — learned)",
+      "provenance": "dpd",
+      "query": "suta",
+      "excerpt": "suta [pp]: learned; lit. heard",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:17376",
+      "short": "DPD s.v. eka (card — one)",
+      "provenance": "dpd",
+      "query": "eka",
+      "excerpt": "eka [card]: one (1)",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:17382",
+      "short": "DPD s.v. eka (ind — once)",
+      "provenance": "dpd",
+      "query": "eka",
+      "excerpt": "eka [ind]: once",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:59451",
+      "short": "DPD s.v. samaya (masc — time, occasion)",
+      "provenance": "dpd",
+      "query": "samaya",
+      "excerpt": "samaya [masc]: time; occasion; lit. going together",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:59452",
+      "short": "DPD s.v. samaya (masc — right time, suitable occasion)",
+      "provenance": "dpd",
+      "query": "samaya",
+      "excerpt": "samaya [masc]: right time; suitable occasion; lit. going together",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:49147",
+      "short": "DPD s.v. bhagavā (masc — Sublime/Blessed/Fortunate One; Buddha-epithet)",
+      "provenance": "dpd",
+      "query": "bhagavā",
+      "excerpt": "bhagavā [masc]: Sublime One; Blessed One; Fortunate One; epithet of the Buddha",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:22524",
+      "short": "DPD s.v. kurū (masc — Kuru people)",
+      "provenance": "dpd",
+      "query": "kurū",
+      "excerpt": "kurū [masc]: name of the people of Kuru; Kurus",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:22502",
+      "short": "DPD s.v. kuru (masc — name of a country)",
+      "provenance": "dpd",
+      "query": "kuru",
+      "excerpt": "kuru [masc]: name of a country",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:69661",
+      "short": "DPD s.v. viharati (pr — lives, dwells, stays in)",
+      "provenance": "dpd",
+      "query": "viharati",
+      "excerpt": "viharati [pr]: lives; dwells; stays (in)",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:69662",
+      "short": "DPD s.v. viharati (pr — stays, remains, continues, dwells, abides)",
+      "provenance": "dpd",
+      "query": "viharati",
+      "excerpt": "viharati [pr]: stays; remains; continues; dwells; abides (in)",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:18134",
+      "short": "DPD s.v. evaṁ (ind — thus; in this way; similarly)",
+      "provenance": "dpd",
+      "query": "evaṁ",
+      "excerpt": "evaṁ [ind]: thus; this; like this; similarly; in the same manner; just as; such",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:20396",
+      "short": "DPD s.v. kammāsadhamma (nt — name of a town in the Kuru country)",
+      "provenance": "dpd",
+      "query": "Kammāsadhammaṁ",
+      "excerpt": "kammāsadhamma [nt]: name of a town in the Kuru country",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:36427",
+      "short": "DPD s.v. nāma (ind — called, means, by the name of, namely)",
+      "provenance": "dpd",
+      "query": "nāma",
+      "excerpt": "nāma [ind]: called; means; by the name of; namely; lit. name",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:36863",
+      "short": "DPD s.v. nigama (masc — town, market town; lit. going down)",
+      "provenance": "dpd",
+      "query": "nigamo",
+      "excerpt": "nigama [masc]: town; market town; lit. going down",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:74785",
+      "short": "DPD s.v. nigama (nt — town, market town; lit. going down)",
+      "provenance": "dpd",
+      "query": "nigamo",
+      "excerpt": "nigama [nt]: town; market town; lit. going down",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    }
+  ],
   "progress": {
     "totalPhases": 51,
     "readyPhases": 51,
@@ -39,8 +285,8 @@
               "text": "eva",
               "type": "stem",
               "tooltips": [
-                "[Emphatic particle] \"Just so\"",
-                "Points back to the occasion"
+                "Evaṁ: 'thus; in this way.' In the opening formula evaṁ me sutaṁ, frames what follows as recited speech.",
+                "Do not confuse evaṁ with bare eva, whose common senses include 'only', 'just', or 'indeed'. Here evaṁ functions as the adverbial deictic: 'thus; in this way.'"
               ]
             },
             {
@@ -48,14 +294,18 @@
               "text": "ṁ",
               "type": "suffix",
               "tooltips": [
-                "[Adverbial ending] Makes it \"in this way\""
+                "[Niggahīta -ṁ] Marks the surface form evaṁ, the adverbial deictic 'thus; in this way.'"
               ]
             }
           ],
           "senses": [
             {
               "english": "Thus",
-              "nuance": "Refers to what follows"
+              "nuance": "Narrative-opening deictic ('in this way') — points forward to what is about to be recited",
+              "notes": "DPD treats evaṁ and eva as distinct headwords. evaṁ ('thus; in this way; similarly; in the same manner') is the cataphoric deictic used in this formula; bare eva carries the emphatic-particle senses ('only', 'just', 'indeed').",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:18134"],
+              "confidence": "high"
             }
           ]
         },
@@ -67,6 +317,7 @@
               "id": "a2s1",
               "text": "me",
               "type": "stem",
+              "morph": { "case": "gen" },
               "tooltips": [
                 "Ānanda speaking: \"by me\"",
                 "[Genitive/Agent] Form is \"of me\", function is \"by me\""
@@ -74,20 +325,26 @@
               "relation": {
                 "targetWordId": "a3",
                 "type": "action",
-                "label": "Heard BY"
+                "label": "Heard BY",
+                "confidence": "high",
+                "epistemicBasis": "grammatical"
               }
             }
           ],
           "senses": [
             {
               "english": "by me",
-              "nuance": "Agent in passive"
+              "nuance": "Agent in passive",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:53164"],
+              "confidence": "high"
             }
           ]
         },
         {
           "id": "a3",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "a3s1",
@@ -102,6 +359,7 @@
               "id": "a3s2",
               "text": "ta",
               "type": "suffix",
+              "morph": { "form": "participle" },
               "tooltips": [
                 "[Past participle] Marks completed action: \"heard\""
               ]
@@ -110,24 +368,34 @@
               "id": "a3s3",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "gender": "n", "number": "sg" },
               "tooltips": [
-                "[Neuter singular] \"the thing that...\"",
-                "Makes it the subject of the sentence"
+                "[Neuter nom/acc singular] Declensional ending. Supports reading sutaṁ as either 'was heard' or 'what was heard' — both grammatical; English perfect collapses them.",
+                "In the formula 'me sutaṁ' (oblique agent + past participle), the participial form can function substantively — giving the phrase its compressed 'Thus by me heard' structure."
               ]
             }
           ],
           "senses": [
             {
               "english": "heard",
-              "nuance": "Past participle"
+              "nuance": "Past participle",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:63769"],
+              "confidence": "high"
             },
             {
               "english": "what was heard",
-              "nuance": "The teaching itself"
+              "nuance": "The teaching itself",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:63771"],
+              "confidence": "high"
             },
             {
               "english": "that which has been received",
-              "nuance": "Orally transmitted"
+              "nuance": "Orally transmitted",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:63770"],
+              "confidence": "medium"
             }
           ]
         }
@@ -141,7 +409,7 @@
           "id": "ea2g",
           "label": "have",
           "isGhost": true,
-          "ghostKind": "required"
+          "ghostKind": "auxiliary"
         },
         {
           "id": "ea2",
@@ -167,6 +435,7 @@
               "id": "b1s1",
               "text": "eka",
               "type": "stem",
+              "morph": { "case": "acc", "number": "sg" },
               "tooltips": [
                 "[Adjective] One, a certain",
                 "Modifies samayaṁ"
@@ -176,6 +445,7 @@
               "id": "b1s2",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "case": "acc" },
               "tooltips": [
                 "[Accusative of Time] \"at/on\"",
                 "Tells us when, not what"
@@ -185,13 +455,17 @@
           "senses": [
             {
               "english": "one",
-              "nuance": "At one (time)"
+              "nuance": "At one (time)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:17376", "cite:dpd:dpd:17382"],
+              "confidence": "high"
             }
           ]
         },
         {
           "id": "b2",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "b2s1",
@@ -206,6 +480,7 @@
               "id": "b2s2",
               "text": "aya",
               "type": "root",
+              "morph": { "gender": "m" },
               "tooltips": [
                 "From √i: to go",
                 "aya = going, course",
@@ -216,28 +491,40 @@
               "id": "b2s3",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "case": "acc", "gender": "m", "number": "sg" },
               "tooltips": [
                 "[Accusative of Time] \"At this occasion\""
               ],
               "relation": {
                 "targetWordId": "b3",
                 "type": "location",
-                "label": "Time WHEN"
+                "label": "Time WHEN",
+                "confidence": "high",
+                "epistemicBasis": "grammatical"
               }
             }
           ],
           "senses": [
             {
               "english": "occasion",
-              "nuance": "A coming together"
+              "nuance": "A coming together",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:59451"],
+              "confidence": "high"
             },
             {
               "english": "time",
-              "nuance": "The specific event"
+              "nuance": "The specific event",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:59451"],
+              "confidence": "high"
             },
             {
               "english": "opportunity",
-              "nuance": "Suitable moment"
+              "nuance": "Suitable moment",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:59452"],
+              "confidence": "medium"
             }
           ]
         },
@@ -259,6 +546,7 @@
               "id": "b3s2",
               "text": "vā",
               "type": "suffix",
+              "morph": { "case": "nom", "gender": "m", "number": "sg" },
               "tooltips": [
                 "[Possessive suffix] \"One who has...\"",
                 "The Fortunate One"
@@ -268,15 +556,24 @@
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Lucky One",
-              "nuance": "Fortune-bearer"
+              "nuance": "Fortune-bearer",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "medium"
             }
           ]
         }
@@ -286,7 +583,7 @@
           "id": "eb1g",
           "label": "At",
           "isGhost": true,
-          "ghostKind": "required"
+          "ghostKind": "preposition_from_case"
         },
         {
           "id": "eb1",
@@ -316,6 +613,7 @@
               "id": "c1s1",
               "text": "kurū",
               "type": "stem",
+              "morph": { "number": "pl" },
               "tooltips": [
                 "[Stem] Kuru (the Kuru people)",
                 "Lengthened to kurū before -su",
@@ -326,6 +624,7 @@
               "id": "c1s2",
               "text": "su",
               "type": "suffix",
+              "morph": { "case": "loc", "number": "pl" },
               "tooltips": [
                 "[Locative Plural] Where it happens",
                 "\"Among the...\""
@@ -333,28 +632,40 @@
               "relation": {
                 "targetWordId": "c2",
                 "type": "location",
-                "label": "Dwelling IN"
+                "label": "Dwelling IN",
+                "confidence": "high",
+                "epistemicBasis": "grammatical"
               }
             }
           ],
           "senses": [
             {
               "english": "among the Kurus",
-              "nuance": "Location"
+              "nuance": "Location — among the people",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "high"
             },
             {
               "english": "in Kuru territory",
-              "nuance": "Geographical"
+              "nuance": "Geographical — in the country",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22502"],
+              "confidence": "high"
             },
             {
               "english": "with the Kuru people",
-              "nuance": "Among inhabitants"
+              "nuance": "Among inhabitants",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "medium"
             }
           ]
         },
         {
           "id": "c2",
           "wordClass": "content",
+          "isAnchor": true,
           "refrainId": "viharati",
           "segments": [
             {
@@ -389,6 +700,7 @@
               "id": "c2s4",
               "text": "ti",
               "type": "suffix",
+              "morph": { "person": "3", "number": "sg", "tenseAspect": "present", "form": "finite" },
               "tooltips": [
                 "[Present 3rd singular] He/she/it",
                 "Pali tells past events in present",
@@ -399,15 +711,24 @@
           "senses": [
             {
               "english": "was dwelling",
-              "nuance": "Historical present"
+              "nuance": "Historical present",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:69661"],
+              "confidence": "high"
             },
             {
               "english": "was staying",
-              "nuance": "Sojourning"
+              "nuance": "Sojourning",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:69661", "cite:dpd:dpd:69662"],
+              "confidence": "high"
             },
             {
               "english": "was abiding",
-              "nuance": "Remaining"
+              "nuance": "Remaining",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:69662"],
+              "confidence": "high"
             }
           ]
         }
@@ -432,6 +753,7 @@
         {
           "id": "d1",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "d1s1",
@@ -457,24 +779,35 @@
               "id": "d1s3",
               "text": "ṁ",
               "type": "suffix",
+              "morph": { "number": "sg", "gender": "n" },
               "tooltips": [
                 "Name ending",
-                "Labels the town that follows"
+                "Labels the town that follows",
+                "Neuter sg — nom/acc are identical in form here; the X-nāma-Y construction does not disambiguate"
               ]
             }
           ],
           "senses": [
             {
               "english": "Kammāsadhamma",
-              "nuance": "Place name"
+              "nuance": "Place name",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:20396"],
+              "confidence": "high"
             },
             {
               "english": "\"Where the Spotted One was Tamed\"",
-              "nuance": "Etymology"
+              "nuance": "Etymology",
+              "epistemicBasis": "curatorial",
+              "notes": "Traditional/commentarial explanation associated with the Kammāsapāda story; not directly attested by the DPD lexical entry, which only gives the proper noun.",
+              "confidence": "medium"
             },
             {
               "english": "the spotted-dhamma place",
-              "nuance": "Literal compound"
+              "nuance": "Literal compound",
+              "epistemicBasis": "etymological",
+              "notes": "Compound parse: kammāsa (spotted/speckled) + dhamma (here in a derived sense, possibly 'practice/place'). The standard morphological breakdown; not the historical/Jātaka etymology above.",
+              "confidence": "medium"
             }
           ]
         },
@@ -496,7 +829,11 @@
           "senses": [
             {
               "english": "named",
-              "nuance": "Called"
+              "nuance": "Called",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:36427"],
+              "confidence": "high",
+              "notes": "The naming particle, indeclinable. DPD: 'called; means; by the name of; namely'. The X-nāma-Y appositional construction."
             }
           ]
         },
@@ -508,6 +845,7 @@
               "id": "d3s1",
               "text": "kurū",
               "type": "stem",
+              "morph": { "number": "pl" },
               "tooltips": [
                 "[Stem] Kuru (the Kuru people)",
                 "Lengthened to kurū before -naṁ"
@@ -517,6 +855,7 @@
               "id": "d3s2",
               "text": "naṁ",
               "type": "suffix",
+              "morph": { "case": "gen", "number": "pl" },
               "tooltips": [
                 "[Genitive Plural] Possession",
                 "\"Of the Kurus\" — their town"
@@ -524,22 +863,33 @@
               "relation": {
                 "targetWordId": "d4",
                 "type": "ownership",
-                "label": "Town OF"
+                "label": "Town OF",
+                "confidence": "high",
+                "epistemicBasis": "grammatical"
               }
             }
           ],
           "senses": [
             {
               "english": "of the Kurus",
-              "nuance": "Genitive Plural"
+              "nuance": "Genitive Plural",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524", "cite:dpd:dpd:22502"],
+              "confidence": "high"
             },
             {
               "english": "belonging to the Kurus",
-              "nuance": "Possessive"
+              "nuance": "Possessive",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "high"
             },
             {
               "english": "the Kurus'",
-              "nuance": "Ownership"
+              "nuance": "Ownership",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "medium"
             }
           ]
         },
@@ -569,6 +919,7 @@
               "id": "d4s3",
               "text": "o",
               "type": "suffix",
+              "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
                 "[Nominative Singular] Subject marker",
                 "\"A town\" — what we are talking about"
@@ -578,15 +929,25 @@
           "senses": [
             {
               "english": "a market town",
-              "nuance": "Larger than gāma (village)"
+              "nuance": "Larger than gāma (village)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:36863", "cite:dpd:dpd:74785"],
+              "confidence": "high"
             },
             {
               "english": "a township",
-              "nuance": "Smaller than nagara (city)"
+              "nuance": "Smaller than nagara (city)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:36863", "cite:dpd:dpd:74785"],
+              "confidence": "high",
+              "notes": "DPD's literal gloss 'going down' (ni+gam) supports the etymological reading already in d4s1/d4s2 tooltips — town as 'place people resort to'."
             },
             {
               "english": "a trading center",
-              "nuance": "Commercial gathering place"
+              "nuance": "Commercial gathering place",
+              "epistemicBasis": "curatorial",
+              "confidence": "low",
+              "notes": "DPD attests 'town; market town' only; the 'commercial center' framing is a curatorial expansion drawing on standard Pāli economic context (nigama vs gāma vs nagara). Not directly DPD-attested."
             }
           ]
         }
