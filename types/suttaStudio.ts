@@ -106,13 +106,31 @@ export type Relation = {
  * Where a claim came from. Orthogonal to confidence — a commentarial gloss
  * can be high-confidence (well attested) or low-confidence (one outlier).
  * See FEATURES.md §2.5.
+ *
+ * Resolution history:
+ *   - Original (FEATURES.md §2.5, commit 7d38402): 5 values — etymological,
+ *     commentarial, contextual, lexical, comparative.
+ *   - 2026-05-12 (commit pending): added 'grammatical' and 'curatorial'.
+ *     Surfaced in phase-a/b/c curation: claims grounded in *syntactic /
+ *     morphological rules* (agent-in-genitive, accusative-of-time-when,
+ *     locative-as-location) were being labeled 'etymological' as the
+ *     closest fit — but etymology is word-history, not grammatical
+ *     analysis. The placeholder hit 3 of 3 phases (3 relations, 1 sense
+ *     in phase-a). The two new values:
+ *       * 'grammatical' — syntactic or morphological rule (English perfect
+ *         construction, Pāli case-as-preposition, present-tense-finite,
+ *         participle-as-substantive, …)
+ *       * 'curatorial' — explicit curator inference, grammatically grounded
+ *         but not derived from a single attestation
  */
 export type EpistemicBasis =
-  | 'etymological'   // derived from morphology / Sanskrit cognate / sandhi
+  | 'etymological'   // word-history; sandhi; cognate
+  | 'grammatical'    // syntactic / morphological rule
   | 'commentarial'   // attested in commentaries (Aṭṭhakathā, Buddhaghosa, …)
   | 'contextual'     // chosen because of surrounding sutta context
-  | 'lexical'        // dictionary attestation (PED, CPD, MW, …)
-  | 'comparative';   // parallel-passage agreement (Pāli ↔ Chinese ↔ Sanskrit)
+  | 'lexical'        // dictionary attestation (PED, CPD, MW, DPD, …)
+  | 'comparative'    // parallel-passage agreement (Pāli ↔ Chinese ↔ Sanskrit)
+  | 'curatorial';    // explicit curator inference, grammatically grounded
 
 /**
  * Morphological hints. L1 — pure facts about the source word.

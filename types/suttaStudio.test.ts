@@ -86,6 +86,15 @@ describe('Sutta Studio additive schema fields (FEATURES.md §2)', () => {
     expect(back).toEqual(spans);
   });
 
+  it('EpistemicBasis enum accepts all 7 values (incl. grammatical + curatorial added 2026-05-12)', () => {
+    const all: EpistemicBasis[] = [
+      'etymological', 'grammatical', 'commentarial', 'contextual',
+      'lexical', 'comparative', 'curatorial',
+    ];
+    expect(all).toHaveLength(7);
+    expect(JSON.parse(JSON.stringify(all))).toEqual(all);
+  });
+
   it('Sense accepts confidence + epistemicBasis + sourceCitationIds (§2.5)', () => {
     const basis: EpistemicBasis = 'commentarial';
     const sense: Sense = {

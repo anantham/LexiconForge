@@ -291,7 +291,7 @@
                 "type": "action",
                 "label": "Heard BY",
                 "confidence": "high",
-                "epistemicBasis": "etymological"
+                "epistemicBasis": "grammatical"
               }
             }
           ],
@@ -464,7 +464,7 @@
                 "type": "location",
                 "label": "Time WHEN",
                 "confidence": "high",
-                "epistemicBasis": "etymological"
+                "epistemicBasis": "grammatical"
               }
             }
           ],
@@ -598,7 +598,7 @@
                 "type": "location",
                 "label": "Dwelling IN",
                 "confidence": "high",
-                "epistemicBasis": "etymological"
+                "epistemicBasis": "grammatical"
               }
             }
           ],
