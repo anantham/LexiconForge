@@ -431,6 +431,30 @@ Captured for separate follow-up. **NOT** implemented inside this phase's diff.
 
 ---
 
+## 13. Backfill (2026-05-12) — evaṁ citation after DPD fix
+
+Phase-a's `a1.senses[0]` (evaṁ "Thus") originally had no DPD citation
+because the stem-stripper conflated evaṁ with bare `eva` (Tension #1).
+After commit `c33b115` fixed three DPD-stripper bugs (niggahīta
+normalization + over-greedy -ūsu/-ūhi + missing bare -su/-hi +
+vowel-shortening), evaṁ now resolves correctly to DPD's `evaṃ`
+headword (normalized to ṁ): `cite:dpd:dpd:18134` — "thus; this; like
+this; similarly; in the same manner; just as; such."
+
+Backfill change:
+  - `a1.senses[0].epistemicBasis`: 'etymological' → 'lexical'
+  - `a1.senses[0].sourceCitationIds`: + `["cite:dpd:dpd:18134"]`
+  - `a1.senses[0].confidence`: + 'high'
+  - `a1.senses[0].notes`: updated to reflect DPD's actual treatment
+    of evaṁ vs eva as distinct headwords (still teaches the
+    distinction, but now grounded in DPD's own taxonomy rather than
+    in curator wisdom)
+  - `packet.citations`: + 1 new entry (cite:dpd:dpd:18134)
+
+The polysemy / "Do not confuse evaṁ with bare eva" framing on the
+a1.s1 tooltips remains accurate — DPD itself treats them as distinct
+headwords. The fix VALIDATED the curation logic, didn't supersede it.
+
 ## 12. Pre-ratification log: gate-amendment summary
 
 Aditya's verdict on the proposed JSON diff (chat artifact, second gate) was "approve to apply, with small wording/schema-basis amendments before commit." Seven amendments applied:

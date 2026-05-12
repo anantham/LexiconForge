@@ -205,6 +205,15 @@
       "excerpt": "viharati [pr]: stays; remains; continues; dwells; abides (in)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:18134",
+      "short": "DPD s.v. evaṁ (ind — thus; in this way; similarly)",
+      "provenance": "dpd",
+      "query": "evaṁ",
+      "excerpt": "evaṁ [ind]: thus; this; like this; similarly; in the same manner; just as; such",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
     }
   ],
   "progress": {
@@ -257,8 +266,10 @@
             {
               "english": "Thus",
               "nuance": "Narrative-opening deictic ('in this way') — points forward to what is about to be recited",
-              "notes": "Not the emphatic-particle senses of bare eva (only/just/indeed). The adverbial evaṁ is grammatically the cataphoric deictic in this formula.",
-              "epistemicBasis": "etymological"
+              "notes": "DPD treats evaṁ and eva as distinct headwords. evaṁ ('thus; in this way; similarly; in the same manner') is the cataphoric deictic used in this formula; bare eva carries the emphatic-particle senses ('only', 'just', 'indeed').",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:18134"],
+              "confidence": "high"
             }
           ]
         },
