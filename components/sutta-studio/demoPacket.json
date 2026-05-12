@@ -169,6 +169,42 @@
       "excerpt": "bhagavā [masc]: Sublime One; Blessed One; Fortunate One; epithet of the Buddha",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-11"
+    },
+    {
+      "id": "cite:dpd:dpd:22524",
+      "short": "DPD s.v. kurū (masc — Kuru people)",
+      "provenance": "dpd",
+      "query": "kurū",
+      "excerpt": "kurū [masc]: name of the people of Kuru; Kurus",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:22502",
+      "short": "DPD s.v. kuru (masc — name of a country)",
+      "provenance": "dpd",
+      "query": "kuru",
+      "excerpt": "kuru [masc]: name of a country",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:69661",
+      "short": "DPD s.v. viharati (pr — lives, dwells, stays in)",
+      "provenance": "dpd",
+      "query": "viharati",
+      "excerpt": "viharati [pr]: lives; dwells; stays (in)",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:69662",
+      "short": "DPD s.v. viharati (pr — stays, remains, continues, dwells, abides)",
+      "provenance": "dpd",
+      "query": "viharati",
+      "excerpt": "viharati [pr]: stays; remains; continues; dwells; abides (in)",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-12"
     }
   ],
   "progress": {
@@ -530,6 +566,7 @@
               "id": "c1s1",
               "text": "kurū",
               "type": "stem",
+              "morph": { "number": "pl" },
               "tooltips": [
                 "[Stem] Kuru (the Kuru people)",
                 "Lengthened to kurū before -su",
@@ -540,6 +577,7 @@
               "id": "c1s2",
               "text": "su",
               "type": "suffix",
+              "morph": { "case": "loc", "number": "pl" },
               "tooltips": [
                 "[Locative Plural] Where it happens",
                 "\"Among the...\""
@@ -547,28 +585,40 @@
               "relation": {
                 "targetWordId": "c2",
                 "type": "location",
-                "label": "Dwelling IN"
+                "label": "Dwelling IN",
+                "confidence": "high",
+                "epistemicBasis": "etymological"
               }
             }
           ],
           "senses": [
             {
               "english": "among the Kurus",
-              "nuance": "Location"
+              "nuance": "Location — among the people",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "high"
             },
             {
               "english": "in Kuru territory",
-              "nuance": "Geographical"
+              "nuance": "Geographical — in the country",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22502"],
+              "confidence": "high"
             },
             {
               "english": "with the Kuru people",
-              "nuance": "Among inhabitants"
+              "nuance": "Among inhabitants",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "confidence": "medium"
             }
           ]
         },
         {
           "id": "c2",
           "wordClass": "content",
+          "isAnchor": true,
           "refrainId": "viharati",
           "segments": [
             {
@@ -603,6 +653,7 @@
               "id": "c2s4",
               "text": "ti",
               "type": "suffix",
+              "morph": { "person": "3", "number": "sg", "tenseAspect": "present", "form": "finite" },
               "tooltips": [
                 "[Present 3rd singular] He/she/it",
                 "Pali tells past events in present",
@@ -613,15 +664,24 @@
           "senses": [
             {
               "english": "was dwelling",
-              "nuance": "Historical present"
+              "nuance": "Historical present",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:69661"],
+              "confidence": "high"
             },
             {
               "english": "was staying",
-              "nuance": "Sojourning"
+              "nuance": "Sojourning",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:69661", "cite:dpd:dpd:69662"],
+              "confidence": "high"
             },
             {
               "english": "was abiding",
-              "nuance": "Remaining"
+              "nuance": "Remaining",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:69662"],
+              "confidence": "high"
             }
           ]
         }

@@ -2,7 +2,8 @@
 
 **Date:** 2026-05-12
 **Curator:** Adi + assistant (Opus 4.7 1M)
-**Commit:** _(filled at apply)_
+**Commit:** filled in commit metadata below
+**Outcome:** ✅ Applied with DPD-bug-fix in-flight (commit c33b115 fixed the stripper; kurūsu now has real DPD citations). 5 localized changes + 4 new citations in packet.
 **Pāli:** Kurūsu viharati
 **Readable:** [Was] dwelling among the Kurus
 **Canonical segments:** mn10:1.2 (continues from phase-b within the same line)
@@ -281,4 +282,43 @@ Not fixed in this diff (tooltip rewrite is a separate chunk). Flag for the plain
 
 ---
 
-## 8. Awaiting gate verdict
+## 8. Applied with mid-flight provider fix
+
+Aditya's gate verdict mid-curation: "Can we fix the DPD bug?" Investigated
+and fixed three root causes (commit `c33b115`):
+
+  1. Niggahīta diacritic mismatch (ṃ U+1E43 vs ṁ U+1E41) — primary cause
+     for evaṁ's earlier mis-resolution to bare `eva`.
+  2. Over-greedy `-ūsu`/`-ūhi` endings — caused kurūsu to over-strip to
+     `kur` and then match the unrelated `kura` (rice).
+  3. Missing bare `-su`/`-hi` endings + missing vowel-shortening — needed
+     to reach `kuru` after stripping the locative-plural marker.
+
+Coverage on MN10: 81.6% → 86.5%. 22 previously-unmatched surfaces now resolve.
+
+**The fix changed phase-c's evidence landscape mid-curation.** Originally the
+draft had kurūsu grounded in `etymological` basis only (DPD provider bug
+meant no usable citation). After the fix:
+
+  - `kurūsu` → `['kurū', 'kuru']` — both real DPD entries.
+    - `cite:dpd:dpd:22524` (kurū, masc — "name of the people of Kuru; Kurus")
+    - `cite:dpd:dpd:22502` (kuru, masc — "name of a country")
+
+Applied diff vs original draft proposal:
+
+| Field | Original draft | Applied |
+|---|---|---|
+| c1 senses' `epistemicBasis` | `'etymological'` (manual basis) | `'lexical'` (DPD-backed) |
+| c1 senses' `sourceCitationIds` | absent (provider bug noted in `notes`) | populated with real DPD IDs |
+| `notes` field on senses | "DPD stem-stripper conflates kurūsu with the unrelated 'kura' (rice); no usable DPD citation here." | removed (no longer accurate) |
+| Everything else | unchanged | unchanged |
+
+New packet.citations entries: **4 added** (kurū, kuru, viharati×2).
+Total packet.citations: 9 → 13.
+
+## 9. Outcome
+
+- **Packet diff:** applied; commit in metadata.
+- **Tests:** ✅ 21 (component + types tests pass; provider suites continue passing on the re-ingested data; Vite build green in the DPD-fix commit).
+- **Renderer:** HMR-updated; not yet visually inspected in this commit (next browser session).
+- **Coverage of new tension counts:** Tension #1 (DPD stripper) → **RESOLVED** by `c33b115`. Tension #7 (`EpistemicBasis` enum gap) still active; phase-c's relation still uses `'etymological'` as placeholder.
