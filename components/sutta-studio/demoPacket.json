@@ -285,8 +285,9 @@
               "text": "eva",
               "type": "stem",
               "tooltips": [
-                "Evaṁ: 'thus; in this way.' In the opening formula evaṁ me sutaṁ, frames what follows as recited speech.",
-                "Do not confuse evaṁ with bare eva, whose common senses include 'only', 'just', or 'indeed'. Here evaṁ functions as the adverbial deictic: 'thus; in this way.'"
+                "Colored differently because it's a small framing word — its job is to point forward, like English 'thus' or 'so' opening a story.",
+                "evaṁ means 'thus; in this way'. It opens the formula 'evaṁ me sutaṁ' (thus I have heard), signalling 'what follows is recited from memory'.",
+                "Don't confuse with bare 'eva' — that's a different word, an emphatic particle ('only', 'just', 'indeed'). The -ṁ ending makes evaṁ a separate word."
               ]
             },
             {
@@ -294,7 +295,7 @@
               "text": "ṁ",
               "type": "suffix",
               "tooltips": [
-                "[Niggahīta -ṁ] Marks the surface form evaṁ, the adverbial deictic 'thus; in this way.'"
+                "The -ṁ closes the syllable as a humming dot-m sound. It's part of 'evaṁ' — bare 'eva' is a different word."
               ]
             }
           ],
@@ -351,8 +352,8 @@
               "text": "su",
               "type": "root",
               "tooltips": [
-                "√su: To hear (suṇāti)",
-                "The act of receiving teaching"
+                "'su' is the root meaning 'to hear'. The full present-tense form is suṇāti — 'hears'.",
+                "More specifically: the act of receiving and remembering teaching."
               ]
             },
             {
@@ -361,7 +362,7 @@
               "type": "suffix",
               "morph": { "form": "participle" },
               "tooltips": [
-                "[Past participle] Marks completed action: \"heard\""
+                "The -ta ending puts the verb in completed form — 'has been heard'. Pāli uses one shape for both 'heard' (the act) and 'what was heard' (the content)."
               ]
             },
             {
@@ -370,8 +371,8 @@
               "type": "suffix",
               "morph": { "gender": "n", "number": "sg" },
               "tooltips": [
-                "[Neuter nom/acc singular] Declensional ending. Supports reading sutaṁ as either 'was heard' or 'what was heard' — both grammatical; English perfect collapses them.",
-                "In the formula 'me sutaṁ' (oblique agent + past participle), the participial form can function substantively — giving the phrase its compressed 'Thus by me heard' structure."
+                "The -ṁ closes 'sutaṁ' with the same form for two readings: 'was heard' (verb-like) and 'what was heard' (noun-like). English needs different phrasings; Pāli holds both at once.",
+                "Read with 'me' before it, 'me sutaṁ' compresses 'by me' + 'was heard' into two Pāli words. English needs scaffolding like 'have' and 'I' to say the same thing."
               ]
             }
           ],
