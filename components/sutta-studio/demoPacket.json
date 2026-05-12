@@ -762,9 +762,9 @@
               "text": "Kammāsa",
               "type": "stem",
               "tooltips": [
-                "Spotted / Speckled",
-                "Name of a man-eating ogre (porisāda)",
-                "From Jātaka: King Kammāsapāda"
+                "'Kammāsa' means spotted or speckled — like a leopard's coat.",
+                "In folklore, also the name of a man-eating ogre (a fearsome flesh-eater).",
+                "The Jātaka tales (Buddhist birth stories) tell of King Kammāsapāda — 'the spotted-footed king' — who was tamed in this region."
               ]
             },
             {
@@ -772,9 +772,9 @@
               "text": "dhamma",
               "type": "stem",
               "tooltips": [
-                "Likely from √dam: to tame",
-                "Where the ogre was \"tamed\"",
-                "Sanskritized spelling: dhamma"
+                "Likely from a root 'dam' meaning 'to tame, subdue'.",
+                "The full place-name encodes the story: 'Kammāsa-dhamma' = 'where the spotted-one was tamed'.",
+                "Spelled with 'dh' here in the Sanskrit-influenced style — different from the more common Pāli 'Dhamma' (teaching)."
               ]
             },
             {
@@ -783,9 +783,9 @@
               "type": "suffix",
               "morph": { "number": "sg", "gender": "n" },
               "tooltips": [
-                "Name ending",
-                "Labels the town that follows",
-                "Neuter sg — nom/acc are identical in form here; the X-nāma-Y construction does not disambiguate"
+                "The -ṁ closes the place-name 'Kammāsadhammaṁ' — Pāli marks names with the same dot-m ending used for other singular forms.",
+                "Tells you this is the name OF the town that follows. The 'nāma' word right after will spell out the link explicitly.",
+                "The same form is used for both 'the X' (subject) and 'X' (object) for neuter nouns — Pāli leaves this ambiguous; the X-nāma-Y construction doesn't disambiguate."
               ]
             }
           ],
@@ -822,9 +822,9 @@
               "text": "nāma",
               "type": "stem",
               "tooltips": [
-                "[Indeclinable] \"named, by name\"",
-                "Links proper name to common noun",
-                "\"X nāma Y\" = \"Y named X\""
+                "Colored differently because it's a small linking word — Pāli uses 'nāma' (literally 'name') between two nouns to mean 'called' or 'named'.",
+                "'nāma' is the naming-word. 'X nāma Y' reads as 'Y called X' — the small word in the middle does the work of English 'called' or 'named'.",
+                "Here it links the proper name (Kammāsadhamma) to the common-noun head (nigamo, 'market town'): 'a market-town of the Kurus named Kammāsadhamma'."
               ]
             }
           ],
@@ -849,8 +849,8 @@
               "type": "stem",
               "morph": { "number": "pl" },
               "tooltips": [
-                "[Stem] Kuru (the Kuru people)",
-                "Lengthened to kurū before -naṁ"
+                "Same Kuru people as in 'kurūsu' before — the inhabitants of the Kuru kingdom.",
+                "The vowel is stretched (kuru → kurū) before the ending. Pāli often lengthens vowels at word-joins like this."
               ]
             },
             {
@@ -859,8 +859,8 @@
               "type": "suffix",
               "morph": { "case": "gen", "number": "pl" },
               "tooltips": [
-                "[Genitive Plural] Possession",
-                "\"Of the Kurus\" — their town"
+                "The -naṁ ending means 'of the [plural]' — Pāli marks 'belonging to' on the noun itself (where English would say 'of the').",
+                "'Of the Kurus' — their town. Same stem as in phase-c's 'kurūsu' but with a different ending: -su (among) vs -naṁ (of)."
               ],
               "relation": {
                 "targetWordId": "d4",
@@ -904,8 +904,8 @@
               "text": "ni",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Down / Into",
-                "Where people go down to"
+                "'ni' is a prefix meaning 'down' or 'into'.",
+                "Sets up the meaning: the place people 'go down to' (the root that follows is 'gam', 'to go')."
               ]
             },
             {
@@ -913,8 +913,8 @@
               "text": "gam",
               "type": "root",
               "tooltips": [
-                "√gam: to go",
-                "Place people resort to (for trade)"
+                "'gam' is a root meaning 'to go'.",
+                "ni + gam = 'going down to' — the place where people resort, often for trade and gathering."
               ]
             },
             {
@@ -923,8 +923,8 @@
               "type": "suffix",
               "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
-                "[Nominative Singular] Subject marker",
-                "\"A town\" — what we are talking about"
+                "The -o ending marks this word as the subject of the sentence — 'a town' (the thing being named).",
+                "'A town' — what the whole phrase is really about. Everything else (Kammāsadhammaṁ, nāma, kurūnaṁ) describes which town and whose."
               ]
             }
           ],
