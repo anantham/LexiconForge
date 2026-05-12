@@ -84,6 +84,31 @@ describe('PALI_ENDINGS (root cause #2)', () => {
   it('contains the bare instrumental-plural ending hi', () => {
     expect(PALI_ENDINGS).toContain('hi');
   });
+
+  // Phase-d recurrence — parallel fix for u-stem gen pl.
+  // kurūnaṁ analyzes as kurū (lengthened stem) + naṁ (bare gen-pl ending),
+  // not as kur + ūnaṁ. Keeping ūnaṁ/unaṁ as single endings caused kurūnaṁ
+  // to over-strip to 'kur' and conflate with kura (rice), same shape as the
+  // kurūsu bug above.
+  it('does NOT contain the over-greedy ūnaṁ ending (phase-d recurrence)', () => {
+    expect(PALI_ENDINGS).not.toContain('ūnaṁ');
+  });
+
+  it('does NOT contain the over-greedy unaṁ ending', () => {
+    expect(PALI_ENDINGS).not.toContain('unaṁ');
+  });
+
+  it('contains the bare u-stem gen-pl ending naṁ', () => {
+    expect(PALI_ENDINGS).toContain('naṁ');
+  });
+
+  // ānaṁ (a-stem gen pl) is kept as a single ending — that IS the standard
+  // analysis in beginner Pāli grammars (dhammānaṁ = dhamm + ānaṁ, not
+  // dhammā + naṁ). The bare 'naṁ' still works for a-stems via the
+  // vowel-shortening branch, so adding it doesn't conflict.
+  it('keeps ānaṁ (a-stem gen pl is a real single ending)', () => {
+    expect(PALI_ENDINGS).toContain('ānaṁ');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -132,6 +157,47 @@ describe('tryStemStrips — bhikkhūsu (locative plural of bhikkhu)', () => {
 
   it('also produces bhikkhū as a candidate', () => {
     expect(tryStemStrips('bhikkhūsu')).toContain('bhikkhū');
+  });
+});
+
+describe('tryStemStrips — kurūnaṁ (genitive plural of Kuru — phase-d recurrence)', () => {
+  it('produces kuru as a candidate via vowel-shortening after -naṁ strip', () => {
+    // kurūnaṁ → strip 'naṁ' → 'kurū' → shorten ū → 'kuru'. Same pattern as
+    // kurūsu's loc-pl resolution, now applied to gen-pl. Verified against
+    // the real MN10 dataset: kurūnaṁ resolves to ['kurū', 'kuru'] post-fix.
+    expect(tryStemStrips('kurūnaṁ')).toContain('kuru');
+  });
+
+  it('also produces kurū as a candidate (the intermediate lengthened stem)', () => {
+    expect(tryStemStrips('kurūnaṁ')).toContain('kurū');
+  });
+
+  it('does NOT produce kur as a candidate (the bug-path)', () => {
+    // Pre-fix, 'ūnaṁ' in PALI_ENDINGS caused kurūnaṁ → 'kur', which then
+    // conflated with 'kura' (rice) via the +a candidate path. Same shape
+    // as the kurūsu bug fixed in c33b115.
+    expect(tryStemStrips('kurūnaṁ')).not.toContain('kur');
+  });
+
+  it('does NOT produce kura (the wrong-word the bug landed on)', () => {
+    expect(tryStemStrips('kurūnaṁ')).not.toContain('kura');
+  });
+});
+
+describe('tryStemStrips — bhikkhūnaṁ (genitive plural of bhikkhu)', () => {
+  it('produces bhikkhu as a candidate via vowel-shortening after -naṁ strip', () => {
+    expect(tryStemStrips('bhikkhūnaṁ')).toContain('bhikkhu');
+  });
+});
+
+describe('tryStemStrips — a-stem gen pl preserved (regression net)', () => {
+  // Adding bare 'naṁ' to PALI_ENDINGS could in principle interact with the
+  // ā-stem gen pl (e.g., dhammānaṁ). Confirm dhamma is still reachable so
+  // we don't break the larger gen-pl case in the name of fixing the u-stem
+  // case.
+  it('dhammānaṁ produces dhamma via either ānaṁ or naṁ+vowel-shorten path', () => {
+    const candidates = tryStemStrips('dhammānaṁ');
+    expect(candidates).toContain('dhamma');
   });
 });
 

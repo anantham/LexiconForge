@@ -137,6 +137,13 @@ export const normalizeNiggahita = (s: string): string => s.replace(/ṃ/g, 'ṁ'
 //     to the lengthened stem (kuru → kurū before -su). Counting -ūsu as a
 //     3-char single ending caused kurūsu to over-strip to 'kur' and then
 //     match the unrelated noun 'kura' (rice) via the +a candidate.
+//   - Removed 'ūnaṁ' and 'unaṁ' for the same reason: u-stem gen pl is
+//     stem-vowel-lengthening + bare -naṁ (kuru → kurū before -naṁ; cf. the
+//     -su pattern). Phase-d surfaced this as a recurrence: kurūnaṁ over-
+//     stripped to 'kur' and conflated with 'kura' (rice). Added bare 'naṁ'
+//     paired with the vowel-shortening rule below. NB: 'ānaṁ' kept — that
+//     IS the a-stem gen pl single ending in standard analyses (dhammānaṁ
+//     analysed as dhamm + ānaṁ, not dhammā + naṁ).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const PALI_ENDINGS: string[] = [
@@ -160,9 +167,12 @@ export const PALI_ENDINGS: string[] = [
   // also serves as the 2sg imperative — accept the verb-collision noise
   // for now; the vowel-shortening rule downstream catches u-stem cases.
   'assa', 'asmā', 'amhā', 'asmiṁ', 'amhi', 'ānaṁ', 'ehi', 'esu', 'āni', 'āya',
-  'ato', 'iya', 'iyaṁ', 'iyo', 'iyā', 'ūnaṁ', 'unaṁ',
+  'ato', 'iya', 'iyaṁ', 'iyo', 'iyā',
+  // NB: 'ūnaṁ' / 'unaṁ' removed — those are vowel-lengthening + -naṁ for
+  // u-stems (parallel to the 'ūsu' / 'ūhi' removal above). Bare 'naṁ' is
+  // added below paired with vowel-shortening.
   'aṁse', 'iṁsu', 'imha', 'tāya', 'tāyo', 'tā',
-  'su', 'hi',  // locative pl / instrumental pl (paired with vowel-shortening below)
+  'su', 'hi', 'naṁ',  // locative pl / instrumental pl / u-stem gen pl (paired with vowel-shortening below)
   // Verb finite
   'ema', 'esi', 'eti', 'enti', 'etha', 'esā',  // causative present
   'ema', 'eyya',

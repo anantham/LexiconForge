@@ -6167,26 +6167,6 @@
       "citationId": "cite:dpd:dpd:22562"
     }
   ],
-  "kura": [
-    {
-      "lemma": "kura",
-      "partOfSpeech": "nt",
-      "senses": [
-        {
-          "english": "rice; boiled rice",
-          "nuance": "nt",
-          "notes": "nt",
-          "citation": "Sanskrit: kūra, kuru"
-        }
-      ],
-      "morphology": {
-        "gender": "n"
-      },
-      "rawExcerpt": "kura, nt. rice; boiled rice ✔\n  IPA: /kuɾə/\n  Grammar: nt\n  Variant: kūra, sudaṃ\n  Sanskrit: kūra, kuru\n  ID: 22496",
-      "sourceId": "dpd:22496",
-      "citationId": "cite:dpd:dpd:22496"
-    }
-  ],
   "kurū": [
     {
       "lemma": "kurū",
@@ -13031,6 +13011,26 @@
       "citationId": "cite:dpd:dpd:62575"
     }
   ],
+  "sāli": [
+    {
+      "lemma": "sāli",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "fine rice",
+          "nuance": "masc",
+          "notes": "masc",
+          "citation": "Sanskrit: śāli"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "sāli, masc. fine rice ✔\n  IPA: /s̪ɑːlɪ/\n  Grammar: masc\n  Web Link: https://en.wikipedia.org/wiki/Rice\n  Sanskrit: śāli\n  ID: 62578",
+      "sourceId": "dpd:62578",
+      "citationId": "cite:dpd:dpd:62578"
+    }
+  ],
   "sāmisa": [
     {
       "lemma": "sāmisa",
@@ -15204,6 +15204,95 @@
       "citationId": "cite:dpd:dpd:66328"
     }
   ],
+  "veda": [
+    {
+      "lemma": "veda",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "joy; inspiration; excitement; uplifting emotion",
+          "nuance": "masc",
+          "notes": "masc, from vedeti",
+          "citation": "Sanskrit: veda [vid]"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "veda 1, masc. joy; inspiration; excitement; uplifting emotion ✔\n  IPA: /ʋeːd̪ə/\n  Grammar: masc, from vedeti\n  Root: √vid 1 a (know)\n  Construction: √vid > ved + *a\n  Derivative: kita (*a)\n  Phonetic Change: i > e\n  Variant: beda\n  Sanskrit: veda [vid]\n  Sanskrit Root: √vid 1, 2, 6 (know)\n  ID: 70227",
+      "sourceId": "dpd:70227",
+      "citationId": "cite:dpd:dpd:70227"
+    },
+    {
+      "lemma": "veda",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "knowing; understanding; realization; insight",
+          "nuance": "masc",
+          "notes": "masc, from vedeti",
+          "citation": "Sanskrit: veda [vid]"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "veda 2, masc. knowing; understanding; realization; insight ✔\n  IPA: /ʋeːd̪ə/\n  Grammar: masc, from vedeti\n  Root: √vid 1 a (know)\n  Construction: √vid > ved + *a\n  Derivative: kita (*a)\n  Phonetic Change: i > e\n  Variant: beda\n  Sanskrit: veda [vid]\n  Sanskrit Root: √vid 1, 2, 6 (know)\n  ID: 70228",
+      "sourceId": "dpd:70228",
+      "citationId": "cite:dpd:dpd:70228"
+    },
+    {
+      "lemma": "veda",
+      "partOfSpeech": "nt",
+      "senses": [
+        {
+          "english": "knowledge; understanding; realization; insight",
+          "nuance": "nt",
+          "notes": "nt, from vedeti",
+          "citation": "Sanskrit: veda [vid]"
+        }
+      ],
+      "morphology": {
+        "gender": "n"
+      },
+      "rawExcerpt": "veda 3, nt. knowledge; understanding; realization; insight ✔\n  IPA: /ʋeːd̪ə/\n  Grammar: nt, from vedeti\n  Root: √vid 1 a (know)\n  Construction: √vid > ved + *a\n  Derivative: kita (*a)\n  Phonetic Change: i > e\n  Synonym: cakkhu, ñāṇa, bojjha\n  Sanskrit: veda [vid]\n  Sanskrit Root: √vid 1, 2, 6 (know)\n  ID: 70229",
+      "sourceId": "dpd:70229",
+      "citationId": "cite:dpd:dpd:70229"
+    },
+    {
+      "lemma": "veda",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "Veda; sacred Brahmanical scriptures",
+          "nuance": "masc",
+          "notes": "masc, from vedeti",
+          "citation": "Sanskrit: veda [vid]"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "veda 4, masc. Veda; sacred Brahmanical scriptures ✔\n  IPA: /ʋeːd̪ə/\n  Grammar: masc, from vedeti\n  Root: √vid 1 a (know)\n  Construction: √vid > ved + *a\n  Derivative: kita (*a)\n  Phonetic Change: i > e\n  Variant: beda\n  Notes: (Apte) ṛgveda, yajurveda and sāmaveda, which are collectively called trayī 'the sacred triad'; but a fourth, the atharvaveda, was subsequently added to them\n  Sanskrit: veda [vid]\n  Sanskrit Root: √vid 1, 2, 6 (know)\n  ID: 70230",
+      "sourceId": "dpd:70230",
+      "citationId": "cite:dpd:dpd:70230"
+    },
+    {
+      "lemma": "veda",
+      "partOfSpeech": "adj",
+      "senses": [
+        {
+          "english": "possessing knowledge; full of understanding",
+          "nuance": "adj",
+          "notes": "adj, from vedeti",
+          "citation": "Sanskrit: veda [vid]"
+        }
+      ],
+      "rawExcerpt": "veda 5, adj. possessing knowledge; full of understanding ✔\n  IPA: /ʋeːd̪ə/\n  Grammar: adj, from vedeti\n  Root: √vid 1 a (know)\n  Construction: √vid > ved + *a\n  Derivative: kita (*a)\n  Phonetic Change: i > e\n  Sanskrit: veda [vid]\n  Sanskrit Root: √vid 1, 2, 6 (know)\n  ID: 70231",
+      "sourceId": "dpd:70231",
+      "citationId": "cite:dpd:dpd:70231"
+    }
+  ],
   "vedana": [
     {
       "lemma": "vedana",
@@ -16106,6 +16195,26 @@
       "rawExcerpt": "vā 4, ind. (gram) or; in some cases; not always; alternatively; optionally ✔\n  IPA: /ʋɑː/\n  Grammar: ind\n  Synonym: vikappena\n  Variant: va\n  Sanskrit: vā\n  ID: 66666",
       "sourceId": "dpd:66666",
       "citationId": "cite:dpd:dpd:66666"
+    }
+  ],
+  "vīhi": [
+    {
+      "lemma": "vīhi",
+      "partOfSpeech": "masc",
+      "senses": [
+        {
+          "english": "rice paddy; Oryza sativa",
+          "nuance": "masc",
+          "notes": "masc",
+          "citation": "Sanskrit: vrīhi"
+        }
+      ],
+      "morphology": {
+        "gender": "m"
+      },
+      "rawExcerpt": "vīhi, masc. rice paddy; Oryza sativa ✔\n  IPA: /ʋiːɦɪ/\n  Grammar: masc\n  Web Link: https://en.wikipedia.org/wiki/Rice\n  Sanskrit: vrīhi\n  ID: 69963",
+      "sourceId": "dpd:69963",
+      "citationId": "cite:dpd:dpd:69963"
     }
   ],
   "vīriyasambojjhaṅga": [
