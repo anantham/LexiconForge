@@ -23,19 +23,68 @@
       "name": "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
       "year": "1956",
       "council": "Sixth Buddhist Council",
-      "digitalSource": "Vipassana Research Institute, via SuttaCentral bilara-data"
+      "digitalSource": "Vipassana Research Institute, via SuttaCentral bilara-data",
+      "url": "https://tipitaka.org/",
+      "digitalSourceUrl": "https://github.com/suttacentral/bilara-data",
+      "license": "Freely redistributable per VRI terms"
     },
     "translation": {
       "translator": "Bhikkhu Sujato",
       "year": "2018",
       "license": "CC0",
-      "institution": "SuttaCentral"
+      "institution": "SuttaCentral",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
     },
     "external": [
       {
         "type": "suttacentral",
         "url": "https://suttacentral.net/mn10/pli/ms",
         "note": "root Pāli text + Sujato translation, segment-aligned"
+      }
+    ],
+    "references": [
+      {
+        "label": "Digital Pāli Dictionary (DPD)",
+        "url": "https://dpdict.net/",
+        "note": "Compiled by Bryan Levman and contributors. This packet's lexical glosses are largely backed by DPD release v0.4.20260501. Licence: CC BY-NC-SA 4.0.",
+        "category": "dictionary"
+      },
+      {
+        "label": "DPD source repository",
+        "url": "https://github.com/digitalpalidictionary/dpd-db",
+        "note": "Database source + build pipeline.",
+        "category": "dictionary"
+      },
+      {
+        "label": "SuttaCentral aggregated dictionary",
+        "url": "https://suttacentral.net/define",
+        "note": "Aggregates PED, NCPED, Concise PD, and other classical Pāli lexica.",
+        "category": "dictionary"
+      },
+      {
+        "label": "SuttaCentral · bilara-data",
+        "url": "https://github.com/suttacentral/bilara-data",
+        "note": "Segment-aligned root Pāli + multilingual translations. Source of the mn10:N.N segment IDs this packet uses.",
+        "category": "edition"
+      },
+      {
+        "label": "Bhikkhu Sujato · MN10 translation",
+        "url": "https://suttacentral.net/mn10/en/sujato",
+        "note": "Public-domain English translation (CC0). Our renderable English largely tracks Sujato's translation choices.",
+        "category": "translation"
+      },
+      {
+        "label": "Vipassana Research Institute · Tipiṭaka",
+        "url": "https://tipitaka.org/",
+        "note": "Digital edition of the Chaṭṭha Saṅgāyana (Sixth Council) Pāli Tipiṭaka. Freely redistributable.",
+        "category": "edition"
+      },
+      {
+        "label": "SuttaCentral · MN10 sutta page",
+        "url": "https://suttacentral.net/mn10",
+        "note": "Parallels, translations, bibliographic metadata.",
+        "category": "other"
       }
     ]
   },

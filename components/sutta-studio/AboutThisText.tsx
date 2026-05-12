@@ -81,12 +81,33 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
 
               {provenance?.edition && (
                 <Section label="Edition">
-                  {provenance.edition.name}
+                  {provenance.edition.url ? (
+                    <ExternalLink url={provenance.edition.url}>{provenance.edition.name}</ExternalLink>
+                  ) : (
+                    provenance.edition.name
+                  )}
                   {provenance.edition.year && <span className="text-slate-500"> ({provenance.edition.year})</span>}
                   {provenance.edition.council && <span className="text-slate-500"> · {provenance.edition.council}</span>}
                   {provenance.edition.digitalSource && (
                     <div className="text-slate-500 text-xs mt-1">
-                      Digital source: {provenance.edition.digitalSource}
+                      Digital source:{' '}
+                      {provenance.edition.digitalSourceUrl ? (
+                        <ExternalLink url={provenance.edition.digitalSourceUrl}>
+                          {provenance.edition.digitalSource}
+                        </ExternalLink>
+                      ) : (
+                        provenance.edition.digitalSource
+                      )}
+                    </div>
+                  )}
+                  {provenance.edition.license && (
+                    <div className="text-slate-500 text-xs mt-0.5">
+                      Licence:{' '}
+                      {provenance.edition.licenseUrl ? (
+                        <ExternalLink url={provenance.edition.licenseUrl}>{provenance.edition.license}</ExternalLink>
+                      ) : (
+                        provenance.edition.license
+                      )}
                     </div>
                   )}
                 </Section>
@@ -94,10 +115,23 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
 
               {provenance?.translation && (
                 <Section label="Translation">
-                  {provenance.translation.translator}
+                  {provenance.translation.url ? (
+                    <ExternalLink url={provenance.translation.url}>{provenance.translation.translator}</ExternalLink>
+                  ) : (
+                    provenance.translation.translator
+                  )}
                   {provenance.translation.year && <span className="text-slate-500"> ({provenance.translation.year})</span>}
                   {provenance.translation.license && (
-                    <span className="text-slate-500"> · {provenance.translation.license}</span>
+                    <>
+                      <span className="text-slate-500"> · </span>
+                      {provenance.translation.licenseUrl ? (
+                        <ExternalLink url={provenance.translation.licenseUrl}>
+                          {provenance.translation.license}
+                        </ExternalLink>
+                      ) : (
+                        <span className="text-slate-500">{provenance.translation.license}</span>
+                      )}
+                    </>
                   )}
                   {provenance.translation.institution && (
                     <span className="text-slate-500"> · via {provenance.translation.institution}</span>
@@ -137,15 +171,39 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                   <ul className="list-disc list-outside ml-4 space-y-1">
                     {provenance.external.map((ref, i) => (
                       <li key={i}>
-                        <a
-                          href={ref.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-emerald-400 underline-offset-2 hover:underline"
-                        >
+                        <ExternalLink url={ref.url}>
                           {ref.type}: {new URL(ref.url).hostname}
-                        </a>
+                        </ExternalLink>
                         {ref.note && <span className="text-slate-500"> — {ref.note}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </Section>
+              )}
+
+              {provenance?.references && provenance.references.length > 0 && (
+                <Section label="What this packet rests on">
+                  <p className="text-slate-500 text-xs mb-3 italic">
+                    Listed here as acknowledgement, not just citation. Each link goes to a
+                    real place the source lives — where you can meet the work on its own
+                    terms.
+                  </p>
+                  <ul className="list-none space-y-2">
+                    {provenance.references.map((ref, i) => (
+                      <li key={i} className="flex flex-col">
+                        <div>
+                          <ExternalLink url={ref.url}>{ref.label}</ExternalLink>
+                          {ref.category && (
+                            <span className="ml-2 text-[10px] uppercase tracking-wider text-slate-600 font-mono">
+                              {ref.category}
+                            </span>
+                          )}
+                        </div>
+                        {ref.note && (
+                          <div className="text-slate-500 text-xs leading-relaxed mt-0.5">
+                            {ref.note}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -212,5 +270,22 @@ function Section({
         {children}
       </div>
     </div>
+  );
+}
+
+/**
+ * External link with consistent styling. Opens in new tab; uses noopener/
+ * noreferrer for security; underlines on hover; tone matches the panel.
+ */
+function ExternalLink({ url, children }: { url: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-slate-300 hover:text-emerald-400 underline-offset-2 hover:underline transition"
+    >
+      {children}
+    </a>
   );
 }
