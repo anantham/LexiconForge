@@ -86,7 +86,12 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           const tooltipFacetIdx = segKey ? (tooltipFacetIndices?.[segKey] ?? 0) : 0;
           const tooltipsArr = seg.tooltips ?? [];
           const facetTooltip = tooltipsArr.length > 0 ? tooltipsArr[tooltipFacetIdx % tooltipsArr.length] : '';
-          const rawTooltip = segSenseText || seg.relation?.label || facetTooltip || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
+          // Precedence: segment-level English sense → segment's own tooltips
+          // (cycled by click) → relation arrow label → utility fallback.
+          // The relation.label belongs to the arrow's visual; if the segment
+          // has its own tooltip content, show that and let the arrow speak
+          // for itself. Otherwise relation.label is a useful fallback.
+          const rawTooltip = segSenseText || facetTooltip || seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
           // Apply filters based on settings
           let tooltipText = rawTooltip;
           if (!settings.grammarTerms) tooltipText = stripGrammarTerms(tooltipText);

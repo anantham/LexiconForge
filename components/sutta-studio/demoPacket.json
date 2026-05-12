@@ -319,8 +319,8 @@
               "type": "stem",
               "morph": { "case": "gen" },
               "tooltips": [
-                "Ānanda speaking: \"by me\"",
-                "[Genitive/Agent] Form is \"of me\", function is \"by me\""
+                "Colored differently because it's a small connector word. Pāli wraps 'by', 'of', 'to' into the noun's ending rather than spelling them out as separate words.",
+                "Form is 'of me' (genitive case); function here is 'by me' — Pāli uses the genitive to mark who did the action when the verb is passive, like 'was heard'."
               ],
               "relation": {
                 "targetWordId": "a3",
