@@ -118,7 +118,6 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
 
   return (
     <motion.div
-      layout
       id={domTarget}
       data-interactive={!isGhost ? 'true' : undefined}
       onClick={onClick}

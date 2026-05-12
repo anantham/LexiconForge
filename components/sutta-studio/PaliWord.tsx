@@ -53,7 +53,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
 
   return (
     <motion.div
-      layoutId={`${phaseId}-${wordData.id}`}
       id={wDomId}
       data-interactive="true"
       className={`flex flex-col items-center mx-1 md:mx-2 bg-slate-950 relative z-10 ${

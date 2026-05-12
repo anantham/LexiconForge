@@ -1,4 +1,3 @@
-import { LayoutGroup } from 'framer-motion';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Xarrow, { Xwrapper } from 'react-xarrows';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
@@ -406,8 +405,7 @@ export function SuttaStudioView({
         />
 
         <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 py-8">
-          <LayoutGroup>
-            {visiblePhases.map((phase) => {
+          {visiblePhases.map((phase) => {
               const phaseId = phase.id;
               const blocks = resolveBlocks(phase);
               const englishBlocks = assignEnglishBlocks(phase, blocks);
@@ -613,8 +611,7 @@ export function SuttaStudioView({
                   )}
                 </section>
               );
-            })}
-          </LayoutGroup>
+          })}
         </div>
       </Xwrapper>
     </div>
