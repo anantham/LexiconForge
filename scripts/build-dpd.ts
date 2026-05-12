@@ -117,7 +117,7 @@ const POS_TO_MORPH: Record<string, MorphFromPos> = {
 // ṁ throughout, so this preserves byte-compatibility downstream.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const normalizeNiggahita = (s: string): string => s.replace(/ṃ/g, 'ṁ');
+export const normalizeNiggahita = (s: string): string => s.replace(/ṃ/g, 'ṁ');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Common Pāli inflection endings — tried in order when stem-stripping.
@@ -139,7 +139,7 @@ const normalizeNiggahita = (s: string): string => s.replace(/ṃ/g, 'ṁ');
 //     match the unrelated noun 'kura' (rice) via the +a candidate.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const PALI_ENDINGS: string[] = [
+export const PALI_ENDINGS: string[] = [
   // Optative + causative + future (5-6 chars)
   'eyyātha', 'eyyāma', 'eyyāsi', 'eyyaṁ', 'eyya',
   'ssāmi', 'ssāma', 'ssati', 'ssanti',
@@ -173,9 +173,9 @@ const PALI_ENDINGS: string[] = [
 
 // Quotative / particle suffixes that often attach to a wordform. Stripping
 // these first dramatically improves match rate for direct-speech segments.
-const QUOTATIVE_TAILS = ['’ti', "'ti", '’nti', "'nti", '’ssa', "'ssa", 'nti', '’pi', "'pi"];
+export const QUOTATIVE_TAILS = ['’ti', "'ti", '’nti', "'nti", '’ssa', "'ssa", 'nti', '’pi', "'pi"];
 
-const stripQuotative = (surface: string): string[] => {
+export const stripQuotative = (surface: string): string[] => {
   const variants = new Set<string>([surface]);
   for (const tail of QUOTATIVE_TAILS) {
     if (surface.length > tail.length + 1 && surface.endsWith(tail)) {
@@ -185,7 +185,7 @@ const stripQuotative = (surface: string): string[] => {
   return [...variants];
 };
 
-const tryStemStrips = (surface: string): string[] => {
+export const tryStemStrips = (surface: string): string[] => {
   const candidates = new Set<string>();
   // First pass: strip quotative if any
   const baseVariants = stripQuotative(surface);
@@ -531,7 +531,19 @@ const main = async (): Promise<void> => {
   }
 };
 
-main().catch((e) => {
-  console.error('[dpd] FAILED:', e);
-  process.exit(1);
-});
+// Run main() only when invoked as a script (npm run build:dpd), not when the
+// module is imported by tests. Standard ESM Node entrypoint guard.
+const isMainModule = (() => {
+  try {
+    return path.resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url);
+  } catch {
+    return false;
+  }
+})();
+
+if (isMainModule) {
+  main().catch((e) => {
+    console.error('[dpd] FAILED:', e);
+    process.exit(1);
+  });
+}
