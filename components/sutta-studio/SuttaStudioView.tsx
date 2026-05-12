@@ -25,7 +25,6 @@ export function SuttaStudioView({
 }) {
   const [hovered, setHovered] = useState<Focus | null>(null);
   const [hoveredRelation, setHoveredRelation] = useState<string | null>(null);
-  const [pinned, setPinned] = useState<Focus | null>(null);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
   const [activeSegmentIndices, setActiveSegmentIndices] = useState<Record<string, number>>({});
   // Per-segment tooltip facet index. Click on a Pāli segment cycles through
@@ -89,17 +88,6 @@ export function SuttaStudioView({
     }
     return map;
   }, [packet.canonicalSegments]);
-
-  // Build a lookup table for Sense.sourceCitationIds → Citation. Computed
-  // once per packet; passed to PaliWord so pinned tooltips can surface the
-  // upstream attestation (ADR SUTTA-008 §UI Vision #4).
-  const citationsById = useMemo(() => {
-    const map: Record<string, typeof packet.citations[number]> = {};
-    for (const c of packet.citations ?? []) {
-      if (c.id) map[c.id] = c;
-    }
-    return map;
-  }, [packet.citations]);
 
   // Hash navigation: scroll to element on load
   useEffect(() => {
@@ -175,17 +163,15 @@ export function SuttaStudioView({
 
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        const focus = pinned ?? hovered;
-        if (focus?.kind === 'segment' && focus.segmentId) {
-          cycleSegment(focus.phaseId, focus.segmentId);
-        } else if (focus) {
-          cycle(focus.wordId, focus.phaseId);
+        if (hovered?.kind === 'segment' && hovered.segmentId) {
+          cycleSegment(hovered.phaseId, hovered.segmentId);
+        } else if (hovered) {
+          cycle(hovered.wordId, hovered.phaseId);
         }
         return;
       }
 
       if (e.key === 'Escape') {
-        setPinned(null);
         setHovered(null);
         return;
       }
@@ -205,7 +191,7 @@ export function SuttaStudioView({
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         // Navigate to prev/next phase
         const dir = e.key === 'ArrowRight' ? 1 : -1;
-        const currentPhaseId = (pinned ?? hovered)?.phaseId ?? visiblePhases[0]?.id;
+        const currentPhaseId = hovered?.phaseId ?? visiblePhases[0]?.id;
         const currentPhaseIdx = visiblePhases.findIndex((p) => p.id === currentPhaseId);
         const nextPhaseIdx = Math.max(0, Math.min(visiblePhases.length - 1, currentPhaseIdx + dir));
         const nextPhase = visiblePhases[nextPhaseIdx];
@@ -218,7 +204,7 @@ export function SuttaStudioView({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [hovered, pinned, segmentList, visiblePhases, settings, handleSettingsChange]);
+  }, [hovered, segmentList, visiblePhases, settings, handleSettingsChange]);
 
   useLayoutEffect(() => {
     setLayoutTick((tick) => tick + 1);
@@ -414,7 +400,6 @@ export function SuttaStudioView({
             hovered?.kind,
             hovered?.wordId,
             hovered?.kind === 'segment' ? hovered.segmentDomId : '',
-            pinned?.kind === 'segment' ? pinned.segmentDomId : '',
             JSON.stringify(activeIndices),
             visiblePhases.length,
           ]}
@@ -464,15 +449,12 @@ export function SuttaStudioView({
                                 activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
                                 activeSegmentIndices={activeSegmentIndices}
                                 tooltipFacetIndices={tooltipFacetIndices}
-                                citationsById={citationsById}
                                 settings={settings}
                                 cycle={(wordId) => cycle(wordId, phaseId)}
                                 cycleSegment={cycleSegment}
                                 cycleSegmentTooltipFacet={cycleSegmentTooltipFacet}
                                 hovered={hovered}
-                                pinned={pinned}
                                 setHovered={setHovered}
-                                setPinned={setPinned}
                               />
 
                               {showRelationArrows &&
@@ -581,9 +563,7 @@ export function SuttaStudioView({
                                   paliWords={phase.paliWords}
                                   activeIndices={activeIndices}
                                   hovered={hovered}
-                                  pinned={pinned}
                                   setHovered={setHovered}
-                                  setPinned={setPinned}
                                   cycle={(wordId) => cycle(wordId, phaseId)}
                                   ghostOpacity={ghostOpacity}
                                   showGhosts={settings.ghostWords}
