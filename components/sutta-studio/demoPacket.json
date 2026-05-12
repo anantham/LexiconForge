@@ -438,8 +438,9 @@
               "type": "stem",
               "morph": { "case": "acc", "number": "sg" },
               "tooltips": [
-                "[Adjective] One, a certain",
-                "Modifies samayaṁ"
+                "Colored differently because it's a small modifier word — it tells you which one of something. Here: 'one' (specific occasion).",
+                "'eka' means 'one' or 'a certain' — it picks out a specific one of the noun that follows (here: samayaṁ, 'occasion').",
+                "Tells you which (one specific occasion), not what kind."
               ]
             },
             {
@@ -448,8 +449,8 @@
               "type": "suffix",
               "morph": { "case": "acc" },
               "tooltips": [
-                "[Accusative of Time] \"at/on\"",
-                "Tells us when, not what"
+                "The -ṁ on 'ekaṁ' is a time-marker. Pāli puts -ṁ on the word for time (where English would say 'at' or 'on'). Same ending appears on 'samayaṁ' next.",
+                "Tells you when, not what."
               ]
             }
           ],
@@ -473,8 +474,8 @@
               "text": "sam",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Together, completely",
-                "Not a root!"
+                "'sam' is a prefix meaning 'together' or 'completely'.",
+                "It looks like a small word on its own, but it attaches to a root that follows (here: 'aya'). The full meaning emerges from prefix + root + suffix."
               ]
             },
             {
@@ -483,9 +484,9 @@
               "type": "root",
               "morph": { "gender": "m" },
               "tooltips": [
-                "From √i: to go",
-                "aya = going, course",
-                "sam + aya = \"a coming together\""
+                "'aya' comes from the root 'i' meaning 'to go'.",
+                "As a noun-form it means 'going' or 'a course'.",
+                "'sam' (together) + 'aya' (going) = 'a coming together' — a moment when things converge: an occasion."
               ]
             },
             {
@@ -494,7 +495,7 @@
               "type": "suffix",
               "morph": { "case": "acc", "gender": "m", "number": "sg" },
               "tooltips": [
-                "[Accusative of Time] \"At this occasion\""
+                "Same time-marker as on 'ekaṁ' above — together they say 'at one occasion'. Pāli marks the time-word with -ṁ rather than a separate preposition."
               ],
               "relation": {
                 "targetWordId": "b3",
@@ -539,8 +540,8 @@
               "text": "bhaga",
               "type": "root",
               "tooltips": [
-                "Fortune, good luck",
-                "From √bhaj: to share"
+                "'bhaga' means fortune, good luck — a blessing.",
+                "From the root 'bhaj' meaning 'to share, distribute' — what is shared / what one is given."
               ]
             },
             {
@@ -549,8 +550,8 @@
               "type": "suffix",
               "morph": { "case": "nom", "gender": "m", "number": "sg" },
               "tooltips": [
-                "[Possessive suffix] \"One who has...\"",
-                "The Fortunate One"
+                "The -vā suffix means 'one who has' or 'is endowed with' — bhaga (fortune) + -vā = 'the fortunate one'.",
+                "'The Fortunate One' — a respectful name for the Buddha, used through the canon."
               ]
             }
           ],
