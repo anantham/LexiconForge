@@ -9,6 +9,7 @@ import type { Focus } from './types';
 import { formatDuration, segDomId, segmentIdToDomId, targetDomId, wordDomId } from './utils';
 import { XarrowUpdater } from './XarrowUpdater';
 import { StudioHeader } from './StudioHeader';
+import { AboutThisText } from './AboutThisText';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 import { loadSettings, saveSettings, type StudioSettings } from './SettingsPanel';
@@ -391,6 +392,8 @@ export function SuttaStudioView({
         visible={scrollProgress.visible}
         phaseIds={phaseIds}
       />
+
+      <AboutThisText packet={packet} />
 
       <Xwrapper>
         <XarrowUpdater

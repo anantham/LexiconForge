@@ -5,6 +5,40 @@
     "workId": "mn10"
   },
   "canonicalSegments": [],
+  "provenance": {
+    "attribution": {
+      "speaker": "Bhagavā (the Buddha)",
+      "audience": "the bhikkhus at Kammāsadhamma",
+      "legendaryDate": "c. 5th century BCE",
+      "legendaryPlace": "Kammāsadhamma, Kuru country",
+      "confidence": "traditional"
+    },
+    "oralLineage": {
+      "school": "Theravāda",
+      "transmissionLanguage": "Pāli",
+      "estimatedPeriod": "c. 5th–1st century BCE",
+      "method": "bhāṇaka recitation (oral memorisation by reciter monks)"
+    },
+    "edition": {
+      "name": "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
+      "year": "1956",
+      "council": "Sixth Buddhist Council",
+      "digitalSource": "Vipassana Research Institute, via SuttaCentral bilara-data"
+    },
+    "translation": {
+      "translator": "Bhikkhu Sujato",
+      "year": "2018",
+      "license": "CC0",
+      "institution": "SuttaCentral"
+    },
+    "external": [
+      {
+        "type": "suttacentral",
+        "url": "https://suttacentral.net/mn10/pli/ms",
+        "note": "root Pāli text + Sujato translation, segment-aligned"
+      }
+    ]
+  },
   "citations": [
     {
       "id": "cite:dpd:dpd:53164",
