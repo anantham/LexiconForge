@@ -250,6 +250,51 @@
       "excerpt": "nigama [nt]: town; market town; lit. going down",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:29605",
+      "short": "DPD s.v. tatra (ind — there, in that place)",
+      "provenance": "dpd",
+      "query": "tatra",
+      "excerpt": "tatra [ind]: there; in that place",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:29606",
+      "short": "DPD s.v. tatra (ind — in that case, in that regard)",
+      "provenance": "dpd",
+      "query": "tatra",
+      "excerpt": "tatra [ind]: in that case; in that regard; in this matter; in this connection",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:23966",
+      "short": "DPD s.v. kho (ind — indeed, surely, certainly, truly)",
+      "provenance": "dpd",
+      "query": "kho",
+      "excerpt": "kho [ind]: indeed; surely; certainly; truly",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:49885",
+      "short": "DPD s.v. bhikkhu (masc — monk, monastic, mendicant)",
+      "provenance": "dpd",
+      "query": "bhikkhū",
+      "excerpt": "bhikkhu [masc]: monk; monastic; mendicant; fully ordained monk; lit. beggar",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:12086",
+      "short": "DPD s.v. āmantesi (aor — addressed, said to, advised)",
+      "provenance": "dpd",
+      "query": "āmantesi",
+      "excerpt": "āmantesi [aor]: addressed; said (to); advised",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
     }
   ],
   "progress": {
@@ -992,8 +1037,8 @@
               "text": "ta",
               "type": "stem",
               "tooltips": [
-                "[Demonstrative] Stem: that",
-                "Points to the place just mentioned"
+                "Colored differently because it's a small pointing word. Pāli uses short fixed forms for 'this/that' — they don't change like nouns do.",
+                "'ta' is the demonstrative stem — the part meaning 'that'. By itself it's just the pointer; the next part (-tra) adds 'in that place'."
               ]
             },
             {
@@ -1001,15 +1046,18 @@
               "text": "tra",
               "type": "suffix",
               "tooltips": [
-                "[Locative suffix] \"in that place\"",
-                "ta + tra = tatra"
+                "The -tra suffix means 'in that place'. ta (that) + -tra (place) = tatra = 'there'.",
+                "Built like English 'there' = th- (pointer) + -ere (place). Same morpheme-stacking, different sounds."
               ]
             }
           ],
           "senses": [
             {
               "english": "There",
-              "nuance": "At that place"
+              "nuance": "At that place",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:29605"],
+              "confidence": "high"
             }
           ]
         },
@@ -1022,20 +1070,27 @@
               "text": "kho",
               "type": "stem",
               "tooltips": [
-                "[Emphatic particle] \"Indeed, surely\"",
-                "From khalu",
-                "Marks narrative transition"
+                "Colored differently because it's a small narrative beat — Pāli uses particles like this to pace storytelling. English usually drops them or replaces with pauses.",
+                "'kho' is an emphatic particle, like English 'indeed', 'now', or 'so' inserted to mark the rhythm of a story.",
+                "From an older Pāli word 'khalu' — both mean 'indeed' or 'truly'. The shorter 'kho' is the canonical form in the suttas.",
+                "Often left untranslated in English. Pāli wraps narrative timing in these little words; English uses pauses, punctuation, or simply omits them."
               ]
             }
           ],
           "senses": [
             {
               "english": "indeed",
-              "nuance": "Emphasis"
+              "nuance": "Emphasis",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:23966"],
+              "confidence": "high"
             },
             {
               "english": "",
-              "nuance": "Often untranslated"
+              "nuance": "Often untranslated",
+              "epistemicBasis": "curatorial",
+              "notes": "DPD attests 'kho' as 'indeed; surely; certainly; truly'. The choice to leave it untranslated in many English versions reflects a translator's curatorial decision — English narrative doesn't need this particle.",
+              "confidence": "high"
             }
           ]
         },
@@ -1049,37 +1104,43 @@
               "text": "bhaga",
               "type": "root",
               "tooltips": [
-                "Fortune, good luck",
-                "From √bhaj: to share"
+                "'bhaga' means fortune, good luck — a blessing.",
+                "From the root 'bhaj' meaning 'to share, distribute' — what is shared / what one is given."
               ]
             },
             {
               "id": "e3s2",
               "text": "vā",
               "type": "suffix",
+              "morph": { "case": "nom", "gender": "m", "number": "sg" },
               "tooltips": [
-                "[Possessive suffix] \"One who has...\"",
-                "The Fortunate One"
-              ],
-              "relation": {
-                "targetWordId": "e5",
-                "type": "action",
-                "label": "Addressed BY"
-              }
+                "Highlighted in a recurring color because 'bhagavā' is a refrain — the Buddha-epithet appears throughout the canon. The matching underline color marks the recurrence (you saw it back in phase-b's 'Ekaṁ samayaṁ bhagavā…').",
+                "The -vā suffix means 'one who has' or 'is endowed with'. bhaga (fortune) + -vā = 'the fortunate one'.",
+                "'The Fortunate One' / 'The Blessed One' — a respectful name for the Buddha, used through the canon."
+              ]
             }
           ],
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Lucky One",
-              "nuance": "Fortune-bearer"
+              "nuance": "Fortune-bearer",
+              "epistemicBasis": "etymological",
+              "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). DPD's primary glosses are 'Sublime/Blessed/Fortunate One'; the bare 'Lucky' captures the etymological flavor but isn't a standard rendering.",
+              "confidence": "medium"
             }
           ]
         },
@@ -1093,52 +1154,59 @@
               "text": "bhikkh",
               "type": "root",
               "tooltips": [
-                "√bhikkh: to beg",
-                "From √bhaj: to share",
-                "One who lives on alms"
+                "'bhikkh' is the root, related to 'begging' — but specifically religious mendicancy, not poverty.",
+                "Connected to the root 'bhaj' (to share) — a bhikkhu both receives alms and shares the Buddha's teaching.",
+                "Names one who lives on alms — a monastic dependent on lay support for food."
               ]
             },
             {
               "id": "e4s2",
               "text": "ū",
               "type": "suffix",
+              "morph": { "case": "acc", "number": "pl", "gender": "m" },
               "tooltips": [
-                "[Accusative Plural] Object",
-                "The ones being addressed"
-              ],
-              "relation": {
-                "targetWordId": "e5",
-                "type": "direction",
-                "label": "Addressed TO"
-              }
+                "The -ū ending makes it plural. The same form serves multiple roles (subject pl, object pl, vocative pl) — only context tells you which.",
+                "Here 'bhikkhū' is the object: who the Buddha is addressing. The case is technically called accusative."
+              ]
             }
           ],
           "senses": [
             {
               "english": "the bhikkhus",
-              "nuance": "Accusative object"
+              "nuance": "Accusative object",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "the monks",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "the mendicants",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high",
+              "notes": "'Mendicant' is the literal English match: one who depends on alms. DPD includes 'mendicant' among its glosses."
             }
           ]
         },
         {
           "id": "e5",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "e5s1",
               "text": "ā",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Towards",
-                "Intensifies the action"
+                "The 'ā-' prefix means 'towards' — directs the verb's action at someone.",
+                "Intensifies the speaking: not just saying, but speaking AT or TO."
               ]
             },
             {
@@ -1146,9 +1214,9 @@
               "text": "mant",
               "type": "root",
               "tooltips": [
-                "√mant: to counsel, advise",
-                "Source of \"mantra\"",
-                "[Denominative verb] From noun \"mantra\""
+                "'mant' is the root meaning 'to think, counsel, advise'.",
+                "The same root that gives us 'mantra' — a counseled word, a verbal formula. Pedagogically: the Buddha 'mantra-d' the monks, gave them his counsel.",
+                "Used here as a verbal root, not a noun. The full compound (ā-mant-e-si) means 'addressed' or 'called out to'."
               ]
             },
             {
@@ -1156,31 +1224,41 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Causative suffix] Makes it \"to address\""
+                "The 'e' between root and ending is a causative marker — turns 'to counsel' into 'to cause to counsel', which slides into 'to address' or 'to summon'."
               ]
             },
             {
               "id": "e5s4",
               "text": "si",
               "type": "suffix",
+              "morph": { "person": "3", "number": "sg", "tenseAspect": "aorist", "form": "finite" },
               "tooltips": [
-                "[Aorist 3rd singular] Past tense: he did this",
-                "\"He addressed\""
+                "The -si ending marks past tense — 'he/she/it did'. Specifically aorist (a real past), different from Pāli's storytelling-present (compare 'viharati' back in phase-c).",
+                "'he addressed' — completed action, situated in narrative time. The Buddha did this thing, then-and-there."
               ]
             }
           ],
           "senses": [
             {
               "english": "addressed",
-              "nuance": "Aorist"
+              "nuance": "Aorist",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "confidence": "high"
             },
             {
               "english": "summoned",
-              "nuance": "Called to attention"
+              "nuance": "Called to attention",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "confidence": "high"
             },
             {
               "english": "spoke to",
-              "nuance": "Directly addressed"
+              "nuance": "Directly addressed",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "confidence": "high"
             }
           ]
         }
