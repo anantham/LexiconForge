@@ -295,6 +295,15 @@
       "excerpt": "āmantesi [aor]: addressed; said (to); advised",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:30431",
+      "short": "DPD s.v. ti (ind — end of direct speech)",
+      "provenance": "dpd",
+      "query": "ti",
+      "excerpt": "ti [ind]: (end of direct speech) ' '",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
     }
   ],
   "progress": {
@@ -1291,6 +1300,7 @@
         {
           "id": "f1",
           "wordClass": "content",
+          "isAnchor": true,
           "refrainId": "bhikkhu",
           "segments": [
             {
@@ -1298,32 +1308,43 @@
               "text": "Bhikkh",
               "type": "root",
               "tooltips": [
-                "√bhikkh: To share / beg"
+                "Same root as 'bhikkhū' in phase-e — religious mendicant, 'one who lives on alms'."
               ]
             },
             {
               "id": "f1s2",
               "text": "avo",
               "type": "suffix",
+              "morph": { "case": "voc", "number": "pl", "gender": "m" },
               "tooltips": [
-                "[Vocative Plural] 📢 \"Hey you all!\"",
-                "Calling out to a group",
-                "Like saying \"O monks!\""
+                "Highlighted in the same recurring color as 'bhikkhū' in phase-e — both are forms of bhikkhu. Matching color across phases marks the refrain (you'll see this stem every time the Buddha addresses the monks).",
+                "The -avo ending is vocative plural — used when calling out to a group. Like English 'O ____!' or 'Hey, ____!'",
+                "Phase-e had 'bhikkhū' (the monks the Buddha was addressing, accusative); phase-f has 'Bhikkhavo' (the same monks, now being called directly, vocative). Same noun, different role."
               ]
             }
           ],
           "senses": [
             {
               "english": "Bhikkhus!",
-              "nuance": "Call"
+              "nuance": "Call",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high",
+              "notes": "DPD attests the lemma bhikkhu (dpd:49885); the vocative-plural surface 'Bhikkhavo' is a dialectal variant of 'bhikkhave' which DPD does enumerate. Both forms address the same monastic audience."
             },
             {
               "english": "Monks!",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "Mendicants!",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             }
           ]
         },
@@ -1336,15 +1357,19 @@
               "text": "ti",
               "type": "stem",
               "tooltips": [
-                "[Quotation marker] From iti",
-                "End of speech"
+                "Colored differently because it's a tiny grammar word — a closing-quote marker. Pāli writes 'ti' (or 'iti') at the END of a quoted speech to say 'end quote'.",
+                "Shortened from 'iti' meaning 'thus' or 'in this way' — Pāli marks quoted speech by saying 'thus' after it: 'X-iti' = '\"X\"'.",
+                "Cross-language pattern: English uses quote marks (typographic); Pāli uses a word (lexical). Same function, different surface."
               ]
             }
           ],
           "senses": [
             {
               "english": "\"",
-              "nuance": "Quote marker"
+              "nuance": "Quote marker",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:30431"],
+              "confidence": "high"
             }
           ]
         }
