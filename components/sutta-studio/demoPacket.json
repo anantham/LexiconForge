@@ -340,6 +340,42 @@
       "excerpt": "paccassosi [aor]: replied (to); agreed (with); assented (to)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:8757",
+      "short": "DPD s.v. ayaṁ (pron — this, this person, this thing)",
+      "provenance": "dpd",
+      "query": "ayaṁ",
+      "excerpt": "ayaṁ [pron]: this; this person; this thing",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:49868",
+      "short": "DPD s.v. bhikkhave (masc — monks; vocative pl direct address)",
+      "provenance": "dpd",
+      "query": "Bhikkhave",
+      "excerpt": "bhikkhave [masc]: monks",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:50495",
+      "short": "DPD s.v. magga (masc — road, path, track, way)",
+      "provenance": "dpd",
+      "query": "maggo",
+      "excerpt": "magga [masc]: road; path; track; way",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:50496",
+      "short": "DPD s.v. magga (masc — way, means, method)",
+      "provenance": "dpd",
+      "query": "maggo",
+      "excerpt": "magga [masc]: way; means; method",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
     }
   ],
   "progress": {
@@ -1868,14 +1904,15 @@
         {
           "id": "p1",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "p1s1",
               "text": "Ek",
               "type": "root",
               "tooltips": [
-                "[Adjective] One, singular",
-                "Also: alone, unified"
+                "'ek' means 'one' or 'single' — but in compounds the sense bends: 'alone', 'unified', 'unique', or 'converging to one'.",
+                "Same root as 'ekaṁ' in phase-b ('one occasion'). Here it's the first element of one of the most-debated compounds in the Pāli canon."
               ]
             },
             {
@@ -1883,21 +1920,18 @@
               "text": "āyan",
               "type": "stem",
               "tooltips": [
-                "From √i: to go",
-                "āyana = going, way, goal"
-              ],
-              "relation": {
-                "targetWordId": "p4",
-                "type": "ownership",
-                "label": "Way TO"
-              }
+                "From the root 'i' meaning 'to go' (same root as 'aya' in phase-b's 'samaya' — a 'going-together' = occasion). 'āyana' is the noun-form: 'a going', 'a way', or 'a goal'.",
+                "The compound 'ekāyana' has multiple legitimate readings: ek + āyana = 'one-going' OR 'going to one place' OR 'going alone'. Pāli translators disagree on which is meant — the senses below cycle through the major interpretations.",
+                "This single word generates more translator debate than almost any other in MN10. Cycling through the senses shows the range; choose the one that resonates."
+              ]
             },
             {
               "id": "p1s3",
               "text": "o",
               "type": "suffix",
+              "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
-                "[Nominative Singular] Subject marker"
+                "The -o ending marks masc nom sg — same as on 'maggo' (p4s2) below. Pāli adjectives agree with their nouns in case/number/gender; the matching -o endings tell you 'Ekāyano' modifies 'maggo'."
               ]
             }
           ],
@@ -1905,6 +1939,9 @@
             {
               "english": "direct",
               "nuance": "No detours",
+              "epistemicBasis": "curatorial",
+              "notes": "Sujato's translation choice. 'Direct path' frames the compound as 'going-straight-to-one-goal'. Most common English rendering in 21st-century translations.",
+              "confidence": "high",
               "ripples": {
                 "ghost1": "is the"
               }
@@ -1912,6 +1949,9 @@
             {
               "english": "one-way",
               "nuance": "Single track",
+              "epistemicBasis": "curatorial",
+              "notes": "Older translations sometimes choose 'one way' — emphasizing that this is THE method, no alternative. Bhikkhu Anālayo discusses this reading at length; the exclusive interpretation is controversial.",
+              "confidence": "medium",
               "ripples": {
                 "ghost1": "is the"
               }
@@ -1919,6 +1959,9 @@
             {
               "english": "solitary",
               "nuance": "Walk alone",
+              "epistemicBasis": "curatorial",
+              "notes": "Bhikkhu Bodhi has favored 'the path one walks alone' — emphasizing the meditative interior dimension. Less common but defended by serious scholars.",
+              "confidence": "medium",
               "ripples": {
                 "ghost1": "is a"
               }
@@ -1926,6 +1969,9 @@
             {
               "english": "convergent",
               "nuance": "All paths merge here",
+              "epistemicBasis": "curatorial",
+              "notes": "An interpretive reading: 'all paths converge at this one'. Less textually grounded but pedagogically interesting — captures the 'satipaṭṭhāna is what every practice secretly aims at' framing some commentators favor.",
+              "confidence": "low",
               "ripples": {
                 "ghost1": "is the point of"
               }
@@ -1933,6 +1979,9 @@
             {
               "english": "only",
               "nuance": "No alternative",
+              "epistemicBasis": "curatorial",
+              "notes": "The most exclusivist reading — 'THE only way'. Doctrinally controversial: it would make satipaṭṭhāna the sole liberation-path, excluding other Buddhist methods. Most modern translators avoid this in favor of 'direct'.",
+              "confidence": "low",
               "ripples": {
                 "ghost1": "is the"
               }
@@ -1947,22 +1996,21 @@
               "id": "p2s1",
               "text": "ayaṁ",
               "type": "stem",
+              "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
-                "[Demonstrative Pronoun] \"This\"",
-                "[Nominative Masculine Singular] From stem ima",
-                "Points to maggo (the path)"
-              ],
-              "relation": {
-                "targetWordId": "p4",
-                "type": "direction",
-                "label": "This IS"
-              }
+                "Colored differently because it's a small pointing word — a demonstrative pronoun. Pāli's 'ayaṁ' = English 'this'.",
+                "Built on the demonstrative stem 'ima'; the surface form 'ayaṁ' is the masc/fem nom-sg. Same pointer-system as 'etad' (phase-h, neuter cataphoric) and 'te' (phase-g, masc pl anaphoric) — different cases and numbers.",
+                "Agrees with 'maggo' (the path) — both are masc nom sg. The agreement signals 'THIS path' (not 'this thing in general'). Pāli's case-marking lets the demonstrative travel; English needs explicit word order."
+              ]
             }
           ],
           "senses": [
             {
               "english": "this",
-              "nuance": "Pointer to the path"
+              "nuance": "Pointer to the path",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:8757"],
+              "confidence": "high"
             }
           ]
         },
@@ -1976,40 +2024,56 @@
               "text": "Bhikkh",
               "type": "root",
               "tooltips": [
-                "√bhikkh: To share / beg",
-                "One who lives on alms"
+                "Same root as phases e/f/g — religious mendicant. Fifth appearance of this stem in the corpus; the Buddha keeps returning to address his monastic audience."
               ]
             },
             {
               "id": "p3s2",
               "text": "ave",
               "type": "suffix",
+              "morph": { "case": "voc", "number": "pl", "gender": "m" },
               "tooltips": [
-                "[Vocative Plural] 📢 \"O monks!\"",
-                "Calling out to the group"
+                "Highlighted in the recurring 'bhikkhu' refrain color — same audience-marker you've seen across phase-e (bhikkhū-accusative), phase-f (Bhikkhavo-vocative, alternate form), phase-g (te bhikkhū-nominative). Five appearances now; the refrain is solidly established.",
+                "The -ave ending is vocative plural — the canonical form for direct address to a group. Phase-f used the alternative 'Bhikkhavo'; this 'Bhikkhave' is the more common Pāli form. Sujato uses this throughout MN10.",
+                "Stylistic interjection: the Buddha addresses the monks AGAIN here (he's been speaking to them for two phases already). The vocative is rhetorical — it underlines the importance of what's about to come."
               ]
             }
           ],
           "senses": [
             {
               "english": "Mendicants,",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49868"],
+              "confidence": "high"
             },
             {
               "english": "Monks,",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49868"],
+              "confidence": "high"
             },
             {
               "english": "Sharers,",
-              "nuance": "Those who share the path"
+              "nuance": "Those who share the path",
+              "epistemicBasis": "etymological",
+              "notes": "Compositional reading from the bhaj-share root etymology. Not a standard English rendering; included to surface the etymology pedagogically.",
+              "confidence": "low"
             },
             {
               "english": "Seekers,",
-              "nuance": "Those who see danger"
+              "nuance": "Those who see danger",
+              "epistemicBasis": "etymological",
+              "notes": "From the alternative etymology bhī-kkh (one-who-sees-danger). DPD glosses bhikkhu as 'beggar' primarily but the danger-seer etymology has a long tradition in commentary.",
+              "confidence": "low"
             },
             {
               "english": "Friends,",
-              "nuance": "Intimate"
+              "nuance": "Intimate",
+              "epistemicBasis": "curatorial",
+              "notes": "An interpretive choice some modern translators (e.g., Thanissaro Bhikkhu) favor — emphasizing the relational warmth over the formal monastic status. Not DPD-attested but pedagogically interesting.",
+              "confidence": "low"
             }
           ]
         },
@@ -2022,31 +2086,43 @@
               "text": "magg",
               "type": "root",
               "tooltips": [
-                "√magg: to track, seek",
-                "A road, way, path"
+                "'magga' is the central word for any way, road, or path in Pāli — especially the Buddha's eightfold path (aṭṭhaṅgika magga). DPD glosses it primarily as 'road; path; track; way'.",
+                "Related to Sanskrit 'mārga'; cognate with English 'mark' and 'march' (paths marked by walking, advance along a route).",
+                "Also takes derived senses: 'way; means; method' — a magga is not just a physical road but ANY systematic approach to a goal."
               ]
             },
             {
               "id": "p4s2",
               "text": "o",
               "type": "suffix",
+              "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
-                "[Nominative Singular] Subject marker"
+                "The -o ending marks masc nom sg — matching 'Ekāyano' (p1s3) and 'ayaṁ' (p2s1) above. The three together: 'THIS direct PATH' (with case-marker agreement on all three)."
               ]
             }
           ],
           "senses": [
             {
               "english": "path",
-              "nuance": "The way"
+              "nuance": "The way",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:50495"],
+              "confidence": "high"
             },
             {
               "english": "road",
-              "nuance": "Track to follow"
+              "nuance": "Track to follow",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:50495"],
+              "confidence": "high"
             },
             {
               "english": "method",
-              "nuance": "Systematic approach"
+              "nuance": "Systematic approach",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:50496"],
+              "confidence": "high",
+              "notes": "DPD attests 'magga' also as 'way; means; method' — the abstract sense that frames satipaṭṭhāna as a meditation METHOD, not just a physical path."
             }
           ]
         }
