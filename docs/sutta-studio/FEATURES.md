@@ -127,6 +127,25 @@ Each feature uses this template:
   - Putting English semantics into `type` ("OF", "TO") instead of `label`. `type` is L1 (the kind of relation); `label` is L3 (how to phrase it).
 - **Back-compat:** additive-safe at the value level. Adding a new `type` value would be a breaking change for older renderers (they'd skip rendering, console-warn). Bump version if added.
 
+#### Arrow-earning rule (when to add a relation)
+
+Ratified after batch-3 curation surfaced this question 3 times. **A relation earns its arrow when the Pāli case-marker does work English doesn't have an analog for.** If the same role exists transparently in English (via word order or a direct preposition), the arrow adds clutter without pedagogical lift.
+
+**Earns the arrow** (curated examples across batches 1-3):
+- `me sutaṁ` — genitive functioning as agent of a passive verb (phase-a). English uses 'by' for the same role; Pāli uses the genitive case. The arrow teaches the case-quirk.
+- `samayaṁ` — accusative-of-time-when (phase-b). English uses 'at/on' as a preposition; Pāli marks time on the noun itself.
+- `kurūsu viharati` — locative of social-membership (phase-c). "Among the Kurus" in English; Pāli stacks the locative onto the noun.
+- `kurūnaṁ nigamo` — genitive of possession (phase-d). The 'of' relationship is universal but Pāli's gen-pl ending packs it; arrow earns it as a recurring pattern.
+- `bhagavato paccassosuṁ` — genitive functioning as dative recipient of speech-verb (phase-g). Pāli quirk: verbs of speaking take the genitive where English uses 'to'. Arrow earns it.
+
+**Does NOT earn the arrow** (curated cases where relations were tried then dropped):
+- Subject of an active-voice verb (phase-e bhagavā, phase-g bhikkhū, phase-h Bhagavā). The role is universal across English and Pāli; word order alone communicates it.
+- Direct object of a transitive verb (phase-e bhikkhū, phase-h etad). Pāli marks with accusative; English marks with word order. Universal role, no quirk to teach.
+
+**Rule of thumb:** if you can write the relation label as a plain English preposition (BY, AT, IN, OF, TO/FOR) AND that preposition reveals a Pāli morphological choice that English doesn't make, the arrow earns it. If the label reads as "subject", "object", "predicate", or otherwise names a universal grammatical role, drop the relation — the linkedSegmentId on the English row already cross-highlights the role.
+
+**Practical implication:** the schema isn't constrained — any segment may carry a relation. But the curator's discipline is to use the affordance for *case-quirks pedagogy*, not for universal grammar. The 4-color palette stays uncluttered; arrows mean "look here, English doesn't do this."
+
 ---
 
 ### 1.4 Polysemy (multiple senses per word/segment)

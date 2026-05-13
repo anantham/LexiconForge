@@ -278,6 +278,47 @@ Ask, in order:
 
 If all three pass, the tooltip is in register.
 
+### 3.4.1 Cross-phase facet rule
+
+Ratified after batch-3 curation. **When a recurring lemma takes a new morphological form or context, the new phase's tooltip should include a cross-reference facet pointing back to the prior appearance — letting the reader build the paradigm incrementally as they read.**
+
+**Why:** Pāli inflects heavily. The same root or stem appears in many forms across a discourse. A reader encountering `bhagavato` in phase-g for the first time doesn't yet know it's the genitive of `bhagavā` they saw two phases earlier. The connection has to be made *visible*, not assumed.
+
+**When to apply:**
+
+- A recurring lemma appears in a NEW case (e.g., bhagavā nom-sg → bhagavato gen-sg → Bhagavā nom-sg cycling across phases b/e/g/h)
+- The SAME SURFACE form takes a different grammatical role (e.g., bhikkhū appears as acc-pl in phase-e, voc-pl-via-Bhikkhavo in phase-f, nom-pl in phase-g — same noun, three contexts)
+- A lemma's compound or derived form appears (e.g., paccassosuṁ in phase-g sharing the `su-` root with sutaṁ in phase-a)
+- Two phases use parallel grammatical structures worth contrasting (e.g., phase-c's historical-present `viharati` vs phase-e's true-aorist `āmantesi`)
+
+**How to write the facet:**
+
+- Reference the prior phase explicitly (`"…in phase-e's bhikkhū…"`)
+- Name what's the same (the stem, the lemma, the construction type)
+- Name what's different (case, number, role)
+- Keep it as ONE facet among the per-segment cycle; don't force every facet to cross-reference
+
+**Examples from batch 3:**
+
+```text
+phase-g g4s2 (bhikkhū nom-pl):
+  "Watch this: 'bhikkhū' has appeared in THREE different cases across
+  the last three phases — phase-e bhikkhū-accusative ('addressed the
+  monks'), phase-f Bhikkhavo-vocative ('Monks!' direct call), phase-g
+  bhikkhū-nominative ('the monks replied'). Same noun, three roles,
+  the surface form 'bhikkhū' is identical in two of them."
+
+phase-h h1s2 (Bhagavā nom-sg, 4th appearance):
+  "Fourth appearance of the bhagavā stem in the corpus. The form has
+  cycled: phase-b/e nom-sg (subject) → phase-g gen-sg 'bhagavato'
+  (recipient of reply) → phase-h nom-sg again (back to subject).
+  Same Buddha-epithet, three roles."
+```
+
+**Practical implication:** the cross-phase facet pattern requires the curator to *know* the corpus. Single-phase curation in isolation produces shallower tooltips. Curating phases in batch order with deliberate look-back is the working discipline.
+
+**Tension to watch:** how far back should references reach? In the demo (51 phases), a cross-reference to phase-1 from phase-49 is probably too distant for most readers. Conservative default: refer back ≤4 phases. Revisit when the demo reaches phase 12+ and the working memory question becomes empirical.
+
 ---
 
 ## 4. Role locks (when single-agent vs multi-agent)
