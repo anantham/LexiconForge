@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { Citation, PaliWord, WordSegment } from '../../types/suttaStudio';
+import type { PaliWord, WordSegment } from '../../types/suttaStudio';
 import type { Focus } from './types';
 import type { StudioSettings } from './SettingsPanel';
 import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
@@ -14,35 +14,27 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   activeIndex,
   activeSegmentIndices,
   tooltipFacetIndices,
-  citationsById,
   settings,
   cycle,
   cycleSegment,
   cycleSegmentTooltipFacet,
   hovered,
-  pinned,
   setHovered,
-  setPinned,
 }: {
   phaseId: string;
   wordData: PaliWord;
   activeIndex: number;
   activeSegmentIndices?: Record<string, number>;
   tooltipFacetIndices?: Record<string, number>;
-  /** Lookup table for resolving Sense.sourceCitationIds → Citation excerpts. */
-  citationsById?: Record<string, Citation>;
   settings: StudioSettings;
   cycle: (wordId: string) => void;
   cycleSegment?: (phaseId: string, segmentId: string) => void;
   cycleSegmentTooltipFacet?: (phaseId: string, segmentId: string) => void;
   hovered: Focus | null;
-  pinned: Focus | null;
   setHovered: Dispatch<SetStateAction<Focus | null>>;
-  setPinned: Dispatch<SetStateAction<Focus | null>>;
 }) {
   const wDomId = wordDomId(phaseId, wordData.id);
-  const focus = pinned ?? hovered;
-  const isWordFocused = focus?.phaseId === phaseId && focus?.wordId === wordData.id;
+  const isWordFocused = hovered?.phaseId === phaseId && hovered?.wordId === wordData.id;
 
   // Refrain colors (for repeated formulas) - gated by settings
   const refrainStyle = wordData.refrainId && settings.refrainColors ? REFRAIN_COLORS[wordData.refrainId] : null;
@@ -61,7 +53,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
 
   return (
     <motion.div
-      layoutId={`${phaseId}-${wordData.id}`}
       id={wDomId}
       data-interactive="true"
       className={`flex flex-col items-center mx-1 md:mx-2 bg-slate-950 relative z-10 ${
@@ -81,7 +72,6 @@ export const PaliWordEngine = memo(function PaliWordEngine({
             ? segmentIdToDomId(phaseId, seg.id)
             : segDomId(phaseId, wordData.id, i);
           const isHovered = hovered?.kind === 'segment' && hovered.segmentDomId === sDomId;
-          const isPinned = pinned?.kind === 'segment' && pinned.segmentDomId === sDomId;
 
           // Resolve active sense for this segment (segment-level senses take priority over word-level)
           const segKey = seg.id ? `${phaseId}-${seg.id}` : null;
@@ -93,28 +83,20 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           // cycles to the next facet (Meaning / What English hides / etc.).
           // If the segment has only one tooltip, this index stays at 0.
           const tooltipFacetIdx = segKey ? (tooltipFacetIndices?.[segKey] ?? 0) : 0;
-          // Override the default arr[activeIndex] picker with the facet index
-          // so the cycle is driven by clicks, not by sense changes.
           const tooltipsArr = seg.tooltips ?? [];
           const facetTooltip = tooltipsArr.length > 0 ? tooltipsArr[tooltipFacetIdx % tooltipsArr.length] : '';
-          const rawTooltip = segSenseText || seg.relation?.label || facetTooltip || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
-          // Resolve citations for the active sense — segment-level if present,
-          // else word-level. Citations surface in the tooltip footer only when
-          // pinned (the audit moment); kept hidden on plain hover to avoid
-          // cognitive load. Per ADR SUTTA-008 §UI Vision #4.
-          const activeSense = seg.senses?.length
-            ? seg.senses[activeSegmentIdx]
-            : wordData.senses?.[activeIndex];
-          const citationIds = activeSense?.sourceCitationIds ?? [];
-          const citations = citationsById && citationIds.length > 0
-            ? citationIds.map((id) => citationsById[id]).filter((c): c is Citation => Boolean(c))
-            : [];
+          // Precedence: segment-level English sense → segment's own tooltips
+          // (cycled by click) → relation arrow label → utility fallback.
+          // The relation.label belongs to the arrow's visual; if the segment
+          // has its own tooltip content, show that and let the arrow speak
+          // for itself. Otherwise relation.label is a useful fallback.
+          const rawTooltip = segSenseText || facetTooltip || seg.relation?.label || resolveSegmentTooltip(seg, activeSenseId, activeIndex);
           // Apply filters based on settings
           let tooltipText = rawTooltip;
           if (!settings.grammarTerms) tooltipText = stripGrammarTerms(tooltipText);
           if (!settings.emojiInTooltips) tooltipText = stripEmoji(tooltipText);
-          // Show tooltip on hover (when nothing pinned) OR persistently when this segment is pinned
-          const showTooltip = settings.tooltips && (isPinned || (isHovered && !pinned));
+          // Show tooltip on hover only — no persistent pinned state.
+          const showTooltip = settings.tooltips && isHovered;
 
           const showHook = false;
           const relationStyle = seg.relation ? RELATION_COLORS[seg.relation.type] : null;
@@ -132,47 +114,25 @@ export const PaliWordEngine = memo(function PaliWordEngine({
               id={sDomId}
               data-interactive="true"
               className={`relative px-[2px] rounded transition-all duration-150 ${
-                isPinned
-                  // Pinned segment is visually distinct from a hover state:
-                  //   thin emerald ring around the segment, cursor changes to
-                  //   pointer (click target) so the user knows clicking again unpins.
-                  ? 'bg-white/5 z-20 border-b-2 border-emerald-600/70 pb-1 -mb-1 ring-1 ring-emerald-700/40 ring-offset-1 ring-offset-slate-950'
-                  : isHovered
-                    ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
-                    : 'border-b-2 border-transparent pb-0'
-              } ${segmentClass} ${settings.tooltips ? (isPinned ? 'cursor-pointer' : 'cursor-help') : ''}`}
+                isHovered
+                  ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
+                  : 'border-b-2 border-transparent pb-0'
+              } ${segmentClass} ${settings.tooltips ? 'cursor-help' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (hasTextSelection()) return;
-                const segFocus: Focus = {
-                  kind: 'segment',
-                  phaseId,
-                  wordId: wordData.id,
-                  segmentId: seg.id,
-                  segmentIndex: i,
-                  segmentDomId: sDomId,
-                  data: seg,
-                };
-                // Always pin on click — clicking a Pāli segment engages with
-                // it. To unpin, click the × glyph on the tooltip (or pin a
-                // different segment, which moves the pin).
-                setPinned(segFocus);
-                // Click cycles through the segment's tooltip facets — the
-                // primary click affordance on Pāli segments per the
-                // grounded-curation UX (CURATION_PROTOCOL.md). Each click
-                // advances to the next string in seg.tooltips[].
+                // Click cycles through the segment's tooltip facets (when
+                // there's more than one) and through segment-level senses
+                // (when the segment has its own senses). No pin side-effect;
+                // tooltips are hover-only.
                 if (seg.id && (seg.tooltips?.length ?? 0) > 1) {
                   cycleSegmentTooltipFacet?.(phaseId, seg.id);
                 }
-                // Cycle segment senses if the segment has them (orthogonal
-                // to tooltip facets; applies only to compound words with
-                // per-segment meanings).
                 if (seg.senses?.length && seg.id) {
                   cycleSegment?.(phaseId, seg.id);
                 }
               }}
               onMouseEnter={() => {
-                if (pinned) return;
                 setHovered({
                   kind: 'segment',
                   phaseId,
@@ -184,10 +144,9 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 });
               }}
               onMouseLeave={() => {
-                if (pinned) return;
                 setHovered(null);
               }}
-              title={settings.tooltips && !showTooltip ? 'Click: pin • Hover: segment details' : ''}
+              title={settings.tooltips && !showTooltip ? 'Hover: details · Click: cycle facets' : ''}
             >
               {seg.text}
 
@@ -211,11 +170,8 @@ export const PaliWordEngine = memo(function PaliWordEngine({
                 {showTooltip && tooltipText && (
                   <Tooltip
                     text={tooltipText}
-                    pinned={isPinned}
                     facetIndex={tooltipsArr.length > 1 ? tooltipFacetIdx % tooltipsArr.length : undefined}
                     facetTotal={tooltipsArr.length > 1 ? tooltipsArr.length : undefined}
-                    onUnpin={isPinned ? () => setPinned(null) : undefined}
-                    citations={citations.length > 0 ? citations : undefined}
                   />
                 )}
               </AnimatePresence>

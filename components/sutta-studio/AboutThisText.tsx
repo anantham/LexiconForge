@@ -210,6 +210,117 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                 </Section>
               )}
 
+              <Section label="Color & affordance guide">
+                <p className="text-xs text-slate-400 mb-3">
+                  The reader uses visual cues to teach Pāli grammar implicitly.
+                  No badges or labels — each cue means something specific.
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider font-mono text-slate-500 mb-1.5">
+                      Word color
+                    </div>
+                    <ul className="space-y-1 text-xs">
+                      <li>
+                        <span className="text-emerald-400 font-serif text-base">aaa</span>
+                        <span className="text-slate-400"> — content word (noun, verb, adjective; carries meaning)</span>
+                      </li>
+                      <li>
+                        <span className="text-slate-200 font-serif text-base">aaa</span>
+                        <span className="text-slate-400"> — function word (small connector — Pāli marks 'by/of/to' inline on the noun)</span>
+                      </li>
+                      <li>
+                        <span className="text-yellow-400 font-serif text-base">aaa</span>
+                        <span className="text-slate-400"> — vocative (direct address; "monks!", "friend!")</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider font-mono text-slate-500 mb-1.5">
+                      Word emphasis
+                    </div>
+                    <ul className="space-y-1 text-xs">
+                      <li>
+                        <span className="font-serif text-base font-medium border-b-2 border-amber-700/60 pb-0.5">anchor</span>
+                        <span className="text-slate-400"> — semantic centerpiece of the phrase (one per phase)</span>
+                      </li>
+                      <li>
+                        <span className="font-serif text-base border-b-2 border-blue-400 pb-0.5">refrain</span>
+                        <span className="text-slate-400"> — recurring formula. Matching colors across phases mean the same recurrence.</span>
+                      </li>
+                      <li>
+                        <span className="font-serif text-base bg-white/5 border-b-2 border-white/60 pb-0.5">hover</span>
+                        <span className="text-slate-400"> — the segment your cursor is currently inspecting</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider font-mono text-slate-500 mb-1.5">
+                      English scaffolding (ghost words)
+                    </div>
+                    <p className="text-xs text-slate-400 mb-1.5">
+                      English words rendered in italic + faded opacity are <em>supplied</em> — they have no direct Pāli source.
+                      Underline style names <em>why</em> they were added:
+                    </p>
+                    <ul className="space-y-1 text-xs text-slate-400">
+                      <li>
+                        <em className="text-slate-400 border-b border-slate-700/50">have</em>{' '}
+                        — auxiliary (English perfect/modal grammar)
+                      </li>
+                      <li>
+                        <em className="text-slate-400 border-b border-dotted border-slate-700/70">I</em>{' '}
+                        — pronoun supplied by a Pāli case-marker (e.g., the genitive <code className="text-slate-300">me</code>)
+                      </li>
+                      <li>
+                        <em className="text-slate-400">expansion</em>{' '}
+                        — interpretive (translator's expansion)
+                      </li>
+                      <li>
+                        <em className="text-slate-400 border-b border-dotted border-slate-800">at</em>{' '}
+                        — required by English grammar (article, preposition, …)
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider font-mono text-slate-500 mb-1.5">
+                      Grammar arrows (study mode)
+                    </div>
+                    <p className="text-xs text-slate-400 mb-1.5">
+                      When grammar arrows are on, Pāli case-relations show colored arrows between segments:
+                    </p>
+                    <ul className="space-y-1 text-xs">
+                      <li>
+                        <span className="text-amber-500 font-mono">●</span>
+                        <span className="text-slate-400"> ownership — <em>OF</em> (genitive: "of the Kurus")</span>
+                      </li>
+                      <li>
+                        <span className="text-blue-500 font-mono">→</span>
+                        <span className="text-slate-400"> direction — <em>TO/FOR</em> (dative)</span>
+                      </li>
+                      <li>
+                        <span className="text-emerald-500 font-mono">▢</span>
+                        <span className="text-slate-400"> location — <em>IN/AT</em> (locative: "dwelling in the Kurus")</span>
+                      </li>
+                      <li>
+                        <span className="text-orange-500 font-mono">◆</span>
+                        <span className="text-slate-400"> action — <em>BY/WITH</em> (instrumental/agent: "heard by me")</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-500 leading-relaxed">
+                    <p>
+                      Hover any Pāli segment for its tooltip; click to cycle through facets when more than one is available
+                      (look for <span className="font-mono tabular-nums bg-slate-900 border border-slate-700 text-slate-400 rounded-full px-1 text-[9px]">1/2</span> indicator).
+                      Settings (gear icon, top-right) toggles arrows, ghosts, grammar terms, and refrain colors independently.
+                    </p>
+                  </div>
+                </div>
+              </Section>
+
               <Section label="Unknowns" tone="muted">
                 <ul className="list-disc list-outside ml-4 space-y-1 text-slate-500 text-xs">
                   {(!provenance?.manuscripts || provenance.manuscripts.length === 0) && (

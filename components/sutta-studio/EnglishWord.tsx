@@ -11,9 +11,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   paliWords,
   activeIndices,
   hovered,
-  pinned,
   setHovered,
-  setPinned,
   cycle,
   ghostOpacity,
   showGhosts = true,
@@ -23,9 +21,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   paliWords: PaliWord[];
   activeIndices: Record<string, number>;
   hovered: Focus | null;
-  pinned: Focus | null;
   setHovered: Dispatch<SetStateAction<Focus | null>>;
-  setPinned: Dispatch<SetStateAction<Focus | null>>;
   cycle: (wordId: string) => void;
   ghostOpacity: number;
   showGhosts?: boolean;
@@ -46,8 +42,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
     if (paliWord) {
       const idx = activeIndices[`${phaseId}-${paliWord.id}`] ?? 0;
       content = paliWord.senses[idx]?.english ?? '';
-      const focus = pinned ?? hovered;
-      isActive = focus?.phaseId === phaseId && focus?.wordId === paliWord.id;
+      isActive = hovered?.phaseId === phaseId && hovered?.wordId === paliWord.id;
     }
   } else if (structure.linkedSegmentId) {
     // Segment-level linking: find the parent word that contains this segment
@@ -68,10 +63,9 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
         content = parentWord.senses[idx % parentWord.senses.length]?.english ?? '';
       }
       // Segment-precise: only highlight when THIS segment is focused, not the whole word
-      const focus = pinned ?? hovered;
-      isActive = focus?.phaseId === phaseId && (
-        (focus?.kind === 'segment' && focus.segmentId === linkedSegmentId) ||
-        (focus?.kind === 'word' && focus.wordId === parentWord.id)
+      isActive = hovered?.phaseId === phaseId && (
+        (hovered?.kind === 'segment' && hovered.segmentId === linkedSegmentId) ||
+        (hovered?.kind === 'word' && hovered.wordId === parentWord.id)
       );
     }
   } else {
@@ -86,7 +80,6 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   const domTarget = targetDomId(phaseId, structure.id);
 
   const handleEnter = () => {
-    if (pinned) return;
     if (!paliWordId) return;
     // Segment-level hover: highlight the specific Pali segment, not just the word
     if (linkedSegmentId && linkedSegment) {
@@ -105,7 +98,6 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   };
 
   const handleLeave = () => {
-    if (pinned) return;
     if (!paliWordId) return;
     setHovered(null);
   };
@@ -126,7 +118,6 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
 
   return (
     <motion.div
-      layout
       id={domTarget}
       data-interactive={!isGhost ? 'true' : undefined}
       onClick={onClick}
