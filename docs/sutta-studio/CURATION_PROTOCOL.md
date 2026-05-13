@@ -371,6 +371,30 @@ The protocol will fail. When it does, the failure mode tells us what to amend:
 | Diff balloons during review | Pedagogical pass leaked into the diff | Re-run with the affordance gate questions explicitly |
 | Curation log entry is just a restatement of the diff | The "why" wasn't captured; the curator was on autopilot | Slow down; the log is where the principal value of the protocol accrues |
 | You keep wanting to amend `types/suttaStudio.ts` mid-phase | Schema is genuinely insufficient | Stop curation, file an issue, fix schema, resume |
+| Same provider bug surfaces in similar shape across ≥2 phases, each fixed by adding to a per-symptom list (endings, particles, etc.) | **Quick-Fixer / Goodharting anti-pattern** (CLAUDE.md): patching symptoms of a deeper architectural choice | **Apply the Root-Cause Gate (§9.1)** |
+
+### 9.1 Root-Cause Gate
+
+**Trigger:** the same provider bug recurs across phases with a similar fix-shape — adding to an enumeration (more endings, more particle exceptions, more vowel-completion rules, etc.).
+
+**Stop and ask:**
+
+1. **What's the underlying mechanism this fix-shape patches around?** (e.g., "the heuristic stem-stripper guesses morphology by trial-and-error")
+2. **Does the source data have a non-heuristic answer we're not using?** (e.g., "DPD's `lookup` table enumerates every form → headword mapping; we just chose the .txt release which omits it")
+3. **What's the architectural fix?** — replace the heuristic with the authoritative source.
+4. **What's the cost to do it now vs continue patching?** — usually: do-it-now cost is bounded; patching cost is unbounded (every future phase pays the tax).
+
+**Empirical example (2026-05-13):** schema tension #1 (DPD stripper conflations) was patched three times — `c33b115` (remove `-ūsu`/`-ūhi`), `be2b141` (remove `-ūnaṁ`/`-unaṁ`), then phase-e proposed a fourth (add short-vowel completion). At hit-count 4, Aditya called it out: *"seems like we didn't solve root cause?"* — exactly the §9.1 trigger.
+
+The actual root cause was that we were using DPD's `.txt` release (4 MB, no inflection table) instead of `dpd.db.tar.bz2` (168 MB, includes the precomputed `lookup` table that maps every surface form to its headword IDs). The architectural fix landed in `aaa1ff9`: a two-stage pipeline (SQLite Lookup authoritative, heuristic fallback) that closes the whole class of bugs and bumped MN10 coverage 86.9% → 89.5%. Per-ending patches retroactively become guards for the residual ~4% the heuristic still handles.
+
+**How to apply the gate during curation:**
+
+- Hit count 1: note in the phase log §10. Don't fix yet.
+- Hit count 2: same. The fix-shape might still be a real one-off.
+- **Hit count ≥3 with a similar fix-shape, OR explicit human flag of the anti-pattern: STOP curation, escalate to architectural investigation.** Even if the per-symptom fix is small.
+
+This gate is curator-discipline applied to **builder-side architecture**, not to packet content. The role-lock (§4) still applies — schema changes happen in their own commits, not mid-phase — but the root-cause-gate trigger pauses the *curation cadence* so the architectural fix lands before the next phase.
 
 ---
 
