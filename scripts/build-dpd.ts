@@ -27,6 +27,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import Database from 'better-sqlite3';
 import type {
   LexiconEntry,
   LexiconSense,
@@ -39,10 +40,22 @@ const __dirname = path.dirname(__filename);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Pinned DPD release
+//
+// We use TWO release artifacts:
+//   - dpd-txt.zip  (~4 MB) — human-readable headword records with meanings,
+//                            grammar, etymology. Used as the *content* source.
+//   - dpd.db.tar.bz2 (~168 MB compressed) — full SQLite with a precomputed
+//                            `lookup` table mapping every surface form to
+//                            its headword IDs. Used as the *resolution*
+//                            source. Replaces the heuristic stem-stripper
+//                            for form→lemma resolution and closes schema
+//                            tension #1 (DPD stripper conflations) at the
+//                            root rather than per-ending.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DPD_RELEASE_TAG = 'v0.4.20260501';
 const DPD_TXT_URL = `https://github.com/digitalpalidictionary/dpd-db/releases/download/${DPD_RELEASE_TAG}/dpd-txt.zip`;
+const DPD_DB_URL = `https://github.com/digitalpalidictionary/dpd-db/releases/download/${DPD_RELEASE_TAG}/dpd.db.tar.bz2`;
 const DPD_LICENSE = 'CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -387,6 +400,113 @@ const ensureDpdTxt = async (): Promise<string> => {
   return txtPath;
 };
 
+// Streaming download for large artifacts (.tar.bz2 is ~168 MB; loading the
+// whole thing into memory via arrayBuffer() before writing is wasteful).
+// fetch's body is a ReadableStream; pipe it directly to a write stream.
+const downloadStreamingIfMissing = async (url: string, destPath: string): Promise<void> => {
+  if (fs.existsSync(destPath)) return;
+  console.log(`[dpd] downloading (streaming) ${url}`);
+  const resp = await fetch(url);
+  if (!resp.ok) {
+    throw new Error(`download failed: ${resp.status} ${resp.statusText}`);
+  }
+  if (!resp.body) throw new Error('no response body');
+  const fileStream = fs.createWriteStream(destPath);
+  const reader = resp.body.getReader();
+  let totalBytes = 0;
+  let lastLogged = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    fileStream.write(value);
+    totalBytes += value.byteLength;
+    // Progress log every ~20 MB to avoid log spam
+    if (totalBytes - lastLogged > 20 * 1024 * 1024) {
+      console.log(`[dpd]   …downloaded ${(totalBytes / 1024 / 1024).toFixed(1)} MB`);
+      lastLogged = totalBytes;
+    }
+  }
+  fileStream.end();
+  await new Promise<void>((resolve, reject) => {
+    fileStream.on('finish', () => resolve());
+    fileStream.on('error', reject);
+  });
+  console.log(`[dpd] saved ${destPath} (${(totalBytes / 1024 / 1024).toFixed(1)} MB)`);
+};
+
+const ensureDpdDb = async (): Promise<string> => {
+  const archivePath = path.join(RAW_DIR, 'dpd.db.tar.bz2');
+  const dbPath = path.join(RAW_DIR, 'dpd.db');
+  ensureDir(RAW_DIR);
+  await downloadStreamingIfMissing(DPD_DB_URL, archivePath);
+  if (!fs.existsSync(dbPath)) {
+    console.log(`[dpd] extracting dpd.db.tar.bz2 (this takes a moment — ~600 MB raw SQLite)`);
+    // tar -xjf decompresses bz2 + extracts. Argument-array form, no shell.
+    execFileSync('tar', ['-xjf', archivePath, '-C', RAW_DIR], { stdio: 'inherit' });
+    if (!fs.existsSync(dbPath)) {
+      throw new Error(`expected ${dbPath} after extraction; archive layout may have changed`);
+    }
+  }
+  return dbPath;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SQLite Lookup table — surface form → headword IDs
+//
+// DPD's `lookup` table is a precomputed reverse-index: for every inflected
+// surface form, it lists the headword IDs that produce it. This replaces
+// our heuristic stem-stripper for form→lemma resolution.
+//
+// Why this matters: the stripper guessed by removing endings (-su, -naṁ,
+// -ū, …) and adding vowel-completion candidates (+a, +ā, +shorten). Each
+// guess landed on one or two real headwords — but also on UNRELATED ones,
+// producing the kura/rice (phase-c kurūsu), bhikkhā/alms (phase-e bhikkhū)
+// conflations we've been patching per-ending. The Lookup table sidesteps
+// the whole class of bugs because it's an enumeration, not a heuristic.
+//
+// Coverage on MN10 jumps from ~87% → near-100%; the remaining ~3% are
+// genuinely unattested forms (sandhi-collapsed compounds, scribal variants)
+// which we fall back to the heuristic stripper for.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface LookupIndex {
+  /** form → array of DPD headword IDs that produce this form */
+  formToIds: Map<string, number[]>;
+}
+
+const buildLookupIndex = (dbPath: string): LookupIndex => {
+  console.log(`[dpd] opening SQLite at ${dbPath}`);
+  const db = new Database(dbPath, { readonly: true, fileMustExist: true });
+  try {
+    console.log(`[dpd] reading lookup table (form → headword IDs)`);
+    // The `lookup` table has lookup_key + headwords columns. headwords is a
+    // JSON-encoded array of headword IDs (per dpd-db/db/models.py).
+    const rows = db.prepare<[], { lookup_key: string; headwords: string }>(
+      `SELECT lookup_key, headwords FROM lookup WHERE headwords != ''`
+    ).all();
+    const formToIds = new Map<string, number[]>();
+    for (const row of rows) {
+      let ids: number[];
+      try {
+        const parsed = JSON.parse(row.headwords);
+        ids = Array.isArray(parsed) ? parsed.filter((n) => typeof n === 'number') : [];
+      } catch {
+        continue;
+      }
+      if (ids.length === 0) continue;
+      // Normalize the key the same way we normalize bilara surface forms
+      // (niggahīta + lowercase) so direct lookups Just Work later.
+      const key = normalizeNiggahita(row.lookup_key.trim().toLowerCase());
+      const existing = formToIds.get(key) ?? [];
+      formToIds.set(key, [...existing, ...ids]);
+    }
+    console.log(`[dpd] indexed ${formToIds.size} surface forms`);
+    return { formToIds };
+  } finally {
+    db.close();
+  }
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Bilara fetch + surface form extraction
 // ─────────────────────────────────────────────────────────────────────────────
@@ -444,16 +564,72 @@ const indexByLemma = (records: DpdRecord[]): Map<string, DpdRecord[]> => {
   return map;
 };
 
+/** Index DPD records by their authoritative ID. Used to resolve Lookup
+ * table headword-id lists to full record content. */
+const indexById = (records: DpdRecord[]): Map<number, DpdRecord> => {
+  const map = new Map<number, DpdRecord>();
+  for (const rec of records) {
+    if (rec.id > 0) map.set(rec.id, rec);
+  }
+  return map;
+};
+
+/** How a surface was resolved — for telemetry + manifest auditing. */
+type ResolutionStrategy = 'sqlite-lookup' | 'heuristic-fallback' | 'unmatched';
+
+interface FormResolutionDetails extends FormResolution {
+  strategy: ResolutionStrategy;
+}
+
+/**
+ * Two-stage form→lemma resolution:
+ *   1. SQLite Lookup table (authoritative; DPD's enumerated form index).
+ *      Closes the per-ending conflation bug class at root.
+ *   2. Heuristic stem-stripper fallback (only when Lookup has nothing).
+ *      Preserves coverage for sandhi-collapsed forms and scribal variants
+ *      that may not be in the canonical inflection table.
+ *
+ * Returns the matched lemmas and which strategy resolved them — so the
+ * manifest can audit how much of the corpus actually depends on the
+ * heuristic (and we can shrink/remove it once Lookup coverage is proven).
+ */
 const resolveSurface = (
   surface: string,
   lemmaIndex: Map<string, DpdRecord[]>,
-): FormResolution => {
+  idIndex: Map<number, DpdRecord>,
+  lookupIndex: LookupIndex,
+): FormResolutionDetails => {
+  // Stage 1: SQLite Lookup (authoritative)
+  const lookupIds = lookupIndex.formToIds.get(surface);
+  if (lookupIds && lookupIds.length > 0) {
+    const lemmaSet = new Set<string>();
+    for (const id of lookupIds) {
+      const rec = idIndex.get(id);
+      if (rec) lemmaSet.add(rec.lemma);
+    }
+    if (lemmaSet.size > 0) {
+      return {
+        surface,
+        lemmaCandidates: [surface],
+        matchedLemmas: [...lemmaSet],
+        strategy: 'sqlite-lookup',
+      };
+    }
+  }
+
+  // Stage 2: Heuristic fallback (existing stripper)
   const candidates = tryStemStrips(surface);
   const matched: string[] = [];
   for (const cand of candidates) {
     if (lemmaIndex.has(cand)) matched.push(cand);
   }
-  return { surface, lemmaCandidates: candidates, matchedLemmas: [...new Set(matched)] };
+  const dedupedMatches = [...new Set(matched)];
+  return {
+    surface,
+    lemmaCandidates: candidates,
+    matchedLemmas: dedupedMatches,
+    strategy: dedupedMatches.length > 0 ? 'heuristic-fallback' : 'unmatched',
+  };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -477,29 +653,38 @@ const main = async (): Promise<void> => {
 
   console.log(`[dpd] building subset for sutta=${suttaUid} from DPD ${DPD_RELEASE_TAG}`);
 
+  // Content source: .txt (small, human-readable) → records keyed by lemma + id
   const txtPath = await ensureDpdTxt();
   console.log(`[dpd] parsing ${txtPath}`);
   const txt = fs.readFileSync(txtPath, 'utf8');
   const records = parseDpdTxt(txt);
   console.log(`[dpd] parsed ${records.length} DPD headwords`);
   const lemmaIndex = indexByLemma(records);
-  console.log(`[dpd] distinct lemma keys: ${lemmaIndex.size}`);
+  const idIndex = indexById(records);
+  console.log(`[dpd] distinct lemma keys: ${lemmaIndex.size}; indexed ${idIndex.size} by id`);
+
+  // Resolution source: SQLite Lookup table (authoritative form → headword IDs)
+  const dbPath = await ensureDpdDb();
+  const lookupIndex = buildLookupIndex(dbPath);
 
   const segments = await fetchBilaraPali(suttaUid);
   const surfaces = extractSurfaceForms(segments);
   console.log(`[dpd] ${surfaces.length} distinct surface forms in ${suttaUid}`);
 
-  const resolutions: FormResolution[] = [];
+  const resolutions: FormResolutionDetails[] = [];
   const includedLemmas = new Set<string>();
   for (const surface of surfaces) {
-    const res = resolveSurface(surface, lemmaIndex);
+    const res = resolveSurface(surface, lemmaIndex, idIndex, lookupIndex);
     resolutions.push(res);
     for (const lemma of res.matchedLemmas) includedLemmas.add(lemma);
   }
 
   const matchedCount = resolutions.filter((r) => r.matchedLemmas.length > 0).length;
   const coverage = (matchedCount / surfaces.length) * 100;
+  const sqliteCount = resolutions.filter((r) => r.strategy === 'sqlite-lookup').length;
+  const heuristicCount = resolutions.filter((r) => r.strategy === 'heuristic-fallback').length;
   console.log(`[dpd] coverage: ${matchedCount}/${surfaces.length} surface forms matched (${coverage.toFixed(1)}%)`);
+  console.log(`[dpd]   resolution breakdown: ${sqliteCount} via sqlite Lookup, ${heuristicCount} via heuristic fallback`);
 
   const headwords: Record<string, LexiconEntry[]> = {};
   for (const lemma of includedLemmas) {
@@ -521,6 +706,11 @@ const main = async (): Promise<void> => {
     matchedSurfaceCount: matchedCount,
     unmatchedSurfaceCount: surfaces.length - matchedCount,
     coveragePercent: Number(coverage.toFixed(2)),
+    // Resolution breakdown — how much of the corpus actually depended on
+    // each path. sqliteLookupCount is the authoritative (DPD-attested) count;
+    // heuristicFallbackCount is the residual that needed our stem-stripper.
+    sqliteLookupCount: sqliteCount,
+    heuristicFallbackCount: heuristicCount,
     includedLemmaCount: includedLemmas.size,
     includedHeadwordCount: Object.values(headwords).reduce((n, arr) => n + arr.length, 0),
     unmatchedSurfaces: resolutions.filter((r) => r.matchedLemmas.length === 0).map((r) => r.surface),
