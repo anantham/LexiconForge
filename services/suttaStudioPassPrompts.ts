@@ -1,37 +1,39 @@
 /**
  * Backward-compat shim — prompt builders moved to services/sutta-studio/prompts/
- * per CONSOLIDATION.md Phase 1.
+ * (Phase 1, commit 8be501f) and utility functions moved to
+ * services/sutta-studio/utils.ts (Phase 2a).
  *
- * This file retains the schemas, types, and helper utilities (parseJsonResponse,
- * buildPhaseStateEnvelope, buildBoundaryContext) that consumers still expect
- * here. Phase 2 of CONSOLIDATION.md will move those alongside the canonical
- * pass functions; Phase 4 cleanup will delete this file entirely once all
- * consumers import from the canonical location.
+ * What remains in this file: the 7 response schemas (still divergent from
+ * services/compiler/schemas.ts — bench schemas allow wordRange + refrainId
+ * fields that production lacks). Schema reconciliation is deferred — too
+ * consequential to bundle into Phase 2a.
  *
- * Note: this file contains DUPLICATES of buildPhaseStateEnvelope and
- * buildBoundaryContext (canonical versions live at services/compiler/utils.ts).
- * The duplicates are byte-identical; Phase 2 will consolidate. Schemas have
- * DIVERGED from services/compiler/schemas.ts (this file has skeleton.wordRange
- * and anatomist.refrainId fields production lacks) — Phase 2 will reconcile.
+ * Phase 4 cleanup will delete this file entirely once all consumers import
+ * from the canonical locations.
  */
 
-import { extractBalancedJson } from './ai/textUtils';
-import type { CanonicalSegment } from '../types/suttaStudio';
+// Re-export utility functions from canonical location (used to be duplicated here):
+export {
+  parseJsonResponse,
+  buildPhaseStateEnvelope,
+  buildBoundaryContext,
+  type BoundaryNote,
+  type SkeletonPhase,
+  type PhaseStageKey,
+} from './sutta-studio/utils';
 
-export type PhaseStageKey = 'anatomist' | 'lexicographer' | 'weaver' | 'typesetter';
+// Re-export prompt builders from canonical location:
+export {
+  buildSkeletonPrompt,
+  buildAnatomistPrompt,
+  buildLexicographerPrompt,
+  buildWeaverPrompt,
+  buildTypesetterPrompt,
+  buildMorphologyPrompt,
+  buildPhasePrompt,
+} from './sutta-studio/prompts';
 
-export type BoundaryNote = {
-  workId: string;
-  startSegmentId: string;
-  afterSegmentId?: string;
-};
-
-export type SkeletonPhase = {
-  id: string;
-  title?: string;
-  segmentIds: string[];
-  wordRange?: [number, number]; // [start, end) indices into Pali words for sub-segment splitting
-};
+// Schemas still live here — divergent from compiler/schemas.ts. Phase 4 reconciles.
 
 export const skeletonResponseSchema = {
   type: 'object',
@@ -437,92 +439,3 @@ export const morphResponseSchema = {
   required: ['paliWords'],
   additionalProperties: false,
 };
-
-const stripCodeFences = (text: string): string => {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);
-  if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);
-  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);
-  return cleaned.trim();
-};
-
-export const parseJsonResponse = <T>(raw: string): T => {
-  const cleaned = stripCodeFences(raw);
-  try {
-    return JSON.parse(cleaned) as T;
-  } catch (e) {
-    const balanced = extractBalancedJson(cleaned);
-    return JSON.parse(balanced) as T;
-  }
-};
-
-export const buildPhaseStateEnvelope = (params: {
-  workId: string;
-  phaseId: string;
-  segments: CanonicalSegment[];
-  currentStageLabel: string;
-  currentStageKey?: PhaseStageKey;
-  completed?: Partial<Record<PhaseStageKey, boolean>>;
-}) => {
-  const { workId, phaseId, segments, currentStageLabel, currentStageKey, completed } = params;
-  const start = segments[0]?.ref.segmentId ?? 'n/a';
-  const end = segments[segments.length - 1]?.ref.segmentId ?? start;
-  const stages: Array<{ key: PhaseStageKey; label: string }> = [
-    { key: 'anatomist', label: 'Anatomist' },
-    { key: 'lexicographer', label: 'Lexicographer' },
-    { key: 'weaver', label: 'Weaver' },
-    { key: 'typesetter', label: 'Typesetter' },
-  ];
-  const statusLines = stages.map((stage) => {
-    const done = Boolean(completed?.[stage.key]);
-    const inProgress = !done && currentStageKey === stage.key;
-    const stateLabel = done ? 'complete' : inProgress ? 'IN PROGRESS' : 'pending';
-    return `${done ? '[x]' : '[ ]'} ${stage.label}: ${stateLabel}`;
-  });
-
-  return [
-    '=== PHASE STATE (READ ONLY) ===',
-    `• Work: ${workId}`,
-    `• Phase: ${phaseId}`,
-    `• Segments: ${start} — ${end}`,
-    `• Current Stage: ${currentStageLabel}`,
-    '',
-    'STATUS CHECK:',
-    ...statusLines,
-    '',
-    'INVARIANTS:',
-    '1) Do NOT add/remove Pali IDs (p1, p2...).',
-    '2) Segment texts must concatenate to the surface text exactly.',
-    '3) Preserve source word order and spelling (no normalization).',
-    '===============================',
-  ].join('\n');
-};
-
-export const buildBoundaryContext = (boundaries: BoundaryNote[], allowCrossChapter: boolean) => {
-  if (!boundaries.length) return '';
-  const lines = boundaries
-    .map((b) =>
-      b.afterSegmentId
-        ? `- ${b.workId} begins at ${b.startSegmentId} (after ${b.afterSegmentId})`
-        : `- ${b.workId} begins at ${b.startSegmentId}`
-    )
-    .join('\n');
-  const rule = allowCrossChapter
-    ? 'Boundary map provided (cross-chapter phases are allowed).'
-    : 'Boundary map provided: do not place segments from different works in the same phase.';
-  return `\n${rule}\n${lines}\n`;
-};
-
-// Prompt builders moved to services/sutta-studio/prompts/. Re-export for
-// backward compat — consumers of suttaStudioPassPrompts.ts (currently
-// services/suttaStudioPassRunners.ts and scripts/sutta-studio/benchmark.ts)
-// pick them up here without import changes.
-export {
-  buildSkeletonPrompt,
-  buildAnatomistPrompt,
-  buildLexicographerPrompt,
-  buildWeaverPrompt,
-  buildTypesetterPrompt,
-  buildMorphologyPrompt,
-  buildPhasePrompt,
-} from './sutta-studio/prompts';
