@@ -278,6 +278,47 @@ Ask, in order:
 
 If all three pass, the tooltip is in register.
 
+### 3.4.1 Cross-phase facet rule
+
+Ratified after batch-3 curation. **When a recurring lemma takes a new morphological form or context, the new phase's tooltip should include a cross-reference facet pointing back to the prior appearance — letting the reader build the paradigm incrementally as they read.**
+
+**Why:** Pāli inflects heavily. The same root or stem appears in many forms across a discourse. A reader encountering `bhagavato` in phase-g for the first time doesn't yet know it's the genitive of `bhagavā` they saw two phases earlier. The connection has to be made *visible*, not assumed.
+
+**When to apply:**
+
+- A recurring lemma appears in a NEW case (e.g., bhagavā nom-sg → bhagavato gen-sg → Bhagavā nom-sg cycling across phases b/e/g/h)
+- The SAME SURFACE form takes a different grammatical role (e.g., bhikkhū appears as acc-pl in phase-e, voc-pl-via-Bhikkhavo in phase-f, nom-pl in phase-g — same noun, three contexts)
+- A lemma's compound or derived form appears (e.g., paccassosuṁ in phase-g sharing the `su-` root with sutaṁ in phase-a)
+- Two phases use parallel grammatical structures worth contrasting (e.g., phase-c's historical-present `viharati` vs phase-e's true-aorist `āmantesi`)
+
+**How to write the facet:**
+
+- Reference the prior phase explicitly (`"…in phase-e's bhikkhū…"`)
+- Name what's the same (the stem, the lemma, the construction type)
+- Name what's different (case, number, role)
+- Keep it as ONE facet among the per-segment cycle; don't force every facet to cross-reference
+
+**Examples from batch 3:**
+
+```text
+phase-g g4s2 (bhikkhū nom-pl):
+  "Watch this: 'bhikkhū' has appeared in THREE different cases across
+  the last three phases — phase-e bhikkhū-accusative ('addressed the
+  monks'), phase-f Bhikkhavo-vocative ('Monks!' direct call), phase-g
+  bhikkhū-nominative ('the monks replied'). Same noun, three roles,
+  the surface form 'bhikkhū' is identical in two of them."
+
+phase-h h1s2 (Bhagavā nom-sg, 4th appearance):
+  "Fourth appearance of the bhagavā stem in the corpus. The form has
+  cycled: phase-b/e nom-sg (subject) → phase-g gen-sg 'bhagavato'
+  (recipient of reply) → phase-h nom-sg again (back to subject).
+  Same Buddha-epithet, three roles."
+```
+
+**Practical implication:** the cross-phase facet pattern requires the curator to *know* the corpus. Single-phase curation in isolation produces shallower tooltips. Curating phases in batch order with deliberate look-back is the working discipline.
+
+**Tension to watch:** how far back should references reach? In the demo (51 phases), a cross-reference to phase-1 from phase-49 is probably too distant for most readers. Conservative default: refer back ≤4 phases. Revisit when the demo reaches phase 12+ and the working memory question becomes empirical.
+
 ---
 
 ## 4. Role locks (when single-agent vs multi-agent)
@@ -371,6 +412,30 @@ The protocol will fail. When it does, the failure mode tells us what to amend:
 | Diff balloons during review | Pedagogical pass leaked into the diff | Re-run with the affordance gate questions explicitly |
 | Curation log entry is just a restatement of the diff | The "why" wasn't captured; the curator was on autopilot | Slow down; the log is where the principal value of the protocol accrues |
 | You keep wanting to amend `types/suttaStudio.ts` mid-phase | Schema is genuinely insufficient | Stop curation, file an issue, fix schema, resume |
+| Same provider bug surfaces in similar shape across ≥2 phases, each fixed by adding to a per-symptom list (endings, particles, etc.) | **Quick-Fixer / Goodharting anti-pattern** (CLAUDE.md): patching symptoms of a deeper architectural choice | **Apply the Root-Cause Gate (§9.1)** |
+
+### 9.1 Root-Cause Gate
+
+**Trigger:** the same provider bug recurs across phases with a similar fix-shape — adding to an enumeration (more endings, more particle exceptions, more vowel-completion rules, etc.).
+
+**Stop and ask:**
+
+1. **What's the underlying mechanism this fix-shape patches around?** (e.g., "the heuristic stem-stripper guesses morphology by trial-and-error")
+2. **Does the source data have a non-heuristic answer we're not using?** (e.g., "DPD's `lookup` table enumerates every form → headword mapping; we just chose the .txt release which omits it")
+3. **What's the architectural fix?** — replace the heuristic with the authoritative source.
+4. **What's the cost to do it now vs continue patching?** — usually: do-it-now cost is bounded; patching cost is unbounded (every future phase pays the tax).
+
+**Empirical example (2026-05-13):** schema tension #1 (DPD stripper conflations) was patched three times — `c33b115` (remove `-ūsu`/`-ūhi`), `be2b141` (remove `-ūnaṁ`/`-unaṁ`), then phase-e proposed a fourth (add short-vowel completion). At hit-count 4, Aditya called it out: *"seems like we didn't solve root cause?"* — exactly the §9.1 trigger.
+
+The actual root cause was that we were using DPD's `.txt` release (4 MB, no inflection table) instead of `dpd.db.tar.bz2` (168 MB, includes the precomputed `lookup` table that maps every surface form to its headword IDs). The architectural fix landed in `aaa1ff9`: a two-stage pipeline (SQLite Lookup authoritative, heuristic fallback) that closes the whole class of bugs and bumped MN10 coverage 86.9% → 89.5%. Per-ending patches retroactively become guards for the residual ~4% the heuristic still handles.
+
+**How to apply the gate during curation:**
+
+- Hit count 1: note in the phase log §10. Don't fix yet.
+- Hit count 2: same. The fix-shape might still be a real one-off.
+- **Hit count ≥3 with a similar fix-shape, OR explicit human flag of the anti-pattern: STOP curation, escalate to architectural investigation.** Even if the per-symptom fix is small.
+
+This gate is curator-discipline applied to **builder-side architecture**, not to packet content. The role-lock (§4) still applies — schema changes happen in their own commits, not mid-phase — but the root-cause-gate trigger pauses the *curation cadence* so the architectural fix lands before the next phase.
 
 ---
 

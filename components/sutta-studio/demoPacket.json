@@ -250,6 +250,96 @@
       "excerpt": "nigama [nt]: town; market town; lit. going down",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-12"
+    },
+    {
+      "id": "cite:dpd:dpd:29605",
+      "short": "DPD s.v. tatra (ind — there, in that place)",
+      "provenance": "dpd",
+      "query": "tatra",
+      "excerpt": "tatra [ind]: there; in that place",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:29606",
+      "short": "DPD s.v. tatra (ind — in that case, in that regard)",
+      "provenance": "dpd",
+      "query": "tatra",
+      "excerpt": "tatra [ind]: in that case; in that regard; in this matter; in this connection",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:23966",
+      "short": "DPD s.v. kho (ind — indeed, surely, certainly, truly)",
+      "provenance": "dpd",
+      "query": "kho",
+      "excerpt": "kho [ind]: indeed; surely; certainly; truly",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:49885",
+      "short": "DPD s.v. bhikkhu (masc — monk, monastic, mendicant)",
+      "provenance": "dpd",
+      "query": "bhikkhū",
+      "excerpt": "bhikkhu [masc]: monk; monastic; mendicant; fully ordained monk; lit. beggar",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:12086",
+      "short": "DPD s.v. āmantesi (aor — addressed, said to, advised)",
+      "provenance": "dpd",
+      "query": "āmantesi",
+      "excerpt": "āmantesi [aor]: addressed; said (to); advised",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:30431",
+      "short": "DPD s.v. ti (ind — end of direct speech)",
+      "provenance": "dpd",
+      "query": "ti",
+      "excerpt": "ti [ind]: (end of direct speech) ' '",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:31134",
+      "short": "DPD s.v. te (pron — they, those)",
+      "provenance": "dpd",
+      "query": "te",
+      "excerpt": "te [pron]: they; those",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:49136",
+      "short": "DPD s.v. bhagavato (masc — to the Buddha; for the Buddha)",
+      "provenance": "dpd",
+      "query": "bhagavato",
+      "excerpt": "bhagavato [masc]: to the Buddha; for the Buddha",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:49137",
+      "short": "DPD s.v. bhagavato (masc — of the Buddha)",
+      "provenance": "dpd",
+      "query": "bhagavato",
+      "excerpt": "bhagavato [masc]: of the Buddha",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
+    },
+    {
+      "id": "cite:dpd:dpd:39413",
+      "short": "DPD s.v. paccassosi (aor — replied, agreed, assented)",
+      "provenance": "dpd",
+      "query": "paccassosuṁ",
+      "excerpt": "paccassosi [aor]: replied (to); agreed (with); assented (to)",
+      "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
+      "fetchedAt": "2026-05-13"
     }
   ],
   "progress": {
@@ -994,8 +1084,8 @@
               "text": "ta",
               "type": "stem",
               "tooltips": [
-                "[Demonstrative] Stem: that",
-                "Points to the place just mentioned"
+                "Colored differently because it's a small pointing word. Pāli uses short fixed forms for 'this/that' — they don't change like nouns do.",
+                "'ta' is the demonstrative stem — the part meaning 'that'. By itself it's just the pointer; the next part (-tra) adds 'in that place'."
               ]
             },
             {
@@ -1003,15 +1093,18 @@
               "text": "tra",
               "type": "suffix",
               "tooltips": [
-                "[Locative suffix] \"in that place\"",
-                "ta + tra = tatra"
+                "The -tra suffix means 'in that place'. ta (that) + -tra (place) = tatra = 'there'.",
+                "Built like English 'there' = th- (pointer) + -ere (place). Same morpheme-stacking, different sounds."
               ]
             }
           ],
           "senses": [
             {
               "english": "There",
-              "nuance": "At that place"
+              "nuance": "At that place",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:29605"],
+              "confidence": "high"
             }
           ]
         },
@@ -1024,20 +1117,27 @@
               "text": "kho",
               "type": "stem",
               "tooltips": [
-                "[Emphatic particle] \"Indeed, surely\"",
-                "From khalu",
-                "Marks narrative transition"
+                "Colored differently because it's a small narrative beat — Pāli uses particles like this to pace storytelling. English usually drops them or replaces with pauses.",
+                "'kho' is an emphatic particle, like English 'indeed', 'now', or 'so' inserted to mark the rhythm of a story.",
+                "From an older Pāli word 'khalu' — both mean 'indeed' or 'truly'. The shorter 'kho' is the canonical form in the suttas.",
+                "Often left untranslated in English. Pāli wraps narrative timing in these little words; English uses pauses, punctuation, or simply omits them."
               ]
             }
           ],
           "senses": [
             {
               "english": "indeed",
-              "nuance": "Emphasis"
+              "nuance": "Emphasis",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:23966"],
+              "confidence": "high"
             },
             {
               "english": "",
-              "nuance": "Often untranslated"
+              "nuance": "Often untranslated",
+              "epistemicBasis": "curatorial",
+              "notes": "DPD attests 'kho' as 'indeed; surely; certainly; truly'. The choice to leave it untranslated in many English versions reflects a translator's curatorial decision — English narrative doesn't need this particle.",
+              "confidence": "high"
             }
           ]
         },
@@ -1051,37 +1151,43 @@
               "text": "bhaga",
               "type": "root",
               "tooltips": [
-                "Fortune, good luck",
-                "From √bhaj: to share"
+                "'bhaga' means fortune, good luck — a blessing.",
+                "From the root 'bhaj' meaning 'to share, distribute' — what is shared / what one is given."
               ]
             },
             {
               "id": "e3s2",
               "text": "vā",
               "type": "suffix",
+              "morph": { "case": "nom", "gender": "m", "number": "sg" },
               "tooltips": [
-                "[Possessive suffix] \"One who has...\"",
-                "The Fortunate One"
-              ],
-              "relation": {
-                "targetWordId": "e5",
-                "type": "action",
-                "label": "Addressed BY"
-              }
+                "Highlighted in a recurring color because 'bhagavā' is a refrain — the Buddha-epithet appears throughout the canon. The matching underline color marks the recurrence (you saw it back in phase-b's 'Ekaṁ samayaṁ bhagavā…').",
+                "The -vā suffix means 'one who has' or 'is endowed with'. bhaga (fortune) + -vā = 'the fortunate one'.",
+                "'The Fortunate One' / 'The Blessed One' — a respectful name for the Buddha, used through the canon."
+              ]
             }
           ],
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "the Lucky One",
-              "nuance": "Fortune-bearer"
+              "nuance": "Fortune-bearer",
+              "epistemicBasis": "etymological",
+              "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). DPD's primary glosses are 'Sublime/Blessed/Fortunate One'; the bare 'Lucky' captures the etymological flavor but isn't a standard rendering.",
+              "confidence": "medium"
             }
           ]
         },
@@ -1095,52 +1201,59 @@
               "text": "bhikkh",
               "type": "root",
               "tooltips": [
-                "√bhikkh: to beg",
-                "From √bhaj: to share",
-                "One who lives on alms"
+                "'bhikkh' is the root, related to 'begging' — but specifically religious mendicancy, not poverty.",
+                "Connected to the root 'bhaj' (to share) — a bhikkhu both receives alms and shares the Buddha's teaching.",
+                "Names one who lives on alms — a monastic dependent on lay support for food."
               ]
             },
             {
               "id": "e4s2",
               "text": "ū",
               "type": "suffix",
+              "morph": { "case": "acc", "number": "pl", "gender": "m" },
               "tooltips": [
-                "[Accusative Plural] Object",
-                "The ones being addressed"
-              ],
-              "relation": {
-                "targetWordId": "e5",
-                "type": "direction",
-                "label": "Addressed TO"
-              }
+                "The -ū ending makes it plural. The same form serves multiple roles (subject pl, object pl, vocative pl) — only context tells you which.",
+                "Here 'bhikkhū' is the object: who the Buddha is addressing. The case is technically called accusative."
+              ]
             }
           ],
           "senses": [
             {
               "english": "the bhikkhus",
-              "nuance": "Accusative object"
+              "nuance": "Accusative object",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "the monks",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "the mendicants",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high",
+              "notes": "'Mendicant' is the literal English match: one who depends on alms. DPD includes 'mendicant' among its glosses."
             }
           ]
         },
         {
           "id": "e5",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "e5s1",
               "text": "ā",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Towards",
-                "Intensifies the action"
+                "The 'ā-' prefix means 'towards' — directs the verb's action at someone.",
+                "Intensifies the speaking: not just saying, but speaking AT or TO."
               ]
             },
             {
@@ -1148,9 +1261,9 @@
               "text": "mant",
               "type": "root",
               "tooltips": [
-                "√mant: to counsel, advise",
-                "Source of \"mantra\"",
-                "[Denominative verb] From noun \"mantra\""
+                "'mant' is the root meaning 'to think, counsel, advise'.",
+                "The same root that gives us 'mantra' — a counseled word, a verbal formula. Pedagogically: the Buddha 'mantra-d' the monks, gave them his counsel.",
+                "Used here as a verbal root, not a noun. The full compound (ā-mant-e-si) means 'addressed' or 'called out to'."
               ]
             },
             {
@@ -1158,31 +1271,41 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Causative suffix] Makes it \"to address\""
+                "The 'e' between root and ending is a causative marker — turns 'to counsel' into 'to cause to counsel', which slides into 'to address' or 'to summon'."
               ]
             },
             {
               "id": "e5s4",
               "text": "si",
               "type": "suffix",
+              "morph": { "person": "3", "number": "sg", "tenseAspect": "aorist", "form": "finite" },
               "tooltips": [
-                "[Aorist 3rd singular] Past tense: he did this",
-                "\"He addressed\""
+                "The -si ending marks past tense — 'he/she/it did'. Specifically aorist (a real past), different from Pāli's storytelling-present (compare 'viharati' back in phase-c).",
+                "'he addressed' — completed action, situated in narrative time. The Buddha did this thing, then-and-there."
               ]
             }
           ],
           "senses": [
             {
               "english": "addressed",
-              "nuance": "Aorist"
+              "nuance": "Aorist",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "confidence": "high"
             },
             {
               "english": "summoned",
-              "nuance": "Called to attention"
+              "nuance": "Called to attention",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "confidence": "high"
             },
             {
               "english": "spoke to",
-              "nuance": "Directly addressed"
+              "nuance": "Directly addressed",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "confidence": "high"
             }
           ]
         }
@@ -1215,6 +1338,7 @@
         {
           "id": "f1",
           "wordClass": "content",
+          "isAnchor": true,
           "refrainId": "bhikkhu",
           "segments": [
             {
@@ -1222,32 +1346,43 @@
               "text": "Bhikkh",
               "type": "root",
               "tooltips": [
-                "√bhikkh: To share / beg"
+                "Same root as 'bhikkhū' in phase-e — religious mendicant, 'one who lives on alms'."
               ]
             },
             {
               "id": "f1s2",
               "text": "avo",
               "type": "suffix",
+              "morph": { "case": "voc", "number": "pl", "gender": "m" },
               "tooltips": [
-                "[Vocative Plural] 📢 \"Hey you all!\"",
-                "Calling out to a group",
-                "Like saying \"O monks!\""
+                "Highlighted in the same recurring color as 'bhikkhū' in phase-e — both are forms of bhikkhu. Matching color across phases marks the refrain (you'll see this stem every time the Buddha addresses the monks).",
+                "The -avo ending is vocative plural — used when calling out to a group. Like English 'O ____!' or 'Hey, ____!'",
+                "Phase-e had 'bhikkhū' (the monks the Buddha was addressing, accusative); phase-f has 'Bhikkhavo' (the same monks, now being called directly, vocative). Same noun, different role."
               ]
             }
           ],
           "senses": [
             {
               "english": "Bhikkhus!",
-              "nuance": "Call"
+              "nuance": "Call",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high",
+              "notes": "DPD attests the lemma bhikkhu (dpd:49885); the vocative-plural surface 'Bhikkhavo' is a dialectal variant of 'bhikkhave' which DPD does enumerate. Both forms address the same monastic audience."
             },
             {
               "english": "Monks!",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "Mendicants!",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             }
           ]
         },
@@ -1260,15 +1395,19 @@
               "text": "ti",
               "type": "stem",
               "tooltips": [
-                "[Quotation marker] From iti",
-                "End of speech"
+                "Colored differently because it's a tiny grammar word — a closing-quote marker. Pāli writes 'ti' (or 'iti') at the END of a quoted speech to say 'end quote'.",
+                "Shortened from 'iti' meaning 'thus' or 'in this way' — Pāli marks quoted speech by saying 'thus' after it: 'X-iti' = '\"X\"'.",
+                "Cross-language pattern: English uses quote marks (typographic); Pāli uses a word (lexical). Same function, different surface."
               ]
             }
           ],
           "senses": [
             {
               "english": "\"",
-              "nuance": "Quote marker"
+              "nuance": "Quote marker",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:30431"],
+              "confidence": "high"
             }
           ]
         }
@@ -1295,32 +1434,42 @@
               "text": "Bhad",
               "type": "root",
               "tooltips": [
-                "√bhad: good, auspicious",
-                "Related to bhadra (fortunate)"
+                "'bhad' carries a sense of good, auspicious, fortunate.",
+                "Related to 'bhadra' (fortunate) — the same root family that names blessings and noble persons."
               ]
             },
             {
               "id": "g1s2",
               "text": "ante",
               "type": "suffix",
+              "morph": { "case": "voc", "number": "sg", "gender": "m" },
               "tooltips": [
-                "[Vocative] Calling out: \"O Sir!\"",
-                "Respectful address"
+                "The -ante ending is vocative singular — calling out to one person, respectfully. Pāli's '-e' marks vocative for many noun-classes (parallel to the '-avo' on Bhikkhavo in phase-f, which was vocative plural).",
+                "Used as a formulaic honorific: when monks address their teacher, this is the canonical response-word."
               ]
             }
           ],
           "senses": [
             {
               "english": "Venerable sir!",
-              "nuance": "Respectful reply"
+              "nuance": "Respectful reply",
+              "epistemicBasis": "curatorial",
+              "notes": "DPD's Lookup table doesn't index 'Bhadante' specifically (a coverage gap, like 'Bhikkhavo' in phase-f); grounded in the bhadanta lemma + standard Pāli vocative morphology.",
+              "confidence": "high"
             },
             {
               "english": "Good sir!",
-              "nuance": "Literally good one"
+              "nuance": "Literally good one",
+              "epistemicBasis": "etymological",
+              "notes": "Compositional reading: bhad (good) + -ante (vocative). The literal sense behind the honorific.",
+              "confidence": "high"
             },
             {
               "english": "Reverend!",
-              "nuance": "Respectful address"
+              "nuance": "Respectful address",
+              "epistemicBasis": "curatorial",
+              "notes": "An English-register equivalent that captures the deferential tone — used as an alternative when 'Sir!' feels too informal.",
+              "confidence": "medium"
             }
           ]
         },
@@ -1333,15 +1482,18 @@
               "text": "ti",
               "type": "stem",
               "tooltips": [
-                "[Quotation marker] From iti",
-                "Marks the speech just ended"
+                "The same iti / ti quote-closer you saw in phase-f after 'Bhikkhavo'. Pāli marks the END of quoted speech with this word; here it closes the monks' reply ('Sir!').",
+                "Shortened from 'iti' (thus). Cross-language: English uses typographic quote marks; Pāli uses a lexical particle."
               ]
             }
           ],
           "senses": [
             {
               "english": "\"",
-              "nuance": "Close quote"
+              "nuance": "Close quote",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:30431"],
+              "confidence": "high"
             }
           ]
         },
@@ -1353,16 +1505,21 @@
               "id": "g3s1",
               "text": "te",
               "type": "stem",
+              "morph": { "case": "nom", "number": "pl", "gender": "m" },
               "tooltips": [
-                "[Demonstrative Pronoun] Those, they",
-                "The ones who replied"
+                "Colored differently because it's a small pointing word — Pāli's 'te' is a demonstrative pronoun, like English 'those' or 'they'.",
+                "'te' here points back to the monks the Buddha just addressed: 'those (monks)'. Pāli has rich pronoun forms (te has 8 different DPD senses for different cases/persons) — context picks which.",
+                "Built on the same demonstrative stem as 'tatra' (phase-e: 'there') — Pāli uses one pointer-system for both place and person."
               ]
             }
           ],
           "senses": [
             {
               "english": "those",
-              "nuance": "Demonstrative"
+              "nuance": "Demonstrative",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:31134"],
+              "confidence": "high"
             }
           ]
         },
@@ -1376,37 +1533,41 @@
               "text": "bhikkh",
               "type": "root",
               "tooltips": [
-                "√bhikkh: to beg, share",
-                "One who lives on alms"
+                "Same root as 'bhikkhū' in phase-e and 'Bhikkhavo' in phase-f — religious mendicant, 'one who lives on alms'."
               ]
             },
             {
               "id": "g4s2",
               "text": "ū",
               "type": "suffix",
+              "morph": { "case": "nom", "number": "pl", "gender": "m" },
               "tooltips": [
-                "[Nominative Plural] They",
-                "The monks who replied"
-              ],
-              "relation": {
-                "targetWordId": "g6",
-                "type": "action",
-                "label": "Replied BY"
-              }
+                "Watch this: 'bhikkhū' has appeared in THREE different cases across the last three phases — phase-e bhikkhū-accusative ('addressed the monks'), phase-f Bhikkhavo-vocative ('Monks!' direct call), phase-g bhikkhū-nominative ('the monks replied'). Same noun, three roles, the surface form 'bhikkhū' is identical in two of them.",
+                "Here it's the SUBJECT — the monks doing the replying. Pāli marks subject with the nominative case; for u-stem masc plurals like bhikkhu, the nom-pl surface is 'bhikkhū' (long ū)."
+              ]
             }
           ],
           "senses": [
             {
               "english": "bhikkhus",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "monks",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             },
             {
               "english": "mendicants",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "confidence": "high"
             }
           ]
         },
@@ -1420,76 +1581,102 @@
               "text": "bhaga",
               "type": "root",
               "tooltips": [
-                "Fortune, good luck",
-                "From √bhaj: to share"
+                "'bhaga' means fortune, good luck — the blessing root (you saw this stem in phase-b and phase-e's 'bhagavā').",
+                "From the root 'bhaj' meaning 'to share, distribute' — what is shared / what one is given."
               ]
             },
             {
               "id": "g5s2",
               "text": "vato",
               "type": "suffix",
+              "morph": { "case": "gen", "number": "sg", "gender": "m" },
               "tooltips": [
-                "[Dative/Genitive] \"To/of the Fortunate One\"",
-                "Who they replied to"
+                "Compare to phase-b/e: there it was 'bhagavā' (nominative — the Buddha doing/being the subject). Here it's 'bhagavato' (genitive — 'of the Buddha' or, in this construction, 'to the Buddha' as recipient of the reply). Same stem, different role.",
+                "The -vato ending marks genitive singular. For verbs of speaking/replying, Pāli's genitive often slides into a 'to whom' meaning — DPD attests both 'of the Buddha' and 'to the Buddha' as readings.",
+                "The arrow to the verb (Replied TO) marks this dative-like function: the monks replied AT/TO the Buddha."
               ],
               "relation": {
                 "targetWordId": "g6",
                 "type": "direction",
-                "label": "Replied TO"
+                "label": "Replied TO",
+                "confidence": "high",
+                "epistemicBasis": "grammatical"
               }
             }
           ],
           "senses": [
             {
               "english": "to the Blessed One",
-              "nuance": "Dative"
+              "nuance": "Dative (recipient of reply)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49136"],
+              "confidence": "high"
             },
             {
               "english": "to the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49136", "cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
-              "english": "to the Lucky One",
-              "nuance": "Fortune-bearer"
+              "english": "of the Blessed One",
+              "nuance": "Genitive (alternative reading)",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49137"],
+              "confidence": "medium",
+              "notes": "The genitive surface 'bhagavato' has multiple readings in DPD (to/of/from). For verbs of speaking the dative-like 'to' reading is conventional; the bare 'of' would translate as 'they did the replying-of the Buddha' which is awkward English but grammatically possible."
             }
           ]
         },
         {
           "id": "g6",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "g6s1",
               "text": "pacc",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] From paṭi: back, in return",
-                "Sandhi before vowel"
+                "'pacc' is the prefix 'paṭi' meaning 'back' or 'in return' — same as English 're-' in 'reply' or 'respond'.",
+                "'paṭi' becomes 'pacc' before a vowel-beginning element (paṭi + ass → pacc-ass). Pāli's sandhi rules smooth the join."
               ]
             },
             {
               "id": "g6s2",
               "text": "assosuṁ",
               "type": "root",
+              "morph": { "person": "3", "number": "pl", "tenseAspect": "aorist", "form": "finite" },
               "tooltips": [
-                "√su: to hear",
-                "[Aorist 3rd plural] \"they heard back\"",
-                "paṭi + su = to reply"
+                "Built on the root 'su' meaning 'to hear' — the same root you saw in phase-a's 'sutaṁ' (heard).",
+                "Compound logic: paṭi (back) + su (hear) → 'to hear back' → 'to reply'. The reply IS hearing-back, in Pāli's mental world.",
+                "The -suṁ ending is aorist 3rd plural — 'they did this in the past'. Compare phase-e's āmantesi (aorist 3rd SINGULAR, 'he addressed'); here it's the plural answering: 'they replied'."
               ]
             }
           ],
           "senses": [
             {
               "english": "replied",
-              "nuance": "Assented"
+              "nuance": "Assented",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:39413"],
+              "confidence": "high"
             },
             {
               "english": "answered",
-              "nuance": "Responded"
+              "nuance": "Responded",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:39413"],
+              "confidence": "high"
             },
             {
               "english": "acknowledged",
-              "nuance": "Heard and accepted"
+              "nuance": "Heard and accepted",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:39413"],
+              "confidence": "high",
+              "notes": "DPD's primary glosses are 'replied; agreed; assented'. 'Acknowledged' captures the receptive quality — hearing-back means accepting the call."
             }
           ]
         }
@@ -1535,37 +1722,43 @@
               "text": "Bhaga",
               "type": "root",
               "tooltips": [
-                "Fortune, good luck",
-                "From √bhaj: to share"
+                "'bhaga' means fortune, good luck — the blessing root (you saw this stem in phase-b, phase-e, phase-g).",
+                "From the root 'bhaj' meaning 'to share, distribute' — what is shared / what one is given."
               ]
             },
             {
               "id": "h1s2",
               "text": "vā",
               "type": "suffix",
+              "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
-                "[Possessive suffix] \"One who has...\"",
-                "[Nominative] Subject — the speaker"
-              ],
-              "relation": {
-                "targetWordId": "h3",
-                "type": "action",
-                "label": "Said BY"
-              }
+                "Fourth appearance of the bhagavā stem in the corpus. The form has cycled: phase-b/e nom-sg (subject) → phase-g gen-sg 'bhagavato' (recipient of reply) → phase-h nom-sg again (back to subject). Same Buddha-epithet, three roles.",
+                "Here it's back to nominative: the Buddha as the subject doing the action (saying). The -vā ending marks 'one who has' (the Fortunate One) + nominative singular masculine.",
+                "Compare to phase-g where the monks replied 'to him' (bhagavato). Now he speaks (Bhagavā). The conversation alternates speakers; the case-marking tracks the role."
+              ]
             }
           ],
           "senses": [
             {
               "english": "The Blessed One",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "The Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "epistemicBasis": "lexical",
+              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "confidence": "high"
             },
             {
               "english": "The Lucky One",
-              "nuance": "Fortune-bearer"
+              "nuance": "Fortune-bearer",
+              "epistemicBasis": "etymological",
+              "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). Same etymological-sense pattern as phase-e e3.senses[2].",
+              "confidence": "medium"
             }
           ]
         },
@@ -1577,36 +1770,36 @@
               "id": "h2s1",
               "text": "etad",
               "type": "stem",
+              "morph": { "case": "acc", "number": "sg", "gender": "n" },
               "tooltips": [
-                "[Demonstrative Pronoun] \"This\"",
-                "[Neuter Accusative] Points to what follows",
-                "More emphatic than \"tad\""
-              ],
-              "relation": {
-                "targetWordId": "h3",
-                "type": "direction",
-                "label": "Said WHAT"
-              }
+                "Colored differently because it's a small pointing word — Pāli's 'etad' is a demonstrative ('this'), neuter form. You saw a related pointer 'tatra' (there) in phase-e and 'te' (those) in phase-g — same demonstrative system, different forms.",
+                "Points FORWARD to what comes next: 'said THIS' — meaning the actual teaching the Buddha is about to speak. The reader's anticipation is encoded grammatically.",
+                "More emphatic than the simpler form 'tad'. The extra 'e-' at the start is an attention-marker: 'THIS, specifically' rather than just 'that thing'."
+              ]
             }
           ],
           "senses": [
             {
               "english": "this",
-              "nuance": "The teaching that follows"
+              "nuance": "The teaching that follows",
+              "epistemicBasis": "curatorial",
+              "notes": "DPD's Lookup table doesn't index 'etad' as a surface form (a coverage gap, like 'Bhadante' phase-g and 'Bhikkhavo' phase-f). The lemma 'eta' / 'etad' is the standard demonstrative stem; the neuter-sg-nom/acc form is grammatically attested across Pāli grammars.",
+                "confidence": "high"
             }
           ]
         },
         {
           "id": "h3",
           "wordClass": "content",
+          "isAnchor": true,
           "segments": [
             {
               "id": "h3s1",
               "text": "a",
               "type": "prefix",
               "tooltips": [
-                "[Augment] Marks past tense",
-                "Like \"a-\" in Greek aorist"
+                "The 'a-' at the front is the augment — Pāli's way of marking 'this happened in the past'. Pre-pended to the verb-stem to make it past-tense.",
+                "Same letter that opens past-tense verbs in Sanskrit and Greek (the Greek augment is also 'a-'). Indo-European family resemblance — these languages share a past-marking ancestor."
               ]
             },
             {
@@ -1614,32 +1807,41 @@
               "text": "voc",
               "type": "root",
               "tooltips": [
-                "√vac: To speak, say",
-                "Source of Latin \"vox\", English \"voice\""
+                "'vac' is the root meaning 'to speak, say'.",
+                "The same root behind Latin 'vox' (voice) and English 'voice', 'vocal'. Indo-European: same speech-act, multiple languages."
               ]
             },
             {
               "id": "h3s3",
               "text": "a",
               "type": "suffix",
+              "morph": { "person": "3", "number": "sg", "tenseAspect": "aorist", "form": "finite" },
               "tooltips": [
-                "[Aorist 3rd singular] He spoke",
-                "Completed action in the past"
+                "The final '-a' is the aorist 3rd-singular ending — 'he/she/it did this'. Third aorist verb in the opening (cf. phase-e āmantesi -si, phase-g paccassosuṁ -suṁ).",
+                "Pattern: aorist endings vary by verb class. Compare: āmantesi (-si), avoca (-a), paccassosuṁ (-suṁ). Same tense, different stem-classes use different endings."
               ]
             }
           ],
           "senses": [
             {
               "english": "said",
-              "nuance": "Spoke"
+              "nuance": "Spoke",
+              "epistemicBasis": "grammatical",
+              "notes": "Lemma is 'vac' (to speak); avoca is the aorist 3sg with augment (a- + voc + -a). DPD's Lookup doesn't index 'avoca' directly (coverage gap; same shape as 'etad' and 'Bhadante') but the morphological pattern is grammatically standard.",
+              "confidence": "high"
             },
             {
               "english": "declared",
-              "nuance": "Formal"
+              "nuance": "Formal",
+              "epistemicBasis": "curatorial",
+              "notes": "English-register choice — 'declared' captures the gravity of the Buddha's speech-act in a discourse-opener context.",
+              "confidence": "medium"
             },
             {
               "english": "spoke",
-              "nuance": "Uttered"
+              "nuance": "Uttered",
+              "epistemicBasis": "grammatical",
+              "confidence": "high"
             }
           ]
         }

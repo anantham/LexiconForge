@@ -187,6 +187,54 @@ describe('DpdProvider — integration with real MN10 data', () => {
     expect(entries.some((e) => e.lemma === 'kāya')).toBe(true);
   });
 
+  // Regression test for the schema-tension #1 root-cause fix (SQLite Lookup
+  // table replaces the heuristic stripper). The four surfaces below previously
+  // conflated with unrelated lemmas under the heuristic:
+  //   - bhikkhū → bhikkhā (alms, fem) — should resolve to bhikkhu (monk, masc)
+  //   - kurūsu  → kura (rice, nt)     — should resolve to kuru / kurū (Kurus)
+  //   - kurūnaṁ → kura (rice, nt)     — should resolve to kuru / kurū (Kurus)
+  //   - evaṁ    → eva (particle)      — should resolve to evaṁ (deictic)
+  // Each was patched per-ending; the SQLite Lookup fix closes them all at root.
+  it('resolves nom/voc-pl bhikkhū to bhikkhu, NOT bhikkhā (root-cause regression)', async () => {
+    const data = loadDpdSubsetFromFs('mn10', DATA_ROOT);
+    const provider = new DpdProvider(data);
+    const entries = await provider.lookup('bhikkhū');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries.every((e) => e.lemma === 'bhikkhu')).toBe(true);
+    // The conflating feminine 'bhikkhā' (alms) must NOT appear.
+    expect(entries.every((e) => e.lemma !== 'bhikkhā')).toBe(true);
+  });
+
+  it('resolves loc-pl kurūsu to kuru/kurū, NOT kura (regression)', async () => {
+    const data = loadDpdSubsetFromFs('mn10', DATA_ROOT);
+    const provider = new DpdProvider(data);
+    const entries = await provider.lookup('kurūsu');
+    expect(entries.length).toBeGreaterThan(0);
+    const lemmas = entries.map((e) => e.lemma);
+    expect(lemmas).toContain('kuru');
+    expect(lemmas).not.toContain('kura');
+  });
+
+  it('resolves gen-pl kurūnaṁ to kuru/kurū, NOT kura (regression)', async () => {
+    const data = loadDpdSubsetFromFs('mn10', DATA_ROOT);
+    const provider = new DpdProvider(data);
+    const entries = await provider.lookup('kurūnaṁ');
+    expect(entries.length).toBeGreaterThan(0);
+    const lemmas = entries.map((e) => e.lemma);
+    expect(lemmas).toContain('kuru');
+    expect(lemmas).not.toContain('kura');
+  });
+
+  it('resolves evaṁ to the deictic evaṁ, NOT to bare eva (regression)', async () => {
+    const data = loadDpdSubsetFromFs('mn10', DATA_ROOT);
+    const provider = new DpdProvider(data);
+    const entries = await provider.lookup('evaṁ');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries.some((e) => e.lemma === 'evaṁ')).toBe(true);
+    // bare 'eva' is the emphatic particle, a different word
+    expect(entries.every((e) => e.lemma !== 'eva')).toBe(true);
+  });
+
   it('returns morphology-bearing entries where DPD POS maps to MorphHint', async () => {
     const data = loadDpdSubsetFromFs('mn10', DATA_ROOT);
     const provider = new DpdProvider(data);
