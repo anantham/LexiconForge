@@ -49,7 +49,9 @@ export const PaliWordEngine = memo(function PaliWordEngine({
   // The cue is implicit — no badge, no "★", no label. Just a felt difference.
   // Refrain styling takes precedence on the wrapper underline; anchor still
   // gets the slight weight bump.
-  const isAnchor = Boolean(wordData.isAnchor);
+  // Gated by settings.anchorEmphasis so readers can A/B whether the anchor
+  // cue earns its visual weight (V2 amendment evaluation).
+  const isAnchor = Boolean(wordData.isAnchor) && settings.anchorEmphasis !== false;
 
   return (
     <motion.div

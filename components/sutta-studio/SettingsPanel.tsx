@@ -9,6 +9,20 @@ export type StudioSettings = {
   refrainColors: boolean;
   alignmentLines: boolean;
   ghostWords: boolean;
+  // V2 audit/metadata fields — toggle to A/B which ones earn their packet bulk.
+  // auditPanel: opens the LensPanel side drawer for the hovered word, showing
+  //   full sense data (notes, citations, confidence, basis tags). When OFF, the
+  //   drawer never appears.
+  // anchorEmphasis: subtle amber underline on PaliWord.isAnchor === true.
+  // senseNotes: per-sense `notes` prose in the audit panel.
+  // citationChips: per-sense `citationIds` rendered as chips in the audit panel.
+  // confidenceBadges: per-sense `confidence` ('high'/'medium'/'low') + `epistemicBasis`
+  //   ('lexical'/'curatorial'/'etymological'/...) tags in the audit panel.
+  auditPanel: boolean;
+  anchorEmphasis: boolean;
+  senseNotes: boolean;
+  citationChips: boolean;
+  confidenceBadges: boolean;
 };
 
 export const DEFAULT_SETTINGS: StudioSettings = {
@@ -19,6 +33,12 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   refrainColors: false,
   alignmentLines: true,
   ghostWords: true,
+  // Audit panel OFF by default — opt-in for empirical evaluation.
+  auditPanel: false,
+  anchorEmphasis: true,
+  senseNotes: true,
+  citationChips: true,
+  confidenceBadges: true,
 };
 
 const STORAGE_KEY = 'sutta-studio-settings';
@@ -161,6 +181,37 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               label="Ghost words"
               checked={settings.ghostWords}
               onChange={(v) => updateSetting('ghostWords', v)}
+            />
+          </div>
+
+          <div className="px-3 py-2 border-t border-slate-700 mt-1">
+            <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">Audit fields (V2)</span>
+          </div>
+          <div className="p-3 space-y-1">
+            <SettingToggle
+              label="Audit panel"
+              checked={settings.auditPanel}
+              onChange={(v) => updateSetting('auditPanel', v)}
+            />
+            <SettingToggle
+              label="Anchor emphasis"
+              checked={settings.anchorEmphasis}
+              onChange={(v) => updateSetting('anchorEmphasis', v)}
+            />
+            <SettingToggle
+              label="Sense notes"
+              checked={settings.senseNotes}
+              onChange={(v) => updateSetting('senseNotes', v)}
+            />
+            <SettingToggle
+              label="Citation chips"
+              checked={settings.citationChips}
+              onChange={(v) => updateSetting('citationChips', v)}
+            />
+            <SettingToggle
+              label="Confidence + basis"
+              checked={settings.confidenceBadges}
+              onChange={(v) => updateSetting('confidenceBadges', v)}
             />
           </div>
         </motion.div>

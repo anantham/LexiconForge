@@ -5,18 +5,41 @@ import type { Focus } from './types';
 import { RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
 import { buildPaliText, resolveSenseId, resolveSegmentTooltip } from './utils';
 
+const CONFIDENCE_COLORS: Record<string, string> = {
+  high: 'border-emerald-700 text-emerald-300 bg-emerald-950/40',
+  medium: 'border-amber-700 text-amber-300 bg-amber-950/40',
+  low: 'border-slate-700 text-slate-400 bg-slate-900/40',
+};
+
+const EPISTEMIC_BASIS_LABELS: Record<string, string> = {
+  lexical: 'DPD-attested',
+  grammatical: 'grammar-derived',
+  curatorial: 'curator-chosen',
+  etymological: 'compositional',
+  commentarial: 'commentary-cited',
+  contextual: 'context-disambiguated',
+  comparative: 'parallel-supported',
+};
+
 export function LensPanel({
   phase,
   pinned,
   onClose,
   activeIndices,
   setActiveIndex,
+  showNotes = true,
+  showCitationChips = true,
+  showConfidenceBadges = true,
 }: {
   phase: PhaseView;
   pinned: Focus;
   onClose: () => void;
   activeIndices: Record<string, number>;
   setActiveIndex: (wordId: string, idx: number) => void;
+  /** Settings toggles — when false, the corresponding V2 metadata is hidden in the panel. */
+  showNotes?: boolean;
+  showCitationChips?: boolean;
+  showConfidenceBadges?: boolean;
 }) {
   const word = phase.paliWords.find((w) => w.id === pinned.wordId);
   if (!word) return null;
@@ -141,8 +164,32 @@ export function LensPanel({
                       <div className="font-semibold">{t.english}</div>
                       <div className="text-xs text-slate-500">{t.nuance}</div>
                     </div>
-                    {t.notes && <div className="text-slate-500 text-sm mt-1">{t.notes}</div>}
-                    {t.citationIds && t.citationIds.length > 0 && (
+                    {showConfidenceBadges && (t.confidence || t.epistemicBasis) && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {t.confidence && (
+                          <span
+                            className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                              CONFIDENCE_COLORS[t.confidence] || 'border-slate-700 text-slate-400'
+                            }`}
+                            title={`Confidence: ${t.confidence}`}
+                          >
+                            {t.confidence}
+                          </span>
+                        )}
+                        {t.epistemicBasis && (
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded border border-slate-700 text-slate-400 bg-slate-900/40"
+                            title={`Epistemic basis: ${t.epistemicBasis}`}
+                          >
+                            {EPISTEMIC_BASIS_LABELS[t.epistemicBasis] || t.epistemicBasis}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {showNotes && t.notes && (
+                      <div className="text-slate-500 text-sm mt-2">{t.notes}</div>
+                    )}
+                    {showCitationChips && t.citationIds && t.citationIds.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {t.citationIds.map((c) => (
                           <span
