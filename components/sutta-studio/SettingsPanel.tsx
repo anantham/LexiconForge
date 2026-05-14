@@ -230,7 +230,7 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               onChange={(v) => updateSetting('citationChips', v)}
             />
             <SettingToggle
-              label="Confidence + basis"
+              label="Curator badges"
               checked={settings.confidenceBadges}
               onChange={(v) => updateSetting('confidenceBadges', v)}
             />
