@@ -809,7 +809,7 @@
               },
               "tooltips": [
                 "The -su ending means 'among the' — Pāli marks 'place where' on the noun itself, with no separate preposition like English 'in' or 'among'.",
-                "'Among the [Kurus]' — the dwelling-place of what the verb describes next."
+                "'Among the ' — the dwelling-place of what the verb describes next."
               ],
               "relation": {
                 "targetWordId": "c2",
@@ -1072,7 +1072,7 @@
                 "number": "pl"
               },
               "tooltips": [
-                "The -naṁ ending means 'of the [plural]' — Pāli marks 'belonging to' on the noun itself (where English would say 'of the').",
+                "The -naṁ ending means 'of the ' — Pāli marks 'belonging to' on the noun itself (where English would say 'of the').",
                 "'Of the Kurus' — their town. Same stem as in phase-c's 'kurūsu' but with a different ending: -su (among) vs -naṁ (of)."
               ],
               "relation": {
@@ -2437,7 +2437,7 @@
                 "number": "pl"
               },
               "tooltips": [
-                "The -ānaṁ ending is genitive plural — 'of the [plural ones]'. Pāli marks the 'belongs-to' relationship on the noun itself, where English uses the preposition 'of'.",
+                "The -ānaṁ ending is genitive plural — 'of the '. Pāli marks the 'belongs-to' relationship on the noun itself, where English uses the preposition 'of'.",
                 "Same suffix appears in phase-3 on sokaparideva-ānaṁ ('of grief and lamentation'). The genitive-of-purpose pattern recurs throughout the satipaṭṭhāna formula."
               ],
               "relation": {
@@ -2617,8 +2617,8 @@
                 "number": "pl"
               },
               "tooltips": [
-                "The -ānaṁ ending is genitive plural — 'of the [plural]'. Same suffix as phase-2's sattānaṁ ('of beings'): Pāli marks the 'belongs-to' relationship on the noun where English uses 'of'.",
-                "Plural because soka and parideva together form a dvanda compound (one-and-the-other); the plural reads as 'of grief-and-lamentation[-both]'."
+                "The -ānaṁ ending is genitive plural — 'of the '. Same suffix as phase-2's sattānaṁ ('of beings'): Pāli marks the 'belongs-to' relationship on the noun where English uses 'of'.",
+                "Plural because soka and parideva together form a dvanda compound (one-and-the-other); the plural reads as 'of grief-and-lamentation'."
               ],
               "relation": {
                 "targetWordId": "p8",
@@ -2776,7 +2776,7 @@
               "text": "dukkha",
               "type": "root",
               "tooltips": [
-                "[Compound] du (bad) + kha (space)",
+                "du (bad) + kha (space)",
                 "Physical pain, suffering"
               ]
             },
@@ -2785,7 +2785,7 @@
               "text": "domanass",
               "type": "root",
               "tooltips": [
-                "[Compound] du (bad) + manas (mind)",
+                "du (bad) + manas (mind)",
                 "Mental distress, displeasure"
               ]
             },
@@ -2794,7 +2794,7 @@
               "text": "ānaṁ",
               "type": "suffix",
               "tooltips": [
-                "[Genitive Plural] Of pain & distress"
+                "Of pain & distress"
               ],
               "relation": {
                 "targetWordId": "p10",
@@ -2846,8 +2846,8 @@
               "text": "āya",
               "type": "suffix",
               "tooltips": [
-                "[Dative] For the sake of",
-                "🎯 Purpose marker"
+                "For the sake of",
+                "Purpose marker"
               ]
             }
           ],
@@ -2921,7 +2921,7 @@
               "text": "ssa",
               "type": "suffix",
               "tooltips": [
-                "[Genitive Singular] Of the method"
+                "Of the method"
               ],
               "relation": {
                 "targetWordId": "p12",
@@ -2955,7 +2955,7 @@
               "text": "adhi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Onto, towards, over"
+                "Onto, towards, over"
               ]
             },
             {
@@ -2972,8 +2972,8 @@
               "text": "āya",
               "type": "suffix",
               "tooltips": [
-                "[Dative] For the sake of",
-                "🎯 Purpose marker"
+                "For the sake of",
+                "Purpose marker"
               ]
             }
           ],
@@ -3033,7 +3033,7 @@
               "type": "root",
               "tooltips": [
                 "ni (out) + vāna (blowing)",
-                "🕯️ Fire going out, cooling, peace"
+                "️ Fire going out, cooling, peace"
               ]
             },
             {
@@ -3041,7 +3041,7 @@
               "text": "assa",
               "type": "suffix",
               "tooltips": [
-                "[Genitive Singular] Of Nibbana"
+                "Of Nibbana"
               ],
               "relation": {
                 "targetWordId": "p14",
@@ -3083,8 +3083,8 @@
               "text": "sacchi",
               "type": "root",
               "tooltips": [
-                "[Compound] sa + akkhi (with eyes)",
-                "👀 Seeing directly, witnessing"
+                "sa + akkhi (with eyes)",
+                "Seeing directly, witnessing"
               ]
             },
             {
@@ -3101,8 +3101,8 @@
               "text": "āya",
               "type": "suffix",
               "tooltips": [
-                "[Dative] For the sake of",
-                "🎯 Purpose marker"
+                "For the sake of",
+                "Purpose marker"
               ]
             }
           ],
@@ -3163,7 +3163,7 @@
               "text": "yad",
               "type": "root",
               "tooltips": [
-                "[Relative Pronoun] Which, what"
+                "Which, what"
               ]
             },
             {
@@ -3171,7 +3171,7 @@
               "text": "idaṁ",
               "type": "root",
               "tooltips": [
-                "[Demonstrative] This",
+                "This",
                 "yad + idaṁ = \"namely, that is to say\""
               ]
             }
@@ -3193,8 +3193,7 @@
               "text": "cattāro",
               "type": "stem",
               "tooltips": [
-                "[Numeral] Four (4)",
-                "[Nominative Plural Masculine]"
+                "Four (4)"
               ]
             }
           ],
@@ -3224,7 +3223,7 @@
               "type": "root",
               "tooltips": [
                 "√smṛ: to remember",
-                "💭 Mindfulness, presence, awareness"
+                "Mindfulness, presence, awareness"
               ]
             },
             {
@@ -3232,7 +3231,7 @@
               "text": "paṭṭhānā",
               "type": "root",
               "tooltips": [
-                "[Compound] paṭi + √sthā: to stand",
+                "paṭi + √sthā: to stand",
                 "Establishing, foundation, setting up"
               ]
             }
@@ -3292,7 +3291,7 @@
               "text": "Kat",
               "type": "root",
               "tooltips": [
-                "[Interrogative] Ka-stem",
+                "Ka-stem",
                 "Asking a question"
               ]
             },
@@ -3301,8 +3300,7 @@
               "text": "ame",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Plural Masculine]",
-                "❓ \"Which ones?\" — asking about a group"
+                "\"Which ones?\" — asking about a group"
               ]
             }
           ],
@@ -3327,8 +3325,7 @@
               "text": "cattāro",
               "type": "stem",
               "tooltips": [
-                "[Numeral] Four (4)",
-                "[Nominative Plural Masculine]"
+                "Four (4)"
               ]
             }
           ],
@@ -3381,8 +3378,8 @@
               "text": "Idha",
               "type": "stem",
               "tooltips": [
-                "[Indeclinable] Here, in this case",
-                "📍 Sets the context for what follows"
+                "Here, in this case",
+                "Sets the context for what follows"
               ]
             }
           ],
@@ -3417,8 +3414,8 @@
               "text": "ave",
               "type": "suffix",
               "tooltips": [
-                "[Vocative Plural] O monks!",
-                "📢 Calling out to the group"
+                "O monks!",
+                "Calling out to the group"
               ]
             }
           ],
@@ -3456,7 +3453,7 @@
               "text": "u",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Singular] A bhikkhu",
+                "A bhikkhu",
                 "The practitioner being described"
               ]
             }
@@ -3516,7 +3513,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] 📍 \"In the...\"",
+                "\"In the...\"",
                 "\"Body in body\" = seeing body AS body",
                 "• Not as \"mine\" or \"self\"",
                 "• Just the raw phenomenon"
@@ -3570,7 +3567,7 @@
               "text": "ānu",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Anu: along, repeatedly, closely",
+                "Anu: along, repeatedly, closely",
                 "Implies sustained observation"
               ]
             },
@@ -3579,7 +3576,7 @@
               "text": "pass",
               "type": "root",
               "tooltips": [
-                "👁️ √dṛś (Pali √pass): To see",
+                "️ √dṛś (Pali √pass): To see",
                 "Anupassati = observe closely"
               ]
             },
@@ -3588,7 +3585,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Agent noun suffix] \"One who does this\"",
+                "\"One who does this\"",
                 "Identity shift: you become an observer"
               ]
             }
@@ -3627,7 +3624,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Apart, specially"
+                "Apart, specially"
               ]
             },
             {
@@ -3635,7 +3632,7 @@
               "text": "har",
               "type": "root",
               "tooltips": [
-                "🏠 √hṛ: To carry, dwell"
+                "√hṛ: To carry, dwell"
               ]
             },
             {
@@ -3643,7 +3640,7 @@
               "text": "ati",
               "type": "suffix",
               "tooltips": [
-                "[Present 3rd Singular] He/she does this"
+                "He/she does this"
               ]
             }
           ],
@@ -3703,7 +3700,7 @@
               "text": "ātāp",
               "type": "root",
               "tooltips": [
-                "🔥 √tap: To burn, heat",
+                "√tap: To burn, heat",
                 "Vedic tapas = ascetic heat",
                 "Buddhist: burning of defilements",
                 "= Right Effort (sammā-vāyāma)"
@@ -3714,7 +3711,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Possessive suffix] One who has ardor",
+                "One who has ardor",
                 "Prevents sinking into lethargy"
               ]
             }
@@ -3749,7 +3746,7 @@
               "text": "sam",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Sam: together, completely"
+                "Sam: together, completely"
               ]
             },
             {
@@ -3757,7 +3754,7 @@
               "text": "pa",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Pa/Pra: forth, forward"
+                "Pa/Pra: forth, forward"
               ]
             },
             {
@@ -3765,7 +3762,7 @@
               "text": "jān",
               "type": "root",
               "tooltips": [
-                "🧠 √jñā: To know",
+                "√jñā: To know",
                 "Sampajañña = Clear Comprehension"
               ]
             },
@@ -3774,7 +3771,7 @@
               "text": "o",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Singular Masculine] One who knows",
+                "One who knows",
                 "The wisdom aspect of the triad"
               ]
             }
@@ -3809,7 +3806,7 @@
               "text": "sati",
               "type": "root",
               "tooltips": [
-                "💭 √smṛ: To remember",
+                "√smṛ: To remember",
                 "Sati = mindfulness / presence / retention",
                 "The \"holding\" function of mind"
               ]
@@ -3820,11 +3817,11 @@
               "type": "suffix",
               "tooltips": [
                 "-mant: Possessive suffix",
-                "📝 Key distinction:",
+                "Key distinction:",
                 "• Satimā = POSSESSING the faculty",
-                "  (foundational disposition)",
+                "(foundational disposition)",
                 "• Sato = APPLYING it moment-to-moment",
-                "  (e.g., \"sato va assasati\")",
+                "(e.g., \"sato va assasati\")",
                 "Here: establishing the capacity"
               ]
             }
@@ -3881,7 +3878,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Vi: Away / Out / Apart",
+                "Vi: Away / Out / Apart",
                 "Same root as VINAYA (discipline)"
               ]
             },
@@ -3899,14 +3896,14 @@
               "text": "ya",
               "type": "suffix",
               "tooltips": [
-                "⚖️ THE GREAT DEBATE:",
+                "️ THE GREAT DEBATE:",
                 "• \"Having removed\" (sequential):",
-                "  → First jhāna, then insight",
-                "  → Samatha-first approach",
+                "→ First jhāna, then insight",
+                "→ Samatha-first approach",
                 "• \"While removing\" (simultaneous):",
-                "  → Mindfulness IS the removing",
-                "  → Dry insight approach",
-                "⚡ Both readings are grammatically valid"
+                "→ Mindfulness IS the removing",
+                "→ Dry insight approach",
+                "Both readings are grammatically valid"
               ]
             }
           ],
@@ -3952,7 +3949,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] 📍 \"In/regarding the...\" — scope of action",
+                "\"In/regarding the...\" — scope of action",
                 "What the removing applies to"
               ]
             }
@@ -4009,7 +4006,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "📝 SYNECDOCHE:",
+                "SYNECDOCHE:",
                 "These two stand for ALL FIVE Hindrances:",
                 "1. Sensory desire (abhijjhā)",
                 "2. Ill-will (domanassa)",
@@ -4072,14 +4069,14 @@
               "text": "vedan",
               "type": "root",
               "tooltips": [
-                "💫 √vid: To know (same root as Veda)",
+                "√vid: To know (same root as Veda)",
                 "Vedanā = \"the knowing of the taste\"",
                 "NOT emotion — strictly hedonic tone:",
                 "• Pleasant (sukha)",
                 "• Painful (dukkha)",
                 "• Neutral (adukkhamasukha)",
-                "⚡ The PIVOT in dependent origination:",
-                "Contact → Vedanā → [cut here] → Craving"
+                "The PIVOT in dependent origination:",
+                "Contact → Vedanā → → Craving"
               ]
             },
             {
@@ -4087,7 +4084,7 @@
               "text": "āsu",
               "type": "suffix",
               "tooltips": [
-                "[Locative Plural] 📍 \"Among the...\" — locative plural",
+                "\"Among the...\" — locative plural",
                 "All three tones are the domain"
               ],
               "relation": {
@@ -4139,7 +4136,7 @@
               "text": "pass",
               "type": "root",
               "tooltips": [
-                "👁️ √dṛś (Pali √pass): To see"
+                "️ √dṛś (Pali √pass): To see"
               ]
             },
             {
@@ -4182,7 +4179,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Apart / Special"
+                "Apart / Special"
               ]
             },
             {
@@ -4190,7 +4187,7 @@
               "text": "har",
               "type": "root",
               "tooltips": [
-                "🏠 √hṛ: To carry / Dwell"
+                "√hṛ: To carry / Dwell"
               ]
             },
             {
@@ -4198,7 +4195,7 @@
               "text": "ati",
               "type": "suffix",
               "tooltips": [
-                "[Present 3rd Singular] He/she is doing this now"
+                "He/she is doing this now"
               ]
             }
           ],
@@ -4250,7 +4247,7 @@
               "text": "ātāp",
               "type": "root",
               "tooltips": [
-                "🔥 √tap: To burn / Heat"
+                "√tap: To burn / Heat"
               ]
             },
             {
@@ -4308,7 +4305,7 @@
               "text": "jān",
               "type": "root",
               "tooltips": [
-                "🧠 √jñā: To know"
+                "√jñā: To know"
               ]
             },
             {
@@ -4350,7 +4347,7 @@
               "text": "sati",
               "type": "root",
               "tooltips": [
-                "💭 √smṛ: Memory / Mindfulness"
+                "√smṛ: Memory / Mindfulness"
               ]
             },
             {
@@ -4430,7 +4427,7 @@
               "text": "ya",
               "type": "suffix",
               "tooltips": [
-                "⚡ Observing IS removing"
+                "Observing IS removing"
               ]
             }
           ],
@@ -4476,7 +4473,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] 📍 \"Regarding the...\""
+                "\"Regarding the...\""
               ]
             }
           ],
@@ -4579,7 +4576,7 @@
               "text": "citt",
               "type": "root",
               "tooltips": [
-                "🧠 Double etymology:",
+                "Double etymology:",
                 "• √cit: To perceive / To think",
                 "• √ci: To accumulate / Heap up",
                 "Citta = \"Heart-Mind\"",
@@ -4594,7 +4591,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] 📍 \"In the...\" — locative singular",
+                "\"In the...\" — locative singular",
                 "The 16 states: sarāga/vītarāga, sadosa/vītadosa..."
               ],
               "relation": {
@@ -4645,7 +4642,7 @@
               "text": "pass",
               "type": "root",
               "tooltips": [
-                "👁️ √dṛś (Pali √pass): To see"
+                "️ √dṛś (Pali √pass): To see"
               ]
             },
             {
@@ -4688,7 +4685,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Apart / Special"
+                "Apart / Special"
               ]
             },
             {
@@ -4696,7 +4693,7 @@
               "text": "har",
               "type": "root",
               "tooltips": [
-                "🏠 √hṛ: To dwell"
+                "√hṛ: To dwell"
               ]
             },
             {
@@ -4704,7 +4701,7 @@
               "text": "ati",
               "type": "suffix",
               "tooltips": [
-                "[Present 3rd Singular] Ongoing action"
+                "Ongoing action"
               ]
             }
           ],
@@ -4764,7 +4761,7 @@
               "text": "ātāp",
               "type": "root",
               "tooltips": [
-                "🔥 √tap: To burn, heat",
+                "√tap: To burn, heat",
                 "Ardor / Effort"
               ]
             },
@@ -4773,7 +4770,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Possessive suffix] One who has ardor"
+                "One who has ardor"
               ]
             }
           ],
@@ -4807,7 +4804,7 @@
               "text": "sam",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Sam: together, completely"
+                "Sam: together, completely"
               ]
             },
             {
@@ -4815,7 +4812,7 @@
               "text": "pa",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Pa/Pra: forth, forward"
+                "Pa/Pra: forth, forward"
               ]
             },
             {
@@ -4823,7 +4820,7 @@
               "text": "jān",
               "type": "root",
               "tooltips": [
-                "🧠 √jñā: To know",
+                "√jñā: To know",
                 "Sampajañña = Clear Comprehension"
               ]
             },
@@ -4832,7 +4829,7 @@
               "text": "o",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Singular Masculine] One who knows"
+                "One who knows"
               ]
             }
           ],
@@ -4866,7 +4863,7 @@
               "text": "sati",
               "type": "root",
               "tooltips": [
-                "💭 √smṛ: To remember",
+                "√smṛ: To remember",
                 "Sati = mindfulness / presence"
               ]
             },
@@ -4875,7 +4872,7 @@
               "text": "mā",
               "type": "suffix",
               "tooltips": [
-                "[Possessive suffix] -mant: Possessing the faculty"
+                "-mant: Possessing the faculty"
               ]
             }
           ],
@@ -4931,7 +4928,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Vi: Away / Out / Apart",
+                "Vi: Away / Out / Apart",
                 "Same root as VINAYA (discipline)"
               ]
             },
@@ -4949,10 +4946,10 @@
               "text": "ya",
               "type": "suffix",
               "tooltips": [
-                "[Absolutive] ⚡ THE GREAT DEBATE:",
+                "THE GREAT DEBATE:",
                 "• \"Having removed\" (sequential)",
                 "• \"While removing\" (simultaneous)",
-                "⚡ Both readings are grammatically valid"
+                "Both readings are grammatically valid"
               ]
             }
           ],
@@ -4998,7 +4995,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] 📍 \"In/regarding the...\""
+                "\"In/regarding the...\""
               ]
             }
           ],
@@ -5028,7 +5025,7 @@
               "text": "abhi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Abhi: Towards / Intensely"
+                "Abhi: Towards / Intensely"
               ]
             },
             {
@@ -5054,8 +5051,8 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] The thing being removed",
-                "📝 SYNECDOCHE: These two stand for ALL FIVE Hindrances"
+                "The thing being removed",
+                "SYNECDOCHE: These two stand for ALL FIVE Hindrances"
               ]
             }
           ],
@@ -5112,7 +5109,7 @@
               "text": "dhamm",
               "type": "root",
               "tooltips": [
-                "⚖️ √dhṛ: To hold / Support / Sustain",
+                "️ √dhṛ: To hold / Support / Sustain",
                 "Dhamma = \"that which holds\"",
                 "Here NOT \"The Dhamma\" (singular/Doctrine)",
                 "But \"dhammas\" (plural) = PATTERNS:",
@@ -5121,7 +5118,7 @@
                 "3. Six Sense Bases",
                 "4. Seven Awakening Factors",
                 "5. Four Noble Truths",
-                "🔬 Domain of Vipassanā — causal laws"
+                "Domain of Vipassanā — causal laws"
               ]
             },
             {
@@ -5129,7 +5126,7 @@
               "text": "esu",
               "type": "suffix",
               "tooltips": [
-                "[Locative Plural] 📍 \"Among the...\" — locative PLURAL",
+                "\"Among the...\" — locative PLURAL",
                 "Not \"in Dhamma\" but \"in dhammas\"",
                 "Observing principles, not things"
               ],
@@ -5185,7 +5182,7 @@
               "text": "pass",
               "type": "root",
               "tooltips": [
-                "👁️ √dṛś (Pali √pass): To see"
+                "️ √dṛś (Pali √pass): To see"
               ]
             },
             {
@@ -5228,7 +5225,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Apart / Special"
+                "Apart / Special"
               ]
             },
             {
@@ -5236,7 +5233,7 @@
               "text": "har",
               "type": "root",
               "tooltips": [
-                "🏠 √hṛ: To dwell"
+                "√hṛ: To dwell"
               ]
             },
             {
@@ -5244,7 +5241,7 @@
               "text": "ati",
               "type": "suffix",
               "tooltips": [
-                "[Present 3rd Singular] Ongoing action"
+                "Ongoing action"
               ]
             }
           ],
@@ -5304,7 +5301,7 @@
               "text": "ātāp",
               "type": "root",
               "tooltips": [
-                "🔥 √tap: To burn, heat",
+                "√tap: To burn, heat",
                 "Ardor / Effort"
               ]
             },
@@ -5313,7 +5310,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Possessive suffix] One who has ardor"
+                "One who has ardor"
               ]
             }
           ],
@@ -5347,7 +5344,7 @@
               "text": "sam",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Sam: together, completely"
+                "Sam: together, completely"
               ]
             },
             {
@@ -5355,7 +5352,7 @@
               "text": "pa",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Pa/Pra: forth, forward"
+                "Pa/Pra: forth, forward"
               ]
             },
             {
@@ -5363,7 +5360,7 @@
               "text": "jān",
               "type": "root",
               "tooltips": [
-                "🧠 √jñā: To know",
+                "√jñā: To know",
                 "Sampajañña = Clear Comprehension"
               ]
             },
@@ -5372,7 +5369,7 @@
               "text": "o",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Singular Masculine] One who knows"
+                "One who knows"
               ]
             }
           ],
@@ -5406,7 +5403,7 @@
               "text": "sati",
               "type": "root",
               "tooltips": [
-                "💭 √smṛ: To remember",
+                "√smṛ: To remember",
                 "Sati = mindfulness / presence"
               ]
             },
@@ -5415,7 +5412,7 @@
               "text": "mā",
               "type": "suffix",
               "tooltips": [
-                "[Possessive suffix] -mant: Possessing the faculty"
+                "-mant: Possessing the faculty"
               ]
             }
           ],
@@ -5471,7 +5468,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Vi: Away / Out / Apart",
+                "Vi: Away / Out / Apart",
                 "Same root as VINAYA (discipline)"
               ]
             },
@@ -5489,10 +5486,10 @@
               "text": "ya",
               "type": "suffix",
               "tooltips": [
-                "[Absolutive] ⚡ THE GREAT DEBATE:",
+                "THE GREAT DEBATE:",
                 "• \"Having removed\" (sequential)",
                 "• \"While removing\" (simultaneous)",
-                "⚡ Both readings are grammatically valid"
+                "Both readings are grammatically valid"
               ]
             }
           ],
@@ -5538,7 +5535,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] 📍 \"In/regarding the...\""
+                "\"In/regarding the...\""
               ]
             }
           ],
@@ -5568,7 +5565,7 @@
               "text": "abhi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Abhi: Towards / Intensely"
+                "Abhi: Towards / Intensely"
               ]
             },
             {
@@ -5594,8 +5591,8 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] The thing being removed",
-                "📝 SYNECDOCHE: These two stand for ALL FIVE Hindrances"
+                "The thing being removed",
+                "SYNECDOCHE: These two stand for ALL FIVE Hindrances"
               ]
             }
           ],
@@ -5700,7 +5697,7 @@
               "text": "o",
               "type": "suffix",
               "tooltips": [
-                "[Masculine Singular] describing the uddesa"
+                "describing the uddesa"
               ]
             }
           ],
@@ -5748,7 +5745,7 @@
               "type": "root",
               "tooltips": [
                 "Kathaṁ: How / In what way",
-                "❓ Interrogative — asking for method"
+                "Interrogative — asking for method"
               ]
             },
             {
@@ -5791,7 +5788,7 @@
               "text": "ave",
               "type": "suffix",
               "tooltips": [
-                "[Vocative Plural] 📢 addressing the group"
+                "addressing the group"
               ]
             }
           ],
@@ -5829,7 +5826,7 @@
               "text": "u",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Singular] the practitioner"
+                "the practitioner"
               ]
             }
           ],
@@ -5866,7 +5863,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] 📍 \"In the...\""
+                "\"In the...\""
               ],
               "relation": {
                 "targetWordId": "am5",
@@ -5916,7 +5913,7 @@
               "text": "ānu",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Anu: Along / Repeatedly / Closely"
+                "Anu: Along / Repeatedly / Closely"
               ]
             },
             {
@@ -5924,7 +5921,7 @@
               "text": "pass",
               "type": "root",
               "tooltips": [
-                "👁️ √dṛś (Pali √pass): To see"
+                "️ √dṛś (Pali √pass): To see"
               ]
             },
             {
@@ -5932,7 +5929,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Agent noun suffix] -ī = \"one who does this\""
+                "-ī = \"one who does this\""
               ]
             }
           ],
@@ -5970,7 +5967,7 @@
               "text": "vi",
               "type": "prefix",
               "tooltips": [
-                "[Prefix] Apart / Special"
+                "Apart / Special"
               ]
             },
             {
@@ -5978,7 +5975,7 @@
               "text": "har",
               "type": "root",
               "tooltips": [
-                "🏠 √hṛ: To carry, dwell"
+                "√hṛ: To carry, dwell"
               ]
             },
             {
@@ -5986,7 +5983,7 @@
               "text": "ati",
               "type": "suffix",
               "tooltips": [
-                "[Present 3rd Singular] Ongoing action"
+                "Ongoing action"
               ]
             }
           ],
@@ -6052,7 +6049,7 @@
               "type": "stem",
               "tooltips": [
                 "Here / In this teaching",
-                "📍 Sets the context"
+                "Sets the context"
               ]
             }
           ],
@@ -6080,10 +6077,7 @@
             {
               "id": "an2s2",
               "text": "ave",
-              "type": "suffix",
-              "tooltips": [
-                "[Vocative Plural] 📢"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -6118,10 +6112,7 @@
             {
               "id": "an3s2",
               "text": "u",
-              "type": "suffix",
-              "tooltips": [
-                "[Nominative Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -6149,7 +6140,7 @@
               "text": "arañña",
               "type": "root",
               "tooltips": [
-                "🌲 Araṇya: Forest / Wilderness",
+                "Araṇya: Forest / Wilderness",
                 "From araṇa (remote) + ya",
                 "Canonical: 500 bow-lengths from village",
                 "Space for undisturbed practice"
@@ -6212,7 +6203,7 @@
               "text": "rukkha",
               "type": "root",
               "tooltips": [
-                "🌳 Rukkha: Tree",
+                "Rukkha: Tree",
                 "From Sanskrit vṛkṣa"
               ]
             },
@@ -6399,7 +6390,7 @@
               "tooltips": [
                 "Pallaṅka: Cross-legged posture",
                 "Paryaṅka in Sanskrit",
-                "🧘 The meditation seat/throne",
+                "The meditation seat/throne",
                 "Can mean full lotus or seated posture"
               ]
             },
@@ -6408,7 +6399,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] the object being adopted"
+                "the object being adopted"
               ]
             }
           ],
@@ -6454,7 +6445,7 @@
               "text": "itvā",
               "type": "suffix",
               "tooltips": [
-                "[Absolutive] \"having done X\"",
+                "\"having done X\"",
                 "Sequence: first bend, then..."
               ]
             }
@@ -6486,7 +6477,7 @@
               "tooltips": [
                 "Uju: Straight / Upright / Direct",
                 "Sanskrit ṛju",
-                "📐 Physical AND ethical straightness"
+                "Physical AND ethical straightness"
               ]
             },
             {
@@ -6494,7 +6485,7 @@
               "text": "ṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] describing what is made straight"
+                "describing what is made straight"
               ]
             }
           ],
@@ -6531,7 +6522,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] the thing made straight"
+                "the thing made straight"
               ]
             }
           ],
@@ -6578,7 +6569,7 @@
               "text": "ya",
               "type": "suffix",
               "tooltips": [
-                "[Absolutive] \"having done X\""
+                "\"having done X\""
               ]
             }
           ],
@@ -6646,16 +6637,16 @@
               "type": "root",
               "tooltips": [
                 "Mukha: Face / Mouth / Front",
-                "📍 THREE INTERPRETATIONS:",
-                "🏛️ Vibhaṅga: Nose-tip (nāsikagge)",
-                "  or upper lip (uttaroṭṭhe)",
-                "  \"Long-nosed man\" = nostril tip",
-                "  \"Short-nosed man\" = upper lip",
-                "📖 Vinaya: \"To the fore\"",
-                "  = mental priority, not location",
-                "  (Cv.V.27.4 uses for \"chest\")",
-                "🧘 Synthesis: Anchor → Expand",
-                "  Face region → then sabbakāya"
+                "THREE INTERPRETATIONS:",
+                "️ Vibhaṅga: Nose-tip (nāsikagge)",
+                "or upper lip (uttaroṭṭhe)",
+                "\"Long-nosed man\" = nostril tip",
+                "\"Short-nosed man\" = upper lip",
+                "Vinaya: \"To the fore\"",
+                "= mental priority, not location",
+                "(Cv.V.27.4 uses for \"chest\")",
+                "Synthesis: Anchor → Expand",
+                "Face region → then sabbakāya"
               ]
             },
             {
@@ -6663,7 +6654,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] describing where/how"
+                "describing where/how"
               ]
             }
           ],
@@ -6692,7 +6683,7 @@
               "text": "sati",
               "type": "root",
               "tooltips": [
-                "💭 √smṛ: Mindfulness / Awareness",
+                "√smṛ: Mindfulness / Awareness",
                 "The thing being established"
               ]
             },
@@ -6701,7 +6692,7 @@
               "text": "ṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] object of upaṭṭhapetvā"
+                "object of upaṭṭhapetvā"
               ]
             }
           ],
@@ -6747,7 +6738,7 @@
               "text": "etvā",
               "type": "suffix",
               "tooltips": [
-                "[Absolutive] \"having done X\"",
+                "\"having done X\"",
                 "After this, the breathing begins"
               ]
             }
@@ -6821,8 +6812,8 @@
               "text": "sat",
               "type": "root",
               "tooltips": [
-                "💭 √smṛ: Memory / Mindfulness",
-                "📝 KEY: Sato (not satimā)!",
+                "√smṛ: Memory / Mindfulness",
+                "KEY: Sato (not satimā)!",
                 "• Satimā = POSSESSING the faculty",
                 "• Sato = APPLYING it NOW",
                 "Active, moment-to-moment awareness",
@@ -6834,7 +6825,7 @@
               "text": "o",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Singular] describing \"he\"",
+                "describing \"he\"",
                 "Adverbial sense: \"mindfully\""
               ]
             }
@@ -6888,16 +6879,16 @@
               "text": "assas",
               "type": "root",
               "tooltips": [
-                "🌬️ Ā + √śvas: To breathe in",
+                "️ Ā + √śvas: To breathe in",
                 "Sanskrit āśvas → Pali assasati",
                 "Ā = towards (ad-spirare in Latin)",
-                "⚡ WHY IN-BREATH FIRST?",
+                "WHY IN-BREATH FIRST?",
                 "• Primacy of intake — receiving life",
                 "• In-breath = arising, energizing",
                 "• Out-breath = cessation, release",
-                "📜 Note: Vinaya commentary INVERTS",
-                "  these (assāsa = out), but Suttas",
-                "  & etymology support in-first"
+                "Note: Vinaya commentary INVERTS",
+                "these (assāsa = out), but Suttas",
+                "& etymology support in-first"
               ]
             },
             {
@@ -6935,7 +6926,7 @@
               "text": "passas",
               "type": "root",
               "tooltips": [
-                "🌬️ Pra + √śvas: To breathe out",
+                "️ Pra + √śvas: To breathe out",
                 "Sanskrit praśvas → Pali passasati",
                 "Pra = forth (pro-spirare in Latin)",
                 "• Release phase of the cycle",
@@ -6946,10 +6937,7 @@
             {
               "id": "aq5s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7013,8 +7001,8 @@
               "tooltips": [
                 "Dīgha: Long (in space or time)",
                 "Sanskrit dīrgha, from Ved. *dlāgh",
-                "🌬️ A long, slow breath",
-                "🪵 TURNER SIMILE (bhamakāra):",
+                "️ A long, slow breath",
+                "TURNER SIMILE (bhamakāra):",
                 "Like a skilled lathe-turner who",
                 "\"making a long turn, knows I make",
                 "a long turn\" — active, sensitive",
@@ -7026,7 +7014,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative Adverbial] \"long-ly\"",
+                "\"long-ly\"",
                 "Describing manner of breathing"
               ]
             }
@@ -7090,7 +7078,7 @@
               "text": "anto",
               "type": "suffix",
               "tooltips": [
-                "[Present Participle] \"while doing\"",
+                "\"while doing\"",
                 "Simultaneous action"
               ]
             }
@@ -7129,7 +7117,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] Object of knowing"
+                "Object of knowing"
               ]
             }
           ],
@@ -7167,7 +7155,7 @@
               "text": "āmī",
               "type": "suffix",
               "tooltips": [
-                "[1st Person Singular] \"I am doing\"",
+                "\"I am doing\"",
                 "Direct knowledge: knowing \"I breathe\""
               ]
             }
@@ -7230,15 +7218,15 @@
               "text": "jān",
               "type": "root",
               "tooltips": [
-                "🧠 √jñā: To know",
+                "√jñā: To know",
                 "Pajānāti = discriminative knowing",
-                "📝 DESCRIPTIVE MODE:",
+                "DESCRIPTIVE MODE:",
                 "• The breath IS moving",
                 "• Meditator DISCERNS its quality",
                 "• Foundation of vipassanā:",
-                "  seeing anicca (change) in breath",
-                "⚠️ Note: Steps 1-2 use pajānāti",
-                "  Steps 3-4 shift to SIKKHATI"
+                "seeing anicca (change) in breath",
+                "️ Note: Steps 1-2 use pajānāti",
+                "Steps 3-4 shift to SIKKHATI"
               ]
             },
             {
@@ -7246,7 +7234,7 @@
               "text": "āti",
               "type": "suffix",
               "tooltips": [
-                "[Present Tense] \"knows\""
+                "\"knows\""
               ]
             }
           ],
@@ -7281,10 +7269,7 @@
             {
               "id": "ar7s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7345,7 +7330,7 @@
               "text": "anto",
               "type": "suffix",
               "tooltips": [
-                "[Present Participle] \"while doing\""
+                "\"while doing\""
               ]
             }
           ],
@@ -7380,10 +7365,7 @@
             {
               "id": "ar9bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7418,10 +7400,7 @@
             {
               "id": "ar10s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7485,10 +7464,7 @@
             {
               "id": "ar12s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7564,8 +7540,8 @@
               "tooltips": [
                 "Rassa: Short (in space or time)",
                 "Sanskrit hrasva (h → r in Pali)",
-                "🌬️ A short, quick breath",
-                "🪵 Turner \"making a short turn\"",
+                "️ A short, quick breath",
+                "Turner \"making a short turn\"",
                 "Ancient reciprocating bow-lathe:",
                 "back-forth mirrors in-out breath",
                 "The turner knows through DOING"
@@ -7576,7 +7552,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative Adverbial] \"short-ly\"",
+                "\"short-ly\"",
                 "Describing manner of breathing"
               ]
             }
@@ -7637,7 +7613,7 @@
               "text": "anto",
               "type": "suffix",
               "tooltips": [
-                "[Present Participle] \"while doing\""
+                "\"while doing\""
               ]
             }
           ],
@@ -7675,7 +7651,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] Object of knowing"
+                "Object of knowing"
               ]
             }
           ],
@@ -7713,7 +7689,7 @@
               "text": "āmī",
               "type": "suffix",
               "tooltips": [
-                "[1st Person Singular] \"I am doing\""
+                "\"I am doing\""
               ]
             }
           ],
@@ -7772,7 +7748,7 @@
               "text": "jān",
               "type": "root",
               "tooltips": [
-                "🧠 √jñā: To know"
+                "√jñā: To know"
               ]
             },
             {
@@ -7780,7 +7756,7 @@
               "text": "āti",
               "type": "suffix",
               "tooltips": [
-                "[Present Tense] \"knows\""
+                "\"knows\""
               ]
             }
           ],
@@ -7815,10 +7791,7 @@
             {
               "id": "as7s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7875,10 +7848,7 @@
             {
               "id": "as9s2",
               "text": "anto",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Participle]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7912,10 +7882,7 @@
             {
               "id": "as9bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -7950,10 +7917,7 @@
             {
               "id": "as10s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8017,10 +7981,7 @@
             {
               "id": "as12s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8104,15 +8065,15 @@
               "text": "kāya",
               "type": "root",
               "tooltips": [
-                "⚡ THREE TRADITIONS:",
-                "🏛️ Visuddhimagga: \"breath-body\"",
-                "  = whole breath at nostril",
-                "  Purpose: nimitta for jhāna",
-                "📜 Sutta (MN119): \"physical body\"",
-                "  = body pervaded like bathman",
-                "  kneading soap-ball with water",
-                "📚 Sarvastivāda: \"all bodies\"",
-                "  = mental + physical groups",
+                "THREE TRADITIONS:",
+                "️ Visuddhimagga: \"breath-body\"",
+                "= whole breath at nostril",
+                "Purpose: nimitta for jhāna",
+                "Sutta (MN119): \"physical body\"",
+                "= body pervaded like bathman",
+                "kneading soap-ball with water",
+                "Sarvastivāda: \"all bodies\"",
+                "= mental + physical groups",
                 "Each has methodological merit"
               ]
             },
@@ -8146,7 +8107,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Agent Suffix] One who experiences"
+                "One who experiences"
               ]
             }
           ],
@@ -8185,7 +8146,7 @@
               "text": "issāmī",
               "type": "suffix",
               "tooltips": [
-                "[Future 1st Person] \"I will\"",
+                "\"I will\"",
                 "Intentional: setting up training"
               ]
             }
@@ -8239,14 +8200,14 @@
               "tooltips": [
                 "√śikṣ: To train / Practice / Learn",
                 "Desiderative of √śak (to be able)",
-                "📝 PRESCRIPTIVE MODE:",
+                "PRESCRIPTIVE MODE:",
                 "• Pajānāti (4.4-4.5) = descriptive",
                 "• Sikkhati (4.6-4.7) = prescriptive",
-                "⚡ KEY INDICATORS:",
+                "KEY INDICATORS:",
                 "• Future tense (assasissāmī)",
                 "• Intentional cultivation",
                 "• Same verb as monastic precepts:",
-                "  sikkhāpada = training rules",
+                "sikkhāpada = training rules",
                 "Active shaping, not just watching"
               ]
             },
@@ -8255,7 +8216,7 @@
               "text": "ati",
               "type": "suffix",
               "tooltips": [
-                "[Present Tense] \"trains\""
+                "\"trains\""
               ]
             }
           ],
@@ -8322,10 +8283,7 @@
             {
               "id": "at5s6",
               "text": "ī",
-              "type": "suffix",
-              "tooltips": [
-                "[Agent Suffix]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8361,10 +8319,7 @@
             {
               "id": "at6s2",
               "text": "issāmī",
-              "type": "suffix",
-              "tooltips": [
-                "[Future 1st Person]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8420,10 +8375,7 @@
             {
               "id": "at8s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8512,8 +8464,8 @@
                 "pa + √śrambh: To become calm",
                 "Passambhati = stills, tranquilizes",
                 "Related to passaddhi (tranquility)",
-                "🧘 The breath naturally becomes subtle",
-                "⚡ GOAL: As body relaxes,",
+                "The breath naturally becomes subtle",
+                "GOAL: As body relaxes,",
                 "breath requires less oxygen,",
                 "naturally slows → deep calm",
                 "Opening quote mark"
@@ -8524,7 +8476,6 @@
               "text": "hayaṁ",
               "type": "suffix",
               "tooltips": [
-                "[Causative Participle]",
                 "\"While causing to calm\" / \"stilling\"",
                 "Active cultivation of tranquility"
               ]
@@ -8563,17 +8514,17 @@
               "text": "saṅkhār",
               "type": "root",
               "tooltips": [
-                "⚙️ Saṅkhāra: Formation / Fabrication",
+                "️ Saṅkhāra: Formation / Fabrication",
                 "saṁ + √kṛ: To make together",
-                "📜 MN 44 Cūḷavedalla defines:",
+                "MN 44 Cūḷavedalla defines:",
                 "\"In-breaths & out-breaths are",
                 "kāyasaṅkhāra because they are",
                 "bodily, bound up with the body\"",
-                "🔄 FEEDBACK LOOP:",
+                "FEEDBACK LOOP:",
                 "• Calm attention → calm breath",
                 "• Calm breath → calm body",
                 "• Trajectory: 4th jhāna = breath",
-                "  ceases entirely (niruddha)"
+                "ceases entirely (niruddha)"
               ]
             },
             {
@@ -8581,7 +8532,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative] Object of stilling"
+                "Object of stilling"
               ]
             }
           ],
@@ -8620,7 +8571,7 @@
               "text": "issāmī",
               "type": "suffix",
               "tooltips": [
-                "[Future 1st Person] \"I will\""
+                "\"I will\""
               ]
             }
           ],
@@ -8678,10 +8629,7 @@
             {
               "id": "au5s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8715,10 +8663,7 @@
             {
               "id": "au6s2",
               "text": "hayaṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Causative Participle]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8760,10 +8705,7 @@
             {
               "id": "au7s3",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8799,10 +8741,7 @@
             {
               "id": "au8s2",
               "text": "issāmī",
-              "type": "suffix",
-              "tooltips": [
-                "[Future 1st Person]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8858,10 +8797,7 @@
             {
               "id": "au10s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -8965,8 +8901,7 @@
               "text": "pi",
               "type": "suffix",
               "tooltips": [
-                "Api: Also / Even",
-                "[Emphatic Particle]"
+                "Api: Also / Even"
               ]
             }
           ],
@@ -8996,7 +8931,7 @@
               "text": "ve",
               "type": "suffix",
               "tooltips": [
-                "[Vocative Plural] Addressing the group"
+                "Addressing the group"
               ]
             }
           ],
@@ -9019,7 +8954,7 @@
               "tooltips": [
                 "Dakkha: Skilled / Expert",
                 "Vedic dakṣa, Greek δεξιός, Latin decet",
-                "📝 The turner is not a passive",
+                "The turner is not a passive",
                 "observer — he is a craftsman",
                 "with developed sensitivity"
               ]
@@ -9027,10 +8962,7 @@
             {
               "id": "av3s2",
               "text": "o",
-              "type": "suffix",
-              "tooltips": [
-                "[Nominative Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9058,7 +8990,7 @@
               "text": "bhama",
               "type": "root",
               "tooltips": [
-                "🪵 Bhama: Lathe / Turning-wheel",
+                "Bhama: Lathe / Turning-wheel",
                 "From √bhram: to turn, rotate",
                 "Ancient reciprocating bow-lathe:",
                 "Turner pulls strap back-forth",
@@ -9079,10 +9011,7 @@
             {
               "id": "av4s3",
               "text": "o",
-              "type": "suffix",
-              "tooltips": [
-                "[Nominative Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9163,10 +9092,7 @@
             {
               "id": "av6s5",
               "text": "ī",
-              "type": "suffix",
-              "tooltips": [
-                "[Nominative Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9222,10 +9148,7 @@
             {
               "id": "av8s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9276,7 +9199,7 @@
               "tooltips": [
                 "√añch: To pull, drag",
                 "PTS: \"to turn on a lathe\"",
-                "🪵 The turner PULLS the strap",
+                "The turner PULLS the strap",
                 "to rotate the workpiece",
                 "= active, embodied knowing"
               ]
@@ -9286,7 +9209,7 @@
               "text": "anto",
               "type": "suffix",
               "tooltips": [
-                "[Present Participle] \"while pulling\""
+                "\"while pulling\""
               ]
             }
           ],
@@ -9321,10 +9244,7 @@
             {
               "id": "av10bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9358,10 +9278,7 @@
             {
               "id": "av11s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9425,10 +9342,7 @@
             {
               "id": "av13s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9463,10 +9377,7 @@
             {
               "id": "av14s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9521,10 +9432,7 @@
             {
               "id": "av16s2",
               "text": "anto",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Participle]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9558,10 +9466,7 @@
             {
               "id": "av16bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9595,10 +9500,7 @@
             {
               "id": "av17s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9662,10 +9564,7 @@
             {
               "id": "av19s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9795,8 +9694,7 @@
               "text": "kho",
               "type": "stem",
               "tooltips": [
-                "Kho: Indeed",
-                "[Emphatic Particle]"
+                "Kho: Indeed"
               ]
             }
           ],
@@ -9824,10 +9722,7 @@
             {
               "id": "aw3s2",
               "text": "ve",
-              "type": "suffix",
-              "tooltips": [
-                "[Vocative Plural]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9884,10 +9779,7 @@
             {
               "id": "aw5s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9939,7 +9831,7 @@
               "tooltips": [
                 "√śvas: To breathe",
                 "ā + śvas = breathe in",
-                "📝 Like the turner who KNOWS",
+                "Like the turner who KNOWS",
                 "while pulling — the meditator",
                 "KNOWS while breathing"
               ]
@@ -9947,10 +9839,7 @@
             {
               "id": "aw7s2",
               "text": "anto",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Participle]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -9984,10 +9873,7 @@
             {
               "id": "aw7bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10022,10 +9908,7 @@
             {
               "id": "aw8s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10089,10 +9972,7 @@
             {
               "id": "aw10s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10126,10 +10006,7 @@
             {
               "id": "aw11s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10186,10 +10063,7 @@
             {
               "id": "aw13s2",
               "text": "anto",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Participle]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10223,10 +10097,7 @@
             {
               "id": "aw13bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10261,10 +10132,7 @@
             {
               "id": "aw14s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10328,10 +10196,7 @@
             {
               "id": "aw16s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10365,10 +10230,7 @@
             {
               "id": "aw17s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10424,10 +10286,7 @@
             {
               "id": "aw19s2",
               "text": "anto",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Participle]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10461,10 +10320,7 @@
             {
               "id": "aw19bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10499,10 +10355,7 @@
             {
               "id": "aw20s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10566,10 +10419,7 @@
             {
               "id": "aw22s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10603,10 +10453,7 @@
             {
               "id": "aw23s2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative Adverbial]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10662,10 +10509,7 @@
             {
               "id": "aw25s2",
               "text": "anto",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Participle]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10699,10 +10543,7 @@
             {
               "id": "aw25bs2",
               "text": "aṁ",
-              "type": "suffix",
-              "tooltips": [
-                "[Accusative]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10737,10 +10578,7 @@
             {
               "id": "aw26s2",
               "text": "āmī",
-              "type": "suffix",
-              "tooltips": [
-                "[1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10804,10 +10642,7 @@
             {
               "id": "aw28s3",
               "text": "āti",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -10939,10 +10774,10 @@
               "type": "root",
               "tooltips": [
                 "Kāya: Body",
-                "⚡ THREE TRADITIONS:",
-                "🏛️ Visuddhimagga: breath-body",
-                "📜 Sutta: physical body",
-                "📚 Sarvastivāda: all bodies"
+                "THREE TRADITIONS:",
+                "️ Visuddhimagga: breath-body",
+                "Sutta: physical body",
+                "Sarvastivāda: all bodies"
               ]
             },
             {
@@ -10973,9 +10808,6 @@
               "id": "ax1s6",
               "text": "ī",
               "type": "suffix",
-              "tooltips": [
-                "[Nominative Agent Suffix]"
-              ],
               "relation": {
                 "targetSegmentId": "ax2s1",
                 "type": "action",
@@ -11014,10 +10846,7 @@
             {
               "id": "ax2s2",
               "text": "issāmī",
-              "type": "suffix",
-              "tooltips": [
-                "[Future Tense 1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -11073,10 +10902,7 @@
             {
               "id": "ax4s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -11143,9 +10969,6 @@
               "id": "ax5s6",
               "text": "ī",
               "type": "suffix",
-              "tooltips": [
-                "[Nominative Agent Suffix]"
-              ],
               "relation": {
                 "targetSegmentId": "ax6s1",
                 "type": "action",
@@ -11184,10 +11007,7 @@
             {
               "id": "ax6s2",
               "text": "issāmī",
-              "type": "suffix",
-              "tooltips": [
-                "[Future Tense 1st Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -11243,10 +11063,7 @@
             {
               "id": "ax8s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -11334,7 +11151,7 @@
               "tooltips": [
                 "Iti: Thus / In this way",
                 "Marks transition to refrain",
-                "🔁 THE REFRAIN BEGINS:",
+                "THE REFRAIN BEGINS:",
                 "This formula repeats after",
                 "EVERY contemplation section"
               ]
@@ -11369,7 +11186,7 @@
               "tooltips": [
                 "Attan: Self",
                 "Ajjhatta = internal, within oneself",
-                "📍 THREE SCOPES:",
+                "THREE SCOPES:",
                 "• Ajjhattaṁ = one's own body",
                 "• Bahiddhā = others' bodies",
                 "• Both = seeing universality"
@@ -11380,7 +11197,7 @@
               "text": "aṁ",
               "type": "suffix",
               "tooltips": [
-                "[Accusative Adverbial] \"internally\""
+                "\"internally\""
               ]
             }
           ],
@@ -11438,7 +11255,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] \"in the body\""
+                "\"in the body\""
               ],
               "relation": {
                 "targetWordId": "ay5",
@@ -11506,7 +11323,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Agent Noun] \"one who...\""
+                "\"one who...\""
               ]
             }
           ],
@@ -11538,7 +11355,7 @@
               "tooltips": [
                 "√hṛ + vi: To dwell / Abide",
                 "Viharati = lives, remains, abides",
-                "📝 Not momentary but sustained",
+                "Not momentary but sustained",
                 "dwelling in the practice"
               ]
             },
@@ -11547,7 +11364,7 @@
               "text": "ati",
               "type": "suffix",
               "tooltips": [
-                "[Present Tense 3rd Person Singular] \"dwells\""
+                "\"dwells\""
               ]
             }
           ],
@@ -11618,12 +11435,12 @@
               "text": "dhā",
               "type": "suffix",
               "tooltips": [
-                "[Adverbial] \"externally\"",
-                "📍 EXTERNAL SCOPE:",
+                "\"externally\"",
+                "EXTERNAL SCOPE:",
                 "• Others' bodies (living beings)",
                 "• Or: external aspects of one's",
-                "  own body (skin, posture)",
-                "🔗 Develops universal insight"
+                "own body (skin, posture)",
+                "Develops universal insight"
               ]
             }
           ],
@@ -11681,7 +11498,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] \"in the body\""
+                "\"in the body\""
               ],
               "relation": {
                 "targetWordId": "az4",
@@ -11747,7 +11564,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Agent Noun] \"one who...\""
+                "\"one who...\""
               ]
             }
           ],
@@ -11791,10 +11608,7 @@
             {
               "id": "az5s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -11874,8 +11688,8 @@
               "text": "dhā",
               "type": "suffix",
               "tooltips": [
-                "[Adverbial] \"both internally and externally\"",
-                "⚡ BOTH TOGETHER:",
+                "\"both internally and externally\"",
+                "BOTH TOGETHER:",
                 "Seeing the SAME patterns",
                 "in self and others",
                 "→ Universality of experience",
@@ -11938,7 +11752,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] \"in the body\""
+                "\"in the body\""
               ],
               "relation": {
                 "targetWordId": "ba4",
@@ -12004,7 +11818,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Agent Noun] \"one who...\""
+                "\"one who...\""
               ]
             }
           ],
@@ -12048,10 +11862,7 @@
             {
               "id": "ba5s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -12126,7 +11937,7 @@
               "tooltips": [
                 "Ud + i: Rising up / Origin",
                 "Samudaya = arising, origination",
-                "⚡ FIRST NOBLE TRUTH echo:",
+                "FIRST NOBLE TRUTH echo:",
                 "dukkhasamudaya = origin of suffering",
                 "Here: seeing HOW things arise"
               ]
@@ -12161,7 +11972,7 @@
               "text": "ī",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Agent Suffix] \"one who sees...\""
+                "\"one who sees...\""
               ]
             }
           ],
@@ -12219,7 +12030,7 @@
               "text": "smiṁ",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] \"in regard to body\""
+                "\"in regard to body\""
               ],
               "relation": {
                 "targetWordId": "bb1",
@@ -12260,10 +12071,7 @@
             {
               "id": "bb4s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -12324,7 +12132,7 @@
               "tooltips": [
                 "Vaya: Decay / Passing away / Cessation",
                 "From vi + i: going away",
-                "⚡ ANICCA direct insight:",
+                "ANICCA direct insight:",
                 "Everything that arises, passes",
                 "This is vipassanā proper"
               ]
@@ -12357,10 +12165,7 @@
             {
               "id": "bc1s5",
               "text": "ī",
-              "type": "suffix",
-              "tooltips": [
-                "[Nominative Agent Suffix]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -12417,7 +12222,7 @@
               "text": "smiṁ",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] \"in regard to body\""
+                "\"in regard to body\""
               ],
               "relation": {
                 "targetWordId": "bc1",
@@ -12458,10 +12263,7 @@
             {
               "id": "bc4s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -12534,7 +12336,7 @@
               "type": "root",
               "tooltips": [
                 "And passing",
-                "⚡ COMPLETE ANICCA:",
+                "COMPLETE ANICCA:",
                 "Seeing the FULL CYCLE",
                 "Arising-and-passing together",
                 "→ Nothing to cling to",
@@ -12568,10 +12370,7 @@
             {
               "id": "bd1s6",
               "text": "ī",
-              "type": "suffix",
-              "tooltips": [
-                "[Nominative Agent Suffix]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -12628,7 +12427,7 @@
               "text": "smiṁ",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] \"in regard to body\""
+                "\"in regard to body\""
               ],
               "relation": {
                 "targetWordId": "bd1",
@@ -12669,10 +12468,7 @@
             {
               "id": "bd4s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -12738,8 +12534,7 @@
               "tooltips": [
                 "Atthi: There is / Exists",
                 "From √as: to be",
-                "[Present Tense 3rd Person Singular]",
-                "📝 BARE KNOWING:",
+                "BARE KNOWING:",
                 "Just: \"There is body\"",
                 "No elaboration, no story",
                 "Pure presence of phenomenon"
@@ -12781,7 +12576,7 @@
               "text": "o",
               "type": "suffix",
               "tooltips": [
-                "[Nominative Singular] Subject"
+                "Subject"
               ],
               "relation": {
                 "targetSegmentId": "be1s1",
@@ -12866,8 +12661,7 @@
               "text": "assa",
               "type": "suffix",
               "tooltips": [
-                "Assa: His / Of him",
-                "[Genitive/Dative Pronoun]"
+                "Assa: His / Of him"
               ],
               "relation": {
                 "targetWordId": "be6",
@@ -12893,8 +12687,7 @@
               "text": "sati",
               "type": "stem",
               "tooltips": [
-                "Sati: Mindfulness",
-                "[Nominative Singular]"
+                "Sati: Mindfulness"
               ]
             }
           ],
@@ -12946,10 +12739,7 @@
             {
               "id": "be7s4",
               "text": "tā",
-              "type": "suffix",
-              "tooltips": [
-                "[Past Participle Nominative Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -12977,8 +12767,7 @@
               "text": "hoti",
               "type": "stem",
               "tooltips": [
-                "Is / Becomes",
-                "[Present Tense 3rd Person Singular]"
+                "Is / Becomes"
               ]
             }
           ],
@@ -13037,8 +12826,7 @@
               "text": "yāvad",
               "type": "stem",
               "tooltips": [
-                "Yāva: As far as / To the extent",
-                "[Adverbial particle]"
+                "Yāva: As far as / To the extent"
               ]
             },
             {
@@ -13047,7 +12835,6 @@
               "type": "stem",
               "tooltips": [
                 "Eva: Just / Only",
-                "[Emphatic particle]",
                 "Yāvadeva = just to the extent"
               ]
             }
@@ -13079,7 +12866,7 @@
               "type": "root",
               "tooltips": [
                 "Matta: Mere / Only / Just",
-                "📝 JUST for knowledge's sake",
+                "JUST for knowledge's sake",
                 "Not for ego, not for becoming",
                 "Pure knowing without grasping"
               ]
@@ -13089,7 +12876,7 @@
               "text": "āya",
               "type": "suffix",
               "tooltips": [
-                "[Dative Case] \"for the purpose of\""
+                "\"for the purpose of\""
               ]
             }
           ],
@@ -13143,7 +12930,7 @@
               "text": "āya",
               "type": "suffix",
               "tooltips": [
-                "[Dative Case] \"for\""
+                "\"for\""
               ]
             }
           ],
@@ -13217,7 +13004,7 @@
                 "Nissita: Dependent / Leaning on",
                 "From ni + √śri: to lean",
                 "Anissita = INDEPENDENT",
-                "⚡ KEY RESULT:",
+                "KEY RESULT:",
                 "Not leaning on craving",
                 "Not leaning on views",
                 "Self-sufficient awareness"
@@ -13226,10 +13013,7 @@
             {
               "id": "bg1s3",
               "text": "o",
-              "type": "suffix",
-              "tooltips": [
-                "[Nominative Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -13285,10 +13069,7 @@
             {
               "id": "bg3s2",
               "text": "ati",
-              "type": "suffix",
-              "tooltips": [
-                "[Present Tense 3rd Person Singular]"
-              ]
+              "type": "suffix"
             }
           ],
           "senses": [
@@ -13367,7 +13148,6 @@
               "type": "stem",
               "tooltips": [
                 "Kiñci: Anything / Something",
-                "[Indefinite Pronoun Accusative]",
                 "With na = \"not anything\""
               ]
             }
@@ -13399,7 +13179,7 @@
               "type": "root",
               "tooltips": [
                 "Loka: World",
-                "📍 In the world = in experience",
+                "In the world = in experience",
                 "All of saṁsāric existence"
               ]
             },
@@ -13408,7 +13188,7 @@
               "text": "e",
               "type": "suffix",
               "tooltips": [
-                "[Locative Singular] \"in the world\""
+                "\"in the world\""
               ],
               "relation": {
                 "targetWordId": "bg8",
@@ -13452,7 +13232,7 @@
               "tooltips": [
                 "√dā: To take",
                 "Upādāna = clinging, grasping",
-                "⚡ THE GOAL:",
+                "THE GOAL:",
                 "Na upādiyati = does NOT cling",
                 "Freedom from the 4 upādānas:",
                 "• Sensual clinging",
@@ -13466,7 +13246,7 @@
               "text": "yati",
               "type": "suffix",
               "tooltips": [
-                "[Present Tense 3rd Person Singular] \"clings\""
+                "\"clings\""
               ]
             }
           ],
