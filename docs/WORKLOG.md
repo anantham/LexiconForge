@@ -1,3 +1,30 @@
+2026-05-14 (continued — GROUNDING bootstrap + Path B 5/6/7 + UX separation) - [Agent: Opus 4.7 (1M)]
+- Status: MERGED. PR #53 landed via merge commit 072f351. Worktree `../LexiconForge.worktrees/opus-path-b` will be removed; branch `feat/opus-path-b` deleted.
+- Sources of truth: docs/sutta-studio/GROUNDING.md (architecture design + 6-phase bootstrap sequence), data/sutta-studio/grounding/contested-terms.json (5-term registry seed, all URLs verified), scripts/sutta-studio/{mint-citation-urls,wire-citation-ids,apply-contested-terms}.py (Phase 0+1.5 application).
+- Principles instantiated:
+  - Phantom-consumer audit symmetry — retired LLM CLAIMS no source backs (sibling to retiring DATA FIELDS no UI consumer reads)
+  - Lean toward reverse direction — architecture SHRINKS LLM footprint (~70% of curator work was DB-substitution, not synthesis)
+  - Telic breadcrumbs — GROUNDING.md is the WHY for future agents reading sourced tooltips
+- Task arc:
+  1. Path B 5/6/7 — formula chain close + bridge to four foundations (commits f9a6119, 7738564, 7a628f9)
+  2. GROUNDING design doc (d138799) — symmetric move to phantom-consumer audit
+  3. GROUNDING Phase 0 (98cc5a7) — URL minting + citation wiring on 32 DPD citations
+  4. GROUNDING Phase 1 (bed09c6) — contested-terms registry seed: satipaṭṭhāna, dukkha, nibbāna, ñāya, sati
+  5. GROUNDING Phase 1.5 (a35c334) — apply-contested-terms.py wires registry to 110 senses
+  6. Architecture-caught-errors round 1 (59f62b8) — phase-7 Bodhi parse + Thanissaro rendering corrections via Wikipedia + dhammatalks WebFetch verification
+  7. UX separation (9771d12) — tooltip on hover / audit on click (separate gestures, not auto-pin)
+  8. Architecture-caught-errors round 2 (43a8f28) — phase-5 ñāya 3rd sense corrected from "Buddhaghosa scholarship" to Thanissaro's verified translator rendering
+- What's NOT in (next-session pickup):
+  - GROUNDING Phase 2 — provider + groundingPass compiler-pass automation (~4-6 hr; earns existence when registry > 20 entries)
+  - GROUNDING Phase 3 — translator-bank wiring per-verse SC Bilara (~4-6 hr)
+  - GROUNDING Phase 4 — commentarial-gloss seed ~30 Vism entries (~6-10 hr; requires Pāli reading skill)
+  - GROUNDING Phase 5 — UI grounded-vs-interpretive affordance (~1-2 hr)
+  - Registry expansion — ~10 more contested-terms entries (dukkha-depth, domanassa, sampajañña, viharati, kāyānupassanā, vedanā, citta, dhamma, sacchikiriyā, adhigama)
+  - Path B continuation — 35 procedural phases (x-bg) at much faster pace once Phase 2 automation in place
+- Resume: PR #53 merged; pick from "what's NOT in" list. Phase 2 (groundingPass automation) is the highest-leverage next move because it unlocks faster Path B continuation.
+
+---
+
 2026-05-14 (long session — V2 wiring + audit UX + syllabifier + phantom purge + Path B start) - [Agent: Opus 4.7 (1M)]
 - Status: MERGED. PR #52 landed via merge commit 3791e42. Worktree `../LexiconForge.worktrees/opus-phase2-experiment` will be removed; branch `feat/opus-phase2-experiment` deleted.
 - Sources of truth: merge commit 3791e42 body (thread summary), docs/sutta-studio/curation/phase-{2,3,4}.md (per-phase logs), services/sutta-studio/postPasses/syllabify.ts (deterministic post-pass pattern).
