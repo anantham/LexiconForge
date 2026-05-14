@@ -1249,7 +1249,8 @@
               ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "TAT · ra"
         },
         {
           "id": "e2",
@@ -1598,7 +1599,8 @@
               ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "TI"
         }
       ],
       "englishStructure": [
@@ -1691,7 +1693,8 @@
               ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "TI"
         },
         {
           "id": "g3",
@@ -2813,7 +2816,8 @@
               "english": "discomfort & displeasure",
               "nuance": "Unpleasant feelings"
             }
-          ]
+          ],
+          "pronunciation": "duk · kha · do · ma · nas · SĀ · naṁ"
         },
         {
           "id": "p10",
@@ -2860,7 +2864,8 @@
               "english": "extinguishing",
               "nuance": "Fading"
             }
-          ]
+          ],
+          "pronunciation": "at · thaṅ · ga · MĀ · ya"
         }
       ],
       "englishStructure": [
@@ -2938,7 +2943,8 @@
               "english": "of the right way",
               "nuance": "Correct path"
             }
-          ]
+          ],
+          "pronunciation": "ñā · YAS · sa"
         },
         {
           "id": "p12",
@@ -2984,7 +2990,8 @@
               "english": "realization",
               "nuance": "Making real"
             }
-          ]
+          ],
+          "pronunciation": "a · dhi · ga · MĀ · ya"
         }
       ],
       "englishStructure": [
@@ -3064,7 +3071,8 @@
               "english": "of liberation",
               "nuance": "Release"
             }
-          ]
+          ],
+          "pronunciation": "nib · bā · NAS · sa"
         },
         {
           "id": "p14",
@@ -3119,7 +3127,8 @@
               "english": "touching",
               "nuance": "Personal contact"
             }
-          ]
+          ],
+          "pronunciation": "sac · chi · ki · ri · YĀ · ya"
         }
       ],
       "englishStructure": [
@@ -3172,7 +3181,8 @@
               "english": "namely",
               "nuance": "Introduces what follows"
             }
-          ]
+          ],
+          "pronunciation": "YA · di · daṁ"
         },
         {
           "id": "p16",
@@ -3201,7 +3211,8 @@
               "english": "the quartet",
               "nuance": "Group of four"
             }
-          ]
+          ],
+          "pronunciation": "cat · TĀ · ro"
         },
         {
           "id": "p17",
@@ -3247,7 +3258,8 @@
               "english": "lucid abodes",
               "nuance": "Clarity emphasis"
             }
-          ]
+          ],
+          "pronunciation": "sa · ti · paṭ · ṬHĀ · nā"
         }
       ],
       "englishStructure": [
@@ -3303,7 +3315,8 @@
               "english": "Which",
               "nuance": "Specific"
             }
-          ]
+          ],
+          "pronunciation": "KA · ta · me"
         },
         {
           "id": "x2",
@@ -3332,7 +3345,8 @@
               "english": "a tetrad",
               "nuance": "Complete group"
             }
-          ]
+          ],
+          "pronunciation": "cat · TĀ · ro"
         }
       ],
       "englishStructure": [
@@ -3381,7 +3395,8 @@
               "english": "In this case",
               "nuance": "Context"
             }
-          ]
+          ],
+          "pronunciation": "I · dha"
         },
         {
           "id": "y2",
@@ -3420,7 +3435,8 @@
               "english": "fellow practitioners",
               "nuance": "Communal"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · kha · ve"
         },
         {
           "id": "y3",
@@ -3458,7 +3474,8 @@
               "english": "a mendicant",
               "nuance": "One who begs alms"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · khu"
         }
       ],
       "englishStructure": [
@@ -3532,7 +3549,8 @@
               "english": "in what's assembled",
               "nuance": "Not-self view"
             }
-          ]
+          ],
+          "pronunciation": "KĀ · ye"
         },
         {
           "id": "z2",
@@ -3596,7 +3614,8 @@
               "english": "seeing body as body",
               "nuance": "Phenomenological"
             }
-          ]
+          ],
+          "pronunciation": "kā · yā · nu · PAS · sī"
         },
         {
           "id": "z3",
@@ -3717,7 +3736,8 @@
               "english": "keen",
               "nuance": "Sharp attention"
             }
-          ]
+          ],
+          "pronunciation": "ā · TĀ · pī"
         },
         {
           "id": "aa2",
@@ -3776,7 +3796,8 @@
               "english": "fully aware",
               "nuance": "Context-aware"
             }
-          ]
+          ],
+          "pronunciation": "sam · pa · JĀ · no"
         },
         {
           "id": "aa3",
@@ -3825,7 +3846,8 @@
               "english": "recollected",
               "nuance": "Gathered"
             }
-          ]
+          ],
+          "pronunciation": "SA · ti · mā"
         }
       ],
       "englishStructure": [
@@ -3909,7 +3931,8 @@
               "english": "freeing from",
               "nuance": "Liberation"
             }
-          ]
+          ],
+          "pronunciation": "vi · NEY · ya"
         },
         {
           "id": "ab2",
@@ -3947,7 +3970,8 @@
               "english": "concerning experience",
               "nuance": "Domain"
             }
-          ]
+          ],
+          "pronunciation": "LO · ke"
         },
         {
           "id": "ab3",
@@ -4008,7 +4032,8 @@
               "english": "wanting & not-wanting",
               "nuance": "Craving poles"
             }
-          ]
+          ],
+          "pronunciation": "a · bhij · jhā · do · ma · NAS · saṁ"
         }
       ],
       "englishStructure": [
@@ -4085,7 +4110,8 @@
               "english": "within sensations",
               "nuance": "Raw valence"
             }
-          ]
+          ],
+          "pronunciation": "ve · da · NĀ · su"
         },
         {
           "id": "ac2",
@@ -4143,7 +4169,8 @@
               "english": "seeing feeling as feeling",
               "nuance": "Phenomenological"
             }
-          ]
+          ],
+          "pronunciation": "ve · da · nā · nu · PAS · sī"
         },
         {
           "id": "ac3",
@@ -4252,7 +4279,8 @@
               "english": "keen",
               "nuance": "Sharp attention"
             }
-          ]
+          ],
+          "pronunciation": "ā · TĀ · pī"
         },
         {
           "id": "ad2",
@@ -4309,7 +4337,8 @@
               "english": "fully aware",
               "nuance": "Context-aware"
             }
-          ]
+          ],
+          "pronunciation": "sam · pa · JĀ · no"
         },
         {
           "id": "ad3",
@@ -4350,7 +4379,8 @@
               "english": "recollected",
               "nuance": "Gathered"
             }
-          ]
+          ],
+          "pronunciation": "SA · ti · mā"
         }
       ],
       "englishStructure": [
@@ -4425,7 +4455,8 @@
               "english": "freeing from",
               "nuance": "Liberation"
             }
-          ]
+          ],
+          "pronunciation": "vi · NEY · ya"
         },
         {
           "id": "ae2",
@@ -4462,7 +4493,8 @@
               "english": "concerning experience",
               "nuance": "Domain"
             }
-          ]
+          ],
+          "pronunciation": "LO · ke"
         },
         {
           "id": "ae3",
@@ -4507,7 +4539,8 @@
               "english": "wanting & not-wanting",
               "nuance": "Craving poles"
             }
-          ]
+          ],
+          "pronunciation": "a · bhij · jhā · do · ma · NAS · saṁ"
         }
       ],
       "englishStructure": [
@@ -4584,7 +4617,8 @@
               "english": "regarding consciousness",
               "nuance": "State-awareness"
             }
-          ]
+          ],
+          "pronunciation": "CIT · te"
         },
         {
           "id": "af2",
@@ -4641,7 +4675,8 @@
               "english": "seeing mind as mind",
               "nuance": "Phenomenological"
             }
-          ]
+          ],
+          "pronunciation": "cit · tā · nu · PAS · sī"
         },
         {
           "id": "af3",
@@ -4759,7 +4794,8 @@
               "english": "keen",
               "nuance": "Sharp attention"
             }
-          ]
+          ],
+          "pronunciation": "ā · TĀ · pī"
         },
         {
           "id": "ag2",
@@ -4817,7 +4853,8 @@
               "english": "fully aware",
               "nuance": "Context-aware"
             }
-          ]
+          ],
+          "pronunciation": "sam · pa · JĀ · no"
         },
         {
           "id": "ag3",
@@ -4859,7 +4896,8 @@
               "english": "recollected",
               "nuance": "Gathered"
             }
-          ]
+          ],
+          "pronunciation": "SA · ti · mā"
         }
       ],
       "englishStructure": [
@@ -4939,7 +4977,8 @@
               "english": "freeing from",
               "nuance": "Liberation"
             }
-          ]
+          ],
+          "pronunciation": "vi · NEY · ya"
         },
         {
           "id": "ah2",
@@ -4976,7 +5015,8 @@
               "english": "concerning experience",
               "nuance": "Domain"
             }
-          ]
+          ],
+          "pronunciation": "LO · ke"
         },
         {
           "id": "ah3",
@@ -5032,7 +5072,8 @@
               "english": "wanting & not-wanting",
               "nuance": "Craving poles"
             }
-          ]
+          ],
+          "pronunciation": "a · bhij · jhā · do · ma · NAS · saṁ"
         }
       ],
       "englishStructure": [
@@ -5116,7 +5157,8 @@
               "english": "in the way things work",
               "nuance": "Laws of mind"
             }
-          ]
+          ],
+          "pronunciation": "dham · ME · su"
         },
         {
           "id": "ai2",
@@ -5173,7 +5215,8 @@
               "english": "seeing dhamma as dhamma",
               "nuance": "Phenomenological"
             }
-          ]
+          ],
+          "pronunciation": "dham · mā · nu · PAS · sī"
         },
         {
           "id": "ai3",
@@ -5291,7 +5334,8 @@
               "english": "keen",
               "nuance": "Sharp attention"
             }
-          ]
+          ],
+          "pronunciation": "ā · TĀ · pī"
         },
         {
           "id": "aj2",
@@ -5349,7 +5393,8 @@
               "english": "fully aware",
               "nuance": "Context-aware"
             }
-          ]
+          ],
+          "pronunciation": "sam · pa · JĀ · no"
         },
         {
           "id": "aj3",
@@ -5391,7 +5436,8 @@
               "english": "recollected",
               "nuance": "Gathered"
             }
-          ]
+          ],
+          "pronunciation": "SA · ti · mā"
         }
       ],
       "englishStructure": [
@@ -5471,7 +5517,8 @@
               "english": "freeing from",
               "nuance": "Liberation"
             }
-          ]
+          ],
+          "pronunciation": "vi · NEY · ya"
         },
         {
           "id": "ak2",
@@ -5508,7 +5555,8 @@
               "english": "concerning experience",
               "nuance": "Domain"
             }
-          ]
+          ],
+          "pronunciation": "LO · ke"
         },
         {
           "id": "ak3",
@@ -5564,7 +5612,8 @@
               "english": "wanting & not-wanting",
               "nuance": "Craving poles"
             }
-          ]
+          ],
+          "pronunciation": "a · bhij · jhā · do · ma · NAS · saṁ"
         }
       ],
       "englishStructure": [
@@ -5630,7 +5679,8 @@
               "english": "The pointing-out",
               "nuance": "Etymological"
             }
-          ]
+          ],
+          "pronunciation": "Ud · DE · so"
         },
         {
           "id": "al2",
@@ -5667,7 +5717,8 @@
               "english": "stands established",
               "nuance": "Done"
             }
-          ]
+          ],
+          "pronunciation": "NIṬ · ṭhi · to"
         }
       ],
       "englishStructure": [
@@ -5719,7 +5770,8 @@
               "english": "In what way",
               "nuance": "Method question"
             }
-          ]
+          ],
+          "pronunciation": "Ka · THAÑ · ca"
         },
         {
           "id": "am2",
@@ -5756,7 +5808,8 @@
               "english": "mendicants",
               "nuance": "Addressing group of alms-beggars"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · kha · ve"
         },
         {
           "id": "am3",
@@ -5793,7 +5846,8 @@
               "english": "a mendicant",
               "nuance": "One who begs alms"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · khu"
         },
         {
           "id": "am4",
@@ -5842,7 +5896,8 @@
               "english": "in what's assembled",
               "nuance": "Not-self view"
             }
-          ]
+          ],
+          "pronunciation": "KĀ · ye"
         },
         {
           "id": "am5",
@@ -5902,7 +5957,8 @@
               "english": "seeing body as body",
               "nuance": "Phenomenological"
             }
-          ]
+          ],
+          "pronunciation": "kā · yā · nu · PAS · sī"
         },
         {
           "id": "am6",
@@ -6005,7 +6061,8 @@
               "english": "Here",
               "nuance": "In this case"
             }
-          ]
+          ],
+          "pronunciation": "I · dha"
         },
         {
           "id": "an2",
@@ -6042,7 +6099,8 @@
               "english": "mendicants",
               "nuance": "Addressing group of alms-beggars"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · kha · ve"
         },
         {
           "id": "an3",
@@ -6079,7 +6137,8 @@
               "english": "a mendicant",
               "nuance": "One who begs alms"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · khu"
         },
         {
           "id": "an4",
@@ -6119,7 +6178,8 @@
               "english": "gone to the wild",
               "nuance": "Untamed place"
             }
-          ]
+          ],
+          "pronunciation": "a · rañ · ÑA · ga · to"
         },
         {
           "id": "an5",
@@ -6140,7 +6200,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "an6",
@@ -6186,7 +6247,8 @@
               "english": "to the base of a tree",
               "nuance": "Foundation/bottom"
             }
-          ]
+          ],
+          "pronunciation": "ruk · kha · mū · LA · ga · to"
         },
         {
           "id": "an7",
@@ -6233,7 +6295,8 @@
               "english": "to a void dwelling place",
               "nuance": "Empty refuge"
             }
-          ]
+          ],
+          "pronunciation": "suñ · ña · ā · gā · RA · ga · to"
         }
       ],
       "englishStructure": [
@@ -6322,7 +6385,8 @@
               "english": "sits",
               "nuance": "General"
             }
-          ]
+          ],
+          "pronunciation": "ni · SĪ · da · ti"
         },
         {
           "id": "ao2",
@@ -6361,7 +6425,8 @@
               "english": "folded",
               "nuance": "Bent position"
             }
-          ]
+          ],
+          "pronunciation": "pal · LAṄ · kaṁ"
         },
         {
           "id": "ao3",
@@ -6407,7 +6472,8 @@
               "english": "having contracted",
               "nuance": "Drawn in"
             }
-          ]
+          ],
+          "pronunciation": "ā · bhu · JIT · vā"
         },
         {
           "id": "ao4",
@@ -6445,7 +6511,8 @@
               "english": "erect",
               "nuance": "Extended up"
             }
-          ]
+          ],
+          "pronunciation": "U · juṁ"
         },
         {
           "id": "ao5",
@@ -6481,7 +6548,8 @@
               "english": "the torso",
               "nuance": "Physical mass"
             }
-          ]
+          ],
+          "pronunciation": "KĀ · yaṁ"
         },
         {
           "id": "ao6",
@@ -6527,7 +6595,8 @@
               "english": "having determined",
               "nuance": "Fixed position"
             }
-          ]
+          ],
+          "pronunciation": "pa · ṇi · DHĀ · ya"
         }
       ],
       "englishStructure": [
@@ -6611,7 +6680,8 @@
               "english": "as foremost",
               "nuance": "Primary focus"
             }
-          ]
+          ],
+          "pronunciation": "pa · RI · mu · khaṁ"
         },
         {
           "id": "ap2",
@@ -6648,7 +6718,8 @@
               "english": "presence of mind",
               "nuance": "Attentiveness"
             }
-          ]
+          ],
+          "pronunciation": "SA · tiṁ"
         },
         {
           "id": "ap3",
@@ -6694,7 +6765,8 @@
               "english": "having readied",
               "nuance": "Made ready"
             }
-          ]
+          ],
+          "pronunciation": "u · paṭ · ṭha · PET · vā"
         }
       ],
       "englishStructure": [
@@ -6737,7 +6809,8 @@
               "english": "He",
               "nuance": "That practitioner"
             }
-          ]
+          ],
+          "pronunciation": "SO"
         },
         {
           "id": "aq2",
@@ -6779,7 +6852,8 @@
               "english": "recollected",
               "nuance": "Present"
             }
-          ]
+          ],
+          "pronunciation": "SA · to"
         },
         {
           "id": "aq3",
@@ -6801,7 +6875,8 @@
               "english": "just",
               "nuance": "Emphasis"
             }
-          ]
+          ],
+          "pronunciation": "VA"
         },
         {
           "id": "aq4",
@@ -6847,7 +6922,8 @@
               "english": "breathes",
               "nuance": "General breathing"
             }
-          ]
+          ],
+          "pronunciation": "as · SA · sa · ti"
         },
         {
           "id": "aq5",
@@ -6889,7 +6965,8 @@
               "english": "out-breathes",
               "nuance": "Breathing forth"
             }
-          ]
+          ],
+          "pronunciation": "pas · SA · sa · ti"
         }
       ],
       "englishStructure": [
@@ -6967,7 +7044,8 @@
               "english": "deeply",
               "nuance": "Extent"
             }
-          ]
+          ],
+          "pronunciation": "DĪ · ghaṁ"
         },
         {
           "id": "ar2",
@@ -6988,7 +7066,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "ar3",
@@ -7029,7 +7108,8 @@
               "english": "taking a breath",
               "nuance": "Active"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SAN · to"
         },
         {
           "id": "ar3b",
@@ -7066,7 +7146,8 @@
               "english": "tall",
               "nuance": "Full breath"
             }
-          ]
+          ],
+          "pronunciation": "'DĪ · ghaṁ"
         },
         {
           "id": "ar4",
@@ -7104,7 +7185,8 @@
               "english": "I am breathing in",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SĀ · mī"
         },
         {
           "id": "ar5",
@@ -7126,7 +7208,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "ar6",
@@ -7180,7 +7263,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         },
         {
           "id": "ar7",
@@ -7216,7 +7300,8 @@
               "english": "deeply",
               "nuance": "Extent"
             }
-          ]
+          ],
+          "pronunciation": "DĪ · ghaṁ"
         },
         {
           "id": "ar8",
@@ -7236,7 +7321,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "ar9",
@@ -7276,7 +7362,8 @@
               "english": "letting go",
               "nuance": "Release"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SAN · to"
         },
         {
           "id": "ar9b",
@@ -7312,7 +7399,8 @@
               "english": "tall",
               "nuance": "Full breath"
             }
-          ]
+          ],
+          "pronunciation": "'DĪ · ghaṁ"
         },
         {
           "id": "ar10",
@@ -7349,7 +7437,8 @@
               "english": "I am breathing out",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SĀ · mī"
         },
         {
           "id": "ar11",
@@ -7369,7 +7458,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "ar12",
@@ -7414,7 +7504,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         }
       ],
       "englishStructure": [
@@ -7503,7 +7594,8 @@
               "english": "lightly",
               "nuance": "Gentle"
             }
-          ]
+          ],
+          "pronunciation": "RAS · saṁ"
         },
         {
           "id": "as2",
@@ -7523,7 +7615,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "as3",
@@ -7561,7 +7654,8 @@
               "english": "taking a breath",
               "nuance": "Active"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SAN · to"
         },
         {
           "id": "as3b",
@@ -7598,7 +7692,8 @@
               "english": "stunted",
               "nuance": "Shallow"
             }
-          ]
+          ],
+          "pronunciation": "'RAS · saṁ"
         },
         {
           "id": "as4",
@@ -7635,7 +7730,8 @@
               "english": "I am breathing in",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SĀ · mī"
         },
         {
           "id": "as5",
@@ -7655,7 +7751,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "as6",
@@ -7700,7 +7797,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         },
         {
           "id": "as7",
@@ -7736,7 +7834,8 @@
               "english": "lightly",
               "nuance": "Gentle"
             }
-          ]
+          ],
+          "pronunciation": "RAS · saṁ"
         },
         {
           "id": "as8",
@@ -7756,7 +7855,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "as9",
@@ -7794,7 +7894,8 @@
               "english": "letting go",
               "nuance": "Release"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SAN · to"
         },
         {
           "id": "as9b",
@@ -7830,7 +7931,8 @@
               "english": "stunted",
               "nuance": "Shallow"
             }
-          ]
+          ],
+          "pronunciation": "'RAS · saṁ"
         },
         {
           "id": "as10",
@@ -7867,7 +7969,8 @@
               "english": "I am breathing out",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SĀ · mī"
         },
         {
           "id": "as11",
@@ -7887,7 +7990,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "as12",
@@ -7932,7 +8036,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         }
       ],
       "englishStructure": [
@@ -8058,7 +8163,8 @@
               "english": "sensitive to the entire form",
               "nuance": "Full awareness"
             }
-          ]
+          ],
+          "pronunciation": "'sab · ba · kā · ya · pa · ṭi · saṁ · VE · dī"
         },
         {
           "id": "at2",
@@ -8097,7 +8203,8 @@
               "english": "I will be breathing in",
               "nuance": "Future progressive"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · sis · SĀ · mī"
         },
         {
           "id": "at3",
@@ -8117,7 +8224,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "at4",
@@ -8164,7 +8272,8 @@
               "english": "cultivates",
               "nuance": "Active work"
             }
-          ]
+          ],
+          "pronunciation": "SIK · kha · ti"
         },
         {
           "id": "at5",
@@ -8232,7 +8341,8 @@
               "english": "sensitive to the entire form",
               "nuance": "Full awareness"
             }
-          ]
+          ],
+          "pronunciation": "'sab · ba · kā · ya · pa · ṭi · saṁ · VE · dī"
         },
         {
           "id": "at6",
@@ -8270,7 +8380,8 @@
               "english": "I will be breathing out",
               "nuance": "Future progressive"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · sis · SĀ · mī"
         },
         {
           "id": "at7",
@@ -8290,7 +8401,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "at8",
@@ -8327,7 +8439,8 @@
               "english": "cultivates",
               "nuance": "Active work"
             }
-          ]
+          ],
+          "pronunciation": "SIK · kha · ti"
         }
       ],
       "englishStructure": [
@@ -8430,7 +8543,8 @@
               "english": "letting settle",
               "nuance": "Allowing calm"
             }
-          ]
+          ],
+          "pronunciation": "'pas · SAM · bha · yaṁ"
         },
         {
           "id": "au2",
@@ -8484,7 +8598,8 @@
               "english": "physical fabrication",
               "nuance": "Conditioning factor"
             }
-          ]
+          ],
+          "pronunciation": "kā · ya · saṅ · KHĀ · raṁ"
         },
         {
           "id": "au3",
@@ -8522,7 +8637,8 @@
               "english": "I will be breathing in",
               "nuance": "Future progressive"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · sis · SĀ · mī"
         },
         {
           "id": "au4",
@@ -8542,7 +8658,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "au5",
@@ -8580,7 +8697,8 @@
               "english": "cultivates",
               "nuance": "Active work"
             }
-          ]
+          ],
+          "pronunciation": "SIK · kha · ti"
         },
         {
           "id": "au6",
@@ -8616,7 +8734,8 @@
               "english": "letting settle",
               "nuance": "Allowing calm"
             }
-          ]
+          ],
+          "pronunciation": "'pas · SAM · bha · yaṁ"
         },
         {
           "id": "au7",
@@ -8660,7 +8779,8 @@
               "english": "physical fabrication",
               "nuance": "Conditioning factor"
             }
-          ]
+          ],
+          "pronunciation": "kā · ya · saṅ · KHĀ · raṁ"
         },
         {
           "id": "au8",
@@ -8698,7 +8818,8 @@
               "english": "I will be breathing out",
               "nuance": "Future progressive"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · sis · SĀ · mī"
         },
         {
           "id": "au9",
@@ -8718,7 +8839,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "au10",
@@ -8755,7 +8877,8 @@
               "english": "cultivates",
               "nuance": "Active work"
             }
-          ]
+          ],
+          "pronunciation": "SIK · kha · ti"
         }
       ],
       "englishStructure": [
@@ -8852,7 +8975,8 @@
               "english": "just as",
               "nuance": "Simile marker"
             }
-          ]
+          ],
+          "pronunciation": "Sey · ya · THĀ · pi"
         },
         {
           "id": "av2",
@@ -8881,7 +9005,8 @@
               "english": "monks",
               "nuance": "Address"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · kha · ve"
         },
         {
           "id": "av3",
@@ -8921,7 +9046,8 @@
               "english": "deft",
               "nuance": "Practiced"
             }
-          ]
+          ],
+          "pronunciation": "DAK · kho"
         },
         {
           "id": "av4",
@@ -8972,7 +9098,8 @@
               "english": "lathe operator",
               "nuance": "One who turns"
             }
-          ]
+          ],
+          "pronunciation": "bha · ma · KĀ · ro"
         },
         {
           "id": "av5",
@@ -8992,7 +9119,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "av6",
@@ -9054,7 +9182,8 @@
               "english": "apprentice turner",
               "nuance": "Trainee"
             }
-          ]
+          ],
+          "pronunciation": "bha · ma · kā · ran · te · VĀ · sī"
         },
         {
           "id": "av7",
@@ -9074,7 +9203,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "av8",
@@ -9111,7 +9241,8 @@
               "english": "deep",
               "nuance": "Thorough pull"
             }
-          ]
+          ],
+          "pronunciation": "DĪ · ghaṁ"
         },
         {
           "id": "av9",
@@ -9131,7 +9262,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "av10",
@@ -9171,7 +9303,8 @@
               "english": "turns",
               "nuance": "On a lathe"
             }
-          ]
+          ],
+          "pronunciation": "añ · CHAN · to"
         },
         {
           "id": "av10b",
@@ -9207,7 +9340,8 @@
               "english": "deep",
               "nuance": "Spacious"
             }
-          ]
+          ],
+          "pronunciation": "'DĪ · ghaṁ"
         },
         {
           "id": "av11",
@@ -9243,7 +9377,8 @@
               "english": "I turn",
               "nuance": "On the lathe"
             }
-          ]
+          ],
+          "pronunciation": "añ · CHĀ · mī"
         },
         {
           "id": "av12",
@@ -9263,7 +9398,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "av13",
@@ -9308,7 +9444,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         },
         {
           "id": "av14",
@@ -9345,7 +9482,8 @@
               "english": "stunted",
               "nuance": "Quick motion"
             }
-          ]
+          ],
+          "pronunciation": "RAS · saṁ"
         },
         {
           "id": "av15",
@@ -9365,7 +9503,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "av16",
@@ -9401,7 +9540,8 @@
               "english": "turning",
               "nuance": "On a lathe"
             }
-          ]
+          ],
+          "pronunciation": "añ · CHAN · to"
         },
         {
           "id": "av16b",
@@ -9437,7 +9577,8 @@
               "english": "stunted",
               "nuance": "Shallow"
             }
-          ]
+          ],
+          "pronunciation": "'RAS · saṁ"
         },
         {
           "id": "av17",
@@ -9473,7 +9614,8 @@
               "english": "I turn",
               "nuance": "On the lathe"
             }
-          ]
+          ],
+          "pronunciation": "añ · CHĀ · mī"
         },
         {
           "id": "av18",
@@ -9493,7 +9635,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "av19",
@@ -9538,7 +9681,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         }
       ],
       "englishStructure": [
@@ -9639,7 +9783,8 @@
               "english": "just so",
               "nuance": "Application"
             }
-          ]
+          ],
+          "pronunciation": "E · va · ME · va"
         },
         {
           "id": "aw2",
@@ -9690,7 +9835,8 @@
               "english": "monks",
               "nuance": "Address"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · kha · ve"
         },
         {
           "id": "aw4",
@@ -9720,7 +9866,8 @@
               "english": "a mendicant",
               "nuance": "Alms-seeker"
             }
-          ]
+          ],
+          "pronunciation": "BHIK · khu"
         },
         {
           "id": "aw5",
@@ -9756,7 +9903,8 @@
               "english": "deep",
               "nuance": "Spacious"
             }
-          ]
+          ],
+          "pronunciation": "DĪ · ghaṁ"
         },
         {
           "id": "aw6",
@@ -9776,7 +9924,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "aw7",
@@ -9817,7 +9966,8 @@
               "english": "breathing",
               "nuance": "General breathing action"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SAN · to"
         },
         {
           "id": "aw7b",
@@ -9853,7 +10003,8 @@
               "english": "deep",
               "nuance": "Spacious"
             }
-          ]
+          ],
+          "pronunciation": "'DĪ · ghaṁ"
         },
         {
           "id": "aw8",
@@ -9890,7 +10041,8 @@
               "english": "I am breathing in",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SĀ · mī"
         },
         {
           "id": "aw9",
@@ -9910,7 +10062,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "aw10",
@@ -9955,7 +10108,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         },
         {
           "id": "aw11",
@@ -9991,7 +10145,8 @@
               "english": "deep",
               "nuance": "Spacious"
             }
-          ]
+          ],
+          "pronunciation": "DĪ · ghaṁ"
         },
         {
           "id": "aw12",
@@ -10011,7 +10166,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "aw13",
@@ -10049,7 +10205,8 @@
               "english": "out-breathing",
               "nuance": "Forth-breathing"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SAN · to"
         },
         {
           "id": "aw13b",
@@ -10085,7 +10242,8 @@
               "english": "deep",
               "nuance": "Spacious"
             }
-          ]
+          ],
+          "pronunciation": "'DĪ · ghaṁ"
         },
         {
           "id": "aw14",
@@ -10122,7 +10280,8 @@
               "english": "I am breathing out",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SĀ · mī"
         },
         {
           "id": "aw15",
@@ -10142,7 +10301,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "aw16",
@@ -10187,7 +10347,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         },
         {
           "id": "aw17",
@@ -10223,7 +10384,8 @@
               "english": "quick",
               "nuance": "Rapid cycle"
             }
-          ]
+          ],
+          "pronunciation": "RAS · saṁ"
         },
         {
           "id": "aw18",
@@ -10243,7 +10405,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "aw19",
@@ -10280,7 +10443,8 @@
               "english": "taking breath",
               "nuance": "Receiving air"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SAN · to"
         },
         {
           "id": "aw19b",
@@ -10316,7 +10480,8 @@
               "english": "stunted",
               "nuance": "Shallow"
             }
-          ]
+          ],
+          "pronunciation": "'RAS · saṁ"
         },
         {
           "id": "aw20",
@@ -10353,7 +10518,8 @@
               "english": "I am breathing in",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · SĀ · mī"
         },
         {
           "id": "aw21",
@@ -10373,7 +10539,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "aw22",
@@ -10418,7 +10585,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         },
         {
           "id": "aw23",
@@ -10454,7 +10622,8 @@
               "english": "quick",
               "nuance": "Rapid cycle"
             }
-          ]
+          ],
+          "pronunciation": "RAS · saṁ"
         },
         {
           "id": "aw24",
@@ -10474,7 +10643,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "aw25",
@@ -10511,7 +10681,8 @@
               "english": "out-breathing",
               "nuance": "Expiration"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SAN · to"
         },
         {
           "id": "aw25b",
@@ -10547,7 +10718,8 @@
               "english": "stunted",
               "nuance": "Shallow"
             }
-          ]
+          ],
+          "pronunciation": "'RAS · saṁ"
         },
         {
           "id": "aw26",
@@ -10584,7 +10756,8 @@
               "english": "I am breathing out",
               "nuance": "Present progressive"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · SĀ · mī"
         },
         {
           "id": "aw27",
@@ -10604,7 +10777,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "aw28",
@@ -10649,7 +10823,8 @@
               "english": "discerns",
               "nuance": "Recognizes"
             }
-          ]
+          ],
+          "pronunciation": "pa · jā · NĀ · ti"
         }
       ],
       "englishStructure": [
@@ -10821,7 +10996,8 @@
               "english": "sensitive to entire form",
               "nuance": "Full awareness"
             }
-          ]
+          ],
+          "pronunciation": "'sab · ba · kā · ya · pa · ṭi · saṁ · VE · dī"
         },
         {
           "id": "ax2",
@@ -10857,7 +11033,8 @@
               "english": "breathing in will occur",
               "nuance": "Future action"
             }
-          ]
+          ],
+          "pronunciation": "as · sa · sis · SĀ · mī"
         },
         {
           "id": "ax3",
@@ -10877,7 +11054,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "ax4",
@@ -10914,7 +11092,8 @@
               "english": "cultivates",
               "nuance": "Active work"
             }
-          ]
+          ],
+          "pronunciation": "SIK · kha · ti"
         },
         {
           "id": "ax5",
@@ -10987,7 +11166,8 @@
               "english": "sensitive to the entire form",
               "nuance": "Full awareness"
             }
-          ]
+          ],
+          "pronunciation": "'sab · ba · kā · ya · pa · ṭi · saṁ · VE · dī"
         },
         {
           "id": "ax6",
@@ -11023,7 +11203,8 @@
               "english": "breathing out will occur",
               "nuance": "Future action"
             }
-          ]
+          ],
+          "pronunciation": "pas · sa · sis · SĀ · mī"
         },
         {
           "id": "ax7",
@@ -11043,7 +11224,8 @@
               "english": "—",
               "nuance": "Quote end"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "ax8",
@@ -11080,7 +11262,8 @@
               "english": "cultivates",
               "nuance": "Active work"
             }
-          ]
+          ],
+          "pronunciation": "SIK · kha · ti"
         }
       ],
       "englishStructure": [
@@ -11162,7 +11345,8 @@
               "english": "thus",
               "nuance": "Transition"
             }
-          ]
+          ],
+          "pronunciation": "I · ti"
         },
         {
           "id": "ay2",
@@ -11213,7 +11397,8 @@
               "english": "inwardly",
               "nuance": "Subjective experience"
             }
-          ]
+          ],
+          "pronunciation": "aj · JHAT · taṁ"
         },
         {
           "id": "ay3",
@@ -11233,7 +11418,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "ay4",
@@ -11282,7 +11468,8 @@
               "english": "in what's assembled",
               "nuance": "Not-self view"
             }
-          ]
+          ],
+          "pronunciation": "KĀ · ye"
         },
         {
           "id": "ay5",
@@ -11336,7 +11523,8 @@
               "english": "watching the body",
               "nuance": "Vigilant"
             }
-          ]
+          ],
+          "pronunciation": "kā · yā · nu · PAS · sī"
         },
         {
           "id": "ay6",
@@ -11452,7 +11640,8 @@
               "english": "outwardly",
               "nuance": "Objective observation"
             }
-          ]
+          ],
+          "pronunciation": "ba · HID · dhā"
         },
         {
           "id": "az2",
@@ -11472,7 +11661,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "az3",
@@ -11521,7 +11711,8 @@
               "english": "in what's assembled",
               "nuance": "Not-self view"
             }
-          ]
+          ],
+          "pronunciation": "KĀ · ye"
         },
         {
           "id": "az4",
@@ -11581,7 +11772,8 @@
               "english": "seeing body as body",
               "nuance": "Phenomenological"
             }
-          ]
+          ],
+          "pronunciation": "kā · yā · nu · PAS · sī"
         },
         {
           "id": "az5",
@@ -11705,7 +11897,8 @@
               "english": "inwardly and outwardly",
               "nuance": "Comprehensive scope"
             }
-          ]
+          ],
+          "pronunciation": "aj · jhat · ta · ba · HID · dhā"
         },
         {
           "id": "ba2",
@@ -11725,7 +11918,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "ba3",
@@ -11774,7 +11968,8 @@
               "english": "in what's assembled",
               "nuance": "Not-self view"
             }
-          ]
+          ],
+          "pronunciation": "KĀ · ye"
         },
         {
           "id": "ba4",
@@ -11834,7 +12029,8 @@
               "english": "seeing body as body",
               "nuance": "Phenomenological"
             }
-          ]
+          ],
+          "pronunciation": "kā · yā · nu · PAS · sī"
         },
         {
           "id": "ba5",
@@ -11982,7 +12178,8 @@
               "english": "watching phenomena originate",
               "nuance": "Dependent arising"
             }
-          ]
+          ],
+          "pronunciation": "sa · mu · da · ya · dham · ma · ā · nu · PAS · sī"
         },
         {
           "id": "bb2",
@@ -12002,7 +12199,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "bb3",
@@ -12043,7 +12241,8 @@
               "english": "in the body",
               "nuance": "Sphere"
             }
-          ]
+          ],
+          "pronunciation": "kā · YAS · miṁ"
         },
         {
           "id": "bb4",
@@ -12177,7 +12376,8 @@
               "english": "watching phenomena vanish",
               "nuance": "Anicca realization"
             }
-          ]
+          ],
+          "pronunciation": "va · ya · dham · ma · ā · nu · PAS · sī"
         },
         {
           "id": "bc2",
@@ -12197,7 +12397,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "bc3",
@@ -12238,7 +12439,8 @@
               "english": "in the body",
               "nuance": "Sphere"
             }
-          ]
+          ],
+          "pronunciation": "kā · YAS · miṁ"
         },
         {
           "id": "bc4",
@@ -12385,7 +12587,8 @@
               "english": "watching the full flux",
               "nuance": "Total transience"
             }
-          ]
+          ],
+          "pronunciation": "sa · mu · da · ya · va · ya · dham · ma · ā · nu · PAS · sī"
         },
         {
           "id": "bd2",
@@ -12405,7 +12608,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "bd3",
@@ -12446,7 +12650,8 @@
               "english": "in the body",
               "nuance": "Sphere"
             }
-          ]
+          ],
+          "pronunciation": "kā · YAS · miṁ"
         },
         {
           "id": "bd4",
@@ -12554,7 +12759,8 @@
               "english": "is present",
               "nuance": "Simple being"
             }
-          ]
+          ],
+          "pronunciation": "'AT · thi"
         },
         {
           "id": "be2",
@@ -12597,7 +12803,8 @@
               "english": "physical form",
               "nuance": "Just matter"
             }
-          ]
+          ],
+          "pronunciation": "KĀ · yo"
         },
         {
           "id": "be3",
@@ -12617,7 +12824,8 @@
               "english": "—",
               "nuance": "Quote"
             }
-          ]
+          ],
+          "pronunciation": "'TI"
         },
         {
           "id": "be4",
@@ -12637,7 +12845,8 @@
               "english": "or",
               "nuance": "Alternative"
             }
-          ]
+          ],
+          "pronunciation": "VĀ"
         },
         {
           "id": "be5",
@@ -12672,7 +12881,8 @@
               "english": "moreover, his",
               "nuance": "Connection"
             }
-          ]
+          ],
+          "pronunciation": "pa · NAS · sa"
         },
         {
           "id": "be6",
@@ -12701,7 +12911,8 @@
               "english": "presence of mind",
               "nuance": "Attentiveness"
             }
-          ]
+          ],
+          "pronunciation": "SA · ti"
         },
         {
           "id": "be7",
@@ -12754,7 +12965,8 @@
               "english": "appears clearly",
               "nuance": "Manifest"
             }
-          ]
+          ],
+          "pronunciation": "pac · cu · PAṬ · ṭhi · tā"
         },
         {
           "id": "be8",
@@ -12775,7 +12987,8 @@
               "english": "is",
               "nuance": "State"
             }
-          ]
+          ],
+          "pronunciation": "HO · ti"
         }
       ],
       "englishStructure": [
@@ -12844,7 +13057,8 @@
               "english": "just to the extent",
               "nuance": "Limitation"
             }
-          ]
+          ],
+          "pronunciation": "yā · va · DE · va"
         },
         {
           "id": "bf2",
@@ -12892,7 +13106,8 @@
               "english": "only for understanding",
               "nuance": "Non-grasping"
             }
-          ]
+          ],
+          "pronunciation": "ñā · ṇa · mat · TĀ · ya"
         },
         {
           "id": "bf3",
@@ -12945,7 +13160,8 @@
               "english": "only for recollection",
               "nuance": "Non-grasping"
             }
-          ]
+          ],
+          "pronunciation": "pa · ṭis · sa · ti · mat · TĀ · ya"
         }
       ],
       "englishStructure": [
@@ -13029,7 +13245,8 @@
               "english": "unsupported",
               "nuance": "Self-reliant"
             }
-          ]
+          ],
+          "pronunciation": "a · NIS · si · to"
         },
         {
           "id": "bg2",
@@ -13049,7 +13266,8 @@
               "english": "and",
               "nuance": "Connection"
             }
-          ]
+          ],
+          "pronunciation": "CA"
         },
         {
           "id": "bg3",
@@ -13115,7 +13333,8 @@
               "english": "not",
               "nuance": "Negative"
             }
-          ]
+          ],
+          "pronunciation": "NA"
         },
         {
           "id": "bg5",
@@ -13135,7 +13354,8 @@
               "english": "and",
               "nuance": "Connection"
             }
-          ]
+          ],
+          "pronunciation": "CA"
         },
         {
           "id": "bg6",
@@ -13165,7 +13385,8 @@
               "english": "whatever",
               "nuance": "No exception"
             }
-          ]
+          ],
+          "pronunciation": "KIÑ · ci"
         },
         {
           "id": "bg7",
@@ -13209,7 +13430,8 @@
               "english": "in experience",
               "nuance": "In phenomena"
             }
-          ]
+          ],
+          "pronunciation": "LO · ke"
         },
         {
           "id": "bg8",
@@ -13261,7 +13483,8 @@
               "english": "appropriates",
               "nuance": "Takes as one's own"
             }
-          ]
+          ],
+          "pronunciation": "u · pa · ā · DI · ya · ti"
         }
       ],
       "englishStructure": [
