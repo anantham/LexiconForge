@@ -16,9 +16,19 @@ set -e
 
 cd "$(dirname "$0")/../.."
 
-set -a
-source .env.local
-set +a
+# Find .env.local — in worktrees, dotfiles aren't carried over from the main
+# repo, so check both current dir and the canonical main-repo path.
+ENV_FILE=""
+if [ -f .env.local ]; then
+  ENV_FILE=".env.local"
+elif [ -f "/Users/aditya/Documents/Ongoing Local/LexiconForge/.env.local" ]; then
+  ENV_FILE="/Users/aditya/Documents/Ongoing Local/LexiconForge/.env.local"
+fi
+if [ -n "$ENV_FILE" ]; then
+  set -a
+  source "$ENV_FILE"
+  set +a
+fi
 
 if [ -z "$OPENROUTER_API_KEY" ]; then
   echo "OPENROUTER_API_KEY not set. Aborting."
