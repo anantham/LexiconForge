@@ -31,10 +31,6 @@
           "id": "p7s3",
           "text": "ānaṁ",
           "type": "suffix",
-          "morph": {
-            "case": "gen",
-            "number": "pl"
-          },
           "tooltips": [
             "The -ānaṁ ending is genitive plural — 'of the [plural]'. Same suffix as phase-2's sattānaṁ ('of beings'): Pāli marks the 'belongs-to' relationship on the noun where English uses 'of'.",
             "Plural because soka and parideva together form a dvanda compound (one-and-the-other); the plural reads as 'of grief-and-lamentation[-both]'."
@@ -50,23 +46,17 @@
         {
           "english": "grief & lamentation",
           "nuance": "Standard reading",
-          "epistemicBasis": "lexical",
-          "notes": "Sujato, Ñāṇamoli-Bodhi, Thanissaro all use this pair. The inner-outer dvanda is canonical and unambiguous.",
-          "confidence": "high"
+          "notes": "Sujato, Ñāṇamoli-Bodhi, Thanissaro all use this pair. The inner-outer dvanda is canonical and unambiguous."
         },
         {
           "english": "sorrow & wailing",
           "nuance": "Concrete embodiment",
-          "epistemicBasis": "curatorial",
-          "notes": "Preserves the visceral physicality — soka as 'sorrow' (the heart-feeling), parideva as 'wailing' (the literal sound). Less common but pedagogically vivid for readers who want the embodied register.",
-          "confidence": "medium"
+          "notes": "Preserves the visceral physicality — soka as 'sorrow' (the heart-feeling), parideva as 'wailing' (the literal sound). Less common but pedagogically vivid for readers who want the embodied register."
         },
         {
           "english": "burning & crying",
           "nuance": "Etymological literal",
-          "epistemicBasis": "etymological",
-          "notes": "Strict etymological reading — soka from √suc 'burn', parideva from √div 'cry'. Captures the metaphor before it crystallized into 'grief'. Not a translation choice; an etymological gloss.",
-          "confidence": "low"
+          "notes": "Strict etymological reading — soka from √suc 'burn', parideva from √div 'cry'. Captures the metaphor before it crystallized into 'grief'. Not a translation choice; an etymological gloss."
         }
       ]
     },
@@ -106,11 +96,6 @@
           "id": "p8s4",
           "text": "āya",
           "type": "suffix",
-          "morph": {
-            "case": "dat",
-            "number": "sg",
-            "gender": "m"
-          },
           "tooltips": [
             "The -āya ending is dative-singular masculine — 'for the purpose of'. Same dative-of-purpose construction as phase-2's visuddhiyā ('for purification'). The satipaṭṭhāna formula chains five such datives.",
             "atikkama is a masculine action-noun derived from the verb atikkamati; the masculine -āya ending agrees with the underlying gender."
@@ -121,38 +106,46 @@
         {
           "english": "surmounting",
           "nuance": "Most common rendering",
-          "epistemicBasis": "lexical",
-          "notes": "Sujato's choice. Captures both the verticality (going-over) and the completeness (sam-). Most common in modern translations.",
-          "confidence": "high"
+          "notes": "Sujato's choice. Captures both the verticality (going-over) and the completeness (sam-). Most common in modern translations."
         },
         {
           "english": "overcoming",
           "nuance": "Action-focused",
-          "epistemicBasis": "curatorial",
-          "notes": "Ñāṇamoli-Bodhi and others. Less spatial, more action-focused. Both renderings are defensible; the choice depends on whether you want the spatial metaphor preserved.",
-          "confidence": "high"
+          "notes": "Ñāṇamoli-Bodhi and others. Less spatial, more action-focused. Both renderings are defensible; the choice depends on whether you want the spatial metaphor preserved."
         },
         {
           "english": "transcending",
           "nuance": "Doctrinal weight",
-          "epistemicBasis": "curatorial",
-          "notes": "Carries philosophical-Buddhist weight in English (transcendence as goal). Some translators avoid as overly loaded; others use it precisely for that weight. Choose based on audience.",
-          "confidence": "medium"
+          "notes": "Carries philosophical-Buddhist weight in English (transcendence as goal). Some translators avoid as overly loaded; others use it precisely for that weight. Choose based on audience."
         },
         {
           "english": "going beyond",
           "nuance": "Literal etymological",
-          "epistemicBasis": "etymological",
-          "notes": "ati (beyond) + kram (step) = 'stepping beyond'. Preserves the embodied metaphor before it became 'overcoming'. Pedagogically useful for first encounter; rarely chosen as the primary rendering.",
-          "confidence": "low"
+          "notes": "ati (beyond) + kram (step) = 'stepping beyond'. Preserves the embodied metaphor before it became 'overcoming'. Pedagogically useful for first encounter; rarely chosen as the primary rendering."
         }
       ]
     }
   ],
   "englishStructure": [
-    { "id": "g1", "label": "for the", "isGhost": true, "ghostKind": "required" },
-    { "id": "e7", "linkedSegmentId": "p8s3" },
-    { "id": "g2", "label": "of", "isGhost": true, "ghostKind": "required" },
-    { "id": "e8", "linkedSegmentId": "p7s1" }
+    {
+      "id": "g1",
+      "label": "for the",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e7",
+      "linkedSegmentId": "p8s3"
+    },
+    {
+      "id": "g2",
+      "label": "of",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e8",
+      "linkedSegmentId": "p7s1"
+    }
   ]
 }

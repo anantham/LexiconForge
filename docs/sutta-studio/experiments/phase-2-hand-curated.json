@@ -23,10 +23,6 @@
           "id": "p5s2",
           "text": "ānaṁ",
           "type": "suffix",
-          "morph": {
-            "case": "gen",
-            "number": "pl"
-          },
           "tooltips": [
             "The -ānaṁ ending is genitive plural — 'of the [plural ones]'. Pāli marks the 'belongs-to' relationship on the noun itself, where English uses the preposition 'of'.",
             "Same suffix appears in phase-3 on sokaparideva-ānaṁ ('of grief and lamentation'). The genitive-of-purpose pattern recurs throughout the satipaṭṭhāna formula."
@@ -42,23 +38,17 @@
         {
           "english": "beings",
           "nuance": "Sentient creatures",
-          "epistemicBasis": "lexical",
-          "notes": "Standard DPD-attested reading. Sujato, Bodhi, Thanissaro all use 'beings' as the default rendering.",
-          "confidence": "high"
+          "notes": "Standard DPD-attested reading. Sujato, Bodhi, Thanissaro all use 'beings' as the default rendering."
         },
         {
           "english": "the attached",
           "nuance": "Doctrinal reading",
-          "epistemicBasis": "etymological",
-          "notes": "From alternate root √saj 'to cling'. Pedagogically interesting because it captures the Buddhist analysis of beings AS those bound by attachment. Rarely chosen as the primary rendering but worth knowing.",
-          "confidence": "low"
+          "notes": "From alternate root √saj 'to cling'. Pedagogically interesting because it captures the Buddhist analysis of beings AS those bound by attachment. Rarely chosen as the primary rendering but worth knowing."
         },
         {
           "english": "the seven",
           "nuance": "Numerical (homonym)",
-          "epistemicBasis": "etymological",
-          "notes": "satta also means the number seven (cognate of Sanskrit sapta). Homonym, NOT the intended reading here. Included to illustrate that Pāli surface forms genuinely have multiple lexical entries — students will encounter satta meaning 'seven' in other contexts.",
-          "confidence": "low"
+          "notes": "satta also means the number seven (cognate of Sanskrit sapta). Homonym, NOT the intended reading here. Included to illustrate that Pāli surface forms genuinely have multiple lexical entries — students will encounter satta meaning 'seven' in other contexts."
         }
       ]
     },
@@ -89,11 +79,6 @@
           "id": "p6s3",
           "text": "yā",
           "type": "suffix",
-          "morph": {
-            "case": "dat",
-            "number": "sg",
-            "gender": "f"
-          },
           "tooltips": [
             "The -yā ending is dative-singular feminine — 'for the purpose of'. Pāli's dative-of-purpose marks WHY something is done; English uses 'for' as a preposition.",
             "Parallel structure: phase-3's samatikkamāya ('for the surmounting') uses the same dative-of-purpose construction. The satipaṭṭhāna formula chains five such datives, each naming what the path is FOR."
@@ -104,52 +89,56 @@
         {
           "english": "purification",
           "nuance": "The process",
-          "epistemicBasis": "curatorial",
-          "notes": "Sujato, Ñāṇamoli-Bodhi, and most modern translators. Treats visuddhi as the activity / process — the path leads to PURIFYING. Standard reading.",
-          "confidence": "high"
+          "notes": "Sujato, Ñāṇamoli-Bodhi, and most modern translators. Treats visuddhi as the activity / process — the path leads to PURIFYING. Standard reading."
         },
         {
           "english": "purity",
           "nuance": "The state",
-          "epistemicBasis": "curatorial",
-          "notes": "Thanissaro often renders as 'purity' — treating visuddhi as the achieved state rather than the activity. Both are defensible since Pāli abstract nouns straddle state/process; the choice is editorial.",
-          "confidence": "high"
+          "notes": "Thanissaro often renders as 'purity' — treating visuddhi as the achieved state rather than the activity. Both are defensible since Pāli abstract nouns straddle state/process; the choice is editorial."
         },
         {
           "english": "clarity",
           "nuance": "Insight reading",
-          "epistemicBasis": "curatorial",
-          "notes": "Less common but valid: visuddhi shares root with words for 'shine, brighten'. Connects pedagogically to vipassanā (clear-seeing) and the insight tradition's vocabulary. Choose this rendering if reading MN10 as primarily an insight text.",
-          "confidence": "medium"
+          "notes": "Less common but valid: visuddhi shares root with words for 'shine, brighten'. Connects pedagogically to vipassanā (clear-seeing) and the insight tradition's vocabulary. Choose this rendering if reading MN10 as primarily an insight text."
         },
         {
           "english": "cleansing",
           "nuance": "Washing metaphor",
-          "epistemicBasis": "curatorial",
-          "notes": "Preserves the concrete ritual sense — the Pāli verb for ritual washing uses √sudh. Translators who want the embodied physicality of the metaphor sometimes use this. Less common in modern translations.",
-          "confidence": "medium"
+          "notes": "Preserves the concrete ritual sense — the Pāli verb for ritual washing uses √sudh. Translators who want the embodied physicality of the metaphor sometimes use this. Less common in modern translations."
         },
         {
           "english": "brightening",
           "nuance": "Luminosity metaphor",
-          "epistemicBasis": "curatorial",
-          "notes": "Rooted in √sudh's secondary sense of brightness/clarity. Less anchored in canonical usage; included to show the metaphorical range available. Visarga in luminous-mind suttas (pabhassara citta) uses different vocabulary, but the family overlaps.",
-          "confidence": "low"
+          "notes": "Rooted in √sudh's secondary sense of brightness/clarity. Less anchored in canonical usage; included to show the metaphorical range available. Visarga in luminous-mind suttas (pabhassara citta) uses different vocabulary, but the family overlaps."
         },
         {
           "english": "refinement",
           "nuance": "Process metaphor",
-          "epistemicBasis": "curatorial",
-          "notes": "Process-of-refining metaphor (like refining gold). Modern English interpretation; less attested in classical commentaries but pedagogically vivid for readers familiar with the metallurgical metaphor in other religious traditions.",
-          "confidence": "low"
+          "notes": "Process-of-refining metaphor (like refining gold). Modern English interpretation; less attested in classical commentaries but pedagogically vivid for readers familiar with the metallurgical metaphor in other religious traditions."
         }
       ]
     }
   ],
   "englishStructure": [
-    { "id": "g1", "label": "for the", "isGhost": true, "ghostKind": "required" },
-    { "id": "e5", "linkedSegmentId": "p6s2" },
-    { "id": "g2", "label": "of", "isGhost": true, "ghostKind": "required" },
-    { "id": "e6", "linkedSegmentId": "p5s1" }
+    {
+      "id": "g1",
+      "label": "for the",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e5",
+      "linkedSegmentId": "p6s2"
+    },
+    {
+      "id": "g2",
+      "label": "of",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e6",
+      "linkedSegmentId": "p5s1"
+    }
   ]
 }

@@ -1,25 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import type { PhaseView } from '../../types/suttaStudio';
+import type { Citation, PhaseView } from '../../types/suttaStudio';
 import type { Focus } from './types';
 import { RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
 import { buildPaliText, resolveSenseId, resolveSegmentTooltip } from './utils';
-
-const CONFIDENCE_COLORS: Record<string, string> = {
-  high: 'border-emerald-700 text-emerald-300 bg-emerald-950/40',
-  medium: 'border-amber-700 text-amber-300 bg-amber-950/40',
-  low: 'border-slate-700 text-slate-400 bg-slate-900/40',
-};
-
-const EPISTEMIC_BASIS_LABELS: Record<string, string> = {
-  lexical: 'DPD-attested',
-  grammatical: 'grammar-derived',
-  curatorial: 'curator-chosen',
-  etymological: 'compositional',
-  commentarial: 'commentary-cited',
-  contextual: 'context-disambiguated',
-  comparative: 'parallel-supported',
-};
 
 // Audit-panel position persists across reloads so the curator can park the
 // panel where they like and not have it reset every time they reopen the demo.
@@ -102,20 +86,26 @@ export function LensPanel({
   onClose,
   activeIndices,
   setActiveIndex,
+  citations,
   showNotes = true,
   showCitationChips = true,
-  showConfidenceBadges = true,
 }: {
   phase: PhaseView;
   pinned: Focus;
   onClose: () => void;
   activeIndices: Record<string, number>;
   setActiveIndex: (wordId: string, idx: number) => void;
-  /** Settings toggles — when false, the corresponding V2 metadata is hidden in the panel. */
+  /** Packet-level citations list. When provided, citationIds chips become
+   *  clickable links to the cited source URL (if the citation has one). */
+  citations?: Citation[];
+  /** Settings toggles — when false, the corresponding metadata is hidden in the panel. */
   showNotes?: boolean;
   showCitationChips?: boolean;
-  showConfidenceBadges?: boolean;
 }) {
+  // Index citations by id for O(1) lookup when rendering chips.
+  const citationsById = new Map<string, Citation>(
+    (citations ?? []).map((c) => [c.id, c])
+  );
   const word = phase.paliWords.find((w) => w.id === pinned.wordId);
   if (!word) return null;
 
@@ -286,42 +276,44 @@ export function LensPanel({
                       </div>
                       <div className="text-xs text-slate-500">{t.nuance}</div>
                     </div>
-                    {showConfidenceBadges && (t.confidence || t.epistemicBasis) && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {t.confidence && (
-                          <span
-                            className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                              CONFIDENCE_COLORS[t.confidence] || 'border-slate-700 text-slate-400'
-                            }`}
-                            title={`Curator's confidence in this rendering — independent of where the sense came from.`}
-                          >
-                            {t.confidence}
-                          </span>
-                        )}
-                        {t.epistemicBasis && (
-                          <span
-                            className="text-[10px] px-1.5 py-0.5 rounded border border-slate-700 text-slate-400 bg-slate-900/40"
-                            title={`Where this sense came from. ${t.epistemicBasis === 'lexical' ? 'DPD-attested: from the Digital Pāli Dictionary.' : t.epistemicBasis === 'curatorial' ? 'Curator-chosen interpretation.' : t.epistemicBasis === 'etymological' ? 'Derived from the word\'s compositional parts.' : 'See protocol for full taxonomy.'}`}
-                          >
-                            {EPISTEMIC_BASIS_LABELS[t.epistemicBasis] || t.epistemicBasis}
-                          </span>
-                        )}
-                      </div>
-                    )}
                     {showNotes && t.notes && (
                       <div className="text-slate-500 text-sm mt-2">{t.notes}</div>
                     )}
                     {showCitationChips && t.citationIds && t.citationIds.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {t.citationIds.map((c) => (
-                          <span
-                            key={c}
-                            className="text-[11px] px-2 py-1 rounded border border-slate-800 text-slate-500"
-                            title={c}
-                          >
-                            {c}
-                          </span>
-                        ))}
+                        {t.citationIds.map((id) => {
+                          const cite = citationsById.get(id);
+                          const label = cite?.short ?? id;
+                          const tooltip = cite?.excerpt ?? id;
+                          // Clickable when a URL is available (e.g., a real DPD
+                          // entry link). Falls back to non-clickable span — the
+                          // chip shows what the source CLAIMS to be, even if
+                          // not yet navigable.
+                          if (cite?.url) {
+                            return (
+                              <a
+                                key={id}
+                                href={cite.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] px-2 py-1 rounded border border-slate-700 text-slate-300 hover:text-slate-100 hover:border-slate-500 transition-colors"
+                                title={tooltip}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {label} ↗
+                              </a>
+                            );
+                          }
+                          return (
+                            <span
+                              key={id}
+                              className="text-[11px] px-2 py-1 rounded border border-slate-800 text-slate-500"
+                              title={tooltip}
+                            >
+                              {label}
+                            </span>
+                          );
+                        })}
                       </div>
                     )}
                   </button>

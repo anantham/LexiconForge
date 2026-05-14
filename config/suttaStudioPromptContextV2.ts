@@ -261,6 +261,20 @@ references.
 /**
  * Compose all v2 amendments as a single block to append after the v1 context
  * in the Phase prompt builder.
+ *
+ * SUTTA_STUDIO_V2_SENSE_METADATA retired 2026-05-14. The four fields it
+ * prescribed — epistemicBasis, confidence, sourceCitationIds, morph — were
+ * audited against actual UI consumption and found to be either never
+ * rendered or rendered only in a curator-only panel that's off by default.
+ * The LLM was also producing them as confident-sounding hallucinations
+ * (it can't actually classify whether a sense is "DPD-attested" vs
+ * "curatorial" without doing the lookup; high/medium/low confidence
+ * levels are not grounded). Verifiable evidence (clickable citationIds)
+ * is better than asserted confidence levels.
+ *
+ * The named export `SUTTA_STUDIO_V2_SENSE_METADATA` is kept above for
+ * historical reference and possible reinstatement if the consumer UI is
+ * built; it just isn't part of the active prompt anymore.
  */
 export const SUTTA_STUDIO_V2_AMENDMENTS = [
   '\n─────────────────────────────────────────────────────────────────────────────',
@@ -269,8 +283,6 @@ export const SUTTA_STUDIO_V2_AMENDMENTS = [
   SUTTA_STUDIO_V2_TOOLTIP_REGISTER,
   '\n─────────────────────────────────────────────────────────────────────────────',
   SUTTA_STUDIO_V2_ARROW_EARNING_RULE,
-  '\n─────────────────────────────────────────────────────────────────────────────',
-  SUTTA_STUDIO_V2_SENSE_METADATA,
   '\n─────────────────────────────────────────────────────────────────────────────',
   SUTTA_STUDIO_V2_ANCHOR,
   '\n─────────────────────────────────────────────────────────────────────────────',

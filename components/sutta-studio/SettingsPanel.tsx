@@ -20,13 +20,10 @@ export type StudioSettings = {
   // anchorEmphasis: subtle amber underline on PaliWord.isAnchor === true.
   // senseNotes: per-sense `notes` prose in the audit panel.
   // citationChips: per-sense `citationIds` rendered as chips in the audit panel.
-  // confidenceBadges: per-sense `confidence` ('high'/'medium'/'low') + `epistemicBasis`
-  //   ('lexical'/'curatorial'/'etymological'/...) tags in the audit panel.
   auditPanel: boolean;
   anchorEmphasis: boolean;
   senseNotes: boolean;
   citationChips: boolean;
-  confidenceBadges: boolean;
   // legend: visual reference panel showing color/symbol vocabulary once.
   // Replaces the deleted "Colored differently because…" per-word meta-commentary.
   legend: boolean;
@@ -46,9 +43,6 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   anchorEmphasis: true,
   senseNotes: true,
   citationChips: true,
-  // Off by default. The 'confidence' + 'epistemicBasis' badges are useful for
-  // curators auditing the data, confusing for end readers. Toggle on per session.
-  confidenceBadges: false,
   legend: false,
 };
 
@@ -219,11 +213,6 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               label="Citation chips"
               checked={settings.citationChips}
               onChange={(v) => updateSetting('citationChips', v)}
-            />
-            <SettingToggle
-              label="Curator badges"
-              checked={settings.confidenceBadges}
-              onChange={(v) => updateSetting('confidenceBadges', v)}
             />
             <SettingToggle
               label="Emoji in tooltips"

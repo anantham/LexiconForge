@@ -32,10 +32,6 @@
           "id": "p9s3",
           "text": "ānaṁ",
           "type": "suffix",
-          "morph": {
-            "case": "gen",
-            "number": "pl"
-          },
           "tooltips": [
             "The -ānaṁ ending is genitive plural — 'of the [plurals]'. Same suffix appears in phase-2's sattānaṁ ('of beings') and phase-3's sokaparidevānaṁ ('of grief-and-lamentation'). The genitive-of-purpose pattern is the spine of this formula.",
             "Plural because dukkha and domanassa together form a dvanda compound (suffering-and-distress as a single composite). The plural reads as 'of suffering-and-distress[-both]' even though English would naturally use singular."
@@ -51,23 +47,17 @@
         {
           "english": "pain & distress",
           "nuance": "Sujato's pairing",
-          "epistemicBasis": "curatorial",
-          "notes": "Sujato consistently pairs 'pain' for dukkha and 'distress' for domanassa in MN10. Preserves the inner/outer pairing while keeping register accessible.",
-          "confidence": "high"
+          "notes": "Sujato consistently pairs 'pain' for dukkha and 'distress' for domanassa in MN10. Preserves the inner/outer pairing while keeping register accessible."
         },
         {
           "english": "suffering & grief",
           "nuance": "Ñāṇamoli-Bodhi",
-          "epistemicBasis": "curatorial",
-          "notes": "Bhikkhu Bodhi's MLDB renders dukkha as 'suffering' (heavier philosophical weight) and domanassa often as 'grief' (overlapping with soka from phase-3). Some readers find the soka/domanassa boundary blurred under this choice.",
-          "confidence": "high"
+          "notes": "Bhikkhu Bodhi's MLDB renders dukkha as 'suffering' (heavier philosophical weight) and domanassa often as 'grief' (overlapping with soka from phase-3). Some readers find the soka/domanassa boundary blurred under this choice."
         },
         {
           "english": "discomfort & displeasure",
           "nuance": "Functional / felt-experience",
-          "epistemicBasis": "curatorial",
-          "notes": "A more functional register: foregrounds the FELT QUALITY (unsatisfactoriness, dispreference) over the philosophical weight. Less common in published translations; useful when teaching the Abhidhamma feeling-tone analysis where dukkha-domanassa pairs with sukha-somanassa.",
-          "confidence": "medium"
+          "notes": "A more functional register: foregrounds the FELT QUALITY (unsatisfactoriness, dispreference) over the philosophical weight. Less common in published translations; useful when teaching the Abhidhamma feeling-tone analysis where dukkha-domanassa pairs with sukha-somanassa."
         }
       ]
     },
@@ -108,11 +98,6 @@
           "id": "p10s4",
           "text": "āya",
           "type": "suffix",
-          "morph": {
-            "case": "dat",
-            "number": "sg",
-            "gender": "m"
-          },
           "tooltips": [
             "The -āya ending is dative-singular masculine — 'for the purpose of'. atthaṅgama is a masculine action-noun (one of three -gama derivatives that show up in this formula: atthaṅgama, adhigama, samatikkama).",
             "Third dative-of-purpose in the formula chain. Phase-2's visuddhiyā ('for purification'), phase-3's samatikkamāya ('for surmounting'), and this one stack five 'for' statements that the path is directed toward. The formula's rhythm comes from this five-fold parallel."
@@ -123,31 +108,41 @@
         {
           "english": "disappearance",
           "nuance": "Standard / setting metaphor",
-          "epistemicBasis": "curatorial",
-          "notes": "Sujato and most contemporary translators. Preserves the sun-setting connotation. Reads naturally in English as the contemplative process: pain doesn't get fought — it's allowed to fade.",
-          "confidence": "high"
+          "notes": "Sujato and most contemporary translators. Preserves the sun-setting connotation. Reads naturally in English as the contemplative process: pain doesn't get fought — it's allowed to fade."
         },
         {
           "english": "passing away",
           "nuance": "Bhikkhu Bodhi",
-          "epistemicBasis": "curatorial",
-          "notes": "Bhikkhu Bodhi's preferred rendering. Slightly more philosophical — emphasises the impermanence framework (anicca → uppāda + vaya, arising + passing-away). Same denotation, different framing weight.",
-          "confidence": "high"
+          "notes": "Bhikkhu Bodhi's preferred rendering. Slightly more philosophical — emphasises the impermanence framework (anicca → uppāda + vaya, arising + passing-away). Same denotation, different framing weight."
         },
         {
           "english": "extinguishing",
           "nuance": "Nibbāna-resonance",
-          "epistemicBasis": "curatorial",
-          "notes": "Some translators (notably Thanissaro in some contexts) use 'extinguishing' to foreground the connection to nibbāna ('extinction'). Stronger reading; risks over-determining the doctrine. The Pāli atthaṅgama is broader than nibbāna and applies to many fades, not just final liberation.",
-          "confidence": "medium"
+          "notes": "Some translators (notably Thanissaro in some contexts) use 'extinguishing' to foreground the connection to nibbāna ('extinction'). Stronger reading; risks over-determining the doctrine. The Pāli atthaṅgama is broader than nibbāna and applies to many fades, not just final liberation."
         }
       ]
     }
   ],
   "englishStructure": [
-    { "id": "g1", "label": "for the", "isGhost": true, "ghostKind": "required" },
-    { "id": "e9", "linkedSegmentId": "p10s3" },
-    { "id": "g2", "label": "of", "isGhost": true, "ghostKind": "required" },
-    { "id": "e10", "linkedSegmentId": "p9s1" }
+    {
+      "id": "g1",
+      "label": "for the",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e9",
+      "linkedSegmentId": "p10s3"
+    },
+    {
+      "id": "g2",
+      "label": "of",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e10",
+      "linkedSegmentId": "p9s1"
+    }
   ]
 }

@@ -660,7 +660,7 @@ export function SuttaStudioView({
               }
               showNotes={settings.senseNotes}
               showCitationChips={settings.citationChips}
-              showConfidenceBadges={settings.confidenceBadges}
+              citations={packet.citations}
             />
           );
         })()}

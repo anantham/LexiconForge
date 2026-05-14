@@ -193,8 +193,11 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
         </motion.span>
       </AnimatePresence>
       {senseCount > 1 && !isGhost && (
+        // Subtler than full opacity — present-but-quiet by default; brightens
+        // when the parent word is hovered. The dots are an affordance hint,
+        // not a primary visual element.
         <div
-          className="flex items-center justify-center gap-1 mt-0.5"
+          className="flex items-center justify-center gap-1 mt-0.5 opacity-30 hover:opacity-100 transition-opacity"
           aria-label={`${senseCount} alternative renderings`}
         >
           {Array.from({ length: senseCount }).map((_, i) => (
@@ -202,7 +205,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
               key={i}
               aria-hidden="true"
               className={`inline-block w-1 h-1 rounded-full transition-colors ${
-                i === activeSenseIdx ? 'bg-slate-300' : 'bg-slate-700'
+                i === activeSenseIdx ? 'bg-slate-400' : 'bg-slate-700'
               }`}
             />
           ))}
