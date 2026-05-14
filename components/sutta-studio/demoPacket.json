@@ -2807,9 +2807,9 @@
           ],
           "senses": [
             {
-              "english": "of the method",
+              "english": "of the true way",
               "nuance": "Bhikkhu Bodhi",
-              "notes": "Bhikkhu Bodhi's MLDB: 'for the attainment of the true way'. Method as the systematic path-as-procedure. Anchors the reader in the practical/methodical register.",
+              "notes": "Bhikkhu Bodhi (MLDB): 'true way' / 'method'. The systematic path-as-procedure. Verified rendering at suttacentral.net/mn10/en/bodhi.",
               "citationIds": [
                 "cite:term:ñāya:sc-bodhi-mn10",
                 "cite:term:ñāya:sc-sujato-mn10",
@@ -2818,8 +2818,8 @@
             },
             {
               "english": "of the system",
-              "nuance": "Sujato",
-              "notes": "Sujato (SuttaCentral): 'for realizing the system'. The Pāli ñāya as a coherent technical-procedural whole. Echoes the cognate Sanskrit nyāya (logical system) while staying within Pāli Buddhism's frame.",
+              "nuance": "Bhikkhu Sujato",
+              "notes": "Sujato (SuttaCentral MN10): 'system'. Echoes the cognate Sanskrit nyāya (logical system) while staying within Pāli Buddhism's soteriological frame. Verified rendering at suttacentral.net/mn10/en/sujato.",
               "citationIds": [
                 "cite:term:ñāya:sc-bodhi-mn10",
                 "cite:term:ñāya:sc-sujato-mn10",
@@ -2827,9 +2827,9 @@
               ]
             },
             {
-              "english": "of the noble path",
-              "nuance": "Commentarial / Buddhaghosa",
-              "notes": "Visuddhimagga and Aṭṭhakathā tradition gloss ñāya directly as ariyaṭṭhaṅgika-magga (the Noble Eightfold Path). The strongest reading: 'attainment of ñāya' = 'arriving at the Eightfold Path'. Ñāṇamoli sometimes follows this with 'True Way'.",
+              "english": "of the right method",
+              "nuance": "Ṭhānissaro Bhikkhu",
+              "notes": "Thanissaro (dhammatalks.org MN10): 'the right method'. Aligns with his Thai Forest framing of practice-as-method. Verified rendering at dhammatalks.org/suttas/MN/MN10.html.",
               "citationIds": [
                 "cite:term:ñāya:sc-bodhi-mn10",
                 "cite:term:ñāya:sc-sujato-mn10",

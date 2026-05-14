@@ -96,3 +96,29 @@ it. The reader hears the grammar tighten.
 This is the kind of cross-phase observation v11 cannot make — it sees only
 phase-5 in its prompt window. The curator's value-add is precisely this:
 seeing what only emerges when the chain is read as a whole.
+
+## Correction applied 2026-05-14 via GROUNDING Phase 1 back-apply
+
+After Phase 7 surfaced two factual errors in my hand-curation (Bodhi parse
+attribution + Thanissaro "frames of reference"), I back-applied the same
+registry-verification discipline to phase-5.
+
+One correction caught:
+
+The third ñāya sense was attributed to "Commentarial / Buddhaghosa" — but
+that's a SCHOLARSHIP claim (Visuddhimagga gloss as ariyaṭṭhaṅgika-magga),
+not a translator-tradition rendering. The senses list should show
+verifiable translator-school renderings; the commentarial reading belongs
+in the tooltip with explicit "Vism citation pending Phase 4" framing.
+
+Replaced with Thanissaro's verified rendering "the right method"
+(dhammatalks.org MN10, fetched 2026-05-14). The Buddhaghosa commentarial
+reading remains in the p11s1 tooltip — accurately framed as commentarial
+tradition rather than as a translator rendering.
+
+Phase-6 was checked against the registry and required NO corrections —
+all three nibbāna sense attributions (Bodhi untranslated, Sujato
+extinguishment, Thanissaro unbinding) match the verified registry entries.
+
+The back-apply discipline matters: a registry that catches errors in one
+phase but isn't checked against the others is only half-honest.
