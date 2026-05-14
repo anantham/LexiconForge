@@ -1,0 +1,372 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T01:46:21.934Z",
+    "phaseId": "phase-2",
+    "model": "google/gemini-2.5-pro",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "sattānaṁ visuddhiyā",
+    "englishText": "for the p6s2 of p5s1",
+    "tokens": {
+      "prompt": 19236,
+      "completion": 8928,
+      "total": 28164
+    },
+    "costUsd": 0.11332500000000001,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-2",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "sattānaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "visuddhiyā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "satt",
+        "type": "stem",
+        "tooltips": [
+          "The stem 'satta' means a living being or creature.",
+          "It comes from 'sat', the present participle of the root 'as' (to be), so it literally means 'a being'."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ānaṁ",
+        "type": "suffix",
+        "morph": {
+          "case": "gen",
+          "number": "pl"
+        },
+        "tooltips": [
+          "The '-ānaṁ' ending means 'of the [plural]'. Pāli marks 'belonging to a group' on the noun itself, where English uses the preposition 'of'.",
+          "This is the genitive plural case, showing the beings to whom the purification belongs."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'vi-' often implies separation or being free from something.",
+          "In 'visuddhi', it suggests a purity that comes from removing or being apart from defilements."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "suddh",
+        "type": "root",
+        "tooltips": [
+          "The root 'sudh' means 'to be pure' or 'clean'. This is the core concept of the word.",
+          "This root appears in many words related to cleansing and clarity."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "iyā",
+        "type": "suffix",
+        "morph": {
+          "case": "dat",
+          "number": "sg"
+        },
+        "tooltips": [
+          "The '-iyā' ending shows the purpose or goal. It means 'for the sake of' or 'for the purpose of'.",
+          "This is the dative singular case, indicating that 'purification' is the reason for the path."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p2",
+        "type": "ownership",
+        "label": "Purification OF",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-2",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "beings",
+            "nuance": "all living creatures",
+            "notes": "Standard translation for 'satta', encompassing humans, animals, and divine beings.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "beings"
+              }
+            ]
+          },
+          {
+            "english": "sentient beings",
+            "nuance": "beings with consciousness",
+            "notes": "A more philosophical rendering common in Buddhist texts, emphasizing consciousness as the defining trait.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "sentient beings"
+              }
+            ]
+          },
+          {
+            "english": "creatures",
+            "nuance": "living things in general",
+            "notes": "A broader, slightly less personal term than 'beings'.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "creatures"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "purification",
+            "nuance": "the process of cleansing",
+            "notes": "The most direct translation, focusing on the action of removing defilements.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "purification"
+              }
+            ]
+          },
+          {
+            "english": "purity",
+            "nuance": "the state of being pure",
+            "notes": "Focuses on the resulting state of being free from defilements, rather than the process.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "purity"
+              }
+            ]
+          },
+          {
+            "english": "cleansing",
+            "nuance": "washing away impurities",
+            "notes": "This sense highlights the active removal of the unwholesome, drawing on the root meaning of the word.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "cleansing"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Senses are based on standard Pali lexical knowledge as no dictionary data was provided. These are common terms."
+    }
+  },
+  "phaseView": {
+    "id": "phase-2",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "satt",
+            "type": "stem",
+            "tooltips": [
+              "The stem 'satta' means a living being or creature.",
+              "It comes from 'sat', the present participle of the root 'as' (to be), so it literally means 'a being'."
+            ]
+          },
+          {
+            "text": "ānaṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "gen",
+              "number": "pl"
+            },
+            "relation": {
+              "type": "ownership",
+              "label": "Purification OF",
+              "status": "confirmed",
+              "targetWordId": "p2"
+            },
+            "tooltips": [
+              "The '-ānaṁ' ending means 'of the [plural]'. Pāli marks 'belonging to a group' on the noun itself, where English uses the preposition 'of'.",
+              "This is the genitive plural case, showing the beings to whom the purification belongs."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "beings",
+            "nuance": "all living creatures",
+            "notes": "Standard translation for 'satta', encompassing humans, animals, and divine beings.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "beings"
+              }
+            ]
+          },
+          {
+            "english": "sentient beings",
+            "nuance": "beings with consciousness",
+            "notes": "A more philosophical rendering common in Buddhist texts, emphasizing consciousness as the defining trait.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "sentient beings"
+              }
+            ]
+          },
+          {
+            "english": "creatures",
+            "nuance": "living things in general",
+            "notes": "A broader, slightly less personal term than 'beings'.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "creatures"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'vi-' often implies separation or being free from something.",
+              "In 'visuddhi', it suggests a purity that comes from removing or being apart from defilements."
+            ]
+          },
+          {
+            "text": "suddh",
+            "type": "root",
+            "tooltips": [
+              "The root 'sudh' means 'to be pure' or 'clean'. This is the core concept of the word.",
+              "This root appears in many words related to cleansing and clarity."
+            ]
+          },
+          {
+            "text": "iyā",
+            "type": "suffix",
+            "morph": {
+              "case": "dat",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The '-iyā' ending shows the purpose or goal. It means 'for the sake of' or 'for the purpose of'.",
+              "This is the dative singular case, indicating that 'purification' is the reason for the path."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "purification",
+            "nuance": "the process of cleansing",
+            "notes": "The most direct translation, focusing on the action of removing defilements.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "purification"
+              }
+            ]
+          },
+          {
+            "english": "purity",
+            "nuance": "the state of being pure",
+            "notes": "Focuses on the resulting state of being free from defilements, rather than the process.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "purity"
+              }
+            ]
+          },
+          {
+            "english": "cleansing",
+            "nuance": "washing away impurities",
+            "notes": "This sense highlights the active removal of the unwholesome, drawing on the root meaning of the word.",
+            "ripples": [
+              {
+                "tradition": "default",
+                "rendering": "cleansing"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "g1",
+        "label": "for the",
+        "linkedPaliId": "p2s3"
+      },
+      {
+        "id": "e1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g2",
+        "label": "of",
+        "linkedPaliId": "p1s2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2"
+      ]
+    ],
+    "title": "sattānaṁ visuddhiyā"
+  }
+}

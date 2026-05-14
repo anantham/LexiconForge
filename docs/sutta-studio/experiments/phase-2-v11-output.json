@@ -1,0 +1,383 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T01:31:57.156Z",
+    "phaseId": "phase-2",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "sattānaṁ visuddhiyā",
+    "englishText": "for the p6s2 of p5s1",
+    "tokens": {
+      "prompt": 21760,
+      "completion": 2498,
+      "total": 24258
+    },
+    "costUsd": 0.018373999999999998,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-2",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "sattānaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "visuddhiyā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "satt",
+        "type": "root",
+        "tooltips": [
+          "The root 'sant' means being or existing.",
+          "A 'satta' is a living being or sentient creature."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ānaṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -ānaṁ ending means 'of the [plural]'.",
+          "Genitive plural: marks belonging or relation to a group."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'vi-' adds intensity or distinction.",
+          "Here it emphasizes the completeness of the process."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "suddh",
+        "type": "root",
+        "tooltips": [
+          "The root 'sudh' means to be clean or pure.",
+          "The basis for 'visuddhi' (purification)."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "i",
+        "type": "suffix",
+        "tooltips": [
+          "The -i suffix turns the root into an abstract noun.",
+          "Changes 'pure' into 'purification'."
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "yā",
+        "type": "suffix",
+        "tooltips": [
+          "The -yā ending here marks the purpose: 'for the sake of'.",
+          "Dative singular: indicates the goal or direction of the path."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p2",
+        "type": "ownership",
+        "label": "Purification OF",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-2",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "beings",
+            "nuance": "sentient creatures",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "of beings"
+              }
+            ]
+          },
+          {
+            "english": "living beings",
+            "nuance": "emphasizing vitality",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "of living beings"
+              }
+            ]
+          },
+          {
+            "english": "creatures",
+            "nuance": "all that are born",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "of creatures"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "purification",
+            "nuance": "cleansing of defilements",
+            "id": "s4",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "for the purification"
+              }
+            ]
+          },
+          {
+            "english": "purity",
+            "nuance": "state of being clean",
+            "id": "s5",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "for the purity"
+              }
+            ]
+          },
+          {
+            "english": "liberation",
+            "nuance": "freedom through cleansing",
+            "id": "s6",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "for the liberation"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard genitive and dative-purpose readings for the opening of the Satipatthana Sutta."
+    }
+  },
+  "phaseView": {
+    "id": "phase-2",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "satt",
+            "type": "root",
+            "tooltips": [
+              "The root 'sant' means being or existing.",
+              "A 'satta' is a living being or sentient creature."
+            ]
+          },
+          {
+            "text": "ānaṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "gen",
+              "number": "pl"
+            },
+            "relation": {
+              "type": "ownership",
+              "label": "Purification OF",
+              "status": "confirmed",
+              "targetWordId": "p2"
+            },
+            "tooltips": [
+              "The -ānaṁ ending means 'of the [plural]'.",
+              "Genitive plural: marks belonging or relation to a group."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "beings",
+            "nuance": "sentient creatures",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "of beings"
+              }
+            ]
+          },
+          {
+            "english": "living beings",
+            "nuance": "emphasizing vitality",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "of living beings"
+              }
+            ]
+          },
+          {
+            "english": "creatures",
+            "nuance": "all that are born",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "of creatures"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'vi-' adds intensity or distinction.",
+              "Here it emphasizes the completeness of the process."
+            ]
+          },
+          {
+            "text": "suddh",
+            "type": "root",
+            "tooltips": [
+              "The root 'sudh' means to be clean or pure.",
+              "The basis for 'visuddhi' (purification)."
+            ]
+          },
+          {
+            "text": "i",
+            "type": "suffix",
+            "tooltips": [
+              "The -i suffix turns the root into an abstract noun.",
+              "Changes 'pure' into 'purification'."
+            ]
+          },
+          {
+            "text": "yā",
+            "type": "suffix",
+            "morph": {
+              "case": "dat",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -yā ending here marks the purpose: 'for the sake of'.",
+              "Dative singular: indicates the goal or direction of the path."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "purification",
+            "nuance": "cleansing of defilements",
+            "id": "s4",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "for the purification"
+              }
+            ]
+          },
+          {
+            "english": "purity",
+            "nuance": "state of being clean",
+            "id": "s5",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "for the purity"
+              }
+            ]
+          },
+          {
+            "english": "liberation",
+            "nuance": "freedom through cleansing",
+            "id": "s6",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "for the liberation"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "g1",
+        "label": "for the",
+        "linkedPaliId": "p2s4"
+      },
+      {
+        "id": "e1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g2",
+        "label": "of",
+        "linkedPaliId": "p1s2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2"
+      ]
+    ],
+    "title": "For the Purification of Beings"
+  }
+}
