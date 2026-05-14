@@ -10,6 +10,7 @@ import { XarrowUpdater } from './XarrowUpdater';
 import { StudioHeader } from './StudioHeader';
 import { AboutThisText } from './AboutThisText';
 import { LensPanel } from './LensPanel';
+import { Legend } from './Legend';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 import { loadSettings, saveSettings, type StudioSettings } from './SettingsPanel';
@@ -626,6 +627,10 @@ export function SuttaStudioView({
               );
           })}
         </div>
+        <Legend
+          isOpen={settings.legend}
+          onClose={() => handleSettingsChange({ ...settings, legend: false })}
+        />
         {settings.auditPanel && pinnedForAudit && (() => {
           // Show LensPanel docked-right with full sense data for the most-recent
           // hovered word/segment. Sets are scoped per phase, so we slice

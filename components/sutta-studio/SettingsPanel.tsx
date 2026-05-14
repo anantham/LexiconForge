@@ -23,6 +23,9 @@ export type StudioSettings = {
   senseNotes: boolean;
   citationChips: boolean;
   confidenceBadges: boolean;
+  // legend: visual reference panel showing color/symbol vocabulary once.
+  // Replaces the deleted "Colored differently because…" per-word meta-commentary.
+  legend: boolean;
 };
 
 export const DEFAULT_SETTINGS: StudioSettings = {
@@ -39,6 +42,7 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   senseNotes: true,
   citationChips: true,
   confidenceBadges: true,
+  legend: false,
 };
 
 const STORAGE_KEY = 'sutta-studio-settings';
@@ -181,6 +185,11 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               label="Ghost words"
               checked={settings.ghostWords}
               onChange={(v) => updateSetting('ghostWords', v)}
+            />
+            <SettingToggle
+              label="Legend"
+              checked={settings.legend}
+              onChange={(v) => updateSetting('legend', v)}
             />
           </div>
 

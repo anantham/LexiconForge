@@ -429,10 +429,13 @@
               "nuance": "Narrative-opening deictic ('in this way') — points forward to what is about to be recited",
               "notes": "DPD treats evaṁ and eva as distinct headwords. evaṁ ('thus; in this way; similarly; in the same manner') is the cataphoric deictic used in this formula; bare eva carries the emphatic-particle senses ('only', 'just', 'indeed').",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:18134"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:18134"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "EH · vum  (rhymes with \"come\")"
         },
         {
           "id": "a2",
@@ -442,7 +445,9 @@
               "id": "a2s1",
               "text": "me",
               "type": "stem",
-              "morph": { "case": "gen" },
+              "morph": {
+                "case": "gen"
+              },
               "tooltips": [
                 "Form is 'of me' (genitive case); function here is 'by me' — Pāli uses the genitive to mark who did the action when the verb is passive, like 'was heard'."
               ],
@@ -460,10 +465,13 @@
               "english": "by me",
               "nuance": "Agent in passive",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:53164"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:53164"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "meh  (short, like \"meh\")"
         },
         {
           "id": "a3",
@@ -483,7 +491,9 @@
               "id": "a3s2",
               "text": "ta",
               "type": "suffix",
-              "morph": { "form": "participle" },
+              "morph": {
+                "form": "participle"
+              },
               "tooltips": [
                 "The -ta ending puts the verb in completed form — 'has been heard'. Pāli uses one shape for both 'heard' (the act) and 'what was heard' (the content)."
               ]
@@ -492,7 +502,10 @@
               "id": "a3s3",
               "text": "ṁ",
               "type": "suffix",
-              "morph": { "gender": "n", "number": "sg" },
+              "morph": {
+                "gender": "n",
+                "number": "sg"
+              },
               "tooltips": [
                 "The -ṁ closes 'sutaṁ' with the same form for two readings: 'was heard' (verb-like) and 'what was heard' (noun-like). English needs different phrasings; Pāli holds both at once.",
                 "Read with 'me' before it, 'me sutaṁ' compresses 'by me' + 'was heard' into two Pāli words. English needs scaffolding like 'have' and 'I' to say the same thing."
@@ -504,24 +517,31 @@
               "english": "heard",
               "nuance": "Past participle",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:63769"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:63769"
+              ],
               "confidence": "high"
             },
             {
               "english": "what was heard",
               "nuance": "The teaching itself",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:63771"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:63771"
+              ],
               "confidence": "high"
             },
             {
               "english": "that which has been received",
               "nuance": "Orally transmitted",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:63770"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:63770"
+              ],
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "SOO · tum"
         }
       ],
       "englishStructure": [
@@ -559,7 +579,10 @@
               "id": "b1s1",
               "text": "eka",
               "type": "stem",
-              "morph": { "case": "acc", "number": "sg" },
+              "morph": {
+                "case": "acc",
+                "number": "sg"
+              },
               "tooltips": [
                 "'eka' means 'one' or 'a certain' — it picks out a specific one of the noun that follows (here: samayaṁ, 'occasion').",
                 "Tells you which (one specific occasion), not what kind."
@@ -569,7 +592,9 @@
               "id": "b1s2",
               "text": "ṁ",
               "type": "suffix",
-              "morph": { "case": "acc" },
+              "morph": {
+                "case": "acc"
+              },
               "tooltips": [
                 "The -ṁ on 'ekaṁ' is a time-marker. Pāli puts -ṁ on the word for time (where English would say 'at' or 'on'). Same ending appears on 'samayaṁ' next.",
                 "Tells you when, not what."
@@ -581,10 +606,14 @@
               "english": "one",
               "nuance": "At one (time)",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:17376", "cite:dpd:dpd:17382"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:17376",
+                "cite:dpd:dpd:17382"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "EH · kum"
         },
         {
           "id": "b2",
@@ -604,7 +633,9 @@
               "id": "b2s2",
               "text": "aya",
               "type": "root",
-              "morph": { "gender": "m" },
+              "morph": {
+                "gender": "m"
+              },
               "tooltips": [
                 "'aya' comes from the root 'i' meaning 'to go'.",
                 "As a noun-form it means 'going' or 'a course'.",
@@ -615,7 +646,11 @@
               "id": "b2s3",
               "text": "ṁ",
               "type": "suffix",
-              "morph": { "case": "acc", "gender": "m", "number": "sg" },
+              "morph": {
+                "case": "acc",
+                "gender": "m",
+                "number": "sg"
+              },
               "tooltips": [
                 "Same time-marker as on 'ekaṁ' above — together they say 'at one occasion'. Pāli marks the time-word with -ṁ rather than a separate preposition."
               ],
@@ -633,24 +668,31 @@
               "english": "occasion",
               "nuance": "A coming together",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:59451"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:59451"
+              ],
               "confidence": "high"
             },
             {
               "english": "time",
               "nuance": "The specific event",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:59451"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:59451"
+              ],
               "confidence": "high"
             },
             {
               "english": "opportunity",
               "nuance": "Suitable moment",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:59452"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:59452"
+              ],
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "SAH · ma · yum"
         },
         {
           "id": "b3",
@@ -670,7 +712,11 @@
               "id": "b3s2",
               "text": "vā",
               "type": "suffix",
-              "morph": { "case": "nom", "gender": "m", "number": "sg" },
+              "morph": {
+                "case": "nom",
+                "gender": "m",
+                "number": "sg"
+              },
               "tooltips": [
                 "The -vā suffix means 'one who has' or 'is endowed with' — bhaga (fortune) + -vā = 'the fortunate one'.",
                 "'The Fortunate One' — a respectful name for the Buddha, used through the canon."
@@ -682,24 +728,31 @@
               "english": "the Blessed One",
               "nuance": "Standard",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "high"
             },
             {
               "english": "the Fortunate One",
               "nuance": "Literal",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "high"
             },
             {
               "english": "the Lucky One",
               "nuance": "Fortune-bearer",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "bha · GA · vah"
         }
       ],
       "englishStructure": [
@@ -737,7 +790,9 @@
               "id": "c1s1",
               "text": "kurū",
               "type": "stem",
-              "morph": { "number": "pl" },
+              "morph": {
+                "number": "pl"
+              },
               "tooltips": [
                 "'kurū' is the stem meaning 'Kuru' — a tribal people from the Kuru kingdom in ancient north India.",
                 "The vowel gets stretched (kuru → kurū) before the ending. Pāli often lengthens vowels at word-joins like this.",
@@ -748,7 +803,10 @@
               "id": "c1s2",
               "text": "su",
               "type": "suffix",
-              "morph": { "case": "loc", "number": "pl" },
+              "morph": {
+                "case": "loc",
+                "number": "pl"
+              },
               "tooltips": [
                 "The -su ending means 'among the' — Pāli marks 'place where' on the noun itself, with no separate preposition like English 'in' or 'among'.",
                 "'Among the [Kurus]' — the dwelling-place of what the verb describes next."
@@ -767,24 +825,31 @@
               "english": "among the Kurus",
               "nuance": "Location — among the people",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:22524"
+              ],
               "confidence": "high"
             },
             {
               "english": "in Kuru territory",
               "nuance": "Geographical — in the country",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:22502"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:22502"
+              ],
               "confidence": "high"
             },
             {
               "english": "with the Kuru people",
               "nuance": "Among inhabitants",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:22524"
+              ],
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "ku · ROO · su"
         },
         {
           "id": "c2",
@@ -824,7 +889,12 @@
               "id": "c2s4",
               "text": "ti",
               "type": "suffix",
-              "morph": { "person": "3", "number": "sg", "tenseAspect": "present", "form": "finite" },
+              "morph": {
+                "person": "3",
+                "number": "sg",
+                "tenseAspect": "present",
+                "form": "finite"
+              },
               "tooltips": [
                 "The -ti ending says the subject is 'he', 'she', or 'it' — Pāli marks the person on the verb itself, no separate pronoun needed.",
                 "Pāli tells past stories in the present tense: viharati ('dwells') reads in English as 'was dwelling'.",
@@ -837,24 +907,32 @@
               "english": "was dwelling",
               "nuance": "Historical present",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:69661"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:69661"
+              ],
               "confidence": "high"
             },
             {
               "english": "was staying",
               "nuance": "Sojourning",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:69661", "cite:dpd:dpd:69662"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ],
               "confidence": "high"
             },
             {
               "english": "was abiding",
               "nuance": "Remaining",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:69662"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:69662"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -903,7 +981,10 @@
               "id": "d1s3",
               "text": "ṁ",
               "type": "suffix",
-              "morph": { "number": "sg", "gender": "n" },
+              "morph": {
+                "number": "sg",
+                "gender": "n"
+              },
               "tooltips": [
                 "The -ṁ closes the place-name 'Kammāsadhammaṁ' — Pāli marks names with the same dot-m ending used for other singular forms.",
                 "Tells you this is the name OF the town that follows. The 'nāma' word right after will spell out the link explicitly.",
@@ -916,7 +997,9 @@
               "english": "Kammāsadhamma",
               "nuance": "Place name",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:20396"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:20396"
+              ],
               "confidence": "high"
             },
             {
@@ -933,7 +1016,8 @@
               "notes": "Compound parse: kammāsa (spotted/speckled) + dhamma (here in a derived sense, possibly 'practice/place'). The standard morphological breakdown; not the historical/Jātaka etymology above.",
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "kam · MAH · sa · DHAM · mum"
         },
         {
           "id": "d2",
@@ -954,11 +1038,14 @@
               "english": "named",
               "nuance": "Called",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:36427"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:36427"
+              ],
               "confidence": "high",
               "notes": "The naming particle, indeclinable. DPD: 'called; means; by the name of; namely'. The X-nāma-Y appositional construction."
             }
-          ]
+          ],
+          "pronunciation": "NAH · ma"
         },
         {
           "id": "d3",
@@ -968,7 +1055,9 @@
               "id": "d3s1",
               "text": "kurū",
               "type": "stem",
-              "morph": { "number": "pl" },
+              "morph": {
+                "number": "pl"
+              },
               "tooltips": [
                 "Same Kuru people as in 'kurūsu' before — the inhabitants of the Kuru kingdom.",
                 "The vowel is stretched (kuru → kurū) before the ending. Pāli often lengthens vowels at word-joins like this."
@@ -978,7 +1067,10 @@
               "id": "d3s2",
               "text": "naṁ",
               "type": "suffix",
-              "morph": { "case": "gen", "number": "pl" },
+              "morph": {
+                "case": "gen",
+                "number": "pl"
+              },
               "tooltips": [
                 "The -naṁ ending means 'of the [plural]' — Pāli marks 'belonging to' on the noun itself (where English would say 'of the').",
                 "'Of the Kurus' — their town. Same stem as in phase-c's 'kurūsu' but with a different ending: -su (among) vs -naṁ (of)."
@@ -997,24 +1089,32 @@
               "english": "of the Kurus",
               "nuance": "Genitive Plural",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:22524", "cite:dpd:dpd:22502"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:22524",
+                "cite:dpd:dpd:22502"
+              ],
               "confidence": "high"
             },
             {
               "english": "belonging to the Kurus",
               "nuance": "Possessive",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:22524"
+              ],
               "confidence": "high"
             },
             {
               "english": "the Kurus'",
               "nuance": "Ownership",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:22524"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:22524"
+              ],
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "ku · ROO · num"
         },
         {
           "id": "d4",
@@ -1042,7 +1142,11 @@
               "id": "d4s3",
               "text": "o",
               "type": "suffix",
-              "morph": { "case": "nom", "number": "sg", "gender": "m" },
+              "morph": {
+                "case": "nom",
+                "number": "sg",
+                "gender": "m"
+              },
               "tooltips": [
                 "The -o ending marks this word as the subject of the sentence — 'a town' (the thing being named).",
                 "'A town' — what the whole phrase is really about. Everything else (Kammāsadhammaṁ, nāma, kurūnaṁ) describes which town and whose."
@@ -1054,14 +1158,20 @@
               "english": "a market town",
               "nuance": "Larger than gāma (village)",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:36863", "cite:dpd:dpd:74785"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ],
               "confidence": "high"
             },
             {
               "english": "a township",
               "nuance": "Smaller than nagara (city)",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:36863", "cite:dpd:dpd:74785"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ],
               "confidence": "high",
               "notes": "DPD's literal gloss 'going down' (ni+gam) supports the etymological reading already in d4s1/d4s2 tooltips — town as 'place people resort to'."
             },
@@ -1072,7 +1182,8 @@
               "confidence": "low",
               "notes": "DPD attests 'town; market town' only; the 'commercial center' framing is a curatorial expansion drawing on standard Pāli economic context (nigama vs gāma vs nagara). Not directly DPD-attested."
             }
-          ]
+          ],
+          "pronunciation": "NI · ga · mo"
         }
       ],
       "englishStructure": [
@@ -1133,7 +1244,9 @@
               "english": "There",
               "nuance": "At that place",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:29605"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:29605"
+              ],
               "confidence": "high"
             }
           ]
@@ -1158,7 +1271,9 @@
               "english": "indeed",
               "nuance": "Emphasis",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:23966"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:23966"
+              ],
               "confidence": "high"
             },
             {
@@ -1168,7 +1283,8 @@
               "notes": "DPD attests 'kho' as 'indeed; surely; certainly; truly'. The choice to leave it untranslated in many English versions reflects a translator's curatorial decision — English narrative doesn't need this particle.",
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "kho  (aspirated)"
         },
         {
           "id": "e3",
@@ -1188,7 +1304,11 @@
               "id": "e3s2",
               "text": "vā",
               "type": "suffix",
-              "morph": { "case": "nom", "gender": "m", "number": "sg" },
+              "morph": {
+                "case": "nom",
+                "gender": "m",
+                "number": "sg"
+              },
               "tooltips": [
                 "Highlighted in a recurring color because 'bhagavā' is a refrain — the Buddha-epithet appears throughout the canon. The matching underline color marks the recurrence (you saw it back in phase-b's 'Ekaṁ samayaṁ bhagavā…').",
                 "The -vā suffix means 'one who has' or 'is endowed with'. bhaga (fortune) + -vā = 'the fortunate one'.",
@@ -1201,14 +1321,18 @@
               "english": "the Blessed One",
               "nuance": "Subject",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "high"
             },
             {
               "english": "the Fortunate One",
               "nuance": "Literal",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "high"
             },
             {
@@ -1218,7 +1342,8 @@
               "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). DPD's primary glosses are 'Sublime/Blessed/Fortunate One'; the bare 'Lucky' captures the etymological flavor but isn't a standard rendering.",
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "bha · GA · vah"
         },
         {
           "id": "e4",
@@ -1239,7 +1364,11 @@
               "id": "e4s2",
               "text": "ū",
               "type": "suffix",
-              "morph": { "case": "acc", "number": "pl", "gender": "m" },
+              "morph": {
+                "case": "acc",
+                "number": "pl",
+                "gender": "m"
+              },
               "tooltips": [
                 "The -ū ending makes it plural. The same form serves multiple roles (subject pl, object pl, vocative pl) — only context tells you which.",
                 "Here 'bhikkhū' is the object: who the Buddha is addressing. The case is technically called accusative."
@@ -1251,25 +1380,32 @@
               "english": "the bhikkhus",
               "nuance": "Accusative object",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high"
             },
             {
               "english": "the monks",
               "nuance": "Standard",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high"
             },
             {
               "english": "the mendicants",
               "nuance": "Those who beg",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high",
               "notes": "'Mendicant' is the literal English match: one who depends on alms. DPD includes 'mendicant' among its glosses."
             }
-          ]
+          ],
+          "pronunciation": "bhik · KHOO"
         },
         {
           "id": "e5",
@@ -1307,7 +1443,12 @@
               "id": "e5s4",
               "text": "si",
               "type": "suffix",
-              "morph": { "person": "3", "number": "sg", "tenseAspect": "aorist", "form": "finite" },
+              "morph": {
+                "person": "3",
+                "number": "sg",
+                "tenseAspect": "aorist",
+                "form": "finite"
+              },
               "tooltips": [
                 "The -si ending marks past tense — 'he/she/it did'. Specifically aorist (a real past), different from Pāli's storytelling-present (compare 'viharati' back in phase-c).",
                 "'he addressed' — completed action, situated in narrative time. The Buddha did this thing, then-and-there."
@@ -1319,24 +1460,31 @@
               "english": "addressed",
               "nuance": "Aorist",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:12086"
+              ],
               "confidence": "high"
             },
             {
               "english": "summoned",
               "nuance": "Called to attention",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:12086"
+              ],
               "confidence": "high"
             },
             {
               "english": "spoke to",
               "nuance": "Directly addressed",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:12086"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:12086"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "ah · MAN · te · si"
         }
       ],
       "englishStructure": [
@@ -1382,7 +1530,11 @@
               "id": "f1s2",
               "text": "avo",
               "type": "suffix",
-              "morph": { "case": "voc", "number": "pl", "gender": "m" },
+              "morph": {
+                "case": "voc",
+                "number": "pl",
+                "gender": "m"
+              },
               "tooltips": [
                 "Highlighted in the same recurring color as 'bhikkhū' in phase-e — both are forms of bhikkhu. Matching color across phases marks the refrain (you'll see this stem every time the Buddha addresses the monks).",
                 "The -avo ending is vocative plural — used when calling out to a group. Like English 'O ____!' or 'Hey, ____!'",
@@ -1395,7 +1547,9 @@
               "english": "Bhikkhus!",
               "nuance": "Call",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high",
               "notes": "DPD attests the lemma bhikkhu (dpd:49885); the vocative-plural surface 'Bhikkhavo' is a dialectal variant of 'bhikkhave' which DPD does enumerate. Both forms address the same monastic audience."
             },
@@ -1403,17 +1557,22 @@
               "english": "Monks!",
               "nuance": "Standard",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high"
             },
             {
               "english": "Mendicants!",
               "nuance": "Those who beg",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "bhik · KHA · vo"
         },
         {
           "id": "f2",
@@ -1434,7 +1593,9 @@
               "english": "\"",
               "nuance": "Quote marker",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:30431"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:30431"
+              ],
               "confidence": "high"
             }
           ]
@@ -1470,7 +1631,11 @@
               "id": "g1s2",
               "text": "ante",
               "type": "suffix",
-              "morph": { "case": "voc", "number": "sg", "gender": "m" },
+              "morph": {
+                "case": "voc",
+                "number": "sg",
+                "gender": "m"
+              },
               "tooltips": [
                 "The -ante ending is vocative singular — calling out to one person, respectfully. Pāli's '-e' marks vocative for many noun-classes (parallel to the '-avo' on Bhikkhavo in phase-f, which was vocative plural).",
                 "Used as a formulaic honorific: when monks address their teacher, this is the canonical response-word."
@@ -1499,7 +1664,8 @@
               "notes": "An English-register equivalent that captures the deferential tone — used as an alternative when 'Sir!' feels too informal.",
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "bha · DAN · te"
         },
         {
           "id": "g2",
@@ -1520,7 +1686,9 @@
               "english": "\"",
               "nuance": "Close quote",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:30431"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:30431"
+              ],
               "confidence": "high"
             }
           ]
@@ -1533,7 +1701,11 @@
               "id": "g3s1",
               "text": "te",
               "type": "stem",
-              "morph": { "case": "nom", "number": "pl", "gender": "m" },
+              "morph": {
+                "case": "nom",
+                "number": "pl",
+                "gender": "m"
+              },
               "tooltips": [
                 "'te' here points back to the monks the Buddha just addressed: 'those (monks)'. Pāli has rich pronoun forms (te has 8 different DPD senses for different cases/persons) — context picks which.",
                 "Built on the same demonstrative stem as 'tatra' (phase-e: 'there') — Pāli uses one pointer-system for both place and person."
@@ -1545,10 +1717,13 @@
               "english": "those",
               "nuance": "Demonstrative",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:31134"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:31134"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "teh"
         },
         {
           "id": "g4",
@@ -1567,7 +1742,11 @@
               "id": "g4s2",
               "text": "ū",
               "type": "suffix",
-              "morph": { "case": "nom", "number": "pl", "gender": "m" },
+              "morph": {
+                "case": "nom",
+                "number": "pl",
+                "gender": "m"
+              },
               "tooltips": [
                 "Watch this: 'bhikkhū' has appeared in THREE different cases across the last three phases — phase-e bhikkhū-accusative ('addressed the monks'), phase-f Bhikkhavo-vocative ('Monks!' direct call), phase-g bhikkhū-nominative ('the monks replied'). Same noun, three roles, the surface form 'bhikkhū' is identical in two of them.",
                 "Here it's the SUBJECT — the monks doing the replying. Pāli marks subject with the nominative case; for u-stem masc plurals like bhikkhu, the nom-pl surface is 'bhikkhū' (long ū)."
@@ -1579,24 +1758,31 @@
               "english": "bhikkhus",
               "nuance": "Subject",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high"
             },
             {
               "english": "monks",
               "nuance": "Standard",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high"
             },
             {
               "english": "mendicants",
               "nuance": "Those who beg",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49885"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49885"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "bhik · KHOO"
         },
         {
           "id": "g5",
@@ -1616,7 +1802,11 @@
               "id": "g5s2",
               "text": "vato",
               "type": "suffix",
-              "morph": { "case": "gen", "number": "sg", "gender": "m" },
+              "morph": {
+                "case": "gen",
+                "number": "sg",
+                "gender": "m"
+              },
               "tooltips": [
                 "Compare to phase-b/e: there it was 'bhagavā' (nominative — the Buddha doing/being the subject). Here it's 'bhagavato' (genitive — 'of the Buddha' or, in this construction, 'to the Buddha' as recipient of the reply). Same stem, different role.",
                 "The -vato ending marks genitive singular. For verbs of speaking/replying, Pāli's genitive often slides into a 'to whom' meaning — DPD attests both 'of the Buddha' and 'to the Buddha' as readings.",
@@ -1636,25 +1826,33 @@
               "english": "to the Blessed One",
               "nuance": "Dative (recipient of reply)",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49136"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49136"
+              ],
               "confidence": "high"
             },
             {
               "english": "to the Fortunate One",
               "nuance": "Literal",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49136", "cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49136",
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "high"
             },
             {
               "english": "of the Blessed One",
               "nuance": "Genitive (alternative reading)",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49137"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49137"
+              ],
               "confidence": "medium",
               "notes": "The genitive surface 'bhagavato' has multiple readings in DPD (to/of/from). For verbs of speaking the dative-like 'to' reading is conventional; the bare 'of' would translate as 'they did the replying-of the Buddha' which is awkward English but grammatically possible."
             }
-          ]
+          ],
+          "pronunciation": "bha · ga · VAH · to"
         },
         {
           "id": "g6",
@@ -1674,7 +1872,12 @@
               "id": "g6s2",
               "text": "assosuṁ",
               "type": "root",
-              "morph": { "person": "3", "number": "pl", "tenseAspect": "aorist", "form": "finite" },
+              "morph": {
+                "person": "3",
+                "number": "pl",
+                "tenseAspect": "aorist",
+                "form": "finite"
+              },
               "tooltips": [
                 "Built on the root 'su' meaning 'to hear' — the same root you saw in phase-a's 'sutaṁ' (heard).",
                 "Compound logic: paṭi (back) + su (hear) → 'to hear back' → 'to reply'. The reply IS hearing-back, in Pāli's mental world.",
@@ -1687,25 +1890,32 @@
               "english": "replied",
               "nuance": "Assented",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:39413"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:39413"
+              ],
               "confidence": "high"
             },
             {
               "english": "answered",
               "nuance": "Responded",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:39413"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:39413"
+              ],
               "confidence": "high"
             },
             {
               "english": "acknowledged",
               "nuance": "Heard and accepted",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:39413"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:39413"
+              ],
               "confidence": "high",
               "notes": "DPD's primary glosses are 'replied; agreed; assented'. 'Acknowledged' captures the receptive quality — hearing-back means accepting the call."
             }
-          ]
+          ],
+          "pronunciation": "pat · ca · SO · sum"
         }
       ],
       "englishStructure": [
@@ -1757,7 +1967,11 @@
               "id": "h1s2",
               "text": "vā",
               "type": "suffix",
-              "morph": { "case": "nom", "number": "sg", "gender": "m" },
+              "morph": {
+                "case": "nom",
+                "number": "sg",
+                "gender": "m"
+              },
               "tooltips": [
                 "Fourth appearance of the bhagavā stem in the corpus. The form has cycled: phase-b/e nom-sg (subject) → phase-g gen-sg 'bhagavato' (recipient of reply) → phase-h nom-sg again (back to subject). Same Buddha-epithet, three roles.",
                 "Here it's back to nominative: the Buddha as the subject doing the action (saying). The -vā ending marks 'one who has' (the Fortunate One) + nominative singular masculine.",
@@ -1770,14 +1984,18 @@
               "english": "The Blessed One",
               "nuance": "Subject",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "high"
             },
             {
               "english": "The Fortunate One",
               "nuance": "Literal",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49147"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49147"
+              ],
               "confidence": "high"
             },
             {
@@ -1787,7 +2005,8 @@
               "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). Same etymological-sense pattern as phase-e e3.senses[2].",
               "confidence": "medium"
             }
-          ]
+          ],
+          "pronunciation": "bha · GA · vah"
         },
         {
           "id": "h2",
@@ -1797,7 +2016,11 @@
               "id": "h2s1",
               "text": "etad",
               "type": "stem",
-              "morph": { "case": "acc", "number": "sg", "gender": "n" },
+              "morph": {
+                "case": "acc",
+                "number": "sg",
+                "gender": "n"
+              },
               "tooltips": [
                 "Points FORWARD to what comes next: 'said THIS' — meaning the actual teaching the Buddha is about to speak. The reader's anticipation is encoded grammatically.",
                 "More emphatic than the simpler form 'tad'. The extra 'e-' at the start is an attention-marker: 'THIS, specifically' rather than just 'that thing'."
@@ -1810,9 +2033,10 @@
               "nuance": "The teaching that follows",
               "epistemicBasis": "curatorial",
               "notes": "DPD's Lookup table doesn't index 'etad' as a surface form (a coverage gap, like 'Bhadante' phase-g and 'Bhikkhavo' phase-f). The lemma 'eta' / 'etad' is the standard demonstrative stem; the neuter-sg-nom/acc form is grammatically attested across Pāli grammars.",
-                "confidence": "high"
+              "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "EH · tud"
         },
         {
           "id": "h3",
@@ -1841,7 +2065,12 @@
               "id": "h3s3",
               "text": "a",
               "type": "suffix",
-              "morph": { "person": "3", "number": "sg", "tenseAspect": "aorist", "form": "finite" },
+              "morph": {
+                "person": "3",
+                "number": "sg",
+                "tenseAspect": "aorist",
+                "form": "finite"
+              },
               "tooltips": [
                 "The final '-a' is the aorist 3rd-singular ending — 'he/she/it did this'. Third aorist verb in the opening (cf. phase-e āmantesi -si, phase-g paccassosuṁ -suṁ).",
                 "Pattern: aorist endings vary by verb class. Compare: āmantesi (-si), avoca (-a), paccassosuṁ (-suṁ). Same tense, different stem-classes use different endings."
@@ -1869,7 +2098,8 @@
               "epistemicBasis": "grammatical",
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "a · VO · ca"
         }
       ],
       "englishStructure": [
@@ -1921,7 +2151,11 @@
               "id": "p1s3",
               "text": "o",
               "type": "suffix",
-              "morph": { "case": "nom", "number": "sg", "gender": "m" },
+              "morph": {
+                "case": "nom",
+                "number": "sg",
+                "gender": "m"
+              },
               "tooltips": [
                 "The -o ending marks masc nom sg — same as on 'maggo' (p4s2) below. Pāli adjectives agree with their nouns in case/number/gender; the matching -o endings tell you 'Ekāyano' modifies 'maggo'."
               ]
@@ -1978,7 +2212,8 @@
                 "ghost1": "is the"
               }
             }
-          ]
+          ],
+          "pronunciation": "eh · KAH · ya · no"
         },
         {
           "id": "p2",
@@ -1988,7 +2223,11 @@
               "id": "p2s1",
               "text": "ayaṁ",
               "type": "stem",
-              "morph": { "case": "nom", "number": "sg", "gender": "m" },
+              "morph": {
+                "case": "nom",
+                "number": "sg",
+                "gender": "m"
+              },
               "tooltips": [
                 "Built on the demonstrative stem 'ima'; the surface form 'ayaṁ' is the masc/fem nom-sg. Same pointer-system as 'etad' (phase-h, neuter cataphoric) and 'te' (phase-g, masc pl anaphoric) — different cases and numbers.",
                 "Agrees with 'maggo' (the path) — both are masc nom sg. The agreement signals 'THIS path' (not 'this thing in general'). Pāli's case-marking lets the demonstrative travel; English needs explicit word order."
@@ -2000,10 +2239,13 @@
               "english": "this",
               "nuance": "Pointer to the path",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:8757"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:8757"
+              ],
               "confidence": "high"
             }
-          ]
+          ],
+          "pronunciation": "AH · yum"
         },
         {
           "id": "p3",
@@ -2022,7 +2264,11 @@
               "id": "p3s2",
               "text": "ave",
               "type": "suffix",
-              "morph": { "case": "voc", "number": "pl", "gender": "m" },
+              "morph": {
+                "case": "voc",
+                "number": "pl",
+                "gender": "m"
+              },
               "tooltips": [
                 "Highlighted in the recurring 'bhikkhu' refrain color — same audience-marker you've seen across phase-e (bhikkhū-accusative), phase-f (Bhikkhavo-vocative, alternate form), phase-g (te bhikkhū-nominative). Five appearances now; the refrain is solidly established.",
                 "The -ave ending is vocative plural — the canonical form for direct address to a group. Phase-f used the alternative 'Bhikkhavo'; this 'Bhikkhave' is the more common Pāli form. Sujato uses this throughout MN10.",
@@ -2035,14 +2281,18 @@
               "english": "Mendicants,",
               "nuance": "Those who beg",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49868"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49868"
+              ],
               "confidence": "high"
             },
             {
               "english": "Monks,",
               "nuance": "Standard",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:49868"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:49868"
+              ],
               "confidence": "high"
             },
             {
@@ -2066,7 +2316,8 @@
               "notes": "An interpretive choice some modern translators (e.g., Thanissaro Bhikkhu) favor — emphasizing the relational warmth over the formal monastic status. Not DPD-attested but pedagogically interesting.",
               "confidence": "low"
             }
-          ]
+          ],
+          "pronunciation": "bhik · KHA · veh"
         },
         {
           "id": "p4",
@@ -2086,7 +2337,11 @@
               "id": "p4s2",
               "text": "o",
               "type": "suffix",
-              "morph": { "case": "nom", "number": "sg", "gender": "m" },
+              "morph": {
+                "case": "nom",
+                "number": "sg",
+                "gender": "m"
+              },
               "tooltips": [
                 "The -o ending marks masc nom sg — matching 'Ekāyano' (p1s3) and 'ayaṁ' (p2s1) above. The three together: 'THIS direct PATH' (with case-marker agreement on all three)."
               ]
@@ -2097,25 +2352,32 @@
               "english": "path",
               "nuance": "The way",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:50495"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:50495"
+              ],
               "confidence": "high"
             },
             {
               "english": "road",
               "nuance": "Track to follow",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:50495"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:50495"
+              ],
               "confidence": "high"
             },
             {
               "english": "method",
               "nuance": "Systematic approach",
               "epistemicBasis": "lexical",
-              "sourceCitationIds": ["cite:dpd:dpd:50496"],
+              "sourceCitationIds": [
+                "cite:dpd:dpd:50496"
+              ],
               "confidence": "high",
               "notes": "DPD attests 'magga' also as 'way; means; method' — the abstract sense that frames satipaṭṭhāna as a meditation METHOD, not just a physical path."
             }
-          ]
+          ],
+          "pronunciation": "MAG · go"
         }
       ],
       "englishStructure": [
@@ -2204,7 +2466,8 @@
               "notes": "satta also means the number seven (cognate of Sanskrit sapta). Homonym, NOT the intended reading here. Included to illustrate that Pāli surface forms genuinely have multiple lexical entries — students will encounter satta meaning 'seven' in other contexts.",
               "confidence": "low"
             }
-          ]
+          ],
+          "pronunciation": "saht · TAH · num"
         },
         {
           "id": "p6",
@@ -2287,7 +2550,8 @@
               "notes": "Process-of-refining metaphor (like refining gold). Modern English interpretation; less attested in classical commentaries but pedagogically vivid for readers familiar with the metallurgical metaphor in other religious traditions.",
               "confidence": "low"
             }
-          ]
+          ],
+          "pronunciation": "vi · SUD · dhi · YAH  (rhymes with \"ya\" in \"yard\")"
         }
       ],
       "englishStructure": [
@@ -2382,7 +2646,8 @@
               "notes": "Strict etymological reading — soka from √suc 'burn', parideva from √div 'cry'. Captures the metaphor before it crystallized into 'grief'. Not a translation choice; an etymological gloss.",
               "confidence": "low"
             }
-          ]
+          ],
+          "pronunciation": "so · ka · pa · ri · DEH · vah · num"
         },
         {
           "id": "p8",
@@ -2460,7 +2725,8 @@
               "notes": "ati (beyond) + kram (step) = 'stepping beyond'. Preserves the embodied metaphor before it became 'overcoming'. Pedagogically useful for first encounter; rarely chosen as the primary rendering.",
               "confidence": "low"
             }
-          ]
+          ],
+          "pronunciation": "sa · ma · tik · KAH · mah · ya"
         }
       ],
       "englishStructure": [
@@ -3383,7 +3649,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -3921,7 +4188,8 @@
               "english": "remains",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -4426,7 +4694,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -4957,7 +5226,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -5677,7 +5947,8 @@
               "english": "remains",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -9389,7 +9660,8 @@
               "english": "indeed",
               "nuance": "Emphasis"
             }
-          ]
+          ],
+          "pronunciation": "kho  (aspirated)"
         },
         {
           "id": "aw3",
@@ -11104,7 +11376,8 @@
               "english": "lives",
               "nuance": "Way of being"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -11353,7 +11626,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -11605,7 +11879,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -11813,7 +12088,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -12007,7 +12283,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -12214,7 +12491,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         }
       ],
       "englishStructure": [
@@ -12816,7 +13094,8 @@
               "english": "keeps at it",
               "nuance": "Continuous practice"
             }
-          ]
+          ],
+          "pronunciation": "vi · HA · ra · ti"
         },
         {
           "id": "bg4",

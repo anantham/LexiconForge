@@ -21,6 +21,27 @@ const EPISTEMIC_BASIS_LABELS: Record<string, string> = {
   comparative: 'parallel-supported',
 };
 
+// Audit-panel position persists across reloads so the curator can park the
+// panel where they like and not have it reset every time they reopen the demo.
+const POSITION_STORAGE_KEY = 'sutta-studio-lens-panel-pos';
+function loadPanelPosition(): { x: number; y: number } | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem(POSITION_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+function savePanelPosition(pos: { x: number; y: number }): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify(pos));
+  } catch {
+    // ignore
+  }
+}
+
 export function LensPanel({
   phase,
   pinned,
@@ -49,6 +70,7 @@ export function LensPanel({
   const paliText = buildPaliText(word);
 
   const [tab, setTab] = useState<'senses' | 'grammar' | 'relations'>('senses');
+  const [position, setPosition] = useState<{ x: number; y: number }>(() => loadPanelPosition() ?? { x: 0, y: 0 });
 
   useEffect(() => {
     setTab('senses');
@@ -66,20 +88,36 @@ export function LensPanel({
     <AnimatePresence>
       <motion.div
         data-interactive="true"
-        className="fixed right-4 top-20 bottom-20 w-[360px] max-w-[92vw] z-[90] bg-slate-950 border border-slate-800 rounded-xl shadow-2xl overflow-hidden"
-        initial={{ opacity: 0, x: 16 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 16 }}
+        className="fixed right-4 top-20 bottom-20 w-[440px] max-w-[92vw] z-[90] bg-slate-950 border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+        initial={{ opacity: 0, x: 16 + position.x, y: position.y }}
+        animate={{ opacity: 1, x: position.x, y: position.y }}
+        exit={{ opacity: 0, x: 16 + position.x, y: position.y }}
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        onDragEnd={(_, info) => {
+          const newPos = { x: position.x + info.offset.x, y: position.y + info.offset.y };
+          setPosition(newPos);
+          savePanelPosition(newPos);
+        }}
       >
-        <div className="p-4 border-b border-slate-800">
+        <div
+          className="p-4 border-b border-slate-800 cursor-move select-none"
+          title="Drag to reposition"
+        >
           <div className="flex items-start justify-between gap-3">
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="text-slate-200 font-semibold flex items-center gap-2">
-                <span className={`${word.color ?? 'text-slate-200'} font-serif`}>{paliText}</span>
+                <span className={`${word.color ?? 'text-slate-200'} font-serif text-lg`}>{paliText}</span>
                 <span className="text-slate-600 text-xs">
                   {pinned.kind === 'segment' ? `segment ${pinned.segmentIndex + 1}` : 'word'}
                 </span>
               </div>
+              {word.pronunciation && (
+                <div className="text-slate-400 text-sm mt-1 font-mono tracking-wide">
+                  {word.pronunciation}
+                </div>
+              )}
               <div className="text-slate-500 text-xs mt-1">
                 Current: <span className="text-slate-300">{activeSense?.english ?? '—'}</span>{' '}
                 <span className="text-slate-600">({activeSense?.nuance ?? ''})</span>
@@ -87,7 +125,7 @@ export function LensPanel({
             </div>
 
             <button
-              className="px-3 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 select-none"
+              className="px-3 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 select-none shrink-0"
               onClick={onClose}
               title="Close (Esc)"
             >
@@ -126,25 +164,10 @@ export function LensPanel({
             >
               Relations
             </button>
-
-            <div className="flex-1" />
-
-            <button
-              className="px-2 py-1 rounded border border-slate-800 text-slate-500 hover:text-slate-300 text-xs"
-              onClick={() => copyText(paliText)}
-            >
-              Copy Pāli
-            </button>
-            <button
-              className="px-2 py-1 rounded border border-slate-800 text-slate-500 hover:text-slate-300 text-xs"
-              onClick={() => copyText(activeSense?.english ?? '')}
-            >
-              Copy English
-            </button>
           </div>
         </div>
 
-        <div className="p-4 overflow-y-auto h-full">
+        <div className="p-4 overflow-y-auto flex-1">
           {tab === 'senses' && (
             <div className="space-y-3">
               <div className="text-slate-500 text-xs">Click a sense to set it.</div>
@@ -286,6 +309,33 @@ export function LensPanel({
                 );
               })}
             </div>
+          )}
+        </div>
+
+        <div className="border-t border-slate-800 px-4 py-2 flex items-center gap-2 shrink-0 bg-slate-950">
+          <button
+            className="px-2 py-1 rounded border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 text-xs"
+            onClick={() => copyText(paliText)}
+            title="Copy the Pāli word"
+          >
+            Copy Pāli
+          </button>
+          <button
+            className="px-2 py-1 rounded border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 text-xs"
+            onClick={() => copyText(activeSense?.english ?? '')}
+            title="Copy the current English rendering"
+          >
+            Copy English
+          </button>
+          <div className="flex-1" />
+          {word.pronunciation && (
+            <button
+              className="px-2 py-1 rounded border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 text-xs"
+              onClick={() => copyText(word.pronunciation!)}
+              title="Copy the pronunciation hint"
+            >
+              Copy Pron.
+            </button>
           )}
         </div>
       </motion.div>
