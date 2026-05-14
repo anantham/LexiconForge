@@ -1,3 +1,32 @@
+2026-05-14 (long session — V2 wiring + audit UX + syllabifier + phantom purge + Path B start) - [Agent: Opus 4.7 (1M)]
+- Status: MERGED. PR #52 landed via merge commit 3791e42. Worktree `../LexiconForge.worktrees/opus-phase2-experiment` will be removed; branch `feat/opus-phase2-experiment` deleted.
+- Sources of truth: merge commit 3791e42 body (thread summary), docs/sutta-studio/curation/phase-{2,3,4}.md (per-phase logs), services/sutta-studio/postPasses/syllabify.ts (deterministic post-pass pattern).
+- Task arc (across compactions):
+  1. A1 — Wired SUTTA_STUDIO_V2 amendments into live compiler (register, anchor, relations, translator-debate, cross-phase). SENSE_METADATA retired.
+  2. A2 — Validated V2 amendments empirically (phase-2 hand vs pipeline diff). Lift is structural, not metadata.
+  3. C — Hand-curated phase-2, then phase-3, phase-4 via Path B pattern (~7 min/phase post-purge).
+  4. Audit panel iteration: mobile bottom-sheet, draggable+persisted on desktop, inline copy + toast, clickable citation chips.
+  5. Legend panel: visual reference for colors/diacritics/relations (example-first descriptions, no technical terms).
+  6. Syllabifier post-pass: deterministic Pāli syllable+stress for 269/269 words. 29 tests pass. Sets the post-pass pattern.
+  7. Batch v11 pipeline: ran 40 un-curated MN10 phases through compiler (~$0.96 total via Gemini Flash). Outputs in docs/sutta-studio/experiments/.
+  8. Phantom-metadata purge: stripped epistemicBasis, confidence, sourceCitationIds, morph from data + prompts + UI. Audit found them never rendered in default-on paths. Net -500 lines.
+- Principles ratified (in ~/.claude/CLAUDE.md):
+  - "Lean toward the reverse direction" (papañca framing for subtraction)
+  - Rule Stacker anti-pattern
+  - Phantom Consumer anti-pattern
+  - Leave telic breadcrumbs (commit bodies + ADRs capture WHY)
+- DO NOT add back without building a UI consumer first: epistemicBasis, confidence, sourceCitationIds, morph.
+- What's NOT in (next-session pickup):
+  - Path B continuation — 39 phases (5, 6, 7, x, y, z, aa-bg) to polish at ~7 min/phase, total ~5 hours
+  - Dead toggles (Emoji in tooltips, Grammar terms) — wired but target data was stripped, safe to remove
+  - DPD URL minting on existing 32 citations (chips are wired to be clickable)
+  - Refrain-detector post-pass (sibling to syllabifier)
+  - F task — Translator-tradition database
+  - Compiler consolidation Phase 3+4 (LLM caller merge + shim cleanup) — partial work landed via PR #51
+- Resume: PR #52 is merged; pick from "what's NOT in" list. Path B is highest-leverage continuation.
+
+---
+
 2026-05-12 (long session — Tier-1 grounded data layer + batch 2 complete + renderer arc) - [Agent: Opus 4.7 (1M)]
 - Status: 28 commits on feat/opus-grounded-data-layer pushed to origin. PR #38 (ready). Worktree at ../LexiconForge.worktrees/opus-grounded-data-layer. Merging back to main this session.
 - Note: supersedes the temporary "2026-05-11 (continuing — provider build)" claim entry that landed on main (1242e43); the work is now done and captured below.
