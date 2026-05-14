@@ -568,6 +568,236 @@
       "query": "sati",
       "fetchedAt": "2026-05-14",
       "license": "see source for license"
+    },
+    {
+      "id": "cite:term:kāyānupassī:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"contemplating the body in the body\" (kāyānupassī)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10 — Bodhi preserves the doubled-noun construction (kāye kāyānupassī = 'contemplating body in body')",
+      "provenance": "manual",
+      "query": "kāyānupassī",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:kāyānupassī:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"meditates by observing an aspect of the body\" (kāyānupassī)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 (bilara-verified) — Sujato unpacks the kāye + kāyānupassī construction as 'aspect of body' for clarity",
+      "provenance": "manual",
+      "query": "kāyānupassī",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:kāyānupassī:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"remains focused on the body in & of itself\" (kāyānupassī)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — Thanissaro renders the locative construction as 'in & of itself' to emphasise the non-dualistic framing",
+      "provenance": "manual",
+      "query": "kāyānupassī",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ātāpī:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"ardent\" (ātāpī)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10 — Bodhi's standard rendering across the satipaṭṭhāna formula",
+      "provenance": "manual",
+      "query": "ātāpī",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ātāpī:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"keen\" (ātāpī)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 (bilara-verified) — Sujato's 'keen, aware, and mindful' formula",
+      "provenance": "manual",
+      "query": "ātāpī",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ātāpī:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"ardent\" (ātāpī)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — Thanissaro's 'ardent, alert, & mindful' formula. Same rendering as Bodhi here.",
+      "provenance": "manual",
+      "query": "ātāpī",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ātāpī:wikipedia",
+      "short": "Wikipedia — Atapi",
+      "url": "https://en.wikipedia.org/wiki/Atapi",
+      "excerpt": "Wikipedia article on ātāpī as the quality of effort in satipaṭṭhāna practice.",
+      "provenance": "manual",
+      "query": "ātāpī",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:sampajāno:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"clearly comprehending\" (sampajāno)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10 — Bodhi's standard rendering, preserves the precision-of-knowing emphasis",
+      "provenance": "manual",
+      "query": "sampajāno",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sampajāno:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"aware\" (sampajāno)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 (bilara-verified) — Sujato's 'keen, aware, and mindful' formula",
+      "provenance": "manual",
+      "query": "sampajāno",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sampajāno:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"alert\" (sampajāno)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — Thanissaro's 'ardent, alert, & mindful' formula",
+      "provenance": "manual",
+      "query": "sampajāno",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sampajāno:wikipedia",
+      "short": "Wikipedia — Sampajanna",
+      "url": "https://en.wikipedia.org/wiki/Sampajanna",
+      "excerpt": "Wikipedia article on sampajañña (the abstract noun form) — the quality of clear comprehension in mindfulness practice.",
+      "provenance": "manual",
+      "query": "sampajāno",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:vedanā:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"feeling\" (vedanā)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB — Bodhi's standard. Preserves Western philosophical tradition's 'feeling' but flag the technical narrowness in his footnotes.",
+      "provenance": "manual",
+      "query": "vedanā",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:vedanā:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"feeling\" (vedanā)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 (bilara-verified) — Sujato also uses 'feeling'. 'observing an aspect of feelings' for vedanānupassī.",
+      "provenance": "manual",
+      "query": "vedanā",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:vedanā:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"feelings\" (vedanā)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — 'remains focused on feelings in & of themselves' for vedanānupassī.",
+      "provenance": "manual",
+      "query": "vedanā",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:vedanā:wikipedia",
+      "short": "Wikipedia — Vedanā",
+      "url": "https://en.wikipedia.org/wiki/Vedan%C4%81",
+      "excerpt": "Wikipedia article on vedanā as the second of the five aggregates; the three feeling-tones (pleasant, painful, neutral).",
+      "provenance": "manual",
+      "query": "vedanā",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:citta:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"mind\" (citta)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10. Standard rendering — preserves the cognitive-faculty sense.",
+      "provenance": "manual",
+      "query": "citta",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:citta:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"mind\" (citta)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 (bilara-verified) — 'observing an aspect of the mind' for cittānupassī.",
+      "provenance": "manual",
+      "query": "citta",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:citta:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"mind\" (citta)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — 'remains focused on the mind in & of itself' for cittānupassī.",
+      "provenance": "manual",
+      "query": "citta",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:citta:wikipedia",
+      "short": "Wikipedia — Citta",
+      "url": "https://en.wikipedia.org/wiki/Citta",
+      "excerpt": "Wikipedia article distinguishing citta from mano and viññāṇa in Pāli psychology.",
+      "provenance": "manual",
+      "query": "citta",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:dhammā:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"mind-objects\" (dhammā)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10. Bodhi's earlier choice; later editions sometimes shift to 'phenomena'.",
+      "provenance": "manual",
+      "query": "dhammā",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:dhammā:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"principles\" (dhammā)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 (bilara-verified) — 'observing an aspect of principles' for dhammānupassī.",
+      "provenance": "manual",
+      "query": "dhammā",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:dhammā:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"mental qualities\" (dhammā)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — 'remains focused on mental qualities in & of themselves' for dhammānupassī.",
+      "provenance": "manual",
+      "query": "dhammā",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:dhammā:wikipedia",
+      "short": "Wikipedia — Dharma (Buddhism)",
+      "url": "https://en.wikipedia.org/wiki/Dharma",
+      "excerpt": "Wikipedia article on the multiple senses of dhamma/dharma — teaching, phenomenon, mental quality, ultimate law.",
+      "provenance": "manual",
+      "query": "dhammā",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
     }
   ],
   "progress": {
@@ -3550,23 +3780,48 @@
           "senses": [
             {
               "english": "observing body",
-              "nuance": "Action"
+              "nuance": "Action",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "a body-watcher",
-              "nuance": "Identity"
+              "nuance": "Identity",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "contemplating form",
-              "nuance": "Sustained attention"
+              "nuance": "Sustained attention",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "tracking the physical",
-              "nuance": "Following closely"
+              "nuance": "Following closely",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "seeing body as body",
-              "nuance": "Phenomenological"
+              "nuance": "Phenomenological",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "kā · yā · nu · PAS · sī"
@@ -3696,19 +3951,43 @@
           "senses": [
             {
               "english": "ardent",
-              "nuance": "Burning effort"
+              "nuance": "Burning effort",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "with heat",
-              "nuance": "Transformative fire"
+              "nuance": "Transformative fire",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "diligent",
-              "nuance": "Steady energy"
+              "nuance": "Steady energy",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "keen",
-              "nuance": "Sharp attention"
+              "nuance": "Sharp attention",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             }
           ],
           "pronunciation": "ā · TĀ · pī"
@@ -3756,19 +4035,43 @@
           "senses": [
             {
               "english": "clearly knowing",
-              "nuance": "Full awareness"
+              "nuance": "Full awareness",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "with clear comprehension",
-              "nuance": "Four types"
+              "nuance": "Four types",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "discerning",
-              "nuance": "Purpose-aware"
+              "nuance": "Purpose-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "fully aware",
-              "nuance": "Context-aware"
+              "nuance": "Context-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             }
           ],
           "pronunciation": "sam · pa · JĀ · no"
@@ -4094,15 +4397,33 @@
           "senses": [
             {
               "english": "in feelings",
-              "nuance": "Hedonic tones"
+              "nuance": "Hedonic tones",
+              "citationIds": [
+                "cite:term:vedanā:sc-bodhi-mn10",
+                "cite:term:vedanā:sc-sujato-mn10",
+                "cite:term:vedanā:thanissaro-dhammatalks",
+                "cite:term:vedanā:wikipedia"
+              ]
             },
             {
               "english": "regarding felt tones",
-              "nuance": "Pleasant/painful/neutral"
+              "nuance": "Pleasant/painful/neutral",
+              "citationIds": [
+                "cite:term:vedanā:sc-bodhi-mn10",
+                "cite:term:vedanā:sc-sujato-mn10",
+                "cite:term:vedanā:thanissaro-dhammatalks",
+                "cite:term:vedanā:wikipedia"
+              ]
             },
             {
               "english": "within sensations",
-              "nuance": "Raw valence"
+              "nuance": "Raw valence",
+              "citationIds": [
+                "cite:term:vedanā:sc-bodhi-mn10",
+                "cite:term:vedanā:sc-sujato-mn10",
+                "cite:term:vedanā:thanissaro-dhammatalks",
+                "cite:term:vedanā:wikipedia"
+              ]
             }
           ],
           "pronunciation": "ve · da · NĀ · su"
@@ -4149,19 +4470,43 @@
           "senses": [
             {
               "english": "observing feelings",
-              "nuance": "Action"
+              "nuance": "Action",
+              "citationIds": [
+                "cite:term:vedanā:sc-bodhi-mn10",
+                "cite:term:vedanā:sc-sujato-mn10",
+                "cite:term:vedanā:thanissaro-dhammatalks",
+                "cite:term:vedanā:wikipedia"
+              ]
             },
             {
               "english": "a feeling-watcher",
-              "nuance": "Identity"
+              "nuance": "Identity",
+              "citationIds": [
+                "cite:term:vedanā:sc-bodhi-mn10",
+                "cite:term:vedanā:sc-sujato-mn10",
+                "cite:term:vedanā:thanissaro-dhammatalks",
+                "cite:term:vedanā:wikipedia"
+              ]
             },
             {
               "english": "tracking sensations",
-              "nuance": "Following closely"
+              "nuance": "Following closely",
+              "citationIds": [
+                "cite:term:vedanā:sc-bodhi-mn10",
+                "cite:term:vedanā:sc-sujato-mn10",
+                "cite:term:vedanā:thanissaro-dhammatalks",
+                "cite:term:vedanā:wikipedia"
+              ]
             },
             {
               "english": "seeing feeling as feeling",
-              "nuance": "Phenomenological"
+              "nuance": "Phenomenological",
+              "citationIds": [
+                "cite:term:vedanā:sc-bodhi-mn10",
+                "cite:term:vedanā:sc-sujato-mn10",
+                "cite:term:vedanā:thanissaro-dhammatalks",
+                "cite:term:vedanā:wikipedia"
+              ]
             }
           ],
           "pronunciation": "ve · da · nā · nu · PAS · sī"
@@ -4271,19 +4616,43 @@
           "senses": [
             {
               "english": "ardent",
-              "nuance": "Burning effort"
+              "nuance": "Burning effort",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "with heat",
-              "nuance": "Transformative fire"
+              "nuance": "Transformative fire",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "diligent",
-              "nuance": "Steady energy"
+              "nuance": "Steady energy",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "keen",
-              "nuance": "Sharp attention"
+              "nuance": "Sharp attention",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             }
           ],
           "pronunciation": "ā · TĀ · pī"
@@ -4329,19 +4698,43 @@
           "senses": [
             {
               "english": "clearly knowing",
-              "nuance": "Full awareness"
+              "nuance": "Full awareness",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "with clear comprehension",
-              "nuance": "Four types"
+              "nuance": "Four types",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "discerning",
-              "nuance": "Purpose-aware"
+              "nuance": "Purpose-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "fully aware",
-              "nuance": "Context-aware"
+              "nuance": "Context-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             }
           ],
           "pronunciation": "sam · pa · JĀ · no"
@@ -4633,15 +5026,33 @@
           "senses": [
             {
               "english": "in the mind",
-              "nuance": "Cognitive aspect"
+              "nuance": "Cognitive aspect",
+              "citationIds": [
+                "cite:term:citta:sc-bodhi-mn10",
+                "cite:term:citta:sc-sujato-mn10",
+                "cite:term:citta:thanissaro-dhammatalks",
+                "cite:term:citta:wikipedia"
+              ]
             },
             {
               "english": "in the heart",
-              "nuance": "Affective aspect"
+              "nuance": "Affective aspect",
+              "citationIds": [
+                "cite:term:citta:sc-bodhi-mn10",
+                "cite:term:citta:sc-sujato-mn10",
+                "cite:term:citta:thanissaro-dhammatalks",
+                "cite:term:citta:wikipedia"
+              ]
             },
             {
               "english": "regarding consciousness",
-              "nuance": "State-awareness"
+              "nuance": "State-awareness",
+              "citationIds": [
+                "cite:term:citta:sc-bodhi-mn10",
+                "cite:term:citta:sc-sujato-mn10",
+                "cite:term:citta:thanissaro-dhammatalks",
+                "cite:term:citta:wikipedia"
+              ]
             }
           ],
           "pronunciation": "CIT · te"
@@ -4687,19 +5098,43 @@
           "senses": [
             {
               "english": "observing mind",
-              "nuance": "Action"
+              "nuance": "Action",
+              "citationIds": [
+                "cite:term:citta:sc-bodhi-mn10",
+                "cite:term:citta:sc-sujato-mn10",
+                "cite:term:citta:thanissaro-dhammatalks",
+                "cite:term:citta:wikipedia"
+              ]
             },
             {
               "english": "a mind-watcher",
-              "nuance": "Identity"
+              "nuance": "Identity",
+              "citationIds": [
+                "cite:term:citta:sc-bodhi-mn10",
+                "cite:term:citta:sc-sujato-mn10",
+                "cite:term:citta:thanissaro-dhammatalks",
+                "cite:term:citta:wikipedia"
+              ]
             },
             {
               "english": "tracking consciousness",
-              "nuance": "Following closely"
+              "nuance": "Following closely",
+              "citationIds": [
+                "cite:term:citta:sc-bodhi-mn10",
+                "cite:term:citta:sc-sujato-mn10",
+                "cite:term:citta:thanissaro-dhammatalks",
+                "cite:term:citta:wikipedia"
+              ]
             },
             {
               "english": "seeing mind as mind",
-              "nuance": "Phenomenological"
+              "nuance": "Phenomenological",
+              "citationIds": [
+                "cite:term:citta:sc-bodhi-mn10",
+                "cite:term:citta:sc-sujato-mn10",
+                "cite:term:citta:thanissaro-dhammatalks",
+                "cite:term:citta:wikipedia"
+              ]
             }
           ],
           "pronunciation": "cit · tā · nu · PAS · sī"
@@ -4826,19 +5261,43 @@
           "senses": [
             {
               "english": "ardent",
-              "nuance": "Burning effort"
+              "nuance": "Burning effort",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "with heat",
-              "nuance": "Transformative fire"
+              "nuance": "Transformative fire",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "diligent",
-              "nuance": "Steady energy"
+              "nuance": "Steady energy",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "keen",
-              "nuance": "Sharp attention"
+              "nuance": "Sharp attention",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             }
           ],
           "pronunciation": "ā · TĀ · pī"
@@ -4885,19 +5344,43 @@
           "senses": [
             {
               "english": "clearly knowing",
-              "nuance": "Full awareness"
+              "nuance": "Full awareness",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "with clear comprehension",
-              "nuance": "Four types"
+              "nuance": "Four types",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "discerning",
-              "nuance": "Purpose-aware"
+              "nuance": "Purpose-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "fully aware",
-              "nuance": "Context-aware"
+              "nuance": "Context-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             }
           ],
           "pronunciation": "sam · pa · JĀ · no"
@@ -5209,19 +5692,43 @@
           "senses": [
             {
               "english": "in principles",
-              "nuance": "Causal patterns"
+              "nuance": "Causal patterns",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             },
             {
               "english": "regarding phenomena",
-              "nuance": "Mental factors"
+              "nuance": "Mental factors",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             },
             {
               "english": "within the categories",
-              "nuance": "The five sections"
+              "nuance": "The five sections",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             },
             {
               "english": "in the way things work",
-              "nuance": "Laws of mind"
+              "nuance": "Laws of mind",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             }
           ],
           "pronunciation": "dham · ME · su"
@@ -5267,19 +5774,43 @@
           "senses": [
             {
               "english": "observing phenomena",
-              "nuance": "Action"
+              "nuance": "Action",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             },
             {
               "english": "a dhamma-watcher",
-              "nuance": "Identity"
+              "nuance": "Identity",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             },
             {
               "english": "tracking principles",
-              "nuance": "Following closely"
+              "nuance": "Following closely",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             },
             {
               "english": "seeing dhamma as dhamma",
-              "nuance": "Phenomenological"
+              "nuance": "Phenomenological",
+              "citationIds": [
+                "cite:term:dhammā:sc-bodhi-mn10",
+                "cite:term:dhammā:sc-sujato-mn10",
+                "cite:term:dhammā:thanissaro-dhammatalks",
+                "cite:term:dhammā:wikipedia"
+              ]
             }
           ],
           "pronunciation": "dham · mā · nu · PAS · sī"
@@ -5406,19 +5937,43 @@
           "senses": [
             {
               "english": "ardent",
-              "nuance": "Burning effort"
+              "nuance": "Burning effort",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "with heat",
-              "nuance": "Transformative fire"
+              "nuance": "Transformative fire",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "diligent",
-              "nuance": "Steady energy"
+              "nuance": "Steady energy",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             },
             {
               "english": "keen",
-              "nuance": "Sharp attention"
+              "nuance": "Sharp attention",
+              "citationIds": [
+                "cite:term:ātāpī:sc-bodhi-mn10",
+                "cite:term:ātāpī:sc-sujato-mn10",
+                "cite:term:ātāpī:thanissaro-dhammatalks",
+                "cite:term:ātāpī:wikipedia"
+              ]
             }
           ],
           "pronunciation": "ā · TĀ · pī"
@@ -5465,19 +6020,43 @@
           "senses": [
             {
               "english": "clearly knowing",
-              "nuance": "Full awareness"
+              "nuance": "Full awareness",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "with clear comprehension",
-              "nuance": "Four types"
+              "nuance": "Four types",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "discerning",
-              "nuance": "Purpose-aware"
+              "nuance": "Purpose-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             },
             {
               "english": "fully aware",
-              "nuance": "Context-aware"
+              "nuance": "Context-aware",
+              "citationIds": [
+                "cite:term:sampajāno:sc-bodhi-mn10",
+                "cite:term:sampajāno:sc-sujato-mn10",
+                "cite:term:sampajāno:thanissaro-dhammatalks",
+                "cite:term:sampajāno:wikipedia"
+              ]
             }
           ],
           "pronunciation": "sam · pa · JĀ · no"
@@ -6045,23 +6624,48 @@
           "senses": [
             {
               "english": "observing body",
-              "nuance": "Action"
+              "nuance": "Action",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "a body-watcher",
-              "nuance": "Identity"
+              "nuance": "Identity",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "contemplating form",
-              "nuance": "Sustained attention"
+              "nuance": "Sustained attention",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "tracking the physical",
-              "nuance": "Following closely"
+              "nuance": "Following closely",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "seeing body as body",
-              "nuance": "Phenomenological"
+              "nuance": "Phenomenological",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "kā · yā · nu · PAS · sī"
@@ -11514,15 +12118,30 @@
           "senses": [
             {
               "english": "contemplating the body",
-              "nuance": "Observing"
+              "nuance": "Observing",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "body-observer",
-              "nuance": "Agent"
+              "nuance": "Agent",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "watching the body",
-              "nuance": "Vigilant"
+              "nuance": "Vigilant",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "kā · yā · nu · PAS · sī"
@@ -11767,23 +12386,48 @@
           "senses": [
             {
               "english": "observing body",
-              "nuance": "Action"
+              "nuance": "Action",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "a body-watcher",
-              "nuance": "Identity"
+              "nuance": "Identity",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "contemplating form",
-              "nuance": "Sustained attention"
+              "nuance": "Sustained attention",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "tracking the physical",
-              "nuance": "Following closely"
+              "nuance": "Following closely",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "seeing body as body",
-              "nuance": "Phenomenological"
+              "nuance": "Phenomenological",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "kā · yā · nu · PAS · sī"
@@ -12041,23 +12685,48 @@
           "senses": [
             {
               "english": "observing body",
-              "nuance": "Action"
+              "nuance": "Action",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "a body-watcher",
-              "nuance": "Identity"
+              "nuance": "Identity",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "contemplating form",
-              "nuance": "Sustained attention"
+              "nuance": "Sustained attention",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "tracking the physical",
-              "nuance": "Following closely"
+              "nuance": "Following closely",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "seeing body as body",
-              "nuance": "Phenomenological"
+              "nuance": "Phenomenological",
+              "citationIds": [
+                "cite:term:kāyānupassī:sc-bodhi-mn10",
+                "cite:term:kāyānupassī:sc-sujato-mn10",
+                "cite:term:kāyānupassī:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "kā · yā · nu · PAS · sī"
