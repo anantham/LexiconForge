@@ -411,7 +411,6 @@
               "text": "eva",
               "type": "stem",
               "tooltips": [
-                "Colored differently because it's a small framing word — its job is to point forward, like English 'thus' or 'so' opening a story.",
                 "evaṁ means 'thus; in this way'. It opens the formula 'evaṁ me sutaṁ' (thus I have heard), signalling 'what follows is recited from memory'.",
                 "Don't confuse with bare 'eva' — that's a different word, an emphatic particle ('only', 'just', 'indeed'). The -ṁ ending makes evaṁ a separate word."
               ]
@@ -446,7 +445,6 @@
               "type": "stem",
               "morph": { "case": "gen" },
               "tooltips": [
-                "Colored differently because it's a small connector word. Pāli wraps 'by', 'of', 'to' into the noun's ending rather than spelling them out as separate words.",
                 "Form is 'of me' (genitive case); function here is 'by me' — Pāli uses the genitive to mark who did the action when the verb is passive, like 'was heard'."
               ],
               "relation": {
@@ -564,7 +562,6 @@
               "type": "stem",
               "morph": { "case": "acc", "number": "sg" },
               "tooltips": [
-                "Colored differently because it's a small modifier word — it tells you which one of something. Here: 'one' (specific occasion).",
                 "'eka' means 'one' or 'a certain' — it picks out a specific one of the noun that follows (here: samayaṁ, 'occasion').",
                 "Tells you which (one specific occasion), not what kind."
               ]
@@ -948,7 +945,6 @@
               "text": "nāma",
               "type": "stem",
               "tooltips": [
-                "Colored differently because it's a small linking word — Pāli uses 'nāma' (literally 'name') between two nouns to mean 'called' or 'named'.",
                 "'nāma' is the naming-word. 'X nāma Y' reads as 'Y called X' — the small word in the middle does the work of English 'called' or 'named'.",
                 "Here it links the proper name (Kammāsadhamma) to the common-noun head (nigamo, 'market town'): 'a market-town of the Kurus named Kammāsadhamma'."
               ]
@@ -1120,7 +1116,6 @@
               "text": "ta",
               "type": "stem",
               "tooltips": [
-                "Colored differently because it's a small pointing word. Pāli uses short fixed forms for 'this/that' — they don't change like nouns do.",
                 "'ta' is the demonstrative stem — the part meaning 'that'. By itself it's just the pointer; the next part (-tra) adds 'in that place'."
               ]
             },
@@ -1153,7 +1148,6 @@
               "text": "kho",
               "type": "stem",
               "tooltips": [
-                "Colored differently because it's a small narrative beat — Pāli uses particles like this to pace storytelling. English usually drops them or replaces with pauses.",
                 "'kho' is an emphatic particle, like English 'indeed', 'now', or 'so' inserted to mark the rhythm of a story.",
                 "From an older Pāli word 'khalu' — both mean 'indeed' or 'truly'. The shorter 'kho' is the canonical form in the suttas.",
                 "Often left untranslated in English. Pāli wraps narrative timing in these little words; English uses pauses, punctuation, or simply omits them."
@@ -1431,7 +1425,6 @@
               "text": "ti",
               "type": "stem",
               "tooltips": [
-                "Colored differently because it's a tiny grammar word — a closing-quote marker. Pāli writes 'ti' (or 'iti') at the END of a quoted speech to say 'end quote'.",
                 "Shortened from 'iti' meaning 'thus' or 'in this way' — Pāli marks quoted speech by saying 'thus' after it: 'X-iti' = '\"X\"'.",
                 "Cross-language pattern: English uses quote marks (typographic); Pāli uses a word (lexical). Same function, different surface."
               ]
@@ -1543,7 +1536,6 @@
               "type": "stem",
               "morph": { "case": "nom", "number": "pl", "gender": "m" },
               "tooltips": [
-                "Colored differently because it's a small pointing word — Pāli's 'te' is a demonstrative pronoun, like English 'those' or 'they'.",
                 "'te' here points back to the monks the Buddha just addressed: 'those (monks)'. Pāli has rich pronoun forms (te has 8 different DPD senses for different cases/persons) — context picks which.",
                 "Built on the same demonstrative stem as 'tatra' (phase-e: 'there') — Pāli uses one pointer-system for both place and person."
               ]
@@ -1808,7 +1800,6 @@
               "type": "stem",
               "morph": { "case": "acc", "number": "sg", "gender": "n" },
               "tooltips": [
-                "Colored differently because it's a small pointing word — Pāli's 'etad' is a demonstrative ('this'), neuter form. You saw a related pointer 'tatra' (there) in phase-e and 'te' (those) in phase-g — same demonstrative system, different forms.",
                 "Points FORWARD to what comes next: 'said THIS' — meaning the actual teaching the Buddha is about to speak. The reader's anticipation is encoded grammatically.",
                 "More emphatic than the simpler form 'tad'. The extra 'e-' at the start is an attention-marker: 'THIS, specifically' rather than just 'that thing'."
               ]
@@ -2000,7 +1991,6 @@
               "type": "stem",
               "morph": { "case": "nom", "number": "sg", "gender": "m" },
               "tooltips": [
-                "Colored differently because it's a small pointing word — a demonstrative pronoun. Pāli's 'ayaṁ' = English 'this'.",
                 "Built on the demonstrative stem 'ima'; the surface form 'ayaṁ' is the masc/fem nom-sg. Same pointer-system as 'etad' (phase-h, neuter cataphoric) and 'te' (phase-g, masc pl anaphoric) — different cases and numbers.",
                 "Agrees with 'maggo' (the path) — both are masc nom sg. The agreement signals 'THIS path' (not 'this thing in general'). Pāli's case-marking lets the demonstrative travel; English needs explicit word order."
               ]
