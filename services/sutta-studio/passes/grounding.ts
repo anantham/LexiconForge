@@ -17,6 +17,10 @@
 import type { PaliWord, PhaseView, Citation } from '../../../types/suttaStudio';
 import type { GroundingProvider, GroundedClaim, Match } from '../grounding/types';
 import { lookupAcrossProviders } from '../grounding';
+import {
+  buildPhaseVerseCitations,
+  type BilaraTranslation,
+} from '../grounding/translatorBank';
 
 const PALI_VOWELS = new Set('aāiīuūeoṁ');
 
@@ -112,16 +116,31 @@ async function claimsForWord(
  */
 export async function runGroundingPass(
   phase: PhaseView,
-  providers: GroundingProvider[]
+  providers: GroundingProvider[],
+  /** Phase 3 (translator-bank): per-verse Bodhi/Sujato/Anandajoti renderings
+   *  fetched from SuttaCentral bilara-data API. Empty array means
+   *  contested-terms-only grounding (Phase 1 behavior). */
+  verseBank: BilaraTranslation[] = []
 ): Promise<GroundingPassResult> {
   const citationsAdded: Citation[] = [];
   const citationsAddedIds = new Set<string>();
   const citationIdsByWord = new Map<string, string[]>();
   const matches: GroundingPassResult['matches'] = [];
 
+  // Phase 3: phase-level verse citations from translator-bank. Attach to
+  // every word in the phase — reader exploring any word sees the per-verse
+  // translator rendering for context.
+  const verseCitations =
+    verseBank.length > 0 ? buildPhaseVerseCitations(phase, verseBank) : [];
+  for (const cite of verseCitations) {
+    if (!citationsAddedIds.has(cite.id)) {
+      citationsAddedIds.add(cite.id);
+      citationsAdded.push(cite);
+    }
+  }
+
   for (const word of phase.paliWords ?? []) {
     const wordClaims = await claimsForWord(word, providers);
-    if (wordClaims.length === 0) continue;
 
     const idsForThisWord: string[] = [];
     for (const { claim, match } of wordClaims) {
@@ -142,7 +161,14 @@ export async function runGroundingPass(
         citationCount: claim.citations.length,
       });
     }
-    citationIdsByWord.set(word.id, idsForThisWord);
+    // Append verse-level citations to every word's set, regardless of
+    // whether contested-terms matched. Reader sees both kinds of chip.
+    for (const cite of verseCitations) {
+      if (!idsForThisWord.includes(cite.id)) idsForThisWord.push(cite.id);
+    }
+    if (idsForThisWord.length > 0) {
+      citationIdsByWord.set(word.id, idsForThisWord);
+    }
   }
 
   return { citationsAdded, citationIdsByWord, matches };

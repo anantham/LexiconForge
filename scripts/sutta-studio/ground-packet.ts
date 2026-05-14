@@ -24,6 +24,12 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ContestedTermProvider } from '../../services/sutta-studio/grounding/contestedTermProvider';
 import { runGroundingPass, applyGroundingToPhase } from '../../services/sutta-studio/passes/grounding';
+import {
+  fetchTranslatorBank,
+  inferWorkId,
+  type BilaraTranslation,
+  type TranslatorSlug,
+} from '../../services/sutta-studio/grounding/translatorBank';
 import type { PhaseView, Citation } from '../../types/suttaStudio';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,6 +58,30 @@ async function main(): Promise<number> {
   packet.citations ??= [];
   packet.phases ??= [];
 
+  // Phase 3 (translator-bank): determine the workId from the packet's first
+  // phase canonical segment ID, then fetch all available translator
+  // renderings ONCE. Per-phase grounding reuses the same bank.
+  const workId = packet.phases
+    .map((p) => inferWorkId(p))
+    .find((id): id is string => Boolean(id));
+  let bank: BilaraTranslation[] = [];
+  if (workId) {
+    const slugs: TranslatorSlug[] = ['sujato', 'bodhi'];
+    console.log(`Fetching translator bank for ${workId} (${slugs.join(', ')})...`);
+    bank = await fetchTranslatorBank(workId, slugs);
+    const segmentCount = bank.reduce(
+      (n, t) => n + t.translationBySegment.size,
+      0
+    );
+    console.log(
+      `  fetched ${bank.length} translator(s): ${bank
+        .map((t) => `${t.slug} (${t.translationBySegment.size} segments)`)
+        .join(', ')} — ${segmentCount} segment-translation pairs total`
+    );
+  } else {
+    console.log('No workId inferable from packet phases; skipping translator-bank.');
+  }
+
   const existingCitationIds = new Set(packet.citations.map((c) => c.id));
   let citationsAdded = 0;
   let sensesTouched = 0;
@@ -59,7 +89,7 @@ async function main(): Promise<number> {
   for (const phase of packet.phases) {
     const sensesBefore = countSensesWithCitations(phase);
 
-    const result = await runGroundingPass(phase, providers);
+    const result = await runGroundingPass(phase, providers, bank);
 
     for (const cite of result.citationsAdded) {
       if (!existingCitationIds.has(cite.id)) {
@@ -73,9 +103,9 @@ async function main(): Promise<number> {
     const sensesAfter = countSensesWithCitations(phase);
     sensesTouched += Math.max(0, sensesAfter - sensesBefore);
 
-    if (result.matches.length > 0) {
+    if (result.matches.length > 0 || result.citationIdsByWord.size > 0) {
       console.log(
-        `  ${phase.id}: ${result.matches.length} matches, ` +
+        `  ${phase.id}: ${result.matches.length} term-matches, ` +
           `${result.citationIdsByWord.size} words wired`
       );
     }
