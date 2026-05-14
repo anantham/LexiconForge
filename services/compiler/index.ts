@@ -61,6 +61,11 @@ import {
 } from './prompts';
 import { runSkeletonPass } from './skeleton';
 import {
+  runGroundingPass,
+  applyGroundingToPhase,
+} from '../sutta-studio/passes/grounding';
+import { buildDefaultProviders } from '../sutta-studio/grounding';
+import {
   anatomistResponseSchema,
   lexicographerResponseSchema,
   morphResponseSchema,
@@ -90,6 +95,22 @@ const err = (message: string, ...args: any[]) =>
   console.error(`[SuttaStudioCompiler] ${message}`, ...args);
 
 const COMPILER_MIN_CALL_GAP_MS = 1000;
+
+/**
+ * Counts senses that have at least one citationId. Used by the grounding
+ * pass invocation to log how many senses gained chips during this run.
+ */
+function countSensesWithCitations(packet: DeepLoomPacket): number {
+  let count = 0;
+  for (const phase of packet.phases ?? []) {
+    for (const w of phase.paliWords ?? []) {
+      for (const s of w.senses ?? []) {
+        if (s.citationIds && s.citationIds.length > 0) count++;
+      }
+    }
+  }
+  return count;
+}
 
 /**
  * Sutta Studio compiler defaults — kept SEPARATE from the global translation
@@ -638,6 +659,50 @@ export const compileSuttaStudioPacket = async (options: {
       onProgress?.({ packet, stage: 'phase', message: `${phase.id} degraded` });
       logPipelineEvent({ level: 'warn', stage: 'phase', phaseId: phase.id, message: 'phase.degraded', data: { error: e?.message || String(e) } });
     }
+  }
+
+  // Grounding pass — attaches verified citations from registries to phase
+  // senses. Per docs/sutta-studio/GROUNDING.md Phase 2.5: production successor
+  // to scripts/sutta-studio/ground-packet.ts. Runs after all phases compiled
+  // so cross-phase context is fully assembled. Failure here is NON-FATAL —
+  // packet ships ungrounded rather than aborting compilation.
+  try {
+    const groundingProviders = await buildDefaultProviders();
+    const existingCitationIds = new Set(packet.citations.map((c) => c.id));
+    let citationsAddedCount = 0;
+    const sensesBefore = countSensesWithCitations(packet);
+
+    for (const phase of packet.phases) {
+      const result = await runGroundingPass(phase, groundingProviders);
+      for (const cite of result.citationsAdded) {
+        if (!existingCitationIds.has(cite.id)) {
+          existingCitationIds.add(cite.id);
+          packet.citations.push(cite);
+          citationsAddedCount++;
+        }
+      }
+      applyGroundingToPhase(phase, result);
+    }
+
+    const sensesAfter = countSensesWithCitations(packet);
+    const sensesGroundedDelta = sensesAfter - sensesBefore;
+    logPipelineEvent({
+      level: 'info',
+      stage: 'grounding',
+      message: 'grounding.complete',
+      data: { citationsAdded: citationsAddedCount, sensesGroundedDelta },
+    });
+    log(
+      `Grounding: ${citationsAddedCount} citations added, ${sensesGroundedDelta} senses gained chips.`
+    );
+  } catch (e: any) {
+    err('Grounding pass failed (non-fatal):', e);
+    logPipelineEvent({
+      level: 'warn',
+      stage: 'grounding',
+      message: 'grounding.failed',
+      data: { error: e?.message || String(e) },
+    });
   }
 
   const packetValidation = validatePacket(packet);
