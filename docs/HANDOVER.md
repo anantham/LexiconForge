@@ -1,180 +1,123 @@
-# Handover: 2026-05-13 (long session — DPD root-cause fix + batches 3 & 4 + v2 prompt overlay + strategic-pivot decision pending)
+# Handover: 2026-05-14 (Sutta Studio — phantom purge + pipeline+polish validated + Path B in flight)
 
-> Session led by Claude Opus 4.7 (1M context). Three branches shipped today, 17 commits across them, all pushed. PR #47 (tooltip plain-first, from prior session) and PR #48 (batch-3 curation, today) are OPEN. Branch `feat/opus-batch4-curation` shipped but has no PR yet. `main` unchanged from prior session.
+> Replaces the 2026-05-13 handover. **Branch:** `feat/opus-phase2-experiment` on PR #52 (~33 commits, unmerged).
+> **Active worktree:** `../LexiconForge.worktrees/opus-phase2-experiment/`
+> **Cost this session:** ~$1.00 of OpenRouter API spend (Gemini Flash bulk)
+> **Context at handover:** ~7% remaining — running handover skill to preserve continuity
 
-## Session summary
+## What this session was
 
-Started inside batch-3 curation (phases e/f/g/h, the framing closers of MN10's nidāna) and ended having opened batch 4 with the first teaching-content phase. Mid-session, schema tension #1 (DPD stripper conflations) accumulated to four hits and triggered protocol §9.1's Root-Cause Gate — escalated to architecture and replaced the heuristic stem-stripper with DPD's authoritative SQLite Lookup table. Three protocol amendments codified from the session's empirical learnings. Closing discussion converged on a strategic pivot — pipeline-with-v2 + post-passes for the remaining ~40 routine MN10 phases — captured in `docs/sutta-studio/COMPILER_STRATEGY.md` and a ready-to-wire `config/suttaStudioPromptContextV2.ts` overlay, but pivot decision NOT executed.
+Validated the V2-amended compiler pipeline empirically (phase-2 hand-curation + pipeline output + diff = A2 experiment), then escalated through a long UX iteration on the audit panel, the Legend, mobile responsiveness, pronunciation infrastructure, and finally a deep subtractive pass that retired four V2 metadata fields the UI never actually rendered.
 
-## Commits this session (17 across 3 branches, all pushed)
+Textbook case of "Lean toward the reverse direction" — ends with **Leave telic breadcrumbs** added to CLAUDE.md as a new principle. This doc is itself an instance of that principle.
 
-### Branch 1: `feat/opus-tooltip-plain-first` (PR #47, OPEN, from prior session — 8 commits)
+## Headline accomplishments
 
-Hover-only tooltips + plain-first batches a–d + perf cleanup. Detailed in prior handover (now superseded by this doc). Status: OPEN, awaiting review/merge. Independent of branches 2 & 3.
+| What | Where |
+|---|---|
+| **V2 amendments live in production** (pay-rent tooltip register, arrow-earning relation rule, anchor selection, translator-debate, cross-phase awareness). SENSE_METADATA retired. | `config/suttaStudioPromptContextV2.ts` |
+| **Audit panel iterated** — bottom-sheet on mobile, draggable+persisted on desktop, inline copy icons + toast feedback, clickable citation chips. | `components/sutta-studio/LensPanel.tsx` |
+| **Legend panel** — visual reference for colors/diacritics/relations. | `components/sutta-studio/Legend.tsx` |
+| **Syllabifier post-pass** — deterministic Pāli syllable + stress. 269/269 words covered. 29 tests pass. | `services/sutta-studio/postPasses/syllabify.ts` |
+| **v11 batch run on 40 un-curated phases** — $0.96 total, outputs in `docs/sutta-studio/experiments/`. | `scripts/sutta-studio/batch-v11-pipeline.sh` |
+| **phase-4 polished** — first Path B worked example. ~18 min. Sets the pattern. | `docs/sutta-studio/curation/phase-4.md` |
+| **Phantom-metadata purge** — stripped `epistemicBasis`, `confidence`, `sourceCitationIds`, `morph` from data + prompts + UI. Audit found them never rendered in default-on paths. | `scripts/sutta-studio/strip-phantom-metadata.ts` |
 
-### Branch 2: `feat/opus-batch3-curation` (PR #48, OPEN, 7 commits today)
+## Principles ratified this session
+
+Added to `~/.claude/CLAUDE.md`:
+1. **Lean toward the reverse direction** (added earlier, applied throughout)
+2. **Rule Stacker** anti-pattern
+3. **Phantom Consumer** anti-pattern
+4. **Leave telic breadcrumbs** (added at session end — this doc embodies it)
+
+Added to project memory (`~/.claude/projects/.../memory/`):
+- `feedback_phantom_consumer_audit.md` — empirical grep-for-consumers method
+
+## Pending threads
+
+### Continue Immediately
+1. **Path B — 39 phases to polish.**
+   Per-phase budget after purge: ~6-8 min. Total ~5 hours.
+   Order: phase-5, 6, 7, x, y, z, aa-bg.
+   Pattern (per phase-4):
+   - Read `docs/sutta-studio/experiments/phase-N-v11-output.json`
+   - Write `phase-N-hand-curated.json` adding cross-phase notes + etymological depth + (selectively) translator notes for famously-contested compounds
+   - Splice into `components/sutta-studio/demoPacket.json` via line-based python pattern
+   - Write `docs/sutta-studio/curation/phase-N.md`
+   - Commit
+
+2. **PR #52 merge.** ~33 commits accumulated. Large but landed atomically because the threads are intertwined.
+
+### Deferred (acknowledged, not blocking)
+- **Dead toggles** (Emoji in tooltips + Grammar terms) — wired but their target data was stripped. Safe to remove in a follow-up.
+- **DPD URL minting** — chips are wired to be clickable; existing 32 citations need URLs added.
+- **F task (translator-tradition DB)** — would harden the claimed citations in curation logs. ~3-5 hr.
+- **Refrain-detector post-pass** — sibling to syllabifier; would unlock "this word recurs N times" affordance. ~2-3 hr.
+- **A3 metadata-filler module** — mostly unnecessary after purge; only DPD-citation-linker remains valuable.
+- **Compiler consolidation Phase 2c/3/4** — orchestrator refactor + LLM caller merge + shim cleanup. Not blocking.
+- **Vestigial branches cleanup** — `feat/opus-tooltip-plain-first`, batch3, batch4, consolidation, v2-pipeline-wire — all merged. Worktrees may still exist.
+
+## Critical context — DON'T add back
+
+Four fields were retired this session: `epistemicBasis`, `confidence`, `sourceCitationIds`, `morph`. The V2 prompt amendment for them is no longer in the active assembly. Older curation logs reference these — **they are intentionally absent**. Don't reinstate without building a UI consumer FIRST.
+
+Named export `SUTTA_STUDIO_V2_SENSE_METADATA` is kept in source for historical reference only — see comment block above `SUTTA_STUDIO_V2_AMENDMENTS` array.
+
+## What we empirically validated
+
+- V2 amendments lift structural quality (register, anchor, relations, segmentation) but NOT metadata fields (LLMs ignore epistemicBasis/confidence even when prompted)
+- Pipeline+polish is 2-3× faster than from-scratch on routine phases
+- Cost is negligible (~$0.02/phase with Gemini Flash)
+- Hallucinated confidence is worse than absent confidence (user's "trust me bro" framing)
+- The empirical audit method: `grep -rn "<field>"` for consumers; zero hits = phantom
+
+## Resume Instructions
+
+1. **First read:** this doc + `~/.claude/CLAUDE.md` (the 4 principles) + `docs/sutta-studio/CONSOLIDATION.md` for architecture.
+
+2. **Verify state:**
+   ```bash
+   cd "/Users/aditya/Documents/Ongoing Local/LexiconForge.worktrees/opus-phase2-experiment"
+   git log --oneline -5
+   gh pr view 52 --json state,title
+   ```
+
+3. **Decide next move:**
+   - **Path B continuation** → phase-5, ~7 min
+   - **Merge PR #52** → review the bundle, land it
+   - **Refrain-detector post-pass** → sibling to syllabifier, ~2-3 hr
+
+4. **Path B recipe:** see phase-4 pattern in `docs/sutta-studio/curation/phase-4.md` and matching `experiments/phase-4-hand-curated.json`. Same shape per phase.
+
+## File map
 
 ```
-aaa1ff9 feat: DPD root-cause fix — replace heuristic stripper with SQLite Lookup table
-d2110c0 feat: apply phase-e re-curation — Tatra kho bhagavā bhikkhū āmantesi
-c6b150f docs: protocol §9.1 — Root-Cause Gate amendment
-593f0f4 feat: apply phase-f re-curation — Bhikkhavo"ti
-a5ab6a0 feat: apply phase-g re-curation — Bhadante"ti te bhikkhū bhagavato paccassosuṁ
-7fa4cef feat: apply phase-h re-curation — Bhagavā etad avoca (batch 3 complete)
-9830ef1 docs: arrow-earning rule (FEATURES §1.3) + cross-phase facet rule (CURATION_PROTOCOL §3.4.1)
+config/suttaStudioPromptContextV2.ts          V2 amendments (SENSE_METADATA retired)
+components/sutta-studio/
+  LensPanel.tsx                                Audit drawer, clickable chips
+  Legend.tsx                                   Color/symbol reference panel
+  SettingsPanel.tsx                            Flat settings list
+  EnglishWord.tsx                              Subtle cycle dots
+  Tooltip.tsx                                  Viewport clamp for mobile
+  demoPacket.json                              Live runtime data (post-purge)
+services/sutta-studio/
+  prompts/                                     Canonical prompt builders
+  passes/                                      Canonical pass functions
+  postPasses/syllabify.ts                      Deterministic pronunciation
+scripts/sutta-studio/
+  run-phase-experiment.ts                      Single-phase v11 runner
+  batch-v11-pipeline.sh                        Bulk 40-phase runner
+  backfill-pronunciation.ts                    Syllabifier batch
+  strip-phantom-metadata.ts                    This session's purge
+  strip-tooltip-cruft.ts                       Emoji + brackets strip
+docs/sutta-studio/
+  CONSOLIDATION.md                             Architecture refactor doc
+  COMPILER_STRATEGY.md                         Pipeline+polish thesis
+  CURATION_PROTOCOL.md                         §3.4 tooltip register
+  curation/                                    Per-phase polish logs
+  experiments/                                 v11 outputs + hand-curated diffs
 ```
-
-Headline: closed schema tension #1 at the root via DPD SQLite Lookup table replacement; completed batch 3 (phases e/f/g/h, the nidāna framing closers); codified 3 protocol amendments.
-
-### Branch 3: `feat/opus-batch4-curation` (no PR yet, branches off branch-2 HEAD — 2 commits)
-
-```
-110f1d0 feat: apply phase-1 re-curation — Ekāyano ayaṁ Bhikkhave maggo (batch 4 opens; first teaching content)
-2d198f6 feat: v2 prompt context amendments — codify MN10 curation learnings as compiler-prompt overlay
-```
-
-Headline: opened batch 4 with the first content-bearing phase (after 8 phases of framing); shipped v2 prompt overlay codifying session learnings, ready to wire into compiler.
-
-## What landed (categorized)
-
-### 1. DPD root-cause fix (key empirical win)
-
-Schema tension #1 (DPD stripper conflations) accumulated 4 hits across batches 2–3 (`evaṁ`→`eva`, `kurūsu`→`kura`, `kurūnaṁ`→`kura`, `bhikkhū`→`bhikkhā`). Per §9.1 Root-Cause Gate (codified mid-session), escalated to architecture.
-
-`scripts/build-dpd.ts` rewritten: heuristic stem-stripper replaced with DPD's authoritative SQLite Lookup table. The Lookup table is dpd-db's curated inflection→headword map — deterministic, not heuristic. 168 MB compressed bz2 download is one-time per dev, gitignored under `data/_raw/dpd/`. `better-sqlite3` dependency added.
-
-Coverage on MN10: 86.9% → 89.5%; 458/478 surfaces resolve via deterministic Lookup; 20 via residual heuristic fallback; 56 genuinely unmatched (quotative-attached forms like `cittan'ti`, long compounds, vocative variants — see Lookup-gap pattern below).
-
-4 explicit regression tests in `services/providers/dpd.test.ts` cover the prior four conflations.
-
-### 2. Batch 3 completed (phases e/f/g/h)
-
-| Phase | Pāli | Anchor | Notable |
-|---|---|---|---|
-| **phase-e** | Tatra kho bhagavā bhikkhū āmantesi | `āmantesi` | First refrain-explanation facet (bhagavā nom-sg, bhikkhū acc-pl) |
-| **phase-f** | Bhikkhavoti | `Bhikkhavo` | Lookup-gap fallback: vocative-pl alt form |
-| **phase-g** | Bhadanteti te bhikkhū bhagavato paccassosuṁ | `paccassosuṁ` | Refrain peak: bhikkhū nom-pl + bhagavato gen-sg; 3 arrow-earning denials |
-| **phase-h** | Bhagavā etad avoca | `avoca` | Batch 3 closer; aorist + demonstrative; both Lookup-gap fallbacks |
-
-All four logs in `docs/sutta-studio/curation/phase-{e,f,g,h}.md` with §0–§11 sections.
-
-### 3. Batch 4 opens (phase-1, first teaching content)
-
-| Phase | Pāli | Anchor | Notable |
-|---|---|---|---|
-| **phase-1** | Ekāyano ayaṁ Bhikkhave maggo | `ekāyano` | First teaching content after 8 framing phases; famously-contested word |
-
-Log in `docs/sutta-studio/curation/phase-1.md`. Phase-1 is also where the "pedagogically-critical" tier kicks in per the COMPILER_STRATEGY analysis — hand-curation justified independent of pivot decision.
-
-### 4. Protocol amendments codified
-
-Three amendments, all earned by empirical pattern recurrence this session:
-
-- **CURATION_PROTOCOL §9.1 Root-Cause Gate** (`c6b150f`) — when ≥2 patches accumulate to the same shape, escalate to architectural investigation rather than patching forward. Empirical example: DPD stripper #1 hit count grew to 4; `aaa1ff9` closed the whole class.
-- **CURATION_PROTOCOL §3.4.1 Cross-phase facet rule** (`9830ef1`) — when a recurring lemma takes a new form/context, the new phase's tooltip should cross-reference the prior appearance. Conservative default: ≤4 phases back.
-- **FEATURES.md §1.3 Arrow-earning rule** (`9830ef1`) — relations earn their arrow when Pāli's case-marker does work English doesn't share. NOT for subject-of-active-verb, direct-object-of-verb, or demonstrative agreement. Resolves schema tension #12 via documentation (not schema change).
-
-### 5. v2 prompt overlay + strategic pivot framing
-
-`config/suttaStudioPromptContextV2.ts` (`2d198f6`) — a ready-to-append-to-compiler-prompts overlay codifying every learning from this session and prior: arrow-earning rule, cross-phase facet rule, refrain-explanation pattern, plain-register §3.4 check, Lookup-gap curatorial fallback, etc. Not yet wired into `services/compiler/prompts.ts`.
-
-`docs/sutta-studio/COMPILER_STRATEGY.md` — strategic-economic analysis of pipeline-vs-curation. Headline: pipeline-with-v2 + 4 deterministic post-passes estimated at ~85% of hand-curated quality, sufficient for ~35–40 routine MN10 phases, with hand-polish reserved for the ~10–15 pedagogically-critical ones (famously-contested words, pattern-establishing phases, doctrinally-loaded passages).
-
-## Schema tensions status
-
-- **#1 DPD stripper conflations** — RESOLVED at root by `aaa1ff9`. 4 regression tests in `services/providers/dpd.test.ts`.
-- **#7 EpistemicBasis enum gap** — RESOLVED in prior session (`4323310` from PR #38).
-- **#12 RelationType S-V-O palette gap** — RESOLVED via documentation in `9830ef1` (FEATURES §1.3 arrow-earning rule). Hit 3/4 batch-3 phases (e/g/h); ratified as policy rather than schema change.
-- **Lookup-gap pattern** (new observation, not yet a numbered tension) — 5 surfaces across batches 3–4 needed curatorial fallback (Bhikkhavo, Bhadante, etad, avoca, Ekāyono). Pattern: augmented aorists, some vocative variants, demonstratives fall outside DPD's Lookup enumeration. Defer action — could be DPD upstream issue OR morphology-generator fallback layer.
-
-## Refrain status (mature)
-
-- **bhikkhu**: 5/9 phases (e acc-pl, f voc-pl alt, g nom-pl + roots in all, 1 voc-pl canonical). Definitively recurring.
-- **bhagavā**: 4/9 phases (b nom-sg, e nom-sg, g gen-sg, h nom-sg) across 3 morphological forms. Refrain-explanation facet pattern (first shipped phase-e) is mature.
-- **viharati**: 1/9 (phase-c only). Expected to recur in phase-2+ as the satipaṭṭhāna formula's verb.
-
-## Pending threads (next session pickup, priority-ordered)
-
-### Continue immediately (high-context-value)
-
-1. **Wire v2 prompt overlay into `services/compiler/prompts.ts`** (~30 min). Overlay exists at `config/suttaStudioPromptContextV2.ts`; needs to be appended to `buildPhasePrompt` + relevant Anatomist/Lexico contexts behind a feature flag.
-
-2. **Build 4 deterministic post-passes** (~2–3 days total):
-   - morph-from-DPD-POS (populate `morph` from POS tags)
-   - citation-linker (deterministic `sourceCitationIds` wiring)
-   - cross-phase facet detector (scan corpus for recurring lemmas; inject references)
-   - §3.4 linter (flag tooltips with bracket jargon / emoji / unglossed terms)
-
-3. **Run pipeline+post-passes on phase-2** (~30 min after #1 + #2). Empirical test of v2 quality vs hand-curated. **This is the natural "decide the pivot" moment** — diff between pipeline-with-v2 output and what hand-curation would produce.
-
-### Worth doing soon
-
-4. **Add `phaseId` to `ApiCallMetric` type + thread through `callCompilerLLM`** (~30 min). Enables per-phase cost attribution. `services/apiMetricsService.ts` already records every API call to IndexedDB with `apiType=sutta_studio`; missing per-phase attribution + UI.
-
-5. **Phase-2 hand-curation** (if pivot is NOT chosen) — ~45–60 min for the satipaṭṭhāna formula opener `kāye kāyānupassī viharati ātāpī sampajāno satimā vineyya loke abhijjhādomanassa…`. Dense; 5–6 famously-contested terms.
-
-6. **Prompt caching for system + bilara block** (~30–60 min Anthropic; ~1 hr Gemini). 50–70% input-cost reduction.
-
-### Larger arcs deferred
-
-7. **Tier-1 commit C — VRI edition + Aṭṭhakathā commentary providers** (originally deferred per ADR SUTTA-008 §Open Questions #4). Buddhaghosa's commentary on the satipaṭṭhāna formula would deepen phase-1+ substantially. Estimated 2–4 hours.
-
-8. **File GitHub issues for remaining schema tensions and observations** (~30 min total) — DPD Lookup-gap pattern, translator-tradition database, prompt caching, cost telemetry next steps.
-
-9. **Phases 2 through 7** (satipaṭṭhāna formula proper) — if hand-curating: ~30–45 min each. Highest pedagogical value of remaining MN10 work.
-
-10. **Phases x/y/z through bg** (33 phases of contemplation sections) — mostly formula recurrence; ~10–15 min each with refrain machinery, OR pipeline+polish per the strategic pivot.
-
-### Deferred (explicit reasons)
-
-- **Refrain-facet backport to phase-b** — small but not urgent; pattern already shipped phase-e onward.
-- **Aorist-class chip / structural diagram for compound verbs** — renderer Chunk 3 territory.
-- **8 GH issues from earlier backlog** — small but not blocking.
-
-## Key context (non-obvious things the next instance needs)
-
-### Three branches, three different bases
-
-- `feat/opus-tooltip-plain-first` (PR #47) — off main directly.
-- `feat/opus-batch3-curation` (PR #48) — off main directly, PARALLEL to #47 (different file regions; independent).
-- `feat/opus-batch4-curation` — off `feat/opus-batch3-curation` HEAD (inherits DPD fix + protocol amendments).
-
-Merge order: #47 and #48 are independent. Once both merge to main, `feat/opus-batch4-curation` rebases cleanly onto updated main and shared commits dedupe.
-
-### Worktree convention
-
-`feat/opus-batch3-curation` → `../LexiconForge.worktrees/opus-batch3-curation/`. `feat/opus-batch4-curation` → `../LexiconForge.worktrees/opus-batch4-curation/`. Each has `node_modules` symlinked to the main checkout.
-
-### Bash sandbox quirk
-
-The bash tool's CWD became un-readable from worktree paths this session (EPERM on `uv_cwd`). Workaround: `GIT_DIR=…/.git/worktrees/<branch>` + `GIT_WORK_TREE=…/<worktree>` env vars for git operations from any other CWD. Filesystem reads/writes via Read/Write/Edit work fine in worktrees.
-
-### The strategic pivot is pending decision
-
-Closing discussion converged on: hand-curation has done the hardest work (protocol discovery, exemplar shipping, DPD fix). Continuing per-phase hand-curation for the remaining ~42 MN10 phases has diminishing returns. Better leverage: wire v2 into compiler + build 4 post-passes + run pipeline+polish for the routine ~35–40 phases. User said "yes, pivot" in principle but didn't commit to action. Next session should ratify or reject before doing more curation. **Read `docs/sutta-studio/COMPILER_STRATEGY.md` first if uncertain.**
-
-### The DPD Lookup-gap pattern (curatorial fallback discipline)
-
-When a surface form doesn't resolve via the SQLite Lookup table (augmented aorists, vocative variants, demonstratives), don't patch the Lookup table — fall back to curator-supplied lemma resolution in the phase log. The pattern is real (5 hits this session) but the right layer to fix it is unclear: could be DPD upstream OR a morphology-generator fallback we own. Don't preempt the decision.
-
-### House style for protocol amendments
-
-Each amendment cites the empirical pattern that earned it (e.g., §9.1 cites the 4-hit DPD #1 escalation). No speculative protocol additions; only those ratified by ≥2 empirical hits.
-
-## Running processes
-
-None. Dev server at `http://localhost:5191/sutta/demo` was running during the session (worktree, Vite); needs restart next session. Main repo's dev server (port 5173) untouched.
-
-## Resume instructions
-
-1. **Read this handover.**
-2. **`cd ../LexiconForge.worktrees/opus-batch4-curation`** (default for continuing batch-4 work).
-3. **Decide the strategic pivot**: continue hand-curation for phase-2 onward, OR wire v2 + build post-passes first. Read `docs/sutta-studio/COMPILER_STRATEGY.md` if uncertain.
-4. **Pick from pending threads** based on the pivot decision:
-   - Pivot YES: start with wire v2 (#1) → run on phase-2 (#3) → diff against expected hand-curation → decide which post-passes are highest-value.
-   - Pivot NO: continue phase-2 hand-curation (#5) following CURATION_PROTOCOL with v2 amendments now codified.
-5. **Don't extend the schema speculatively.** All schema tensions resolved or deferred; no open schema gaps blocking curation.
 
 ---
-
-*Handover by Claude Opus 4.7 (1M context) at end of session 2026-05-13. Three branches, 17 commits across them, all pushed. PR #47 + #48 open; batch-4 branch shipped but no PR yet. Estimated context usage at handover: ~70% of 1M.*
+*Handover by Claude Opus 4.7 (1M context) at ~7% context. Read cold and pick up.*

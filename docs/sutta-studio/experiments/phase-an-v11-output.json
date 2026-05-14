@@ -1,0 +1,694 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:07:14.092Z",
+    "phaseId": "phase-an",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Idha bhikkhave bhikkhu araññagato vā rukkhamūlagato suññaāgāragato",
+    "englishText": "an3s1 has",
+    "tokens": {
+      "prompt": 23138,
+      "completion": 4672,
+      "total": 27810
+    },
+    "costUsd": 0.025585,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-an",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Idha",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "bhikkhave",
+        "wordClass": "vocative",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p3",
+        "surface": "bhikkhu",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p4",
+        "surface": "araññagato",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p5s1"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "rukkhamūlagato",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3",
+          "p6s4"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "suññāgāragato",
+        "wordClass": "content",
+        "segmentIds": [
+          "p7s1",
+          "p7s2",
+          "p7s3",
+          "p7s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Idha",
+        "type": "stem",
+        "tooltips": [
+          "Idha: Here / In this case",
+          "Points to the context of this teaching"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "bhikkhav",
+        "type": "stem",
+        "tooltips": [
+          "The root 'bhikkh' relates to sharing or begging",
+          "Refers to the community of mendicants"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending is vocative plural — used when calling out to a group"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "bhikkhu",
+        "type": "stem",
+        "tooltips": [
+          "A mendicant / monk",
+          "Nominative singular: the one performing the action"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "arañña",
+        "type": "stem",
+        "tooltips": [
+          "arañña: forest / wilderness",
+          "A place away from human habitation"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "gat",
+        "type": "root",
+        "tooltips": [
+          "The root 'gam' means to go",
+          "gat: gone to / reached"
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending marks the nominative singular masculine"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: or",
+          "Used to list alternative locations"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "rukkha",
+        "type": "stem",
+        "tooltips": [
+          "rukkha: tree"
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "mūla",
+        "type": "stem",
+        "tooltips": [
+          "mūla: root / foot",
+          "rukkhamūla: the foot of a tree"
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "gat",
+        "type": "root",
+        "tooltips": [
+          "The root 'gam' means to go"
+        ]
+      },
+      {
+        "id": "p6s4",
+        "wordId": "p6",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular ending"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "suññ",
+        "type": "stem",
+        "tooltips": [
+          "suñña: empty / void"
+        ]
+      },
+      {
+        "id": "p7s2",
+        "wordId": "p7",
+        "text": "āgāra",
+        "type": "stem",
+        "tooltips": [
+          "āgāra: hut / dwelling / house"
+        ]
+      },
+      {
+        "id": "p7s3",
+        "wordId": "p7",
+        "text": "gat",
+        "type": "root",
+        "tooltips": [
+          "The root 'gam' means to go"
+        ]
+      },
+      {
+        "id": "p7s4",
+        "wordId": "p7",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular ending"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p4s2",
+        "targetWordId": "p3",
+        "type": "action",
+        "label": "Gone TO",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-an",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "Here",
+            "nuance": "locative adverb, referring to this teaching or practice"
+          },
+          {
+            "english": "In this case",
+            "nuance": "logical transition, setting the scene for an example"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "vocative",
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the community"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the lifestyle of living on alms"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "a specific practitioner within the order"
+          },
+          {
+            "english": "a mendicant",
+            "nuance": "one who relies on alms, emphasizing renunciation"
+          },
+          {
+            "english": "a practitioner",
+            "nuance": "broadening the scope to anyone following the method"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "gone to the forest",
+            "nuance": "physical seclusion in a wild place"
+          },
+          {
+            "english": "gone to the woods",
+            "nuance": "seeking a natural, quiet environment"
+          },
+          {
+            "english": "forest-gone",
+            "nuance": "literal compound translation, emphasizing the state of arrival"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle offering alternatives"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "gone to the root of a tree",
+            "nuance": "traditional spot for meditation, sheltered but open"
+          },
+          {
+            "english": "gone to the foot of a tree",
+            "nuance": "emphasizing the ground-level, humble location"
+          },
+          {
+            "english": "tree-root-gone",
+            "nuance": "literal compound, highlighting the specific natural anchor"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "gone to an empty hut",
+            "nuance": "seclusion in an abandoned or quiet building"
+          },
+          {
+            "english": "gone to an empty place",
+            "nuance": "emphasizing the lack of people/distraction"
+          },
+          {
+            "english": "gone to a secluded dwelling",
+            "nuance": "focusing on the privacy of the structure"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard formula for meditation settings. Compounds (araññagato, etc.) treated as single units for semantic flow."
+    }
+  },
+  "phaseView": {
+    "id": "phase-an",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Idha",
+            "type": "stem",
+            "tooltips": [
+              "Idha: Here / In this case",
+              "Points to the context of this teaching"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "Here",
+            "nuance": "locative adverb, referring to this teaching or practice"
+          },
+          {
+            "english": "In this case",
+            "nuance": "logical transition, setting the scene for an example"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "bhikkhav",
+            "type": "stem",
+            "tooltips": [
+              "The root 'bhikkh' relates to sharing or begging",
+              "Refers to the community of mendicants"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "voc",
+              "number": "pl"
+            },
+            "tooltips": [
+              "The -e ending is vocative plural — used when calling out to a group"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the community"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the lifestyle of living on alms"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "bhikkhu",
+            "type": "stem",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "A mendicant / monk",
+              "Nominative singular: the one performing the action"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "a specific practitioner within the order"
+          },
+          {
+            "english": "a mendicant",
+            "nuance": "one who relies on alms, emphasizing renunciation"
+          },
+          {
+            "english": "a practitioner",
+            "nuance": "broadening the scope to anyone following the method"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "arañña",
+            "type": "stem",
+            "tooltips": [
+              "arañña: forest / wilderness",
+              "A place away from human habitation"
+            ]
+          },
+          {
+            "text": "gat",
+            "type": "root",
+            "relation": {
+              "type": "action",
+              "label": "Gone TO",
+              "targetWordId": "p3"
+            },
+            "tooltips": [
+              "The root 'gam' means to go",
+              "gat: gone to / reached"
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -o ending marks the nominative singular masculine"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "gone to the forest",
+            "nuance": "physical seclusion in a wild place"
+          },
+          {
+            "english": "gone to the woods",
+            "nuance": "seeking a natural, quiet environment"
+          },
+          {
+            "english": "forest-gone",
+            "nuance": "literal compound translation, emphasizing the state of arrival"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "vā: or",
+              "Used to list alternative locations"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle offering alternatives"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "rukkha",
+            "type": "stem",
+            "tooltips": [
+              "rukkha: tree"
+            ]
+          },
+          {
+            "text": "mūla",
+            "type": "stem",
+            "tooltips": [
+              "mūla: root / foot",
+              "rukkhamūla: the foot of a tree"
+            ]
+          },
+          {
+            "text": "gat",
+            "type": "root",
+            "tooltips": [
+              "The root 'gam' means to go"
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "Nominative singular ending"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "gone to the root of a tree",
+            "nuance": "traditional spot for meditation, sheltered but open"
+          },
+          {
+            "english": "gone to the foot of a tree",
+            "nuance": "emphasizing the ground-level, humble location"
+          },
+          {
+            "english": "tree-root-gone",
+            "nuance": "literal compound, highlighting the specific natural anchor"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "suññ",
+            "type": "stem",
+            "tooltips": [
+              "suñña: empty / void"
+            ]
+          },
+          {
+            "text": "āgāra",
+            "type": "stem",
+            "tooltips": [
+              "āgāra: hut / dwelling / house"
+            ]
+          },
+          {
+            "text": "gat",
+            "type": "root",
+            "tooltips": [
+              "The root 'gam' means to go"
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "Nominative singular ending"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "gone to an empty hut",
+            "nuance": "seclusion in an abandoned or quiet building"
+          },
+          {
+            "english": "gone to an empty place",
+            "nuance": "emphasizing the lack of people/distraction"
+          },
+          {
+            "english": "gone to a secluded dwelling",
+            "nuance": "focusing on the privacy of the structure"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "ghost1",
+        "label": "has",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e7",
+        "linkedPaliId": "p7"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      [
+        "p4",
+        "p5",
+        "p6",
+        "p7"
+      ]
+    ],
+    "title": "Meditation Settings"
+  }
+}

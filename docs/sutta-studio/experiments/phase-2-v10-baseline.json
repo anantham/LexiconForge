@@ -1,0 +1,66 @@
+{
+  "_comment": "Snapshot of phase-2 from demoPacket.json BEFORE the V2 amendments / hand-curation work. Read-only reference for diffing against the hand-curated and v11-compiled outputs. Captured 2026-05-13.",
+  "id": "phase-2",
+  "canonicalSegmentIds": [
+    "mn10:2.1"
+  ],
+  "paliWords": [
+    {
+      "id": "p5",
+      "wordClass": "content",
+      "segments": [
+        {
+          "id": "p5s1",
+          "text": "satt",
+          "type": "root",
+          "tooltips": [
+            "From sat/sant: existing, being",
+            "Also √saj: to cling (the \"stuck\" ones)",
+            "Also satta: seven (7)"
+          ]
+        },
+        {
+          "id": "p5s2",
+          "text": "ānaṁ",
+          "type": "suffix",
+          "tooltips": [
+            "[Genitive Plural] Of beings",
+            "🔗 Shows who it belongs to"
+          ],
+          "relation": {
+            "targetWordId": "p6",
+            "type": "ownership",
+            "label": "Purification OF"
+          }
+        }
+      ],
+      "senses": [
+        { "english": "beings", "nuance": "Living entities" },
+        { "english": "stuck ones", "nuance": "Attached" },
+        { "english": "seven types", "nuance": "Numerical" }
+      ]
+    },
+    {
+      "id": "p6",
+      "wordClass": "content",
+      "segments": [
+        { "id": "p6s1", "text": "vi", "type": "prefix", "tooltips": ["[Prefix] Intensive / completely"] },
+        { "id": "p6s2", "text": "suddhi", "type": "root", "tooltips": ["√sudh: Purity, brightness", "✨ To be clean, clear"] },
+        { "id": "p6s3", "text": "yā", "type": "suffix", "tooltips": ["[Dative] For the sake of", "🎯 Purpose marker"] }
+      ],
+      "senses": [
+        { "english": "purification", "nuance": "Cleaning out" },
+        { "english": "clarity", "nuance": "Seeing clearly" },
+        { "english": "cleansing", "nuance": "Washing away" },
+        { "english": "brightening", "nuance": "Light emerging" },
+        { "english": "refinement", "nuance": "Polishing" }
+      ]
+    }
+  ],
+  "englishStructure": [
+    { "id": "g1", "label": "for the", "isGhost": true, "ghostKind": "required" },
+    { "id": "e5", "linkedSegmentId": "p6s2" },
+    { "id": "g2", "label": "of", "isGhost": true, "ghostKind": "required" },
+    { "id": "e6", "linkedSegmentId": "p5s1" }
+  ]
+}

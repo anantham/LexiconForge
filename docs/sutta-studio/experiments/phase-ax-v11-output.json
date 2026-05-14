@@ -1,0 +1,855 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:12:37.755Z",
+    "phaseId": "phase-ax",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "'Sabbakāyapaṭisaṁvedī assasissāmī 'ti sikkhati 'sabbakāyapaṭisaṁvedī passasissāmī 'ti sikkhati",
+    "englishText": ": I will : I will",
+    "tokens": {
+      "prompt": 24097,
+      "completion": 5885,
+      "total": 29982
+    },
+    "costUsd": 0.0297035,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ax",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Sabbakāyapaṭisaṁvedī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3",
+          "p1s4",
+          "p1s5"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "assasissāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p3s1"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "sikkhati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p5",
+        "surface": "sabbakāyapaṭisaṁvedī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3",
+          "p5s4",
+          "p5s5"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "passasissāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p7s1"
+        ]
+      },
+      {
+        "id": "p8",
+        "surface": "sikkhati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p8s1",
+          "p8s2"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "sabba",
+        "type": "stem",
+        "tooltips": [
+          "Sabba: All / entire / whole"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "kāya",
+        "type": "stem",
+        "tooltips": [
+          "Kāya: Body / collection",
+          "Refers here to the whole breath-body"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "paṭisaṁ",
+        "type": "prefix",
+        "tooltips": [
+          "Paṭi + saṁ: Back towards + completely",
+          "Indicates a reflexive or thorough experience"
+        ]
+      },
+      {
+        "id": "p1s4",
+        "wordId": "p1",
+        "text": "ved",
+        "type": "root",
+        "tooltips": [
+          "√vid: To know / feel / experience"
+        ]
+      },
+      {
+        "id": "p1s5",
+        "wordId": "p1",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending marks one who does the action",
+          "Nominative singular: 'one who experiences'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "assas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe",
+          "a + sas: To breathe in"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "issā",
+        "type": "suffix",
+        "tooltips": [
+          "Future tense marker: 'will'"
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "mi",
+        "type": "suffix",
+        "tooltips": [
+          "First person singular: 'I'"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "Ti: Quotation marker",
+          "Functions like closing quotation marks"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "sikkh",
+        "type": "root",
+        "tooltips": [
+          "√sikkh: To train / study / learn"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "ati",
+        "type": "suffix",
+        "tooltips": [
+          "Third person singular: 'he/she trains'"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "sabba",
+        "type": "stem",
+        "tooltips": [
+          "Sabba: All / entire"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "kāya",
+        "type": "stem",
+        "tooltips": [
+          "Kāya: Body"
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "paṭisaṁ",
+        "type": "prefix",
+        "tooltips": [
+          "Prefixes indicating thorough experience"
+        ]
+      },
+      {
+        "id": "p5s4",
+        "wordId": "p5",
+        "text": "ved",
+        "type": "root",
+        "tooltips": [
+          "√vid: To feel"
+        ]
+      },
+      {
+        "id": "p5s5",
+        "wordId": "p5",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular: 'one who experiences'"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "passas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe",
+          "pa + sas: To breathe out"
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "issā",
+        "type": "suffix",
+        "tooltips": [
+          "Future tense marker: 'will'"
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "mi",
+        "type": "suffix",
+        "tooltips": [
+          "First person singular: 'I'"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "Quotation marker"
+        ]
+      },
+      {
+        "id": "p8s1",
+        "wordId": "p8",
+        "text": "sikkh",
+        "type": "root",
+        "tooltips": [
+          "√sikkh: To train"
+        ]
+      },
+      {
+        "id": "p8s2",
+        "wordId": "p8",
+        "text": "ati",
+        "type": "suffix",
+        "tooltips": [
+          "Third person singular: 'trains'"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p3s1",
+        "targetWordId": "p4",
+        "type": "action",
+        "label": "Trains THUS",
+        "status": "confirmed"
+      },
+      {
+        "id": "r2",
+        "fromSegmentId": "p7s1",
+        "targetWordId": "p8",
+        "type": "action",
+        "label": "Trains THUS",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ax",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "experiencing the whole body",
+            "nuance": "full somatic awareness",
+            "id": "s1-1"
+          },
+          {
+            "english": "sensitive to the whole body",
+            "nuance": "receptive physical presence",
+            "id": "s1-2"
+          },
+          {
+            "english": "feeling the entire body",
+            "nuance": "tactile and internal sensation",
+            "id": "s1-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I will breathe in",
+            "nuance": "future intention, inhalation",
+            "id": "s2-1"
+          },
+          {
+            "english": "I shall breathe in",
+            "nuance": "formal resolve",
+            "id": "s2-2"
+          },
+          {
+            "english": "I am going to breathe in",
+            "nuance": "imminent action",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "quote-end",
+            "nuance": "marks the end of the thought or speech",
+            "id": "s3-1"
+          },
+          {
+            "english": "so",
+            "nuance": "concluding the mental directive",
+            "id": "s3-2"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active practice or discipline",
+            "id": "s4-1"
+          },
+          {
+            "english": "practices",
+            "nuance": "repetitive exercise of skill",
+            "id": "s4-2"
+          },
+          {
+            "english": "learns",
+            "nuance": "developing proficiency",
+            "id": "s4-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "experiencing the whole body",
+            "nuance": "full somatic awareness",
+            "id": "s5-1"
+          },
+          {
+            "english": "sensitive to the whole body",
+            "nuance": "receptive physical presence",
+            "id": "s5-2"
+          },
+          {
+            "english": "feeling the entire body",
+            "nuance": "tactile and internal sensation",
+            "id": "s5-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I will breathe out",
+            "nuance": "future intention, exhalation",
+            "id": "s6-1"
+          },
+          {
+            "english": "I shall breathe out",
+            "nuance": "formal resolve",
+            "id": "s6-2"
+          },
+          {
+            "english": "I am going to breathe out",
+            "nuance": "imminent action",
+            "id": "s6-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "quote-end",
+            "nuance": "marks the end of the thought or speech",
+            "id": "s7-1"
+          },
+          {
+            "english": "so",
+            "nuance": "concluding the mental directive",
+            "id": "s7-2"
+          }
+        ]
+      },
+      {
+        "wordId": "p8",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active practice or discipline",
+            "id": "s8-1"
+          },
+          {
+            "english": "practices",
+            "nuance": "repetitive exercise of skill",
+            "id": "s8-2"
+          },
+          {
+            "english": "learns",
+            "nuance": "developing proficiency",
+            "id": "s8-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard repetitive formula for breath meditation. Senses for 'sabbakāyapaṭisaṁvedī' reflect the debate between literal 'whole physical body' vs 'whole breath-body'."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ax",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "sabba",
+            "type": "stem",
+            "tooltips": [
+              "Sabba: All, entire, or whole."
+            ]
+          },
+          {
+            "text": "kāya",
+            "type": "stem",
+            "tooltips": [
+              "Kāya: Body or collection. In this context, it refers to the 'breath-body' or the full duration of the breath."
+            ]
+          },
+          {
+            "text": "paṭisaṁ",
+            "type": "prefix",
+            "tooltips": [
+              "Paṭi + saṁ: Back towards + completely. These prefixes indicate a thorough, reflexive experience."
+            ]
+          },
+          {
+            "text": "ved",
+            "type": "root",
+            "tooltips": [
+              "The root 'vid' means to know, feel, or experience."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending marks 'one who does' the action. Here it is nominative singular: 'one who experiences'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "experiencing the whole body",
+            "nuance": "full somatic awareness",
+            "id": "s1-1"
+          },
+          {
+            "english": "sensitive to the whole body",
+            "nuance": "receptive physical presence",
+            "id": "s1-2"
+          },
+          {
+            "english": "feeling the entire body",
+            "nuance": "tactile and internal sensation",
+            "id": "s1-3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "assas",
+            "type": "root",
+            "tooltips": [
+              "The root 'sas' means to breathe; with the prefix 'a', it specifically means to breathe in."
+            ]
+          },
+          {
+            "text": "issā",
+            "type": "suffix",
+            "tooltips": [
+              "The -issā- marker indicates the future tense: 'will'."
+            ]
+          },
+          {
+            "text": "mi",
+            "type": "suffix",
+            "tooltips": [
+              "The -mi ending is first person singular: 'I'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "I will breathe in",
+            "nuance": "future intention, inhalation",
+            "id": "s2-1"
+          },
+          {
+            "english": "I shall breathe in",
+            "nuance": "formal resolve",
+            "id": "s2-2"
+          },
+          {
+            "english": "I am going to breathe in",
+            "nuance": "imminent action",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltips": [
+              "Ti: A quotation marker that functions like closing quotation marks."
+            ],
+            "tooltipsBySense": [
+              {
+                "senseId": "s3-2",
+                "tooltip": "Here 'ti' acts as 'thus' or 'so', concluding the mental directive."
+              }
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "quote-end",
+            "nuance": "marks the end of the thought or speech",
+            "id": "s3-1"
+          },
+          {
+            "english": "so",
+            "nuance": "concluding the mental directive",
+            "id": "s3-2"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "sikkh",
+            "type": "root",
+            "tooltips": [
+              "The root 'sikkh' means to train, study, or learn."
+            ]
+          },
+          {
+            "text": "ati",
+            "type": "suffix",
+            "tooltips": [
+              "The -ati ending is third person singular: 'he/she trains'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active practice or discipline",
+            "id": "s4-1"
+          },
+          {
+            "english": "practices",
+            "nuance": "repetitive exercise of skill",
+            "id": "s4-2"
+          },
+          {
+            "english": "learns",
+            "nuance": "developing proficiency",
+            "id": "s4-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "sabba",
+            "type": "stem"
+          },
+          {
+            "text": "kāya",
+            "type": "stem"
+          },
+          {
+            "text": "paṭisaṁ",
+            "type": "prefix"
+          },
+          {
+            "text": "ved",
+            "type": "root"
+          },
+          {
+            "text": "ī",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "experiencing the whole body",
+            "nuance": "full somatic awareness",
+            "id": "s5-1"
+          },
+          {
+            "english": "sensitive to the whole body",
+            "nuance": "receptive physical presence",
+            "id": "s5-2"
+          },
+          {
+            "english": "feeling the entire body",
+            "nuance": "tactile and internal sensation",
+            "id": "s5-3"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "passas",
+            "type": "root",
+            "tooltips": [
+              "The root 'sas' (to breathe) with the prefix 'pa' means to breathe out."
+            ]
+          },
+          {
+            "text": "issā",
+            "type": "suffix"
+          },
+          {
+            "text": "mi",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "I will breathe out",
+            "nuance": "future intention, exhalation",
+            "id": "s6-1"
+          },
+          {
+            "english": "I shall breathe out",
+            "nuance": "formal resolve",
+            "id": "s6-2"
+          },
+          {
+            "english": "I am going to breathe out",
+            "nuance": "imminent action",
+            "id": "s6-3"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem"
+          }
+        ],
+        "senses": [
+          {
+            "english": "quote-end",
+            "nuance": "marks the end of the thought or speech",
+            "id": "s7-1"
+          },
+          {
+            "english": "so",
+            "nuance": "concluding the mental directive",
+            "id": "s7-2"
+          }
+        ]
+      },
+      {
+        "id": "p8",
+        "segments": [
+          {
+            "text": "sikkh",
+            "type": "root"
+          },
+          {
+            "text": "ati",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active practice or discipline",
+            "id": "s8-1"
+          },
+          {
+            "english": "practices",
+            "nuance": "repetitive exercise of skill",
+            "id": "s8-2"
+          },
+          {
+            "english": "learns",
+            "nuance": "developing proficiency",
+            "id": "s8-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "g1",
+        "label": "to",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p8"
+      },
+      {
+        "id": "g2",
+        "label": "to",
+        "linkedPaliId": "p8"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p5"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ],
+      [
+        "p5",
+        "p6",
+        "p7",
+        "p8"
+      ]
+    ],
+    "title": "Training in Full Awareness"
+  }
+}

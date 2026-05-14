@@ -1,0 +1,543 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:14:50.073Z",
+    "phaseId": "phase-bd",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "samudayavayadhammaānupassī vā kāyasmiṁ viharati",
+    "englishText": "or bd4s1 bd3s1",
+    "tokens": {
+      "prompt": 22605,
+      "completion": 3760,
+      "total": 26365
+    },
+    "costUsd": 0.0225825,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-bd",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "samudayavayadhammaānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3",
+          "p1s4",
+          "p1s5"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "kāyasmiṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3",
+          "p4s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "samudaya",
+        "type": "stem",
+        "tooltips": [
+          "Arising or origin",
+          "From sam + ud + √i: to go up together"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "vaya",
+        "type": "stem",
+        "tooltips": [
+          "Vanishing or passing away",
+          "From √i: to go (away)"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "dhamma",
+        "type": "stem",
+        "tooltips": [
+          "Nature or quality",
+          "Here referring to the law of change"
+        ]
+      },
+      {
+        "id": "p1s4",
+        "wordId": "p1",
+        "text": "ānupass",
+        "type": "root",
+        "tooltips": [
+          "√pas: To see",
+          "anu: following / closely",
+          "Observing or contemplating"
+        ]
+      },
+      {
+        "id": "p1s5",
+        "wordId": "p1",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending marks 'one who does this'",
+          "Nominative singular masculine"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "Or",
+          "Indeclinable — never changes form"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "kāya",
+        "type": "stem",
+        "tooltips": [
+          "Body",
+          "The physical collection of parts"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "smiṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -smiṁ ending means 'in' or 'at'",
+          "Locative singular"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix: Apart or intensive"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "√har: To carry or take",
+          "vi + har = to dwell / live"
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting root to ending"
+        ]
+      },
+      {
+        "id": "p4s4",
+        "wordId": "p4",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending means 'he/she/it does'",
+          "3rd person singular present"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p3s2",
+        "targetWordId": "p4",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-bd",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing the nature of both arising and passing away",
+            "nuance": "comprehensive view of impermanence",
+            "id": "s1-1",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "observing the nature of both arising and passing away"
+              }
+            ]
+          },
+          {
+            "english": "contemplating the phenomena of origination and dissolution",
+            "nuance": "analytical focus on the process of change",
+            "id": "s1-2",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "contemplating the nature of both arising and vanishing"
+              }
+            ]
+          },
+          {
+            "english": "watching the rise and fall of things",
+            "nuance": "direct experiential observation",
+            "id": "s1-3",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "remains focused on the phenomenon of origination and passing away"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option in a sequence",
+            "id": "s2-1"
+          },
+          {
+            "english": "and also",
+            "nuance": "inclusive alternative",
+            "id": "s2-2"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative, physical frame as the domain of practice",
+            "id": "s3-1"
+          },
+          {
+            "english": "with regard to the body",
+            "nuance": "reference to the body as a meditation object",
+            "id": "s3-2"
+          },
+          {
+            "english": "within the body",
+            "nuance": "internalized focus",
+            "id": "s3-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "active practice of dwelling in a state",
+            "id": "s4-1"
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a specific contemplative mode",
+            "id": "s4-2"
+          },
+          {
+            "english": "lives",
+            "nuance": "habitual state of being during practice",
+            "id": "s4-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "p1 is a complex compound (samudaya-vaya-dhamma-anupassī). Senses reflect the integrated meaning of observing the dual process of arising and passing away."
+    }
+  },
+  "phaseView": {
+    "id": "phase-bd",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "samudaya",
+            "type": "stem",
+            "tooltips": [
+              "Arising or origin",
+              "From sam + ud + the root 'i': to go up together"
+            ]
+          },
+          {
+            "text": "vaya",
+            "type": "stem",
+            "tooltips": [
+              "Vanishing or passing away",
+              "From the root 'i': to go (away)"
+            ]
+          },
+          {
+            "text": "dhamma",
+            "type": "stem",
+            "tooltips": [
+              "Nature or quality",
+              "Here referring to the law of change"
+            ]
+          },
+          {
+            "text": "ānupass",
+            "type": "root",
+            "tooltips": [
+              "The root 'pas' means to see; with 'anu' (following), it means observing closely."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending marks 'one who does this' — nominative singular masculine."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing the nature of both arising and passing away",
+            "nuance": "comprehensive view of impermanence",
+            "id": "s1-1",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "observing the nature of both arising and passing away"
+              }
+            ]
+          },
+          {
+            "english": "contemplating the phenomena of origination and dissolution",
+            "nuance": "analytical focus on the process of change",
+            "id": "s1-2",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "contemplating the nature of both arising and vanishing"
+              }
+            ]
+          },
+          {
+            "english": "watching the rise and fall of things",
+            "nuance": "direct experiential observation",
+            "id": "s1-3",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "remains focused on the phenomenon of origination and passing away"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "Or",
+              "An indeclinable word that never changes its form."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option in a sequence",
+            "id": "s2-1"
+          },
+          {
+            "english": "and also",
+            "nuance": "inclusive alternative",
+            "id": "s2-2"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "kāya",
+            "type": "stem",
+            "tooltips": [
+              "Body",
+              "The physical collection of parts"
+            ]
+          },
+          {
+            "text": "smiṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwelling IN",
+              "status": "confirmed",
+              "targetWordId": "p4"
+            },
+            "tooltips": [
+              "The -smiṁ ending is locative singular, meaning 'in' or 'at' the body."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative, physical frame as the domain of practice",
+            "id": "s3-1"
+          },
+          {
+            "english": "with regard to the body",
+            "nuance": "reference to the body as a meditation object",
+            "id": "s3-2"
+          },
+          {
+            "english": "within the body",
+            "nuance": "internalized focus",
+            "id": "s3-3"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "Prefix: Apart or intensive"
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "The root 'har' means to carry; with 'vi', it means to dwell or live."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting root to ending"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending means 'he/she/it does' — 3rd person singular present."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "active practice of dwelling in a state",
+            "id": "s4-1"
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a specific contemplative mode",
+            "id": "s4-2"
+          },
+          {
+            "english": "lives",
+            "nuance": "habitual state of being during practice",
+            "id": "s4-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    ],
+    "title": "Observing Arising and Passing Away"
+  }
+}

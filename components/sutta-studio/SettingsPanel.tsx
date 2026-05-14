@@ -9,6 +9,24 @@ export type StudioSettings = {
   refrainColors: boolean;
   alignmentLines: boolean;
   ghostWords: boolean;
+  // cycleDots: small dots under English words linked to multi-sense Pāli — shows
+  // count + current position. Off = hide the affordance even though clicking
+  // still cycles.
+  cycleDots: boolean;
+  // V2 audit/metadata fields — toggle to A/B which ones earn their packet bulk.
+  // auditPanel: opens the LensPanel side drawer for the hovered word, showing
+  //   full sense data (notes, citations, confidence, basis tags). When OFF, the
+  //   drawer never appears.
+  // anchorEmphasis: subtle amber underline on PaliWord.isAnchor === true.
+  // senseNotes: per-sense `notes` prose in the audit panel.
+  // citationChips: per-sense `citationIds` rendered as chips in the audit panel.
+  auditPanel: boolean;
+  anchorEmphasis: boolean;
+  senseNotes: boolean;
+  citationChips: boolean;
+  // legend: visual reference panel showing color/symbol vocabulary once.
+  // Replaces the deleted "Colored differently because…" per-word meta-commentary.
+  legend: boolean;
 };
 
 export const DEFAULT_SETTINGS: StudioSettings = {
@@ -19,6 +37,13 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   refrainColors: false,
   alignmentLines: true,
   ghostWords: true,
+  cycleDots: true,
+  // Audit panel OFF by default — opt-in for empirical evaluation.
+  auditPanel: false,
+  anchorEmphasis: true,
+  senseNotes: true,
+  citationChips: true,
+  legend: false,
 };
 
 const STORAGE_KEY = 'sutta-studio-settings';
@@ -121,16 +146,73 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.15 }}
-          className="absolute top-12 right-0 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden"
+          className="absolute top-12 right-0 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-[100] overflow-hidden"
         >
           <div className="px-3 py-2 border-b border-slate-700">
             <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">Settings</span>
           </div>
+          {/*
+            Single flat list, ordered roughly by impact:
+              - panels (Audit, Legend) — open large UI surfaces
+              - reading affordances — visual signals that help comprehension
+              - audit-panel content toggles — only meaningful when audit is open
+              - style preferences — small tweaks
+          */}
           <div className="p-3 space-y-1">
+            <SettingToggle
+              label="Audit panel"
+              checked={settings.auditPanel}
+              onChange={(v) => updateSetting('auditPanel', v)}
+            />
+            <SettingToggle
+              label="Legend"
+              checked={settings.legend}
+              onChange={(v) => updateSetting('legend', v)}
+            />
             <SettingToggle
               label="Tooltips"
               checked={settings.tooltips}
               onChange={(v) => updateSetting('tooltips', v)}
+            />
+            <SettingToggle
+              label="Grammar arrows"
+              checked={settings.grammarArrows}
+              onChange={(v) => updateSetting('grammarArrows', v)}
+            />
+            <SettingToggle
+              label="Alignment lines"
+              checked={settings.alignmentLines}
+              onChange={(v) => updateSetting('alignmentLines', v)}
+            />
+            <SettingToggle
+              label="Refrain colors"
+              checked={settings.refrainColors}
+              onChange={(v) => updateSetting('refrainColors', v)}
+            />
+            <SettingToggle
+              label="Anchor emphasis"
+              checked={settings.anchorEmphasis}
+              onChange={(v) => updateSetting('anchorEmphasis', v)}
+            />
+            <SettingToggle
+              label="Cycle dots"
+              checked={settings.cycleDots}
+              onChange={(v) => updateSetting('cycleDots', v)}
+            />
+            <SettingToggle
+              label="Ghost words"
+              checked={settings.ghostWords}
+              onChange={(v) => updateSetting('ghostWords', v)}
+            />
+            <SettingToggle
+              label="Sense notes"
+              checked={settings.senseNotes}
+              onChange={(v) => updateSetting('senseNotes', v)}
+            />
+            <SettingToggle
+              label="Citation chips"
+              checked={settings.citationChips}
+              onChange={(v) => updateSetting('citationChips', v)}
             />
             <SettingToggle
               label="Emoji in tooltips"
@@ -141,26 +223,6 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               label="Grammar terms"
               checked={settings.grammarTerms}
               onChange={(v) => updateSetting('grammarTerms', v)}
-            />
-            <SettingToggle
-              label="Grammar arrows"
-              checked={settings.grammarArrows}
-              onChange={(v) => updateSetting('grammarArrows', v)}
-            />
-            <SettingToggle
-              label="Refrain colors"
-              checked={settings.refrainColors}
-              onChange={(v) => updateSetting('refrainColors', v)}
-            />
-            <SettingToggle
-              label="Alignment lines"
-              checked={settings.alignmentLines}
-              onChange={(v) => updateSetting('alignmentLines', v)}
-            />
-            <SettingToggle
-              label="Ghost words"
-              checked={settings.ghostWords}
-              onChange={(v) => updateSetting('ghostWords', v)}
             />
           </div>
         </motion.div>

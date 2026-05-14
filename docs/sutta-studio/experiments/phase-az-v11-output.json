@@ -1,0 +1,550 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:13:20.936Z",
+    "phaseId": "phase-az",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "bahiddhā vā kāye kāyānupassī viharati",
+    "englishText": "or az5s1 az4s1",
+    "tokens": {
+      "prompt": 22608,
+      "completion": 3771,
+      "total": 26379
+    },
+    "costUsd": 0.022617,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-az",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "bahiddhā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "kāye",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "kāyānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3",
+          "p4s4"
+        ],
+        "refrainId": "formula-anupassi"
+      },
+      {
+        "id": "p5",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3",
+          "p5s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "bahiddhā",
+        "type": "stem",
+        "tooltips": [
+          "bahiddhā: Outside / Externally",
+          "Refers to the bodies of others or external physical phenomena."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: Or",
+          "A particle used to show an alternative practice."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "kāy",
+        "type": "root",
+        "tooltips": [
+          "kāya: Body",
+          "The physical form or a collection of parts."
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending means 'in' or 'on' the body (locative).",
+          "Marks the place where the observation happens."
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "kāy",
+        "type": "stem",
+        "tooltips": [
+          "kāya: Body",
+          "The object of contemplation."
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "ānu",
+        "type": "prefix",
+        "tooltips": [
+          "anu: Along / Following",
+          "Suggests a continuous, repeated observation."
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "pass",
+        "type": "root",
+        "tooltips": [
+          "√pas: To see / observe",
+          "The root of 'vipassanā' (insight)."
+        ]
+      },
+      {
+        "id": "p4s4",
+        "wordId": "p4",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending means 'one who does this'.",
+          "Describes the practitioner as 'one who observes'."
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: Apart / Distant",
+          "In this context, it intensifies the sense of dwelling."
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "√har: To carry / take",
+          "vi + har = to live or dwell."
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting the root to the ending."
+        ]
+      },
+      {
+        "id": "p5s4",
+        "wordId": "p5",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending means 'he/she/it does'.",
+          "Indicates the present action of dwelling."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p3s2",
+        "targetWordId": "p5",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-az",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "externally",
+            "nuance": "referring to the bodies of others",
+            "id": "s1-1"
+          },
+          {
+            "english": "outside",
+            "nuance": "spatial orientation relative to oneself",
+            "id": "s1-2"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle connecting internal/external practice",
+            "id": "s2-1"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "the physical form as a locus of observation",
+            "id": "s3-1"
+          },
+          {
+            "english": "form",
+            "nuance": "the material aspect of experience",
+            "id": "s3-2"
+          },
+          {
+            "english": "physicality",
+            "nuance": "the general quality of the body",
+            "id": "s3-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing the body",
+            "nuance": "active, continuous contemplation of bodily nature",
+            "id": "s4-1"
+          },
+          {
+            "english": "contemplating the body",
+            "nuance": "meditative focus on physical processes",
+            "id": "s4-2"
+          },
+          {
+            "english": "tracking the body",
+            "nuance": "monitoring the body's movements and states",
+            "id": "s4-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative state",
+            "id": "s5-1"
+          },
+          {
+            "english": "abides",
+            "nuance": "formal, stable residence in a state",
+            "id": "s5-2"
+          },
+          {
+            "english": "lives",
+            "nuance": "the practitioner's mode of being",
+            "id": "s5-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard meditative formula for satipatthana. Senses for p4 reflect the compound nature of anupassī."
+    }
+  },
+  "phaseView": {
+    "id": "phase-az",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "bahiddhā",
+            "type": "stem",
+            "tooltips": [
+              "bahiddhā: Outside / Externally",
+              "Refers to the bodies of others or external physical phenomena."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "externally",
+            "nuance": "referring to the bodies of others",
+            "id": "s1-1"
+          },
+          {
+            "english": "outside",
+            "nuance": "spatial orientation relative to oneself",
+            "id": "s1-2"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "vā: Or",
+              "A particle used to show an alternative practice."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle connecting internal/external practice",
+            "id": "s2-1"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "root",
+            "tooltips": [
+              "kāya: Body",
+              "The physical form or a collection of parts."
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwelling IN",
+              "status": "confirmed",
+              "targetWordId": "p5"
+            },
+            "tooltips": [
+              "The -e ending means 'in' or 'on' the body (locative).",
+              "Marks the place where the observation happens."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "the physical form as a locus of observation",
+            "id": "s3-1"
+          },
+          {
+            "english": "form",
+            "nuance": "the material aspect of experience",
+            "id": "s3-2"
+          },
+          {
+            "english": "physicality",
+            "nuance": "the general quality of the body",
+            "id": "s3-3"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "stem",
+            "tooltips": [
+              "kāya: Body",
+              "The object of contemplation."
+            ]
+          },
+          {
+            "text": "ānu",
+            "type": "prefix",
+            "tooltips": [
+              "anu: Along / Following",
+              "Suggests a continuous, repeated observation."
+            ]
+          },
+          {
+            "text": "pass",
+            "type": "root",
+            "tooltips": [
+              "the root 'pas': To see / observe",
+              "The root of 'vipassanā' (insight)."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "tooltips": [
+              "The -ī ending means 'one who does this'.",
+              "Describes the practitioner as 'one who observes'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing the body",
+            "nuance": "active, continuous contemplation of bodily nature",
+            "id": "s4-1"
+          },
+          {
+            "english": "contemplating the body",
+            "nuance": "meditative focus on physical processes",
+            "id": "s4-2"
+          },
+          {
+            "english": "tracking the body",
+            "nuance": "monitoring the body's movements and states",
+            "id": "s4-3"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: Apart / Distant",
+              "In this context, it intensifies the sense of dwelling."
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "the root 'har': To carry / take",
+              "vi + har = to live or dwell."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting the root to the ending."
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending means 'he/she/it does'.",
+              "Indicates the present action of dwelling."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative state",
+            "id": "s5-1"
+          },
+          {
+            "english": "abides",
+            "nuance": "formal, stable residence in a state",
+            "id": "s5-2"
+          },
+          {
+            "english": "lives",
+            "nuance": "the practitioner's mode of being",
+            "id": "s5-3"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "g1",
+        "label": "in the",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ]
+    ],
+    "title": "External Contemplation"
+  }
+}

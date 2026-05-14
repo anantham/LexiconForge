@@ -9,6 +9,8 @@ import { formatDuration, segDomId, segmentIdToDomId, targetDomId, wordDomId } fr
 import { XarrowUpdater } from './XarrowUpdater';
 import { StudioHeader } from './StudioHeader';
 import { AboutThisText } from './AboutThisText';
+import { LensPanel } from './LensPanel';
+import { Legend } from './Legend';
 import { useEtaCountdown } from './hooks/useEtaCountdown';
 import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 import { loadSettings, saveSettings, type StudioSettings } from './SettingsPanel';
@@ -25,6 +27,10 @@ export function SuttaStudioView({
   const [hovered, setHovered] = useState<Focus | null>(null);
   const [hoveredRelation, setHoveredRelation] = useState<string | null>(null);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
+  // Last word/segment we hovered over — keeps the audit panel pinned to the
+  // most recent target even after the cursor moves away. Cleared explicitly
+  // via the panel's ✕ button.
+  const [pinnedForAudit, setPinnedForAudit] = useState<Focus | null>(null);
   const [activeSegmentIndices, setActiveSegmentIndices] = useState<Record<string, number>>({});
   // Per-segment tooltip facet index. Click on a Pāli segment cycles through
   // its `tooltips[]` array (each string is a distinct facet of explanation —
@@ -47,6 +53,14 @@ export function SuttaStudioView({
   const visiblePhases = phases.slice(0, Math.max(readyPhases, 0));
   const focus = hovered;
   const focusWordId = focus?.kind === 'word' ? focus.wordId : focus?.wordId ?? null;
+
+  // Keep the audit panel pinned to the latest non-null hover target. The panel
+  // itself only renders when settings.auditPanel is on.
+  useEffect(() => {
+    if (hovered && hovered.wordId) {
+      setPinnedForAudit(hovered);
+    }
+  }, [hovered]);
 
   // Derive feature flags from settings
   const showRelationArrows = settings.grammarArrows;
@@ -565,6 +579,7 @@ export function SuttaStudioView({
                                   cycle={(wordId) => cycle(wordId, phaseId)}
                                   ghostOpacity={ghostOpacity}
                                   showGhosts={settings.ghostWords}
+                                  showCycleDots={settings.cycleDots}
                                 />
 
                                 {showAlignmentArrows && (item.linkedSegmentId || item.linkedPaliId) && (() => {
@@ -613,6 +628,42 @@ export function SuttaStudioView({
               );
           })}
         </div>
+        <Legend
+          isOpen={settings.legend}
+          onClose={() => handleSettingsChange({ ...settings, legend: false })}
+        />
+        {settings.auditPanel && pinnedForAudit && (() => {
+          // Show LensPanel docked-right with full sense data for the most-recent
+          // hovered word/segment. Sets are scoped per phase, so we slice
+          // activeIndices to the keys for this phase and re-write them with
+          // wordId-only keys for the panel's API.
+          const auditPhase = visiblePhases.find((p) => p.id === pinnedForAudit.phaseId);
+          if (!auditPhase) return null;
+          const phasePrefix = `${auditPhase.id}-`;
+          const phaseActiveIndices: Record<string, number> = {};
+          for (const [key, value] of Object.entries(activeIndices) as Array<[string, number]>) {
+            if (key.startsWith(phasePrefix)) {
+              phaseActiveIndices[key.slice(phasePrefix.length)] = value;
+            }
+          }
+          return (
+            <LensPanel
+              phase={auditPhase}
+              pinned={pinnedForAudit}
+              onClose={() => setPinnedForAudit(null)}
+              activeIndices={phaseActiveIndices}
+              setActiveIndex={(wordId, idx) =>
+                setActiveIndices((prev) => ({
+                  ...prev,
+                  [`${auditPhase.id}-${wordId}`]: idx,
+                }))
+              }
+              showNotes={settings.senseNotes}
+              showCitationChips={settings.citationChips}
+              citations={packet.citations}
+            />
+          );
+        })()}
       </Xwrapper>
     </div>
   );

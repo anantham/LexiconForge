@@ -1,0 +1,421 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:15:57.048Z",
+    "phaseId": "phase-bf",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "yāvadeva ñāṇamattāya paṭissatimattāya",
+    "englishText": "needed and",
+    "tokens": {
+      "prompt": 21240,
+      "completion": 2925,
+      "total": 24165
+    },
+    "costUsd": 0.019395000000000003,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-bf",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "yāvadeva",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "ñāṇamattāya",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "surface": "paṭissatimattāya",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "yāva",
+        "type": "stem",
+        "tooltips": [
+          "yāva: as far as / as much as",
+          "Indicates the extent or limit of an action"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "d",
+        "type": "stem",
+        "tooltips": [
+          "Sandhi consonant: a 'glue' letter used to join words smoothly"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "eva",
+        "type": "stem",
+        "tooltips": [
+          "eva: just / only",
+          "Emphasizes the limit: 'only as much as'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "ñāṇa",
+        "type": "root",
+        "tooltips": [
+          "√jñā: to know",
+          "ñāṇa: knowledge or understanding"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "matta",
+        "type": "stem",
+        "tooltips": [
+          "matta: measure / degree",
+          "Used in compounds to mean 'merely' or 'just the extent of'"
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "āya",
+        "type": "suffix",
+        "tooltips": [
+          "The -āya ending marks the purpose: 'for the sake of'",
+          "Dative case indicating the reason for the practice"
+        ],
+        "morph": {
+          "case": "dat",
+          "number": "sg",
+          "note": "Dative of purpose"
+        }
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "paṭi",
+        "type": "prefix",
+        "tooltips": [
+          "paṭi-: back / towards",
+          "Prefix indicating a return or reflexivity"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "ssati",
+        "type": "root",
+        "tooltips": [
+          "√smṛ: to remember",
+          "sati: mindfulness or presence of mind"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "matta",
+        "type": "stem",
+        "tooltips": [
+          "matta: measure / degree",
+          "Limits the scope to 'just enough for mindfulness'"
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "āya",
+        "type": "suffix",
+        "tooltips": [
+          "The -āya ending marks the purpose: 'for the sake of'",
+          "Dative case indicating the reason for the practice"
+        ],
+        "morph": {
+          "case": "dat",
+          "number": "sg",
+          "note": "Dative of purpose"
+        }
+      }
+    ],
+    "relations": [],
+    "handoff": {
+      "confidence": "high",
+      "segmentationIssues": [],
+      "notes": "Segmented the purpose-driven compounds (ñāṇamattāya/paṭissatimattāya) to highlight the 'measure' (matta) and 'purpose' (āya) components."
+    }
+  },
+  "lexicographer": {
+    "id": "phase-bf",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "only for the sake of",
+            "nuance": "limiting purpose",
+            "id": "s1-1"
+          },
+          {
+            "english": "just for",
+            "nuance": "minimal requirement",
+            "id": "s1-2"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "measure of knowledge",
+            "nuance": "bare recognition",
+            "id": "s2-1"
+          },
+          {
+            "english": "extent of understanding",
+            "nuance": "intellectual clarity",
+            "id": "s2-2"
+          },
+          {
+            "english": "mere knowing",
+            "nuance": "non-conceptual awareness",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "measure of mindfulness",
+            "nuance": "bare presence of mind",
+            "id": "s3-1"
+          },
+          {
+            "english": "extent of recollection",
+            "nuance": "continuous memory",
+            "id": "s3-2"
+          },
+          {
+            "english": "mere awareness",
+            "nuance": "uncluttered observation",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Senses for p2 and p3 reflect the 'matta' (measure/mere) suffix which is critical for the 'bare awareness' stage of the Satipatthana practice."
+    }
+  },
+  "phaseView": {
+    "id": "phase-bf",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "yāva",
+            "type": "stem",
+            "tooltips": [
+              "yāva: as far as / as much as",
+              "Indicates the extent or limit of an action"
+            ]
+          },
+          {
+            "text": "d",
+            "type": "stem",
+            "tooltips": [
+              "Sandhi consonant: a 'glue' letter used to join words smoothly"
+            ]
+          },
+          {
+            "text": "eva",
+            "type": "stem",
+            "tooltips": [
+              "eva: just / only",
+              "Emphasizes the limit: 'only as much as'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "only for the sake of",
+            "nuance": "limiting purpose",
+            "id": "s1-1"
+          },
+          {
+            "english": "just for",
+            "nuance": "minimal requirement",
+            "id": "s1-2"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "ñāṇa",
+            "type": "root",
+            "tooltips": [
+              "The root 'jñā' means to know — ñāṇa is knowledge or understanding."
+            ]
+          },
+          {
+            "text": "matta",
+            "type": "stem",
+            "tooltips": [
+              "matta: measure / degree",
+              "Used in compounds to mean 'merely' or 'just the extent of'."
+            ]
+          },
+          {
+            "text": "āya",
+            "type": "suffix",
+            "morph": {
+              "case": "dat",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -āya ending marks the purpose: 'for the sake of'. It is the dative case indicating the reason for the practice."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "measure of knowledge",
+            "nuance": "bare recognition",
+            "id": "s2-1"
+          },
+          {
+            "english": "extent of understanding",
+            "nuance": "intellectual clarity",
+            "id": "s2-2"
+          },
+          {
+            "english": "mere knowing",
+            "nuance": "non-conceptual awareness",
+            "id": "s2-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "paṭi",
+            "type": "prefix",
+            "tooltips": [
+              "paṭi-: back / towards",
+              "Prefix indicating a return or reflexivity."
+            ]
+          },
+          {
+            "text": "ssati",
+            "type": "root",
+            "tooltips": [
+              "The root 'smṛ' means to remember — sati is mindfulness or presence of mind."
+            ]
+          },
+          {
+            "text": "matta",
+            "type": "stem",
+            "tooltips": [
+              "matta: measure / degree",
+              "Limits the scope to 'just enough for mindfulness'."
+            ]
+          },
+          {
+            "text": "āya",
+            "type": "suffix",
+            "morph": {
+              "case": "dat",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -āya ending marks the purpose: 'for the sake of'. It is the dative case indicating the reason for the practice."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "measure of mindfulness",
+            "nuance": "bare presence of mind",
+            "id": "s3-1"
+          },
+          {
+            "english": "extent of recollection",
+            "nuance": "continuous memory",
+            "id": "s3-2"
+          },
+          {
+            "english": "mere awareness",
+            "nuance": "uncluttered observation",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "ghost1",
+        "label": "and",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "The Purpose of Awareness"
+  }
+}

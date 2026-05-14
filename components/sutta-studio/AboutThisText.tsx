@@ -31,7 +31,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
   if (translator) chipParts.push(`tr. ${translator}`);
 
   return (
-    <div className="max-w-3xl mx-auto px-6 pt-12 pb-4 text-slate-400">
+    <div className="max-w-3xl mx-auto pl-6 pr-16 md:pr-6 pt-12 pb-4 text-slate-400">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

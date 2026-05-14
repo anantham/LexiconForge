@@ -1,0 +1,488 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:04:33.500Z",
+    "phaseId": "phase-af",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "citte cittānupassī viharati",
+    "englishText": "af3s2 af1s1",
+    "tokens": {
+      "prompt": 22301,
+      "completion": 3350,
+      "total": 25651
+    },
+    "costUsd": 0.021200499999999997,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-af",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "citte",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "cittānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4",
+          "p2s5"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "citt",
+        "type": "root",
+        "tooltips": [
+          "citta: mind, heart, or state of consciousness",
+          "From the root 'cit': to perceive or think"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending marks the locative case — 'in' or 'regarding' the mind.",
+          "Locative singular"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "citt",
+        "type": "root",
+        "tooltips": [
+          "citta: mind or consciousness",
+          "The first part of the compound, acting as the object of observation."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "ā",
+        "type": "suffix",
+        "tooltips": [
+          "Connecting vowel used in compounds."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "nu",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'nu' means 'along', 'following', or 'repeatedly'."
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "passī",
+        "type": "root",
+        "tooltips": [
+          "From the root 'pas': to see or observe.",
+          "The -ī suffix means 'one who does this' — an observer."
+        ]
+      },
+      {
+        "id": "p2s5",
+        "wordId": "p2",
+        "text": "",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular masculine"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'vi' can mean 'apart' or 'intensively'."
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "The root 'har' means to carry or take.",
+          "Combined with 'vi', it means to dwell or live."
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting the root to the ending."
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks the third-person singular — 'he/she/it dwells'.",
+          "Present tense"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p2",
+        "type": "location",
+        "label": "Observing IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-af",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "mind",
+            "nuance": "the heart-mind or state of consciousness",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "in the mind"
+              }
+            ]
+          },
+          {
+            "english": "consciousness",
+            "nuance": "the cognitive aspect of experience",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "academic",
+                "rendering": "regarding consciousness"
+              }
+            ]
+          },
+          {
+            "english": "mental state",
+            "nuance": "a specific mood or quality of mind",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "modern",
+                "rendering": "within a mental state"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing the mind",
+            "nuance": "watching the mind as it is",
+            "id": "s4",
+            "notes": "Standard translation for the practice of satipatthana."
+          },
+          {
+            "english": "contemplating the mind",
+            "nuance": "deeply investigating mental qualities",
+            "id": "s5",
+            "notes": "Emphasizes the analytical aspect of vipassana."
+          },
+          {
+            "english": "tracking the mind",
+            "nuance": "following the sequence of mental states",
+            "id": "s6",
+            "notes": "Literal etymological sense of 'following after' (anu-passi)."
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "engaged in formal practice",
+            "id": "s7"
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a specific state",
+            "id": "s8"
+          },
+          {
+            "english": "lives",
+            "nuance": "maintaining a way of being",
+            "id": "s9"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard formula for the third foundation of mindfulness. Senses reflect common variations in satipatthana literature."
+    }
+  },
+  "phaseView": {
+    "id": "phase-af",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "citt",
+            "type": "root",
+            "tooltips": [
+              "citta: mind, heart, or state of consciousness",
+              "From the root 'cit': to perceive or think"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Observing IN",
+              "status": "confirmed",
+              "targetWordId": "p2"
+            },
+            "tooltips": [
+              "The -e ending marks the locative case — 'in' or 'regarding' the mind.",
+              "Locative singular"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "mind",
+            "nuance": "the heart-mind or state of consciousness",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "general",
+                "rendering": "in the mind"
+              }
+            ]
+          },
+          {
+            "english": "consciousness",
+            "nuance": "the cognitive aspect of experience",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "academic",
+                "rendering": "regarding consciousness"
+              }
+            ]
+          },
+          {
+            "english": "mental state",
+            "nuance": "a specific mood or quality of mind",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "modern",
+                "rendering": "within a mental state"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "citt",
+            "type": "root",
+            "tooltips": [
+              "citta: mind or consciousness",
+              "The first part of the compound, acting as the object of observation."
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "suffix",
+            "tooltips": [
+              "Connecting vowel used in compounds."
+            ]
+          },
+          {
+            "text": "nu",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'nu' means 'along', 'following', or 'repeatedly'."
+            ]
+          },
+          {
+            "text": "passī",
+            "type": "root",
+            "tooltips": [
+              "From the root 'pas': to see or observe.",
+              "The -ī suffix means 'one who does this' — an observer."
+            ]
+          },
+          {
+            "text": "",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "Nominative singular masculine"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing the mind",
+            "nuance": "watching the mind as it is",
+            "id": "s4",
+            "notes": "Standard translation for the practice of satipatthana."
+          },
+          {
+            "english": "contemplating the mind",
+            "nuance": "deeply investigating mental qualities",
+            "id": "s5",
+            "notes": "Emphasizes the analytical aspect of vipassana."
+          },
+          {
+            "english": "tracking the mind",
+            "nuance": "following the sequence of mental states",
+            "id": "s6",
+            "notes": "Literal etymological sense of 'following after' (anu-passi)."
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'vi' can mean 'apart' or 'intensively'."
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "The root 'har' means to carry or take.",
+              "Combined with 'vi', it means to dwell or live."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting the root to the ending."
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the third-person singular — 'he/she/it dwells'.",
+              "Present tense"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "engaged in formal practice",
+            "id": "s7"
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a specific state",
+            "id": "s8"
+          },
+          {
+            "english": "lives",
+            "nuance": "maintaining a way of being",
+            "id": "s9"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g1",
+        "label": "in the",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Third Foundation: Mind"
+  }
+}

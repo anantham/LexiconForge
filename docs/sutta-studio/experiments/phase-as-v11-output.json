@@ -1,0 +1,1240 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:09:32.019Z",
+    "phaseId": "phase-as",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Rassaṁ vā assasanto 'rassaṁ assasāmī 'ti pajānāti rassaṁ vā passasanto 'rassaṁ passasāmī 'ti pajānāti",
+    "englishText": "\"I breathe in short\" \"I breathe out short\"",
+    "tokens": {
+      "prompt": 25723,
+      "completion": 7234,
+      "total": 32957
+    },
+    "costUsd": 0.0345635,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-as",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "assasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "assasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p6s1"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p7s1",
+          "p7s2",
+          "p7s3",
+          "p7s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p8",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p8s1",
+          "p8s2"
+        ]
+      },
+      {
+        "id": "p9",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p9s1"
+        ]
+      },
+      {
+        "id": "p10",
+        "surface": "passasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p10s1",
+          "p10s2",
+          "p10s3"
+        ]
+      },
+      {
+        "id": "p11",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p11s1",
+          "p11s2"
+        ]
+      },
+      {
+        "id": "p12",
+        "surface": "passasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p12s1",
+          "p12s2",
+          "p12s3"
+        ]
+      },
+      {
+        "id": "p13",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p13s1"
+        ]
+      },
+      {
+        "id": "p14",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p14s1",
+          "p14s2",
+          "p14s3",
+          "p14s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Rassa",
+        "type": "stem",
+        "tooltips": [
+          "Rassa: Short in duration or length"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -ṁ ending marks the object or adverbial quality: 'shortly'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: Or / alternatively"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "as",
+        "type": "root",
+        "tooltips": [
+          "The root 'as' means to breathe"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "sas",
+        "type": "stem",
+        "tooltips": [
+          "assasa: Breathing in (inhalation)"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "anto",
+        "type": "suffix",
+        "tooltips": [
+          "The -anto ending means 'while doing' — breathing in"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "rassa",
+        "type": "stem",
+        "tooltips": [
+          "Rassa: Short"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial marker: 'shortly'"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "as",
+        "type": "root",
+        "tooltips": [
+          "The root 'as': to breathe"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "sasā",
+        "type": "stem",
+        "tooltips": [
+          "assasa: Inhaling"
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "mi",
+        "type": "suffix",
+        "tooltips": [
+          "The -mi ending means 'I am doing' — I breathe in"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "ti: Quotation marker; like closing quotation marks"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: Prefix meaning forth or out"
+        ]
+      },
+      {
+        "id": "p7s2",
+        "wordId": "p7",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "The root 'jñā': to know or understand"
+        ]
+      },
+      {
+        "id": "p7s3",
+        "wordId": "p7",
+        "text": "ā",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel for the present tense"
+        ]
+      },
+      {
+        "id": "p7s4",
+        "wordId": "p7",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending means 'he/she/it does' — one understands"
+        ]
+      },
+      {
+        "id": "p8s1",
+        "wordId": "p8",
+        "text": "rassa",
+        "type": "stem",
+        "tooltips": [
+          "Rassa: Short"
+        ]
+      },
+      {
+        "id": "p8s2",
+        "wordId": "p8",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial marker"
+        ]
+      },
+      {
+        "id": "p9s1",
+        "wordId": "p9",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: Or"
+        ]
+      },
+      {
+        "id": "p10s1",
+        "wordId": "p10",
+        "text": "pas",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: Prefix indicating outward direction"
+        ]
+      },
+      {
+        "id": "p10s2",
+        "wordId": "p10",
+        "text": "sas",
+        "type": "root",
+        "tooltips": [
+          "passasa: Breathing out (exhalation)"
+        ]
+      },
+      {
+        "id": "p10s3",
+        "wordId": "p10",
+        "text": "anto",
+        "type": "suffix",
+        "tooltips": [
+          "The -anto ending means 'while' — breathing out"
+        ]
+      },
+      {
+        "id": "p11s1",
+        "wordId": "p11",
+        "text": "rassa",
+        "type": "stem",
+        "tooltips": [
+          "Rassa: Short"
+        ]
+      },
+      {
+        "id": "p11s2",
+        "wordId": "p11",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial marker"
+        ]
+      },
+      {
+        "id": "p12s1",
+        "wordId": "p12",
+        "text": "pas",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: Outward"
+        ]
+      },
+      {
+        "id": "p12s2",
+        "wordId": "p12",
+        "text": "sasā",
+        "type": "stem",
+        "tooltips": [
+          "passasa: Exhaling"
+        ]
+      },
+      {
+        "id": "p12s3",
+        "wordId": "p12",
+        "text": "mi",
+        "type": "suffix",
+        "tooltips": [
+          "The -mi ending means 'I am doing' — I breathe out"
+        ]
+      },
+      {
+        "id": "p13s1",
+        "wordId": "p13",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "ti: Quotation marker"
+        ]
+      },
+      {
+        "id": "p14s1",
+        "wordId": "p14",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: Forth"
+        ]
+      },
+      {
+        "id": "p14s2",
+        "wordId": "p14",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "The root 'jñā': to know"
+        ]
+      },
+      {
+        "id": "p14s3",
+        "wordId": "p14",
+        "text": "ā",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel"
+        ]
+      },
+      {
+        "id": "p14s4",
+        "wordId": "p14",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending means 'one understands'"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p3",
+        "type": "action",
+        "label": "Manner OF",
+        "status": "confirmed"
+      },
+      {
+        "id": "r2",
+        "fromSegmentId": "p8s2",
+        "targetWordId": "p10",
+        "type": "action",
+        "label": "Manner OF",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-as",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration or length",
+            "id": "s1",
+            "ripples": []
+          },
+          {
+            "english": "shallow",
+            "nuance": "lacking depth, restricted",
+            "id": "s2",
+            "ripples": []
+          },
+          {
+            "english": "brief",
+            "nuance": "temporal shortness",
+            "id": "s3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option",
+            "id": "s4"
+          },
+          {
+            "english": "and",
+            "nuance": "inclusive alternative",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathing in",
+            "nuance": "active inhalation",
+            "id": "s6"
+          },
+          {
+            "english": "inhaling",
+            "nuance": "physiological process",
+            "id": "s7"
+          },
+          {
+            "english": "drawing breath",
+            "nuance": "deliberate action",
+            "id": "s8"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration",
+            "id": "s9"
+          },
+          {
+            "english": "shallow",
+            "nuance": "restricted depth",
+            "id": "s10"
+          },
+          {
+            "english": "briefly",
+            "nuance": "adverbial quality",
+            "id": "s11"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I breathe in",
+            "nuance": "first-person present",
+            "id": "s12"
+          },
+          {
+            "english": "I am inhaling",
+            "nuance": "continuous action",
+            "id": "s13"
+          },
+          {
+            "english": "I shall breathe in",
+            "nuance": "intentional future",
+            "id": "s14"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "quote",
+            "nuance": "marks end of thought",
+            "id": "s15"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension",
+            "id": "s16"
+          },
+          {
+            "english": "discerns",
+            "nuance": "distinguishing a state",
+            "id": "s17"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness",
+            "id": "s18"
+          }
+        ]
+      },
+      {
+        "wordId": "p8",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration",
+            "id": "s19"
+          },
+          {
+            "english": "shallow",
+            "nuance": "restricted depth",
+            "id": "s20"
+          },
+          {
+            "english": "brief",
+            "nuance": "temporal shortness",
+            "id": "s21"
+          }
+        ]
+      },
+      {
+        "wordId": "p9",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option",
+            "id": "s22"
+          }
+        ]
+      },
+      {
+        "wordId": "p10",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathing out",
+            "nuance": "active exhalation",
+            "id": "s23"
+          },
+          {
+            "english": "exhaling",
+            "nuance": "physiological process",
+            "id": "s24"
+          },
+          {
+            "english": "expelling breath",
+            "nuance": "deliberate action",
+            "id": "s25"
+          }
+        ]
+      },
+      {
+        "wordId": "p11",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration",
+            "id": "s26"
+          },
+          {
+            "english": "shallow",
+            "nuance": "restricted depth",
+            "id": "s27"
+          },
+          {
+            "english": "briefly",
+            "nuance": "adverbial quality",
+            "id": "s28"
+          }
+        ]
+      },
+      {
+        "wordId": "p12",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I breathe out",
+            "nuance": "first-person present",
+            "id": "s29"
+          },
+          {
+            "english": "I am exhaling",
+            "nuance": "continuous action",
+            "id": "s30"
+          },
+          {
+            "english": "I shall breathe out",
+            "nuance": "intentional future",
+            "id": "s31"
+          }
+        ]
+      },
+      {
+        "wordId": "p13",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "quote",
+            "nuance": "marks end of thought",
+            "id": "s32"
+          }
+        ]
+      },
+      {
+        "wordId": "p14",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension",
+            "id": "s33"
+          },
+          {
+            "english": "discerns",
+            "nuance": "distinguishing a state",
+            "id": "s34"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness",
+            "id": "s35"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Parallel structure for inhalation and exhalation. 'Rassa' functions as both adjective and adverbial accusative."
+    }
+  },
+  "phaseView": {
+    "id": "phase-as",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Rassa",
+            "type": "stem",
+            "tooltips": [
+              "Rassa: Short in duration or length"
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ṁ ending marks the object or adverbial quality: 'shortly'"
+            ],
+            "tooltipsBySense": [
+              {
+                "senseId": "s1",
+                "tooltip": "Functions as an adverb describing the manner of breathing."
+              }
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration or length",
+            "id": "s1"
+          },
+          {
+            "english": "shallow",
+            "nuance": "lacking depth, restricted",
+            "id": "s2"
+          },
+          {
+            "english": "brief",
+            "nuance": "temporal shortness",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "vā: Or / alternatively"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option",
+            "id": "s4"
+          },
+          {
+            "english": "and",
+            "nuance": "inclusive alternative",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "as",
+            "type": "root",
+            "tooltips": [
+              "The root 'as' means to breathe"
+            ]
+          },
+          {
+            "text": "sas",
+            "type": "stem",
+            "tooltips": [
+              "assasa: Breathing in (inhalation)"
+            ]
+          },
+          {
+            "text": "anto",
+            "type": "suffix",
+            "tooltips": [
+              "The -anto ending means 'while doing' — breathing in"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "breathing in",
+            "nuance": "active inhalation",
+            "id": "s6"
+          },
+          {
+            "english": "inhaling",
+            "nuance": "physiological process",
+            "id": "s7"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "rassa",
+            "type": "stem",
+            "tooltips": [
+              "Rassa: Short"
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "tooltips": [
+              "Adverbial marker: 'shortly'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration",
+            "id": "s9"
+          },
+          {
+            "english": "briefly",
+            "nuance": "adverbial quality",
+            "id": "s11"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "as",
+            "type": "root",
+            "tooltips": [
+              "The root 'as': to breathe"
+            ]
+          },
+          {
+            "text": "sasā",
+            "type": "stem",
+            "tooltips": [
+              "assasa: Inhaling"
+            ]
+          },
+          {
+            "text": "mi",
+            "type": "suffix",
+            "tooltips": [
+              "The -mi ending means 'I am doing' — I breathe in"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "I breathe in",
+            "nuance": "first-person present",
+            "id": "s12"
+          },
+          {
+            "english": "I am inhaling",
+            "nuance": "continuous action",
+            "id": "s13"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltips": [
+              "ti: Quotation marker; like closing quotation marks"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "quote",
+            "nuance": "marks end of thought",
+            "id": "s15"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "pa-: Prefix meaning forth or out"
+            ]
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltips": [
+              "The root 'jñā': to know or understand"
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel for the present tense"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending means 'he/she/it does' — one understands"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension",
+            "id": "s16"
+          },
+          {
+            "english": "discerns",
+            "nuance": "distinguishing a state",
+            "id": "s17"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p8",
+        "segments": [
+          {
+            "text": "rassa",
+            "type": "stem",
+            "tooltips": [
+              "Rassa: Short"
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "tooltips": [
+              "Adverbial marker"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration",
+            "id": "s19"
+          }
+        ]
+      },
+      {
+        "id": "p9",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "vā: Or"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option",
+            "id": "s22"
+          }
+        ]
+      },
+      {
+        "id": "p10",
+        "segments": [
+          {
+            "text": "pas",
+            "type": "prefix",
+            "tooltips": [
+              "pa-: Prefix indicating outward direction"
+            ]
+          },
+          {
+            "text": "sas",
+            "type": "root",
+            "tooltips": [
+              "passasa: Breathing out (exhalation)"
+            ]
+          },
+          {
+            "text": "anto",
+            "type": "suffix",
+            "tooltips": [
+              "The -anto ending means 'while' — breathing out"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "breathing out",
+            "nuance": "active exhalation",
+            "id": "s23"
+          }
+        ]
+      },
+      {
+        "id": "p11",
+        "segments": [
+          {
+            "text": "rassa",
+            "type": "stem",
+            "tooltips": [
+              "Rassa: Short"
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "tooltips": [
+              "Adverbial marker"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief in duration",
+            "id": "s26"
+          }
+        ]
+      },
+      {
+        "id": "p12",
+        "segments": [
+          {
+            "text": "pas",
+            "type": "prefix",
+            "tooltips": [
+              "pa-: Outward"
+            ]
+          },
+          {
+            "text": "sasā",
+            "type": "stem",
+            "tooltips": [
+              "passasa: Exhaling"
+            ]
+          },
+          {
+            "text": "mi",
+            "type": "suffix",
+            "tooltips": [
+              "The -mi ending means 'I am doing' — I breathe out"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "I breathe out",
+            "nuance": "first-person present",
+            "id": "s29"
+          }
+        ]
+      },
+      {
+        "id": "p13",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltips": [
+              "ti: Quotation marker"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "quote",
+            "nuance": "marks end of thought",
+            "id": "s32"
+          }
+        ]
+      },
+      {
+        "id": "p14",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "pa-: Forth"
+            ]
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltips": [
+              "The root 'jñā': to know"
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending means 'one understands'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension",
+            "id": "s33"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g1",
+        "label": "he",
+        "linkedPaliId": "p7"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p7"
+      },
+      {
+        "id": "g2",
+        "label": "that",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p4"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      [
+        "p6",
+        "p7",
+        "p8",
+        "p9",
+        "p10"
+      ],
+      [
+        "p11",
+        "p12",
+        "p13",
+        "p14"
+      ]
+    ],
+    "title": "Breathing Short"
+  }
+}

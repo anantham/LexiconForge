@@ -1,0 +1,527 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:03:36.892Z",
+    "phaseId": "phase-ac",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "vedanāsu vedanānupassī viharati",
+    "englishText": "ac3s2 ac1s1",
+    "tokens": {
+      "prompt": 22379,
+      "completion": 3457,
+      "total": 25836
+    },
+    "costUsd": 0.0215605,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ac",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "vedanāsu",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "vedanānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "vedanā",
+        "type": "stem",
+        "tooltips": [
+          "vedanā: feeling or sensation",
+          "From the root 'vid' (to know/experience)"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "su",
+        "type": "suffix",
+        "tooltips": [
+          "The -su ending means 'among' or 'in' (locative plural)",
+          "Marks the domain where the observation happens"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vedanā",
+        "type": "stem",
+        "tooltips": [
+          "vedanā: feeling or sensation",
+          "The object of the observation"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "n",
+        "type": "stem",
+        "tooltips": [
+          "Euphonic 'n' used to join the compound words"
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "upass",
+        "type": "root",
+        "tooltips": [
+          "The root 'pas' (to see) with prefix 'upa' (closely)",
+          "Observing or watching closely"
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending means 'one who does this' (possessive)",
+          "Describes the person practicing"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: prefix meaning apart or intensive"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "The root 'har' means to carry or take",
+          "With 'vi', it means to dwell or live"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting root to ending"
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks 'he/she/it does' (3rd person singular)"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p3",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ac",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "feelings",
+            "nuance": "sensory and mental tones",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "feelings"
+              }
+            ]
+          },
+          {
+            "english": "sensations",
+            "nuance": "physical emphasis",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "Goenka",
+                "rendering": "sensations"
+              }
+            ]
+          },
+          {
+            "english": "hedonic tones",
+            "nuance": "technical psychological term",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "academic",
+                "rendering": "hedonic tones"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing feelings",
+            "nuance": "active contemplation",
+            "id": "s4",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "observing feelings"
+              }
+            ]
+          },
+          {
+            "english": "contemplating feelings",
+            "nuance": "sustained reflection",
+            "id": "s5",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "contemplating feelings"
+              }
+            ]
+          },
+          {
+            "english": "tracking feelings",
+            "nuance": "dynamic awareness",
+            "id": "s6",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "remaining focused on feelings"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "spiritual practice context",
+            "id": "s7",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "meditates"
+              }
+            ]
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a state",
+            "id": "s8",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "dwells"
+              }
+            ]
+          },
+          {
+            "english": "lives",
+            "nuance": "general mode of being",
+            "id": "s9",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "remains"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard Satipatthana formula. Senses reflect major translation traditions (Sujato, Bodhi, Thanissaro)."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ac",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "vedanā",
+            "type": "stem",
+            "tooltips": [
+              "vedanā: feeling or sensation. From the root 'vid' (to know/experience)."
+            ]
+          },
+          {
+            "text": "su",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "pl"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwelling IN",
+              "status": "confirmed",
+              "targetWordId": "p3"
+            },
+            "tooltips": [
+              "The -su ending means 'among' or 'in' (locative plural). It marks the domain where the observation happens."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "feelings",
+            "nuance": "sensory and mental tones",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "feelings"
+              }
+            ]
+          },
+          {
+            "english": "sensations",
+            "nuance": "physical emphasis",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "Goenka",
+                "rendering": "sensations"
+              }
+            ]
+          },
+          {
+            "english": "hedonic tones",
+            "nuance": "technical psychological term",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "academic",
+                "rendering": "hedonic tones"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vedanā",
+            "type": "stem",
+            "tooltips": [
+              "vedanā: feeling or sensation. The object of the observation."
+            ]
+          },
+          {
+            "text": "n",
+            "type": "stem",
+            "tooltips": [
+              "Euphonic 'n' used to join the compound words."
+            ]
+          },
+          {
+            "text": "upass",
+            "type": "root",
+            "tooltips": [
+              "The root 'pas' (to see) with prefix 'upa' (closely). Observing or watching closely."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "tooltips": [
+              "The -ī ending means 'one who does this' (possessive). Describes the person practicing."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing feelings",
+            "nuance": "active contemplation",
+            "id": "s4",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "observing feelings"
+              }
+            ]
+          },
+          {
+            "english": "contemplating feelings",
+            "nuance": "sustained reflection",
+            "id": "s5",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "contemplating feelings"
+              }
+            ]
+          },
+          {
+            "english": "tracking feelings",
+            "nuance": "dynamic awareness",
+            "id": "s6",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "remaining focused on feelings"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: prefix meaning apart or intensive."
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "The root 'har' means to carry or take. With 'vi', it means to dwell or live."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting root to ending."
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks 'he/she/it does' (3rd person singular)."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "spiritual practice context",
+            "id": "s7",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "meditates"
+              }
+            ]
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a state",
+            "id": "s8",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "dwells"
+              }
+            ]
+          },
+          {
+            "english": "lives",
+            "nuance": "general mode of being",
+            "id": "s9",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "remains"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g1",
+        "label": "regarding",
+        "linkedPaliId": "p1s2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Observing Feelings"
+  }
+}

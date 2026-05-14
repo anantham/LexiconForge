@@ -1,0 +1,148 @@
+{
+  "_comment": "Phase-4 hand-polished from the v11 Gemini Flash draft (phase-4-v11-output.json). Third dative-of-purpose in the satipaṭṭhāna formula chain (after phase-2 visuddhiyā and phase-3 samatikkamāya). Curated 2026-05-14 by Aditya + Claude Opus 4.7 in pipeline+polish mode. Concern flagged: translator-tradition claims here (Sujato/Bodhi/Thanissaro renderings) are drawn from training-memory familiarity, not from a verified tradition database. The F task (translator-tradition DB) would harden these citations.",
+  "id": "phase-4",
+  "canonicalSegmentIds": [
+    "mn10:2.1"
+  ],
+  "paliWords": [
+    {
+      "id": "p9",
+      "wordClass": "content",
+      "pronunciation": "duk · kha · do · ma · nas · SĀ · naṁ",
+      "segments": [
+        {
+          "id": "p9s1",
+          "text": "dukkha",
+          "type": "stem",
+          "tooltips": [
+            "Dukkha — 'suffering' is the standard English rendering but flattens the word. The Pāli covers physical pain, mental anguish, existential unsatisfactoriness, and the structural friction of conditioned experience all at once.",
+            "Literal etymology: du- (bad, off) + kha (axle hole). A wheel whose axle hole is poorly bored doesn't turn smoothly. The metaphor is mechanical, not metaphysical — dukkha is the wobble in the wheel of experience, not a cosmic verdict."
+          ]
+        },
+        {
+          "id": "p9s2",
+          "text": "domanass",
+          "type": "stem",
+          "tooltips": [
+            "Domanassa — mental dejection, specifically the painful FEELING-TONE of negative experience. Distinct from dukkha (which can be physical) and from soka (grief, in phase-3) — domanassa is the inner displeasure that accompanies pain.",
+            "Compound: du- (bad) + manas (mind). 'Bad-minded-ness'. Pairs structurally with somanassa (happiness, su- + manas), which doesn't appear in this formula but is its counterweight elsewhere in the canon."
+          ]
+        },
+        {
+          "id": "p9s3",
+          "text": "ānaṁ",
+          "type": "suffix",
+          "tooltips": [
+            "The -ānaṁ ending is genitive plural — 'of the [plurals]'. Same suffix appears in phase-2's sattānaṁ ('of beings') and phase-3's sokaparidevānaṁ ('of grief-and-lamentation'). The genitive-of-purpose pattern is the spine of this formula.",
+            "Plural because dukkha and domanassa together form a dvanda compound (suffering-and-distress as a single composite). The plural reads as 'of suffering-and-distress[-both]' even though English would naturally use singular."
+          ],
+          "relation": {
+            "targetWordId": "p10",
+            "type": "ownership",
+            "label": "Disappearance OF"
+          }
+        }
+      ],
+      "senses": [
+        {
+          "english": "pain & distress",
+          "nuance": "Sujato's pairing",
+          "notes": "Sujato consistently pairs 'pain' for dukkha and 'distress' for domanassa in MN10. Preserves the inner/outer pairing while keeping register accessible."
+        },
+        {
+          "english": "suffering & grief",
+          "nuance": "Ñāṇamoli-Bodhi",
+          "notes": "Bhikkhu Bodhi's MLDB renders dukkha as 'suffering' (heavier philosophical weight) and domanassa often as 'grief' (overlapping with soka from phase-3). Some readers find the soka/domanassa boundary blurred under this choice."
+        },
+        {
+          "english": "discomfort & displeasure",
+          "nuance": "Functional / felt-experience",
+          "notes": "A more functional register: foregrounds the FELT QUALITY (unsatisfactoriness, dispreference) over the philosophical weight. Less common in published translations; useful when teaching the Abhidhamma feeling-tone analysis where dukkha-domanassa pairs with sukha-somanassa."
+        }
+      ]
+    },
+    {
+      "id": "p10",
+      "wordClass": "content",
+      "isAnchor": true,
+      "pronunciation": "at · thaṅ · ga · MĀ · ya",
+      "segments": [
+        {
+          "id": "p10s1",
+          "text": "attha",
+          "type": "stem",
+          "tooltips": [
+            "Attha — disappearance, setting, going-down. Same word used for the SUN setting (e.g., 'suriyo atthaṁ gacchati' = 'the sun goes to setting'). The metaphor is fading-from-view, not destruction.",
+            "Caveat for readers who know Sanskrit: this attha (going-down) is a different word from attha 'meaning' / 'purpose' (Sanskrit artha). Same surface form, different etymological root. In compounds like atthaṅgama, it's always the 'setting' sense."
+          ]
+        },
+        {
+          "id": "p10s2",
+          "text": "ṅ",
+          "type": "suffix",
+          "tooltips": [
+            "Connecting nasal — the n of attha-n-gam assimilates to ṅ before the velar g- of gam. Pāli writes the assimilation explicitly where Sanskrit might leave it implicit.",
+            "Not a separate morpheme historically; it's the surface trace of sandhi (sound-change at morpheme boundaries). v11 split it out as its own segment for pedagogical clarity — defensible but not how traditional grammars parse it."
+          ]
+        },
+        {
+          "id": "p10s3",
+          "text": "gam",
+          "type": "root",
+          "tooltips": [
+            "The root √gam means 'to go'. Cognate with English 'come' via PIE *gʷem-. Productive across the Pāli verbal system: gacchati (he goes), gata (gone), āgata (come), saṁgam (assembly, going-together).",
+            "atthaṅgama as a compound = 'going-to-disappearance'. The action is the SETTING ITSELF — not just the end-state but the movement into vanishing."
+          ]
+        },
+        {
+          "id": "p10s4",
+          "text": "āya",
+          "type": "suffix",
+          "tooltips": [
+            "The -āya ending is dative-singular masculine — 'for the purpose of'. atthaṅgama is a masculine action-noun (one of three -gama derivatives that show up in this formula: atthaṅgama, adhigama, samatikkama).",
+            "Third dative-of-purpose in the formula chain. Phase-2's visuddhiyā ('for purification'), phase-3's samatikkamāya ('for surmounting'), and this one stack five 'for' statements that the path is directed toward. The formula's rhythm comes from this five-fold parallel."
+          ]
+        }
+      ],
+      "senses": [
+        {
+          "english": "disappearance",
+          "nuance": "Standard / setting metaphor",
+          "notes": "Sujato and most contemporary translators. Preserves the sun-setting connotation. Reads naturally in English as the contemplative process: pain doesn't get fought — it's allowed to fade."
+        },
+        {
+          "english": "passing away",
+          "nuance": "Bhikkhu Bodhi",
+          "notes": "Bhikkhu Bodhi's preferred rendering. Slightly more philosophical — emphasises the impermanence framework (anicca → uppāda + vaya, arising + passing-away). Same denotation, different framing weight."
+        },
+        {
+          "english": "extinguishing",
+          "nuance": "Nibbāna-resonance",
+          "notes": "Some translators (notably Thanissaro in some contexts) use 'extinguishing' to foreground the connection to nibbāna ('extinction'). Stronger reading; risks over-determining the doctrine. The Pāli atthaṅgama is broader than nibbāna and applies to many fades, not just final liberation."
+        }
+      ]
+    }
+  ],
+  "englishStructure": [
+    {
+      "id": "g1",
+      "label": "for the",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e9",
+      "linkedSegmentId": "p10s3"
+    },
+    {
+      "id": "g2",
+      "label": "of",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e10",
+      "linkedSegmentId": "p9s1"
+    }
+  ]
+}

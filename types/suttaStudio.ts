@@ -350,6 +350,20 @@ export type PaliWord = {
   wordClass?: WordClass;
   /** Refrain ID for visual rhythm - words with same ID share color (study mode only) */
   refrainId?: string;
+  /**
+   * Pronunciation hint for the spoken form. Free-form curator-written string —
+   * typically syllable breakdown with stressed-syllable CAPS, optionally followed
+   * by an English rhyme/sound analog in parens.
+   *
+   *   "vi · SUD · dhi · yā  (rhymes with 'reading-ya')"
+   *   "saht · TAH · num"
+   *
+   * Pāli is an oral tradition; per-word pronunciation matters because the same
+   * Roman letters can carry different sounds depending on syllable position,
+   * vowel length, and compound boundaries. Lemma-derived guessing is unreliable.
+   * Rendered in the LensPanel audit drawer header, never in hover tooltips.
+   */
+  pronunciation?: string;
   /** Classical compound type when this word is a compound. Per FEATURES.md §2.2. */
   compoundType?: CompoundType;
   /** Optional segment IDs in resolution order (e.g., ["a3s1","a3s2"]). */

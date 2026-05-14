@@ -1,0 +1,310 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:02:04.488Z",
+    "phaseId": "phase-x",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Katame cattāro",
+    "englishText": "x1s1 are the",
+    "tokens": {
+      "prompt": 21410,
+      "completion": 1910,
+      "total": 23320
+    },
+    "costUsd": 0.016434999999999998,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-x",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Katame",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "cattāro",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "katam",
+        "type": "stem",
+        "tooltips": [
+          "Interrogative pronoun: 'Which?' or 'What?'",
+          "Used to introduce a list or specific selection"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending marks the plural subject (nominative plural)",
+          "Agrees with 'four' and the foundations to follow"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "cattār",
+        "type": "stem",
+        "tooltips": [
+          "The number four (catu)",
+          "Refers here to the four foundations of mindfulness"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending marks the masculine plural subject",
+          "Matches the case and number of 'Katame'"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p2",
+        "type": "action",
+        "label": "Which FOUR",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-x",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "Which",
+            "nuance": "interrogative pronoun, plural",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "Which"
+              }
+            ]
+          },
+          {
+            "english": "What",
+            "nuance": "general inquiry",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "What"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "four",
+            "nuance": "cardinal number",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "four"
+              }
+            ]
+          },
+          {
+            "english": "the four",
+            "nuance": "referring to a known set",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "the four"
+              }
+            ]
+          },
+          {
+            "english": "quadruple",
+            "nuance": "emphasizing the set of four",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "quadruple"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard interrogative and numeral. No complex ripples required for this segment."
+    }
+  },
+  "phaseView": {
+    "id": "phase-x",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "katam",
+            "type": "stem",
+            "tooltips": [
+              "Interrogative pronoun: 'Which?' or 'What?'",
+              "Used to introduce a list or specific selection"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "pl"
+            },
+            "relation": {
+              "type": "action",
+              "label": "Which FOUR",
+              "status": "confirmed",
+              "targetWordId": "p2"
+            },
+            "tooltips": [
+              "The -e ending marks the plural subject (nominative plural). It agrees with 'four' and the foundations to follow."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "Which",
+            "nuance": "interrogative pronoun, plural",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "Which"
+              }
+            ]
+          },
+          {
+            "english": "What",
+            "nuance": "general inquiry",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "What"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "cattār",
+            "type": "stem",
+            "tooltips": [
+              "The number four (catu). Refers here to the four foundations of mindfulness."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "pl"
+            },
+            "tooltips": [
+              "The -o ending marks the masculine plural subject. It matches the case and number of 'Katame'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "four",
+            "nuance": "cardinal number",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "four"
+              }
+            ]
+          },
+          {
+            "english": "the four",
+            "nuance": "referring to a known set",
+            "id": "s4",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "the four"
+              }
+            ]
+          },
+          {
+            "english": "quadruple",
+            "nuance": "emphasizing the set of four",
+            "id": "s5",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "quadruple"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "g1",
+        "label": "are the",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2"
+      ]
+    ],
+    "title": "Katame cattāro"
+  }
+}

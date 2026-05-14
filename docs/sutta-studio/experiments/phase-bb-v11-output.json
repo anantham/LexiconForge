@@ -1,0 +1,457 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:14:06.243Z",
+    "phaseId": "phase-bb",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "samudayadhammaānupassī vā kāyasmiṁ viharati",
+    "englishText": "bb4s1",
+    "tokens": {
+      "prompt": 22282,
+      "completion": 3227,
+      "total": 25509
+    },
+    "costUsd": 0.020822,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-bb",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "samudayadhammaānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3",
+          "p1s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "kāyasmiṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "samudaya",
+        "type": "stem",
+        "tooltips": [
+          "sam-ud-aya: arising or origin",
+          "Literally 'coming together and up'"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "dhamma",
+        "type": "stem",
+        "tooltips": [
+          "dhamma: nature, quality, or phenomenon",
+          "Here refers to the nature of arising"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ānupass",
+        "type": "root",
+        "tooltips": [
+          "anu + √pass: to see along, to observe",
+          "Continuous observation or contemplation"
+        ]
+      },
+      {
+        "id": "p1s4",
+        "wordId": "p1",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending marks 'one who does this'",
+          "Nominative singular: 'one who contemplates'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: or",
+          "Used to show an alternative practice"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "kāya",
+        "type": "stem",
+        "tooltips": [
+          "kāya: body",
+          "The physical frame or collection"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "smiṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -smiṁ ending means 'in' or 'at'",
+          "Locative case: marks the place of observation"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: apart or intensive",
+          "Modifies the root to mean 'dwelling'"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "hara",
+        "type": "root",
+        "tooltips": [
+          "√har: to carry or take",
+          "vi + hara: to live, dwell, or spend time"
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending means 'he/she/it does'",
+          "3rd person singular present tense"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p3s2",
+        "targetWordId": "p4",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-bb",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing the nature of arising",
+            "nuance": "contemplating the causal factors of the body",
+            "id": "s1-1"
+          },
+          {
+            "english": "contemplating the phenomenon of origination",
+            "nuance": "watching how the physical form comes to be",
+            "id": "s1-2"
+          },
+          {
+            "english": "seeing the quality of emergence",
+            "nuance": "noticing the arising aspect of bodily experience",
+            "id": "s1-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle, marking an alternative practice",
+            "id": "s2-1"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative, focusing on the physical frame",
+            "id": "s3-1"
+          },
+          {
+            "english": "with regard to the body",
+            "nuance": "the body as the domain of observation",
+            "id": "s3-2"
+          },
+          {
+            "english": "within the physical form",
+            "nuance": "internalized awareness of the body",
+            "id": "s3-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative state",
+            "id": "s4-1"
+          },
+          {
+            "english": "abides",
+            "nuance": "formal, continuous presence",
+            "id": "s4-2"
+          },
+          {
+            "english": "lives",
+            "nuance": "active engagement in the practice",
+            "id": "s4-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "p1 is a complex compound (samudaya-dhamma-anupassī); senses reflect the integrated meaning of observing the arising nature."
+    }
+  },
+  "phaseView": {
+    "id": "phase-bb",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "samudaya",
+            "type": "stem",
+            "tooltips": [
+              "sam-ud-aya: 'coming together and up' — refers to the causal arising or origin of things."
+            ]
+          },
+          {
+            "text": "dhamma",
+            "type": "stem",
+            "tooltips": [
+              "dhamma: nature, quality, or phenomenon. Here it describes the 'nature' of the arising."
+            ]
+          },
+          {
+            "text": "ānupass",
+            "type": "root",
+            "tooltips": [
+              "The root 'pass' with the prefix 'anu' means to see along or observe continuously."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending marks 'one who does this' — turning the verb into a description of the person practicing."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing the nature of arising",
+            "nuance": "contemplating the causal factors of the body",
+            "id": "s1-1"
+          },
+          {
+            "english": "contemplating the phenomenon of origination",
+            "nuance": "watching how the physical form comes to be",
+            "id": "s1-2"
+          },
+          {
+            "english": "seeing the quality of emergence",
+            "nuance": "noticing the arising aspect of bodily experience",
+            "id": "s1-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "vā: or. This particle shows that this is an alternative way to practice mindfulness of the body."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle, marking an alternative practice",
+            "id": "s2-1"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "kāya",
+            "type": "stem",
+            "tooltips": [
+              "kāya: the body, literally a 'collection' or 'group' of physical parts."
+            ]
+          },
+          {
+            "text": "smiṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwelling IN",
+              "status": "confirmed",
+              "targetWordId": "p4"
+            },
+            "tooltips": [
+              "The -smiṁ ending means 'in' or 'at' — it marks the body as the place where the observation happens."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative, focusing on the physical frame",
+            "id": "s3-1"
+          },
+          {
+            "english": "with regard to the body",
+            "nuance": "the body as the domain of observation",
+            "id": "s3-2"
+          },
+          {
+            "english": "within the physical form",
+            "nuance": "internalized awareness of the body",
+            "id": "s3-3"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: an intensive prefix that modifies the root to mean 'dwelling' or 'living'."
+            ]
+          },
+          {
+            "text": "hara",
+            "type": "root",
+            "tooltips": [
+              "The root 'har' means to carry; combined with 'vi', it means to spend time or live."
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending means 'he/she/it does' — marking the third person singular in the present tense."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative state",
+            "id": "s4-1"
+          },
+          {
+            "english": "abides",
+            "nuance": "formal, continuous presence",
+            "id": "s4-2"
+          },
+          {
+            "english": "lives",
+            "nuance": "active engagement in the practice",
+            "id": "s4-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    ],
+    "title": "Contemplating Arising"
+  }
+}

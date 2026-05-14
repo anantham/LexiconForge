@@ -1,0 +1,698 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:07:38.457Z",
+    "phaseId": "phase-ao",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "nisīdati pallaṅkaṁ ābhujitvā ujuṁ kāyaṁ paṇidhāya",
+    "englishText": "ao1s2 ao5s1 ao6s2",
+    "tokens": {
+      "prompt": 23051,
+      "completion": 4064,
+      "total": 27115
+    },
+    "costUsd": 0.0237175,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ao",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "nisīdati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "pallaṅkaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "ābhujitvā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "ujuṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "kāyaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "paṇidhāya",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "ni",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix: down / into"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "sīd",
+        "type": "root",
+        "tooltips": [
+          "√sad: to sit"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ati",
+        "type": "suffix",
+        "tooltips": [
+          "The -ati ending marks the present tense: 'sits'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "pallaṅk",
+        "type": "stem",
+        "tooltips": [
+          "pallaṅka: cross-legged position / lap"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -aṁ ending marks the object of the action (accusative)"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "ā",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix: toward / fully"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "bhuj",
+        "type": "root",
+        "tooltips": [
+          "√bhuj: to bend / curve"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "itvā",
+        "type": "suffix",
+        "tooltips": [
+          "The -itvā ending means 'having done' (absolutive)"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "uju",
+        "type": "stem",
+        "tooltips": [
+          "uju: straight / upright"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -ṁ ending makes the adjective match the noun 'body'"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "kāy",
+        "type": "stem",
+        "tooltips": [
+          "kāya: body / group"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -aṁ ending marks the object: 'the body'"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix: forth / forward"
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "ni",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix: down / in"
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "dhāya",
+        "type": "root",
+        "tooltips": [
+          "√dhā: to place / set",
+          "The -āya ending here means 'having set'"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p2s2",
+        "targetWordId": "p3",
+        "type": "action",
+        "label": "Bent WHAT",
+        "status": "confirmed"
+      },
+      {
+        "id": "r2",
+        "fromSegmentId": "p5s2",
+        "targetWordId": "p6",
+        "type": "action",
+        "label": "Set WHAT",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ao",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "sits down",
+            "nuance": "the physical act of taking a seat",
+            "ripples": []
+          },
+          {
+            "english": "is seated",
+            "nuance": "the state of being in a sitting posture",
+            "ripples": []
+          },
+          {
+            "english": "settles",
+            "nuance": "metaphorical or physical settling into a place",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "cross-legged",
+            "nuance": "the specific posture of legs folded",
+            "ripples": []
+          },
+          {
+            "english": "throne-like",
+            "nuance": "etymological sense of a formal seat",
+            "ripples": []
+          },
+          {
+            "english": "lap",
+            "nuance": "the space created by the folded legs",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "having folded",
+            "nuance": "completed action of bending the legs",
+            "ripples": []
+          },
+          {
+            "english": "having bent",
+            "nuance": "the physical movement of the limbs",
+            "ripples": []
+          },
+          {
+            "english": "having wrapped",
+            "nuance": "the encircling nature of the posture",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "straight",
+            "nuance": "upright and aligned",
+            "ripples": []
+          },
+          {
+            "english": "erect",
+            "nuance": "vertical and firm",
+            "ripples": []
+          },
+          {
+            "english": "direct",
+            "nuance": "unwavering and focused",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "the physical form",
+            "ripples": []
+          },
+          {
+            "english": "posture",
+            "nuance": "the physical alignment of the trunk",
+            "ripples": []
+          },
+          {
+            "english": "frame",
+            "nuance": "the structural aspect of the body",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "having set",
+            "nuance": "completed action of establishing position",
+            "ripples": []
+          },
+          {
+            "english": "having directed",
+            "nuance": "intentional placement of the body",
+            "ripples": []
+          },
+          {
+            "english": "having resolved",
+            "nuance": "the mental determination behind the posture",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard meditative formula. Senses reflect the physical and intentional aspects of the posture."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ao",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "ni",
+            "type": "prefix",
+            "tooltips": [
+              "Prefix meaning down or into."
+            ]
+          },
+          {
+            "text": "sīd",
+            "type": "root",
+            "tooltips": [
+              "The root 'sad' means to sit."
+            ]
+          },
+          {
+            "text": "ati",
+            "type": "suffix",
+            "tooltips": [
+              "The -ati ending marks the present tense — 'sits'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "sits down",
+            "nuance": "the physical act of taking a seat",
+            "id": "s1",
+            "ripples": []
+          },
+          {
+            "english": "is seated",
+            "nuance": "the state of being in a sitting posture",
+            "id": "s2",
+            "ripples": []
+          },
+          {
+            "english": "settles",
+            "nuance": "metaphorical or physical settling into a place",
+            "id": "s3",
+            "ripples": []
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "pallaṅk",
+            "type": "stem",
+            "tooltips": [
+              "pallaṅka refers to a cross-legged position or a lap."
+            ]
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "action",
+              "label": "Bent WHAT",
+              "status": "confirmed",
+              "targetWordId": "p3"
+            },
+            "tooltips": [
+              "The -aṁ ending marks the object of the action (accusative)."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "cross-legged",
+            "nuance": "the specific posture of legs folded",
+            "id": "s4",
+            "ripples": []
+          },
+          {
+            "english": "throne-like",
+            "nuance": "etymological sense of a formal seat",
+            "id": "s5",
+            "ripples": []
+          },
+          {
+            "english": "lap",
+            "nuance": "the space created by the folded legs",
+            "id": "s6",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "ā",
+            "type": "prefix",
+            "tooltips": [
+              "Prefix meaning toward or fully."
+            ]
+          },
+          {
+            "text": "bhuj",
+            "type": "root",
+            "tooltips": [
+              "The root 'bhuj' means to bend or curve."
+            ]
+          },
+          {
+            "text": "itvā",
+            "type": "suffix",
+            "tooltips": [
+              "The -itvā ending means 'having done' — it marks a completed action."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "having folded",
+            "nuance": "completed action of bending the legs",
+            "id": "s7",
+            "ripples": []
+          },
+          {
+            "english": "having bent",
+            "nuance": "the physical movement of the limbs",
+            "id": "s8",
+            "ripples": []
+          },
+          {
+            "english": "having wrapped",
+            "nuance": "the encircling nature of the posture",
+            "id": "s9",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "uju",
+            "type": "stem",
+            "tooltips": [
+              "uju means straight or upright."
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "tooltips": [
+              "The -ṁ ending makes the adjective match the noun 'body'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "straight",
+            "nuance": "upright and aligned",
+            "id": "s10",
+            "ripples": []
+          },
+          {
+            "english": "erect",
+            "nuance": "vertical and firm",
+            "id": "s11",
+            "ripples": []
+          },
+          {
+            "english": "direct",
+            "nuance": "unwavering and focused",
+            "id": "s12",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "stem",
+            "tooltips": [
+              "kāya refers to the body or a group."
+            ]
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "action",
+              "label": "Set WHAT",
+              "status": "confirmed",
+              "targetWordId": "p6"
+            },
+            "tooltips": [
+              "The -aṁ ending marks the object: 'the body'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "the physical form",
+            "id": "s13",
+            "ripples": []
+          },
+          {
+            "english": "posture",
+            "nuance": "the physical alignment of the trunk",
+            "id": "s14",
+            "ripples": []
+          },
+          {
+            "english": "frame",
+            "nuance": "the structural aspect of the body",
+            "id": "s15",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "Prefix meaning forth or forward."
+            ]
+          },
+          {
+            "text": "ni",
+            "type": "prefix",
+            "tooltips": [
+              "Prefix meaning down or in."
+            ]
+          },
+          {
+            "text": "dhāya",
+            "type": "root",
+            "tooltips": [
+              "The root 'dhā' means to place or set. The -āya ending here means 'having set'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "having set",
+            "nuance": "completed action of establishing position",
+            "id": "s16",
+            "ripples": []
+          },
+          {
+            "english": "having directed",
+            "nuance": "intentional placement of the body",
+            "id": "s17",
+            "ripples": []
+          },
+          {
+            "english": "having resolved",
+            "nuance": "the mental determination behind the posture",
+            "id": "s18",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "g1",
+        "label": "with legs",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p6"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      [
+        "p4",
+        "p5",
+        "p6"
+      ]
+    ],
+    "title": "The Meditation Posture"
+  }
+}

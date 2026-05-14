@@ -1,0 +1,408 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:07:57.581Z",
+    "phaseId": "phase-ap",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "parimukhaṁ satiṁ upaṭṭhapetvā",
+    "englishText": "ap3s2 ap2s1",
+    "tokens": {
+      "prompt": 22098,
+      "completion": 2835,
+      "total": 24933
+    },
+    "costUsd": 0.019554,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ap",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "parimukhaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "satiṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "upaṭṭhapetvā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "pari",
+        "type": "prefix",
+        "tooltips": [
+          "pari-: around, all over",
+          "Suggests a surrounding or encompassing focus"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "mukha",
+        "type": "root",
+        "tooltips": [
+          "mukha: mouth, face, or front",
+          "In meditation: 'at the front' or 'before one'"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -ṁ ending marks the direction or location: 'to the front'."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "sati",
+        "type": "root",
+        "tooltips": [
+          "sati: mindfulness, presence of mind",
+          "From the root for 'remembering' or 'calling to mind'"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -ṁ ending marks this as the object of the action: 'mindfulness' (as the thing established)."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "upa",
+        "type": "prefix",
+        "tooltips": [
+          "upa-: near, close by, up to"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "ṭṭha",
+        "type": "root",
+        "tooltips": [
+          "the root 'ṭhā': to stand",
+          "upa + ṭṭhā = to stand near, to set up, to establish"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "pe",
+        "type": "suffix",
+        "tooltips": [
+          "The -pe- marker makes the verb causative: 'causing to stand' or 'establishing'."
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "tvā",
+        "type": "suffix",
+        "tooltips": [
+          "The -tvā ending means 'having done' — it marks an action completed before the next one starts."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s3",
+        "targetWordId": "p3",
+        "type": "location",
+        "label": "Established WHERE",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ap",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "in front",
+            "nuance": "spatial orientation, literally 'around the mouth'",
+            "id": "s1",
+            "ripples": []
+          },
+          {
+            "english": "before him",
+            "nuance": "personal presence, focused attention",
+            "id": "s2",
+            "ripples": []
+          },
+          {
+            "english": "at the forefront",
+            "nuance": "prioritizing the object of meditation",
+            "id": "s3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "mindfulness",
+            "nuance": "lucid awareness and presence of mind",
+            "id": "s4",
+            "ripples": []
+          },
+          {
+            "english": "recollection",
+            "nuance": "the quality of remembering the meditation object",
+            "id": "s5",
+            "ripples": []
+          },
+          {
+            "english": "attention",
+            "nuance": "sustained focus on the present moment",
+            "id": "s6",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "having established",
+            "nuance": "completed action of setting up or grounding",
+            "id": "s7",
+            "ripples": []
+          },
+          {
+            "english": "having aroused",
+            "nuance": "bringing a quality into active presence",
+            "id": "s8",
+            "ripples": []
+          },
+          {
+            "english": "having fixed",
+            "nuance": "stabilizing the mind on its object",
+            "id": "s9",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard meditative formula. Senses for 'parimukhaṁ' reflect both the literal 'around the mouth' and the idiomatic 'in front' interpretations."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ap",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "pari",
+            "type": "prefix",
+            "tooltips": [
+              "pari-: around, all over. Suggests a surrounding or encompassing focus."
+            ]
+          },
+          {
+            "text": "mukha",
+            "type": "root",
+            "tooltips": [
+              "mukha: mouth, face, or front. In meditation: 'at the front' or 'before one'."
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Established WHERE",
+              "status": "confirmed",
+              "targetWordId": "p3"
+            },
+            "tooltips": [
+              "The -ṁ ending marks the direction or location: 'to the front'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "in front",
+            "nuance": "spatial orientation, literally 'around the mouth'",
+            "id": "s1"
+          },
+          {
+            "english": "before him",
+            "nuance": "personal presence, focused attention",
+            "id": "s2"
+          },
+          {
+            "english": "at the forefront",
+            "nuance": "prioritizing the object of meditation",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "sati",
+            "type": "root",
+            "tooltips": [
+              "sati: mindfulness, presence of mind. From the root for 'remembering' or 'calling to mind'."
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ṁ ending marks this as the object of the action: 'mindfulness' (as the thing established)."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "mindfulness",
+            "nuance": "lucid awareness and presence of mind",
+            "id": "s4"
+          },
+          {
+            "english": "recollection",
+            "nuance": "the quality of remembering the meditation object",
+            "id": "s5"
+          },
+          {
+            "english": "attention",
+            "nuance": "sustained focus on the present moment",
+            "id": "s6"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "upa",
+            "type": "prefix",
+            "tooltips": [
+              "upa-: near, close by, up to"
+            ]
+          },
+          {
+            "text": "ṭṭha",
+            "type": "root",
+            "tooltips": [
+              "the root 'ṭhā': to stand. upa + ṭṭhā = to stand near, to set up, to establish"
+            ]
+          },
+          {
+            "text": "pe",
+            "type": "suffix",
+            "tooltips": [
+              "The -pe- marker makes the verb causative: 'causing to stand' or 'establishing'."
+            ]
+          },
+          {
+            "text": "tvā",
+            "type": "suffix",
+            "tooltips": [
+              "The -tvā ending means 'having done' — it marks an action completed before the next one starts."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "having established",
+            "nuance": "completed action of setting up or grounding",
+            "id": "s7"
+          },
+          {
+            "english": "having aroused",
+            "nuance": "bringing a quality into active presence",
+            "id": "s8"
+          },
+          {
+            "english": "having fixed",
+            "nuance": "stabilizing the mind on its object",
+            "id": "s9"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Establishing Mindfulness"
+  }
+}

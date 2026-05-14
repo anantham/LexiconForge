@@ -1,0 +1,408 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:03:55.115Z",
+    "phaseId": "phase-ad",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "ātāpī sampajāno satimā",
+    "englishText": "ad1s1 ad2s3 ad3s1",
+    "tokens": {
+      "prompt": 22071,
+      "completion": 2894,
+      "total": 24965
+    },
+    "costUsd": 0.0197175,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ad",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "ātāpī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ],
+        "refrainId": "formula-ardent"
+      },
+      {
+        "id": "p2",
+        "surface": "sampajāno",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4"
+        ],
+        "refrainId": "formula-ardent"
+      },
+      {
+        "id": "p3",
+        "surface": "satimā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ],
+        "refrainId": "formula-ardent"
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "ātāp",
+        "type": "root",
+        "tooltips": [
+          "The root 'tap' means to burn or heat — referring to the 'heat' of energetic effort.",
+          "In a Buddhist context, this is the 'ardor' that consumes mental defilements."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending is a possessive marker — 'one who possesses ardor'.",
+          "Nominative singular: describing the person practicing."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "sam",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'sam' means together or completely."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'pa' means forward or out."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "The root 'jñā' means to know. Combined with prefixes, it means 'clearly knowing' or 'comprehending'."
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Standard masculine singular ending (nominative)."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "sati",
+        "type": "root",
+        "tooltips": [
+          "The root 'smṛ' relates to memory, but in meditation it means 'presence of mind' or 'mindfulness'."
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "mā",
+        "type": "suffix",
+        "tooltips": [
+          "The -mā ending (from -mant) means 'endowed with' or 'possessing'.",
+          "One who is 'mindful' is literally 'one who possesses mindfulness'."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p2",
+        "type": "action",
+        "label": "Co-occurring",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ad",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "ardent",
+            "nuance": "burning with effort; energetic",
+            "id": "s1-1",
+            "ripples": []
+          },
+          {
+            "english": "diligent",
+            "nuance": "persistent and careful application",
+            "id": "s1-2",
+            "ripples": []
+          },
+          {
+            "english": "resolute",
+            "nuance": "unwavering determination in practice",
+            "id": "s1-3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "clearly comprehending",
+            "nuance": "situational wisdom; knowing what one is doing",
+            "id": "s2-1",
+            "ripples": []
+          },
+          {
+            "english": "discerning",
+            "nuance": "cognitive clarity regarding the present state",
+            "id": "s2-2",
+            "ripples": []
+          },
+          {
+            "english": "aware",
+            "nuance": "fully conscious of the purpose and suitability",
+            "id": "s2-3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "possessing the quality of presence of mind",
+            "id": "s3-1",
+            "ripples": []
+          },
+          {
+            "english": "receptive",
+            "nuance": "maintaining the object in the field of attention",
+            "id": "s3-2",
+            "ripples": []
+          },
+          {
+            "english": "attentive",
+            "nuance": "not drifting; anchored in the present",
+            "id": "s3-3",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard triad of meditative qualities. Senses reflect common scholarly translations (Sujato, Bodhi, Thanissaro)."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ad",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "ātāp",
+            "type": "root",
+            "tooltips": [
+              "The root 'tap' means to burn or heat — referring to the 'heat' of energetic effort.",
+              "In a Buddhist context, this is the 'ardor' that consumes mental defilements."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending is a possessive marker — 'one who possesses ardor'.",
+              "Nominative singular: describing the person practicing."
+            ],
+            "tooltipsBySense": [
+              {
+                "senseId": "s1-1",
+                "tooltip": "Possessing ardor"
+              }
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "ardent",
+            "nuance": "burning with effort; energetic",
+            "id": "s1-1",
+            "ripples": []
+          },
+          {
+            "english": "diligent",
+            "nuance": "persistent and careful application",
+            "id": "s1-2",
+            "ripples": []
+          },
+          {
+            "english": "resolute",
+            "nuance": "unwavering determination in practice",
+            "id": "s1-3",
+            "ripples": []
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "sam",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'sam' means together or completely."
+            ]
+          },
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'pa' means forward or out."
+            ]
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltips": [
+              "The root 'jñā' means to know. Combined with prefixes, it means 'clearly knowing' or 'comprehending'."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "Standard masculine singular ending (nominative)."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "clearly comprehending",
+            "nuance": "situational wisdom; knowing what one is doing",
+            "id": "s2-1",
+            "ripples": []
+          },
+          {
+            "english": "discerning",
+            "nuance": "cognitive clarity regarding the present state",
+            "id": "s2-2",
+            "ripples": []
+          },
+          {
+            "english": "aware",
+            "nuance": "fully conscious of the purpose and suitability",
+            "id": "s2-3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "sati",
+            "type": "root",
+            "tooltips": [
+              "The root 'smṛ' relates to memory, but in meditation it means 'presence of mind' or 'mindfulness'."
+            ]
+          },
+          {
+            "text": "mā",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -mā ending (from -mant) means 'endowed with' or 'possessing'.",
+              "One who is 'mindful' is literally 'one who possesses mindfulness'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "possessing the quality of presence of mind",
+            "id": "s3-1",
+            "ripples": []
+          },
+          {
+            "english": "receptive",
+            "nuance": "maintaining the object in the field of attention",
+            "id": "s3-2",
+            "ripples": []
+          },
+          {
+            "english": "attentive",
+            "nuance": "not drifting; anchored in the present",
+            "id": "s3-3",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "The Meditative Qualities"
+  }
+}

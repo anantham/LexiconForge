@@ -1,0 +1,800 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:15:20.513Z",
+    "phaseId": "phase-be",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "'Atthi kāyo 'ti vā panassa sati paccupaṭṭhitā hoti",
+    "englishText": "Or moreover, be6s1 : be1s1 be2s1",
+    "tokens": {
+      "prompt": 23567,
+      "completion": 5353,
+      "total": 28920
+    },
+    "costUsd": 0.027842499999999996,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-be",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Atthi",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "kāyo",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "ti",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "tis1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p3s1"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "panassa",
+        "wordClass": "function",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "sati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "paccupaṭṭhitā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3",
+          "p6s4",
+          "p6s5"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p7",
+        "surface": "hoti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p7s1",
+          "p7s2"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "as",
+        "type": "root",
+        "tooltips": [
+          "The root 'as' means to be or exist.",
+          "This is the 'there is' that starts the observation."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "thi",
+        "type": "suffix",
+        "tooltips": [
+          "The -thi ending marks the third-person singular: 'it is'."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "kāy",
+        "type": "root",
+        "tooltips": [
+          "The root 'ci' means to heap up or collect.",
+          "kāya: the body as a 'collection' of parts."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending is nominative singular, marking the body as the subject."
+        ]
+      },
+      {
+        "id": "tis1",
+        "wordId": "ti",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "A marker used like quotation marks to close a thought or phrase."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "A particle meaning 'or'."
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "pana",
+        "type": "stem",
+        "tooltips": [
+          "A connective particle meaning 'now' or 'furthermore'."
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "ass",
+        "type": "stem",
+        "tooltips": [
+          "A form of the pronoun 'ima', meaning 'his' or 'for him'."
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "a",
+        "type": "suffix",
+        "tooltips": [
+          "The genitive ending meaning 'of' or 'belonging to'."
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "sati",
+        "type": "stem",
+        "tooltips": [
+          "The root 'smṛ' means to remember.",
+          "sati: mindfulness or presence of mind."
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "pacc",
+        "type": "prefix",
+        "tooltips": [
+          "pati + u: prefix meaning 'back towards' or 'against'."
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "upa",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix meaning 'near' or 'close'."
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "ṭṭhi",
+        "type": "root",
+        "tooltips": [
+          "The root 'ṭhā' means to stand.",
+          "paccupaṭṭhitā: standing near or established."
+        ]
+      },
+      {
+        "id": "p6s4",
+        "wordId": "p6",
+        "text": "t",
+        "type": "suffix",
+        "tooltips": [
+          "The -ta ending makes the verb a past participle: 'has been established'."
+        ]
+      },
+      {
+        "id": "p6s5",
+        "wordId": "p6",
+        "text": "ā",
+        "type": "suffix",
+        "tooltips": [
+          "The -ā ending is feminine nominative singular, matching 'sati'."
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "ho",
+        "type": "root",
+        "tooltips": [
+          "The root 'bhū' means to be or become."
+        ]
+      },
+      {
+        "id": "p7s2",
+        "wordId": "p7",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks the third-person singular: 'it is'."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p4s3",
+        "targetWordId": "p5",
+        "type": "ownership",
+        "label": "Mindfulness OF",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-be",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "There is",
+            "nuance": "existential presence",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "There is"
+              }
+            ]
+          },
+          {
+            "english": "Exists",
+            "nuance": "ontological fact",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "philosophical",
+                "rendering": "Exists"
+              }
+            ]
+          },
+          {
+            "english": "Present is",
+            "nuance": "immediate awareness",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "meditative",
+                "rendering": "Present is"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "physical form",
+            "id": "s4"
+          },
+          {
+            "english": "organism",
+            "nuance": "biological entity",
+            "id": "s5"
+          },
+          {
+            "english": "group",
+            "nuance": "collection of parts",
+            "id": "s6"
+          }
+        ]
+      },
+      {
+        "wordId": "ti",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "quote-end",
+            "nuance": "marks end of thought",
+            "id": "s7"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option",
+            "id": "s8"
+          },
+          {
+            "english": "alternatively",
+            "nuance": "logical shift",
+            "id": "s9"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "moreover for him",
+            "nuance": "continuation and possession",
+            "id": "s10"
+          },
+          {
+            "english": "and his",
+            "nuance": "possessive connection",
+            "id": "s11"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "mindfulness",
+            "nuance": "lucid awareness",
+            "id": "s12"
+          },
+          {
+            "english": "recollection",
+            "nuance": "bearing in mind",
+            "id": "s13"
+          },
+          {
+            "english": "presence of mind",
+            "nuance": "attentiveness",
+            "id": "s14"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "established",
+            "nuance": "firmly set up",
+            "id": "s15"
+          },
+          {
+            "english": "present",
+            "nuance": "manifested here",
+            "id": "s16"
+          },
+          {
+            "english": "arisen",
+            "nuance": "come to the fore",
+            "id": "s17"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "is",
+            "nuance": "current state",
+            "id": "s18"
+          },
+          {
+            "english": "remains",
+            "nuance": "persisting state",
+            "id": "s19"
+          },
+          {
+            "english": "becomes",
+            "nuance": "process of being",
+            "id": "s20"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard Satipatthana formula. 'Atthi' and 'hoti' both present; 'Atthi' functions as the quoted thought content while 'hoti' is the main verb of the frame."
+    }
+  },
+  "phaseView": {
+    "id": "phase-be",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "as",
+            "type": "root",
+            "tooltips": [
+              "The root 'as' means to be or exist.",
+              "This is the 'there is' that starts the observation."
+            ]
+          },
+          {
+            "text": "thi",
+            "type": "suffix",
+            "tooltips": [
+              "The -thi ending marks the third-person singular: 'it is'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "There is",
+            "nuance": "existential presence",
+            "id": "s1"
+          },
+          {
+            "english": "Exists",
+            "nuance": "ontological fact",
+            "id": "s2"
+          },
+          {
+            "english": "Present is",
+            "nuance": "immediate awareness",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "root",
+            "tooltips": [
+              "The root 'ci' means to heap up or collect.",
+              "kāya: the body as a 'collection' of parts."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -o ending is nominative singular, marking the body as the subject."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "physical form",
+            "id": "s4"
+          },
+          {
+            "english": "organism",
+            "nuance": "biological entity",
+            "id": "s5"
+          },
+          {
+            "english": "group",
+            "nuance": "collection of parts",
+            "id": "s6"
+          }
+        ]
+      },
+      {
+        "id": "ti",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltips": [
+              "A marker used like quotation marks to close a thought or phrase."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "quote-end",
+            "nuance": "marks end of thought",
+            "id": "s7"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "A particle meaning 'or'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option",
+            "id": "s8"
+          },
+          {
+            "english": "alternatively",
+            "nuance": "logical shift",
+            "id": "s9"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "pana",
+            "type": "stem",
+            "tooltips": [
+              "A connective particle meaning 'now' or 'furthermore'."
+            ]
+          },
+          {
+            "text": "ass",
+            "type": "stem",
+            "tooltips": [
+              "A form of the pronoun 'ima', meaning 'his' or 'for him'."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "suffix",
+            "morph": {
+              "case": "gen",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "ownership",
+              "label": "Mindfulness OF",
+              "status": "confirmed",
+              "targetWordId": "p5"
+            },
+            "tooltips": [
+              "The -a ending means 'of' or 'belonging to' — Pāli marks 'belonging to' on the noun itself, where English would say 'of the'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "moreover for him",
+            "nuance": "continuation and possession",
+            "id": "s10"
+          },
+          {
+            "english": "and his",
+            "nuance": "possessive connection",
+            "id": "s11"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "sati",
+            "type": "stem",
+            "tooltips": [
+              "The root 'smṛ' means to remember.",
+              "sati: mindfulness or presence of mind."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "mindfulness",
+            "nuance": "lucid awareness",
+            "id": "s12"
+          },
+          {
+            "english": "recollection",
+            "nuance": "bearing in mind",
+            "id": "s13"
+          },
+          {
+            "english": "presence of mind",
+            "nuance": "attentiveness",
+            "id": "s14"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "pacc",
+            "type": "prefix",
+            "tooltips": [
+              "pati + u: prefix meaning 'back towards' or 'against'."
+            ]
+          },
+          {
+            "text": "upa",
+            "type": "prefix",
+            "tooltips": [
+              "Prefix meaning 'near' or 'close'."
+            ]
+          },
+          {
+            "text": "ṭṭhi",
+            "type": "root",
+            "tooltips": [
+              "The root 'ṭhā' means to stand.",
+              "paccupaṭṭhitā: standing near or established."
+            ]
+          },
+          {
+            "text": "t",
+            "type": "suffix",
+            "tooltips": [
+              "The -ta ending makes the verb a past participle: 'has been established'."
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ā ending is feminine nominative singular, matching 'sati'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "established",
+            "nuance": "firmly set up",
+            "id": "s15"
+          },
+          {
+            "english": "present",
+            "nuance": "manifested here",
+            "id": "s16"
+          },
+          {
+            "english": "arisen",
+            "nuance": "come to the fore",
+            "id": "s17"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "ho",
+            "type": "root",
+            "tooltips": [
+              "The root 'bhū' means to be or become."
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the third-person singular: 'it is'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "is",
+            "nuance": "current state",
+            "id": "s18"
+          },
+          {
+            "english": "remains",
+            "nuance": "persisting state",
+            "id": "s19"
+          },
+          {
+            "english": "becomes",
+            "nuance": "process of being",
+            "id": "s20"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "ghost1",
+        "label": "is",
+        "linkedPaliId": "p7"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "ghost2",
+        "label": "thinking",
+        "linkedPaliId": "ti"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p2"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "ti",
+        "p3"
+      ],
+      [
+        "p4",
+        "p5",
+        "p6",
+        "p7"
+      ]
+    ],
+    "title": "Establishing Mindfulness of the Body"
+  }
+}

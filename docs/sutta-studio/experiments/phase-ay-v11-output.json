@@ -1,0 +1,621 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:13:00.363Z",
+    "phaseId": "phase-ay",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Iti ajjhattaṁ vā kāye kāyānupassī viharati",
+    "englishText": "ay1s1 one ay6s1",
+    "tokens": {
+      "prompt": 22715,
+      "completion": 3922,
+      "total": 26637
+    },
+    "costUsd": 0.023123499999999998,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ay",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Iti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "ajjhattaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p3s1"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "kāye",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "kāyānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3",
+          "p5s4"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3",
+          "p6s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Iti",
+        "type": "stem",
+        "tooltips": [
+          "Iti: Thus / In this way",
+          "Marks the conclusion of a specific instruction"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "ajjhatta",
+        "type": "stem",
+        "tooltips": [
+          "Internal / Within oneself",
+          "From adhi + attan (self)"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial ending",
+          "Makes it 'internally'"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "Or",
+          "Used here to present the first of several options"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "kāy",
+        "type": "root",
+        "tooltips": [
+          "Body",
+          "The physical form or a collection"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending means 'in' or 'on' the body (locative)"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "kāy",
+        "type": "stem",
+        "tooltips": [
+          "Body",
+          "The object of observation"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "ānu",
+        "type": "prefix",
+        "tooltips": [
+          "Following / Along with",
+          "Suggests a continuous, tracking observation"
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "pass",
+        "type": "root",
+        "tooltips": [
+          "√pas: To see",
+          "The act of observing or contemplating"
+        ]
+      },
+      {
+        "id": "p5s4",
+        "wordId": "p5",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending means 'one who does this' — a contemplator"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "Apart / Intensively"
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "√har: To carry / take",
+          "vi + har = to dwell or live"
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting root to ending"
+        ]
+      },
+      {
+        "id": "p6s4",
+        "wordId": "p6",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks 'he/she/it dwells' (3rd person singular)"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p4s2",
+        "targetWordId": "p6",
+        "type": "location",
+        "label": "Dwells IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ay",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "In this way",
+            "nuance": "summarizing the preceding practice"
+          },
+          {
+            "english": "Thus",
+            "nuance": "formal conclusion of a method"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "internally",
+            "nuance": "within one's own body/experience"
+          },
+          {
+            "english": "inside",
+            "nuance": "subjective focus"
+          },
+          {
+            "english": "personally",
+            "nuance": "referring to one's own physical frame"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "physical form as a locus of observation"
+          },
+          {
+            "english": "physical frame",
+            "nuance": "emphasizing the material aspect"
+          },
+          {
+            "english": "form",
+            "nuance": "the body as a collection of parts"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing the body",
+            "nuance": "active contemplation of physical nature"
+          },
+          {
+            "english": "contemplating the body",
+            "nuance": "sustained meditative focus"
+          },
+          {
+            "english": "tracking the body",
+            "nuance": "monitoring bodily processes as they occur"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative state"
+          },
+          {
+            "english": "lives",
+            "nuance": "ongoing practice in daily life"
+          },
+          {
+            "english": "abides",
+            "nuance": "formal meditative residence"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard formulaic repetition for Satipatthana practice. Senses reflect the meditative context of internal observation."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ay",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Iti",
+            "type": "stem",
+            "tooltips": [
+              "Iti: Thus / In this way",
+              "Marks the conclusion of a specific instruction"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "In this way",
+            "nuance": "summarizing the preceding practice",
+            "id": "s1-1"
+          },
+          {
+            "english": "Thus",
+            "nuance": "formal conclusion of a method",
+            "id": "s1-2"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "ajjhatta",
+            "type": "stem",
+            "tooltips": [
+              "Internal / Within oneself",
+              "From adhi + attan (self)"
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "tooltips": [
+              "Adverbial ending",
+              "Makes it 'internally'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "internally",
+            "nuance": "within one's own body/experience",
+            "id": "s2-1"
+          },
+          {
+            "english": "inside",
+            "nuance": "subjective focus",
+            "id": "s2-2"
+          },
+          {
+            "english": "personally",
+            "nuance": "referring to one's own physical frame",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "Or",
+              "Used here to present the first of several options"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle",
+            "id": "s3-1"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "root",
+            "tooltips": [
+              "Body",
+              "The physical form or a collection"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwells IN",
+              "status": "confirmed",
+              "targetWordId": "p6"
+            },
+            "tooltips": [
+              "The -e ending means 'in' or 'on' the body (locative)"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "physical form as a locus of observation",
+            "id": "s4-1"
+          },
+          {
+            "english": "physical frame",
+            "nuance": "emphasizing the material aspect",
+            "id": "s4-2"
+          },
+          {
+            "english": "form",
+            "nuance": "the body as a collection of parts",
+            "id": "s4-3"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "stem",
+            "tooltips": [
+              "Body",
+              "The object of observation"
+            ]
+          },
+          {
+            "text": "ānu",
+            "type": "prefix",
+            "tooltips": [
+              "Following / Along with",
+              "Suggests a continuous, tracking observation"
+            ]
+          },
+          {
+            "text": "pass",
+            "type": "root",
+            "tooltips": [
+              "√pas: To see",
+              "The act of observing or contemplating"
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "tooltips": [
+              "The -ī ending means 'one who does this' — a contemplator"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing the body",
+            "nuance": "active contemplation of physical nature",
+            "id": "s5-1"
+          },
+          {
+            "english": "contemplating the body",
+            "nuance": "sustained meditative focus",
+            "id": "s5-2"
+          },
+          {
+            "english": "tracking the body",
+            "nuance": "monitoring bodily processes as they occur",
+            "id": "s5-3"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "Apart / Intensively"
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "√har: To carry / take",
+              "vi + har = to dwell or live"
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting root to ending"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks 'he/she/it dwells' (3rd person singular)"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative state",
+            "id": "s6-1"
+          },
+          {
+            "english": "lives",
+            "nuance": "ongoing practice in daily life",
+            "id": "s6-2"
+          },
+          {
+            "english": "abides",
+            "nuance": "formal meditative residence",
+            "id": "s6-3"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "g1",
+        "label": "in the",
+        "linkedPaliId": "p4s2"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p4"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      [
+        "p6"
+      ]
+    ],
+    "title": "Internal Observation"
+  }
+}

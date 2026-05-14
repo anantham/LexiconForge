@@ -1,0 +1,411 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:06:04.144Z",
+    "phaseId": "phase-ak",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "vineyya loke abhijjhādomanassaṁ",
+    "englishText": "regarding",
+    "tokens": {
+      "prompt": 22037,
+      "completion": 2866,
+      "total": 24903
+    },
+    "costUsd": 0.019616500000000002,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ak",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "vineyya",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "loke",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "abhijjhādomanassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: Away / Apart",
+          "Indicates removal or separation"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ney",
+        "type": "root",
+        "tooltips": [
+          "the root 'nī': To lead / guide",
+          "vi + nī = to lead away, to remove"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ya",
+        "type": "suffix",
+        "tooltips": [
+          "The -ya ending is an absolutive — 'having led away' or 'having removed'.",
+          "Marks an action completed before the main meditation."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "lok",
+        "type": "root",
+        "tooltips": [
+          "loka: The world",
+          "In meditation, refers to the 'world' of the five aggregates."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending is locative singular — 'in' or 'regarding' the world.",
+          "Defines the sphere where removal of desire happens."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "abhijjhā",
+        "type": "stem",
+        "tooltips": [
+          "abhijjhā: Covetousness / Longing",
+          "The desire to possess what is not ours."
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "do",
+        "type": "prefix",
+        "tooltips": [
+          "du-: Bad / Difficult",
+          "Changes to 'do' in this compound."
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "manassa",
+        "type": "root",
+        "tooltips": [
+          "manas: Mind",
+          "domanassa = 'bad-mindedness' or distress/displeasure."
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -ṁ ending is accusative singular — marks this as the object being removed."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p2s2",
+        "targetWordId": "p1",
+        "type": "location",
+        "label": "Removed IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ak",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "having removed",
+            "nuance": "active removal of obstacles",
+            "id": "s1-1"
+          },
+          {
+            "english": "having put aside",
+            "nuance": "temporary suspension of mental states",
+            "id": "s1-2"
+          },
+          {
+            "english": "having overcome",
+            "nuance": "mastery over unwholesome tendencies",
+            "id": "s1-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "in the world",
+            "nuance": "the world of experience/senses",
+            "id": "s2-1"
+          },
+          {
+            "english": "regarding the world",
+            "nuance": "concerning the five aggregates",
+            "id": "s2-2"
+          },
+          {
+            "english": "within the world",
+            "nuance": "internalized experience of reality",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "covetousness and displeasure",
+            "nuance": "longing and aversion",
+            "id": "s3-1"
+          },
+          {
+            "english": "greed and grief",
+            "nuance": "emotional poles of attachment and pain",
+            "id": "s3-2"
+          },
+          {
+            "english": "desire and dejection",
+            "nuance": "the mental weight of wanting and hating",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard formulaic phrase for Satipaṭṭhāna practice. Senses reflect common translator choices for the compound abhijjhādomanassaṁ."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ak",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: Away / Apart",
+              "Indicates removal or separation"
+            ]
+          },
+          {
+            "text": "ney",
+            "type": "root",
+            "tooltips": [
+              "the root 'nī': To lead / guide",
+              "vi + nī = to lead away, to remove"
+            ]
+          },
+          {
+            "text": "ya",
+            "type": "suffix",
+            "tooltips": [
+              "The -ya ending is an absolutive — 'having led away' or 'having removed'.",
+              "Marks an action completed before the main meditation."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "having removed",
+            "nuance": "active removal of obstacles",
+            "id": "s1-1"
+          },
+          {
+            "english": "having put aside",
+            "nuance": "temporary suspension of mental states",
+            "id": "s1-2"
+          },
+          {
+            "english": "having overcome",
+            "nuance": "mastery over unwholesome tendencies",
+            "id": "s1-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "lok",
+            "type": "root",
+            "tooltips": [
+              "loka: The world",
+              "In meditation, refers to the 'world' of the five aggregates."
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Removed IN",
+              "status": "confirmed",
+              "targetWordId": "p1"
+            },
+            "tooltips": [
+              "The -e ending is locative singular — 'in' or 'regarding' the world.",
+              "Defines the sphere where removal of desire happens."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "in the world",
+            "nuance": "the world of experience/senses",
+            "id": "s2-1"
+          },
+          {
+            "english": "regarding the world",
+            "nuance": "concerning the five aggregates",
+            "id": "s2-2"
+          },
+          {
+            "english": "within the world",
+            "nuance": "internalized experience of reality",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "abhijjhā",
+            "type": "stem",
+            "tooltips": [
+              "abhijjhā: Covetousness / Longing",
+              "The desire to possess what is not ours."
+            ]
+          },
+          {
+            "text": "do",
+            "type": "prefix",
+            "tooltips": [
+              "du-: Bad / Difficult",
+              "Changes to 'do' in this compound."
+            ]
+          },
+          {
+            "text": "manassa",
+            "type": "root",
+            "tooltips": [
+              "manas: Mind",
+              "domanassa = 'bad-mindedness' or distress/displeasure."
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ṁ ending is accusative singular — marks this as the object being removed."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "covetousness and displeasure",
+            "nuance": "longing and aversion",
+            "id": "s3-1"
+          },
+          {
+            "english": "greed and grief",
+            "nuance": "emotional poles of attachment and pain",
+            "id": "s3-2"
+          },
+          {
+            "english": "desire and dejection",
+            "nuance": "the mental weight of wanting and hating",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Removing Worldly Desires"
+  }
+}

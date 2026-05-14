@@ -1,0 +1,347 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:02:18.952Z",
+    "phaseId": "phase-y",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Idha bhikkhave bhikkhu",
+    "englishText": "y2s1 y3s1",
+    "tokens": {
+      "prompt": 21560,
+      "completion": 2314,
+      "total": 23874
+    },
+    "costUsd": 0.017721999999999998,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-y",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Idha",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "bhikkhave",
+        "wordClass": "vocative",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p3",
+        "surface": "bhikkhu",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1"
+        ],
+        "refrainId": "bhikkhu"
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Idha",
+        "type": "stem",
+        "tooltips": [
+          "Idha: Here / In this teaching",
+          "Indeclinable — never changes form"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "bhikkhav",
+        "type": "stem",
+        "tooltips": [
+          "The root 'bhikkh' relates to sharing or begging",
+          "Refers to a spiritual mendicant"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending is vocative plural — used when calling out to a group",
+          "Direct address: 'O Monks!'"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "bhikkhu",
+        "type": "stem",
+        "tooltips": [
+          "A monk or mendicant",
+          "Nominative singular — the one performing the action"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s1",
+        "targetWordId": "p3",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-y",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "Here",
+            "nuance": "locative, referring to this teaching or place"
+          },
+          {
+            "english": "In this case",
+            "nuance": "logical, introducing a specific scenario"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "vocative",
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the assembly"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the life of religious poverty"
+          },
+          {
+            "english": "O monks",
+            "nuance": "formal vocative style"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "singular practitioner, generic subject",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "a monk"
+              }
+            ]
+          },
+          {
+            "english": "a mendicant",
+            "nuance": "emphasizing the role of one who lives on alms",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "a mendicant"
+              }
+            ]
+          },
+          {
+            "english": "the bhikkhu",
+            "nuance": "retaining the technical term for the practitioner",
+            "ripples": [
+              {
+                "tradition": "technical",
+                "rendering": "the bhikkhu"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard introductory formula for meditative instructions. 'Idha' functions as a situational anchor."
+    }
+  },
+  "phaseView": {
+    "id": "phase-y",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Idha",
+            "type": "stem",
+            "tooltips": [
+              "Idha: Here / In this teaching",
+              "This is an indeclinable word — it never changes its form regardless of context."
+            ],
+            "tooltipsBySense": [
+              {
+                "senseId": "p1-s1",
+                "tooltip": "Locative sense: referring to this specific teaching or place."
+              },
+              {
+                "senseId": "p1-s2",
+                "tooltip": "Logical sense: introducing a specific scenario or case."
+              }
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "Here",
+            "nuance": "locative, referring to this teaching or place",
+            "id": "p1-s1"
+          },
+          {
+            "english": "In this case",
+            "nuance": "logical, introducing a specific scenario",
+            "id": "p1-s2"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "bhikkhav",
+            "type": "stem",
+            "tooltips": [
+              "The root 'bhikkh' relates to sharing or begging — specifically religious mendicancy, not poverty.",
+              "Refers to a spiritual mendicant."
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "voc",
+              "number": "pl"
+            },
+            "tooltips": [
+              "The -e ending is vocative plural — used when calling out to a group of people directly.",
+              "Direct address: 'O Monks!'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the assembly",
+            "id": "p2-s1"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the life of religious poverty",
+            "id": "p2-s2"
+          },
+          {
+            "english": "O monks",
+            "nuance": "formal vocative style",
+            "id": "p2-s3"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "bhikkhu",
+            "type": "stem",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "A monk or mendicant.",
+              "The -u ending here is nominative singular — identifying this person as the one performing the action."
+            ],
+            "tooltipsBySense": [
+              {
+                "senseId": "p3-s2",
+                "tooltip": "Sujato's choice: emphasizing the role of one who lives on alms."
+              }
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "singular practitioner, generic subject",
+            "id": "p3-s1",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "a monk"
+              }
+            ]
+          },
+          {
+            "english": "a mendicant",
+            "nuance": "emphasizing the role of one who lives on alms",
+            "id": "p3-s2",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "a mendicant"
+              }
+            ]
+          },
+          {
+            "english": "the bhikkhu",
+            "nuance": "retaining the technical term for the practitioner",
+            "id": "p3-s3",
+            "ripples": [
+              {
+                "tradition": "technical",
+                "rendering": "the bhikkhu"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "The Mendicant's Context"
+  }
+}

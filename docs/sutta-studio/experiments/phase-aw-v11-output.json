@@ -1,0 +1,1221 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:12:05.024Z",
+    "phaseId": "phase-aw",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Evameva kho bhikkhave bhikkhu dīghaṁ vā assasanto 'dīghaṁ assasāmī 'ti pajānāti dīghaṁ vā passasanto 'dīghaṁ passasāmī 'ti pajānāti rassaṁ vā assasanto 'rassaṁ assasāmī 'ti pajānāti rassaṁ vā passasanto 'rassaṁ passasāmī 'ti pajānāti",
+    "englishText": "\"I breathe in long\" \"I breathe out long\" \"I breathe in short\" \"I breathe out short\"",
+    "tokens": {
+      "prompt": 26707,
+      "completion": 7077,
+      "total": 33784
+    },
+    "costUsd": 0.034584500000000004,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-aw",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Evameva",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "kho",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "bhikkhave",
+        "wordClass": "vocative",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p4",
+        "surface": "bhikkhu",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p5",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p6s1"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "assasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p7s1",
+          "p7s2",
+          "p7s3"
+        ]
+      },
+      {
+        "id": "p8",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p8s1",
+          "p8s2"
+        ]
+      },
+      {
+        "id": "p9",
+        "surface": "assasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p9s1",
+          "p9s2",
+          "p9s3"
+        ]
+      },
+      {
+        "id": "p10",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p10s1"
+        ]
+      },
+      {
+        "id": "p11",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p11s1",
+          "p11s2",
+          "p11s3",
+          "p11s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p12",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p12s1",
+          "p12s2"
+        ]
+      },
+      {
+        "id": "p13",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p13s1"
+        ]
+      },
+      {
+        "id": "p14",
+        "surface": "passasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p14s1",
+          "p14s2",
+          "p14s3"
+        ]
+      },
+      {
+        "id": "p15",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p15s1",
+          "p15s2"
+        ]
+      },
+      {
+        "id": "p16",
+        "surface": "passasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p16s1",
+          "p16s2",
+          "p16s3"
+        ]
+      },
+      {
+        "id": "p17",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p17s1"
+        ]
+      },
+      {
+        "id": "p18",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p18s1",
+          "p18s2",
+          "p18s3",
+          "p18s4"
+        ]
+      },
+      {
+        "id": "p19",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p19s1",
+          "p19s2"
+        ]
+      },
+      {
+        "id": "p20",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p20s1"
+        ]
+      },
+      {
+        "id": "p21",
+        "surface": "assasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p21s1",
+          "p21s2",
+          "p21s3"
+        ]
+      },
+      {
+        "id": "p22",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p22s1",
+          "p22s2"
+        ]
+      },
+      {
+        "id": "p23",
+        "surface": "assasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p23s1",
+          "p23s2",
+          "p23s3"
+        ]
+      },
+      {
+        "id": "p24",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p24s1"
+        ]
+      },
+      {
+        "id": "p25",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p25s1",
+          "p25s2",
+          "p25s3",
+          "p25s4"
+        ]
+      },
+      {
+        "id": "p26",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p26s1",
+          "p26s2"
+        ]
+      },
+      {
+        "id": "p27",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p27s1"
+        ]
+      },
+      {
+        "id": "p28",
+        "surface": "passasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p28s1",
+          "p28s2",
+          "p28s3"
+        ]
+      },
+      {
+        "id": "p29",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p29s1",
+          "p29s2"
+        ]
+      },
+      {
+        "id": "p30",
+        "surface": "passasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p30s1",
+          "p30s2",
+          "p30s3"
+        ]
+      },
+      {
+        "id": "p31",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p31s1"
+        ]
+      },
+      {
+        "id": "p32",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p32s1",
+          "p32s2",
+          "p32s3",
+          "p32s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Eva",
+        "type": "stem",
+        "tooltips": [
+          "Eva: Just so / Thus"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "m",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial marker"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "eva",
+        "type": "stem",
+        "tooltips": [
+          "eva: emphasizing 'exactly so'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "kho",
+        "type": "stem",
+        "tooltips": [
+          "kho: indeed / really (emphatic particle)"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "bhikkhav",
+        "type": "stem",
+        "tooltips": [
+          "bhikkhu: mendicant / monk"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending is vocative plural — used when calling out to a group of monks."
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "bhikkhu",
+        "type": "stem",
+        "tooltips": [
+          "bhikkhu: a mendicant / practitioner"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "dīgh",
+        "type": "stem",
+        "tooltips": [
+          "dīgha: long (in duration or length)"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -aṁ ending here makes the adjective an adverb: 'longly' or 'for a long time'."
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: or"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "assas",
+        "type": "root",
+        "tooltips": [
+          "√sas: to breathe; prefix a-: in. assasati = breathes in."
+        ]
+      },
+      {
+        "id": "p7s2",
+        "wordId": "p7",
+        "text": "ant",
+        "type": "suffix",
+        "tooltips": [
+          "The -ant suffix creates a present participle: 'breathing'."
+        ]
+      },
+      {
+        "id": "p7s3",
+        "wordId": "p7",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular: 'the one who is breathing'."
+        ]
+      },
+      {
+        "id": "p8s1",
+        "wordId": "p8",
+        "text": "dīgh",
+        "type": "stem",
+        "tooltips": [
+          "dīgha: long"
+        ]
+      },
+      {
+        "id": "p8s2",
+        "wordId": "p8",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial: 'long'"
+        ]
+      },
+      {
+        "id": "p9s1",
+        "wordId": "p9",
+        "text": "assas",
+        "type": "root",
+        "tooltips": [
+          "√sas: to breathe; a-: in"
+        ]
+      },
+      {
+        "id": "p9s2",
+        "wordId": "p9",
+        "text": "ām",
+        "type": "suffix",
+        "tooltips": [
+          "Thematic vowel lengthened for 1st person"
+        ]
+      },
+      {
+        "id": "p9s3",
+        "wordId": "p9",
+        "text": "i",
+        "type": "suffix",
+        "tooltips": [
+          "The -mi ending marks the 1st person singular: 'I breathe'."
+        ]
+      },
+      {
+        "id": "p10s1",
+        "wordId": "p10",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "ti: end-quote marker; '...'"
+        ]
+      },
+      {
+        "id": "p11s1",
+        "wordId": "p11",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: prefix meaning 'forth' or 'out'"
+        ]
+      },
+      {
+        "id": "p11s2",
+        "wordId": "p11",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "√jñā: to know. pajānāti = understands / discerns."
+        ]
+      },
+      {
+        "id": "p11s3",
+        "wordId": "p11",
+        "text": "ā",
+        "type": "suffix",
+        "tooltips": [
+          "Thematic vowel"
+        ]
+      },
+      {
+        "id": "p11s4",
+        "wordId": "p11",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks the 3rd person singular: 'he/she understands'."
+        ]
+      },
+      {
+        "id": "p14s1",
+        "wordId": "p14",
+        "text": "passas",
+        "type": "root",
+        "tooltips": [
+          "√sas: to breathe; pa-: out. passasati = breathes out."
+        ]
+      },
+      {
+        "id": "p14s2",
+        "wordId": "p14",
+        "text": "ant",
+        "type": "suffix",
+        "tooltips": [
+          "Present participle: 'breathing out'"
+        ]
+      },
+      {
+        "id": "p14s3",
+        "wordId": "p14",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular"
+        ]
+      },
+      {
+        "id": "p19s1",
+        "wordId": "p19",
+        "text": "rass",
+        "type": "stem",
+        "tooltips": [
+          "rassa: short"
+        ]
+      },
+      {
+        "id": "p19s2",
+        "wordId": "p19",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial: 'shortly'"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p5s2",
+        "targetWordId": "p7",
+        "type": "action",
+        "label": "Manner",
+        "status": "confirmed"
+      },
+      {
+        "id": "r2",
+        "fromSegmentId": "p19s2",
+        "targetWordId": "p21",
+        "type": "action",
+        "label": "Manner",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-aw",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "In just the same way",
+            "nuance": "emphatic comparison"
+          },
+          {
+            "english": "Even so",
+            "nuance": "drawing a parallel"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "indeed",
+            "nuance": "emphatic particle"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "vocative",
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the assembly"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing religious lifestyle"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "the individual practitioner"
+          },
+          {
+            "english": "a mendicant",
+            "nuance": "one who lives on alms"
+          },
+          {
+            "english": "the bhikkhu",
+            "nuance": "referring to the subject of the practice"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "extended duration or length"
+          },
+          {
+            "english": "a long time",
+            "nuance": "temporal emphasis"
+          },
+          {
+            "english": "deeply",
+            "nuance": "qualitative depth of breath"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathing in",
+            "nuance": "active inhalation"
+          },
+          {
+            "english": "inhaling",
+            "nuance": "technical physiological term"
+          },
+          {
+            "english": "drawing breath",
+            "nuance": "descriptive action"
+          }
+        ]
+      },
+      {
+        "wordId": "p8",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of the specific breath"
+          },
+          {
+            "english": "a long breath",
+            "nuance": "noun-like quality"
+          },
+          {
+            "english": "lengthily",
+            "nuance": "adverbial quality"
+          }
+        ]
+      },
+      {
+        "wordId": "p9",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I am breathing in",
+            "nuance": "present continuous awareness"
+          },
+          {
+            "english": "I breathe in",
+            "nuance": "simple present declaration"
+          },
+          {
+            "english": "I inhale",
+            "nuance": "formal declaration"
+          }
+        ]
+      },
+      {
+        "wordId": "p10",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "thus",
+            "nuance": "quotation marker"
+          }
+        ]
+      },
+      {
+        "wordId": "p11",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension"
+          },
+          {
+            "english": "discerns",
+            "nuance": "distinguishing a specific state"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct experiential knowledge"
+          }
+        ]
+      },
+      {
+        "wordId": "p14",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathing out",
+            "nuance": "active exhalation"
+          },
+          {
+            "english": "exhaling",
+            "nuance": "technical physiological term"
+          },
+          {
+            "english": "releasing breath",
+            "nuance": "descriptive action"
+          }
+        ]
+      },
+      {
+        "wordId": "p19",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief duration or length"
+          },
+          {
+            "english": "a short time",
+            "nuance": "temporal emphasis"
+          },
+          {
+            "english": "shallowly",
+            "nuance": "qualitative lack of depth"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Repeated words (p12-p18, p20-p32) follow the patterns established in p5-p11. Senses focus on the distinction between the objective state (vā assasanto) and the subjective awareness (pajānāti)."
+    }
+  },
+  "phaseView": {
+    "id": "phase-aw",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Eva",
+            "type": "stem",
+            "tooltips": [
+              "Eva: Just so / Thus"
+            ]
+          },
+          {
+            "text": "m",
+            "type": "suffix",
+            "tooltips": [
+              "Adverbial marker"
+            ]
+          },
+          {
+            "text": "eva",
+            "type": "stem",
+            "tooltips": [
+              "eva: emphasizing 'exactly so'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "In just the same way",
+            "nuance": "emphatic comparison",
+            "id": "s1"
+          },
+          {
+            "english": "Even so",
+            "nuance": "drawing a parallel",
+            "id": "s2"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "kho",
+            "type": "stem",
+            "tooltips": [
+              "kho: indeed / really (emphatic particle)"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "indeed",
+            "nuance": "emphatic particle",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "bhikkhav",
+            "type": "stem",
+            "tooltips": [
+              "bhikkhu: mendicant / monk"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "voc",
+              "number": "pl"
+            },
+            "tooltips": [
+              "The -e ending is vocative plural — used when calling out to a group of monks."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the assembly",
+            "id": "s4"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing religious lifestyle",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "bhikkhu",
+            "type": "stem",
+            "tooltips": [
+              "bhikkhu: a mendicant / practitioner"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "the individual practitioner",
+            "id": "s6"
+          },
+          {
+            "english": "the bhikkhu",
+            "nuance": "referring to the subject of the practice",
+            "id": "s7"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "dīgh",
+            "type": "stem",
+            "tooltips": [
+              "dīgha: long (in duration or length)"
+            ]
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "relation": {
+              "type": "action",
+              "label": "Manner",
+              "status": "confirmed",
+              "targetWordId": "p7"
+            },
+            "tooltips": [
+              "The -aṁ ending here makes the adjective an adverb: 'longly' or 'for a long time'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "extended duration or length",
+            "id": "s8"
+          },
+          {
+            "english": "deeply",
+            "nuance": "qualitative depth of breath",
+            "id": "s9"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "vā: or"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle",
+            "id": "s10"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "assas",
+            "type": "root",
+            "tooltips": [
+              "√sas: to breathe; prefix a-: in. assasati = breathes in."
+            ]
+          },
+          {
+            "text": "ant",
+            "type": "suffix",
+            "tooltips": [
+              "The -ant suffix creates a present participle: 'breathing'."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "Nominative singular: 'the one who is breathing'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "breathing in",
+            "nuance": "active inhalation",
+            "id": "s11"
+          },
+          {
+            "english": "inhaling",
+            "nuance": "technical physiological term",
+            "id": "s12"
+          }
+        ]
+      },
+      {
+        "id": "p8",
+        "segments": [
+          {
+            "text": "dīgh",
+            "type": "stem",
+            "tooltips": [
+              "dīgha: long"
+            ]
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "tooltips": [
+              "Adverbial: 'long'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of the specific breath",
+            "id": "s13"
+          }
+        ]
+      },
+      {
+        "id": "p9",
+        "segments": [
+          {
+            "text": "assas",
+            "type": "root",
+            "tooltips": [
+              "√sas: to breathe; a-: in"
+            ]
+          },
+          {
+            "text": "ām",
+            "type": "suffix",
+            "tooltips": [
+              "Thematic vowel lengthened for 1st person"
+            ]
+          },
+          {
+            "text": "i",
+            "type": "suffix",
+            "tooltips": [
+              "The -mi ending marks the 1st person singular: 'I breathe'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "I am breathing in",
+            "nuance": "present continuous awareness",
+            "id": "s14"
+          }
+        ]
+      },
+      {
+        "id": "p10",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltips": [
+              "ti: end-quote marker; '...'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "thus",
+            "nuance": "quotation marker",
+            "id": "s15"
+          }
+        ]
+      },
+      {
+        "id": "p11",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "pa-: prefix meaning 'forth' or 'out'"
+            ]
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltips": [
+              "√jñā: to know. pajānāti = understands / discerns."
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "suffix",
+            "tooltips": [
+              "Thematic vowel"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the 3rd person singular: 'he/she understands'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension",
+            "id": "s16"
+          },
+          {
+            "english": "discerns",
+            "nuance": "distinguishing a specific state",
+            "id": "s17"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p7"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "ghost1",
+        "label": "understands:",
+        "linkedPaliId": "p11"
+      },
+      {
+        "id": "ghost2",
+        "label": "\"",
+        "linkedPaliId": "p10"
+      },
+      {
+        "id": "e7",
+        "linkedPaliId": "p9"
+      },
+      {
+        "id": "e8",
+        "linkedPaliId": "p8"
+      },
+      {
+        "id": "ghost3",
+        "label": "\"",
+        "linkedPaliId": "p10"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ],
+      [
+        "p5",
+        "p6",
+        "p7"
+      ],
+      [
+        "p8",
+        "p9",
+        "p10",
+        "p11"
+      ]
+    ],
+    "title": "Awareness of Long and Short Breaths"
+  }
+}
