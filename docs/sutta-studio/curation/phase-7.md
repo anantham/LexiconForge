@@ -59,3 +59,33 @@ with phase-6 (sacchikiriyāya). Phase-7 begins the "the X consist of" phase.
 This is the architecture of the sutta itself, made audible through
 case-marking. The Pāli grammar tells the reader: "I just told you WHY;
 now I will tell you WHAT."
+
+## Correction applied 2026-05-14 via GROUNDING Phase 1
+
+The initial curation contained two factual errors that the contested-terms
+registry surfaced and corrected:
+
+1. **Bodhi-as-paṭṭhāna-parse-follower** → corrected to **Bodhi-as-MLDB-translation-choice**.
+   Wikipedia (citing scholarly literature) reports Bodhi PHILOLOGICALLY favors
+   the upaṭṭhāna parse, same as Anālayo and Sujato. His MLDB translation
+   keeps 'foundations of mindfulness' as a TRANSLATION CHOICE for continuity
+   with prior English literature (Soma Thera, Ñāṇaponika). The parse decision
+   and the translation choice are separable; my initial curation conflated
+   them.
+
+2. **Thanissaro as 'frames of reference'** → corrected to **Thanissaro as
+   'establishings of mindfulness'**. WebFetch of dhammatalks.org MN10 verified
+   his current rendering is 'establishings'. The 'frames of reference' language
+   was his older choice (Wings to Awakening era). My initial curation
+   represented stale Thanissaro language.
+
+Both errors are exactly the trust-me-bro failure mode the grounding
+architecture exists to catch. The corrections are now visible in the
+demoPacket via citation chips that link to verified primary sources
+(SuttaCentral for Bodhi/Sujato, dhammatalks.org for Thanissaro, Wikipedia
+for the parse-disagreement scholarship, Windhorse Publications for the
+Anālayo monograph).
+
+This is what Phase 1 of the grounding architecture delivers: the curator
+makes a claim → the registry surfaces the verified position → corrections
+become mechanical, not personal.

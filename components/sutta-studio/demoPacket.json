@@ -3165,15 +3165,15 @@
               "type": "stem",
               "tooltips": [
                 "Paṭṭhānā — the most contested half of the compound. Two parses: (1) paṭi + sthā = 'going-toward-and-standing' (foundation, establishment), or (2) upa + sthāna = 'close-attendance' (presencing, attending-near). The compound is doubled-tt because of the consonant assimilation, and that doubling masks which prefix was originally there.",
-                "Bhikkhu Anālayo's monograph 'Satipaṭṭhāna: The Direct Path to Realization' argues for the upaṭṭhāna parse — sati as 'placing-near' or 'standing-close-to' the object of meditation. Bhikkhu Bodhi follows the paṭṭhāna parse ('foundation'). Sujato follows the upaṭṭhāna parse ('establishment'). The English readings 'foundation' vs. 'establishment' actually map onto these two different morphological analyses — the disagreement is grammatical first, then theological."
+                "Bhikkhu Anālayo's monograph defends the upaṭṭhāna parse on the grounds that paṭṭhāna appears only in Abhidhamma texts while upaṭṭhāna is readily visible in the Nikayas and Sanskrit parallels. Bhikkhu Bodhi PHILOLOGICALLY agrees with Anālayo (upaṭṭhāna parse) but his MLDB TRANSLATION keeps 'foundations of mindfulness' for continuity with prior English literature (Soma Thera, Ñāṇaponika). Sujato and Thanissaro follow the upaṭṭhāna parse in their renderings ('kinds of mindfulness meditation' and 'establishings of mindfulness' respectively). The parse decision and the translation choice are separable — don't conflate them."
               ]
             }
           ],
           "senses": [
             {
               "english": "foundations of mindfulness",
-              "nuance": "Bhikkhu Bodhi / paṭṭhāna parse",
-              "notes": "Bodhi (MLDB): 'foundations of mindfulness'. Reads paṭṭhāna as 'foundation' (sthāna with paṭi-, a derivative noun). The translation has historical weight — was the dominant English rendering through most of the 20th century via Soma Thera and Ñāṇaponika's influence.",
+              "nuance": "Bhikkhu Bodhi / MLDB translation choice",
+              "notes": "Bhikkhu Bodhi (MLDB): 'foundations of mindfulness'. Bodhi's TRANSLATION CHOICE preserves the historical English convention (Soma Thera, Ñāṇaponika). His PHILOLOGICAL POSITION, per Wikipedia summarising Anālayo's argument, actually favors the upaṭṭhāna parse — but the established 'foundations' rendering is kept for continuity. Translation choice and parse position are separable decisions.",
               "citationIds": [
                 "cite:term:sati:sc-bodhi-mn10",
                 "cite:term:sati:sc-sujato-mn10",
@@ -3186,9 +3186,9 @@
               ]
             },
             {
-              "english": "establishments of mindfulness",
-              "nuance": "Sujato / upaṭṭhāna parse",
-              "notes": "Sujato (SuttaCentral): 'four kinds of mindfulness meditation'. Renders paṭṭhāna as 'establishment' (upaṭṭhāna with assimilation), the active process of placing-near. Bhikkhu Anālayo's scholarly monograph defends this parse philologically.",
+              "english": "kinds of mindfulness meditation",
+              "nuance": "Bhikkhu Sujato / upaṭṭhāna parse",
+              "notes": "Sujato (SuttaCentral MN10): 'four kinds of mindfulness meditation'. His current rendering. Renders paṭṭhāna as a form of upa-sthāna (close-attendance), foregrounding meditation-as-practice over foundation-as-structure. Aligns with Anālayo's philological defense of the upaṭṭhāna parse.",
               "citationIds": [
                 "cite:term:sati:sc-bodhi-mn10",
                 "cite:term:sati:sc-sujato-mn10",
@@ -3201,9 +3201,9 @@
               ]
             },
             {
-              "english": "frames of reference",
-              "nuance": "Thanissaro / cognitive emphasis",
-              "notes": "Thanissaro Bhikkhu: 'four frames of reference'. Reframes satipaṭṭhāna as the cognitive structures within which mindfulness operates — the body-frame, the feeling-frame, the mind-frame, the dhamma-frame. Distinctive Thai Forest reading; foregrounds the analytical function over the foundational metaphor.",
+              "english": "establishings of mindfulness",
+              "nuance": "Ṭhānissaro Bhikkhu / upaṭṭhāna parse",
+              "notes": "Thanissaro Bhikkhu (dhammatalks.org MN10): 'establishings of mindfulness'. His current rendering, evolved from his earlier 'frames of reference' (Wings to Awakening era). The 'establishing' verbal-noun emphasises the active placing-of-attention process, aligning with the upaṭṭhāna parse.",
               "citationIds": [
                 "cite:term:sati:sc-bodhi-mn10",
                 "cite:term:sati:sc-sujato-mn10",
