@@ -1,0 +1,384 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:04:50.780Z",
+    "phaseId": "phase-ag",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "ātāpī sampajāno satimā",
+    "englishText": "ag1s1 ag2s1 ag3s1",
+    "tokens": {
+      "prompt": 21969,
+      "completion": 2665,
+      "total": 24634
+    },
+    "costUsd": 0.0189795,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ag",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "ātāpī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ],
+        "refrainId": "formula-ardent"
+      },
+      {
+        "id": "p2",
+        "surface": "sampajāno",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4"
+        ],
+        "refrainId": "formula-ardent"
+      },
+      {
+        "id": "p3",
+        "surface": "satimā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ],
+        "refrainId": "formula-ardent"
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "ātāp",
+        "type": "root",
+        "tooltips": [
+          "The root 'tap' means to burn or heat — here referring to the 'heat' of energetic effort.",
+          "Ardor: the quality of burning away mental defilements."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending is a possessive suffix meaning 'one who has' this quality.",
+          "Nominative singular: describing the person practicing."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "sam",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'sam' means together or completely."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'pa' means forward or forth."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "The root 'jñā' means to know — 'sampajāna' is knowing clearly and thoroughly."
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending marks the nominative singular masculine."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "sati",
+        "type": "root",
+        "tooltips": [
+          "The root 'smṛ' means to remember — 'sati' is the quality of presence or mindfulness."
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "mā",
+        "type": "suffix",
+        "tooltips": [
+          "The -mā ending (from -mant) means 'possessing' or 'endowed with'.",
+          "One who possesses mindfulness."
+        ]
+      }
+    ],
+    "relations": []
+  },
+  "lexicographer": {
+    "id": "phase-ag",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "ardent",
+            "nuance": "energetic effort, burning away defilements",
+            "id": "s1",
+            "ripples": []
+          },
+          {
+            "english": "diligent",
+            "nuance": "persistent and careful application",
+            "id": "s2",
+            "ripples": []
+          },
+          {
+            "english": "resolute",
+            "nuance": "unwavering determination in practice",
+            "id": "s3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "clearly comprehending",
+            "nuance": "situational awareness and understanding of purpose",
+            "id": "s4",
+            "ripples": []
+          },
+          {
+            "english": "fully aware",
+            "nuance": "complete presence of mind in the moment",
+            "id": "s5",
+            "ripples": []
+          },
+          {
+            "english": "discerning",
+            "nuance": "clear-sightedness regarding one's activity",
+            "id": "s6",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "possessing the quality of recollection and presence",
+            "id": "s7",
+            "ripples": []
+          },
+          {
+            "english": "attentive",
+            "nuance": "focused and observant of the present state",
+            "id": "s8",
+            "ripples": []
+          },
+          {
+            "english": "recollecting",
+            "nuance": "maintaining the object of meditation in mind",
+            "id": "s9",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard meditative triad. Senses reflect common scholarly translations (Sujato, Bodhi, Thanissaro)."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ag",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "ātāp",
+            "type": "root",
+            "tooltips": [
+              "The root 'tap' means to burn or heat — here referring to the 'heat' of energetic effort.",
+              "Ardor: the quality of burning away mental defilements."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending is a possessive suffix meaning 'one who has' this quality.",
+              "Nominative singular: describing the person practicing."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "ardent",
+            "nuance": "energetic effort, burning away defilements",
+            "id": "s1"
+          },
+          {
+            "english": "diligent",
+            "nuance": "persistent and careful application",
+            "id": "s2"
+          },
+          {
+            "english": "resolute",
+            "nuance": "unwavering determination in practice",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "sam",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'sam' means together or completely."
+            ]
+          },
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'pa' means forward or forth."
+            ]
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltips": [
+              "The root 'jñā' means to know — 'sampajāna' is knowing clearly and thoroughly."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -o ending marks the nominative singular masculine."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "clearly comprehending",
+            "nuance": "situational awareness and understanding of purpose",
+            "id": "s4"
+          },
+          {
+            "english": "fully aware",
+            "nuance": "complete presence of mind in the moment",
+            "id": "s5"
+          },
+          {
+            "english": "discerning",
+            "nuance": "clear-sightedness regarding one's activity",
+            "id": "s6"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "sati",
+            "type": "root",
+            "tooltips": [
+              "The root 'smṛ' means to remember — 'sati' is the quality of presence or mindfulness."
+            ]
+          },
+          {
+            "text": "mā",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -mā ending (from -mant) means 'possessing' or 'endowed with'.",
+              "One who possesses mindfulness."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "possessing the quality of recollection and presence",
+            "id": "s7"
+          },
+          {
+            "english": "attentive",
+            "nuance": "focused and observant of the present state",
+            "id": "s8"
+          },
+          {
+            "english": "recollecting",
+            "nuance": "maintaining the object of meditation in mind",
+            "id": "s9"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "ag1s1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "ag2s1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "ag3s1",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "The Meditative Triad"
+  }
+}

@@ -1,0 +1,1206 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:08:55.154Z",
+    "phaseId": "phase-ar",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Dīghaṁ vā assasanto 'dīghaṁ assasāmī 'ti pajānāti dīghaṁ vā passasanto 'dīghaṁ passasāmī 'ti pajānāti",
+    "englishText": "\"I breathe in long\" \"I breathe out long\"",
+    "tokens": {
+      "prompt": 25695,
+      "completion": 6020,
+      "total": 31715
+    },
+    "costUsd": 0.0309075,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ar",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "assasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "assasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p6s1"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p7s1",
+          "p7s2",
+          "p7s3",
+          "p7s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p8",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p8s1",
+          "p8s2"
+        ]
+      },
+      {
+        "id": "p9",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p9s1"
+        ]
+      },
+      {
+        "id": "p10",
+        "surface": "passasanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p10s1",
+          "p10s2",
+          "p10s3"
+        ]
+      },
+      {
+        "id": "p11",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p11s1",
+          "p11s2"
+        ]
+      },
+      {
+        "id": "p12",
+        "surface": "passasāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p12s1",
+          "p12s2",
+          "p12s3"
+        ]
+      },
+      {
+        "id": "p13",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p13s1"
+        ]
+      },
+      {
+        "id": "p14",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p14s1",
+          "p14s2",
+          "p14s3",
+          "p14s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Dīgh",
+        "type": "stem",
+        "tooltips": [
+          "Dīgha: Long in duration or extent"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -aṁ ending here marks the adverbial use: 'longly' or 'a long breath'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: Or / alternatively"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "assas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe; with prefix 'a' it means breathing in"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "ant",
+        "type": "suffix",
+        "tooltips": [
+          "The -ant suffix makes this a present participle: 'breathing'"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular: 'the one who is breathing'"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "dīgh",
+        "type": "stem",
+        "tooltips": [
+          "dīgha: Long"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial accusative: 'long'"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "assas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe in"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "ām",
+        "type": "suffix",
+        "tooltips": [
+          "Thematic vowel lengthened for 1st person"
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "i",
+        "type": "suffix",
+        "tooltips": [
+          "1st person singular: 'I breathe'"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "ti: Quotation marker; like closing quotation marks"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: Prefix implying intensity or 'forth'"
+        ]
+      },
+      {
+        "id": "p7s2",
+        "wordId": "p7",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "√jñā: To know / understand"
+        ]
+      },
+      {
+        "id": "p7s3",
+        "wordId": "p7",
+        "text": "ā",
+        "type": "suffix",
+        "tooltips": [
+          "Sign of the 7th conjugation class"
+        ]
+      },
+      {
+        "id": "p7s4",
+        "wordId": "p7",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "3rd person singular: 'he/she understands'"
+        ]
+      },
+      {
+        "id": "p8s1",
+        "wordId": "p8",
+        "text": "dīgh",
+        "type": "stem",
+        "tooltips": [
+          "dīgha: Long"
+        ]
+      },
+      {
+        "id": "p8s2",
+        "wordId": "p8",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial accusative"
+        ]
+      },
+      {
+        "id": "p9s1",
+        "wordId": "p9",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: Or"
+        ]
+      },
+      {
+        "id": "p10s1",
+        "wordId": "p10",
+        "text": "passas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe; with prefix 'pa' it means breathing out"
+        ]
+      },
+      {
+        "id": "p10s2",
+        "wordId": "p10",
+        "text": "ant",
+        "type": "suffix",
+        "tooltips": [
+          "Present participle: 'breathing out'"
+        ]
+      },
+      {
+        "id": "p10s3",
+        "wordId": "p10",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular"
+        ]
+      },
+      {
+        "id": "p11s1",
+        "wordId": "p11",
+        "text": "dīgh",
+        "type": "stem",
+        "tooltips": [
+          "dīgha: Long"
+        ]
+      },
+      {
+        "id": "p11s2",
+        "wordId": "p11",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial accusative"
+        ]
+      },
+      {
+        "id": "p12s1",
+        "wordId": "p12",
+        "text": "passas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe out"
+        ]
+      },
+      {
+        "id": "p12s2",
+        "wordId": "p12",
+        "text": "ām",
+        "type": "suffix",
+        "tooltips": [
+          "Thematic vowel"
+        ]
+      },
+      {
+        "id": "p12s3",
+        "wordId": "p12",
+        "text": "i",
+        "type": "suffix",
+        "tooltips": [
+          "1st person singular: 'I breathe out'"
+        ]
+      },
+      {
+        "id": "p13s1",
+        "wordId": "p13",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "ti: Quotation marker"
+        ]
+      },
+      {
+        "id": "p14s1",
+        "wordId": "p14",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: Prefix for intensity"
+        ]
+      },
+      {
+        "id": "p14s2",
+        "wordId": "p14",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "√jñā: To know"
+        ]
+      },
+      {
+        "id": "p14s3",
+        "wordId": "p14",
+        "text": "ā",
+        "type": "suffix",
+        "tooltips": [
+          "Conjugation marker"
+        ]
+      },
+      {
+        "id": "p14s4",
+        "wordId": "p14",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "3rd person singular: 'he understands'"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p3",
+        "type": "action",
+        "label": "Extent of",
+        "status": "confirmed"
+      },
+      {
+        "id": "r2",
+        "fromSegmentId": "p8s2",
+        "targetWordId": "p10",
+        "type": "action",
+        "label": "Extent of",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ar",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath",
+            "ripples": []
+          },
+          {
+            "english": "deep",
+            "nuance": "spatial/temporal depth",
+            "ripples": []
+          },
+          {
+            "english": "extended",
+            "nuance": "prolonged inhalation",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option"
+          },
+          {
+            "english": "whether",
+            "nuance": "conditional marker"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathing in",
+            "nuance": "active inhalation",
+            "ripples": []
+          },
+          {
+            "english": "inhaling",
+            "nuance": "physiological process",
+            "ripples": []
+          },
+          {
+            "english": "drawing breath",
+            "nuance": "intentional act",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath",
+            "ripples": []
+          },
+          {
+            "english": "deep",
+            "nuance": "spatial/temporal depth",
+            "ripples": []
+          },
+          {
+            "english": "extended",
+            "nuance": "prolonged inhalation",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I breathe in",
+            "nuance": "first-person present",
+            "ripples": []
+          },
+          {
+            "english": "I am inhaling",
+            "nuance": "continuous action",
+            "ripples": []
+          },
+          {
+            "english": "I draw breath",
+            "nuance": "deliberate action",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker"
+          },
+          {
+            "english": "that",
+            "nuance": "complementizer"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension",
+            "ripples": []
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness",
+            "ripples": []
+          },
+          {
+            "english": "discerns",
+            "nuance": "distinguishing the state",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p8",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath",
+            "ripples": []
+          },
+          {
+            "english": "deep",
+            "nuance": "spatial/temporal depth",
+            "ripples": []
+          },
+          {
+            "english": "extended",
+            "nuance": "prolonged exhalation",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p9",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option"
+          },
+          {
+            "english": "whether",
+            "nuance": "conditional marker"
+          }
+        ]
+      },
+      {
+        "wordId": "p10",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathing out",
+            "nuance": "active exhalation",
+            "ripples": []
+          },
+          {
+            "english": "exhaling",
+            "nuance": "physiological process",
+            "ripples": []
+          },
+          {
+            "english": "releasing breath",
+            "nuance": "intentional act",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p11",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath",
+            "ripples": []
+          },
+          {
+            "english": "deep",
+            "nuance": "spatial/temporal depth",
+            "ripples": []
+          },
+          {
+            "english": "extended",
+            "nuance": "prolonged exhalation",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p12",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I breathe out",
+            "nuance": "first-person present",
+            "ripples": []
+          },
+          {
+            "english": "I am exhaling",
+            "nuance": "continuous action",
+            "ripples": []
+          },
+          {
+            "english": "I release breath",
+            "nuance": "deliberate action",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p13",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker"
+          },
+          {
+            "english": "that",
+            "nuance": "complementizer"
+          }
+        ]
+      },
+      {
+        "wordId": "p14",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension",
+            "ripples": []
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness",
+            "ripples": []
+          },
+          {
+            "english": "discerns",
+            "nuance": "distinguishing the state",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard mindfulness of breathing terminology. Senses reflect the distinction between the participle (assasanto) and the finite verb (assasāmi) within the internal monologue."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ar",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Dīgh",
+            "type": "stem",
+            "tooltips": [
+              "Dīgha: Long in duration or extent"
+            ]
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "action",
+              "label": "Extent of"
+            },
+            "tooltips": [
+              "The -aṁ ending here marks the adverbial use: 'longly' or 'a long breath'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath"
+          },
+          {
+            "english": "deep",
+            "nuance": "spatial/temporal depth"
+          },
+          {
+            "english": "extended",
+            "nuance": "prolonged inhalation"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "vā: Or / alternatively"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option"
+          },
+          {
+            "english": "whether",
+            "nuance": "conditional marker"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "assas",
+            "type": "root",
+            "tooltips": [
+              "The root sas means to breathe; with the prefix 'a' it means breathing in."
+            ]
+          },
+          {
+            "text": "ant",
+            "type": "suffix",
+            "tooltips": [
+              "The -ant suffix makes this a present participle: 'breathing'."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "Nominative singular: 'the one who is breathing'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "breathing in",
+            "nuance": "active inhalation"
+          },
+          {
+            "english": "inhaling",
+            "nuance": "physiological process"
+          },
+          {
+            "english": "drawing breath",
+            "nuance": "intentional act"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "dīgh",
+            "type": "stem"
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "tooltips": [
+              "Adverbial accusative: 'long'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "assas",
+            "type": "root"
+          },
+          {
+            "text": "ām",
+            "type": "suffix"
+          },
+          {
+            "text": "i",
+            "type": "suffix",
+            "tooltips": [
+              "The -i ending marks the 1st person singular: 'I breathe'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "I breathe in",
+            "nuance": "first-person present"
+          },
+          {
+            "english": "I am inhaling",
+            "nuance": "continuous action"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltips": [
+              "ti: Quotation marker; like closing quotation marks"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "pa-: Prefix implying intensity or 'forth'"
+            ]
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltips": [
+              "The root jñā means to know or understand."
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "suffix"
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the 3rd person singular: 'he/she understands'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p8",
+        "segments": [
+          {
+            "text": "dīgh",
+            "type": "stem"
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "relation": {
+              "type": "action",
+              "label": "Extent of"
+            }
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath"
+          }
+        ]
+      },
+      {
+        "id": "p9",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem"
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "alternative option"
+          }
+        ]
+      },
+      {
+        "id": "p10",
+        "segments": [
+          {
+            "text": "passas",
+            "type": "root",
+            "tooltips": [
+              "The root sas with prefix 'pa' means breathing out."
+            ]
+          },
+          {
+            "text": "ant",
+            "type": "suffix"
+          },
+          {
+            "text": "o",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "breathing out",
+            "nuance": "active exhalation"
+          }
+        ]
+      },
+      {
+        "id": "p11",
+        "segments": [
+          {
+            "text": "dīgh",
+            "type": "stem"
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "duration of breath"
+          }
+        ]
+      },
+      {
+        "id": "p12",
+        "segments": [
+          {
+            "text": "passas",
+            "type": "root"
+          },
+          {
+            "text": "ām",
+            "type": "suffix"
+          },
+          {
+            "text": "i",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "I breathe out",
+            "nuance": "first-person present"
+          }
+        ]
+      },
+      {
+        "id": "p13",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem"
+          }
+        ],
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker"
+          }
+        ]
+      },
+      {
+        "id": "p14",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix"
+          },
+          {
+            "text": "jān",
+            "type": "root"
+          },
+          {
+            "text": "ā",
+            "type": "suffix"
+          },
+          {
+            "text": "ti",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear comprehension"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p7"
+      },
+      {
+        "id": "e5",
+        "label": "\"",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e7",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e8",
+        "label": "\"",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e9",
+        "linkedPaliId": "p10"
+      },
+      {
+        "id": "e10",
+        "linkedPaliId": "p8"
+      },
+      {
+        "id": "e11",
+        "linkedPaliId": "p9"
+      },
+      {
+        "id": "e12",
+        "linkedPaliId": "p14"
+      },
+      {
+        "id": "e13",
+        "label": "\"",
+        "linkedPaliId": "p13"
+      },
+      {
+        "id": "e14",
+        "linkedPaliId": "p12"
+      },
+      {
+        "id": "e15",
+        "linkedPaliId": "p11"
+      },
+      {
+        "id": "e16",
+        "label": "\"",
+        "linkedPaliId": "p13"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      [
+        "p6",
+        "p7",
+        "p8",
+        "p9",
+        "p10"
+      ],
+      [
+        "p11",
+        "p12",
+        "p13",
+        "p14"
+      ]
+    ],
+    "title": "Mindfulness of Breathing: Long Breaths"
+  }
+}

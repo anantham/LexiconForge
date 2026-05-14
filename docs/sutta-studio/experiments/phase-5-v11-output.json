@@ -1,0 +1,345 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:01:12.671Z",
+    "phaseId": "phase-5",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "ñāyassa adhigamāya",
+    "englishText": "for the p12s2 p11s1",
+    "tokens": {
+      "prompt": 21706,
+      "completion": 2349,
+      "total": 24055
+    },
+    "costUsd": 0.0179,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-5",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "ñāyassa",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "adhigamāya",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "ñāy",
+        "type": "root",
+        "tooltips": [
+          "The root 'ñā' means to know, but here refers to the 'Right Method' or 'System'.",
+          "ñāya: The noble path or logical method for ending suffering."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "assa",
+        "type": "suffix",
+        "tooltips": [
+          "The -assa ending means 'of the' — it marks belonging (genitive).",
+          "Shows that the 'attainment' belongs to this 'Method'."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "adhi",
+        "type": "prefix",
+        "tooltips": [
+          "adhi-: A prefix meaning 'over', 'toward', or 'superior'.",
+          "Indicates a directed movement toward a goal."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "gam",
+        "type": "root",
+        "tooltips": [
+          "The root 'gam' means to go.",
+          "Combined with 'adhi', it means 'to reach' or 'to attain'."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "ā",
+        "type": "stem",
+        "tooltips": [
+          "Stem vowel forming the noun 'adhigama' (attainment)."
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "ya",
+        "type": "suffix",
+        "tooltips": [
+          "The -āya ending means 'for the sake of' or 'to' (dative).",
+          "Marks the purpose or direction of the practice."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p2",
+        "type": "ownership",
+        "label": "Attainment OF",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-5",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "method",
+            "nuance": "the correct way or system",
+            "id": "s1-1",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "the"
+              }
+            ]
+          },
+          {
+            "english": "logic",
+            "nuance": "the underlying principle or reason",
+            "id": "s1-2",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "the"
+              }
+            ]
+          },
+          {
+            "english": "noble path",
+            "nuance": "the system leading to liberation",
+            "id": "s1-3",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "the"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "attainment",
+            "nuance": "the act of reaching or achieving",
+            "id": "s2-1"
+          },
+          {
+            "english": "realization",
+            "nuance": "direct experiential understanding",
+            "id": "s2-2"
+          },
+          {
+            "english": "acquisition",
+            "nuance": "obtaining a spiritual state",
+            "id": "s2-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "ñāyassa and adhigamāya are standard technical terms in the Satipaṭṭhāna formula. Senses reflect the dative/genitive relationship 'for the attainment of the method'."
+    }
+  },
+  "phaseView": {
+    "id": "phase-5",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "ñāy",
+            "type": "root",
+            "tooltips": [
+              "The root 'ñā' means to know, but here refers to the 'Right Method' or 'System'.",
+              "ñāya: The noble path or logical method for ending suffering."
+            ]
+          },
+          {
+            "text": "assa",
+            "type": "suffix",
+            "morph": {
+              "case": "gen",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "ownership",
+              "label": "Attainment OF",
+              "status": "confirmed",
+              "targetWordId": "p2"
+            },
+            "tooltips": [
+              "The -assa ending means 'of the' — it marks belonging (genitive).",
+              "Shows that the 'attainment' belongs to this 'Method'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "method",
+            "nuance": "the correct way or system",
+            "id": "s1-1",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "the"
+              }
+            ]
+          },
+          {
+            "english": "logic",
+            "nuance": "the underlying principle or reason",
+            "id": "s1-2",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "the"
+              }
+            ]
+          },
+          {
+            "english": "noble path",
+            "nuance": "the system leading to liberation",
+            "id": "s1-3",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "the"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "adhi",
+            "type": "prefix",
+            "tooltips": [
+              "adhi-: A prefix meaning 'over', 'toward', or 'superior'.",
+              "Indicates a directed movement toward a goal."
+            ]
+          },
+          {
+            "text": "gam",
+            "type": "root",
+            "tooltips": [
+              "The root 'gam' means to go.",
+              "Combined with 'adhi', it means 'to reach' or 'to attain'."
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "stem",
+            "tooltips": [
+              "Stem vowel forming the noun 'adhigama' (attainment)."
+            ]
+          },
+          {
+            "text": "ya",
+            "type": "suffix",
+            "morph": {
+              "case": "dat",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -āya ending means 'for the sake of' or 'to' (dative).",
+              "Marks the purpose or direction of the practice."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "attainment",
+            "nuance": "the act of reaching or achieving",
+            "id": "s2-1"
+          },
+          {
+            "english": "realization",
+            "nuance": "direct experiential understanding",
+            "id": "s2-2"
+          },
+          {
+            "english": "acquisition",
+            "nuance": "obtaining a spiritual state",
+            "id": "s2-3"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "g1",
+        "label": "for the",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g2",
+        "label": "of the",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2"
+      ]
+    ],
+    "title": "The Attainment of the Method"
+  }
+}

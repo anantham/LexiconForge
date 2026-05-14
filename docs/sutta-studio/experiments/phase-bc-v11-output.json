@@ -1,0 +1,525 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:14:25.906Z",
+    "phaseId": "phase-bc",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "vayadhammaānupassī vā kāyasmiṁ viharati",
+    "englishText": "or bc4s1 bc3s1",
+    "tokens": {
+      "prompt": 22476,
+      "completion": 3565,
+      "total": 26041
+    },
+    "costUsd": 0.021933,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-bc",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "vayadhammaānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3",
+          "p1s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "kāyasmiṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3",
+          "p4s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "vaya",
+        "type": "root",
+        "tooltips": [
+          "√vi-i: To pass away / vanish",
+          "The nature of disappearance"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "dhamma",
+        "type": "stem",
+        "tooltips": [
+          "Nature / Quality / Phenomenon",
+          "The inherent law of a thing"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ānupass",
+        "type": "root",
+        "tooltips": [
+          "ā + √pas: To look closely / observe",
+          "Continuous, repeated observation"
+        ]
+      },
+      {
+        "id": "p1s4",
+        "wordId": "p1",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending means 'one who does this' — it turns the observation into a practice.",
+          "Nominative singular"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "Or — used to show an alternative practice"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "kāya",
+        "type": "stem",
+        "tooltips": [
+          "Body / Group / Collection",
+          "The physical frame"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "smiṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -smiṁ ending means 'in' or 'on' — marking the location of the practice.",
+          "Locative singular"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix: Apart / Intensive"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "√har: To carry / take",
+          "vi + har = to dwell or live"
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting root to ending"
+        ]
+      },
+      {
+        "id": "p4s4",
+        "wordId": "p4",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks 'he/she/it does' — the third person singular.",
+          "Present tense"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p3s2",
+        "targetWordId": "p4",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-bc",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing the nature of vanishing",
+            "nuance": "contemplating the cessation of physical phenomena",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "observing the nature of vanishing"
+              }
+            ]
+          },
+          {
+            "english": "contemplating the passing away",
+            "nuance": "focusing on the dissolution of the body",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "contemplating the nature of vanishing"
+              }
+            ]
+          },
+          {
+            "english": "watching the decay",
+            "nuance": "literal observation of the breakdown of form",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "observing the phenomenon of passing away"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle connecting alternative practices",
+            "id": "s4"
+          },
+          {
+            "english": "alternatively",
+            "nuance": "marking a shift in meditative focus",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative focus on physical experience",
+            "id": "s6"
+          },
+          {
+            "english": "as a body",
+            "nuance": "regarding the body as a collection of parts",
+            "id": "s7"
+          },
+          {
+            "english": "within the form",
+            "nuance": "internalized awareness of the physical frame",
+            "id": "s8"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative abiding",
+            "id": "s9"
+          },
+          {
+            "english": "lives",
+            "nuance": "active engagement in the practice",
+            "id": "s10"
+          },
+          {
+            "english": "remains",
+            "nuance": "steady persistence in contemplation",
+            "id": "s11"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "p1 is a complex compound (vaya-dhamma-anupassī); senses reflect the standard translation of the formulaic sequence in the Satipatthana Sutta."
+    }
+  },
+  "phaseView": {
+    "id": "phase-bc",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "vaya",
+            "type": "root",
+            "tooltips": [
+              "The root 'vaya' refers to passing away or vanishing.",
+              "The nature of disappearance."
+            ]
+          },
+          {
+            "text": "dhamma",
+            "type": "stem",
+            "tooltips": [
+              "Nature, quality, or phenomenon.",
+              "The inherent law of a thing."
+            ]
+          },
+          {
+            "text": "ānupass",
+            "type": "root",
+            "tooltips": [
+              "The root 'pas' with the prefix 'ā' means to look closely or observe.",
+              "Continuous, repeated observation."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending means 'one who does this' — it turns the observation into a practice.",
+              "Nominative singular."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing the nature of vanishing",
+            "nuance": "contemplating the cessation of physical phenomena",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "observing the nature of vanishing"
+              }
+            ]
+          },
+          {
+            "english": "contemplating the passing away",
+            "nuance": "focusing on the dissolution of the body",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "contemplating the nature of vanishing"
+              }
+            ]
+          },
+          {
+            "english": "watching the decay",
+            "nuance": "literal observation of the breakdown of form",
+            "id": "s3",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "observing the phenomenon of passing away"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltips": [
+              "Or — used to show an alternative practice."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle connecting alternative practices",
+            "id": "s4"
+          },
+          {
+            "english": "alternatively",
+            "nuance": "marking a shift in meditative focus",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "kāya",
+            "type": "stem",
+            "tooltips": [
+              "Body, group, or collection.",
+              "The physical frame."
+            ]
+          },
+          {
+            "text": "smiṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwelling IN",
+              "status": "confirmed",
+              "targetWordId": "p4"
+            },
+            "tooltips": [
+              "The -smiṁ ending means 'in' or 'on' — marking the location of the practice.",
+              "Locative singular."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative focus on physical experience",
+            "id": "s6"
+          },
+          {
+            "english": "as a body",
+            "nuance": "regarding the body as a collection of parts",
+            "id": "s7"
+          },
+          {
+            "english": "within the form",
+            "nuance": "internalized awareness of the physical frame",
+            "id": "s8"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "Prefix meaning apart or intensive."
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "The root 'har' means to carry; with the prefix 'vi', it means to dwell or live."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting root to ending."
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks 'he/she/it does' — the third person singular.",
+              "Present tense."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual meditative abiding",
+            "id": "s9"
+          },
+          {
+            "english": "lives",
+            "nuance": "active engagement in the practice",
+            "id": "s10"
+          },
+          {
+            "english": "remains",
+            "nuance": "steady persistence in contemplation",
+            "id": "s11"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    ],
+    "title": "Observing the Nature of Vanishing"
+  }
+}

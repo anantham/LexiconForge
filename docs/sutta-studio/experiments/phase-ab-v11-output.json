@@ -1,0 +1,454 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:03:15.205Z",
+    "phaseId": "phase-ab",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "vineyya loke abhijjhādomanassaṁ",
+    "englishText": "ab1s2 regarding ab2s1",
+    "tokens": {
+      "prompt": 22170,
+      "completion": 3126,
+      "total": 25296
+    },
+    "costUsd": 0.020463000000000002,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ab",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "vineyya",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "loke",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "surface": "abhijjhādomanassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: Away, apart, or intensive",
+          "Here it implies removal or leading away"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "neyy",
+        "type": "root",
+        "tooltips": [
+          "The root 'nī' means to lead or guide",
+          "Combined with 'vi', it means to remove or discipline"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "a",
+        "type": "suffix",
+        "tooltips": [
+          "The -ya ending is an absolutive — 'having done this'",
+          "Indicates the removal happens as part of the practice"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "lok",
+        "type": "stem",
+        "tooltips": [
+          "The root 'lok' means to see or shine",
+          "Loka: the world, or the field of sensory experience"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending is locative — 'in/regarding the world'",
+          "Marks the sphere where the removal takes place"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "abhijjhā",
+        "type": "stem",
+        "tooltips": [
+          "Covetousness or longing",
+          "The mental pull toward pleasant objects"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "do",
+        "type": "prefix",
+        "tooltips": [
+          "du-: Bad, difficult, or painful",
+          "The opposite of 'su' (good/easy)"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "manass",
+        "type": "root",
+        "tooltips": [
+          "From 'manas' (mind)",
+          "Domanassa: 'bad-mindedness' or distress/displeasure"
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -aṁ ending marks the direct object",
+          "This is what is being removed (vineyya)"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p2s2",
+        "targetWordId": "p1",
+        "type": "location",
+        "label": "Removed IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ab",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "having removed",
+            "nuance": "completed action of putting away",
+            "id": "s1-1",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "having put away"
+              }
+            ]
+          },
+          {
+            "english": "subduing",
+            "nuance": "active restraint or discipline",
+            "id": "s1-2",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "subduing"
+              }
+            ]
+          },
+          {
+            "english": "overcoming",
+            "nuance": "conquering a mental hindrance",
+            "id": "s1-3",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "overcoming"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "world",
+            "nuance": "the internal/external world of experience",
+            "id": "s2-1"
+          },
+          {
+            "english": "life",
+            "nuance": "the sphere of worldly existence",
+            "id": "s2-2"
+          },
+          {
+            "english": "body-and-mind",
+            "nuance": "the five aggregates as 'the world'",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "covetousness and displeasure",
+            "nuance": "literal pairing of desire and aversion",
+            "id": "s3-1"
+          },
+          {
+            "english": "greed and distress",
+            "nuance": "emotional intensity of the hindrance",
+            "id": "s3-2"
+          },
+          {
+            "english": "longing and dejection",
+            "nuance": "psychological states of pull and push",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard Satipatthana formula. Senses for p3 reflect the common dvanda compound treatment in major translations."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ab",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: Away, apart, or intensive",
+              "Here it implies removal or leading away"
+            ]
+          },
+          {
+            "text": "neyy",
+            "type": "root",
+            "tooltips": [
+              "The root 'nī' means to lead or guide",
+              "Combined with 'vi', it means to remove or discipline"
+            ]
+          },
+          {
+            "text": "a",
+            "type": "suffix",
+            "tooltips": [
+              "The -ya ending is an absolutive — 'having done this'",
+              "Indicates the removal happens as part of the practice"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "having removed",
+            "nuance": "completed action of putting away",
+            "id": "s1-1",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "having put away"
+              }
+            ]
+          },
+          {
+            "english": "subduing",
+            "nuance": "active restraint or discipline",
+            "id": "s1-2",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "subduing"
+              }
+            ]
+          },
+          {
+            "english": "overcoming",
+            "nuance": "conquering a mental hindrance",
+            "id": "s1-3",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "overcoming"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "lok",
+            "type": "stem",
+            "tooltips": [
+              "The root 'lok' means to see or shine",
+              "Loka: the world, or the field of sensory experience"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Removed IN",
+              "status": "confirmed",
+              "targetWordId": "p1"
+            },
+            "tooltips": [
+              "The -e ending is locative — 'in/regarding the world'",
+              "Marks the sphere where the removal takes place"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "world",
+            "nuance": "the internal/external world of experience",
+            "id": "s2-1"
+          },
+          {
+            "english": "life",
+            "nuance": "the sphere of worldly existence",
+            "id": "s2-2"
+          },
+          {
+            "english": "body-and-mind",
+            "nuance": "the five aggregates as 'the world'",
+            "id": "s2-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "abhijjhā",
+            "type": "stem",
+            "tooltips": [
+              "Covetousness or longing",
+              "The mental pull toward pleasant objects"
+            ]
+          },
+          {
+            "text": "do",
+            "type": "prefix",
+            "tooltips": [
+              "du-: Bad, difficult, or painful",
+              "The opposite of 'su' (good/easy)"
+            ]
+          },
+          {
+            "text": "manass",
+            "type": "root",
+            "tooltips": [
+              "From 'manas' (mind)",
+              "Domanassa: 'bad-mindedness' or distress/displeasure"
+            ]
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -aṁ ending marks the direct object",
+              "This is what is being removed (vineyya)"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "covetousness and displeasure",
+            "nuance": "literal pairing of desire and aversion",
+            "id": "s3-1"
+          },
+          {
+            "english": "greed and distress",
+            "nuance": "emotional intensity of the hindrance",
+            "id": "s3-2"
+          },
+          {
+            "english": "longing and dejection",
+            "nuance": "psychological states of pull and push",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "g1",
+        "label": "regarding the",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Removing Hindrances"
+  }
+}

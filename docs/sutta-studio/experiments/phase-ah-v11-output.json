@@ -1,0 +1,412 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:05:07.512Z",
+    "phaseId": "phase-ah",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "vineyya loke abhijjhādomanassaṁ",
+    "englishText": "regarding",
+    "tokens": {
+      "prompt": 22019,
+      "completion": 2817,
+      "total": 24836
+    },
+    "costUsd": 0.0194605,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ah",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "vineyya",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "loke",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "abhijjhādomanassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: Away / Apart",
+          "Indicates removal or separation"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "neyy",
+        "type": "root",
+        "tooltips": [
+          "√nī: To lead / guide",
+          "vi + nī = to lead away, to remove"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "a",
+        "type": "suffix",
+        "tooltips": [
+          "Absolutive: 'having removed'",
+          "The -ya ending marks a completed action that precedes the main meditation"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "lok",
+        "type": "root",
+        "tooltips": [
+          "loka: The world",
+          "Refers to the 'world' of the five aggregates or experience"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "Locative: 'in the world'",
+          "The -e ending marks the place where the removal happens"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "abhijjhā",
+        "type": "stem",
+        "tooltips": [
+          "abhijjhā: Covetousness / Greed",
+          "The first half of the compound"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "do",
+        "type": "prefix",
+        "tooltips": [
+          "du-: Bad / Difficult",
+          "Prefix indicating negativity or pain"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "manass",
+        "type": "root",
+        "tooltips": [
+          "manas: Mind",
+          "du + manas = 'bad-mindedness' or distress"
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Accusative: Marks the object",
+          "The thing being removed: greed and distress"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p2s2",
+        "targetWordId": "p1",
+        "type": "location",
+        "label": "Removed IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ah",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "having removed",
+            "nuance": "active removal of obstacles",
+            "id": "s1-1"
+          },
+          {
+            "english": "having put away",
+            "nuance": "setting aside mental hindrances",
+            "id": "s1-2"
+          },
+          {
+            "english": "having overcome",
+            "nuance": "mastering or subduing a state",
+            "id": "s1-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "in the world",
+            "nuance": "the world of experience/senses",
+            "id": "s2-1"
+          },
+          {
+            "english": "regarding the world",
+            "nuance": "concerning worldly phenomena",
+            "id": "s2-2"
+          },
+          {
+            "english": "within the world",
+            "nuance": "internalized experience of the world",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "covetousness and displeasure",
+            "nuance": "the pair of attraction and repulsion",
+            "id": "s3-1"
+          },
+          {
+            "english": "desire and dejection",
+            "nuance": "longing and the grief of loss",
+            "id": "s3-2"
+          },
+          {
+            "english": "greed and distress",
+            "nuance": "grasping and the resulting mental pain",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard formulaic phrase in the Satipatthana Sutta. Senses reflect common scholarly translations (Sujato, Bodhi, Thanissaro)."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ah",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: Away / Apart",
+              "Indicates removal or separation"
+            ]
+          },
+          {
+            "text": "neyy",
+            "type": "root",
+            "tooltips": [
+              "√nī: To lead / guide",
+              "vi + nī = to lead away, to remove"
+            ]
+          },
+          {
+            "text": "a",
+            "type": "suffix",
+            "tooltips": [
+              "Absolutive: 'having removed'",
+              "The -ya ending marks a completed action that precedes the main meditation"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "having removed",
+            "nuance": "active removal of obstacles",
+            "id": "s1-1"
+          },
+          {
+            "english": "having put away",
+            "nuance": "setting aside mental hindrances",
+            "id": "s1-2"
+          },
+          {
+            "english": "having overcome",
+            "nuance": "mastering or subduing a state",
+            "id": "s1-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "lok",
+            "type": "root",
+            "tooltips": [
+              "loka: The world",
+              "Refers to the 'world' of the five aggregates or experience"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Removed IN",
+              "status": "confirmed"
+            },
+            "tooltips": [
+              "Locative: 'in the world'",
+              "The -e ending marks the place where the removal happens"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "in the world",
+            "nuance": "the world of experience/senses",
+            "id": "s2-1"
+          },
+          {
+            "english": "regarding the world",
+            "nuance": "concerning worldly phenomena",
+            "id": "s2-2"
+          },
+          {
+            "english": "within the world",
+            "nuance": "internalized experience of the world",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "abhijjhā",
+            "type": "stem",
+            "tooltips": [
+              "abhijjhā: Covetousness / Greed",
+              "The first half of the compound"
+            ]
+          },
+          {
+            "text": "do",
+            "type": "prefix",
+            "tooltips": [
+              "du-: Bad / Difficult",
+              "Prefix indicating negativity or pain"
+            ]
+          },
+          {
+            "text": "manass",
+            "type": "root",
+            "tooltips": [
+              "manas: Mind",
+              "du + manas = 'bad-mindedness' or distress"
+            ]
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "tooltips": [
+              "Accusative: Marks the object",
+              "The thing being removed: greed and distress"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "covetousness and displeasure",
+            "nuance": "the pair of attraction and repulsion",
+            "id": "s3-1"
+          },
+          {
+            "english": "desire and dejection",
+            "nuance": "longing and the grief of loss",
+            "id": "s3-2"
+          },
+          {
+            "english": "greed and distress",
+            "nuance": "grasping and the resulting mental pain",
+            "id": "s3-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p2"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Removing Hindrances"
+  }
+}

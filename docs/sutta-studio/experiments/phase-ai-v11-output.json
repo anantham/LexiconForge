@@ -1,0 +1,441 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:05:28.109Z",
+    "phaseId": "phase-ai",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "dhammesu dhammānupassī viharati",
+    "englishText": "ai3s2 ai1s1",
+    "tokens": {
+      "prompt": 22092,
+      "completion": 2914,
+      "total": 25006
+    },
+    "costUsd": 0.019788,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-ai",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "dhammesu",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "dhammānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "dhamme",
+        "type": "stem",
+        "tooltips": [
+          "dhamma: qualities, principles, or phenomena",
+          "The object of contemplation"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "su",
+        "type": "suffix",
+        "tooltips": [
+          "The -su ending marks the location — 'in' or 'among' these qualities.",
+          "Locative plural"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "dhamma",
+        "type": "stem",
+        "tooltips": [
+          "dhamma: qualities or mental principles"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "anu",
+        "type": "prefix",
+        "tooltips": [
+          "anu: following, along, or repeatedly"
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "pass",
+        "type": "root",
+        "tooltips": [
+          "the root 'pas': to see or observe"
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending describes a person who does this — 'one who observes'.",
+          "Nominative singular"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi: intensive prefix, often used with 'dwelling'"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "the root 'har': to carry or move",
+          "vi + har = to dwell or live"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Connecting vowel"
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending means 'he/she/it does' — 'dwells'.",
+          "3rd person singular"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p3",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-ai",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "principles",
+            "nuance": "mental qualities or phenomena",
+            "id": "s1",
+            "ripples": []
+          },
+          {
+            "english": "teachings",
+            "nuance": "doctrinal categories",
+            "id": "s2",
+            "ripples": []
+          },
+          {
+            "english": "realities",
+            "nuance": "experiential objects of mind",
+            "id": "s3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing",
+            "nuance": "contemplating phenomena as they arise",
+            "id": "s4",
+            "ripples": []
+          },
+          {
+            "english": "tracking",
+            "nuance": "following the nature of principles",
+            "id": "s5",
+            "ripples": []
+          },
+          {
+            "english": "discerning",
+            "nuance": "seeing clearly into mental states",
+            "id": "s6",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "abides in a state of practice",
+            "id": "s7",
+            "ripples": []
+          },
+          {
+            "english": "dwells",
+            "nuance": "lives or remains in that mode",
+            "id": "s8",
+            "ripples": []
+          },
+          {
+            "english": "stays",
+            "nuance": "persists in the observation",
+            "id": "s9",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard Satipatthana formula. Senses for 'dhamma' focus on the mental/phenomenological aspect appropriate for the fourth foundation."
+    }
+  },
+  "phaseView": {
+    "id": "phase-ai",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "dhamme",
+            "type": "stem",
+            "tooltips": [
+              "dhamma: qualities, principles, or phenomena",
+              "The object of contemplation"
+            ]
+          },
+          {
+            "text": "su",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "pl"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwelling IN",
+              "status": "confirmed",
+              "targetWordId": "p3"
+            },
+            "tooltips": [
+              "The -su ending marks the location — 'in' or 'among' these qualities.",
+              "Locative plural"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "principles",
+            "nuance": "mental qualities or phenomena",
+            "id": "s1"
+          },
+          {
+            "english": "teachings",
+            "nuance": "doctrinal categories",
+            "id": "s2"
+          },
+          {
+            "english": "realities",
+            "nuance": "experiential objects of mind",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "dhamma",
+            "type": "stem",
+            "tooltips": [
+              "dhamma: qualities or mental principles"
+            ]
+          },
+          {
+            "text": "anu",
+            "type": "prefix",
+            "tooltips": [
+              "anu: following, along, or repeatedly"
+            ]
+          },
+          {
+            "text": "pass",
+            "type": "root",
+            "tooltips": [
+              "the root 'pas': to see or observe"
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending describes a person who does this — 'one who observes'.",
+              "Nominative singular"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing",
+            "nuance": "contemplating phenomena as they arise",
+            "id": "s4"
+          },
+          {
+            "english": "tracking",
+            "nuance": "following the nature of principles",
+            "id": "s5"
+          },
+          {
+            "english": "discerning",
+            "nuance": "seeing clearly into mental states",
+            "id": "s6"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi: intensive prefix, often used with 'dwelling'"
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "the root 'har': to carry or move",
+              "vi + har = to dwell or live"
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Connecting vowel"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending means 'he/she/it does' — 'dwells'.",
+              "3rd person singular"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "abides in a state of practice",
+            "id": "s7"
+          },
+          {
+            "english": "dwells",
+            "nuance": "lives or remains in that mode",
+            "id": "s8"
+          },
+          {
+            "english": "stays",
+            "nuance": "persists in the observation",
+            "id": "s9"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "g1",
+        "label": "as one",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g2",
+        "label": "in",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Contemplation of Principles"
+  }
+}

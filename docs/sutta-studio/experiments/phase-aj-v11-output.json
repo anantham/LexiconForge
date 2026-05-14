@@ -1,0 +1,391 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:05:46.407Z",
+    "phaseId": "phase-aj",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "ātāpī sampajāno satimā",
+    "englishText": "aj1s1 aj2s1 aj3s1",
+    "tokens": {
+      "prompt": 22036,
+      "completion": 2858,
+      "total": 24894
+    },
+    "costUsd": 0.019592,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-aj",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "ātāpī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ],
+        "refrainId": "formula-ardent"
+      },
+      {
+        "id": "p2",
+        "surface": "sampajāno",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4"
+        ],
+        "refrainId": "formula-ardent"
+      },
+      {
+        "id": "p3",
+        "surface": "satimā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ],
+        "refrainId": "formula-ardent"
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "ātāp",
+        "type": "root",
+        "tooltips": [
+          "The root 'tap' means to burn or heat — here referring to the 'heat' of energetic effort.",
+          "Ardor: the quality of burning away mental defilements."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending is a possessive suffix meaning 'one who has' this quality.",
+          "Nominative singular: describes the person practicing."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "sam",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'sam' implies completeness or being 'together'."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'pa' means 'forth' or 'forward', intensifying the action."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "The root 'jñā' means to know. Combined with prefixes, it refers to clear comprehension or situational awareness."
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending marks the nominative singular, identifying the one who is 'clearly knowing'."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "sati",
+        "type": "root",
+        "tooltips": [
+          "The root 'smṛ' means to remember, but in this context, it refers to 'presence of mind' or mindfulness."
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "mā",
+        "type": "suffix",
+        "tooltips": [
+          "The -mā ending is a possessive suffix (from -mant) meaning 'one who possesses' mindfulness."
+        ]
+      }
+    ],
+    "relations": []
+  },
+  "lexicographer": {
+    "id": "phase-aj",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "diligent",
+            "nuance": "active effort",
+            "id": "s1",
+            "notes": "Standard modern translation for the heat of effort."
+          },
+          {
+            "english": "ardent",
+            "nuance": "burning passion for practice",
+            "id": "s2",
+            "notes": "Reflects the etymological root 'tap' (to burn/heat)."
+          },
+          {
+            "english": "energetic",
+            "nuance": "sustained application",
+            "id": "s3",
+            "notes": "Focuses on the functional aspect of right effort."
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "clearly comprehending",
+            "nuance": "situational awareness",
+            "id": "s4",
+            "notes": "Traditional rendering of sampajañña as understanding context."
+          },
+          {
+            "english": "mindful",
+            "nuance": "discerning presence",
+            "id": "s5",
+            "notes": "Used when emphasizing the cognitive clarity of the state."
+          },
+          {
+            "english": "aware",
+            "nuance": "conscious of activity",
+            "id": "s6",
+            "notes": "A simpler, more direct modern rendering."
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "possessing memory/presence",
+            "id": "s7",
+            "notes": "The -mā suffix indicates 'possessing' mindfulness."
+          },
+          {
+            "english": "aware",
+            "nuance": "retaining focus",
+            "id": "s8",
+            "notes": "Focuses on the quality of not drifting."
+          },
+          {
+            "english": "attentive",
+            "nuance": "careful observation",
+            "id": "s9",
+            "notes": "Emphasizes the quality of attention in the present moment."
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "These three terms form a standard formula for meditation practice. Senses reflect the common scholarly range for these technical terms."
+    }
+  },
+  "phaseView": {
+    "id": "phase-aj",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "ātāp",
+            "type": "root",
+            "tooltips": [
+              "The root 'tap' means to burn or heat — here referring to the 'heat' of energetic effort.",
+              "Ardor: the quality of burning away mental defilements."
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ī ending is a possessive suffix meaning 'one who has' this quality.",
+              "Nominative singular: describes the person practicing."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "diligent",
+            "nuance": "active effort",
+            "id": "s1",
+            "notes": "Standard modern translation for the heat of effort."
+          },
+          {
+            "english": "ardent",
+            "nuance": "burning passion for practice",
+            "id": "s2",
+            "notes": "Reflects the etymological root 'tap' (to burn/heat)."
+          },
+          {
+            "english": "energetic",
+            "nuance": "sustained application",
+            "id": "s3",
+            "notes": "Focuses on the functional aspect of right effort."
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "sam",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'sam' implies completeness or being 'together'."
+            ]
+          },
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'pa' means 'forth' or 'forward', intensifying the action."
+            ]
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltips": [
+              "The root 'jñā' means to know. Combined with prefixes, it refers to clear comprehension or situational awareness."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -o ending marks the nominative singular, identifying the one who is 'clearly knowing'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "clearly comprehending",
+            "nuance": "situational awareness",
+            "id": "s4",
+            "notes": "Traditional rendering of sampajañña as understanding context."
+          },
+          {
+            "english": "mindful",
+            "nuance": "discerning presence",
+            "id": "s5",
+            "notes": "Used when emphasizing the cognitive clarity of the state."
+          },
+          {
+            "english": "aware",
+            "nuance": "conscious of activity",
+            "id": "s6",
+            "notes": "A simpler, more direct modern rendering."
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "sati",
+            "type": "root",
+            "tooltips": [
+              "The root 'smṛ' means to remember, but in this context, it refers to 'presence of mind' or mindfulness."
+            ]
+          },
+          {
+            "text": "mā",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -mā ending is a possessive suffix (from -mant) meaning 'one who possesses' mindfulness."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "possessing memory/presence",
+            "id": "s7",
+            "notes": "The -mā suffix indicates 'possessing' mindfulness."
+          },
+          {
+            "english": "aware",
+            "nuance": "retaining focus",
+            "id": "s8",
+            "notes": "Focuses on the quality of not drifting."
+          },
+          {
+            "english": "attentive",
+            "nuance": "careful observation",
+            "id": "s9",
+            "notes": "Emphasizes the quality of attention in the present moment."
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Ardent, Aware, and Mindful"
+  }
+}

@@ -1,0 +1,974 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:10:40.624Z",
+    "phaseId": "phase-au",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "'Passambhayaṁ kāyasaṅkhāraṁ assasissāmī 'ti sikkhati 'passambhayaṁ kāyasaṅkhāraṁ passasissāmī 'ti sikkhati",
+    "englishText": ": I will : I will",
+    "tokens": {
+      "prompt": 24623,
+      "completion": 6312,
+      "total": 30935
+    },
+    "costUsd": 0.0312475,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-au",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Passambhayaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "kāyasaṅkhāraṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "assasissāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p4s1"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "sikkhati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p6",
+        "surface": "passambhayaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "kāyasaṅkhāraṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p7s1",
+          "p7s2",
+          "p7s3"
+        ]
+      },
+      {
+        "id": "p8",
+        "surface": "passasissāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p8s1",
+          "p8s2",
+          "p8s3"
+        ]
+      },
+      {
+        "id": "p9",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p9s1"
+        ]
+      },
+      {
+        "id": "p10",
+        "surface": "sikkhati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p10s1",
+          "p10s2",
+          "p10s3"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "passambh",
+        "type": "root",
+        "tooltips": [
+          "√sambh: To be calm",
+          "pa-: prefix for intensity"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "aya",
+        "type": "suffix",
+        "tooltips": [
+          "Causative: making something happen",
+          "Calming or stilling"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Present participle: 'while calming'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "kāya",
+        "type": "stem",
+        "tooltips": [
+          "Body: the physical frame"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "saṅkhāra",
+        "type": "stem",
+        "tooltips": [
+          "Conditioning: that which constructs",
+          "kāyasaṅkhāra: the breath"
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Direct object: the thing being calmed"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "assas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe",
+          "a-: prefix for 'in'"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "issā",
+        "type": "suffix",
+        "tooltips": [
+          "Future tense: 'I will'"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "mī",
+        "type": "suffix",
+        "tooltips": [
+          "First person: 'I'"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "Quotation mark: 'thus'"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "sikkh",
+        "type": "root",
+        "tooltips": [
+          "√sikkh: To train or study"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel"
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "Third person: 'he/she trains'"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "passambh",
+        "type": "root",
+        "tooltips": [
+          "√sambh: To be calm"
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "aya",
+        "type": "suffix",
+        "tooltips": [
+          "Causative: calming"
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Present participle"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "kāya",
+        "type": "stem",
+        "tooltips": [
+          "Body"
+        ]
+      },
+      {
+        "id": "p7s2",
+        "wordId": "p7",
+        "text": "saṅkhāra",
+        "type": "stem",
+        "tooltips": [
+          "Conditioning"
+        ]
+      },
+      {
+        "id": "p7s3",
+        "wordId": "p7",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Direct object"
+        ]
+      },
+      {
+        "id": "p8s1",
+        "wordId": "p8",
+        "text": "passas",
+        "type": "root",
+        "tooltips": [
+          "√sas: To breathe",
+          "pa-: prefix for 'out'"
+        ]
+      },
+      {
+        "id": "p8s2",
+        "wordId": "p8",
+        "text": "issā",
+        "type": "suffix",
+        "tooltips": [
+          "Future tense"
+        ]
+      },
+      {
+        "id": "p8s3",
+        "wordId": "p8",
+        "text": "mī",
+        "type": "suffix",
+        "tooltips": [
+          "First person"
+        ]
+      },
+      {
+        "id": "p9s1",
+        "wordId": "p9",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "Quotation mark"
+        ]
+      },
+      {
+        "id": "p10s1",
+        "wordId": "p10",
+        "text": "sikkh",
+        "type": "root",
+        "tooltips": [
+          "√sikkh: To train"
+        ]
+      },
+      {
+        "id": "p10s2",
+        "wordId": "p10",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel"
+        ]
+      },
+      {
+        "id": "p10s3",
+        "wordId": "p10",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "Third person"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p2s3",
+        "targetWordId": "p1",
+        "type": "action",
+        "label": "Object of calming",
+        "status": "confirmed"
+      },
+      {
+        "id": "r2",
+        "fromSegmentId": "p7s3",
+        "targetWordId": "p6",
+        "type": "action",
+        "label": "Object of calming",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-au",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "calming",
+            "nuance": "tranquilizing or stilling an active process",
+            "id": "s1"
+          },
+          {
+            "english": "quieting",
+            "nuance": "reducing the intensity of a physical activity",
+            "id": "s2"
+          },
+          {
+            "english": "stilling",
+            "nuance": "bringing to a state of rest or cessation",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "bodily formation",
+            "nuance": "the physical process of breathing as a vital activity",
+            "id": "s4"
+          },
+          {
+            "english": "physical activity",
+            "nuance": "the conditioned nature of the body's movements",
+            "id": "s5"
+          },
+          {
+            "english": "body-conditioner",
+            "nuance": "that which drives or sustains the physical frame",
+            "id": "s6"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I will breathe in",
+            "nuance": "future intent for inhalation",
+            "id": "s7"
+          },
+          {
+            "english": "I shall inhale",
+            "nuance": "formal expression of future breath",
+            "id": "s8"
+          },
+          {
+            "english": "I am to breathe in",
+            "nuance": "prescriptive or determined future action",
+            "id": "s9"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "thus",
+            "nuance": "quotation marker closing a thought",
+            "id": "s10"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active practice or self-training",
+            "id": "s11"
+          },
+          {
+            "english": "practices",
+            "nuance": "habitual application of a technique",
+            "id": "s12"
+          },
+          {
+            "english": "learns",
+            "nuance": "developing skill through repetition",
+            "id": "s13"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "calming",
+            "nuance": "tranquilizing or stilling an active process",
+            "id": "s14"
+          },
+          {
+            "english": "quieting",
+            "nuance": "reducing intensity",
+            "id": "s15"
+          },
+          {
+            "english": "stilling",
+            "nuance": "bringing to rest",
+            "id": "s16"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "bodily formation",
+            "nuance": "the physical process of breathing",
+            "id": "s17"
+          },
+          {
+            "english": "physical activity",
+            "nuance": "conditioned physical movement",
+            "id": "s18"
+          },
+          {
+            "english": "body-conditioner",
+            "nuance": "the breath as sustainer of the body",
+            "id": "s19"
+          }
+        ]
+      },
+      {
+        "wordId": "p8",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I will breathe out",
+            "nuance": "future intent for exhalation",
+            "id": "s20"
+          },
+          {
+            "english": "I shall exhale",
+            "nuance": "formal expression of future breath",
+            "id": "s21"
+          },
+          {
+            "english": "I am to breathe out",
+            "nuance": "determined future action",
+            "id": "s22"
+          }
+        ]
+      },
+      {
+        "wordId": "p9",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "thus",
+            "nuance": "quotation marker",
+            "id": "s23"
+          }
+        ]
+      },
+      {
+        "wordId": "p10",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active self-training",
+            "id": "s24"
+          },
+          {
+            "english": "practices",
+            "nuance": "habitual application",
+            "id": "s25"
+          },
+          {
+            "english": "learns",
+            "nuance": "developing skill",
+            "id": "s26"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard repetitive formula for breath meditation. Kāyasaṅkhāra specifically refers to the breath in this context according to the suttas."
+    }
+  },
+  "phaseView": {
+    "id": "phase-au",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "passambh",
+            "type": "root",
+            "tooltips": [
+              "The root 'sambh' means to be calm; the 'pa-' prefix adds intensity."
+            ]
+          },
+          {
+            "text": "aya",
+            "type": "suffix",
+            "tooltips": [
+              "This is a causative marker, meaning to make something happen — here, 'making calm'."
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ṁ ending here marks a present participle, describing an action happening alongside the main verb: 'while calming'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "calming",
+            "nuance": "tranquilizing or stilling an active process",
+            "id": "s1"
+          },
+          {
+            "english": "quieting",
+            "nuance": "reducing the intensity of a physical activity",
+            "id": "s2"
+          },
+          {
+            "english": "stilling",
+            "nuance": "bringing to a state of rest or cessation",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "kāya",
+            "type": "stem",
+            "tooltips": [
+              "Refers to the physical body or frame."
+            ]
+          },
+          {
+            "text": "saṅkhāra",
+            "type": "stem",
+            "tooltips": [
+              "A 'formation' or 'conditioner'. In the context of breath meditation, this specifically refers to the breath itself as the force that conditions the body."
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "action",
+              "label": "Object of calming"
+            },
+            "tooltips": [
+              "The -ṁ ending marks the direct object. This is the 'formation' that is being calmed."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "bodily formation",
+            "nuance": "the physical process of breathing as a vital activity",
+            "id": "s4"
+          },
+          {
+            "english": "physical activity",
+            "nuance": "the conditioned nature of the body's movements",
+            "id": "s5"
+          },
+          {
+            "english": "body-conditioner",
+            "nuance": "that which drives or sustains the physical frame",
+            "id": "s6"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "assas",
+            "type": "root",
+            "tooltips": [
+              "The root 'sas' means to breathe; the 'a-' prefix indicates the direction 'in'."
+            ]
+          },
+          {
+            "text": "issā",
+            "type": "suffix",
+            "tooltips": [
+              "The -issā- marker indicates the future tense: 'I will'."
+            ]
+          },
+          {
+            "text": "mī",
+            "type": "suffix",
+            "tooltips": [
+              "The -mī ending identifies the speaker: 'I'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "I will breathe in",
+            "nuance": "future intent for inhalation",
+            "id": "s7"
+          },
+          {
+            "english": "I shall inhale",
+            "nuance": "formal expression of future breath",
+            "id": "s8"
+          },
+          {
+            "english": "I am to breathe in",
+            "nuance": "prescriptive or determined future action",
+            "id": "s9"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltips": [
+              "A quotation marker used to close a thought or direct speech."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "thus",
+            "nuance": "quotation marker closing a thought",
+            "id": "s10"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "sikkh",
+            "type": "root",
+            "tooltips": [
+              "The root 'sikkh' means to train, study, or practice a skill."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem"
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the third person: 'he' or 'she' trains."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active practice or self-training",
+            "id": "s11"
+          },
+          {
+            "english": "practices",
+            "nuance": "habitual application of a technique",
+            "id": "s12"
+          },
+          {
+            "english": "learns",
+            "nuance": "developing skill through repetition",
+            "id": "s13"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "passambh",
+            "type": "root"
+          },
+          {
+            "text": "aya",
+            "type": "suffix"
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "calming",
+            "nuance": "tranquilizing or stilling an active process",
+            "id": "s14"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "kāya",
+            "type": "stem"
+          },
+          {
+            "text": "saṅkhāra",
+            "type": "stem"
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "relation": {
+              "type": "action",
+              "label": "Object of calming"
+            }
+          }
+        ],
+        "senses": [
+          {
+            "english": "bodily formation",
+            "nuance": "the physical process of breathing",
+            "id": "s17"
+          }
+        ]
+      },
+      {
+        "id": "p8",
+        "segments": [
+          {
+            "text": "passas",
+            "type": "root",
+            "tooltips": [
+              "The root 'sas' with the 'pa-' prefix indicates breathing 'out'."
+            ]
+          },
+          {
+            "text": "issā",
+            "type": "suffix"
+          },
+          {
+            "text": "mī",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "I will breathe out",
+            "nuance": "future intent for exhalation",
+            "id": "s20"
+          },
+          {
+            "english": "I shall exhale",
+            "nuance": "formal expression of future breath",
+            "id": "s21"
+          }
+        ]
+      },
+      {
+        "id": "p9",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem"
+          }
+        ],
+        "senses": [
+          {
+            "english": "thus",
+            "nuance": "quotation marker",
+            "id": "s23"
+          }
+        ]
+      },
+      {
+        "id": "p10",
+        "segments": [
+          {
+            "text": "sikkh",
+            "type": "root"
+          },
+          {
+            "text": "a",
+            "type": "stem"
+          },
+          {
+            "text": "ti",
+            "type": "suffix"
+          }
+        ],
+        "senses": [
+          {
+            "english": "trains",
+            "nuance": "active self-training",
+            "id": "s24"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "g1",
+        "label": "thinking,",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p10"
+      },
+      {
+        "id": "g2",
+        "label": "thinking,",
+        "linkedPaliId": "p9"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p8"
+      },
+      {
+        "id": "e7",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e8",
+        "linkedPaliId": "p7"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      [
+        "p6",
+        "p7",
+        "p8",
+        "p9",
+        "p10"
+      ]
+    ],
+    "title": "Calming the Bodily Formation"
+  }
+}

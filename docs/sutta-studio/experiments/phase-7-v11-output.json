@@ -1,0 +1,451 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:01:51.328Z",
+    "phaseId": "phase-7",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "yadidaṁ cattāro satipaṭṭhānā",
+    "englishText": "p16s1",
+    "tokens": {
+      "prompt": 22138,
+      "completion": 3089,
+      "total": 25227
+    },
+    "costUsd": 0.020336,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-7",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "yadidaṁ",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "cattāro",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "satipaṭṭhānā",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "yad",
+        "type": "stem",
+        "tooltips": [
+          "Relative pronoun: 'that which'",
+          "The 'd' is a sandhi consonant used for smooth joining"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ida",
+        "type": "stem",
+        "tooltips": [
+          "Demonstrative pronoun: 'this'",
+          "Points directly to the list following it"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ṁ",
+        "type": "suffix",
+        "tooltips": [
+          "The -ṁ ending marks the neuter singular",
+          "Combined as 'yadidaṁ', it functions like 'namely' or 'that is to say'"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "cattār",
+        "type": "stem",
+        "tooltips": [
+          "The number four",
+          "Related to the English word 'quarter'"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending is nominative plural masculine",
+          "Agrees with the four foundations of mindfulness"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "sati",
+        "type": "root",
+        "tooltips": [
+          "The root 'smṛ' means to remember",
+          "Sati: mindfulness, presence of mind, or awareness"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "paṭṭhān",
+        "type": "root",
+        "tooltips": [
+          "The root 'sthā' means to stand or establish",
+          "pa + ṭṭhāna: foundation, setting up, or starting point"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "ā",
+        "type": "suffix",
+        "tooltips": [
+          "The -ā ending marks the nominative plural",
+          "Shows there are multiple foundations being discussed"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s3",
+        "targetWordId": "p3",
+        "type": "direction",
+        "label": "Namely",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-7",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "namely",
+            "nuance": "specifying a list",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "namely"
+              }
+            ]
+          },
+          {
+            "english": "that is to say",
+            "nuance": "explanatory identification",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "formal",
+                "rendering": "that is to say"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "four",
+            "nuance": "cardinal number",
+            "id": "s3"
+          },
+          {
+            "english": "the four",
+            "nuance": "definite set",
+            "id": "s4"
+          },
+          {
+            "english": "quadruple",
+            "nuance": "fourfold aspect",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "foundations of mindfulness",
+            "nuance": "establishment of awareness",
+            "id": "s6",
+            "notes": "Reading paṭṭhāna as 'foundation' or 'establishment'.",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "foundations of mindfulness"
+              }
+            ]
+          },
+          {
+            "english": "applications of mindfulness",
+            "nuance": "active practice of presence",
+            "id": "s7",
+            "notes": "Reading upaṭṭhāna as 'application' or 'setting up'.",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "kinds of mindfulness meditation"
+              }
+            ]
+          },
+          {
+            "english": "frames of reference",
+            "nuance": "meditative focus points",
+            "id": "s8",
+            "notes": "Thanissaro Bhikkhu's rendering, emphasizing the object of focus.",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "frames of reference"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "p3 (satipaṭṭhānā) is a core doctrinal term; senses reflect the major translation traditions (foundation vs application)."
+    }
+  },
+  "phaseView": {
+    "id": "phase-7",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "yad",
+            "type": "stem",
+            "tooltips": [
+              "Relative pronoun: 'that which'. The 'd' is a sandhi consonant used for smooth joining."
+            ]
+          },
+          {
+            "text": "ida",
+            "type": "stem",
+            "tooltips": [
+              "Demonstrative pronoun: 'this'. Points directly to the list following it."
+            ]
+          },
+          {
+            "text": "ṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -ṁ ending marks the neuter singular. Combined as 'yadidaṁ', it functions like 'namely' or 'that is to say'."
+            ],
+            "tooltipsBySense": [
+              {
+                "senseId": "s1",
+                "tooltip": "Functions as a pointer to the specific list that follows."
+              }
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "namely",
+            "nuance": "specifying a list",
+            "id": "s1",
+            "ripples": [
+              {
+                "tradition": "common",
+                "rendering": "namely"
+              }
+            ]
+          },
+          {
+            "english": "that is to say",
+            "nuance": "explanatory identification",
+            "id": "s2",
+            "ripples": [
+              {
+                "tradition": "formal",
+                "rendering": "that is to say"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "cattār",
+            "type": "stem",
+            "tooltips": [
+              "The number four. Related to the English word 'quarter'."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "pl"
+            },
+            "tooltips": [
+              "The -o ending is nominative plural masculine. It agrees with the four foundations of mindfulness."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "four",
+            "nuance": "cardinal number",
+            "id": "s3"
+          },
+          {
+            "english": "the four",
+            "nuance": "definite set",
+            "id": "s4"
+          },
+          {
+            "english": "quadruple",
+            "nuance": "fourfold aspect",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "sati",
+            "type": "root",
+            "tooltips": [
+              "The root 'smṛ' means to remember. Sati: mindfulness, presence of mind, or awareness."
+            ]
+          },
+          {
+            "text": "paṭṭhān",
+            "type": "root",
+            "tooltips": [
+              "The root 'sthā' means to stand or establish. pa + ṭṭhāna: foundation, setting up, or starting point."
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "pl"
+            },
+            "tooltips": [
+              "The -ā ending marks the nominative plural. Shows there are multiple foundations being discussed."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "foundations of mindfulness",
+            "nuance": "establishment of awareness",
+            "id": "s6",
+            "notes": "Reading paṭṭhāna as 'foundation' or 'establishment'.",
+            "ripples": [
+              {
+                "tradition": "Bodhi",
+                "rendering": "foundations of mindfulness"
+              }
+            ]
+          },
+          {
+            "english": "applications of mindfulness",
+            "nuance": "active practice of presence",
+            "id": "s7",
+            "notes": "Reading upaṭṭhāna as 'application' or 'setting up'.",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "kinds of mindfulness meditation"
+              }
+            ]
+          },
+          {
+            "english": "frames of reference",
+            "nuance": "meditative focus points",
+            "id": "s8",
+            "notes": "Thanissaro Bhikkhu's rendering, emphasizing the object of focus.",
+            "ripples": [
+              {
+                "tradition": "Thanissaro",
+                "rendering": "frames of reference"
+              }
+            ]
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "g1",
+        "label": "the",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "The Four Foundations"
+  }
+}

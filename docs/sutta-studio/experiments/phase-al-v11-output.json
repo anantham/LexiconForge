@@ -1,0 +1,317 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:06:17.294Z",
+    "phaseId": "phase-al",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Uddeso niṭṭhito",
+    "englishText": "al1s1 al2s1",
+    "tokens": {
+      "prompt": 21534,
+      "completion": 2052,
+      "total": 23586
+    },
+    "costUsd": 0.016923,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-al",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Uddeso",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "surface": "niṭṭhito",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Uddes",
+        "type": "root",
+        "tooltips": [
+          "The root 'dis' means to point out or show.",
+          "Uddesa: a brief summary or the 'pointing out' of the main topic."
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending marks the subject of the sentence (nominative singular)."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "ni",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'ni-' implies downward motion or completion."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "ṭṭhit",
+        "type": "root",
+        "tooltips": [
+          "The root 'ṭhā' means to stand.",
+          "Combined with 'ni', it means 'stood down' or 'finished'."
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending makes this a past participle describing the summary (nominative singular)."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p2s3",
+        "targetWordId": "p1",
+        "type": "action",
+        "label": "Describes",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-al",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "Introduction",
+            "nuance": "the opening summary or brief statement",
+            "id": "s1-1"
+          },
+          {
+            "english": "Briefing",
+            "nuance": "a concise presentation of the topic",
+            "id": "s1-2"
+          },
+          {
+            "english": "Summary",
+            "nuance": "the condensed version of the teaching",
+            "id": "s1-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "finished",
+            "nuance": "completed or concluded",
+            "id": "s2-1",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "is finished"
+              }
+            ]
+          },
+          {
+            "english": "concluded",
+            "nuance": "brought to an end",
+            "id": "s2-2",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "is concluded"
+              }
+            ]
+          },
+          {
+            "english": "ended",
+            "nuance": "reached the final point",
+            "id": "s2-3",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "has ended"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard closing formula for a sutta section. Uddeso refers to the 'brief statement' given at the start of the sutta."
+    }
+  },
+  "phaseView": {
+    "id": "phase-al",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Uddes",
+            "type": "root",
+            "tooltips": [
+              "The root 'dis' means to point out or show.",
+              "Uddesa: a brief summary or the 'pointing out' of the main topic."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "The -o ending marks the subject of the sentence (nominative singular)."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "Introduction",
+            "nuance": "the opening summary or brief statement",
+            "id": "s1-1"
+          },
+          {
+            "english": "Briefing",
+            "nuance": "a concise presentation of the topic",
+            "id": "s1-2"
+          },
+          {
+            "english": "Summary",
+            "nuance": "the condensed version of the teaching",
+            "id": "s1-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "ni",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'ni-' implies downward motion or completion."
+            ]
+          },
+          {
+            "text": "ṭṭhit",
+            "type": "root",
+            "tooltips": [
+              "The root 'ṭhā' means to stand.",
+              "Combined with 'ni', it means 'stood down' or 'finished'."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "action",
+              "label": "Describes",
+              "status": "confirmed",
+              "targetWordId": "p1"
+            },
+            "tooltips": [
+              "The -o ending makes this a past participle describing the summary (nominative singular)."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "finished",
+            "nuance": "completed or concluded",
+            "id": "s2-1",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "is finished"
+              }
+            ]
+          },
+          {
+            "english": "concluded",
+            "nuance": "brought to an end",
+            "id": "s2-2",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "is concluded"
+              }
+            ]
+          },
+          {
+            "english": "ended",
+            "nuance": "reached the final point",
+            "id": "s2-3",
+            "ripples": [
+              {
+                "tradition": "standard",
+                "rendering": "has ended"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "g1",
+        "label": "is",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2"
+      ]
+    ],
+    "title": "The Summary"
+  }
+}

@@ -1,0 +1,540 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:08:17.376Z",
+    "phaseId": "phase-aq",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "So sato va assasati passasati",
+    "englishText": "aq2s1 aq4s1 aq2s1 aq5s1",
+    "tokens": {
+      "prompt": 22557,
+      "completion": 3633,
+      "total": 26190
+    },
+    "costUsd": 0.0221775,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-aq",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "So",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "sato",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "va",
+        "wordClass": "function",
+        "segmentIds": [
+          "p3s1"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "assasati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3",
+          "p4s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p5",
+        "surface": "passasati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3",
+          "p5s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "So",
+        "type": "stem",
+        "tooltips": [
+          "He / That one",
+          "The demonstrative pronoun referring back to the meditator."
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "sat",
+        "type": "root",
+        "tooltips": [
+          "The root 'smṛ' (sati): to remember",
+          "Mindfulness or presence of mind."
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending makes the word an adjective describing the person: 'mindful'.",
+          "Nominative singular masculine."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "va",
+        "type": "stem",
+        "tooltips": [
+          "Just / only / indeed",
+          "An emphatic particle used here to stress the continuity of mindfulness."
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "a",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix 'ā-': toward / in",
+          "Changes the direction of the breath to 'inward'."
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "ssas",
+        "type": "root",
+        "tooltips": [
+          "The root 'svas': to breathe",
+          "The basic physical act of respiration."
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting the root to the ending."
+        ]
+      },
+      {
+        "id": "p4s4",
+        "wordId": "p4",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks the third person: 'he breathes'.",
+          "Present tense action."
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "Prefix 'pa-': out / forth",
+          "Changes the direction of the breath to 'outward'."
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "ssas",
+        "type": "root",
+        "tooltips": [
+          "The root 'svas': to breathe",
+          "The basic physical act of respiration."
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel."
+        ]
+      },
+      {
+        "id": "p5s4",
+        "wordId": "p5",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks the third person: 'he breathes'.",
+          "Present tense action."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p2s2",
+        "targetWordId": "p4",
+        "type": "action",
+        "label": "State WHILE",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-aq",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "He",
+            "nuance": "referring back to the practitioner",
+            "id": "s1-1"
+          },
+          {
+            "english": "Just",
+            "nuance": "demonstrative emphasis",
+            "id": "s1-2"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "present-moment awareness",
+            "id": "s2-1"
+          },
+          {
+            "english": "attentive",
+            "nuance": "focused on the object",
+            "id": "s2-2"
+          },
+          {
+            "english": "recollecting",
+            "nuance": "maintaining the theme in mind",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "just",
+            "nuance": "emphatic particle, 'only'",
+            "id": "s3-1"
+          },
+          {
+            "english": "indeed",
+            "nuance": "confirming the state",
+            "id": "s3-2"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathes in",
+            "nuance": "inhalation",
+            "id": "s4-1"
+          },
+          {
+            "english": "inhales",
+            "nuance": "physiological process",
+            "id": "s4-2"
+          },
+          {
+            "english": "is breathing in",
+            "nuance": "continuous action",
+            "id": "s4-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "breathes out",
+            "nuance": "exhalation",
+            "id": "s5-1"
+          },
+          {
+            "english": "exhales",
+            "nuance": "physiological process",
+            "id": "s5-2"
+          },
+          {
+            "english": "is breathing out",
+            "nuance": "continuous action",
+            "id": "s5-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard mindfulness of breathing formula. Senses for p4 and p5 include both simple present and continuous aspects to match English stylistic preferences."
+    }
+  },
+  "phaseView": {
+    "id": "phase-aq",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "So",
+            "type": "stem",
+            "tooltips": [
+              "He / That one",
+              "The demonstrative pronoun referring back to the meditator."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "He",
+            "nuance": "referring back to the practitioner",
+            "id": "s1-1"
+          },
+          {
+            "english": "Just",
+            "nuance": "demonstrative emphasis",
+            "id": "s1-2"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "sat",
+            "type": "root",
+            "tooltips": [
+              "The root 'smṛ' (sati) means to remember — in this context, it refers to presence of mind.",
+              "Mindfulness or presence of mind."
+            ]
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "action",
+              "label": "State WHILE"
+            },
+            "tooltips": [
+              "The -o ending makes the word an adjective describing the person: 'mindful'.",
+              "Nominative singular masculine."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "mindful",
+            "nuance": "present-moment awareness",
+            "id": "s2-1"
+          },
+          {
+            "english": "attentive",
+            "nuance": "focused on the object",
+            "id": "s2-2"
+          },
+          {
+            "english": "recollecting",
+            "nuance": "maintaining the theme in mind",
+            "id": "s2-3"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "va",
+            "type": "stem",
+            "tooltips": [
+              "Just / only / indeed",
+              "An emphatic particle used here to stress the continuity of mindfulness."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "just",
+            "nuance": "emphatic particle, 'only'",
+            "id": "s3-1"
+          },
+          {
+            "english": "indeed",
+            "nuance": "confirming the state",
+            "id": "s3-2"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "a",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'ā-' means toward or in — it changes the direction of the breath to 'inward'."
+            ]
+          },
+          {
+            "text": "ssas",
+            "type": "root",
+            "tooltips": [
+              "The root 'svas' refers to the basic physical act of breathing or respiration."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem"
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the third person: 'he breathes'.",
+              "Present tense action."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "breathes in",
+            "nuance": "inhalation",
+            "id": "s4-1"
+          },
+          {
+            "english": "inhales",
+            "nuance": "physiological process",
+            "id": "s4-2"
+          },
+          {
+            "english": "is breathing in",
+            "nuance": "continuous action",
+            "id": "s4-3"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltips": [
+              "The prefix 'pa-' means out or forth — it changes the direction of the breath to 'outward'."
+            ]
+          },
+          {
+            "text": "ssas",
+            "type": "root",
+            "tooltips": [
+              "The root 'svas' refers to the basic physical act of breathing or respiration."
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem"
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the third person: 'he breathes'.",
+              "Present tense action."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "breathes out",
+            "nuance": "exhalation",
+            "id": "s5-1"
+          },
+          {
+            "english": "exhales",
+            "nuance": "physiological process",
+            "id": "s5-2"
+          },
+          {
+            "english": "is breathing out",
+            "nuance": "continuous action",
+            "id": "s5-3"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p5"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ]
+    ],
+    "title": "Mindful Breathing"
+  }
+}

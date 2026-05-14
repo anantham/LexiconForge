@@ -1,0 +1,1708 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:11:30.900Z",
+    "phaseId": "phase-av",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Seyyathāpi bhikkhave dakkho bhamakāro vā bhamakārantevāsī vā dīghaṁ vā añchanto 'dīghaṁ añchāmī 'ti pajānāti rassaṁ vā añchanto 'rassaṁ añchāmī 'ti pajānāti",
+    "englishText": "his \"I pull long\" \"I pull short\"",
+    "tokens": {
+      "prompt": 27424,
+      "completion": 9197,
+      "total": 36621
+    },
+    "costUsd": 0.04130299999999999,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-av",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Seyyathāpi",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "bhikkhave",
+        "wordClass": "vocative",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p3",
+        "surface": "dakkho",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2"
+        ]
+      },
+      {
+        "id": "p4",
+        "surface": "bhamakāro",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2",
+          "p4s3"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p5s1"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "bhamakārantevāsī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3",
+          "p6s4",
+          "p6s5"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p7s1"
+        ]
+      },
+      {
+        "id": "p8",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p8s1",
+          "p8s2"
+        ]
+      },
+      {
+        "id": "p9",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p9s1"
+        ]
+      },
+      {
+        "id": "p10",
+        "surface": "añchanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p10s1",
+          "p10s2"
+        ]
+      },
+      {
+        "id": "p11",
+        "surface": "dīghaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p11s1",
+          "p11s2"
+        ]
+      },
+      {
+        "id": "p12",
+        "surface": "añchāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p12s1",
+          "p12s2"
+        ]
+      },
+      {
+        "id": "p13",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p13s1"
+        ]
+      },
+      {
+        "id": "p14",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p14s1",
+          "p14s2",
+          "p14s3"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p15",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p15s1",
+          "p15s2"
+        ]
+      },
+      {
+        "id": "p16",
+        "surface": "vā",
+        "wordClass": "function",
+        "segmentIds": [
+          "p16s1"
+        ]
+      },
+      {
+        "id": "p17",
+        "surface": "añchanto",
+        "wordClass": "content",
+        "segmentIds": [
+          "p17s1",
+          "p17s2"
+        ]
+      },
+      {
+        "id": "p18",
+        "surface": "rassaṁ",
+        "wordClass": "content",
+        "segmentIds": [
+          "p18s1",
+          "p18s2"
+        ]
+      },
+      {
+        "id": "p19",
+        "surface": "añchāmī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p19s1",
+          "p19s2"
+        ]
+      },
+      {
+        "id": "p20",
+        "surface": "ti",
+        "wordClass": "function",
+        "segmentIds": [
+          "p20s1"
+        ]
+      },
+      {
+        "id": "p21",
+        "surface": "pajānāti",
+        "wordClass": "content",
+        "segmentIds": [
+          "p21s1",
+          "p21s2",
+          "p21s3"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Seyyathā",
+        "type": "stem",
+        "tooltips": [
+          "Seyyathā: Just as / like"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "pi",
+        "type": "suffix",
+        "tooltips": [
+          "pi: also / even"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": " ",
+        "type": "stem",
+        "tooltips": [
+          "Space separator"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "bhikkhav",
+        "type": "stem",
+        "tooltips": [
+          "bhikkhu: monk / mendicant"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending is vocative plural — used when calling out to a group of monks."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "dakkh",
+        "type": "stem",
+        "tooltips": [
+          "dakkha: skilled / clever"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "Nominative singular masculine"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "bhama",
+        "type": "root",
+        "tooltips": [
+          "√bham: to turn / revolve"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "kār",
+        "type": "root",
+        "tooltips": [
+          "√kar: to make / do"
+        ]
+      },
+      {
+        "id": "p4s3",
+        "wordId": "p4",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "bhamakāra: a turner / lathe-worker"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: or"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "bhama",
+        "type": "root",
+        "tooltips": [
+          "√bham: to turn"
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "kār",
+        "type": "root",
+        "tooltips": [
+          "√kar: to make"
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "ante",
+        "type": "stem",
+        "tooltips": [
+          "ante: near / inside"
+        ]
+      },
+      {
+        "id": "p6s4",
+        "wordId": "p6",
+        "text": "vās",
+        "type": "root",
+        "tooltips": [
+          "√vas: to dwell"
+        ]
+      },
+      {
+        "id": "p6s5",
+        "wordId": "p6",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "antevāsī: apprentice / 'one who dwells near'"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: or"
+        ]
+      },
+      {
+        "id": "p8s1",
+        "wordId": "p8",
+        "text": "dīgh",
+        "type": "stem",
+        "tooltips": [
+          "dīgha: long"
+        ]
+      },
+      {
+        "id": "p8s2",
+        "wordId": "p8",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial accusative: 'at length'"
+        ]
+      },
+      {
+        "id": "p9s1",
+        "wordId": "p9",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: or"
+        ]
+      },
+      {
+        "id": "p10s1",
+        "wordId": "p10",
+        "text": "añch",
+        "type": "root",
+        "tooltips": [
+          "√añch: to pull / draw out"
+        ]
+      },
+      {
+        "id": "p10s2",
+        "wordId": "p10",
+        "text": "anto",
+        "type": "suffix",
+        "tooltips": [
+          "Present participle: 'pulling'"
+        ]
+      },
+      {
+        "id": "p11s1",
+        "wordId": "p11",
+        "text": "dīgh",
+        "type": "stem",
+        "tooltips": [
+          "dīgha: long"
+        ]
+      },
+      {
+        "id": "p11s2",
+        "wordId": "p11",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Accusative object: 'a long [breath/pull]'"
+        ]
+      },
+      {
+        "id": "p12s1",
+        "wordId": "p12",
+        "text": "añch",
+        "type": "root",
+        "tooltips": [
+          "√añch: to pull"
+        ]
+      },
+      {
+        "id": "p12s2",
+        "wordId": "p12",
+        "text": "āmī",
+        "type": "suffix",
+        "tooltips": [
+          "1st person singular: 'I pull'"
+        ]
+      },
+      {
+        "id": "p13s1",
+        "wordId": "p13",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "ti: quote marker / 'thus'"
+        ]
+      },
+      {
+        "id": "p14s1",
+        "wordId": "p14",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: forth / out"
+        ]
+      },
+      {
+        "id": "p14s2",
+        "wordId": "p14",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "√jñā: to know"
+        ]
+      },
+      {
+        "id": "p14s3",
+        "wordId": "p14",
+        "text": "āti",
+        "type": "suffix",
+        "tooltips": [
+          "3rd person singular: 'he understands'"
+        ]
+      },
+      {
+        "id": "p15s1",
+        "wordId": "p15",
+        "text": "rass",
+        "type": "stem",
+        "tooltips": [
+          "rassa: short"
+        ]
+      },
+      {
+        "id": "p15s2",
+        "wordId": "p15",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Adverbial accusative"
+        ]
+      },
+      {
+        "id": "p16s1",
+        "wordId": "p16",
+        "text": "vā",
+        "type": "stem",
+        "tooltips": [
+          "vā: or"
+        ]
+      },
+      {
+        "id": "p17s1",
+        "wordId": "p17",
+        "text": "añch",
+        "type": "root",
+        "tooltips": [
+          "√añch: to pull"
+        ]
+      },
+      {
+        "id": "p17s2",
+        "wordId": "p17",
+        "text": "anto",
+        "type": "suffix",
+        "tooltips": [
+          "Present participle: 'pulling'"
+        ]
+      },
+      {
+        "id": "p18s1",
+        "wordId": "p18",
+        "text": "rass",
+        "type": "stem",
+        "tooltips": [
+          "rassa: short"
+        ]
+      },
+      {
+        "id": "p18s2",
+        "wordId": "p18",
+        "text": "aṁ",
+        "type": "suffix",
+        "tooltips": [
+          "Accusative object"
+        ]
+      },
+      {
+        "id": "p19s1",
+        "wordId": "p19",
+        "text": "añch",
+        "type": "root",
+        "tooltips": [
+          "√añch: to pull"
+        ]
+      },
+      {
+        "id": "p19s2",
+        "wordId": "p19",
+        "text": "āmī",
+        "type": "suffix",
+        "tooltips": [
+          "1st person singular: 'I pull'"
+        ]
+      },
+      {
+        "id": "p20s1",
+        "wordId": "p20",
+        "text": "ti",
+        "type": "stem",
+        "tooltips": [
+          "ti: quote marker"
+        ]
+      },
+      {
+        "id": "p21s1",
+        "wordId": "p21",
+        "text": "pa",
+        "type": "prefix",
+        "tooltips": [
+          "pa-: forth"
+        ]
+      },
+      {
+        "id": "p21s2",
+        "wordId": "p21",
+        "text": "jān",
+        "type": "root",
+        "tooltips": [
+          "√jñā: to know"
+        ]
+      },
+      {
+        "id": "p21s3",
+        "wordId": "p21",
+        "text": "āti",
+        "type": "suffix",
+        "tooltips": [
+          "3rd person singular"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p8s2",
+        "targetWordId": "p10",
+        "type": "action",
+        "label": "Manner",
+        "status": "confirmed"
+      },
+      {
+        "id": "r2",
+        "fromSegmentId": "p15s2",
+        "targetWordId": "p17",
+        "type": "action",
+        "label": "Manner",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-av",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "Just as",
+            "nuance": "comparative simile opener"
+          },
+          {
+            "english": "Like",
+            "nuance": "simpler comparative"
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "vocative",
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the community"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the lifestyle of alms-seeking"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "skilled",
+            "nuance": "expert or proficient in a craft"
+          },
+          {
+            "english": "clever",
+            "nuance": "dexterous and capable"
+          },
+          {
+            "english": "deft",
+            "nuance": "quick and neat in action"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "turner",
+            "nuance": "one who shapes wood/metal on a lathe"
+          },
+          {
+            "english": "wood-turner",
+            "nuance": "specific artisan role"
+          },
+          {
+            "english": "lathe-worker",
+            "nuance": "technical description of the craft"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "turner's apprentice",
+            "nuance": "one living with and learning from a master"
+          },
+          {
+            "english": "pupil",
+            "nuance": "student of the craft"
+          },
+          {
+            "english": "assistant",
+            "nuance": "one helping the master turner"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle"
+          }
+        ]
+      },
+      {
+        "wordId": "p8",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "spatial or temporal extension"
+          },
+          {
+            "english": "a long way",
+            "nuance": "emphasizing distance of the pull"
+          },
+          {
+            "english": "lengthy",
+            "nuance": "protracted action"
+          }
+        ]
+      },
+      {
+        "wordId": "p9",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle"
+          }
+        ]
+      },
+      {
+        "wordId": "p10",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "pulling",
+            "nuance": "the act of drawing or tugging"
+          },
+          {
+            "english": "stretching",
+            "nuance": "extending the material"
+          },
+          {
+            "english": "drawing out",
+            "nuance": "steady pulling motion"
+          }
+        ]
+      },
+      {
+        "wordId": "p11",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "spatial extension"
+          },
+          {
+            "english": "a long pull",
+            "nuance": "the specific duration of the stroke"
+          },
+          {
+            "english": "lengthily",
+            "nuance": "adverbial sense of the action"
+          }
+        ]
+      },
+      {
+        "wordId": "p12",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I am pulling",
+            "nuance": "present continuous action"
+          },
+          {
+            "english": "I pull",
+            "nuance": "simple present declaration"
+          },
+          {
+            "english": "I draw out",
+            "nuance": "deliberate action"
+          }
+        ]
+      },
+      {
+        "wordId": "p13",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker"
+          },
+          {
+            "english": "that",
+            "nuance": "complementizer for the thought"
+          }
+        ]
+      },
+      {
+        "wordId": "p14",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear discernment of the situation"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness"
+          },
+          {
+            "english": "recognizes",
+            "nuance": "identifying the specific nature of the act"
+          }
+        ]
+      },
+      {
+        "wordId": "p15",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief spatial extension"
+          },
+          {
+            "english": "a short way",
+            "nuance": "limited distance"
+          },
+          {
+            "english": "briefly",
+            "nuance": "short duration"
+          }
+        ]
+      },
+      {
+        "wordId": "p16",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle"
+          }
+        ]
+      },
+      {
+        "wordId": "p17",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "pulling",
+            "nuance": "the act of drawing"
+          },
+          {
+            "english": "tugging",
+            "nuance": "short, sharp pulling"
+          },
+          {
+            "english": "drawing in",
+            "nuance": "contracting motion"
+          }
+        ]
+      },
+      {
+        "wordId": "p18",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief extension"
+          },
+          {
+            "english": "a short pull",
+            "nuance": "limited stroke"
+          },
+          {
+            "english": "curtly",
+            "nuance": "abbreviated action"
+          }
+        ]
+      },
+      {
+        "wordId": "p19",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "I am pulling",
+            "nuance": "present continuous"
+          },
+          {
+            "english": "I pull",
+            "nuance": "simple present"
+          },
+          {
+            "english": "I draw in",
+            "nuance": "specific direction of pull"
+          }
+        ]
+      },
+      {
+        "wordId": "p20",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker"
+          },
+          {
+            "english": "that",
+            "nuance": "complementizer"
+          }
+        ]
+      },
+      {
+        "wordId": "p21",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear discernment"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness"
+          },
+          {
+            "english": "recognizes",
+            "nuance": "identifying the nature of the act"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard simile for breath meditation; senses reflect the technical craft of wood-turning."
+    }
+  },
+  "phaseView": {
+    "id": "phase-av",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Seyyathā",
+            "type": "stem",
+            "tooltip": "Seyyathā: Just as / like"
+          },
+          {
+            "text": "pi",
+            "type": "suffix",
+            "tooltip": "pi: also / even"
+          },
+          {
+            "text": " ",
+            "type": "stem",
+            "tooltip": "Space separator"
+          }
+        ],
+        "senses": [
+          {
+            "english": "Just as",
+            "nuance": "comparative simile opener",
+            "id": "s1"
+          },
+          {
+            "english": "Like",
+            "nuance": "simpler comparative",
+            "id": "s2"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "bhikkhav",
+            "type": "stem",
+            "tooltip": "bhikkhu: monk / mendicant"
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "voc",
+              "number": "pl"
+            },
+            "tooltip": "The -e ending is vocative plural — used when calling out to a group of monks."
+          }
+        ],
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "direct address to the community",
+            "id": "s3"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the lifestyle of alms-seeking",
+            "id": "s4"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "dakkh",
+            "type": "stem",
+            "tooltip": "dakkha: skilled / clever"
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltip": "Nominative singular masculine"
+          }
+        ],
+        "senses": [
+          {
+            "english": "skilled",
+            "nuance": "expert or proficient in a craft",
+            "id": "s5"
+          },
+          {
+            "english": "clever",
+            "nuance": "dexterous and capable",
+            "id": "s6"
+          },
+          {
+            "english": "deft",
+            "nuance": "quick and neat in action",
+            "id": "s7"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "bhama",
+            "type": "root",
+            "tooltip": "The root 'bham' means to turn or revolve."
+          },
+          {
+            "text": "kār",
+            "type": "root",
+            "tooltip": "The root 'kar' means to make or do."
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "tooltip": "bhamakāra: a turner or lathe-worker."
+          }
+        ],
+        "senses": [
+          {
+            "english": "turner",
+            "nuance": "one who shapes wood/metal on a lathe",
+            "id": "s8"
+          },
+          {
+            "english": "wood-turner",
+            "nuance": "specific artisan role",
+            "id": "s9"
+          },
+          {
+            "english": "lathe-worker",
+            "nuance": "technical description of the craft",
+            "id": "s10"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltip": "vā: or"
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle",
+            "id": "s11"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "bhama",
+            "type": "root",
+            "tooltip": "The root 'bham' means to turn."
+          },
+          {
+            "text": "kār",
+            "type": "root",
+            "tooltip": "The root 'kar' means to make."
+          },
+          {
+            "text": "ante",
+            "type": "stem",
+            "tooltip": "ante: near / inside"
+          },
+          {
+            "text": "vās",
+            "type": "root",
+            "tooltip": "The root 'vas' means to dwell."
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "tooltip": "antevāsī: apprentice / 'one who dwells near'"
+          }
+        ],
+        "senses": [
+          {
+            "english": "turner's apprentice",
+            "nuance": "one living with and learning from a master",
+            "id": "s12"
+          },
+          {
+            "english": "pupil",
+            "nuance": "student of the craft",
+            "id": "s13"
+          },
+          {
+            "english": "assistant",
+            "nuance": "one helping the master turner",
+            "id": "s14"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltip": "vā: or"
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle",
+            "id": "s15"
+          }
+        ]
+      },
+      {
+        "id": "p8",
+        "segments": [
+          {
+            "text": "dīgh",
+            "type": "stem",
+            "tooltip": "dīgha: long"
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "relation": {
+              "type": "action",
+              "label": "Manner",
+              "targetWordId": "p10"
+            },
+            "tooltip": "The -aṁ ending here acts as an adverb, describing HOW the action is done."
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "spatial or temporal extension",
+            "id": "s16"
+          },
+          {
+            "english": "a long way",
+            "nuance": "emphasizing distance of the pull",
+            "id": "s17"
+          },
+          {
+            "english": "lengthy",
+            "nuance": "protracted action",
+            "id": "s18"
+          }
+        ]
+      },
+      {
+        "id": "p9",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltip": "vā: or"
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle",
+            "id": "s19"
+          }
+        ]
+      },
+      {
+        "id": "p10",
+        "segments": [
+          {
+            "text": "añch",
+            "type": "root",
+            "tooltip": "The root 'añch' means to pull or draw out."
+          },
+          {
+            "text": "anto",
+            "type": "suffix",
+            "tooltip": "The -anto ending makes this a present participle — 'pulling'."
+          }
+        ],
+        "senses": [
+          {
+            "english": "pulling",
+            "nuance": "the act of drawing or tugging",
+            "id": "s20"
+          },
+          {
+            "english": "stretching",
+            "nuance": "extending the material",
+            "id": "s21"
+          },
+          {
+            "english": "drawing out",
+            "nuance": "steady pulling motion",
+            "id": "s22"
+          }
+        ]
+      },
+      {
+        "id": "p11",
+        "segments": [
+          {
+            "text": "dīgh",
+            "type": "stem",
+            "tooltip": "dīgha: long"
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "tooltip": "Accusative object: 'a long [breath/pull]'"
+          }
+        ],
+        "senses": [
+          {
+            "english": "long",
+            "nuance": "spatial extension",
+            "id": "s23"
+          },
+          {
+            "english": "a long pull",
+            "nuance": "the specific duration of the stroke",
+            "id": "s24"
+          },
+          {
+            "english": "lengthily",
+            "nuance": "adverbial sense of the action",
+            "id": "s25"
+          }
+        ]
+      },
+      {
+        "id": "p12",
+        "segments": [
+          {
+            "text": "añch",
+            "type": "root",
+            "tooltip": "The root 'añch' means to pull."
+          },
+          {
+            "text": "āmī",
+            "type": "suffix",
+            "tooltip": "The -āmī ending marks the 1st person singular — 'I pull'."
+          }
+        ],
+        "senses": [
+          {
+            "english": "I am pulling",
+            "nuance": "present continuous action",
+            "id": "s26"
+          },
+          {
+            "english": "I pull",
+            "nuance": "simple present declaration",
+            "id": "s27"
+          },
+          {
+            "english": "I draw out",
+            "nuance": "deliberate action",
+            "id": "s28"
+          }
+        ]
+      },
+      {
+        "id": "p13",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltip": "ti: quote marker / 'thus'"
+          }
+        ],
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker",
+            "id": "s29"
+          },
+          {
+            "english": "that",
+            "nuance": "complementizer for the thought",
+            "id": "s30"
+          }
+        ]
+      },
+      {
+        "id": "p14",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltip": "pa-: forth / out"
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltip": "The root 'jñā' means to know."
+          },
+          {
+            "text": "āti",
+            "type": "suffix",
+            "tooltip": "The -āti ending marks the 3rd person singular — 'he understands'."
+          }
+        ],
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear discernment of the situation",
+            "id": "s31"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness",
+            "id": "s32"
+          },
+          {
+            "english": "recognizes",
+            "nuance": "identifying the specific nature of the act",
+            "id": "s33"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p15",
+        "segments": [
+          {
+            "text": "rass",
+            "type": "stem",
+            "tooltip": "rassa: short"
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "relation": {
+              "type": "action",
+              "label": "Manner",
+              "targetWordId": "p17"
+            },
+            "tooltip": "Adverbial accusative describing the manner of pulling."
+          }
+        ],
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief spatial extension",
+            "id": "s34"
+          },
+          {
+            "english": "a short way",
+            "nuance": "limited distance",
+            "id": "s35"
+          },
+          {
+            "english": "briefly",
+            "nuance": "short duration",
+            "id": "s36"
+          }
+        ]
+      },
+      {
+        "id": "p16",
+        "segments": [
+          {
+            "text": "vā",
+            "type": "stem",
+            "tooltip": "vā: or"
+          }
+        ],
+        "senses": [
+          {
+            "english": "or",
+            "nuance": "disjunctive particle",
+            "id": "s37"
+          }
+        ]
+      },
+      {
+        "id": "p17",
+        "segments": [
+          {
+            "text": "añch",
+            "type": "root",
+            "tooltip": "The root 'añch' means to pull."
+          },
+          {
+            "text": "anto",
+            "type": "suffix",
+            "tooltip": "Present participle: 'pulling'"
+          }
+        ],
+        "senses": [
+          {
+            "english": "pulling",
+            "nuance": "the act of drawing",
+            "id": "s38"
+          },
+          {
+            "english": "tugging",
+            "nuance": "short, sharp pulling",
+            "id": "s39"
+          },
+          {
+            "english": "drawing in",
+            "nuance": "contracting motion",
+            "id": "s40"
+          }
+        ]
+      },
+      {
+        "id": "p18",
+        "segments": [
+          {
+            "text": "rass",
+            "type": "stem",
+            "tooltip": "rassa: short"
+          },
+          {
+            "text": "aṁ",
+            "type": "suffix",
+            "morph": {
+              "case": "acc",
+              "number": "sg"
+            },
+            "tooltip": "Accusative object"
+          }
+        ],
+        "senses": [
+          {
+            "english": "short",
+            "nuance": "brief extension",
+            "id": "s41"
+          },
+          {
+            "english": "a short pull",
+            "nuance": "limited stroke",
+            "id": "s42"
+          },
+          {
+            "english": "curtly",
+            "nuance": "abbreviated action",
+            "id": "s43"
+          }
+        ]
+      },
+      {
+        "id": "p19",
+        "segments": [
+          {
+            "text": "añch",
+            "type": "root",
+            "tooltip": "The root 'añch' means to pull."
+          },
+          {
+            "text": "āmī",
+            "type": "suffix",
+            "tooltip": "1st person singular: 'I pull'"
+          }
+        ],
+        "senses": [
+          {
+            "english": "I am pulling",
+            "nuance": "present continuous",
+            "id": "s44"
+          },
+          {
+            "english": "I pull",
+            "nuance": "simple present",
+            "id": "s45"
+          },
+          {
+            "english": "I draw in",
+            "nuance": "specific direction of pull",
+            "id": "s46"
+          }
+        ]
+      },
+      {
+        "id": "p20",
+        "segments": [
+          {
+            "text": "ti",
+            "type": "stem",
+            "tooltip": "ti: quote marker"
+          }
+        ],
+        "senses": [
+          {
+            "english": "\"",
+            "nuance": "quotation marker",
+            "id": "s47"
+          },
+          {
+            "english": "that",
+            "nuance": "complementizer",
+            "id": "s48"
+          }
+        ]
+      },
+      {
+        "id": "p21",
+        "segments": [
+          {
+            "text": "pa",
+            "type": "prefix",
+            "tooltip": "pa-: forth"
+          },
+          {
+            "text": "jān",
+            "type": "root",
+            "tooltip": "The root 'jñā' means to know."
+          },
+          {
+            "text": "āti",
+            "type": "suffix",
+            "tooltip": "3rd person singular"
+          }
+        ],
+        "senses": [
+          {
+            "english": "understands",
+            "nuance": "clear discernment",
+            "id": "s49"
+          },
+          {
+            "english": "knows",
+            "nuance": "direct awareness",
+            "id": "s50"
+          },
+          {
+            "english": "recognizes",
+            "nuance": "identifying the nature of the act",
+            "id": "s51"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "ghost1",
+        "label": "a",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e7",
+        "linkedPaliId": "p8"
+      },
+      {
+        "id": "e8",
+        "linkedPaliId": "p10"
+      },
+      {
+        "id": "e9",
+        "linkedPaliId": "p14"
+      },
+      {
+        "id": "e10",
+        "linkedPaliId": "p13"
+      },
+      {
+        "id": "e11",
+        "linkedPaliId": "p12"
+      },
+      {
+        "id": "e12",
+        "linkedPaliId": "p11"
+      },
+      {
+        "id": "e13",
+        "linkedPaliId": "p13"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      [
+        "p6",
+        "p7",
+        "p8",
+        "p9",
+        "p10"
+      ],
+      [
+        "p11",
+        "p12",
+        "p13",
+        "p14"
+      ],
+      [
+        "p15",
+        "p16",
+        "p17",
+        "p18"
+      ],
+      [
+        "p19",
+        "p20",
+        "p21"
+      ]
+    ],
+    "title": "The Turner Simile"
+  }
+}

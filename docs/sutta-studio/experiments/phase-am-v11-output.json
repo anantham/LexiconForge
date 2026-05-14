@@ -1,0 +1,710 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:06:46.353Z",
+    "phaseId": "phase-am",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "Kathañca bhikkhave bhikkhu kāye kāyānupassī viharati",
+    "englishText": "does am3s1 am6s2 am4s1",
+    "tokens": {
+      "prompt": 23343,
+      "completion": 4921,
+      "total": 28264
+    },
+    "costUsd": 0.0264345,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-am",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "Kathañca",
+        "wordClass": "function",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "bhikkhave",
+        "wordClass": "vocative",
+        "segmentIds": [
+          "p2s1",
+          "p2s2"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p3",
+        "surface": "bhikkhu",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1"
+        ],
+        "refrainId": "bhikkhu"
+      },
+      {
+        "id": "p4",
+        "surface": "kāye",
+        "wordClass": "content",
+        "segmentIds": [
+          "p4s1",
+          "p4s2"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "kāyānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p5s1",
+          "p5s2",
+          "p5s3",
+          "p5s4"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p6s1",
+          "p6s2",
+          "p6s3",
+          "p6s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "Katha",
+        "type": "stem",
+        "tooltips": [
+          "Katha: How / In what way",
+          "Interrogative adverb"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ñ",
+        "type": "suffix",
+        "tooltips": [
+          "Sandhi consonant for smooth sound"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ca",
+        "type": "stem",
+        "tooltips": [
+          "ca: And / Also",
+          "Connects to the previous section"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "bhikkh",
+        "type": "root",
+        "tooltips": [
+          "the root 'bhikkh': to share or beg",
+          "Refers to a spiritual mendicant"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "ave",
+        "type": "suffix",
+        "tooltips": [
+          "The -ave ending is vocative plural — used when calling out to a group of monks."
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "bhikkhu",
+        "type": "stem",
+        "tooltips": [
+          "A monk / mendicant",
+          "Nominative singular: the one doing the action"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "kāy",
+        "type": "root",
+        "tooltips": [
+          "kāya: Body / physical form",
+          "The object of meditation here"
+        ]
+      },
+      {
+        "id": "p4s2",
+        "wordId": "p4",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending means 'in' or 'regarding' the body (locative case)."
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "kāy",
+        "type": "stem",
+        "tooltips": [
+          "kāya: Body",
+          "First part of the compound"
+        ]
+      },
+      {
+        "id": "p5s2",
+        "wordId": "p5",
+        "text": "ānu",
+        "type": "prefix",
+        "tooltips": [
+          "anu-: Following / along / repeatedly",
+          "Suggests a continuous observation"
+        ]
+      },
+      {
+        "id": "p5s3",
+        "wordId": "p5",
+        "text": "pass",
+        "type": "root",
+        "tooltips": [
+          "the root 'pass': to see / observe",
+          "Related to vipassanā (insight)"
+        ]
+      },
+      {
+        "id": "p5s4",
+        "wordId": "p5",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending means 'one who does' — an observer or contemplator."
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: Apart / intensive",
+          "Modifies the sense of 'carrying' to 'dwelling'"
+        ]
+      },
+      {
+        "id": "p6s2",
+        "wordId": "p6",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "the root 'har': to carry / take",
+          "vi + har = to dwell or live"
+        ]
+      },
+      {
+        "id": "p6s3",
+        "wordId": "p6",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting root to ending"
+        ]
+      },
+      {
+        "id": "p6s4",
+        "wordId": "p6",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks the 3rd person singular — 'he/she/it dwells'."
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p4s2",
+        "targetWordId": "p6",
+        "type": "location",
+        "label": "Dwells IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-am",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "And how",
+            "nuance": "interrogative transition, introducing a method",
+            "ripples": [
+              {
+                "tradition": "General",
+                "rendering": "And how"
+              }
+            ]
+          },
+          {
+            "english": "In what way",
+            "nuance": "analytical inquiry",
+            "ripples": [
+              {
+                "tradition": "General",
+                "rendering": "In what way"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "vocative",
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "standard address to the community",
+            "ripples": [
+              {
+                "tradition": "General",
+                "rendering": "monks"
+              }
+            ]
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the life of alms-seeking",
+            "ripples": [
+              {
+                "tradition": "Sujato",
+                "rendering": "mendicants"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "the practitioner as a generic representative",
+            "id": "s-p3-1"
+          },
+          {
+            "english": "a mendicant",
+            "nuance": "one who lives on alms",
+            "id": "s-p3-2"
+          },
+          {
+            "english": "a practitioner",
+            "nuance": "broadening the scope to any meditator",
+            "id": "s-p3-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative of physical domain",
+            "id": "s-p4-1"
+          },
+          {
+            "english": "with regard to the body",
+            "nuance": "locative of reference",
+            "id": "s-p4-2"
+          },
+          {
+            "english": "as a body",
+            "nuance": "viewing the body as a process",
+            "id": "s-p4-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing the body",
+            "nuance": "active contemplation of physical nature",
+            "id": "s-p5-1",
+            "notes": "Standard rendering for anupassī as 'observing' or 'contemplating'."
+          },
+          {
+            "english": "tracking the body",
+            "nuance": "continuous, sequential awareness",
+            "id": "s-p5-2",
+            "notes": "Etymological sense: anu (along) + passī (seeing)."
+          },
+          {
+            "english": "contemplating the body",
+            "nuance": "reflective and steady observation",
+            "id": "s-p5-3"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "dwell",
+            "nuance": "habitual state of being",
+            "id": "s-p6-1"
+          },
+          {
+            "english": "live",
+            "nuance": "general mode of existence",
+            "id": "s-p6-2"
+          },
+          {
+            "english": "abide",
+            "nuance": "formal, meditative presence",
+            "id": "s-p6-3"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard formulaic sentence. Senses for kāyānupassī reflect both the action and the continuous nature of the practice."
+    }
+  },
+  "phaseView": {
+    "id": "phase-am",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "Katha",
+            "type": "stem",
+            "tooltips": [
+              "Katha: How / In what way",
+              "Interrogative adverb"
+            ]
+          },
+          {
+            "text": "ñ",
+            "type": "suffix",
+            "tooltips": [
+              "Sandhi consonant for smooth sound"
+            ]
+          },
+          {
+            "text": "ca",
+            "type": "stem",
+            "tooltips": [
+              "ca: And / Also",
+              "Connects to the previous section"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "And how",
+            "nuance": "interrogative transition, introducing a method"
+          },
+          {
+            "english": "In what way",
+            "nuance": "analytical inquiry"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "bhikkh",
+            "type": "root",
+            "tooltips": [
+              "the root 'bhikkh': to share or beg",
+              "Refers to a spiritual mendicant"
+            ]
+          },
+          {
+            "text": "ave",
+            "type": "suffix",
+            "morph": {
+              "case": "voc",
+              "number": "pl"
+            },
+            "tooltips": [
+              "The -ave ending is vocative plural — used when calling out to a group of monks."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "monks",
+            "nuance": "standard address to the community"
+          },
+          {
+            "english": "mendicants",
+            "nuance": "emphasizing the life of alms-seeking"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "bhikkhu",
+            "type": "stem",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltips": [
+              "A monk / mendicant",
+              "Nominative singular: the one doing the action"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "a monk",
+            "nuance": "the practitioner as a generic representative",
+            "id": "s-p3-1"
+          },
+          {
+            "english": "a mendicant",
+            "nuance": "one who lives on alms",
+            "id": "s-p3-2"
+          },
+          {
+            "english": "a practitioner",
+            "nuance": "broadening the scope to any meditator",
+            "id": "s-p3-3"
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "root",
+            "tooltips": [
+              "kāya: Body / physical form",
+              "The object of meditation here"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwells IN",
+              "status": "confirmed",
+              "targetWordId": "p6"
+            },
+            "tooltips": [
+              "The -e ending means 'in' or 'regarding' the body (locative case)."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "in the body",
+            "nuance": "locative of physical domain",
+            "id": "s-p4-1"
+          },
+          {
+            "english": "with regard to the body",
+            "nuance": "locative of reference",
+            "id": "s-p4-2"
+          },
+          {
+            "english": "as a body",
+            "nuance": "viewing the body as a process",
+            "id": "s-p4-3"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "stem",
+            "tooltips": [
+              "kāya: Body",
+              "First part of the compound"
+            ]
+          },
+          {
+            "text": "ānu",
+            "type": "prefix",
+            "tooltips": [
+              "anu-: Following / along / repeatedly",
+              "Suggests a continuous observation"
+            ]
+          },
+          {
+            "text": "pass",
+            "type": "root",
+            "tooltips": [
+              "the root 'pass': to see / observe",
+              "Related to vipassanā (insight)"
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "tooltips": [
+              "The -ī ending means 'one who does' — an observer or contemplator."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing the body",
+            "nuance": "active contemplation of physical nature",
+            "id": "s-p5-1"
+          },
+          {
+            "english": "tracking the body",
+            "nuance": "continuous, sequential awareness",
+            "id": "s-p5-2"
+          },
+          {
+            "english": "contemplating the body",
+            "nuance": "reflective and steady observation",
+            "id": "s-p5-3"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: Apart / intensive",
+              "Modifies the sense of 'carrying' to 'dwelling'"
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "the root 'har': to carry / take",
+              "vi + har = to dwell or live"
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting root to ending"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending marks the 3rd person singular — 'he/she/it dwells'."
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "dwell",
+            "nuance": "habitual state of being",
+            "id": "s-p6-1"
+          },
+          {
+            "english": "live",
+            "nuance": "general mode of existence",
+            "id": "s-p6-2"
+          },
+          {
+            "english": "abide",
+            "nuance": "formal, meditative presence",
+            "id": "s-p6-3"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "ghost1",
+        "label": "does",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p5"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p4"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      [
+        "p4",
+        "p5",
+        "p6"
+      ]
+    ],
+    "title": "The Definition of Body Contemplation"
+  }
+}

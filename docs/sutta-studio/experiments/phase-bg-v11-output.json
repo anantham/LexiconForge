@@ -1,0 +1,733 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:16:24.917Z",
+    "phaseId": "phase-bg",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "anissito ca viharati na ca kiñci loke upaādiyati",
+    "englishText": "One bg3s1 bg4s1 bg6s1",
+    "tokens": {
+      "prompt": 23454,
+      "completion": 4872,
+      "total": 28326
+    },
+    "costUsd": 0.026343,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-bg",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "anissito",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2",
+          "p1s3",
+          "p1s4"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "ca",
+        "wordClass": "function",
+        "segmentIds": [
+          "p2s1"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p4",
+        "surface": "na",
+        "wordClass": "function",
+        "segmentIds": [
+          "p4s1"
+        ]
+      },
+      {
+        "id": "p5",
+        "surface": "ca",
+        "wordClass": "function",
+        "segmentIds": [
+          "p5s1"
+        ]
+      },
+      {
+        "id": "p6",
+        "surface": "kiñci",
+        "wordClass": "function",
+        "segmentIds": [
+          "p6s1"
+        ]
+      },
+      {
+        "id": "p7",
+        "surface": "loke",
+        "wordClass": "content",
+        "segmentIds": [
+          "p7s1",
+          "p7s2"
+        ]
+      },
+      {
+        "id": "p8",
+        "surface": "upādiyati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p8s1",
+          "p8s2",
+          "p8s3",
+          "p8s4"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "a",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'a-' means 'not' or 'without'"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "ni",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'ni-' means 'down' or 'into'"
+        ]
+      },
+      {
+        "id": "p1s3",
+        "wordId": "p1",
+        "text": "ssit",
+        "type": "root",
+        "tooltips": [
+          "The root 'si' means to lean or depend on"
+        ]
+      },
+      {
+        "id": "p1s4",
+        "wordId": "p1",
+        "text": "o",
+        "type": "suffix",
+        "tooltips": [
+          "The -o ending marks the person as the subject (nominative)"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "ca",
+        "type": "stem",
+        "tooltips": [
+          "ca: and / also"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'vi-' suggests expansion or intensity"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "The root 'har' means to carry or move; viharati means to dwell"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting root to ending"
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks 'he/she/it' in the present tense"
+        ]
+      },
+      {
+        "id": "p4s1",
+        "wordId": "p4",
+        "text": "na",
+        "type": "stem",
+        "tooltips": [
+          "na: not / no"
+        ]
+      },
+      {
+        "id": "p5s1",
+        "wordId": "p5",
+        "text": "ca",
+        "type": "stem",
+        "tooltips": [
+          "ca: and / also"
+        ]
+      },
+      {
+        "id": "p6s1",
+        "wordId": "p6",
+        "text": "kiñci",
+        "type": "stem",
+        "tooltips": [
+          "kiñci: anything / whatever"
+        ]
+      },
+      {
+        "id": "p7s1",
+        "wordId": "p7",
+        "text": "lok",
+        "type": "root",
+        "tooltips": [
+          "The root 'lok' refers to the world or space"
+        ]
+      },
+      {
+        "id": "p7s2",
+        "wordId": "p7",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending means 'in' or 'among' (locative)"
+        ]
+      },
+      {
+        "id": "p8s1",
+        "wordId": "p8",
+        "text": "upā",
+        "type": "prefix",
+        "tooltips": [
+          "The prefix 'upa' means 'near' or 'close'"
+        ]
+      },
+      {
+        "id": "p8s2",
+        "wordId": "p8",
+        "text": "di",
+        "type": "root",
+        "tooltips": [
+          "The root 'dā' means to take; upādiyati means to grasp"
+        ]
+      },
+      {
+        "id": "p8s3",
+        "wordId": "p8",
+        "text": "ya",
+        "type": "suffix",
+        "tooltips": [
+          "The -ya suffix often marks a passive or middle state"
+        ]
+      },
+      {
+        "id": "p8s4",
+        "wordId": "p8",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending marks 'he/she/it' in the present tense"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p7s2",
+        "targetWordId": "p8",
+        "type": "location",
+        "label": "Grasping IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-bg",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "independent",
+            "nuance": "not leaning on anything; free from craving and views",
+            "id": "s1",
+            "ripples": []
+          },
+          {
+            "english": "unattached",
+            "nuance": "without reliance or support from external conditions",
+            "id": "s2",
+            "ripples": []
+          },
+          {
+            "english": "detached",
+            "nuance": "not bound by the support of worldly things",
+            "id": "s3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "and",
+            "nuance": "connective particle",
+            "id": "s4"
+          },
+          {
+            "english": "also",
+            "nuance": "additive emphasis",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual state of being or living",
+            "id": "s6"
+          },
+          {
+            "english": "abides",
+            "nuance": "remaining in a specific meditative posture or state",
+            "id": "s7"
+          },
+          {
+            "english": "lives",
+            "nuance": "general conduct of life",
+            "id": "s8"
+          }
+        ]
+      },
+      {
+        "wordId": "p4",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "not",
+            "nuance": "negation of the following action",
+            "id": "s9"
+          }
+        ]
+      },
+      {
+        "wordId": "p5",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "and",
+            "nuance": "connective particle",
+            "id": "s10"
+          }
+        ]
+      },
+      {
+        "wordId": "p6",
+        "wordClass": "function",
+        "senses": [
+          {
+            "english": "anything",
+            "nuance": "indefinite pronoun, any object at all",
+            "id": "s11"
+          },
+          {
+            "english": "at all",
+            "nuance": "emphatic negation when paired with 'na'",
+            "id": "s12"
+          }
+        ]
+      },
+      {
+        "wordId": "p7",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "world",
+            "nuance": "the realm of experience or the five aggregates",
+            "id": "s13"
+          },
+          {
+            "english": "environment",
+            "nuance": "the surrounding context of the practitioner",
+            "id": "s14"
+          },
+          {
+            "english": "existence",
+            "nuance": "the sphere of worldly life",
+            "id": "s15"
+          }
+        ]
+      },
+      {
+        "wordId": "p8",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "clings to",
+            "nuance": "grasping or taking up through craving",
+            "id": "s16"
+          },
+          {
+            "english": "grasps",
+            "nuance": "seizing upon things as 'mine' or 'self'",
+            "id": "s17"
+          },
+          {
+            "english": "appropriates",
+            "nuance": "taking something as one's own",
+            "id": "s18"
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard formulaic phrase from the Satipaṭṭhāna Sutta. Senses reflect the psychological state of non-attachment."
+    }
+  },
+  "phaseView": {
+    "id": "phase-bg",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "a",
+            "type": "prefix",
+            "tooltip": "The prefix 'a-' means 'not' or 'without'."
+          },
+          {
+            "text": "ni",
+            "type": "prefix",
+            "tooltip": "The prefix 'ni-' means 'down' or 'into'."
+          },
+          {
+            "text": "ssit",
+            "type": "root",
+            "tooltip": "The root 'si' means to lean or depend on."
+          },
+          {
+            "text": "o",
+            "type": "suffix",
+            "morph": {
+              "case": "nom",
+              "number": "sg"
+            },
+            "tooltip": "The -o ending marks the person as the subject (nominative)."
+          }
+        ],
+        "senses": [
+          {
+            "english": "independent",
+            "nuance": "not leaning on anything; free from craving and views",
+            "id": "s1"
+          },
+          {
+            "english": "unattached",
+            "nuance": "without reliance or support from external conditions",
+            "id": "s2"
+          },
+          {
+            "english": "detached",
+            "nuance": "not bound by the support of worldly things",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "ca",
+            "type": "stem",
+            "tooltip": "ca: and / also"
+          }
+        ],
+        "senses": [
+          {
+            "english": "and",
+            "nuance": "connective particle",
+            "id": "s4"
+          },
+          {
+            "english": "also",
+            "nuance": "additive emphasis",
+            "id": "s5"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltip": "The prefix 'vi-' suggests expansion or intensity."
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltip": "The root 'har' means to carry or move; viharati means to dwell."
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltip": "Thematic vowel connecting root to ending."
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltip": "The -ti ending marks 'he/she/it' in the present tense."
+          }
+        ],
+        "senses": [
+          {
+            "english": "dwells",
+            "nuance": "habitual state of being or living",
+            "id": "s6"
+          },
+          {
+            "english": "abides",
+            "nuance": "remaining in a specific meditative posture or state",
+            "id": "s7"
+          },
+          {
+            "english": "lives",
+            "nuance": "general conduct of life",
+            "id": "s8"
+          }
+        ],
+        "isAnchor": true
+      },
+      {
+        "id": "p4",
+        "segments": [
+          {
+            "text": "na",
+            "type": "stem",
+            "tooltip": "na: not / no"
+          }
+        ],
+        "senses": [
+          {
+            "english": "not",
+            "nuance": "negation of the following action",
+            "id": "s9"
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "segments": [
+          {
+            "text": "ca",
+            "type": "stem",
+            "tooltip": "ca: and / also"
+          }
+        ],
+        "senses": [
+          {
+            "english": "and",
+            "nuance": "connective particle",
+            "id": "s10"
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "segments": [
+          {
+            "text": "kiñci",
+            "type": "stem",
+            "tooltip": "kiñci: anything / whatever"
+          }
+        ],
+        "senses": [
+          {
+            "english": "anything",
+            "nuance": "indefinite pronoun, any object at all",
+            "id": "s11"
+          },
+          {
+            "english": "at all",
+            "nuance": "emphatic negation when paired with 'na'",
+            "id": "s12"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "segments": [
+          {
+            "text": "lok",
+            "type": "root",
+            "tooltip": "The root 'lok' refers to the world or space."
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Grasping IN",
+              "status": "confirmed",
+              "targetWordId": "p8"
+            },
+            "tooltip": "The -e ending means 'in' or 'among' (locative)."
+          }
+        ],
+        "senses": [
+          {
+            "english": "world",
+            "nuance": "the realm of experience or the five aggregates",
+            "id": "s13"
+          },
+          {
+            "english": "environment",
+            "nuance": "the surrounding context of the practitioner",
+            "id": "s14"
+          },
+          {
+            "english": "existence",
+            "nuance": "the sphere of worldly life",
+            "id": "s15"
+          }
+        ]
+      },
+      {
+        "id": "p8",
+        "segments": [
+          {
+            "text": "upā",
+            "type": "prefix",
+            "tooltip": "The prefix 'upa' means 'near' or 'close'."
+          },
+          {
+            "text": "di",
+            "type": "root",
+            "tooltip": "The root 'dā' means to take; upādiyati means to grasp."
+          },
+          {
+            "text": "ya",
+            "type": "suffix",
+            "tooltip": "The -ya suffix often marks a passive or middle state."
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltip": "The -ti ending marks 'he/she/it' in the present tense."
+          }
+        ],
+        "senses": [
+          {
+            "english": "clings to",
+            "nuance": "grasping or taking up through craving",
+            "id": "s16"
+          },
+          {
+            "english": "grasps",
+            "nuance": "seizing upon things as 'mine' or 'self'",
+            "id": "s17"
+          },
+          {
+            "english": "appropriates",
+            "nuance": "taking something as one's own",
+            "id": "s18"
+          }
+        ]
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e4",
+        "linkedPaliId": "p4"
+      },
+      {
+        "id": "e5",
+        "linkedPaliId": "p8"
+      },
+      {
+        "id": "e6",
+        "linkedPaliId": "p6"
+      },
+      {
+        "id": "ghost1",
+        "label": "in the",
+        "linkedPaliId": "p7"
+      },
+      {
+        "id": "e7",
+        "linkedPaliId": "p7"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      [
+        "p4",
+        "p5",
+        "p6",
+        "p7",
+        "p8"
+      ]
+    ],
+    "title": "Independent and Unattached"
+  }
+}

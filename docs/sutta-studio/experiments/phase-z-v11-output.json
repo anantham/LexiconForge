@@ -1,0 +1,462 @@
+{
+  "_meta": {
+    "experimentRunAt": "2026-05-14T16:02:39.277Z",
+    "phaseId": "phase-z",
+    "model": "google/gemini-3-flash-preview",
+    "promptVersion": "sutta-studio-v11-mn10-amendments",
+    "paliText": "kāye kāyānupassī viharati",
+    "englishText": "z3s2 z1s1",
+    "tokens": {
+      "prompt": 22232,
+      "completion": 3145,
+      "total": 25377
+    },
+    "costUsd": 0.020551,
+    "passes": [
+      "anatomist",
+      "lexicographer",
+      "phase"
+    ],
+    "note": "Skipped: skeleton (phase grouping known), weaver + typesetter (orthogonal to V2), morphology (refinement, not core to V2 quality)."
+  },
+  "anatomist": {
+    "id": "phase-z",
+    "words": [
+      {
+        "id": "p1",
+        "surface": "kāye",
+        "wordClass": "content",
+        "segmentIds": [
+          "p1s1",
+          "p1s2"
+        ]
+      },
+      {
+        "id": "p2",
+        "surface": "kāyānupassī",
+        "wordClass": "content",
+        "segmentIds": [
+          "p2s1",
+          "p2s2",
+          "p2s3",
+          "p2s4",
+          "p2s5"
+        ]
+      },
+      {
+        "id": "p3",
+        "surface": "viharati",
+        "wordClass": "content",
+        "segmentIds": [
+          "p3s1",
+          "p3s2",
+          "p3s3",
+          "p3s4"
+        ],
+        "isAnchor": true
+      }
+    ],
+    "segments": [
+      {
+        "id": "p1s1",
+        "wordId": "p1",
+        "text": "kāy",
+        "type": "root",
+        "tooltips": [
+          "kāya: The body",
+          "Literally 'a heap' or 'collection' of parts"
+        ]
+      },
+      {
+        "id": "p1s2",
+        "wordId": "p1",
+        "text": "e",
+        "type": "suffix",
+        "tooltips": [
+          "The -e ending means 'in' or 'on' the body (locative case)",
+          "Marks the location of the meditation practice"
+        ]
+      },
+      {
+        "id": "p2s1",
+        "wordId": "p2",
+        "text": "kāy",
+        "type": "root",
+        "tooltips": [
+          "kāya: The body",
+          "The first part of the compound: 'body-observing'"
+        ]
+      },
+      {
+        "id": "p2s2",
+        "wordId": "p2",
+        "text": "ā",
+        "type": "suffix",
+        "tooltips": [
+          "Connecting vowel joining 'body' and 'observing'"
+        ]
+      },
+      {
+        "id": "p2s3",
+        "wordId": "p2",
+        "text": "nu",
+        "type": "prefix",
+        "tooltips": [
+          "nu: Along, following, repeatedly",
+          "Suggests a continuous or sequential observation"
+        ]
+      },
+      {
+        "id": "p2s4",
+        "wordId": "p2",
+        "text": "pass",
+        "type": "root",
+        "tooltips": [
+          "√pas: To see",
+          "The act of observing or watching"
+        ]
+      },
+      {
+        "id": "p2s5",
+        "wordId": "p2",
+        "text": "ī",
+        "type": "suffix",
+        "tooltips": [
+          "The -ī ending means 'one who does this'",
+          "Describes the person practicing: 'an observer'"
+        ]
+      },
+      {
+        "id": "p3s1",
+        "wordId": "p3",
+        "text": "vi",
+        "type": "prefix",
+        "tooltips": [
+          "vi-: Apart, intensive",
+          "Modifies the root to mean 'dwelling' or 'living'"
+        ]
+      },
+      {
+        "id": "p3s2",
+        "wordId": "p3",
+        "text": "har",
+        "type": "root",
+        "tooltips": [
+          "√har: To carry or take",
+          "vi + har = to carry one's life along; to dwell"
+        ]
+      },
+      {
+        "id": "p3s3",
+        "wordId": "p3",
+        "text": "a",
+        "type": "stem",
+        "tooltips": [
+          "Thematic vowel connecting the root to the ending"
+        ]
+      },
+      {
+        "id": "p3s4",
+        "wordId": "p3",
+        "text": "ti",
+        "type": "suffix",
+        "tooltips": [
+          "The -ti ending means 'he/she/it does'",
+          "Present tense: 'dwells' or 'is dwelling'"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "r1",
+        "fromSegmentId": "p1s2",
+        "targetWordId": "p3",
+        "type": "location",
+        "label": "Dwelling IN",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "lexicographer": {
+    "id": "phase-z",
+    "senses": [
+      {
+        "wordId": "p1",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "physical form",
+            "id": "s1",
+            "ripples": []
+          },
+          {
+            "english": "physicality",
+            "nuance": "material aspect",
+            "id": "s2",
+            "ripples": []
+          },
+          {
+            "english": "form",
+            "nuance": "the somatic experience",
+            "id": "s3",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p2",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "observing",
+            "nuance": "Sujato: 'observing the body as a body'",
+            "id": "s4",
+            "ripples": []
+          },
+          {
+            "english": "contemplating",
+            "nuance": "Bodhi: 'contemplating the body in the body'",
+            "id": "s5",
+            "ripples": []
+          },
+          {
+            "english": "tracking",
+            "nuance": "Thanissaro: 'remaining focused on the body'",
+            "id": "s6",
+            "ripples": []
+          }
+        ]
+      },
+      {
+        "wordId": "p3",
+        "wordClass": "content",
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "active practice",
+            "id": "s7",
+            "ripples": []
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a state",
+            "id": "s8",
+            "ripples": []
+          },
+          {
+            "english": "lives",
+            "nuance": "habitual mode of being",
+            "id": "s9",
+            "ripples": []
+          }
+        ]
+      }
+    ],
+    "handoff": {
+      "confidence": "high",
+      "missingDefinitions": [],
+      "notes": "Standard Satipatthana formula. Senses for p2 reflect major translator traditions (Sujato, Bodhi, Thanissaro)."
+    }
+  },
+  "phaseView": {
+    "id": "phase-z",
+    "paliWords": [
+      {
+        "id": "p1",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "root",
+            "tooltips": [
+              "kāya: The body",
+              "Literally 'a heap' or 'collection' of parts"
+            ]
+          },
+          {
+            "text": "e",
+            "type": "suffix",
+            "morph": {
+              "case": "loc",
+              "number": "sg"
+            },
+            "relation": {
+              "type": "location",
+              "label": "Dwelling IN",
+              "status": "confirmed",
+              "targetWordId": "p3"
+            },
+            "tooltips": [
+              "The -e ending means 'in' or 'on' the body (locative case)",
+              "Marks the location of the meditation practice"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "body",
+            "nuance": "physical form",
+            "id": "s1"
+          },
+          {
+            "english": "physicality",
+            "nuance": "material aspect",
+            "id": "s2"
+          },
+          {
+            "english": "form",
+            "nuance": "the somatic experience",
+            "id": "s3"
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "segments": [
+          {
+            "text": "kāy",
+            "type": "root",
+            "tooltips": [
+              "kāya: The body",
+              "The first part of the compound: 'body-observing'"
+            ]
+          },
+          {
+            "text": "ā",
+            "type": "suffix",
+            "tooltips": [
+              "Connecting vowel joining 'body' and 'observing'"
+            ]
+          },
+          {
+            "text": "nu",
+            "type": "prefix",
+            "tooltips": [
+              "nu: Along, following, repeatedly",
+              "Suggests a continuous or sequential observation"
+            ]
+          },
+          {
+            "text": "pass",
+            "type": "root",
+            "tooltips": [
+              "√pas: To see",
+              "The act of observing or watching"
+            ]
+          },
+          {
+            "text": "ī",
+            "type": "suffix",
+            "tooltips": [
+              "The -ī ending means 'one who does this'",
+              "Describes the person practicing: 'an observer'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "observing",
+            "nuance": "Sujato: 'observing the body as a body'",
+            "id": "s4"
+          },
+          {
+            "english": "contemplating",
+            "nuance": "Bodhi: 'contemplating the body in the body'",
+            "id": "s5"
+          },
+          {
+            "english": "tracking",
+            "nuance": "Thanissaro: 'remaining focused on the body'",
+            "id": "s6"
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "segments": [
+          {
+            "text": "vi",
+            "type": "prefix",
+            "tooltips": [
+              "vi-: Apart, intensive",
+              "Modifies the root to mean 'dwelling' or 'living'"
+            ]
+          },
+          {
+            "text": "har",
+            "type": "root",
+            "tooltips": [
+              "√har: To carry or take",
+              "vi + har = to carry one's life along; to dwell"
+            ]
+          },
+          {
+            "text": "a",
+            "type": "stem",
+            "tooltips": [
+              "Thematic vowel connecting the root to the ending"
+            ]
+          },
+          {
+            "text": "ti",
+            "type": "suffix",
+            "tooltips": [
+              "The -ti ending means 'he/she/it does'",
+              "Present tense: 'dwells' or 'is dwelling'"
+            ]
+          }
+        ],
+        "senses": [
+          {
+            "english": "meditates",
+            "nuance": "active practice",
+            "id": "s7"
+          },
+          {
+            "english": "dwells",
+            "nuance": "abiding in a state",
+            "id": "s8"
+          },
+          {
+            "english": "lives",
+            "nuance": "habitual mode of being",
+            "id": "s9"
+          }
+        ],
+        "isAnchor": true
+      }
+    ],
+    "englishStructure": [
+      {
+        "id": "e1",
+        "linkedPaliId": "p3"
+      },
+      {
+        "id": "g1",
+        "label": "as an",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "e2",
+        "linkedPaliId": "p2"
+      },
+      {
+        "id": "g2",
+        "label": "in the",
+        "linkedPaliId": "p1"
+      },
+      {
+        "id": "e3",
+        "linkedPaliId": "p1"
+      }
+    ],
+    "layoutBlocks": [
+      [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    ],
+    "title": "Contemplating the Body"
+  }
+}
