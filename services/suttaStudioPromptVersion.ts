@@ -8,4 +8,11 @@
 //                      arrow-earning relation rule, sense metadata (epistemicBasis/sourceCitationIds/
 //                      confidence/notes), anchor selection, translator-debate cycles, cross-phase
 //                      awareness. See docs/sutta-studio/CONSOLIDATION.md (Phase 1).
-export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v11-mn10-amendments';
+// v12-prior-phase-context: Sliding-window prior-phase context (default 3 phases) now populated in
+//                      the PhaseStateEnvelope. The V11 CROSS_PHASE amendment was already conditional
+//                      ("if you're given prior-phase context..."); v12 actually provides it.
+//                      Closes the cross-phase narrative gap that v11 couldn't bridge with a one-
+//                      phase prompt window. See services/sutta-studio/utils.ts:formatPriorPhasesContext.
+//                      Bump invalidates v11 cache entries — they were correct under their window
+//                      but lacked the cross-phase observations v12 enables.
+export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v12-prior-phase-context';

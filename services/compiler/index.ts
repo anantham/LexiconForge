@@ -39,6 +39,7 @@ import {
   dedupeEnglishStructure,
   buildDegradedPhaseView,
 } from '../suttaStudioRehydrator';
+import { V12_PRIOR_PHASES_WINDOW } from '../sutta-studio/utils';
 import {
   tokenizeEnglish,
   getWordTokens,
@@ -320,6 +321,15 @@ export const compileSuttaStudioPacket = async (options: {
       log(`  wordRange: [${phase.wordRange[0]}, ${phase.wordRange[1]}) applied - Pali: "${effectiveSegments[0]?.pali}"`);
     }
 
+    // v12-b sliding-window prior context: feed the most-recent N already-
+    // compiled phases into each pass's PhaseStateEnvelope. Closes the
+    // cross-phase narrative gap that v11 couldn't bridge (one-phase prompt
+    // window). The CROSS_PHASE V2 amendment already instructs the LLM how
+    // to use this context — see config/suttaStudioPromptContextV2.ts.
+    const priorPhases = packet.phases.slice(
+      Math.max(0, packet.phases.length - V12_PRIOR_PHASES_WINDOW)
+    );
+
     try {
       log(`Compiling ${phase.id} (${i + 1}/${phaseSkeleton.length})...`);
       const phaseStart = performance.now();
@@ -359,6 +369,7 @@ export const compileSuttaStudioPacket = async (options: {
           const phaseState = buildPhaseStateEnvelope({
             workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
             currentStageLabel: 'Anatomist (1/4)', currentStageKey: 'anatomist', completed: {},
+            priorPhases,
           });
           const anatomistPrompt = buildAnatomistPrompt(phase.id, effectiveSegments, phaseState, retrievalContext || undefined);
           await throttle(signal);
@@ -446,6 +457,7 @@ export const compileSuttaStudioPacket = async (options: {
             const phaseState = buildPhaseStateEnvelope({
               workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
               currentStageLabel: 'Lexicographer (2/4)', currentStageKey: 'lexicographer', completed: { anatomist: true },
+              priorPhases,
             });
             const lexicographerPrompt = buildLexicographerPrompt(
               phase.id,
@@ -492,6 +504,7 @@ export const compileSuttaStudioPacket = async (options: {
               const weaverPhaseState = buildPhaseStateEnvelope({
                 workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
                 currentStageLabel: 'Weaver (3/4)', currentStageKey: 'weaver', completed: { anatomist: true, lexicographer: true },
+                priorPhases,
               });
               const weaverPrompt = buildWeaverPrompt(phase.id, effectiveSegments, weaverPhaseState, anatomistOutput, lexicographerOutput, englishTokens);
               await throttle(signal);
@@ -527,6 +540,7 @@ export const compileSuttaStudioPacket = async (options: {
             const typesetterPhaseState = buildPhaseStateEnvelope({
               workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
               currentStageLabel: 'Typesetter (4/4)', currentStageKey: 'typesetter', completed: { anatomist: true, lexicographer: true, weaver: true },
+              priorPhases,
             });
             const typesetterPrompt = buildTypesetterPrompt(phase.id, typesetterPhaseState, anatomistOutput, weaverOutput, effectiveSegments);
             const wordIds = anatomistOutput.words.map((w) => w.id).join(', ');
@@ -557,6 +571,7 @@ export const compileSuttaStudioPacket = async (options: {
         workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
         currentStageLabel: 'PhaseView (fallback)',
         completed: { anatomist: Boolean(anatomistOutput), lexicographer: Boolean(lexicographerOutput), weaver: Boolean(weaverOutput), typesetter: Boolean(typesetterOutput) },
+        priorPhases,
       });
       const phasePrompt = buildPhasePrompt(phase.id, effectiveSegments, renderDefaults, retrievalContext || undefined, { anatomist: anatomistOutput || undefined, lexicographer: lexicographerOutput || undefined, phaseState });
       await throttle(signal);
