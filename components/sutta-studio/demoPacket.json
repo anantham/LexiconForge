@@ -96,7 +96,8 @@
       "query": "me",
       "excerpt": "me [pron]: by me",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/me"
     },
     {
       "id": "cite:dpd:dpd:63769",
@@ -105,7 +106,8 @@
       "query": "suta",
       "excerpt": "suta [pp]: heard",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/suta"
     },
     {
       "id": "cite:dpd:dpd:63771",
@@ -114,7 +116,8 @@
       "query": "suta",
       "excerpt": "suta [nt]: what is heard; something heard; lit. heard",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/suta"
     },
     {
       "id": "cite:dpd:dpd:63770",
@@ -123,7 +126,8 @@
       "query": "suta",
       "excerpt": "suta [pp]: learned; lit. heard",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/suta"
     },
     {
       "id": "cite:dpd:dpd:17376",
@@ -132,7 +136,8 @@
       "query": "eka",
       "excerpt": "eka [card]: one (1)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/eka"
     },
     {
       "id": "cite:dpd:dpd:17382",
@@ -141,7 +146,8 @@
       "query": "eka",
       "excerpt": "eka [ind]: once",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/eka"
     },
     {
       "id": "cite:dpd:dpd:59451",
@@ -150,7 +156,8 @@
       "query": "samaya",
       "excerpt": "samaya [masc]: time; occasion; lit. going together",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/samaya"
     },
     {
       "id": "cite:dpd:dpd:59452",
@@ -159,7 +166,8 @@
       "query": "samaya",
       "excerpt": "samaya [masc]: right time; suitable occasion; lit. going together",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/samaya"
     },
     {
       "id": "cite:dpd:dpd:49147",
@@ -168,7 +176,8 @@
       "query": "bhagavā",
       "excerpt": "bhagavā [masc]: Sublime One; Blessed One; Fortunate One; epithet of the Buddha",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/bhagav%C4%81"
     },
     {
       "id": "cite:dpd:dpd:22524",
@@ -177,7 +186,8 @@
       "query": "kurū",
       "excerpt": "kurū [masc]: name of the people of Kuru; Kurus",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/kur%C5%AB"
     },
     {
       "id": "cite:dpd:dpd:22502",
@@ -186,7 +196,8 @@
       "query": "kuru",
       "excerpt": "kuru [masc]: name of a country",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/kuru"
     },
     {
       "id": "cite:dpd:dpd:69661",
@@ -195,7 +206,8 @@
       "query": "viharati",
       "excerpt": "viharati [pr]: lives; dwells; stays (in)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/viharati"
     },
     {
       "id": "cite:dpd:dpd:69662",
@@ -204,7 +216,8 @@
       "query": "viharati",
       "excerpt": "viharati [pr]: stays; remains; continues; dwells; abides (in)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/viharati"
     },
     {
       "id": "cite:dpd:dpd:18134",
@@ -213,7 +226,8 @@
       "query": "evaṁ",
       "excerpt": "evaṁ [ind]: thus; this; like this; similarly; in the same manner; just as; such",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/eva%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:20396",
@@ -222,7 +236,8 @@
       "query": "Kammāsadhammaṁ",
       "excerpt": "kammāsadhamma [nt]: name of a town in the Kuru country",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/Kamm%C4%81sadhamma%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:36427",
@@ -231,7 +246,8 @@
       "query": "nāma",
       "excerpt": "nāma [ind]: called; means; by the name of; namely; lit. name",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/n%C4%81ma"
     },
     {
       "id": "cite:dpd:dpd:36863",
@@ -240,7 +256,8 @@
       "query": "nigamo",
       "excerpt": "nigama [masc]: town; market town; lit. going down",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/nigamo"
     },
     {
       "id": "cite:dpd:dpd:74785",
@@ -249,7 +266,8 @@
       "query": "nigamo",
       "excerpt": "nigama [nt]: town; market town; lit. going down",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/nigamo"
     },
     {
       "id": "cite:dpd:dpd:29605",
@@ -258,7 +276,8 @@
       "query": "tatra",
       "excerpt": "tatra [ind]: there; in that place",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/tatra"
     },
     {
       "id": "cite:dpd:dpd:29606",
@@ -267,7 +286,8 @@
       "query": "tatra",
       "excerpt": "tatra [ind]: in that case; in that regard; in this matter; in this connection",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/tatra"
     },
     {
       "id": "cite:dpd:dpd:23966",
@@ -276,7 +296,8 @@
       "query": "kho",
       "excerpt": "kho [ind]: indeed; surely; certainly; truly",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/kho"
     },
     {
       "id": "cite:dpd:dpd:49885",
@@ -285,7 +306,8 @@
       "query": "bhikkhū",
       "excerpt": "bhikkhu [masc]: monk; monastic; mendicant; fully ordained monk; lit. beggar",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/bhikkh%C5%AB"
     },
     {
       "id": "cite:dpd:dpd:12086",
@@ -294,7 +316,8 @@
       "query": "āmantesi",
       "excerpt": "āmantesi [aor]: addressed; said (to); advised",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/%C4%81mantesi"
     },
     {
       "id": "cite:dpd:dpd:30431",
@@ -303,7 +326,8 @@
       "query": "ti",
       "excerpt": "ti [ind]: (end of direct speech) ' '",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/ti"
     },
     {
       "id": "cite:dpd:dpd:31134",
@@ -312,7 +336,8 @@
       "query": "te",
       "excerpt": "te [pron]: they; those",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/te"
     },
     {
       "id": "cite:dpd:dpd:49136",
@@ -321,7 +346,8 @@
       "query": "bhagavato",
       "excerpt": "bhagavato [masc]: to the Buddha; for the Buddha",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/bhagavato"
     },
     {
       "id": "cite:dpd:dpd:49137",
@@ -330,7 +356,8 @@
       "query": "bhagavato",
       "excerpt": "bhagavato [masc]: of the Buddha",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/bhagavato"
     },
     {
       "id": "cite:dpd:dpd:39413",
@@ -339,7 +366,8 @@
       "query": "paccassosuṁ",
       "excerpt": "paccassosi [aor]: replied (to); agreed (with); assented (to)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/paccassosu%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:8757",
@@ -348,7 +376,8 @@
       "query": "ayaṁ",
       "excerpt": "ayaṁ [pron]: this; this person; this thing",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/aya%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:49868",
@@ -357,7 +386,8 @@
       "query": "Bhikkhave",
       "excerpt": "bhikkhave [masc]: monks",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/Bhikkhave"
     },
     {
       "id": "cite:dpd:dpd:50495",
@@ -366,7 +396,8 @@
       "query": "maggo",
       "excerpt": "magga [masc]: road; path; track; way",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/maggo"
     },
     {
       "id": "cite:dpd:dpd:50496",
@@ -375,7 +406,8 @@
       "query": "maggo",
       "excerpt": "magga [masc]: way; means; method",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/maggo"
     }
   ],
   "progress": {
@@ -427,7 +459,10 @@
             {
               "english": "Thus",
               "nuance": "Narrative-opening deictic ('in this way') — points forward to what is about to be recited",
-              "notes": "DPD treats evaṁ and eva as distinct headwords. evaṁ ('thus; in this way; similarly; in the same manner') is the cataphoric deictic used in this formula; bare eva carries the emphatic-particle senses ('only', 'just', 'indeed')."
+              "notes": "DPD treats evaṁ and eva as distinct headwords. evaṁ ('thus; in this way; similarly; in the same manner') is the cataphoric deictic used in this formula; bare eva carries the emphatic-particle senses ('only', 'just', 'indeed').",
+              "citationIds": [
+                "cite:dpd:dpd:18134"
+              ]
             }
           ],
           "pronunciation": "EH · vum  (rhymes with \"come\")"
@@ -455,7 +490,10 @@
           "senses": [
             {
               "english": "by me",
-              "nuance": "Agent in passive"
+              "nuance": "Agent in passive",
+              "citationIds": [
+                "cite:dpd:dpd:53164"
+              ]
             }
           ],
           "pronunciation": "meh  (short, like \"meh\")"
@@ -562,7 +600,11 @@
           "senses": [
             {
               "english": "one",
-              "nuance": "At one (time)"
+              "nuance": "At one (time)",
+              "citationIds": [
+                "cite:dpd:dpd:17376",
+                "cite:dpd:dpd:17382"
+              ]
             }
           ],
           "pronunciation": "EH · kum"
@@ -650,15 +692,24 @@
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Lucky One",
-              "nuance": "Fortune-bearer"
+              "nuance": "Fortune-bearer",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             }
           ],
           "pronunciation": "bha · GA · vah"
@@ -725,15 +776,24 @@
           "senses": [
             {
               "english": "among the Kurus",
-              "nuance": "Location — among the people"
+              "nuance": "Location — among the people",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "in Kuru territory",
-              "nuance": "Geographical — in the country"
+              "nuance": "Geographical — in the country",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "with the Kuru people",
-              "nuance": "Among inhabitants"
+              "nuance": "Among inhabitants",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             }
           ],
           "pronunciation": "ku · ROO · su"
@@ -786,15 +846,30 @@
           "senses": [
             {
               "english": "was dwelling",
-              "nuance": "Historical present"
+              "nuance": "Historical present",
+              "citationIds": [
+                "cite:dpd:dpd:30431",
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "was staying",
-              "nuance": "Sojourning"
+              "nuance": "Sojourning",
+              "citationIds": [
+                "cite:dpd:dpd:30431",
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "was abiding",
-              "nuance": "Remaining"
+              "nuance": "Remaining",
+              "citationIds": [
+                "cite:dpd:dpd:30431",
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -856,17 +931,26 @@
           "senses": [
             {
               "english": "Kammāsadhamma",
-              "nuance": "Place name"
+              "nuance": "Place name",
+              "citationIds": [
+                "cite:dpd:dpd:20396"
+              ]
             },
             {
               "english": "\"Where the Spotted One was Tamed\"",
               "nuance": "Etymology",
-              "notes": "Traditional/commentarial explanation associated with the Kammāsapāda story; not directly attested by the DPD lexical entry, which only gives the proper noun."
+              "notes": "Traditional/commentarial explanation associated with the Kammāsapāda story; not directly attested by the DPD lexical entry, which only gives the proper noun.",
+              "citationIds": [
+                "cite:dpd:dpd:20396"
+              ]
             },
             {
               "english": "the spotted-dhamma place",
               "nuance": "Literal compound",
-              "notes": "Compound parse: kammāsa (spotted/speckled) + dhamma (here in a derived sense, possibly 'practice/place'). The standard morphological breakdown; not the historical/Jātaka etymology above."
+              "notes": "Compound parse: kammāsa (spotted/speckled) + dhamma (here in a derived sense, possibly 'practice/place'). The standard morphological breakdown; not the historical/Jātaka etymology above.",
+              "citationIds": [
+                "cite:dpd:dpd:20396"
+              ]
             }
           ],
           "pronunciation": "kam · MAH · sa · DHAM · mum"
@@ -889,7 +973,10 @@
             {
               "english": "named",
               "nuance": "Called",
-              "notes": "The naming particle, indeclinable. DPD: 'called; means; by the name of; namely'. The X-nāma-Y appositional construction."
+              "notes": "The naming particle, indeclinable. DPD: 'called; means; by the name of; namely'. The X-nāma-Y appositional construction.",
+              "citationIds": [
+                "cite:dpd:dpd:36427"
+              ]
             }
           ],
           "pronunciation": "NAH · ma"
@@ -927,15 +1014,24 @@
           "senses": [
             {
               "english": "of the Kurus",
-              "nuance": "Genitive Plural"
+              "nuance": "Genitive Plural",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "belonging to the Kurus",
-              "nuance": "Possessive"
+              "nuance": "Possessive",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "the Kurus'",
-              "nuance": "Ownership"
+              "nuance": "Ownership",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             }
           ],
           "pronunciation": "ku · ROO · num"
@@ -975,17 +1071,29 @@
           "senses": [
             {
               "english": "a market town",
-              "nuance": "Larger than gāma (village)"
+              "nuance": "Larger than gāma (village)",
+              "citationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ]
             },
             {
               "english": "a township",
               "nuance": "Smaller than nagara (city)",
-              "notes": "DPD's literal gloss 'going down' (ni+gam) supports the etymological reading already in d4s1/d4s2 tooltips — town as 'place people resort to'."
+              "notes": "DPD's literal gloss 'going down' (ni+gam) supports the etymological reading already in d4s1/d4s2 tooltips — town as 'place people resort to'.",
+              "citationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ]
             },
             {
               "english": "a trading center",
               "nuance": "Commercial gathering place",
-              "notes": "DPD attests 'town; market town' only; the 'commercial center' framing is a curatorial expansion drawing on standard Pāli economic context (nigama vs gāma vs nagara). Not directly DPD-attested."
+              "notes": "DPD attests 'town; market town' only; the 'commercial center' framing is a curatorial expansion drawing on standard Pāli economic context (nigama vs gāma vs nagara). Not directly DPD-attested.",
+              "citationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ]
             }
           ],
           "pronunciation": "NI · ga · mo"
@@ -1047,7 +1155,11 @@
           "senses": [
             {
               "english": "There",
-              "nuance": "At that place"
+              "nuance": "At that place",
+              "citationIds": [
+                "cite:dpd:dpd:29605",
+                "cite:dpd:dpd:29606"
+              ]
             }
           ],
           "pronunciation": "TAT · ra"
@@ -1070,12 +1182,18 @@
           "senses": [
             {
               "english": "indeed",
-              "nuance": "Emphasis"
+              "nuance": "Emphasis",
+              "citationIds": [
+                "cite:dpd:dpd:23966"
+              ]
             },
             {
               "english": "",
               "nuance": "Often untranslated",
-              "notes": "DPD attests 'kho' as 'indeed; surely; certainly; truly'. The choice to leave it untranslated in many English versions reflects a translator's curatorial decision — English narrative doesn't need this particle."
+              "notes": "DPD attests 'kho' as 'indeed; surely; certainly; truly'. The choice to leave it untranslated in many English versions reflects a translator's curatorial decision — English narrative doesn't need this particle.",
+              "citationIds": [
+                "cite:dpd:dpd:23966"
+              ]
             }
           ],
           "pronunciation": "kho  (aspirated)"
@@ -1108,16 +1226,25 @@
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Lucky One",
               "nuance": "Fortune-bearer",
-              "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). DPD's primary glosses are 'Sublime/Blessed/Fortunate One'; the bare 'Lucky' captures the etymological flavor but isn't a standard rendering."
+              "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). DPD's primary glosses are 'Sublime/Blessed/Fortunate One'; the bare 'Lucky' captures the etymological flavor but isn't a standard rendering.",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             }
           ],
           "pronunciation": "bha · GA · vah"
@@ -1150,16 +1277,25 @@
           "senses": [
             {
               "english": "the bhikkhus",
-              "nuance": "Accusative object"
+              "nuance": "Accusative object",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "the monks",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "the mendicants",
               "nuance": "Those who beg",
-              "notes": "'Mendicant' is the literal English match: one who depends on alms. DPD includes 'mendicant' among its glosses."
+              "notes": "'Mendicant' is the literal English match: one who depends on alms. DPD includes 'mendicant' among its glosses.",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             }
           ],
           "pronunciation": "bhik · KHOO"
@@ -1209,15 +1345,24 @@
           "senses": [
             {
               "english": "addressed",
-              "nuance": "Aorist"
+              "nuance": "Aorist",
+              "citationIds": [
+                "cite:dpd:dpd:12086"
+              ]
             },
             {
               "english": "summoned",
-              "nuance": "Called to attention"
+              "nuance": "Called to attention",
+              "citationIds": [
+                "cite:dpd:dpd:12086"
+              ]
             },
             {
               "english": "spoke to",
-              "nuance": "Directly addressed"
+              "nuance": "Directly addressed",
+              "citationIds": [
+                "cite:dpd:dpd:12086"
+              ]
             }
           ],
           "pronunciation": "ah · MAN · te · si"
@@ -1307,7 +1452,10 @@
           "senses": [
             {
               "english": "\"",
-              "nuance": "Quote marker"
+              "nuance": "Quote marker",
+              "citationIds": [
+                "cite:dpd:dpd:30431"
+              ]
             }
           ],
           "pronunciation": "TI"
@@ -1385,7 +1533,10 @@
           "senses": [
             {
               "english": "\"",
-              "nuance": "Close quote"
+              "nuance": "Close quote",
+              "citationIds": [
+                "cite:dpd:dpd:30431"
+              ]
             }
           ],
           "pronunciation": "TI"
@@ -1407,7 +1558,10 @@
           "senses": [
             {
               "english": "those",
-              "nuance": "Demonstrative"
+              "nuance": "Demonstrative",
+              "citationIds": [
+                "cite:dpd:dpd:31134"
+              ]
             }
           ],
           "pronunciation": "teh"
@@ -1438,15 +1592,24 @@
           "senses": [
             {
               "english": "bhikkhus",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "monks",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "mendicants",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             }
           ],
           "pronunciation": "bhik · KHOO"
@@ -1486,16 +1649,28 @@
           "senses": [
             {
               "english": "to the Blessed One",
-              "nuance": "Dative (recipient of reply)"
+              "nuance": "Dative (recipient of reply)",
+              "citationIds": [
+                "cite:dpd:dpd:49136",
+                "cite:dpd:dpd:49137"
+              ]
             },
             {
               "english": "to the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "citationIds": [
+                "cite:dpd:dpd:49136",
+                "cite:dpd:dpd:49137"
+              ]
             },
             {
               "english": "of the Blessed One",
               "nuance": "Genitive (alternative reading)",
-              "notes": "The genitive surface 'bhagavato' has multiple readings in DPD (to/of/from). For verbs of speaking the dative-like 'to' reading is conventional; the bare 'of' would translate as 'they did the replying-of the Buddha' which is awkward English but grammatically possible."
+              "notes": "The genitive surface 'bhagavato' has multiple readings in DPD (to/of/from). For verbs of speaking the dative-like 'to' reading is conventional; the bare 'of' would translate as 'they did the replying-of the Buddha' which is awkward English but grammatically possible.",
+              "citationIds": [
+                "cite:dpd:dpd:49136",
+                "cite:dpd:dpd:49137"
+              ]
             }
           ],
           "pronunciation": "bha · ga · VAH · to"
@@ -1528,16 +1703,25 @@
           "senses": [
             {
               "english": "replied",
-              "nuance": "Assented"
+              "nuance": "Assented",
+              "citationIds": [
+                "cite:dpd:dpd:39413"
+              ]
             },
             {
               "english": "answered",
-              "nuance": "Responded"
+              "nuance": "Responded",
+              "citationIds": [
+                "cite:dpd:dpd:39413"
+              ]
             },
             {
               "english": "acknowledged",
               "nuance": "Heard and accepted",
-              "notes": "DPD's primary glosses are 'replied; agreed; assented'. 'Acknowledged' captures the receptive quality — hearing-back means accepting the call."
+              "notes": "DPD's primary glosses are 'replied; agreed; assented'. 'Acknowledged' captures the receptive quality — hearing-back means accepting the call.",
+              "citationIds": [
+                "cite:dpd:dpd:39413"
+              ]
             }
           ],
           "pronunciation": "pat · ca · SO · sum"
@@ -1806,7 +1990,10 @@
           "senses": [
             {
               "english": "this",
-              "nuance": "Pointer to the path"
+              "nuance": "Pointer to the path",
+              "citationIds": [
+                "cite:dpd:dpd:8757"
+              ]
             }
           ],
           "pronunciation": "AH · yum"
@@ -1838,26 +2025,41 @@
           "senses": [
             {
               "english": "Mendicants,",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Monks,",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Sharers,",
               "nuance": "Those who share the path",
-              "notes": "Compositional reading from the bhaj-share root etymology. Not a standard English rendering; included to surface the etymology pedagogically."
+              "notes": "Compositional reading from the bhaj-share root etymology. Not a standard English rendering; included to surface the etymology pedagogically.",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Seekers,",
               "nuance": "Those who see danger",
-              "notes": "From the alternative etymology bhī-kkh (one-who-sees-danger). DPD glosses bhikkhu as 'beggar' primarily but the danger-seer etymology has a long tradition in commentary."
+              "notes": "From the alternative etymology bhī-kkh (one-who-sees-danger). DPD glosses bhikkhu as 'beggar' primarily but the danger-seer etymology has a long tradition in commentary.",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Friends,",
               "nuance": "Intimate",
-              "notes": "An interpretive choice some modern translators (e.g., Thanissaro Bhikkhu) favor — emphasizing the relational warmth over the formal monastic status. Not DPD-attested but pedagogically interesting."
+              "notes": "An interpretive choice some modern translators (e.g., Thanissaro Bhikkhu) favor — emphasizing the relational warmth over the formal monastic status. Not DPD-attested but pedagogically interesting.",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             }
           ],
           "pronunciation": "bhik · KHA · veh"
@@ -1888,16 +2090,28 @@
           "senses": [
             {
               "english": "path",
-              "nuance": "The way"
+              "nuance": "The way",
+              "citationIds": [
+                "cite:dpd:dpd:50495",
+                "cite:dpd:dpd:50496"
+              ]
             },
             {
               "english": "road",
-              "nuance": "Track to follow"
+              "nuance": "Track to follow",
+              "citationIds": [
+                "cite:dpd:dpd:50495",
+                "cite:dpd:dpd:50496"
+              ]
             },
             {
               "english": "method",
               "nuance": "Systematic approach",
-              "notes": "DPD attests 'magga' also as 'way; means; method' — the abstract sense that frames satipaṭṭhāna as a meditation METHOD, not just a physical path."
+              "notes": "DPD attests 'magga' also as 'way; means; method' — the abstract sense that frames satipaṭṭhāna as a meditation METHOD, not just a physical path.",
+              "citationIds": [
+                "cite:dpd:dpd:50495",
+                "cite:dpd:dpd:50496"
+              ]
             }
           ],
           "pronunciation": "MAG · go"
@@ -3143,23 +3357,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -3698,15 +3932,27 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -4204,23 +4450,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -4744,23 +5010,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -5486,15 +5772,27 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -9197,7 +9495,10 @@
           "senses": [
             {
               "english": "indeed",
-              "nuance": "Emphasis"
+              "nuance": "Emphasis",
+              "citationIds": [
+                "cite:dpd:dpd:23966"
+              ]
             }
           ],
           "pronunciation": "kho  (aspirated)"
@@ -10867,15 +11168,27 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Abides"
+              "nuance": "Abides",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Sustained"
+              "nuance": "Sustained",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11110,23 +11423,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11364,23 +11697,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11573,23 +11926,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11765,23 +12138,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11970,23 +12363,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -12571,23 +12984,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
