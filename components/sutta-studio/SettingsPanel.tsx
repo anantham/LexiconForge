@@ -157,57 +157,13 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
           <div className="px-3 py-2 border-b border-slate-700">
             <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">Settings</span>
           </div>
-          <div className="p-3 space-y-1">
-            <SettingToggle
-              label="Tooltips"
-              checked={settings.tooltips}
-              onChange={(v) => updateSetting('tooltips', v)}
-            />
-            <SettingToggle
-              label="Emoji in tooltips"
-              checked={settings.emojiInTooltips}
-              onChange={(v) => updateSetting('emojiInTooltips', v)}
-            />
-            <SettingToggle
-              label="Grammar terms"
-              checked={settings.grammarTerms}
-              onChange={(v) => updateSetting('grammarTerms', v)}
-            />
-            <SettingToggle
-              label="Grammar arrows"
-              checked={settings.grammarArrows}
-              onChange={(v) => updateSetting('grammarArrows', v)}
-            />
-            <SettingToggle
-              label="Refrain colors"
-              checked={settings.refrainColors}
-              onChange={(v) => updateSetting('refrainColors', v)}
-            />
-            <SettingToggle
-              label="Alignment lines"
-              checked={settings.alignmentLines}
-              onChange={(v) => updateSetting('alignmentLines', v)}
-            />
-            <SettingToggle
-              label="Ghost words"
-              checked={settings.ghostWords}
-              onChange={(v) => updateSetting('ghostWords', v)}
-            />
-            <SettingToggle
-              label="Cycle dots"
-              checked={settings.cycleDots}
-              onChange={(v) => updateSetting('cycleDots', v)}
-            />
-            <SettingToggle
-              label="Legend"
-              checked={settings.legend}
-              onChange={(v) => updateSetting('legend', v)}
-            />
-          </div>
-
-          <div className="px-3 py-2 border-t border-slate-700 mt-1">
-            <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">Audit fields (V2)</span>
-          </div>
+          {/*
+            Single flat list, ordered roughly by impact:
+              - panels (Audit, Legend) — open large UI surfaces
+              - reading affordances — visual signals that help comprehension
+              - audit-panel content toggles — only meaningful when audit is open
+              - style preferences — small tweaks
+          */}
           <div className="p-3 space-y-1">
             <SettingToggle
               label="Audit panel"
@@ -215,9 +171,44 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               onChange={(v) => updateSetting('auditPanel', v)}
             />
             <SettingToggle
+              label="Legend"
+              checked={settings.legend}
+              onChange={(v) => updateSetting('legend', v)}
+            />
+            <SettingToggle
+              label="Tooltips"
+              checked={settings.tooltips}
+              onChange={(v) => updateSetting('tooltips', v)}
+            />
+            <SettingToggle
+              label="Grammar arrows"
+              checked={settings.grammarArrows}
+              onChange={(v) => updateSetting('grammarArrows', v)}
+            />
+            <SettingToggle
+              label="Alignment lines"
+              checked={settings.alignmentLines}
+              onChange={(v) => updateSetting('alignmentLines', v)}
+            />
+            <SettingToggle
+              label="Refrain colors"
+              checked={settings.refrainColors}
+              onChange={(v) => updateSetting('refrainColors', v)}
+            />
+            <SettingToggle
               label="Anchor emphasis"
               checked={settings.anchorEmphasis}
               onChange={(v) => updateSetting('anchorEmphasis', v)}
+            />
+            <SettingToggle
+              label="Cycle dots"
+              checked={settings.cycleDots}
+              onChange={(v) => updateSetting('cycleDots', v)}
+            />
+            <SettingToggle
+              label="Ghost words"
+              checked={settings.ghostWords}
+              onChange={(v) => updateSetting('ghostWords', v)}
             />
             <SettingToggle
               label="Sense notes"
@@ -233,6 +224,16 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               label="Curator badges"
               checked={settings.confidenceBadges}
               onChange={(v) => updateSetting('confidenceBadges', v)}
+            />
+            <SettingToggle
+              label="Emoji in tooltips"
+              checked={settings.emojiInTooltips}
+              onChange={(v) => updateSetting('emojiInTooltips', v)}
+            />
+            <SettingToggle
+              label="Grammar terms"
+              checked={settings.grammarTerms}
+              onChange={(v) => updateSetting('grammarTerms', v)}
             />
           </div>
         </motion.div>
