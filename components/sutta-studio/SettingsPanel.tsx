@@ -46,7 +46,9 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   anchorEmphasis: true,
   senseNotes: true,
   citationChips: true,
-  confidenceBadges: true,
+  // Off by default. The 'confidence' + 'epistemicBasis' badges are useful for
+  // curators auditing the data, confusing for end readers. Toggle on per session.
+  confidenceBadges: false,
   legend: false,
 };
 
