@@ -1,0 +1,130 @@
+{
+  "_comment": "Phase-6 hand-polished from v11 Gemini Flash draft (phase-6-v11-output.json). FIFTH and FINAL dative-of-purpose — closes the satipaṭṭhāna formula chain (visuddhiyā / samatikkamāya / atthaṅgamāya / adhigamāya / sacchikiriyāya). Curated 2026-05-14 by Aditya + Claude Opus 4.7 in pipeline+polish mode, post-phantom-purge format (no morph/epistemicBasis/confidence fields). nibbāna is the most-translated word in the Buddhist canon — four major rendering traditions (Sujato 'extinguishment', Thanissaro 'unbinding', Bodhi untranslated 'Nibbāna', common 'Nirvana'). Concern flagged: translator-tradition claims drawn from training-memory familiarity. F task (translator-tradition DB) would harden these.",
+  "id": "phase-6",
+  "canonicalSegmentIds": [
+    "mn10:2.1"
+  ],
+  "paliWords": [
+    {
+      "id": "p13",
+      "wordClass": "content",
+      "pronunciation": "nib · bā · NAS · sa",
+      "segments": [
+        {
+          "id": "p13s1",
+          "text": "nibbāna",
+          "type": "stem",
+          "tooltips": [
+            "Nibbāna — the goal-term of the entire Buddhist path. Literally 'blowing out' or 'extinguishing'. Prefix ni- (out, away) + √vā (to blow). The metaphor is a flame being extinguished — not destruction but cooling.",
+            "Buddhist physics-of-mind reading: the 'fires' that go out are the three unwholesome roots (lobha/dosa/moha — greed, hatred, delusion). Awakening is the cooling of these fires, not the annihilation of the person. Without the three-fires context, 'extinguishment' flattens into nihilism — which is exactly the misreading the early translators worried about and Bhikkhu Bodhi's choice to leave the word untranslated guards against."
+          ]
+        },
+        {
+          "id": "p13s2",
+          "text": "ssa",
+          "type": "suffix",
+          "tooltips": [
+            "The -ssa ending is genitive singular — 'of [the one thing]'. Closes the singular pattern that began in phase-5 (ñāyassa). The formula chain pivots from gen plural (-ānaṁ in phases 2-4: of beings, griefs, sufferings) to gen singular (-ssa in phases 5-6: of the path, of nibbāna). World→path→goal, multiplicity collapsing to unity.",
+            "Same -ssa form as phase-5. The grammatical rhyme closes the chain: ñāyassa adhigamāya / nibbānassa sacchikiriyāya. Two parallel datives-of-purpose marking the two faces of the goal — the path (ñāya, the means) and nibbāna (the end)."
+          ],
+          "relation": {
+            "targetWordId": "p14",
+            "type": "ownership",
+            "label": "Realization OF"
+          }
+        }
+      ],
+      "senses": [
+        {
+          "english": "of Nibbāna",
+          "nuance": "Bhikkhu Bodhi / untranslated",
+          "notes": "Bhikkhu Bodhi (MLDB) consistently leaves nibbāna untranslated, preserving its status as a technical term. Reasoning: any English word imports baggage (Christian 'salvation', nihilist 'extinction', Western 'liberation') that distorts the original. Leaving it in Pāli forces the reader to learn the word in its own context."
+        },
+        {
+          "english": "of extinguishment",
+          "nuance": "Sujato / literal Pāli",
+          "notes": "Sujato (SuttaCentral): 'extinguishment' — recovers the literal blowing-out metaphor. Pairs with his consistent rendering of the three fires as 'greed, hate, delusion'. The reader feels the metaphor working: awakening is cooling, not gaining."
+        },
+        {
+          "english": "of unbinding",
+          "nuance": "Thanissaro / freedom-from",
+          "notes": "Thanissaro Bhikkhu's signature rendering. Emphasises freedom-from-the-aggregates rather than cooling-of-fires. Doctrinally tied to the aggregates analysis: nibbāna as the release from grasping at form, feeling, perception, volition, consciousness. Less common in academic translations but distinctive in the Thai Forest tradition."
+        }
+      ]
+    },
+    {
+      "id": "p14",
+      "wordClass": "content",
+      "isAnchor": true,
+      "pronunciation": "sac · chi · ki · ri · YĀ · ya",
+      "segments": [
+        {
+          "id": "p14s1",
+          "text": "sacchi",
+          "type": "stem",
+          "tooltips": [
+            "Sacchi — 'before-the-eyes', a transparent compound: sa- (with) + akkhi (eye). The word makes explicit what would be implicit in English: realization is EYE-WITNESSED, first-person, direct. Not derived from authority, scripture, or inference.",
+            "The epistemological keystone of the meditation tradition. Buddhist practice values direct knowing (paccatta-vedanīya — to-be-known-for-oneself) over reported knowing. sacchi- foregrounds this commitment in the formula's closing word."
+          ]
+        },
+        {
+          "id": "p14s2",
+          "text": "kiriy",
+          "type": "root",
+          "tooltips": [
+            "Kiriya — from √kar (to do, make, perform). The action-form of 'making'. Combined with sacchi-, the compound sacchikiriyā = 'making-real-before-the-eyes' or 'rendering-witnessable'.",
+            "Same root underlies kamma (action, deed), kāra (maker), karoti (he does). The Pāli verbal system organises around √kar — sacchikiriyā situates nibbāna's realization within that action-frame, but with the twist that the action here is recognition, not construction."
+          ]
+        },
+        {
+          "id": "p14s3",
+          "text": "āya",
+          "type": "suffix",
+          "tooltips": [
+            "The -āya ending is dative-singular feminine here — sacchikiriyā is feminine (the -ā stem). FIFTH and FINAL dative-of-purpose in the formula chain. The five together: visuddhiyā (purification), samatikkamāya (surmounting), atthaṅgamāya (disappearance), adhigamāya (attainment), sacchikiriyāya (realization). The formula CLOSES here.",
+            "Liturgical effect: when chanted, the recurring -āya across five phrases creates a five-fold meditative cadence. The Buddha's pedagogical engineering is audible — the structure of the practice is mirrored in the structure of the verse."
+          ]
+        }
+      ],
+      "senses": [
+        {
+          "english": "realization",
+          "nuance": "Bhikkhu Bodhi / standard",
+          "notes": "Bhikkhu Bodhi's MLDB and most contemporary translators. Captures the directness without philosophical baggage. Reads naturally in English as the contemplative moment of recognition."
+        },
+        {
+          "english": "witnessing",
+          "nuance": "Literal / eye-emphasis",
+          "notes": "Foregrounds the sacchi- (with-eye) component. Sometimes used in academic translations where the etymology matters pedagogically. Less common in published English suttas but doctrinally precise."
+        },
+        {
+          "english": "direct experiencing",
+          "nuance": "Thanissaro / phenomenological",
+          "notes": "Thanissaro Bhikkhu often uses 'direct experiencing' for sacchikiriyā in some contexts — emphasises the first-person epistemic quality. Aligns with the Thai Forest tradition's stress on practice-knowledge over textual-knowledge."
+        }
+      ]
+    }
+  ],
+  "englishStructure": [
+    {
+      "id": "g1",
+      "label": "for the",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e13",
+      "linkedSegmentId": "p14s1"
+    },
+    {
+      "id": "g2",
+      "label": "of",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e14",
+      "linkedSegmentId": "p13s1"
+    }
+  ]
+}
