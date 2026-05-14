@@ -408,6 +408,166 @@
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
       "fetchedAt": "2026-05-13",
       "url": "https://suttacentral.net/define/maggo"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"foundations of mindfulness\" (satipaṭṭhāna)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB (Middle Length Discourses of the Buddha) — the canonical English MN10",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"kinds of mindfulness meditation\" (satipaṭṭhāna)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 — Sujato's recent translation",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"establishings of mindfulness\" (satipaṭṭhāna)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — Thanissaro evolved from his earlier 'frames of reference' rendering to 'establishings'",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:wikipedia",
+      "short": "Wikipedia — Satipatthana",
+      "url": "https://en.wikipedia.org/wiki/Satipatthana",
+      "excerpt": "Bhikkhu Anālayo, Bhikkhu Bodhi, and Thanissaro Bhikkhu favor the upaṭṭhāna parsing; traditional Pāli commentary scholars favor the paṭṭhāna parsing. Anālayo argues 'paṭṭhāna' appears only in Abhidhamma texts whereas 'upaṭṭhāna' is readily visible in the Nikayas.",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:analayo-monograph",
+      "short": "Anālayo, Bhikkhu. 'Satipaṭṭhāna: The Direct Path to Realization' (Windhorse Publ…",
+      "url": "https://www.windhorsepublications.com/product/satipatthana-the-direct-path-to-realization/",
+      "excerpt": "Monograph-length defense of the upaṭṭhāna parse. Chapter 1 contains the philological argument.",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:dukkha:wikipedia",
+      "short": "Wikipedia — Duḥkha",
+      "url": "https://en.wikipedia.org/wiki/Dukkha",
+      "excerpt": "The word kha, in later Sanskrit meaning 'sky,' 'ether,' or 'space,' was originally the word for 'hole,' particularly an axle hole, with du- meaning 'bad,' resulting in a bumpy ride analogy.",
+      "provenance": "manual",
+      "query": "dukkha",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:nibbāna:wikipedia",
+      "short": "Wikipedia — Nirvana (Buddhism)",
+      "url": "https://en.wikipedia.org/wiki/Nibbana",
+      "excerpt": "Collins says the word nirvāṇa is from the verbal root vā 'blow' in the form of past participle vāna 'blown', prefixed with the preverb nis meaning 'out'.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:nibbāna:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"unbinding\" (nibbāna)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "MN10 translation. Thanissaro's signature rendering; emphasises freedom-from-the-aggregates over the cooling-of-fires metaphor.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:nibbāna:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"Nibbāna (untranslated)\" (nibbāna)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10. Bodhi preserves nibbāna as a technical term to avoid imported baggage from English equivalents.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:nibbāna:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"extinguishment (and 'Nibbana' for proper-noun uses)\" (nibbāna)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10. Sujato recovers the literal blowing-out metaphor; this aligns with his consistent rendering of the three fires as 'greed, hate, delusion'.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ñāya:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"true way / method\" (ñāya)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10",
+      "provenance": "manual",
+      "query": "ñāya",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ñāya:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"system\" (ñāya)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10",
+      "provenance": "manual",
+      "query": "ñāya",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ñāya:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"the right method\" (ñāya)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10",
+      "provenance": "manual",
+      "query": "ñāya",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sati:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"mindfulness\" (sati)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB — the standard English convention",
+      "provenance": "manual",
+      "query": "sati",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sati:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"mindfulness\" (sati)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10",
+      "provenance": "manual",
+      "query": "sati",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sati:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"mindfulness\" (sati)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10",
+      "provenance": "manual",
+      "query": "sati",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
     }
   ],
   "progress": {
@@ -2181,17 +2341,32 @@
             {
               "english": "beings",
               "nuance": "Sentient creatures",
-              "notes": "Standard DPD-attested reading. Sujato, Bodhi, Thanissaro all use 'beings' as the default rendering."
+              "notes": "Standard DPD-attested reading. Sujato, Bodhi, Thanissaro all use 'beings' as the default rendering.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "the attached",
               "nuance": "Doctrinal reading",
-              "notes": "From alternate root √saj 'to cling'. Pedagogically interesting because it captures the Buddhist analysis of beings AS those bound by attachment. Rarely chosen as the primary rendering but worth knowing."
+              "notes": "From alternate root √saj 'to cling'. Pedagogically interesting because it captures the Buddhist analysis of beings AS those bound by attachment. Rarely chosen as the primary rendering but worth knowing.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "the seven",
               "nuance": "Numerical (homonym)",
-              "notes": "satta also means the number seven (cognate of Sanskrit sapta). Homonym, NOT the intended reading here. Included to illustrate that Pāli surface forms genuinely have multiple lexical entries — students will encounter satta meaning 'seven' in other contexts."
+              "notes": "satta also means the number seven (cognate of Sanskrit sapta). Homonym, NOT the intended reading here. Included to illustrate that Pāli surface forms genuinely have multiple lexical entries — students will encounter satta meaning 'seven' in other contexts.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "saht · TAH · num"
@@ -2487,17 +2662,26 @@
             {
               "english": "pain & distress",
               "nuance": "Sujato's pairing",
-              "notes": "Sujato consistently pairs 'pain' for dukkha and 'distress' for domanassa in MN10. Preserves the inner/outer pairing while keeping register accessible."
+              "notes": "Sujato consistently pairs 'pain' for dukkha and 'distress' for domanassa in MN10. Preserves the inner/outer pairing while keeping register accessible.",
+              "citationIds": [
+                "cite:term:dukkha:wikipedia"
+              ]
             },
             {
               "english": "suffering & grief",
               "nuance": "Ñāṇamoli-Bodhi",
-              "notes": "Bhikkhu Bodhi's MLDB renders dukkha as 'suffering' (heavier philosophical weight) and domanassa often as 'grief' (overlapping with soka from phase-3). Some readers find the soka/domanassa boundary blurred under this choice."
+              "notes": "Bhikkhu Bodhi's MLDB renders dukkha as 'suffering' (heavier philosophical weight) and domanassa often as 'grief' (overlapping with soka from phase-3). Some readers find the soka/domanassa boundary blurred under this choice.",
+              "citationIds": [
+                "cite:term:dukkha:wikipedia"
+              ]
             },
             {
               "english": "discomfort & displeasure",
               "nuance": "Functional / felt-experience",
-              "notes": "A more functional register: foregrounds the FELT QUALITY (unsatisfactoriness, dispreference) over the philosophical weight. Less common in published translations; useful when teaching the Abhidhamma feeling-tone analysis where dukkha-domanassa pairs with sukha-somanassa."
+              "notes": "A more functional register: foregrounds the FELT QUALITY (unsatisfactoriness, dispreference) over the philosophical weight. Less common in published translations; useful when teaching the Abhidhamma feeling-tone analysis where dukkha-domanassa pairs with sukha-somanassa.",
+              "citationIds": [
+                "cite:term:dukkha:wikipedia"
+              ]
             }
           ]
         },
@@ -2625,17 +2809,32 @@
             {
               "english": "of the method",
               "nuance": "Bhikkhu Bodhi",
-              "notes": "Bhikkhu Bodhi's MLDB: 'for the attainment of the true way'. Method as the systematic path-as-procedure. Anchors the reader in the practical/methodical register."
+              "notes": "Bhikkhu Bodhi's MLDB: 'for the attainment of the true way'. Method as the systematic path-as-procedure. Anchors the reader in the practical/methodical register.",
+              "citationIds": [
+                "cite:term:ñāya:sc-bodhi-mn10",
+                "cite:term:ñāya:sc-sujato-mn10",
+                "cite:term:ñāya:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "of the system",
               "nuance": "Sujato",
-              "notes": "Sujato (SuttaCentral): 'for realizing the system'. The Pāli ñāya as a coherent technical-procedural whole. Echoes the cognate Sanskrit nyāya (logical system) while staying within Pāli Buddhism's frame."
+              "notes": "Sujato (SuttaCentral): 'for realizing the system'. The Pāli ñāya as a coherent technical-procedural whole. Echoes the cognate Sanskrit nyāya (logical system) while staying within Pāli Buddhism's frame.",
+              "citationIds": [
+                "cite:term:ñāya:sc-bodhi-mn10",
+                "cite:term:ñāya:sc-sujato-mn10",
+                "cite:term:ñāya:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "of the noble path",
               "nuance": "Commentarial / Buddhaghosa",
-              "notes": "Visuddhimagga and Aṭṭhakathā tradition gloss ñāya directly as ariyaṭṭhaṅgika-magga (the Noble Eightfold Path). The strongest reading: 'attainment of ñāya' = 'arriving at the Eightfold Path'. Ñāṇamoli sometimes follows this with 'True Way'."
+              "notes": "Visuddhimagga and Aṭṭhakathā tradition gloss ñāya directly as ariyaṭṭhaṅgika-magga (the Noble Eightfold Path). The strongest reading: 'attainment of ñāya' = 'arriving at the Eightfold Path'. Ñāṇamoli sometimes follows this with 'True Way'.",
+              "citationIds": [
+                "cite:term:ñāya:sc-bodhi-mn10",
+                "cite:term:ñāya:sc-sujato-mn10",
+                "cite:term:ñāya:thanissaro-dhammatalks"
+              ]
             }
           ]
         },
@@ -2760,17 +2959,35 @@
             {
               "english": "of Nibbāna",
               "nuance": "Bhikkhu Bodhi / untranslated",
-              "notes": "Bhikkhu Bodhi (MLDB) consistently leaves nibbāna untranslated, preserving its status as a technical term. Reasoning: any English word imports baggage (Christian 'salvation', nihilist 'extinction', Western 'liberation') that distorts the original. Leaving it in Pāli forces the reader to learn the word in its own context."
+              "notes": "Bhikkhu Bodhi (MLDB) consistently leaves nibbāna untranslated, preserving its status as a technical term. Reasoning: any English word imports baggage (Christian 'salvation', nihilist 'extinction', Western 'liberation') that distorts the original. Leaving it in Pāli forces the reader to learn the word in its own context.",
+              "citationIds": [
+                "cite:term:nibbāna:sc-bodhi-mn10",
+                "cite:term:nibbāna:sc-sujato-mn10",
+                "cite:term:nibbāna:thanissaro-dhammatalks",
+                "cite:term:nibbāna:wikipedia"
+              ]
             },
             {
               "english": "of extinguishment",
               "nuance": "Sujato / literal Pāli",
-              "notes": "Sujato (SuttaCentral): 'extinguishment' — recovers the literal blowing-out metaphor. Pairs with his consistent rendering of the three fires as 'greed, hate, delusion'. The reader feels the metaphor working: awakening is cooling, not gaining."
+              "notes": "Sujato (SuttaCentral): 'extinguishment' — recovers the literal blowing-out metaphor. Pairs with his consistent rendering of the three fires as 'greed, hate, delusion'. The reader feels the metaphor working: awakening is cooling, not gaining.",
+              "citationIds": [
+                "cite:term:nibbāna:sc-bodhi-mn10",
+                "cite:term:nibbāna:sc-sujato-mn10",
+                "cite:term:nibbāna:thanissaro-dhammatalks",
+                "cite:term:nibbāna:wikipedia"
+              ]
             },
             {
               "english": "of unbinding",
               "nuance": "Thanissaro / freedom-from",
-              "notes": "Thanissaro Bhikkhu's signature rendering. Emphasises freedom-from-the-aggregates rather than cooling-of-fires. Doctrinally tied to the aggregates analysis: nibbāna as the release from grasping at form, feeling, perception, volition, consciousness. Less common in academic translations but distinctive in the Thai Forest tradition."
+              "notes": "Thanissaro Bhikkhu's signature rendering. Emphasises freedom-from-the-aggregates rather than cooling-of-fires. Doctrinally tied to the aggregates analysis: nibbāna as the release from grasping at form, feeling, perception, volition, consciousness. Less common in academic translations but distinctive in the Thai Forest tradition.",
+              "citationIds": [
+                "cite:term:nibbāna:sc-bodhi-mn10",
+                "cite:term:nibbāna:sc-sujato-mn10",
+                "cite:term:nibbāna:thanissaro-dhammatalks",
+                "cite:term:nibbāna:wikipedia"
+              ]
             }
           ]
         },
@@ -2956,17 +3173,47 @@
             {
               "english": "foundations of mindfulness",
               "nuance": "Bhikkhu Bodhi / paṭṭhāna parse",
-              "notes": "Bodhi (MLDB): 'foundations of mindfulness'. Reads paṭṭhāna as 'foundation' (sthāna with paṭi-, a derivative noun). The translation has historical weight — was the dominant English rendering through most of the 20th century via Soma Thera and Ñāṇaponika's influence."
+              "notes": "Bodhi (MLDB): 'foundations of mindfulness'. Reads paṭṭhāna as 'foundation' (sthāna with paṭi-, a derivative noun). The translation has historical weight — was the dominant English rendering through most of the 20th century via Soma Thera and Ñāṇaponika's influence.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:analayo-monograph",
+                "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+                "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+                "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:wikipedia"
+              ]
             },
             {
               "english": "establishments of mindfulness",
               "nuance": "Sujato / upaṭṭhāna parse",
-              "notes": "Sujato (SuttaCentral): 'four kinds of mindfulness meditation'. Renders paṭṭhāna as 'establishment' (upaṭṭhāna with assimilation), the active process of placing-near. Bhikkhu Anālayo's scholarly monograph defends this parse philologically."
+              "notes": "Sujato (SuttaCentral): 'four kinds of mindfulness meditation'. Renders paṭṭhāna as 'establishment' (upaṭṭhāna with assimilation), the active process of placing-near. Bhikkhu Anālayo's scholarly monograph defends this parse philologically.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:analayo-monograph",
+                "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+                "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+                "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:wikipedia"
+              ]
             },
             {
               "english": "frames of reference",
               "nuance": "Thanissaro / cognitive emphasis",
-              "notes": "Thanissaro Bhikkhu: 'four frames of reference'. Reframes satipaṭṭhāna as the cognitive structures within which mindfulness operates — the body-frame, the feeling-frame, the mind-frame, the dhamma-frame. Distinctive Thai Forest reading; foregrounds the analytical function over the foundational metaphor."
+              "notes": "Thanissaro Bhikkhu: 'four frames of reference'. Reframes satipaṭṭhāna as the cognitive structures within which mindfulness operates — the body-frame, the feeling-frame, the mind-frame, the dhamma-frame. Distinctive Thai Forest reading; foregrounds the analytical function over the foundational metaphor.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:analayo-monograph",
+                "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+                "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+                "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:wikipedia"
+              ]
             }
           ]
         }
@@ -3559,19 +3806,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -4104,19 +4371,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -4641,19 +4928,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -5201,19 +5508,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -6493,15 +6820,30 @@
           "senses": [
             {
               "english": "mindfulness",
-              "nuance": "Awareness"
+              "nuance": "Awareness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollection",
-              "nuance": "Memory faculty"
+              "nuance": "Memory faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "presence of mind",
-              "nuance": "Attentiveness"
+              "nuance": "Attentiveness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · tiṁ"
@@ -6627,15 +6969,30 @@
           "senses": [
             {
               "english": "mindfully",
-              "nuance": "Adverbial"
+              "nuance": "Adverbial",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "with awareness",
-              "nuance": "Applied sati"
+              "nuance": "Applied sati",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Present"
+              "nuance": "Present",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · to"
@@ -6697,15 +7054,30 @@
           "senses": [
             {
               "english": "breathes in",
-              "nuance": "Inhalation"
+              "nuance": "Inhalation",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "inhales",
-              "nuance": "Drawing breath in"
+              "nuance": "Drawing breath in",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "breathes",
-              "nuance": "General breathing"
+              "nuance": "General breathing",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "as · SA · sa · ti"
@@ -6737,15 +7109,30 @@
           "senses": [
             {
               "english": "breathes out",
-              "nuance": "Exhalation"
+              "nuance": "Exhalation",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "exhales",
-              "nuance": "Releasing breath"
+              "nuance": "Releasing breath",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "out-breathes",
-              "nuance": "Breathing forth"
+              "nuance": "Breathing forth",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "pas · SA · sa · ti"
@@ -12603,15 +12990,30 @@
           "senses": [
             {
               "english": "mindfulness",
-              "nuance": "Awareness"
+              "nuance": "Awareness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "remembrance",
-              "nuance": "Recollection"
+              "nuance": "Recollection",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "presence of mind",
-              "nuance": "Attentiveness"
+              "nuance": "Attentiveness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti"
@@ -12846,15 +13248,30 @@
           "senses": [
             {
               "english": "for bare mindfulness",
-              "nuance": "Purpose"
+              "nuance": "Purpose",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "just for awareness",
-              "nuance": "Minimal"
+              "nuance": "Minimal",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "only for recollection",
-              "nuance": "Non-grasping"
+              "nuance": "Non-grasping",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "pa · ṭis · sa · ti · mat · TĀ · ya"
