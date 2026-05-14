@@ -256,6 +256,14 @@ export function LensPanel({
               <div className="text-slate-500 text-xs">Click a sense to set it.</div>
               {word.senses.map((t, idx) => {
                 const active = idx === activeIdx;
+                // Grounded vs interpretive distinction (GROUNDING.md Phase 5):
+                // a sense is "grounded" when it has citationIds pointing at
+                // verified sources (registry-attached translator renderings,
+                // DPD entries, etc.). Senses without citationIds are "curator
+                // synthesis" — valid but unsourced. The reader sees the
+                // distinction at-a-glance via italic + a small label.
+                const hasGrounding =
+                  Boolean(t.citationIds && t.citationIds.length > 0);
                 return (
                   <button
                     key={`${word.id}-sense-${idx}`}
@@ -268,13 +276,25 @@ export function LensPanel({
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-semibold flex items-center gap-2">
-                        <span>{t.english}</span>
+                        <span className={hasGrounding ? '' : 'italic'}>
+                          {t.english}
+                        </span>
                         <CopyButton
                           onCopy={() => copyText(t.english, 'English')}
                           title="Copy English"
                         />
                       </div>
-                      <div className="text-xs text-slate-500">{t.nuance}</div>
+                      <div className="text-xs text-slate-500">
+                        {!hasGrounding && (
+                          <span
+                            className="opacity-60 italic mr-1"
+                            title="Curator synthesis — no registry citation yet"
+                          >
+                            synthesis ·
+                          </span>
+                        )}
+                        {t.nuance}
+                      </div>
                     </div>
                     {showNotes && t.notes && (
                       <div className="text-slate-500 text-sm mt-2">{t.notes}</div>
