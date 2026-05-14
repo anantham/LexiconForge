@@ -411,8 +411,7 @@
               "text": "eva",
               "type": "stem",
               "tooltips": [
-                "evaṁ means 'thus; in this way'. It opens the formula 'evaṁ me sutaṁ' (thus I have heard), signalling 'what follows is recited from memory'.",
-                "Don't confuse with bare 'eva' — that's a different word, an emphatic particle ('only', 'just', 'indeed'). The -ṁ ending makes evaṁ a separate word."
+                "evaṁ means 'thus; in this way'. It opens the formula 'evaṁ me sutaṁ' (thus I have heard), signalling 'what follows is recited from memory'."
               ]
             },
             {
@@ -420,7 +419,7 @@
               "text": "ṁ",
               "type": "suffix",
               "tooltips": [
-                "The -ṁ closes the syllable as a humming dot-m sound. It's part of 'evaṁ' — bare 'eva' is a different word."
+                "Pronounced as a soft nasal close — like the 'um' in English 'hum' or 'sum'."
               ]
             }
           ],

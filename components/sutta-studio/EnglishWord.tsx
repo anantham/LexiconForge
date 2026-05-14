@@ -79,6 +79,21 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
 
   const domTarget = targetDomId(phaseId, structure.id);
 
+  // Sense-count for the clickability-affordance dots rendered under the word.
+  // When the linked Pāli word has multiple senses, render N small dots — one
+  // filled at the current cycle position. Subtle visual cue that this word
+  // is clickable AND that there are alternative renderings available.
+  let senseCount = 0;
+  let activeSenseIdx = 0;
+  if (paliWordId) {
+    const paliWord = paliWords.find((p) => p.id === paliWordId);
+    if (paliWord) {
+      senseCount = paliWord.senses.length;
+      activeSenseIdx =
+        (activeIndices[`${phaseId}-${paliWord.id}`] ?? 0) % Math.max(1, senseCount);
+    }
+  }
+
   const handleEnter = () => {
     if (!paliWordId) return;
     // Segment-level hover: highlight the specific Pali segment, not just the word
@@ -177,6 +192,22 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
           {content}
         </motion.span>
       </AnimatePresence>
+      {senseCount > 1 && !isGhost && (
+        <div
+          className="flex items-center justify-center gap-1 mt-0.5"
+          aria-label={`${senseCount} alternative renderings`}
+        >
+          {Array.from({ length: senseCount }).map((_, i) => (
+            <span
+              key={i}
+              aria-hidden="true"
+              className={`inline-block w-1 h-1 rounded-full transition-colors ${
+                i === activeSenseIdx ? 'bg-slate-300' : 'bg-slate-700'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 });
