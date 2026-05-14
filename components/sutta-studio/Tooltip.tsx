@@ -80,8 +80,17 @@ export function Tooltip({
       // translateX). Inline style wins over Tailwind for both.
       className={`absolute ${
         leftPx === null ? 'left-1/2 -translate-x-1/2' : ''
-      } ${flipBelow ? 'top-full mt-3' : 'bottom-full mb-3'} bg-slate-900/90 border border-slate-700 text-slate-200 text-xs leading-relaxed px-3 py-2 rounded shadow-xl whitespace-normal break-words text-left max-w-[min(28rem,calc(100vw-1rem))] w-max z-50 select-none pointer-events-none`}
-      style={leftPx !== null ? { left: `${leftPx}px` } : undefined}
+      } ${flipBelow ? 'top-full mt-3' : 'bottom-full mb-3'} bg-slate-900/90 border border-slate-700 text-slate-200 text-xs leading-relaxed px-3 py-2 rounded shadow-xl whitespace-normal break-words text-left z-50 select-none pointer-events-none`}
+      style={{
+        // Inline maxWidth — Tailwind arbitrary-value parsing chokes on nested
+        // CSS functions like `min(28rem, calc(100vw - 1rem))`. Inline style
+        // always works.
+        maxWidth: 'min(28rem, calc(100vw - 1rem))',
+        // Width should be content's natural size, capped by maxWidth above.
+        // Without this the tooltip would shrink narrower than needed.
+        width: 'max-content',
+        ...(leftPx !== null ? { left: `${leftPx}px` } : {}),
+      }}
     >
       {hasFacets && (
         <span className="absolute -top-1.5 -left-1.5 inline-flex items-center justify-center px-1 h-4 text-[9px] leading-none bg-slate-900 border border-slate-700 text-slate-400 rounded-full tabular-nums">
