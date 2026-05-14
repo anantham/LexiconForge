@@ -579,6 +579,7 @@ export function SuttaStudioView({
                                   cycle={(wordId) => cycle(wordId, phaseId)}
                                   ghostOpacity={ghostOpacity}
                                   showGhosts={settings.ghostWords}
+                                  showCycleDots={settings.cycleDots}
                                 />
 
                                 {showAlignmentArrows && (item.linkedSegmentId || item.linkedPaliId) && (() => {

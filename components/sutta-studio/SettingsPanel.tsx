@@ -9,6 +9,10 @@ export type StudioSettings = {
   refrainColors: boolean;
   alignmentLines: boolean;
   ghostWords: boolean;
+  // cycleDots: small dots under English words linked to multi-sense Pāli — shows
+  // count + current position. Off = hide the affordance even though clicking
+  // still cycles.
+  cycleDots: boolean;
   // V2 audit/metadata fields — toggle to A/B which ones earn their packet bulk.
   // auditPanel: opens the LensPanel side drawer for the hovered word, showing
   //   full sense data (notes, citations, confidence, basis tags). When OFF, the
@@ -36,6 +40,7 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   refrainColors: false,
   alignmentLines: true,
   ghostWords: true,
+  cycleDots: true,
   // Audit panel OFF by default — opt-in for empirical evaluation.
   auditPanel: false,
   anchorEmphasis: true,
@@ -145,7 +150,7 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.15 }}
-          className="absolute top-12 right-0 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden"
+          className="absolute top-12 right-0 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-[100] overflow-hidden"
         >
           <div className="px-3 py-2 border-b border-slate-700">
             <span className="text-slate-400 text-xs font-medium uppercase tracking-wide">Settings</span>
@@ -185,6 +190,11 @@ export function SettingsPanel({ isOpen, onClose, settings, onSettingsChange }: S
               label="Ghost words"
               checked={settings.ghostWords}
               onChange={(v) => updateSetting('ghostWords', v)}
+            />
+            <SettingToggle
+              label="Cycle dots"
+              checked={settings.cycleDots}
+              onChange={(v) => updateSetting('cycleDots', v)}
             />
             <SettingToggle
               label="Legend"

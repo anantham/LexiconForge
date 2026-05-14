@@ -55,43 +55,79 @@ export function Legend({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">Emphasis</div>
               <div className="space-y-1.5">
                 <div className="flex items-baseline gap-3">
-                  <span className="font-serif text-slate-200 font-medium border-b-2 border-amber-700/30 pb-0.5 w-20 inline-block">
-                    visuddhi
+                  <span className="w-20 inline-block">
+                    <span className="font-serif text-slate-200 font-medium border-b-2 border-amber-700/30 pb-0.5">
+                      visuddhi
+                    </span>
                   </span>
                   <span className="text-slate-500 font-sans text-xs">anchor (semantic center of phase)</span>
                 </div>
                 <div className="flex items-baseline gap-3">
-                  <span className="font-serif text-slate-200 border-b-2 border-cyan-700 pb-1 w-20 inline-block">
-                    bhikkhū
+                  <span className="w-20 inline-block">
+                    <span className="font-serif text-slate-200 border-b-2 border-cyan-700 pb-0.5">
+                      bhikkhū
+                    </span>
                   </span>
                   <span className="text-slate-500 font-sans text-xs">refrain (recurs across phases)</span>
                 </div>
                 <div className="flex items-baseline gap-3">
-                  <span className="italic font-serif text-slate-400 w-20 inline-block opacity-60">have</span>
+                  <span className="italic font-serif text-slate-400 w-20 inline-block" style={{ opacity: 0.3 }}>
+                    have
+                  </span>
                   <span className="text-slate-500 font-sans text-xs">ghost word (English scaffolding)</span>
                 </div>
               </div>
             </section>
 
-            {/* Diacritics */}
+            {/* Diacritics — lead with the English example readers already know,
+                technical name is parenthetical */}
             <section>
-              <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">Diacritics</div>
-              <div className="space-y-1.5 font-serif">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-slate-200 w-20 text-base">ā ē ī ō ū</span>
-                  <span className="text-slate-500 font-sans text-xs">long vowels — held about twice as long</span>
+              <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">Diacritics — sound by example</div>
+              <div className="space-y-2 font-serif">
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-slate-200 w-8 text-base">ā</span>
+                    <span className="text-slate-400 font-sans text-xs">the 'a' in 'father' (held long)</span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-slate-200 w-8 text-base">ē</span>
+                    <span className="text-slate-400 font-sans text-xs">the 'ay' in 'they'</span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-slate-200 w-8 text-base">ī</span>
+                    <span className="text-slate-400 font-sans text-xs">the 'ee' in 'machine'</span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-slate-200 w-8 text-base">ō</span>
+                    <span className="text-slate-400 font-sans text-xs">the 'o' in 'boat'</span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-slate-200 w-8 text-base">ū</span>
+                    <span className="text-slate-400 font-sans text-xs">the 'oo' in 'rule'</span>
+                  </div>
+                  <div className="text-slate-600 font-sans text-[10px] uppercase tracking-wide pt-0.5">
+                    a line above = held about twice as long
+                  </div>
                 </div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-slate-200 w-20 text-base">ṁ</span>
-                  <span className="text-slate-500 font-sans text-xs">niggahīta — nasal close (like 'um' in 'hum')</span>
+
+                <div className="flex items-baseline gap-3 pt-1">
+                  <span className="text-slate-200 w-8 text-base">ṁ</span>
+                  <span className="text-slate-400 font-sans text-xs">the 'um' in 'hum' or 'sum' (a nasal close)</span>
                 </div>
+
                 <div className="flex items-baseline gap-3">
-                  <span className="text-slate-200 w-20 text-base">ṭ ḍ ṇ ḷ</span>
-                  <span className="text-slate-500 font-sans text-xs">retroflex — tongue curled back</span>
+                  <span className="text-slate-200 w-8 text-base">ñ</span>
+                  <span className="text-slate-400 font-sans text-xs">the 'ny' in 'canyon' or 'señor'</span>
                 </div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-slate-200 w-20 text-base">ñ</span>
-                  <span className="text-slate-500 font-sans text-xs">palatal n (like Spanish 'ñ')</span>
+
+                <div className="pt-0.5">
+                  <div className="flex items-baseline gap-3 mb-0.5">
+                    <span className="text-slate-200 text-base whitespace-nowrap">ṭ &nbsp; ḍ &nbsp; ṇ &nbsp; ḷ</span>
+                  </div>
+                  <span className="text-slate-400 font-sans text-xs">
+                    the soft 'd' in American 'water' or 'butter' — tongue tip flicks back.
+                    No clean English equivalent; this is the closest.
+                  </span>
                 </div>
               </div>
             </section>
