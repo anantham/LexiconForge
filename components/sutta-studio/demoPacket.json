@@ -96,7 +96,8 @@
       "query": "me",
       "excerpt": "me [pron]: by me",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/me"
     },
     {
       "id": "cite:dpd:dpd:63769",
@@ -105,7 +106,8 @@
       "query": "suta",
       "excerpt": "suta [pp]: heard",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/suta"
     },
     {
       "id": "cite:dpd:dpd:63771",
@@ -114,7 +116,8 @@
       "query": "suta",
       "excerpt": "suta [nt]: what is heard; something heard; lit. heard",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/suta"
     },
     {
       "id": "cite:dpd:dpd:63770",
@@ -123,7 +126,8 @@
       "query": "suta",
       "excerpt": "suta [pp]: learned; lit. heard",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/suta"
     },
     {
       "id": "cite:dpd:dpd:17376",
@@ -132,7 +136,8 @@
       "query": "eka",
       "excerpt": "eka [card]: one (1)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/eka"
     },
     {
       "id": "cite:dpd:dpd:17382",
@@ -141,7 +146,8 @@
       "query": "eka",
       "excerpt": "eka [ind]: once",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/eka"
     },
     {
       "id": "cite:dpd:dpd:59451",
@@ -150,7 +156,8 @@
       "query": "samaya",
       "excerpt": "samaya [masc]: time; occasion; lit. going together",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/samaya"
     },
     {
       "id": "cite:dpd:dpd:59452",
@@ -159,7 +166,8 @@
       "query": "samaya",
       "excerpt": "samaya [masc]: right time; suitable occasion; lit. going together",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/samaya"
     },
     {
       "id": "cite:dpd:dpd:49147",
@@ -168,7 +176,8 @@
       "query": "bhagavā",
       "excerpt": "bhagavā [masc]: Sublime One; Blessed One; Fortunate One; epithet of the Buddha",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-11"
+      "fetchedAt": "2026-05-11",
+      "url": "https://suttacentral.net/define/bhagav%C4%81"
     },
     {
       "id": "cite:dpd:dpd:22524",
@@ -177,7 +186,8 @@
       "query": "kurū",
       "excerpt": "kurū [masc]: name of the people of Kuru; Kurus",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/kur%C5%AB"
     },
     {
       "id": "cite:dpd:dpd:22502",
@@ -186,7 +196,8 @@
       "query": "kuru",
       "excerpt": "kuru [masc]: name of a country",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/kuru"
     },
     {
       "id": "cite:dpd:dpd:69661",
@@ -195,7 +206,8 @@
       "query": "viharati",
       "excerpt": "viharati [pr]: lives; dwells; stays (in)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/viharati"
     },
     {
       "id": "cite:dpd:dpd:69662",
@@ -204,7 +216,8 @@
       "query": "viharati",
       "excerpt": "viharati [pr]: stays; remains; continues; dwells; abides (in)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/viharati"
     },
     {
       "id": "cite:dpd:dpd:18134",
@@ -213,7 +226,8 @@
       "query": "evaṁ",
       "excerpt": "evaṁ [ind]: thus; this; like this; similarly; in the same manner; just as; such",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/eva%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:20396",
@@ -222,7 +236,8 @@
       "query": "Kammāsadhammaṁ",
       "excerpt": "kammāsadhamma [nt]: name of a town in the Kuru country",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/Kamm%C4%81sadhamma%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:36427",
@@ -231,7 +246,8 @@
       "query": "nāma",
       "excerpt": "nāma [ind]: called; means; by the name of; namely; lit. name",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/n%C4%81ma"
     },
     {
       "id": "cite:dpd:dpd:36863",
@@ -240,7 +256,8 @@
       "query": "nigamo",
       "excerpt": "nigama [masc]: town; market town; lit. going down",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/nigamo"
     },
     {
       "id": "cite:dpd:dpd:74785",
@@ -249,7 +266,8 @@
       "query": "nigamo",
       "excerpt": "nigama [nt]: town; market town; lit. going down",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-12"
+      "fetchedAt": "2026-05-12",
+      "url": "https://suttacentral.net/define/nigamo"
     },
     {
       "id": "cite:dpd:dpd:29605",
@@ -258,7 +276,8 @@
       "query": "tatra",
       "excerpt": "tatra [ind]: there; in that place",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/tatra"
     },
     {
       "id": "cite:dpd:dpd:29606",
@@ -267,7 +286,8 @@
       "query": "tatra",
       "excerpt": "tatra [ind]: in that case; in that regard; in this matter; in this connection",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/tatra"
     },
     {
       "id": "cite:dpd:dpd:23966",
@@ -276,7 +296,8 @@
       "query": "kho",
       "excerpt": "kho [ind]: indeed; surely; certainly; truly",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/kho"
     },
     {
       "id": "cite:dpd:dpd:49885",
@@ -285,7 +306,8 @@
       "query": "bhikkhū",
       "excerpt": "bhikkhu [masc]: monk; monastic; mendicant; fully ordained monk; lit. beggar",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/bhikkh%C5%AB"
     },
     {
       "id": "cite:dpd:dpd:12086",
@@ -294,7 +316,8 @@
       "query": "āmantesi",
       "excerpt": "āmantesi [aor]: addressed; said (to); advised",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/%C4%81mantesi"
     },
     {
       "id": "cite:dpd:dpd:30431",
@@ -303,7 +326,8 @@
       "query": "ti",
       "excerpt": "ti [ind]: (end of direct speech) ' '",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/ti"
     },
     {
       "id": "cite:dpd:dpd:31134",
@@ -312,7 +336,8 @@
       "query": "te",
       "excerpt": "te [pron]: they; those",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/te"
     },
     {
       "id": "cite:dpd:dpd:49136",
@@ -321,7 +346,8 @@
       "query": "bhagavato",
       "excerpt": "bhagavato [masc]: to the Buddha; for the Buddha",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/bhagavato"
     },
     {
       "id": "cite:dpd:dpd:49137",
@@ -330,7 +356,8 @@
       "query": "bhagavato",
       "excerpt": "bhagavato [masc]: of the Buddha",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/bhagavato"
     },
     {
       "id": "cite:dpd:dpd:39413",
@@ -339,7 +366,8 @@
       "query": "paccassosuṁ",
       "excerpt": "paccassosi [aor]: replied (to); agreed (with); assented (to)",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/paccassosu%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:8757",
@@ -348,7 +376,8 @@
       "query": "ayaṁ",
       "excerpt": "ayaṁ [pron]: this; this person; this thing",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/aya%E1%B9%81"
     },
     {
       "id": "cite:dpd:dpd:49868",
@@ -357,7 +386,8 @@
       "query": "Bhikkhave",
       "excerpt": "bhikkhave [masc]: monks",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/Bhikkhave"
     },
     {
       "id": "cite:dpd:dpd:50495",
@@ -366,7 +396,8 @@
       "query": "maggo",
       "excerpt": "magga [masc]: road; path; track; way",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/maggo"
     },
     {
       "id": "cite:dpd:dpd:50496",
@@ -375,7 +406,168 @@
       "query": "maggo",
       "excerpt": "magga [masc]: way; means; method",
       "license": "CC BY-NC-SA 4.0 — Digital Pāli Dictionary by Bryan Levman et al.",
-      "fetchedAt": "2026-05-13"
+      "fetchedAt": "2026-05-13",
+      "url": "https://suttacentral.net/define/maggo"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"foundations of mindfulness\" (satipaṭṭhāna)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB (Middle Length Discourses of the Buddha) — the canonical English MN10",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"kinds of mindfulness meditation\" (satipaṭṭhāna)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10 — Sujato's recent translation",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"establishings of mindfulness\" (satipaṭṭhāna)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10 — Thanissaro evolved from his earlier 'frames of reference' rendering to 'establishings'",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:wikipedia",
+      "short": "Wikipedia — Satipatthana",
+      "url": "https://en.wikipedia.org/wiki/Satipatthana",
+      "excerpt": "Bhikkhu Anālayo, Bhikkhu Bodhi, and Thanissaro Bhikkhu favor the upaṭṭhāna parsing; traditional Pāli commentary scholars favor the paṭṭhāna parsing. Anālayo argues 'paṭṭhāna' appears only in Abhidhamma texts whereas 'upaṭṭhāna' is readily visible in the Nikayas.",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:satipaṭṭhāna:analayo-monograph",
+      "short": "Anālayo, Bhikkhu. 'Satipaṭṭhāna: The Direct Path to Realization' (Windhorse Publ…",
+      "url": "https://www.windhorsepublications.com/product/satipatthana-the-direct-path-to-realization/",
+      "excerpt": "Monograph-length defense of the upaṭṭhāna parse. Chapter 1 contains the philological argument.",
+      "provenance": "manual",
+      "query": "satipaṭṭhāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:dukkha:wikipedia",
+      "short": "Wikipedia — Duḥkha",
+      "url": "https://en.wikipedia.org/wiki/Dukkha",
+      "excerpt": "The word kha, in later Sanskrit meaning 'sky,' 'ether,' or 'space,' was originally the word for 'hole,' particularly an axle hole, with du- meaning 'bad,' resulting in a bumpy ride analogy.",
+      "provenance": "manual",
+      "query": "dukkha",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:nibbāna:wikipedia",
+      "short": "Wikipedia — Nirvana (Buddhism)",
+      "url": "https://en.wikipedia.org/wiki/Nibbana",
+      "excerpt": "Collins says the word nirvāṇa is from the verbal root vā 'blow' in the form of past participle vāna 'blown', prefixed with the preverb nis meaning 'out'.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "CC BY-SA 3.0 (Wikipedia)"
+    },
+    {
+      "id": "cite:term:nibbāna:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"unbinding\" (nibbāna)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "MN10 translation. Thanissaro's signature rendering; emphasises freedom-from-the-aggregates over the cooling-of-fires metaphor.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:nibbāna:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"Nibbāna (untranslated)\" (nibbāna)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10. Bodhi preserves nibbāna as a technical term to avoid imported baggage from English equivalents.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:nibbāna:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"extinguishment (and 'Nibbana' for proper-noun uses)\" (nibbāna)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10. Sujato recovers the literal blowing-out metaphor; this aligns with his consistent rendering of the three fires as 'greed, hate, delusion'.",
+      "provenance": "manual",
+      "query": "nibbāna",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ñāya:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"true way / method\" (ñāya)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB MN10",
+      "provenance": "manual",
+      "query": "ñāya",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ñāya:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"system\" (ñāya)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10",
+      "provenance": "manual",
+      "query": "ñāya",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:ñāya:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"the right method\" (ñāya)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10",
+      "provenance": "manual",
+      "query": "ñāya",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sati:sc-bodhi-mn10",
+      "short": "Bhikkhu Bodhi: \"mindfulness\" (sati)",
+      "url": "https://suttacentral.net/mn10/en/bodhi",
+      "excerpt": "MLDB — the standard English convention",
+      "provenance": "manual",
+      "query": "sati",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sati:sc-sujato-mn10",
+      "short": "Bhikkhu Sujato: \"mindfulness\" (sati)",
+      "url": "https://suttacentral.net/mn10/en/sujato",
+      "excerpt": "SuttaCentral MN10",
+      "provenance": "manual",
+      "query": "sati",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
+    },
+    {
+      "id": "cite:term:sati:thanissaro-dhammatalks",
+      "short": "Ṭhānissaro Bhikkhu: \"mindfulness\" (sati)",
+      "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+      "excerpt": "dhammatalks.org MN10",
+      "provenance": "manual",
+      "query": "sati",
+      "fetchedAt": "2026-05-14",
+      "license": "see source for license"
     }
   ],
   "progress": {
@@ -427,7 +619,10 @@
             {
               "english": "Thus",
               "nuance": "Narrative-opening deictic ('in this way') — points forward to what is about to be recited",
-              "notes": "DPD treats evaṁ and eva as distinct headwords. evaṁ ('thus; in this way; similarly; in the same manner') is the cataphoric deictic used in this formula; bare eva carries the emphatic-particle senses ('only', 'just', 'indeed')."
+              "notes": "DPD treats evaṁ and eva as distinct headwords. evaṁ ('thus; in this way; similarly; in the same manner') is the cataphoric deictic used in this formula; bare eva carries the emphatic-particle senses ('only', 'just', 'indeed').",
+              "citationIds": [
+                "cite:dpd:dpd:18134"
+              ]
             }
           ],
           "pronunciation": "EH · vum  (rhymes with \"come\")"
@@ -455,7 +650,10 @@
           "senses": [
             {
               "english": "by me",
-              "nuance": "Agent in passive"
+              "nuance": "Agent in passive",
+              "citationIds": [
+                "cite:dpd:dpd:53164"
+              ]
             }
           ],
           "pronunciation": "meh  (short, like \"meh\")"
@@ -562,7 +760,11 @@
           "senses": [
             {
               "english": "one",
-              "nuance": "At one (time)"
+              "nuance": "At one (time)",
+              "citationIds": [
+                "cite:dpd:dpd:17376",
+                "cite:dpd:dpd:17382"
+              ]
             }
           ],
           "pronunciation": "EH · kum"
@@ -650,15 +852,24 @@
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Lucky One",
-              "nuance": "Fortune-bearer"
+              "nuance": "Fortune-bearer",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             }
           ],
           "pronunciation": "bha · GA · vah"
@@ -725,15 +936,24 @@
           "senses": [
             {
               "english": "among the Kurus",
-              "nuance": "Location — among the people"
+              "nuance": "Location — among the people",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "in Kuru territory",
-              "nuance": "Geographical — in the country"
+              "nuance": "Geographical — in the country",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "with the Kuru people",
-              "nuance": "Among inhabitants"
+              "nuance": "Among inhabitants",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             }
           ],
           "pronunciation": "ku · ROO · su"
@@ -786,15 +1006,30 @@
           "senses": [
             {
               "english": "was dwelling",
-              "nuance": "Historical present"
+              "nuance": "Historical present",
+              "citationIds": [
+                "cite:dpd:dpd:30431",
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "was staying",
-              "nuance": "Sojourning"
+              "nuance": "Sojourning",
+              "citationIds": [
+                "cite:dpd:dpd:30431",
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "was abiding",
-              "nuance": "Remaining"
+              "nuance": "Remaining",
+              "citationIds": [
+                "cite:dpd:dpd:30431",
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -856,17 +1091,26 @@
           "senses": [
             {
               "english": "Kammāsadhamma",
-              "nuance": "Place name"
+              "nuance": "Place name",
+              "citationIds": [
+                "cite:dpd:dpd:20396"
+              ]
             },
             {
               "english": "\"Where the Spotted One was Tamed\"",
               "nuance": "Etymology",
-              "notes": "Traditional/commentarial explanation associated with the Kammāsapāda story; not directly attested by the DPD lexical entry, which only gives the proper noun."
+              "notes": "Traditional/commentarial explanation associated with the Kammāsapāda story; not directly attested by the DPD lexical entry, which only gives the proper noun.",
+              "citationIds": [
+                "cite:dpd:dpd:20396"
+              ]
             },
             {
               "english": "the spotted-dhamma place",
               "nuance": "Literal compound",
-              "notes": "Compound parse: kammāsa (spotted/speckled) + dhamma (here in a derived sense, possibly 'practice/place'). The standard morphological breakdown; not the historical/Jātaka etymology above."
+              "notes": "Compound parse: kammāsa (spotted/speckled) + dhamma (here in a derived sense, possibly 'practice/place'). The standard morphological breakdown; not the historical/Jātaka etymology above.",
+              "citationIds": [
+                "cite:dpd:dpd:20396"
+              ]
             }
           ],
           "pronunciation": "kam · MAH · sa · DHAM · mum"
@@ -889,7 +1133,10 @@
             {
               "english": "named",
               "nuance": "Called",
-              "notes": "The naming particle, indeclinable. DPD: 'called; means; by the name of; namely'. The X-nāma-Y appositional construction."
+              "notes": "The naming particle, indeclinable. DPD: 'called; means; by the name of; namely'. The X-nāma-Y appositional construction.",
+              "citationIds": [
+                "cite:dpd:dpd:36427"
+              ]
             }
           ],
           "pronunciation": "NAH · ma"
@@ -927,15 +1174,24 @@
           "senses": [
             {
               "english": "of the Kurus",
-              "nuance": "Genitive Plural"
+              "nuance": "Genitive Plural",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "belonging to the Kurus",
-              "nuance": "Possessive"
+              "nuance": "Possessive",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             },
             {
               "english": "the Kurus'",
-              "nuance": "Ownership"
+              "nuance": "Ownership",
+              "citationIds": [
+                "cite:dpd:dpd:22524"
+              ]
             }
           ],
           "pronunciation": "ku · ROO · num"
@@ -975,17 +1231,29 @@
           "senses": [
             {
               "english": "a market town",
-              "nuance": "Larger than gāma (village)"
+              "nuance": "Larger than gāma (village)",
+              "citationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ]
             },
             {
               "english": "a township",
               "nuance": "Smaller than nagara (city)",
-              "notes": "DPD's literal gloss 'going down' (ni+gam) supports the etymological reading already in d4s1/d4s2 tooltips — town as 'place people resort to'."
+              "notes": "DPD's literal gloss 'going down' (ni+gam) supports the etymological reading already in d4s1/d4s2 tooltips — town as 'place people resort to'.",
+              "citationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ]
             },
             {
               "english": "a trading center",
               "nuance": "Commercial gathering place",
-              "notes": "DPD attests 'town; market town' only; the 'commercial center' framing is a curatorial expansion drawing on standard Pāli economic context (nigama vs gāma vs nagara). Not directly DPD-attested."
+              "notes": "DPD attests 'town; market town' only; the 'commercial center' framing is a curatorial expansion drawing on standard Pāli economic context (nigama vs gāma vs nagara). Not directly DPD-attested.",
+              "citationIds": [
+                "cite:dpd:dpd:36863",
+                "cite:dpd:dpd:74785"
+              ]
             }
           ],
           "pronunciation": "NI · ga · mo"
@@ -1047,7 +1315,11 @@
           "senses": [
             {
               "english": "There",
-              "nuance": "At that place"
+              "nuance": "At that place",
+              "citationIds": [
+                "cite:dpd:dpd:29605",
+                "cite:dpd:dpd:29606"
+              ]
             }
           ],
           "pronunciation": "TAT · ra"
@@ -1070,12 +1342,18 @@
           "senses": [
             {
               "english": "indeed",
-              "nuance": "Emphasis"
+              "nuance": "Emphasis",
+              "citationIds": [
+                "cite:dpd:dpd:23966"
+              ]
             },
             {
               "english": "",
               "nuance": "Often untranslated",
-              "notes": "DPD attests 'kho' as 'indeed; surely; certainly; truly'. The choice to leave it untranslated in many English versions reflects a translator's curatorial decision — English narrative doesn't need this particle."
+              "notes": "DPD attests 'kho' as 'indeed; surely; certainly; truly'. The choice to leave it untranslated in many English versions reflects a translator's curatorial decision — English narrative doesn't need this particle.",
+              "citationIds": [
+                "cite:dpd:dpd:23966"
+              ]
             }
           ],
           "pronunciation": "kho  (aspirated)"
@@ -1108,16 +1386,25 @@
           "senses": [
             {
               "english": "the Blessed One",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             },
             {
               "english": "the Lucky One",
               "nuance": "Fortune-bearer",
-              "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). DPD's primary glosses are 'Sublime/Blessed/Fortunate One'; the bare 'Lucky' captures the etymological flavor but isn't a standard rendering."
+              "notes": "Compositional reading from bhaga (fortune) + -vā (one-who-has). DPD's primary glosses are 'Sublime/Blessed/Fortunate One'; the bare 'Lucky' captures the etymological flavor but isn't a standard rendering.",
+              "citationIds": [
+                "cite:dpd:dpd:49147"
+              ]
             }
           ],
           "pronunciation": "bha · GA · vah"
@@ -1150,16 +1437,25 @@
           "senses": [
             {
               "english": "the bhikkhus",
-              "nuance": "Accusative object"
+              "nuance": "Accusative object",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "the monks",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "the mendicants",
               "nuance": "Those who beg",
-              "notes": "'Mendicant' is the literal English match: one who depends on alms. DPD includes 'mendicant' among its glosses."
+              "notes": "'Mendicant' is the literal English match: one who depends on alms. DPD includes 'mendicant' among its glosses.",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             }
           ],
           "pronunciation": "bhik · KHOO"
@@ -1209,15 +1505,24 @@
           "senses": [
             {
               "english": "addressed",
-              "nuance": "Aorist"
+              "nuance": "Aorist",
+              "citationIds": [
+                "cite:dpd:dpd:12086"
+              ]
             },
             {
               "english": "summoned",
-              "nuance": "Called to attention"
+              "nuance": "Called to attention",
+              "citationIds": [
+                "cite:dpd:dpd:12086"
+              ]
             },
             {
               "english": "spoke to",
-              "nuance": "Directly addressed"
+              "nuance": "Directly addressed",
+              "citationIds": [
+                "cite:dpd:dpd:12086"
+              ]
             }
           ],
           "pronunciation": "ah · MAN · te · si"
@@ -1307,7 +1612,10 @@
           "senses": [
             {
               "english": "\"",
-              "nuance": "Quote marker"
+              "nuance": "Quote marker",
+              "citationIds": [
+                "cite:dpd:dpd:30431"
+              ]
             }
           ],
           "pronunciation": "TI"
@@ -1385,7 +1693,10 @@
           "senses": [
             {
               "english": "\"",
-              "nuance": "Close quote"
+              "nuance": "Close quote",
+              "citationIds": [
+                "cite:dpd:dpd:30431"
+              ]
             }
           ],
           "pronunciation": "TI"
@@ -1407,7 +1718,10 @@
           "senses": [
             {
               "english": "those",
-              "nuance": "Demonstrative"
+              "nuance": "Demonstrative",
+              "citationIds": [
+                "cite:dpd:dpd:31134"
+              ]
             }
           ],
           "pronunciation": "teh"
@@ -1438,15 +1752,24 @@
           "senses": [
             {
               "english": "bhikkhus",
-              "nuance": "Subject"
+              "nuance": "Subject",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "monks",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             },
             {
               "english": "mendicants",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "citationIds": [
+                "cite:dpd:dpd:49885"
+              ]
             }
           ],
           "pronunciation": "bhik · KHOO"
@@ -1486,16 +1809,28 @@
           "senses": [
             {
               "english": "to the Blessed One",
-              "nuance": "Dative (recipient of reply)"
+              "nuance": "Dative (recipient of reply)",
+              "citationIds": [
+                "cite:dpd:dpd:49136",
+                "cite:dpd:dpd:49137"
+              ]
             },
             {
               "english": "to the Fortunate One",
-              "nuance": "Literal"
+              "nuance": "Literal",
+              "citationIds": [
+                "cite:dpd:dpd:49136",
+                "cite:dpd:dpd:49137"
+              ]
             },
             {
               "english": "of the Blessed One",
               "nuance": "Genitive (alternative reading)",
-              "notes": "The genitive surface 'bhagavato' has multiple readings in DPD (to/of/from). For verbs of speaking the dative-like 'to' reading is conventional; the bare 'of' would translate as 'they did the replying-of the Buddha' which is awkward English but grammatically possible."
+              "notes": "The genitive surface 'bhagavato' has multiple readings in DPD (to/of/from). For verbs of speaking the dative-like 'to' reading is conventional; the bare 'of' would translate as 'they did the replying-of the Buddha' which is awkward English but grammatically possible.",
+              "citationIds": [
+                "cite:dpd:dpd:49136",
+                "cite:dpd:dpd:49137"
+              ]
             }
           ],
           "pronunciation": "bha · ga · VAH · to"
@@ -1528,16 +1863,25 @@
           "senses": [
             {
               "english": "replied",
-              "nuance": "Assented"
+              "nuance": "Assented",
+              "citationIds": [
+                "cite:dpd:dpd:39413"
+              ]
             },
             {
               "english": "answered",
-              "nuance": "Responded"
+              "nuance": "Responded",
+              "citationIds": [
+                "cite:dpd:dpd:39413"
+              ]
             },
             {
               "english": "acknowledged",
               "nuance": "Heard and accepted",
-              "notes": "DPD's primary glosses are 'replied; agreed; assented'. 'Acknowledged' captures the receptive quality — hearing-back means accepting the call."
+              "notes": "DPD's primary glosses are 'replied; agreed; assented'. 'Acknowledged' captures the receptive quality — hearing-back means accepting the call.",
+              "citationIds": [
+                "cite:dpd:dpd:39413"
+              ]
             }
           ],
           "pronunciation": "pat · ca · SO · sum"
@@ -1806,7 +2150,10 @@
           "senses": [
             {
               "english": "this",
-              "nuance": "Pointer to the path"
+              "nuance": "Pointer to the path",
+              "citationIds": [
+                "cite:dpd:dpd:8757"
+              ]
             }
           ],
           "pronunciation": "AH · yum"
@@ -1838,26 +2185,41 @@
           "senses": [
             {
               "english": "Mendicants,",
-              "nuance": "Those who beg"
+              "nuance": "Those who beg",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Monks,",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Sharers,",
               "nuance": "Those who share the path",
-              "notes": "Compositional reading from the bhaj-share root etymology. Not a standard English rendering; included to surface the etymology pedagogically."
+              "notes": "Compositional reading from the bhaj-share root etymology. Not a standard English rendering; included to surface the etymology pedagogically.",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Seekers,",
               "nuance": "Those who see danger",
-              "notes": "From the alternative etymology bhī-kkh (one-who-sees-danger). DPD glosses bhikkhu as 'beggar' primarily but the danger-seer etymology has a long tradition in commentary."
+              "notes": "From the alternative etymology bhī-kkh (one-who-sees-danger). DPD glosses bhikkhu as 'beggar' primarily but the danger-seer etymology has a long tradition in commentary.",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             },
             {
               "english": "Friends,",
               "nuance": "Intimate",
-              "notes": "An interpretive choice some modern translators (e.g., Thanissaro Bhikkhu) favor — emphasizing the relational warmth over the formal monastic status. Not DPD-attested but pedagogically interesting."
+              "notes": "An interpretive choice some modern translators (e.g., Thanissaro Bhikkhu) favor — emphasizing the relational warmth over the formal monastic status. Not DPD-attested but pedagogically interesting.",
+              "citationIds": [
+                "cite:dpd:dpd:49868"
+              ]
             }
           ],
           "pronunciation": "bhik · KHA · veh"
@@ -1888,16 +2250,28 @@
           "senses": [
             {
               "english": "path",
-              "nuance": "The way"
+              "nuance": "The way",
+              "citationIds": [
+                "cite:dpd:dpd:50495",
+                "cite:dpd:dpd:50496"
+              ]
             },
             {
               "english": "road",
-              "nuance": "Track to follow"
+              "nuance": "Track to follow",
+              "citationIds": [
+                "cite:dpd:dpd:50495",
+                "cite:dpd:dpd:50496"
+              ]
             },
             {
               "english": "method",
               "nuance": "Systematic approach",
-              "notes": "DPD attests 'magga' also as 'way; means; method' — the abstract sense that frames satipaṭṭhāna as a meditation METHOD, not just a physical path."
+              "notes": "DPD attests 'magga' also as 'way; means; method' — the abstract sense that frames satipaṭṭhāna as a meditation METHOD, not just a physical path.",
+              "citationIds": [
+                "cite:dpd:dpd:50495",
+                "cite:dpd:dpd:50496"
+              ]
             }
           ],
           "pronunciation": "MAG · go"
@@ -1967,17 +2341,32 @@
             {
               "english": "beings",
               "nuance": "Sentient creatures",
-              "notes": "Standard DPD-attested reading. Sujato, Bodhi, Thanissaro all use 'beings' as the default rendering."
+              "notes": "Standard DPD-attested reading. Sujato, Bodhi, Thanissaro all use 'beings' as the default rendering.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "the attached",
               "nuance": "Doctrinal reading",
-              "notes": "From alternate root √saj 'to cling'. Pedagogically interesting because it captures the Buddhist analysis of beings AS those bound by attachment. Rarely chosen as the primary rendering but worth knowing."
+              "notes": "From alternate root √saj 'to cling'. Pedagogically interesting because it captures the Buddhist analysis of beings AS those bound by attachment. Rarely chosen as the primary rendering but worth knowing.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "the seven",
               "nuance": "Numerical (homonym)",
-              "notes": "satta also means the number seven (cognate of Sanskrit sapta). Homonym, NOT the intended reading here. Included to illustrate that Pāli surface forms genuinely have multiple lexical entries — students will encounter satta meaning 'seven' in other contexts."
+              "notes": "satta also means the number seven (cognate of Sanskrit sapta). Homonym, NOT the intended reading here. Included to illustrate that Pāli surface forms genuinely have multiple lexical entries — students will encounter satta meaning 'seven' in other contexts.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "saht · TAH · num"
@@ -2273,17 +2662,26 @@
             {
               "english": "pain & distress",
               "nuance": "Sujato's pairing",
-              "notes": "Sujato consistently pairs 'pain' for dukkha and 'distress' for domanassa in MN10. Preserves the inner/outer pairing while keeping register accessible."
+              "notes": "Sujato consistently pairs 'pain' for dukkha and 'distress' for domanassa in MN10. Preserves the inner/outer pairing while keeping register accessible.",
+              "citationIds": [
+                "cite:term:dukkha:wikipedia"
+              ]
             },
             {
               "english": "suffering & grief",
               "nuance": "Ñāṇamoli-Bodhi",
-              "notes": "Bhikkhu Bodhi's MLDB renders dukkha as 'suffering' (heavier philosophical weight) and domanassa often as 'grief' (overlapping with soka from phase-3). Some readers find the soka/domanassa boundary blurred under this choice."
+              "notes": "Bhikkhu Bodhi's MLDB renders dukkha as 'suffering' (heavier philosophical weight) and domanassa often as 'grief' (overlapping with soka from phase-3). Some readers find the soka/domanassa boundary blurred under this choice.",
+              "citationIds": [
+                "cite:term:dukkha:wikipedia"
+              ]
             },
             {
               "english": "discomfort & displeasure",
               "nuance": "Functional / felt-experience",
-              "notes": "A more functional register: foregrounds the FELT QUALITY (unsatisfactoriness, dispreference) over the philosophical weight. Less common in published translations; useful when teaching the Abhidhamma feeling-tone analysis where dukkha-domanassa pairs with sukha-somanassa."
+              "notes": "A more functional register: foregrounds the FELT QUALITY (unsatisfactoriness, dispreference) over the philosophical weight. Less common in published translations; useful when teaching the Abhidhamma feeling-tone analysis where dukkha-domanassa pairs with sukha-somanassa.",
+              "citationIds": [
+                "cite:term:dukkha:wikipedia"
+              ]
             }
           ]
         },
@@ -2377,24 +2775,19 @@
       "canonicalSegmentIds": [
         "mn10:2.1"
       ],
-      "layoutBlocks": [
-        [
-          "p11",
-          "p12"
-        ]
-      ],
       "paliWords": [
         {
           "id": "p11",
           "wordClass": "content",
+          "pronunciation": "ñā · YAS · sa",
           "segments": [
             {
               "id": "p11s1",
               "text": "ñāya",
-              "type": "root",
+              "type": "stem",
               "tooltips": [
-                "√ñā: to know",
-                "Method, system, right way, truth"
+                "Ñāya — the technical Buddhist term for 'system' or 'method', but with weight: in the commentaries (Visuddhimagga, Aṭṭhakathā), ñāya is glossed as the Noble Eightfold Path itself. So 'attainment of ñāya' reads as 'reaching the path'.",
+                "Root √ñā (to know) + ya (action-noun suffix). Literally 'a knowing' or 'the principle by which one knows'. Cognate with Sanskrit nyāya (logic, the rational system). In Pāli Buddhism the rational sense is preserved but anchored to soteriology — not abstract logic, but the logic of liberation."
               ]
             },
             {
@@ -2402,7 +2795,8 @@
               "text": "ssa",
               "type": "suffix",
               "tooltips": [
-                "Of the method"
+                "The -ssa ending is genitive singular — 'of the [one thing]'. Marks the shift in the formula chain: phases 2-4 used -ānaṁ (genitive plural — of beings, of griefs, of sufferings, many things in the world). Phase-5 and phase-6 use -ssa (singular — of the path, of nibbāna, the one transcendent goal).",
+                "The grammatical number tracks the conceptual movement: from world-as-multiplicity (-ānaṁ) to path-as-unity (-ssa). The Buddha's vocabulary scaffolding does the work — readers feel the shift without being told."
               ],
               "relation": {
                 "targetWordId": "p12",
@@ -2413,30 +2807,50 @@
           ],
           "senses": [
             {
-              "english": "of the true method",
-              "nuance": "Systematic"
+              "english": "of the true way",
+              "nuance": "Bhikkhu Bodhi",
+              "notes": "Bhikkhu Bodhi (MLDB): 'true way' / 'method'. The systematic path-as-procedure. Verified rendering at suttacentral.net/mn10/en/bodhi.",
+              "citationIds": [
+                "cite:term:ñāya:sc-bodhi-mn10",
+                "cite:term:ñāya:sc-sujato-mn10",
+                "cite:term:ñāya:thanissaro-dhammatalks"
+              ]
             },
             {
-              "english": "of the truth",
-              "nuance": "Ultimate"
+              "english": "of the system",
+              "nuance": "Bhikkhu Sujato",
+              "notes": "Sujato (SuttaCentral MN10): 'system'. Echoes the cognate Sanskrit nyāya (logical system) while staying within Pāli Buddhism's soteriological frame. Verified rendering at suttacentral.net/mn10/en/sujato.",
+              "citationIds": [
+                "cite:term:ñāya:sc-bodhi-mn10",
+                "cite:term:ñāya:sc-sujato-mn10",
+                "cite:term:ñāya:thanissaro-dhammatalks"
+              ]
             },
             {
-              "english": "of the right way",
-              "nuance": "Correct path"
+              "english": "of the right method",
+              "nuance": "Ṭhānissaro Bhikkhu",
+              "notes": "Thanissaro (dhammatalks.org MN10): 'the right method'. Aligns with his Thai Forest framing of practice-as-method. Verified rendering at dhammatalks.org/suttas/MN/MN10.html.",
+              "citationIds": [
+                "cite:term:ñāya:sc-bodhi-mn10",
+                "cite:term:ñāya:sc-sujato-mn10",
+                "cite:term:ñāya:thanissaro-dhammatalks"
+              ]
             }
-          ],
-          "pronunciation": "ñā · YAS · sa"
+          ]
         },
         {
           "id": "p12",
           "wordClass": "content",
+          "isAnchor": true,
+          "pronunciation": "a · dhi · ga · MĀ · ya",
           "segments": [
             {
               "id": "p12s1",
               "text": "adhi",
               "type": "prefix",
               "tooltips": [
-                "Onto, towards, over"
+                "Prefix adhi- meaning 'onto', 'toward', 'over and above'. Directional intensifier — turns simple 'going' (gam) into 'going-toward-and-reaching'. Same prefix in adhipati (overlord, one-who-stands-over), adhiṭṭhāna (determination, standing-upon), adhipaññā (higher wisdom).",
+                "In the soteriological lexicon, adhi- often marks the experiential/realized dimension (vs. mere theoretical understanding). adhi-gama (reaching) pairs with pari-yatti (taking-up, theoretical mastery) — the foundational adhigama/pariyatti pair distinguishes direct realization from textual learning."
               ]
             },
             {
@@ -2444,8 +2858,8 @@
               "text": "gam",
               "type": "root",
               "tooltips": [
-                "√gam: to go",
-                "adhigama = reaching, attaining"
+                "The root √gam means 'to go'. Cognate with English 'come' via PIE *gʷem-. Productive across the Pāli verbal system: gacchati (he goes), gata (gone), āgata (come), saṁgam (assembly).",
+                "Third -gama compound in the formula. Phase-3 had samatikkama (sam+ati+kam, surmounting-going — going over and across). Phase-4 had atthaṅgama (attha+gam, setting-going — going into disappearance). Phase-5 has adhigama (adhi+gam, reaching-going — going up and onto). All three are masculine action-nouns from √gam; the rhythm of the formula partly comes from this -gama parallelism."
               ]
             },
             {
@@ -2453,26 +2867,28 @@
               "text": "āya",
               "type": "suffix",
               "tooltips": [
-                "For the sake of",
-                "Purpose marker"
+                "The -āya ending is dative-singular masculine — 'for the purpose of'. Adhigama is a masculine action-noun; -āya marks it as the goal-purpose of the practice. Fourth dative-of-purpose in the chain: phase-2's visuddhiyā ('for purification'), phase-3's samatikkamāya ('for surmounting'), phase-4's atthaṅgamāya ('for disappearance'), this phase's adhigamāya ('for attainment'), and phase-6's sacchikiriyāya ('for realization').",
+                "Five 'for' statements stacked. The rhythm is liturgical — when chanted in Pāli, the recurring -āya creates a meditative cadence that mirrors the directionality of practice itself."
               ]
             }
           ],
           "senses": [
             {
               "english": "attainment",
-              "nuance": "Reaching"
-            },
-            {
-              "english": "acquisition",
-              "nuance": "Getting"
+              "nuance": "Bhikkhu Bodhi / standard",
+              "notes": "Bhikkhu Bodhi's MLDB and most contemporary translators. Renders the directed-reaching sense cleanly. Reads naturally as the practical goal of the meditator: not vague aspiration but actual reaching."
             },
             {
               "english": "realization",
-              "nuance": "Making real"
+              "nuance": "Sujato / experiential",
+              "notes": "Sujato (SuttaCentral): 'for realizing the system'. Foregrounds the experiential dimension over the bare 'getting'. Closer to how adhigama functions in the adhigama/pariyatti pair — direct realization vs. textual mastery."
+            },
+            {
+              "english": "discovering",
+              "nuance": "Thanissaro / process-emphasis",
+              "notes": "Thanissaro Bhikkhu sometimes uses 'discovery' for adhigama — emphasises that what is reached was always there; the work is finding it, not constructing it. Doctrinally aligned with the standard line that nibbāna is unconditioned and timeless: it isn't produced by practice, only uncovered."
             }
-          ],
-          "pronunciation": "a · dhi · ga · MĀ · ya"
+          ]
         }
       ],
       "englishStructure": [
@@ -2487,9 +2903,21 @@
           "linkedSegmentId": "p12s2"
         },
         {
+          "id": "g2",
+          "label": "of the",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
           "id": "e12",
           "linkedSegmentId": "p11s1"
         }
+      ],
+      "layoutBlocks": [
+        [
+          "p11",
+          "p12"
+        ]
       ]
     },
     {
@@ -2497,32 +2925,28 @@
       "canonicalSegmentIds": [
         "mn10:2.1"
       ],
-      "layoutBlocks": [
-        [
-          "p13",
-          "p14"
-        ]
-      ],
       "paliWords": [
         {
           "id": "p13",
           "wordClass": "content",
+          "pronunciation": "nib · bā · NAS · sa",
           "segments": [
             {
               "id": "p13s1",
-              "text": "nibbān",
-              "type": "root",
+              "text": "nibbāna",
+              "type": "stem",
               "tooltips": [
-                "ni (out) + vāna (blowing)",
-                "️ Fire going out, cooling, peace"
+                "Nibbāna — the goal-term of the entire Buddhist path. Literally 'blowing out' or 'extinguishing'. Prefix ni- (out, away) + √vā (to blow). The metaphor is a flame being extinguished — not destruction but cooling.",
+                "Buddhist physics-of-mind reading: the 'fires' that go out are the three unwholesome roots (lobha/dosa/moha — greed, hatred, delusion). Awakening is the cooling of these fires, not the annihilation of the person. Without the three-fires context, 'extinguishment' flattens into nihilism — which is exactly the misreading the early translators worried about and Bhikkhu Bodhi's choice to leave the word untranslated guards against."
               ]
             },
             {
               "id": "p13s2",
-              "text": "assa",
+              "text": "ssa",
               "type": "suffix",
               "tooltips": [
-                "Of Nibbana"
+                "The -ssa ending is genitive singular — 'of [the one thing]'. Closes the singular pattern that began in phase-5 (ñāyassa). The formula chain pivots from gen plural (-ānaṁ in phases 2-4: of beings, griefs, sufferings) to gen singular (-ssa in phases 5-6: of the path, of nibbāna). World→path→goal, multiplicity collapsing to unity.",
+                "Same -ssa form as phase-5. The grammatical rhyme closes the chain: ñāyassa adhigamāya / nibbānassa sacchikiriyāya. Two parallel datives-of-purpose marking the two faces of the goal — the path (ñāya, the means) and nibbāna (the end)."
               ],
               "relation": {
                 "targetWordId": "p14",
@@ -2533,39 +2957,53 @@
           ],
           "senses": [
             {
-              "english": "of Nibbana",
-              "nuance": "The goal"
+              "english": "of Nibbāna",
+              "nuance": "Bhikkhu Bodhi / untranslated",
+              "notes": "Bhikkhu Bodhi (MLDB) consistently leaves nibbāna untranslated, preserving its status as a technical term. Reasoning: any English word imports baggage (Christian 'salvation', nihilist 'extinction', Western 'liberation') that distorts the original. Leaving it in Pāli forces the reader to learn the word in its own context.",
+              "citationIds": [
+                "cite:term:nibbāna:sc-bodhi-mn10",
+                "cite:term:nibbāna:sc-sujato-mn10",
+                "cite:term:nibbāna:thanissaro-dhammatalks",
+                "cite:term:nibbāna:wikipedia"
+              ]
             },
             {
-              "english": "of Unbinding",
-              "nuance": "Freedom from"
+              "english": "of extinguishment",
+              "nuance": "Sujato / literal Pāli",
+              "notes": "Sujato (SuttaCentral): 'extinguishment' — recovers the literal blowing-out metaphor. Pairs with his consistent rendering of the three fires as 'greed, hate, delusion'. The reader feels the metaphor working: awakening is cooling, not gaining.",
+              "citationIds": [
+                "cite:term:nibbāna:sc-bodhi-mn10",
+                "cite:term:nibbāna:sc-sujato-mn10",
+                "cite:term:nibbāna:thanissaro-dhammatalks",
+                "cite:term:nibbāna:wikipedia"
+              ]
             },
             {
-              "english": "of extinguishing",
-              "nuance": "Fire going out"
-            },
-            {
-              "english": "of cooling",
-              "nuance": "Peace"
-            },
-            {
-              "english": "of liberation",
-              "nuance": "Release"
+              "english": "of unbinding",
+              "nuance": "Thanissaro / freedom-from",
+              "notes": "Thanissaro Bhikkhu's signature rendering. Emphasises freedom-from-the-aggregates rather than cooling-of-fires. Doctrinally tied to the aggregates analysis: nibbāna as the release from grasping at form, feeling, perception, volition, consciousness. Less common in academic translations but distinctive in the Thai Forest tradition.",
+              "citationIds": [
+                "cite:term:nibbāna:sc-bodhi-mn10",
+                "cite:term:nibbāna:sc-sujato-mn10",
+                "cite:term:nibbāna:thanissaro-dhammatalks",
+                "cite:term:nibbāna:wikipedia"
+              ]
             }
-          ],
-          "pronunciation": "nib · bā · NAS · sa"
+          ]
         },
         {
           "id": "p14",
           "wordClass": "content",
+          "isAnchor": true,
+          "pronunciation": "sac · chi · ki · ri · YĀ · ya",
           "segments": [
             {
               "id": "p14s1",
               "text": "sacchi",
-              "type": "root",
+              "type": "stem",
               "tooltips": [
-                "sa + akkhi (with eyes)",
-                "Seeing directly, witnessing"
+                "Sacchi — 'before-the-eyes', a transparent compound: sa- (with) + akkhi (eye). The word makes explicit what would be implicit in English: realization is EYE-WITNESSED, first-person, direct. Not derived from authority, scripture, or inference.",
+                "The epistemological keystone of the meditation tradition. Buddhist practice values direct knowing (paccatta-vedanīya — to-be-known-for-oneself) over reported knowing. sacchi- foregrounds this commitment in the formula's closing word."
               ]
             },
             {
@@ -2573,8 +3011,8 @@
               "text": "kiriy",
               "type": "root",
               "tooltips": [
-                "√kṛ: to do, make",
-                "Making real, accomplishing"
+                "Kiriya — from √kar (to do, make, perform). The action-form of 'making'. Combined with sacchi-, the compound sacchikiriyā = 'making-real-before-the-eyes' or 'rendering-witnessable'.",
+                "Same root underlies kamma (action, deed), kāra (maker), karoti (he does). The Pāli verbal system organises around √kar — sacchikiriyā situates nibbāna's realization within that action-frame, but with the twist that the action here is recognition, not construction."
               ]
             },
             {
@@ -2582,34 +3020,28 @@
               "text": "āya",
               "type": "suffix",
               "tooltips": [
-                "For the sake of",
-                "Purpose marker"
+                "The -āya ending is dative-singular feminine here — sacchikiriyā is feminine (the -ā stem). FIFTH and FINAL dative-of-purpose in the formula chain. The five together: visuddhiyā (purification), samatikkamāya (surmounting), atthaṅgamāya (disappearance), adhigamāya (attainment), sacchikiriyāya (realization). The formula CLOSES here.",
+                "Liturgical effect: when chanted, the recurring -āya across five phrases creates a five-fold meditative cadence. The Buddha's pedagogical engineering is audible — the structure of the practice is mirrored in the structure of the verse."
               ]
             }
           ],
           "senses": [
             {
               "english": "realization",
-              "nuance": "Making real"
+              "nuance": "Bhikkhu Bodhi / standard",
+              "notes": "Bhikkhu Bodhi's MLDB and most contemporary translators. Captures the directness without philosophical baggage. Reads naturally in English as the contemplative moment of recognition."
             },
             {
               "english": "witnessing",
-              "nuance": "Seeing directly"
+              "nuance": "Literal / eye-emphasis",
+              "notes": "Foregrounds the sacchi- (with-eye) component. Sometimes used in academic translations where the etymology matters pedagogically. Less common in published English suttas but doctrinally precise."
             },
             {
-              "english": "direct experience",
-              "nuance": "First-hand"
-            },
-            {
-              "english": "making visible",
-              "nuance": "With own eyes"
-            },
-            {
-              "english": "touching",
-              "nuance": "Personal contact"
+              "english": "direct experiencing",
+              "nuance": "Thanissaro / phenomenological",
+              "notes": "Thanissaro Bhikkhu often uses 'direct experiencing' for sacchikiriyā in some contexts — emphasises the first-person epistemic quality. Aligns with the Thai Forest tradition's stress on practice-knowledge over textual-knowledge."
             }
-          ],
-          "pronunciation": "sac · chi · ki · ri · YĀ · ya"
+          ]
         }
       ],
       "englishStructure": [
@@ -2624,9 +3056,21 @@
           "linkedSegmentId": "p14s1"
         },
         {
+          "id": "g2",
+          "label": "of",
+          "isGhost": true,
+          "ghostKind": "required"
+        },
+        {
           "id": "e14",
           "linkedSegmentId": "p13s1"
         }
+      ],
+      "layoutBlocks": [
+        [
+          "p13",
+          "p14"
+        ]
       ]
     },
     {
@@ -2638,108 +3082,140 @@
         {
           "id": "p15",
           "wordClass": "function",
+          "pronunciation": "YA · di · daṁ",
           "segments": [
             {
               "id": "p15s1",
               "text": "yad",
-              "type": "root",
+              "type": "stem",
               "tooltips": [
-                "Which, what"
+                "Yad — relative pronoun 'which' or 'that-which'. The y- ending of the relative stem. Cognate with Sanskrit yad, Latin id (idem, identical).",
+                "In compounds the final -d acts as a sandhi-linker before vowels — yad + idaṁ joins smoothly as yadidaṁ."
               ]
             },
             {
               "id": "p15s2",
               "text": "idaṁ",
-              "type": "root",
+              "type": "stem",
               "tooltips": [
-                "This",
-                "yad + idaṁ = \"namely, that is to say\""
+                "Idaṁ — demonstrative 'this' (neuter singular). Points forward, not back. The compound yadidaṁ thus means 'which-this' = 'namely' or 'that is to say', introducing a forthcoming enumeration.",
+                "Discourse marker function: signals to the reader that a list or specification is coming. The Pāli formula is precise about pointing — yadidaṁ specifically gestures FORWARD to what's about to be named."
               ]
             }
           ],
           "senses": [
             {
               "english": "namely",
-              "nuance": "Introduces what follows"
+              "nuance": "Standard / contemporary",
+              "notes": "Sujato, Bhikkhu Bodhi, and most contemporary translators. Functions as a colon in English — introduces the list."
+            },
+            {
+              "english": "that is to say",
+              "nuance": "Formal register",
+              "notes": "Ñāṇamoli sometimes used this fuller form. Preserves the discourse-marker function explicitly. Slightly more old-fashioned register."
             }
-          ],
-          "pronunciation": "YA · di · daṁ"
+          ]
         },
         {
           "id": "p16",
           "wordClass": "content",
+          "pronunciation": "cat · TĀ · ro",
           "segments": [
             {
               "id": "p16s1",
               "text": "cattāro",
               "type": "stem",
               "tooltips": [
-                "Four (4)"
+                "Cattāro — the number four. Nominative plural masculine, agreeing with satipaṭṭhānā. Cognate with English four, Latin quattuor, Greek tessares, via PIE *kʷetwóres.",
+                "The number is not arbitrary. The four foundations (kāya / vedanā / citta / dhammā — body / feeling / mind / mental-objects) form a cognitive-meditative framework that subsequent phases of MN10 lay out one by one. This phase NAMES the four; phases 8 onward unpack each."
               ]
             }
           ],
           "senses": [
             {
               "english": "the four",
-              "nuance": "Quantity"
+              "nuance": "Definite set",
+              "notes": "Most translators use 'the four' here because cattāro is followed by the named referents (satipaṭṭhānā). The definite article is supplied by English convention."
             },
             {
               "english": "four",
-              "nuance": "Number"
-            },
-            {
-              "english": "the quartet",
-              "nuance": "Group of four"
+              "nuance": "Bare number",
+              "notes": "Functional equivalent. Loses the implied definiteness but matches the bare Pāli."
             }
-          ],
-          "pronunciation": "cat · TĀ · ro"
+          ]
         },
         {
           "id": "p17",
           "wordClass": "content",
+          "isAnchor": true,
+          "pronunciation": "sa · ti · paṭ · ṬHĀ · nā",
           "segments": [
             {
               "id": "p17s1",
               "text": "sati",
-              "type": "root",
+              "type": "stem",
               "tooltips": [
-                "√smṛ: to remember",
-                "Mindfulness, presence, awareness"
+                "Sati — mindfulness, presence, awareness. Cognate with Sanskrit smṛti (memory, remembrance). Root √smṛ (to remember). The Pāli sati keeps the memory-resonance: mindfulness as the faculty of REMEMBERING what is happening, KEEPING IN MIND.",
+                "Theravāda tradition glosses sati as 'apilāpana' — un-floating, keeping things from drifting away. The cognitive function is anti-distraction: holding the object of meditation in the field of awareness so it doesn't slip out. Christian translators reaching for 'mindfulness' borrowed this memory-emphasis explicitly."
               ]
             },
             {
               "id": "p17s2",
               "text": "paṭṭhānā",
-              "type": "root",
+              "type": "stem",
               "tooltips": [
-                "paṭi + √sthā: to stand",
-                "Establishing, foundation, setting up"
+                "Paṭṭhānā — the most contested half of the compound. Two parses: (1) paṭi + sthā = 'going-toward-and-standing' (foundation, establishment), or (2) upa + sthāna = 'close-attendance' (presencing, attending-near). The compound is doubled-tt because of the consonant assimilation, and that doubling masks which prefix was originally there.",
+                "Bhikkhu Anālayo's monograph defends the upaṭṭhāna parse on the grounds that paṭṭhāna appears only in Abhidhamma texts while upaṭṭhāna is readily visible in the Nikayas and Sanskrit parallels. Bhikkhu Bodhi PHILOLOGICALLY agrees with Anālayo (upaṭṭhāna parse) but his MLDB TRANSLATION keeps 'foundations of mindfulness' for continuity with prior English literature (Soma Thera, Ñāṇaponika). Sujato and Thanissaro follow the upaṭṭhāna parse in their renderings ('kinds of mindfulness meditation' and 'establishings of mindfulness' respectively). The parse decision and the translation choice are separable — don't conflate them."
               ]
             }
           ],
           "senses": [
             {
               "english": "foundations of mindfulness",
-              "nuance": "Standard translation"
+              "nuance": "Bhikkhu Bodhi / MLDB translation choice",
+              "notes": "Bhikkhu Bodhi (MLDB): 'foundations of mindfulness'. Bodhi's TRANSLATION CHOICE preserves the historical English convention (Soma Thera, Ñāṇaponika). His PHILOLOGICAL POSITION, per Wikipedia summarising Anālayo's argument, actually favors the upaṭṭhāna parse — but the established 'foundations' rendering is kept for continuity. Translation choice and parse position are separable decisions.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:analayo-monograph",
+                "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+                "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+                "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:wikipedia"
+              ]
             },
             {
-              "english": "establishments of awareness",
-              "nuance": "Active placing"
+              "english": "kinds of mindfulness meditation",
+              "nuance": "Bhikkhu Sujato / upaṭṭhāna parse",
+              "notes": "Sujato (SuttaCentral MN10): 'four kinds of mindfulness meditation'. His current rendering. Renders paṭṭhāna as a form of upa-sthāna (close-attendance), foregrounding meditation-as-practice over foundation-as-structure. Aligns with Anālayo's philological defense of the upaṭṭhāna parse.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:analayo-monograph",
+                "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+                "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+                "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:wikipedia"
+              ]
             },
             {
-              "english": "presencings of remembering",
-              "nuance": "Memory aspect"
-            },
-            {
-              "english": "ways of keeping present",
-              "nuance": "Practice-oriented"
-            },
-            {
-              "english": "lucid abodes",
-              "nuance": "Clarity emphasis"
+              "english": "establishings of mindfulness",
+              "nuance": "Ṭhānissaro Bhikkhu / upaṭṭhāna parse",
+              "notes": "Thanissaro Bhikkhu (dhammatalks.org MN10): 'establishings of mindfulness'. His current rendering, evolved from his earlier 'frames of reference' (Wings to Awakening era). The 'establishing' verbal-noun emphasises the active placing-of-attention process, aligning with the upaṭṭhāna parse.",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:analayo-monograph",
+                "cite:term:satipaṭṭhāna:sc-bodhi-mn10",
+                "cite:term:satipaṭṭhāna:sc-sujato-mn10",
+                "cite:term:satipaṭṭhāna:thanissaro-dhammatalks",
+                "cite:term:satipaṭṭhāna:wikipedia"
+              ]
             }
-          ],
-          "pronunciation": "sa · ti · paṭ · ṬHĀ · nā"
+          ]
         }
       ],
       "englishStructure": [
@@ -3128,23 +3604,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -3310,19 +3806,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -3683,15 +4199,27 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -3843,19 +4371,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -4189,23 +4737,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -4360,19 +4928,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -4729,23 +5317,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -4900,19 +5508,39 @@
           "senses": [
             {
               "english": "possessing mindfulness",
-              "nuance": "Faculty"
+              "nuance": "Faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "mindful",
-              "nuance": "Standard"
+              "nuance": "Standard",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "equipped with awareness",
-              "nuance": "Capacity"
+              "nuance": "Capacity",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Gathered"
+              "nuance": "Gathered",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti · mā"
@@ -5471,15 +6099,27 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -6180,15 +6820,30 @@
           "senses": [
             {
               "english": "mindfulness",
-              "nuance": "Awareness"
+              "nuance": "Awareness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollection",
-              "nuance": "Memory faculty"
+              "nuance": "Memory faculty",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "presence of mind",
-              "nuance": "Attentiveness"
+              "nuance": "Attentiveness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · tiṁ"
@@ -6314,15 +6969,30 @@
           "senses": [
             {
               "english": "mindfully",
-              "nuance": "Adverbial"
+              "nuance": "Adverbial",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "with awareness",
-              "nuance": "Applied sati"
+              "nuance": "Applied sati",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "recollected",
-              "nuance": "Present"
+              "nuance": "Present",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · to"
@@ -6384,15 +7054,30 @@
           "senses": [
             {
               "english": "breathes in",
-              "nuance": "Inhalation"
+              "nuance": "Inhalation",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "inhales",
-              "nuance": "Drawing breath in"
+              "nuance": "Drawing breath in",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "breathes",
-              "nuance": "General breathing"
+              "nuance": "General breathing",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "as · SA · sa · ti"
@@ -6424,15 +7109,30 @@
           "senses": [
             {
               "english": "breathes out",
-              "nuance": "Exhalation"
+              "nuance": "Exhalation",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "exhales",
-              "nuance": "Releasing breath"
+              "nuance": "Releasing breath",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "out-breathes",
-              "nuance": "Breathing forth"
+              "nuance": "Breathing forth",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "pas · SA · sa · ti"
@@ -9182,7 +9882,10 @@
           "senses": [
             {
               "english": "indeed",
-              "nuance": "Emphasis"
+              "nuance": "Emphasis",
+              "citationIds": [
+                "cite:dpd:dpd:23966"
+              ]
             }
           ],
           "pronunciation": "kho  (aspirated)"
@@ -10852,15 +11555,27 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Abides"
+              "nuance": "Abides",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Sustained"
+              "nuance": "Sustained",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11095,23 +11810,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11349,23 +12084,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11558,23 +12313,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11750,23 +12525,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -11955,23 +12750,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"
@@ -12175,15 +12990,30 @@
           "senses": [
             {
               "english": "mindfulness",
-              "nuance": "Awareness"
+              "nuance": "Awareness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "remembrance",
-              "nuance": "Recollection"
+              "nuance": "Recollection",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "presence of mind",
-              "nuance": "Attentiveness"
+              "nuance": "Attentiveness",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "SA · ti"
@@ -12418,15 +13248,30 @@
           "senses": [
             {
               "english": "for bare mindfulness",
-              "nuance": "Purpose"
+              "nuance": "Purpose",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "just for awareness",
-              "nuance": "Minimal"
+              "nuance": "Minimal",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             },
             {
               "english": "only for recollection",
-              "nuance": "Non-grasping"
+              "nuance": "Non-grasping",
+              "citationIds": [
+                "cite:term:sati:sc-bodhi-mn10",
+                "cite:term:sati:sc-sujato-mn10",
+                "cite:term:sati:thanissaro-dhammatalks"
+              ]
             }
           ],
           "pronunciation": "pa · ṭis · sa · ti · mat · TĀ · ya"
@@ -12556,23 +13401,43 @@
           "senses": [
             {
               "english": "dwells",
-              "nuance": "Lives this way"
+              "nuance": "Lives this way",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "abides",
-              "nuance": "Rests here"
+              "nuance": "Rests here",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "remains",
-              "nuance": "Stays put"
+              "nuance": "Stays put",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "lives",
-              "nuance": "Way of being"
+              "nuance": "Way of being",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             },
             {
               "english": "keeps at it",
-              "nuance": "Continuous practice"
+              "nuance": "Continuous practice",
+              "citationIds": [
+                "cite:dpd:dpd:69661",
+                "cite:dpd:dpd:69662"
+              ]
             }
           ],
           "pronunciation": "vi · HA · ra · ti"

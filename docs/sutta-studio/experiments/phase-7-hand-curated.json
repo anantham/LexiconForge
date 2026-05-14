@@ -1,0 +1,131 @@
+{
+  "_comment": "Phase-7 hand-polished from v11 Gemini Flash draft. Bridge phrase between the formula-of-purposes (phases 2-6) and the listing of the four foundations (phases 8+). Pāli text: 'yadidaṁ cattāro satipaṭṭhānā' — 'namely, the four foundations of mindfulness'. This is the sutta NAMING ITSELF — satipaṭṭhāna is the title. Curated 2026-05-14 by Aditya + Claude Opus 4.7, post-phantom-purge format. Satipaṭṭhāna is the most contested compound in MN10: paṭṭhāna (foundation) vs upaṭṭhāna (close-attendance) parse, with Anālayo's monograph defending the latter. CORRECTED 2026-05-14 via GROUNDING Phase 1: my initial hand-curation conflated Bodhi's TRANSLATION CHOICE ('foundations') with his PHILOLOGICAL POSITION (Wikipedia, sourcing scholarly literature, reports Bodhi philologically favors upaṭṭhāna — same parse as Anālayo and Sujato). Also corrected Thanissaro from 'frames of reference' (his older Wings-to-Awakening era language) to 'establishings of mindfulness' (his current dhammatalks.org MN10 rendering, verified by WebFetch). Both errors are exactly the trust-me-bro pattern the grounding architecture exists to catch.",
+  "id": "phase-7",
+  "canonicalSegmentIds": [
+    "mn10:2.1"
+  ],
+  "paliWords": [
+    {
+      "id": "p15",
+      "wordClass": "function",
+      "pronunciation": "YA · di · daṁ",
+      "segments": [
+        {
+          "id": "p15s1",
+          "text": "yad",
+          "type": "stem",
+          "tooltips": [
+            "Yad — relative pronoun 'which' or 'that-which'. The y- ending of the relative stem. Cognate with Sanskrit yad, Latin id (idem, identical).",
+            "In compounds the final -d acts as a sandhi-linker before vowels — yad + idaṁ joins smoothly as yadidaṁ."
+          ]
+        },
+        {
+          "id": "p15s2",
+          "text": "idaṁ",
+          "type": "stem",
+          "tooltips": [
+            "Idaṁ — demonstrative 'this' (neuter singular). Points forward, not back. The compound yadidaṁ thus means 'which-this' = 'namely' or 'that is to say', introducing a forthcoming enumeration.",
+            "Discourse marker function: signals to the reader that a list or specification is coming. The Pāli formula is precise about pointing — yadidaṁ specifically gestures FORWARD to what's about to be named."
+          ]
+        }
+      ],
+      "senses": [
+        {
+          "english": "namely",
+          "nuance": "Standard / contemporary",
+          "notes": "Sujato, Bhikkhu Bodhi, and most contemporary translators. Functions as a colon in English — introduces the list."
+        },
+        {
+          "english": "that is to say",
+          "nuance": "Formal register",
+          "notes": "Ñāṇamoli sometimes used this fuller form. Preserves the discourse-marker function explicitly. Slightly more old-fashioned register."
+        }
+      ]
+    },
+    {
+      "id": "p16",
+      "wordClass": "content",
+      "pronunciation": "cat · TĀ · ro",
+      "segments": [
+        {
+          "id": "p16s1",
+          "text": "cattāro",
+          "type": "stem",
+          "tooltips": [
+            "Cattāro — the number four. Nominative plural masculine, agreeing with satipaṭṭhānā. Cognate with English four, Latin quattuor, Greek tessares, via PIE *kʷetwóres.",
+            "The number is not arbitrary. The four foundations (kāya / vedanā / citta / dhammā — body / feeling / mind / mental-objects) form a cognitive-meditative framework that subsequent phases of MN10 lay out one by one. This phase NAMES the four; phases 8 onward unpack each."
+          ]
+        }
+      ],
+      "senses": [
+        {
+          "english": "the four",
+          "nuance": "Definite set",
+          "notes": "Most translators use 'the four' here because cattāro is followed by the named referents (satipaṭṭhānā). The definite article is supplied by English convention."
+        },
+        {
+          "english": "four",
+          "nuance": "Bare number",
+          "notes": "Functional equivalent. Loses the implied definiteness but matches the bare Pāli."
+        }
+      ]
+    },
+    {
+      "id": "p17",
+      "wordClass": "content",
+      "isAnchor": true,
+      "pronunciation": "sa · ti · paṭ · ṬHĀ · nā",
+      "segments": [
+        {
+          "id": "p17s1",
+          "text": "sati",
+          "type": "stem",
+          "tooltips": [
+            "Sati — mindfulness, presence, awareness. Cognate with Sanskrit smṛti (memory, remembrance). Root √smṛ (to remember). The Pāli sati keeps the memory-resonance: mindfulness as the faculty of REMEMBERING what is happening, KEEPING IN MIND.",
+            "Theravāda tradition glosses sati as 'apilāpana' — un-floating, keeping things from drifting away. The cognitive function is anti-distraction: holding the object of meditation in the field of awareness so it doesn't slip out. Christian translators reaching for 'mindfulness' borrowed this memory-emphasis explicitly."
+          ]
+        },
+        {
+          "id": "p17s2",
+          "text": "paṭṭhānā",
+          "type": "stem",
+          "tooltips": [
+            "Paṭṭhānā — the most contested half of the compound. Two parses: (1) paṭi + sthā = 'going-toward-and-standing' (foundation, establishment), or (2) upa + sthāna = 'close-attendance' (presencing, attending-near). The compound is doubled-tt because of the consonant assimilation, and that doubling masks which prefix was originally there.",
+            "Bhikkhu Anālayo's monograph defends the upaṭṭhāna parse on the grounds that paṭṭhāna appears only in Abhidhamma texts while upaṭṭhāna is readily visible in the Nikayas and Sanskrit parallels. Bhikkhu Bodhi PHILOLOGICALLY agrees with Anālayo (upaṭṭhāna parse) but his MLDB TRANSLATION keeps 'foundations of mindfulness' for continuity with prior English literature (Soma Thera, Ñāṇaponika). Sujato and Thanissaro follow the upaṭṭhāna parse in their renderings ('kinds of mindfulness meditation' and 'establishings of mindfulness' respectively). The parse decision and the translation choice are separable — don't conflate them."
+          ]
+        }
+      ],
+      "senses": [
+        {
+          "english": "foundations of mindfulness",
+          "nuance": "Bhikkhu Bodhi / MLDB translation choice",
+          "notes": "Bhikkhu Bodhi (MLDB): 'foundations of mindfulness'. Bodhi's TRANSLATION CHOICE preserves the historical English convention (Soma Thera, Ñāṇaponika). His PHILOLOGICAL POSITION, per Wikipedia summarising Anālayo's argument, actually favors the upaṭṭhāna parse — but the established 'foundations' rendering is kept for continuity. Translation choice and parse position are separable decisions."
+        },
+        {
+          "english": "kinds of mindfulness meditation",
+          "nuance": "Bhikkhu Sujato / upaṭṭhāna parse",
+          "notes": "Sujato (SuttaCentral MN10): 'four kinds of mindfulness meditation'. His current rendering. Renders paṭṭhāna as a form of upa-sthāna (close-attendance), foregrounding meditation-as-practice over foundation-as-structure. Aligns with Anālayo's philological defense of the upaṭṭhāna parse."
+        },
+        {
+          "english": "establishings of mindfulness",
+          "nuance": "Ṭhānissaro Bhikkhu / upaṭṭhāna parse",
+          "notes": "Thanissaro Bhikkhu (dhammatalks.org MN10): 'establishings of mindfulness'. His current rendering, evolved from his earlier 'frames of reference' (Wings to Awakening era). The 'establishing' verbal-noun emphasises the active placing-of-attention process, aligning with the upaṭṭhāna parse."
+        }
+      ]
+    }
+  ],
+  "englishStructure": [
+    {
+      "id": "e15",
+      "linkedPaliId": "p15"
+    },
+    {
+      "id": "e16",
+      "linkedSegmentId": "p16s1"
+    },
+    {
+      "id": "e17",
+      "linkedPaliId": "p17"
+    }
+  ]
+}

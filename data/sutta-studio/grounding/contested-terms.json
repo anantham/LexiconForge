@@ -1,0 +1,258 @@
+{
+  "_meta": {
+    "schema": "sutta-studio.grounding.contested-terms@1",
+    "description": "Hand-curated registry of Pāli terms whose translation is genuinely contested across schools/translators. Each entry has parses with primary citations (no LLM-claimed sources). Per docs/sutta-studio/GROUNDING.md Phase 1.",
+    "lastUpdated": "2026-05-14",
+    "verification": "Every URL in this file has been fetched via curl and returned HTTP 200 within 24h of the lastUpdated date. Translator renderings are quoted from sources accessible via the URLs; Wikipedia citations are quoted from article text fetched on 2026-05-14.",
+    "antiPatterns": [
+      "Don't add an entry whose citations are LLM-claimed rather than URL-verified.",
+      "Don't claim a translator renders a term as X without a clickable source.",
+      "When the scholarship genuinely disagrees, surface BOTH positions — don't pick a winner."
+    ]
+  },
+  "satipaṭṭhāna": {
+    "parses": [
+      {
+        "morphology": "sati + paṭṭhāna (paṭi + sthā)",
+        "gloss": "foundation, establishment via 'standing-against'",
+        "summary": "Reads paṭṭhāna as a derivative noun from paṭi-sthā ('to stand against, to set forth'). Yields 'foundation of mindfulness' — the historical translation convention through the 20th century.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "foundations of mindfulness",
+            "context": "MLDB (Middle Length Discourses of the Buddha) — the canonical English MN10",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          }
+        ]
+      },
+      {
+        "morphology": "sati + upaṭṭhāna (upa + sthā)",
+        "gloss": "close-attendance, presencing via 'standing-near'",
+        "summary": "Reads paṭṭhāna as upaṭṭhāna with consonant assimilation (upa-tt-hāna). Yields 'establishment of mindfulness' or 'presence of mindfulness'. Defended philologically by Anālayo on the basis that 'paṭṭhāna' appears only in Abhidhamma texts whereas 'upaṭṭhāna' is readily visible in the Nikayas and Sanskrit parallels.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "kinds of mindfulness meditation",
+            "context": "SuttaCentral MN10 — Sujato's recent translation",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "establishings of mindfulness",
+            "context": "dhammatalks.org MN10 — Thanissaro evolved from his earlier 'frames of reference' rendering to 'establishings'",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "encyclopedicReferences": [
+      {
+        "source": "Wikipedia — Satipatthana",
+        "url": "https://en.wikipedia.org/wiki/Satipatthana",
+        "quotedClaim": "Bhikkhu Anālayo, Bhikkhu Bodhi, and Thanissaro Bhikkhu favor the upaṭṭhāna parsing; traditional Pāli commentary scholars favor the paṭṭhāna parsing. Anālayo argues 'paṭṭhāna' appears only in Abhidhamma texts whereas 'upaṭṭhāna' is readily visible in the Nikayas.",
+        "verified": "2026-05-14"
+      }
+    ],
+    "primaryScholarship": [
+      {
+        "ref": "Anālayo, Bhikkhu. 'Satipaṭṭhāna: The Direct Path to Realization' (Windhorse Publications, 2003)",
+        "url": "https://www.windhorsepublications.com/product/satipatthana-the-direct-path-to-realization/",
+        "verified": "2026-05-14",
+        "note": "Monograph-length defense of the upaṭṭhāna parse. Chapter 1 contains the philological argument."
+      }
+    ],
+    "curatorNote": "Critical care needed: the parse choice (paṭṭhāna vs upaṭṭhāna) and the translation choice ('foundations' vs 'establishments') are separable decisions. Bodhi's MLDB keeps 'foundations' as a translation choice for continuity with prior English literature, even though Bodhi's philological position aligns with Anālayo on upaṭṭhāna. Don't conflate the two."
+  },
+  "dukkha": {
+    "parses": [
+      {
+        "morphology": "du- (bad) + kha (axle-hole)",
+        "gloss": "mechanical metaphor — a wheel whose axle-hole is poorly bored, hence wobble and friction",
+        "summary": "The 'axle-hole' etymology, pedagogically vivid. The metaphor is mechanical (wobble in the wheel of experience) rather than metaphysical.",
+        "encyclopedicReferences": [
+          {
+            "source": "Wikipedia — Duḥkha",
+            "url": "https://en.wikipedia.org/wiki/Dukkha",
+            "quotedClaim": "The word kha, in later Sanskrit meaning 'sky,' 'ether,' or 'space,' was originally the word for 'hole,' particularly an axle hole, with du- meaning 'bad,' resulting in a bumpy ride analogy.",
+            "verified": "2026-05-14"
+          }
+        ]
+      },
+      {
+        "morphology": "duḥ-sthā (standing badly)",
+        "gloss": "phenomenological — uneasiness, being uncomfortable, not-standing-well",
+        "summary": "Less commonly cited but philologically defensible. Foregrounds the felt-quality of dis-ease rather than the mechanical metaphor.",
+        "encyclopedicReferences": [
+          {
+            "source": "Wikipedia — Duḥkha",
+            "url": "https://en.wikipedia.org/wiki/Dukkha",
+            "quotedClaim": "dukkha as derived from duḥ-sthā, 'standing badly', conveys nuances of 'uneasiness' or of being 'uncomfortable'.",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "translatorRenderings": [
+      {
+        "translator": "Bhikkhu Bodhi",
+        "rendering": "unsatisfactoriness (for the bare term in explanatory contexts); 'suffering' for the bare translation",
+        "context": "Bodhi distinguishes the technical-philosophical 'unsatisfactoriness' from the conventional 'suffering' depending on register.",
+        "encyclopedicReferences": [
+          {
+            "source": "Wikipedia — Duḥkha",
+            "url": "https://en.wikipedia.org/wiki/Dukkha",
+            "quotedClaim": "Bhikkhu Bodhi employs 'unsatisfactoriness'.",
+            "verified": "2026-05-14"
+          }
+        ]
+      },
+      {
+        "translator": "Ṭhānissaro Bhikkhu",
+        "rendering": "stress",
+        "context": "Particularly in Dhammacakkappavattana Sutta and related foundational texts.",
+        "encyclopedicReferences": [
+          {
+            "source": "Wikipedia — Duḥkha",
+            "url": "https://en.wikipedia.org/wiki/Dukkha",
+            "quotedClaim": "Thanissaro Bhikkhu uses 'stress' in translations of the Dhammacakkappavattana Sutta.",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "curatorNote": "The 'axle-hole' etymology is the more commonly cited one and is pedagogically powerful — it grounds the abstract concept in a concrete physical metaphor. But the duḥ-sthā derivation is also defensible and shifts the felt-quality emphasis. Modern scholarship (Monier-Williams, Harvey, Anālayo) doesn't fully settle the question."
+  },
+  "nibbāna": {
+    "parses": [
+      {
+        "morphology": "ni- (out) + √vā (to blow) + -na (past participle 'vāna')",
+        "gloss": "blowing out, extinguishment — the cooling of a fire that has gone out",
+        "summary": "The classical etymology. The compound's literal sense is 'extinguished' (passive past participle), referring to the cooling of the three fires (greed, hatred, delusion).",
+        "encyclopedicReferences": [
+          {
+            "source": "Wikipedia — Nirvana (Buddhism)",
+            "url": "https://en.wikipedia.org/wiki/Nibbana",
+            "quotedClaim": "Collins says the word nirvāṇa is from the verbal root vā 'blow' in the form of past participle vāna 'blown', prefixed with the preverb nis meaning 'out'.",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "doctrinalContext": {
+      "name": "The three fires reading",
+      "summary": "Nibbāna as extinguishing of the three unwholesome roots (rāga, dosa, moha). Without this context, 'extinguishment' misreads as nihilistic annihilation.",
+      "encyclopedicReferences": [
+        {
+          "source": "Wikipedia — Nirvana (Buddhism)",
+          "url": "https://en.wikipedia.org/wiki/Nibbana",
+          "quotedClaim": "The Buddhist texts identify these 'three fires' or 'three poisons' as raga (greed, sensuality), dvesha (aversion, hate) and avidyā or moha (ignorance, delusion).",
+          "verified": "2026-05-14"
+        }
+      ]
+    },
+    "translatorRenderings": [
+      {
+        "translator": "Ṭhānissaro Bhikkhu",
+        "rendering": "unbinding",
+        "context": "MN10 translation. Thanissaro's signature rendering; emphasises freedom-from-the-aggregates over the cooling-of-fires metaphor.",
+        "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+        "verified": "2026-05-14"
+      },
+      {
+        "translator": "Bhikkhu Bodhi",
+        "rendering": "Nibbāna (untranslated)",
+        "context": "MLDB MN10. Bodhi preserves nibbāna as a technical term to avoid imported baggage from English equivalents.",
+        "url": "https://suttacentral.net/mn10/en/bodhi",
+        "verified": "2026-05-14"
+      },
+      {
+        "translator": "Bhikkhu Sujato",
+        "rendering": "extinguishment (and 'Nibbana' for proper-noun uses)",
+        "context": "SuttaCentral MN10. Sujato recovers the literal blowing-out metaphor; this aligns with his consistent rendering of the three fires as 'greed, hate, delusion'.",
+        "url": "https://suttacentral.net/mn10/en/sujato",
+        "verified": "2026-05-14"
+      }
+    ],
+    "curatorNote": "Bodhi's untranslated choice and Sujato's 'extinguishment' both reflect philological care; Thanissaro's 'unbinding' is a theological emphasis on freedom-from. All three are defensible. The reader sees the disagreement empirically by following the citation chips."
+  },
+  "ñāya": {
+    "parses": [
+      {
+        "morphology": "√ñā (to know) + -ya (action-noun suffix)",
+        "gloss": "the principle by which one knows; the systematic-procedural way",
+        "summary": "Action-noun from the cognate of Sanskrit nyāya (logical system, method). In Pāli Buddhism the rational-procedural sense is anchored to soteriology — not abstract logic but the logic of liberation.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "true way / method",
+            "context": "MLDB MN10",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "system",
+            "context": "SuttaCentral MN10",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "the right method",
+            "context": "dhammatalks.org MN10",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      },
+      {
+        "morphology": "ñāya as commentarial gloss for ariyaṭṭhaṅgika-magga",
+        "gloss": "the Noble Eightfold Path itself",
+        "summary": "Buddhaghosa's Visuddhimagga and the Aṭṭhakathā tradition gloss ñāya directly as the Noble Eightfold Path. The strongest doctrinal reading: 'attainment of ñāya' = 'arriving at the Eightfold Path'.",
+        "needsVerification": "Visuddhimagga citation pending — Phase 4 commentarial-gloss seed will provide the line-level VRI URL."
+      }
+    ],
+    "curatorNote": "The commentarial reading (Buddhaghosa's gloss) is the strongest doctrinal reading and is what makes this phrase the structural pivot of the MN10 formula chain. The three contemporary translator schools each shade the procedural-technical sense slightly differently."
+  },
+  "sati": {
+    "parses": [
+      {
+        "morphology": "Pāli sati, from Sanskrit √smṛ (to remember)",
+        "gloss": "mindfulness, presence, memory-of",
+        "summary": "Sati keeps the memory-resonance: mindfulness as the faculty of REMEMBERING what is happening, KEEPING IN MIND. The English 'mindfulness' was Rhys Davids' coinage to translate sati while preserving the memory-emphasis.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "mindfulness",
+            "context": "MLDB — the standard English convention",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "mindfulness",
+            "context": "SuttaCentral MN10",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "mindfulness",
+            "context": "dhammatalks.org MN10",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "doctrinalContext": {
+      "name": "Theravāda gloss as apilāpana (un-floating)",
+      "summary": "Theravāda commentaries gloss sati as apilāpana — un-floating, keeping things from drifting away. The cognitive function is anti-distraction: holding the object of meditation in the field of awareness so it doesn't slip out.",
+      "needsVerification": "Visuddhimagga citation pending — Phase 4 commentarial-gloss seed will provide the line-level VRI URL."
+    },
+    "curatorNote": "Translation is uncontested ('mindfulness' is the universal rendering since Rhys Davids), but the meaning of sati within practice has produced a large secondary literature (Anālayo, Wallace, etc.) about how the cognitive function relates to memory, attention, and ethical sensitivity. The contested space is interpretive, not lexical."
+  }
+}

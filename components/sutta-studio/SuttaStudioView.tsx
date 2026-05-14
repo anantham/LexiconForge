@@ -27,9 +27,9 @@ export function SuttaStudioView({
   const [hovered, setHovered] = useState<Focus | null>(null);
   const [hoveredRelation, setHoveredRelation] = useState<string | null>(null);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
-  // Last word/segment we hovered over — keeps the audit panel pinned to the
-  // most recent target even after the cursor moves away. Cleared explicitly
-  // via the panel's ✕ button.
+  // Audit panel target — set by CLICK on a Pāli/English word, not by hover.
+  // Hover gives a tooltip (ephemeral); click commits to the deeper audit view
+  // (persistent until ✕ clicked). Two interaction tiers, one gesture each.
   const [pinnedForAudit, setPinnedForAudit] = useState<Focus | null>(null);
   const [activeSegmentIndices, setActiveSegmentIndices] = useState<Record<string, number>>({});
   // Per-segment tooltip facet index. Click on a Pāli segment cycles through
@@ -53,14 +53,6 @@ export function SuttaStudioView({
   const visiblePhases = phases.slice(0, Math.max(readyPhases, 0));
   const focus = hovered;
   const focusWordId = focus?.kind === 'word' ? focus.wordId : focus?.wordId ?? null;
-
-  // Keep the audit panel pinned to the latest non-null hover target. The panel
-  // itself only renders when settings.auditPanel is on.
-  useEffect(() => {
-    if (hovered && hovered.wordId) {
-      setPinnedForAudit(hovered);
-    }
-  }, [hovered]);
 
   // Derive feature flags from settings
   const showRelationArrows = settings.grammarArrows;
@@ -265,7 +257,10 @@ export function SuttaStudioView({
     );
   }
 
-  // Cycle through senses for a word (searches across all phases)
+  // Cycle through senses for a word (searches across all phases).
+  // Also pins this word to the audit panel — clicking is the deliberate
+  // gesture that commits to deeper inspection (vs hover, which is ephemeral
+  // tooltip). One click does both: cycles meaning AND opens audit panel.
   const cycle = (wordId: string, phaseId: string) => {
     const phase = visiblePhases.find((p) => p.id === phaseId);
     const word = phase?.paliWords.find((w) => w.id === wordId);
@@ -276,6 +271,7 @@ export function SuttaStudioView({
       const next = (current + 1) % word.senses.length;
       return { ...prev, [key]: next };
     });
+    setPinnedForAudit({ kind: 'word', phaseId, wordId });
   };
 
   // Cycle through segment-level senses (for compound words with per-segment meanings)
@@ -291,6 +287,9 @@ export function SuttaStudioView({
           const next = (current + 1) % seg.senses!.length;
           return { ...prev, [key]: next };
         });
+        // Pin parent word to audit panel — clicking segment commits to the
+        // word view (audit panel groups senses by parent word, not segment).
+        setPinnedForAudit({ kind: 'word', phaseId, wordId: word.id });
         return;
       }
     }

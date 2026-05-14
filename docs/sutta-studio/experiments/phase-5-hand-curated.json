@@ -1,0 +1,130 @@
+{
+  "_comment": "Phase-5 hand-polished from the v11 Gemini Flash draft (phase-5-v11-output.json). Fourth dative-of-purpose in the satipaṭṭhāna formula chain (after phase-2 visuddhiyā, phase-3 samatikkamāya, phase-4 atthaṅgamāya; phase-6 sacchikiriyāya follows). Curated 2026-05-14 by Aditya + Claude Opus 4.7 in pipeline+polish mode, post-phantom-purge format (no morph/epistemicBasis/confidence fields). CORRECTED 2026-05-14 via GROUNDING Phase 1 back-apply: my third ñāya sense was attributed to 'Commentarial / Buddhaghosa' (the Vism gloss as ariyaṭṭhaṅgika-magga) — accurate scholarship but not a translator-tradition rendering. Replaced with Thanissaro's verified 'the right method' (dhammatalks.org MN10, fetched 2026-05-14). The Buddhaghosa reading stays in the tooltip as 'commentarial tradition' with explicit 'Visuddhimagga citation pending Phase 4' framing — separates verifiable translator-school claims from pending-verification commentarial claims.",
+  "id": "phase-5",
+  "canonicalSegmentIds": [
+    "mn10:2.1"
+  ],
+  "paliWords": [
+    {
+      "id": "p11",
+      "wordClass": "content",
+      "pronunciation": "ñā · YAS · sa",
+      "segments": [
+        {
+          "id": "p11s1",
+          "text": "ñāya",
+          "type": "stem",
+          "tooltips": [
+            "Ñāya — the technical Buddhist term for 'system' or 'method', but with weight: in the commentaries (Visuddhimagga, Aṭṭhakathā), ñāya is glossed as the Noble Eightfold Path itself. So 'attainment of ñāya' reads as 'reaching the path'.",
+            "Root √ñā (to know) + ya (action-noun suffix). Literally 'a knowing' or 'the principle by which one knows'. Cognate with Sanskrit nyāya (logic, the rational system). In Pāli Buddhism the rational sense is preserved but anchored to soteriology — not abstract logic, but the logic of liberation."
+          ]
+        },
+        {
+          "id": "p11s2",
+          "text": "ssa",
+          "type": "suffix",
+          "tooltips": [
+            "The -ssa ending is genitive singular — 'of the [one thing]'. Marks the shift in the formula chain: phases 2-4 used -ānaṁ (genitive plural — of beings, of griefs, of sufferings, many things in the world). Phase-5 and phase-6 use -ssa (singular — of the path, of nibbāna, the one transcendent goal).",
+            "The grammatical number tracks the conceptual movement: from world-as-multiplicity (-ānaṁ) to path-as-unity (-ssa). The Buddha's vocabulary scaffolding does the work — readers feel the shift without being told."
+          ],
+          "relation": {
+            "targetWordId": "p12",
+            "type": "ownership",
+            "label": "Attainment OF"
+          }
+        }
+      ],
+      "senses": [
+        {
+          "english": "of the true way",
+          "nuance": "Bhikkhu Bodhi",
+          "notes": "Bhikkhu Bodhi (MLDB): 'true way' / 'method'. The systematic path-as-procedure. Verified rendering at suttacentral.net/mn10/en/bodhi."
+        },
+        {
+          "english": "of the system",
+          "nuance": "Bhikkhu Sujato",
+          "notes": "Sujato (SuttaCentral MN10): 'system'. Echoes the cognate Sanskrit nyāya (logical system) while staying within Pāli Buddhism's soteriological frame. Verified rendering at suttacentral.net/mn10/en/sujato."
+        },
+        {
+          "english": "of the right method",
+          "nuance": "Ṭhānissaro Bhikkhu",
+          "notes": "Thanissaro (dhammatalks.org MN10): 'the right method'. Aligns with his Thai Forest framing of practice-as-method. Verified rendering at dhammatalks.org/suttas/MN/MN10.html."
+        }
+      ]
+    },
+    {
+      "id": "p12",
+      "wordClass": "content",
+      "isAnchor": true,
+      "pronunciation": "a · dhi · ga · MĀ · ya",
+      "segments": [
+        {
+          "id": "p12s1",
+          "text": "adhi",
+          "type": "prefix",
+          "tooltips": [
+            "Prefix adhi- meaning 'onto', 'toward', 'over and above'. Directional intensifier — turns simple 'going' (gam) into 'going-toward-and-reaching'. Same prefix in adhipati (overlord, one-who-stands-over), adhiṭṭhāna (determination, standing-upon), adhipaññā (higher wisdom).",
+            "In the soteriological lexicon, adhi- often marks the experiential/realized dimension (vs. mere theoretical understanding). adhi-gama (reaching) pairs with pari-yatti (taking-up, theoretical mastery) — the foundational adhigama/pariyatti pair distinguishes direct realization from textual learning."
+          ]
+        },
+        {
+          "id": "p12s2",
+          "text": "gam",
+          "type": "root",
+          "tooltips": [
+            "The root √gam means 'to go'. Cognate with English 'come' via PIE *gʷem-. Productive across the Pāli verbal system: gacchati (he goes), gata (gone), āgata (come), saṁgam (assembly).",
+            "Third -gama compound in the formula. Phase-3 had samatikkama (sam+ati+kam, surmounting-going — going over and across). Phase-4 had atthaṅgama (attha+gam, setting-going — going into disappearance). Phase-5 has adhigama (adhi+gam, reaching-going — going up and onto). All three are masculine action-nouns from √gam; the rhythm of the formula partly comes from this -gama parallelism."
+          ]
+        },
+        {
+          "id": "p12s3",
+          "text": "āya",
+          "type": "suffix",
+          "tooltips": [
+            "The -āya ending is dative-singular masculine — 'for the purpose of'. Adhigama is a masculine action-noun; -āya marks it as the goal-purpose of the practice. Fourth dative-of-purpose in the chain: phase-2's visuddhiyā ('for purification'), phase-3's samatikkamāya ('for surmounting'), phase-4's atthaṅgamāya ('for disappearance'), this phase's adhigamāya ('for attainment'), and phase-6's sacchikiriyāya ('for realization').",
+            "Five 'for' statements stacked. The rhythm is liturgical — when chanted in Pāli, the recurring -āya creates a meditative cadence that mirrors the directionality of practice itself."
+          ]
+        }
+      ],
+      "senses": [
+        {
+          "english": "attainment",
+          "nuance": "Bhikkhu Bodhi / standard",
+          "notes": "Bhikkhu Bodhi's MLDB and most contemporary translators. Renders the directed-reaching sense cleanly. Reads naturally as the practical goal of the meditator: not vague aspiration but actual reaching."
+        },
+        {
+          "english": "realization",
+          "nuance": "Sujato / experiential",
+          "notes": "Sujato (SuttaCentral): 'for realizing the system'. Foregrounds the experiential dimension over the bare 'getting'. Closer to how adhigama functions in the adhigama/pariyatti pair — direct realization vs. textual mastery."
+        },
+        {
+          "english": "discovering",
+          "nuance": "Thanissaro / process-emphasis",
+          "notes": "Thanissaro Bhikkhu sometimes uses 'discovery' for adhigama — emphasises that what is reached was always there; the work is finding it, not constructing it. Doctrinally aligned with the standard line that nibbāna is unconditioned and timeless: it isn't produced by practice, only uncovered."
+        }
+      ]
+    }
+  ],
+  "englishStructure": [
+    {
+      "id": "g1",
+      "label": "for the",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e11",
+      "linkedSegmentId": "p12s2"
+    },
+    {
+      "id": "g2",
+      "label": "of the",
+      "isGhost": true,
+      "ghostKind": "required"
+    },
+    {
+      "id": "e12",
+      "linkedSegmentId": "p11s1"
+    }
+  ]
+}
