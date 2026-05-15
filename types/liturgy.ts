@@ -29,6 +29,51 @@ export type Witness = {
   url?: string;
   /** Optional copyright/license posture so we can render attribution honestly. */
   license?: string;
+  /**
+   * Word-level alignment from this English witness back to the segment's Pāli
+   * words. Parallel-indexed to the witness's whitespace-split word array;
+   * `alignTo[i]` is the index of the Pāli word (in the segment's `words[]`)
+   * that English word `i` corresponds to, or `-1` for no alignment (articles,
+   * conjunctions, supplied English with no Pāli source).
+   *
+   * Multiple English words can map to the same Pāli word (n-to-1 is common —
+   * e.g., "Fully Self-Enlightened One" all aligns to *sammā-sambuddhassa*).
+   */
+  alignTo?: number[];
+};
+
+/**
+ * A morpheme is a sub-unit of a Pāli word — root, prefix, suffix, or stem.
+ * Each morpheme is independently hover-targetable. Mirrors Sutta Studio's
+ * `WordSegment` pattern (types/suttaStudio.ts) so the same hover-glimpse
+ * aesthetic carries over.
+ *
+ * Example: the word `Namo` has two morphemes:
+ *   - {text: 'Nam', type: 'root', gloss: 'to bow', root: '√nam'}
+ *   - {text: 'o',   type: 'suffix', gloss: 'nominative singular ending'}
+ *
+ * The renderer splits the surface form by morpheme `text`, emits one hover
+ * span per morpheme, each with its own tooltip.
+ *
+ * Morphemes must be listed in order and their concatenation must reproduce
+ * the surface form (case-insensitive). If they don't, the whole word falls
+ * back to the word-level tooltip.
+ */
+export type WordMorpheme = {
+  /** The literal surface fragment, matching a substring of WordGloss.form (case-insensitive). */
+  text: string;
+  /** Kind of morpheme. */
+  type: 'root' | 'prefix' | 'suffix' | 'stem';
+  /** Concise meaning shown in the tooltip. */
+  gloss: string;
+  /** Pronunciation respelling for this morpheme specifically (optional; usually on the root). */
+  pronunciation?: string;
+  /** Verbal root marker — e.g. √nam, √budh — when applicable. */
+  root?: string;
+  /** Optional further note (etymology trace, sandhi behavior). */
+  note?: string;
+  /** Per-morpheme grounding citations. */
+  citations?: import('./suttaStudio').Citation[];
 };
 
 export type WordGloss = {
@@ -53,6 +98,12 @@ export type WordGloss = {
   gloss: string;
   /** Optional further note (doctrinal context). */
   note?: string;
+  /**
+   * Per-morpheme breakdown for sub-token hover. When present, the renderer
+   * shows separate tooltips per morpheme (each part of the word independently).
+   * When absent, the whole word gets a single hover tooltip from etymology+gloss.
+   */
+  morphemes?: WordMorpheme[];
   /**
    * Citations grounding the etymology / gloss / pronunciation claims for
    * this word. Reuses the existing Citation type from types/suttaStudio.ts —

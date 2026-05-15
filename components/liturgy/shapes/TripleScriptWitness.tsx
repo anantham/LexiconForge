@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import type {
   TripleScriptWitnessSection,
   TripleScriptWitnessSegment,
   WordGloss,
+  WordMorpheme,
 } from '../../../types/liturgy';
 import { Tooltip } from '../../sutta-studio/Tooltip';
 import { ProseBlock } from '../ProseBlock';
@@ -75,20 +76,35 @@ function matchWord(token: string, idx: Map<string, WordGloss>): WordGloss | unde
 // SegmentRow — one chant phrase: Pāli line + English line, paired
 // ─────────────────────────────────────────────────────────────────────────────
 
-const HoverWord: React.FC<{
-  text: string;
-  word: WordGloss;
-}> = ({ text, word }) => {
-  const [open, setOpen] = useState(false);
-  // The tooltip body: pronunciation + etymology + gloss in a compact stack.
-  const tooltipText = [
-    word.pronunciation ? `[${word.pronunciation}]` : '',
-    word.etymology ?? '',
-    word.gloss,
-  ]
-    .filter(Boolean)
-    .join('\n');
+/**
+ * Split a Pāli surface token by a list of morphemes. Each output slice carries
+ * the original token's casing (so "Namo" → "Nam" + "o", not "nam" + "o").
+ *
+ * Returns null if the morpheme texts don't reconstruct the surface (which
+ * means morphemes are stale relative to the form — falls back to word-level
+ * hover so we never render incorrect splits).
+ */
+function splitByMorphemes(
+  surface: string,
+  morphemes: WordMorpheme[]
+): Array<{ text: string; morpheme: WordMorpheme }> | null {
+  const out: Array<{ text: string; morpheme: WordMorpheme }> = [];
+  const surfaceLower = surface.toLowerCase();
+  let cursor = 0;
+  for (const m of morphemes) {
+    const mText = m.text.toLowerCase();
+    if (surfaceLower.slice(cursor, cursor + mText.length) !== mText) {
+      return null;
+    }
+    out.push({ text: surface.slice(cursor, cursor + mText.length), morpheme: m });
+    cursor += mText.length;
+  }
+  if (cursor !== surface.length) return null;
+  return out;
+}
 
+const HoverSpan: React.FC<{ text: string; tooltipText: string }> = ({ text, tooltipText }) => {
+  const [open, setOpen] = useState(false);
   return (
     <span
       className="relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors"
@@ -96,11 +112,47 @@ const HoverWord: React.FC<{
       onMouseLeave={() => setOpen(false)}
     >
       {text}
-      <AnimatePresence>
-        {open && <Tooltip text={tooltipText} />}
-      </AnimatePresence>
+      <AnimatePresence>{open && <Tooltip text={tooltipText} />}</AnimatePresence>
     </span>
   );
+};
+
+function tooltipForMorpheme(m: WordMorpheme): string {
+  const parts: string[] = [];
+  if (m.root) parts.push(m.root);
+  if (m.pronunciation) parts.push(`[${m.pronunciation}]`);
+  parts.push(`(${m.type})`);
+  parts.push(m.gloss);
+  return parts.filter(Boolean).join(' · ');
+}
+
+function tooltipForWord(w: WordGloss): string {
+  return [w.pronunciation ? `[${w.pronunciation}]` : '', w.etymology ?? '', w.gloss]
+    .filter(Boolean)
+    .join(' · ');
+}
+
+const HoverWord: React.FC<{
+  text: string;
+  word: WordGloss;
+}> = ({ text, word }) => {
+  // If the word has morphemes and they cleanly reconstruct the surface,
+  // render one hover span per morpheme — each independently tooltipped.
+  // Else fall back to a single word-level hover (avoids ever rendering
+  // morphemes that don't match the actual chant token).
+  if (word.morphemes && word.morphemes.length > 0) {
+    const split = splitByMorphemes(text, word.morphemes);
+    if (split) {
+      return (
+        <>
+          {split.map((piece, i) => (
+            <HoverSpan key={i} text={piece.text} tooltipText={tooltipForMorpheme(piece.morpheme)} />
+          ))}
+        </>
+      );
+    }
+  }
+  return <HoverSpan text={text} tooltipText={tooltipForWord(word)} />;
 };
 
 const PaliLine: React.FC<{
@@ -112,6 +164,11 @@ const PaliLine: React.FC<{
   const tokens = tokenize(text);
   const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
 
+  // Track surface-Pāli-word position separately from token index (which
+  // includes whitespace/punctuation "gap" tokens). data-pali-idx is what
+  // alignment lines use to find each word.
+  let paliSurfaceIdx = -1;
+
   return (
     <div
       className={`text-slate-100 leading-loose ${sizeClass}`}
@@ -119,13 +176,94 @@ const PaliLine: React.FC<{
     >
       {tokens.map((t, i) => {
         if (t.kind === 'gap') return <React.Fragment key={i}>{t.text}</React.Fragment>;
+        paliSurfaceIdx += 1;
         const word = matchWord(t.text, idx);
-        if (!word) return <React.Fragment key={i}>{t.text}</React.Fragment>;
-        return <HoverWord key={i} text={t.text} word={word} />;
+        return (
+          <span key={i} data-pali-idx={paliSurfaceIdx} className="inline-block">
+            {word ? <HoverWord text={t.text} word={word} /> : t.text}
+          </span>
+        );
       })}
     </div>
   );
 };
+
+/** Tokenize English on whitespace, preserving punctuation as part of each word. */
+function tokenizeEnglish(text: string): string[] {
+  return text.split(/(\s+)/).filter((s) => s.length > 0);
+}
+
+const EnglishLine: React.FC<{ text: string }> = ({ text }) => {
+  const tokens = tokenizeEnglish(text);
+  let engIdx = -1;
+  return (
+    <>
+      {tokens.map((t, i) => {
+        if (/^\s+$/.test(t)) return <React.Fragment key={i}>{t}</React.Fragment>;
+        engIdx += 1;
+        return (
+          <span key={i} data-en-idx={engIdx} className="inline-block">
+            {t}
+          </span>
+        );
+      })}
+    </>
+  );
+};
+
+type Line = { x1: number; y1: number; x2: number; y2: number };
+
+function computeAlignmentLines(
+  container: HTMLDivElement,
+  alignTo: number[] | undefined
+): Line[] {
+  if (!alignTo) return [];
+  const cRect = container.getBoundingClientRect();
+  const paliEls = container.querySelectorAll<HTMLElement>('[data-pali-idx]');
+  const enEls = container.querySelectorAll<HTMLElement>('[data-en-idx]');
+  const lines: Line[] = [];
+  for (let engIdx = 0; engIdx < alignTo.length; engIdx++) {
+    const paliIdx = alignTo[engIdx];
+    if (paliIdx < 0) continue;
+    const paliEl = paliEls[paliIdx];
+    const enEl = enEls[engIdx];
+    if (!paliEl || !enEl) continue;
+    const pr = paliEl.getBoundingClientRect();
+    const er = enEl.getBoundingClientRect();
+    lines.push({
+      x1: pr.left + pr.width / 2 - cRect.left,
+      y1: pr.bottom - cRect.top,
+      x2: er.left + er.width / 2 - cRect.left,
+      y2: er.top - cRect.top,
+    });
+  }
+  return lines;
+}
+
+const AlignmentLines: React.FC<{ lines: Line[] }> = ({ lines }) => (
+  <svg
+    className="absolute inset-0 pointer-events-none"
+    style={{ width: '100%', height: '100%' }}
+    aria-hidden="true"
+  >
+    {lines.map((l, i) => {
+      const dy = l.y2 - l.y1;
+      const cp1y = l.y1 + dy * 0.5;
+      const cp2y = l.y2 - dy * 0.5;
+      const d = `M ${l.x1},${l.y1} C ${l.x1},${cp1y} ${l.x2},${cp2y} ${l.x2},${l.y2}`;
+      return (
+        <path
+          key={i}
+          d={d}
+          fill="none"
+          stroke="rgb(110, 231, 183)"
+          strokeOpacity="0.3"
+          strokeWidth="1.25"
+        />
+      );
+    })}
+  </svg>
+);
 
 const SegmentRow: React.FC<{
   segment: TripleScriptWitnessSegment;
@@ -139,14 +277,33 @@ const SegmentRow: React.FC<{
   );
   const [witnessIdx, setWitnessIdx] = useState(witnessStart);
   const currentWitness = segment.witnesses[witnessIdx];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [lines, setLines] = useState<Line[]>([]);
 
   const cycleWitness = () => {
     if (segment.witnesses.length <= 1) return;
     setWitnessIdx((w) => (w + 1) % segment.witnesses.length);
   };
 
+  // Compute alignment lines after layout, recompute on resize / witness change.
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+    const compute = () => {
+      if (!containerRef.current) return;
+      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo));
+    };
+    compute();
+    const raf = requestAnimationFrame(compute);
+    const onResize = () => compute();
+    window.addEventListener('resize', onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo]);
+
   return (
-    <div className="mb-8" id={segment.id}>
+    <div className="mb-8 relative" id={segment.id} ref={containerRef}>
       {/* Pali line */}
       <div className="text-center">
         {script === 'roman' ? (
@@ -170,7 +327,7 @@ const SegmentRow: React.FC<{
           type="button"
           onClick={cycleWitness}
           disabled={segment.witnesses.length <= 1}
-          className="group block w-full text-center cursor-pointer disabled:cursor-default mt-2 px-2 py-1 rounded hover:bg-slate-900/40 transition-colors"
+          className="group block w-full text-center cursor-pointer disabled:cursor-default mt-6 px-2 py-1 rounded hover:bg-slate-900/40 transition-colors"
           title={
             segment.witnesses.length > 1
               ? `Click to cycle witness (${witnessIdx + 1}/${segment.witnesses.length})`
@@ -181,45 +338,28 @@ const SegmentRow: React.FC<{
             className="text-slate-300 italic leading-relaxed text-base md:text-lg"
             style={{ fontFamily: SERIF_STACK }}
           >
-            {currentWitness.text}
+            <EnglishLine text={currentWitness.text} />
           </div>
         </button>
       )}
+
+      {/* SVG alignment overlay */}
+      <AlignmentLines lines={lines} />
     </div>
   );
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Section — wraps multiple segments + script cycle + repetitions
+// Section — wraps multiple segments + repetition marker + inline notes
 // ─────────────────────────────────────────────────────────────────────────────
-
-const Dots: React.FC<{ active: number; total: number }> = ({ active, total }) => {
-  if (total <= 1) return null;
-  return (
-    <span className="inline-flex gap-1 items-center align-middle">
-      {Array.from({ length: total }).map((_, i) => (
-        <span
-          key={i}
-          className={`block w-1 h-1 rounded-full ${
-            i === active ? 'bg-emerald-400' : 'bg-slate-700'
-          }`}
-        />
-      ))}
-    </span>
-  );
-};
 
 export const TripleScriptWitness: React.FC<{
   section: TripleScriptWitnessSection;
   primaryWitness: string;
   isOpening?: boolean;
 }> = ({ section, primaryWitness, isOpening = false }) => {
-  const hasDeva = section.segments.some((s) => s.paliDeva);
-  const scripts: Array<'roman' | 'deva'> = hasDeva ? ['roman', 'deva'] : ['roman'];
-  const [scriptIdx, setScriptIdx] = useState(0);
-  const [notesOpen, setNotesOpen] = useState(false);
-  const currentScript = scripts[scriptIdx];
-
+  // Script: Pāli roman only. Devanāgarī availability is in the data and may
+  // surface later as a user preference, not a per-section toggle.
   const sectionClass = isOpening
     ? 'min-h-[80vh] flex flex-col items-center justify-center px-6 py-16'
     : 'pt-16 pb-16 px-6 border-t border-slate-900';
@@ -233,53 +373,25 @@ export const TripleScriptWitness: React.FC<{
             <SegmentRow
               key={seg.id}
               segment={seg}
-              script={currentScript}
+              script="roman"
               primaryWitness={primaryWitness}
               large={isOpening}
             />
           ))}
         </div>
 
-        {/* Three dots for repetition (3×) — visual rhythm, not parenthetical */}
+        {/* Three dots for repetition (3×) — visual rhythm */}
         {section.repetitions && section.repetitions > 1 && (
-          <div className="text-center text-slate-500 text-2xl tracking-[0.5em] mt-8 mb-4 select-none">
+          <div className="text-center text-slate-500 text-2xl tracking-[0.5em] mt-10 mb-4 select-none">
             {'•'.repeat(section.repetitions).split('').join(' ')}
           </div>
         )}
 
-        {/* Section-level footer: script cycle hint + notes affordance */}
-        <div className="mt-8 flex items-center justify-center gap-6 text-xs text-slate-500">
-          {scripts.length > 1 && (
-            <button
-              type="button"
-              onClick={() => setScriptIdx((s) => (s + 1) % scripts.length)}
-              className="flex items-center gap-2 hover:text-emerald-300 transition-colors"
-              title="Cycle script (Pāli ↔ Devanāgarī)"
-            >
-              <Dots active={scriptIdx} total={scripts.length} />
-              <span className="uppercase tracking-widest">
-                {currentScript === 'roman' ? 'Pāli roman' : 'Devanāgarī'}
-              </span>
-            </button>
-          )}
-          {section.commentary && (
-            <>
-              {scripts.length > 1 && <span className="text-slate-700">·</span>}
-              <button
-                type="button"
-                onClick={() => setNotesOpen((v) => !v)}
-                className="uppercase tracking-widest hover:text-emerald-300 transition-colors"
-              >
-                {notesOpen ? '× notes' : 'notes'}
-              </button>
-            </>
-          )}
-        </div>
-
-        {notesOpen && section.commentary && (
+        {/* Chanter's note — inline, low-opacity, no toggle/label */}
+        {section.commentary && (
           <ProseBlock
             text={section.commentary}
-            className="space-y-3 text-slate-400 text-sm leading-relaxed mt-6 max-w-2xl mx-auto pl-4 border-l border-slate-800"
+            className="space-y-3 text-slate-500 text-xs italic leading-relaxed mt-12 max-w-2xl mx-auto text-center"
           />
         )}
       </div>

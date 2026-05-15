@@ -30,18 +30,31 @@ const HOMAGE_WORDS: WordGloss[] = [
     form: 'namo', scriptAlt: 'नमो', pronunciation: 'nah-MOH', root: '√nam',
     etymology: '√nam "to bow, to bend"', gloss: 'homage, reverence',
     citations: [dpdCitation('namo'), pronCite],
+    morphemes: [
+      { text: 'nam', type: 'root', root: '√nam', gloss: '"to bow, to bend"', pronunciation: 'nah', citations: [dpdCitation('namati')] },
+      { text: 'o', type: 'suffix', gloss: 'nominative singular masculine ending — turns the root into "an act of bowing / homage"', pronunciation: 'MOH' },
+    ],
   },
   {
     form: 'tassa', scriptAlt: 'तस्स', pronunciation: 'TAH-sah',
     etymology: 'dative singular of *ta-* (demonstrative)',
     gloss: 'to him, to that one',
     citations: [dpdCitation('ta'), pronCite],
+    morphemes: [
+      { text: 'ta', type: 'stem', gloss: 'demonstrative pronoun "that, he"', pronunciation: 'TAH', citations: [dpdCitation('ta')] },
+      { text: 'ssa', type: 'suffix', gloss: 'dative/genitive singular — "to him, of him"', pronunciation: 'sah' },
+    ],
   },
   {
     form: 'bhagavato', scriptAlt: 'भगवतो', pronunciation: 'bah-gah-VAH-toh',
     etymology: '*bhaga* "fortune, share" + *-vant* "possessing"',
     gloss: 'the Exalted, the Blessed, the Revered One',
     citations: [dpdCitation('bhagavant'), pronCite],
+    morphemes: [
+      { text: 'bhaga', type: 'stem', gloss: '"fortune, share, prosperity"', pronunciation: 'bah-gah', citations: [dpdCitation('bhaga')] },
+      { text: 'va', type: 'suffix', gloss: 'possessive — from *-vant* (sandhi-shortened)', pronunciation: 'VAH' },
+      { text: 'to', type: 'suffix', gloss: 'dative singular ending', pronunciation: 'toh' },
+    ],
   },
   {
     form: 'arahato', scriptAlt: 'अरहतो', pronunciation: 'ah-rah-HAH-toh',
@@ -52,12 +65,20 @@ const HOMAGE_WORDS: WordGloss[] = [
       pronCite,
       ungroundedCitation('commentarial etymology needs PED check'),
     ],
+    morphemes: [
+      { text: 'araha', type: 'stem', gloss: '"worthy, deserving"', pronunciation: 'ah-rah-HAH', citations: [dpdCitation('araha')] },
+      { text: 'to', type: 'suffix', gloss: 'dative singular ending', pronunciation: 'toh' },
+    ],
   },
   {
     form: 'sammā', scriptAlt: 'सम्मा', pronunciation: 'sahm-MAH',
     etymology: '*sam-* "complete" + *-ā* (adverbial)',
     gloss: 'perfectly, completely, rightly',
     citations: [dpdCitation('sammā'), pronCite],
+    morphemes: [
+      { text: 'sam', type: 'prefix', gloss: 'intensifier — "completely, together"', pronunciation: 'sahm', citations: [dpdCitation('saṁ')] },
+      { text: 'mā', type: 'suffix', gloss: 'adverbial ending — turns the prefix into "completely, rightly"', pronunciation: 'MAH' },
+    ],
   },
   {
     form: 'sam-', scriptAlt: 'सम्', pronunciation: 'sahm',
@@ -71,6 +92,11 @@ const HOMAGE_WORDS: WordGloss[] = [
     etymology: '√budh "to wake, to know" → *buddha* (past participle) "awakened"; *-assa* dative',
     gloss: 'of the Awakened One',
     citations: [dpdCitation('buddha'), pronCite],
+    morphemes: [
+      { text: 'buddh', type: 'root', root: '√budh', gloss: '"to wake, to know" — past participle stem', pronunciation: 'BOO-dh', citations: [dpdCitation('bujjhati')] },
+      { text: 'a', type: 'suffix', gloss: 'past participle marker — "awakened"', pronunciation: 'ah' },
+      { text: 'ssa', type: 'suffix', gloss: 'dative singular — "of/to the awakened one"', pronunciation: 'sah' },
+    ],
   },
 ];
 
@@ -149,7 +175,7 @@ export const morningChants: LiturgyDoc = {
     canonical: [
       { label: 'Khp 1', url: 'https://suttacentral.net/kp1' },
       { label: 'Khp 2', url: 'https://suttacentral.net/kp2' },
-      { label: 'Dhp 183', url: 'https://suttacentral.net/dhp183-185' },
+      { label: 'Dhp 183', url: 'https://suttacentral.net/dhp183/en/sujato' },
     ],
     ritual: [{ label: 'MAPLE chant sheet, 2025-05-25' }],
   },
@@ -167,18 +193,35 @@ export const morningChants: LiturgyDoc = {
           pali: 'Namo tassa bhagavato arahato sammā-sambuddhassa.',
           paliDeva: 'नमो तस्स भगवतो अरहतो सम्मासम्बुद्धस्स ॥',
           witnesses: [
-            { by: 'MAPLE', text: 'Homage to the Exalted, noble, and Fully Self-Enlightened One.' },
+            {
+              by: 'MAPLE',
+              text: 'Homage to the Exalted, noble, and Fully Self-Enlightened One.',
+              // Words:  Homage to the Exalted, noble, and Fully Self-Enlightened One.
+              // Idx:     0      1  2    3       4      5    6     7              8
+              // Pāli words (HOMAGE_WORDS): namo(0) tassa(1) bhagavato(2) arahato(3)
+              //                            sammā(4) sam-(5) buddhassa(6)
+              // Note: HOMAGE_WORDS has 7 entries but the chant "sammā-sambuddhassa"
+              // is one written word that decomposes into sammā + sam + buddhassa.
+              // The Pāli word index here refers to position in HOMAGE_WORDS.
+              alignTo: [0, 1, -1, 2, 3, -1, 4, 4, 4],
+            },
             {
               by: 'Sujato (SuttaCentral)',
               text: 'Homage to the Blessed One, the perfected one, the fully awakened Buddha.',
               url: 'https://suttacentral.net/kp1/en/sujato',
               license: 'CC0',
+              // Words: Homage to the Blessed One, the perfected one, the fully awakened Buddha.
+              //         0      1  2    3      4   5    6        7    8   9     10        11
+              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 6, 6],
             },
             {
               by: 'Thanissaro (Access to Insight)',
               text: 'Homage to the Blessed One, the Worthy One, the Rightly Self-awakened One.',
               url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html',
               license: 'CC BY-NC',
+              // Words: Homage to the Blessed One, the Worthy One, the Rightly Self-awakened One.
+              //         0      1  2    3      4   5    6      7  8    9       10              11
+              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 6, 6],
             },
           ],
           words: HOMAGE_WORDS,
@@ -421,7 +464,7 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'सब्ब पापस्स अकरणं,',
           witnesses: [
             { by: 'MAPLE', text: 'To do no evil,' },
-            { by: 'Sujato (SuttaCentral)', text: 'Not to do any evil;', url: 'https://suttacentral.net/dhp183-185/en/sujato', license: 'CC0' },
+            { by: 'Sujato (SuttaCentral)', text: 'Not to do any evil;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0' },
             { by: 'Buddharakkhita (BPS)', text: 'To avoid all evil,', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link' },
           ],
           words: [
@@ -436,7 +479,7 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'कुसलस्स उपसम्पदा;',
           witnesses: [
             { by: 'MAPLE', text: 'to practice good,' },
-            { by: 'Sujato (SuttaCentral)', text: 'to embrace the good;', url: 'https://suttacentral.net/dhp183-185/en/sujato', license: 'CC0' },
+            { by: 'Sujato (SuttaCentral)', text: 'to embrace the good;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0' },
             { by: 'Buddharakkhita (BPS)', text: 'to cultivate good,', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link' },
           ],
           words: [
@@ -450,7 +493,7 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'सचित्तपरियोदपनं,',
           witnesses: [
             { by: 'MAPLE', text: 'and to purify one\'s own mind;' },
-            { by: 'Sujato (SuttaCentral)', text: 'to purify one\'s mind:', url: 'https://suttacentral.net/dhp183-185/en/sujato', license: 'CC0' },
+            { by: 'Sujato (SuttaCentral)', text: 'to purify one\'s mind:', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0' },
             { by: 'Buddharakkhita (BPS)', text: 'and to cleanse one\'s mind —', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link' },
           ],
           words: [
@@ -464,7 +507,7 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'एतं बुद्धान सासनं॥',
           witnesses: [
             { by: 'MAPLE', text: 'this is the teaching of the Buddhas.' },
-            { by: 'Sujato (SuttaCentral)', text: 'this is the instruction of the Buddhas.', url: 'https://suttacentral.net/dhp183-185/en/sujato', license: 'CC0' },
+            { by: 'Sujato (SuttaCentral)', text: 'this is the instruction of the Buddhas.', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0' },
             { by: 'Buddharakkhita (BPS)', text: 'this is the teaching of the Buddhas.', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link' },
           ],
           words: [
