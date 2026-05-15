@@ -1,0 +1,56 @@
+[    2460ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5183/node_modules/.vite/deps/react-dom_client.js?v=4bfa097e:17994
+[    2468ms] [LOG] [Telemetry] Initialized (session: e695195e) @ http://localhost:5183/services/telemetryService.ts:33
+[    2484ms] [LOG] [ApiMetrics] Service initialized @ http://localhost:5183/services/apiMetricsService.ts?t=1778884467934:50
+[    2529ms] [LOG] ✅ [DiffAnalysisService] Translator instance injected @ http://localhost:5183/services/diff/DiffAnalysisService.ts:227
+[    2798ms] [LOG] [Connection] Version check: Status: ok | DB Version: 16 | App Version: 16 | Can Proceed: true | Requires Backup: false @ http://localhost:5183/services/db/core/connection.ts:46
+[    2798ms] [LOG] [Store:init +2475ms Δ0ms] initializeStore – begin @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    2799ms] [LOG] [Store:init +2475ms Δ0ms] loadSettings invoked @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    2799ms] [LOG] [Store:init +2475ms Δ0ms] loadPromptTemplates start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    2802ms] [LOG] [Connection] Version check: Status: ok | DB Version: 16 | App Version: 16 | Can Proceed: true | Requires Backup: false @ http://localhost:5183/services/db/core/connection.ts:46
+[    2802ms] [LOG] [Store:init +2478ms Δ3ms] initializeStore – joined in-flight init @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    2802ms] [LOG] [DictionaryCache] Loaded 0 cached entries into memory @ http://localhost:5183/services/localDictionaryCache.ts:42
+[    2814ms] [LOG] [Store:init +2490ms Δ12ms] loadPromptTemplates resolved {count: 2, hasActive: true} @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:32
+[    2816ms] [LOG] [Store:init +2492ms Δ2ms] Using existing prompt templates {count: 2} @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:32
+[    2816ms] [LOG] [Store:init +2492ms Δ0ms] bootRepairs start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    2818ms] [LOG] [Store:init +2494ms Δ2ms] bootRepairs skipped (already done) @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    2818ms] [LOG] [Store:init +2494ms Δ0ms] unwrapNestedScopedIdsV4 start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    3936ms] [LOG] [Store:init +3612ms Δ1119ms] unwrapNestedScopedIdsV4 done @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    3936ms] [LOG] [Store:init +3613ms Δ0ms] correctChapterNumberDriftV5 start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4025ms] [LOG] [Store:init +3701ms Δ88ms] correctChapterNumberDriftV5 done @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4025ms] [LOG] [Store:init +3701ms Δ0ms] chapterNumbersBackfill check @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4025ms] [LOG] [Store:init +3701ms Δ0ms] chapterNumbersBackfill skipped @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4025ms] [LOG] [Store:init +3701ms Δ0ms] bootRepairs complete @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4026ms] [LOG] [Store:init +3702ms Δ1ms] loadUrlMappings start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4031ms] [LOG] [Store:init +3707ms Δ6ms] loadUrlMappings hydrated {count: 1075} @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:32
+[    4033ms] [LOG] [Store:init +3709ms Δ1ms] loadNavigationHistory start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4033ms] [LOG] [Store:init +3709ms Δ0ms] loadNavigationHistory complete {count: 1} @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:32
+[    4033ms] [LOG] [Store:init +3709ms Δ0ms] loadLastActiveChapter start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4033ms] [LOG] [AutoTranslateMediator] State change detected {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, viewMode: english, hasTranslation: false, isHydrating: false, isTranslationActive: false} @ http://localhost:5183/store/autoTranslateMediator.ts:23
+[    4033ms] [LOG] [AutoTranslateMediator] ✅ Triggering auto-translate for lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj @ http://localhost:5183/store/autoTranslateMediator.ts:32
+[    4035ms] [LOG] [loadChapterFromIDB] ENTERED for lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj @ http://localhost:5183/store/slices/chaptersSlice.ts?t=1778884467934:74
+[    4035ms] [LOG] [AutoTranslateMediator] State change detected {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, viewMode: english, hasTranslation: false, isHydrating: true, isTranslationActive: true} @ http://localhost:5183/store/autoTranslateMediator.ts:23
+[    4035ms] [LOG] [AutoTranslateMediator] ⏸ Skipped auto-translate for lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj {isHydrating: true, isTranslationActive: true, isPending: true} @ http://localhost:5183/store/autoTranslateMediator.ts:41
+[    4035ms] [LOG] [Store:init +3711ms Δ2ms] loadLastActiveChapter complete {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj} @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:32
+[    4039ms] [LOG] [Store:init +3715ms Δ4ms] audio initialization start @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4039ms] [WARNING] [AudioService] PiAPI key not found. Audio generation will not be available. @ http://localhost:5183/services/audio/AudioService.ts?t=1778884467934:36
+[    4048ms] [WARNING] [Retranslate] 🔁 Blocked: any version exists and this is an auto translation {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, origin: auto_visit, existingVersionCount: 3} @ http://localhost:5183/store/slices/translationsSlice.ts?t=1778884467934:256
+[    4049ms] [LOG] [TranslationLoad] Starting load for chapter: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj @ http://localhost:5183/services/navigation/hydration.ts?t=1778883611326:69
+[    4049ms] [LOG] [TranslationLoad] Chapter URL: lf-library://dungeon-defense-wn%3A%3Av1-primary/lf-library%3Adungeon-defense-wn%253A%253Av1-primary%3Ach2_z0z2lt_2pnj, Canonical: https://booktoki468.com/novel/3912078 @ http://localhost:5183/services/navigation/hydration.ts?t=1778883611326:70
+[    4049ms] [LOG] [TranslationRepo] ensureActive: looking up translations for stableId=lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj @ http://localhost:5183/services/db/repositories/TranslationRepository.ts?t=1778883611326:223
+[    4053ms] [LOG] [TranslationRepo] ensureActive: picked version=3, isActive=true, provider=Claude, model=claude-sonnet-4-0 for lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj @ http://localhost:5183/services/db/repositories/TranslationRepository.ts?t=1778883611326:230
+[    4067ms] [LOG] [TranslationLoad] ✅ Active translation found for lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj {translationId: ce50ea1b-3c5d-40ed-baea-1807c31893bf, version: 3, isActive: true, translationLength: 12341, provider: Claude} @ http://localhost:5183/services/navigation/hydration.ts?t=1778883611326:73
+[    4075ms] [LOG] [AudioSW] Registered successfully: http://localhost:5183/ @ http://localhost:5183/services/audio/storage/serviceWorker.ts:20
+[    4075ms] [LOG] [Store:init +3751ms Δ36ms] audio initialization complete @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4075ms] [LOG] [Store:init +3751ms Δ0ms] initializeStore complete – isInitialized true @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:30
+[    4075ms] [TABLE] [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:37
+[    4076ms] [LOG] Total init time: 3751ms @ http://localhost:5183/store/bootstrap/initializeStore.ts?t=1778884882280:45
+[    4162ms] [LOG] [IDB] ✅ Loaded chapter lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj | hasTranslation: true @ http://localhost:5183/services/navigation/hydration.ts?t=1778883611326:158
+[    4162ms] [LOG] [AutoTranslateMediator] State change detected {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, viewMode: english, hasTranslation: false, isHydrating: false, isTranslationActive: false} @ http://localhost:5183/store/autoTranslateMediator.ts:23
+[    4162ms] [LOG] [AutoTranslateMediator] ✅ Triggering auto-translate for lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj @ http://localhost:5183/store/autoTranslateMediator.ts:32
+[    4166ms] [LOG] [AutoTranslateMediator] State change detected {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, viewMode: english, hasTranslation: true, isHydrating: false, isTranslationActive: true} @ http://localhost:5183/store/autoTranslateMediator.ts:23
+[    4166ms] [LOG] [AutoTranslateMediator] Translation already cached for lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj @ http://localhost:5183/store/autoTranslateMediator.ts:39
+[    4167ms] [LOG] [ImageSlice:loadExistingImages] Called for chapter {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, hasChapter: true, hasTranslationResult: true, hasSuggestedIllustrations: true, suggestedIllustrationsCount: 2} @ http://localhost:5183/store/slices/imageSlice.ts?t=1778884467934:369
+[    4167ms] [LOG] [ImageSlice:loadExistingImages] Loaded existing images {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, loadedImageCount: 0, imageKeys: Array(0), imageDetails: Object} @ http://localhost:5183/store/slices/imageSlice.ts?t=1778884467934:460
+[    4192ms] [LOG] [ImageSlice:loadExistingImages] Called for chapter {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, hasChapter: true, hasTranslationResult: true, hasSuggestedIllustrations: true, suggestedIllustrationsCount: 2} @ http://localhost:5183/store/slices/imageSlice.ts?t=1778884467934:369
+[    4193ms] [LOG] [ImageSlice:loadExistingImages] Loaded existing images {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, loadedImageCount: 0, imageKeys: Array(0), imageDetails: Object} @ http://localhost:5183/store/slices/imageSlice.ts?t=1778884467934:460
+[    4866ms] [WARNING] [Retranslate] 🔁 Blocked: any version exists and this is an auto translation {chapterId: lf-library:dungeon-defense-wn%3A%3Av1-primary:ch2_z0z2lt_2pnj, origin: auto_visit, existingVersionCount: 3} @ http://localhost:5183/store/slices/translationsSlice.ts?t=1778884467934:256
