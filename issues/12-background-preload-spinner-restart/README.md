@@ -1,6 +1,12 @@
 # Issue 12 — Tab return resets background-preload spinners
 
-> Status: **investigated** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M) · Worktree `opus-issues-investigation`
+> Status: **FIXED 2026-05-05 (via #19)** · Last updated: 2026-05-15 (archaeology pass corrected stale "superseded-pending" state) · Investigator: Claude Opus 4.7 (1M)
+>
+> **Fix shipped in `72a2a80572` (2026-05-05)** alongside [#19](../19-translation-survives-nav-policy/). The shared root cause (cancellation block at `store/slices/chaptersSlice.ts:170-199`) was removed. The same regression test pins both the user-initiated AND the preload variant: `tests/store/slices/setCurrentChapter-survives-nav.test.ts`.
+>
+> Earlier today (2026-05-15) this README was updated to say "superseded, waiting for #19 Phase 1" — that recommendation was based on stale README data for #19. Subsequent archaeology revealed #19 Phase 1 shipped 10 days ago. **Both #12 and #19 are FIXED.**
+>
+> ⚠ Below this block, all content is the pre-archaeology investigation. Treat as historical record.
 
 ## 1. Claim (verbatim from Issues.md)
 

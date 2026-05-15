@@ -68,14 +68,15 @@ Legend: `R`=Reproduced · `V`=Verdict · `E`=Evidence/code paths · `T`=Test-gap
 | 9 | [chapter-change-perf-logging](./09-chapter-change-perf-logging/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | `(A1*, B2, C2)` — **CORE-006 SLO violated: 574ms visible transition (>500ms)**, plus serial URL→stableId fallback wastes ~330ms. Action: enforce_existing_ADR + Promise.any race. | [jit-vs-precompute](./_themes/jit-vs-precompute.md), [completion-only-guards](./_themes/completion-only-guards.md) |
 | 10 | [library-to-home-icon](./10-library-to-home-icon/) | · | · | · | · | · | · | `(A3, B1, —)` _provisional_ — preference, not bug | — |
 | 11 | [comparison-panel-follows-chapter](./11-comparison-panel-follows-chapter/) | — | ✓ | ✓ | ✓ | ✓ | ✓ | **already fixed in `0c5162b`** · `(A3, B1, C1)` post-fix · test gap remains | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
-| 12 | [background-preload-spinner-restart](./12-background-preload-spinner-restart/) | ◐ | ✓ | ✓ | ✓ | · | ✓ | `(A1*, B2, C1)` — **superseded by #19**. Live repro deferred per shared root cause at `chaptersSlice.ts:170-199`. Action: wait for #19 Phase 1. | [jit-vs-precompute](./_themes/jit-vs-precompute.md), `nav-cancels-bg-work` (ratified N=2 via #12+#19) |
+| 12 | [background-preload-spinner-restart](./12-background-preload-spinner-restart/) | ◐ | ✓ | ✓ | ✓ | ✓ | ✓ | **FIXED 2026-05-05 via #19's `72a2a80572`** — cancellation block at `chaptersSlice.ts:170-199` removed; shared regression test at `tests/store/slices/setCurrentChapter-survives-nav.test.ts`. README staleness caught by 2026-05-15 archaeology pass. | [jit-vs-precompute](./_themes/jit-vs-precompute.md), `nav-cancels-bg-work` (ratified N=2 via #12+#19) |
 | 13 | [eta-not-model-specific](./13-eta-not-model-specific/) | ◐ | ✓ | ✓ | ✓ | · | ✓ | `(A3, B3, C2)` — **system IS model-aware** at `apiMetricsService.ts:457`, but 2-sample threshold + mean (not median) hurts fresh state. 4-part fix_local (~2 hr). | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 | 14 | [retry-spinner-not-clickable](./14-retry-spinner-not-clickable/) | ✓ | ✓ | ✓ | ✓ | — | ✓ | **FIXED 2026-05-04** · same-theme-different-fix-shape · 4 new regression tests · brings silent-feedback-gaps to N=3 fixed | [silent-feedback-gaps](./_themes/silent-feedback-gaps.md) |
 | 15 | [comparison-cycle-modes](./15-comparison-cycle-modes/) | ◐ | ✓ | ✓ | ✓ | · | ✓ | `(A3, B3, C3)` — boolean `showRawComparison` (2 modes only) + "Selected: ..." duplication confirmed. Action: fix_local 3-part; 9.3 (Google Translate) blocked on user provider strategy. | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 | 16 | [version-switch-comments-vanish](./16-version-switch-comments-vanish/) | · | ◐ | ✓ | ◐ | · | ✓ | **triaged — needs §2 live repro**. Static analysis revealed bug-shape is not the simple `useEffect`-on-active-id I'd assumed. Probably interacts with #17/#18 | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 | 17 | [feedback-not-loaded-from-idb](./17-feedback-not-loaded-from-idb/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | **FIXED 2026-05-04** · 3 regression tests · pre-fix: 2 fail | (none) |
 | 18 | [submit-feedback-not-persisted](./18-submit-feedback-not-persisted/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | **FIXED 2026-05-04** · 4 regression tests · pre-fix: 3 fail | candidate: [co-mingled-commits](./_themes/co-mingled-commits.md) |
-| 19 | [translation-survives-nav-policy](./19-translation-survives-nav-policy/) | ◐ | ✓ | ✓ | ✓ | · | ✓ | **investigated (Phase 0 spec)** · `(A2*, B2, C2)` — Shape B confirmed via code; nav cancels in-flight translations; broader root cause that subsumes #12 (preload subset). Needs §2 live repro + D1-D4 ratification before Phase 1 | candidate: `nav-cancels-bg-work` (proposed, N=2 from this issue + #12) |
+| 19 | [translation-survives-nav-policy](./19-translation-survives-nav-policy/) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **FIXED 2026-05-05 in `72a2a80572`** — CORE-012 ratified in `5f170b0`. Cancellation block at `chaptersSlice.ts:170-199` removed; 4 regression tests at `tests/store/slices/setCurrentChapter-survives-nav.test.ts`. README left in stale `investigated` state for 10 days; archaeology audit caught it 2026-05-15. | `nav-cancels-bg-work` (ratified N=2 via this + #12) |
+| 20 | [chapter-number-drift-from-history-walker](./20-chapter-number-drift-from-history-walker/) | ◐ | ✓ | ✓ | ✓ | ✓ | ✓ | **FIXED 2026-05-10 in `bef65dd534`** — `services/translationService.ts:858-876` bug-introducing write removed (now gated on `chapterNumber == null`); `correctChapterNumberDriftV5` repair migration at `services/db/operations/maintenance.ts:2640+` runs once per user. README labeled `root-caused` but fix landed same day; archaeology audit caught it 2026-05-15. | candidate: `stale-issue-readme` |
 
 `·` = not yet done · `✓` = done · `◐` = partial · `—` = not applicable · `?` = blocked / open question
 
@@ -113,17 +114,22 @@ The matrix now suggests two distinct kinds of leverage:
 
 So `CORE-008-derived-views-recomputed-not-stored` is still worth drafting (covers most of category 2's JIT items), but the boot-time fix doesn't need it — CORE-006 already commits.
 
-## Tier ordering (2026-05-15 — post-Playwright-investigation sweep)
+## Tier ordering (2026-05-15 — post-Playwright-investigation sweep + archaeology audit)
 
-After full §2-§9 investigation of 8 remaining issues (#3, #6, #7, #8, #9, #12, #13, #15), the universe of 20 issues collapses to a clear fix-direction order. Tiers run sequentially; within a tier, work is parallelizable across agents.
+After full §2-§9 investigation of 8 remaining issues (#3, #6, #7, #8, #9, #12, #13, #15) AND a deep git-blame + JSONL archaeology pass, the universe of 20 issues collapses to a clear fix-direction order. **The archaeology revealed that #19, #20, and #12 are already FIXED on main — but their READMEs were stale by 10 days, causing the initial Tier 1 to mis-classify them as pending.** This is a meta-finding worth recording (see "Deeper generator: stale-issue-readme" below).
 
-### Tier 1 — Foundation (~10 hr total; unblocks 6-8 adjacent issues mechanically)
+Tiers run sequentially; within a tier, work is parallelizable across agents.
+
+### Tier 1 — Foundation (~2-4 hr — was 10+ hr before archaeology corrected the picture)
 
 | Order | Issue | Effort | Why first | Confidence |
 |---|---|---|---|---|
-| 1 | **[#20](./20-chapter-number-drift-from-history-walker/)** chapter-number-drift | 1-2 hr | Root-caused at `services/translationService.ts:858-876`. Surgical, data-safety. Closes 17 of #3's anomaly-A duplicates as side-effect. No dependencies. | 0.95 |
-| 2 | **[#1](./01-bootup-time/)** bootup-time / single-flight init | 2-4 hr | `enforce_existing_ADR` (CORE-006). Halves #8's wasted-logs trace mechanically. Eliminates #7's symptom. Reduces #9's noise. | 0.9 |
-| 3 | **[#19](./19-translation-survives-nav-policy/)** nav-cancels-bg-work | 4-8 hr | Phase-0 spec already written. Subsumes #12 completely. Establishes the policy primitive other features can borrow. | 0.95 |
+| 1 | **[#1](./01-bootup-time/)** bootup-time / single-flight init | 2-4 hr | `enforce_existing_ADR` (CORE-006). Reduces #8's wasted-logs trace mechanically (~50%). Eliminates #7's symptom. Reduces #9's noise. **Only remaining Tier 1 item.** | 0.9 |
+
+Items previously in Tier 1, now removed because already FIXED:
+- ~~#20 chapter-number-drift~~ — FIXED 2026-05-10 in `bef65dd534`
+- ~~#19 nav-cancels-bg-work~~ — FIXED 2026-05-05 in `72a2a80572` (CORE-012 ratified)
+- ~~#12 background-preload-spinner~~ — FIXED via #19's same commit
 
 ### Tier 2 — Quick wins (~5 hr; parallelizable)
 
@@ -150,12 +156,29 @@ After full §2-§9 investigation of 8 remaining issues (#3, #6, #7, #8, #9, #12,
 
 ### Closes by subsume (no independent work needed)
 
-- **[#7](./07-provider-registration-inefficiency/)** — superseded by #1
-- **[#12](./12-background-preload-spinner-restart/)** — superseded by #19
+- **[#7](./07-provider-registration-inefficiency/)** — confusion, subsumed by #1
 
-### Already FIXED
+### Already FIXED (verified against current code 2026-05-15)
 
-- #4, #5, #11, #14, #17, #18
+- **#4, #5, #11, #14, #17, #18** — FIXED 2026-05-04 (READMEs accurately reflect status)
+- **#12** — FIXED 2026-05-05 via #19's `72a2a80572` (README staleness caught by audit)
+- **#19** — FIXED 2026-05-05 in `72a2a80572`, CORE-012 ratified in `5f170b0` (README staleness caught by audit)
+- **#20** — FIXED 2026-05-10 in `bef65dd534`, V5 migration shipped (README staleness caught by audit)
+
+### Deeper generator (meta-finding from 2026-05-15 archaeology pass)
+
+**`stale-issue-readme`** — Issue READMEs in `issues/NN-slug/` do not get auto-updated when fixes ship. Three of the most-load-bearing issues (#19, #20, #12) shipped on main between 2026-05-05 and 2026-05-10 but their READMEs continued to assert pre-fix state through 2026-05-15.
+
+This had a real cost in this very session: the agent (Claude Opus 4.7) trusted READMEs as truth, recommended Tier 1 work that's already done, and proposed live-Playwright verification of bugs that are no longer reproducible. The user approved "ship #20 next" based on this stale-data recommendation.
+
+**Why it happens:** the sessions that ship fixes (e.g., `830d8ff9-c9da-4e63-ac33-3ab1d5ada9ea`, which shipped both `bef65dd534` and `5f170b0`) are multi-feature, long-horizon, and focus on code, not bookkeeping. The single-issue sessions DO update READMEs (#4, #5, #14, #17, #18 from 2026-05-04 are correctly marked FIXED). The multi-feature sessions don't.
+
+**Three fix-shapes:**
+1. **Pre-recommendation verification** (cheapest): before recommending fix work for an issue, agent must `git log -L <line>:<file>` the suspect code path and confirm the bug-introducing pattern still exists. Already required by CLAUDE.md's "Verify before recommending from memory" — extend to issue READMEs as a class of memory.
+2. **Fix-commit closes README** (medium): convention that fix commits include a one-liner update to the issue README's status block. Could be enforced by a CI hook or a pre-commit script that grep's `fix(...): issue #N` style commits.
+3. **Periodic audit** (heavy): a script `scripts/issue-staleness-audit.py` that runs `git log -L` for each "real-bug" issue's §5 suspect lines, flags any that have a `fix(...)` commit touching them after the README's last-updated date.
+
+Fix-shape 1 is the cheapest and applies to every agent (not just author of fix commit) — recommended.
 
 ### Strategic observation
 

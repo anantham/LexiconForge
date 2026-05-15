@@ -1,7 +1,12 @@
 # Issue 19 — Translation cancelled by SPA navigation (background-work policy)
 
-> Status: **investigated** · Last updated: 2026-05-05 · Investigator: Claude Opus 4.7 (1M)
-> Phase 0 spec — captures full investigation, decisions, and phased plan. Implementation deferred per phased shipping.
+> Status: **FIXED 2026-05-05** · Last updated: 2026-05-15 (archaeology pass) · Investigator: Claude Opus 4.7 (1M)
+>
+> **Fix shipped in `72a2a80572` (2026-05-05T17:22-04:00)** — `fix(translation): survive SPA navigation; split origin; gate preload images`. The cancellation block at `store/slices/chaptersSlice.ts:170-199` was removed; CORE-012 ratified as `Implemented` in `5f170b0`; regression test at `tests/store/slices/setCurrentChapter-survives-nav.test.ts` (4 cases) verified to FAIL on unfixed code, PASS post-fix.
+>
+> **README left in pre-fix `investigated / Phase 0 spec` state until this 2026-05-15 audit caught the staleness.** Subsumes [#12](../12-background-preload-spinner-restart/) entirely. See `issues/_themes/stale-issue-readme.md` (proposed) for the meta-pattern this exposes.
+>
+> ⚠ Below this block, all content is the PRE-FIX investigation. Treat as historical record, not current state.
 
 ## 1. Claim
 
