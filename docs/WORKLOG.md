@@ -1,3 +1,25 @@
+2026-05-14 (continued — GROUNDING Phase 2/2.5/3/5 + v12-b + registry expansion) - [Agent: Opus 4.7 (1M)]
+- Status: MERGED. PR #54 landed via merge commit af58a0f. 7 commits forming a coherent GROUNDING completion unit.
+- Sources of truth: docs/sutta-studio/GROUNDING.md (architecture), docs/sutta-studio/AMORTIZATION.md (irreducible-gap finding + external resources backlog + new-sutta playbook), data/sutta-studio/grounding/contested-terms.json (11 terms), services/sutta-studio/grounding/ (provider + translator-bank), services/sutta-studio/passes/grounding.ts (pass + tests).
+- Task arc:
+  1. GROUNDING Phase 2 — TS provider + groundingPass + 7 tests + CLI (replaces apply-contested-terms.py)
+  2. GROUNDING Phase 2.5 — wired into live compiler/index.ts (auto-grounds future v11 outputs)
+  3. Registry expansion +6 terms — ātāpī, sampajāno, vedanā, citta, dhammā, kāyānupassī (covers MN10's body vocab; 8 procedural phases auto-grounded from this alone)
+  4. GROUNDING Phase 5 — UI grounded-vs-interpretive affordance (italic + "synthesis ·" marker for senses without citationIds)
+  5. v12-b prompt — sliding-window prior-phase context (last 3 phases) injected into PhaseStateEnvelope; bumps prompt version to v12-prior-phase-context
+  6. GROUNDING Phase 3 — translator-bank fetching SC bilara API per-verse renderings; integrated into runGroundingPass via optional verseBank param
+  7. AMORTIZATION.md — captures the 75-80% pipeline ceiling, external-resources backlog (PTS, CPD, GRETIL, CBETA, VRI, Anālayo monographs, etc.), new-sutta playbook (~5-6 hr per sutta)
+- Architectural milestone: pipeline + grounding quality on a NEW sutta projected at ~85% out-of-the-box (was ~50-60% before this PR). Every MN10 phase now has chips wired — verse-level Sujato + term-level Bodhi/Sujato/Thanissaro/Wikipedia where applicable.
+- What's NOT in (next-session pickup):
+  - GROUNDING Phase 4 — commentarial-gloss seed (~30 Vism entries). DEFERRED: requires human Pāli reading expertise OR programmatic VRI/Ñāṇamoli digitization with chapter index. Pickup gate documented in task #49.
+  - Path B continuation — 35 procedural phases. Now much less urgent — every phase has verse grounding. Hand-polish would add cross-phase narrative + voice consistency, not chip count.
+  - Refrain-detector post-pass — independent infrastructure (~2-3 hr)
+  - Live compiler-pipeline translator-bank wiring — currently CLI-only; compile-time fetch adds 1-3s latency per sutta
+  - Final inspection — visual walk through all 39 phases in app (~1-2 hr)
+- Resume: PR #54 merged. Pick from "what's NOT in". DN22 pilot would be the highest-leverage way to validate the architecture's amortization claims.
+
+---
+
 2026-05-14 (continued — GROUNDING bootstrap + Path B 5/6/7 + UX separation) - [Agent: Opus 4.7 (1M)]
 - Status: MERGED. PR #53 landed via merge commit 072f351. Worktree `../LexiconForge.worktrees/opus-path-b` will be removed; branch `feat/opus-path-b` deleted.
 - Sources of truth: docs/sutta-studio/GROUNDING.md (architecture design + 6-phase bootstrap sequence), data/sutta-studio/grounding/contested-terms.json (5-term registry seed, all URLs verified), scripts/sutta-studio/{mint-citation-urls,wire-citation-ids,apply-contested-terms}.py (Phase 0+1.5 application).
