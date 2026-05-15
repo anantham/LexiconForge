@@ -111,6 +111,44 @@ Format:
 
 If a defect's test obligation depends on a primitive that doesn't exist yet (e.g. a `singleFlight` wrapper for the completion-only-guards theme), say so — that's evidence the fix is generator-level, not local.
 
+### §6a Verification ladder (HARD GATE — added 2026-05-15 after #16 overclaim incident)
+
+A unit test alone is not "verified." Pin which level(s) the fix achieved, and what's still open. Closing-gate (§9a) cannot be checked without explicitly marking the levels achieved.
+
+| Level | What it proves | Pass criterion |
+|---|---|---|
+| **L1** Static | The bug-shape exists in the code | Code reading identifies the §5 evidence with confidence ≥ 0.7 |
+| **L2** Unit-mechanical | The fix's mechanism works | Vitest/RTL test that PASSES post-fix AND FAILS pre-fix (verified by running with `git stash` of the fix) |
+| **L3** Programmatic data-path | The fix works when the app's state is driven via store actions | Playwright with instrumented `window.fetch` / store calls — exercises real data flow without UI clicks |
+| **L4** Real-event chain | The fix works through real React events | Headed Playwright clicking real UI elements (not programmatic state changes) |
+| **L5** User-driven manual | The symptom the user reported actually resolves | Trace file in `traces/` lists the exact click sequence; user confirms 👍 or 👎 |
+
+**Rules:**
+- L1 alone = `triaged`. Never `fixed`.
+- L2 alone IS sufficient for `fixed` ONLY when ALL of:
+  - The bug is purely mechanical (e.g., a Map.set inside a guard, a wrong dependency array).
+  - L1 confidence ≥ 0.9 (the bug-shape is unambiguous from code reading).
+  - No plausible user-visible symptom that the L2 mechanism wouldn't cover.
+- L3+ required when:
+  - Bug involves UI rendering, event handling, async flow, or any user-visible interaction.
+  - L1 confidence < 0.9.
+  - User reported a specific symptom that L2 cannot reproduce.
+- L5 required when:
+  - Fix changes user-visible behavior AND L4 wasn't achieved.
+  - Previous levels couldn't actually drive the user-event chain (e.g., programmatic store call returned without error but didn't propagate).
+- If a level is environmentally blocked (paid API, manual user action only) — **say so explicitly**. Don't pretend a lower level is sufficient.
+
+**Format for §9a:**
+```
+- [x] L1 Static — confidence X.XX
+- [x] L2 Unit-mechanical — tests at <file>, verified to FAIL pre-fix
+- [x] L3 Programmatic data-path — trace at <file>
+- [ ] L4 Real-event chain — blocked on: <reason>
+- [ ] L5 User-driven manual — instructions at <trace-file>
+```
+
+The motivating incident: 2026-05-15 #16 fix landed with only L2 + partial L3. The fix's mechanism (key-based remount) is correct; the user-visible cycle wasn't directly observed. The issue README's first version said "FIXED" — which overclaimed. Subsequent honest commit downgraded to "FIX-IN-PLACE, MECHANICAL TESTS PASSING, REAL-BOOK CYCLE PARTIALLY VERIFIED" and saved a trace for user-driven test.
+
 ## 7. Archaeology
 
 Run `python3 scripts/issue-archaeology.py <suspect_file>` and summarize:
