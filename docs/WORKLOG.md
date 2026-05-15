@@ -1789,3 +1789,26 @@
 - Details:
   - Created `docs/roadmaps/TECH-DEBT-INBOX.md` and added a receipt for the temporary version-alias fallback, raw→media session URL rewrite, and Git LFS pointer guard.
   - [DEBT] The receipt includes explicit exit criteria so this compatibility code can be removed deliberately rather than forgotten.
+
+### [2026-05-15 03:00 UTC] [Agent: Codex]
+**Status:** Complete
+**Task:** Implement plan 3 (`polyglot-foundations`) by adding a SuttaCentral parallels panel in Sutta Studio.
+**Progress:** Added SC parallels service helpers, a new UI panel to list/open parallels, and unit coverage for nested parallels flattening. Kept scope to view-layer only (no schema/storage migration).
+**Files modified (line numbers + why):**
+- `services/scraping/scParallels.ts` — new fetch/normalize helpers (`fetchParallels`, `fetchParallelText`) using the existing fetch proxy route.
+- `types/suttaStudio.ts` — added `ParallelType` and `ParallelInfo` for typed panel/service contract.
+- `components/sutta-studio/ParallelsPanel.tsx` — new collapsible panel UI + open-on-demand text rendering.
+- `components/sutta-studio/SuttaStudioApp.tsx` — mounted `ParallelsPanel` for SuttaCentral routes only.
+- `tests/services/scraping/scParallels.test.ts` — verifies nested endpoint shape flattening + normalization.
+**Tests:**
+- `npx vitest run tests/services/scraping/scParallels.test.ts`
+
+### [2026-05-15 12:30 UTC] [Agent: Codex]
+**Status:** Complete
+**Task:** Close out polyglot pickup-plan bookkeeping after PR merge.
+**Progress:** Marked polyglot plan as shipped in plans index and moved plan document to `PLANS/SHIPPED/` per plan workflow.
+**Files modified:**
+- `docs/sutta-studio/PLANS/README.md`
+- `docs/sutta-studio/PLANS/SHIPPED/polyglot-foundations.md` (moved from root plans folder)
+- `docs/WORKLOG.md`
+**Tests:** Not run (docs-only update).

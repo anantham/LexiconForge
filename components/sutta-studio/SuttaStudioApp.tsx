@@ -7,6 +7,7 @@ import { shouldBlockApp, type VersionCheckResult } from '../../services/db/core/
 import { SuttaStudioView } from './SuttaStudioView';
 import { DEMO_PACKET_MN10 } from './demoPacket';
 import { SuttaStudioFallback } from './SuttaStudioFallback';
+import { ParallelsPanel } from './ParallelsPanel';
 import { compileSuttaStudioPacket, SUTTA_STUDIO_PROMPT_VERSION } from '../../services/suttaStudioCompiler';
 import { ChapterOps } from '../../services/db/operations/chapters';
 import { isSuttaFlowDebug, logSuttaFlow, warnSuttaFlow } from '../../services/suttaStudioDebug';
@@ -599,6 +600,10 @@ export function SuttaStudioApp() {
   }
 
   return (
-    <SuttaStudioView packet={resolvedPacket} backToReaderUrl={backToReaderUrl} />
+    <>
+      <SuttaStudioView packet={resolvedPacket} backToReaderUrl={backToReaderUrl} />
+      {source === 'suttacentral' && <ParallelsPanel uid={uid} />}
+    </>
   );
 }
+
