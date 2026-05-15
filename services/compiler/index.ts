@@ -287,15 +287,18 @@ export const compileSuttaStudioPacket = async (options: {
         ? new Set(boundaries.map((b) => b.startSegmentId))
         : undefined;
     phaseSkeleton = chunkPhases(canonicalWithOrder, 8, boundaryStarts);
-    // Pilot-mode cap: trim phaseSkeleton to the first N phases when the
-    // ?phaseLimit=N URL param is set. Allows cheap architecture validation
-    // on new suttas (DN22 etc) without paying the full compile cost.
-    if (phaseLimitOpt && phaseLimitOpt > 0 && phaseSkeleton.length > phaseLimitOpt) {
-      log(
-        `phaseLimit=${phaseLimitOpt} — truncating phaseSkeleton from ${phaseSkeleton.length} to ${phaseLimitOpt} phases (pilot mode)`
-      );
-      phaseSkeleton = phaseSkeleton.slice(0, phaseLimitOpt);
-    }
+  }
+
+  // Pilot-mode cap: trim phaseSkeleton to the first N phases when the
+  // ?phaseLimit=N URL param is set. Applies AFTER both code paths
+  // (runSkeletonPass and chunkPhases fallback) so DN22's LLM-detected
+  // ~50 phases gets truncated as expected. Without this guard, the user
+  // saw "Phase 0/451 (Lexicographer) · 173m 48s" — full compile not capped.
+  if (phaseLimitOpt && phaseLimitOpt > 0 && phaseSkeleton.length > phaseLimitOpt) {
+    log(
+      `phaseLimit=${phaseLimitOpt} — truncating phaseSkeleton from ${phaseSkeleton.length} to ${phaseLimitOpt} phases (pilot mode)`
+    );
+    phaseSkeleton = phaseSkeleton.slice(0, phaseLimitOpt);
   }
 
   let readySegments = 0;
