@@ -1,0 +1,158 @@
+[    4597ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5183/node_modules/.vite/deps/react-dom_client.js?v=4bfa097e:17994
+[    4611ms] [LOG] [Telemetry] Initialized (session: 071e11ab) @ http://localhost:5183/services/telemetryService.ts:33
+[    4620ms] [LOG] [ApiMetrics] Service initialized @ http://localhost:5183/services/apiMetricsService.ts:9
+[    4681ms] [LOG] ✅ [DiffAnalysisService] Translator instance injected @ http://localhost:5183/services/diff/DiffAnalysisService.ts:227
+[    5036ms] [LOG] [DictionaryCache] Created IndexedDB store @ http://localhost:5183/services/localDictionaryCache.ts:19
+[    5039ms] [LOG] [Connection] Version check: Status: fresh-install | DB Version: none | App Version: 16 | Can Proceed: true | Requires Backup: false @ http://localhost:5183/services/db/core/connection.ts:46
+[    5039ms] [LOG] [Store:init +1290ms Δ0ms] initializeStore – begin @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5040ms] [LOG] [Store:init +1291ms Δ1ms] loadSettings invoked @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5040ms] [LOG] [Store:init +1291ms Δ0ms] loadPromptTemplates start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5042ms] [LOG] [Connection] Version check: Status: fresh-install | DB Version: none | App Version: 16 | Can Proceed: true | Requires Backup: false @ http://localhost:5183/services/db/core/connection.ts:46
+[    5042ms] [LOG] [Store:init +1293ms Δ0ms] initializeStore – begin @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5042ms] [LOG] [Store:init +1293ms Δ0ms] loadSettings invoked @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5042ms] [LOG] [Store:init +1293ms Δ0ms] loadPromptTemplates start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5126ms] [LOG] Upgrading database from version 0 to 16 @ http://localhost:5183/services/db/core/connection.ts:146
+[    5127ms] [LOG] Applying migrations from version 0 to 16 @ http://localhost:5183/services/db/core/schema.ts:70
+[    5127ms] [LOG] Applying migration to version 1 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 2 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 3 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 4 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 5 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 6 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 7 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 8 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 9 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 10 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 11 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 12 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5127ms] [LOG] Applying migration to version 13 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5128ms] [LOG] [Migration v13] Running schema repair... @ http://localhost:5183/services/db/core/schema.ts:176
+[    5128ms] [LOG] [Migration v13] Existing stores: [amendment_logs, chapter_summaries, chapters, diffResults, feedback, novels, prompt_templates, settings, translations, url_mappings] @ http://localhost:5183/services/db/core/schema.ts:178
+[    5130ms] [LOG] [Migration v13] Schema repair complete. Stores: [amendment_logs, chapter_summaries, chapters, diffResults, feedback, novels, prompt_templates, settings, translations, url_mappings] @ http://localhost:5183/services/db/core/schema.ts:227
+[    5130ms] [LOG] Applying migration to version 14 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5130ms] [LOG] Applying migration to version 15 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5130ms] [LOG] Applying migration to version 16 @ http://localhost:5183/services/db/core/schema.ts:74
+[    5132ms] [LOG] [DictionaryCache] Loaded 0 cached entries into memory @ http://localhost:5183/services/localDictionaryCache.ts:42
+[    5140ms] [LOG] [Store:init +1391ms Δ98ms] loadPromptTemplates resolved {count: 0, hasActive: false} @ http://localhost:5183/store/bootstrap/initializeStore.ts:32
+[    5141ms] [LOG] [Store:init +1392ms Δ0ms] initializeSession start (no active template) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5141ms] [LOG] [Store:init +1392ms Δ0ms] loadPromptTemplates resolved {count: 0, hasActive: false} @ http://localhost:5183/store/bootstrap/initializeStore.ts:32
+[    5141ms] [LOG] [Store:init +1392ms Δ0ms] initializeSession start (no active template) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5147ms] [LOG] [Store:init +1398ms Δ6ms] initializeSession provided defaults @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5147ms] [LOG] ⚠️ [Bootstrap] Setting settings from initializeSession: {provider: OpenRouter, model: google/gemini-3.1-flash-lite-preview, reason: no active template found} @ http://localhost:5183/store/bootstrap/initializeStore.ts:76
+[    5148ms] [LOG] [Store:init +1399ms Δ1ms] bootRepairs start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5150ms] [LOG] [Store:init +1401ms Δ2ms] ensureModelFieldsRepaired start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5151ms] [LOG] [DataRepair] Model field repair not yet run, starting... @ http://localhost:5183/services/db/migrationService.ts:185
+[    5151ms] [LOG] [DataRepair] Starting repair of missing model fields... @ http://localhost:5183/services/db/migrationService.ts:116
+[    5151ms] [LOG] [Store:init +1402ms Δ1ms] initializeSession provided defaults @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5151ms] [LOG] ⚠️ [Bootstrap] Setting settings from initializeSession: {provider: OpenRouter, model: google/gemini-3.1-flash-lite-preview, reason: no active template found} @ http://localhost:5183/store/bootstrap/initializeStore.ts:76
+[    5152ms] [LOG] [Store:init +1403ms Δ1ms] bootRepairs start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5152ms] [LOG] [DataRepair] Scanning 0 translation records... @ http://localhost:5183/services/db/migrationService.ts:127
+[    5152ms] [LOG] [Store:init +1403ms Δ0ms] ensureModelFieldsRepaired start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5152ms] [LOG] [DataRepair] Model field repair not yet run, starting... @ http://localhost:5183/services/db/migrationService.ts:185
+[    5153ms] [LOG] [DataRepair] Complete. Scanned: 0, Repaired: 0, Errors: 0 @ http://localhost:5183/services/db/migrationService.ts:167
+[    5153ms] [LOG] [Store:init +1404ms Δ0ms] ensureModelFieldsRepaired done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5153ms] [LOG] [Store:init +1404ms Δ0ms] urlMappingsBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5153ms] [LOG] [DataRepair] Starting repair of missing model fields... @ http://localhost:5183/services/db/migrationService.ts:116
+[    5153ms] [LOG] [DataRepair] Scanning 0 translation records... @ http://localhost:5183/services/db/migrationService.ts:127
+[    5154ms] [LOG] [DataRepair] Complete. Scanned: 0, Repaired: 0, Errors: 0 @ http://localhost:5183/services/db/migrationService.ts:167
+[    5154ms] [LOG] [Store:init +1405ms Δ1ms] ensureModelFieldsRepaired done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5154ms] [LOG] [Store:init +1405ms Δ0ms] urlMappingsBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5154ms] [LOG] [Store:init +1405ms Δ1ms] urlMappingsBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5154ms] [LOG] [Store:init +1405ms Δ0ms] normalizeStableIds start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5155ms] [LOG] [Store:init +1406ms Δ1ms] urlMappingsBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5155ms] [LOG] [Store:init +1406ms Δ0ms] normalizeStableIds start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5155ms] [LOG] [Store:init +1406ms Δ0ms] normalizeStableIds done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5156ms] [LOG] [Store:init +1407ms Δ0ms] repairScopedStableIdDuplicates start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5156ms] [LOG] [Store:init +1407ms Δ1ms] normalizeStableIds done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5156ms] [LOG] [Store:init +1407ms Δ0ms] repairScopedStableIdDuplicates start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5158ms] [LOG] [Store:init +1409ms Δ2ms] repairScopedStableIdDuplicates done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5158ms] [LOG] [Store:init +1409ms Δ0ms] backfillActiveTranslations start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5159ms] [LOG] [Store:init +1410ms Δ0ms] repairScopedStableIdDuplicates done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5159ms] [LOG] [Store:init +1410ms Δ0ms] backfillActiveTranslations start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5160ms] [LOG] [Store:init +1411ms Δ1ms] backfillActiveTranslations done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5160ms] [LOG] [Store:init +1411ms Δ0ms] translationMetadataBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5160ms] [LOG] [Store:init +1411ms Δ1ms] backfillActiveTranslations done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5160ms] [LOG] [Store:init +1411ms Δ0ms] translationMetadataBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5160ms] [LOG] [Store:init +1411ms Δ0ms] translationMetadataBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5160ms] [LOG] [Store:init +1411ms Δ0ms] novelIdBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5161ms] [LOG] [Store:init +1412ms Δ0ms] translationMetadataBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5161ms] [LOG] [Store:init +1412ms Δ0ms] novelIdBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5161ms] [LOG] [Store:init +1412ms Δ1ms] novelIdBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5161ms] [LOG] [Store:init +1412ms Δ0ms] summaryNovelIdBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5162ms] [LOG] [Store:init +1413ms Δ1ms] novelIdBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5162ms] [LOG] [Store:init +1413ms Δ0ms] summaryNovelIdBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5162ms] [LOG] [Store:init +1413ms Δ0ms] summaryNovelIdBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5162ms] [LOG] [Store:init +1413ms Δ0ms] syncSummaries start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5163ms] [LOG] [Store:init +1414ms Δ0ms] summaryNovelIdBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5163ms] [LOG] [Store:init +1414ms Δ0ms] syncSummaries start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5164ms] [LOG] [Store:init +1415ms Δ1ms] syncSummaries done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5164ms] [LOG] [Store:init +1415ms Δ0ms] syncSummaries done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5165ms] [LOG] [Store:init +1416ms Δ0ms] unwrapNestedScopedIdsV4 start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5166ms] [LOG] [Store:init +1417ms Δ1ms] unwrapNestedScopedIdsV4 start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ1ms] unwrapNestedScopedIdsV4 done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ0ms] correctChapterNumberDriftV5 start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ0ms] unwrapNestedScopedIdsV4 done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ0ms] correctChapterNumberDriftV5 start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ0ms] correctChapterNumberDriftV5 done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ0ms] chapterNumbersBackfill check @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ0ms] correctChapterNumberDriftV5 done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5167ms] [LOG] [Store:init +1418ms Δ0ms] chapterNumbersBackfill check @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5177ms] [LOG] [Migration] To run backfill, execute: backfillChapterNumbers() @ http://localhost:5183/scripts/backfillChapterNumbers.ts:86
+[    5177ms] [LOG] [Store:init +1428ms Δ9ms] chapterNumbersBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5177ms] [LOG] [Migration] Starting chapter number backfill... @ http://localhost:5183/scripts/backfillChapterNumbers.ts:39
+[    5177ms] [LOG] [Store:init +1428ms Δ0ms] chapterNumbersBackfill start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5177ms] [LOG] [Migration] Starting chapter number backfill... @ http://localhost:5183/scripts/backfillChapterNumbers.ts:39
+[    5177ms] [LOG] [Migration] Found 0 chapters to process @ http://localhost:5183/scripts/backfillChapterNumbers.ts:42
+[    5177ms] [LOG] [Migration] Backfill complete! @ http://localhost:5183/scripts/backfillChapterNumbers.ts:74
+[    5177ms] [LOG] [Migration]   Updated: 0 chapters @ http://localhost:5183/scripts/backfillChapterNumbers.ts:75
+[    5177ms] [LOG] [Migration]   Skipped: 0 chapters (already had numbers) @ http://localhost:5183/scripts/backfillChapterNumbers.ts:76
+[    5177ms] [LOG] [Migration]   Failed: 0 chapters @ http://localhost:5183/scripts/backfillChapterNumbers.ts:77
+[    5177ms] [LOG] [Migration] Please reload the page to see updated chapter numbers @ http://localhost:5183/scripts/backfillChapterNumbers.ts:78
+[    5177ms] [LOG] [Migration] Found 0 chapters to process @ http://localhost:5183/scripts/backfillChapterNumbers.ts:42
+[    5178ms] [LOG] [Migration] Backfill complete! @ http://localhost:5183/scripts/backfillChapterNumbers.ts:74
+[    5178ms] [LOG] [Migration]   Updated: 0 chapters @ http://localhost:5183/scripts/backfillChapterNumbers.ts:75
+[    5178ms] [LOG] [Migration]   Skipped: 0 chapters (already had numbers) @ http://localhost:5183/scripts/backfillChapterNumbers.ts:76
+[    5178ms] [LOG] [Migration]   Failed: 0 chapters @ http://localhost:5183/scripts/backfillChapterNumbers.ts:77
+[    5178ms] [LOG] [Migration] Please reload the page to see updated chapter numbers @ http://localhost:5183/scripts/backfillChapterNumbers.ts:78
+[    5178ms] [LOG] [Store:init +1429ms Δ1ms] chapterNumbersBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] bootRepairs complete @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] loadUrlMappings start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] loadUrlMappings skipped (none found) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] loadNavigationHistory start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] chapterNumbersBackfill done @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] bootRepairs complete @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] loadUrlMappings start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5178ms] [LOG] [Store:init +1429ms Δ0ms] loadUrlMappings skipped (none found) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [LOG] [Store:init +1429ms Δ0ms] loadNavigationHistory start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [LOG] [Store:init +1430ms Δ0ms] loadNavigationHistory skipped (none stored) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [LOG] [Store:init +1430ms Δ0ms] loadLastActiveChapter start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [LOG] [Store:init +1430ms Δ0ms] loadNavigationHistory skipped (none stored) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [LOG] [Store:init +1430ms Δ0ms] loadLastActiveChapter start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [LOG] [Store:init +1430ms Δ0ms] loadLastActiveChapter skipped (none stored) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [LOG] [Store:init +1430ms Δ0ms] audio initialization start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5179ms] [WARNING] [AudioService] PiAPI key not found. Audio generation will not be available. @ http://localhost:5183/services/audio/AudioService.ts:36
+[    5180ms] [LOG] [Store:init +1431ms Δ1ms] loadLastActiveChapter skipped (none stored) @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5180ms] [LOG] [Store:init +1431ms Δ0ms] audio initialization start @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5180ms] [WARNING] [AudioService] PiAPI key not found. Audio generation will not be available. @ http://localhost:5183/services/audio/AudioService.ts:36
+[    5219ms] [LOG] [AudioSW] Registered successfully: http://localhost:5183/ @ http://localhost:5183/services/audio/storage/serviceWorker.ts:20
+[    5219ms] [LOG] [Store:init +1470ms Δ39ms] audio initialization complete @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5219ms] [LOG] [Store:init +1470ms Δ0ms] initializeStore complete – isInitialized true @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5219ms] [TABLE] [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ http://localhost:5183/store/bootstrap/initializeStore.ts:37
+[    5220ms] [LOG] Total init time: 1470ms @ http://localhost:5183/store/bootstrap/initializeStore.ts:45
+[    5313ms] [LOG] [AudioSW] Registered successfully: http://localhost:5183/ @ http://localhost:5183/services/audio/storage/serviceWorker.ts:20
+[    5313ms] [LOG] [Store:init +1564ms Δ94ms] audio initialization complete @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5313ms] [LOG] [Store:init +1564ms Δ0ms] initializeStore complete – isInitialized true @ http://localhost:5183/store/bootstrap/initializeStore.ts:30
+[    5313ms] [TABLE] [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object] @ http://localhost:5183/store/bootstrap/initializeStore.ts:37
+[    5314ms] [LOG] Total init time: 1564ms @ http://localhost:5183/store/bootstrap/initializeStore.ts:45
+[    5316ms] [LOG] [fetchNovelChapterCounts] Processing 0 total summaries @ http://localhost:5183/services/db/operations/summaries.ts:141
+[    5316ms] [LOG] [fetchNovelChapterCounts] Aggregated counts: {} @ http://localhost:5183/services/db/operations/summaries.ts:172
+[    5316ms] [LOG] [fetchNovelChapterCounts] Processing 0 total summaries @ http://localhost:5183/services/db/operations/summaries.ts:141
+[    5316ms] [LOG] [fetchNovelChapterCounts] Aggregated counts: {} @ http://localhost:5183/services/db/operations/summaries.ts:172
+[    5367ms] [LOG] [Registry] Fetched 3 novels @ http://localhost:5183/services/registryService.ts:89
+[    5367ms] [LOG] [Registry] Fetched 3 novels @ http://localhost:5183/services/registryService.ts:89
+[    5435ms] [LOG] [Registry] Fetched metadata for Dungeon Defense (WN) @ http://localhost:5183/services/registryService.ts:106
+[    5435ms] [LOG] [Registry] Fetched metadata for Forty Millenniums of Cultivation @ http://localhost:5183/services/registryService.ts:106
+[    5435ms] [LOG] [Registry] Fetched metadata for Dungeon Defense (WN) @ http://localhost:5183/services/registryService.ts:106
+[    5435ms] [LOG] [Registry] Fetched metadata for Forty Millenniums of Cultivation @ http://localhost:5183/services/registryService.ts:106
+[    5443ms] [LOG] [Registry] Fetched metadata for Eternal Life @ http://localhost:5183/services/registryService.ts:106
+[    5451ms] [LOG] [Registry] Fetched metadata for Eternal Life @ http://localhost:5183/services/registryService.ts:106
