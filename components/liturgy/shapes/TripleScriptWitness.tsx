@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import type {
   TripleScriptWitnessSection,
@@ -218,7 +218,14 @@ const EnglishLine: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-type Line = { x1: number; y1: number; x2: number; y2: number };
+type Line = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  engIdx: number;
+  paliIdx: number;
+};
 
 function computeAlignmentLines(
   container: HTMLDivElement,
@@ -242,35 +249,53 @@ function computeAlignmentLines(
       y1: pr.bottom - cRect.top,
       x2: er.left + er.width / 2 - cRect.left,
       y2: er.top - cRect.top,
+      engIdx,
+      paliIdx,
     });
   }
   return lines;
 }
 
-const AlignmentLines: React.FC<{ lines: Line[] }> = ({ lines }) => (
-  <svg
-    className="absolute inset-0 pointer-events-none"
-    style={{ width: '100%', height: '100%' }}
-    aria-hidden="true"
-  >
-    {lines.map((l, i) => {
-      const dy = l.y2 - l.y1;
-      const cp1y = l.y1 + dy * 0.5;
-      const cp2y = l.y2 - dy * 0.5;
-      const d = `M ${l.x1},${l.y1} C ${l.x1},${cp1y} ${l.x2},${cp2y} ${l.x2},${l.y2}`;
-      return (
-        <path
-          key={i}
-          d={d}
-          fill="none"
-          stroke="rgb(110, 231, 183)"
-          strokeOpacity="0.3"
-          strokeWidth="1.25"
-        />
-      );
-    })}
-  </svg>
-);
+type HoverTarget = { kind: 'pali' | 'en'; idx: number } | null;
+
+const AlignmentLines: React.FC<{ lines: Line[]; hovered: HoverTarget }> = ({
+  lines,
+  hovered,
+}) => {
+  // Hover-triggered: show ONLY the line(s) involving the hovered word.
+  // Hover Pāli word → all English fragments aligned to it light up.
+  // Hover English word → its single Pāli counterpart lights up.
+  // No hover → no lines (the chant breathes uncluttered).
+  const visible = hovered
+    ? lines.filter((l) =>
+        hovered.kind === 'pali' ? l.paliIdx === hovered.idx : l.engIdx === hovered.idx
+      )
+    : [];
+  return (
+    <svg
+      className="absolute inset-0 pointer-events-none"
+      style={{ width: '100%', height: '100%' }}
+      aria-hidden="true"
+    >
+      {visible.map((l, i) => {
+        const dy = l.y2 - l.y1;
+        const cp1y = l.y1 + dy * 0.5;
+        const cp2y = l.y2 - dy * 0.5;
+        const d = `M ${l.x1},${l.y1} C ${l.x1},${cp1y} ${l.x2},${cp2y} ${l.x2},${l.y2}`;
+        return (
+          <path
+            key={`${l.paliIdx}-${l.engIdx}`}
+            d={d}
+            fill="none"
+            stroke="rgb(110, 231, 183)"
+            strokeOpacity="0.6"
+            strokeWidth="1.5"
+          />
+        );
+      })}
+    </svg>
+  );
+};
 
 const SegmentRow: React.FC<{
   segment: TripleScriptWitnessSegment;
@@ -286,6 +311,7 @@ const SegmentRow: React.FC<{
   const currentWitness = segment.witnesses[witnessIdx];
   const containerRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<Line[]>([]);
+  const [hovered, setHovered] = useState<HoverTarget>(null);
 
   const cycleWitness = () => {
     if (segment.witnesses.length <= 1) return;
@@ -308,6 +334,43 @@ const SegmentRow: React.FC<{
       window.removeEventListener('resize', onResize);
     };
   }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo]);
+
+  // Hover detection via event delegation on the segment container.
+  // mouseover bubbles up; we check whether the target sits inside any
+  // [data-pali-idx] or [data-en-idx] span and set hovered accordingly.
+  // mouseout to outside the segment clears it.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onMove = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t) return;
+      const paliEl = t.closest('[data-pali-idx]') as HTMLElement | null;
+      if (paliEl) {
+        const idx = parseInt(paliEl.getAttribute('data-pali-idx') || '-1', 10);
+        if (idx >= 0) {
+          setHovered({ kind: 'pali', idx });
+          return;
+        }
+      }
+      const enEl = t.closest('[data-en-idx]') as HTMLElement | null;
+      if (enEl) {
+        const idx = parseInt(enEl.getAttribute('data-en-idx') || '-1', 10);
+        if (idx >= 0) {
+          setHovered({ kind: 'en', idx });
+          return;
+        }
+      }
+      setHovered(null);
+    };
+    const onLeave = () => setHovered(null);
+    el.addEventListener('mousemove', onMove);
+    el.addEventListener('mouseleave', onLeave);
+    return () => {
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('mouseleave', onLeave);
+    };
+  }, []);
 
   return (
     <div className="mb-8 relative" id={segment.id} ref={containerRef}>
@@ -369,8 +432,8 @@ const SegmentRow: React.FC<{
         </div>
       )}
 
-      {/* SVG alignment overlay */}
-      <AlignmentLines lines={lines} />
+      {/* SVG alignment overlay — only renders lines for the hovered word */}
+      <AlignmentLines lines={lines} hovered={hovered} />
     </div>
   );
 };
