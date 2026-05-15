@@ -150,7 +150,11 @@ export function LensPanel({
         className={
           isMobile
             ? 'fixed inset-x-0 bottom-0 max-h-[65vh] z-[90] bg-slate-950 border-t border-x border-slate-800 rounded-t-xl shadow-2xl overflow-hidden flex flex-col'
-            : 'fixed right-4 top-20 bottom-20 w-[440px] max-w-[92vw] z-[90] bg-slate-950 border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col'
+            // Desktop: content-driven height (no forced bottom anchor — kept the
+            // panel stretched and left blank space when senses were short).
+            // Caps at viewport-minus-6rem so an oversized word's audit still
+            // scrolls internally instead of running off the bottom.
+            : 'fixed right-4 top-20 max-h-[calc(100vh-6rem)] w-[440px] max-w-[92vw] z-[90] bg-slate-950 border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col'
         }
         initial={isMobile ? { opacity: 0, y: 30 } : { opacity: 0, x: 16 + position.x, y: position.y }}
         animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, x: position.x, y: position.y }}
