@@ -113,10 +113,13 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
           {onOpenLibrary && (
             <button
               onClick={onOpenLibrary}
-              className="px-4 py-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-semibold rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
+              className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
               title="Return to the novel library"
+              aria-label="Return to library (home)"
             >
-              Library
+              <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5z" />
+              </svg>
             </button>
           )}
           {sourceUrl && (
@@ -181,9 +184,13 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
           {onOpenLibrary && (
             <button
               onClick={onOpenLibrary}
-              className="px-4 py-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 font-medium rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition text-sm"
+              className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
+              title="Return to the novel library"
+              aria-label="Return to library (home)"
             >
-              Library
+              <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5z" />
+              </svg>
             </button>
           )}
           <button
