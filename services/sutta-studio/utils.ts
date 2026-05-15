@@ -1,5 +1,5 @@
 import { extractBalancedJson } from '../ai/textUtils';
-import type { CanonicalSegment, SourceRef } from '../../types/suttaStudio';
+import type { CanonicalSegment, PhaseView, SourceRef } from '../../types/suttaStudio';
 
 export const stripCodeFences = (text: string): string => {
   let cleaned = text.trim();
@@ -21,6 +21,75 @@ export const parseJsonResponse = <T>(raw: string): T => {
 
 export type PhaseStageKey = 'anatomist' | 'lexicographer' | 'weaver' | 'typesetter';
 
+/** v12-b sliding window default: include up to N most-recent prior phases in context. */
+export const V12_PRIOR_PHASES_WINDOW = 3;
+
+/**
+ * Formats prior compiled phases as a compact summary block.
+ *
+ * v12-b (sliding-window prior context, 2026-05-14) — closes the cross-phase
+ * narrative gap that v11 couldn't bridge from a single-phase prompt window.
+ * The LLM now sees what it (or the curator) wrote for the most-recent N
+ * phases and can:
+ *   - Cross-reference recurring lemmas with prior appearances
+ *   - Detect parallel grammatical structures
+ *   - Observe formula chains and conceptual pivots
+ *
+ * Per docs/sutta-studio/GROUNDING.md anti-pattern guard: this gives the LLM
+ * STRUCTURED prior context (segments, anchor, key lemmas) but NOT free-form
+ * curator narrative — the LLM should synthesize its own observations, not
+ * parrot prior tooltips. The CROSS_PHASE amendment in V2 prompts already
+ * tells it how to use this context.
+ */
+export const formatPriorPhasesContext = (
+  priorPhases: PhaseView[]
+): string => {
+  if (!priorPhases.length) return '';
+
+  const lines = ['=== PRIOR PHASES CONTEXT (read-only, last ' + priorPhases.length + ') ==='];
+
+  for (const phase of priorPhases) {
+    const paliWords = phase.paliWords ?? [];
+    const fullPali = paliWords
+      .map((w) => w.segments.map((s) => s.text).join(''))
+      .join(' ');
+    const anchor = paliWords.find((w) => w.isAnchor);
+    const anchorPali = anchor
+      ? anchor.segments.map((s) => s.text).join('')
+      : null;
+    const anchorEnglish = anchor?.senses?.[0]?.english ?? null;
+
+    // Key lemmas: distinct segment texts (lemma-ish surface), short list
+    const lemmas = new Set<string>();
+    for (const w of paliWords) {
+      for (const seg of w.segments) {
+        if (seg.text && seg.text.length >= 3) lemmas.add(seg.text);
+      }
+    }
+    const lemmasList = Array.from(lemmas).slice(0, 8).join(', ');
+
+    lines.push('');
+    lines.push(`${phase.id}${phase.title ? ` — ${phase.title}` : ''}`);
+    if (fullPali) lines.push(`  Pāli: ${fullPali}`);
+    if (anchorPali && anchorEnglish) {
+      lines.push(`  Anchor: ${anchorPali} ("${anchorEnglish}")`);
+    }
+    if (lemmasList) lines.push(`  Key lemmas: ${lemmasList}`);
+  }
+
+  lines.push('');
+  lines.push('Use this context to:');
+  lines.push(
+    '  - cross-reference recurring lemmas (per V2 CROSS_PHASE AWARENESS rules)'
+  );
+  lines.push('  - detect parallel grammatical structures');
+  lines.push('  - observe formula chains / conceptual pivots');
+  lines.push('Do NOT hallucinate references — only reference lemmas actually appearing above.');
+  lines.push('=== END PRIOR PHASES CONTEXT ===');
+
+  return lines.join('\n');
+};
+
 export const buildPhaseStateEnvelope = (params: {
   workId: string;
   phaseId: string;
@@ -28,8 +97,18 @@ export const buildPhaseStateEnvelope = (params: {
   currentStageLabel: string;
   currentStageKey?: PhaseStageKey;
   completed?: Partial<Record<PhaseStageKey, boolean>>;
+  /** v12-b: most-recent prior compiled phases (sliding window, default 3). */
+  priorPhases?: PhaseView[];
 }) => {
-  const { workId, phaseId, segments, currentStageLabel, currentStageKey, completed } = params;
+  const {
+    workId,
+    phaseId,
+    segments,
+    currentStageLabel,
+    currentStageKey,
+    completed,
+    priorPhases,
+  } = params;
   const start = segments[0]?.ref.segmentId ?? 'n/a';
   const end = segments[segments.length - 1]?.ref.segmentId ?? start;
   const stages: Array<{ key: PhaseStageKey; label: string }> = [
@@ -45,7 +124,7 @@ export const buildPhaseStateEnvelope = (params: {
     return `${done ? '[x]' : '[ ]'} ${stage.label}: ${stateLabel}`;
   });
 
-  return [
+  const sections = [
     '=== PHASE STATE (READ ONLY) ===',
     `• Work: ${workId}`,
     `• Phase: ${phaseId}`,
@@ -60,7 +139,17 @@ export const buildPhaseStateEnvelope = (params: {
     '2) Segment texts must concatenate to the surface text exactly.',
     '3) Preserve source word order and spelling (no normalization).',
     '===============================',
-  ].join('\n');
+  ];
+
+  if (priorPhases && priorPhases.length > 0) {
+    const priorContext = formatPriorPhasesContext(priorPhases);
+    if (priorContext) {
+      sections.push('');
+      sections.push(priorContext);
+    }
+  }
+
+  return sections.join('\n');
 };
 
 export const getTimeoutSignal = (ms: number, external?: AbortSignal): AbortSignal | undefined => {

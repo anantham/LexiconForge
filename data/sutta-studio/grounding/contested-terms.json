@@ -254,5 +254,243 @@
       "needsVerification": "Visuddhimagga citation pending — Phase 4 commentarial-gloss seed will provide the line-level VRI URL."
     },
     "curatorNote": "Translation is uncontested ('mindfulness' is the universal rendering since Rhys Davids), but the meaning of sati within practice has produced a large secondary literature (Anālayo, Wallace, etc.) about how the cognitive function relates to memory, attention, and ethical sensitivity. The contested space is interpretive, not lexical."
+  },
+  "ātāpī": {
+    "parses": [
+      {
+        "morphology": "from ātāpa (heat, ardor) — possessive adjective, 'one who has ātāpa'",
+        "gloss": "ardent, zealous, fervent in practice",
+        "summary": "Adjective describing the meditator's quality of effort. The Pāli ātāpa is literal 'heat' — the metaphor is meditation-as-burning-effort, the contemplative who applies fire to the work.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "ardent",
+            "context": "MLDB MN10 — Bodhi's standard rendering across the satipaṭṭhāna formula",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "keen",
+            "context": "SuttaCentral MN10 (bilara-verified) — Sujato's 'keen, aware, and mindful' formula",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "ardent",
+            "context": "dhammatalks.org MN10 — Thanissaro's 'ardent, alert, & mindful' formula. Same rendering as Bodhi here.",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "encyclopedicReferences": [
+      {
+        "source": "Wikipedia — Atapi",
+        "url": "https://en.wikipedia.org/wiki/Atapi",
+        "quotedClaim": "Wikipedia article on ātāpī as the quality of effort in satipaṭṭhāna practice.",
+        "verified": "2026-05-14"
+      }
+    ],
+    "curatorNote": "Bodhi and Thanissaro converge on 'ardent' (preserving the fire-metaphor); Sujato chose 'keen' for register accessibility. The disagreement is register-only — all three preserve the energetic-effort sense."
+  },
+  "sampajāno": {
+    "parses": [
+      {
+        "morphology": "saṁ- (together, fully) + pajānāti (knows) → possessive 'one who fully knows'",
+        "gloss": "clearly comprehending, fully aware, knowing-with-precision",
+        "summary": "Adjective. Saṁ- intensifier on the verb of knowing — the meditator who has the cognitive quality of full, clear comprehension of what is occurring.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "clearly comprehending",
+            "context": "MLDB MN10 — Bodhi's standard rendering, preserves the precision-of-knowing emphasis",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "aware",
+            "context": "SuttaCentral MN10 (bilara-verified) — Sujato's 'keen, aware, and mindful' formula",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "alert",
+            "context": "dhammatalks.org MN10 — Thanissaro's 'ardent, alert, & mindful' formula",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "encyclopedicReferences": [
+      {
+        "source": "Wikipedia — Sampajanna",
+        "url": "https://en.wikipedia.org/wiki/Sampajanna",
+        "quotedClaim": "Wikipedia article on sampajañña (the abstract noun form) — the quality of clear comprehension in mindfulness practice.",
+        "verified": "2026-05-14"
+      }
+    ],
+    "curatorNote": "Three traditions diverge sharply: Bodhi preserves the technical 'clearly comprehending' (closest to literal); Sujato simplifies to 'aware' (register-accessibility); Thanissaro picks 'alert' (cognitive-readiness emphasis). All three are defensible; the rendering choice shifts the felt emphasis from precision-of-knowing → simple awareness → readiness-to-respond."
+  },
+  "vedanā": {
+    "parses": [
+      {
+        "morphology": "from √vid (to know, to experience) + -anā (action-noun suffix)",
+        "gloss": "felt experience, sensation, feeling-tone",
+        "summary": "The technical term for the felt quality of experience — pleasant, painful, or neutral. NOT 'emotion' in the modern psychological sense. Vedanā is the bare hedonic tone of any sense-contact, before cognitive elaboration.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "feeling",
+            "context": "MLDB — Bodhi's standard. Preserves Western philosophical tradition's 'feeling' but flag the technical narrowness in his footnotes.",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "feeling",
+            "context": "SuttaCentral MN10 (bilara-verified) — Sujato also uses 'feeling'. 'observing an aspect of feelings' for vedanānupassī.",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "feelings",
+            "context": "dhammatalks.org MN10 — 'remains focused on feelings in & of themselves' for vedanānupassī.",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "encyclopedicReferences": [
+      {
+        "source": "Wikipedia — Vedanā",
+        "url": "https://en.wikipedia.org/wiki/Vedan%C4%81",
+        "quotedClaim": "Wikipedia article on vedanā as the second of the five aggregates; the three feeling-tones (pleasant, painful, neutral).",
+        "verified": "2026-05-14"
+      }
+    ],
+    "curatorNote": "Translation is uncontested ('feeling' or 'feelings'). The interpretive contestation is about what vedanā DOES in meditation — is it the bare hedonic tone, or does it include reactive feelings (Goenka tradition)? Bodhi and Anālayo argue for the bare-tone reading; some meditation lineages collapse the distinction. Lexically uncontested, doctrinally contested."
+  },
+  "citta": {
+    "parses": [
+      {
+        "morphology": "from √cit (to think, to attend) — noun for that-which-thinks",
+        "gloss": "mind, heart, thought-process; the cognizing dimension of experience",
+        "summary": "One of the three near-synonyms in Pāli psychology (citta, mano, viññāṇa). In satipaṭṭhāna context, citta refers to the meditator's mind-as-object — the field of cognition being observed, distinct from the contents observed in it.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "mind",
+            "context": "MLDB MN10. Standard rendering — preserves the cognitive-faculty sense.",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "mind",
+            "context": "SuttaCentral MN10 (bilara-verified) — 'observing an aspect of the mind' for cittānupassī.",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "mind",
+            "context": "dhammatalks.org MN10 — 'remains focused on the mind in & of itself' for cittānupassī.",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "encyclopedicReferences": [
+      {
+        "source": "Wikipedia — Citta",
+        "url": "https://en.wikipedia.org/wiki/Citta",
+        "quotedClaim": "Wikipedia article distinguishing citta from mano and viññāṇa in Pāli psychology.",
+        "verified": "2026-05-14"
+      }
+    ],
+    "curatorNote": "Translation is uncontested ('mind' universally). The interpretive question is which Pāli term renders best as 'mind' — citta or mano or viññāṇa. Anālayo's monograph argues citta is the appropriate object of mindfulness (the cognitive faculty as field), not viññāṇa (the discriminating consciousness as process)."
+  },
+  "dhammā": {
+    "parses": [
+      {
+        "morphology": "plural of dhamma — from √dhṛ (to hold, to support)",
+        "gloss": "mental qualities, phenomena, principles, qualities-of-mind",
+        "summary": "The MOST polysemous word in the Pāli canon. In satipaṭṭhāna context (dhammānupassī), refers to mental-qualities to be observed — wholesome/unwholesome states, hindrances, awakening factors. NOT 'the Dhamma' (the Buddha's teaching). The plural marks the specific 'objects' sense.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "mind-objects",
+            "context": "MLDB MN10. Bodhi's earlier choice; later editions sometimes shift to 'phenomena'.",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "principles",
+            "context": "SuttaCentral MN10 (bilara-verified) — 'observing an aspect of principles' for dhammānupassī.",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "mental qualities",
+            "context": "dhammatalks.org MN10 — 'remains focused on mental qualities in & of themselves' for dhammānupassī.",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "encyclopedicReferences": [
+      {
+        "source": "Wikipedia — Dharma (Buddhism)",
+        "url": "https://en.wikipedia.org/wiki/Dharma",
+        "quotedClaim": "Wikipedia article on the multiple senses of dhamma/dharma — teaching, phenomenon, mental quality, ultimate law.",
+        "verified": "2026-05-14"
+      }
+    ],
+    "curatorNote": "Three traditions on dhammā in MN10's contemplation context: Bodhi 'mind-objects' (cognitive-objects sense), Sujato 'principles' (abstract regularity sense), Thanissaro 'mental qualities' (psychological-states sense). Each picks a different facet of dhamma's polysemy. This is THE most contested compound word in MN10's body — readers familiar with one tradition often misread the others."
+  },
+  "kāyānupassī": {
+    "parses": [
+      {
+        "morphology": "kāya (body) + anu- (along, toward) + √paś (to see) → 'observing-along-the-body'",
+        "gloss": "one who contemplates the body; participle form of the contemplation",
+        "summary": "Compound participle. The anu- prefix is iterative/directional — continuous, sustained observation rather than a single look. The four anupassī compounds in MN10 (kāyānupassī, vedanānupassī, cittānupassī, dhammānupassī) name the four foundations of mindfulness in action.",
+        "translatorRenderings": [
+          {
+            "translator": "Bhikkhu Bodhi",
+            "rendering": "contemplating the body in the body",
+            "context": "MLDB MN10 — Bodhi preserves the doubled-noun construction (kāye kāyānupassī = 'contemplating body in body')",
+            "url": "https://suttacentral.net/mn10/en/bodhi",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Bhikkhu Sujato",
+            "rendering": "meditates by observing an aspect of the body",
+            "context": "SuttaCentral MN10 (bilara-verified) — Sujato unpacks the kāye + kāyānupassī construction as 'aspect of body' for clarity",
+            "url": "https://suttacentral.net/mn10/en/sujato",
+            "verified": "2026-05-14"
+          },
+          {
+            "translator": "Ṭhānissaro Bhikkhu",
+            "rendering": "remains focused on the body in & of itself",
+            "context": "dhammatalks.org MN10 — Thanissaro renders the locative construction as 'in & of itself' to emphasise the non-dualistic framing",
+            "url": "https://www.dhammatalks.org/suttas/MN/MN10.html",
+            "verified": "2026-05-14"
+          }
+        ]
+      }
+    ],
+    "curatorNote": "The locative-doubling construction (kāye kāyānupassī = 'in body, contemplating body') is itself contested. Bodhi preserves it literally; Sujato unpacks to 'aspect of body'; Thanissaro renders as 'body in & of itself' (the noumenal-emphasis reading). The four anupassī formulas all share this structure — same disagreement pattern applies to vedanā, citta, dhammā."
   }
 }

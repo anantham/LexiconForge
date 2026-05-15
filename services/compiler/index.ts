@@ -39,6 +39,7 @@ import {
   dedupeEnglishStructure,
   buildDegradedPhaseView,
 } from '../suttaStudioRehydrator';
+import { V12_PRIOR_PHASES_WINDOW } from '../sutta-studio/utils';
 import {
   tokenizeEnglish,
   getWordTokens,
@@ -60,6 +61,11 @@ import {
   buildWeaverPrompt,
 } from './prompts';
 import { runSkeletonPass } from './skeleton';
+import {
+  runGroundingPass,
+  applyGroundingToPhase,
+} from '../sutta-studio/passes/grounding';
+import { buildDefaultProviders } from '../sutta-studio/grounding';
 import {
   anatomistResponseSchema,
   lexicographerResponseSchema,
@@ -90,6 +96,22 @@ const err = (message: string, ...args: any[]) =>
   console.error(`[SuttaStudioCompiler] ${message}`, ...args);
 
 const COMPILER_MIN_CALL_GAP_MS = 1000;
+
+/**
+ * Counts senses that have at least one citationId. Used by the grounding
+ * pass invocation to log how many senses gained chips during this run.
+ */
+function countSensesWithCitations(packet: DeepLoomPacket): number {
+  let count = 0;
+  for (const phase of packet.phases ?? []) {
+    for (const w of phase.paliWords ?? []) {
+      for (const s of w.senses ?? []) {
+        if (s.citationIds && s.citationIds.length > 0) count++;
+      }
+    }
+  }
+  return count;
+}
 
 /**
  * Sutta Studio compiler defaults — kept SEPARATE from the global translation
@@ -299,6 +321,15 @@ export const compileSuttaStudioPacket = async (options: {
       log(`  wordRange: [${phase.wordRange[0]}, ${phase.wordRange[1]}) applied - Pali: "${effectiveSegments[0]?.pali}"`);
     }
 
+    // v12-b sliding-window prior context: feed the most-recent N already-
+    // compiled phases into each pass's PhaseStateEnvelope. Closes the
+    // cross-phase narrative gap that v11 couldn't bridge (one-phase prompt
+    // window). The CROSS_PHASE V2 amendment already instructs the LLM how
+    // to use this context — see config/suttaStudioPromptContextV2.ts.
+    const priorPhases = packet.phases.slice(
+      Math.max(0, packet.phases.length - V12_PRIOR_PHASES_WINDOW)
+    );
+
     try {
       log(`Compiling ${phase.id} (${i + 1}/${phaseSkeleton.length})...`);
       const phaseStart = performance.now();
@@ -338,6 +369,7 @@ export const compileSuttaStudioPacket = async (options: {
           const phaseState = buildPhaseStateEnvelope({
             workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
             currentStageLabel: 'Anatomist (1/4)', currentStageKey: 'anatomist', completed: {},
+            priorPhases,
           });
           const anatomistPrompt = buildAnatomistPrompt(phase.id, effectiveSegments, phaseState, retrievalContext || undefined);
           await throttle(signal);
@@ -425,6 +457,7 @@ export const compileSuttaStudioPacket = async (options: {
             const phaseState = buildPhaseStateEnvelope({
               workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
               currentStageLabel: 'Lexicographer (2/4)', currentStageKey: 'lexicographer', completed: { anatomist: true },
+              priorPhases,
             });
             const lexicographerPrompt = buildLexicographerPrompt(
               phase.id,
@@ -471,6 +504,7 @@ export const compileSuttaStudioPacket = async (options: {
               const weaverPhaseState = buildPhaseStateEnvelope({
                 workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
                 currentStageLabel: 'Weaver (3/4)', currentStageKey: 'weaver', completed: { anatomist: true, lexicographer: true },
+                priorPhases,
               });
               const weaverPrompt = buildWeaverPrompt(phase.id, effectiveSegments, weaverPhaseState, anatomistOutput, lexicographerOutput, englishTokens);
               await throttle(signal);
@@ -506,6 +540,7 @@ export const compileSuttaStudioPacket = async (options: {
             const typesetterPhaseState = buildPhaseStateEnvelope({
               workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
               currentStageLabel: 'Typesetter (4/4)', currentStageKey: 'typesetter', completed: { anatomist: true, lexicographer: true, weaver: true },
+              priorPhases,
             });
             const typesetterPrompt = buildTypesetterPrompt(phase.id, typesetterPhaseState, anatomistOutput, weaverOutput, effectiveSegments);
             const wordIds = anatomistOutput.words.map((w) => w.id).join(', ');
@@ -536,6 +571,7 @@ export const compileSuttaStudioPacket = async (options: {
         workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
         currentStageLabel: 'PhaseView (fallback)',
         completed: { anatomist: Boolean(anatomistOutput), lexicographer: Boolean(lexicographerOutput), weaver: Boolean(weaverOutput), typesetter: Boolean(typesetterOutput) },
+        priorPhases,
       });
       const phasePrompt = buildPhasePrompt(phase.id, effectiveSegments, renderDefaults, retrievalContext || undefined, { anatomist: anatomistOutput || undefined, lexicographer: lexicographerOutput || undefined, phaseState });
       await throttle(signal);
@@ -638,6 +674,50 @@ export const compileSuttaStudioPacket = async (options: {
       onProgress?.({ packet, stage: 'phase', message: `${phase.id} degraded` });
       logPipelineEvent({ level: 'warn', stage: 'phase', phaseId: phase.id, message: 'phase.degraded', data: { error: e?.message || String(e) } });
     }
+  }
+
+  // Grounding pass — attaches verified citations from registries to phase
+  // senses. Per docs/sutta-studio/GROUNDING.md Phase 2.5: production successor
+  // to scripts/sutta-studio/ground-packet.ts. Runs after all phases compiled
+  // so cross-phase context is fully assembled. Failure here is NON-FATAL —
+  // packet ships ungrounded rather than aborting compilation.
+  try {
+    const groundingProviders = await buildDefaultProviders();
+    const existingCitationIds = new Set(packet.citations.map((c) => c.id));
+    let citationsAddedCount = 0;
+    const sensesBefore = countSensesWithCitations(packet);
+
+    for (const phase of packet.phases) {
+      const result = await runGroundingPass(phase, groundingProviders);
+      for (const cite of result.citationsAdded) {
+        if (!existingCitationIds.has(cite.id)) {
+          existingCitationIds.add(cite.id);
+          packet.citations.push(cite);
+          citationsAddedCount++;
+        }
+      }
+      applyGroundingToPhase(phase, result);
+    }
+
+    const sensesAfter = countSensesWithCitations(packet);
+    const sensesGroundedDelta = sensesAfter - sensesBefore;
+    logPipelineEvent({
+      level: 'info',
+      stage: 'grounding',
+      message: 'grounding.complete',
+      data: { citationsAdded: citationsAddedCount, sensesGroundedDelta },
+    });
+    log(
+      `Grounding: ${citationsAddedCount} citations added, ${sensesGroundedDelta} senses gained chips.`
+    );
+  } catch (e: any) {
+    err('Grounding pass failed (non-fatal):', e);
+    logPipelineEvent({
+      level: 'warn',
+      stage: 'grounding',
+      message: 'grounding.failed',
+      data: { error: e?.message || String(e) },
+    });
   }
 
   const packetValidation = validatePacket(packet);
