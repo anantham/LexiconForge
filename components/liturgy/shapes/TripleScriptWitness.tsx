@@ -1,11 +1,23 @@
-import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import type {
   TripleScriptWitnessSection,
   TripleScriptWitnessSegment,
   WordGloss,
   WordMorpheme,
+  AccentColor,
+  Witness,
 } from '../../../types/liturgy';
+
+// Accent → Tailwind text-color class. 300 level reads as a hint, not a shout,
+// on the slate-950 background.
+const ACCENT_CLASS: Record<AccentColor, string> = {
+  sky: 'text-sky-300',
+  amber: 'text-amber-300',
+  rose: 'text-rose-300',
+  violet: 'text-violet-300',
+  emerald: 'text-emerald-300',
+};
 import { Tooltip } from '../../sutta-studio/Tooltip';
 import { ProseBlock } from '../ProseBlock';
 
@@ -109,11 +121,17 @@ function splitByMorphemes(
   return out;
 }
 
-const HoverSpan: React.FC<{ text: string; tooltipText: string }> = ({ text, tooltipText }) => {
+const HoverSpan: React.FC<{
+  text: string;
+  tooltipText: string;
+  bold?: boolean;
+}> = ({ text, tooltipText, bold = false }) => {
   const [open, setOpen] = useState(false);
   return (
     <span
-      className="relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors"
+      className={`relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
+        bold ? 'font-semibold' : ''
+      }`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
@@ -145,15 +163,19 @@ const HoverWord: React.FC<{
 }> = ({ text, word }) => {
   // If the word has morphemes and they cleanly reconstruct the surface,
   // render one hover span per morpheme — each independently tooltipped.
-  // Else fall back to a single word-level hover (avoids ever rendering
-  // morphemes that don't match the actual chant token).
+  // Root morphemes render bold so the eye lands on the meaning-carrier.
   if (word.morphemes && word.morphemes.length > 0) {
     const split = splitByMorphemes(text, word.morphemes);
     if (split) {
       return (
         <>
           {split.map((piece, i) => (
-            <HoverSpan key={i} text={piece.text} tooltipText={tooltipForMorpheme(piece.morpheme)} />
+            <HoverSpan
+              key={i}
+              text={piece.text}
+              tooltipText={tooltipForMorpheme(piece.morpheme)}
+              bold={piece.morpheme.type === 'root'}
+            />
           ))}
         </>
       );
@@ -185,8 +207,13 @@ const PaliLine: React.FC<{
         if (t.kind === 'gap') return <React.Fragment key={i}>{t.text}</React.Fragment>;
         paliSurfaceIdx += 1;
         const word = matchWord(t.text, idx);
+        const accentClass = word?.accent ? ACCENT_CLASS[word.accent] : '';
         return (
-          <span key={i} data-pali-idx={paliSurfaceIdx} className="inline-block">
+          <span
+            key={i}
+            data-pali-idx={paliSurfaceIdx}
+            className={`inline-block ${accentClass}`}
+          >
             {word ? <HoverWord text={t.text} word={word} /> : t.text}
           </span>
         );
@@ -200,7 +227,10 @@ function tokenizeEnglish(text: string): string[] {
   return text.split(/(\s+)/).filter((s) => s.length > 0);
 }
 
-const EnglishLine: React.FC<{ text: string }> = ({ text }) => {
+const EnglishLine: React.FC<{
+  text: string;
+  accentByEnIdx?: Map<number, AccentColor>;
+}> = ({ text, accentByEnIdx }) => {
   const tokens = tokenizeEnglish(text);
   let engIdx = -1;
   return (
@@ -208,13 +238,79 @@ const EnglishLine: React.FC<{ text: string }> = ({ text }) => {
       {tokens.map((t, i) => {
         if (/^\s+$/.test(t)) return <React.Fragment key={i}>{t}</React.Fragment>;
         engIdx += 1;
+        const accent = accentByEnIdx?.get(engIdx);
+        const accentClass = accent ? ACCENT_CLASS[accent] : '';
         return (
-          <span key={i} data-en-idx={engIdx} className="inline-block">
+          <span
+            key={i}
+            data-en-idx={engIdx}
+            className={`inline-block ${accentClass}`}
+          >
             {t}
           </span>
         );
       })}
     </>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WitnessDots — interactive citation indicator
+// ─────────────────────────────────────────────────────────────────────────────
+
+const WitnessDots: React.FC<{
+  witnesses: Witness[];
+  activeIdx: number;
+  onSelect: (idx: number) => void;
+}> = ({ witnesses, activeIdx, onSelect }) => {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const hovered = hoveredIdx !== null ? witnesses[hoveredIdx] : null;
+  return (
+    <div className="relative inline-flex gap-2 items-center">
+      {witnesses.map((w, i) => {
+        const active = i === activeIdx;
+        return (
+          <button
+            key={i}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(i);
+            }}
+            onMouseEnter={() => setHoveredIdx(i)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            className={`w-2 h-2 rounded-full transition-all ${
+              active
+                ? 'bg-emerald-400'
+                : 'border border-slate-600 bg-transparent hover:border-emerald-400 hover:bg-emerald-500/30'
+            }`}
+            aria-label={`Show ${w.by}${active ? ' (active)' : ''}`}
+          />
+        );
+      })}
+      {hovered && (
+        <div
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 px-3 py-2 rounded bg-slate-900/95 border border-slate-700 shadow-xl text-xs whitespace-normal text-left pointer-events-auto"
+          style={{ maxWidth: 'min(20rem, calc(100vw - 1rem))', minWidth: '12rem' }}
+        >
+          <div className="text-slate-200 font-medium">{hovered.by}</div>
+          {hovered.license && (
+            <div className="text-slate-500 mt-0.5">{hovered.license}</div>
+          )}
+          {hovered.url && (
+            <a
+              href={hovered.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-emerald-400/80 hover:text-emerald-300 mt-1 break-all"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {hovered.url} ↗
+            </a>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -313,10 +409,34 @@ const SegmentRow: React.FC<{
   const [lines, setLines] = useState<Line[]>([]);
   const [hovered, setHovered] = useState<HoverTarget>(null);
 
-  const cycleWitness = () => {
-    if (segment.witnesses.length <= 1) return;
-    setWitnessIdx((w) => (w + 1) % segment.witnesses.length);
-  };
+  // Compute accent-by-surface-Pāli-position for this segment.
+  // Then map to accent-by-English-index via the current witness's alignment.
+  const accentByPaliPos = useMemo(() => {
+    const map = new Map<number, AccentColor>();
+    if (!segment.words) return map;
+    const wordIdx = buildWordIndex(segment.words);
+    const tokens = tokenize(segment.pali);
+    let pos = -1;
+    for (const t of tokens) {
+      if (t.kind === 'gap') continue;
+      pos += 1;
+      const w = matchWord(t.text, wordIdx);
+      if (w?.accent) map.set(pos, w.accent);
+    }
+    return map;
+  }, [segment.pali, segment.words]);
+
+  const accentByEnIdx = useMemo(() => {
+    const map = new Map<number, AccentColor>();
+    if (!currentWitness?.alignTo) return map;
+    for (let engIdx = 0; engIdx < currentWitness.alignTo.length; engIdx++) {
+      const paliPos = currentWitness.alignTo[engIdx];
+      if (paliPos < 0) continue;
+      const accent = accentByPaliPos.get(paliPos);
+      if (accent) map.set(engIdx, accent);
+    }
+    return map;
+  }, [currentWitness?.alignTo, accentByPaliPos]);
 
   // Compute alignment lines after layout, recompute on resize / witness change.
   useLayoutEffect(() => {
@@ -391,43 +511,22 @@ const SegmentRow: React.FC<{
         )}
       </div>
 
-      {/* English line — clickable to cycle witnesses but text remains selectable.
-          A <button> would block text selection in most browsers; we use a div
-          with role="button" so the user can copy the English they're reading. */}
+      {/* English line — text always selectable. The witness dots below give
+          direct access to alternative renderings + source citations on hover. */}
       {currentWitness && (
-        <div
-          onClick={cycleWitness}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              cycleWitness();
-            }
-          }}
-          role={segment.witnesses.length > 1 ? 'button' : undefined}
-          tabIndex={segment.witnesses.length > 1 ? 0 : undefined}
-          className={`group block w-full text-center mt-6 px-2 py-1 rounded transition-colors ${
-            segment.witnesses.length > 1
-              ? 'cursor-pointer hover:bg-slate-900/40'
-              : ''
-          }`}
-          title={
-            segment.witnesses.length > 1
-              ? `Click to cycle witness (${witnessIdx + 1}/${segment.witnesses.length})`
-              : undefined
-          }
-        >
+        <div className="w-full text-center mt-6 px-2 py-1">
           <div
             className="text-slate-300 italic leading-relaxed text-base md:text-lg select-text"
             style={{ fontFamily: SERIF_STACK }}
-            onClick={(e) => {
-              // Allow text selection: if there's an active selection, don't cycle.
-              const sel = window.getSelection();
-              if (sel && !sel.isCollapsed) {
-                e.stopPropagation();
-              }
-            }}
           >
-            <EnglishLine text={currentWitness.text} />
+            <EnglishLine text={currentWitness.text} accentByEnIdx={accentByEnIdx} />
+          </div>
+          <div className="mt-3 flex justify-center">
+            <WitnessDots
+              witnesses={segment.witnesses}
+              activeIdx={witnessIdx}
+              onSelect={setWitnessIdx}
+            />
           </div>
         </div>
       )}

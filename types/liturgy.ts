@@ -76,9 +76,24 @@ export type WordMorpheme = {
   citations?: import('./suttaStudio').Citation[];
 };
 
+/**
+ * Subtle text-color accents for marking refrain rhythm. The Refuges chant
+ * has `X saraṇaṁ gacchāmi` repeating with X varying — coloring `buddhaṁ`
+ * one hue, `dhammaṁ` another, `saṅghaṁ` a third makes the substitution
+ * pattern visible. Accent rides on alignment: English words aligned to a
+ * Pāli word inherit its accent.
+ */
+export type AccentColor = 'sky' | 'amber' | 'rose' | 'violet' | 'emerald';
+
 export type WordGloss = {
   /** The surface form as it appears in the chant (Pali romanized, kanji, etc.). */
   form: string;
+  /**
+   * Optional subtle text-color accent. Use sparingly — only when a word
+   * carries pattern/rhythm information (e.g. the variable position in a
+   * repeated formula). Leaving this unset = neutral slate.
+   */
+  accent?: AccentColor;
   /** Optional script-alt — e.g. Devanāgarī for a Pali word, kanji for a romaji. */
   scriptAlt?: string;
   /**

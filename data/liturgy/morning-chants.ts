@@ -103,6 +103,7 @@ const HOMAGE_WORDS: WordGloss[] = [
 const REFUGE_WORDS: WordGloss[] = [
   {
     form: 'buddhaṁ', scriptAlt: 'बुद्धं', pronunciation: 'BOO-dhang', root: '√budh',
+    accent: 'sky',
     etymology: '√budh "to wake" → *buddha* + accusative ending',
     gloss: 'to the Buddha (the one I am going toward)',
     citations: [dpdCitation('buddha'), pronCite],
@@ -114,6 +115,7 @@ const REFUGE_WORDS: WordGloss[] = [
   },
   {
     form: 'dhammaṁ', scriptAlt: 'धम्मं', pronunciation: 'DHUM-mang', root: '√dhṛ',
+    accent: 'amber',
     etymology: '√dhṛ "to hold" → *dhamma* + accusative ending',
     gloss: 'to the Dhamma — the teaching, truth, the way',
     citations: [dpdCitation('dhamma'), pronCite],
@@ -125,6 +127,7 @@ const REFUGE_WORDS: WordGloss[] = [
   },
   {
     form: 'saṅghaṁ', scriptAlt: 'सङ्घं', pronunciation: 'SUNG-hang',
+    accent: 'rose',
     etymology: '*saṁ* "together" + √han "to bring" → "assembly"',
     gloss: 'to the Sangha — the community',
     citations: [dpdCitation('saṅgha'), pronCite],
