@@ -1,15 +1,26 @@
 # SUTTA-006: Pipeline Caching Architecture
 
 **Date:** 2026-01-30
-**Status:** Implemented (Phase 1: L2 + L5) — 2026-03-19
+**Status:** Implemented (Phase 1: L2 + L5, + Phase 3 cross-session persistence on L5) — 2026-05-14
 **Deciders:** Aditya
 
 > **Note:** This ADR was originally numbered SUTTA-004 but was renumbered to SUTTA-006 to resolve a conflict with the Benchmark Development Phases ADR. The filename has been SUTTA-006 since creation.
 
 ### Implementation Notes (2026-03-19)
-- **L2 Morphology Cache**: Implemented in `services/suttaStudioPipelineCache.ts` (472 LOC). Persisted cross-sutta, keyed by surface word form.
-- **L5 Segment Cache**: Implemented in same file. In-memory per compilation run for refrain deduplication.
-- Phases 2–3 (L3 Senses, L4 Formula, cross-session persistence) remain future work.
+- **L2 Morphology Cache**: Implemented in `services/suttaStudioPipelineCache.ts`. Persisted cross-sutta, keyed by surface word form.
+- **L5 Segment Cache**: Implemented in same file. Originally in-memory per compilation run for refrain deduplication.
+
+### Implementation Notes (2026-05-14)
+- **L5 Segment Cache promoted to cross-session persistence.** Now backed by IndexedDB
+  store `segment_cache` in the same `sutta-studio-cache` DB (bumped to version 2).
+  Keyed by `paliHash`, filtered by `promptVersion` on load.
+- `resetSegmentCache()` now only resets per-compile hit/miss counters — entries
+  persist across compiles and across suttas. Setters fire-and-forget the IDB
+  write so the compile pipeline is not blocked.
+- Motivation: DN22 ⊃ MN10 (every MN10 segment appears verbatim in DN22).
+  Crash recovery mid-compile no longer loses prior phase outputs.
+- Phases 2 (L3 Senses, L4 Formula) and full L2 cross-session beyond current
+  prompt-version semantics remain future work.
 
 ## Context
 
@@ -64,11 +75,11 @@ Implement a **5-level hierarchical cache** that maximizes reuse while maintainin
 │  │   - "vivicceva kāmehi..." (jhāna formulas)                   │
 │  └── Backend: Git-tracked JSON (version-controlled)             │
 │                                                                 │
-│  L5: SEGMENT CACHE (Sutta-Specific, Ephemeral)     [IMPLEMENT]  │
-│  ├── Key: hash(sutta_id + pali_text)                            │
+│  L5: SEGMENT CACHE (Cross-Sutta, Persisted)        [IMPLEMENTED]│
+│  ├── Key: hash(pali_text)                                       │
 │  ├── Value: { anatomist, lexicographer, weaver, typesetter }    │
-│  ├── Backend: In-memory Map                                     │
-│  └── Scope: Single compilation run (refrain deduplication)      │
+│  ├── Backend: IndexedDB (memory-backed, IDB-persisted)          │
+│  └── Scope: Cross-sutta refrain dedup + crash recovery          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -118,7 +129,7 @@ function formulaKey(pali: string): string {
 | L2 Morphology | `SUTTA_STUDIO_PROMPT_VERSION` changes |
 | L3 Senses | Prompt version OR model changes |
 | L4 Formula | Manual curation only |
-| L5 Segment | End of compilation run |
+| L5 Segment | `SUTTA_STUDIO_PROMPT_VERSION` changes (filtered on load) |
 
 ### Estimated Savings
 
