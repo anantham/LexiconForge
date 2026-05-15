@@ -75,7 +75,7 @@ export function SuttaStudioFallback({
   // Pre-compute the chapter's English source string (raw text, regardless of
   // layout choice below). HTML-formatted AI translation gets normalised to
   // text + paragraph breaks before display.
-  const aiTranslation = (chapter as any).translationResult?.translation as string | undefined;
+  const aiTranslation = (chapter as any)?.translationResult?.translation as string | undefined;
   const chapterEnglishRaw =
     chapter?.fanTranslation
     || (aiTranslation ? htmlTranslationToText(aiTranslation) : '')
