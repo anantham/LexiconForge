@@ -1,123 +1,139 @@
-# Handover: 2026-05-14 (Sutta Studio — phantom purge + pipeline+polish validated + Path B in flight)
+# Handover: 2026-05-14 (late — GROUNDING completion + DN22 pilot + Vism research win)
 
-> Replaces the 2026-05-13 handover. **Branch:** `feat/opus-phase2-experiment` on PR #52 (~33 commits, unmerged).
-> **Active worktree:** `../LexiconForge.worktrees/opus-phase2-experiment/`
-> **Cost this session:** ~$1.00 of OpenRouter API spend (Gemini Flash bulk)
-> **Context at handover:** ~7% remaining — running handover skill to preserve continuity
+> Replaces the earlier 2026-05-14 handover. Two PRs merged this session
+> (#53, #54). One PR open (#55 — DN22 pilot fixes).
+>
+> **Worktree:** `../LexiconForge.worktrees/opus-dn22-pilot/` on branch
+> `feat/opus-dn22-pilot` (PR #55). Vite running PID 74780 from that worktree
+> on port 5180.
 
-## What this session was
+## Session summary
 
-Validated the V2-amended compiler pipeline empirically (phase-2 hand-curation + pipeline output + diff = A2 experiment), then escalated through a long UX iteration on the audit panel, the Legend, mobile responsiveness, pronunciation infrastructure, and finally a deep subtractive pass that retired four V2 metadata fields the UI never actually rendered.
+Three threads ran end-to-end:
 
-Textbook case of "Lean toward the reverse direction" — ends with **Leave telic breadcrumbs** added to CLAUDE.md as a new principle. This doc is itself an instance of that principle.
+1. **GROUNDING architecture completed through Phase 5** — Phase 2 (TS provider + groundingPass + tests), Phase 2.5 (live compiler wiring), Phase 3 (translator-bank via SC Bilara), Phase 5 (UI grounded-vs-interpretive affordance). Phase 4 (commentarial-gloss) deferred but **now unblocked by research find**.
 
-## Headline accomplishments
+2. **v12-b prompt with sliding-window prior-phase context** — closes the cross-phase narrative gap that v11 couldn't bridge. Bumped prompt version. Auto-grounding fires on freshly-compiled phases.
 
-| What | Where |
-|---|---|
-| **V2 amendments live in production** (pay-rent tooltip register, arrow-earning relation rule, anchor selection, translator-debate, cross-phase awareness). SENSE_METADATA retired. | `config/suttaStudioPromptContextV2.ts` |
-| **Audit panel iterated** — bottom-sheet on mobile, draggable+persisted on desktop, inline copy icons + toast feedback, clickable citation chips. | `components/sutta-studio/LensPanel.tsx` |
-| **Legend panel** — visual reference for colors/diacritics/relations. | `components/sutta-studio/Legend.tsx` |
-| **Syllabifier post-pass** — deterministic Pāli syllable + stress. 269/269 words covered. 29 tests pass. | `services/sutta-studio/postPasses/syllabify.ts` |
-| **v11 batch run on 40 un-curated phases** — $0.96 total, outputs in `docs/sutta-studio/experiments/`. | `scripts/sutta-studio/batch-v11-pipeline.sh` |
-| **phase-4 polished** — first Path B worked example. ~18 min. Sets the pattern. | `docs/sutta-studio/curation/phase-4.md` |
-| **Phantom-metadata purge** — stripped `epistemicBasis`, `confidence`, `sourceCitationIds`, `morph` from data + prompts + UI. Audit found them never rendered in default-on paths. | `scripts/sutta-studio/strip-phantom-metadata.ts` |
+3. **DN22 pilot** — first attempt to validate the amortization claim on a new sutta. Surfaced 3 real bugs (Tooltip infinite loop, null fallback, phaseLimit scope) — all fixed in PR #55. Verifying compile end-to-end is the next-session smoke test.
 
-## Principles ratified this session
+4. **Deep research prompt** ran (`RESEARCH_PROMPT.md`) — yielded the **Eudoxos / edhamma Visuddhimagga TEI** breakthrough. Phase 4 (commentarial-gloss seed) collapses from 6-10 hours to ~2 hours. See `docs/sutta-studio/RESEARCH_RESULTS.md`.
 
-Added to `~/.claude/CLAUDE.md`:
-1. **Lean toward the reverse direction** (added earlier, applied throughout)
-2. **Rule Stacker** anti-pattern
-3. **Phantom Consumer** anti-pattern
-4. **Leave telic breadcrumbs** (added at session end — this doc embodies it)
+## Commits this session (on main, all merged)
 
-Added to project memory (`~/.claude/projects/.../memory/`):
-- `feedback_phantom_consumer_audit.md` — empirical grep-for-consumers method
+- `072f351` — Merge PR #53 (GROUNDING bootstrap)
+- `559307e` — docs(worklog): mark 2026-05-14 GROUNDING+UX session merged
+- `af58a0f` — Merge PR #54 (GROUNDING Phase 2/2.5/3/5 + v12-b + registry expansion)
+- `99d805d` — docs(worklog): mark 2026-05-14 GROUNDING-completion session
+- `659ec5b` — fix: audit panel content-driven height (no blank vertical space)
+- `9fcb46f` — docs: RESEARCH_PROMPT.md (deep research prompt artifact)
+- `31919c3` — docs(worklog): mark 2026-05-14 session merged via PR #54
+- *(in progress, this commit)* — docs: RESEARCH_RESULTS.md + AMORTIZATION.md updates + HANDOVER.md (this file)
 
-## Pending threads
+## Commits on feat/opus-dn22-pilot (PR #55, NOT yet merged)
+
+- `1b4ac65` feat: `?phaseLimit=N` URL param — pilot-mode compilation cap
+- `76ea314` fix: null-safe chapter access in SuttaStudioFallback (blank screen fix)
+- `767e4f6` fix: Tooltip infinite render loop (useLayoutEffect deps)
+- `5e00c1b` fix: phaseLimit truncation also applies to runSkeletonPass output
+
+PR: https://github.com/anantham/LexiconForge/pull/55
+
+## Pending Threads
 
 ### Continue Immediately
-1. **Path B — 39 phases to polish.**
-   Per-phase budget after purge: ~6-8 min. Total ~5 hours.
-   Order: phase-5, 6, 7, x, y, z, aa-bg.
-   Pattern (per phase-4):
-   - Read `docs/sutta-studio/experiments/phase-N-v11-output.json`
-   - Write `phase-N-hand-curated.json` adding cross-phase notes + etymological depth + (selectively) translator notes for famously-contested compounds
-   - Splice into `components/sutta-studio/demoPacket.json` via line-based python pattern
-   - Write `docs/sutta-studio/curation/phase-N.md`
-   - Commit
 
-2. **PR #52 merge.** ~33 commits accumulated. Large but landed atomically because the threads are intertwined.
+1. **Verify DN22 pilot end-to-end** — Tooltip + phaseLimit fixes from PR #55 should make `/sutta/dn22?phaseLimit=4` compile cleanly in ~3 min / ~$0.10. Empirically validates the amortization claim. Once it lands, **merge PR #55** and move on.
 
-### Deferred (acknowledged, not blocking)
-- **Dead toggles** (Emoji in tooltips + Grammar terms) — wired but their target data was stripped. Safe to remove in a follow-up.
-- **DPD URL minting** — chips are wired to be clickable; existing 32 citations need URLs added.
-- **F task (translator-tradition DB)** — would harden the claimed citations in curation logs. ~3-5 hr.
-- **Refrain-detector post-pass** — sibling to syllabifier; would unlock "this word recurs N times" affordance. ~2-3 hr.
-- **A3 metadata-filler module** — mostly unnecessary after purge; only DPD-citation-linker remains valuable.
-- **Compiler consolidation Phase 2c/3/4** — orchestrator refactor + LLM caller merge + shim cleanup. Not blocking.
-- **Vestigial branches cleanup** — `feat/opus-tooltip-plain-first`, batch3, batch4, consolidation, v2-pipeline-wire — all merged. Worktrees may still exist.
+2. **GROUNDING Phase 4 wiring via Eudoxos** — research find at `github.com/edhamma/vism/vism/gloss.tei` (116 KB). Pre-parsed Pāli term → Visuddhimagga location mapping. ~2 hr to ship. See RESEARCH_RESULTS.md for the 6-step implementation plan. **HIGHEST-LEVERAGE move now.**
 
-## Critical context — DON'T add back
+3. **Persistent segmentCache across refreshes and suttas** — user observed (correctly) that the per-phase LLM cache is in-memory only. Persist to IndexedDB (mirror MorphologyCache pattern in `services/suttaStudioPipelineCache.ts`). ~2-4 hr. Big win: DN22 first-compile cost drops because verbatim-MN10 segments cache-hit; refresh during compile no longer loses prior work.
 
-Four fields were retired this session: `epistemicBasis`, `confidence`, `sourceCitationIds`, `morph`. The V2 prompt amendment for them is no longer in the active assembly. Older curation logs reference these — **they are intentionally absent**. Don't reinstate without building a UI consumer FIRST.
+### Blocked
 
-Named export `SUTTA_STUDIO_V2_SENSE_METADATA` is kept in source for historical reference only — see comment block above `SUTTA_STUDIO_V2_AMENDMENTS` array.
+None currently.
 
-## What we empirically validated
+### Deferred
 
-- V2 amendments lift structural quality (register, anchor, relations, segmentation) but NOT metadata fields (LLMs ignore epistemicBasis/confidence even when prompted)
-- Pipeline+polish is 2-3× faster than from-scratch on routine phases
-- Cost is negligible (~$0.02/phase with Gemini Flash)
-- Hallucinated confidence is worse than absent confidence (user's "trust me bro" framing)
-- The empirical audit method: `grep -rn "<field>"` for consumers; zero hits = phantom
+1. **DharmaNexus / MITRA framework** — 1.74M cross-language sentence-aligned pairs + fine-tuned Gemma 2 LLM. Verified live but parked until polyglot reader is committed (POLYGLOT.md §4). ~25-40 hr integration; most value is in polyglot scope.
+
+2. **Compiler consolidation Phase 3/4** — single LLM caller + shim cleanup. Low urgency; not blocking.
+
+3. **Path B procedural phases** — 31 remaining. Now mostly auto-grounded via translator-bank, hand-polish would add cross-phase narrative + voice but not chip count. Reader-facing value low per hour.
+
+4. **Refrain-detector post-pass** — independent infra (~2-3 hr). Adds "this phrase appears N times" affordance.
+
+5. **Cost-aware preview-and-confirm UX** — preview first 4 phases, show estimate for remaining, ask user to continue. Needs per-phase cost tracking + pause/resume UI. ~2-4 hr.
+
+## Key Context
+
+### What this context uniquely captured (now in durable artifacts)
+
+- **PR #55 with 4 bug fixes** — each commit message documents the symptom + root cause
+- **RESEARCH_RESULTS.md** — Eudoxos breakthrough captured with exact file paths in the repo (`vism/gloss.tei`), licensing caveat, and 6-step wiring plan
+- **AMORTIZATION.md backlog updated** — Eudoxos green-lit, MITRA parked, HKU + Pali Translation Project annotated with verified status
+- **Smart-caching-across-suttas observation** — Pending Thread #3 with implementation pattern (mirror MorphologyCache)
+
+### Architecture state (snapshot)
+
+- **GROUNDING:** Phases 0/1/1.5/2/2.5/3/5 shipped. Phase 4 unblocked, ready to ship in ~2 hr.
+- **Registry:** 11 contested-terms entries covering MN10 vocab + cross-sutta vocab (sati, dukkha, nibbāna, ñāya, satipaṭṭhāna, ātāpī, sampajāno, vedanā, citta, dhammā, kāyānupassī)
+- **v12 prompt:** sliding-window prior-phase context. Future v12 compilations will write cross-phase observations automatically.
+- **MN10:** ALL 39 phases grounded (every phase has ≥1 citation chip). 4 phases hand-polished (2/5/6/7).
+- **DN22:** pilot in progress — compile pending verification with PR #55 fixes.
+
+### Non-obvious bugs the fresh agent should know
+
+- **Tooltip useLayoutEffect MUST NOT include `leftPx` in deps** — caused infinite loop (set→measure→set). Fixed in `767e4f6`. Pattern: any state set inside an effect should NOT be in the effect's deps unless the change-detection guards re-entry.
+- **`shouldRecompile = isStaleBuild`** triggers full recompile if `progress.state !== 'complete'` and last update > 3 min ago. Mid-flight crashes leave packets in this state. Persistent segmentCache (Thread #3) would mitigate.
+- **`phaseLimit` URL param** truncates phaseSkeleton ONLY after both `runSkeletonPass` AND `chunkPhases` paths. Fixed in `5e00c1b`. Don't add scoped truncation in the future; always after the assignment.
+
+### Eudoxos licensing — be careful
+
+`github.com/edhamma/vism` is BPS-copyrighted Ñāṇamoli translation. Edhamma contacted BPS for permission, got no reply. **Citation + link** (our use case) should be fair use. **Full-text redistribution** would not be. If we ever package the gloss content into the bundled app (not just clickable links), get explicit BPS permission first.
+
+## Running Processes
+
+- **Vite dev server** — PID 74780, port 5180, serving from `opus-dn22-pilot` worktree.
+  - To switch to main after PR #55 merges:
+    ```bash
+    kill 74780
+    cd "/Users/aditya/Documents/Ongoing Local/LexiconForge"
+    nohup ./node_modules/.bin/vite > /tmp/vite-main.log 2>&1 &
+    ```
 
 ## Resume Instructions
 
-1. **First read:** this doc + `~/.claude/CLAUDE.md` (the 4 principles) + `docs/sutta-studio/CONSOLIDATION.md` for architecture.
+For the next agent starting cold:
 
-2. **Verify state:**
+1. **Read in this order:**
+   - This file (`docs/HANDOVER.md`)
+   - `docs/sutta-studio/RESEARCH_RESULTS.md` (the Eudoxos find — highest-leverage move pending)
+   - `docs/sutta-studio/AMORTIZATION.md` (the irreducible-gap framing + verified resources backlog)
+   - `docs/sutta-studio/GROUNDING.md` (architecture)
+   - `~/.claude/CLAUDE.md` (4 ratified principles)
+
+2. **Check PR #55 status:**
    ```bash
-   cd "/Users/aditya/Documents/Ongoing Local/LexiconForge.worktrees/opus-phase2-experiment"
-   git log --oneline -5
-   gh pr view 52 --json state,title
+   gh pr view 55 --json state,mergeable
    ```
+   If still open: merge it (it has bug fixes that should land before further work).
 
 3. **Decide next move:**
-   - **Path B continuation** → phase-5, ~7 min
-   - **Merge PR #52** → review the bundle, land it
-   - **Refrain-detector post-pass** → sibling to syllabifier, ~2-3 hr
+   - **(A) Verify DN22 pilot ran cleanly** — visit `http://localhost:5180/sutta/dn22?phaseLimit=4`, watch the compile, confirm `Phase X/4` (not 0/451) and chips appear. Validates amortization claim empirically.
+   - **(B) GROUNDING Phase 4 via Eudoxos** — ~2 hr, biggest quality lift. Pattern in RESEARCH_RESULTS.md.
+   - **(C) Persistent segmentCache** — ~2-4 hr, makes all future pilots cheaper. Foundation work.
 
-4. **Path B recipe:** see phase-4 pattern in `docs/sutta-studio/curation/phase-4.md` and matching `experiments/phase-4-hand-curated.json`. Same shape per phase.
+4. **My recommendation:** (A) → (C) → (B). Verify DN22 first (closes the loop on PR #55), then ship persistent cache (so all future compiles are cheap), then Phase 4 (so quality climbs).
 
-## File map
+## Learnings Captured
 
-```
-config/suttaStudioPromptContextV2.ts          V2 amendments (SENSE_METADATA retired)
-components/sutta-studio/
-  LensPanel.tsx                                Audit drawer, clickable chips
-  Legend.tsx                                   Color/symbol reference panel
-  SettingsPanel.tsx                            Flat settings list
-  EnglishWord.tsx                              Subtle cycle dots
-  Tooltip.tsx                                  Viewport clamp for mobile
-  demoPacket.json                              Live runtime data (post-purge)
-services/sutta-studio/
-  prompts/                                     Canonical prompt builders
-  passes/                                      Canonical pass functions
-  postPasses/syllabify.ts                      Deterministic pronunciation
-scripts/sutta-studio/
-  run-phase-experiment.ts                      Single-phase v11 runner
-  batch-v11-pipeline.sh                        Bulk 40-phase runner
-  backfill-pronunciation.ts                    Syllabifier batch
-  strip-phantom-metadata.ts                    This session's purge
-  strip-tooltip-cruft.ts                       Emoji + brackets strip
-docs/sutta-studio/
-  CONSOLIDATION.md                             Architecture refactor doc
-  COMPILER_STRATEGY.md                         Pipeline+polish thesis
-  CURATION_PROTOCOL.md                         §3.4 tooltip register
-  curation/                                    Per-phase polish logs
-  experiments/                                 v11 outputs + hand-curated diffs
-```
+- [x] Bug pattern: useLayoutEffect with self-set state in deps → captured in `767e4f6` commit body
+- [x] Architecture insight: per-phase cache is right granularity but not persisted → Pending Thread #3
+- [x] Resource discovery: Eudoxos TEI Visuddhimagga → RESEARCH_RESULTS.md + AMORTIZATION.md
+- [x] Decision-stack: Eudoxos > MITRA for current Pāli-only product → AMORTIZATION.md verdict section
+- [ ] No skill-update opportunities surfaced this session (handover skill already has Phase 0 from earlier patch)
 
 ---
-*Handover by Claude Opus 4.7 (1M context) at ~7% context. Read cold and pick up.*
+
+*Handover by Claude Opus 4.7 (1M context) at ~83% context. Read cold and pick up.*

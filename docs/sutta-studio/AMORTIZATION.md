@@ -96,12 +96,15 @@ This section lists Pāli/Buddhist-studies infrastructure we have NOT investigate
 - **DPD (Digital Pali Dictionary)** ✅ already wired
 - **Cologne Digital Sanskrit Dictionaries** — Monier-Williams, MW Apte, etc. Useful for Sanskrit cognates. Public API at sanskrit-lexicon.uni-koeln.de.
 - **PTS Pali-English Dictionary** ✅ accessible via dsalsrv04.uchicago.edu and via SuttaCentral's `/define/` route
-- **CPD (Critical Pali Dictionary)** — Trenckner et al., partial coverage of the canon's vocabulary. NOT YET INVESTIGATED.
+- **CPD (Critical Pali Dictionary)** — ✅ **VERIFIED 2026-05-14.** https://cpd.uni-koeln.de online but: (1) only complete up to letter 'kā', (2) restrictive ASCII query syntax, (3) print-centric dense output. Useful manual reference, not programmatic.
+- **DharmaNexus / MITRA framework** — ✅ **VERIFIED 2026-05-14 via research output.** 1.74M sentence-aligned Pāli/Sanskrit/Tibetan/Chinese pairs + fine-tuned Gemma 2 LLM for classical Buddhist translation. PARKED until polyglot reader is roadmap (~25-40 hr integration, primarily polyglot-scope value). See RESEARCH_RESULTS.md.
 
 ### Corpus / texts
 
 - **SuttaCentral bilara-data** ✅ wired (per-verse translator alignments)
-- **VRI Tipitaka (Burmese 6th-council edition)** — at tipitaka.org. Contains Tipitaka + Aṭṭhakathā (commentaries) + Tika (sub-commentaries). NOT YET WIRED for commentarial-gloss lookup (Phase 4 work).
+- **VRI Tipitaka (Burmese 6th-council edition)** — at tipitaka.org. Contains Tipitaka + Aṭṭhakathā (commentaries) + Tika (sub-commentaries). Verified live but no programmatic chapter index — Pāli only. Superseded for Vism by Eudoxos.
+- **Pali Translation Project** — ✅ **VERIFIED 2026-05-14.** https://palitranslation.org Sumaṅgalavilāsinī (DN commentary) "nearly finished" by end-2025. Open-source, will integrate with SuttaCentral. WATCH FOR RELEASE — could unblock per-sutta DN/MN commentaries beyond what Eudoxos provides for general Vism glosses.
+- **HKU Papañcasūdanī Part 1** — ✅ **VERIFIED 2026-05-14.** PDF eBook covering MN suttas 1-3 commentary. https://www.buddhism.hku.hk/publication-post/papancasudani-commentary/ Bridge for MN-specific commentary until Pali Translation Project ships full Papañcasūdanī.
 - **GRETIL** — Sanskrit + Pāli text archive at uni-goettingen.de. NOT YET INVESTIGATED.
 - **CBETA** — Chinese Buddhist canon. Relevant for Mahayana / parallel-text work (84000 already partially wired for Tibetan).
 - **dhammatalks.org** ✅ wired (Thanissaro translations)
@@ -110,7 +113,7 @@ This section lists Pāli/Buddhist-studies infrastructure we have NOT investigate
 
 - **Bhikkhu Anālayo's monographs** — Satipaṭṭhāna direct path, Compassion and Emptiness, etc. Public PDFs at his author page on amaravati.org. NOT YET INDEXED — could build a small bibliographic provider.
 - **Bhikkhu Bodhi's translations and intros** — printed books. Some intros are excerpted online. NOT YET INDEXED.
-- **Visuddhimagga (Buddhaghosa)** — VRI digitized but not yet indexed by term-to-line citations. PHASE 4 work.
+- **Visuddhimagga (Buddhaghosa)** — ✅ **VERIFIED unblocked 2026-05-14 via Eudoxos / edhamma project.** TEI XML + Sphinx HTML with stable anchors at https://github.com/edhamma/vism. The `vism/gloss.tei` file (116 KB) is a pre-parsed glossary mapping Pāli terms to Vism locations. See `docs/sutta-studio/RESEARCH_RESULTS.md` for details. **Phase 4 collapses from 6-10 hr to ~2 hr.** Licensing caveat: BPS owns © to Ñāṇamoli translation; chip-citation-with-link should be fair use.
 - **Comprehensive Manual of Abhidhamma (Bodhi/Nārada)** — relevant for terms like dhamma, citta, vedanā. NOT YET INVESTIGATED.
 
 ### Linguistic / morphological
