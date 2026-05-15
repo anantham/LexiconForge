@@ -57,7 +57,13 @@ export function Tooltip({
       newLeftPx = viewportWidth - margin - parentRect.left - tooltipRect.width;
     }
     if (newLeftPx !== leftPx) setLeftPx(newLeftPx);
-  }, [flipBelow, leftPx, text, facetIndex, facetTotal]);
+    // NOTE: leftPx is intentionally NOT in deps. Including it caused an
+    // infinite loop — setting leftPx shifts the tooltip, retriggers the
+    // effect, re-measures the shifted position, computes a new (often
+    // different) newLeftPx, sets it again, ad infinitum. We use leftPx
+    // inside the effect only for change-detection (avoid redundant setState).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flipBelow, text, facetIndex, facetTotal]);
 
   // When a segment has multiple tooltip facets (e.g., "Meaning", "What English
   // hides", "Example", …), show a small "1/3" indicator so the reader knows
