@@ -116,6 +116,9 @@ So `CORE-008-derived-views-recomputed-not-stored` is still worth drafting (cover
 
 ## Tier ordering (2026-05-15 — post-Playwright-investigation sweep + archaeology audit)
 
+> **Full verbatim RCA with JSONL conversation quotes:** [`docs/postmortem/2026-05-15-issue-rca-with-jsonl-quotes.md`](../docs/postmortem/2026-05-15-issue-rca-with-jsonl-quotes.md) — quotes the actual user prompts and assistant responses that produced the #19 + #20 fixes (and the README staleness around them). The pre-archive bugs (#3 anomaly B, #6, #7, #9, #13, #15) are cited via commit message only — their bug-introducing conversations predate the JSONL archive.
+
+
 After full §2-§9 investigation of 8 remaining issues (#3, #6, #7, #8, #9, #12, #13, #15) AND a deep git-blame + JSONL archaeology pass, the universe of 20 issues collapses to a clear fix-direction order. **The archaeology revealed that #19, #20, and #12 are already FIXED on main — but their READMEs were stale by 10 days, causing the initial Tier 1 to mis-classify them as pending.** This is a meta-finding worth recording (see "Deeper generator: stale-issue-readme" below).
 
 Tiers run sequentially; within a tier, work is parallelizable across agents.
