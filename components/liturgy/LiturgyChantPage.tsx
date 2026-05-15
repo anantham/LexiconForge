@@ -2,6 +2,7 @@ import React from 'react';
 import type { LiturgyDoc } from '../../types/liturgy';
 import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
+import { LiturgySettingsProvider, SettingsButton } from './LiturgySettings';
 
 /**
  * Single-chant page.
@@ -36,19 +37,18 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
   })();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Thin nav at top, no big header — the Homage is the threshold */}
-      <nav className="absolute top-4 left-6 right-6 flex items-center justify-between text-xs z-10">
-        <a
-          href="/liturgy"
-          className="text-emerald-400/80 hover:text-emerald-300 uppercase tracking-widest"
-        >
-          ← Liturgy
-        </a>
-        <span className="text-slate-600 uppercase tracking-widest">
-          {TRADITION_LABELS[doc.tradition]}
-        </span>
-      </nav>
+    <LiturgySettingsProvider>
+      <div className="min-h-screen bg-slate-950 text-slate-100">
+        {/* Thin nav at top, no big header — the Homage is the threshold */}
+        <nav className="absolute top-4 left-6 text-xs z-10">
+          <a
+            href="/liturgy"
+            className="text-emerald-400/80 hover:text-emerald-300 uppercase tracking-widest"
+          >
+            ← Liturgy
+          </a>
+        </nav>
+        <SettingsButton />
 
       {/* Sections — first one gets `isOpening` for the big stone-marker layout */}
       {doc.sections.map((section, i) => (
@@ -116,7 +116,8 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
           </div>
         )}
       </footer>
-    </div>
+      </div>
+    </LiturgySettingsProvider>
   );
 };
 

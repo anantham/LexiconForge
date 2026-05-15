@@ -20,6 +20,7 @@ const ACCENT_CLASS: Record<AccentColor, string> = {
 };
 import { Tooltip } from '../../sutta-studio/Tooltip';
 import { ProseBlock } from '../ProseBlock';
+import { useLiturgySettings } from '../LiturgySettings';
 
 /**
  * Shape: triple-script-witness — per-segment interleaved layout.
@@ -189,6 +190,7 @@ const PaliLine: React.FC<{
   words?: WordGloss[];
   large?: boolean;
 }> = ({ text, words = [], large = false }) => {
+  const { settings } = useLiturgySettings();
   const idx = buildWordIndex(words);
   const tokens = tokenize(text);
   const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
@@ -207,7 +209,7 @@ const PaliLine: React.FC<{
         if (t.kind === 'gap') return <React.Fragment key={i}>{t.text}</React.Fragment>;
         paliSurfaceIdx += 1;
         const word = matchWord(t.text, idx);
-        const accentClass = word?.accent ? ACCENT_CLASS[word.accent] : '';
+        const accentClass = settings.showAccents && word?.accent ? ACCENT_CLASS[word.accent] : '';
         return (
           <span
             key={i}
@@ -231,6 +233,7 @@ const EnglishLine: React.FC<{
   text: string;
   accentByEnIdx?: Map<number, AccentColor>;
 }> = ({ text, accentByEnIdx }) => {
+  const { settings } = useLiturgySettings();
   const tokens = tokenizeEnglish(text);
   let engIdx = -1;
   return (
@@ -239,7 +242,7 @@ const EnglishLine: React.FC<{
         if (/^\s+$/.test(t)) return <React.Fragment key={i}>{t}</React.Fragment>;
         engIdx += 1;
         const accent = accentByEnIdx?.get(engIdx);
-        const accentClass = accent ? ACCENT_CLASS[accent] : '';
+        const accentClass = settings.showAccents && accent ? ACCENT_CLASS[accent] : '';
         return (
           <span
             key={i}
@@ -255,8 +258,13 @@ const EnglishLine: React.FC<{
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WitnessDots — interactive citation indicator
+// WitnessDots — subtle, section-level citation indicator
 // ─────────────────────────────────────────────────────────────────────────────
+//
+// Dots are aria-hidden anchors for hover; click cycling happens by clicking
+// the English line itself (handled in SegmentRow). Hovering a dot reveals
+// the witness's name — the name itself is the link (if a URL exists), so
+// the reader can move smoothly from hover → click without losing the popover.
 
 const WitnessDots: React.FC<{
   witnesses: Witness[];
@@ -264,9 +272,17 @@ const WitnessDots: React.FC<{
   onSelect: (idx: number) => void;
 }> = ({ witnesses, activeIdx, onSelect }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const hovered = hoveredIdx !== null ? witnesses[hoveredIdx] : null;
+  const [pinned, setPinned] = useState(false);
+  const visibleIdx = pinned ? hoveredIdx : hoveredIdx;
+  const hovered = visibleIdx !== null ? witnesses[visibleIdx] : null;
+
   return (
-    <div className="relative inline-flex gap-2 items-center">
+    <div
+      className="relative inline-flex gap-2 items-center"
+      onMouseLeave={() => {
+        if (!pinned) setHoveredIdx(null);
+      }}
+    >
       {witnesses.map((w, i) => {
         const active = i === activeIdx;
         return (
@@ -278,11 +294,10 @@ const WitnessDots: React.FC<{
               onSelect(i);
             }}
             onMouseEnter={() => setHoveredIdx(i)}
-            onMouseLeave={() => setHoveredIdx(null)}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`w-1.5 h-1.5 rounded-full transition-all ${
               active
-                ? 'bg-emerald-400'
-                : 'border border-slate-600 bg-transparent hover:border-emerald-400 hover:bg-emerald-500/30'
+                ? 'bg-emerald-400/70'
+                : 'border border-slate-700 bg-transparent hover:border-emerald-400/60'
             }`}
             aria-label={`Show ${w.by}${active ? ' (active)' : ''}`}
           />
@@ -290,23 +305,28 @@ const WitnessDots: React.FC<{
       })}
       {hovered && (
         <div
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 px-3 py-2 rounded bg-slate-900/95 border border-slate-700 shadow-xl text-xs whitespace-normal text-left pointer-events-auto"
-          style={{ maxWidth: 'min(20rem, calc(100vw - 1rem))', minWidth: '12rem' }}
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 px-2.5 py-1.5 rounded bg-slate-900/85 border border-slate-800 shadow-lg text-[11px] whitespace-nowrap pointer-events-auto"
+          onMouseEnter={() => setPinned(true)}
+          onMouseLeave={() => {
+            setPinned(false);
+            setHoveredIdx(null);
+          }}
         >
-          <div className="text-slate-200 font-medium">{hovered.by}</div>
-          {hovered.license && (
-            <div className="text-slate-500 mt-0.5">{hovered.license}</div>
-          )}
-          {hovered.url && (
+          {hovered.url ? (
             <a
               href={hovered.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-emerald-400/80 hover:text-emerald-300 mt-1 break-all"
+              className="text-slate-300 hover:text-emerald-300 transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
-              {hovered.url} ↗
+              {hovered.by}
             </a>
+          ) : (
+            <span className="text-slate-400">{hovered.by}</span>
+          )}
+          {hovered.license && (
+            <span className="text-slate-600 ml-2">{hovered.license}</span>
           )}
         </div>
       )}
@@ -396,14 +416,28 @@ const AlignmentLines: React.FC<{ lines: Line[]; hovered: HoverTarget }> = ({
 const SegmentRow: React.FC<{
   segment: TripleScriptWitnessSegment;
   script: 'roman' | 'deva';
-  primaryWitness: string;
+  /** Witness preference (by `.by` field). Falls back to first available. */
+  preferredWitnessBy: string;
+  /** Called when user clicks the English line — section cycles all segments. */
+  onCycleWitness: () => void;
+  /** Called when user clicks the Pāli line — section cycles all segments. */
+  onCycleScript: () => void;
   large?: boolean;
-}> = ({ segment, script, primaryWitness, large = false }) => {
-  const witnessStart = Math.max(
-    0,
-    segment.witnesses.findIndex((w) => w.by === primaryWitness)
-  );
-  const [witnessIdx, setWitnessIdx] = useState(witnessStart);
+}> = ({
+  segment,
+  script,
+  preferredWitnessBy,
+  onCycleWitness,
+  onCycleScript,
+  large = false,
+}) => {
+  // Pick the witness whose `by` matches the section's preference, falling
+  // back to the first available if this segment doesn't have it (e.g. some
+  // refuge-repeat segments only have MAPLE + Sujato, no Thanissaro).
+  const witnessIdx = (() => {
+    const i = segment.witnesses.findIndex((w) => w.by === preferredWitnessBy);
+    return i >= 0 ? i : 0;
+  })();
   const currentWitness = segment.witnesses[witnessIdx];
   const containerRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<Line[]>([]);
@@ -492,10 +526,23 @@ const SegmentRow: React.FC<{
     };
   }, []);
 
+  // Click-to-cycle handler that respects active text selection (drag-to-copy
+  // should not also fire a cycle).
+  const onLineClick = (cb: () => void) => (e: React.MouseEvent) => {
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed) return;
+    e.stopPropagation();
+    cb();
+  };
+
   return (
     <div className="mb-8 relative" id={segment.id} ref={containerRef}>
-      {/* Pali line */}
-      <div className="text-center">
+      {/* Pāli line — click cycles script (Roman ↔ Devanāgarī) at the section level */}
+      <div
+        className="text-center cursor-pointer select-text"
+        onClick={onLineClick(onCycleScript)}
+        title="Click to swap script"
+      >
         {script === 'roman' ? (
           <PaliLine text={segment.pali} words={segment.words} large={large} />
         ) : segment.paliDeva ? (
@@ -511,22 +558,18 @@ const SegmentRow: React.FC<{
         )}
       </div>
 
-      {/* English line — text always selectable. The witness dots below give
-          direct access to alternative renderings + source citations on hover. */}
+      {/* English line — click cycles witness at the section level */}
       {currentWitness && (
-        <div className="w-full text-center mt-6 px-2 py-1">
+        <div
+          className="w-full text-center mt-6 px-2 py-1 cursor-pointer select-text"
+          onClick={onLineClick(onCycleWitness)}
+          title={segment.witnesses.length > 1 ? 'Click to switch translation' : undefined}
+        >
           <div
-            className="text-slate-300 italic leading-relaxed text-base md:text-lg select-text"
+            className="text-slate-300 italic leading-relaxed text-base md:text-lg"
             style={{ fontFamily: SERIF_STACK }}
           >
             <EnglishLine text={currentWitness.text} accentByEnIdx={accentByEnIdx} />
-          </div>
-          <div className="mt-3 flex justify-center">
-            <WitnessDots
-              witnesses={segment.witnesses}
-              activeIdx={witnessIdx}
-              onSelect={setWitnessIdx}
-            />
           </div>
         </div>
       )}
@@ -546,8 +589,43 @@ export const TripleScriptWitness: React.FC<{
   primaryWitness: string;
   isOpening?: boolean;
 }> = ({ section, primaryWitness, isOpening = false }) => {
-  // Script: Pāli roman only. Devanāgarī availability is in the data and may
-  // surface later as a user preference, not a per-section toggle.
+  // Section-level state: ONE script and ONE witness preference applies to
+  // every segment in this section. Click any English line → all English
+  // lines cycle to the next witness. Click any Pāli line → all swap to
+  // Devanāgarī (or back).
+  const [script, setScript] = useState<'roman' | 'deva'>('roman');
+
+  // Union of witnesses across segments — section-level dots show the full
+  // catalog even if a particular segment lacks one (e.g. refuge-repeat
+  // blocks have only MAPLE + Sujato; the union still shows Thanissaro).
+  const allWitnesses = useMemo(() => {
+    const seen = new Map<string, Witness>();
+    for (const seg of section.segments) {
+      for (const w of seg.witnesses) {
+        if (!seen.has(w.by)) seen.set(w.by, w);
+      }
+    }
+    return Array.from(seen.values());
+  }, [section.segments]);
+
+  // Active witness preference (by name). Starts at the primary.
+  const witnessStart = Math.max(
+    0,
+    allWitnesses.findIndex((w) => w.by === primaryWitness)
+  );
+  const [witnessIdx, setWitnessIdx] = useState(witnessStart);
+  const preferredWitnessBy = allWitnesses[witnessIdx]?.by ?? '';
+
+  const cycleWitness = () => {
+    if (allWitnesses.length <= 1) return;
+    setWitnessIdx((w) => (w + 1) % allWitnesses.length);
+  };
+  const cycleScript = () => {
+    const hasDeva = section.segments.some((s) => s.paliDeva);
+    if (!hasDeva) return;
+    setScript((s) => (s === 'roman' ? 'deva' : 'roman'));
+  };
+
   const sectionClass = isOpening
     ? 'min-h-[80vh] flex flex-col items-center justify-center px-6 py-16'
     : 'pt-16 pb-16 px-6 border-t border-slate-900';
@@ -555,14 +633,28 @@ export const TripleScriptWitness: React.FC<{
   return (
     <section className={sectionClass} id={section.id}>
       <div className="w-full max-w-3xl mx-auto">
+        {/* Section-level witness indicator — one row at the top, declaring
+            the sources from which all segments in this section are drawn. */}
+        {allWitnesses.length > 0 && (
+          <div className="mb-10 flex justify-center">
+            <WitnessDots
+              witnesses={allWitnesses}
+              activeIdx={witnessIdx}
+              onSelect={setWitnessIdx}
+            />
+          </div>
+        )}
+
         {/* Segments interleaved Pali + English */}
         <div className="space-y-2">
           {section.segments.map((seg) => (
             <SegmentRow
               key={seg.id}
               segment={seg}
-              script="roman"
-              primaryWitness={primaryWitness}
+              script={script}
+              preferredWitnessBy={preferredWitnessBy}
+              onCycleWitness={cycleWitness}
+              onCycleScript={cycleScript}
               large={isOpening}
             />
           ))}
@@ -579,7 +671,7 @@ export const TripleScriptWitness: React.FC<{
         {section.commentary && (
           <ProseBlock
             text={section.commentary}
-            className="space-y-3 text-slate-500 text-xs italic leading-relaxed mt-12 max-w-2xl mx-auto text-center"
+            className="space-y-3 text-slate-500 text-xs italic leading-relaxed mt-10 max-w-2xl mx-auto text-center"
           />
         )}
       </div>
