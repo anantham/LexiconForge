@@ -262,16 +262,36 @@ with clickable links.
 
 **Validation gate**: 5 random phases show correct Bodhi+Sujato rendering chips.
 
-### Phase 4 — Commentarial-gloss seed (Gap D)
-**Effort**: 6-10 hours
-**Risk**: high (requires Pāli reading to extract glosses accurately)
+### Phase 4 — Commentarial-gloss seed (Gap D) ✅ shipped 2026-05-14
+**Effort**: ~2 hours (estimated 6-10, collapsed via the Eudoxos find)
+**Risk**: low (deterministic TEI parse, no LLM in path)
 
-Seed `commentarial-glosses.json` with ~30 of the most-glossed Theravāda
-technical terms. Use VRI tipitaka.org as primary source (the Burmese-edition
-commentaries are digitized with permalinks).
+Implemented via the **Eudoxos / edhamma Visuddhimagga TEI glossary**
+(`github.com/edhamma/vism/vism/gloss.tei`, 116 KB). Output committed to
+`data/sutta-studio/grounding/commentarial-glosses.json` — 909 entries
+covering most MN10/DN22 vocabulary, 273 entries with explicit
+Visuddhimagga section refs (e.g., `III.68`) that link directly to the
+Sphinx HTML build at `edhamma.github.io/vism/sphinx/build/html/`.
 
-**Validation gate**: 5 random entries verified — click through to VRI,
-check the excerpt matches.
+Pipeline:
+1. `scripts/sutta-studio/fetch-vism-glosses.ts` — one-shot Node script,
+   downloads + regex-parses gloss.tei, writes the JSON.
+2. `services/sutta-studio/grounding/commentarialGlossProvider.ts` —
+   `CommentarialGlossProvider`, mirrors `ContestedTermProvider` (same
+   exact / substring / stem-prefix matching, same `Citation` shape).
+3. Wired into `buildDefaultProviders()` alongside contested-terms.
+
+Licensing: BPS holds copyright on Ñāṇamoli's Vism translation. Citation
++ clickable link is fair use; the JSON stores only short dictionary-style
+glosses, not the Vism body. Full-text redistribution would require BPS
+permission. See `docs/sutta-studio/RESEARCH_RESULTS.md` and
+`docs/sutta-studio/AMORTIZATION.md` for the licensing trail.
+
+**Validation gate** (passed): 14 unit tests in
+`tests/services/commentarialGlossProvider.test.ts` cover URL building
+across all 23 Roman-numeral chapters, the three match strategies, the
+asterisk-prefix entry handling, the "no LLM fallback" anti-pattern, and
+Citation field completeness.
 
 ### Phase 5 — UI grounded-vs-interpretive affordance (Gap F)
 **Effort**: 1-2 hours

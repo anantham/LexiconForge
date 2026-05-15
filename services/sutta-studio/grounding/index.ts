@@ -11,19 +11,31 @@
  */
 
 import { ContestedTermProvider, loadRegistry } from './contestedTermProvider';
+import { CommentarialGlossProvider, loadCommentarialGlosses } from './commentarialGlossProvider';
 import type { GroundedClaim, GroundingProvider } from './types';
 
 export type { GroundedClaim, GroundingProvider, MatchStrategy, Match } from './types';
 export { ContestedTermProvider, loadRegistry } from './contestedTermProvider';
+export { CommentarialGlossProvider, loadCommentarialGlosses } from './commentarialGlossProvider';
 
 /**
- * Default production registry composition. Currently just contested-terms;
- * Phase 3 will add the translator-bank provider, Phase 4 will add the
- * commentarial-gloss provider, each wired here.
+ * Default production registry composition: contested-terms (hand-curated
+ * MN10/DN22 vocabulary) + commentarial-glosses (909 Vism glossary entries
+ * from Ñāṇamoli, via the Eudoxos / edhamma TEI corpus).
+ *
+ * Phase 3 (translator-bank via SC Bilara) is wired separately in the
+ * compiler pass. Phase 4 (this provider) added 2026-05-14 via Eudoxos
+ * find — see docs/sutta-studio/RESEARCH_RESULTS.md.
  */
 export async function buildDefaultProviders(): Promise<GroundingProvider[]> {
-  const registry = await loadRegistry();
-  return [new ContestedTermProvider(registry)];
+  const [registry, glossFile] = await Promise.all([
+    loadRegistry(),
+    loadCommentarialGlosses(),
+  ]);
+  return [
+    new ContestedTermProvider(registry),
+    new CommentarialGlossProvider(glossFile),
+  ];
 }
 
 /**
