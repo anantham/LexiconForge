@@ -62,14 +62,20 @@ function buildWordIndex(words: WordGloss[]): Map<string, WordGloss> {
 function matchWord(token: string, idx: Map<string, WordGloss>): WordGloss | undefined {
   const norm = normalizeForMatch(token);
   if (!norm) return undefined;
+  // 1. Exact match wins.
   if (idx.has(norm)) return idx.get(norm);
-  // Prefix / inflected-form fallback
+  // 2. Longest-prefix match — pick the entry whose form is the longest
+  //    prefix of the token (or vice versa). Prevents short-prefix entries
+  //    (e.g. "sam-") from swallowing surface tokens like "sambuddhassa".
+  let best: { w: WordGloss; len: number } | undefined;
   for (const [key, w] of idx) {
-    if (key.length >= 3 && (norm.startsWith(key) || key.startsWith(norm))) {
-      return w;
+    if (key.length < 3) continue;
+    if (norm.startsWith(key) || key.startsWith(norm)) {
+      const matchLen = Math.min(key.length, norm.length);
+      if (!best || matchLen > best.len) best = { w, len: matchLen };
     }
   }
-  return undefined;
+  return best?.w;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -118,10 +124,11 @@ const HoverSpan: React.FC<{ text: string; tooltipText: string }> = ({ text, tool
 };
 
 function tooltipForMorpheme(m: WordMorpheme): string {
+  // Plain-English tooltip — no grammar jargon. Root marker only when present
+  // (advanced reader cue, not required vocabulary).
   const parts: string[] = [];
-  if (m.root) parts.push(m.root);
   if (m.pronunciation) parts.push(`[${m.pronunciation}]`);
-  parts.push(`(${m.type})`);
+  if (m.root) parts.push(m.root);
   parts.push(m.gloss);
   return parts.filter(Boolean).join(' · ');
 }
@@ -321,13 +328,25 @@ const SegmentRow: React.FC<{
         )}
       </div>
 
-      {/* English line — clickable to cycle witnesses */}
+      {/* English line — clickable to cycle witnesses but text remains selectable.
+          A <button> would block text selection in most browsers; we use a div
+          with role="button" so the user can copy the English they're reading. */}
       {currentWitness && (
-        <button
-          type="button"
+        <div
           onClick={cycleWitness}
-          disabled={segment.witnesses.length <= 1}
-          className="group block w-full text-center cursor-pointer disabled:cursor-default mt-6 px-2 py-1 rounded hover:bg-slate-900/40 transition-colors"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              cycleWitness();
+            }
+          }}
+          role={segment.witnesses.length > 1 ? 'button' : undefined}
+          tabIndex={segment.witnesses.length > 1 ? 0 : undefined}
+          className={`group block w-full text-center mt-6 px-2 py-1 rounded transition-colors ${
+            segment.witnesses.length > 1
+              ? 'cursor-pointer hover:bg-slate-900/40'
+              : ''
+          }`}
           title={
             segment.witnesses.length > 1
               ? `Click to cycle witness (${witnessIdx + 1}/${segment.witnesses.length})`
@@ -335,12 +354,19 @@ const SegmentRow: React.FC<{
           }
         >
           <div
-            className="text-slate-300 italic leading-relaxed text-base md:text-lg"
+            className="text-slate-300 italic leading-relaxed text-base md:text-lg select-text"
             style={{ fontFamily: SERIF_STACK }}
+            onClick={(e) => {
+              // Allow text selection: if there's an active selection, don't cycle.
+              const sel = window.getSelection();
+              if (sel && !sel.isCollapsed) {
+                e.stopPropagation();
+              }
+            }}
           >
             <EnglishLine text={currentWitness.text} />
           </div>
-        </button>
+        </div>
       )}
 
       {/* SVG alignment overlay */}

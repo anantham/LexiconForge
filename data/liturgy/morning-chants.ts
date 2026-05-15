@@ -25,77 +25,77 @@ const pronCite = suttaCentralPronunciationCitation();
 // (the Refuges + Dutiyampi/Tatiyampi blocks all share the same 3 word forms)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Plain-English morpheme glosses — no linguist jargon (no "dative", "accusative",
+// "participle", "nominative singular masculine"). Each gloss says what the
+// morpheme does to the MEANING, in language a chanter can use.
 const HOMAGE_WORDS: WordGloss[] = [
   {
     form: 'namo', scriptAlt: 'नमो', pronunciation: 'nah-MOH', root: '√nam',
-    etymology: '√nam "to bow, to bend"', gloss: 'homage, reverence',
+    etymology: '√nam "to bow"', gloss: 'homage, reverence',
     citations: [dpdCitation('namo'), pronCite],
     morphemes: [
-      { text: 'nam', type: 'root', root: '√nam', gloss: '"to bow, to bend"', pronunciation: 'nah', citations: [dpdCitation('namati')] },
-      { text: 'o', type: 'suffix', gloss: 'nominative singular masculine ending — turns the root into "an act of bowing / homage"', pronunciation: 'MOH' },
+      { text: 'nam', type: 'root', root: '√nam', gloss: 'to bow', pronunciation: 'nah', citations: [dpdCitation('namati')] },
+      { text: 'o', type: 'suffix', gloss: 'turns "to bow" into "an act of homage" — the gesture itself', pronunciation: 'MOH' },
     ],
   },
   {
     form: 'tassa', scriptAlt: 'तस्स', pronunciation: 'TAH-sah',
-    etymology: 'dative singular of *ta-* (demonstrative)',
+    etymology: 'pointer word + "to him"',
     gloss: 'to him, to that one',
     citations: [dpdCitation('ta'), pronCite],
     morphemes: [
-      { text: 'ta', type: 'stem', gloss: 'demonstrative pronoun "that, he"', pronunciation: 'TAH', citations: [dpdCitation('ta')] },
-      { text: 'ssa', type: 'suffix', gloss: 'dative/genitive singular — "to him, of him"', pronunciation: 'sah' },
+      { text: 'ta', type: 'stem', gloss: '"that one" — pointing at the one being honored', pronunciation: 'TAH', citations: [dpdCitation('ta')] },
+      { text: 'ssa', type: 'suffix', gloss: '"to him" — marks who this homage is for', pronunciation: 'sah' },
     ],
   },
   {
     form: 'bhagavato', scriptAlt: 'भगवतो', pronunciation: 'bah-gah-VAH-toh',
-    etymology: '*bhaga* "fortune, share" + *-vant* "possessing"',
+    etymology: '*bhaga* "fortune" + *-vant* "possessing"',
     gloss: 'the Exalted, the Blessed, the Revered One',
     citations: [dpdCitation('bhagavant'), pronCite],
     morphemes: [
-      { text: 'bhaga', type: 'stem', gloss: '"fortune, share, prosperity"', pronunciation: 'bah-gah', citations: [dpdCitation('bhaga')] },
-      { text: 'va', type: 'suffix', gloss: 'possessive — from *-vant* (sandhi-shortened)', pronunciation: 'VAH' },
-      { text: 'to', type: 'suffix', gloss: 'dative singular ending', pronunciation: 'toh' },
+      { text: 'bhaga', type: 'stem', gloss: 'fortune, blessing', pronunciation: 'bah-gah', citations: [dpdCitation('bhaga')] },
+      { text: 'va', type: 'suffix', gloss: 'possessing — "one who has [fortune]"', pronunciation: 'VAH' },
+      { text: 'to', type: 'suffix', gloss: '"to him"', pronunciation: 'toh' },
     ],
   },
   {
     form: 'arahato', scriptAlt: 'अरहतो', pronunciation: 'ah-rah-HAH-toh',
-    etymology: '*araha* "worthy" + *-ant* (participial). Traditional commentaries also derive arahat as *ari* "enemy" + *hata* "slain" — "slayer of inner foes".',
+    etymology: '*araha* "worthy" — the worthy one',
     gloss: 'the Worthy One; one free from defilements',
     citations: [
       dpdCitation('arahant'),
       pronCite,
-      ungroundedCitation('commentarial etymology needs PED check'),
+      ungroundedCitation('commentarial reading "slayer of inner foes" needs PED check'),
     ],
     morphemes: [
-      { text: 'araha', type: 'stem', gloss: '"worthy, deserving"', pronunciation: 'ah-rah-HAH', citations: [dpdCitation('araha')] },
-      { text: 'to', type: 'suffix', gloss: 'dative singular ending', pronunciation: 'toh' },
+      { text: 'araha', type: 'stem', gloss: 'worthy, deserving', pronunciation: 'ah-rah-HAH', citations: [dpdCitation('araha')] },
+      { text: 'to', type: 'suffix', gloss: '"to the worthy one"', pronunciation: 'toh' },
     ],
   },
   {
     form: 'sammā', scriptAlt: 'सम्मा', pronunciation: 'sahm-MAH',
-    etymology: '*sam-* "complete" + *-ā* (adverbial)',
+    etymology: 'fully, perfectly',
     gloss: 'perfectly, completely, rightly',
     citations: [dpdCitation('sammā'), pronCite],
     morphemes: [
-      { text: 'sam', type: 'prefix', gloss: 'intensifier — "completely, together"', pronunciation: 'sahm', citations: [dpdCitation('saṁ')] },
-      { text: 'mā', type: 'suffix', gloss: 'adverbial ending — turns the prefix into "completely, rightly"', pronunciation: 'MAH' },
+      { text: 'sam', type: 'prefix', gloss: 'fully, completely', pronunciation: 'sahm', citations: [dpdCitation('saṁ')] },
+      { text: 'mā', type: 'suffix', gloss: 'makes it "fully so" — perfectly', pronunciation: 'MAH' },
     ],
   },
   {
-    form: 'sam-', scriptAlt: 'सम्', pronunciation: 'sahm',
-    etymology: 'prefix',
-    gloss: 'self, by oneself (in *sammāsambuddha* compound)',
-    citations: [dpdCitation('saṁ'), pronCite],
-  },
-  {
-    form: 'buddhassa', scriptAlt: 'बुद्धस्स', pronunciation: 'boo-DHAH-sah',
+    // Dedicated entry for the surface token "sambuddhassa" in
+    // "sammā-sambuddhassa". Longest-match wins over the short "sam-" entry.
+    form: 'sambuddhassa', scriptAlt: 'सम्बुद्धस्स', pronunciation: 'sahm-BOO-dhah-sah',
     root: '√budh',
-    etymology: '√budh "to wake, to know" → *buddha* (past participle) "awakened"; *-assa* dative',
-    gloss: 'of the Awakened One',
-    citations: [dpdCitation('buddha'), pronCite],
+    etymology: '*sam* "self" + √budh "wake" + past-participle + "to him"',
+    gloss: 'to the self-awakened one',
+    citations: [dpdCitation('sambuddha'), pronCite],
     morphemes: [
-      { text: 'buddh', type: 'root', root: '√budh', gloss: '"to wake, to know" — past participle stem', pronunciation: 'BOO-dh', citations: [dpdCitation('bujjhati')] },
-      { text: 'a', type: 'suffix', gloss: 'past participle marker — "awakened"', pronunciation: 'ah' },
-      { text: 'ssa', type: 'suffix', gloss: 'dative singular — "of/to the awakened one"', pronunciation: 'sah' },
+      { text: 'sam', type: 'prefix', gloss: 'by himself, without a teacher', pronunciation: 'sahm', citations: [dpdCitation('saṁ')] },
+      { text: 'buddh', type: 'root', root: '√budh', gloss: 'to wake, to know', pronunciation: 'BOO-dh', citations: [dpdCitation('bujjhati')] },
+      { text: 'a', type: 'suffix', gloss: 'turns "wake" into "the awakened one"', pronunciation: 'ah' },
+      { text: 'ssa', type: 'suffix', gloss: '"to him" — marks who is honored', pronunciation: 'sah' },
     ],
   },
 ];
@@ -196,32 +196,25 @@ export const morningChants: LiturgyDoc = {
             {
               by: 'MAPLE',
               text: 'Homage to the Exalted, noble, and Fully Self-Enlightened One.',
-              // Words:  Homage to the Exalted, noble, and Fully Self-Enlightened One.
-              // Idx:     0      1  2    3       4      5    6     7              8
-              // Pāli words (HOMAGE_WORDS): namo(0) tassa(1) bhagavato(2) arahato(3)
-              //                            sammā(4) sam-(5) buddhassa(6)
-              // Note: HOMAGE_WORDS has 7 entries but the chant "sammā-sambuddhassa"
-              // is one written word that decomposes into sammā + sam + buddhassa.
-              // The Pāli word index here refers to position in HOMAGE_WORDS.
-              alignTo: [0, 1, -1, 2, 3, -1, 4, 4, 4],
+              // Surface Pāli positions: 0=Namo · 1=tassa · 2=bhagavato · 3=arahato · 4=sammā · 5=sambuddhassa
+              // English words:           0=Homage 1=to 2=the 3=Exalted, 4=noble, 5=and 6=Fully 7=Self-Enlightened 8=One.
+              alignTo: [0, 1, -1, 2, 3, -1, 4, 5, 5],
             },
             {
               by: 'Sujato (SuttaCentral)',
               text: 'Homage to the Blessed One, the perfected one, the fully awakened Buddha.',
               url: 'https://suttacentral.net/kp1/en/sujato',
               license: 'CC0',
-              // Words: Homage to the Blessed One, the perfected one, the fully awakened Buddha.
-              //         0      1  2    3      4   5    6        7    8   9     10        11
-              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 6, 6],
+              // English: 0=Homage 1=to 2=the 3=Blessed 4=One, 5=the 6=perfected 7=one, 8=the 9=fully 10=awakened 11=Buddha.
+              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 5, 5],
             },
             {
               by: 'Thanissaro (Access to Insight)',
               text: 'Homage to the Blessed One, the Worthy One, the Rightly Self-awakened One.',
               url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html',
               license: 'CC BY-NC',
-              // Words: Homage to the Blessed One, the Worthy One, the Rightly Self-awakened One.
-              //         0      1  2    3      4   5    6      7  8    9       10              11
-              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 6, 6],
+              // English: 0=Homage 1=to 2=the 3=Blessed 4=One, 5=the 6=Worthy 7=One, 8=the 9=Rightly 10=Self-awakened 11=One.
+              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 5, 5],
             },
           ],
           words: HOMAGE_WORDS,
