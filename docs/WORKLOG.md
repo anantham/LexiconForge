@@ -1,3 +1,14 @@
+2026-05-15 (PLANS folder seeded for parallel agent pickup) - [Agent: Opus 4.7 (1M)]
+- Status: COMMITTED to main. Three pickup-ready plans seeded under `docs/sutta-studio/PLANS/`:
+  - `cost-preview-confirm.md` (2-4 hr) — modal before full compile shows estimated cost + duration; cancel option discards skeleton cleanly. Touches compiler entry + new modal.
+  - `refrain-detector.md` (2-3 hr) — post-pass that surfaces "this phrase appears N times" as a reader affordance for MN10-style refrains.
+  - `polyglot-foundations.md` (4-8 hr) — minimum-investment polyglot step: SC parallels sidebar showing Pāli/Sanskrit/Chinese/Tibetan parallel texts. Deliberately NO decomposition, NO lens, NO concept registry (those are 6-10 weeks per POLYGLOT.md and stay parked).
+- All three plans designed for parallel execution by separate agents — no overlapping files. Each plan has a "How to start" worktree-creation block matching the multi-agent coordination rules in CLAUDE.md.
+- README at `docs/sutta-studio/PLANS/README.md` is the index agents read first.
+- Companion merges this session: PR #56 (persistent segmentCache → IDB) and PR #57 (GROUNDING Phase 4 via Eudoxos Vism TEI) — both landed on main via merge commits 16cdb77 and 1cf1b37. The PLANS folder is the next-actions list now that those threads are closed.
+
+---
+
 2026-05-14 (continued — GROUNDING Phase 2/2.5/3/5 + v12-b + registry expansion) - [Agent: Opus 4.7 (1M)]
 - Status: MERGED. PR #54 landed via merge commit af58a0f. 7 commits forming a coherent GROUNDING completion unit.
 - Sources of truth: docs/sutta-studio/GROUNDING.md (architecture), docs/sutta-studio/AMORTIZATION.md (irreducible-gap finding + external resources backlog + new-sutta playbook), data/sutta-studio/grounding/contested-terms.json (11 terms), services/sutta-studio/grounding/ (provider + translator-bank), services/sutta-studio/passes/grounding.ts (pass + tests).
