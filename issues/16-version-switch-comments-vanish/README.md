@@ -1,12 +1,16 @@
 # Issue 16 — Chapter-translation switch loses comments and floating-comment icons
 
-> Status: **FIXED 2026-05-15** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+> Status: **FIX-IN-PLACE, MECHANICAL TESTS PASSING, REAL-BOOK CYCLE PARTIALLY VERIFIED** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
 >
-> **Fix:** `components/chapter/ReaderBody.tsx` — added `key={translationResult?.id ?? translationResult?.version ?? 'default'}` to `<InlineCommentMarkers>`. React force-remounts the markers on translation switch, so `useEffect [computePositions]` re-fires against the new DOM. Implements the fix-shape identified at §5 of this README's pre-2026-05-15 analysis.
+> **Fix:** `components/chapter/ReaderBody.tsx` — added `key={translationResult?.id ?? translationResult?.version ?? 'default'}` to `<InlineCommentMarkers>`. React force-remounts the markers on translation switch, so `useEffect [computePositions]` re-fires against the new DOM. Implements the fix-shape identified at §5 below.
 >
-> **Regression test:** `tests/components/chapter/ReaderBody.versionSwitchRemount.test.tsx` — 4 cases, verified to FAIL 2/4 on unfixed code (`git stash` of fix), PASS 4/4 with fix applied.
+> **Mechanical regression test:** `tests/components/chapter/ReaderBody.versionSwitchRemount.test.tsx` — 4 cases, verified to FAIL 2/4 on unfixed code (`git stash` of fix), PASS 4/4 with fix applied. **Proves the mechanism the fix uses, NOT that the user-visible symptom is resolved end-to-end.**
 >
-> **Why this issue sat 11 days at `triaged`:** the 2026-05-04 investigator self-blocked on "live UI repro is blocked on having a chapter with multiple translations stored in IDB" — but agent could have synthesized that IDB state (or, as in today's fix, written a unit test that mocks InlineCommentMarkers to detect the re-mount via spy). The "needs live repro" gate was over-conservative for a bug with 0.88 code-read confidence + a clear fix shape.
+> **Real-book partial verification:** `traces/real-book-test-2026-05-15.txt` — on Dungeon Defense Ch2 with v3 active, programmatic `store.submitFeedback` succeeded; inline marker rendered correctly in DOM; `findTextTop` located the selection. Programmatic `store.setActiveTranslationVersion` returned without error but DID NOT actually switch the translation in store state — same call signature the UI uses (`SessionInfo.tsx:136`), unclear why it didn't propagate when called outside a React event handler. **End-to-end version-switch cycle was not directly observed in the running app.**
+>
+> **User-driven verification needed:** the trace file lists step-by-step what to click to confirm post-fix behavior matches expectations.
+>
+> **Why this issue sat 11 days at `triaged`:** the 2026-05-04 investigator self-blocked on "live UI repro is blocked on having a chapter with multiple translations stored in IDB" — but agent could have synthesized that IDB state. The "needs live repro" gate was over-conservative for a bug with 0.88 code-read confidence + a clear fix shape; this 2026-05-15 attempt shows that even with the state available, programmatic E2E verification has its own friction.
 >
 > ⚠ Content below is the pre-2026-05-15 investigation. Treat as historical record.
 
