@@ -1,6 +1,20 @@
 # Issue 13 — ETA is generic, not model-specific
 
-> Status: **investigated** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M) · Worktree `opus-issues-investigation`
+> Status: **FIXED 2026-05-15** (L1+L2 verified) · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+>
+> **Fix:** 4-part landed in one commit:
+>
+> 1. **Mean → median.** `services/apiMetricsService.ts:median()` (new pure helper). Robust to outlier translation stalls. Matches the existing pattern in `Illustration.tsx`.
+> 2. **Threshold 2 → 1.** Model-specific path now engages with even 1 sample (was ≥ 2). Eliminates the cliff that produced misleading provider/global aggregates for first-use of any new model.
+> 3. **Confidence field.** New `confidence: 'high' | 'low' | 'unknown'` on `TranslationTimeEstimate`. UI can suppress numeric ETA when there's no data.
+> 4. **Source indicator + Estimating mode in UI.** `RetranslationTimer` (compact) now shows source like `ChapterContent` does. Both UIs show "Estimating…" when source === 'default'.
+>
+> **Verification ladder (§6a) achieved:**
+> - [x] L1 Static — confidence 0.9 (code-read identified the threshold + mean issues, original investigator was 0.85)
+> - [x] L2 Unit-mechanical — 11 tests in `tests/services/apiMetricsService.eta.test.ts` (4 on `median()` helper + 7 on `estimateTranslationTime()`). Verified 11/11 FAIL pre-fix (extracted helpers don't exist there), 11/11 PASS post-fix.
+> - [ ] L3 Programmatic data-path — DEFERRED (would need 5+ real translations of different models to populate api_metrics IDB, costly)
+> - [ ] L4 Real-event chain — DEFERRED
+> - [ ] L5 User-driven manual — translate a chapter with a new model; verify "Estimating…" appears, then a 1-sample low-confidence label appears after the first call completes
 
 ## 1. Claim (verbatim from Issues.md)
 
