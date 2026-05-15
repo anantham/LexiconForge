@@ -14,10 +14,17 @@ import { ProseBlock } from './ProseBlock';
 export const SectionRenderer: React.FC<{
   section: LiturgySection;
   primaryWitness: string;
-}> = ({ section, primaryWitness }) => {
+  isOpening?: boolean;
+}> = ({ section, primaryWitness, isOpening }) => {
   switch (section.shape) {
     case 'triple-script-witness':
-      return <TripleScriptWitness section={section} primaryWitness={primaryWitness} />;
+      return (
+        <TripleScriptWitness
+          section={section}
+          primaryWitness={primaryWitness}
+          isOpening={isOpening}
+        />
+      );
     case 'prose-commentary':
       return (
         <section className="border-t border-slate-800 pt-8 mt-8" id={section.id}>

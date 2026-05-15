@@ -4,8 +4,13 @@ import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
 
 /**
- * Single-chant page. Renders the document header (title, context, sources)
- * then each section via the shape dispatcher.
+ * Single-chant page.
+ *
+ * Layout philosophy (post-feedback 2026-05-15):
+ *  - The opening section is the threshold; nothing competes with it above.
+ *  - A thin nav strip at the very top (← Liturgy only).
+ *  - Title + sources move to a quiet footer at the page bottom.
+ *  - Sections flow continuously, the first one in `isOpening` mode (75vh).
  */
 
 const TRADITION_LABELS: Record<LiturgyDoc['tradition'], string> = {
@@ -19,13 +24,12 @@ const TRADITION_LABELS: Record<LiturgyDoc['tradition'], string> = {
 };
 
 export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
-  // Pick the curator's "home" witness as the primary one — first by convention.
-  // For MAPLE-curated chants this is MAPLE. The renderer makes the primary
-  // visible by default and tucks others behind disclosure.
   const primaryWitness = (() => {
     for (const sec of doc.sections) {
-      if (sec.shape === 'triple-script-witness' && sec.witnesses.length > 0) {
-        return sec.witnesses[0].by;
+      if (sec.shape === 'triple-script-witness') {
+        for (const seg of sec.segments) {
+          if (seg.witnesses.length > 0) return seg.witnesses[0].by;
+        }
       }
     }
     return '';
@@ -33,38 +37,59 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        {/* Top nav */}
-        <nav className="mb-8 flex items-center gap-4 text-sm">
-          <a href="/liturgy" className="text-emerald-400/80 hover:text-emerald-300">
-            ← Liturgy
-          </a>
-          <span className="text-slate-600">·</span>
-          <span className="text-slate-500">{TRADITION_LABELS[doc.tradition]}</span>
-        </nav>
+      {/* Thin nav at top, no big header — the Homage is the threshold */}
+      <nav className="absolute top-4 left-6 right-6 flex items-center justify-between text-xs z-10">
+        <a
+          href="/liturgy"
+          className="text-emerald-400/80 hover:text-emerald-300 uppercase tracking-widest"
+        >
+          ← Liturgy
+        </a>
+        <span className="text-slate-600 uppercase tracking-widest">
+          {TRADITION_LABELS[doc.tradition]}
+        </span>
+      </nav>
 
-        {/* Title block */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-serif text-slate-100 mb-2">{doc.title}</h1>
-          {doc.subtitle && <p className="text-slate-400 italic">{doc.subtitle}</p>}
-          {doc.context && <p className="text-slate-400 mt-4 leading-relaxed">{doc.context}</p>}
-        </header>
+      {/* Sections — first one gets `isOpening` for the big stone-marker layout */}
+      {doc.sections.map((section, i) => (
+        <SectionRenderer
+          key={section.id}
+          section={section}
+          primaryWitness={primaryWitness}
+          isOpening={i === 0}
+        />
+      ))}
 
-        {/* Sources */}
+      {/* Footer — quiet, after all chants */}
+      <footer className="max-w-3xl mx-auto px-6 py-16 mt-8 border-t border-slate-900">
+        <div className="text-center mb-6">
+          <h2
+            className="text-2xl text-slate-200 mb-2"
+            style={{ fontFamily: "'Cardo', 'Gentium Plus', 'Noto Serif', serif" }}
+          >
+            {doc.title}
+          </h2>
+          {doc.subtitle && (
+            <p className="text-slate-500 italic text-sm">{doc.subtitle}</p>
+          )}
+        </div>
+
         {doc.sources && (
-          <div className="mb-8 text-sm text-slate-500 space-y-1">
+          <div className="text-xs text-slate-600 space-y-2 text-center">
             {doc.sources.canonical && doc.sources.canonical.length > 0 && (
               <div>
-                <span className="text-slate-600">Canonical: </span>
+                <span className="text-slate-700 uppercase tracking-widest text-[10px] mr-2">
+                  Canonical
+                </span>
                 {doc.sources.canonical.map((s, i) => (
                   <React.Fragment key={i}>
-                    {i > 0 && <span className="text-slate-700"> · </span>}
+                    {i > 0 && <span className="text-slate-800 mx-1">·</span>}
                     {s.url ? (
                       <a
                         href={s.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-emerald-400/70 hover:text-emerald-300"
+                        className="text-emerald-400/60 hover:text-emerald-300"
                       >
                         {s.label}
                       </a>
@@ -77,10 +102,12 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
             )}
             {doc.sources.ritual && doc.sources.ritual.length > 0 && (
               <div>
-                <span className="text-slate-600">Ritual provenance: </span>
+                <span className="text-slate-700 uppercase tracking-widest text-[10px] mr-2">
+                  Provenance
+                </span>
                 {doc.sources.ritual.map((s, i) => (
                   <React.Fragment key={i}>
-                    {i > 0 && <span className="text-slate-700"> · </span>}
+                    {i > 0 && <span className="text-slate-800 mx-1">·</span>}
                     <span>{s.label}</span>
                   </React.Fragment>
                 ))}
@@ -88,35 +115,7 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
             )}
           </div>
         )}
-
-        {/* Preamble */}
-        {doc.preamble && (
-          <div className="mb-8 italic text-slate-400">
-            <ProseBlock text={doc.preamble} className="space-y-3 italic text-slate-400" />
-          </div>
-        )}
-
-        {/* Sections */}
-        {doc.sections.map((section) => (
-          <SectionRenderer
-            key={section.id}
-            section={section}
-            primaryWitness={primaryWitness}
-          />
-        ))}
-
-        {/* Postamble */}
-        {doc.postamble && (
-          <div className="mt-12 pt-8 border-t border-slate-800">
-            <ProseBlock text={doc.postamble} className="space-y-3 text-slate-400 italic" />
-          </div>
-        )}
-
-        {/* Curator note */}
-        {doc.curator && (
-          <div className="mt-12 text-xs text-slate-600 italic">{doc.curator}</div>
-        )}
-      </div>
+      </footer>
     </div>
   );
 };

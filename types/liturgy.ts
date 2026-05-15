@@ -36,31 +36,70 @@ export type WordGloss = {
   form: string;
   /** Optional script-alt — e.g. Devanāgarī for a Pali word, kanji for a romaji. */
   scriptAlt?: string;
+  /**
+   * Practical respelling for English readers (NOT IPA).
+   * Example: "nah-MOH", "boo-DHAH-sah". Capital letters mark stress.
+   */
+  pronunciation?: string;
   /** Optional verbal root — e.g. √nam, √budh, √śri. */
   root?: string;
-  /** English gloss; can be multi-sense. */
+  /**
+   * Morphological breakdown — compound parts, prefix decomposition,
+   * derivational suffixes. Kept distinct from `gloss` so structure
+   * surfaces before meaning. Example: "*bhaga* 'fortune' + *-vant* 'possessing'".
+   */
+  etymology?: string;
+  /** Concise English meaning. */
   gloss: string;
-  /** Optional further note (etymology, doctrinal context). */
+  /** Optional further note (doctrinal context). */
   note?: string;
+  /**
+   * Citations grounding the etymology / gloss / pronunciation claims for
+   * this word. Reuses the existing Citation type from types/suttaStudio.ts —
+   * same chip aesthetic + same provenance contract as the Sutta Studio reader.
+   */
+  citations?: import('./suttaStudio').Citation[];
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Per-shape section types
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * One chant phrase — Pāli line + its parallel English in each witness +
+ * optional per-phrase word data. This is the atomic unit the renderer
+ * interleaves: Pāli line, then English line, then the next segment.
+ *
+ * For a Refuge formula this is one line ("Buddhaṁ saraṇaṁ gacchāmi."
+ * paired with "I take refuge in the Buddha."). The Homage is one segment
+ * with one Pāli line.
+ */
+export type TripleScriptWitnessSegment = {
+  id: string;
+  /** Pāli (Roman/IAST). One line typically, can be a short verse. */
+  pali: string;
+  /** Pāli in Devanāgarī. Same content, different script. */
+  paliDeva?: string;
+  /**
+   * Parallel English per witness. Each witness's text is the English for
+   * THIS segment (not the whole section). Renderer pairs this segment's
+   * pali with this segment's witness text — that's the interleave.
+   */
+  witnesses: Witness[];
+  /**
+   * Word-by-word data scoped to this segment. The renderer can show these
+   * as hover-tooltip detail on the segment's Pāli line.
+   */
+  words?: WordGloss[];
+};
+
 export type TripleScriptWitnessSection = {
   id: string;
   shape: 'triple-script-witness';
-  /** Pali in Roman/IAST. */
-  pali: string;
-  /** Pali in Devanāgarī (or other indic script). Optional but expected. */
-  paliDeva?: string;
-  /** How many times the section is chanted (3× for Refuges, etc.). */
+  /** Per-phrase segments. The whole section is rendered as interleaved Pāli + English pairs. */
+  segments: TripleScriptWitnessSegment[];
+  /** How many times the section is chanted (3× for the Refuges block, etc.). */
   repetitions?: number;
-  /** Multiple institutional/translator English renderings. */
-  witnesses: Witness[];
-  /** Optional word-by-word breakdown with roots. */
-  words?: WordGloss[];
   /** Free-prose commentary, in a curator's voice (attributed at chant level). */
   commentary?: string;
 };

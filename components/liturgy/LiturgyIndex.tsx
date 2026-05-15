@@ -11,31 +11,16 @@ import { LITURGY_INDEX } from '../../data/liturgy';
 export const LiturgyIndex: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <header className="mb-12">
-          <h1 className="text-3xl font-serif text-slate-100 mb-2">Liturgy</h1>
-          <p className="text-slate-400 italic">
-            Buddhist chants, hand-curated, with the machinery left exposed.
-          </p>
+      <div className="max-w-3xl mx-auto px-6 py-16">
+        <header className="mb-16">
+          <h1
+            className="text-4xl text-slate-100 mb-3"
+            style={{ fontFamily: "'Cardo', 'Gentium Plus', 'Noto Serif', serif" }}
+          >
+            Liturgy
+          </h1>
+          <p className="text-slate-500 text-sm">As chanted at MAPLE.</p>
         </header>
-
-        <section className="mb-12 text-slate-400 leading-relaxed space-y-4 text-sm">
-          <p>
-            Each page below shows one chant with the original (Pāli, Devanāgarī, Japanese,
-            Chinese characters, dharani phonemes — whichever the chant lives in), multiple
-            institutional English renderings side-by-side, word-by-word with verbal roots
-            where useful, and commentary in a curator's voice.
-          </p>
-          <p>
-            <strong className="text-slate-300">No version here is canonical.</strong> MAPLE
-            chants this way; other institutions chant differently. The point is to make
-            the contrast visible so you can compare, listen, and decide for yourself.
-          </p>
-          <p>
-            Each chant has its own shape — a dharani is not a sutta is not a refuge
-            formula. The reader adapts.
-          </p>
-        </section>
 
         <div className="space-y-6">
           {LITURGY_INDEX.map((item) => (
