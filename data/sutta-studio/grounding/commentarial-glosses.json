@@ -1,0 +1,6086 @@
+{
+  "_meta": {
+    "source": "edhamma/vism (Ñāṇamoli, Visuddhimagga: The Path of Purification)",
+    "sourceUrl": "https://raw.githubusercontent.com/edhamma/vism/master/vism/gloss.tei",
+    "sphinxBaseUrl": "https://edhamma.github.io/vism/sphinx/build/html/",
+    "fetchedAt": "2026-05-15",
+    "license": "BPS-copyrighted translation. Edhamma awaits BPS permission. Citation + link is fair use; full-text bundling requires explicit BPS approval.",
+    "entryCount": 909,
+    "note": "Glossary entries are short dictionary-style definitions, not full text. Each entry may reference one or more Visuddhimagga sections via vismRefs (Roman.arabic format like \"III.68\")."
+  },
+  "entries": {
+    "akiriya-diṭṭhi": {
+      "title": "akiriya-diṭṭhi",
+      "gloss": "(moral-) inefficacy-of-action view",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "akusala": {
+      "title": "akusala",
+      "gloss": "(1) unskilful, (2) (kammically) un-profitable",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "agati": {
+      "title": "agati",
+      "gloss": "bad way (the four)",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*agaru": {
+      "title": "*agaru",
+      "gloss": "aloe wood (spelled agaḷu in PED)",
+      "vismRefs": [
+        "VIII.47"
+      ],
+      "pageId": "832"
+    },
+    "aṅga": {
+      "title": "aṅga",
+      "gloss": "(l) limb, (2) factor (of path, jhāna, etc.), (3) practice, etc",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "ajjhatta": {
+      "title": "ajjhatta",
+      "gloss": "internally, in oneself",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*ajjhottharamāna": {
+      "title": "*ajjhottharamāna",
+      "gloss": "also threatening",
+      "vismRefs": [
+        "VI.56"
+      ],
+      "pageId": "832"
+    },
+    "*añcita": {
+      "title": "*añcita",
+      "gloss": "outstretched",
+      "vismRefs": [
+        "XX.112"
+      ],
+      "pageId": "832"
+    },
+    "aññā": {
+      "title": "aññā",
+      "gloss": "final knowledge (in the Arahant)",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*aññāti": {
+      "title": "*aññāti",
+      "gloss": "to know ( = ājānāti): ( )",
+      "vismRefs": [
+        "VII.22"
+      ],
+      "pageId": "832"
+    },
+    "aṭṭhaka, aṭṭhamaka": {
+      "title": "aṭṭhaka, aṭṭhamaka",
+      "gloss": "octad",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "aṭṭhaṅgika-magga": {
+      "title": "aṭṭhaṅgika-magga",
+      "gloss": "eightfold path",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*aṇimā": {
+      "title": "*aṇimā",
+      "gloss": "minuteness",
+      "vismRefs": [
+        "VII.61"
+      ],
+      "pageId": "832"
+    },
+    "*atammayatā": {
+      "title": "*atammayatā",
+      "gloss": "aloofness; ( )",
+      "vismRefs": [
+        "XXI.135"
+      ],
+      "pageId": "832"
+    },
+    "*atippasaṅga": {
+      "title": "*atippasaṅga",
+      "gloss": "over-generalization (logic)",
+      "vismRefs": [
+        "XIV.186"
+      ],
+      "pageId": "832"
+    },
+    "*atisāra": {
+      "title": "*atisāra",
+      "gloss": "flux (of bowels), diarrhoea",
+      "vismRefs": [
+        "XI.21"
+      ],
+      "pageId": "832"
+    },
+    "atīta": {
+      "title": "atīta",
+      "gloss": "past",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*attatā": {
+      "title": "*attatā",
+      "gloss": "selfness, oneself",
+      "vismRefs": [
+        "IX.47"
+      ],
+      "pageId": "832"
+    },
+    "attabhāva": {
+      "title": "attabhāva",
+      "gloss": "person, personality, selfhood, re-birth",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "attavāda": {
+      "title": "attavāda",
+      "gloss": "self-doctrine",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "attā": {
+      "title": "attā",
+      "gloss": "self",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "attānudiṭṭhi": {
+      "title": "attānudiṭṭhi",
+      "gloss": "self-view, wrong view as self",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*attānuvāda": {
+      "title": "*attānuvāda",
+      "gloss": "self-reproach",
+      "vismRefs": [
+        "VII.106"
+      ],
+      "pageId": "832"
+    },
+    "attha": {
+      "title": "attha",
+      "gloss": "(1) benefit, result, (2) purpose, aim, goal, (3) meaning",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adinnādāna": {
+      "title": "adinnādāna",
+      "gloss": "taking what is not given, stealing",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adukkha-m-asukha": {
+      "title": "adukkha-m-asukha",
+      "gloss": "neither-painful-nor-pleasant (feeling)",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adosa": {
+      "title": "adosa",
+      "gloss": "non-hate",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "addhā, addhāna": {
+      "title": "addhā, addhāna",
+      "gloss": "extent, period",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "advaya": {
+      "title": "advaya",
+      "gloss": "exclusive, absolute",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*adha-r-āraṇi": {
+      "title": "*adha-r-āraṇi",
+      "gloss": "lower fire-stick",
+      "vismRefs": [
+        "XV.41"
+      ],
+      "pageId": "832"
+    },
+    "*adhikāra": {
+      "title": "*adhikāra",
+      "gloss": "also treatise, heading: ( )",
+      "vismRefs": [
+        "III.133"
+      ],
+      "pageId": "832"
+    },
+    "*adhikicca": {
+      "title": "*adhikicca",
+      "gloss": "as an integral part of, dependent on",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adhicitta": {
+      "title": "adhicitta",
+      "gloss": "higher consciousness (i.e. jhāna)",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adhiṭṭhāna": {
+      "title": "adhiṭṭhāna",
+      "gloss": "(l) steadying, (2) resolve",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "*adhiṭṭhāna": {
+      "title": "*adhiṭṭhāna",
+      "gloss": "also (3) in terms of: , (4) habitat",
+      "vismRefs": [
+        "IV.92",
+        "X.24",
+        "XIV.134"
+      ],
+      "pageId": "832"
+    },
+    "adhipaññā": {
+      "title": "adhipaññā",
+      "gloss": "higher understanding (i.e. insight)",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adhipati": {
+      "title": "adhipati",
+      "gloss": "predominance",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adhippāya": {
+      "title": "adhippāya",
+      "gloss": "intention, purport",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adhimokkha": {
+      "title": "adhimokkha",
+      "gloss": "resolution",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adhimutti": {
+      "title": "adhimutti",
+      "gloss": "resolution",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "adhisīla": {
+      "title": "adhisīla",
+      "gloss": "higher virtue (i.e. virtue as basis for jhāna and insight)",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "anaññātaññassāmī-t-indriya": {
+      "title": "anaññātaññassāmī-t-indriya",
+      "gloss": "I-shall-come-to-know-the-unknown faculty",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "anattā": {
+      "title": "anattā",
+      "gloss": "not-self",
+      "vismRefs": [],
+      "pageId": "832"
+    },
+    "anāgata": {
+      "title": "anāgata",
+      "gloss": "future",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anāgataṃsa-ñāṇa": {
+      "title": "anāgataṃsa-ñāṇa",
+      "gloss": "knowledge of the future",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anāgāmin": {
+      "title": "anāgāmin",
+      "gloss": "non-returner (third stage of realization)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anicca": {
+      "title": "anicca",
+      "gloss": "impermanent",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "animitta": {
+      "title": "animitta",
+      "gloss": "signless",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*anutthunana": {
+      "title": "*anutthunana",
+      "gloss": "brooding",
+      "vismRefs": [
+        "XVI.59"
+      ],
+      "pageId": "833"
+    },
+    "anunaya": {
+      "title": "anunaya",
+      "gloss": "approval",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anupabandhana": {
+      "title": "anupabandhana",
+      "gloss": "anchoring (of the mind)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anupālana": {
+      "title": "anupālana",
+      "gloss": "maintenance",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anubodha": {
+      "title": "anubodha",
+      "gloss": "idea, ideation",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anubhāva": {
+      "title": "anubhāva",
+      "gloss": "power, influence",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anuloma": {
+      "title": "anuloma",
+      "gloss": "(1) in conformity with, (2) in forward order, or as “arising” (of dependent origination), (3) conformity (stage in development of jhāna or insight)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*anuvattāpana": {
+      "title": "*anuvattāpana",
+      "gloss": "causing occurrence parallel to: (cf. )",
+      "vismRefs": [
+        "XVI.10"
+      ],
+      "pageId": "833"
+    },
+    "anusaya": {
+      "title": "anusaya",
+      "gloss": "inherent (underlying) tendency (the 7)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anussati": {
+      "title": "anussati",
+      "gloss": "recollection (the 10)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*aneñja, aneja": {
+      "title": "*aneñja, aneja",
+      "gloss": "unperturbed",
+      "vismRefs": [
+        "XII.55"
+      ],
+      "pageId": "833"
+    },
+    "anesanā": {
+      "title": "anesanā",
+      "gloss": "improper search",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anottappa": {
+      "title": "anottappa",
+      "gloss": "shamelessness",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "anvaya-ñāṇa": {
+      "title": "anvaya-ñāṇa",
+      "gloss": "inferential knowledge",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "apariyāpanna": {
+      "title": "apariyāpanna",
+      "gloss": "unincluded (of supramundane states)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*aparisaṇṭhita": {
+      "title": "*aparisaṇṭhita",
+      "gloss": "turbulent",
+      "vismRefs": [
+        "VI.86"
+      ],
+      "pageId": "833"
+    },
+    "*apavārita": {
+      "title": "*apavārita",
+      "gloss": "opened up",
+      "vismRefs": [
+        "VI.4"
+      ],
+      "pageId": "833"
+    },
+    "apāya": {
+      "title": "apāya",
+      "gloss": "state of loss",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "appaṇihita": {
+      "title": "appaṇihita",
+      "gloss": "desireless",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "appanā": {
+      "title": "appanā",
+      "gloss": "absorption",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "appamaññā": {
+      "title": "appamaññā",
+      "gloss": "measureless state ( = divine abiding)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "appamāṇa": {
+      "title": "appamāṇa",
+      "gloss": "measureless",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*appāyati": {
+      "title": "*appāyati",
+      "gloss": "to satisfy",
+      "vismRefs": [
+        "XI.87"
+      ],
+      "pageId": "833"
+    },
+    "appicchatā": {
+      "title": "appicchatā",
+      "gloss": "fewness of wishes",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*appita": {
+      "title": "*appita",
+      "gloss": "done away with: ( )",
+      "vismRefs": [
+        "IV.146"
+      ],
+      "pageId": "833"
+    },
+    "*abbhaṅga": {
+      "title": "*abbhaṅga",
+      "gloss": "unguent",
+      "vismRefs": [
+        "I.86"
+      ],
+      "pageId": "833"
+    },
+    "*abyābhicārin": {
+      "title": "*abyābhicārin",
+      "gloss": "without exception (gram. and log.)",
+      "vismRefs": [
+        "XIV.25"
+      ],
+      "pageId": "833"
+    },
+    "*abyosāna": {
+      "title": "*abyosāna",
+      "gloss": "not stopping halfway",
+      "vismRefs": [
+        "XX.21"
+      ],
+      "pageId": "833"
+    },
+    "abhāva": {
+      "title": "abhāva",
+      "gloss": "absence, non-existence, nonentity",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*abhāva": {
+      "title": "*abhāva",
+      "gloss": "without sex: XVII. 150",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*abhigacchati": {
+      "title": "*abhigacchati",
+      "gloss": "to rely on",
+      "vismRefs": [
+        "VII.60"
+      ],
+      "pageId": "833"
+    },
+    "abhighāta": {
+      "title": "abhighāta",
+      "gloss": "impact",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "abhijjhā": {
+      "title": "abhijjhā",
+      "gloss": "covetousness",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "abhiññā": {
+      "title": "abhiññā",
+      "gloss": "direct-knowledge",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "abhinandanā": {
+      "title": "abhinandanā",
+      "gloss": "delight, delighting",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "abhinipāta": {
+      "title": "abhinipāta",
+      "gloss": "conjunction, engagement",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "abhiniropana": {
+      "title": "abhiniropana",
+      "gloss": "directing on to",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*abhinivesa": {
+      "title": "*abhinivesa",
+      "gloss": "also insistence, interpreting: ; ; , etc",
+      "vismRefs": [
+        "I.140",
+        "XIV.130",
+        "XXI.84"
+      ],
+      "pageId": "833"
+    },
+    "*abhinihāra": {
+      "title": "*abhinihāra",
+      "gloss": "(1) conveying, (2) guidance: , ; , ( , 61)",
+      "vismRefs": [
+        "XI.93",
+        "XI.117",
+        "XIII.16",
+        "XIII.95"
+      ],
+      "pageId": "833"
+    },
+    "abhibhāyatana": {
+      "title": "abhibhāyatana",
+      "gloss": "base of mastery, base for transcending (the sense-desire sphere)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*abhisaṃharati": {
+      "title": "*abhisaṃharati",
+      "gloss": "to make (a profit)",
+      "vismRefs": [
+        "IX.65"
+      ],
+      "pageId": "833"
+    },
+    "abhisaṅkhāra": {
+      "title": "abhisaṅkhāra",
+      "gloss": "(1) volitional formation, kamma-formation, formation, (2) momentum",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "abhisamaya": {
+      "title": "abhisamaya",
+      "gloss": "penetration to, convergence upon (the 4 Truths)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "amata": {
+      "title": "amata",
+      "gloss": "deathless (term for Nibbāna)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "amoha": {
+      "title": "amoha",
+      "gloss": "non-delusion",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*aya": {
+      "title": "*aya",
+      "gloss": "also a reason",
+      "vismRefs": [
+        "XIII.92",
+        "XVI.17"
+      ],
+      "pageId": "833"
+    },
+    "arati": {
+      "title": "arati",
+      "gloss": "aversion, boredom",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "arahant": {
+      "title": "arahant",
+      "gloss": "arahant (4th and last stage of realization)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*ariṭṭhaka": {
+      "title": "*ariṭṭhaka",
+      "gloss": "kind of thorny plant",
+      "vismRefs": [
+        "VIII.83"
+      ],
+      "pageId": "833"
+    },
+    "ariya": {
+      "title": "ariya",
+      "gloss": "noble, noble one (i.e. one who has attained a path)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*ariyati": {
+      "title": "*ariyati",
+      "gloss": "to be served (CPD has “to approach”)",
+      "vismRefs": [
+        "XIV.22"
+      ],
+      "pageId": "833"
+    },
+    "arūpa": {
+      "title": "arūpa",
+      "gloss": "immaterial",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "alobha": {
+      "title": "alobha",
+      "gloss": "non-greed",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*allīna": {
+      "title": "*allīna",
+      "gloss": "unsheltered (pp. a+līyati)",
+      "vismRefs": [
+        "XX.19"
+      ],
+      "pageId": "833"
+    },
+    "*allīyituṃ": {
+      "title": "*allīyituṃ",
+      "gloss": "to give shelter (not in CPD; inf. ā+līyati; see leṇa in CPD): (allīyitabba) ; (allīyana)",
+      "vismRefs": [
+        "XXII.120",
+        "VII.83"
+      ],
+      "pageId": "833"
+    },
+    "*avakkhaṇḍana": {
+      "title": "*avakkhaṇḍana",
+      "gloss": "hiatus",
+      "vismRefs": [
+        "II.6"
+      ],
+      "pageId": "833"
+    },
+    "*avagaha": {
+      "title": "*avagaha",
+      "gloss": "grasping",
+      "vismRefs": [
+        "XVI.104"
+      ],
+      "pageId": "833"
+    },
+    "*avatthā": {
+      "title": "*avatthā",
+      "gloss": "occasion, position",
+      "vismRefs": [
+        "IV.167",
+        "XVII.306",
+        "XX.19"
+      ],
+      "pageId": "833"
+    },
+    "*avadhāna": {
+      "title": "*avadhāna",
+      "gloss": "attention: ( ; )",
+      "vismRefs": [
+        "I.32"
+      ],
+      "pageId": "833"
+    },
+    "*avadhi": {
+      "title": "*avadhi",
+      "gloss": "limit (= odhi)",
+      "vismRefs": [
+        "I.86"
+      ],
+      "pageId": "833"
+    },
+    "avabodha": {
+      "title": "avabodha",
+      "gloss": "awareness, discovery",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "*avarodha": {
+      "title": "*avarodha",
+      "gloss": "inclusion",
+      "vismRefs": [
+        "XIV.216",
+        "XIV.219"
+      ],
+      "pageId": "833"
+    },
+    "*avāsa": {
+      "title": "*avāsa",
+      "gloss": "eviction",
+      "vismRefs": [
+        "IV.9",
+        "IV.12"
+      ],
+      "pageId": "833"
+    },
+    "*avi": {
+      "title": "*avi",
+      "gloss": "goat or sheep",
+      "vismRefs": [
+        "XVII.110"
+      ],
+      "pageId": "833"
+    },
+    "avikkhepa": {
+      "title": "avikkhepa",
+      "gloss": "non-distraction",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "avijjā": {
+      "title": "avijjā",
+      "gloss": "ignorance",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "avyākata": {
+      "title": "avyākata",
+      "gloss": "(1) (kammically) indeterminate (i.e. neither profitable nor unprofitable), (2) un-answered (by the Buddha)",
+      "vismRefs": [],
+      "pageId": "833"
+    },
+    "avyāpāda": {
+      "title": "avyāpāda",
+      "gloss": "non-ill-will",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "asaṅkhata": {
+      "title": "asaṅkhata",
+      "gloss": "unformed",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "asaññin": {
+      "title": "asaññin",
+      "gloss": "non-percipient",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "asammoha": {
+      "title": "asammoha",
+      "gloss": "non-confusion, non-delusion",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "asubha": {
+      "title": "asubha",
+      "gloss": "foulness, foul, ugly",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "assāsa-passāsa": {
+      "title": "assāsa-passāsa",
+      "gloss": "in-breath and outbreath",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "asekha": {
+      "title": "asekha",
+      "gloss": "non-trainer (i.e. one who has reached the fruition of arahantship)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "asmi-māna": {
+      "title": "asmi-māna",
+      "gloss": "the conceit “I am”",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ahiri": {
+      "title": "ahiri",
+      "gloss": "consciencelessness",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ahetuka": {
+      "title": "ahetuka",
+      "gloss": "without root-cause",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ahetuka-diṭṭhi": {
+      "title": "ahetuka-diṭṭhi",
+      "gloss": "no-cause view",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ahosi-kamma": {
+      "title": "ahosi-kamma",
+      "gloss": "lapsed kamma",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ākāra": {
+      "title": "ākāra",
+      "gloss": "mode, aspect, structure",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ākāra-rūpa": {
+      "title": "ākāra-rūpa",
+      "gloss": "matter as mode (e.g. “mark of the female”)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ākāsa": {
+      "title": "ākāsa",
+      "gloss": "space",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ākiñcañña": {
+      "title": "ākiñcañña",
+      "gloss": "nothingness",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āghāta": {
+      "title": "āghāta",
+      "gloss": "annoyance",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ācaya": {
+      "title": "ācaya",
+      "gloss": "setting-up (of matter)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ājīva": {
+      "title": "ājīva",
+      "gloss": "livelihood",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ādāna": {
+      "title": "ādāna",
+      "gloss": "grasping, taking",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*ādina": {
+      "title": "*ādina",
+      "gloss": "wretched",
+      "vismRefs": [
+        "XX.19"
+      ],
+      "pageId": "834"
+    },
+    "ādīnava": {
+      "title": "ādīnava",
+      "gloss": "danger, disability",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*ādhāraṇa": {
+      "title": "*ādhāraṇa",
+      "gloss": "subserving: ( )",
+      "vismRefs": [
+        "XIV.60"
+      ],
+      "pageId": "834"
+    },
+    "ānantarika": {
+      "title": "ānantarika",
+      "gloss": "(kamma) with immediate result (on rebirth)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ānāpāna": {
+      "title": "ānāpāna",
+      "gloss": "breathing",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āneñja": {
+      "title": "āneñja",
+      "gloss": "imperturbable, the (term for the 4th jhāna)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*āpajjati": {
+      "title": "*āpajjati",
+      "gloss": "also to follow logically",
+      "vismRefs": [
+        "II.79",
+        "XVI.68"
+      ],
+      "pageId": "834"
+    },
+    "*āpajjana": {
+      "title": "*āpajjana",
+      "gloss": "logical consequence",
+      "vismRefs": [
+        "I.n19",
+        "XV.68"
+      ],
+      "pageId": "834"
+    },
+    "*āpatti": {
+      "title": "*āpatti",
+      "gloss": "also logical consequent",
+      "vismRefs": [
+        "XVI.72",
+        "XIX.3"
+      ],
+      "pageId": "834"
+    },
+    "āpatti": {
+      "title": "āpatti",
+      "gloss": "offence",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*āpādana": {
+      "title": "*āpādana",
+      "gloss": "production",
+      "vismRefs": [
+        "II.21"
+      ],
+      "pageId": "834"
+    },
+    "*āpo": {
+      "title": "*āpo",
+      "gloss": "water",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ābandhana": {
+      "title": "ābandhana",
+      "gloss": "cohesion",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ābhoga": {
+      "title": "ābhoga",
+      "gloss": "concern",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*āyatati": {
+      "title": "*āyatati",
+      "gloss": "to actuate",
+      "vismRefs": [
+        "XV.4"
+      ],
+      "pageId": "834"
+    },
+    "āyatana": {
+      "title": "āyatana",
+      "gloss": "base",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*āyatana": {
+      "title": "*āyatana",
+      "gloss": "actuating",
+      "vismRefs": [
+        "XV.4"
+      ],
+      "pageId": "834"
+    },
+    "āyu": {
+      "title": "āyu",
+      "gloss": "life",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āyu-saṅkhāra": {
+      "title": "āyu-saṅkhāra",
+      "gloss": "vital formation",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*āyūhana": {
+      "title": "*āyūhana",
+      "gloss": "also accumulation (of kamma)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ārammaṇa": {
+      "title": "ārammaṇa",
+      "gloss": "object (of consciousness or its concomitants), support",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āruppa": {
+      "title": "āruppa",
+      "gloss": "immaterial state (the 4)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āropeti": {
+      "title": "āropeti",
+      "gloss": "also to attribute to",
+      "vismRefs": [
+        "XX.47"
+      ],
+      "pageId": "834"
+    },
+    "ālaya": {
+      "title": "ālaya",
+      "gloss": "reliance, thing relied on",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āloka": {
+      "title": "āloka",
+      "gloss": "light",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āvajjana": {
+      "title": "āvajjana",
+      "gloss": "adverting (consciousness)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*āvatthika": {
+      "title": "*āvatthika",
+      "gloss": "denoting a period",
+      "vismRefs": [
+        "VII.54"
+      ],
+      "pageId": "834"
+    },
+    "*āviñjana": {
+      "title": "*āviñjana",
+      "gloss": "picking up (see PED āvijjhati)",
+      "vismRefs": [
+        "XIV.37"
+      ],
+      "pageId": "834"
+    },
+    "*āsana": {
+      "title": "*āsana",
+      "gloss": "also (flower) altar",
+      "vismRefs": [
+        "V.15"
+      ],
+      "pageId": "834"
+    },
+    "*āsava": {
+      "title": "*āsava",
+      "gloss": "canker (the 4)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āsevanā": {
+      "title": "āsevanā",
+      "gloss": "(1) cultivation, (2) repetition",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*āhanana": {
+      "title": "*āhanana",
+      "gloss": "striking at",
+      "vismRefs": [
+        "IV.88"
+      ],
+      "pageId": "834"
+    },
+    "āhāra": {
+      "title": "āhāra",
+      "gloss": "nutriment, food",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "āhāra-samuṭṭhāna": {
+      "title": "āhāra-samuṭṭhāna",
+      "gloss": "nutriment-originated (matter)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "iṭṭha": {
+      "title": "iṭṭha",
+      "gloss": "desirable",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*itarathā": {
+      "title": "*itarathā",
+      "gloss": "otherwise: ( )",
+      "vismRefs": [
+        "III.53"
+      ],
+      "pageId": "834"
+    },
+    "itthindriya": {
+      "title": "itthindriya",
+      "gloss": "femininity faculty",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "idappaccayatā": {
+      "title": "idappaccayatā",
+      "gloss": "specific conditionality (term for dependent origination)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "iddhi": {
+      "title": "iddhi",
+      "gloss": "power, success, supernormal power",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "iddhipāda": {
+      "title": "iddhipāda",
+      "gloss": "road to power, basis for success (the 4)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "indriya": {
+      "title": "indriya",
+      "gloss": "faculty (the 22)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "iriyāpatha": {
+      "title": "iriyāpatha",
+      "gloss": "posture, deportment (the 4)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "issara": {
+      "title": "issara",
+      "gloss": "overlord, Lord Creator",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "īhaka": {
+      "title": "īhaka",
+      "gloss": "having curiosity, activity",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "uggaha": {
+      "title": "uggaha",
+      "gloss": "learning",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*uggaṇhita (ugghaṭita?)": {
+      "title": "*uggaṇhita (ugghaṭita?)",
+      "gloss": "decayed",
+      "vismRefs": [
+        "VI.42"
+      ],
+      "pageId": "834"
+    },
+    "*ugghāti": {
+      "title": "*ugghāti",
+      "gloss": "removal",
+      "vismRefs": [
+        "III.115"
+      ],
+      "pageId": "834"
+    },
+    "*ugghāta": {
+      "title": "*ugghāta",
+      "gloss": "exhilaration",
+      "vismRefs": [
+        "I.117"
+      ],
+      "pageId": "834"
+    },
+    "uccheda-diṭṭhi": {
+      "title": "uccheda-diṭṭhi",
+      "gloss": "annihilation view",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "ujukatā": {
+      "title": "ujukatā",
+      "gloss": "rectitude",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "utu": {
+      "title": "utu",
+      "gloss": "(1) climate, (2) season, (3) temperature",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "utu-samuṭṭhāna": {
+      "title": "utu-samuṭṭhāna",
+      "gloss": "temperature-originated (matter)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "udaya": {
+      "title": "udaya",
+      "gloss": "rise",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "udaya-bbaya": {
+      "title": "udaya-bbaya",
+      "gloss": "rise and fall",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*udāhariyati": {
+      "title": "*udāhariyati",
+      "gloss": "to be uttered",
+      "vismRefs": [
+        "XV.3"
+      ],
+      "pageId": "834"
+    },
+    "uddhacca": {
+      "title": "uddhacca",
+      "gloss": "agitation",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "uddhacca-kukkucca": {
+      "title": "uddhacca-kukkucca",
+      "gloss": "agitation and worry",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "upakkilesa": {
+      "title": "upakkilesa",
+      "gloss": "imperfection",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "upacaya": {
+      "title": "upacaya",
+      "gloss": "growth (of matter)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "upacāra": {
+      "title": "upacāra",
+      "gloss": "(1) approach, neighbourhood, precinct, (2) access (concentration)",
+      "vismRefs": [],
+      "pageId": "834"
+    },
+    "*upacāra": {
+      "title": "*upacāra",
+      "gloss": "also (3) metaphor",
+      "vismRefs": [
+        "XVI.70",
+        "XVII.15",
+        "XXII.51"
+      ],
+      "pageId": "835"
+    },
+    "*upaṭṭhāna": {
+      "title": "*upaṭṭhāna",
+      "gloss": "also (1) establishment : (2) appearance",
+      "vismRefs": [
+        "VIII.168",
+        "XXI.29"
+      ],
+      "pageId": "835"
+    },
+    "*upadhāraṇa": {
+      "title": "*upadhāraṇa",
+      "gloss": "upholding",
+      "vismRefs": [
+        "I.19",
+        "I.141"
+      ],
+      "pageId": "835"
+    },
+    "*upanaya": {
+      "title": "*upanaya",
+      "gloss": "inducement, application (log)",
+      "vismRefs": [
+        "VII.83"
+      ],
+      "pageId": "835"
+    },
+    "*upanayana": {
+      "title": "*upanayana",
+      "gloss": "also applying (log.), inducing, leading on",
+      "vismRefs": [
+        "VII.83",
+        "XIV.68"
+      ],
+      "pageId": "835"
+    },
+    "upapatti": {
+      "title": "upapatti",
+      "gloss": "reappearance, rebirth",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upatthambhana": {
+      "title": "upatthambhana",
+      "gloss": "consolidation, stiffening, supporting",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upabrūhana": {
+      "title": "upabrūhana",
+      "gloss": "intensification",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*upabrūhayati": {
+      "title": "*upabrūhayati",
+      "gloss": "to intensify",
+      "vismRefs": [
+        "VIII.121"
+      ],
+      "pageId": "835"
+    },
+    "upabhuñjaka": {
+      "title": "upabhuñjaka",
+      "gloss": "experiencer, user",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*upasaṭṭhatā": {
+      "title": "*upasaṭṭhatā",
+      "gloss": "menacedness",
+      "vismRefs": [
+        "XX.16"
+      ],
+      "pageId": "835"
+    },
+    "upasama": {
+      "title": "upasama",
+      "gloss": "peace (term for Nibbāna)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upādāna": {
+      "title": "upādāna",
+      "gloss": "clinging",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upādāna-kkhandha": {
+      "title": "upādāna-kkhandha",
+      "gloss": "aggregate (as object) of clinging",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upādā-rūpa": {
+      "title": "upādā-rūpa",
+      "gloss": "derivative (or secondary) materiality",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upādiṇṇa, upādiṇṇaka": {
+      "title": "upādiṇṇa, upādiṇṇaka",
+      "gloss": "clung-to, kammically acquired (matter), organic (matter)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upāya": {
+      "title": "upāya",
+      "gloss": "means",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upāyāsa": {
+      "title": "upāyāsa",
+      "gloss": "despair",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "upekkhā": {
+      "title": "upekkhā",
+      "gloss": "equanimity, onlooking",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "uppatti": {
+      "title": "uppatti",
+      "gloss": "arising, rebirth",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*uppatti": {
+      "title": "*uppatti",
+      "gloss": "also origin of a sutta (tech. term)",
+      "vismRefs": [
+        "III.88",
+        "VII.69"
+      ],
+      "pageId": "835"
+    },
+    "uppatti-bhava": {
+      "title": "uppatti-bhava",
+      "gloss": "rebirth-process becoming, being as result of action",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "uppanna": {
+      "title": "uppanna",
+      "gloss": "arisen",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "uppāda": {
+      "title": "uppāda",
+      "gloss": "arising",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "ussada": {
+      "title": "ussada",
+      "gloss": "prominence",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "ussāha": {
+      "title": "ussāha",
+      "gloss": "activity",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*ūhana": {
+      "title": "*ūhana",
+      "gloss": "hitting upon",
+      "vismRefs": [
+        "IV.88"
+      ],
+      "pageId": "835"
+    },
+    "ekaggatā": {
+      "title": "ekaggatā",
+      "gloss": "unification (of consciousness)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "ekatta": {
+      "title": "ekatta",
+      "gloss": "(1) unity, (2) identity, (3) singleness",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*eta-parama": {
+      "title": "*eta-parama",
+      "gloss": "that at most: ; ( )",
+      "vismRefs": [
+        "XIV.216",
+        "XVI.28"
+      ],
+      "pageId": "835"
+    },
+    "evaṃ-dhammatā": {
+      "title": "evaṃ-dhammatā",
+      "gloss": "ineluctable regularity",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "esanā": {
+      "title": "esanā",
+      "gloss": "search",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "okāsa": {
+      "title": "okāsa",
+      "gloss": "(1) location, (2) opportunity",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*okāseti": {
+      "title": "*okāseti",
+      "gloss": "to scatter on (not as in PED): ( )",
+      "vismRefs": [
+        "XII.85"
+      ],
+      "pageId": "835"
+    },
+    "*okkhandhati": {
+      "title": "*okkhandhati",
+      "gloss": "to descend into",
+      "vismRefs": [
+        "XX.120",
+        "XXII.34"
+      ],
+      "pageId": "835"
+    },
+    "*ogaḷati": {
+      "title": "*ogaḷati",
+      "gloss": "to run downwards",
+      "vismRefs": [
+        "VIII.124"
+      ],
+      "pageId": "835"
+    },
+    "ogha": {
+      "title": "ogha",
+      "gloss": "flood (the 4)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "ojaṭṭhamaka": {
+      "title": "ojaṭṭhamaka",
+      "gloss": "material octad with nutritive essence as eighth",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "ojā": {
+      "title": "ojā",
+      "gloss": "nutritive essence, metabolism",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "ottappa": {
+      "title": "ottappa",
+      "gloss": "shame",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "opapātika": {
+      "title": "opapātika",
+      "gloss": "apparitionally reborn",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*obhagga": {
+      "title": "*obhagga",
+      "gloss": "looped",
+      "vismRefs": [
+        "VIII.118",
+        "XI.64"
+      ],
+      "pageId": "835"
+    },
+    "*obhañjati (or obhuñjati)": {
+      "title": "*obhañjati (or obhuñjati)",
+      "gloss": "to loop, to coil",
+      "vismRefs": [
+        "XI.64"
+      ],
+      "pageId": "835"
+    },
+    "obhāsa": {
+      "title": "obhāsa",
+      "gloss": "illumination",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*omatta": {
+      "title": "*omatta",
+      "gloss": "subordinate",
+      "vismRefs": [
+        "XX.64"
+      ],
+      "pageId": "835"
+    },
+    "*oruhati": {
+      "title": "*oruhati",
+      "gloss": "to come down",
+      "vismRefs": [
+        "IV.64"
+      ],
+      "pageId": "835"
+    },
+    "oḷārika": {
+      "title": "oḷārika",
+      "gloss": "gross",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*ovaṭṭha": {
+      "title": "*ovaṭṭha",
+      "gloss": "showered down",
+      "vismRefs": [
+        "XI.72"
+      ],
+      "pageId": "835"
+    },
+    "kaṅkhā": {
+      "title": "kaṅkhā",
+      "gloss": "doubt",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kaṭatta": {
+      "title": "kaṭatta",
+      "gloss": "performedness (of kamma), (kamma) performed",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "*kaṇḍuyati": {
+      "title": "*kaṇḍuyati",
+      "gloss": "to be itchy",
+      "vismRefs": [
+        "VIII.127"
+      ],
+      "pageId": "835"
+    },
+    "*kaṇṇika": {
+      "title": "*kaṇṇika",
+      "gloss": "fungus",
+      "vismRefs": [
+        "VIII.88"
+      ],
+      "pageId": "835"
+    },
+    "*kataka": {
+      "title": "*kataka",
+      "gloss": "also a kind of seed (used for clearing water)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kathā-vatthu": {
+      "title": "kathā-vatthu",
+      "gloss": "(1) name of Abhidhamma book, (2) instance of talk (the 10)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kappa": {
+      "title": "kappa",
+      "gloss": "eon, age",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kabaliṅkārāhāra": {
+      "title": "kabaliṅkārāhāra",
+      "gloss": "physical nutriment",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kampana": {
+      "title": "kampana",
+      "gloss": "wavering, shaking",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kammaññatā": {
+      "title": "kammaññatā",
+      "gloss": "wieldiness",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kamma": {
+      "title": "kamma",
+      "gloss": "(1) kamma, deeds, action, (2) work, (3) (legal) enactment",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kammaṭṭhāna": {
+      "title": "kammaṭṭhāna",
+      "gloss": "meditation subject",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kamma-patha": {
+      "title": "kamma-patha",
+      "gloss": "course of action, of kamma",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kamma-bhava": {
+      "title": "kamma-bhava",
+      "gloss": "kamma-process becoming, being as action",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kamma-samuṭṭhāna": {
+      "title": "kamma-samuṭṭhāna",
+      "gloss": "kamma-originated (matter)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kammanta": {
+      "title": "kammanta",
+      "gloss": "action, work",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "karaja": {
+      "title": "karaja",
+      "gloss": "physical",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "karuṇā": {
+      "title": "karuṇā",
+      "gloss": "compassion",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kalāpa": {
+      "title": "kalāpa",
+      "gloss": "(1) group, (2) material group (term for material octad, etc.)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kalāpa-sammasana": {
+      "title": "kalāpa-sammasana",
+      "gloss": "comprehension by groups (does not refer to the material octad, etc.)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kalyāṇa-puthujjana": {
+      "title": "kalyāṇa-puthujjana",
+      "gloss": "magnanimous ordinary man",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kasiṇa": {
+      "title": "kasiṇa",
+      "gloss": "kasiṇa, universal (a contemplation device, and concept based thereon)",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kāma": {
+      "title": "kāma",
+      "gloss": "sense desire, sensual desire",
+      "vismRefs": [],
+      "pageId": "835"
+    },
+    "kāma-guṇa": {
+      "title": "kāma-guṇa",
+      "gloss": "cord of sense-desire (the 5), dimension of sensual desire",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāma-cchanda": {
+      "title": "kāma-cchanda",
+      "gloss": "lust, zeal for sense desires",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāma-rāga": {
+      "title": "kāma-rāga",
+      "gloss": "greed for sense desires",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāmāvacara": {
+      "title": "kāmāvacara",
+      "gloss": "sense-desire sphere, sense sphere",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāmesu micchācāra": {
+      "title": "kāmesu micchācāra",
+      "gloss": "sexual misconduct",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāya": {
+      "title": "kāya",
+      "gloss": "(1) body, group, order, (2) the material body, (3) the mental body (i.e. the 3 nāmakkhandha)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāyasakkhin": {
+      "title": "kāyasakkhin",
+      "gloss": "body witness",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāya-saṅkhāra": {
+      "title": "kāya-saṅkhāra",
+      "gloss": "bodily formation (term for in-breath and out-breath)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāraka": {
+      "title": "kāraka",
+      "gloss": "doer",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kāla": {
+      "title": "kāla",
+      "gloss": "time",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kicca": {
+      "title": "kicca",
+      "gloss": "function",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*kiñcana": {
+      "title": "*kiñcana",
+      "gloss": "owning, ownership",
+      "vismRefs": [
+        "XXI.53"
+      ],
+      "pageId": "836"
+    },
+    "*kiṇāti": {
+      "title": "*kiṇāti",
+      "gloss": "also to combat",
+      "vismRefs": [
+        "VI.8"
+      ],
+      "pageId": "836"
+    },
+    "kiriya": {
+      "title": "kiriya",
+      "gloss": "(kammically) functional, inoperative",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kilesa": {
+      "title": "kilesa",
+      "gloss": "defilement",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*kukata": {
+      "title": "*kukata",
+      "gloss": "villainy",
+      "vismRefs": [
+        "XIV.174"
+      ],
+      "pageId": "836"
+    },
+    "kukkucca": {
+      "title": "kukkucca",
+      "gloss": "worry",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*kuṇḍika": {
+      "title": "*kuṇḍika",
+      "gloss": "also a four-footed water pot",
+      "vismRefs": [
+        "V.3"
+      ],
+      "pageId": "836"
+    },
+    "*kuṇapa": {
+      "title": "*kuṇapa",
+      "gloss": "also ordure",
+      "vismRefs": [
+        "VIII.121",
+        "XI.19",
+        "XI.21"
+      ],
+      "pageId": "836"
+    },
+    "kusala": {
+      "title": "kusala",
+      "gloss": "(1) skilful, (2) profitable (consciousness), (3) good",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "kuhanā": {
+      "title": "kuhanā",
+      "gloss": "scheming",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*kūṭa": {
+      "title": "*kūṭa",
+      "gloss": "wild, savage: ( )",
+      "vismRefs": [
+        "VIII.53"
+      ],
+      "pageId": "836"
+    },
+    "*kūṭāgāra": {
+      "title": "*kūṭāgāra",
+      "gloss": "also (1) catafalque (comy. To ), (2) palanquin: ( )",
+      "vismRefs": [
+        "XII.71"
+      ],
+      "pageId": "836"
+    },
+    "*kūpaka-yaṭṭhi": {
+      "title": "*kūpaka-yaṭṭhi",
+      "gloss": "masthead (?), spar (?)",
+      "vismRefs": [
+        "XXI.65"
+      ],
+      "pageId": "836"
+    },
+    "*koṭṭhaṭṭhi": {
+      "title": "*koṭṭhaṭṭhi",
+      "gloss": "shoulder-blade bone (lit. “flat-bone”; not as in PED)",
+      "vismRefs": [
+        "VIII.101"
+      ],
+      "pageId": "836"
+    },
+    "*koṭṭhalika": {
+      "title": "*koṭṭhalika",
+      "gloss": "flattened",
+      "vismRefs": [
+        "VII.97"
+      ],
+      "pageId": "836"
+    },
+    "*kosa": {
+      "title": "*kosa",
+      "gloss": "measure of length (about 1 mile)",
+      "vismRefs": [
+        "IV.37"
+      ],
+      "pageId": "836"
+    },
+    "khaṇa": {
+      "title": "khaṇa",
+      "gloss": "moment, instant",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*khaṇati": {
+      "title": "*khaṇati",
+      "gloss": "also to consume",
+      "vismRefs": [
+        "IV.100",
+        "XVII.48"
+      ],
+      "pageId": "836"
+    },
+    "khanti": {
+      "title": "khanti",
+      "gloss": "(1) patience, (2) choice",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "khandha": {
+      "title": "khandha",
+      "gloss": "aggregate",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "khaya": {
+      "title": "khaya",
+      "gloss": "destruction, exhaustion",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "khara": {
+      "title": "khara",
+      "gloss": "harsh",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*kharigata": {
+      "title": "*kharigata",
+      "gloss": "harsh: ( )",
+      "vismRefs": [
+        "XI.31"
+      ],
+      "pageId": "836"
+    },
+    "*khinna": {
+      "title": "*khinna",
+      "gloss": "exhausted: ; see khijjana 14, n.2VI",
+      "vismRefs": [
+        "IV.100"
+      ],
+      "pageId": "836"
+    },
+    "*gaṇḍuppādaka": {
+      "title": "*gaṇḍuppādaka",
+      "gloss": "also sort of intestinal worm",
+      "vismRefs": [
+        "VIII.121"
+      ],
+      "pageId": "836"
+    },
+    "*gata-paccāgata": {
+      "title": "*gata-paccāgata",
+      "gloss": "(1) duty of going to and returning from the alms round with the meditation subject, (2) kind of refuse rag",
+      "vismRefs": [
+        "II.17",
+        "XIV.28"
+      ],
+      "pageId": "836"
+    },
+    "gati": {
+      "title": "gati",
+      "gloss": "(1) destiny, destination (on rebirth), movement",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*gadati": {
+      "title": "*gadati",
+      "gloss": "to enunciate (see gada in PED)",
+      "vismRefs": [
+        "VII.35"
+      ],
+      "pageId": "836"
+    },
+    "gantha": {
+      "title": "gantha",
+      "gloss": "(1) tie (the 4), (2) book",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "gandha": {
+      "title": "gandha",
+      "gloss": "odour",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*gandhayati": {
+      "title": "*gandhayati",
+      "gloss": "to be smelled",
+      "vismRefs": [
+        "XV.3"
+      ],
+      "pageId": "836"
+    },
+    "guṇa": {
+      "title": "guṇa",
+      "gloss": "special quality",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "gocara": {
+      "title": "gocara",
+      "gloss": "resort, domain, scope",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "gotrabhū": {
+      "title": "gotrabhū",
+      "gloss": "change-of-lineage (consciousness)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*gopa": {
+      "title": "*gopa",
+      "gloss": "guardian, ; ( )",
+      "vismRefs": [
+        "IV.190",
+        "VIII.153"
+      ],
+      "pageId": "836"
+    },
+    "ghaṭṭana": {
+      "title": "ghaṭṭana",
+      "gloss": "impinging, knocking together",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "ghana": {
+      "title": "ghana",
+      "gloss": "compact",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "ghana-vinibbhoga": {
+      "title": "ghana-vinibbhoga",
+      "gloss": "resolution of the compact (into elements)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "ghāna": {
+      "title": "ghāna",
+      "gloss": "nose",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "cakkavāḷa": {
+      "title": "cakkavāḷa",
+      "gloss": "world-sphere",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*cakkhati": {
+      "title": "*cakkhati",
+      "gloss": "to relish",
+      "vismRefs": [
+        "XV.3"
+      ],
+      "pageId": "836"
+    },
+    "cakkhu": {
+      "title": "cakkhu",
+      "gloss": "eye",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "catusamuṭṭhāna": {
+      "title": "catusamuṭṭhāna",
+      "gloss": "(matter) of fourfold origination (i.e. by consciousness, kamma, temperature and nutriment)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "cariya, carita": {
+      "title": "cariya, carita",
+      "gloss": "temperament; behaviour, exercise",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "cāga": {
+      "title": "cāga",
+      "gloss": "generosity",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "*cāpalya": {
+      "title": "*cāpalya",
+      "gloss": "also personal vanity: (this meaning not in CPD, under acāpalya or acapala)",
+      "vismRefs": [
+        "III.95"
+      ],
+      "pageId": "836"
+    },
+    "*cāraka": {
+      "title": "*cāraka",
+      "gloss": "prison",
+      "vismRefs": [
+        "XIV.221",
+        "XVI.18"
+      ],
+      "pageId": "836"
+    },
+    "*cikicchā": {
+      "title": "*cikicchā",
+      "gloss": "wish to think",
+      "vismRefs": [
+        "XIV.177"
+      ],
+      "pageId": "836"
+    },
+    "citta": {
+      "title": "citta",
+      "gloss": "(manner of) consciousness, consciousness, cognizance, mind",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "citta-ṭṭhiti": {
+      "title": "citta-ṭṭhiti",
+      "gloss": "steadiness of consciousness",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "citta-vīthi": {
+      "title": "citta-vīthi",
+      "gloss": "cognitive series (of consciousnesses)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "citta-saṅkhāra": {
+      "title": "citta-saṅkhāra",
+      "gloss": "mental formation (term for perception and feeling)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "citta-samuṭṭhāna": {
+      "title": "citta-samuṭṭhāna",
+      "gloss": "consciousnessoriginated (matter)",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "cittuppāda": {
+      "title": "cittuppāda",
+      "gloss": "thought, thought-arising",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "cintā": {
+      "title": "cintā",
+      "gloss": "reasoning",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "cuti": {
+      "title": "cuti",
+      "gloss": "death",
+      "vismRefs": [],
+      "pageId": "836"
+    },
+    "cetanā": {
+      "title": "cetanā",
+      "gloss": "volition",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "cetasika": {
+      "title": "cetasika",
+      "gloss": "consciousness concomitant (i.e. feeling, perception and formations)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "ceto": {
+      "title": "ceto",
+      "gloss": "mind, heart, will",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "cetopariya": {
+      "title": "cetopariya",
+      "gloss": "penetration of minds",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "ceto-vimutti": {
+      "title": "ceto-vimutti",
+      "gloss": "heart-deliverance, mind-d",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "chanda": {
+      "title": "chanda",
+      "gloss": "zeal",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*jatuka": {
+      "title": "*jatuka",
+      "gloss": "bat, pipistrelle",
+      "vismRefs": [
+        "III.97",
+        "XI.7"
+      ],
+      "pageId": "837"
+    },
+    "*janaka": {
+      "title": "*janaka",
+      "gloss": "also father",
+      "vismRefs": [
+        "XVII.271"
+      ],
+      "pageId": "837"
+    },
+    "*jara": {
+      "title": "*jara",
+      "gloss": "fever: ( )",
+      "vismRefs": [
+        "XI.36"
+      ],
+      "pageId": "837"
+    },
+    "jarā": {
+      "title": "jarā",
+      "gloss": "aging, old age",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "jarā-maraṇa": {
+      "title": "jarā-maraṇa",
+      "gloss": "aging-and-death",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "javana": {
+      "title": "javana",
+      "gloss": "(1) speed, (2) impulsion (consciousness)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "jāti": {
+      "title": "jāti",
+      "gloss": "(1) birth, (2) sort, kind",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "jivhā": {
+      "title": "jivhā",
+      "gloss": "tongue",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "jīva": {
+      "title": "jīva",
+      "gloss": "soul",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "jīvita": {
+      "title": "jīvita",
+      "gloss": "life",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*juṭṭha": {
+      "title": "*juṭṭha",
+      "gloss": "fostered",
+      "vismRefs": [
+        "XVI.4"
+      ],
+      "pageId": "837"
+    },
+    "jhāna": {
+      "title": "jhāna",
+      "gloss": "jhāna",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "ñāṇa": {
+      "title": "ñāṇa",
+      "gloss": "knowledge (in general)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "ṭhiti": {
+      "title": "ṭhiti",
+      "gloss": "(1) presence, (2) station, (3) relation, (4) steadiness, stability, (5) stationariness, stagnation",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*tacchati": {
+      "title": "*tacchati",
+      "gloss": "also to pare: ( )",
+      "vismRefs": [
+        "VIII.103"
+      ],
+      "pageId": "837"
+    },
+    "taṇhā": {
+      "title": "taṇhā",
+      "gloss": "craving",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "tatramajjhattatā": {
+      "title": "tatramajjhattatā",
+      "gloss": "specific neutrality",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "tathāgata": {
+      "title": "tathāgata",
+      "gloss": "perfect one",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "tadaṅga": {
+      "title": "tadaṅga",
+      "gloss": "substitution of opposites (function of insight)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*tadārammaṇa": {
+      "title": "*tadārammaṇa",
+      "gloss": "(1) having that (aforesaid thing) as its object, (2) registration (consciousness)",
+      "vismRefs": [
+        "XIV.98",
+        "XVII.139"
+      ],
+      "pageId": "837"
+    },
+    "*tanana": {
+      "title": "*tanana",
+      "gloss": "range",
+      "vismRefs": [
+        "XV.4"
+      ],
+      "pageId": "837"
+    },
+    "*tāvatva": {
+      "title": "*tāvatva",
+      "gloss": "just so much: XV 18",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "tādi-bhāva": {
+      "title": "tādi-bhāva",
+      "gloss": "equipoise",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "tiracchāna-yoni": {
+      "title": "tiracchāna-yoni",
+      "gloss": "animal generation",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "tilakkhaṇa": {
+      "title": "tilakkhaṇa",
+      "gloss": "three characteristics (of impermanence, pain and not-self)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*ti-santati-rūpa": {
+      "title": "*ti-santati-rūpa",
+      "gloss": "materiality of triple continuity (term for the three decads at moment of rebirth-linking)",
+      "vismRefs": [
+        "XI.112",
+        "XX.22"
+      ],
+      "pageId": "837"
+    },
+    "*ti-samuṭṭhāna": {
+      "title": "*ti-samuṭṭhāna",
+      "gloss": "materiality of triple origination (by kamma, temperature and nutriment only)",
+      "vismRefs": [
+        "XVII.196"
+      ],
+      "pageId": "837"
+    },
+    "tīraṇa": {
+      "title": "tīraṇa",
+      "gloss": "judgement, investigation",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "thaddha": {
+      "title": "thaddha",
+      "gloss": "stiffened",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "thīna-middha": {
+      "title": "thīna-middha",
+      "gloss": "stiffness and torpor",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*theriya": {
+      "title": "*theriya",
+      "gloss": "belonging to the Elders: epil. verse",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*dakasītalika": {
+      "title": "*dakasītalika",
+      "gloss": "edible white water lily",
+      "vismRefs": [
+        "VIII.119"
+      ],
+      "pageId": "837"
+    },
+    "dasaka": {
+      "title": "dasaka",
+      "gloss": "(1) decad (of matter), (2) decade",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dassana": {
+      "title": "dassana",
+      "gloss": "(l) seeing (the eye’s function), (2) vision, (3) term for the first path",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dāna": {
+      "title": "dāna",
+      "gloss": "gift, giving",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*dāna": {
+      "title": "*dāna",
+      "gloss": "gap",
+      "vismRefs": [
+        "II.6"
+      ],
+      "pageId": "837"
+    },
+    "diṭṭha": {
+      "title": "diṭṭha",
+      "gloss": "seen",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "diṭṭhi": {
+      "title": "diṭṭhi",
+      "gloss": "view, (wrong) view, (right) view",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "diṭṭhi-pāta": {
+      "title": "diṭṭhi-pāta",
+      "gloss": "one attained to vision",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dibba-cakkhu": {
+      "title": "dibba-cakkhu",
+      "gloss": "divine eye",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dibba-sotadhātu": {
+      "title": "dibba-sotadhātu",
+      "gloss": "divine ear element",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dukkha": {
+      "title": "dukkha",
+      "gloss": "pain, painful, bodily pain, suffering",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dukkha-dukkha": {
+      "title": "dukkha-dukkha",
+      "gloss": "intrinsic suffering",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "duggati": {
+      "title": "duggati",
+      "gloss": "unhappy destination (on rebirth)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "duccarita": {
+      "title": "duccarita",
+      "gloss": "misconduct, misbehaviour",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*duṭṭhulla": {
+      "title": "*duṭṭhulla",
+      "gloss": "also (1) inertia, (2) irritability: ( , 159)",
+      "vismRefs": [
+        "IV.124"
+      ],
+      "pageId": "837"
+    },
+    "dūra": {
+      "title": "dūra",
+      "gloss": "far",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "desanā": {
+      "title": "desanā",
+      "gloss": "teaching, instruction",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*desantar-uppatti": {
+      "title": "*desantar-uppatti",
+      "gloss": "successive arising in adjacent locations (description of phenomenon of motion)",
+      "vismRefs": [
+        "VII.n45"
+      ],
+      "pageId": "837"
+    },
+    "domanassa": {
+      "title": "domanassa",
+      "gloss": "grief",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dosa": {
+      "title": "dosa",
+      "gloss": "(1) hate, (2) flaw, (3) humour (of the body)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*drabya": {
+      "title": "*drabya",
+      "gloss": "substance",
+      "vismRefs": [
+        "XVIII.n8"
+      ],
+      "pageId": "837"
+    },
+    "*drava": {
+      "title": "*drava",
+      "gloss": "fluid",
+      "vismRefs": [
+        "XI.41"
+      ],
+      "pageId": "837"
+    },
+    "dvattiṃsākāra": {
+      "title": "dvattiṃsākāra",
+      "gloss": "the thirty-two aspects (of the body)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dvāra": {
+      "title": "dvāra",
+      "gloss": "door (i.e. the 6 d. of consciousness by the 6 bases; also the 3 d. of kamma by body, speech and mind)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dhamma": {
+      "title": "dhamma",
+      "gloss": "(1) the Dhamma or Law (as discovered by the Buddha), (2) dhamma, state, thing, phenomenon, (3) mental object, mental datum (12th base)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dhamma-ṭṭhiti-ñāṇa": {
+      "title": "dhamma-ṭṭhiti-ñāṇa",
+      "gloss": "knowledge of relations of states, knowledge of structure of ideas",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dhammatā-rūpa": {
+      "title": "dhammatā-rūpa",
+      "gloss": "natural materiality (i.e trees, stones, etc.)",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "*dhammani": {
+      "title": "*dhammani",
+      "gloss": "rat-snake",
+      "vismRefs": [
+        "XI.64"
+      ],
+      "pageId": "837"
+    },
+    "dhamma-vicaya": {
+      "title": "dhamma-vicaya",
+      "gloss": "investigation of states",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dhammānusārin": {
+      "title": "dhammānusārin",
+      "gloss": "dhamma devotee",
+      "vismRefs": [],
+      "pageId": "837"
+    },
+    "dhātu": {
+      "title": "dhātu",
+      "gloss": "(l) element, (2) humour (of the body), (3) relic",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*dhātu": {
+      "title": "*dhātu",
+      "gloss": "also (metallic) ore",
+      "vismRefs": [
+        "XI.20",
+        "XV.20"
+      ],
+      "pageId": "838"
+    },
+    "dhutaṅga": {
+      "title": "dhutaṅga",
+      "gloss": "ascetic practice",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*dhura-bhatta": {
+      "title": "*dhura-bhatta",
+      "gloss": "meal given in a principal house (not as in PED)",
+      "vismRefs": [
+        "II.27"
+      ],
+      "pageId": "838"
+    },
+    "dhuva": {
+      "title": "dhuva",
+      "gloss": "everlasting",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nandi": {
+      "title": "nandi",
+      "gloss": "delight",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "naya": {
+      "title": "naya",
+      "gloss": "method",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "naya-vipassanā": {
+      "title": "naya-vipassanā",
+      "gloss": "inductive insight",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "navaka": {
+      "title": "navaka",
+      "gloss": "ennead",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nahanā": {
+      "title": "*nahanā",
+      "gloss": "tying",
+      "vismRefs": [
+        "I.73"
+      ],
+      "pageId": "838"
+    },
+    "*nāgabalā": {
+      "title": "*nāgabalā",
+      "gloss": "kind of plant",
+      "vismRefs": [
+        "XI.17"
+      ],
+      "pageId": "838"
+    },
+    "nāna-kkhaṇika": {
+      "title": "nāna-kkhaṇika",
+      "gloss": "(kamma) acting from a different time",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nānatta": {
+      "title": "nānatta",
+      "gloss": "variety, difference",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nāma": {
+      "title": "nāma",
+      "gloss": "(1) mentality, (2) name",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nāma-kaya": {
+      "title": "nāma-kaya",
+      "gloss": "mentality body, mental body (aggregates of feeling, perception and formations)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nāma-rūpa": {
+      "title": "nāma-rūpa",
+      "gloss": "mentality-materiality (term for the five aggregates, or for the four aggregates excluding consciousness)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nāma-rūpa-pariccheda": {
+      "title": "nāma-rūpa-pariccheda",
+      "gloss": "definition of mentality-materiality",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nāyare": {
+      "title": "*nāyare",
+      "gloss": "they are known (—ñāyanti): ; cf. (nāyati—ñāyati)",
+      "vismRefs": [
+        "VIII.29",
+        "IX.42"
+      ],
+      "pageId": "838"
+    },
+    "nikanti": {
+      "title": "nikanti",
+      "gloss": "attachment, attraction",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nigghāta": {
+      "title": "*nigghāta",
+      "gloss": "depression",
+      "vismRefs": [
+        "XI.117"
+      ],
+      "pageId": "838"
+    },
+    "nicca": {
+      "title": "nicca",
+      "gloss": "permanent",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nijjīva": {
+      "title": "nijjīva",
+      "gloss": "soulless",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nippadesa": {
+      "title": "*nippadesa",
+      "gloss": "comprehensive",
+      "vismRefs": [
+        "XVI.95"
+      ],
+      "pageId": "838"
+    },
+    "*nippharipphanda": {
+      "title": "*nippharipphanda",
+      "gloss": "inactive",
+      "vismRefs": [
+        "V.4"
+      ],
+      "pageId": "838"
+    },
+    "*nippiṃsati": {
+      "title": "*nippiṃsati",
+      "gloss": "to scrape, to grind",
+      "vismRefs": [
+        "I.81"
+      ],
+      "pageId": "838"
+    },
+    "*nippuñchati": {
+      "title": "*nippuñchati",
+      "gloss": "to wipe off",
+      "vismRefs": [
+        "I.81"
+      ],
+      "pageId": "838"
+    },
+    "*nippesikatā": {
+      "title": "*nippesikatā",
+      "gloss": "belittling (not as in PED): ( )",
+      "vismRefs": [
+        "I.64"
+      ],
+      "pageId": "838"
+    },
+    "*nippeseti": {
+      "title": "*nippeseti",
+      "gloss": "to scrape off",
+      "vismRefs": [
+        "I.81"
+      ],
+      "pageId": "838"
+    },
+    "*nipphanna": {
+      "title": "*nipphanna",
+      "gloss": "produced (term for certain kinds of derived materiality)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nibbacana": {
+      "title": "*nibbacana",
+      "gloss": "verbal derivative (gram)",
+      "vismRefs": [
+        "II.4",
+        "XVI.14"
+      ],
+      "pageId": "838"
+    },
+    "nibbatti": {
+      "title": "nibbatti",
+      "gloss": "generation, production, rebirth",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "Nibbāna": {
+      "title": "Nibbāna",
+      "gloss": "nirvana, extinction (of greed, hate and delusion)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nibbikappa": {
+      "title": "*nibbikappa",
+      "gloss": "“without dismay,” without thinking",
+      "vismRefs": [
+        "II.71",
+        "VI.81"
+      ],
+      "pageId": "838"
+    },
+    "nibbidā": {
+      "title": "nibbidā",
+      "gloss": "dispassion, revulsion",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nibbisa": {
+      "title": "*nibbisa",
+      "gloss": "without poison",
+      "vismRefs": [
+        "XII.115"
+      ],
+      "pageId": "838"
+    },
+    "*nibbedha": {
+      "title": "*nibbedha",
+      "gloss": "penetration",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nimitta": {
+      "title": "nimitta",
+      "gloss": "sign",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "niyati-vāda": {
+      "title": "niyati-vāda",
+      "gloss": "determinism, fatalism",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "niyyāna": {
+      "title": "niyyāna",
+      "gloss": "outlet (from the round of rebirths; term for the path)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nirutti": {
+      "title": "nirutti",
+      "gloss": "language",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nirodha": {
+      "title": "nirodha",
+      "gloss": "cessation",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nissaya": {
+      "title": "nissaya",
+      "gloss": "(1) support, (2) the dependence (given by teacher to pupil)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nissatta": {
+      "title": "nissatta",
+      "gloss": "not-a-living-being",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nissaraṇa": {
+      "title": "nissaraṇa",
+      "gloss": "escape (from defilement by Nibbāna)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "nīvaraṇa": {
+      "title": "nīvaraṇa",
+      "gloss": "hindrance (the 5 or the 7)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nīharati": {
+      "title": "*nīharati",
+      "gloss": "also to fix",
+      "vismRefs": [
+        "II.50"
+      ],
+      "pageId": "838"
+    },
+    "nekkhamma": {
+      "title": "nekkhamma",
+      "gloss": "renunciation",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*nemittika": {
+      "title": "*nemittika",
+      "gloss": "(name) signifying (an acquirement)",
+      "vismRefs": [
+        "VII.55"
+      ],
+      "pageId": "838"
+    },
+    "*nemittikatā": {
+      "title": "*nemittikatā",
+      "gloss": "hinting (not as in PED): ( )",
+      "vismRefs": [
+        "I.63"
+      ],
+      "pageId": "838"
+    },
+    "*pakaṭṭha": {
+      "title": "*pakaṭṭha",
+      "gloss": "distant",
+      "vismRefs": [
+        "VII.81"
+      ],
+      "pageId": "838"
+    },
+    "pakati": {
+      "title": "pakati",
+      "gloss": "(1) nature, natural, normal, (2) Primordial Essence, Prakṛti",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*pakāsa": {
+      "title": "*pakāsa",
+      "gloss": "illumination",
+      "vismRefs": [
+        "XVII.77"
+      ],
+      "pageId": "838"
+    },
+    "pakkhandati": {
+      "title": "pakkhandati",
+      "gloss": "to enter into, to launch out into",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "pāguññatā": {
+      "title": "pāguññatā",
+      "gloss": "proficiency",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paccakkha": {
+      "title": "paccakkha",
+      "gloss": "personal experience",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paccatta": {
+      "title": "paccatta",
+      "gloss": "for oneself",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paccaya": {
+      "title": "paccaya",
+      "gloss": "(1) condition (for what is conditionally arisen), (2) requisite (the 4 for the bhikkhu)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paccaya-pariggaha": {
+      "title": "paccaya-pariggaha",
+      "gloss": "discernment of conditions",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paccayākāra": {
+      "title": "paccayākāra",
+      "gloss": "structure of conditions (term for dependent origination)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paccavekkhaṇa": {
+      "title": "paccavekkhaṇa",
+      "gloss": "reviewing",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paccuppanna": {
+      "title": "paccuppanna",
+      "gloss": "present, presently arisen",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paññatti": {
+      "title": "paññatti",
+      "gloss": "(1) making-known, announcement, (2) appellation, designation, (3) concept, description",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paññā": {
+      "title": "paññā",
+      "gloss": "understanding (insight and path)",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paññā-vimutta": {
+      "title": "paññā-vimutta",
+      "gloss": "one liberated by understanding",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*paṭatantuka": {
+      "title": "*paṭatantuka",
+      "gloss": "intestinal worm",
+      "vismRefs": [
+        "VIII.121"
+      ],
+      "pageId": "838"
+    },
+    "*paṭikkamana": {
+      "title": "*paṭikkamana",
+      "gloss": "refectory",
+      "vismRefs": [
+        "II.28"
+      ],
+      "pageId": "838"
+    },
+    "paṭikkūla": {
+      "title": "paṭikkūla",
+      "gloss": "repulsive",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paṭigha": {
+      "title": "paṭigha",
+      "gloss": "resentment, resistance",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "paṭicca": {
+      "title": "paṭicca",
+      "gloss": "(indecl. ger. of paṭiyeti) having depended, due to, dependent on",
+      "vismRefs": [],
+      "pageId": "838"
+    },
+    "*paṭicca": {
+      "title": "*paṭicca",
+      "gloss": "(decl. adj.) ought to be arrived at",
+      "vismRefs": [
+        "XVII.16"
+      ],
+      "pageId": "838"
+    },
+    "paṭicca-samuppanna": {
+      "title": "paṭicca-samuppanna",
+      "gloss": "conditionally arisen, dependently originated",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paṭicca-samuppāda": {
+      "title": "paṭicca-samuppāda",
+      "gloss": "dependent origination",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*paṭiñña": {
+      "title": "*paṭiñña",
+      "gloss": "also proposition (log.) ( .2)",
+      "vismRefs": [
+        "XVII.67"
+      ],
+      "pageId": "839"
+    },
+    "paṭiñña": {
+      "title": "paṭiñña",
+      "gloss": "claim",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paṭinissagga": {
+      "title": "paṭinissagga",
+      "gloss": "relinquishment",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paṭipatti": {
+      "title": "paṭipatti",
+      "gloss": "way, progress, practice",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*paṭipatti": {
+      "title": "*paṭipatti",
+      "gloss": "theory",
+      "vismRefs": [
+        "XIV.163",
+        "XIV.177",
+        "XVII.52",
+        "XVII.303"
+      ],
+      "pageId": "839"
+    },
+    "paṭipassaddhi": {
+      "title": "paṭipassaddhi",
+      "gloss": "tranquilization (of defilement by fruition)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*paṭipassanā": {
+      "title": "*paṭipassanā",
+      "gloss": "looking back",
+      "vismRefs": [
+        "VIII.189",
+        "VIII.225"
+      ],
+      "pageId": "839"
+    },
+    "*paṭipātiyāmana": {
+      "title": "*paṭipātiyāmana",
+      "gloss": "following successively",
+      "vismRefs": [
+        "VIII.69"
+      ],
+      "pageId": "839"
+    },
+    "*paṭipadāna": {
+      "title": "*paṭipadāna",
+      "gloss": "maintaining (on course)",
+      "vismRefs": [
+        "IV.42"
+      ],
+      "pageId": "839"
+    },
+    "paṭibhāga-nimitta": {
+      "title": "paṭibhāga-nimitta",
+      "gloss": "counterpart sign",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*paṭiveti": {
+      "title": "*paṭiveti",
+      "gloss": "to vanish",
+      "vismRefs": [
+        "XX.96"
+      ],
+      "pageId": "839"
+    },
+    "paṭivedha": {
+      "title": "paṭivedha",
+      "gloss": "penetration (of 4 Truths)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paṭisaṅkhā": {
+      "title": "paṭisaṅkhā",
+      "gloss": "reflection",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paṭisandhi": {
+      "title": "paṭisandhi",
+      "gloss": "rebirth-linking (consciousness)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paṭisambhidā": {
+      "title": "paṭisambhidā",
+      "gloss": "discrimination (the 4)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*paṭisiddha": {
+      "title": "*paṭisiddha",
+      "gloss": "excluded, rejected, refuted (log.)",
+      "vismRefs": [
+        "XVII.150"
+      ],
+      "pageId": "839"
+    },
+    "*paṭihaññati": {
+      "title": "*paṭihaññati",
+      "gloss": "to resent (as verb for paṭigha): (cf. , )",
+      "vismRefs": [
+        "IX.101"
+      ],
+      "pageId": "839"
+    },
+    "*paṭihita (paṇihita?)": {
+      "title": "*paṭihita (paṇihita?)",
+      "gloss": "drawn on",
+      "vismRefs": [
+        "VIII.26"
+      ],
+      "pageId": "839"
+    },
+    "paṇidhi": {
+      "title": "paṇidhi",
+      "gloss": "desire, aspiration",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paṇīta": {
+      "title": "paṇīta",
+      "gloss": "superior, sublime",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*patati": {
+      "title": "*patati",
+      "gloss": "to gather, to wander for",
+      "vismRefs": [
+        "II.5"
+      ],
+      "pageId": "839"
+    },
+    "*patīyamāna": {
+      "title": "*patīyamāna",
+      "gloss": "going back to",
+      "vismRefs": [
+        "XVII.16"
+      ],
+      "pageId": "839"
+    },
+    "*patthanīyatā": {
+      "title": "*patthanīyatā",
+      "gloss": "famousness",
+      "vismRefs": [
+        "IV.2",
+        "IV.10"
+      ],
+      "pageId": "839"
+    },
+    "pathavī": {
+      "title": "pathavī",
+      "gloss": "earth",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "padhāna": {
+      "title": "padhāna",
+      "gloss": "(1) endeavour, effort, (2) basic",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*padhāna": {
+      "title": "*padhāna",
+      "gloss": "Basic Principle, Pradhāna",
+      "vismRefs": [
+        "XVI.85"
+      ],
+      "pageId": "839"
+    },
+    "papañca": {
+      "title": "papañca",
+      "gloss": "(1) obstacle, (2) diffuseness, (2) diversification (as function of craving, conceit and wrong view; not in this sense in PED)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*pabbhāra": {
+      "title": "*pabbhāra",
+      "gloss": "also overhang of rock",
+      "vismRefs": [
+        "II.61"
+      ],
+      "pageId": "839"
+    },
+    "*pabhāvanā": {
+      "title": "*pabhāvanā",
+      "gloss": "production: ( )",
+      "vismRefs": [
+        "VIII.182"
+      ],
+      "pageId": "839"
+    },
+    "*pabhuti": {
+      "title": "*pabhuti",
+      "gloss": "missing parenthesis in BPS2011?: encl.) and so on, etcetera ( = ādi in that sense): , ; , etc",
+      "vismRefs": [
+        "VIII.17",
+        "VIII.121",
+        "X.51"
+      ],
+      "pageId": "839"
+    },
+    "pabheda": {
+      "title": "pabheda",
+      "gloss": "class, category",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*pamukha": {
+      "title": "*pamukha",
+      "gloss": "veranda, forecourt",
+      "vismRefs": [
+        "IV.13",
+        "XI.7",
+        "XIII.6"
+      ],
+      "pageId": "839"
+    },
+    "paramattha": {
+      "title": "paramattha",
+      "gloss": "highest sense, ultimate sense",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "parāmaṭṭha": {
+      "title": "parāmaṭṭha",
+      "gloss": "misapprehended, adheredto",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "parāmāsa": {
+      "title": "parāmāsa",
+      "gloss": "misapprehension, adherence, pre-assumption",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "parikathā": {
+      "title": "parikathā",
+      "gloss": "roundabout talk",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*parikappanatā": {
+      "title": "*parikappanatā",
+      "gloss": "conjecturing",
+      "vismRefs": [
+        "III.77"
+      ],
+      "pageId": "839"
+    },
+    "parikamma": {
+      "title": "parikamma",
+      "gloss": "preliminary work",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "parikkhāra": {
+      "title": "parikkhāra",
+      "gloss": "(1) equipment, (2) requisite",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariggaha": {
+      "title": "pariggaha",
+      "gloss": "(1) inclusion, (2) embracing (as definition of right speech), (3) reinforcement, (4) discerning, etc",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariccāga": {
+      "title": "pariccāga",
+      "gloss": "giving up",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariccheda-rūpa": {
+      "title": "pariccheda-rūpa",
+      "gloss": "delimiting-materiality (term for space)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariññā": {
+      "title": "pariññā",
+      "gloss": "full-understanding (the 3)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariṇāma": {
+      "title": "pariṇāma",
+      "gloss": "change",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paritta": {
+      "title": "paritta",
+      "gloss": "(1) small, (2) limited (term for the sense-desire sphere), (3) protection (term for certain discourses recited for that purpose)",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "parideva": {
+      "title": "parideva",
+      "gloss": "lamentation",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*parinijjhāpana": {
+      "title": "*parinijjhāpana",
+      "gloss": "obsessing, burning up",
+      "vismRefs": [
+        "XVI.48"
+      ],
+      "pageId": "839"
+    },
+    "*parinipphanna": {
+      "title": "*parinipphanna",
+      "gloss": "positively produced XXIII. n.18",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "parinibbāna": {
+      "title": "parinibbāna",
+      "gloss": "attainment of Nibbāna",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "paripācana": {
+      "title": "paripācana",
+      "gloss": "maintaining, maturing, ripening",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*paripphandana": {
+      "title": "*paripphandana",
+      "gloss": "also interference, activity",
+      "vismRefs": [
+        "IV.89",
+        "XIV.144"
+      ],
+      "pageId": "839"
+    },
+    "*paribhaṇḍa": {
+      "title": "*paribhaṇḍa",
+      "gloss": "also repair",
+      "vismRefs": [
+        "XXIII.36"
+      ],
+      "pageId": "839"
+    },
+    "paribhoga": {
+      "title": "paribhoga",
+      "gloss": "use",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariyatti": {
+      "title": "pariyatti",
+      "gloss": "(1) mastery, (2) scripture",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariyāpanna": {
+      "title": "pariyāpanna",
+      "gloss": "included",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pariyāhanana": {
+      "title": "pariyāhanana",
+      "gloss": "threshing, striking on",
+      "vismRefs": [
+        "IV.88"
+      ],
+      "pageId": "839"
+    },
+    "pariyuṭṭhāna": {
+      "title": "pariyuṭṭhāna",
+      "gloss": "obsession",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "*pariyonahana": {
+      "title": "*pariyonahana",
+      "gloss": "covering, envelope",
+      "vismRefs": [
+        "VIII.115"
+      ],
+      "pageId": "839"
+    },
+    "*pariyosāna": {
+      "title": "*pariyosāna",
+      "gloss": "also intensity",
+      "vismRefs": [
+        "VI.49"
+      ],
+      "pageId": "839"
+    },
+    "*pariveṇa": {
+      "title": "*pariveṇa",
+      "gloss": "also surroundings of a building, surrounding walk",
+      "vismRefs": [
+        "IV.127",
+        "XI.7",
+        "XIII.6"
+      ],
+      "pageId": "839"
+    },
+    "*parissavati": {
+      "title": "*parissavati",
+      "gloss": "to run away",
+      "vismRefs": [
+        "XI.90"
+      ],
+      "pageId": "839"
+    },
+    "*parihāra-vacana": {
+      "title": "*parihāra-vacana",
+      "gloss": "explanation",
+      "vismRefs": [
+        "XVII.109"
+      ],
+      "pageId": "839"
+    },
+    "palibodha": {
+      "title": "palibodha",
+      "gloss": "impediment",
+      "vismRefs": [],
+      "pageId": "839"
+    },
+    "pavatta, pavatti": {
+      "title": "pavatta, pavatti",
+      "gloss": "(1) occurrence, (2) course of an existence (between rebirth-linking and death)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*pavana": {
+      "title": "*pavana",
+      "gloss": "draught",
+      "vismRefs": [
+        "XI.19",
+        "XVI.37"
+      ],
+      "pageId": "840"
+    },
+    "pavicaya": {
+      "title": "pavicaya",
+      "gloss": "investigation",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "paviveka": {
+      "title": "paviveka",
+      "gloss": "seclusion",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pasāda": {
+      "title": "pasāda",
+      "gloss": "sensitivity (of matter)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pasādana": {
+      "title": "pasādana",
+      "gloss": "confidence, clarification",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "passaddhi": {
+      "title": "passaddhi",
+      "gloss": "tranquillity",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pahāna": {
+      "title": "pahāna",
+      "gloss": "abandoning",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*paheyya": {
+      "title": "*paheyya",
+      "gloss": "abandonable",
+      "vismRefs": [
+        "XVI.93"
+      ],
+      "pageId": "840"
+    },
+    "*pāṭibhoga": {
+      "title": "*pāṭibhoga",
+      "gloss": "agent (not as in PED)",
+      "vismRefs": [
+        "XVII.174"
+      ],
+      "pageId": "840"
+    },
+    "pāṇātipāta": {
+      "title": "pāṇātipāta",
+      "gloss": "killing living things",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pāduddhāra": {
+      "title": "pāduddhāra",
+      "gloss": "footstep, lifting of foot",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*pāpaka": {
+      "title": "*pāpaka",
+      "gloss": "what reaches, causes to reach",
+      "vismRefs": [
+        "XIV.5",
+        "XIV.68"
+      ],
+      "pageId": "840"
+    },
+    "*pāpana": {
+      "title": "*pāpana",
+      "gloss": "reaching",
+      "vismRefs": [
+        "XVI.68",
+        "I.81"
+      ],
+      "pageId": "840"
+    },
+    "pāpicchatā": {
+      "title": "pāpicchatā",
+      "gloss": "evilness of wishes",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pāramī, pāramitā": {
+      "title": "pāramī, pāramitā",
+      "gloss": "perfection",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*pārāvata": {
+      "title": "*pārāvata",
+      "gloss": "pigeon (pārāpata in PED)",
+      "vismRefs": [
+        "XI.7"
+      ],
+      "pageId": "840"
+    },
+    "*pāvāra": {
+      "title": "*pāvāra",
+      "gloss": "also a cloth, cloth",
+      "vismRefs": [
+        "VIII.117"
+      ],
+      "pageId": "840"
+    },
+    "piṇḍapāta": {
+      "title": "piṇḍapāta",
+      "gloss": "alms",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*piṇḍika": {
+      "title": "*piṇḍika",
+      "gloss": "the calf of the leg: ; ; cf. piṇḍa at",
+      "vismRefs": [
+        "VIII.97",
+        "XI.11",
+        "VIII.126"
+      ],
+      "pageId": "840"
+    },
+    "*pidhānī": {
+      "title": "*pidhānī",
+      "gloss": "lid",
+      "vismRefs": [
+        "XI.24"
+      ],
+      "pageId": "840"
+    },
+    "pisuṇa-vācā": {
+      "title": "pisuṇa-vācā",
+      "gloss": "malicious speech",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pīṇana": {
+      "title": "pīṇana",
+      "gloss": "act of refreshing",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pīti": {
+      "title": "pīti",
+      "gloss": "happiness",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "puggala": {
+      "title": "puggala",
+      "gloss": "person",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "puthujjana": {
+      "title": "puthujjana",
+      "gloss": "ordinary man (i.e. one who has not reached the path)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*pupphaka": {
+      "title": "*pupphaka",
+      "gloss": "balloon, swelling",
+      "vismRefs": [
+        "VIII.117"
+      ],
+      "pageId": "840"
+    },
+    "purisa": {
+      "title": "purisa",
+      "gloss": "man, male",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*purisa": {
+      "title": "*purisa",
+      "gloss": "World Soul, Puruṣa",
+      "vismRefs": [
+        "XVII.8"
+      ],
+      "pageId": "840"
+    },
+    "peta": {
+      "title": "peta",
+      "gloss": "ghost",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*pesika": {
+      "title": "*pesika",
+      "gloss": "scraper",
+      "vismRefs": [
+        "I.81"
+      ],
+      "pageId": "840"
+    },
+    "pharaṇa": {
+      "title": "pharaṇa",
+      "gloss": "pervasion, intentness upon",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "pharusa-vācā": {
+      "title": "pharusa-vācā",
+      "gloss": "harsh speech",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "phala": {
+      "title": "phala",
+      "gloss": "(1) fruit of (plants), (2) fruit of cause, (3) fruition (of path; the 4)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*phalakasata": {
+      "title": "*phalakasata",
+      "gloss": "target",
+      "vismRefs": [
+        "XXII.12"
+      ],
+      "pageId": "840"
+    },
+    "phassa": {
+      "title": "phassa",
+      "gloss": "contact",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*phāsu": {
+      "title": "*phāsu",
+      "gloss": "convenient: ( ; )",
+      "vismRefs": [
+        "IV.1"
+      ],
+      "pageId": "840"
+    },
+    "phoṭṭhabba": {
+      "title": "phoṭṭhabba",
+      "gloss": "tangible datum, t. object",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bala": {
+      "title": "bala",
+      "gloss": "power (the 5; the 10 of a Perfect One)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bahiddhā, bāhira": {
+      "title": "bahiddhā, bāhira",
+      "gloss": "external, externally",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*bālatta": {
+      "title": "*bālatta",
+      "gloss": "dotage",
+      "vismRefs": [
+        "XVI.45"
+      ],
+      "pageId": "840"
+    },
+    "buddha": {
+      "title": "buddha",
+      "gloss": "enlightened one",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "buddhi": {
+      "title": "buddhi",
+      "gloss": "(l) enlightenment, (2) intellect, discretion, speculation, (3) sensation",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*budha": {
+      "title": "*budha",
+      "gloss": "possessed of wit",
+      "vismRefs": [
+        "IV.66"
+      ],
+      "pageId": "840"
+    },
+    "bojjhaṅga": {
+      "title": "bojjhaṅga",
+      "gloss": "enlightenment factor",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bodhi": {
+      "title": "bodhi",
+      "gloss": "enlightenment, awakening",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bodhisatta": {
+      "title": "bodhisatta",
+      "gloss": "Bodhisatta, Being Destined to Enlightenment",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*byatti": {
+      "title": "*byatti",
+      "gloss": "see vyatti",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "brahmacariya": {
+      "title": "brahmacariya",
+      "gloss": "life of purity, the good life, the life divine",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "brahma-vihāra": {
+      "title": "brahma-vihāra",
+      "gloss": "divine abiding (the 4)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "brūhana": {
+      "title": "brūhana",
+      "gloss": "intensification",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhagavant": {
+      "title": "bhagavant",
+      "gloss": "Blessed One",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhaṅga": {
+      "title": "bhaṅga",
+      "gloss": "dissolution",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*bhattar": {
+      "title": "*bhattar",
+      "gloss": "employer: (cf. )",
+      "vismRefs": [
+        "IV.121"
+      ],
+      "pageId": "840"
+    },
+    "*bhanti": {
+      "title": "*bhanti",
+      "gloss": "they shine (3rd p. pl. of bhāti): ( )",
+      "vismRefs": [
+        "VII.36"
+      ],
+      "pageId": "840"
+    },
+    "bhayat’ upaṭṭhāna": {
+      "title": "bhayat’ upaṭṭhāna",
+      "gloss": "appearance as terror (stage in insight)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhava": {
+      "title": "bhava",
+      "gloss": "becoming, being, existence",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhavaṅga": {
+      "title": "bhavaṅga",
+      "gloss": "life-continuum (consciousness)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*bhāti": {
+      "title": "*bhāti",
+      "gloss": "brother",
+      "vismRefs": [
+        "XXI.54"
+      ],
+      "pageId": "840"
+    },
+    "bhāva": {
+      "title": "bhāva",
+      "gloss": "(1) essence, stateness, (2) sex, (3) verbal substantive (gram.)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhāvanā": {
+      "title": "bhāvanā",
+      "gloss": "(1) development (lit. making be’), (2) term for the 3 higher paths",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhāva-sādhana": {
+      "title": "bhāva-sādhana",
+      "gloss": "formula of establishment by substantive (gram.)",
+      "vismRefs": [
+        "XVII.12"
+      ],
+      "pageId": "840"
+    },
+    "bhikkhu": {
+      "title": "bhikkhu",
+      "gloss": "bhikkhu, Buddhist monk",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhūta": {
+      "title": "bhūta",
+      "gloss": "(1) become, been, (2) creature, (3) primary element (entity) of matter, etc",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhūtūpādā-rūpa": {
+      "title": "bhūtūpādā-rūpa",
+      "gloss": "matter derived upon the (four) primary elements (the 24 kinds)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "bhūmi": {
+      "title": "bhūmi",
+      "gloss": "(l) ground, soil, (2) plane (of existence; the 4)",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*bheda, vacī- ": {
+      "title": "*bheda, vacī- ",
+      "gloss": "speech utterance: (cf. ; )",
+      "vismRefs": [
+        "XIV.62"
+      ],
+      "pageId": "840"
+    },
+    "magga": {
+      "title": "magga",
+      "gloss": "path",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "macchariya, macchera": {
+      "title": "macchariya, macchera",
+      "gloss": "avarice",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "majjhatta": {
+      "title": "majjhatta",
+      "gloss": "neutral, central",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "majjhima": {
+      "title": "majjhima",
+      "gloss": "middle, medium",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "mada": {
+      "title": "mada",
+      "gloss": "vanity, intoxication",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "manasikāra": {
+      "title": "manasikāra",
+      "gloss": "attention, bringing to mind",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "mano": {
+      "title": "mano",
+      "gloss": "mind",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "maraṇa": {
+      "title": "maraṇa",
+      "gloss": "death, dying",
+      "vismRefs": [],
+      "pageId": "840"
+    },
+    "*maru": {
+      "title": "*maru",
+      "gloss": "also cliff",
+      "vismRefs": [
+        "XVII.63"
+      ],
+      "pageId": "840"
+    },
+    "mala": {
+      "title": "mala",
+      "gloss": "stain (the 3)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "mahaggata": {
+      "title": "mahaggata",
+      "gloss": "exalted (a term for consciousness “exalted” from the “limited” sense-desire sphere to the fine-material or immaterial spheres)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*mahacca": {
+      "title": "*mahacca",
+      "gloss": "great pomp: ( )",
+      "vismRefs": [
+        "X.46"
+      ],
+      "pageId": "841"
+    },
+    "mahā-bhūta": {
+      "title": "mahā-bhūta",
+      "gloss": "great primary, great entity (the 4)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "mahā-vipassanā": {
+      "title": "mahā-vipassanā",
+      "gloss": "principal insight (the 18)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "mātikā": {
+      "title": "mātikā",
+      "gloss": "(1) schedule of the Abhidhamma, (2) codes of the Pātimokkha (the 2), (3) schedule, etc",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "māna": {
+      "title": "māna",
+      "gloss": "conceit (pride)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "māyā": {
+      "title": "māyā",
+      "gloss": "deceit",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "micchā": {
+      "title": "micchā",
+      "gloss": "wrong",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "micchatta": {
+      "title": "micchatta",
+      "gloss": "wrongness (the 10)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "middha": {
+      "title": "middha",
+      "gloss": "torpor",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*milāpana": {
+      "title": "*milāpana",
+      "gloss": "withering, causing to wither",
+      "vismRefs": [
+        "XIV.128"
+      ],
+      "pageId": "841"
+    },
+    "muccitukamyatā": {
+      "title": "muccitukamyatā",
+      "gloss": "desire for deliverance",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "muta": {
+      "title": "muta",
+      "gloss": "sensed (i.e. smelled, tasted or touched)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "muditā": {
+      "title": "muditā",
+      "gloss": "gladness (at others’ success)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "mudutā": {
+      "title": "mudutā",
+      "gloss": "malleability",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "musā-vāda": {
+      "title": "musā-vāda",
+      "gloss": "false speech, lying",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "mūla": {
+      "title": "mūla",
+      "gloss": "root",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "mettā": {
+      "title": "mettā",
+      "gloss": "loving-kindness, amity",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*mehana": {
+      "title": "*mehana",
+      "gloss": "private parts",
+      "vismRefs": [
+        "VII.64"
+      ],
+      "pageId": "841"
+    },
+    "moha": {
+      "title": "moha",
+      "gloss": "delusion",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "yathā-kammūpaga-ñāṇa": {
+      "title": "yathā-kammūpaga-ñāṇa",
+      "gloss": "knowledge of (beings’) faring according to deeds",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "yathābhūta": {
+      "title": "yathābhūta",
+      "gloss": "correct",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "yuganaddha": {
+      "title": "yuganaddha",
+      "gloss": "coupling, yoking (of serenity and insight)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "ye-vā-panaka": {
+      "title": "ye-vā-panaka",
+      "gloss": "or-whatever (state) (term for certain formations)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "yoga": {
+      "title": "yoga",
+      "gloss": "bond (the 4)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "yoni": {
+      "title": "yoni",
+      "gloss": "(1) womb, (2) generation, (3) cause, reason",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "yoniso": {
+      "title": "yoniso",
+      "gloss": "wise, wisely, with ordered reasoning",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "rati": {
+      "title": "rati",
+      "gloss": "delight",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "rasa": {
+      "title": "rasa",
+      "gloss": "(1) taste, flavour, (2) nature as function or achievement, (3) stimulus (for feeling), (4) essential juice, filtrate",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*rasati": {
+      "title": "*rasati",
+      "gloss": "to taste",
+      "vismRefs": [
+        "XV.3"
+      ],
+      "pageId": "841"
+    },
+    "*rasāyana": {
+      "title": "*rasāyana",
+      "gloss": "elixir",
+      "vismRefs": [
+        "XVII.236"
+      ],
+      "pageId": "841"
+    },
+    "rāga": {
+      "title": "rāga",
+      "gloss": "greed, lust",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "rūpa": {
+      "title": "rūpa",
+      "gloss": "(1) materiality (aggregate), fine materiality of fine-material Brahmāworld, matter in general, material form, (2) visible datum, visible object, visible matter, visible form",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "rūpa-kāya": {
+      "title": "rūpa-kāya",
+      "gloss": "material body",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "rūpa-kkhandha": {
+      "title": "rūpa-kkhandha",
+      "gloss": "materiality aggregate",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "rūpūpādānakkhandha": {
+      "title": "rūpūpādānakkhandha",
+      "gloss": "materiality aggregate (as object) of clinging",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "rūpa-rūpa": {
+      "title": "rūpa-rūpa",
+      "gloss": "concrete materiality (term for certain derived kinds of materiality)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*rūpayati": {
+      "title": "*rūpayati",
+      "gloss": "to be made visible",
+      "vismRefs": [
+        "XV.3"
+      ],
+      "pageId": "841"
+    },
+    "rūpāvacara": {
+      "title": "rūpāvacara",
+      "gloss": "fine-material sphere",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "lakkhaṇa": {
+      "title": "lakkhaṇa",
+      "gloss": "characteristic",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*laghimā": {
+      "title": "*laghimā",
+      "gloss": "lightness",
+      "vismRefs": [
+        "VII.61"
+      ],
+      "pageId": "841"
+    },
+    "lahutā": {
+      "title": "lahutā",
+      "gloss": "lightness",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "lābha": {
+      "title": "lābha",
+      "gloss": "gain",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "loka": {
+      "title": "loka",
+      "gloss": "world",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "lokiya": {
+      "title": "lokiya",
+      "gloss": "mundane (i.e. not associated with the path, fruition or Nibbāna)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "lokiya dhamma": {
+      "title": "lokiya dhamma",
+      "gloss": "worldly state (the 8)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "lokuttara": {
+      "title": "lokuttara",
+      "gloss": "supramundane (i.e. the 9 states consisting of the 4 paths, 4 fruitions and Nibbāna, and states associated with them)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "lobha": {
+      "title": "lobha",
+      "gloss": "greed",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vaggulī": {
+      "title": "vaggulī",
+      "gloss": "fruit bat, flying fox",
+      "vismRefs": [
+        "XXI.91"
+      ],
+      "pageId": "841"
+    },
+    "*vacanāvayava": {
+      "title": "*vacanāvayava",
+      "gloss": "member of a syllogism",
+      "vismRefs": [
+        "XVII.67"
+      ],
+      "pageId": "841"
+    },
+    "*vacī-bheda": {
+      "title": "*vacī-bheda",
+      "gloss": "speech utterance",
+      "vismRefs": [
+        "XIV.62"
+      ],
+      "pageId": "841"
+    },
+    "vacī-saṅkhāra": {
+      "title": "vacī-saṅkhāra",
+      "gloss": "verbal formation (i.e. vitakka and vicāra)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vaṭṭa": {
+      "title": "vaṭṭa",
+      "gloss": "round (of kamma, etc.; term for the dependent origination as arising)",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vaḍḍhana": {
+      "title": "vaḍḍhana",
+      "gloss": "extension, increase",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vata": {
+      "title": "vata",
+      "gloss": "vow, duty, ritual",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vatta": {
+      "title": "vatta",
+      "gloss": "duty",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*vattana": {
+      "title": "*vattana",
+      "gloss": "performance of duties: ( )",
+      "vismRefs": [
+        "III.71"
+      ],
+      "pageId": "841"
+    },
+    "*vatthika": {
+      "title": "*vatthika",
+      "gloss": "clothable",
+      "vismRefs": [
+        "VII.79"
+      ],
+      "pageId": "841"
+    },
+    "vatthu": {
+      "title": "vatthu",
+      "gloss": "(1) basis, physical basis (term for the six internal bases), (2) object, (3) instance, example, (4) story, etc",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vaya": {
+      "title": "vaya",
+      "gloss": "(1) fall, (2) stage of life",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vāsaṭṭhāna": {
+      "title": "vāsaṭṭhāna",
+      "gloss": "defining",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vasa-vattana": {
+      "title": "vasa-vattana",
+      "gloss": "exercise of mastery",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*vahanika": {
+      "title": "*vahanika",
+      "gloss": "catamaran float (?)",
+      "vismRefs": [
+        "XVII.196"
+      ],
+      "pageId": "841"
+    },
+    "vācā": {
+      "title": "vācā",
+      "gloss": "speech",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vāta": {
+      "title": "vāta",
+      "gloss": "air, wind",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*vāna": {
+      "title": "*vāna",
+      "gloss": "fastening",
+      "vismRefs": [
+        "VIII.247"
+      ],
+      "pageId": "841"
+    },
+    "vāyāma": {
+      "title": "vāyāma",
+      "gloss": "effort",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "vāyo": {
+      "title": "vāyo",
+      "gloss": "air",
+      "vismRefs": [],
+      "pageId": "841"
+    },
+    "*vikappa": {
+      "title": "*vikappa",
+      "gloss": "alternative: (cf. )",
+      "vismRefs": [
+        "XI.89"
+      ],
+      "pageId": "842"
+    },
+    "vikampana": {
+      "title": "vikampana",
+      "gloss": "shaking, wavering",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vikāra": {
+      "title": "vikāra",
+      "gloss": "alteration",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vikāra-rūpa": {
+      "title": "vikāra-rūpa",
+      "gloss": "materiality as alteration (term for certain of the 24 kinds of derived materiality, i.e. impermanence, etc.)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vikuppati": {
+      "title": "*vikuppati",
+      "gloss": "to be damaged",
+      "vismRefs": [
+        "XXIII.35"
+      ],
+      "pageId": "842"
+    },
+    "vikubbana": {
+      "title": "vikubbana",
+      "gloss": "(1) versatility (in development of divine abidings), (2) transformation (by supernormal power)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vikkhambhana": {
+      "title": "vikkhambhana",
+      "gloss": "suppression (of defilements by serenity)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vikkhepa": {
+      "title": "vikkhepa",
+      "gloss": "distraction",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vikkhepa": {
+      "title": "*vikkhepa",
+      "gloss": "also spreading out: ; gesture",
+      "vismRefs": [
+        "IV.89",
+        "XI.100"
+      ],
+      "pageId": "842"
+    },
+    "vicāra": {
+      "title": "vicāra",
+      "gloss": "sustained thought",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vicikicchā": {
+      "title": "vicikicchā",
+      "gloss": "uncertainty",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vijambhati": {
+      "title": "*vijambhati",
+      "gloss": "to stretch, yawn",
+      "vismRefs": [
+        "IX.61"
+      ],
+      "pageId": "842"
+    },
+    "vijjamāna": {
+      "title": "vijjamāna",
+      "gloss": "existing, actual",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vijjā": {
+      "title": "vijjā",
+      "gloss": "(1) clear-vision (the 3 or the 8), (2) science, knowledge",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "viññatti": {
+      "title": "viññatti",
+      "gloss": "intimation",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "viññāta": {
+      "title": "viññāta",
+      "gloss": "cognized",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "viññāṇa": {
+      "title": "viññāṇa",
+      "gloss": "consciousness, cognition",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "viññāṇaṭṭhiti": {
+      "title": "viññāṇaṭṭhiti",
+      "gloss": "station of consciousness (the 7)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vitakka": {
+      "title": "vitakka",
+      "gloss": "applied thought",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vitthambhana": {
+      "title": "*vitthambhana",
+      "gloss": "also distension",
+      "vismRefs": [
+        "XI.37",
+        "XI.84"
+      ],
+      "pageId": "842"
+    },
+    "*vinana": {
+      "title": "*vinana",
+      "gloss": "joining together",
+      "vismRefs": [
+        "VIII.247"
+      ],
+      "pageId": "842"
+    },
+    "vinaya": {
+      "title": "vinaya",
+      "gloss": "(1) Vinaya Piṭaka or Book of Discipline, (2) discipline, removal, leading away",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*viniddhunana": {
+      "title": "*viniddhunana",
+      "gloss": "shaking off",
+      "vismRefs": [
+        "XVI.82"
+      ],
+      "pageId": "842"
+    },
+    "vinipāta": {
+      "title": "vinipāta",
+      "gloss": "perdition",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vinibbhoga": {
+      "title": "vinibbhoga",
+      "gloss": "resolution (into elements)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vippaṭipatti": {
+      "title": "*vippaṭipatti",
+      "gloss": "wrong theory",
+      "vismRefs": [
+        "XVI.85"
+      ],
+      "pageId": "842"
+    },
+    "vipariṇāma": {
+      "title": "vipariṇāma",
+      "gloss": "change",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vipariṇāma-dukkha": {
+      "title": "vipariṇāma-dukkha",
+      "gloss": "suffering due to change",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vipariyesa": {
+      "title": "vipariyesa",
+      "gloss": "perverseness (the 4)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vipallāsa": {
+      "title": "vipallāsa",
+      "gloss": "perversion (the 3)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vipassanā": {
+      "title": "vipassanā",
+      "gloss": "insight (the vision of what is formed as impermanent, painful, notself)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vipassanā-yānika": {
+      "title": "vipassanā-yānika",
+      "gloss": "one whose vehicle is insight",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vipāka": {
+      "title": "vipāka",
+      "gloss": "(kamma-) result",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vipphandana": {
+      "title": "*vipphandana",
+      "gloss": "also excitement, wrong excitement",
+      "vismRefs": [
+        "VI.42",
+        "VIII.190"
+      ],
+      "pageId": "842"
+    },
+    "*vipphāra": {
+      "title": "*vipphāra",
+      "gloss": "also intervention",
+      "vismRefs": [
+        "IV.89",
+        "XII.27",
+        "XIV.132"
+      ],
+      "pageId": "842"
+    },
+    "vibhava": {
+      "title": "vibhava",
+      "gloss": "(1) non-being, non-becoming, (2) success",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vimokkha": {
+      "title": "vimokkha",
+      "gloss": "liberation (the 3 and the 8)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vimutti": {
+      "title": "vimutti",
+      "gloss": "deliverance",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*viyojeti": {
+      "title": "*viyojeti",
+      "gloss": "to separate",
+      "vismRefs": [
+        "VIII.95"
+      ],
+      "pageId": "842"
+    },
+    "virati": {
+      "title": "virati",
+      "gloss": "abstinence (the 3)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "viramana": {
+      "title": "viramana",
+      "gloss": "abstaining",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*viraha": {
+      "title": "*viraha",
+      "gloss": "(subst.) absence",
+      "vismRefs": [
+        "IV.148"
+      ],
+      "pageId": "842"
+    },
+    "virāga": {
+      "title": "virāga",
+      "gloss": "fading away (of greed)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "viriya": {
+      "title": "viriya",
+      "gloss": "energy",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vivaṭṭa": {
+      "title": "vivaṭṭa",
+      "gloss": "(1) cessation of the round (of kamma, etc.), the dependent origination as cessation, (2) turning away, (3) expansion (of world after contraction)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "viveka": {
+      "title": "viveka",
+      "gloss": "seclusion",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*visaṅkharoti": {
+      "title": "*visaṅkharoti",
+      "gloss": "to analyze",
+      "vismRefs": [
+        "XX.68"
+      ],
+      "pageId": "842"
+    },
+    "visama-hetu": {
+      "title": "visama-hetu",
+      "gloss": "fictitious cause",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "visaya": {
+      "title": "visaya",
+      "gloss": "(1) abode, (2) objective field (of consciousness)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*visavitā": {
+      "title": "*visavitā",
+      "gloss": "majesty: ( ; II 205; )",
+      "vismRefs": [
+        "XII.49"
+      ],
+      "pageId": "842"
+    },
+    "*visahati": {
+      "title": "*visahati",
+      "gloss": "to suffer",
+      "vismRefs": [
+        "II.38"
+      ],
+      "pageId": "842"
+    },
+    "*visādana": {
+      "title": "*visādana",
+      "gloss": "dejection",
+      "vismRefs": [
+        "XVI.59"
+      ],
+      "pageId": "842"
+    },
+    "*visesa": {
+      "title": "*visesa",
+      "gloss": "distinction",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vihāra": {
+      "title": "vihāra",
+      "gloss": "(1) dwelling place, abode, (2) monastery, (3) mode of abiding",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vihaṭamāna": {
+      "title": "*vihaṭamāna",
+      "gloss": "being carded",
+      "vismRefs": [
+        "XXI.66"
+      ],
+      "pageId": "842"
+    },
+    "vihiṃsā": {
+      "title": "vihiṃsā",
+      "gloss": "cruelty",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "*vītiharaṇa": {
+      "title": "*vītiharaṇa",
+      "gloss": "also shifting sideways",
+      "vismRefs": [
+        "XI.115"
+      ],
+      "pageId": "842"
+    },
+    "vīthi": {
+      "title": "vīthi",
+      "gloss": "(1) street, (2) cognitive series (of consciousness)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vīthi-citta": {
+      "title": "vīthi-citta",
+      "gloss": "a consciousness of the cognitive series",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vīmaṃsā": {
+      "title": "vīmaṃsā",
+      "gloss": "enquiry",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vuṭṭhāna": {
+      "title": "vuṭṭhāna",
+      "gloss": "emergence",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vuṭṭhānagāmini-vipassanā": {
+      "title": "vuṭṭhānagāmini-vipassanā",
+      "gloss": "insight leading to emergence (of the path)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "veda": {
+      "title": "veda",
+      "gloss": "(1) wisdom, (2) joy, inspiration, (3) the Vedas",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vedanā": {
+      "title": "vedanā",
+      "gloss": "feeling (i.e. of pleasure, pain, or neither)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vedaka": {
+      "title": "vedaka",
+      "gloss": "experiencer, one who feels",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vedayita": {
+      "title": "vedayita",
+      "gloss": "feeling what is felt",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "veramaṇi": {
+      "title": "veramaṇi",
+      "gloss": "abstention",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vokāra": {
+      "title": "vokāra",
+      "gloss": "constituent",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "voṭṭhapana": {
+      "title": "voṭṭhapana",
+      "gloss": "determining (consciousness)",
+      "vismRefs": [],
+      "pageId": "842"
+    },
+    "vodāna": {
+      "title": "vodāna",
+      "gloss": "cleansing (term for consciousness preceding absorption or path)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "vohāra": {
+      "title": "vohāra",
+      "gloss": "conventional usage, common speech",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*vyatti": {
+      "title": "*vyatti",
+      "gloss": "particular distinction: ( )",
+      "vismRefs": [
+        "VIII.72"
+      ],
+      "pageId": "843"
+    },
+    "*vyappita": {
+      "title": "*vyappita",
+      "gloss": "also gone away: ( )",
+      "vismRefs": [
+        "IV.146"
+      ],
+      "pageId": "843"
+    },
+    "vyāpāda": {
+      "title": "vyāpāda",
+      "gloss": "ill will",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*vyāpāra": {
+      "title": "*vyāpāra",
+      "gloss": "also interest, interestedness",
+      "vismRefs": [
+        "XVII.309",
+        "XVIII.31"
+      ],
+      "pageId": "843"
+    },
+    "saṃyoga": {
+      "title": "saṃyoga",
+      "gloss": "bondage",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṃyojana": {
+      "title": "saṃyojana",
+      "gloss": "fetter (the 10)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṃvaṭṭa": {
+      "title": "saṃvaṭṭa",
+      "gloss": "contraction (of world)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*saṃvaṇṇita": {
+      "title": "*saṃvaṇṇita",
+      "gloss": "also in detail",
+      "vismRefs": [
+        "XIII.14"
+      ],
+      "pageId": "843"
+    },
+    "saṃvara": {
+      "title": "saṃvara",
+      "gloss": "restraint",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṃvega": {
+      "title": "saṃvega",
+      "gloss": "sense of urgency",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*saṃvedanika": {
+      "title": "*saṃvedanika",
+      "gloss": "which feels",
+      "vismRefs": [
+        "XIV.213"
+      ],
+      "pageId": "843"
+    },
+    "saṃsāra": {
+      "title": "saṃsāra",
+      "gloss": "round of rebirths",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "sakadāgāmin": {
+      "title": "sakadāgāmin",
+      "gloss": "once-returner (term for 2nd stage of realization)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*sakalika": {
+      "title": "*sakalika",
+      "gloss": "also scale (of fish)",
+      "vismRefs": [
+        "VIII.91"
+      ],
+      "pageId": "843"
+    },
+    "sakkarā": {
+      "title": "sakkarā",
+      "gloss": "sugar (spelled sakkharā in PED)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "sakkāya": {
+      "title": "sakkāya",
+      "gloss": "individuality",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "sakkāya-diṭṭhi": {
+      "title": "sakkāya-diṭṭhi",
+      "gloss": "false view of individuality (the 20 kinds)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "sagga": {
+      "title": "sagga",
+      "gloss": "heaven",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅkanti": {
+      "title": "saṅkanti",
+      "gloss": "transmigration",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅkappa": {
+      "title": "saṅkappa",
+      "gloss": "thinking",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅkamana": {
+      "title": "saṅkamana",
+      "gloss": "transmigrating",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*saṅkara": {
+      "title": "*saṅkara",
+      "gloss": "confounding, confusing: ; epil. verses (see CPD asaṅkara)",
+      "vismRefs": [
+        "XIV.58"
+      ],
+      "pageId": "843"
+    },
+    "saṅkilesa": {
+      "title": "saṅkilesa",
+      "gloss": "defilement, corruption",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*saṅku-patha": {
+      "title": "*saṅku-patha",
+      "gloss": "also a path set on piles",
+      "vismRefs": [
+        "IX.36"
+      ],
+      "pageId": "843"
+    },
+    "saṅkhata": {
+      "title": "saṅkhata",
+      "gloss": "formed",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅkhāra": {
+      "title": "saṅkhāra",
+      "gloss": "formation, formed thing",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅkhāra-dukkha": {
+      "title": "saṅkhāra-dukkha",
+      "gloss": "suffering due to formations",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅkhāra-pariccheda": {
+      "title": "saṅkhāra-pariccheda",
+      "gloss": "delimiting of formations",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅkhārupekkhā": {
+      "title": "saṅkhārupekkhā",
+      "gloss": "equanimity about formations",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅgati": {
+      "title": "saṅgati",
+      "gloss": "coincidence, chance",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*saṅgaha": {
+      "title": "*saṅgaha",
+      "gloss": "also holding together",
+      "vismRefs": [
+        "XI.93"
+      ],
+      "pageId": "843"
+    },
+    "*saṅgahīta": {
+      "title": "*saṅgahīta",
+      "gloss": "also held together",
+      "vismRefs": [
+        "XI.90"
+      ],
+      "pageId": "843"
+    },
+    "saṅgha": {
+      "title": "saṅgha",
+      "gloss": "the Order,the Community",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṅghaṭṭana": {
+      "title": "saṅghaṭṭana",
+      "gloss": "knocking together, impingement",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "sacca": {
+      "title": "sacca",
+      "gloss": "truth",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saccānulomika-ñāṇa": {
+      "title": "saccānulomika-ñāṇa",
+      "gloss": "knowledge in conformity with truth",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*sacchika": {
+      "title": "*sacchika",
+      "gloss": "based on realization: ( )",
+      "vismRefs": [
+        "VII.55"
+      ],
+      "pageId": "843"
+    },
+    "sacchikiriyā": {
+      "title": "sacchikiriyā",
+      "gloss": "realization",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*sañña": {
+      "title": "*sañña",
+      "gloss": "restrained",
+      "vismRefs": [
+        "I.158"
+      ],
+      "pageId": "843"
+    },
+    "saññā": {
+      "title": "saññā",
+      "gloss": "(1) perception, (2) sign, signal, label",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saññāvedayitanirodha": {
+      "title": "saññāvedayitanirodha",
+      "gloss": "cessation of perception and feeling",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saṇṭhāna": {
+      "title": "saṇṭhāna",
+      "gloss": "(1) shape",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*saṇṭhāna": {
+      "title": "*saṇṭhāna",
+      "gloss": "also (2) settling down, stationariness: ; , (3) co-presence",
+      "vismRefs": [
+        "III.22",
+        "VIII.69",
+        "XVII.76"
+      ],
+      "pageId": "843"
+    },
+    "sati": {
+      "title": "sati",
+      "gloss": "mindfulness",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "satta": {
+      "title": "satta",
+      "gloss": "a being, a living being",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*satta": {
+      "title": "*satta",
+      "gloss": "Bright Principle, Sattva",
+      "vismRefs": [
+        "IX.53"
+      ],
+      "pageId": "843"
+    },
+    "satta-saññā": {
+      "title": "satta-saññā",
+      "gloss": "(1) perception of a living being, (2) the seven perceptions (first of the 18 principal insights)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*sattāvāsa": {
+      "title": "*sattāvāsa",
+      "gloss": "abode of beings (the 9)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "sadda": {
+      "title": "sadda",
+      "gloss": "(1) sound, (2) word, (3) grammar",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "sadda-lakkhaṇa": {
+      "title": "sadda-lakkhaṇa",
+      "gloss": "etymology",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saddhā": {
+      "title": "saddhā",
+      "gloss": "faith",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saddhā-vimutta": {
+      "title": "saddhā-vimutta",
+      "gloss": "one liberated by faith",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "saddhānusārin": {
+      "title": "saddhānusārin",
+      "gloss": "faith devotee",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*saddheyya": {
+      "title": "*saddheyya",
+      "gloss": "inspiring faith",
+      "vismRefs": [
+        "VII.72"
+      ],
+      "pageId": "843"
+    },
+    "sa-nidassana": {
+      "title": "sa-nidassana",
+      "gloss": "visible",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "santati": {
+      "title": "santati",
+      "gloss": "continuity",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "santati-sīsa": {
+      "title": "santati-sīsa",
+      "gloss": "organic continuity",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "santāna": {
+      "title": "santāna",
+      "gloss": "continuity",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "santi-pada": {
+      "title": "santi-pada",
+      "gloss": "state of peace (term for Nibbāna)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "santīraṇa": {
+      "title": "santīraṇa",
+      "gloss": "investigation (consciousness)",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*sandhāraṇa": {
+      "title": "*sandhāraṇa",
+      "gloss": "also upholding",
+      "vismRefs": [
+        "XIV.44"
+      ],
+      "pageId": "843"
+    },
+    "*sannikkhepana": {
+      "title": "*sannikkhepana",
+      "gloss": "also putting down",
+      "vismRefs": [
+        "XX.62"
+      ],
+      "pageId": "843"
+    },
+    "*sanniṭṭheyya": {
+      "title": "*sanniṭṭheyya",
+      "gloss": "fit to be convinced about",
+      "vismRefs": [
+        "XIV.151"
+      ],
+      "pageId": "843"
+    },
+    "sannipāta": {
+      "title": "sannipāta",
+      "gloss": "concurrence",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*sannirujjhana": {
+      "title": "*sannirujjhana",
+      "gloss": "also fixing down",
+      "vismRefs": [
+        "IV.91",
+        "XII.51",
+        "XX.62"
+      ],
+      "pageId": "843"
+    },
+    "*sannissaya": {
+      "title": "*sannissaya",
+      "gloss": "waiting on, dependence",
+      "vismRefs": [
+        "XIV.29"
+      ],
+      "pageId": "843"
+    },
+    "*sappati": {
+      "title": "*sappati",
+      "gloss": "to be emitted (pass. of sapati, to swear)",
+      "vismRefs": [
+        "XV.3"
+      ],
+      "pageId": "843"
+    },
+    "*sabbhāva": {
+      "title": "*sabbhāva",
+      "gloss": "(presence)",
+      "vismRefs": [
+        "I.141",
+        "II.21",
+        "XIV.98",
+        "XVI.73"
+      ],
+      "pageId": "843"
+    },
+    "sabhāva": {
+      "title": "sabhāva",
+      "gloss": "individual essence",
+      "vismRefs": [],
+      "pageId": "843"
+    },
+    "*sabhāva": {
+      "title": "*sabhāva",
+      "gloss": "with sex",
+      "vismRefs": [
+        "XVII.150",
+        "XVI.85"
+      ],
+      "pageId": "844"
+    },
+    "samatha": {
+      "title": "samatha",
+      "gloss": "serenity (term for jhāna)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "samatha-yānika": {
+      "title": "samatha-yānika",
+      "gloss": "one whose vehicle is serenity",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "samaya": {
+      "title": "samaya",
+      "gloss": "period, event, occasion, etc",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*samabbhāhata": {
+      "title": "*samabbhāhata",
+      "gloss": "also stretched flat",
+      "vismRefs": [
+        "IV.129",
+        "XI.92"
+      ],
+      "pageId": "844"
+    },
+    "samavāya": {
+      "title": "samavāya",
+      "gloss": "inherence",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*samaveta": {
+      "title": "*samaveta",
+      "gloss": "inherent",
+      "vismRefs": [
+        "XVI.91"
+      ],
+      "pageId": "844"
+    },
+    "samādhi": {
+      "title": "samādhi",
+      "gloss": "concentration",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "samāpatti": {
+      "title": "samāpatti",
+      "gloss": "attainment (the 9)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*samāhata": {
+      "title": "*samāhata",
+      "gloss": "also brought in",
+      "vismRefs": [
+        "IV.190"
+      ],
+      "pageId": "844"
+    },
+    "samuccheda": {
+      "title": "samuccheda",
+      "gloss": "cutting off (of defilements by the path)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "samuṭṭhāna": {
+      "title": "samuṭṭhāna",
+      "gloss": "origination (4 kinds), moulding",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*samuṭṭhāpaya": {
+      "title": "*samuṭṭhāpaya",
+      "gloss": "rousable",
+      "vismRefs": [
+        "IV.51"
+      ],
+      "pageId": "844"
+    },
+    "samudaya": {
+      "title": "samudaya",
+      "gloss": "origin",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "samudīraṇa": {
+      "title": "samudīraṇa",
+      "gloss": "moving",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sampajañña": {
+      "title": "sampajañña",
+      "gloss": "full awareness",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sampaṭicchana": {
+      "title": "sampaṭicchana",
+      "gloss": "receiving (consciousness)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sampaṭipādana": {
+      "title": "*sampaṭipādana",
+      "gloss": "keeping on the track",
+      "vismRefs": [
+        "VI.59"
+      ],
+      "pageId": "844"
+    },
+    "*sampatta-visaya": {
+      "title": "*sampatta-visaya",
+      "gloss": "having a contiguous objective field (i.e. smell, taste and touch)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sampasādayati": {
+      "title": "*sampasādayati",
+      "gloss": "to make confident",
+      "vismRefs": [
+        "IV.142"
+      ],
+      "pageId": "844"
+    },
+    "*sampiṇḍana": {
+      "title": "*sampiṇḍana",
+      "gloss": "also conjunction (gram.)",
+      "vismRefs": [
+        "IV.154"
+      ],
+      "pageId": "844"
+    },
+    "samphappalāpa": {
+      "title": "samphappalāpa",
+      "gloss": "gossip, idle chatter",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sambojjhaṅga": {
+      "title": "sambojjhaṅga",
+      "gloss": "enlightenment factor (the 7)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sambhāveti": {
+      "title": "*sambhāveti",
+      "gloss": "also to judge",
+      "vismRefs": [
+        "IX.109"
+      ],
+      "pageId": "844"
+    },
+    "*sambhoga": {
+      "title": "*sambhoga",
+      "gloss": "also exploiting",
+      "vismRefs": [
+        "XIV.128",
+        "XVII.51"
+      ],
+      "pageId": "844"
+    },
+    "sammatta": {
+      "title": "sammatta",
+      "gloss": "rightness (the 10)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sammappadhāna": {
+      "title": "sammappadhāna",
+      "gloss": "right endeavour (the 4)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sammā": {
+      "title": "sammā",
+      "gloss": "right",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sammā-sambuddha": {
+      "title": "sammā-sambuddha",
+      "gloss": "fully enlightened one",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sammuti": {
+      "title": "sammuti",
+      "gloss": "convention, conventional",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sammuti-sacca": {
+      "title": "sammuti-sacca",
+      "gloss": "conventional truth (e.g. kasiṇa concept)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sammussana": {
+      "title": "*sammussana",
+      "gloss": "forgetting",
+      "vismRefs": [
+        "XVI.82"
+      ],
+      "pageId": "844"
+    },
+    "sammosa": {
+      "title": "sammosa",
+      "gloss": "forgetfulness",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sammoha": {
+      "title": "sammoha",
+      "gloss": "delusion",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sarūpena": {
+      "title": "*sarūpena",
+      "gloss": "also in its own form",
+      "vismRefs": [
+        "XVI.70"
+      ],
+      "pageId": "844"
+    },
+    "salakkhaṇa": {
+      "title": "salakkhaṇa",
+      "gloss": "specific characteristic (e.g. hardness of earth)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sallakkhaṇa": {
+      "title": "sallakkhaṇa",
+      "gloss": "observation",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sallekha": {
+      "title": "sallekha",
+      "gloss": "effacement",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "saḷāyatana": {
+      "title": "saḷāyatana",
+      "gloss": "sixfold base (for contact)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "savana": {
+      "title": "savana",
+      "gloss": "hearing",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*savana": {
+      "title": "*savana",
+      "gloss": "exudation",
+      "vismRefs": [
+        "XVII.56"
+      ],
+      "pageId": "844"
+    },
+    "sa-saṅkhāra": {
+      "title": "sa-saṅkhāra",
+      "gloss": "prompted",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sa-sambhāra-kathā": {
+      "title": "sa-sambhāra-kathā",
+      "gloss": "“accessory locution” (log.)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sassata": {
+      "title": "sassata",
+      "gloss": "eternal",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sassata-diṭṭhi": {
+      "title": "sassata-diṭṭhi",
+      "gloss": "eternity view",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sahaṭṭhāna": {
+      "title": "*sahaṭṭhāna",
+      "gloss": "co-presence",
+      "vismRefs": [
+        "XIII.116"
+      ],
+      "pageId": "844"
+    },
+    "sāṭheyya": {
+      "title": "sāṭheyya",
+      "gloss": "fraud",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sādhika": {
+      "title": "*sādhika",
+      "gloss": "accomplishing",
+      "vismRefs": [
+        "IV.105"
+      ],
+      "pageId": "844"
+    },
+    "sādhāraṇa": {
+      "title": "sādhāraṇa",
+      "gloss": "common to, shared with",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sāmañña-phala": {
+      "title": "sāmañña-phala",
+      "gloss": "fruit of asceticism",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sāmañña-lakkhaṇa": {
+      "title": "sāmañña-lakkhaṇa",
+      "gloss": "general characteristic (of what is formed, i.e. the 3 beginning with impermanence)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sāra": {
+      "title": "sāra",
+      "gloss": "core",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sāvaka": {
+      "title": "sāvaka",
+      "gloss": "disciple, hearer",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sāsana": {
+      "title": "sāsana",
+      "gloss": "dispensation",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sikkhā": {
+      "title": "sikkhā",
+      "gloss": "training",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sikkhāpada": {
+      "title": "sikkhāpada",
+      "gloss": "training precept",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*siṅga": {
+      "title": "*siṅga",
+      "gloss": "also foppery: ( )",
+      "vismRefs": [
+        "III.95"
+      ],
+      "pageId": "844"
+    },
+    "*siṭṭha": {
+      "title": "*siṭṭha",
+      "gloss": "prepared",
+      "vismRefs": [
+        "XVI.4"
+      ],
+      "pageId": "844"
+    },
+    "*sippikā": {
+      "title": "*sippikā",
+      "gloss": "bag (?)",
+      "vismRefs": [
+        "XI.68"
+      ],
+      "pageId": "844"
+    },
+    "*silesa": {
+      "title": "*silesa",
+      "gloss": "cement",
+      "vismRefs": [
+        "XI.51"
+      ],
+      "pageId": "844"
+    },
+    "*sīta (?)": {
+      "title": "*sīta (?)",
+      "gloss": "measure of area",
+      "vismRefs": [
+        "XII.41"
+      ],
+      "pageId": "844"
+    },
+    "*sīmā": {
+      "title": "*sīmā",
+      "gloss": "chapter house",
+      "vismRefs": [
+        "IX.66"
+      ],
+      "pageId": "844"
+    },
+    "sīla": {
+      "title": "sīla",
+      "gloss": "(1) virtue, (2) habit, (3) rite",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sīlabbata": {
+      "title": "sīlabbata",
+      "gloss": "rules and vows (Ñāṇamoli’s original translation was “rites and rituals,” but was changed in accordance with his later translation of this term. )",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sīlaka": {
+      "title": "*sīlaka",
+      "gloss": "good-tempered",
+      "vismRefs": [
+        "III.84"
+      ],
+      "pageId": "844"
+    },
+    "*sīlana": {
+      "title": "*sīlana",
+      "gloss": "composing",
+      "vismRefs": [
+        "I.19"
+      ],
+      "pageId": "844"
+    },
+    "sukkha-vipassaka": {
+      "title": "sukkha-vipassaka",
+      "gloss": "bare(or dry-) insight worker (one who attains the path without previously having attained jhāna)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "sukha": {
+      "title": "sukha",
+      "gloss": "pleasure, pleasant, bliss, blissful, bodily pleasure",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "*sukha": {
+      "title": "*sukha",
+      "gloss": "tepid",
+      "vismRefs": [
+        "X.52"
+      ],
+      "pageId": "844"
+    },
+    "*sukhana": {
+      "title": "*sukhana",
+      "gloss": "act of pleasing",
+      "vismRefs": [
+        "IV.100"
+      ],
+      "pageId": "844"
+    },
+    "sugata": {
+      "title": "sugata",
+      "gloss": "Sublime One (the Buddha)",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "suñña, suññata": {
+      "title": "suñña, suññata",
+      "gloss": "void",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "suññatā": {
+      "title": "suññatā",
+      "gloss": "voidness",
+      "vismRefs": [],
+      "pageId": "844"
+    },
+    "suta": {
+      "title": "suta",
+      "gloss": "heard",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "*suttaka": {
+      "title": "*suttaka",
+      "gloss": "intestinal worm",
+      "vismRefs": [
+        "VIII.121"
+      ],
+      "pageId": "845"
+    },
+    "subha": {
+      "title": "subha",
+      "gloss": "beautiful, beauty",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "*surabhi": {
+      "title": "*surabhi",
+      "gloss": "perfume",
+      "vismRefs": [
+        "III.100",
+        "VI.90",
+        "X.60"
+      ],
+      "pageId": "845"
+    },
+    "*sūcayati": {
+      "title": "*sūcayati",
+      "gloss": "to betray, reveal",
+      "vismRefs": [
+        "XV.3"
+      ],
+      "pageId": "845"
+    },
+    "*sūdana": {
+      "title": "*sūdana",
+      "gloss": "cleansing",
+      "vismRefs": [
+        "XI.125"
+      ],
+      "pageId": "845"
+    },
+    "sekha": {
+      "title": "sekha",
+      "gloss": "trainer (term for one possessing one of the four paths or first three fruitions, so with training still to do)",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "soka": {
+      "title": "soka",
+      "gloss": "sorrow",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "sotāpanna": {
+      "title": "sotāpanna",
+      "gloss": "stream enterer (1st stage of realization)",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "somanassa": {
+      "title": "somanassa",
+      "gloss": "joy, mental pleasure",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "hadaya": {
+      "title": "hadaya",
+      "gloss": "heart",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "hadaya-vatthu": {
+      "title": "hadaya-vatthu",
+      "gloss": "heart-basis (physical basis of mind)",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "hiri": {
+      "title": "hiri",
+      "gloss": "conscience",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "hīna": {
+      "title": "hīna",
+      "gloss": "(1) abandoned, (2) inferior",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "hetu": {
+      "title": "hetu",
+      "gloss": "root-cause, cause",
+      "vismRefs": [],
+      "pageId": "845"
+    },
+    "*hetu": {
+      "title": "*hetu",
+      "gloss": "also middle term (in syllogism; log.)",
+      "vismRefs": [
+        "XVII.67"
+      ],
+      "pageId": "845"
+    }
+  }
+}
