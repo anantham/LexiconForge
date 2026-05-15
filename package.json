@@ -16,6 +16,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
+    "smoke:sutta-studio": "RUN_GROUNDING_SMOKE=1 playwright test tests/e2e/sutta-studio-grounding-smoke.spec.ts --reporter=list",
     "merge-fan-translations": "tsx scripts/merge-fan-translations.ts",
     "polyglot-merge": "tsx scripts/polyglot-merge.ts",
     "build-library-session": "tsx scripts/build-library-session.ts",
