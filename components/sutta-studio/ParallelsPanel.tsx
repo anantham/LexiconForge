@@ -58,7 +58,7 @@ export function ParallelsPanel({ uid }: Props) {
           <div className="space-y-1">
             {grouped.map((item) => (
               <div key={`${item.uid}-${item.type}`} className="flex items-center justify-between border-b border-slate-800 py-1">
-                <div className="text-slate-200">{item.uid} · {item.rootLang} · {item.type}</div>
+                <div className="text-slate-200">{item.uid}{item.acronym ? ` (${item.acronym})` : ''} · {item.rootLang} · {item.type}</div>
                 <button className="text-emerald-300 hover:text-emerald-200" onClick={() => openParallel(item.uid)}>Open</button>
               </div>
             ))}
@@ -66,7 +66,7 @@ export function ParallelsPanel({ uid }: Props) {
           {activeUid && (
             <div className="mt-3 border-t border-slate-700 pt-2">
               <div className="text-slate-300 font-medium mb-1">{activeUid}</div>
-              {loadingText ? <div className="text-slate-400">Loading text…</div> : <pre className="whitespace-pre-wrap text-slate-200">{activeText}</pre>}
+              {loadingText ? <div className="text-slate-400">Loading text…</div> : <pre className="whitespace-pre-wrap text-slate-200 font-serif" style={{ fontFamily: "'Noto Serif', 'Noto Serif CJK SC', 'Noto Sans CJK SC', 'PingFang SC', 'Hiragino Sans GB', serif" }}>{activeText}</pre>}
             </div>
           )}
         </div>

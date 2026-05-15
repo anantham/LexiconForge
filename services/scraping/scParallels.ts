@@ -2,12 +2,13 @@ import { ParallelInfo, ParallelType } from '../../types/suttaStudio';
 
 const SC_PROXY_BASE = '/api/fetch-proxy?url=';
 
-type RawParallelNode = {
-  uid?: string;
-  root_lang?: string;
+type RawParallelsEntry = {
+  to?: {
+    uid?: string;
+    root_lang?: string;
+    acronym?: string;
+  };
   type?: string;
-  acronym?: string;
-  [key: string]: unknown;
 };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -16,30 +17,6 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
 const normalizeType = (value: unknown): ParallelType => {
   if (value === 'full' || value === 'resembling' || value === 'mention') return value;
   return 'full';
-};
-
-const walkParallels = (input: unknown, acc: ParallelInfo[]) => {
-  if (Array.isArray(input)) {
-    input.forEach((entry) => walkParallels(entry, acc));
-    return;
-  }
-  if (!isObject(input)) return;
-
-  const leaf = input as RawParallelNode;
-  if (typeof leaf.uid === 'string' && leaf.uid.trim()) {
-    const rootLang = typeof leaf.root_lang === 'string' ? leaf.root_lang.trim().toLowerCase() : 'unknown';
-    acc.push({
-      uid: leaf.uid.trim().toLowerCase(),
-      rootLang,
-      type: normalizeType(leaf.type),
-      acronym: typeof leaf.acronym === 'string' ? leaf.acronym.trim() : undefined,
-      isPali: rootLang === 'pli' || rootLang === 'pi',
-    });
-  }
-
-  Object.values(input).forEach((entry) => {
-    if (entry !== input) walkParallels(entry, acc);
-  });
 };
 
 const fetchJson = async (url: string) => {
@@ -57,7 +34,27 @@ export async function fetchParallels(uid: string): Promise<ParallelInfo[]> {
 
   const data = await fetchJson(`https://suttacentral.net/api/parallels/${normalizedUid}`);
   const collected: ParallelInfo[] = [];
-  walkParallels(data, collected);
+
+  if (isObject(data)) {
+    for (const entries of Object.values(data)) {
+      if (!Array.isArray(entries)) continue;
+      for (const rawEntry of entries) {
+        if (!isObject(rawEntry)) continue;
+        const entry = rawEntry as RawParallelsEntry;
+        const to = isObject(entry.to) ? entry.to : null;
+        if (!to || typeof to.uid !== 'string' || !to.uid.trim()) continue;
+
+        const rootLang = typeof to.root_lang === 'string' ? to.root_lang.trim().toLowerCase() : 'unknown';
+        collected.push({
+          uid: to.uid.trim().toLowerCase(),
+          rootLang,
+          type: normalizeType(entry.type),
+          acronym: typeof to.acronym === 'string' ? to.acronym.trim() : undefined,
+          isPali: rootLang === 'pli' || rootLang === 'pi',
+        });
+      }
+    }
+  }
 
   const deduped = new Map<string, ParallelInfo>();
   for (const item of collected) {
@@ -68,15 +65,21 @@ export async function fetchParallels(uid: string): Promise<ParallelInfo[]> {
   return Array.from(deduped.values()).sort((a, b) => a.uid.localeCompare(b.uid, undefined, { numeric: true }));
 }
 
-export async function fetchParallelText(uid: string, author = 'sujato'): Promise<string> {
+export async function fetchParallelText(uid: string): Promise<string> {
   const normalizedUid = uid.trim().toLowerCase();
   if (!normalizedUid) return '';
 
-  const data = await fetchJson(`https://suttacentral.net/api/bilarasuttas/${normalizedUid}/${author}`);
-  const rootText = isObject(data) && isObject(data.root_text) ? data.root_text : null;
+  const data = await fetchJson(`https://suttacentral.net/api/suttas/${normalizedUid}`);
+  const rootText = isObject(data)
+    ? (isObject(data.root_text)
+      ? data.root_text
+      : (isObject(data.bilara_root_text) ? data.bilara_root_text : null))
+    : null;
+
   if (!rootText) {
-    throw new Error(`Parallel text for ${normalizedUid} has no root_text payload.`);
+    throw new Error(`Parallel text for ${normalizedUid} has no root text payload.`);
   }
+
   const keys = Object.keys(rootText).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   return keys.map((key) => String(rootText[key] ?? '').trim()).filter(Boolean).join('\n\n');
 }

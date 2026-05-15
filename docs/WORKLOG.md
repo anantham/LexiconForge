@@ -1812,3 +1812,15 @@
 - `docs/sutta-studio/PLANS/SHIPPED/polyglot-foundations.md` (moved from root plans folder)
 - `docs/WORKLOG.md`
 **Tests:** Not run (docs-only update).
+
+### [2026-05-15 13:25 UTC] [Agent: Codex]
+**Status:** Complete
+**Task:** Address PR #58 review blockers for polyglot parallels (SC shape + non-Pali text fetch).
+**Progress:** Reworked SC parallels parser to read `type` from outer entry + `uid/root_lang/acronym` from nested `to`, switched text fetch from `/api/bilarasuttas/<uid>/sujato` to `/api/suttas/<uid>` for non-Pali compatibility, updated tests to real endpoint shape, and added CJK-friendly font stack + acronym display in panel.
+**Files modified (line numbers + why):**
+- `services/scraping/scParallels.ts` — fix shape parsing and cross-language text endpoint.
+- `tests/services/scraping/scParallels.test.ts` — use real-shaped parallels fixture and add `/api/suttas` text test.
+- `components/sutta-studio/ParallelsPanel.tsx` — display acronym and use readable CJK-capable fallback stack.
+- `docs/WORKLOG.md` — log review-driven follow-up.
+**Tests:**
+- `npx vitest run tests/services/scraping/scParallels.test.ts`
