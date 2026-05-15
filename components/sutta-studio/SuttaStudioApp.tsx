@@ -26,6 +26,7 @@ const parseSuttaRoute = () => {
       recompile: false,
       stitch: [] as string[],
       allowCrossChapter: false,
+      phaseLimit: undefined as number | undefined,
     };
   }
   const parts = window.location.pathname.split('/').filter(Boolean);
@@ -53,6 +54,7 @@ const parseSuttaRoute = () => {
       recompile: false,
       stitch: [] as string[],
       allowCrossChapter: false,
+      phaseLimit: undefined as number | undefined,
     };
   }
 
@@ -63,10 +65,19 @@ const parseSuttaRoute = () => {
   const recompileRaw = params.get('recompile');
   const stitchRaw = params.get('stitch') || '';
   const allowCrossRaw = params.get('cross');
+  const phaseLimitRaw = params.get('phaseLimit');
   const stitch = stitchRaw
     .split(',')
     .map((item) => item.trim().toLowerCase())
     .filter((item) => item.length > 0);
+  // phaseLimit: bound compilation to first N phases. Used for pilots
+  // (e.g., DN22 first 3 phases) to validate architecture without paying
+  // full $X compile cost. Undefined = compile all phases.
+  let phaseLimit: number | undefined;
+  if (phaseLimitRaw) {
+    const n = parseInt(phaseLimitRaw, 10);
+    if (Number.isFinite(n) && n > 0) phaseLimit = n;
+  }
   return {
     source: 'suttacentral' as StudioSource,
     uid: uidRaw ? uidRaw.toLowerCase() : null,
@@ -77,6 +88,7 @@ const parseSuttaRoute = () => {
     recompile: recompileRaw === '1' || recompileRaw === 'true',
     stitch,
     allowCrossChapter: allowCrossRaw === '1' || allowCrossRaw === 'true',
+    phaseLimit,
   };
 };
 
@@ -99,7 +111,7 @@ export function SuttaStudioApp() {
   const loadChapterFromIDB = useAppStore((s) => s.loadChapterFromIDB);
   const setCurrentChapter = useAppStore((s) => s.setCurrentChapter);
 
-  const { source, uid, lang, author, fojinTextId, fojinJuan, recompile, stitch, allowCrossChapter } =
+  const { source, uid, lang, author, fojinTextId, fojinJuan, recompile, stitch, allowCrossChapter, phaseLimit } =
     useMemo(parseSuttaRoute, []);
   const targetUrl = (() => {
     if (source === 'fojin' && fojinTextId) {
@@ -399,6 +411,7 @@ export function SuttaStudioApp() {
       author,
       settings,
       allowCrossChapter,
+      phaseLimit,
       signal: controller.signal,
       onProgress: ({ packet, stage, message }) => {
         logSuttaFlow('compiler progress', { stage, message });

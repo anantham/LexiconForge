@@ -153,8 +153,14 @@ export const compileSuttaStudioPacket = async (options: {
   onProgress?: (progress: CompileProgress) => void;
   signal?: AbortSignal;
   allowCrossChapter?: boolean;
+  /**
+   * Pilot mode: cap compilation to the first N phases. Used by ?phaseLimit=N
+   * URL param to validate architecture cheaply on new suttas (DN22 pilot etc)
+   * without paying the full $X compile cost. Unset = all phases.
+   */
+  phaseLimit?: number;
 }): Promise<DeepLoomPacket> => {
-  const { uid, uids, lang, author, settings: rawSettings, onProgress, signal, allowCrossChapter } = options;
+  const { uid, uids, lang, author, settings: rawSettings, onProgress, signal, allowCrossChapter, phaseLimit: phaseLimitOpt } = options;
   const settings = applySuttaStudioModelOverride(rawSettings);
   if (settings !== rawSettings) {
     log(`Sutta Studio compiler: using ${settings.provider} ${settings.model} (override) instead of global ${rawSettings.provider} ${rawSettings.model}`);
@@ -281,6 +287,18 @@ export const compileSuttaStudioPacket = async (options: {
         ? new Set(boundaries.map((b) => b.startSegmentId))
         : undefined;
     phaseSkeleton = chunkPhases(canonicalWithOrder, 8, boundaryStarts);
+  }
+
+  // Pilot-mode cap: trim phaseSkeleton to the first N phases when the
+  // ?phaseLimit=N URL param is set. Applies AFTER both code paths
+  // (runSkeletonPass and chunkPhases fallback) so DN22's LLM-detected
+  // ~50 phases gets truncated as expected. Without this guard, the user
+  // saw "Phase 0/451 (Lexicographer) · 173m 48s" — full compile not capped.
+  if (phaseLimitOpt && phaseLimitOpt > 0 && phaseSkeleton.length > phaseLimitOpt) {
+    log(
+      `phaseLimit=${phaseLimitOpt} — truncating phaseSkeleton from ${phaseSkeleton.length} to ${phaseLimitOpt} phases (pilot mode)`
+    );
+    phaseSkeleton = phaseSkeleton.slice(0, phaseLimitOpt);
   }
 
   let readySegments = 0;
