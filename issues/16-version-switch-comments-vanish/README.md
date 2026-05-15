@@ -1,6 +1,16 @@
 # Issue 16 — Chapter-translation switch loses comments and floating-comment icons
 
-> Status: **triaged — needs §2 live repro before ready-for-fix** · Last updated: 2026-05-04 · Investigator: Opus 4.7
+> Status: **FIXED 2026-05-15** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+>
+> **Fix:** `components/chapter/ReaderBody.tsx` — added `key={translationResult?.id ?? translationResult?.version ?? 'default'}` to `<InlineCommentMarkers>`. React force-remounts the markers on translation switch, so `useEffect [computePositions]` re-fires against the new DOM. Implements the fix-shape identified at §5 of this README's pre-2026-05-15 analysis.
+>
+> **Regression test:** `tests/components/chapter/ReaderBody.versionSwitchRemount.test.tsx` — 4 cases, verified to FAIL 2/4 on unfixed code (`git stash` of fix), PASS 4/4 with fix applied.
+>
+> **Why this issue sat 11 days at `triaged`:** the 2026-05-04 investigator self-blocked on "live UI repro is blocked on having a chapter with multiple translations stored in IDB" — but agent could have synthesized that IDB state (or, as in today's fix, written a unit test that mocks InlineCommentMarkers to detect the re-mount via spy). The "needs live repro" gate was over-conservative for a bug with 0.88 code-read confidence + a clear fix shape.
+>
+> ⚠ Content below is the pre-2026-05-15 investigation. Treat as historical record.
+
+> Pre-2026-05-15 status: **triaged — needs §2 live repro before ready-for-fix** · Last updated: 2026-05-04 · Investigator: Opus 4.7
 
 ## TL;DR
 

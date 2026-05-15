@@ -69,7 +69,12 @@ const ReaderBody: React.FC<ReaderBodyProps> = ({
       <div className="relative">
         <ChapterContent {...chapterContentProps} />
         {showInlineComments && viewMode === 'english' && feedbackForChapter.length > 0 && (
+          // key forces remount on translation-version switch so positions
+          // recompute against the new DOM. See issues/16-version-switch-comments-vanish/.
+          // The feedback ref alone doesn't change on setActiveTranslationVersion,
+          // so InlineCommentMarkers' useCallback deps wouldn't fire its effect.
           <InlineCommentMarkers
+            key={translationResult?.id ?? translationResult?.version ?? 'default'}
             feedback={feedbackForChapter}
             contentRef={chapterContentProps.contentRef}
             onScrollToText={onScrollToText}
