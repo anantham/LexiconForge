@@ -1824,3 +1824,15 @@
 - `docs/WORKLOG.md` — log review-driven follow-up.
 **Tests:**
 - `npx vitest run tests/services/scraping/scParallels.test.ts`
+
+### [2026-05-15 13:40 UTC] [Agent: Codex]
+**Status:** Complete
+**Task:** Address remaining PR #58 text-rendering bug for SC parallels across Pali/Chinese/fragment shapes.
+**Progress:** Implemented shape-specific text extraction in `fetchParallelText`: strips HTML from `root_text.text` payloads, falls back to Bilara segmented fetch using discovered `author_uid` for Pali, and returns a clear unsupported-source message when neither shape is available. Also wired panel error text to display detailed service message.
+**Files modified (line numbers + why):**
+- `services/scraping/scParallels.ts` — robust multi-shape SC text handling and clear failure messaging.
+- `tests/services/scraping/scParallels.test.ts` — coverage for html-blob roots, bilara-author segmented fallback, and unsupported fragment case.
+- `components/sutta-studio/ParallelsPanel.tsx` — show thrown error message for better UX/debug clarity.
+- `docs/WORKLOG.md` — record follow-up work.
+**Tests:**
+- `npx vitest run tests/services/scraping/scParallels.test.ts`

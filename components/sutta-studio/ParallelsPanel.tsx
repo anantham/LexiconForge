@@ -39,7 +39,7 @@ export function ParallelsPanel({ uid }: Props) {
       setActiveText(await fetchParallelText(parallelUid));
     } catch (error) {
       console.error('[ParallelsPanel] fetchParallelText failed', { uid: parallelUid, error });
-      setActiveText('Unable to load parallel text right now.');
+      setActiveText(error instanceof Error ? error.message : 'Unable to load parallel text right now.');
     } finally {
       setLoadingText(false);
     }

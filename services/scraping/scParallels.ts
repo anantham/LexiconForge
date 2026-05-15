@@ -28,6 +28,14 @@ const fetchJson = async (url: string) => {
   return response.json();
 };
 
+const flattenSegmentMap = (input: Record<string, unknown>) => {
+  const keys = Object.keys(input).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  return keys.map((key) => String(input[key] ?? '').trim()).filter(Boolean).join('\n\n');
+};
+
+const stripHtml = (html: string) =>
+  html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
 export async function fetchParallels(uid: string): Promise<ParallelInfo[]> {
   const normalizedUid = uid.trim().toLowerCase();
   if (!normalizedUid) return [];
@@ -70,16 +78,30 @@ export async function fetchParallelText(uid: string): Promise<string> {
   if (!normalizedUid) return '';
 
   const data = await fetchJson(`https://suttacentral.net/api/suttas/${normalizedUid}`);
-  const rootText = isObject(data)
-    ? (isObject(data.root_text)
-      ? data.root_text
-      : (isObject(data.bilara_root_text) ? data.bilara_root_text : null))
-    : null;
-
-  if (!rootText) {
-    throw new Error(`Parallel text for ${normalizedUid} has no root text payload.`);
+  if (!isObject(data)) {
+    throw new Error(`No text payload available for ${normalizedUid}.`);
   }
 
-  const keys = Object.keys(rootText).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  return keys.map((key) => String(rootText[key] ?? '').trim()).filter(Boolean).join('\n\n');
+  // Chinese/Taisho and similar payloads: root_text.text is a single HTML blob.
+  if (isObject(data.root_text) && typeof data.root_text.text === 'string') {
+    return stripHtml(data.root_text.text);
+  }
+
+  // Rare direct segment map shape.
+  if (isObject(data.root_text)) {
+    return flattenSegmentMap(data.root_text);
+  }
+
+  // Pali/Bilara payloads: fetch segmented root text with author from bilara metadata.
+  if (isObject(data.bilara_root_text) && typeof data.bilara_root_text.author_uid === 'string') {
+    const authorUid = data.bilara_root_text.author_uid.trim();
+    if (authorUid) {
+      const bilaraData = await fetchJson(`https://suttacentral.net/api/bilarasuttas/${normalizedUid}/${authorUid}`);
+      if (isObject(bilaraData) && isObject(bilaraData.root_text)) {
+        return flattenSegmentMap(bilaraData.root_text);
+      }
+    }
+  }
+
+  throw new Error(`No root text available for ${normalizedUid} yet (some fragment sources are not available via this API path).`);
 }
