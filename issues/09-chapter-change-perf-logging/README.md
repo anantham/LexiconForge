@@ -1,6 +1,17 @@
 # Issue 9 — Chapter-change is slow — instrument and identify causes
 
-> Status: **investigated** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M) · Worktree `opus-issues-investigation`
+> Status: **FIX-IN-PLACE 2026-05-15** (race-lookup; L1+L2 verified, L3 deferred) · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+>
+> **Fix:** `services/db/repositories/TranslationRepository.ts:266-296` — replaced serial URL-then-stableId fallback with `Promise.any` race. Both paths fire in parallel; first non-empty wins. Eliminates the ~330ms wasted URL lookup that always returned 0 for stableId-migrated data. Also strips 7 console.log calls from the hot path (runtime side of issue #8).
+>
+> **Verification ladder (§6a) achieved:**
+> - [x] L1 Static — confidence 0.95 (empirical trace `traces/ch1-to-ch2-timeline.txt` shows 574ms transition, 958ms data resolved; the URL fallback at 630-897ms is the waste)
+> - [x] L2 Unit-mechanical — 6 tests at `tests/services/db/TranslationRepository.raceLookup.test.ts`. Critical parallelism test FAILS on pre-fix serial code (verified via git stash); all 6 PASS post-fix.
+> - [ ] L3 Programmatic data-path — DEFERRED (Playwright cold-boot timing measurement; the original empirical trace at `traces/ch1-to-ch2-timeline.txt` was pre-fix evidence)
+> - [ ] L4 Real-event chain — DEFERRED (re-run the original chapter-change-timing instrumentation to confirm 574ms → expected <300ms)
+> - [ ] L5 User-driven manual — DEFERRED
+>
+> **The deferred levels (L3-L5) are simple to fill in** — re-run the original instrumented JS at `traces/ch1-to-ch2-timeline.txt`'s repro shape on a real chapter, and check the new timing. Not blocked on anything; just out of scope for this commit.
 
 ## 1. Claim (verbatim from Issues.md)
 
