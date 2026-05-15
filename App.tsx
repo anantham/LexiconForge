@@ -5,6 +5,7 @@ import { SuttaStudioApp } from './components/sutta-studio/SuttaStudioApp';
 import { SuttaStudioView } from './components/sutta-studio/SuttaStudioView';
 import { SuttaStudioPipelineLoader } from './components/sutta-studio/SuttaStudioPipelineLoader';
 import { DEMO_PACKET_MN10 } from './components/sutta-studio/demoPacket';
+import { LiturgyApp } from './components/liturgy/LiturgyApp';
 
 const App: React.FC = () => {
   // Track pathname in state so client-side navigation (history.pushState +
@@ -40,6 +41,11 @@ const App: React.FC = () => {
   if (pathname.startsWith('/sutta')) {
     return <SuttaStudioApp />;
   }
+
+  if (pathname === '/liturgy' || pathname.startsWith('/liturgy/')) {
+    return <LiturgyApp pathname={pathname} />;
+  }
+
   return <MainApp />;
 };
 
