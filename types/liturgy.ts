@@ -359,6 +359,21 @@ export type LiturgySourceRef = {
  * within a sangha; can repeat across sanghas (Heart Sutra exists under
  * both `maple/heart-sutra` and `bodhi-sangha/heart-sutra`).
  */
+/**
+ * One milestone in a sangha's daily rhythm — the bell that wakes
+ * everyone up, the start of chanting, work-period, meal, sitting,
+ * evening close. Rendered as a small visual timeline on the
+ * sangha-index page; chants placed in time-context, not as a flat list.
+ */
+export type ScheduleEvent = {
+  /** Time-of-day in human-readable form ("4:15 AM", "before sleep", "after work period"). */
+  time: string;
+  /** Short label for the event ("Wake-up bell", "Morning chanting begins"). */
+  event: string;
+  /** Optional icon hint — renderer maps to an SVG. */
+  icon?: 'bell' | 'cushion' | 'meal' | 'walk' | 'work' | 'rest';
+};
+
 export type Sangha = {
   /** URL slug + foreign key on LiturgyDoc.sangha. */
   slug: string;
@@ -376,6 +391,13 @@ export type Sangha = {
   url?: string;
   /** Primary Buddhist tradition tag — what colours the sangha most strongly. */
   primaryTradition?: 'theravada' | 'mahayana' | 'zen' | 'vajrayana' | 'lakota' | 'maple' | 'mixed';
+  /**
+   * Optional daily-rhythm timeline. Rendered as a visual strip at the
+   * top of the sangha's chant-index page, with bell icons and times.
+   * Anchors the chants in lived context — chanting isn't decontextualised
+   * from when (and after what) it happens.
+   */
+  schedule?: ScheduleEvent[];
 };
 
 export type LiturgyDoc = {
@@ -395,6 +417,25 @@ export type LiturgyDoc = {
   tradition: 'theravada' | 'mahayana' | 'zen' | 'vajrayana' | 'lakota' | 'maple' | 'mixed';
   /** Practice context — when chanted, by whom. */
   context?: string;
+  /**
+   * Position in the sangha's chant sequence. Lower comes first. The
+   * sangha-index page sorts by this. Used for the morning service
+   * order: morning-chants first (1), then enmei-jikku (2), sho-sai (3),
+   * heart-sutra (4), and so on. Omit for one-off / unscheduled chants.
+   */
+  order?: number;
+  /**
+   * Optional time-of-day stamp shown next to the chant on the
+   * sangha-index card ("4:35 AM", "evening before sleep").
+   */
+  time?: string;
+  /**
+   * How often the chant is practiced. Drives sangha-index page
+   * sectioning — daily chants are listed first in their order; weekly
+   * and occasional chants are grouped beneath in their own sections.
+   * Defaults to 'daily' when omitted.
+   */
+  frequency?: 'daily' | 'weekly' | 'occasional';
   /** Sources — canonical (textual provenance) and ritual (where this version comes from). */
   sources?: {
     canonical?: LiturgySourceRef[];

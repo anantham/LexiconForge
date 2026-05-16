@@ -26,10 +26,12 @@ import { wikipediaCitation, ungroundedCitation } from './_groundingHelpers';
 export const bodhicittaDedication: LiturgyDoc = {
   slug: 'bodhicitta-dedication',
   sangha: 'maple',
+  frequency: 'weekly',
+  time: 'Sunday night, before Monday self-practice day',
   title: 'Bodhicitta Dedication',
   subtitle: 'May supreme and precious bodhicitta arise…',
   tradition: 'vajrayana',
-  context: 'Recited 3× at MAPLE as a dedication after practice.',
+  context: 'Recited 3× at MAPLE on Sunday nights, before Monday — the free self-practice day. Not part of the daily morning service.',
   sources: {
     canonical: [
       {

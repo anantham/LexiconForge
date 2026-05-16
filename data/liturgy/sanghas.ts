@@ -35,6 +35,11 @@ export const SANGHAS: Record<string, Sangha> = {
     founded: '2014',
     url: 'https://monasticacademy.org',
     primaryTradition: 'mixed',
+    schedule: [
+      { time: '4:15 AM', event: 'Wake-up bell', icon: 'bell' },
+      { time: '4:35 AM', event: 'Morning chanting in the zendo', icon: 'cushion' },
+      { time: 'Evening', event: 'Before sleep — Oṃ Maṇi Padme Hūṃ', icon: 'rest' },
+    ],
   },
 };
 

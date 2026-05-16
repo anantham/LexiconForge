@@ -17,17 +17,21 @@
 
 import type { LiturgyDoc } from '../../types/liturgy';
 import morningChants from './morning-chants';
-import omManiPadmeHum from './om-mani-padme-hum';
+import enmeiJikkuKannonGyo from './enmei-jikku-kannon-gyo';
+import shoSaiMyoKichijoDarani from './sho-sai-myo-kichijo-darani';
 import heartSutra from './heart-sutra';
-import jadeMethod from './jade-method';
 import bodhicittaDedication from './bodhicitta-dedication';
+import jadeMethod from './jade-method';
+import omManiPadmeHum from './om-mani-padme-hum';
 
 const ALL_DOCS: LiturgyDoc[] = [
   morningChants,
-  omManiPadmeHum,
+  enmeiJikkuKannonGyo,
+  shoSaiMyoKichijoDarani,
   heartSutra,
-  jadeMethod,
   bodhicittaDedication,
+  jadeMethod,
+  omManiPadmeHum,
 ];
 
 /**
@@ -53,9 +57,17 @@ export const LITURGY_INDEX = ALL_DOCS.map((doc) => ({
   context: doc.context,
 }));
 
-/** All chants belonging to a sangha, in registration order. */
+/**
+ * All chants belonging to a sangha, sorted by `order` if present (lower
+ * comes first), then by registration order as a stable fallback. So a
+ * sangha\'s morning service flows in the order it\'s actually chanted.
+ */
 export function liturgyDocsForSangha(sangha: string): LiturgyDoc[] {
-  return ALL_DOCS.filter((d) => d.sangha === sangha);
+  return ALL_DOCS.filter((d) => d.sangha === sangha).sort((a, b) => {
+    const ao = a.order ?? Infinity;
+    const bo = b.order ?? Infinity;
+    return ao - bo;
+  });
 }
 
 /** Lookup one chant by sangha slug + chant slug. */

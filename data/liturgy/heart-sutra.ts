@@ -37,6 +37,8 @@ import {
 export const heartSutra: LiturgyDoc = {
   slug: 'heart-sutra',
   sangha: 'maple',
+  order: 4,
+  time: 'after Sho Sai',
   title: 'Prajñāpāramitā Hṛdaya Sūtra',
   subtitle: 'The Heart of Perfect Wisdom',
   tradition: 'mahayana',
