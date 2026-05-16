@@ -1,6 +1,15 @@
 # Issue 3 — Novel metadata empty / glossary not loaded
 
-> Status: **investigated** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M) · Worktree `opus-issues-investigation`
+> Status: **PARTIALLY RESOLVED 2026-05-15** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+>
+> **Resolutions per anomaly:**
+> - **Anomaly A (virtual+imported dropdown duplicates):** subsumed by issue #20 fix.
+> - **Anomaly B (Hangul Necromancer titles in DD ch 478-510):** **Hypothesis-falsification investigation 2026-05-15 confirmed H1 (registry session.json polluted upstream).** Fix shipped in `lexiconforge-novels` repo on branch `fix/remove-necromancer-contamination` — 33 chapters removed, catalog 509 → 476. Pending merge to main + user-side IDB refresh.
+> - **Anomaly C (untranslated Korean placeholders):** still open; trivial localization fix.
+> - **Anomaly D (user's "Chapter N as title" verbatim):** still open; reader title-fallback fix.
+> - **Anomaly E (no glossary UI in reader):** **Re-scoped 2026-05-15 after user pushback** — the framing "translator-time only" was wrong. Glossary IS bidirectional (registry → `settings.glossary` → `{{glossary}}` placeholder → LLM → AmendmentModal proposals → user accepts → `settings.glossaryOverrides`). What was missing is INLINE reader visibility — and that's now provided by the **InterleavedReader primitive** built for issue #15 Phase 3, which surfaces glossary entries as `{ provider: 'glossary' }` senses in the hover tooltip. Wire-up pending.
+>
+> The framing correction caught a false dichotomy I introduced. Verbatim user redirect: "there's no distinction between translator and reader, right? It's just how readers and translators are working together; it's interdependent."
 
 ## 1. Claim (verbatim from Issues.md)
 

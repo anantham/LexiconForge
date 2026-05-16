@@ -1,6 +1,30 @@
 # Issue 15 — Comparison should cycle raw / fan / google translate
 
-> Status: **investigated** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M) · Worktree `opus-issues-investigation`
+> Status: **PRIMITIVES BUILT 2026-05-15** (3 phases shipped, wire-up pending) · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+>
+> **Re-scoped after user pushback (2026-05-15):** original scoping treated this as a "third source button" feature (Google Translate at paragraph granularity). User clarified the actual intent: **interleaved aligned-text reader with word-level translation**, not a panel toggle. The sutta-studio reader's `PaliWord`/`EnglishWord` pattern is the answer hiding in the codebase.
+>
+> **Architecture (Hybrid D from the user-decision):**
+> - **Phase 1 — `services/wordAlignment.ts`** — structured-output LLM call produces source↔target word pairs with char offsets. Cached per (chapterId, translationVersionId). 10 tests passing.
+> - **Phase 2 — `services/perWordTranslation.ts`** — DeepL + Google Cloud Translate + glossary lookup, per-source-word, with in-memory cache. Provider-agnostic via `Sense[]` return shape. 16 tests passing.
+> - **Phase 3 — `components/chapter/InterleavedReader.tsx`** — renders aligned word pairs (source above target), hover→tooltip with multi-provider senses, click→cycle through senses. Mirrors sutta-studio's PaliWord/EnglishWord. 9 tests passing.
+>
+> **Verification ladder (§6a) achieved:**
+> - [x] L1 Static — confidence 1.0 (re-read the sutta-studio code; pattern fits novels via the same data model)
+> - [x] L2 Unit-mechanical — 35 tests across 3 service/component test files. All FAIL pre-fix (modules don't exist) and PASS post-fix.
+> - [ ] L3 Programmatic — DEFERRED until wire-up
+> - [ ] L4 Real-event chain — DEFERRED until wire-up (need to add settings flag + conditional render in ReaderBody)
+> - [ ] L5 User-driven manual — DEFERRED until wire-up
+>
+> **What's left to make user-visible:**
+> 1. Add a settings flag `enableInterleavedView` (boolean, default false)
+> 2. In `ReaderBody.tsx`, when flag is on AND `chapter.wordAlignment` exists, render `<InterleavedReader>` instead of (or alongside) `ChapterContent`'s English text
+> 3. Add a "Compute alignment" affordance in the reader that calls `alignWords()` and persists to `chapter.wordAlignment` in IDB
+> 4. Wire `apiKeys` for DeepL + Google in Settings
+>
+> Wire-up is ~2-4 hr of UI work. Primitives are ready and tested.
+>
+> **#3 anomaly E (missing reader-side glossary UI) is now resolved by the same InterleavedReader** — glossary entries surface as `{ provider: 'glossary' }` senses in the hover tooltip. Different granularity, same primitive.
 
 ## 1. Claim (verbatim from Issues.md)
 
