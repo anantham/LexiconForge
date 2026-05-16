@@ -184,15 +184,55 @@ function normalizeForMatch(s: string): string {
   return s.toLowerCase().replace(/[.,;:!?"'()\[\]।॥-]/g, '').trim();
 }
 
-function buildWordIndex(words: WordGloss[], by: 'form' | 'scriptAlt' = 'form'): Map<string, WordGloss> {
+/**
+ * Build a normalized-form → WordGloss index. `by` is:
+ *   - 'form'      → match against `w.form` (Latin/IAST)
+ *   - 'scriptAlt' → match against `w.scriptAlt` (Devanāgarī)
+ *   - 'lang:XX'   → match against `w.scriptAlts[XX]` (any registered script)
+ *
+ * The third form lets Chinese/Japanese/Tibetan tokens light up tooltips
+ * once authoring fills in `scriptAlts: { 'zh-Hant': '般若', … }` per-term.
+ */
+function buildWordIndex(
+  words: WordGloss[],
+  by: 'form' | 'scriptAlt' | `lang:${string}`
+): Map<string, WordGloss> {
   const idx = new Map<string, WordGloss>();
+  const langKey = by.startsWith('lang:') ? by.slice(5) : undefined;
   for (const w of words) {
-    const raw = by === 'form' ? w.form : w.scriptAlt;
+    let raw: string | undefined;
+    if (by === 'form') raw = w.form;
+    else if (by === 'scriptAlt') raw = w.scriptAlt;
+    else if (langKey) raw = w.scriptAlts?.[langKey];
     if (!raw) continue;
     const key = normalizeForMatch(raw);
     if (key) idx.set(key, w);
   }
   return idx;
+}
+
+/**
+ * Tokenise text by an explicit list of hint substrings. Walks left-to-right,
+ * locating each hint after the previous one's end; anything between hints
+ * becomes a gap token (whitespace, punctuation, gap kanji not in the hint
+ * list). Hints not found cause the remainder to render as a single gap —
+ * a signal to the curator that the data is out of sync.
+ */
+function tokenizeWithHints(
+  text: string,
+  hints: string[]
+): Array<{ kind: 'word' | 'gap'; text: string }> {
+  const out: Array<{ kind: 'word' | 'gap'; text: string }> = [];
+  let cursor = 0;
+  for (const hint of hints) {
+    const i = text.indexOf(hint, cursor);
+    if (i < 0) break;
+    if (i > cursor) out.push({ kind: 'gap', text: text.slice(cursor, i) });
+    out.push({ kind: 'word', text: hint });
+    cursor = i + hint.length;
+  }
+  if (cursor < text.length) out.push({ kind: 'gap', text: text.slice(cursor) });
+  return out;
 }
 
 function matchWord(token: string, idx: Map<string, WordGloss>): WordGloss | undefined {
@@ -315,25 +355,25 @@ const PaliLine: React.FC<{
   large?: boolean;
   /**
    * BCP-47 lang tag of the text (e.g. `sa-Latn`, `sa-Deva`, `zh-Hant`,
-   * `bo-Tibt`, `ja-Jpan`). The renderer reads the script subtag:
-   *   - `Latn` → IAST tokenizer + per-word hover (WordGloss.form)
-   *   - `Deva` → Devanāgarī tokenizer + per-word hover (WordGloss.scriptAlt)
-   *   - `Hant` / `Hans` / `Jpan` → per-character tokens
-   *   - `Tibt` → per-syllable (tsek-separated) tokens
-   *
-   * All branches emit `data-pali-idx` per token so hover detection fires,
-   * but only Latn/Deva positions correspond to Sanskrit word positions —
-   * SegmentRow disables alignment lines in CJK/Tibetan to prevent
-   * cross-position drift.
+   * `bo-Tibt`, `ja-Jpan`). Drives tokeniser selection + WordGloss lookup
+   * key. Latn → `.form`, Deva → `.scriptAlt`, anything else →
+   * `scriptAlts[lang]` if authored.
    */
   lang: string;
-}> = ({ text, words = [], large = false, lang }) => {
+  /**
+   * Optional tokenisation hint. When present, the text is split by these
+   * substrings — useful for Chinese / Japanese where the natural unit
+   * is a multi-char compound (般若, 波羅蜜多) not a single character.
+   */
+  tokens?: string[];
+}> = ({ text, words = [], large = false, lang, tokens: tokenHints }) => {
   const { settings } = useLiturgySettings();
   const script = scriptSubtag(lang);
   const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
   const fontStack = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
 
   const tokens = (() => {
+    if (tokenHints && tokenHints.length > 0) return tokenizeWithHints(text, tokenHints);
     switch (script) {
       case 'Latn':
         return tokenize(text);
@@ -350,12 +390,13 @@ const PaliLine: React.FC<{
     }
   })();
 
-  // For Latn/Deva, we match against the WordGloss list — Latn matches `.form`,
-  // Deva matches `.scriptAlt`. For CJK/Tibetan we don't currently match
-  // (would need per-script scriptAlts on WordGloss); tokens still emit
-  // data-pali-idx so hover lights them up via the SegmentRow detector.
-  const idx = buildWordIndex(words, script === 'Latn' ? 'form' : 'scriptAlt');
-  const canMatch = script === 'Latn' || script === 'Deva';
+  // Pick the right index key: Latn → form, Deva → scriptAlt, else
+  // scriptAlts[lang]. With tokenisation hints the compound tokens (般若)
+  // can match scriptAlts entries; without hints, only single characters
+  // would match.
+  const indexKey: 'form' | 'scriptAlt' | `lang:${string}` =
+    script === 'Latn' ? 'form' : script === 'Deva' ? 'scriptAlt' : `lang:${lang}`;
+  const idx = buildWordIndex(words, indexKey);
 
   // Track surface position separately from token index. data-pali-idx is
   // what alignment lines use; it counts only "word" tokens.
@@ -370,7 +411,7 @@ const PaliLine: React.FC<{
       {tokens.map((t, i) => {
         if (t.kind === 'gap') return <React.Fragment key={i}>{t.text}</React.Fragment>;
         paliSurfaceIdx += 1;
-        const word = canMatch ? matchWord(t.text, idx) : undefined;
+        const word = matchWord(t.text, idx);
         const accentClass = settings.showAccents && word?.accent ? ACCENT_CLASS[word.accent] : '';
         const content = !word ? (
           t.text
@@ -630,7 +671,7 @@ const SegmentRow: React.FC<{
   const accentByPaliPos = useMemo(() => {
     const map = new Map<number, AccentColor>();
     if (!segment.words) return map;
-    const wordIdx = buildWordIndex(segment.words);
+    const wordIdx = buildWordIndex(segment.words, 'form');
     const tokens = tokenize(segment.pali);
     let pos = -1;
     for (const t of tokens) {
@@ -764,8 +805,10 @@ const SegmentRow: React.FC<{
   return (
     <div className="mb-8 relative" id={segment.id} ref={containerRef}>
       {/* Pāli line — click cycles through the segment's scripts at the
-          section level. Latin/Devanāgarī get per-word hover; other scripts
-          (Chinese, Tibetan, Japanese …) render as plain styled text. */}
+          section level. Latin/Devanāgarī get per-word hover; CJK / Tibetan
+          tokenise per-character/syllable unless the script variant carries
+          a `tokens` hint, which groups multi-char compounds (般若, 波羅蜜多)
+          into single hover units. */}
       <div
         className="text-center cursor-pointer select-text"
         onClick={onLineClick(onCycleScript)}
@@ -776,6 +819,7 @@ const SegmentRow: React.FC<{
           words={segment.words}
           large={large}
           lang={activeScript.lang}
+          tokens={activeScript.tokens}
         />
       </div>
 

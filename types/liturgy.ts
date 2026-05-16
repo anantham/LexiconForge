@@ -97,6 +97,15 @@ export type WordGloss = {
   /** Optional script-alt — e.g. Devanāgarī for a Pali word, kanji for a romaji. */
   scriptAlt?: string;
   /**
+   * Per-script alternates keyed by BCP-47 lang tag. When the active
+   * script matches one of these keys, the renderer uses this string to
+   * match tokens — i.e. hovering 般若 in Chinese mode shows this WordGloss's
+   * tooltip iff `scriptAlts['zh-Hant'] === '般若'`. Pair with a ScriptVariant
+   * `tokens` hint that emits 般若 as a single token rather than 般 and 若
+   * separately.
+   */
+  scriptAlts?: { [lang: string]: string };
+  /**
    * Practical respelling for English readers (NOT IPA).
    * Example: "nah-MOH", "boo-DHAH-sah". Capital letters mark stress.
    */
@@ -167,6 +176,17 @@ export type ScriptVariant = {
   text: string;
   /** Optional source attribution / translator / recension note. */
   source?: string;
+  /**
+   * Optional tokenisation hint. When present, the renderer splits `text`
+   * into these units rather than running the per-script default tokenizer.
+   * Crucial for Chinese / Japanese where the natural unit is a multi-char
+   * compound (般若, 波羅蜜多) but the per-character fallback would split it.
+   *
+   * Each token must be a substring of `text`; their concatenation (with
+   * any gaps between them) reproduces the original. The renderer scans
+   * for them left-to-right and emits everything between as a gap token.
+   */
+  tokens?: string[];
 };
 
 export type TripleScriptWitnessSegment = {

@@ -96,12 +96,14 @@ export const heartSutra: LiturgyDoc = {
               label: 'Chinese (Xuanzang)',
               text: '觀自在菩薩 行深般若波羅蜜多時 照見五蘊皆空 度一切苦厄',
               source: 'T251 玄奘譯 (Xuanzang, c. 649 CE)',
+              tokens: ['觀自在', '菩薩', '行', '深', '般若', '波羅蜜多', '時', '照見', '五', '蘊', '皆', '空', '度', '一切', '苦厄'],
             },
             {
               lang: 'ja-Jpan',
               label: 'Japanese (Sino-Japanese reading)',
               text: '観自在菩薩 行深般若波羅蜜多時 照見五蘊皆空 度一切苦厄',
               source: 'Pronounced: Kanjizai bosatsu, gyō jin hannya haramita ji, shōken go un kai kū, do issai ku yaku',
+              tokens: ['観自在', '菩薩', '行', '深', '般若', '波羅蜜多', '時', '照見', '五', '蘊', '皆', '空', '度', '一切', '苦厄'],
             },
             {
               lang: 'bo-Tibt',
@@ -144,6 +146,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'Āryāvalokiteśvaro',
               scriptAlt: 'आर्यावलोकितेश्वरो',
+              scriptAlts: { 'zh-Hant': '觀自在', 'ja-Jpan': '観自在' },
               pronunciation: 'AHR-yah-vah-loh-kee-TAYSH-vah-roh',
               etymology: '*ārya* "noble" + *avalokita* "looking down" + *īśvara* "lord"',
               gloss: 'the Noble Lord Avalokiteśvara — the bodhisattva of compassion',
@@ -173,6 +176,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'bodhisattvo',
               scriptAlt: 'बोधिसत्त्वो',
+              scriptAlts: { 'zh-Hant': '菩薩', 'ja-Jpan': '菩薩' },
               pronunciation: 'boh-dee-SAHT-voh',
               etymology: '*bodhi* "awakening" + *sattva* "being"',
               gloss: 'awakening-being; one bound for full awakening but staying to liberate others',
@@ -196,6 +200,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'prajñāpāramitācaryāṃ',
               scriptAlt: 'प्रज्ञापारमिताचर्यां',
+              scriptAlts: { 'zh-Hant': '般若', 'ja-Jpan': '般若' },
               pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-chahr-yahm',
               etymology: '*prajñā* "wisdom" + *pāramitā* "gone-beyond" + *caryā* "practice"',
               gloss: 'the practice of the perfection of wisdom — the activity that *is* this awakening',
@@ -226,6 +231,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'pañca',
               scriptAlt: 'पञ्च',
+              scriptAlts: { 'zh-Hant': '五', 'ja-Jpan': '五' },
               pronunciation: 'PAHN-chah',
               etymology: 'Sanskrit *pañca* — "five"',
               gloss: 'five',
@@ -233,6 +239,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'skandhāḥ',
               scriptAlt: 'स्कन्धाः',
+              scriptAlts: { 'zh-Hant': '蘊', 'ja-Jpan': '蘊' },
               pronunciation: 'SKAHN-dhah-h',
               etymology: 'Sanskrit *skandha* — literally "heap, aggregate"',
               gloss: 'the five aggregates that compose experience: form, feeling, perception, mental formations, consciousness',
@@ -241,6 +248,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'svabhāvaśūnyān',
               scriptAlt: 'स्वभावशून्यान्',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
               pronunciation: 'svah-BAH-vah-SHOON-yahn',
               etymology: '*svabhāva* "own-being" + *śūnya* "empty"',
               gloss: 'empty of own-being — having no fixed, inherent self-existence',
@@ -270,6 +278,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'gambhīrāṃ',
               scriptAlt: 'गम्भीरां',
+              scriptAlts: { 'zh-Hant': '深', 'ja-Jpan': '深' },
               pronunciation: 'gahm-BHEE-rahm',
               etymology: 'Sanskrit *gambhīra* — "deep, profound"',
               gloss: 'deep, profound — qualifying the practice as not surface-level',
@@ -277,6 +286,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'caramāṇo',
               scriptAlt: 'चरमाणो',
+              scriptAlts: { 'zh-Hant': '行', 'ja-Jpan': '行' },
               pronunciation: 'chah-rah-MAH-noh',
               etymology: '√car "to move, practise" + middle present participle',
               gloss: 'practising, moving in — the bodhisattva is *doing* this, not just thinking it',
@@ -299,6 +309,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'vyavalokayati',
               scriptAlt: 'व्यवलोकयति',
+              scriptAlts: { 'zh-Hant': '照見', 'ja-Jpan': '照見' },
               pronunciation: 'vyah-vah-loh-KAH-yah-tee',
               etymology: '*vi-* + *ava-* + √lok "look" — to look down/over carefully',
               gloss: 'examines closely, looks-down-upon — same √lok root as in *Avalokita*',
@@ -398,12 +409,14 @@ export const heartSutra: LiturgyDoc = {
               label: 'Chinese (Xuanzang)',
               text: '色不異空 空不異色 色即是空 空即是色',
               source: 'T251',
+              tokens: ['色', '不', '異', '空', '空', '不', '異', '色', '色', '即', '是', '空', '空', '即', '是', '色'],
             },
             {
               lang: 'ja-Jpan',
               label: 'Japanese (Sino-Japanese)',
               text: '色不異空 空不異色 色即是空 空即是色',
               source: 'Pronounced: Shiki fu i kū, kū fu i shiki, shiki soku ze kū, kū soku ze shiki',
+              tokens: ['色', '不', '異', '空', '空', '不', '異', '色', '色', '即', '是', '空', '空', '即', '是', '色'],
             },
             {
               lang: 'bo-Tibt',
@@ -462,6 +475,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'rūpaṃ',
               scriptAlt: 'रूपम्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色' },
               pronunciation: 'ROO-pahm',
               etymology: 'Sanskrit *rūpa* — "form, appearance, body"',
               gloss: 'form — the first of the five skandhas; visible/material appearance',
@@ -471,6 +485,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'śūnyatā',
               scriptAlt: 'शून्यता',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
               pronunciation: 'SHOON-yah-TAH',
               etymology: '*śūnya* "empty" + abstract noun suffix *-tā*',
               gloss: 'emptiness — not nothingness, but absence of inherent existence; the dependently-arisen nature of all things',
@@ -494,6 +509,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'śūnyataiva',
               scriptAlt: 'शून्यतैव',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
               pronunciation: 'SHOON-yah-TIE-vah',
               etymology: '*śūnyatā* + *eva* (intensifier)',
               gloss: 'emptiness itself — the emphatic "the very emptiness"',
@@ -502,6 +518,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'pṛthak',
               scriptAlt: 'पृथक्',
+              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異' },
               pronunciation: 'PRTH-ahk',
               etymology: 'Sanskrit *pṛthak* — "apart, separate, distinct"',
               gloss: 'separate, distinct (from)',
@@ -509,6 +526,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'pṛthag',
               scriptAlt: 'पृथग्',
+              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異' },
               pronunciation: 'PRTH-ahg',
               etymology: 'Sandhi variant of *pṛthak* before voiced consonants',
               gloss: 'separate, distinct (from) — same word as pṛthak, different sandhi form',
@@ -516,6 +534,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'Rūpān',
               scriptAlt: 'रूपान्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色' },
               pronunciation: 'ROO-pahn',
               etymology: '*rūpa* "form" + ablative ending',
               gloss: 'from form — "X is not different *from* form"',
@@ -524,6 +543,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'śūnyatāyā',
               scriptAlt: 'शून्यताया',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
               pronunciation: 'SHOON-yah-TAH-yah',
               etymology: '*śūnyatā* "emptiness" + genitive/ablative ending',
               gloss: 'of/from emptiness — "X is not different from *emptiness*"',
@@ -532,6 +552,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'na',
               scriptAlt: 'न',
+              scriptAlts: { 'zh-Hant': '不', 'ja-Jpan': '不' },
               pronunciation: 'nah',
               etymology: 'Sanskrit negation particle',
               gloss: 'not',
@@ -589,12 +610,14 @@ export const heartSutra: LiturgyDoc = {
               label: 'Chinese (Xuanzang)',
               text: '心無罣礙 無罣礙故 無有恐怖 遠離顛倒夢想 究竟涅槃',
               source: 'T251',
+              tokens: ['心', '無', '罣礙', '無', '罣礙', '故', '無', '有', '恐怖', '遠離', '顛倒', '夢想', '究竟', '涅槃'],
             },
             {
               lang: 'ja-Jpan',
               label: 'Japanese (Sino-Japanese)',
               text: '心無罣礙 無罣礙故 無有恐怖 遠離顛倒夢想 究竟涅槃',
               source: 'Pronounced: Shin mu kege, mu kege ko, mu u kufu, on ri ten dō mu sō, ku kyō ne han',
+              tokens: ['心', '無', '罣礙', '無', '罣礙', '故', '無', '有', '恐怖', '遠離', '顛倒', '夢想', '究竟', '涅槃'],
             },
           ],
           witnesses: [
@@ -632,6 +655,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'cittāvaraṇa',
               scriptAlt: 'चित्तावरण',
+              scriptAlts: { 'zh-Hant': '罣礙', 'ja-Jpan': '罣礙' },
               pronunciation: 'CHEET-tah-VAH-rah-nah',
               etymology: '*citta* "mind" + *āvaraṇa* "obscuration, covering"',
               gloss: 'mental obscurations — the veils that hide things as they are',
@@ -643,6 +667,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'atrasto',
               scriptAlt: 'अत्रस्तो',
+              scriptAlts: { 'zh-Hant': '恐怖', 'ja-Jpan': '恐怖' },
               pronunciation: 'ah-TRAHS-toh',
               etymology: '*a-* (negation) + *trasta* "afraid"',
               gloss: 'unafraid, fearless',
@@ -655,6 +680,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'niṣṭhānirvāṇaḥ',
               scriptAlt: 'निष्ठानिर्वाणः',
+              scriptAlts: { 'zh-Hant': '涅槃', 'ja-Jpan': '涅槃' },
               pronunciation: 'neesh-TAH-near-VAH-nah-h',
               etymology: '*niṣṭhā* "completion, end" + *nirvāṇa* "extinguishing"',
               gloss: 'final/complete nirvāṇa — the extinguishing of grasping that is the end of suffering',
@@ -676,6 +702,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'viparyāsātikrānto',
               scriptAlt: 'विपर्यासातिक्रान्तो',
+              scriptAlts: { 'zh-Hant': '顛倒', 'ja-Jpan': '顛倒' },
               pronunciation: 'vee-pahr-YAH-sah-tee-KRAHN-toh',
               etymology: '*viparyāsa* "inverted view" + *atikrānta* "crossed beyond"',
               gloss: 'having crossed beyond inverted views — past the four distortions (taking the impure as pure, the impermanent as permanent, etc.)',
