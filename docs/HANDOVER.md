@@ -1,3 +1,151 @@
+# Handover: 2026-05-16 (Liturgy reader — MAPLE complete, multi-sangha architecture, Bodhi Sangha pending)
+
+> **Worktree:** `../LexiconForge.worktrees/opus-liturgy-reader/` on branch
+> `feat/opus-liturgy-reader`. 28 commits unpushed.
+
+## Session summary
+
+Built the MAPLE liturgy reader through to a multi-sangha architecture:
+`/liturgy` (sangha picker) → `/liturgy/<sangha>` (chants with daily-rhythm
+timeline) → `/liturgy/<sangha>/<chant>` (chant page with multi-script +
+multi-witness + alignment arrows). 28 commits on the worktree branch. 7
+MAPLE chants complete (Morning Chants, Enmē Jikku Kannon Gyō, Sho Sai
+Myō Kichijō Darani, Heart Sutra, Jade Method, Oṃ Maṇi Padme Hūṃ,
+Bodhicitta Dedication). Bodhi Sangha registered in `sanghas.ts` but 0
+chants authored — source booklet extracted to
+`/tmp/bodhi-chants/IMG_2340.jpg`–`IMG_2356.jpg`. Audit: 152 tests, 140
+passing, 12 expected skips.
+
+## Commits this session (most recent first)
+
+- `1f3c789` fix: general arrow distribution + chant-page cleanup
+- `6312108` feat: auto-distribute alignment arrows across Pāli morphemes
+- `bdb7e13` fix: rewrite Precept 4 note + strip em-dashes from precept notes
+- `037e038` feat: notes on precepts 1 + 4; remove unsourced 3× commentary
+- `46d2dc2` feat: daily rhythm becomes the morning-service nav
+- `aa11f7e` feat: footer "Translations" row — clickable links
+- `14d3108` fix: alignment arrows survive async font-load layout shifts
+- `17bcfd4` feat: MAPLE morning service complete — EJKG + Sho Sai + schedule
+- `8ecbb0b` feat: multi-sangha architecture — /liturgy/<sangha>/<chant>
+- `849dc76` feat: MAPLE — Jade Method + Bodhicitta Dedication
+- `c29d09e` feat: transliteration line + de-duplicated tooltip pron
+- `424fc31` feat: Heart Sutra result-segment Tibetan — Kangyur Toh 21
+- `51695c6` feat: Heart Sutra Tibetan — tokens + per-syllable morphemes
+- `7e03f17` feat: OM MANI PADME HUM — full polyglot on the main segment
+- `a06ef64` feat: per-character Chinese hover — phonetic loans + semantic doublets
+- `c692866` feat: tokens hints + scriptAlts — multi-char CJK tooltips
+- `9f5358d` feat: full Sanskrit tooltips + CJK/Tibetan tokenisation
+- `8c75e1c` feat: MAPLE / Sheng-yen Heart Sutra witness — primary
+- `98f974d` feat: Heart Sutra — polyglot reader + sound-formula shape
+- `144f22a` feat: Oṃ Maṇi Padme Hūṃ — multi-tradition mantra reader
+- + 8 earlier commits (morpheme-origin arrows, witness dots, refrain accents, …)
+
+**PUSHED: no.** Wait for explicit user approval before `git push`.
+
+## Pending threads
+
+### Continue immediately
+
+1. **Bodhi Sangha authoring** (TaskList #35). Sangha registered. Plan A
+   agreed earlier in session: ship the Bodhi-Sangha Heart Sutra (new doc,
+   distinct English from MAPLE/Sheng-yen) + Four Great Vows (kanji +
+   furigana + English) as proof of the multi-sangha architecture. Inventory
+   of remaining chants (13 total) is in the project memory.
+
+2. **Em-dash sweep**. User asked "remove all the m dashes anywhere".
+   Only the 5 precept notes were cleaned this session. **320 em-dashes
+   remain** in user-facing glosses + commentaries across
+   `data/liturgy/*.ts`. User picked precept-notes-only when asked for
+   scope, but the broader ask is still open.
+
+### Blocked
+
+1. **Canonical citation for "Chanted 3× = body/speech/mind dedication"**.
+   Commentary removed from morning-chants.ts with a code marker. Re-add
+   if user surfaces an authoritative source (Vinaya commentary,
+   Visuddhimagga, Khuddakapatha Atthakathā).
+
+### Deferred
+
+1. **Per-script morphemes for remaining Pali compounds** (pāṇātipātā,
+   kāmesu micchācārā, surāmerayamajjapamādaṭṭhānā). General proportional
+   distribution covers them adequately for now.
+
+2. **Per-script alignTo** (Conze's alignment → Chinese character
+   positions, etc.). General proportional fallback (commit `1f3c789`)
+   makes this less urgent; full per-script authoring is still a real
+   feature.
+
+3. **Sangha schedule expansion**. MAPLE has 3 anchor times. Other times
+   of day (lunch, work-period, evening sit) not captured.
+
+4. **Sho Sai title canonical character**. Used `消災主` (master) per user;
+   more common form may be `消災呪` (incantation). Verify with Soto Zen
+   liturgy source.
+
+5. **Task #14**: Rename demoPacket.json → content/references/sutta/mn10.json.
+   Pre-existing pending, 8 consumers, unrelated to liturgy.
+
+### Carried forward
+
+The prior handover in this file (2026-05-14, below) was for the Sutta
+Studio GROUNDING / DN22 pilot session on a different worktree. Those
+threads are not in scope for the current liturgy-reader work but are
+preserved below for that session's continuation.
+
+## Key context
+
+- **Branch + worktree:** `feat/opus-liturgy-reader` at
+  `../LexiconForge.worktrees/opus-liturgy-reader/`.
+- **Audit test:** `tests/components/liturgy/alignment-audit.test.ts`.
+- **Architecture files to read first:** `types/liturgy.ts`,
+  `data/liturgy/sanghas.ts`, `data/liturgy/index.ts`,
+  `data/liturgy/morning-chants.ts` (most complete polyglot example),
+  `components/liturgy/shapes/TripleScriptWitness.tsx` (the main renderer
+  with inline comments explaining the layered defenses).
+- **User feedback patterns** (codified in
+  `~/.claude/projects/.../memory/feedback_liturgy_voice.md`):
+  - No em-dashes anywhere.
+  - No license posture strings visible in attribution rows.
+  - No redundant title blocks.
+  - First-person reflective voice for chant notes.
+  - When user says "I see this throughout", look for the GENERAL fix
+    (Goodharting awareness).
+
+## Operator cleanup
+
+- `Bodhi Sanga Chants/` folder + `takeout-3-001.zip` sit in the
+  LexiconForge repo root (untracked). Decide whether to gitignore /
+  move / delete.
+- `/tmp/bodhi-chants/IMG_*.jpg` will eventually be wiped by macOS.
+  Move to a stable location before authoring Bodhi Sangha chants.
+- 28 unpushed commits on `feat/opus-liturgy-reader`. Push only with
+  explicit user approval.
+
+## Learnings captured
+
+- [x] Project memory: `project_liturgy_reader.md` — architecture, state,
+  open limitations.
+- [x] Feedback memory: `feedback_liturgy_voice.md` — em-dashes, license
+  clutter, voice, Goodharting awareness.
+- [x] `MEMORY.md` index updated.
+
+## Resume instructions
+
+1. Read the two new memory files before touching the worktree.
+2. For Bodhi Sangha authoring: source images at
+   `/tmp/bodhi-chants/IMG_2340.jpg`–`IMG_2356.jpg`. Author following the
+   `morning-chants.ts` pattern.
+3. For em-dash sweep: `grep -n "—" data/liturgy/*.ts`. Ask user for
+   scope before executing.
+4. Audit gate: `npx vitest run tests/components/liturgy/` — must stay at
+   140 passing, 12 expected skips after any change.
+
+---
+*Handover by Claude Opus 4.7 at ~95% context*
+
+---
+
 # Handover: 2026-05-14 (late — GROUNDING completion + DN22 pilot + Vism research win)
 
 > Replaces the earlier 2026-05-14 handover. Two PRs merged this session
