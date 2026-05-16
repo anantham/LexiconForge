@@ -778,6 +778,17 @@ export const heartSutra: LiturgyDoc = {
               source: 'Pronounced: Shin mu kege, mu kege ko, mu u kufu, on ri ten dō mu sō, ku kyō ne han',
               tokens: ['心', '無', '罣礙', '無', '罣礙', '故', '無', '有', '恐怖', '遠離', '顛倒', '夢想', '究竟', '涅槃'],
             },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'སེམས་ལ་སྒྲིབ་པ་མེད་པས་སྐྲག་པ་མེད་དེ། ཕྱིན་ཅི་ལོག་ལས་ཤིན་ཏུ་འདས་ནས་མྱ་ངན་ལས་འདས་པའི་མཐར་ཕྱིན་ཏོ།',
+              source: 'Derge Kangyur Toh 21 / Toh 531 (Heart Sūtra long-form recension A, F.145.b); verified via prajnaparamitahrdaya.wordpress.com',
+              tokens: [
+                'སེམས', 'ལ', 'སྒྲིབ་པ', 'མེད་པས', 'སྐྲག་པ', 'མེད་དེ',
+                'ཕྱིན་ཅི་ལོག', 'ལས', 'ཤིན་ཏུ་འདས', 'ནས',
+                'མྱ་ངན་ལས་འདས་པ', 'འི', 'མཐར་ཕྱིན', 'ཏོ',
+              ],
+            },
           ],
           witnesses: [
             // MAPLE's result-section text spans much more Sanskrit than our
@@ -814,7 +825,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'cittāvaraṇa',
               scriptAlt: 'चित्तावरण',
-              scriptAlts: { 'zh-Hant': '罣礙', 'ja-Jpan': '罣礙' },
+              scriptAlts: { 'zh-Hant': '罣礙', 'ja-Jpan': '罣礙', 'bo-Tibt': 'སྒྲིབ་པ' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '罣', type: 'semantic', pronunciation: 'guà', gloss: 'snare, catch — obstruct in the sense of "caught on something"' },
@@ -823,6 +834,13 @@ export const heartSutra: LiturgyDoc = {
                 'ja-Jpan': [
                   { text: '罣', type: 'semantic', pronunciation: 'ke', gloss: 'snare, catch (read *ke* in 罣礙 *kege*)' },
                   { text: '礙', type: 'semantic', pronunciation: 'ge', gloss: 'block, hinder — doublet with 罣 = "obstruction"' },
+                ],
+                // Tibetan keys on just the *āvaraṇa* portion. The *citta*
+                // (mind) lives as a separate Tibetan word སེམས earlier in
+                // the line.
+                'bo-Tibt': [
+                  { text: 'སྒྲིབ་', type: 'semantic', pronunciation: 'sgrib', gloss: 'to obstruct, to obscure (verb root)' },
+                  { text: 'པ', type: 'semantic', pronunciation: 'pa', gloss: 'nominaliser — turns the verb into "obstruction"' },
                 ],
               },
               pronunciation: 'CHEET-tah-VAH-rah-nah',
@@ -836,7 +854,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'atrasto',
               scriptAlt: 'अत्रस्तो',
-              scriptAlts: { 'zh-Hant': '恐怖', 'ja-Jpan': '恐怖' },
+              scriptAlts: { 'zh-Hant': '恐怖', 'ja-Jpan': '恐怖', 'bo-Tibt': 'སྐྲག་པ' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '恐', type: 'semantic', pronunciation: 'kǒng', gloss: 'fear, dread — the affective recoil' },
@@ -845,6 +863,13 @@ export const heartSutra: LiturgyDoc = {
                 'ja-Jpan': [
                   { text: '恐', type: 'semantic', pronunciation: 'ku', gloss: 'fear (read *ku* in 恐怖 *kufu*)' },
                   { text: '怖', type: 'semantic', pronunciation: 'fu', gloss: 'terror — doublet with 恐' },
+                ],
+                // Tibetan: སྐྲག་པ = "fear" (the noun). The negation (མེད་ "not")
+                // sits in the adjacent token; Tibetan splits "unafraid" into
+                // "fear is not", unlike Sanskrit's *a-trasta* prefix-negation.
+                'bo-Tibt': [
+                  { text: 'སྐྲག་', type: 'semantic', pronunciation: 'skrag', gloss: 'to fear, be afraid (verb root)' },
+                  { text: 'པ', type: 'semantic', pronunciation: 'pa', gloss: 'nominaliser — turns the verb into "fear" (noun)' },
                 ],
               },
               pronunciation: 'ah-TRAHS-toh',
@@ -859,7 +884,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'niṣṭhānirvāṇaḥ',
               scriptAlt: 'निष्ठानिर्वाणः',
-              scriptAlts: { 'zh-Hant': '涅槃', 'ja-Jpan': '涅槃' },
+              scriptAlts: { 'zh-Hant': '涅槃', 'ja-Jpan': '涅槃', 'bo-Tibt': 'མྱ་ངན་ལས་འདས་པ' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '涅', type: 'phonetic', pronunciation: 'niè', gloss: 'phonetic: transliterates "nir-"; the character\'s usual meaning ("black mud, dye") is unrelated' },
@@ -868,6 +893,15 @@ export const heartSutra: LiturgyDoc = {
                 'ja-Jpan': [
                   { text: '涅', type: 'phonetic', pronunciation: 'ne', gloss: 'phonetic: transliterates "nir-" (read *ne* in 涅槃 *nehan*)' },
                   { text: '槃', type: 'phonetic', pronunciation: 'han', gloss: 'phonetic: transliterates "-vāṇa"' },
+                ],
+                // Tibetan reads nirvāṇa literally: "having passed beyond
+                // sorrow" — no phonetic loan, the whole concept rendered
+                // through native morphemes.
+                'bo-Tibt': [
+                  { text: 'མྱ་', type: 'semantic', pronunciation: 'mya', gloss: 'ill, afflicted' },
+                  { text: 'ངན་', type: 'semantic', pronunciation: 'ngan', gloss: 'bad — together མྱ་ངན ("mya ngan") = "sorrow, grief, affliction"' },
+                  { text: 'ལས་', type: 'semantic', pronunciation: 'las', gloss: 'from, beyond (ablative particle)' },
+                  { text: 'འདས་པ', type: 'semantic', pronunciation: "'das pa", gloss: 'having passed beyond — together: "passed-beyond sorrow" = *nirvāṇa*' },
                 ],
               },
               pronunciation: 'neesh-TAH-near-VAH-nah-h',
@@ -891,7 +925,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'viparyāsātikrānto',
               scriptAlt: 'विपर्यासातिक्रान्तो',
-              scriptAlts: { 'zh-Hant': '顛倒', 'ja-Jpan': '顛倒' },
+              scriptAlts: { 'zh-Hant': '顛倒', 'ja-Jpan': '顛倒', 'bo-Tibt': 'ཕྱིན་ཅི་ལོག' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '顛', type: 'semantic', pronunciation: 'diān', gloss: 'overturn, topple — having the right-side-up tipped over' },
@@ -900,6 +934,13 @@ export const heartSutra: LiturgyDoc = {
                 'ja-Jpan': [
                   { text: '顛', type: 'semantic', pronunciation: 'ten', gloss: 'overturn — read *ten* in 顛倒 (*tendō*)' },
                   { text: '倒', type: 'semantic', pronunciation: 'dō', gloss: 'upside-down — doublet with 顛' },
+                ],
+                // Tibetan: idiomatic "the gone-gone-wrong" — three syllables
+                // form a fixed compound for "inverted view".
+                'bo-Tibt': [
+                  { text: 'ཕྱིན་', type: 'semantic', pronunciation: 'phyin', gloss: 'gone (here: a "going", a direction)' },
+                  { text: 'ཅི་', type: 'semantic', pronunciation: 'ci', gloss: 'what (interrogative; used here as a binding particle in the compound)' },
+                  { text: 'ལོག', type: 'semantic', pronunciation: 'log', gloss: 'reversed, wrong — together ཕྱིན་ཅི་ལོག = "the going-gone-wrong" = an inverted view (*viparyāsa*)' },
                 ],
               },
               pronunciation: 'vee-pahr-YAH-sah-tee-KRAHN-toh',
