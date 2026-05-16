@@ -308,7 +308,14 @@ export const morningChants: LiturgyDoc = {
           words: HOMAGE_WORDS,
         },
       ],
-      commentary: 'Chanted three times to signify dedication of body, speech, and mind.',
+      // Commentary removed (2026-05-16): the claim "chanted three times to
+      // signify dedication of body, speech, and mind" is widely transmitted
+      // across modern Buddhist teaching but I could not find a single
+      // authoritative scriptural source linking the three-fold recitation
+      // specifically to the body/speech/mind triad. The body/speech/mind
+      // triad is canonical; the three-fold recitation is canonical; the
+      // *mapping* between them is commentarial / teaching-tradition.
+      // Per project ethos (better silent than ungrounded), removed.
     },
 
     // ───────────────────────────────────────────────────────────────────────
@@ -454,6 +461,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
+          note: 'To kill is to block the flow of life — gross or subtle. The literal: slaughtering animals to eat them, stepping on a bug while walking. The environmental: damming a river. The internal: killing the part of yourself that wants to be alive in this moment — reacting from habit instead of presence, being inauthentic, blocking your own life-force. Machines are dead things; the precept asks us not to make ourselves into one.',
         },
         {
           id: 'precept-2',
@@ -550,6 +558,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
+          note: 'To speak falsely is to block the flow of truth between us. Not only outright lies — but exaggeration to impress, agreement we don\'t mean, silence when something needs saying. And the falsity we tell ourselves: the stories that keep us from seeing what is. The precept extends inward and outward equally.',
         },
         {
           id: 'precept-5',
