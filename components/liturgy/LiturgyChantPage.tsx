@@ -85,20 +85,8 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
         />
       ))}
 
-      {/* Footer — quiet, after all chants */}
+      {/* Footer — sources, links, attributions. Quiet, after all chants. */}
       <footer className="max-w-3xl mx-auto px-6 py-16 mt-8 border-t border-slate-900">
-        <div className="text-center mb-6">
-          <h2
-            className="text-2xl text-slate-200 mb-2"
-            style={{ fontFamily: "'Cardo', 'Gentium Plus', 'Noto Serif', serif" }}
-          >
-            {doc.title}
-          </h2>
-          {doc.subtitle && (
-            <p className="text-slate-500 italic text-sm">{doc.subtitle}</p>
-          )}
-        </div>
-
         {doc.sources && (
           <div className="text-xs text-slate-600 space-y-2 text-center">
             {doc.sources.canonical && doc.sources.canonical.length > 0 && (
@@ -161,9 +149,6 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
                     </a>
                   ) : (
                     <span>{w.by}</span>
-                  )}
-                  {w.license && (
-                    <span className="text-slate-700 ml-1.5 text-[10px]">{w.license}</span>
                   )}
                 </React.Fragment>
               ))}

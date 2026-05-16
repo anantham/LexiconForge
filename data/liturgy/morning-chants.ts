@@ -651,7 +651,7 @@ export const morningChants: LiturgyDoc = {
             // Sujato: Not(0) to(1) do(2) any(3) evil;(4)
             { by: 'Sujato (SuttaCentral)', text: 'Not to do any evil;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [2, -1, 2, 0, 1] },
             // Buddharakkhita: To(0) avoid(1) all(2) evil,(3)
-            { by: 'Buddharakkhita (BPS)', text: 'To avoid all evil,', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link', alignTo: [-1, 2, 0, 1] },
+            { by: 'Buddharakkhita (BPS)', text: 'To avoid all evil,', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', alignTo: [-1, 2, 0, 1] },
           ],
           words: [
             {
@@ -697,7 +697,7 @@ export const morningChants: LiturgyDoc = {
             // Sujato: to(0) embrace(1) the(2) good;(3)
             { by: 'Sujato (SuttaCentral)', text: 'to embrace the good;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [-1, 1, -1, 0] },
             // Buddharakkhita: to(0) cultivate(1) good,(2)
-            { by: 'Buddharakkhita (BPS)', text: 'to cultivate good,', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link', alignTo: [-1, 1, 0] },
+            { by: 'Buddharakkhita (BPS)', text: 'to cultivate good,', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', alignTo: [-1, 1, 0] },
           ],
           words: [
             {
@@ -735,7 +735,7 @@ export const morningChants: LiturgyDoc = {
             // Sujato: to(0) purify(1) one's(2) mind:(3)
             { by: 'Sujato (SuttaCentral)', text: "to purify one's mind:", url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [-1, 0, 0, 0] },
             // Buddharakkhita: and(0) to(1) cleanse(2) one's(3) mind(4) —(5)
-            { by: 'Buddharakkhita (BPS)', text: "and to cleanse one's mind —", url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link', alignTo: [-1, -1, 0, 0, 0, -1] },
+            { by: 'Buddharakkhita (BPS)', text: "and to cleanse one's mind —", url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', alignTo: [-1, -1, 0, 0, 0, -1] },
           ],
           words: [
             {
@@ -765,7 +765,7 @@ export const morningChants: LiturgyDoc = {
             // Sujato: this(0) is(1) the(2) instruction(3) of(4) the(5) Buddhas.(6)
             { by: 'Sujato (SuttaCentral)', text: 'this is the instruction of the Buddhas.', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [0, -1, -1, 2, -1, -1, 1] },
             // Buddharakkhita: same as MAPLE here
-            { by: 'Buddharakkhita (BPS)', text: 'this is the teaching of the Buddhas.', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', license: 'BPS / cite + link', alignTo: [0, -1, -1, 2, -1, -1, 1] },
+            { by: 'Buddharakkhita (BPS)', text: 'this is the teaching of the Buddhas.', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', alignTo: [0, -1, -1, 2, -1, -1, 1] },
           ],
           words: [
             {

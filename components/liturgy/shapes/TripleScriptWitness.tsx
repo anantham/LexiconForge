@@ -650,34 +650,50 @@ function computeAlignmentLines(
     const paliEl = paliEls[paliIdx];
     if (!paliEl) continue;
     const morphemeEls = paliEl.querySelectorAll<HTMLElement>('[data-morpheme-idx]');
+    const wordRect = paliEl.getBoundingClientRect();
 
     for (let i = 0; i < engIndices.length; i++) {
       const engIdx = engIndices[i];
       const enEl = enEls[engIdx];
       if (!enEl) continue;
 
-      // Auto-distribute: English #i in this group → morpheme #i if it
-      // exists; otherwise fall back to the whole-word span. If there
-      // are more English words than morphemes, the extras pile on the
-      // last morpheme rather than fanning at the centre.
-      let sourceEl: HTMLElement = paliEl;
-      let morphemeIdx: number | undefined = undefined;
+      // Three positioning strategies, in order of preference:
+      //   1. Authored morpheme spans exist → anchor on morpheme #i
+      //      (clamped to last morpheme if more English than morphemes).
+      //   2. No morpheme spans but the group has >1 English mapping to
+      //      this word → distribute proportionally along the word's
+      //      width so the arrows fan into separate landing zones
+      //      instead of converging at the centre. Works for any
+      //      script, any word, no authoring required.
+      //   3. Single English → just point at the word's centre.
+      let x1: number;
+      let y1: number;
+      let subIdx: number | undefined = undefined;
       if (morphemeEls.length > 0) {
         const clamped = Math.min(i, morphemeEls.length - 1);
-        sourceEl = morphemeEls[clamped];
-        morphemeIdx = clamped;
+        const mr = morphemeEls[clamped].getBoundingClientRect();
+        x1 = mr.left + mr.width / 2 - cRect.left;
+        y1 = mr.bottom - cRect.top;
+        subIdx = clamped;
+      } else if (engIndices.length > 1) {
+        const xOffset = ((i + 0.5) / engIndices.length) * wordRect.width;
+        x1 = wordRect.left + xOffset - cRect.left;
+        y1 = wordRect.bottom - cRect.top;
+        subIdx = i;
+      } else {
+        x1 = wordRect.left + wordRect.width / 2 - cRect.left;
+        y1 = wordRect.bottom - cRect.top;
       }
 
-      const pr = sourceEl.getBoundingClientRect();
       const er = enEl.getBoundingClientRect();
       lines.push({
-        x1: pr.left + pr.width / 2 - cRect.left,
-        y1: pr.bottom - cRect.top,
+        x1,
+        y1,
         x2: er.left + er.width / 2 - cRect.left,
         y2: er.top - cRect.top,
         engIdx,
         paliIdx,
-        morphemeIdx,
+        morphemeIdx: subIdx,
       });
     }
   }
