@@ -312,11 +312,19 @@ const HoverSpan: React.FC<{
   text: string;
   tooltipText: string;
   bold?: boolean;
-}> = ({ text, tooltipText, bold = false }) => {
+  /**
+   * Optional morpheme index within the parent word. Emitted as
+   * `data-morpheme-idx={N}` so the alignment-line computer can find
+   * the per-morpheme sub-spans and distribute English-side arrows
+   * across them when multiple English words map to one Pāli word.
+   */
+  morphemeIdx?: number;
+}> = ({ text, tooltipText, bold = false, morphemeIdx }) => {
   const [open, setOpen] = useState(false);
   return (
     <span
       data-hover-span="true"
+      data-morpheme-idx={morphemeIdx}
       className={`relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
         bold ? 'font-semibold' : ''
       }`}
@@ -376,6 +384,7 @@ const HoverWord: React.FC<{
               text={piece.text}
               tooltipText={tooltipForMorpheme(piece.morpheme, hidePron)}
               bold={piece.morpheme.type === 'root'}
+              morphemeIdx={i}
             />
           ))}
         </>
@@ -605,6 +614,14 @@ type Line = {
   y2: number;
   engIdx: number;
   paliIdx: number;
+  /**
+   * Which morpheme inside the Pāli word this line anchors to, if the
+   * word was rendered with morpheme-split HoverSpans. Lets the renderer
+   * distribute multiple-English-into-one-Pāli mappings across the Pāli
+   * morphemes (training-rule → sikkhā-pada) instead of fanning all
+   * arrows at the word's centre.
+   */
+  morphemeIdx?: number;
 };
 
 function computeAlignmentLines(
@@ -615,23 +632,54 @@ function computeAlignmentLines(
   const cRect = container.getBoundingClientRect();
   const paliEls = container.querySelectorAll<HTMLElement>('[data-pali-idx]');
   const enEls = container.querySelectorAll<HTMLElement>('[data-en-idx]');
-  const lines: Line[] = [];
+
+  // Group English indices by the Pāli idx they map to. When multiple
+  // English words map to the same Pāli word, we want to distribute them
+  // across that word's morphemes (by order) so the arrows land on
+  // sub-tokens instead of all converging at the word centre.
+  const groupedByPali = new Map<number, number[]>();
   for (let engIdx = 0; engIdx < alignTo.length; engIdx++) {
     const paliIdx = alignTo[engIdx];
     if (paliIdx < 0) continue;
+    if (!groupedByPali.has(paliIdx)) groupedByPali.set(paliIdx, []);
+    groupedByPali.get(paliIdx)!.push(engIdx);
+  }
+
+  const lines: Line[] = [];
+  for (const [paliIdx, engIndices] of groupedByPali) {
     const paliEl = paliEls[paliIdx];
-    const enEl = enEls[engIdx];
-    if (!paliEl || !enEl) continue;
-    const pr = paliEl.getBoundingClientRect();
-    const er = enEl.getBoundingClientRect();
-    lines.push({
-      x1: pr.left + pr.width / 2 - cRect.left,
-      y1: pr.bottom - cRect.top,
-      x2: er.left + er.width / 2 - cRect.left,
-      y2: er.top - cRect.top,
-      engIdx,
-      paliIdx,
-    });
+    if (!paliEl) continue;
+    const morphemeEls = paliEl.querySelectorAll<HTMLElement>('[data-morpheme-idx]');
+
+    for (let i = 0; i < engIndices.length; i++) {
+      const engIdx = engIndices[i];
+      const enEl = enEls[engIdx];
+      if (!enEl) continue;
+
+      // Auto-distribute: English #i in this group → morpheme #i if it
+      // exists; otherwise fall back to the whole-word span. If there
+      // are more English words than morphemes, the extras pile on the
+      // last morpheme rather than fanning at the centre.
+      let sourceEl: HTMLElement = paliEl;
+      let morphemeIdx: number | undefined = undefined;
+      if (morphemeEls.length > 0) {
+        const clamped = Math.min(i, morphemeEls.length - 1);
+        sourceEl = morphemeEls[clamped];
+        morphemeIdx = clamped;
+      }
+
+      const pr = sourceEl.getBoundingClientRect();
+      const er = enEl.getBoundingClientRect();
+      lines.push({
+        x1: pr.left + pr.width / 2 - cRect.left,
+        y1: pr.bottom - cRect.top,
+        x2: er.left + er.width / 2 - cRect.left,
+        y2: er.top - cRect.top,
+        engIdx,
+        paliIdx,
+        morphemeIdx,
+      });
+    }
   }
   return lines;
 }
@@ -858,14 +906,24 @@ const SegmentRow: React.FC<{
 
   // Adjust the endpoint of any hovered line so it anchors to the actual
   // morpheme/word element under the cursor, not the centre of the whole
-  // Pāli word. Cheap — only runs while something is hovered, and only
-  // touches the lines that match the hover.
+  // Pāli word. Cheap — only runs while something is hovered.
+  //
+  // Important: when lines already carry a `morphemeIdx` (because the
+  // Pāli word was rendered with per-morpheme HoverSpans), each line is
+  // already anchored at its correct morpheme position. The Pāli-side
+  // override must only fire when the line has no morphemeIdx — otherwise
+  // hovering a morpheme would yank every arrow on the word over to that
+  // one morpheme's centre, collapsing the auto-distributed fan.
   const adjustedLines = (() => {
     if (!hovered || !containerRef.current) return lines;
     const cRect = containerRef.current.getBoundingClientRect();
     const r = hovered.element.getBoundingClientRect();
     return lines.map((l) => {
-      if (hovered.kind === 'pali' && l.paliIdx === hovered.idx) {
+      if (
+        hovered.kind === 'pali' &&
+        l.paliIdx === hovered.idx &&
+        l.morphemeIdx === undefined
+      ) {
         return {
           ...l,
           x1: r.left + r.width / 2 - cRect.left,

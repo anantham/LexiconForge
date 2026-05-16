@@ -224,21 +224,35 @@ const PRECEPT_FORMULA_WORDS: WordGloss[] = [
       { text: 'ram', type: 'root', root: '√ram', gloss: 'to delight in', pronunciation: 'rah-m' },
       { text: 'aṇī', type: 'suffix', gloss: 'turns "delight in" into "turning away from delight in" — refraining', pronunciation: 'ah-NEE' },
     ],
+    scriptMorphemes: {
+      'pi-Deva': [
+        { text: 'वे', type: 'prefix', pronunciation: 'vay', gloss: 'away from' },
+        { text: 'र', type: 'root', pronunciation: 'rah', gloss: '√ram, to delight in' },
+        { text: 'मणी', type: 'suffix', pronunciation: 'ah-NEE', gloss: 'turns the root into "refraining from"' },
+      ],
+    },
   },
   {
     form: 'sikkhāpadaṁ', scriptAlt: 'सिक्खापदं', pronunciation: 'sik-KHAH-pah-dang',
     etymology: '*sikkhā* "training" + *pada* "step"',
-    gloss: 'training rule — "a step in training"',
+    gloss: 'training rule, "a step in training"',
     citations: [dpdCitation('sikkhāpada'), pronCite],
     morphemes: [
       { text: 'sikkhā', type: 'stem', gloss: 'training, learning, practice', pronunciation: 'sik-KHAH', citations: [dpdCitation('sikkhā')] },
-      { text: 'pada', type: 'stem', gloss: 'step, foot — a step in the training', pronunciation: 'pah-dah', citations: [dpdCitation('pada')] },
-      { text: 'ṁ', type: 'suffix', gloss: '"the training rule" — what I am taking on', pronunciation: 'ng' },
+      { text: 'pada', type: 'stem', gloss: 'step, foot, a step in the training', pronunciation: 'pah-dah', citations: [dpdCitation('pada')] },
+      { text: 'ṁ', type: 'suffix', gloss: '"the training rule", what I am taking on', pronunciation: 'ng' },
     ],
+    scriptMorphemes: {
+      'pi-Deva': [
+        { text: 'सिक्खा', type: 'stem', pronunciation: 'sik-KHAH', gloss: 'training, learning, practice' },
+        { text: 'पद', type: 'stem', pronunciation: 'pah-dah', gloss: 'step, a step in the training' },
+        { text: 'ं', type: 'suffix', pronunciation: 'ng', gloss: 'the case marker, "the training rule"' },
+      ],
+    },
   },
   {
     form: 'samādiyāmi', scriptAlt: 'समादियामि', pronunciation: 'sah-MAH-dee-YAH-mee',
-    etymology: '*sam-* + *ā-* + √dā "to take" + "I" — "I fully take this upon myself"',
+    etymology: '*sam-* + *ā-* + √dā "to take" + "I", "I fully take this upon myself"',
     gloss: 'I undertake, I take upon myself',
     citations: [dpdCitation('samādiyati'), pronCite],
     morphemes: [
@@ -246,8 +260,17 @@ const PRECEPT_FORMULA_WORDS: WordGloss[] = [
       { text: 'ā', type: 'prefix', gloss: 'toward myself', pronunciation: 'AH' },
       { text: 'di', type: 'root', root: '√dā', gloss: 'to take, to accept', pronunciation: 'dee' },
       { text: 'yā', type: 'stem', gloss: 'present-tense marker', pronunciation: 'YAH' },
-      { text: 'mi', type: 'suffix', gloss: '"I" — first-person singular', pronunciation: 'mee' },
+      { text: 'mi', type: 'suffix', gloss: '"I", first-person singular', pronunciation: 'mee' },
     ],
+    scriptMorphemes: {
+      'pi-Deva': [
+        { text: 'सम', type: 'prefix', pronunciation: 'sah-m', gloss: 'fully, completely' },
+        { text: 'ा', type: 'prefix', pronunciation: 'ah', gloss: 'toward myself' },
+        { text: 'दि', type: 'root', pronunciation: 'dee', gloss: '√dā, to take, to accept' },
+        { text: 'या', type: 'stem', pronunciation: 'yah', gloss: 'present-tense marker' },
+        { text: 'मि', type: 'suffix', pronunciation: 'mee', gloss: '"I", first-person singular' },
+      ],
+    },
   },
 ];
 
@@ -487,6 +510,13 @@ export const morningChants: LiturgyDoc = {
                 { text: 'dinnā', type: 'stem', gloss: 'given (past participle of "to give")', pronunciation: 'DEEN-nah' },
                 { text: 'dānā', type: 'stem', gloss: 'taking, grasping', pronunciation: 'DAH-nah', citations: [dpdCitation('ādāna')] },
               ],
+              scriptMorphemes: {
+                'pi-Deva': [
+                  { text: 'अ', type: 'prefix', pronunciation: 'ah', gloss: 'not, negation' },
+                  { text: 'दिन्ना', type: 'stem', pronunciation: 'DEEN-nah', gloss: 'given (past participle of "to give")' },
+                  { text: 'दाना', type: 'stem', pronunciation: 'DAH-nah', gloss: 'taking, grasping' },
+                ],
+              },
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
@@ -555,6 +585,13 @@ export const morningChants: LiturgyDoc = {
                 { text: 'vād', type: 'root', gloss: 'to speak, to say', pronunciation: 'VAH-d', citations: [dpdCitation('vāda')] },
                 { text: 'ā', type: 'suffix', gloss: '"from false speech"', pronunciation: 'ah' },
               ],
+              scriptMorphemes: {
+                'pi-Deva': [
+                  { text: 'मुसा', type: 'prefix', pronunciation: 'moo-SAH', gloss: 'false, untrue' },
+                  { text: 'वाद', type: 'root', pronunciation: 'VAH-d', gloss: 'to speak, to say' },
+                  { text: 'ा', type: 'suffix', pronunciation: 'ah', gloss: '"from false speech"' },
+                ],
+              },
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
