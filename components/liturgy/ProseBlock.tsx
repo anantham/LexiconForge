@@ -7,6 +7,7 @@ import React from 'react';
  *   - Paragraph breaks on blank lines
  *   - **bold** and *italic* inline
  *   - `code` inline
+ *   - [[wiki-term]] inline — rendered as a subtle italic glossary cue
  *
  * Deliberately not a full markdown parser. If the text needs richer
  * formatting, lift it into structured fields on the section type.
@@ -14,6 +15,7 @@ import React from 'react';
 
 const INLINE_PATTERNS: Array<{ re: RegExp; wrap: (m: string) => React.ReactNode }> = [
   { re: /\*\*([^*]+)\*\*/g, wrap: (m) => <strong>{m}</strong> },
+  { re: /\[\[([^\]]+)\]\]/g, wrap: (m) => <em className="text-emerald-300/90 not-italic font-medium">{m}</em> },
   { re: /\*([^*]+)\*/g, wrap: (m) => <em>{m}</em> },
   { re: /`([^`]+)`/g, wrap: (m) => <code className="text-emerald-300/90">{m}</code> },
 ];

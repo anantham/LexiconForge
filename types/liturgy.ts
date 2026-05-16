@@ -157,6 +157,13 @@ export type TripleScriptWitnessSegment = {
    * as hover-tooltip detail on the segment's Pāli line.
    */
   words?: WordGloss[];
+  /**
+   * Optional per-segment commentary in the curator's voice. Rendered as a
+   * collapsed-by-default disclosure below the English line. Supports
+   * markdown-lite (italic, bold) plus `[[term]]` wiki-style references
+   * which the renderer italicises in place.
+   */
+  note?: string;
 };
 
 export type TripleScriptWitnessSection = {

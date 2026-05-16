@@ -479,6 +479,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
+          note: 'We are stewards rather than absolute owners; it reifies the self to buy into the sense of ownership.',
         },
         {
           id: 'precept-3',
@@ -517,6 +518,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
+          note: 'Sensual pleasures of flesh, tongue, ears — so broad. Misconduct = respecting past commitments, protected by relationship (no incest, or protected by law), context — time, place, methods.',
         },
         {
           id: 'precept-4',
@@ -576,10 +578,9 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
+          note: 'The precept names the *basis* of heedlessness. [[appamāda]] — heedfulness — paying attention to the present. The Buddha\'s last words: *appamādena sampādetha* — strive with heedfulness. The cultivation of mindfulness ([[sati]]) and its opposite, heedlessness (*pamāda*).',
         },
       ],
-      commentary:
-        'Precept 2 (*adinnādānā*): we are stewards rather than absolute owners; it reifies the self to buy into the sense of ownership.\n\nPrecept 3 (*kāmesu micchācārā*): sensual pleasures of flesh, tongue, ears — so broad. Misconduct = respecting past commitments, protected by relationship (no incest, or protected by law), context — time, place, methods.\n\nPrecept 5 (*surāmerayamajjapamādaṭṭhānā*): the precept names the *basis* of heedlessness. **[[appamāda]]** — heedfulness — paying attention to the present. The Buddha\'s last words: *appamādena sampādetha* — strive with heedfulness. The cultivation of mindfulness (**[[sati]]**) and its opposite, heedlessness (*pamāda*).',
     },
 
     // ───────────────────────────────────────────────────────────────────────

@@ -151,6 +151,7 @@ const HoverSpan: React.FC<{
   const [open, setOpen] = useState(false);
   return (
     <span
+      data-hover-span="true"
       className={`relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
         bold ? 'font-semibold' : ''
       }`}
@@ -410,7 +411,17 @@ function computeAlignmentLines(
   return lines;
 }
 
-type HoverTarget = { kind: 'pali' | 'en'; idx: number } | null;
+type HoverTarget = {
+  kind: 'pali' | 'en';
+  idx: number;
+  /**
+   * The most-specific element actually under the cursor — usually the
+   * morpheme HoverSpan for Pāli, or the English word span. Used to attach
+   * the arrow's endpoint to where the user is actually hovering, not the
+   * centre of the whole word.
+   */
+  element: HTMLElement;
+} | null;
 
 const AlignmentLines: React.FC<{ lines: Line[]; hovered: HoverTarget }> = ({
   lines,
@@ -533,6 +544,11 @@ const SegmentRow: React.FC<{
   // mouseover bubbles up; we check whether the target sits inside any
   // [data-pali-idx] or [data-en-idx] span and set hovered accordingly.
   // mouseout to outside the segment clears it.
+  //
+  // For Pāli we prefer the most-specific element under the cursor — the
+  // morpheme/word HoverSpan (data-hover-span="true") if present, else the
+  // whole-word [data-pali-idx] span. The alignment arrow's endpoint then
+  // anchors to where the user is actually hovering, not the word centre.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -543,7 +559,9 @@ const SegmentRow: React.FC<{
       if (paliEl) {
         const idx = parseInt(paliEl.getAttribute('data-pali-idx') || '-1', 10);
         if (idx >= 0) {
-          setHovered({ kind: 'pali', idx });
+          const inner = t.closest('[data-hover-span="true"]') as HTMLElement | null;
+          const element = inner && paliEl.contains(inner) ? inner : paliEl;
+          setHovered({ kind: 'pali', idx, element });
           return;
         }
       }
@@ -551,7 +569,7 @@ const SegmentRow: React.FC<{
       if (enEl) {
         const idx = parseInt(enEl.getAttribute('data-en-idx') || '-1', 10);
         if (idx >= 0) {
-          setHovered({ kind: 'en', idx });
+          setHovered({ kind: 'en', idx, element: enEl });
           return;
         }
       }
@@ -574,6 +592,33 @@ const SegmentRow: React.FC<{
     e.stopPropagation();
     cb();
   };
+
+  // Adjust the endpoint of any hovered line so it anchors to the actual
+  // morpheme/word element under the cursor, not the centre of the whole
+  // Pāli word. Cheap — only runs while something is hovered, and only
+  // touches the lines that match the hover.
+  const adjustedLines = (() => {
+    if (!hovered || !containerRef.current) return lines;
+    const cRect = containerRef.current.getBoundingClientRect();
+    const r = hovered.element.getBoundingClientRect();
+    return lines.map((l) => {
+      if (hovered.kind === 'pali' && l.paliIdx === hovered.idx) {
+        return {
+          ...l,
+          x1: r.left + r.width / 2 - cRect.left,
+          y1: r.bottom - cRect.top,
+        };
+      }
+      if (hovered.kind === 'en' && l.engIdx === hovered.idx) {
+        return {
+          ...l,
+          x2: r.left + r.width / 2 - cRect.left,
+          y2: r.top - cRect.top,
+        };
+      }
+      return l;
+    });
+  })();
 
   return (
     <div className="mb-8 relative" id={segment.id} ref={containerRef}>
@@ -609,8 +654,37 @@ const SegmentRow: React.FC<{
         </div>
       )}
 
-      {/* SVG alignment overlay — only renders lines for the hovered word */}
-      <AlignmentLines lines={lines} hovered={hovered} />
+      {/* SVG alignment overlay — only renders lines for the hovered word.
+          Endpoints are adjusted to the actual hovered element so the
+          arrow anchors to the morpheme/word under the cursor. */}
+      <AlignmentLines lines={adjustedLines} hovered={hovered} />
+
+      {/* Per-segment note — collapsed by default, expands on click. */}
+      {segment.note && <SegmentNote text={segment.note} />}
+    </div>
+  );
+};
+
+const SegmentNote: React.FC<{ text: string }> = ({ text }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3 text-center">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className="text-[10px] uppercase tracking-widest text-slate-600 hover:text-emerald-400/80 transition-colors"
+      >
+        {open ? '— hide note —' : '+ note'}
+      </button>
+      {open && (
+        <ProseBlock
+          text={text}
+          className="space-y-2 text-slate-400 text-xs italic leading-relaxed mt-3 max-w-xl mx-auto text-left"
+        />
+      )}
     </div>
   );
 };
