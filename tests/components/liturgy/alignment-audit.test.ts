@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { morningChants } from '../../../data/liturgy/morning-chants';
+import { LITURGY_DOCS } from '../../../data/liturgy';
 import type {
   LiturgyDoc,
   TripleScriptWitnessSection,
@@ -40,47 +40,52 @@ function tripleScriptSections(
   );
 }
 
-describe('morning-chants alignment audit', () => {
-  const sections = tripleScriptSections(morningChants);
+// Audit every registered LiturgyDoc — adding a new chant to the index
+// automatically gets it covered.
+for (const doc of Object.values(LITURGY_DOCS)) {
+  describe(`alignment audit: ${doc.slug}`, () => {
+    const sections = tripleScriptSections(doc);
 
-  it('has at least one triple-script-witness section', () => {
-    expect(sections.length).toBeGreaterThan(0);
-  });
+    if (sections.length === 0) {
+      it.skip('no triple-script-witness sections (skipped)', () => undefined);
+      return;
+    }
 
-  for (const section of sections) {
-    describe(`section: ${section.id}`, () => {
-      for (const segment of section.segments) {
-        const paliWordCount = countPaliWords(segment.pali);
+    for (const section of sections) {
+      describe(`section: ${section.id}`, () => {
+        for (const segment of section.segments) {
+          const paliWordCount = countPaliWords(segment.pali);
 
-        for (const witness of segment.witnesses) {
-          const label = `${segment.id} · ${witness.by}`;
+          for (const witness of segment.witnesses) {
+            const label = `${segment.id} · ${witness.by}`;
 
-          if (witness.alignTo === undefined) {
-            it.skip(`${label}: no alignTo (skipped)`, () => undefined);
-            continue;
-          }
-
-          it(`${label}: alignTo length === English word count`, () => {
-            const enCount = countEnglishWords(witness.text);
-            expect(witness.alignTo!.length).toBe(enCount);
-          });
-
-          it(`${label}: every alignTo entry is -1 or a valid Pāli index`, () => {
-            for (let i = 0; i < witness.alignTo!.length; i++) {
-              const v = witness.alignTo![i];
-              if (v === -1) continue;
-              expect(
-                v,
-                `alignTo[${i}]=${v} out of range [0, ${paliWordCount - 1}]`
-              ).toBeGreaterThanOrEqual(0);
-              expect(
-                v,
-                `alignTo[${i}]=${v} out of range [0, ${paliWordCount - 1}]`
-              ).toBeLessThan(paliWordCount);
+            if (witness.alignTo === undefined) {
+              it.skip(`${label}: no alignTo (skipped)`, () => undefined);
+              continue;
             }
-          });
+
+            it(`${label}: alignTo length === English word count`, () => {
+              const enCount = countEnglishWords(witness.text);
+              expect(witness.alignTo!.length).toBe(enCount);
+            });
+
+            it(`${label}: every alignTo entry is -1 or a valid Pāli index`, () => {
+              for (let i = 0; i < witness.alignTo!.length; i++) {
+                const v = witness.alignTo![i];
+                if (v === -1) continue;
+                expect(
+                  v,
+                  `alignTo[${i}]=${v} out of range [0, ${paliWordCount - 1}]`
+                ).toBeGreaterThanOrEqual(0);
+                expect(
+                  v,
+                  `alignTo[${i}]=${v} out of range [0, ${paliWordCount - 1}]`
+                ).toBeLessThan(paliWordCount);
+              }
+            });
+          }
         }
-      }
-    });
-  }
-});
+      });
+    }
+  });
+}

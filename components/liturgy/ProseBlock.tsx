@@ -8,14 +8,39 @@ import React from 'react';
  *   - **bold** and *italic* inline
  *   - `code` inline
  *   - [[wiki-term]] inline — rendered as a subtle italic glossary cue
+ *   - {{lang|text}} inline — emits <span lang="…"> with a script-appropriate
+ *     font stack so Devanāgarī / Tibetan / CJK render correctly inline
+ *     without forcing the whole paragraph into a non-Latin font.
  *
  * Deliberately not a full markdown parser. If the text needs richer
  * formatting, lift it into structured fields on the section type.
  */
 
+const SCRIPT_FONTS: Record<string, string> = {
+  sa: "'Noto Serif Devanagari', 'Cardo', serif",
+  hi: "'Noto Serif Devanagari', 'Cardo', serif",
+  bo: "'Noto Serif Tibetan', 'Cardo', serif",
+  zh: "'Noto Serif SC', 'Cardo', serif",
+  ja: "'Noto Serif JP', 'Cardo', serif",
+};
+
 const INLINE_PATTERNS: Array<{ re: RegExp; wrap: (m: string) => React.ReactNode }> = [
   { re: /\*\*([^*]+)\*\*/g, wrap: (m) => <strong>{m}</strong> },
   { re: /\[\[([^\]]+)\]\]/g, wrap: (m) => <em className="text-emerald-300/90 not-italic font-medium">{m}</em> },
+  {
+    re: /\{\{([a-z]{2,3}\|[^}]+)\}\}/g,
+    wrap: (inner) => {
+      const sep = inner.indexOf('|');
+      const lang = inner.slice(0, sep);
+      const text = inner.slice(sep + 1);
+      const fontFamily = SCRIPT_FONTS[lang];
+      return (
+        <span lang={lang} style={fontFamily ? { fontFamily } : undefined}>
+          {text}
+        </span>
+      );
+    },
+  },
   { re: /\*([^*]+)\*/g, wrap: (m) => <em>{m}</em> },
   { re: /`([^`]+)`/g, wrap: (m) => <code className="text-emerald-300/90">{m}</code> },
 ];

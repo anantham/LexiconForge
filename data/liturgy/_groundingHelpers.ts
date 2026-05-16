@@ -87,3 +87,37 @@ export function ungroundedCitation(reason: string): Citation {
     license: 'unverified',
   };
 }
+
+/**
+ * Wikipedia citation — starting-point reference for general etymology /
+ * cross-tradition transliteration. Useful for non-Pāli chants (Sanskrit
+ * mantras, East Asian renderings) where DPD doesn't apply. Treat as a
+ * launching point, not authority.
+ */
+export function wikipediaCitation(article: string): Citation {
+  return {
+    id: `cite:wikipedia:${article.replace(/\s+/g, '_')}`,
+    short: `Wikipedia: ${article}`,
+    url: `https://en.wikipedia.org/wiki/${encodeURIComponent(article.replace(/\s+/g, '_'))}`,
+    provenance: 'manual' as Citation['provenance'],
+    query: article,
+    fetchedAt: TODAY,
+    license: 'CC BY-SA 4.0 — Wikipedia',
+  };
+}
+
+/**
+ * H.H. the Dalai Lama's official commentary on a topic. Uses dalailama.com
+ * permalinks where they exist.
+ */
+export function dalaiLamaCitation(slug: string, title: string): Citation {
+  return {
+    id: `cite:dalailama:${slug}`,
+    short: `H.H. the Dalai Lama — ${title}`,
+    url: `https://www.dalailama.com/${slug}`,
+    provenance: 'manual' as Citation['provenance'],
+    query: title,
+    fetchedAt: TODAY,
+    license: 'Public address — quoted with attribution',
+  };
+}
