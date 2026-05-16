@@ -110,6 +110,28 @@ export const heartSutra: LiturgyDoc = {
               label: 'Tibetan',
               text: 'བྱང་ཆུབ་སེམས་དཔའ་འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག་ཟབ་མོ་ཤེས་རབ་ཀྱི་ཕ་རོལ་ཏུ་ཕྱིན་པའི་སྤྱོད་པ་ལ་སྤྱོད་པ་ན་ཕུང་པོ་ལྔ་པོ་དེ་དག་ལ་ཡང་རང་བཞིན་གྱིས་སྟོང་པར་རྣམ་པར་བལྟའོ།',
               source: 'Kangyur short-form recension',
+              tokens: [
+                'བྱང་ཆུབ་སེམས་དཔའ',
+                'འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག',
+                'ཟབ་མོ',
+                'ཤེས་རབ',
+                'ཀྱི',
+                'ཕ་རོལ་ཏུ་ཕྱིན་པ',
+                'འི',
+                'སྤྱོད་པ',
+                'ལ',
+                'སྤྱོད་པ',
+                'ན',
+                'ཕུང་པོ',
+                'ལྔ་པོ',
+                'དེ་དག',
+                'ལ',
+                'ཡང',
+                'རང་བཞིན',
+                'གྱིས',
+                'སྟོང་པར',
+                'རྣམ་པར་བལྟའོ',
+              ],
             },
           ],
           witnesses: [
@@ -146,7 +168,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'Āryāvalokiteśvaro',
               scriptAlt: 'आर्यावलोकितेश्वरो',
-              scriptAlts: { 'zh-Hant': '觀自在', 'ja-Jpan': '観自在' },
+              scriptAlts: { 'zh-Hant': '觀自在', 'ja-Jpan': '観自在', 'bo-Tibt': 'འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '觀', type: 'semantic', pronunciation: 'guān', gloss: 'observe, contemplate, perceive — translates *avalokita* ("looking down")' },
@@ -157,6 +179,14 @@ export const heartSutra: LiturgyDoc = {
                   { text: '観', type: 'semantic', pronunciation: 'kan', gloss: 'observe, contemplate — translates *avalokita*' },
                   { text: '自', type: 'semantic', pronunciation: 'ji', gloss: 'self — with 在 renders *īśvara* "sovereign"' },
                   { text: '在', type: 'semantic', pronunciation: 'zai', gloss: 'present, sovereign — 自在 ("jizai") = "freely existing"' },
+                ],
+                'bo-Tibt': [
+                  { text: 'འཕགས་པ་', type: 'semantic', pronunciation: 'phags pa', gloss: 'noble, exalted — renders Sanskrit *ārya*' },
+                  { text: 'སྤྱན་', type: 'semantic', pronunciation: 'spyan', gloss: 'eye (honorific) — same root as Chenrezig\'s name' },
+                  { text: 'རས་', type: 'semantic', pronunciation: 'ras', gloss: 'with, attended-by — the relational particle of the name' },
+                  { text: 'གཟིགས་', type: 'semantic', pronunciation: 'gzigs', gloss: 'gazes, regards (honorific) — together སྤྱན་རས་གཟིགས = "the compassionate gazer" = *avalokita*' },
+                  { text: 'དབང་', type: 'semantic', pronunciation: 'dbang', gloss: 'power, sovereignty' },
+                  { text: 'ཕྱུག', type: 'semantic', pronunciation: 'phyug', gloss: 'rich, abundant — together དབང་ཕྱུག = "sovereign" = *īśvara*' },
                 ],
               },
               pronunciation: 'AHR-yah-vah-loh-kee-TAYSH-vah-roh',
@@ -188,7 +218,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'bodhisattvo',
               scriptAlt: 'बोधिसत्त्वो',
-              scriptAlts: { 'zh-Hant': '菩薩', 'ja-Jpan': '菩薩' },
+              scriptAlts: { 'zh-Hant': '菩薩', 'ja-Jpan': '菩薩', 'bo-Tibt': 'བྱང་ཆུབ་སེམས་དཔའ' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '菩', type: 'phonetic', pronunciation: 'pú', gloss: 'phonetic: transliterates "bo-" (from 菩提 *bodhi*); not a semantic character here' },
@@ -197,6 +227,12 @@ export const heartSutra: LiturgyDoc = {
                 'ja-Jpan': [
                   { text: '菩', type: 'phonetic', pronunciation: 'bo', gloss: 'phonetic: transliterates "bo-" (*bodhi*)' },
                   { text: '薩', type: 'phonetic', pronunciation: 'satsu', gloss: 'phonetic: transliterates "-(sa)ttva"; 菩薩 (*bosatsu*) abbreviates 菩提薩埵' },
+                ],
+                'bo-Tibt': [
+                  { text: 'བྱང་', type: 'semantic', pronunciation: 'byang', gloss: 'purified, cleansed' },
+                  { text: 'ཆུབ་', type: 'semantic', pronunciation: 'chub', gloss: 'perfected, complete — together བྱང་ཆུབ ("byang chub") = "fully purified" = *bodhi* (awakening)' },
+                  { text: 'སེམས་', type: 'semantic', pronunciation: 'sems', gloss: 'mind' },
+                  { text: 'དཔའ', type: 'semantic', pronunciation: "dpa'", gloss: 'hero, brave — together སེམས་དཔའ = "mind-hero" = *sattva* (an awakening-being)' },
                 ],
               },
               pronunciation: 'boh-dee-SAHT-voh',
@@ -222,7 +258,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'prajñāpāramitācaryāṃ',
               scriptAlt: 'प्रज्ञापारमिताचर्यां',
-              scriptAlts: { 'zh-Hant': '般若', 'ja-Jpan': '般若' },
+              scriptAlts: { 'zh-Hant': '般若', 'ja-Jpan': '般若', 'bo-Tibt': 'ཤེས་རབ' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '般', type: 'phonetic', pronunciation: 'bān', gloss: 'phonetic: transliterates "pra-" — chosen for sound, the character\'s usual meaning ("kind of, sort") is unrelated' },
@@ -231,6 +267,12 @@ export const heartSutra: LiturgyDoc = {
                 'ja-Jpan': [
                   { text: '般', type: 'phonetic', pronunciation: 'han', gloss: 'phonetic: transliterates "pra-" — read as "han" in 般若 (*hannya*)' },
                   { text: '若', type: 'phonetic', pronunciation: 'nya', gloss: 'phonetic: transliterates "-jñā" — read as "nya" in 般若' },
+                ],
+                // Tibetan: semantic, not phonetic. The Lotsawas built native
+                // compounds for Sanskrit terms rather than transliterating.
+                'bo-Tibt': [
+                  { text: 'ཤེས་', type: 'semantic', pronunciation: 'shes', gloss: 'to know, knowledge' },
+                  { text: 'རབ', type: 'semantic', pronunciation: 'rab', gloss: 'supreme, excellent — together ཤེས་རབ = "supreme knowing" = *prajñā* (wisdom)' },
                 ],
               },
               pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-chahr-yahm',
@@ -268,7 +310,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'pāramitā',
               scriptAlt: 'पारमिता',
-              scriptAlts: { 'zh-Hant': '波羅蜜多', 'ja-Jpan': '波羅蜜多' },
+              scriptAlts: { 'zh-Hant': '波羅蜜多', 'ja-Jpan': '波羅蜜多', 'bo-Tibt': 'ཕ་རོལ་ཏུ་ཕྱིན་པ' },
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '波', type: 'phonetic', pronunciation: 'bō', gloss: 'phonetic: transliterates "pā-"; usually means "wave"' },
@@ -281,6 +323,14 @@ export const heartSutra: LiturgyDoc = {
                   { text: '羅', type: 'phonetic', pronunciation: 'ra', gloss: 'phonetic: transliterates "-ra-"' },
                   { text: '蜜', type: 'phonetic', pronunciation: 'mi', gloss: 'phonetic: transliterates "-mi-"' },
                   { text: '多', type: 'phonetic', pronunciation: 'ta', gloss: 'phonetic: transliterates "-tā"' },
+                ],
+                // Tibetan reads the etymology literally: "gone to the other shore"
+                'bo-Tibt': [
+                  { text: 'ཕ་', type: 'semantic', pronunciation: 'pha', gloss: 'the far' },
+                  { text: 'རོལ་', type: 'semantic', pronunciation: 'rol', gloss: 'shore, side — together ཕ་རོལ = "the other shore" (= Sanskrit *pāram*)' },
+                  { text: 'ཏུ་', type: 'semantic', pronunciation: 'tu', gloss: 'to, towards — directional particle' },
+                  { text: 'ཕྱིན་', type: 'semantic', pronunciation: 'phyin', gloss: 'gone (past) — together ཕྱིན་པ = "having gone" (= Sanskrit *itā*)' },
+                  { text: 'པ', type: 'semantic', pronunciation: 'pa', gloss: 'nominaliser — turns the verb into a noun-phrase' },
                 ],
               },
               pronunciation: 'pah-rah-mee-TAH',
@@ -295,7 +345,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'pañca',
               scriptAlt: 'पञ्च',
-              scriptAlts: { 'zh-Hant': '五', 'ja-Jpan': '五' },
+              scriptAlts: { 'zh-Hant': '五', 'ja-Jpan': '五', 'bo-Tibt': 'ལྔ' },
               pronunciation: 'PAHN-chah',
               etymology: 'Sanskrit *pañca* — "five"',
               gloss: 'five',
@@ -303,7 +353,13 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'skandhāḥ',
               scriptAlt: 'स्कन्धाः',
-              scriptAlts: { 'zh-Hant': '蘊', 'ja-Jpan': '蘊' },
+              scriptAlts: { 'zh-Hant': '蘊', 'ja-Jpan': '蘊', 'bo-Tibt': 'ཕུང་པོ' },
+              scriptMorphemes: {
+                'bo-Tibt': [
+                  { text: 'ཕུང་', type: 'semantic', pronunciation: 'phung', gloss: 'heap, mass — the literal "aggregate"' },
+                  { text: 'པོ', type: 'semantic', pronunciation: 'po', gloss: 'nominal/masculine suffix' },
+                ],
+              },
               pronunciation: 'SKAHN-dhah-h',
               etymology: 'Sanskrit *skandha* — literally "heap, aggregate"',
               gloss: 'the five aggregates that compose experience: form, feeling, perception, mental formations, consciousness',
@@ -312,7 +368,16 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'svabhāvaśūnyān',
               scriptAlt: 'स्वभावशून्यान्',
-              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'རང་བཞིན' },
+              scriptMorphemes: {
+                // Tibetan maps the *svabhāva* "own-being" portion to
+                // རང་བཞིན (rang bzhin). The "empty" portion lives in a
+                // separate Tibetan word (སྟོང་པ) downstream in the sentence.
+                'bo-Tibt': [
+                  { text: 'རང་', type: 'semantic', pronunciation: 'rang', gloss: 'self, own' },
+                  { text: 'བཞིན', type: 'semantic', pronunciation: 'bzhin', gloss: 'nature, manner — together རང་བཞིན = "self-nature" = *svabhāva* (own-being)' },
+                ],
+              },
               pronunciation: 'svah-BAH-vah-SHOON-yahn',
               etymology: '*svabhāva* "own-being" + *śūnya* "empty"',
               gloss: 'empty of own-being — having no fixed, inherent self-existence',
@@ -342,7 +407,13 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'gambhīrāṃ',
               scriptAlt: 'गम्भीरां',
-              scriptAlts: { 'zh-Hant': '深', 'ja-Jpan': '深' },
+              scriptAlts: { 'zh-Hant': '深', 'ja-Jpan': '深', 'bo-Tibt': 'ཟབ་མོ' },
+              scriptMorphemes: {
+                'bo-Tibt': [
+                  { text: 'ཟབ་', type: 'semantic', pronunciation: 'zab', gloss: 'deep, profound' },
+                  { text: 'མོ', type: 'semantic', pronunciation: 'mo', gloss: 'feminine suffix — *gambhīrāṃ* is grammatically feminine in Sanskrit, agreeing with *caryāṃ*' },
+                ],
+              },
               pronunciation: 'gahm-BHEE-rahm',
               etymology: 'Sanskrit *gambhīra* — "deep, profound"',
               gloss: 'deep, profound — qualifying the practice as not surface-level',
@@ -350,7 +421,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'caramāṇo',
               scriptAlt: 'चरमाणो',
-              scriptAlts: { 'zh-Hant': '行', 'ja-Jpan': '行' },
+              scriptAlts: { 'zh-Hant': '行', 'ja-Jpan': '行', 'bo-Tibt': 'སྤྱོད་པ' },
               pronunciation: 'chah-rah-MAH-noh',
               etymology: '√car "to move, practise" + middle present participle',
               gloss: 'practising, moving in — the bodhisattva is *doing* this, not just thinking it',
@@ -497,6 +568,11 @@ export const heartSutra: LiturgyDoc = {
               label: 'Tibetan',
               text: 'གཟུགས་སྟོང་པའོ། སྟོང་པ་ཉིད་གཟུགས་སོ། གཟུགས་ལས་སྟོང་པ་ཉིད་གཞན་མ་ཡིན།',
               source: 'Kangyur',
+              tokens: [
+                'གཟུགས', 'སྟོང་པ', 'འོ',
+                'སྟོང་པ་ཉིད', 'གཟུགས', 'སོ',
+                'གཟུགས', 'ལས', 'སྟོང་པ་ཉིད', 'གཞན', 'མ', 'ཡིན',
+              ],
             },
           ],
           witnesses: [
@@ -549,7 +625,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'rūpaṃ',
               scriptAlt: 'रूपम्',
-              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色' },
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
               pronunciation: 'ROO-pahm',
               etymology: 'Sanskrit *rūpa* — "form, appearance, body"',
               gloss: 'form — the first of the five skandhas; visible/material appearance',
@@ -559,7 +635,16 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'śūnyatā',
               scriptAlt: 'शून्यता',
-              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
+              // Tibetan match keys on 'སྟོང་པ' which is a prefix of 'སྟོང་པ་ཉིད'
+              // — so both the 2-syllable adjectival form and the 3-syllable
+              // abstract-noun form fire this tooltip via longest-prefix-match.
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
+              scriptMorphemes: {
+                'bo-Tibt': [
+                  { text: 'སྟོང་', type: 'semantic', pronunciation: 'stong', gloss: 'empty, void' },
+                  { text: 'པ', type: 'semantic', pronunciation: 'pa', gloss: 'nominaliser — turns "empty" into "an empty thing"' },
+                ],
+              },
               pronunciation: 'SHOON-yah-TAH',
               etymology: '*śūnya* "empty" + abstract noun suffix *-tā*',
               gloss: 'emptiness — not nothingness, but absence of inherent existence; the dependently-arisen nature of all things',
@@ -583,7 +668,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'śūnyataiva',
               scriptAlt: 'शून्यतैव',
-              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
               pronunciation: 'SHOON-yah-TIE-vah',
               etymology: '*śūnyatā* + *eva* (intensifier)',
               gloss: 'emptiness itself — the emphatic "the very emptiness"',
@@ -592,7 +677,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'pṛthak',
               scriptAlt: 'पृथक्',
-              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異' },
+              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異', 'bo-Tibt': 'གཞན' },
               pronunciation: 'PRTH-ahk',
               etymology: 'Sanskrit *pṛthak* — "apart, separate, distinct"',
               gloss: 'separate, distinct (from)',
@@ -600,7 +685,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'pṛthag',
               scriptAlt: 'पृथग्',
-              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異' },
+              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異', 'bo-Tibt': 'གཞན' },
               pronunciation: 'PRTH-ahg',
               etymology: 'Sandhi variant of *pṛthak* before voiced consonants',
               gloss: 'separate, distinct (from) — same word as pṛthak, different sandhi form',
@@ -608,7 +693,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'Rūpān',
               scriptAlt: 'रूपान्',
-              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色' },
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
               pronunciation: 'ROO-pahn',
               etymology: '*rūpa* "form" + ablative ending',
               gloss: 'from form — "X is not different *from* form"',
@@ -617,7 +702,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'śūnyatāyā',
               scriptAlt: 'शून्यताया',
-              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空' },
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
               pronunciation: 'SHOON-yah-TAH-yah',
               etymology: '*śūnyatā* "emptiness" + genitive/ablative ending',
               gloss: 'of/from emptiness — "X is not different from *emptiness*"',
@@ -626,7 +711,7 @@ export const heartSutra: LiturgyDoc = {
             {
               form: 'na',
               scriptAlt: 'न',
-              scriptAlts: { 'zh-Hant': '不', 'ja-Jpan': '不' },
+              scriptAlts: { 'zh-Hant': '不', 'ja-Jpan': '不', 'bo-Tibt': 'མ' },
               pronunciation: 'nah',
               etymology: 'Sanskrit negation particle',
               gloss: 'not',
