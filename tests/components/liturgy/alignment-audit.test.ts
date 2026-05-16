@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { LITURGY_DOCS } from '../../../data/liturgy';
+import { LITURGY_DOCS_BY_SANGHA } from '../../../data/liturgy';
 import type {
   LiturgyDoc,
   TripleScriptWitnessSection,
@@ -40,10 +40,13 @@ function tripleScriptSections(
   );
 }
 
-// Audit every registered LiturgyDoc — adding a new chant to the index
-// automatically gets it covered.
-for (const doc of Object.values(LITURGY_DOCS)) {
-  describe(`alignment audit: ${doc.slug}`, () => {
+// Audit every registered LiturgyDoc across all sanghas — adding a new chant
+// to any sangha's docs automatically gets it covered.
+const ALL_DOCS: LiturgyDoc[] = Object.values(LITURGY_DOCS_BY_SANGHA).flatMap(
+  (docsForSangha) => Object.values(docsForSangha)
+);
+for (const doc of ALL_DOCS) {
+  describe(`alignment audit: ${doc.sangha}/${doc.slug}`, () => {
     const sections = tripleScriptSections(doc);
 
     if (sections.length === 0) {

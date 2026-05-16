@@ -253,6 +253,7 @@ const PRECEPT_FORMULA_WORDS: WordGloss[] = [
 
 export const morningChants: LiturgyDoc = {
   slug: 'morning-chants',
+  sangha: 'maple',
   title: 'Morning Chants',
   subtitle: 'Theravāda devotional sequence — chanted before breakfast at MAPLE',
   tradition: 'theravada',

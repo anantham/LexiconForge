@@ -1,5 +1,5 @@
 import React from 'react';
-import type { LiturgyDoc } from '../../types/liturgy';
+import type { LiturgyDoc, Sangha } from '../../types/liturgy';
 import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
 import { LiturgySettingsProvider, SettingsButton } from './LiturgySettings';
@@ -24,7 +24,12 @@ const TRADITION_LABELS: Record<LiturgyDoc['tradition'], string> = {
   mixed: 'Mixed traditions',
 };
 
-export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
+export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = ({
+  doc,
+  sangha,
+}) => {
+  const backHref = sangha ? `/liturgy/${sangha.slug}` : '/liturgy';
+  const backLabel = sangha ? sangha.name : 'Liturgy';
   const primaryWitness = (() => {
     for (const sec of doc.sections) {
       if (sec.shape === 'triple-script-witness') {
@@ -42,10 +47,10 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
         {/* Thin nav at top, no big header — the Homage is the threshold */}
         <nav className="absolute top-4 left-6 text-xs z-10">
           <a
-            href="/liturgy"
+            href={backHref}
             className="text-emerald-400/80 hover:text-emerald-300 uppercase tracking-widest"
           >
-            ← Liturgy
+            ← {backLabel}
           </a>
         </nav>
         <SettingsButton />

@@ -22,6 +22,7 @@ import {
 
 export const omManiPadmeHum: LiturgyDoc = {
   slug: 'om-mani-padme-hum',
+  sangha: 'maple',
   title: 'Oṃ Maṇi Padme Hūṃ',
   subtitle: 'The heart-mantra of Avalokiteśvara',
   tradition: 'vajrayana',

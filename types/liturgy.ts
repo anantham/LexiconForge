@@ -347,9 +347,46 @@ export type LiturgySourceRef = {
   note?: string;
 };
 
-export type LiturgyDoc = {
-  /** URL slug. Must be unique and stable. */
+/**
+ * A Buddhist community — monastery, lay sangha, or practice group whose
+ * particular form of a chant lives in this reader. Each LiturgyDoc belongs
+ * to exactly one sangha; the same chant (e.g. the Heart Sutra) is
+ * represented as separate docs when multiple sanghas chant it with
+ * distinct English translations or recensions.
+ *
+ * Routing: `/liturgy/<sangha-slug>` lists a sangha's chants; the chant
+ * page lives at `/liturgy/<sangha-slug>/<chant-slug>`. Sluggs are unique
+ * within a sangha; can repeat across sanghas (Heart Sutra exists under
+ * both `maple/heart-sutra` and `bodhi-sangha/heart-sutra`).
+ */
+export type Sangha = {
+  /** URL slug + foreign key on LiturgyDoc.sangha. */
   slug: string;
+  /** Short display name. */
+  name: string;
+  /** Optional longer / formal name. */
+  fullName?: string;
+  /** One-paragraph description for the sangha-index card. */
+  description?: string;
+  /** Where the community is physically based. */
+  location?: string;
+  /** Founding year (string for "2014" / "c. 1992" flexibility). */
+  founded?: string;
+  /** Optional canonical website. */
+  url?: string;
+  /** Primary Buddhist tradition tag — what colours the sangha most strongly. */
+  primaryTradition?: 'theravada' | 'mahayana' | 'zen' | 'vajrayana' | 'lakota' | 'maple' | 'mixed';
+};
+
+export type LiturgyDoc = {
+  /** URL slug. Unique within a sangha; can repeat across sanghas. */
+  slug: string;
+  /**
+   * Sangha this version of the chant comes from. Foreign key into the
+   * sangha registry (data/liturgy/sanghas.ts). Routing lives at
+   * `/liturgy/<sangha>/<slug>`.
+   */
+  sangha: string;
   /** Display title. */
   title: string;
   /** Subtitle / one-line framing for the chant. */

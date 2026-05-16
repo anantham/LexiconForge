@@ -20,6 +20,7 @@ import type { LiturgyDoc } from '../../types/liturgy';
 
 export const jadeMethod: LiturgyDoc = {
   slug: 'jade-method',
+  sangha: 'maple',
   title: 'The Jade Method',
   subtitle: 'A contemplative practice in seven stages',
   tradition: 'maple',

@@ -25,6 +25,7 @@ import { wikipediaCitation, ungroundedCitation } from './_groundingHelpers';
 
 export const bodhicittaDedication: LiturgyDoc = {
   slug: 'bodhicitta-dedication',
+  sangha: 'maple',
   title: 'Bodhicitta Dedication',
   subtitle: 'May supreme and precious bodhicitta arise…',
   tradition: 'vajrayana',

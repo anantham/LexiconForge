@@ -1,56 +1,78 @@
 import React from 'react';
-import { LITURGY_INDEX } from '../../data/liturgy';
+import type { Sangha } from '../../types/liturgy';
+import { liturgyDocsForSangha } from '../../data/liturgy';
 
 /**
- * Liturgy index page. Lists all available chants with a brief framing.
+ * Per-sangha chant index — lists every chant belonging to one community.
  *
- * Deliberately honest about what this is: a hand-curated, multi-witness
- * reader, not an authoritative version. The "About" section names that.
+ *  /liturgy/<sangha-slug> → this page
+ *
+ * Each card links to `/liturgy/<sangha-slug>/<chant-slug>` for the
+ * individual chant page.
+ *
+ * Deliberately honest about what this is: the version *this sangha*
+ * chants. Different sanghas have different English, different orderings,
+ * different framings — all valid.
  */
 
-export const LiturgyIndex: React.FC = () => {
+const SERIF_STACK = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
+
+export const LiturgyIndex: React.FC<{ sangha: Sangha }> = ({ sangha }) => {
+  const docs = liturgyDocsForSangha(sangha.slug);
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
+      <nav className="absolute top-4 left-6 text-xs z-10">
+        <a href="/liturgy" className="text-emerald-400/80 hover:text-emerald-300 uppercase tracking-widest">
+          ← All sanghas
+        </a>
+      </nav>
       <div className="max-w-3xl mx-auto px-6 py-16">
         <header className="mb-16">
-          <h1
-            className="text-4xl text-slate-100 mb-3"
-            style={{ fontFamily: "'Cardo', 'Gentium Plus', 'Noto Serif', serif" }}
-          >
-            Liturgy
+          <h1 className="text-4xl text-slate-100 mb-2" style={{ fontFamily: SERIF_STACK }}>
+            {sangha.name}
           </h1>
-          <p className="text-slate-500 text-sm">As chanted at MAPLE.</p>
+          {sangha.fullName && sangha.fullName !== sangha.name && (
+            <p className="text-slate-400 italic mb-3">{sangha.fullName}</p>
+          )}
+          {sangha.description && (
+            <p className="text-slate-500 text-sm leading-relaxed">{sangha.description}</p>
+          )}
+          <div className="text-xs text-slate-600 mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            {sangha.location && <span>📍 {sangha.location}</span>}
+            {sangha.founded && <span>est. {sangha.founded}</span>}
+            {sangha.url && (
+              <a
+                href={sangha.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400/60 hover:text-emerald-300"
+              >
+                {sangha.url.replace(/^https?:\/\//, '')}
+              </a>
+            )}
+          </div>
         </header>
 
         <div className="space-y-6">
-          {LITURGY_INDEX.map((item) => (
+          {docs.map((doc) => (
             <a
-              key={item.slug}
-              href={`/liturgy/${item.slug}`}
+              key={doc.slug}
+              href={`/liturgy/${sangha.slug}/${doc.slug}`}
               className="block p-6 border border-slate-800 rounded-lg hover:border-emerald-700/50 hover:bg-slate-900/40 transition-colors"
             >
               <div className="flex items-baseline gap-4 mb-2">
-                <h2 className="text-xl text-slate-100 font-serif">{item.title}</h2>
+                <h2 className="text-xl text-slate-100" style={{ fontFamily: SERIF_STACK }}>
+                  {doc.title}
+                </h2>
                 <span className="text-xs uppercase tracking-widest text-slate-500">
-                  {item.tradition}
+                  {doc.tradition}
                 </span>
               </div>
-              {item.subtitle && (
-                <div className="text-slate-400 italic mb-1">{item.subtitle}</div>
-              )}
-              {item.context && <p className="text-slate-500 text-sm">{item.context}</p>}
+              {doc.subtitle && <div className="text-slate-400 italic mb-1">{doc.subtitle}</div>}
+              {doc.context && <p className="text-slate-500 text-sm">{doc.context}</p>}
             </a>
           ))}
         </div>
-
-        <footer className="mt-16 pt-8 border-t border-slate-800 text-xs text-slate-600">
-          <p>
-            Hand-curated. Translations cited with attribution and license where known.
-            Pāli canonical text is public domain. Sujato's renderings are CC0 via SuttaCentral.
-            Thanissaro Bhikkhu's are CC BY-NC via Access to Insight. Other quotations are
-            short fair-use excerpts linked to their sources.
-          </p>
-        </footer>
       </div>
     </div>
   );
