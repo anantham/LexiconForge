@@ -66,31 +66,35 @@ export const omManiPadmeHum: LiturgyDoc = {
           paliDeva: 'ॐ मणि पद्मे हूँ',
           scripts: [
             { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Oṃ maṇi padme hūṃ' },
-            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'ॐ मणि पद्मे हूँ' },
+            {
+              lang: 'sa-Deva',
+              label: 'Sanskrit (Devanāgarī)',
+              text: 'ॐ मणि पद्मे हूँ',
+              transliteration: 'Oṃ maṇi padme hūṃ',
+            },
             {
               lang: 'bo-Tibt',
               label: 'Tibetan',
               text: 'ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ',
               source: 'Tibetan transmission via the Kāraṇḍavyūha Sūtra lineage',
-              // Group ma + ṇi as one concept-unit so it maps to Sanskrit maṇi.
-              // Tibetan splits maṇi into two tsek-separated syllables.
               tokens: ['ཨོཾ', 'མ་ཎི', 'པདྨེ', 'ཧཱུྃ'],
+              transliteration: 'Om ma-ṇi pe-me hung  (Lhasa Tibetan phonetic)',
             },
             {
               lang: 'zh-Hant',
               label: 'Chinese (Hanzi)',
               text: '唵嘛呢叭咪吽',
               source: 'Han Buddhism phonetic transliteration',
-              // Group 嘛呢 = maṇi and 叭咪 = padme so the 6 Chinese
-              // characters map cleanly onto the 4 Sanskrit words.
               tokens: ['唵', '嘛呢', '叭咪', '吽'],
+              transliteration: 'ǎn  má-ní  bā-mī  hōng  (Mandarin pinyin)',
             },
             {
               lang: 'ja-Jpan',
               label: 'Japanese (Shingon)',
               text: '唵嘛呢叭咪吽',
-              source: 'Shingon esoteric tradition; pronounced "On-mani-padme-un"',
+              source: 'Shingon esoteric tradition',
               tokens: ['唵', '嘛呢', '叭咪', '吽'],
+              transliteration: 'On  ma-ni  pa-do-me  un  (Sino-Japanese)',
             },
           ],
           witnesses: [

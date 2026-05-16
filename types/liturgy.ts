@@ -207,6 +207,19 @@ export type ScriptVariant = {
    * for them left-to-right and emits everything between as a gap token.
    */
   tokens?: string[];
+  /**
+   * Optional Roman / phonetic transliteration of the whole line. Rendered
+   * as a smaller line beneath the script text when the reader has the
+   * "Show transliteration" setting on — so non-readers of Tibetan / Chinese
+   * / Sanskrit can still pronounce it. Use:
+   *   - pinyin for `zh-Hant` / `zh-Hans`
+   *   - romaji (Sino-Japanese) for `ja-Jpan`
+   *   - Tibetan phonetic ("chen-ré-zig" style) for `bo-Tibt`
+   *   - IAST for `sa-Deva` (matches the parallel `sa-Latn` content)
+   *
+   * Omit for `sa-Latn` / `pi-Latn` — those scripts are already Roman.
+   */
+  transliteration?: string;
 };
 
 export type TripleScriptWitnessSegment = {

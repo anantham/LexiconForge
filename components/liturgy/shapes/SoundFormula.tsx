@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { SoundFormulaSection, ScriptVariant } from '../../../types/liturgy';
 import { ProseBlock } from '../ProseBlock';
+import { useLiturgySettings } from '../LiturgySettings';
 
 /**
  * Shape: sound-formula — for dharanis and mantras where the *sound* is
@@ -45,16 +46,30 @@ function deriveScripts(section: SoundFormulaSection): ScriptVariant[] {
 }
 
 const FormulaLine: React.FC<{ variant: ScriptVariant }> = ({ variant }) => {
+  const { settings } = useLiturgySettings();
   const script = scriptSubtag(variant.lang);
   const fontFamily = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
+  const showTranslit =
+    settings.showTransliteration && script !== 'Latn' && Boolean(variant.transliteration);
   return (
-    <div
-      className="text-center text-2xl md:text-3xl leading-relaxed text-slate-100 tracking-wide select-text"
-      style={{ fontFamily, letterSpacing: script === 'Latn' ? '0.05em' : undefined }}
-      lang={variant.lang}
-    >
-      {variant.text}
-    </div>
+    <>
+      <div
+        className="text-center text-2xl md:text-3xl leading-relaxed text-slate-100 tracking-wide select-text"
+        style={{ fontFamily, letterSpacing: script === 'Latn' ? '0.05em' : undefined }}
+        lang={variant.lang}
+      >
+        {variant.text}
+      </div>
+      {showTranslit && (
+        <div
+          className="text-center text-slate-500 italic text-base mt-2 leading-relaxed select-text"
+          style={{ fontFamily: SCRIPT_FONT.Latn }}
+          aria-label={`Transliteration of ${variant.label}`}
+        >
+          {variant.transliteration}
+        </div>
+      )}
+    </>
   );
 };
 

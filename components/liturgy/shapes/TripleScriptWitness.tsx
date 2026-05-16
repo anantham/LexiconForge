@@ -78,6 +78,29 @@ function deriveScripts(seg: TripleScriptWitnessSegment): ScriptVariant[] {
 const SERIF_STACK = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
 const DEVA_STACK = "'Noto Serif Devanagari', 'Cardo', serif";
 
+/**
+ * Renders a small Roman / phonetic transliteration line beneath a non-Latin
+ * script. Only shows when the script variant carries a `transliteration`
+ * and the user's "Show transliteration" setting is on. Skipped for Latn —
+ * Roman scripts don't need a Roman gloss of themselves.
+ */
+const TransliterationLine: React.FC<{ variant: ScriptVariant }> = ({ variant }) => {
+  const { settings } = useLiturgySettings();
+  if (!settings.showTransliteration) return null;
+  if (!variant.transliteration) return null;
+  const script = scriptSubtag(variant.lang);
+  if (script === 'Latn') return null;
+  return (
+    <div
+      className="text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
+      style={{ fontFamily: SCRIPT_FONT.Latn }}
+      aria-label={`Transliteration of ${variant.label}`}
+    >
+      {variant.transliteration}
+    </div>
+  );
+};
+
 /** Tokenise a Roman Pāli line into hover-enabled words + plain gaps. */
 function tokenize(text: string): Array<{ kind: 'word' | 'gap'; text: string }> {
   const out: Array<{ kind: 'word' | 'gap'; text: string }> = [];
@@ -306,18 +329,21 @@ const HoverSpan: React.FC<{
   );
 };
 
-function tooltipForMorpheme(m: WordMorpheme): string {
+function tooltipForMorpheme(m: WordMorpheme, hidePron = false): string {
   // Plain-English tooltip — no grammar jargon. Root marker only when present
-  // (advanced reader cue, not required vocabulary).
+  // (advanced reader cue, not required vocabulary). `hidePron` is set when
+  // a transliteration line is rendered beneath the script; the line already
+  // shows pronunciation, so repeating `[pron]` here is redundant clutter
+  // that crowds out the gloss.
   const parts: string[] = [];
-  if (m.pronunciation) parts.push(`[${m.pronunciation}]`);
+  if (!hidePron && m.pronunciation) parts.push(`[${m.pronunciation}]`);
   if (m.root) parts.push(m.root);
   parts.push(m.gloss);
   return parts.filter(Boolean).join(' · ');
 }
 
-function tooltipForWord(w: WordGloss): string {
-  return [w.pronunciation ? `[${w.pronunciation}]` : '', w.etymology ?? '', w.gloss]
+function tooltipForWord(w: WordGloss, hidePron = false): string {
+  return [!hidePron && w.pronunciation ? `[${w.pronunciation}]` : '', w.etymology ?? '', w.gloss]
     .filter(Boolean)
     .join(' · ');
 }
@@ -332,7 +358,9 @@ const HoverWord: React.FC<{
    * into 般 + 若 with phonetic-loan tooltips.
    */
   morphemes?: WordMorpheme[];
-}> = ({ text, word, morphemes: morphemesOverride }) => {
+  /** Suppress the `[pronunciation]` prefix when a transliteration line is shown beneath. */
+  hidePron?: boolean;
+}> = ({ text, word, morphemes: morphemesOverride, hidePron = false }) => {
   const morphemes = morphemesOverride ?? word.morphemes;
   // If we have morphemes and they cleanly reconstruct the surface, render
   // one hover span per morpheme. Root morphemes render bold so the eye
@@ -346,7 +374,7 @@ const HoverWord: React.FC<{
             <HoverSpan
               key={i}
               text={piece.text}
-              tooltipText={tooltipForMorpheme(piece.morpheme)}
+              tooltipText={tooltipForMorpheme(piece.morpheme, hidePron)}
               bold={piece.morpheme.type === 'root'}
             />
           ))}
@@ -354,7 +382,7 @@ const HoverWord: React.FC<{
       );
     }
   }
-  return <HoverSpan text={text} tooltipText={tooltipForWord(word)} />;
+  return <HoverSpan text={text} tooltipText={tooltipForWord(word, hidePron)} />;
 };
 
 const PaliLine: React.FC<{
@@ -410,6 +438,13 @@ const PaliLine: React.FC<{
   // what alignment lines use; it counts only "word" tokens.
   let paliSurfaceIdx = -1;
 
+  // If a transliteration line will render beneath this script (set on the
+  // ScriptVariant + user's preference on), suppress the [pronunciation]
+  // prefix from word/morpheme tooltips — it'd be redundant with the line
+  // below and crowds out the gloss.
+  const hidePron =
+    settings.showTransliteration && script !== 'Latn';
+
   return (
     <div
       className={`text-slate-100 leading-loose ${sizeClass}`}
@@ -434,9 +469,10 @@ const PaliLine: React.FC<{
             text={t.text}
             word={word}
             morphemes={script === 'Latn' ? undefined : scriptMorphemes}
+            hidePron={hidePron}
           />
         ) : (
-          <HoverSpan text={t.text} tooltipText={tooltipForWord(word)} />
+          <HoverSpan text={t.text} tooltipText={tooltipForWord(word, hidePron)} />
         );
         return (
           <span
@@ -826,7 +862,9 @@ const SegmentRow: React.FC<{
           section level. Latin/Devanāgarī get per-word hover; CJK / Tibetan
           tokenise per-character/syllable unless the script variant carries
           a `tokens` hint, which groups multi-char compounds (般若, 波羅蜜多)
-          into single hover units. */}
+          into single hover units. If a `transliteration` is authored and
+          the user's setting is on, a smaller Roman line renders beneath
+          for pronunciation. */}
       <div
         className="text-center cursor-pointer select-text"
         onClick={onLineClick(onCycleScript)}
@@ -839,6 +877,7 @@ const SegmentRow: React.FC<{
           lang={activeScript.lang}
           tokens={activeScript.tokens}
         />
+        <TransliterationLine variant={activeScript} />
       </div>
 
       {/* English line — click cycles witness at the section level */}

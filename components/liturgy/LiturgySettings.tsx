@@ -12,10 +12,17 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 export type LiturgySettings = {
   /** Show subtle hue accents on refrain words (Buddhaṁ=sky, Dhammaṁ=amber, etc.). */
   showAccents: boolean;
+  /**
+   * Show a small Roman / phonetic transliteration line beneath non-Latin
+   * scripts (Chinese, Japanese, Tibetan, Devanāgarī). Helps readers who
+   * can't read the source script pronounce it.
+   */
+  showTransliteration: boolean;
 };
 
 const DEFAULT_SETTINGS: LiturgySettings = {
   showAccents: true,
+  showTransliteration: true,
 };
 
 const STORAGE_KEY = 'liturgy:settings';
@@ -100,6 +107,18 @@ export const SettingsButton: React.FC = () => {
           </label>
           <div className="text-[10px] text-slate-600 mt-1 leading-snug">
             Sky/amber/rose on Buddha/Dhamma/Sangha to mark the refrain rhythm.
+          </div>
+          <label className="flex items-center justify-between text-slate-300 cursor-pointer hover:text-slate-100 mt-4">
+            <span>Show transliteration</span>
+            <input
+              type="checkbox"
+              checked={settings.showTransliteration}
+              onChange={(e) => setSettings({ ...settings, showTransliteration: e.target.checked })}
+              className="accent-emerald-500"
+            />
+          </label>
+          <div className="text-[10px] text-slate-600 mt-1 leading-snug">
+            Roman / phonetic line beneath Chinese, Japanese, Tibetan, Devanāgarī — for pronunciation.
           </div>
         </div>
       )}
