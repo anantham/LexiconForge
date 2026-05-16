@@ -112,11 +112,14 @@ const WordPairToken: React.FC<{
   ]);
   const [activeSenseIdx, setActiveSenseIdx] = useState(0);
   const [hovered, setHovered] = useState(false);
-  const [fetched, setFetched] = useState(false);
 
+  // No `fetched` guard: lookupWord has its own per-process cache (in
+  // perWordTranslation.ts), so re-calling it is essentially free. This
+  // matters because glossary or apiKeys can change after first hover, and
+  // we need the next hover to surface the new alternatives.
   const handleMouseEnter = useCallback(async () => {
     setHovered(true);
-    if (fetched || !pair.source) return;
+    if (!pair.source) return;
     const alts = await lookupWord({
       sourceWord: pair.source,
       sourceLang: sourceLang || 'auto',
@@ -124,14 +127,16 @@ const WordPairToken: React.FC<{
       glossary,
       apiKeys,
     });
-    // Append alts that aren't duplicates of the current rendering
-    const existing = new Set(senses.map((s) => s.english));
-    const novel = alts.filter((a) => !existing.has(a.english));
-    if (novel.length > 0) {
-      setSenses((prev) => [...prev, ...novel]);
-    }
-    setFetched(true);
-  }, [pair.source, glossary, sourceLang, targetLang, apiKeys, fetched, senses]);
+    // Merge: keep the translation's own rendering as sense 0, append novel
+    // alternatives. Re-deduped on each hover so glossary/apiKeys changes
+    // surface immediately.
+    setSenses((prev) => {
+      const base = prev[0]?.english === pair.target ? [prev[0]] : [{ english: pair.target, provider: 'cache' as const }];
+      const existing = new Set(base.map((s) => s.english));
+      const novel = alts.filter((a) => !existing.has(a.english));
+      return [...base, ...novel];
+    });
+  }, [pair.source, pair.target, glossary, sourceLang, targetLang, apiKeys]);
 
   const handleClick = useCallback(() => {
     if (senses.length <= 1) return;

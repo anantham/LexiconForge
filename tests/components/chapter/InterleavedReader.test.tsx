@@ -133,10 +133,14 @@ describe('InterleavedReader', () => {
   });
 
   describe('hover & cycle behavior', () => {
-    it('triggers lookupWord on first mouseenter, not on subsequent re-hovers', async () => {
-      lookupWordSpy.mockResolvedValueOnce([
+    it('triggers lookupWord on every mouseenter (cache lives in perWordTranslation, not the component)', async () => {
+      // Bug previously hidden by component-level `fetched` flag: when glossary
+      // or apiKeys CHANGE after the first hover (e.g., user adds a glossary
+      // entry without leaving the chapter), the next hover would silently
+      // skip re-fetching. Fix: drop the flag, rely on perWordTranslation's
+      // own cache for dedup. Re-fetches are essentially free.
+      lookupWordSpy.mockResolvedValue([
         { english: 'mindfulness', provider: 'glossary' },
-        { english: 'memory', provider: 'glossary' },
       ]);
       const alignment = makeAlignment([
         { source: 'sati', target: 'mindfulness', sourceStart: 0, sourceEnd: 4, targetStart: 0, targetEnd: 11 },
@@ -145,15 +149,14 @@ describe('InterleavedReader', () => {
       const pair = screen.getByTestId('interleaved-pair');
 
       fireEvent.mouseEnter(pair);
-      // wait for state update
       await new Promise((r) => setTimeout(r, 10));
       expect(lookupWordSpy).toHaveBeenCalledTimes(1);
 
-      // Leave + re-enter should not re-fetch (cached at component level)
+      // Leave + re-enter — fetches again (perWordTranslation cache makes this cheap)
       fireEvent.mouseLeave(pair);
       fireEvent.mouseEnter(pair);
       await new Promise((r) => setTimeout(r, 10));
-      expect(lookupWordSpy).toHaveBeenCalledTimes(1);
+      expect(lookupWordSpy).toHaveBeenCalledTimes(2);
     });
 
     it('cycles through senses on click', async () => {

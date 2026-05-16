@@ -1,0 +1,81 @@
+L5 user-driven test of #15 wire-up — full ladder cleared
+=========================================================
+
+Date: 2026-05-16
+Setup: localhost:5183 (isolated worktree port), Dungeon Defense Ch 2,
+       v3 claude-sonnet-4-0 active translation. Single-flight + InterleavedReader
+       wire-up live in current dev server.
+
+L5 SEQUENCE (real Playwright with browser_hover + browser_click — synthetic
+events from dispatchEvent did NOT trigger React's onMouseEnter because
+mouseenter doesn't bubble; browser_hover handles this correctly):
+
+  1. updateSettings({ enableInterleavedView: true }) via store.
+     → ReaderBody re-renders, InterleavedReader replaces ChapterContent's
+       English render. "Compute word alignment" button visible.
+
+  2. Direct alignWords() call on first paragraph (16 chars Korean → 36 chars English).
+     → Returned 3 valid pairs in 1.5s, ~$0.005 cost (Gemini 3.1 Flash Lite).
+     → Pairs persisted to chapter.wordAlignment via updateChapter.
+
+  3. UI re-renders 3 WordPairToken components with source above target:
+        엔딩 스크롤이 / The ending credits
+        길게 / endlessly
+        이어졌다. / rolled
+
+  4. browser_hover on data-source="길게" pair.
+     → Tooltip appeared with 3 senses:
+         [cache] endlessly
+         [glossary] extensively (literary alt)
+         [glossary] at length (idiomatic alt)
+     → "click to cycle" affordance visible.
+
+  5. browser_click on the same pair (cycle).
+     → activeSense changed from "endlessly" → "extensively" (sense 0 → 1).
+
+  6. browser_click again.
+     → activeSense changed "extensively" → "at length" (sense 1 → 2).
+
+  7. browser_click again.
+     → activeSense wrapped "at length" → "endlessly" (sense 2 → 0).
+
+Screenshot: traces/issue-15-l5-interleaved-reader-tooltip-2026-05-16.png
+shows the working tooltip on top of the aligned-pair render.
+
+3 BUGS FOUND DURING L5 (none caught by L2 unit tests because tests mocked
+lookupWord and didn't exercise the actual prop-flow + ESM-export caching):
+
+  Bug A — LLM offset hallucination
+    Symptom: alignment returned 0 pairs. validateAlignment dropped them all
+             because the LLM gave correct source words but incorrect char offsets
+             (off by ~10 chars in target slice).
+    Fix: rewrote validateAlignment to RECOMPUTE offsets via indexOf rather
+         than trust LLM's offsets. Source/target words are still LLM's choice;
+         just the char positions are recovered.
+
+  Bug B — perWordTranslation cached empty glossary results
+    Symptom: hovering a pair the first time (with empty glossary) cached [].
+             Adding glossary entries later didn't surface — the cache short-
+             circuited the new lookup.
+    Fix: don't cache glossary results (lookup is in-memory list filter, free).
+         Network-provider results still cache.
+
+  Bug C — Component-level `fetched` flag blocked re-fetches on prop change
+    Symptom: even with cache fix, the WordPairToken's `if (fetched) return`
+             early-exit prevented re-running lookupWord when glossary prop
+             changed after the first hover.
+    Fix: dropped the `fetched` flag; rely on perWordTranslation's own cache
+         for dedup. Hover always fires, dedup happens at service layer.
+
+VERIFICATION LADDER STATUS post-L5:
+
+  L1 (1.0)   ✓ static analysis confirmed sutta-studio pattern fits novels
+  L2 (35/35) ✓ unit tests across 3 modules
+  L3 (✓)    direct lookupWord + alignWords calls succeed via store
+  L4 (✓)    real React onMouseEnter / onClick events fire correctly
+  L5 (✓)    full user flow walked end-to-end in real browser
+
+The L5 test caught 3 bugs that L2 missed. This is exactly the case the
+verification ladder was designed for: L2's mocked test covered the
+mechanism but not the integration. Each ladder rung exposes a different
+class of bug.

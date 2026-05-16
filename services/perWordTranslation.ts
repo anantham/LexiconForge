@@ -196,36 +196,42 @@ export async function lookupWord(req: PerWordRequest): Promise<Sense[]> {
   const results: Sense[] = [];
 
   for (const p of providers) {
-    const key = cacheKey(p, req.sourceLang, targetLang, req.sourceWord);
-    const cached = cache.get(key);
-    if (cached) {
-      results.push(...cached);
-      continue;
-    }
-
     let senses: Sense[] = [];
+
     if (p === 'glossary') {
+      // No cache for glossary: lookup is in-memory list filter (free), and
+      // caching the empty-result blocks new lookups when the user adds
+      // glossary entries after first hover. Re-run on every call.
       senses = lookupGlossary(req.sourceWord, req.glossary);
-    } else if (p === 'deepl') {
-      senses = await lookupDeepL(
-        req.sourceWord,
-        req.sourceLang,
-        targetLang,
-        req.apiKeys?.deepl,
-        req.abortSignal,
-      );
-    } else if (p === 'google') {
-      senses = await lookupGoogle(
-        req.sourceWord,
-        req.sourceLang,
-        targetLang,
-        req.apiKeys?.google,
-        req.abortSignal,
-      );
+    } else {
+      // Network providers: cache hits skip the network entirely.
+      const key = cacheKey(p, req.sourceLang, targetLang, req.sourceWord);
+      const cached = cache.get(key);
+      if (cached) {
+        results.push(...cached);
+        continue;
+      }
+      if (p === 'deepl') {
+        senses = await lookupDeepL(
+          req.sourceWord,
+          req.sourceLang,
+          targetLang,
+          req.apiKeys?.deepl,
+          req.abortSignal,
+        );
+      } else if (p === 'google') {
+        senses = await lookupGoogle(
+          req.sourceWord,
+          req.sourceLang,
+          targetLang,
+          req.apiKeys?.google,
+          req.abortSignal,
+        );
+      }
+      // Cache network results (empty-results too — saves repeat API calls for missing terms).
+      cache.set(key, senses);
     }
 
-    // Cache regardless (empty-results too — saves repeat API calls for missing terms)
-    cache.set(key, senses);
     results.push(...senses);
   }
 

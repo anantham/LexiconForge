@@ -192,12 +192,26 @@ describe('perWordTranslation', () => {
   });
 
   describe('cache behavior', () => {
-    it('caches glossary lookups (no repeated work)', async () => {
+    it('does NOT cache glossary lookups (so live glossary changes surface immediately)', async () => {
+      // Bug fix during L5 testing: caching glossary results blocked new
+      // glossary entries from appearing on subsequent hovers. Glossary
+      // lookup is in-memory list filter (free), so caching is unnecessary.
       const glossary: GlossaryEntry[] = [{ source: 'sati', target: 'mindfulness' }];
       const r1 = await lookupWord({ sourceWord: 'sati', sourceLang: 'pi', glossary, providers: ['glossary'] });
-      // Modify glossary; cached result should not change
+      expect(r1).toEqual([{ english: 'mindfulness', provider: 'glossary', note: undefined }]);
+
+      // Glossary cleared → next call should reflect that, not cache
       const r2 = await lookupWord({ sourceWord: 'sati', sourceLang: 'pi', glossary: [], providers: ['glossary'] });
-      expect(r1).toEqual(r2);
+      expect(r2).toEqual([]);
+
+      // Glossary expanded → next call sees the new entry
+      const r3 = await lookupWord({
+        sourceWord: 'sati',
+        sourceLang: 'pi',
+        glossary: [{ source: 'sati', target: 'memory' }],
+        providers: ['glossary'],
+      });
+      expect(r3).toEqual([{ english: 'memory', provider: 'glossary', note: undefined }]);
     });
 
     it('caches DeepL lookups (no repeated network calls)', async () => {

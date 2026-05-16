@@ -102,19 +102,69 @@ Rules:
 - Verify your offsets actually point at the substrings you wrote.`;
 };
 
+/**
+ * Given LLM-produced pairs (source/target words + LLM-claimed offsets),
+ * RECOMPUTE the offsets by searching for each source/target substring in
+ * the actual texts. The LLM is reliable at picking which words align but
+ * unreliable at character-precise offsets in CJK + reordered languages.
+ *
+ * Strategy:
+ *   - Walk pairs in source-order
+ *   - For each pair, find p.source starting from sourceCursor in source
+ *   - For each pair, find p.target starting from a flexible window in target
+ *   - Drop pairs whose source/target can't be located
+ *   - Advance cursors past each match to enforce monotonic source order
+ */
 const validateAlignment = (pairs: WordPair[], source: string, target: string): WordPair[] => {
-  // Filter pairs whose offsets don't actually match the substring.
-  // This guards against LLM hallucination of offsets.
-  return pairs.filter((p) => {
-    if (p.sourceStart < 0 || p.sourceEnd > source.length || p.sourceStart > p.sourceEnd) return false;
-    if (p.targetStart < 0 || p.targetEnd > target.length || p.targetStart > p.targetEnd) return false;
-    const actualSource = source.slice(p.sourceStart, p.sourceEnd);
-    if (actualSource !== p.source) return false;
-    if (p.target === '') return true; // dropped-in-translation case
-    const actualTarget = target.slice(p.targetStart, p.targetEnd);
-    if (actualTarget !== p.target) return false;
-    return true;
-  });
+  const out: WordPair[] = [];
+  let sourceCursor = 0;
+  let targetCursor = 0;
+
+  for (const p of pairs) {
+    if (typeof p.source !== 'string') continue;
+
+    // Locate source: must appear after sourceCursor (preserves order)
+    const sStart = source.indexOf(p.source, sourceCursor);
+    if (sStart === -1) continue; // can't find this source word; skip
+    const sEnd = sStart + p.source.length;
+
+    // Dropped-in-translation case: target='' with no offset constraint
+    if (p.target === '') {
+      out.push({
+        source: p.source,
+        target: '',
+        sourceStart: sStart,
+        sourceEnd: sEnd,
+        targetStart: targetCursor,
+        targetEnd: targetCursor,
+      });
+      sourceCursor = sEnd;
+      continue;
+    }
+
+    if (typeof p.target !== 'string') continue;
+
+    // Locate target. Allow some backtrack from targetCursor (translation may
+    // have minor reordering relative to source order). Don't allow infinite
+    // backtrack — limit to ~50 chars before cursor.
+    const searchFrom = Math.max(0, targetCursor - 50);
+    const tStart = target.indexOf(p.target, searchFrom);
+    if (tStart === -1) continue; // can't find this target word; skip
+    const tEnd = tStart + p.target.length;
+
+    out.push({
+      source: p.source,
+      target: p.target,
+      sourceStart: sStart,
+      sourceEnd: sEnd,
+      targetStart: tStart,
+      targetEnd: tEnd,
+    });
+    sourceCursor = sEnd;
+    targetCursor = tEnd;
+  }
+
+  return out;
 };
 
 export async function alignWords(req: AlignmentRequest): Promise<WordAlignment> {
@@ -154,6 +204,10 @@ export async function alignWords(req: AlignmentRequest): Promise<WordAlignment> 
     schema: ALIGNMENT_SCHEMA,
     schemaName: 'WordAlignment',
     structuredOutputs: true,
+    // Alignment output is large — typically ~50 chars per pair × N pairs.
+    // A 5K-char source chapter produces ~500-1500 pairs ≈ 25K-75K output chars.
+    // Set maxTokens generously; provider clamps to its own limit.
+    maxTokens: 65536,
     abortSignal,
     apiType: 'translation',
   });

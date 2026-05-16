@@ -102,22 +102,26 @@ describe('wordAlignment', () => {
       expect(result.pairs.map((p) => p.source)).toEqual(['hello', 'world']);
     });
 
-    it('keeps dropped-in-translation pairs (target="" with zero offsets)', async () => {
-      const source = 'こんにちは';
+    it('keeps dropped-in-translation pairs (target="" particle that disappears in translation)', async () => {
+      // Validation enforces source-order, so the dropped particle must appear
+      // before the consuming pair in source position.
+      const source = 'よ こんにちは';
       const target = 'hi';
       chatJSONSpy.mockResolvedValueOnce({
         text: JSON.stringify({
           pairs: [
-            { source: 'こんにちは', target: 'hi', sourceStart: 0, sourceEnd: 5, targetStart: 0, targetEnd: 2 },
-            // a hypothetical dropped particle
-            { source: 'こ', target: '', sourceStart: 0, sourceEnd: 1, targetStart: 0, targetEnd: 0 },
+            // Dropped-in-translation particle FIRST (at source pos 0)
+            { source: 'よ', target: '', sourceStart: 0, sourceEnd: 1, targetStart: 0, targetEnd: 0 },
+            // Then the consuming pair
+            { source: 'こんにちは', target: 'hi', sourceStart: 2, sourceEnd: 7, targetStart: 0, targetEnd: 2 },
           ],
         }),
       });
 
       const result = await alignWords({ source, target, settings: baseSettings });
       expect(result.pairs).toHaveLength(2);
-      expect(result.pairs[1]).toMatchObject({ source: 'こ', target: '' });
+      expect(result.pairs[0]).toMatchObject({ source: 'よ', target: '' });
+      expect(result.pairs[1]).toMatchObject({ source: 'こんにちは', target: 'hi' });
     });
 
     it('extracts JSON when LLM wraps it in markdown code fences', async () => {
