@@ -26,6 +26,9 @@ const resetStore = () => {
     error: null,
     urlLoadingStates: {},
     isLoading: { fetching: false, translating: false },
+    // prevent autoTranslateMediator from racing the test and calling handleTranslate,
+    // which would fail without an API key and set error (matches translation.test.ts:197).
+    viewMode: 'original',
   });
 };
 
