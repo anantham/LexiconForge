@@ -64,7 +64,10 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
   return (
     <LiturgySettingsProvider>
       <div className="min-h-screen bg-slate-950 text-slate-100">
-        {/* Thin nav at top, no big header — the Homage is the threshold */}
+        {/* Thin nav at top — back-link on the left, doc title centred,
+            settings on the right. The title sits quiet (small, uppercase,
+            low-contrast) so the opening section remains the visual threshold,
+            but the reader has a context cue for which chant they're on. */}
         <nav className="absolute top-4 left-6 text-xs z-10">
           <a
             href={backHref}
@@ -73,6 +76,11 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
             ← {backLabel}
           </a>
         </nav>
+        <header className="absolute top-4 left-0 right-0 text-center text-xs z-0 pointer-events-none px-32">
+          <h1 className="text-slate-500 uppercase tracking-[0.2em] truncate">
+            {doc.title}
+          </h1>
+        </header>
         <SettingsButton />
 
       {/* Sections — first one gets `isOpening` for the big stone-marker layout */}
