@@ -8,7 +8,7 @@ import type { AppSettings } from '../../../types';
 import type { AnatomistPass, CanonicalSegment } from '../../../types/suttaStudio';
 import { buildAnatomistPrompt } from '../prompts';
 import { buildPhaseStateEnvelope, parseJsonResponse } from '../utils';
-import { anatomistResponseSchema } from '../../suttaStudioPassPrompts';
+import { anatomistResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
 

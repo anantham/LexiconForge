@@ -7,7 +7,7 @@ import type { AppSettings } from '../../../types';
 import type { CanonicalSegment, PhaseView } from '../../../types/suttaStudio';
 import { buildMorphologyPrompt } from '../prompts';
 import { parseJsonResponse } from '../utils';
-import { morphResponseSchema } from '../../suttaStudioPassPrompts';
+import { morphResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
 
