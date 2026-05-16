@@ -62,8 +62,16 @@ export type Witness = {
 export type WordMorpheme = {
   /** The literal surface fragment, matching a substring of WordGloss.form (case-insensitive). */
   text: string;
-  /** Kind of morpheme. */
-  type: 'root' | 'prefix' | 'suffix' | 'stem';
+  /**
+   * Kind of morpheme. `root | prefix | suffix | stem` are the standard
+   * Indo-European decomposition types. `phonetic` and `semantic` cover
+   * Buddhist Chinese decompositions where each character either
+   * transliterates a Sanskrit syllable (phonetic loan — 般 for "pra-",
+   * 涅 for "nir-") or carries an actual meaning that contributes to the
+   * compound (semantic — 觀 "observe" + 自 "self" + 在 "exist" = the
+   * meaning of Avalokita).
+   */
+  type: 'root' | 'prefix' | 'suffix' | 'stem' | 'phonetic' | 'semantic';
   /** Concise meaning shown in the tooltip. */
   gloss: string;
   /** Pronunciation respelling for this morpheme specifically (optional; usually on the root). */
@@ -128,6 +136,18 @@ export type WordGloss = {
    * When absent, the whole word gets a single hover tooltip from etymology+gloss.
    */
   morphemes?: WordMorpheme[];
+  /**
+   * Per-script morpheme breakdowns keyed by BCP-47 lang tag. When the
+   * active script matches, the renderer uses this array (instead of
+   * `morphemes`) to split the token. Useful for Chinese:
+   *   - phonetic loans like 般若 = 般 ("pra-") + 若 ("-jñā")
+   *   - semantic doublets like 罣礙 = 罣 ("obstruct") + 礙 ("block")
+   *
+   * Each morpheme.text must be a substring of `scriptAlts[lang]` and the
+   * concatenation must reproduce the alt-form, same contract as the
+   * Latin morphemes.
+   */
+  scriptMorphemes?: { [lang: string]: WordMorpheme[] };
   /**
    * Citations grounding the etymology / gloss / pronunciation claims for
    * this word. Reuses the existing Citation type from types/suttaStudio.ts —

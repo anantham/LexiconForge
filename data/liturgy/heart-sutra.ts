@@ -147,6 +147,18 @@ export const heartSutra: LiturgyDoc = {
               form: 'Āryāvalokiteśvaro',
               scriptAlt: 'आर्यावलोकितेश्वरो',
               scriptAlts: { 'zh-Hant': '觀自在', 'ja-Jpan': '観自在' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '觀', type: 'semantic', pronunciation: 'guān', gloss: 'observe, contemplate, perceive — translates *avalokita* ("looking down")' },
+                  { text: '自', type: 'semantic', pronunciation: 'zì', gloss: 'self — paired with 在 to render *īśvara* ("sovereign")' },
+                  { text: '在', type: 'semantic', pronunciation: 'zài', gloss: 'present, sovereign — 自在 together = "freely existing, sovereign"' },
+                ],
+                'ja-Jpan': [
+                  { text: '観', type: 'semantic', pronunciation: 'kan', gloss: 'observe, contemplate — translates *avalokita*' },
+                  { text: '自', type: 'semantic', pronunciation: 'ji', gloss: 'self — with 在 renders *īśvara* "sovereign"' },
+                  { text: '在', type: 'semantic', pronunciation: 'zai', gloss: 'present, sovereign — 自在 ("jizai") = "freely existing"' },
+                ],
+              },
               pronunciation: 'AHR-yah-vah-loh-kee-TAYSH-vah-roh',
               etymology: '*ārya* "noble" + *avalokita* "looking down" + *īśvara* "lord"',
               gloss: 'the Noble Lord Avalokiteśvara — the bodhisattva of compassion',
@@ -177,6 +189,16 @@ export const heartSutra: LiturgyDoc = {
               form: 'bodhisattvo',
               scriptAlt: 'बोधिसत्त्वो',
               scriptAlts: { 'zh-Hant': '菩薩', 'ja-Jpan': '菩薩' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '菩', type: 'phonetic', pronunciation: 'pú', gloss: 'phonetic: transliterates "bo-" (from 菩提 *bodhi*); not a semantic character here' },
+                  { text: '薩', type: 'phonetic', pronunciation: 'sà', gloss: 'phonetic: transliterates "-(sa)ttva" (from 薩埵 *sattva*); 菩薩 is the abbreviation of the full 菩提薩埵' },
+                ],
+                'ja-Jpan': [
+                  { text: '菩', type: 'phonetic', pronunciation: 'bo', gloss: 'phonetic: transliterates "bo-" (*bodhi*)' },
+                  { text: '薩', type: 'phonetic', pronunciation: 'satsu', gloss: 'phonetic: transliterates "-(sa)ttva"; 菩薩 (*bosatsu*) abbreviates 菩提薩埵' },
+                ],
+              },
               pronunciation: 'boh-dee-SAHT-voh',
               etymology: '*bodhi* "awakening" + *sattva* "being"',
               gloss: 'awakening-being; one bound for full awakening but staying to liberate others',
@@ -201,6 +223,16 @@ export const heartSutra: LiturgyDoc = {
               form: 'prajñāpāramitācaryāṃ',
               scriptAlt: 'प्रज्ञापारमिताचर्यां',
               scriptAlts: { 'zh-Hant': '般若', 'ja-Jpan': '般若' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '般', type: 'phonetic', pronunciation: 'bān', gloss: 'phonetic: transliterates "pra-" — chosen for sound, the character\'s usual meaning ("kind of, sort") is unrelated' },
+                  { text: '若', type: 'phonetic', pronunciation: 'ruò', gloss: 'phonetic: transliterates "-jñā" — the character\'s usual meaning ("if, like") is unrelated' },
+                ],
+                'ja-Jpan': [
+                  { text: '般', type: 'phonetic', pronunciation: 'han', gloss: 'phonetic: transliterates "pra-" — read as "han" in 般若 (*hannya*)' },
+                  { text: '若', type: 'phonetic', pronunciation: 'nya', gloss: 'phonetic: transliterates "-jñā" — read as "nya" in 般若' },
+                ],
+              },
               pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-chahr-yahm',
               etymology: '*prajñā* "wisdom" + *pāramitā* "gone-beyond" + *caryā* "practice"',
               gloss: 'the practice of the perfection of wisdom — the activity that *is* this awakening',
@@ -226,6 +258,38 @@ export const heartSutra: LiturgyDoc = {
                   gloss: 'the practice (of [...])',
                   pronunciation: 'chahr-YAHM',
                 },
+              ],
+            },
+            // pāramitā as its own WordGloss — Sanskrit's compound is one
+            // word but Xuanzang's Chinese gives it 4 characters (波羅蜜多)
+            // that deserve their own hover. The phonetic decomposition
+            // below shows how each Chinese character borrows one syllable
+            // of Sanskrit's *pāramitā*.
+            {
+              form: 'pāramitā',
+              scriptAlt: 'पारमिता',
+              scriptAlts: { 'zh-Hant': '波羅蜜多', 'ja-Jpan': '波羅蜜多' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '波', type: 'phonetic', pronunciation: 'bō', gloss: 'phonetic: transliterates "pā-"; usually means "wave"' },
+                  { text: '羅', type: 'phonetic', pronunciation: 'luó', gloss: 'phonetic: transliterates "-ra-"; usually means "net, gauze"' },
+                  { text: '蜜', type: 'phonetic', pronunciation: 'mì', gloss: 'phonetic: transliterates "-mi-"; usually means "honey"' },
+                  { text: '多', type: 'phonetic', pronunciation: 'duō', gloss: 'phonetic: transliterates "-tā"; usually means "many, much"' },
+                ],
+                'ja-Jpan': [
+                  { text: '波', type: 'phonetic', pronunciation: 'ha', gloss: 'phonetic: transliterates "pā-" (read *ha* in 波羅蜜多 *haramita*)' },
+                  { text: '羅', type: 'phonetic', pronunciation: 'ra', gloss: 'phonetic: transliterates "-ra-"' },
+                  { text: '蜜', type: 'phonetic', pronunciation: 'mi', gloss: 'phonetic: transliterates "-mi-"' },
+                  { text: '多', type: 'phonetic', pronunciation: 'ta', gloss: 'phonetic: transliterates "-tā"' },
+                ],
+              },
+              pronunciation: 'pah-rah-mee-TAH',
+              etymology: 'Sanskrit *pāram-itā* — "gone to the other shore"',
+              gloss: 'perfection — literally "gone-to-the-other-shore"',
+              citations: [wikipediaCitation('Pāramitā')],
+              morphemes: [
+                { text: 'pāram', type: 'stem', gloss: 'the other shore — what awakening looks like from this shore', pronunciation: 'PAH-rahm' },
+                { text: 'itā', type: 'suffix', gloss: 'gone (past participle, feminine) — turning the noun into "having gone"', pronunciation: 'ee-TAH' },
               ],
             },
             {
@@ -310,6 +374,16 @@ export const heartSutra: LiturgyDoc = {
               form: 'vyavalokayati',
               scriptAlt: 'व्यवलोकयति',
               scriptAlts: { 'zh-Hant': '照見', 'ja-Jpan': '照見' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '照', type: 'semantic', pronunciation: 'zhào', gloss: 'illuminate, shine upon — the *avalok* "look down" with light' },
+                  { text: '見', type: 'semantic', pronunciation: 'jiàn', gloss: 'see, perceive — Xuanzang fuses *vyavalokayati* and *paśyati* into 照見' },
+                ],
+                'ja-Jpan': [
+                  { text: '照', type: 'semantic', pronunciation: 'shō', gloss: 'illuminate, shine upon' },
+                  { text: '見', type: 'semantic', pronunciation: 'ken', gloss: 'see, perceive — together 照見 (*shōken*) = "illuminate-and-see"' },
+                ],
+              },
               pronunciation: 'vyah-vah-loh-KAH-yah-tee',
               etymology: '*vi-* + *ava-* + √lok "look" — to look down/over carefully',
               gloss: 'examines closely, looks-down-upon — same √lok root as in *Avalokita*',
@@ -656,6 +730,16 @@ export const heartSutra: LiturgyDoc = {
               form: 'cittāvaraṇa',
               scriptAlt: 'चित्तावरण',
               scriptAlts: { 'zh-Hant': '罣礙', 'ja-Jpan': '罣礙' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '罣', type: 'semantic', pronunciation: 'guà', gloss: 'snare, catch — obstruct in the sense of "caught on something"' },
+                  { text: '礙', type: 'semantic', pronunciation: 'ài', gloss: 'block, hinder — paired doublet with 罣 for emphasis' },
+                ],
+                'ja-Jpan': [
+                  { text: '罣', type: 'semantic', pronunciation: 'ke', gloss: 'snare, catch (read *ke* in 罣礙 *kege*)' },
+                  { text: '礙', type: 'semantic', pronunciation: 'ge', gloss: 'block, hinder — doublet with 罣 = "obstruction"' },
+                ],
+              },
               pronunciation: 'CHEET-tah-VAH-rah-nah',
               etymology: '*citta* "mind" + *āvaraṇa* "obscuration, covering"',
               gloss: 'mental obscurations — the veils that hide things as they are',
@@ -668,6 +752,16 @@ export const heartSutra: LiturgyDoc = {
               form: 'atrasto',
               scriptAlt: 'अत्रस्तो',
               scriptAlts: { 'zh-Hant': '恐怖', 'ja-Jpan': '恐怖' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '恐', type: 'semantic', pronunciation: 'kǒng', gloss: 'fear, dread — the affective recoil' },
+                  { text: '怖', type: 'semantic', pronunciation: 'bù', gloss: 'terror — doublet with 恐 (Chinese often pairs near-synonyms for emphasis)' },
+                ],
+                'ja-Jpan': [
+                  { text: '恐', type: 'semantic', pronunciation: 'ku', gloss: 'fear (read *ku* in 恐怖 *kufu*)' },
+                  { text: '怖', type: 'semantic', pronunciation: 'fu', gloss: 'terror — doublet with 恐' },
+                ],
+              },
               pronunciation: 'ah-TRAHS-toh',
               etymology: '*a-* (negation) + *trasta* "afraid"',
               gloss: 'unafraid, fearless',
@@ -681,6 +775,16 @@ export const heartSutra: LiturgyDoc = {
               form: 'niṣṭhānirvāṇaḥ',
               scriptAlt: 'निष्ठानिर्वाणः',
               scriptAlts: { 'zh-Hant': '涅槃', 'ja-Jpan': '涅槃' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '涅', type: 'phonetic', pronunciation: 'niè', gloss: 'phonetic: transliterates "nir-"; the character\'s usual meaning ("black mud, dye") is unrelated' },
+                  { text: '槃', type: 'phonetic', pronunciation: 'pán', gloss: 'phonetic: transliterates "-vāṇa"; usual meaning ("plate, dish") is unrelated' },
+                ],
+                'ja-Jpan': [
+                  { text: '涅', type: 'phonetic', pronunciation: 'ne', gloss: 'phonetic: transliterates "nir-" (read *ne* in 涅槃 *nehan*)' },
+                  { text: '槃', type: 'phonetic', pronunciation: 'han', gloss: 'phonetic: transliterates "-vāṇa"' },
+                ],
+              },
               pronunciation: 'neesh-TAH-near-VAH-nah-h',
               etymology: '*niṣṭhā* "completion, end" + *nirvāṇa* "extinguishing"',
               gloss: 'final/complete nirvāṇa — the extinguishing of grasping that is the end of suffering',
@@ -703,6 +807,16 @@ export const heartSutra: LiturgyDoc = {
               form: 'viparyāsātikrānto',
               scriptAlt: 'विपर्यासातिक्रान्तो',
               scriptAlts: { 'zh-Hant': '顛倒', 'ja-Jpan': '顛倒' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '顛', type: 'semantic', pronunciation: 'diān', gloss: 'overturn, topple — having the right-side-up tipped over' },
+                  { text: '倒', type: 'semantic', pronunciation: 'dǎo', gloss: 'upside-down, fallen — doublet with 顛 = "inverted"' },
+                ],
+                'ja-Jpan': [
+                  { text: '顛', type: 'semantic', pronunciation: 'ten', gloss: 'overturn — read *ten* in 顛倒 (*tendō*)' },
+                  { text: '倒', type: 'semantic', pronunciation: 'dō', gloss: 'upside-down — doublet with 顛' },
+                ],
+              },
               pronunciation: 'vee-pahr-YAH-sah-tee-KRAHN-toh',
               etymology: '*viparyāsa* "inverted view" + *atikrānta* "crossed beyond"',
               gloss: 'having crossed beyond inverted views — past the four distortions (taking the impure as pure, the impermanent as permanent, etc.)',

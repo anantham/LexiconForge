@@ -325,12 +325,20 @@ function tooltipForWord(w: WordGloss): string {
 const HoverWord: React.FC<{
   text: string;
   word: WordGloss;
-}> = ({ text, word }) => {
-  // If the word has morphemes and they cleanly reconstruct the surface,
-  // render one hover span per morpheme — each independently tooltipped.
-  // Root morphemes render bold so the eye lands on the meaning-carrier.
-  if (word.morphemes && word.morphemes.length > 0) {
-    const split = splitByMorphemes(text, word.morphemes);
+  /**
+   * Override the morphemes used for sub-token splitting. When omitted,
+   * falls back to `word.morphemes` (Sanskrit/IAST). For CJK/Tibetan, the
+   * caller passes `word.scriptMorphemes[activeLang]` so e.g. 般若 splits
+   * into 般 + 若 with phonetic-loan tooltips.
+   */
+  morphemes?: WordMorpheme[];
+}> = ({ text, word, morphemes: morphemesOverride }) => {
+  const morphemes = morphemesOverride ?? word.morphemes;
+  // If we have morphemes and they cleanly reconstruct the surface, render
+  // one hover span per morpheme. Root morphemes render bold so the eye
+  // lands on the meaning-carrier.
+  if (morphemes && morphemes.length > 0) {
+    const split = splitByMorphemes(text, morphemes);
     if (split) {
       return (
         <>
@@ -413,10 +421,20 @@ const PaliLine: React.FC<{
         paliSurfaceIdx += 1;
         const word = matchWord(t.text, idx);
         const accentClass = settings.showAccents && word?.accent ? ACCENT_CLASS[word.accent] : '';
+        // Pick the right morpheme list for the active script: Latn uses
+        // the default `word.morphemes` (Sanskrit/IAST decomposition); other
+        // scripts use `word.scriptMorphemes[lang]` if authored (Chinese
+        // phonetic-loans, semantic doublets).
+        const scriptMorphemes =
+          word && script !== 'Latn' ? word.scriptMorphemes?.[lang] : undefined;
         const content = !word ? (
           t.text
-        ) : script === 'Latn' ? (
-          <HoverWord text={t.text} word={word} />
+        ) : script === 'Latn' || scriptMorphemes ? (
+          <HoverWord
+            text={t.text}
+            word={word}
+            morphemes={script === 'Latn' ? undefined : scriptMorphemes}
+          />
         ) : (
           <HoverSpan text={t.text} tooltipText={tooltipForWord(word)} />
         );
