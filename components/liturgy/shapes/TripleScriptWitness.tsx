@@ -754,12 +754,23 @@ const SegmentRow: React.FC<{
   // data-pali-idx positions correspond to Sanskrit word positions; CJK
   // and Tibetan use per-character / per-syllable indices that don't match
   // the witness's alignTo (which is in Sanskrit-word-index space).
+  //
+  // Layout-shift hazards we must defend against:
+  //   1. Window resize — covered by `resize` listener.
+  //   2. Internal layout shifts (script swap re-flows the line) — covered
+  //      by ResizeObserver on the container.
+  //   3. Async font load (e.g. Noto Serif Devanagari arrives ~50-200ms
+  //      after the script swaps to Deva, shifting word positions when
+  //      the fallback font is replaced) — covered by
+  //      `document.fonts.ready` recompute.
   useLayoutEffect(() => {
     if (!containerRef.current) return;
+    const container = containerRef.current;
     const activeScriptKind = scriptSubtag(activeScript.lang);
     const wordIndexed = activeScriptKind === 'Latn' || activeScriptKind === 'Deva';
+    let cancelled = false;
     const compute = () => {
-      if (!containerRef.current) return;
+      if (cancelled || !containerRef.current) return;
       if (!wordIndexed) {
         setLines([]);
         return;
@@ -770,9 +781,25 @@ const SegmentRow: React.FC<{
     const raf = requestAnimationFrame(compute);
     const onResize = () => compute();
     window.addEventListener('resize', onResize);
+
+    // Catch internal layout shifts (font load, sibling reflows, …).
+    const ro = new ResizeObserver(() => compute());
+    ro.observe(container);
+
+    // Defer one more recompute until web fonts settle. Devanāgarī /
+    // Tibetan / CJK fonts arrive async; the first measurement uses
+    // fallback metrics, the post-load measurement uses the real ones.
+    if (typeof document !== 'undefined' && (document as Document & { fonts?: FontFaceSet }).fonts) {
+      (document as Document & { fonts: FontFaceSet }).fonts.ready.then(() => {
+        if (!cancelled) compute();
+      });
+    }
+
     return () => {
+      cancelled = true;
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
+      ro.disconnect();
     };
   }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo, activeScript.lang]);
 
