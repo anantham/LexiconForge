@@ -6,9 +6,10 @@
  * follow Pāli grammar tradition. Each word carries citations grounding
  * the etymology + pronunciation in DPD / SC pronunciation guide.
  *
- * Pluralism principle: MAPLE chants this version; Sujato (SC, CC0) and
- * Thanissaro (ATI, CC BY-NC) are alternative witnesses surfaced under
- * click-to-cycle. None is canonical.
+ * Pluralism principle: the Pāli is the MAPLE chant-sheet form; published
+ * English witnesses (Buddharakkhita / Sujato / Thanissaro) surface under
+ * click-to-cycle. The "AI" English is an AI-drafted working version, not
+ * MAPLE's own — MAPLE's chant sheets carry the Pāli form. None canonical.
  */
 
 import type { LiturgyDoc, WordGloss } from '../../types/liturgy';
@@ -280,7 +281,7 @@ export const morningChants: LiturgyDoc = {
   order: 1,
   time: '4:35 AM',
   title: 'Morning Chants',
-  subtitle: 'Theravāda devotional sequence — chanted before breakfast at MAPLE',
+  subtitle: 'Theravāda devotional sequence, chanted before breakfast at MAPLE',
   tradition: 'theravada',
   sources: {
     canonical: [
@@ -305,7 +306,7 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'नमो तस्स भगवतो अरहतो सम्मासम्बुद्धस्स ॥',
           witnesses: [
             {
-              by: 'MAPLE',
+              by: 'AI',
               text: 'Homage to the Exalted, noble, and Fully Self-Enlightened One.',
               // Surface Pāli positions: 0=Namo · 1=tassa · 2=bhagavato · 3=arahato · 4=sammā · 5=sambuddhassa
               // English words:           0=Homage 1=to 2=the 3=Exalted, 4=noble, 5=and 6=Fully 7=Self-Enlightened 8=One.
@@ -354,7 +355,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Buddhaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'बुद्धं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'I take refuge in the Buddha.', alignTo: ALIGN.refuge_simple.maple },
+            { by: 'AI', text: 'I take refuge in the Buddha.', alignTo: ALIGN.refuge_simple.maple },
             { by: 'Sujato (SuttaCentral)', text: 'I go for refuge to the Buddha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_simple.sujato },
             { by: 'Thanissaro (Access to Insight)', text: 'I go to the Buddha for refuge.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: ALIGN.refuge_simple.thanissaro },
           ],
@@ -365,7 +366,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Dhammaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'धम्मं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'I take refuge in the Dhamma.', alignTo: ALIGN.refuge_simple.maple },
+            { by: 'AI', text: 'I take refuge in the Dhamma.', alignTo: ALIGN.refuge_simple.maple },
             { by: 'Sujato (SuttaCentral)', text: 'I go for refuge to the teaching.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_simple.sujato },
             { by: 'Thanissaro (Access to Insight)', text: 'I go to the Dhamma for refuge.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: ALIGN.refuge_simple.thanissaro },
           ],
@@ -376,7 +377,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Saṅghaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'सङ्घं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'I take refuge in the Sangha.', alignTo: ALIGN.refuge_simple.maple },
+            { by: 'AI', text: 'I take refuge in the Sangha.', alignTo: ALIGN.refuge_simple.maple },
             { by: 'Sujato (SuttaCentral)', text: 'I go for refuge to the Saṅgha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_simple.sujato },
             { by: 'Thanissaro (Access to Insight)', text: 'I go to the Sangha for refuge.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: ALIGN.refuge_simple.thanissaro },
           ],
@@ -388,7 +389,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Dutiyampi Buddhaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'दुतियम्पि बुद्धं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'For the second time, I take refuge in the Buddha.', alignTo: ALIGN.refuge_repeat.maple },
+            { by: 'AI', text: 'For the second time, I take refuge in the Buddha.', alignTo: ALIGN.refuge_repeat.maple },
             { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the Buddha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
           ],
           words: REFUGE_WORDS,
@@ -398,7 +399,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Dutiyampi Dhammaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'दुतियम्पि धम्मं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'For the second time, I take refuge in the Dhamma.', alignTo: ALIGN.refuge_repeat.maple },
+            { by: 'AI', text: 'For the second time, I take refuge in the Dhamma.', alignTo: ALIGN.refuge_repeat.maple },
             { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the teaching.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
           ],
           words: REFUGE_WORDS,
@@ -408,7 +409,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Dutiyampi Saṅghaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'दुतियम्पि सङ्घं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'For the second time, I take refuge in the Sangha.', alignTo: ALIGN.refuge_repeat.maple },
+            { by: 'AI', text: 'For the second time, I take refuge in the Sangha.', alignTo: ALIGN.refuge_repeat.maple },
             { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the Saṅgha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
           ],
           words: REFUGE_WORDS,
@@ -419,7 +420,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Tatiyampi Buddhaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'ततियम्पि बुद्धं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'For the third time, I take refuge in the Buddha.', alignTo: ALIGN.refuge_repeat.maple },
+            { by: 'AI', text: 'For the third time, I take refuge in the Buddha.', alignTo: ALIGN.refuge_repeat.maple },
             { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the Buddha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
           ],
           words: REFUGE_WORDS,
@@ -429,7 +430,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Tatiyampi Dhammaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'ततियम्पि धम्मं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'For the third time, I take refuge in the Dhamma.', alignTo: ALIGN.refuge_repeat.maple },
+            { by: 'AI', text: 'For the third time, I take refuge in the Dhamma.', alignTo: ALIGN.refuge_repeat.maple },
             { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the teaching.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
           ],
           words: REFUGE_WORDS,
@@ -439,7 +440,7 @@ export const morningChants: LiturgyDoc = {
           pali: 'Tatiyampi Saṅghaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'ततियम्पि सङ्घं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE', text: 'For the third time, I take refuge in the Sangha.', alignTo: ALIGN.refuge_repeat.maple },
+            { by: 'AI', text: 'For the third time, I take refuge in the Sangha.', alignTo: ALIGN.refuge_repeat.maple },
             { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the Saṅgha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
           ],
           words: REFUGE_WORDS,
@@ -462,8 +463,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'पाणातिपाता वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             // Surface: Pāṇātipātā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
-            // MAPLE: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) killing(7) living(8) beings.(9)
-            { by: 'MAPLE', text: 'I undertake the practice to refrain from killing living beings.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, 0] },
+            // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) killing(7) living(8) beings.(9)
+            { by: 'AI', text: 'I undertake the practice to refrain from killing living beings.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, 0] },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) killing(8) living(9) creatures.(10)
             { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from killing living creatures.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0, 0] },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) taking(8) life.(9)
@@ -492,8 +493,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'अदिन्नादाना वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             // Surface: Adinnādānā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
-            // MAPLE: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) taking(7) what(8) is(9) not(10) given.(11)
-            { by: 'MAPLE', text: 'I undertake the practice to refrain from taking what is not given.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, 0, 0, 0] },
+            // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) taking(7) what(8) is(9) not(10) given.(11)
+            { by: 'AI', text: 'I undertake the practice to refrain from taking what is not given.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, 0, 0, 0] },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) stealing.(8)
             { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from stealing.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0] },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) taking(8) what(9) is(10) not(11) given.(12)
@@ -528,8 +529,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'कामेसु मिच्छाचारा वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             // Surface: Kāmesu(0) micchācārā(1) veramaṇī(2) sikkhāpadaṁ(3) samādiyāmi.(4)
-            // MAPLE: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) sexual(7) misconduct.(8)
-            { by: 'MAPLE', text: 'I undertake the practice to refrain from sexual misconduct.', alignTo: [-1, 4, -1, 3, -1, 2, -1, 0, 1] },
+            // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) sexual(7) misconduct.(8)
+            { by: 'AI', text: 'I undertake the practice to refrain from sexual misconduct.', alignTo: [-1, 4, -1, 3, -1, 2, -1, 0, 1] },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) sexual(8) misconduct.(9)
             { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from sexual misconduct.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 4, -1, 3, 3, -1, 2, -1, 0, 1] },
             // Thanissaro: same as Sujato
@@ -567,8 +568,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'मुसावादा वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             // Surface: Musāvādā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
-            // MAPLE: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) false(7) speech.(8)
-            { by: 'MAPLE', text: 'I undertake the practice to refrain from false speech.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0] },
+            // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) false(7) speech.(8)
+            { by: 'AI', text: 'I undertake the practice to refrain from false speech.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0] },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) lying.(8)
             { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from lying.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0] },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) false(8) speech.(9)
@@ -604,8 +605,8 @@ export const morningChants: LiturgyDoc = {
           witnesses: [
             // Surface: Surāmerayamajjapamādaṭṭhānā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
             // The long compound (0) packs "fermented liquor + distilled liquor + intoxicants + heedlessness + cause".
-            // MAPLE: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) taking(7) intoxicants(8) which(9) cloud(10) the(11) mind(12) and(13) cause(14) heedlessness.(15)
-            { by: 'MAPLE', text: 'I undertake the practice to refrain from taking intoxicants which cloud the mind and cause heedlessness.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, -1, 0, -1, 0, -1, 0, 0] },
+            // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) taking(7) intoxicants(8) which(9) cloud(10) the(11) mind(12) and(13) cause(14) heedlessness.(15)
+            { by: 'AI', text: 'I undertake the practice to refrain from taking intoxicants which cloud the mind and cause heedlessness.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, -1, 0, -1, 0, -1, 0, 0] },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) alcoholic(8) drinks(9) that(10) cause(11) negligence.(12)
             { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from alcoholic drinks that cause negligence.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0, -1, 0, 0] },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) fermented(8) drinks(9) that(10) cause(11) heedlessness.(12)
@@ -646,8 +647,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'सब्ब पापस्स अकरणं,',
           witnesses: [
             // Surface: Sabba(0) pāpassa(1) akaraṇaṁ,(2)
-            // MAPLE: To(0) do(1) no(2) evil,(3)
-            { by: 'MAPLE', text: 'To do no evil,', alignTo: [-1, 2, 2, 1] },
+            // AI: To(0) do(1) no(2) evil,(3)
+            { by: 'AI', text: 'To do no evil,', alignTo: [-1, 2, 2, 1] },
             // Sujato: Not(0) to(1) do(2) any(3) evil;(4)
             { by: 'Sujato (SuttaCentral)', text: 'Not to do any evil;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [2, -1, 2, 0, 1] },
             // Buddharakkhita: To(0) avoid(1) all(2) evil,(3)
@@ -692,8 +693,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'कुसलस्स उपसम्पदा;',
           witnesses: [
             // Surface: kusalassa(0) upasampadā;(1)
-            // MAPLE: to(0) practice(1) good,(2)
-            { by: 'MAPLE', text: 'to practice good,', alignTo: [-1, 1, 0] },
+            // AI: to(0) practice(1) good,(2)
+            { by: 'AI', text: 'to practice good,', alignTo: [-1, 1, 0] },
             // Sujato: to(0) embrace(1) the(2) good;(3)
             { by: 'Sujato (SuttaCentral)', text: 'to embrace the good;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [-1, 1, -1, 0] },
             // Buddharakkhita: to(0) cultivate(1) good,(2)
@@ -730,8 +731,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'सचित्तपरियोदपनं,',
           witnesses: [
             // Surface: sacittapariyodapanaṁ,(0)  — one big compound word
-            // MAPLE: and(0) to(1) purify(2) one's(3) own(4) mind;(5)
-            { by: 'MAPLE', text: "and to purify one's own mind;", alignTo: [-1, -1, 0, 0, 0, 0] },
+            // AI: and(0) to(1) purify(2) one's(3) own(4) mind;(5)
+            { by: 'AI', text: "and to purify one's own mind;", alignTo: [-1, -1, 0, 0, 0, 0] },
             // Sujato: to(0) purify(1) one's(2) mind:(3)
             { by: 'Sujato (SuttaCentral)', text: "to purify one's mind:", url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [-1, 0, 0, 0] },
             // Buddharakkhita: and(0) to(1) cleanse(2) one's(3) mind(4) —(5)
@@ -760,8 +761,8 @@ export const morningChants: LiturgyDoc = {
           paliDeva: 'एतं बुद्धान सासनं॥',
           witnesses: [
             // Surface: etaṁ(0) buddhāna(1) sāsanaṁ.(2)
-            // MAPLE: this(0) is(1) the(2) teaching(3) of(4) the(5) Buddhas.(6)
-            { by: 'MAPLE', text: 'this is the teaching of the Buddhas.', alignTo: [0, -1, -1, 2, -1, -1, 1] },
+            // AI: this(0) is(1) the(2) teaching(3) of(4) the(5) Buddhas.(6)
+            { by: 'AI', text: 'this is the teaching of the Buddhas.', alignTo: [0, -1, -1, 2, -1, -1, 1] },
             // Sujato: this(0) is(1) the(2) instruction(3) of(4) the(5) Buddhas.(6)
             { by: 'Sujato (SuttaCentral)', text: 'this is the instruction of the Buddhas.', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [0, -1, -1, 2, -1, -1, 1] },
             // Buddharakkhita: same as MAPLE here
