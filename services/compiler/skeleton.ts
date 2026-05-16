@@ -3,7 +3,7 @@ import type { CanonicalSegment } from '../../types/suttaStudio';
 import { logPipelineEvent } from '../suttaStudioPipelineLog';
 import { callCompilerLLM } from './llm';
 import { buildSkeletonPrompt } from './prompts';
-import { skeletonResponseSchema } from './schemas';
+import { skeletonResponseSchema } from '../sutta-studio/schemas';
 import {
   chunkPhases,
   parseJsonResponse,
