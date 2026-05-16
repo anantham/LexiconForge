@@ -461,7 +461,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
-          note: 'To kill is to block the flow of life — gross or subtle. The literal: slaughtering animals to eat them, stepping on a bug while walking. The environmental: damming a river. The internal: killing the part of yourself that wants to be alive in this moment — reacting from habit instead of presence, being inauthentic, blocking your own life-force. Machines are dead things; the precept asks us not to make ourselves into one.',
+          note: 'To kill is to block the flow of life, gross or subtle. The literal: slaughtering animals to eat them, stepping on a bug while walking. The environmental: damming a river. The internal: killing the part of yourself that wants to be alive in this moment, reacting from habit instead of presence, being inauthentic, blocking your own life-force. Machines are dead things; the precept asks us not to make ourselves into one.',
         },
         {
           id: 'precept-2',
@@ -529,7 +529,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
-          note: 'Sensual pleasures of flesh, tongue, ears — so broad. Misconduct = respecting past commitments, protected by relationship (no incest, or protected by law), context — time, place, methods.',
+          note: 'Sensual pleasures of flesh, tongue, ears, so broad. Misconduct = respecting past commitments, protected by relationship (no incest, or protected by law), context (time, place, methods).',
         },
         {
           id: 'precept-4',
@@ -558,7 +558,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
-          note: 'To speak falsely is to block the flow of truth between us. Not only outright lies — but exaggeration to impress, agreement we don\'t mean, silence when something needs saying. And the falsity we tell ourselves: the stories that keep us from seeing what is. The precept extends inward and outward equally.',
+          note: 'Honesty is the practice by which we cooperate. To lie to someone else is to lie to yourself. We are all in this together. It is like your hand lying to your other hand. The more you practice lying, the more you start to believe your own lies. Then you lose the faith needed to be present in the moment, to trust yourself, to cooperate with all beings. Speech is one of the most powerful actions we have. The precept asks us not to warp it.',
         },
         {
           id: 'precept-5',
@@ -590,7 +590,7 @@ export const morningChants: LiturgyDoc = {
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
-          note: 'The precept names the *basis* of heedlessness. [[appamāda]] — heedfulness — paying attention to the present. The Buddha\'s last words: *appamādena sampādetha* — strive with heedfulness. The cultivation of mindfulness ([[sati]]) and its opposite, heedlessness (*pamāda*).',
+          note: 'The precept names the *basis* of heedlessness. [[appamāda]], heedfulness, paying attention to the present. The Buddha\'s last words: *appamādena sampādetha*, strive with heedfulness. The cultivation of mindfulness ([[sati]]) and its opposite, heedlessness (*pamāda*).',
         },
       ],
     },
