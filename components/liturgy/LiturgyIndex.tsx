@@ -151,24 +151,44 @@ export const LiturgyIndex: React.FC<{ sangha: Sangha }> = ({ sangha }) => {
           </div>
         </header>
 
-        {/* Daily rhythm — bell-icon timeline */}
+        {/* Daily rhythm — bell-icon timeline, with chant events clickable */}
         {sangha.schedule && sangha.schedule.length > 0 && (
           <div className="mb-12 p-5 rounded-lg border border-slate-800 bg-slate-900/30">
             <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-3">
               Daily rhythm
             </div>
-            <div className="space-y-2">
-              {sangha.schedule.map((ev, i) => (
-                <div key={i} className="flex items-center gap-3 text-slate-300">
-                  <span className="text-emerald-400/70 w-5 flex-shrink-0">
-                    <ScheduleIcon kind={ev.icon} />
-                  </span>
-                  <span className="text-xs uppercase tracking-widest text-slate-500 w-24 flex-shrink-0">
-                    {ev.time}
-                  </span>
-                  <span className="text-sm">{ev.event}</span>
-                </div>
-              ))}
+            <div className="space-y-1.5">
+              {sangha.schedule.map((ev, i) => {
+                const isChantLink = Boolean(ev.chantSlug);
+                const label = isChantLink ? (
+                  <a
+                    href={`/liturgy/${sangha.slug}/${ev.chantSlug}`}
+                    className="text-sm text-slate-200 hover:text-emerald-300 transition-colors"
+                  >
+                    {ev.event}
+                  </a>
+                ) : (
+                  <span className="text-sm text-slate-300">{ev.event}</span>
+                );
+                return (
+                  <div key={i} className="flex items-baseline gap-3">
+                    <span className="text-emerald-400/70 w-5 flex-shrink-0 self-center">
+                      <ScheduleIcon kind={ev.icon} />
+                    </span>
+                    <span className="text-xs uppercase tracking-widest text-slate-500 w-24 flex-shrink-0">
+                      {ev.time}
+                    </span>
+                    {isChantLink && !ev.icon ? (
+                      <span className="flex items-baseline gap-2">
+                        <span className="text-slate-700 text-xs">→</span>
+                        {label}
+                      </span>
+                    ) : (
+                      label
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

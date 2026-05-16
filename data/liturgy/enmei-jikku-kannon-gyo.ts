@@ -26,7 +26,6 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
   slug: 'enmei-jikku-kannon-gyo',
   sangha: 'maple',
   order: 2,
-  time: 'after morning chants',
   title: 'Enmē Jikku Kannon Gyō',
   subtitle: 'The Ten-Verse Sutra of Boundless Compassion — 延命十句觀音經',
   tradition: 'mahayana',

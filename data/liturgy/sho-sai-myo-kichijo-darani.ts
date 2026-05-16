@@ -24,7 +24,6 @@ export const shoSaiMyoKichijoDarani: LiturgyDoc = {
   slug: 'sho-sai-myo-kichijo-darani',
   sangha: 'maple',
   order: 3,
-  time: 'after Enmē Jikku Kannon Gyō',
   title: 'Sho Sai Myō Kichijō Darani',
   subtitle: 'The Marvelous Auspicious Dharani for Eliminating Disasters — 消災妙吉祥陀羅尼',
   tradition: 'mahayana',

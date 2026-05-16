@@ -38,7 +38,12 @@ export const SANGHAS: Record<string, Sangha> = {
     schedule: [
       { time: '4:15 AM', event: 'Wake-up bell', icon: 'bell' },
       { time: '4:35 AM', event: 'Morning chanting in the zendo', icon: 'cushion' },
-      { time: 'Evening', event: 'Before sleep — Oṃ Maṇi Padme Hūṃ', icon: 'rest' },
+      { time: '', event: 'Morning Chants', chantSlug: 'morning-chants' },
+      { time: '', event: 'Enmē Jikku Kannon Gyō', chantSlug: 'enmei-jikku-kannon-gyo' },
+      { time: '', event: 'Sho Sai Myō Kichijō Darani', chantSlug: 'sho-sai-myo-kichijo-darani' },
+      { time: '', event: 'Heart Sutra', chantSlug: 'heart-sutra' },
+      { time: 'Meditation', event: 'Jade Method', chantSlug: 'jade-method' },
+      { time: 'Evening', event: 'Oṃ Maṇi Padme Hūṃ — before sleep', icon: 'rest', chantSlug: 'om-mani-padme-hum' },
     ],
   },
 };

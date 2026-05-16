@@ -362,16 +362,27 @@ export type LiturgySourceRef = {
 /**
  * One milestone in a sangha's daily rhythm — the bell that wakes
  * everyone up, the start of chanting, work-period, meal, sitting,
- * evening close. Rendered as a small visual timeline on the
- * sangha-index page; chants placed in time-context, not as a flat list.
+ * evening close, or a specific chant in the morning service order.
+ * Rendered as a small visual timeline on the sangha-index page; chants
+ * placed in time-context, not as a flat list.
  */
 export type ScheduleEvent = {
-  /** Time-of-day in human-readable form ("4:15 AM", "before sleep", "after work period"). */
+  /**
+   * Time-of-day in human-readable form ("4:15 AM", "before sleep"). May
+   * be empty for events that follow the previous one in sequence (e.g.
+   * a chain of morning chants chanted in immediate succession).
+   */
   time: string;
   /** Short label for the event ("Wake-up bell", "Morning chanting begins"). */
   event: string;
   /** Optional icon hint — renderer maps to an SVG. */
   icon?: 'bell' | 'cushion' | 'meal' | 'walk' | 'work' | 'rest';
+  /**
+   * Optional chant slug. When present, the event label becomes a
+   * clickable link to `/liturgy/<sangha>/<chantSlug>`. Lets the daily
+   * rhythm itself serve as the morning-service navigation.
+   */
+  chantSlug?: string;
 };
 
 export type Sangha = {
