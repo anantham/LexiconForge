@@ -7,6 +7,7 @@ import type {
   WordMorpheme,
   AccentColor,
   Witness,
+  ScriptVariant,
 } from '../../../types/liturgy';
 
 // Accent → Tailwind text-color class. 300 level reads as a hint, not a shout,
@@ -21,6 +22,37 @@ const ACCENT_CLASS: Record<AccentColor, string> = {
 import { Tooltip } from '../../sutta-studio/Tooltip';
 import { ProseBlock } from '../ProseBlock';
 import { useLiturgySettings } from '../LiturgySettings';
+
+// Per-script font stacks. Latn/IAST uses Cardo (already loaded for diacritics).
+// Other scripts use Noto Serif Web Fonts pulled in index.html.
+const SCRIPT_FONT: Record<string, string> = {
+  Latn: "'Cardo', 'Gentium Plus', 'Noto Serif', serif",
+  Deva: "'Noto Serif Devanagari', 'Cardo', serif",
+  Tibt: "'Noto Serif Tibetan', 'Cardo', serif",
+  Hant: "'Noto Serif SC', serif",
+  Hans: "'Noto Serif SC', serif",
+  Jpan: "'Noto Serif JP', serif",
+  Hang: "'Noto Serif KR', serif",
+};
+
+/** Resolve the script subtag from a BCP-47 tag (e.g. "sa-Latn" → "Latn"). */
+function scriptSubtag(lang: string): string {
+  const parts = lang.split('-');
+  return parts.length >= 2 ? parts[1] : 'Latn';
+}
+
+/**
+ * Derive the list of scripts a segment supports. New chants populate
+ * `scripts` directly; legacy chants (morning-chants) use `pali` + `paliDeva`,
+ * which we splice into the same shape so the rest of the renderer doesn't
+ * branch on the data form.
+ */
+function deriveScripts(seg: TripleScriptWitnessSegment): ScriptVariant[] {
+  if (seg.scripts && seg.scripts.length > 0) return seg.scripts;
+  const out: ScriptVariant[] = [{ lang: 'pi-Latn', label: 'Pāli', text: seg.pali }];
+  if (seg.paliDeva) out.push({ lang: 'pi-Deva', label: 'Devanāgarī', text: seg.paliDeva });
+  return out;
+}
 
 /**
  * Shape: triple-script-witness — per-segment interleaved layout.
@@ -212,19 +244,38 @@ const PaliLine: React.FC<{
   words?: WordGloss[];
   large?: boolean;
   /**
-   * Which script the text is in. Both branches emit `data-pali-idx` keyed by
-   * surface-word position — so the alignTo array (English → Pāli word index)
-   * works unchanged across scripts. Morpheme splits are Roman-only (morphemes
-   * are authored as Roman fragments), so Devanāgarī falls back to word-level
-   * hover.
+   * BCP-47 lang tag of the text (e.g. `sa-Latn`, `sa-Deva`, `zh-Hant`,
+   * `bo-Tibt`, `ja-Jpan`). The renderer reads the script subtag:
+   *   - `Latn` → IAST tokenizer + per-word hover (WordGloss.form)
+   *   - `Deva` → Devanāgarī tokenizer + per-word hover (WordGloss.scriptAlt)
+   *   - anything else → render as styled plain text in the script's font;
+   *     no tokenization, no per-word hover (alignment from English won't
+   *     point here either).
    */
-  script: 'roman' | 'deva';
-}> = ({ text, words = [], large = false, script }) => {
+  lang: string;
+}> = ({ text, words = [], large = false, lang }) => {
   const { settings } = useLiturgySettings();
-  const idx = buildWordIndex(words, script === 'roman' ? 'form' : 'scriptAlt');
-  const tokens = script === 'roman' ? tokenize(text) : tokenizeDeva(text);
+  const script = scriptSubtag(lang);
   const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
-  const fontStack = script === 'roman' ? SERIF_STACK : DEVA_STACK;
+  const fontStack = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
+
+  // Non-Latn/non-Deva scripts: plain styled text. No tokenisation — Chinese
+  // / Japanese have no inter-word whitespace, Tibetan uses tsek separators
+  // we don't currently parse. Acceptable first cut; can extend per-script.
+  if (script !== 'Latn' && script !== 'Deva') {
+    return (
+      <div
+        className={`text-slate-100 leading-loose ${sizeClass}`}
+        style={{ fontFamily: fontStack }}
+        lang={lang}
+      >
+        {text}
+      </div>
+    );
+  }
+
+  const idx = buildWordIndex(words, script === 'Latn' ? 'form' : 'scriptAlt');
+  const tokens = script === 'Latn' ? tokenize(text) : tokenizeDeva(text);
 
   // Track surface-Pāli-word position separately from token index (which
   // includes whitespace/punctuation "gap" tokens). data-pali-idx is what
@@ -235,7 +286,7 @@ const PaliLine: React.FC<{
     <div
       className={`text-slate-100 leading-loose ${sizeClass}`}
       style={{ fontFamily: fontStack }}
-      lang={script === 'deva' ? 'pi-Deva' : undefined}
+      lang={lang}
     >
       {tokens.map((t, i) => {
         if (t.kind === 'gap') return <React.Fragment key={i}>{t.text}</React.Fragment>;
@@ -244,7 +295,7 @@ const PaliLine: React.FC<{
         const accentClass = settings.showAccents && word?.accent ? ACCENT_CLASS[word.accent] : '';
         const content = !word ? (
           t.text
-        ) : script === 'roman' ? (
+        ) : script === 'Latn' ? (
           <HoverWord text={t.text} word={word} />
         ) : (
           <HoverSpan text={t.text} tooltipText={tooltipForWord(word)} />
@@ -464,7 +515,8 @@ const AlignmentLines: React.FC<{ lines: Line[]; hovered: HoverTarget }> = ({
 
 const SegmentRow: React.FC<{
   segment: TripleScriptWitnessSegment;
-  script: 'roman' | 'deva';
+  /** Active script index (into deriveScripts(segment)). Clamped per-segment in case lengths differ. */
+  scriptIdx: number;
   /** Witness preference (by `.by` field). Falls back to first available. */
   preferredWitnessBy: string;
   /** Called when user clicks the English line — section cycles all segments. */
@@ -474,12 +526,14 @@ const SegmentRow: React.FC<{
   large?: boolean;
 }> = ({
   segment,
-  script,
+  scriptIdx,
   preferredWitnessBy,
   onCycleWitness,
   onCycleScript,
   large = false,
 }) => {
+  const segmentScripts = deriveScripts(segment);
+  const activeScript = segmentScripts[scriptIdx % segmentScripts.length] ?? segmentScripts[0];
   // Pick the witness whose `by` matches the section's preference, falling
   // back to the first available if this segment doesn't have it (e.g. some
   // refuge-repeat segments only have MAPLE + Sujato, no Thanissaro).
@@ -538,7 +592,7 @@ const SegmentRow: React.FC<{
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
     };
-  }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo, script]);
+  }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo, activeScript.lang]);
 
   // Hover detection via event delegation on the segment container.
   // mouseover bubbles up; we check whether the target sits inside any
@@ -622,19 +676,19 @@ const SegmentRow: React.FC<{
 
   return (
     <div className="mb-8 relative" id={segment.id} ref={containerRef}>
-      {/* Pāli line — click cycles script (Roman ↔ Devanāgarī) at the section level.
-          Both scripts go through PaliLine so each surface word gets a
-          `data-pali-idx`; alignment arrows work in either script. */}
+      {/* Pāli line — click cycles through the segment's scripts at the
+          section level. Latin/Devanāgarī get per-word hover; other scripts
+          (Chinese, Tibetan, Japanese …) render as plain styled text. */}
       <div
         className="text-center cursor-pointer select-text"
         onClick={onLineClick(onCycleScript)}
-        title="Click to swap script"
+        title={segmentScripts.length > 1 ? `Click to switch script (${activeScript.label})` : undefined}
       >
         <PaliLine
-          text={script === 'deva' && segment.paliDeva ? segment.paliDeva : segment.pali}
+          text={activeScript.text}
           words={segment.words}
           large={large}
-          script={script === 'deva' && segment.paliDeva ? 'deva' : 'roman'}
+          lang={activeScript.lang}
         />
       </div>
 
@@ -698,11 +752,11 @@ export const TripleScriptWitness: React.FC<{
   primaryWitness: string;
   isOpening?: boolean;
 }> = ({ section, primaryWitness, isOpening = false }) => {
-  // Section-level state: ONE script and ONE witness preference applies to
-  // every segment in this section. Click any English line → all English
-  // lines cycle to the next witness. Click any Pāli line → all swap to
-  // Devanāgarī (or back).
-  const [script, setScript] = useState<'roman' | 'deva'>('roman');
+  // Section-level state: ONE script-index and ONE witness preference apply
+  // to every segment in this section. Click any English line → all English
+  // lines cycle to the next witness. Click any Pāli line → all advance to
+  // the next script in the union of scripts across segments.
+  const [scriptIdx, setScriptIdx] = useState(0);
 
   // Union of witnesses across segments — section-level dots show the full
   // catalog even if a particular segment lacks one (e.g. refuge-repeat
@@ -715,6 +769,20 @@ export const TripleScriptWitness: React.FC<{
       }
     }
     return Array.from(seen.values());
+  }, [section.segments]);
+
+  // Union of scripts across segments — for the script-cycle ceiling. We
+  // count by max segment-script-count rather than dedupe by lang, because
+  // different segments may carry different orderings (e.g. one has SA-Latn
+  // + SA-Deva + ZH-Hant, another has SA-Latn + BO-Tibt). Cycling advances
+  // the index everywhere; each SegmentRow clamps internally to its own length.
+  const maxScripts = useMemo(() => {
+    let m = 1;
+    for (const seg of section.segments) {
+      const n = deriveScripts(seg).length;
+      if (n > m) m = n;
+    }
+    return m;
   }, [section.segments]);
 
   // Active witness preference (by name). Starts at the primary.
@@ -730,9 +798,8 @@ export const TripleScriptWitness: React.FC<{
     setWitnessIdx((w) => (w + 1) % allWitnesses.length);
   };
   const cycleScript = () => {
-    const hasDeva = section.segments.some((s) => s.paliDeva);
-    if (!hasDeva) return;
-    setScript((s) => (s === 'roman' ? 'deva' : 'roman'));
+    if (maxScripts <= 1) return;
+    setScriptIdx((s) => (s + 1) % maxScripts);
   };
 
   const sectionClass = isOpening
@@ -760,7 +827,7 @@ export const TripleScriptWitness: React.FC<{
             <SegmentRow
               key={seg.id}
               segment={seg}
-              script={script}
+              scriptIdx={scriptIdx}
               preferredWitnessBy={preferredWitnessBy}
               onCycleWitness={cycleWitness}
               onCycleScript={cycleScript}

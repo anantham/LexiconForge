@@ -11,10 +11,12 @@
 import type { LiturgyDoc } from '../../types/liturgy';
 import morningChants from './morning-chants';
 import omManiPadmeHum from './om-mani-padme-hum';
+import heartSutra from './heart-sutra';
 
 export const LITURGY_DOCS: Record<string, LiturgyDoc> = {
   [morningChants.slug]: morningChants,
   [omManiPadmeHum.slug]: omManiPadmeHum,
+  [heartSutra.slug]: heartSutra,
 };
 
 export const LITURGY_INDEX = Object.values(LITURGY_DOCS).map((doc) => ({

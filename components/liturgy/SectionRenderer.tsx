@@ -1,6 +1,7 @@
 import React from 'react';
 import type { LiturgySection } from '../../types/liturgy';
 import { TripleScriptWitness } from './shapes/TripleScriptWitness';
+import { SoundFormula } from './shapes/SoundFormula';
 import { ProseBlock } from './ProseBlock';
 
 /**
@@ -32,7 +33,9 @@ export const SectionRenderer: React.FC<{
           <ProseBlock text={section.body} />
         </section>
       );
-    // Future shapes: comparative-translation, verse-decomposed, sound-formula,
+    case 'sound-formula':
+      return <SoundFormula section={section} isOpening={isOpening} />;
+    // Future shapes: comparative-translation, verse-decomposed,
     // dedication-formula. Each gets its own component when authored.
     default: {
       const sectionAny = section as { shape: string; id: string };

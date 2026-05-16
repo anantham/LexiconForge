@@ -140,12 +140,48 @@ export type WordGloss = {
  * paired with "I take refuge in the Buddha."). The Homage is one segment
  * with one Pāli line.
  */
+/**
+ * One script representation of the source text. Used for chants whose
+ * canonical form lives in more than two scripts — e.g. the Heart Sutra is
+ * received in Sanskrit (IAST + Devanāgarī), Chinese (Xuanzang's 玄奘
+ * 7th-century recension), Tibetan, Japanese, Korean. A segment can carry
+ * many of these and the script-cycle UI cycles through all of them.
+ *
+ * `lang` is a BCP-47 tag (`sa-Latn`, `sa-Deva`, `zh-Hant`, `bo-Tibt`,
+ * `ja-Jpan`, …). The renderer reads the script subtag (`Latn`, `Deva`)
+ * to decide tokenisation + hover behaviour:
+ *   - `Latn` → IAST tokenizer + per-word hover (matches WordGloss.form)
+ *   - `Deva` → Devanāgarī tokenizer + per-word hover (matches WordGloss.scriptAlt)
+ *   - anything else → plain styled text, no tokenisation
+ *
+ * Backward-compat: if a segment lacks `scripts`, the renderer derives
+ * a two-element list from `pali` + `paliDeva` so existing chants are
+ * unchanged.
+ */
+export type ScriptVariant = {
+  /** BCP-47 tag — language + script subtag. */
+  lang: string;
+  /** Display label for the script-cycle indicator (e.g. "Sanskrit", "Chinese (Xuanzang)"). */
+  label: string;
+  /** The text in this script. */
+  text: string;
+  /** Optional source attribution / translator / recension note. */
+  source?: string;
+};
+
 export type TripleScriptWitnessSegment = {
   id: string;
   /** Pāli (Roman/IAST). One line typically, can be a short verse. */
   pali: string;
   /** Pāli in Devanāgarī. Same content, different script. */
   paliDeva?: string;
+  /**
+   * Optional N-ary multi-script representation. When present, the
+   * renderer's script-cycle ignores `pali` + `paliDeva` and cycles
+   * through these instead. Useful for trans-tradition chants (Heart Sutra
+   * in Sanskrit + Chinese + Tibetan + Japanese).
+   */
+  scripts?: ScriptVariant[];
   /**
    * Parallel English per witness. Each witness's text is the English for
    * THIS segment (not the whole section). Renderer pairs this segment's
@@ -207,8 +243,15 @@ export type SoundFormulaSection = {
   shape: 'sound-formula';
   /** The dharani as phonemes, line-broken for chanting cadence. */
   phonemes: string;
-  /** Native script (if known). */
+  /** Native script (if known) — single-script convenience field. */
   native?: string;
+  /**
+   * Alternative script representations. When present, the renderer cycles
+   * through them on click — same N-ary script model used in
+   * triple-script-witness. Use this when a dharani is received in more
+   * than one script-tradition (Sanskrit Devanāgarī + Chinese + Tibetan…).
+   */
+  scripts?: ScriptVariant[];
   /** Scholarly reconstruction notes — speculative Sanskrit etymology. */
   reconstruction?: string;
   /** A note acknowledging that semantic translation isn't the point of dharani. */
