@@ -539,7 +539,7 @@ const EnglishLine: React.FC<{
 // the witness's name — the name itself is the link (if a URL exists), so
 // the reader can move smoothly from hover → click without losing the popover.
 
-const WitnessDots: React.FC<{
+export const WitnessDots: React.FC<{
   witnesses: Witness[];
   activeIdx: number;
   onSelect: (idx: number) => void;
@@ -1038,27 +1038,24 @@ const SegmentNote: React.FC<{ text: string }> = ({ text }) => {
 
 export const TripleScriptWitness: React.FC<{
   section: TripleScriptWitnessSection;
-  primaryWitness: string;
+  /**
+   * Page-level witness preference. Each segment renders whichever of its
+   * witnesses matches `by`; falls back to the segment's first witness when
+   * the active one isn't present. Lifted to LiturgyChantPage so the picker
+   * lives once at the top instead of per-section.
+   */
+  preferredWitnessBy: string;
+  /**
+   * Cycle to the next witness at the page level. Clicking any English line
+   * inside this section invokes this; the page's WitnessDots updates with it.
+   */
+  onCycleWitness: () => void;
   isOpening?: boolean;
-}> = ({ section, primaryWitness, isOpening = false }) => {
-  // Section-level state: ONE script-index and ONE witness preference apply
-  // to every segment in this section. Click any English line → all English
-  // lines cycle to the next witness. Click any Pāli line → all advance to
-  // the next script in the union of scripts across segments.
+}> = ({ section, preferredWitnessBy, onCycleWitness, isOpening = false }) => {
+  // Section-level script index — kept local because different sections may
+  // legitimately have different active scripts (e.g. the title might be
+  // cycled to Hanzi while the body stays in Sino-Japanese).
   const [scriptIdx, setScriptIdx] = useState(0);
-
-  // Union of witnesses across segments — section-level dots show the full
-  // catalog even if a particular segment lacks one (e.g. refuge-repeat
-  // blocks have only MAPLE + Sujato; the union still shows Thanissaro).
-  const allWitnesses = useMemo(() => {
-    const seen = new Map<string, Witness>();
-    for (const seg of section.segments) {
-      for (const w of seg.witnesses) {
-        if (!seen.has(w.by)) seen.set(w.by, w);
-      }
-    }
-    return Array.from(seen.values());
-  }, [section.segments]);
 
   // Union of scripts across segments — for the script-cycle ceiling. We
   // count by max segment-script-count rather than dedupe by lang, because
@@ -1074,42 +1071,20 @@ export const TripleScriptWitness: React.FC<{
     return m;
   }, [section.segments]);
 
-  // Active witness preference (by name). Starts at the primary.
-  const witnessStart = Math.max(
-    0,
-    allWitnesses.findIndex((w) => w.by === primaryWitness)
-  );
-  const [witnessIdx, setWitnessIdx] = useState(witnessStart);
-  const preferredWitnessBy = allWitnesses[witnessIdx]?.by ?? '';
-
-  const cycleWitness = () => {
-    if (allWitnesses.length <= 1) return;
-    setWitnessIdx((w) => (w + 1) % allWitnesses.length);
-  };
   const cycleScript = () => {
     if (maxScripts <= 1) return;
     setScriptIdx((s) => (s + 1) % maxScripts);
   };
 
   const sectionClass = isOpening
-    ? 'min-h-[80vh] flex flex-col items-center justify-center px-6 py-16'
+    ? section.compactOpening
+      ? 'pt-24 pb-12 px-6 flex flex-col items-center'
+      : 'min-h-[80vh] flex flex-col items-center justify-center px-6 py-16'
     : 'pt-16 pb-16 px-6 border-t border-slate-900';
 
   return (
     <section className={sectionClass} id={section.id}>
       <div className="w-full max-w-3xl mx-auto">
-        {/* Section-level witness indicator — one row at the top, declaring
-            the sources from which all segments in this section are drawn. */}
-        {allWitnesses.length > 0 && (
-          <div className="mb-10 flex justify-center">
-            <WitnessDots
-              witnesses={allWitnesses}
-              activeIdx={witnessIdx}
-              onSelect={setWitnessIdx}
-            />
-          </div>
-        )}
-
         {/* Segments interleaved Pali + English */}
         <div className="space-y-2">
           {section.segments.map((seg) => (
@@ -1118,7 +1093,7 @@ export const TripleScriptWitness: React.FC<{
               segment={seg}
               scriptIdx={scriptIdx}
               preferredWitnessBy={preferredWitnessBy}
-              onCycleWitness={cycleWitness}
+              onCycleWitness={onCycleWitness}
               onCycleScript={cycleScript}
               large={section.large ?? isOpening}
             />

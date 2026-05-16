@@ -14,15 +14,19 @@ import { ProseBlock } from './ProseBlock';
 
 export const SectionRenderer: React.FC<{
   section: LiturgySection;
-  primaryWitness: string;
+  /** Page-level current witness `by` name. Used by triple-script-witness sections. */
+  preferredWitnessBy: string;
+  /** Page-level witness cycler. Invoked when the user clicks an English line. */
+  onCycleWitness: () => void;
   isOpening?: boolean;
-}> = ({ section, primaryWitness, isOpening }) => {
+}> = ({ section, preferredWitnessBy, onCycleWitness, isOpening }) => {
   switch (section.shape) {
     case 'triple-script-witness':
       return (
         <TripleScriptWitness
           section={section}
-          primaryWitness={primaryWitness}
+          preferredWitnessBy={preferredWitnessBy}
+          onCycleWitness={onCycleWitness}
           isOpening={isOpening}
         />
       );

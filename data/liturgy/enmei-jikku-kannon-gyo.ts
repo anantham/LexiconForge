@@ -47,6 +47,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
     {
       id: 'title',
       shape: 'triple-script-witness',
+      compactOpening: true,
       segments: [
         {
           id: 'title-segment',
@@ -70,6 +71,16 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             {
               by: 'MAPLE',
               text: 'The Ten-Verse Sutra of Boundless Compassion',
+            },
+            {
+              by: 'Soto Zen',
+              text: 'Ten-Line Kannon Sutra',
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'The Ten-Verse Kannon Sutra for Protecting Life',
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
             },
           ],
           words: [
@@ -129,6 +140,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               text: 'Kanzeon!',
               alignTo: [0],
             },
+            {
+              by: 'Soto Zen',
+              text: 'Kanzeon',
+              alignTo: [0],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Kanzeon!',
+              alignTo: [0],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
+            },
           ],
           words: [
             {
@@ -172,6 +195,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               by: 'MAPLE',
               text: 'Veneration to the Buddha',
               alignTo: [0, -1, -1, 1],
+            },
+            {
+              by: 'Soto Zen',
+              text: 'Paying homage to Buddha',
+              alignTo: [0, 0, 0, 1],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'I venerate the Buddha',
+              alignTo: [-1, 0, -1, 1],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
             },
           ],
           words: [
@@ -222,6 +257,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               text: 'We are one with the Buddha in cause',
               alignTo: [-1, -1, -1, 0, -1, 1, -1, 3],
             },
+            {
+              by: 'Soto Zen',
+              text: 'Forged a causal connection with Buddha',
+              alignTo: [3, -1, 3, 2, 0, 1],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Buddha is my source',
+              alignTo: [1, 2, -1, 3],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
+            },
           ],
           words: [
             { form: 'Yo', scriptAlts: { 'zh-Hant': '與' }, gloss: 'with, together with' },
@@ -259,6 +306,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               by: 'MAPLE',
               text: 'We are one with the Buddha in karmic connection',
               alignTo: [-1, -1, -1, 0, 1, -1, 3, -1, 3],
+            },
+            {
+              by: 'Soto Zen',
+              text: 'A karmic affinity with Buddha',
+              alignTo: [-1, 3, 3, 0, 1],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Buddha is my affinity',
+              alignTo: [1, 2, -1, 3],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
             },
           ],
           words: [
@@ -298,6 +357,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               text: 'Connected to Buddha, Dharma, Sangha',
               alignTo: [-1, 0, 1, 2, 3],
             },
+            {
+              by: 'Soto Zen',
+              text: 'A karmic affinity with Buddha, Dharma, and Sangha',
+              alignTo: [-1, 3, 3, -1, 0, 1, -1, 2],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Affinity with Buddha, Dharma, Sangha',
+              alignTo: [3, -1, 0, 1, 2],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
+            },
           ],
           words: [
             { form: 'Bup', scriptAlts: { 'zh-Hant': '佛' }, gloss: 'Buddha (shortened from *Butsu*)', accent: 'amber' },
@@ -330,6 +401,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               by: 'MAPLE',
               text: 'Eternity, Joy, Self, Purity',
               alignTo: [0, 1, 2, 3],
+            },
+            {
+              by: 'Soto Zen',
+              text: 'Thus attaining permanence, ease, selfhood, and purity',
+              alignTo: [-1, -1, 0, 1, 2, -1, 3],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Constancy, ease, assurance, purity',
+              alignTo: [0, 1, 2, 3],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
             },
           ],
           words: [
@@ -364,6 +447,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               text: 'Morning thought, Kanzeon',
               alignTo: [0, 1, 2],
             },
+            {
+              by: 'Soto Zen',
+              text: 'In the morning think of Kanzeon',
+              alignTo: [-1, -1, 0, 1, -1, 2],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Morning my thought is Kanzeon',
+              alignTo: [0, -1, 1, -1, 2],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
+            },
           ],
           words: [
             { form: 'Chō', scriptAlts: { 'zh-Hant': '朝' }, gloss: 'morning, dawn' },
@@ -395,6 +490,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               by: 'MAPLE',
               text: 'Evening thought, Kanzeon',
               alignTo: [0, 1, 2],
+            },
+            {
+              by: 'Soto Zen',
+              text: 'In the evening think of Kanzeon',
+              alignTo: [-1, -1, 0, 1, -1, 2],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Evening my thought is Kanzeon',
+              alignTo: [0, -1, 1, -1, 2],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
             },
           ],
           words: [
@@ -428,6 +535,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               text: 'Thought after thought arises in the heart-mind',
               alignTo: [0, 0, 0, 3, -1, -1, 2],
             },
+            {
+              by: 'Soto Zen',
+              text: 'Thought after thought arises from mind',
+              alignTo: [0, 0, 0, 3, 1, 2],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Thought after thought arises in the mind',
+              alignTo: [0, 0, 0, 3, -1, -1, 2],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
+            },
           ],
           words: [
             { form: 'Nen nen', scriptAlts: { 'zh-Hant': '念念' }, gloss: 'thought after thought, reduplication intensifies; "moment by moment". The *small-mind* / conditioned [[saṃskāra]] formations of consciousness' },
@@ -460,6 +579,18 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               by: 'MAPLE',
               text: 'Thought after thought, not separate from the heart-mind',
               alignTo: [0, 0, 0, 1, 2, -1, -1, 3],
+            },
+            {
+              by: 'Soto Zen',
+              text: 'Thought after thought is not separate from mind',
+              alignTo: [0, 0, 0, -1, 1, 2, -1, 3],
+              url: 'https://www.sotozen.com/eng/library/glossary/individual.html?key=ten_line_kannon_sutra',
+            },
+            {
+              by: 'Red Cedar Zen',
+              text: 'Thought after thought is not separate from mind',
+              alignTo: [0, 0, 0, -1, 1, 2, -1, 3],
+              url: 'https://www.redcedarzen.org/Enmei-Jukku-Kannon-Gyo',
             },
           ],
           words: [

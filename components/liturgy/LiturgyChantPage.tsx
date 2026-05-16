@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import type { LiturgyDoc, Sangha, Witness } from '../../types/liturgy';
 import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
 import { LiturgySettingsProvider, SettingsButton } from './LiturgySettings';
+import { WitnessDots } from './shapes/TripleScriptWitness';
 
 /**
  * Gather every unique English-translation witness used across the doc.
@@ -49,17 +50,19 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
 }) => {
   const backHref = sangha ? `/liturgy/${sangha.slug}` : '/liturgy';
   const backLabel = sangha ? sangha.name : 'Liturgy';
-  const witnesses = uniqueWitnesses(doc);
-  const primaryWitness = (() => {
-    for (const sec of doc.sections) {
-      if (sec.shape === 'triple-script-witness') {
-        for (const seg of sec.segments) {
-          if (seg.witnesses.length > 0) return seg.witnesses[0].by;
-        }
-      }
-    }
-    return '';
-  })();
+  const witnesses = useMemo(() => uniqueWitnesses(doc), [doc]);
+  const primaryWitness = witnesses[0]?.by ?? '';
+
+  // Page-level witness picker state. The dots row lives once at the top of
+  // the chant body; every triple-script-witness section honors the same
+  // selection. Sections that don't carry the active witness fall back to
+  // their own first witness at the segment level (per SegmentRow).
+  const [witnessIdx, setWitnessIdx] = useState(0);
+  const preferredWitnessBy = witnesses[witnessIdx]?.by ?? primaryWitness;
+  const cycleWitness = () => {
+    if (witnesses.length <= 1) return;
+    setWitnessIdx((w) => (w + 1) % witnesses.length);
+  };
 
   return (
     <LiturgySettingsProvider>
@@ -78,12 +81,27 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
         </nav>
         <SettingsButton />
 
+      {/* Page-level witness picker — one row of dots covering every
+          translation used anywhere in the doc. Hidden when there's only
+          one source (one dot is noise). Sits above the first section so
+          the source choice anchors the whole page, not per-section. */}
+      {witnesses.length > 1 && (
+        <div className="pt-12 pb-2 flex justify-center">
+          <WitnessDots
+            witnesses={witnesses}
+            activeIdx={witnessIdx}
+            onSelect={setWitnessIdx}
+          />
+        </div>
+      )}
+
       {/* Sections — first one gets `isOpening` for the big stone-marker layout */}
       {doc.sections.map((section, i) => (
         <SectionRenderer
           key={section.id}
           section={section}
-          primaryWitness={primaryWitness}
+          preferredWitnessBy={preferredWitnessBy}
+          onCycleWitness={cycleWitness}
           isOpening={i === 0}
         />
       ))}

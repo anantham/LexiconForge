@@ -272,6 +272,14 @@ export type TripleScriptWitnessSection = {
    * Defaults to the isOpening behavior when omitted.
    */
   large?: boolean;
+  /**
+   * When the section is the page's opening, default to a vertically-centred
+   * 80vh "stone marker" layout — good for a single recognizable line like the
+   * Namo Tassa homage. Set `compactOpening: true` for short title-like
+   * artifacts that shouldn't take a full viewport height before the chant
+   * body begins below.
+   */
+  compactOpening?: boolean;
 };
 
 export type ComparativeTranslationSection = {
