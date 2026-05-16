@@ -64,6 +64,35 @@ export const omManiPadmeHum: LiturgyDoc = {
           id: 'mantra-main',
           pali: 'Oṃ maṇi padme hūṃ',
           paliDeva: 'ॐ मणि पद्मे हूँ',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Oṃ maṇi padme hūṃ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'ॐ मणि पद्मे हूँ' },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ',
+              source: 'Tibetan transmission via the Kāraṇḍavyūha Sūtra lineage',
+              // Group ma + ṇi as one concept-unit so it maps to Sanskrit maṇi.
+              // Tibetan splits maṇi into two tsek-separated syllables.
+              tokens: ['ཨོཾ', 'མ་ཎི', 'པདྨེ', 'ཧཱུྃ'],
+            },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Hanzi)',
+              text: '唵嘛呢叭咪吽',
+              source: 'Han Buddhism phonetic transliteration',
+              // Group 嘛呢 = maṇi and 叭咪 = padme so the 6 Chinese
+              // characters map cleanly onto the 4 Sanskrit words.
+              tokens: ['唵', '嘛呢', '叭咪', '吽'],
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Shingon)',
+              text: '唵嘛呢叭咪吽',
+              source: 'Shingon esoteric tradition; pronounced "On-mani-padme-un"',
+              tokens: ['唵', '嘛呢', '叭咪', '吽'],
+            },
+          ],
           witnesses: [
             // Surface: Oṃ(0) maṇi(1) padme(2) hūṃ(3)
             // Locative: Om,(0) the(1) jewel(2) in(3) the(4) lotus,(5) Hum.(6)
@@ -90,9 +119,10 @@ export const omManiPadmeHum: LiturgyDoc = {
             {
               form: 'Oṃ',
               scriptAlt: 'ॐ',
+              scriptAlts: { 'bo-Tibt': 'ཨོཾ', 'zh-Hant': '唵', 'ja-Jpan': '唵' },
               pronunciation: 'ohm',
               etymology: '*praṇava* — the primordial sound; sometimes written A-U-M',
-              gloss: 'the sacred opening syllable; encompasses body, speech, and mind of all buddhas',
+              gloss: 'the sacred opening syllable; encompasses body, speech, and mind of all buddhas — Tibetan reading: purifies the body of all buddhas',
               accent: 'amber',
               citations: [
                 wikipediaCitation('Om'),
@@ -102,6 +132,24 @@ export const omManiPadmeHum: LiturgyDoc = {
             {
               form: 'maṇi',
               scriptAlt: 'मणि',
+              scriptAlts: { 'bo-Tibt': 'མ་ཎི', 'zh-Hant': '嘛呢', 'ja-Jpan': '嘛呢' },
+              scriptMorphemes: {
+                // Tibetan: maṇi spans two tsek-separated syllables — ma + ṇi.
+                // The trailing tsek is grouped with the first morpheme so the
+                // morpheme concatenation reproduces the surface "མ་ཎི".
+                'bo-Tibt': [
+                  { text: 'མ་', type: 'phonetic', pronunciation: 'ma', gloss: 'Ma — Tibetan tradition: ethics (*śīla*); purifies pride' },
+                  { text: 'ཎི', type: 'phonetic', pronunciation: 'ṇi', gloss: 'Ṇi — Tibetan tradition: patience (*kṣānti*); purifies attachment' },
+                ],
+                'zh-Hant': [
+                  { text: '嘛', type: 'phonetic', pronunciation: 'mā', gloss: 'Ma — phonetic char for the syllable ma' },
+                  { text: '呢', type: 'phonetic', pronunciation: 'ní', gloss: 'Ṇi — phonetic char for the syllable ṇi' },
+                ],
+                'ja-Jpan': [
+                  { text: '嘛', type: 'phonetic', pronunciation: 'ma', gloss: 'Ma — phonetic; Tibetan exegesis: ethics, purifies pride' },
+                  { text: '呢', type: 'phonetic', pronunciation: 'ni', gloss: 'Ṇi — phonetic; Tibetan exegesis: patience, purifies attachment' },
+                ],
+              },
               pronunciation: 'MAH-nee',
               etymology: 'Sanskrit *maṇi* — "jewel, gem"',
               gloss: 'jewel — represents *method*, compassion, the awakening mind ([[bodhicitta]])',
@@ -114,6 +162,20 @@ export const omManiPadmeHum: LiturgyDoc = {
             {
               form: 'padme',
               scriptAlt: 'पद्मे',
+              scriptAlts: { 'bo-Tibt': 'པདྨེ', 'zh-Hant': '叭咪', 'ja-Jpan': '叭咪' },
+              scriptMorphemes: {
+                // Tibetan: padme is written as one stacked syllable (pad with
+                // subjoined ma + e vowel), can't cleanly split orthographically
+                // — leave whole-token hover, no sub-morphemes for bo-Tibt.
+                'zh-Hant': [
+                  { text: '叭', type: 'phonetic', pronunciation: 'bā', gloss: 'Pad — Tibetan tradition: diligence (*vīrya*); purifies ignorance' },
+                  { text: '咪', type: 'phonetic', pronunciation: 'mī', gloss: 'Me — Tibetan tradition: concentration (*samādhi*); purifies greed' },
+                ],
+                'ja-Jpan': [
+                  { text: '叭', type: 'phonetic', pronunciation: 'pa', gloss: 'Pad — Tibetan exegesis: diligence, purifies ignorance' },
+                  { text: '咪', type: 'phonetic', pronunciation: 'me', gloss: 'Me — Tibetan exegesis: concentration, purifies greed' },
+                ],
+              },
               pronunciation: 'PUHD-meh',
               etymology: '*padma* "lotus" + locative or vocative ending *-e*',
               gloss: 'in the lotus (locative) — or "O Lotus One" (vocative) — represents *wisdom* ([[prajñā]])',
@@ -139,9 +201,10 @@ export const omManiPadmeHum: LiturgyDoc = {
             {
               form: 'hūṃ',
               scriptAlt: 'हूँ',
+              scriptAlts: { 'bo-Tibt': 'ཧཱུྃ', 'zh-Hant': '吽', 'ja-Jpan': '吽' },
               pronunciation: 'hoong',
               etymology: '*bīja* — a "seed" syllable; mantric, not lexical',
-              gloss: 'the sacred closing seed-syllable; indivisibility of method and wisdom — what was held apart is unified',
+              gloss: 'the sacred closing seed-syllable; indivisibility of method and wisdom — Tibetan reading: wisdom (*prajñā*); purifies aggression',
               accent: 'violet',
               citations: [
                 wikipediaCitation('Bīja'),
