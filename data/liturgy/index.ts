@@ -20,6 +20,8 @@ import morningChants from './morning-chants';
 import enmeiJikkuKannonGyo from './enmei-jikku-kannon-gyo';
 import shoSaiMyoKichijoDarani from './sho-sai-myo-kichijo-darani';
 import heartSutra from './heart-sutra';
+import mettaSutta from './metta-sutta';
+import vows from './vows';
 import bodhicittaDedication from './bodhicitta-dedication';
 import jadeMethod from './jade-method';
 import omManiPadmeHum from './om-mani-padme-hum';
@@ -29,6 +31,8 @@ const ALL_DOCS: LiturgyDoc[] = [
   enmeiJikkuKannonGyo,
   shoSaiMyoKichijoDarani,
   heartSutra,
+  mettaSutta,
+  vows,
   bodhicittaDedication,
   jadeMethod,
   omManiPadmeHum,
