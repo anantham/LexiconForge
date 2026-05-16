@@ -264,6 +264,14 @@ export type TripleScriptWitnessSection = {
   repetitions?: number;
   /** Free-prose commentary, in a curator's voice (attributed at chant level). */
   commentary?: string;
+  /**
+   * Render segments with the larger "stone marker" text size, independent of
+   * whether this is the opening section. Use when a chant has a title-as-artifact
+   * section first (which gets isOpening + the 80vh centering), but the body that
+   * follows should stay visually weighty rather than drop a size level.
+   * Defaults to the isOpening behavior when omitted.
+   */
+  large?: boolean;
 };
 
 export type ComparativeTranslationSection = {

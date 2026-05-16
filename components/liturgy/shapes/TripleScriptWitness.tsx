@@ -1120,7 +1120,7 @@ export const TripleScriptWitness: React.FC<{
               preferredWitnessBy={preferredWitnessBy}
               onCycleWitness={cycleWitness}
               onCycleScript={cycleScript}
-              large={isOpening}
+              large={section.large ?? isOpening}
             />
           ))}
         </div>

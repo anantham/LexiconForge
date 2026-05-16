@@ -45,9 +45,65 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
     'Curation by Aditya. Sino-Japanese phonetic + Hanzi forms transcribed directly from the MAPLE chant sheet. English rendering combines standard published Zen translations.',
   sections: [
     {
+      id: 'title',
+      shape: 'triple-script-witness',
+      segments: [
+        {
+          id: 'title-segment',
+          pali: 'Enmē Jikku Kannon Gyō',
+          scripts: [
+            {
+              lang: 'ja-Jpan',
+              label: 'Sino-Japanese',
+              text: 'Enmē Jikku Kannon Gyō',
+              tokens: ['Enmē', 'Jikku', 'Kannon', 'Gyō'],
+            },
+            {
+              lang: 'zh-Hant',
+              label: 'Hanzi',
+              text: '延命十句觀音經',
+              tokens: ['延命', '十句', '觀音', '經'],
+              transliteration: 'Enmē  Jikku  Kannon  Gyō  (yán mìng shí jù guān yīn jīng in Mandarin)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE',
+              text: 'The Ten-Verse Sutra of Boundless Compassion',
+            },
+          ],
+          words: [
+            {
+              form: 'Enmē',
+              scriptAlts: { 'zh-Hant': '延命' },
+              gloss: 'Usually rendered "prolonging life" per the Hakuin tradition (延命). The alternative writing 円明 reads as "endless dimensions" or "boundlessness", the limitless nature of awakened compassion. Two chanting lineages, one practice.',
+            },
+            {
+              form: 'Jikku',
+              scriptAlts: { 'zh-Hant': '十句' },
+              gloss: 'Ten phrases. Ten verses. Each line short enough to hold in one breath.',
+            },
+            {
+              form: 'Kannon',
+              scriptAlts: { 'zh-Hant': '觀音' },
+              gloss: 'Avalokiteśvara, the bodhisattva of compassion. Literally "the perceiver of world-sounds". Invoked not as an external figure in a Buddha-heaven, but as the spirit of compassion within ourselves.',
+              accent: 'rose',
+              citations: [wikipediaCitation('Avalokiteśvara')],
+            },
+            {
+              form: 'Gyō',
+              scriptAlts: { 'zh-Hant': '經' },
+              gloss: 'Sutra, from the Sanskrit *sūtra* ("thread, suture"), the weaving together of the Buddha\'s teachings.',
+            },
+          ],
+        },
+      ],
+    },
+    {
       id: 'ten-phrases',
       shape: 'triple-script-witness',
       repetitions: 3,
+      large: true,
       segments: [
         {
           id: 'line-1-kan-ze-on',
@@ -417,18 +473,6 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
       ],
       commentary:
         'Hakuin Ekaku taught this chant widely in 18th-century Japan. The "ten phrases for prolonging life" framing comes from the legend that recitation extends a chanter\'s lifespan, but the operative work is the binding of every thought to compassion, morning and evening, moment after moment.',
-    },
-    {
-      id: 'framing',
-      shape: 'prose-commentary',
-      heading: 'Why these ten phrases',
-      body: 'Ten phrases. Each line short enough to hold in one breath. The text doesn\'t argue or unfold a doctrine; it names [[Kannon]] (the bodhisattva of compassion, Sanskrit *Avalokiteśvara*), affirms our kinship with the Buddha, and ties every thought arising in the heart-mind back to that kinship.\n\nChanted 3× as part of the morning service. The cadence matters more than the parsing.',
-    },
-    {
-      id: 'title-etymology',
-      shape: 'prose-commentary',
-      heading: 'The title, parsed',
-      body: '*Enmē Jikku Kannon Gyō*: every word does work.\n\n**Enmē** (延命 in the chant-sheet calligraphy; sometimes written 円明) is usually rendered "prolonging life" (per the Hakuin tradition), but the 円明 reading points to *endless dimensions* or *boundlessness*, the limitless nature of awakened compassion. The chanting traditions differ; the practice is the same.\n\n**Jikku** (十句) means "ten phrases" or "ten verses".\n\n**Kannon** (観音) is the Japanese name for [[Avalokiteśvara]], the bodhisattva of compassion.\n\n**Gyō** (経) means "sutra", from the Sanskrit *sūtra*, which literally means *thread* or *suture*, the weaving together of the Buddha\'s teachings.',
     },
   ],
 };
