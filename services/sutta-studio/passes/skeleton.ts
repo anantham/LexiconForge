@@ -14,7 +14,7 @@ import type { AppSettings } from '../../../types';
 import type { CanonicalSegment } from '../../../types/suttaStudio';
 import { buildSkeletonPrompt } from '../prompts';
 import { parseJsonResponse, type BoundaryNote, type SkeletonPhase } from '../utils';
-import { skeletonResponseSchema } from '../../suttaStudioPassPrompts';
+import { skeletonResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, SkeletonChunkResult, SkeletonRunResult } from './types';
 

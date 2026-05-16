@@ -13,7 +13,7 @@ import type {
 import { buildWeaverPrompt } from '../prompts';
 import { buildPhaseStateEnvelope, parseJsonResponse } from '../utils';
 import { tokenizeEnglish, type EnglishTokenInput } from '../../suttaStudioTokenizer';
-import { weaverResponseSchema } from '../../suttaStudioPassPrompts';
+import { weaverResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
 

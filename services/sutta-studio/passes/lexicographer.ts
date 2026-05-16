@@ -17,7 +17,7 @@ import type { AnatomistPass, CanonicalSegment, LexicographerPass } from '../../.
 import type { LexiconEntry } from '../../providers/types';
 import { buildLexicographerPrompt } from '../prompts';
 import { buildPhaseStateEnvelope, parseJsonResponse } from '../utils';
-import { lexicographerResponseSchema } from '../../suttaStudioPassPrompts';
+import { lexicographerResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
 

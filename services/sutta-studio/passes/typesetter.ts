@@ -12,7 +12,7 @@ import type {
 } from '../../../types/suttaStudio';
 import { buildTypesetterPrompt } from '../prompts';
 import { buildPhaseStateEnvelope, parseJsonResponse } from '../utils';
-import { typesetterResponseSchema } from '../../suttaStudioPassPrompts';
+import { typesetterResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
 

@@ -34,7 +34,7 @@ import {
 } from '../../services/sutta-studio/passes';
 import { buildPhasePrompt } from '../../services/sutta-studio/prompts';
 import { buildPhaseStateEnvelope, parseJsonResponse } from '../../services/sutta-studio/utils';
-import { phaseResponseSchema } from '../../services/suttaStudioPassPrompts';
+import { phaseResponseSchema } from '../../services/sutta-studio/schemas';
 import { SUTTA_STUDIO_PROMPT_VERSION } from '../../services/suttaStudioPromptVersion';
 import { getModelPricing } from '../../services/capabilityService';
 import type { CanonicalSegment, PhaseView } from '../../types/suttaStudio';

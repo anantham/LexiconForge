@@ -73,7 +73,7 @@ import {
   phaseResponseSchema,
   typesetterResponseSchema,
   weaverResponseSchema,
-} from './schemas';
+} from '../sutta-studio/schemas';
 import {
   applyWordRangeToSegments,
   buildPhaseStateEnvelope,
