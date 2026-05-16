@@ -23,9 +23,15 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { TranslationRepository } from '../../../services/db/repositories/TranslationRepository';
 
 const makeRepo = () => {
-  // Construct repo. resolveChapterUrl + fetchTranslationsByUrl + fetchTranslationsByStableId
-  // are private; we override via `as any` since TypeScript private isn't runtime-enforced.
-  const repo = new TranslationRepository();
+  // Construct repo with stub deps. resolveChapterUrl + fetchTranslationsByUrl
+  // + fetchTranslationsByStableId are private; we override via `as any` after
+  // construction since TypeScript private isn't runtime-enforced.
+  const stubDeps = {
+    getDb: async () => ({}) as any,
+    getChapter: async () => null,
+    stores: { TRANSLATIONS: 'translations', CHAPTERS: 'chapters', URL_MAPPINGS: 'url_mappings' },
+  };
+  const repo = new TranslationRepository(stubDeps);
   return repo as any;
 };
 

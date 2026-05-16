@@ -78,6 +78,21 @@ const DisplayPanel: React.FC = () => {
           Show toast notifications
         </label>
       </div>
+      {/* Issue #15 — interleaved word-aligned reader. Replaces the English text
+          with source↔target word pairs and per-word lookup tooltips. Requires
+          a one-time alignment computation per chapter (LLM call). */}
+      <div className="mt-3 flex items-center gap-3">
+        <input
+          id="enableInterleavedView"
+          type="checkbox"
+          checked={currentSettings.enableInterleavedView ?? false}
+          onChange={(e) => handleSettingChange('enableInterleavedView', e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        <label htmlFor="enableInterleavedView" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Interleaved word-aligned reader (experimental)
+        </label>
+      </div>
     </fieldset>
   );
 };
