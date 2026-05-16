@@ -110,6 +110,76 @@ function tokenizeDeva(text: string): Array<{ kind: 'word' | 'gap'; text: string 
   return out;
 }
 
+/**
+ * Tokenise CJK text (Chinese / Japanese kanji + kana) into per-character
+ * tokens. No inter-word whitespace exists; each character is its own unit.
+ * Hiragana / katakana ranges are included so mixed-script Japanese works.
+ *
+ * Each character becomes a separately hoverable token. Tooltips depend on
+ * a WordGloss whose `scriptAlt` matches the character — multi-char terms
+ * are out of scope for this first cut (would need a tokenization hint
+ * field on the script variant).
+ */
+function tokenizeCJK(text: string): Array<{ kind: 'word' | 'gap'; text: string }> {
+  const out: Array<{ kind: 'word' | 'gap'; text: string }> = [];
+  // CJK Unified Ideographs + Extension A + Hiragana + Katakana
+  const wordRe = /^[一-鿿㐀-䶿぀-ゟ゠-ヿ]$/;
+  let runStart = 0;
+  let runIsNonCJK = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const isCJK = wordRe.test(ch);
+    if (isCJK) {
+      if (runStart < i && runIsNonCJK) {
+        out.push({ kind: 'gap', text: text.slice(runStart, i) });
+      } else if (runStart < i && !runIsNonCJK) {
+        // Flush prior CJK chars as individual word tokens
+        for (let j = runStart; j < i; j++) {
+          out.push({ kind: 'word', text: text[j] });
+        }
+      }
+      runStart = i;
+      runIsNonCJK = false;
+    } else {
+      if (runStart < i && !runIsNonCJK) {
+        for (let j = runStart; j < i; j++) {
+          out.push({ kind: 'word', text: text[j] });
+        }
+        runStart = i;
+      }
+      runIsNonCJK = true;
+    }
+  }
+  // Flush the tail
+  if (runStart < text.length) {
+    if (runIsNonCJK) {
+      out.push({ kind: 'gap', text: text.slice(runStart) });
+    } else {
+      for (let j = runStart; j < text.length; j++) {
+        out.push({ kind: 'word', text: text[j] });
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Tokenise Tibetan text into tsek-separated syllables. The tsek (U+0F0B)
+ * is the standard Tibetan syllable separator; shads (U+0F0D-U+0F0E) are
+ * sentence/clause punctuation.
+ */
+function tokenizeTibetan(text: string): Array<{ kind: 'word' | 'gap'; text: string }> {
+  const out: Array<{ kind: 'word' | 'gap'; text: string }> = [];
+  // Word = run of Tibetan letters/marks excluding tsek/shads.
+  const re = /([ༀ-༊༌༏-࿿]+|[^ༀ-༊༌༏-࿿]+)/g;
+  for (const m of text.matchAll(re)) {
+    const tok = m[0];
+    const isWord = /^[ༀ-༊༌༏-࿿]+$/.test(tok);
+    out.push({ kind: isWord ? 'word' : 'gap', text: tok });
+  }
+  return out;
+}
+
 function normalizeForMatch(s: string): string {
   return s.toLowerCase().replace(/[.,;:!?"'()\[\]।॥-]/g, '').trim();
 }
@@ -248,9 +318,13 @@ const PaliLine: React.FC<{
    * `bo-Tibt`, `ja-Jpan`). The renderer reads the script subtag:
    *   - `Latn` → IAST tokenizer + per-word hover (WordGloss.form)
    *   - `Deva` → Devanāgarī tokenizer + per-word hover (WordGloss.scriptAlt)
-   *   - anything else → render as styled plain text in the script's font;
-   *     no tokenization, no per-word hover (alignment from English won't
-   *     point here either).
+   *   - `Hant` / `Hans` / `Jpan` → per-character tokens
+   *   - `Tibt` → per-syllable (tsek-separated) tokens
+   *
+   * All branches emit `data-pali-idx` per token so hover detection fires,
+   * but only Latn/Deva positions correspond to Sanskrit word positions —
+   * SegmentRow disables alignment lines in CJK/Tibetan to prevent
+   * cross-position drift.
    */
   lang: string;
 }> = ({ text, words = [], large = false, lang }) => {
@@ -259,27 +333,32 @@ const PaliLine: React.FC<{
   const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
   const fontStack = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
 
-  // Non-Latn/non-Deva scripts: plain styled text. No tokenisation — Chinese
-  // / Japanese have no inter-word whitespace, Tibetan uses tsek separators
-  // we don't currently parse. Acceptable first cut; can extend per-script.
-  if (script !== 'Latn' && script !== 'Deva') {
-    return (
-      <div
-        className={`text-slate-100 leading-loose ${sizeClass}`}
-        style={{ fontFamily: fontStack }}
-        lang={lang}
-      >
-        {text}
-      </div>
-    );
-  }
+  const tokens = (() => {
+    switch (script) {
+      case 'Latn':
+        return tokenize(text);
+      case 'Deva':
+        return tokenizeDeva(text);
+      case 'Hant':
+      case 'Hans':
+      case 'Jpan':
+        return tokenizeCJK(text);
+      case 'Tibt':
+        return tokenizeTibetan(text);
+      default:
+        return [{ kind: 'gap' as const, text }];
+    }
+  })();
 
+  // For Latn/Deva, we match against the WordGloss list — Latn matches `.form`,
+  // Deva matches `.scriptAlt`. For CJK/Tibetan we don't currently match
+  // (would need per-script scriptAlts on WordGloss); tokens still emit
+  // data-pali-idx so hover lights them up via the SegmentRow detector.
   const idx = buildWordIndex(words, script === 'Latn' ? 'form' : 'scriptAlt');
-  const tokens = script === 'Latn' ? tokenize(text) : tokenizeDeva(text);
+  const canMatch = script === 'Latn' || script === 'Deva';
 
-  // Track surface-Pāli-word position separately from token index (which
-  // includes whitespace/punctuation "gap" tokens). data-pali-idx is what
-  // alignment lines use to find each word.
+  // Track surface position separately from token index. data-pali-idx is
+  // what alignment lines use; it counts only "word" tokens.
   let paliSurfaceIdx = -1;
 
   return (
@@ -291,7 +370,7 @@ const PaliLine: React.FC<{
       {tokens.map((t, i) => {
         if (t.kind === 'gap') return <React.Fragment key={i}>{t.text}</React.Fragment>;
         paliSurfaceIdx += 1;
-        const word = matchWord(t.text, idx);
+        const word = canMatch ? matchWord(t.text, idx) : undefined;
         const accentClass = settings.showAccents && word?.accent ? ACCENT_CLASS[word.accent] : '';
         const content = !word ? (
           t.text
@@ -576,12 +655,20 @@ const SegmentRow: React.FC<{
   }, [currentWitness?.alignTo, accentByPaliPos]);
 
   // Compute alignment lines after layout, recompute on resize / witness /
-  // script change. Without `script` in the deps, swapping to Devanāgarī
-  // would leave stale coordinates pointing at where Roman words used to be.
+  // script change. Alignment is only meaningful in Latn/Deva where
+  // data-pali-idx positions correspond to Sanskrit word positions; CJK
+  // and Tibetan use per-character / per-syllable indices that don't match
+  // the witness's alignTo (which is in Sanskrit-word-index space).
   useLayoutEffect(() => {
     if (!containerRef.current) return;
+    const activeScriptKind = scriptSubtag(activeScript.lang);
+    const wordIndexed = activeScriptKind === 'Latn' || activeScriptKind === 'Deva';
     const compute = () => {
       if (!containerRef.current) return;
+      if (!wordIndexed) {
+        setLines([]);
+        return;
+      }
       setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo));
     };
     compute();
