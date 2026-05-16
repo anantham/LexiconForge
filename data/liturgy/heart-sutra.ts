@@ -56,7 +56,7 @@ export const heartSutra: LiturgyDoc = {
     ],
   },
   curator:
-    "Curation by Aditya. Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. English witnesses sample three of the major scholarly + practitioner traditions (Conze, Red Pine, Thich Nhat Hanh).",
+    "Curation by Aditya. Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. English witnesses are MAPLE's chanting text (adapted from Master Sheng-yen, Chinese Chan lineage), followed by Conze (1958), Red Pine (2004), and Thich Nhat Hanh (2014). MAPLE is the primary witness — the version chanted in the community for whom this reader is built.",
   sections: [
     // ─────────────────────────────────────────────────────────────────────
     // 1. Framing
@@ -111,6 +111,16 @@ export const heartSutra: LiturgyDoc = {
             },
           ],
           witnesses: [
+            // MAPLE's chanting text, adapted from Master Sheng-yen (Chinese
+            // Chan lineage). Follows Xuanzang's Chinese tradition, which
+            // appends 度一切苦厄 ("overcame all suffering") not present in
+            // the Sanskrit — those tokens map to -1.
+            {
+              by: 'MAPLE (after Master Sheng-yen)',
+              text: 'Avalokiteśvara Bodhisatva, while going deep into transcendent wisdom, clearly saw that all five skandhas are empty, and overcame all suffering.',
+              alignTo: [0, 1, -1, 4, 2, -1, 3, 3, 5, 12, -1, -1, 7, 8, -1, 11, -1, -1, -1, -1],
+              license: 'MAPLE liturgy sheet — adapted from Sheng-yen',
+            },
             {
               by: 'Conze (1958)',
               text: 'Avalokita, the Holy Lord and Bodhisattva, was moving in the deep course of the Wisdom which has gone beyond. He looked down from on high, He beheld but five heaps, and He saw that in their own-being they were empty.',
@@ -309,6 +319,19 @@ export const heartSutra: LiturgyDoc = {
             //   "that(21) is(22) emptiness;(23)" → sā(14) -1 śūnyatā(15)
             //   "whatever(24) is(25) emptiness,(26)" → yā(16) -1 śūnyatā(17)
             //   "that(27) is(28) form.(29)" → tad(18) -1 rūpaṃ(19)
+            // MAPLE follows the Xuanzang Chinese order: "not different from"
+            // BEFORE the "is" identity. Sanskrit IAST has the reverse order,
+            // so MAPLE's alignment arrows cross visibly — that's the
+            // cross-tradition reordering made visual.
+            // The "preference / information / patterning / consciousness"
+            // tail extends to the other skandhas, which our truncated
+            // Sanskrit doesn't include — those tokens map to -1.
+            {
+              by: 'MAPLE (after Master Sheng-yen)',
+              text: 'Śāriputra, appearance is not different from emptiness. Emptiness is not different from appearance. Appearance itself is emptiness. Emptiness itself is appearance. So also are preference, information, patterning and consciousness.',
+              alignTo: [-1, 4, -1, 5, 6, -1, 7, 8, -1, 9, 10, -1, 11, 0, -1, -1, 1, 2, 2, -1, 3, -1, -1, -1, -1, -1, -1, -1, -1],
+              license: 'MAPLE liturgy sheet — adapted from Sheng-yen',
+            },
             {
               by: 'Conze (1958)',
               text: 'Form is emptiness, emptiness is form. Form does not differ from emptiness, emptiness does not differ from form. Whatever is form, that is emptiness; whatever is emptiness, that is form.',
@@ -411,6 +434,18 @@ export const heartSutra: LiturgyDoc = {
             },
           ],
           witnesses: [
+            // MAPLE's result-section text spans much more Sanskrit than our
+            // truncated segment — the "Bodhisattvasya prajñāpāramitām
+            // āśritya viharati …" opening and the "Tryadhvavyavasthitāḥ
+            // sarvabuddhāḥ …" closing are both omitted in our pali field.
+            // alignTo maps only the load-bearing centre (cittāvaraṇa →
+            // niṣṭhānirvāṇaḥ); the rest is -1.
+            {
+              by: 'MAPLE (after Master Sheng-yen)',
+              text: 'Bodhisatvas rely on transcendent wisdom and their minds have no obstruction; with no obstruction there is no fear. Passing far beyond confusion and delusion, they reach ultimate nirvana. All Buddhas of the past, present and future rely on transcendent wisdom, and attain unexcelled, perfect, complete enlightenment.',
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, 0, -1, 1, 0, -1, -1, -1, -1, -1, 2, 2, 3, 3, 3, 3, -1, 3, -1, 4, 4, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+              license: 'MAPLE liturgy sheet — adapted from Sheng-yen',
+            },
             {
               by: 'Conze (1958)',
               text: 'With no mental obstructions, he has no fears. He has overcome what can upset, and reaches in the end to Nirvāṇa.',
@@ -518,7 +553,7 @@ export const heartSutra: LiturgyDoc = {
       id: 'on-translation',
       shape: 'prose-commentary',
       heading: 'On translating the Heart Sutra',
-      body: 'No two English Heart Sutras are alike. Conze\'s "form is emptiness" reads philosophical; Red Pine\'s "form is emptiness" reads liturgical; Thich Nhat Hanh\'s "this Body itself is Emptiness" reads phenomenological. The Chinese 色即是空 is sharper than any English can be — *just is*, with no copula gap, no preposition. The Tibetan introduces its own scholastic clarifications. Each tradition has been chanting this for over a thousand years; each has put its hand on the text and shaped it.\n\nThe witnesses above are sampled, not exhausted. Karl Brunnhölzl\'s *The Heart Attack Sutra* (2012) offers a careful Tibetan-tradition scholarly reading; Mu Soeng\'s *The Heart of the Universe* (2010) reads it through Zen; H.H. the Dalai Lama\'s commentaries integrate the Tibetan exegetical tradition; the Buddhist Text Translation Society\'s edition follows the Hsuan Hua lineage. All of them are correct and none of them are.\n\nThe instruction the sutra gives, however, is not to translate it — but to chant it, and through chanting, to *go*: *gate gate*.',
+      body: 'No two English Heart Sutras are alike. MAPLE\'s chanting text — adapted by Soryu from Master Sheng-yen — translates *rūpa* as "appearance", *vedanā* as "preference", *saṃjñā* as "information", *saṃskāra* as "patterning". Each of those choices is a doctrinal claim. *Appearance* foregrounds the phenomenological — not "form" out there but what shows up. *Preference* names the affective skandha as the leaning-toward / leaning-away that precedes thought. *Information* and *patterning* read the cognitive skandhas in language a meditation practitioner can ground in lived experience. The mantra at the end is, in MAPLE\'s text, a "great spell" — preserving the magical-formula register that English typically tames.\n\nConze\'s "form is emptiness" reads philosophical; Red Pine\'s reads liturgical; Thich Nhat Hanh\'s "this Body itself is Emptiness" reads phenomenological. The Chinese 色即是空 is sharper than any English can be — *just is*, with no copula gap, no preposition. The Tibetan introduces its own scholastic clarifications. Each tradition has been chanting this for over a thousand years; each has put its hand on the text and shaped it.\n\nThe witnesses above are sampled, not exhausted. Karl Brunnhölzl\'s *The Heart Attack Sutra* (2012) offers a careful Tibetan-tradition scholarly reading; Mu Soeng\'s *The Heart of the Universe* (2010) reads it through Zen; H.H. the Dalai Lama\'s commentaries integrate the Tibetan exegetical tradition; the Buddhist Text Translation Society\'s edition follows the Hsuan Hua lineage. All of them are correct and none of them are.\n\nThe instruction the sutra gives, however, is not to translate it — but to chant it, and through chanting, to *go*: *gate gate*.',
     },
   ],
 };
