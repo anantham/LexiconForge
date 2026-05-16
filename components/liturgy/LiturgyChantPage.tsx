@@ -1,8 +1,27 @@
 import React from 'react';
-import type { LiturgyDoc, Sangha } from '../../types/liturgy';
+import type { LiturgyDoc, Sangha, Witness } from '../../types/liturgy';
 import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
 import { LiturgySettingsProvider, SettingsButton } from './LiturgySettings';
+
+/**
+ * Gather every unique English-translation witness used across the doc.
+ * Deduplicated by `by` name (so MAPLE appearing on every segment shows
+ * once in the footer). Returned in order of first appearance so the
+ * primary witness anchors first.
+ */
+function uniqueWitnesses(doc: LiturgyDoc): Witness[] {
+  const seen = new Map<string, Witness>();
+  for (const section of doc.sections) {
+    if (section.shape !== 'triple-script-witness') continue;
+    for (const seg of section.segments) {
+      for (const w of seg.witnesses) {
+        if (!seen.has(w.by)) seen.set(w.by, w);
+      }
+    }
+  }
+  return Array.from(seen.values());
+}
 
 /**
  * Single-chant page.
@@ -30,6 +49,7 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
 }) => {
   const backHref = sangha ? `/liturgy/${sangha.slug}` : '/liturgy';
   const backLabel = sangha ? sangha.name : 'Liturgy';
+  const witnesses = uniqueWitnesses(doc);
   const primaryWitness = (() => {
     for (const sec of doc.sections) {
       if (sec.shape === 'triple-script-witness') {
@@ -118,6 +138,36 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {witnesses.length > 0 && (
+          <div className="text-xs text-slate-600 space-y-2 text-center mt-2">
+            <div>
+              <span className="text-slate-700 uppercase tracking-widest text-[10px] mr-2">
+                Translations
+              </span>
+              {witnesses.map((w, i) => (
+                <React.Fragment key={w.by}>
+                  {i > 0 && <span className="text-slate-800 mx-1">·</span>}
+                  {w.url ? (
+                    <a
+                      href={w.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400/60 hover:text-emerald-300"
+                    >
+                      {w.by}
+                    </a>
+                  ) : (
+                    <span>{w.by}</span>
+                  )}
+                  {w.license && (
+                    <span className="text-slate-700 ml-1.5 text-[10px]">{w.license}</span>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         )}
       </footer>
