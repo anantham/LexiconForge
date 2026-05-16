@@ -25,6 +25,18 @@ import vows from './vows';
 import bodhicittaDedication from './bodhicitta-dedication';
 import jadeMethod from './jade-method';
 import omManiPadmeHum from './om-mani-padme-hum';
+// Bodhi Sangha
+import tiSarana from './ti-sarana';
+import bodhiVows from './bodhi-vows';
+import bodhiHeartSutra from './bodhi-heart-sutra';
+import bodhiEnmeiJikkuKannonGyo from './bodhi-enmei-jikku-kannon-gyo';
+import shinJinNoMei from './shin-jin-no-mei';
+import hokyoZanmai from './hokyo-zanmai';
+import precepts from './precepts';
+import bodhisattvaVowTorei from './bodhisattva-vow-torei';
+import songOfZazen from './song-of-zazen';
+import wayOfCompassion from './way-of-compassion';
+import dedicationAndEveningCall from './dedication-and-evening-call';
 
 const ALL_DOCS: LiturgyDoc[] = [
   morningChants,
@@ -36,6 +48,18 @@ const ALL_DOCS: LiturgyDoc[] = [
   bodhicittaDedication,
   jadeMethod,
   omManiPadmeHum,
+  // Bodhi Sangha
+  tiSarana,
+  bodhiVows,
+  bodhiHeartSutra,
+  bodhiEnmeiJikkuKannonGyo,
+  shinJinNoMei,
+  hokyoZanmai,
+  precepts,
+  bodhisattvaVowTorei,
+  songOfZazen,
+  wayOfCompassion,
+  dedicationAndEveningCall,
 ];
 
 /**
