@@ -46,14 +46,33 @@ import { useLiturgySettings } from '../LiturgySettings';
 const SERIF_STACK = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
 const DEVA_STACK = "'Noto Serif Devanagari', 'Cardo', serif";
 
-/** Tokenise a Pāli line into hover-enabled words + plain gaps. */
+/** Tokenise a Roman Pāli line into hover-enabled words + plain gaps. */
 function tokenize(text: string): Array<{ kind: 'word' | 'gap'; text: string }> {
   const out: Array<{ kind: 'word' | 'gap'; text: string }> = [];
   const re = /([A-Za-zĀāĪīŪūṚṛṂṃṄṅÑñṬṭḌḍṆṇŚśṢṣḤḥṁÀ-ɏ]+|[^A-Za-zĀāĪīŪūṚṛṂṃṄṅÑñṬṭḌḍṆṇŚśṢṣḤḥṁÀ-ɏ]+)/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
+  for (const m of text.matchAll(re)) {
     const tok = m[0];
     const isWord = /^[A-Za-zĀāĪīŪūṚṛṂṃṄṅÑñṬṭḌḍṆṇŚśṢṣḤḥṁÀ-ɏ]+$/.test(tok);
+    out.push({ kind: isWord ? 'word' : 'gap', text: tok });
+  }
+  return out;
+}
+
+/**
+ * Tokenise a Devanāgarī Pāli line into words + gaps. The word class is
+ * U+0900–U+097F minus the dandas (U+0964, U+0965) so single/double-danda
+ * punctuation goes into gap tokens, parallel to the Roman tokenizer.
+ *
+ * Crucially: same word ORDER as the Roman line, so a position-based
+ * `data-pali-idx` lines up across scripts and the existing alignTo array
+ * (English → Pāli word position) keeps working unchanged.
+ */
+function tokenizeDeva(text: string): Array<{ kind: 'word' | 'gap'; text: string }> {
+  const out: Array<{ kind: 'word' | 'gap'; text: string }> = [];
+  const re = /([ऀ-ॣ०-ॿ]+|[^ऀ-ॣ०-ॿ]+)/g;
+  for (const m of text.matchAll(re)) {
+    const tok = m[0];
+    const isWord = /^[ऀ-ॣ०-ॿ]+$/.test(tok);
     out.push({ kind: isWord ? 'word' : 'gap', text: tok });
   }
   return out;
@@ -63,10 +82,12 @@ function normalizeForMatch(s: string): string {
   return s.toLowerCase().replace(/[.,;:!?"'()\[\]।॥-]/g, '').trim();
 }
 
-function buildWordIndex(words: WordGloss[]): Map<string, WordGloss> {
+function buildWordIndex(words: WordGloss[], by: 'form' | 'scriptAlt' = 'form'): Map<string, WordGloss> {
   const idx = new Map<string, WordGloss>();
   for (const w of words) {
-    const key = normalizeForMatch(w.form);
+    const raw = by === 'form' ? w.form : w.scriptAlt;
+    if (!raw) continue;
+    const key = normalizeForMatch(raw);
     if (key) idx.set(key, w);
   }
   return idx;
@@ -189,11 +210,20 @@ const PaliLine: React.FC<{
   text: string;
   words?: WordGloss[];
   large?: boolean;
-}> = ({ text, words = [], large = false }) => {
+  /**
+   * Which script the text is in. Both branches emit `data-pali-idx` keyed by
+   * surface-word position — so the alignTo array (English → Pāli word index)
+   * works unchanged across scripts. Morpheme splits are Roman-only (morphemes
+   * are authored as Roman fragments), so Devanāgarī falls back to word-level
+   * hover.
+   */
+  script: 'roman' | 'deva';
+}> = ({ text, words = [], large = false, script }) => {
   const { settings } = useLiturgySettings();
-  const idx = buildWordIndex(words);
-  const tokens = tokenize(text);
+  const idx = buildWordIndex(words, script === 'roman' ? 'form' : 'scriptAlt');
+  const tokens = script === 'roman' ? tokenize(text) : tokenizeDeva(text);
   const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
+  const fontStack = script === 'roman' ? SERIF_STACK : DEVA_STACK;
 
   // Track surface-Pāli-word position separately from token index (which
   // includes whitespace/punctuation "gap" tokens). data-pali-idx is what
@@ -203,20 +233,28 @@ const PaliLine: React.FC<{
   return (
     <div
       className={`text-slate-100 leading-loose ${sizeClass}`}
-      style={{ fontFamily: SERIF_STACK }}
+      style={{ fontFamily: fontStack }}
+      lang={script === 'deva' ? 'pi-Deva' : undefined}
     >
       {tokens.map((t, i) => {
         if (t.kind === 'gap') return <React.Fragment key={i}>{t.text}</React.Fragment>;
         paliSurfaceIdx += 1;
         const word = matchWord(t.text, idx);
         const accentClass = settings.showAccents && word?.accent ? ACCENT_CLASS[word.accent] : '';
+        const content = !word ? (
+          t.text
+        ) : script === 'roman' ? (
+          <HoverWord text={t.text} word={word} />
+        ) : (
+          <HoverSpan text={t.text} tooltipText={tooltipForWord(word)} />
+        );
         return (
           <span
             key={i}
             data-pali-idx={paliSurfaceIdx}
             className={`inline-block ${accentClass}`}
           >
-            {word ? <HoverWord text={t.text} word={word} /> : t.text}
+            {content}
           </span>
         );
       })}
@@ -472,7 +510,9 @@ const SegmentRow: React.FC<{
     return map;
   }, [currentWitness?.alignTo, accentByPaliPos]);
 
-  // Compute alignment lines after layout, recompute on resize / witness change.
+  // Compute alignment lines after layout, recompute on resize / witness /
+  // script change. Without `script` in the deps, swapping to Devanāgarī
+  // would leave stale coordinates pointing at where Roman words used to be.
   useLayoutEffect(() => {
     if (!containerRef.current) return;
     const compute = () => {
@@ -487,7 +527,7 @@ const SegmentRow: React.FC<{
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
     };
-  }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo]);
+  }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo, script]);
 
   // Hover detection via event delegation on the segment container.
   // mouseover bubbles up; we check whether the target sits inside any
@@ -537,25 +577,20 @@ const SegmentRow: React.FC<{
 
   return (
     <div className="mb-8 relative" id={segment.id} ref={containerRef}>
-      {/* Pāli line — click cycles script (Roman ↔ Devanāgarī) at the section level */}
+      {/* Pāli line — click cycles script (Roman ↔ Devanāgarī) at the section level.
+          Both scripts go through PaliLine so each surface word gets a
+          `data-pali-idx`; alignment arrows work in either script. */}
       <div
         className="text-center cursor-pointer select-text"
         onClick={onLineClick(onCycleScript)}
         title="Click to swap script"
       >
-        {script === 'roman' ? (
-          <PaliLine text={segment.pali} words={segment.words} large={large} />
-        ) : segment.paliDeva ? (
-          <div
-            className={`text-slate-100 leading-loose ${large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}`}
-            style={{ fontFamily: DEVA_STACK }}
-            lang="pi-Deva"
-          >
-            {segment.paliDeva}
-          </div>
-        ) : (
-          <PaliLine text={segment.pali} words={segment.words} large={large} />
-        )}
+        <PaliLine
+          text={script === 'deva' && segment.paliDeva ? segment.paliDeva : segment.pali}
+          words={segment.words}
+          large={large}
+          script={script === 'deva' && segment.paliDeva ? 'deva' : 'roman'}
+        />
       </div>
 
       {/* English line — click cycles witness at the section level */}
