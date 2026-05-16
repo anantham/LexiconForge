@@ -1,7 +1,7 @@
 /**
- * Enmē Jikku Kannon Gyō — 延命十句觀音經
+ * Enmē Jikku Kannon Gyō, 延命十句觀音經
  *
- * "The Ten-Phrase Kannon Sutra for Prolonging Life" — a very short
+ * "The Ten-Phrase Kannon Sutra for Prolonging Life", a very short
  * (10-line) Mahāyāna-style devotional chant invoking Kannon /
  * Avalokiteśvara. Each line is 3-5 syllables in Sino-Japanese, with
  * matching Chinese-character (kanji) form. Chanted 3× in the MAPLE
@@ -10,7 +10,7 @@
  *
  * Origin: composed in China; popularized in Japan via the Edo-period
  * Rinzai master Hakuin Ekaku, who taught it widely. Its compactness
- * is the point — ten phrases, one breath, the bodhisattva of
+ * is the point, ten phrases, one breath, the bodhisattva of
  * compassion held in mind morning and evening.
  *
  * Reader treatment: 10 segments (one per line), each with Sino-Japanese
@@ -27,13 +27,13 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
   sangha: 'maple',
   order: 2,
   title: 'Enmē Jikku Kannon Gyō',
-  subtitle: 'The Ten-Verse Sutra of Boundless Compassion — 延命十句觀音經',
+  subtitle: 'The Ten-Verse Sutra of Boundless Compassion (延命十句觀音經)',
   tradition: 'mahayana',
   context: 'Chanted 3× in the MAPLE morning service, between the Pāli devotional sequence and the Sho Sai dharani.',
   sources: {
     canonical: [
       {
-        label: 'Enmē Jikku Kannon Gyō — Hakuin Ekaku\'s teaching tradition',
+        label: 'Enmē Jikku Kannon Gyō, Hakuin Ekaku\'s teaching tradition',
         url: 'https://en.wikipedia.org/wiki/Ten_Verse_Kannon_Sutra',
       },
     ],
@@ -44,17 +44,6 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
   curator:
     'Curation by Aditya. Sino-Japanese phonetic + Hanzi forms transcribed directly from the MAPLE chant sheet. English rendering combines standard published Zen translations.',
   sections: [
-    {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'Ten phrases. Each line short enough to hold in one breath. The text doesn\'t argue or unfold a doctrine — it names [[Kannon]] (the bodhisattva of compassion, Sanskrit *Avalokiteśvara*), affirms our kinship with the Buddha, and ties every thought arising in the heart-mind back to that kinship.\n\nChanted 3× as part of the morning service. The cadence matters more than the parsing.',
-    },
-    {
-      id: 'title-etymology',
-      shape: 'prose-commentary',
-      heading: 'The title, parsed',
-      body: '*Enmē Jikku Kannon Gyō* — every word does work:\n\n— **Enmē** (延命 in the chant-sheet calligraphy; sometimes written 円明) — usually rendered "prolonging life" (per the Hakuin tradition), but the 円明 reading points to *endless dimensions* or *boundlessness* — the limitless nature of awakened compassion. The chanting traditions differ; the practice is the same.\n— **Jikku** (十句) — "ten phrases" or "ten verses".\n— **Kannon** (観音) — Japanese name for [[Avalokiteśvara]], the bodhisattva of compassion.\n— **Gyō** (経) — "sutra", from the Sanskrit *sūtra*, which literally means *thread* or *suture* — the weaving together of the Buddha\'s teachings.',
-    },
     {
       id: 'ten-phrases',
       shape: 'triple-script-witness',
@@ -89,20 +78,20 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             {
               form: 'Kan ze on',
               scriptAlts: { 'zh-Hant': '觀世音' },
-              etymology: '*kan* "perceive" + *ze* "world" + *on* "sound" — semantic translation of Sanskrit *Avalokiteśvara* ("the lord who looks down [on the world\'s cries]")',
-              gloss: 'Kannon / Avalokiteśvara — invoked not as an external figure in a Buddha-heaven but as the spirit of compassion within ourselves; our compassionate heart',
+              etymology: '*kan* "perceive" + *ze* "world" + *on* "sound", semantic translation of Sanskrit *Avalokiteśvara* ("the lord who looks down [on the world\'s cries]")',
+              gloss: 'Kannon / Avalokiteśvara, invoked not as an external figure in a Buddha-heaven but as the spirit of compassion within ourselves; our compassionate heart',
               accent: 'rose',
               scriptMorphemes: {
                 'zh-Hant': [
-                  { text: '觀', type: 'semantic', pronunciation: 'kan / guān', gloss: 'perceive / contemplate — with a sense of penetrating awareness; not just looking, but listening so deeply we are saturated to the core' },
-                  { text: '世', type: 'semantic', pronunciation: 'ze / shì', gloss: 'the world — the field of cries that needs hearing' },
-                  { text: '音', type: 'semantic', pronunciation: 'on / yīn', gloss: 'sound, voice — together 觀世音 = "the perceiver of world-sounds". To "listen" here means more than hearing with the ears — being actively present to the world and to ourselves' },
+                  { text: '觀', type: 'semantic', pronunciation: 'kan / guān', gloss: 'perceive / contemplate, with a sense of penetrating awareness; not just looking, but listening so deeply we are saturated to the core' },
+                  { text: '世', type: 'semantic', pronunciation: 'ze / shì', gloss: 'the world, the field of cries that needs hearing' },
+                  { text: '音', type: 'semantic', pronunciation: 'on / yīn', gloss: 'sound, voice, together 觀世音 = "the perceiver of world-sounds". To "listen" here means more than hearing with the ears, being actively present to the world and to ourselves' },
                 ],
               },
               citations: [wikipediaCitation('Avalokiteśvara')],
             },
           ],
-          note: 'We begin the sutra by invoking Kanzeon — *understood not as an external figure in a Buddha heaven but as the spirit of compassion within ourselves. It is our compassionate heart.*\n\nHere, listening is more than just hearing with the ears. It is being so open to a sound or a cry that we are saturated to the core of our being. Another way of putting it: this kind of listening means to be actively present to the world and ourselves. This is also an expression of what we do when we sit quietly; we become attentively present to ourselves.',
+          note: 'We begin the sutra by invoking Kanzeon, *understood not as an external figure in a Buddha heaven but as the spirit of compassion within ourselves. It is our compassionate heart.*\n\nHere, listening is more than just hearing with the ears. It is being so open to a sound or a cry that we are saturated to the core of our being. Another way of putting it: this kind of listening means to be actively present to the world and ourselves. This is also an expression of what we do when we sit quietly; we become attentively present to ourselves.',
         },
         {
           id: 'line-2-namu-butsu',
@@ -134,7 +123,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
               form: 'Na mu',
               scriptAlts: { 'zh-Hant': '南無' },
               etymology: 'Phonetic loan: transliterates Sanskrit *namaḥ* ("homage, salutation")',
-              gloss: 'literally "pay homage to" — but in Zen the deeper reading is **at one with**. We are at one with Buddha. Our original nature is Buddha Nature. There is nothing outside our original nature; this is paying homage to the deepest part of ourselves.',
+              gloss: 'literally "pay homage to", but in Zen the deeper reading is **at one with**. We are at one with Buddha. Our original nature is Buddha Nature. There is nothing outside our original nature; this is paying homage to the deepest part of ourselves.',
               scriptMorphemes: {
                 'zh-Hant': [
                   { text: '南', type: 'phonetic', pronunciation: 'na / nán', gloss: 'phonetic: transliterates "na-"' },
@@ -145,13 +134,13 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             {
               form: 'butsu',
               scriptAlts: { 'zh-Hant': '佛' },
-              etymology: 'Phonetic loan from Sanskrit *buddha* — also semantically "awakened one"',
-              gloss: 'Buddha — the awakened one',
+              etymology: 'Phonetic loan from Sanskrit *buddha*, also semantically "awakened one"',
+              gloss: 'Buddha, the awakened one',
               accent: 'amber',
               citations: [wikipediaCitation('Buddha')],
             },
           ],
-          note: '*Namu* literally means "pay homage to," but the Zen reading is "at one with." We are one with Buddha — our original nature IS Buddha Nature. There is nothing outside of our original nature, no Buddhas or bodhisattvas or sentient beings beyond it. So here we are paying homage to the deepest part of ourselves.',
+          note: '*Namu* literally means "pay homage to," but the Zen reading is "at one with." We are one with Buddha. Our original nature IS Buddha Nature. There is nothing outside of our original nature, no Buddhas or bodhisattvas or sentient beings beyond it. So here we are paying homage to the deepest part of ourselves.',
         },
         {
           id: 'line-3-yo-butsu-u-in',
@@ -185,7 +174,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             {
               form: 'in',
               scriptAlts: { 'zh-Hant': '因' },
-              gloss: '**direct cause** or **seed** — the karmic root, the inherent capacity. Distinguished from *en* (indirect cause / supporting conditions) in the next line',
+              gloss: '**direct cause** or **seed**, the karmic root, the inherent capacity. Distinguished from *en* (indirect cause / supporting conditions) in the next line',
               accent: 'sky',
             },
           ],
@@ -223,11 +212,11 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             {
               form: 'en',
               scriptAlts: { 'zh-Hant': '緣' },
-              gloss: '**indirect cause** / **supporting conditions** — the sunshine and water that let the seed (*in*, line 3) sprout. Where *in* is karmic root, *en* is the relational field around it',
+              gloss: '**indirect cause** / **supporting conditions**, the sunshine and water that let the seed (*in*, line 3) sprout. Where *in* is karmic root, *en* is the relational field around it',
               accent: 'sky',
             },
           ],
-          note: 'If our Buddha Nature is the *seed* (*in*, line 3), this verse acknowledges the necessity of proper *conditions* (*en*) for its growth — like sunshine and water for a plant. This points to the importance of spiritual practice and cultivation.\n\nThis creates a bridge between the *inherent* (Buddha-nature is already present) and the *cultivated* (practice is necessary to reveal it) — resolving a potential contradiction in Buddhist teaching.',
+          note: 'If our Buddha Nature is the *seed* (*in*, line 3), this verse acknowledges the necessity of proper *conditions* (*en*) for its growth, like sunshine and water for a plant. This points to the importance of spiritual practice and cultivation.\n\nThis creates a bridge between the *inherent* (Buddha-nature is already present) and the *cultivated* (practice is necessary to reveal it), resolving a potential contradiction in Buddhist teaching.',
         },
         {
           id: 'line-5-buppo-so-en',
@@ -256,11 +245,11 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           words: [
             { form: 'Bup', scriptAlts: { 'zh-Hant': '佛' }, gloss: 'Buddha (shortened from *Butsu*)', accent: 'amber' },
-            { form: 'pō', scriptAlts: { 'zh-Hant': '法' }, gloss: 'Dharma — the teaching', accent: 'sky' },
-            { form: 'sō', scriptAlts: { 'zh-Hant': '僧' }, gloss: 'Sangha — the community', accent: 'rose' },
-            { form: 'en', scriptAlts: { 'zh-Hant': '緣' }, gloss: 'indirect cause / connection — same character as line 4, here naming the karmic link to all Three Treasures' },
+            { form: 'pō', scriptAlts: { 'zh-Hant': '法' }, gloss: 'Dharma, the teaching', accent: 'sky' },
+            { form: 'sō', scriptAlts: { 'zh-Hant': '僧' }, gloss: 'Sangha, the community', accent: 'rose' },
+            { form: 'en', scriptAlts: { 'zh-Hant': '緣' }, gloss: 'indirect cause / connection, same character as line 4, here naming the karmic link to all Three Treasures' },
           ],
-          note: 'The Three Treasures — Buddha, Dharma, Sangha — serve as both the *context* for understanding our true nature and *different expressions* of it. Awakening isn\'t an isolated individual achievement; it occurs within the field of teachings and community.',
+          note: 'The Three Treasures (Buddha, Dharma, Sangha) serve as both the *context* for understanding our true nature and *different expressions* of it. Awakening isn\'t an isolated individual achievement; it occurs within the field of teachings and community.',
         },
         {
           id: 'line-6-jo-raku-ga-jo',
@@ -288,12 +277,12 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'Jō', scriptAlts: { 'zh-Hant': '常' }, gloss: 'permanent / eternal — also read as **"endless dimension"**; first of the four virtues' },
-            { form: 'raku', scriptAlts: { 'zh-Hant': '樂' }, gloss: 'happiness, joy — second of the four virtues' },
-            { form: 'ga', scriptAlts: { 'zh-Hant': '我' }, gloss: 'self — third virtue; the *true* self, not the ego' },
-            { form: 'jō', scriptAlts: { 'zh-Hant': '淨' }, gloss: 'pure — fourth virtue. Together 常樂我淨 are the four virtues of nirvāṇa per the Mahāyāna Nirvāṇa Sūtra' },
+            { form: 'Jō', scriptAlts: { 'zh-Hant': '常' }, gloss: 'permanent / eternal, also read as **"endless dimension"**; first of the four virtues' },
+            { form: 'raku', scriptAlts: { 'zh-Hant': '樂' }, gloss: 'happiness, joy, second of the four virtues' },
+            { form: 'ga', scriptAlts: { 'zh-Hant': '我' }, gloss: 'self, third virtue; the *true* self, not the ego' },
+            { form: 'jō', scriptAlts: { 'zh-Hant': '淨' }, gloss: 'pure, fourth virtue. Together 常樂我淨 are the four virtues of nirvāṇa per the Mahāyāna Nirvāṇa Sūtra' },
           ],
-          note: 'The four virtues (*nityatā, sukha, ātman, śuddhi*) are the Mahāyāna re-reading of nirvāṇa, contrasting with the Three Marks (impermanence, suffering, non-self) of earlier Buddhism.\n\nBut the "endless dimensions of joy" and "purity" described here are not emotional states — they are *qualities of awareness itself* when unobscured by defilements. Connects directly to the Pāli *pariyodapanaṃ* (purification of mind) in the Ovāda Pāṭimokkha: when the mind is purified, its natural qualities of joy and clarity emerge.',
+          note: 'The four virtues (*nityatā, sukha, ātman, śuddhi*) are the Mahāyāna re-reading of nirvāṇa, contrasting with the Three Marks (impermanence, suffering, non-self) of earlier Buddhism.\n\nBut the "endless dimensions of joy" and "purity" described here are not emotional states. They are *qualities of awareness itself* when unobscured by defilements. Connects directly to the Pāli *pariyodapanaṃ* (purification of mind) in the Ovāda Pāṭimokkha: when the mind is purified, its natural qualities of joy and clarity emerge.',
         },
         {
           id: 'line-7-cho-nen-kan-ze-on',
@@ -322,10 +311,10 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           words: [
             { form: 'Chō', scriptAlts: { 'zh-Hant': '朝' }, gloss: 'morning, dawn' },
-            { form: 'nen', scriptAlts: { 'zh-Hant': '念' }, gloss: 'mind / thought / individual consciousness — the same *nen* as Japanese *nenbutsu* (Buddha-recollection)' },
+            { form: 'nen', scriptAlts: { 'zh-Hant': '念' }, gloss: 'mind / thought / individual consciousness, the same *nen* as Japanese *nenbutsu* (Buddha-recollection)' },
             { form: 'kan ze on', scriptAlts: { 'zh-Hant': '觀世音' }, gloss: 'Kannon / Avalokiteśvara', accent: 'rose' },
           ],
-          note: 'Remember compassion as the *first* thought of the morning. The instruction is structural — let the day start there.',
+          note: 'Remember compassion as the *first* thought of the morning. The instruction is structural, let the day start there.',
         },
         {
           id: 'line-8-bo-nen-kan-ze-on',
@@ -353,7 +342,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'Bo', scriptAlts: { 'zh-Hant': '暮' }, gloss: 'evening, dusk — paired with *chō* (morning) in lines 7-8 to mark "always, all day"' },
+            { form: 'Bo', scriptAlts: { 'zh-Hant': '暮' }, gloss: 'evening, dusk, paired with *chō* (morning) in lines 7-8 to mark "always, all day"' },
             { form: 'nen', scriptAlts: { 'zh-Hant': '念' }, gloss: 'mind / thought / individual consciousness' },
             { form: 'kan ze on', scriptAlts: { 'zh-Hant': '觀世音' }, gloss: 'Kannon / Avalokiteśvara', accent: 'rose' },
           ],
@@ -385,12 +374,12 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'Nen nen', scriptAlts: { 'zh-Hant': '念念' }, gloss: 'thought after thought — reduplication intensifies; "moment by moment". The *small-mind* / conditioned [[saṃskāra]] formations of consciousness' },
-            { form: 'jū', scriptAlts: { 'zh-Hant': '從' }, gloss: 'follow, follow-from — each thought succeeds the previous' },
-            { form: 'shin', scriptAlts: { 'zh-Hant': '心' }, gloss: '**big mind** — the heart-mind, *cittam* in Sanskrit, the same *xīn / shin* as in *Hṛdaya* Sūtra (Heart Sutra). The unconditioned awareness from which thoughts arise', accent: 'sky' },
-            { form: 'ki', scriptAlts: { 'zh-Hant': '起' }, gloss: 'arise / rise up. Some readings: 機 (*ki* = "opportunity / mechanism") — "each thought is an opportunity of the mind"' },
+            { form: 'Nen nen', scriptAlts: { 'zh-Hant': '念念' }, gloss: 'thought after thought, reduplication intensifies; "moment by moment". The *small-mind* / conditioned [[saṃskāra]] formations of consciousness' },
+            { form: 'jū', scriptAlts: { 'zh-Hant': '從' }, gloss: 'follow, follow-from, each thought succeeds the previous' },
+            { form: 'shin', scriptAlts: { 'zh-Hant': '心' }, gloss: '**big mind**, the heart-mind, *cittam* in Sanskrit, the same *xīn / shin* as in *Hṛdaya* Sūtra (Heart Sutra). The unconditioned awareness from which thoughts arise', accent: 'sky' },
+            { form: 'ki', scriptAlts: { 'zh-Hant': '起' }, gloss: 'arise / rise up. Some readings give 機 (*ki* = "opportunity / mechanism"): "each thought is an opportunity of the mind"' },
           ],
-          note: 'A teaching on the **non-dual relationship between conditioned thought (small mind) and unconditioned awareness (big mind)**.\n\n*"Each thought following the preceding thought is big mind."* Our ordinary thinking isn\'t separate from Buddha-nature — it *is* Buddha-nature\'s expression. The [[saṃskāra]] of mental formations and the *citta* of awareness aren\'t two things.',
+          note: 'A teaching on the **non-dual relationship between conditioned thought (small mind) and unconditioned awareness (big mind)**.\n\n*"Each thought following the preceding thought is big mind."* Our ordinary thinking isn\'t separate from Buddha-nature. It *is* Buddha-nature\'s expression. The [[saṃskāra]] of mental formations and the *citta* of awareness aren\'t two things.',
         },
         {
           id: 'line-10-nen-nen-fu-ri-shin',
@@ -419,15 +408,27 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           words: [
             { form: 'Nen nen', scriptAlts: { 'zh-Hant': '念念' }, gloss: 'thought after thought' },
-            { form: 'fu', scriptAlts: { 'zh-Hant': '不' }, gloss: 'not — negation' },
-            { form: 'ri', scriptAlts: { 'zh-Hant': '離' }, gloss: 'separate, depart — together *fu ri* = "not separate"' },
+            { form: 'fu', scriptAlts: { 'zh-Hant': '不' }, gloss: 'not, negation' },
+            { form: 'ri', scriptAlts: { 'zh-Hant': '離' }, gloss: 'separate, depart. Together *fu ri* = "not separate"' },
             { form: 'shin', scriptAlts: { 'zh-Hant': '心' }, gloss: 'big-mind / heart-mind', accent: 'sky' },
           ],
-          note: 'The chant\'s pivot: thoughts arise *from* the big-mind (line 9), and never leave it (line 10). *"Thought after thought arises from big mind; our thoughts are not separate from big mind."* The same non-dual reality, said twice from two angles.\n\nThe heart-mind isn\'t something we have or don\'t have; every thought is already its expression. Kanzeon — the bodhisattva of compassion — is not separate from us, because our thinking is not separate from the heart that is also hers.',
+          note: 'The chant\'s pivot: thoughts arise *from* the big-mind (line 9), and never leave it (line 10). *"Thought after thought arises from big mind; our thoughts are not separate from big mind."* The same non-dual reality, said twice from two angles.\n\nThe heart-mind isn\'t something we have or don\'t have; every thought is already its expression. Kanzeon, the bodhisattva of compassion, is not separate from us, because our thinking is not separate from the heart that is also hers.',
         },
       ],
       commentary:
-        'Hakuin Ekaku taught this chant widely in 18th-century Japan. The "ten phrases for prolonging life" framing comes from the legend that recitation extends a chanter\'s lifespan — but the operative work is the binding of every thought to compassion, morning and evening, moment after moment.',
+        'Hakuin Ekaku taught this chant widely in 18th-century Japan. The "ten phrases for prolonging life" framing comes from the legend that recitation extends a chanter\'s lifespan, but the operative work is the binding of every thought to compassion, morning and evening, moment after moment.',
+    },
+    {
+      id: 'framing',
+      shape: 'prose-commentary',
+      heading: 'Why these ten phrases',
+      body: 'Ten phrases. Each line short enough to hold in one breath. The text doesn\'t argue or unfold a doctrine; it names [[Kannon]] (the bodhisattva of compassion, Sanskrit *Avalokiteśvara*), affirms our kinship with the Buddha, and ties every thought arising in the heart-mind back to that kinship.\n\nChanted 3× as part of the morning service. The cadence matters more than the parsing.',
+    },
+    {
+      id: 'title-etymology',
+      shape: 'prose-commentary',
+      heading: 'The title, parsed',
+      body: '*Enmē Jikku Kannon Gyō*: every word does work.\n\n**Enmē** (延命 in the chant-sheet calligraphy; sometimes written 円明) is usually rendered "prolonging life" (per the Hakuin tradition), but the 円明 reading points to *endless dimensions* or *boundlessness*, the limitless nature of awakened compassion. The chanting traditions differ; the practice is the same.\n\n**Jikku** (十句) means "ten phrases" or "ten verses".\n\n**Kannon** (観音) is the Japanese name for [[Avalokiteśvara]], the bodhisattva of compassion.\n\n**Gyō** (経) means "sutra", from the Sanskrit *sūtra*, which literally means *thread* or *suture*, the weaving together of the Buddha\'s teachings.',
     },
   ],
 };
