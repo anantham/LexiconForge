@@ -932,9 +932,15 @@ const SegmentRow: React.FC<{
   // one morpheme's centre, collapsing the auto-distributed fan.
   const adjustedLines = (() => {
     if (!hovered || !containerRef.current) return lines;
+    // Recompute lines fresh from current DOM — defensive against a stale
+    // `lines` cache. The cache can be wrong when computeAlignmentLines
+    // ran during a transient state (e.g. script swap before Devanāgarī
+    // fonts loaded), giving zero-size element rects and negative-space
+    // coordinates. We're hovering now, so the DOM is settled.
+    const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo);
     const cRect = containerRef.current.getBoundingClientRect();
     const r = hovered.element.getBoundingClientRect();
-    return lines.map((l) => {
+    return fresh.map((l) => {
       if (
         hovered.kind === 'pali' &&
         l.paliIdx === hovered.idx &&
