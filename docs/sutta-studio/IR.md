@@ -1,9 +1,19 @@
 # Sutta Studio IR (Deep Loom) - MVP Schema
 
-> **Staleness warning:** This document describes the original MVP schema design.
-> The authoritative TypeScript types live in `types/suttaStudio.ts` (298 LOC).
-> When this doc and the types file conflict, the types file wins.
-> Last verified against code: 2026-03-05.
+> **⚠️ SUPERSEDED — historical reference only.**
+>
+> This document describes the original MVP schema (last verified 2026-03-05).
+> Since then the IR has been substantially extended: grounding provenance
+> (`Sense.epistemicBasis`, `sourceCitationIds`, `Provenance`, `ParallelRef`,
+> `CompoundType`) per SUTTA-008; the grounding pass per the FEATURES.md
+> pipeline; commentarial-gloss + translator-bank providers. Do not use this
+> file as source.
+>
+> **Authoritative sources:**
+> - TypeScript types: `types/suttaStudio.ts`
+> - Architecture + pipeline: `docs/sutta-studio/FEATURES.md`
+> - Provenance layer: `docs/adr/SUTTA-008-grounded-curation-data-layer.md`
+> - Transmission graph: `docs/sutta-studio/TEXT_GRAPH.md`
 
 ## Goals
 - Represent Pali source text as canonical segments (stable IDs).

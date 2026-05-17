@@ -87,14 +87,39 @@ Merging would couple production error-handling concerns to benchmark flexibility
 
 ---
 
-## Implementation Notes
+## Amendment — Reversed by CONSOLIDATION (2026-05-16)
 
-**Files:**
-- `services/suttaStudioPassPrompts.ts` (~723 LOC) — prompt schemas, builders, types, parsing
-- `services/suttaStudioPassRunners.ts` (~586 LOC) — per-pass async runner functions
-- Primary consumer: `scripts/sutta-studio/benchmark.ts`
+The "should not be merged" claim above was **reversed** by `docs/sutta-studio/CONSOLIDATION.md`
+(landed across 2026-03-08 → 2026-05-16, PRs #62 and #63). Operational experience showed the
+two stacks drifting in opposite directions — the bench-side prompts/schemas gained `wordRange`
+and `refrainId` fields that production needed but the production schema didn't enforce;
+production gained DPD wiring and structured-output telemetry the bench stack lacked.
 
-**Deviations from proposal:** None — this ADR was written to document existing code, not to propose changes. The two files remain as described above, intentionally separate from `services/compiler/` (the production pipeline).
+The cost of *not* merging turned out to be silent feature divergence at exactly the boundary
+where alignment matters most (schema contracts and prompt content). The current arrangement:
+
+- All prompt builders, schemas, pass functions, and the LLM caller live under
+  `services/sutta-studio/` (canonical single location).
+- The two files described here (`suttaStudioPassPrompts.ts`, `suttaStudioPassRunners.ts`) are
+  now thin re-export shims to be deleted in CONSOLIDATION Phase 4.
+- Benchmark flexibility is preserved via an injectable `LLMCaller` parameter on the canonical
+  pass functions, not by maintaining a parallel implementation.
+
+The architectural principle "production error-handling concerns differ from benchmark
+flexibility requirements" is still correct; it just doesn't require two separate codebases.
+It requires injection seams.
+
+---
+
+## Implementation Notes (original — now superseded by Amendment above)
+
+**Files (pre-CONSOLIDATION state, kept for historical context):**
+- `services/suttaStudioPassPrompts.ts` (~723 LOC at the time of writing; now a 47-line shim)
+- `services/suttaStudioPassRunners.ts` (~586 LOC at the time of writing; now a 35-line shim)
+- Primary consumer: `scripts/sutta-studio/benchmark.ts` (still true; now consumes via the shims)
+
+**Deviations from proposal:** See Amendment above. The original ADR was written to document
+existing code at a moment when the two stacks aligned; subsequent drift forced the merger.
 
 ---
 
