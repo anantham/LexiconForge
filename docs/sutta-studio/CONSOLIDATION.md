@@ -281,7 +281,7 @@ Phase 4 is when (and only when) we update consumers to import from the new canon
 ## What does NOT change in this refactor
 
 - **The prompt content itself** (other than gaining V2 amendments in one place instead of two).
-- **The pipeline pass order** (Skeleton → Anatomist → Lexicographer → Weaver → Typesetter → Phase → Morphology).
+- **The pipeline pass order** (Skeleton → Anatomist → Lexicographer → **Grounding** → Weaver → Typesetter → Phase → Morphology). Grounding was inserted between Lexicographer and Weaver in 2026-05-14 (task #47, GROUNDING.md Phase 2.5); the consolidation refactor preserves this order.
 - **The compiler's public API signatures.** `compileSuttaStudioPacket(options)` keeps the exact same options.
 - **Benchmark output format / leaderboard schema.**
 - **The CLAUDE.md / AGENTS.md multi-agent coordination rules.**

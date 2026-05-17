@@ -1,6 +1,11 @@
 # Sutta Studio
 
 > Natural-language-to-structured-study-material compiler for Pali suttas
+>
+> **Authoritative architecture doc:** `docs/sutta-studio/FEATURES.md`. This
+> file is the higher-level product overview kept for historical compatibility;
+> file paths and pipeline shape in this overview match `FEATURES.md` but the
+> details there are the source of truth.
 
 ## Overview
 
@@ -94,12 +99,32 @@ The compiler runs **5 optional passes** that refine structure incrementally:
 
 ### Compiler Service
 
-**File**: `services/suttaStudioCompiler.ts` (~1900 lines)
+**Canonical location**: `services/sutta-studio/` (per CONSOLIDATION.md).
 
-- `compileSuttaStudioPacket(options)`: Main entry point
-- Routes through provider adapters (OpenRouter, OpenAI, Gemini)
-- Enforces 1-second minimum gap between LLM calls
-- All errors logged via `logPipelineEvent()` for debugging
+Was: a single ~1900-line `services/suttaStudioCompiler.ts` monolith, decomposed
+in March 2026. That filename is now a 3-line re-export shim; do not edit it.
+
+Current tree:
+
+- `services/sutta-studio/prompts/` — one builder per pass (skeleton, anatomist,
+  lexicographer, weaver, typesetter, phase, morphology) + `index.ts` re-exports
+- `services/sutta-studio/passes/` — pure per-pass async functions with an
+  injectable `LLMCaller` seam (so benchmarks substitute their own caller)
+- `services/sutta-studio/grounding/` — providers for contested terms,
+  commentarial glosses (Vism TEI), translator-bank lookups
+- `services/sutta-studio/schemas.ts` — all 7 LLM response schemas (PR #62)
+- `services/sutta-studio/llm.ts` — `callCompilerLLM`, `callCompilerLLMText`,
+  `resolveCompilerProvider` (PR #63)
+- `services/sutta-studio/utils.ts` — boundary context, chunking, JSON parsing
+- `services/sutta-studio/postPasses/syllabify.ts` — Pali syllabification
+  (post-LLM enrichment)
+- `services/compiler/index.ts` — still concrete (the 773-line orchestrator);
+  CONSOLIDATION Phase 2d / PR D ports it to `services/sutta-studio/orchestrator.ts`
+
+The public entry point `compileSuttaStudioPacket(options)` is unchanged.
+It still routes through provider adapters (OpenRouter, OpenAI, Gemini),
+enforces a 1-second minimum gap between LLM calls, and logs all errors via
+`logPipelineEvent()`.
 
 ### Zustand State
 
@@ -168,9 +193,22 @@ The app uses Zustand for global state:
 
 | File | Purpose |
 |------|---------|
-| `types/suttaStudio.ts` | Type definitions |
-| `services/suttaStudioCompiler.ts` | Main compiler logic |
+| `types/suttaStudio.ts` | Type definitions (single source of truth) |
+| `services/sutta-studio/prompts/` | Per-pass prompt builders |
+| `services/sutta-studio/passes/` | Per-pass pure functions + injectable `LLMCaller` |
+| `services/sutta-studio/schemas.ts` | All 7 LLM response schemas |
+| `services/sutta-studio/llm.ts` | LLM caller (provider resolve, logging, structured outputs) |
+| `services/sutta-studio/grounding/` | Contested terms, commentarial glosses, translator bank |
+| `services/sutta-studio/utils.ts` | Boundary context, chunking, JSON parsing |
+| `services/sutta-studio/postPasses/syllabify.ts` | Pali syllabification post-pass |
+| `services/compiler/index.ts` | Orchestrator (transitional; Phase 2d / PR D moves it) |
+| `services/suttaStudioCompiler.ts` | Transitional shim — do not edit |
 | `config/suttaStudioPromptContext.ts` | Prompt context blocks |
 | `config/suttaStudioExamples.ts` | Example JSON for each pass |
 | `services/suttaStudioValidator.ts` | Validation logic |
-| `docs/adr/SUTTA-003-sutta-studio-mvp.md` | Architecture Decision Record |
+| `docs/sutta-studio/CONSOLIDATION.md` | Migration plan + per-phase status |
+| `docs/sutta-studio/GROUNDING.md` | Grounding architecture + provider contracts |
+| `docs/sutta-studio/FEATURES.md` | Current architecture (authoritative) |
+| `docs/adr/SUTTA-003-sutta-studio-mvp.md` | Architecture Decision Record (MVP) |
+| `docs/adr/SUTTA-007-pass-prompt-runner-layer.md` | ADR for runners (see Amendment) |
+| `docs/adr/SUTTA-008-grounded-curation-data-layer.md` | ADR for grounding provenance |

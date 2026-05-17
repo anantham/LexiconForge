@@ -85,10 +85,14 @@ data/sutta-studio/grounding/
 
 services/sutta-studio/grounding/
   contestedTermProvider.ts       # Reads contested-terms.json
-  commentarialProvider.ts        # Reads commentarial-glosses.json
-  translatorBankProvider.ts      # Wraps scBilaraVariants for per-verse lookups
-  urlMinter.ts                   # Reads url-templates, minted URLs on citations
-  index.ts                       # Unified facade
+  commentarialGlossProvider.ts   # Reads commentarial-glosses.json (Eudoxos Vism TEI)
+  translatorBank.ts              # Wraps scBilaraVariants for per-verse lookups
+  types.ts                       # GroundedClaim, GroundingProvider, MatchStrategy, Match
+  index.ts                       # Unified facade — buildDefaultProviders()
+
+# URL minting was not split into a dedicated module; it lives inline
+# in services/providers/citationHelpers.ts. The translator-bank provider
+# is wired into the compiler separately (not via buildDefaultProviders).
 
 services/sutta-studio/passes/
   grounding.ts                   # Gap E — the new pass
