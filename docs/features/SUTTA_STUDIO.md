@@ -1,6 +1,11 @@
 # Sutta Studio
 
 > Natural-language-to-structured-study-material compiler for Pali suttas
+>
+> **Authoritative architecture doc:** `docs/sutta-studio/FEATURES.md`. This
+> file is the higher-level product overview kept for historical compatibility;
+> file paths and pipeline shape in this overview match `FEATURES.md` but the
+> details there are the source of truth.
 
 ## Overview
 
