@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow Local — UI Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(255,255,255,0.08);
+      --panel-solid: #111933;
+      --border: rgba(255,255,255,0.14);
+      --text: #ecf2ff;
+      --muted: #a5b2d1;
+      --accent: #7c9bff;
+      --good: #4ade80;
+      --warn: #fb7185;
+      --chip: rgba(124,155,255,0.2);
+      --shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 0%, #1f2a52 0%, var(--bg) 42%), var(--bg);
+      min-height: 100vh;
+      padding: 28px;
+    }
+    .app { max-width: 1320px; margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
+      padding: 14px; backdrop-filter: blur(12px); box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .modes { display: flex; gap: 10px; }
+    .mode-btn {
+      border: 1px solid var(--border); background: transparent; color: var(--text);
+      padding: 11px 16px; border-radius: 12px; font-weight: 600; cursor: pointer;
+    }
+    .mode-btn.active { background: linear-gradient(140deg, #7892ff, #5568d8); border-color: transparent; }
+    .layout { display: grid; grid-template-columns: 260px 1fr 350px; gap: 14px; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; backdrop-filter: blur(12px); box-shadow: var(--shadow); }
+    .panel h3 { margin: 0; font-size: 14px; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); }
+    .left, .center, .right { padding: 16px; min-height: 78vh; }
+    .tree ul { list-style: none; margin: 12px 0 0; padding-left: 0; }
+    .tree li { margin-bottom: 6px; color: var(--muted); }
+    .tree .folder { font-weight: 700; color: #d8e4ff; margin-top: 10px; }
+    .tree .item { padding-left: 14px; }
+    .capture-input {
+      width: 100%; min-height: 150px; border-radius: 14px; padding: 16px;
+      background: rgba(8,13,30,0.66); color: var(--text); border: 1px solid var(--border); resize: vertical;
+      font: inherit;
+    }
+    .btn { border: 0; background: linear-gradient(140deg, #7892ff, #5568d8); color: white; padding: 10px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 14px; }
+    .chip { background: var(--chip); color: #dbe5ff; border: 1px solid rgba(255,255,255,0.15); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+    .task { border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: rgba(10, 16, 36, 0.55); }
+    .task h4 { margin: 0 0 6px; font-size: 15px; }
+    .meta { color: var(--muted); font-size: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .hidden { display: none; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .filter { padding: 7px 10px; border-radius: 9px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; }
+    .task-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+    .badge { border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 700; }
+    .logistical { background: rgba(52,211,153,0.2); color: #86efac; }
+    .thinking { background: rgba(244,114,182,0.2); color: #f9a8d4; }
+    .focus { color: #facc15; }
+    .low { color: #67e8f9; }
+    .input { width: 100%; margin-top: 6px; border: 1px solid var(--border); background: rgba(8,13,30,0.66); color: var(--text); padding: 10px; border-radius: 10px; }
+    .muted { color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar panel">
+      <div class="modes">
+        <button class="mode-btn active" data-mode="capture">Capture</button>
+        <button class="mode-btn" data-mode="do-next">Do Next</button>
+        <button class="mode-btn" data-mode="clarify">Clarify</button>
+      </div>
+      <div class="muted">Local-first • Tree navigation • Mock data</div>
+    </div>
+
+    <div class="layout">
+      <aside class="panel left">
+        <h3>Tree</h3>
+        <div class="tree">
+          <ul>
+            <li class="folder">Admin</li>
+            <li class="item">• Invoices</li>
+            <li class="item">• Reimbursements</li>
+            <li class="folder">Travel & Visa</li>
+            <li class="item">• Visa Application</li>
+            <li class="item">• Conferences</li>
+            <li class="folder">Writing & Events</li>
+            <li class="item">• Paper Drafting</li>
+            <li class="item">• Event Logistics</li>
+            <li class="folder">Waiting On</li>
+            <li class="item">• People Follow-ups</li>
+          </ul>
+        </div>
+      </aside>
+
+      <main class="panel center">
+        <section id="capture-view">
+          <h3>Quick Capture</h3>
+          <p class="muted">Dump thoughts fast. You can clarify later.</p>
+          <textarea class="capture-input" placeholder="e.g., Reimbursement for Barcelona workshop is pending; need receipts + email finance."></textarea>
+          <div class="chips">
+            <span class="chip">logistical</span><span class="chip">thinking</span><span class="chip">waiting_on</span><span class="chip">visa</span><span class="chip">invoice</span><span class="chip">event</span>
+          </div>
+          <button class="btn">Add to Inbox</button>
+          <h3 style="margin-top:20px">Inbox (Needs Clarification)</h3>
+          <div class="task"><h4>“Visa prep”</h4><div class="meta"><span>No next action yet</span><span>Due: Jun 12</span></div></div>
+          <div class="task"><h4>“Ask Arun for project timeline”</h4><div class="meta"><span>Waiting-on candidate</span><span>Est: unknown</span></div></div>
+        </section>
+
+        <section id="do-next-view" class="hidden">
+          <h3>What should I do now?</h3>
+          <div class="filters">
+            <button class="filter" data-sort="time">Sort: Time</button>
+            <button class="filter" data-sort="energy">Sort: Energy</button>
+            <button class="filter" data-sort="genre">Sort: Genre</button>
+            <button class="filter" data-filter="logistical">Logistical</button>
+            <button class="filter" data-filter="thinking">Thinking</button>
+            <button class="filter" data-filter="focus">Focus only</button>
+          </div>
+          <div id="task-list"></div>
+        </section>
+
+        <section id="clarify-view" class="hidden">
+          <h3>Clarify Task</h3>
+          <div class="task">
+            <h4>Conference reimbursement pending</h4>
+            <div class="meta"><span>Type: logistical</span><span>Est: 35 min</span><span>Status: blocked</span></div>
+            <label class="muted">Next physical action</label>
+            <input class="input" value="Find missing train receipt in email and save to folder" />
+            <label class="muted">Dependency edges (comma separated task ids)</label>
+            <input class="input" value="travel-12, admin-45" />
+            <label class="muted">Notes</label>
+            <textarea class="capture-input" style="min-height:100px">Blocked until receipt PDF and approval form are both ready.</textarea>
+            <button class="btn" style="margin-top:10px">Mark Ready for Do Next</button>
+          </div>
+        </section>
+      </main>
+
+      <aside class="panel right">
+        <h3>Selected Task Details</h3>
+        <div class="task">
+          <h4>Submit April consulting invoice</h4>
+          <div class="meta"><span>Est 18m</span><span class="low">Low energy</span><span class="badge logistical">Logistical</span></div>
+          <p class="muted">Dependencies: gather timesheet, client PO number.</p>
+        </div>
+        <div class="task">
+          <h4>Draft workshop abstract</h4>
+          <div class="meta"><span>Est 50m</span><span class="focus">High focus</span><span class="badge thinking">Thinking</span></div>
+          <p class="muted">Cross-link: related to Event Logistics > October Retreat.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const tasks = [
+      { title: "Message finance for invoice payment status", min: 8, energy: "low", genre: "logistical" },
+      { title: "Book SFO → NYC flights for conference", min: 20, energy: "low", genre: "logistical" },
+      { title: "Outline grant proposal intro", min: 45, energy: "focus", genre: "thinking" },
+      { title: "Follow up with Ravi on project milestone", min: 10, energy: "low", genre: "logistical" },
+      { title: "Break down visa packet requirements", min: 35, energy: "focus", genre: "thinking" }
+    ];
+
+    let filtered = [...tasks];
+    const listEl = document.getElementById("task-list");
+
+    function renderTasks() {
+      listEl.innerHTML = filtered.map(t => `
+        <div class="task">
+          <div class="task-row">
+            <div>
+              <h4>${t.title}</h4>
+              <div class="meta">
+                <span>ETA ${t.min}m</span>
+                <span class="${t.energy}">${t.energy === "focus" ? "High focus" : "Low energy"}</span>
+                <span class="badge ${t.genre}">${t.genre}</span>
+              </div>
+            </div>
+            <button class="btn">Start</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const mode = btn.dataset.mode;
+        document.getElementById('capture-view').classList.toggle('hidden', mode !== 'capture');
+        document.getElementById('do-next-view').classList.toggle('hidden', mode !== 'do-next');
+        document.getElementById('clarify-view').classList.toggle('hidden', mode !== 'clarify');
+      });
+    });
+
+    document.querySelectorAll('.filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sort = btn.dataset.sort;
+        const filter = btn.dataset.filter;
+        filtered = [...tasks];
+        if (filter === 'logistical' || filter === 'thinking') filtered = filtered.filter(t => t.genre === filter);
+        if (filter === 'focus') filtered = filtered.filter(t => t.energy === 'focus');
+        if (sort === 'time') filtered.sort((a,b) => a.min - b.min);
+        if (sort === 'energy') filtered.sort((a,b) => a.energy.localeCompare(b.energy));
+        if (sort === 'genre') filtered.sort((a,b) => a.genre.localeCompare(b.genre));
+        renderTasks();
+      });
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
