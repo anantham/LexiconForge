@@ -1,9 +1,23 @@
 # Sutta Studio Compiler Consolidation — Design Doc
 
-> **Status:** Phase 0 (design) — under review, no code changed yet.
-> **Branch:** `feat/opus-compiler-consolidation` (off `feat/opus-batch4-curation`).
+> **Status:** Phase 4 cleanup in progress.
+>
+> | Phase | Scope | Status |
+> |---|---|---|
+> | 0 | Design doc | DONE |
+> | 1 | Single prompts module | DONE (commit 8be501f) |
+> | 2a | utils.ts moved | DONE |
+> | 2b | passes/ moved | DONE (commit c43d656) |
+> | 2c | schemas.ts moved | DONE (PR #62, commit 0d81bec, 2026-05-16) |
+> | 2d | orchestrator port (compiler/index.ts → sutta-studio/orchestrator.ts) | PENDING (PR D) |
+> | 3 | Single LLM caller | DONE (this PR, 2026-05-16) |
+> | 4 | Shim cleanup + delete services/compiler/ | PENDING |
+>
+> Earlier task tracking marked Phase 3 complete after Phase 2 landed; the 2026-05-16 doc audit caught
+> that two divergent callers (compiler/llm.ts and suttaStudioLLM.ts) still existed and reopened the
+> work. The canonical caller now lives at services/sutta-studio/llm.ts; both legacy files are shims.
+>
 > **Companion PR:** #50 (V2 wire) is PAUSED — its commits will be reworked once consolidation lands.
-> **Sessions estimated:** 2-3 sessions, ~10-15 hours of focused work.
 
 ## Why this exists
 
@@ -208,17 +222,27 @@ No code changes. Inventory + plan. Reviewed by user before Phase 1.
 
 **Effort:** ~4-6 hours.
 
-### Phase 3 — Single LLM caller
+### Phase 3 — Single LLM caller — **DONE 2026-05-16**
 
-**Scope:**
-1. Merge `compiler/llm.ts` + `suttaStudioLLM.ts` into `services/sutta-studio/llm.ts`.
-2. The unified caller takes an optional `llmCaller` injection seam so benchmark scripts can substitute their own.
-3. Update both old files to be re-exports.
-4. Verify benchmark + production both work.
+**What landed:**
+1. Created `services/sutta-studio/llm.ts` as the canonical caller — based on the richer suttaStudioLLM
+   shape (typed `CompilerLLMOptions` / `CompilerLLMResult` exports, `providerPreferences` pass-through,
+   plus a `callCompilerLLMText` string-return convenience wrapper).
+2. `services/suttaStudioLLM.ts` → re-export shim from the canonical.
+3. `services/compiler/llm.ts` → re-export shim that aliases `callCompilerLLMText AS callCompilerLLM`
+   to preserve the legacy string-return contract for the 7 existing call sites in compiler/index.ts +
+   compiler/skeleton.ts with zero call-site churn. Those consumers will move to the rich signature
+   when the orchestrator is ported (Phase 2d / PR D).
+4. `services/sutta-studio/passes/_defaultCaller.ts` and `passes/types.ts` updated to import canonical
+   directly rather than the (now-shim) suttaStudioLLM path.
 
-**Risk:** Low. The two callers are 80% identical already.
+**Earlier confusion (why this phase was reopened):** task tracking marked Phase 3 complete after
+Phase 2 landed, but no `services/sutta-studio/llm.ts` ever existed and both legacy files remained
+concrete. The 2026-05-16 doc audit (Phase 0 → Phase 5 of the doc-audit skill, scoped to Sutta Studio)
+caught the divergence and surfaced it as a P0 DRIFT finding. This PR closes it.
 
-**Effort:** ~1-2 hours.
+**Risk paid:** Low. Both call patterns (string-returning legacy via compiler/llm.ts, rich-returning
+canonical via sutta-studio/llm.ts) preserved exactly; full test suite green.
 
 ### Phase 4 — Cleanup + rework PR #50
 
