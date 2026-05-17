@@ -1,0 +1,60 @@
+Real-book verification of #16 fix — partial (2026-05-15)
+=========================================================
+
+Setup: localhost:5183, real Dungeon Defense Ch2 with 3 stored translations
+(v1 G4.1, v2 G4.1, v3 claude-sonnet-4-0). Fix-in-place (commit 1ef1d97).
+
+WHAT VERIFIED in real book:
+  ✓ Submitted real feedback via store.submitFeedback(chId, {
+        type: '👍',
+        selection: 'Legendary Adventurer',
+        comment: 'real-book test #16 fix',
+    }) — succeeded. feedback.length === 1 in chapter state.
+  ✓ Inline-comment marker rendered in DOM with v3 active:
+    <div class="absolute top-0 right-[calc(100%+8px)] w-6 hidden lg:block"
+         style="height: 100%;">
+      <div class="absolute flex items-start" style="top: 1758.75px; right: 0px;">
+        <button>+</button>  ← thumbs-up indicator
+      </div>
+    </div>
+  ✓ Side-panel feedback text shows the comment ("real-book test #16 fix" in DOM).
+  ✓ findTextTop successfully located "Legendary Adventurer" in v3's DOM.
+
+WHAT FAILED to verify in real book:
+  ✗ Programmatic version-switch via store.setActiveTranslationVersion(chId, 1)
+    returned without error but did NOT change chapter.translationResult.
+    Pre/post versions both stayed at 3 (UUID ce50ea1b-...).
+    Same call signature the UI uses (SessionInfo.tsx:136) — unclear why
+    it didn't propagate when called outside a React event handler.
+  ✗ Therefore I could NOT observe marker behavior pre/post version-switch
+    in the running app.
+  ✗ Cannot directly verify the fix resolves the user-visible symptom from
+    in-app interaction. Unit test proves mechanical claim (key change →
+    React remount); real-book confirms feedback path + initial marker
+    render; the FULL bug-resolution cycle was not observed end-to-end.
+
+VERIFICATION OF FIX CONFIDENCE:
+  - Unit test (mechanical): HIGH. 4 tests, 2 catch the bug on unfixed code.
+  - Real-book (initial render): HIGH. Marker renders correctly with fix.
+  - Real-book (version-switch cycle): UNKNOWN. Needs user-driven test.
+
+USER-DRIVEN VERIFICATION PATH (the ground truth):
+  1. Open Dungeon Defense Ch1 (5 versions) or Ch2 (3 versions).
+  2. Select text in current view, right-click/long-press, "Comment".
+  3. Submit a 👍 with text.
+  4. Verify marker appears next to selected text.
+  5. Switch translation version via the version select dropdown.
+  6. PRE-FIX BEHAVIOR (commit before 1ef1d97): marker stays at old
+     position, may disappear on next render trigger.
+  7. POST-FIX BEHAVIOR (commit 1ef1d97 onward): marker recomputes
+     position against new translation's DOM. May appear in new
+     location if selection text exists in new translation, or
+     vanish if not (correct behavior — the selection was version-specific).
+
+HONESTY NOTE:
+  The unit test is necessary but not sufficient. It proves the mechanism
+  the fix uses (forced remount). It does NOT prove that the mechanism
+  resolves the user's reported symptom. The framework's §2 hard rule
+  says "real-bug verdict requires §2 live evidence" — this trace satisfies
+  partial live evidence (feedback path, initial render), but the
+  user-visible end-to-end behavior on version switch was not observed.

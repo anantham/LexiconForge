@@ -1,6 +1,26 @@
 # Issue 1 — Boot time is 31.6s
 
-> Status: **investigated** · Last updated: 2026-05-02 · Investigator: Opus 4.7
+> Status: **Defect 1 FIXED 2026-05-15** (single-flight init guard; L1+L2+L4 verified). Defects 2-6 deferred. · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+>
+> **Fix (Defect 1 only — the StrictMode in-flight guard):** `store/bootstrap/initializeStore.ts:480-580` — module-scope `initializationPromise` lets concurrent callers share one in-flight promise. Second StrictMode mount-call joins instead of re-running the pipeline. Implements CORE-006's "render shell immediately, lazy non-critical" by ensuring the boot pipeline doesn't double-pay.
+>
+> **Verification ladder (§6a):**
+> - [x] L1 Static — confidence 0.95 (pre-fix trace at `traces/repro-result.json` + empirical reproduction in issue #8 showed every `[Store:init]` marker firing 2×)
+> - [x] L2 Unit-mechanical — 3 tests in `tests/store/bootstrap/bootstrapHelpers.test.ts` "issue #1 — single-flight in-flight guard" suite. Verified to FAIL pre-fix (16/16 fail because `__resetInitializationGuard` export doesn't exist) and PASS post-fix (16/16).
+> - [x] L4 Real-event chain — `traces/post-fix-l4-summary.txt`: real-page navigation shows `initializeStore – begin` fires **1×** (was 2× per issue #8's trace), new `joined in-flight init` marker fires 1× (the second StrictMode call). Total console lines **158 → 56 = 65% reduction**.
+> - [ ] L3 Programmatic data-path — N/A (L4 covers the same ground)
+> - [ ] L5 User-driven manual — not required (mechanical fix, deterministic state machine; user-facing boot time reduction is empirically observable via DevTools console)
+>
+> **Side-effect on issue #8 (wasted-logs):** the 65% log reduction from this single-flight fix is the largest single contribution to #8's "verbose cold-boot console" problem. #8's remaining work is gating the non-duplicated half behind a `DEBUG_BOOT` flag (per ADR-009 sketch).
+>
+> **Deferred (Defects 2-6 from the original investigation — see §5 below):**
+> - Defect 2: module-global telemetry array shared across concurrent runs (partially mitigated by single-flight — no concurrent runs anymore)
+> - Defect 3: `handleBootstrapIntents` and below emit zero `bootstrapLog` marks (telemetry gap)
+> - Defect 4: slow `ImportService.importFromUrl` blocks `initializeStore` instead of streaming (the 20s deep-link import — separate concern from StrictMode)
+> - Defect 5: `RegistryService.resolveCompatibleVersion` silently remaps versions (data-integrity)
+> - Defect 6: `ImportService` scope-validation fails per-chapter deep into import instead of fail-fast (data-integrity)
+>
+> Defects 4-6 are the "20 seconds for the deep-link case" story and need their own focused work; not part of this single-flight fix.
 
 ## TL;DR
 

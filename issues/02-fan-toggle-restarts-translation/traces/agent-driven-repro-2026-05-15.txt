@@ -1,0 +1,26 @@
+Agent-driven Playwright repro — issue #2 (fan-toggle-restarts-translation)
+Date: 2026-05-15
+Setup: localhost:5183 (isolated worktree), Dungeon Defense Ch2, v3 claude-sonnet-4-0
+already cached. Hooked console.log + window.fetch to capture translation triggers
+and LLM API calls. Then clicked view-mode toggles via injected JS.
+
+  t=11036ms   STEP 1: click English (baseline, already selected)
+              → 0 console events, 0 network fires
+  t=27241ms   STEP 2: click Fan
+              t=27260   [AutoTranslateMediator] State change detected
+              → 0 translation triggers, 0 network fires
+  t=51991ms   STEP 3: click English (back from Fan)
+              t=52011   [AutoTranslateMediator] State change detected
+              t=52026   [AutoTranslateMediator] Translation already cached for
+                        lf-library:dungeon-defense-wn::v1-primary:ch2_z0z2lt_2pnj
+              → 0 translation triggers, 0 network fires
+
+Total: zero LLM API calls across all three toggles. Static analysis confirmed.
+
+Verdict (live-confirmed): CANNOT-REPRODUCE. The dual-layer guards
+(mediator's hasTranslation + handleTranslate's pendingTranslations) hold.
+
+Framework gap exposed: "paused on user repro" pushed the work back onto
+the user 2026-05-02. The user didn't reply. Agent could have done this
+5-minute Playwright test at any point in the intervening 13 days. The
+"paused" status had no follow-up trigger.

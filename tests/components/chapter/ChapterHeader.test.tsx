@@ -50,8 +50,48 @@ describe('ChapterHeader', () => {
     props.onOpenLibrary = vi.fn();
     render(<ChapterHeader {...props} />);
 
-    fireEvent.click(screen.getAllByText('Library')[0]);
+    // Issue #10 (2026-05-15): label text "Library" replaced with home icon.
+    // Query by aria-label instead of text.
+    fireEvent.click(screen.getAllByLabelText('Return to library (home)')[0]);
 
     expect(props.onOpenLibrary).toHaveBeenCalledTimes(1);
+  });
+
+  // Issue #10 regression — library label → home icon. Verified to FAIL on
+  // pre-fix code (where the button rendered the literal text "Library").
+  describe('issue #10 — library label replaced by home icon', () => {
+    it('does NOT render literal "Library" text in the library button', () => {
+      const props = createProps();
+      props.onOpenLibrary = vi.fn();
+      render(<ChapterHeader {...props} />);
+      const buttons = screen.getAllByLabelText('Return to library (home)');
+      buttons.forEach((btn) => {
+        expect(btn.textContent?.trim()).toBe('');
+      });
+    });
+
+    it('renders an SVG home icon inside the library button', () => {
+      const props = createProps();
+      props.onOpenLibrary = vi.fn();
+      render(<ChapterHeader {...props} />);
+      const buttons = screen.getAllByLabelText('Return to library (home)');
+      expect(buttons.length).toBeGreaterThan(0);
+      buttons.forEach((btn) => {
+        const svg = btn.querySelector('svg');
+        expect(svg).not.toBeNull();
+        const path = svg?.querySelector('path');
+        expect(path?.getAttribute('d')).toContain('M3 9.5');
+      });
+    });
+
+    it('preserves the existing title tooltip for hover', () => {
+      const props = createProps();
+      props.onOpenLibrary = vi.fn();
+      render(<ChapterHeader {...props} />);
+      const buttons = screen.getAllByLabelText('Return to library (home)');
+      buttons.forEach((btn) => {
+        expect(btn.getAttribute('title')).toBe('Return to the novel library');
+      });
+    });
   });
 });

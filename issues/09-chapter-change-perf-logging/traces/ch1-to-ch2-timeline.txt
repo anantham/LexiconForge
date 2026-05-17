@@ -1,0 +1,24 @@
+Chapter change timing: Dungeon Defense Ch1 → Ch2 via Next → button
+Captured via in-page JS instrumentation: console.log + MutationObserver(h1)
+Environment: localhost:5183, isolated worktree, IDB seeded with Dungeon Defense
+imported chapters (ch1-ch4, v1-v5 each)
+
+t=0ms      Next button clicked
+t=99ms     [AutoTranslateMediator] State change detected
+t=110ms    [AutoTranslateMediator] Translation already cached for ch2 stableId
+t=389ms    [TranslationRepo] getTranslationVersionsByStableId called
+t=571ms    [ImageSlice:loadExistingImages] Called for chapter ch2
+t=572ms    [ImageSlice:loadExistingImages] Loaded existing images
+t=574ms    *** H1 visually changed to "Dungeon Defense - Chapter 2" ***  <-- visible
+t=630ms    [TranslationRepo] Resolved stableId → URL https://booktoki468.com/novel/3912078
+t=897ms    [TranslationRepo] Found 0 translation(s) by URL  <-- LOOKUP FAILED
+t=897ms    [TranslationRepo] Trying direct stableId index fallback
+t=958ms    [TranslationRepo] ✅ Direct stableId fallback found 3 translation(s)
+
+Key observations:
+- Visible H1 change at 574ms — exceeds CORE-006's <500ms SLO by 15%
+- URL-based lookup at 630-897ms is wasted work (returns 0 translations);
+  fallback at 897-958ms succeeds via stableId index
+- 9 console.log lines fire per chapter change (relates to issue #8)
+- AutoTranslateMediator detected cache hit at 110ms — fast path exists but
+  isn't used by the visible critical path

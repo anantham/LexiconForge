@@ -1,6 +1,16 @@
 # Issue 20 — `chapterNumber` field drifts from `stableId` baseHash (history-walker corruption)
 
-> Status: **root-caused** · Last updated: 2026-05-10 · Investigator: Claude Opus 4.7 (1M)
+> Status: **FIXED 2026-05-10** · Last updated: 2026-05-15 (archaeology pass) · Investigator: Claude Opus 4.7 (1M)
+>
+> **Fix shipped in `bef65dd534` (2026-05-10T14:16-04:00)** — `fix(maintenance): issue #20 — chapterNumber drift from history walker`. Two parts:
+>
+> 1. **Stop-the-bleeding** — `services/translationService.ts:858-876`: removed the `ChapterOps.setChapterNumberByStableId(link.stableId, inferred)` write; in-memory assignment now gated on `link.memChapter.chapterNumber == null` so legitimate scrape/URL-parsed numbers cannot be overwritten.
+> 2. **Existing-data repair** — `correctChapterNumberDriftV5` migration at `services/db/operations/maintenance.ts:2640+`, wired into bootstrap at `store/bootstrap/initializeStore.ts:181`, gated by `SETTINGS.CHAPTER_NUMBER_CORRECTED_V5` flag (runs once per user).
+>
+> README left in pre-fix `root-caused` state until this 2026-05-15 audit caught the staleness. See `issues/_themes/stale-issue-readme.md` (proposed) for the meta-pattern.
+>
+> ⚠ Below this block, all content is the PRE-FIX investigation. Treat as historical record, not current state.
+
 > Surfaced while shipping V4 unwrap migration ([issue #19 spec](../19-translation-survives-nav-policy/README.md), V4 in `services/db/operations/maintenance.ts`). Post-V4, dropdown showed duplicate entries ("· Chapter 339" + "● Chapter 339 — First-Degree State of War"). Investigation revealed the chapter row's `chapterNumber` field was 341, not 339, even though both stableId baseHash and title agree on 339.
 
 ## 1. Claim
