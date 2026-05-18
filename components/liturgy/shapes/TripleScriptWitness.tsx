@@ -23,6 +23,7 @@ import { Tooltip } from '../../sutta-studio/Tooltip';
 import { ProseBlock } from '../ProseBlock';
 import { useLiturgySettings } from '../LiturgySettings';
 import { conceptsForToken } from '../../../data/concepts/lookup';
+import { conceptFacets } from '../../../data/concepts/tooltipFacets';
 
 // Per-script font stacks. Latn/IAST uses Cardo (already loaded for diacritics).
 // Other scripts use Noto Serif Web Fonts pulled in index.html.
@@ -355,10 +356,20 @@ const HoverSpan: React.FC<{
   lang?: string;
 }> = ({ text, tooltipText, bold = false, morphemeIdx, conceptIds, lang }) => {
   const [open, setOpen] = useState(false);
+  const [facetIdx, setFacetIdx] = useState(0);
   const registryIds = lang
     ? conceptsForToken(languageSubtag(lang), scriptSubtag(lang), text)
     : undefined;
   const conceptAttr = mergeConceptIds(conceptIds, registryIds);
+  // Build facets: the surface-gloss is always facet 0; each concept the
+  // token attests adds one short facet (preferredLabel + first sentence
+  // of the registry definition). When there's more than one facet, click
+  // cycles between them (mn10 pattern — see sutta-studio/Tooltip.tsx).
+  const allConceptIds = conceptAttr ? conceptAttr.split(/\s+/).filter(Boolean) : [];
+  const extraFacets = conceptFacets(allConceptIds);
+  const facets = [tooltipText, ...extraFacets];
+  const currentFacet = facets[facetIdx % facets.length] ?? tooltipText;
+  const hasFacets = facets.length > 1;
   return (
     <span
       data-hover-span="true"
@@ -369,9 +380,28 @@ const HoverSpan: React.FC<{
       }`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
+      onClick={(e) => {
+        // Click advances the tooltip facet when there are multiple. We
+        // stop propagation so the click doesn't bubble to parents that
+        // might also bind onClick (alignment-line clear, etc.). When
+        // there's only one facet, click is a no-op — the cursor:help
+        // hint is unchanged.
+        if (!hasFacets) return;
+        e.stopPropagation();
+        setFacetIdx((i) => (i + 1) % facets.length);
+      }}
+      title={hasFacets ? 'Click: next facet' : undefined}
     >
       {text}
-      <AnimatePresence>{open && <Tooltip text={tooltipText} />}</AnimatePresence>
+      <AnimatePresence>
+        {open && (
+          <Tooltip
+            text={currentFacet}
+            facetIndex={hasFacets ? facetIdx % facets.length : undefined}
+            facetTotal={hasFacets ? facets.length : undefined}
+          />
+        )}
+      </AnimatePresence>
     </span>
   );
 };
