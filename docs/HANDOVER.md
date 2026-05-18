@@ -1,262 +1,189 @@
-# Handover: 2026-05-16 (post-compaction reconstruction — 9 issues closed + InterleavedReader L5 + verification ladder)
+# Handover: 2026-05-18 (Heart Sutra artifact + concept-graph hover + AFFORDANCES.md + automation pattern)
 
-> Replaces the 2026-05-14 handover (whose three "Continue Immediately"
-> threads — DN22 pilot, Persistent segmentCache, GROUNDING Phase 4 — all
-> merged 2026-05-15 via PRs #55/#56/#57).
->
-> **Worktree:** `../LexiconForge.worktrees/opus-issues-investigation/` on
-> branch `feat/opus-issues-investigation` (PR #60, OPEN, MERGEABLE).
->
-> **No background processes running** (no vite, no playwright).
->
-> Written from a compacted context — the model that did the work received
-> "Prompt is too long" trying to act on the final "yep go ahead" and `/compact`
-> ran. This handover was synthesized by re-reading the JSONL after compaction.
+> Replaces the 2026-05-16 handover. None of the prior handover's `Continue Immediately` items were addressed this session (CI test gate PR, PR #60 review, InterleavedReader chunking) — this session was 100% focused on the Heart Sutra artifact + cross-project automation infrastructure. Prior threads are carried forward unchanged in their respective sections below.
 
-## Session summary (narrative)
+## Session summary (narrative — for humans skimming)
 
-One thread, three arcs:
+Made the MAPLE Heart Sutra page reflect the project's polyglot vision. Split 3 mega-segments into 12 Xuanzang chant-line segments (breath-by-breath rhythm). Replaced the misleading "AI (after Sheng-yen)" witness label with the actual MAPLE chant sheet text (matched against a user-provided photo). Filled four elided prose blocks (Śāriputra all-dharmas, the no-eye enumeration, All Buddhas, Therefore-know). Added the Sino-Japanese longer chant after the Sanskrit dharani. Then built the concept-graph hover primitive (per `docs/sutta-studio/POLYGLOT.md` + `TEXT_GRAPH.md` design): `ConceptNode` types + 30-concept registry (Gemini-deep-researched, multi-source citations) + concept-membership hover filter wired into `TripleScriptWitness.tsx`. Validated end-to-end on `opening-practice`: hovering `prajñā` morpheme now lights only "wisdom" (was: also "transcendent" — the fan-out bug). Plus: validated path-A subagent + GEO-persistent-cookies pattern for self-driven Gemini Deep Research (built `scripts/gemini_research.py`). Plus: created lean `~/Documents/Ongoing Local/AFFORDANCES.md` with two curated entries. Plus: updated handover skill to v1.7.0 with affordances + ask-when-blocked sections.
 
-1. **Issue triage + investigation** — surveyed all 21 open issues in `issues/`,
-   archaeology revealed 3 were already FIXED (#19/#20/#12 in past commits with
-   stale READMEs), 9 got fresh investigations with verbatim JSONL RCA, all 9
-   closed with the new §6a Verification Ladder applied.
+## Commits this session (all on `feat/opus-heart-sutra-split`, NOT pushed)
 
-2. **§6a Verification Ladder protocol** — added 5-rung verification gate
-   (L1 Static → L5 User-driven manual) to `issues/_template/README.md`. Motivated
-   by overclaiming "FIX" on #16 with only L2 unit-mock evidence. The user
-   pushed for a forcing-function protocol: *"Rather than using words, you
-   actually make a practice, you know, a protocol."*
+- `046085a` feat(scripts): add gemini_research.py — drive Gemini via GEO's persistent session
+- `70b9335` feat(concepts): 30-concept Heart Sutra registry from Gemini deep-research
+- `c701adc` feat(liturgy): concept-graph hover (prototype on opening-practice)
+- `e9e3ae5` feat(liturgy/heart-sutra): label as MAPLE chant, add elided prose, bump arrow visibility
+- `f072c7e` fix(liturgy): recompute alignment arrow from live DOM on hover (cherry-pick from `fix/opus-alignment-arrow-stale`)
+- `0a3184f` feat(liturgy): split Heart Sutra into Xuanzang chant-line segments
 
-3. **InterleavedReader feature (issue #15 + #3 anomaly E)** — built a
-   sutta-studio-style aligned word reader: `wordAlignment.ts` (LLM align with
-   indexOf-recompute validation), `perWordTranslation.ts` (glossary + DeepL +
-   Google, layered), `InterleavedReader.tsx` (hover-fetch, click-cycle senses).
-   Wired into `ReaderBody` behind a settings flag. L5-verified in real browser
-   — surfaced 3 wire-up bugs that L2 mocked tests missed by construction
-   (validating the protocol).
+**PUSHED: no — awaits user authorization.**
 
-22 commits on `feat/opus-issues-investigation`, all pushed. PR #60 opened.
+**Cross-repo changes (NOT in this worktree):**
+- `~/Documents/Ongoing Local/AFFORDANCES.md` — created, 40 lines, 2 entries (browser-automation-with-logged-in-frontier-models + scheduled-recurring-tasks). NEEDS DECISION: version-control where? (proposed: tiny git repo at `~/Documents/Ongoing Local/`, or commit into GEO).
+- `~/Documents/Ongoing Local/expansion/skills/handover/SKILL.md` — updated to v1.7.0 (added "Available cross-project affordances" section + "Ask the human when blocked" binding section). NEEDS PUSH to `anantham/expansion` GitHub repo + `/plugin marketplace update expansion && /plugin install expansion@expansion` to make durable; installed cache currently still v1.6.1.
+- `~/.claude/plugins/known_marketplaces.json` — fixed marketplace registration: key renamed `expansion-marketplace` → `expansion`, repo updated `anantham/expansion-marketplace` → `anantham/expansion` (user had deleted the wrong-named repo).
 
-## Commits this session (all pushed, on `feat/opus-issues-investigation`)
+## Verbatim user quotes (chronological — load-bearing scope directives)
 
-PR #60: https://github.com/anantham/LexiconForge/pull/60 (OPEN, MERGEABLE, awaiting review)
+*Capture rationale: these are the scope-setters, redirects, and "why" rationales that drove every commit. Paraphrase would lose specificity. JSONL session log is local-only; this is the durable grounding.*
 
-- `9b45ecb` fix(reader): #15 L5 — 3 wire-up bugs caught by real-browser test, full ladder cleared
-- `ded07ba` feat(reader): wire #15 InterleavedReader into ReaderBody (settings flag + IDB persistence)
-- `dac9fb9` feat(reader): #15 + #3 anomaly E — interleaved word-aligned reader (3 phases)
-- `c4386f0` fix(bootstrap): issue #1 — single-flight init guard (CORE-006 enforce)
-- `f311110` fix(eta): issue #13 — median + 1-sample threshold + confidence + Estimating
-- `ef5dbd9` fix(translation): issue #9 — race URL+stableId lookups (L1+L2 verified)
-- `ff09a8c` fix(reader): issue #10 — library label → home icon (L1+L2+L4 verified)
-- `c1ee1a5` docs(issues): add §6a verification ladder — 5 levels with explicit pass criteria
-- `fd03305` investigate(#16): real-book partial verification — honest gap acknowledged
-- `1ef1d97` fix(reader): issue #16 — version-switch loses comment markers (key-based remount)
-- `77cce1a` investigate(#2): cannot-reproduce — agent-driven Playwright repro closes 13-day pause
-- `66305d1` docs(postmortem): RCA with verbatim JSONL conversation quotes
-- `9258cb1` investigate(meta): archaeology pass — #12/#19/#20 already FIXED, README staleness identified
-- `f8b3abc` docs(issues): update index with 8 new investigations + Tier ordering
-- `63f4986` investigate(#15): comparison-cycle-modes — fix_local 3-part, one user decision
-- `a53a6c2` investigate(#6): image-models-dynamic-and-tested — split, compound action
-- `9cbf75d` investigate(#12): background-preload-spinner-restart — superseded by #19
-- `e4c6277` investigate(#9): chapter-change-perf-logging — 574ms, exceeds CORE-006 SLO
-- `ef7e284` investigate(#13): eta-not-model-specific — fix_local, 4-part remedy
-- `dd06641` investigate(#3): metadata-empty-and-glossary — compound, 5 anomalies + 2 escalations
-- `8de8677` investigate(#8): wasted-logs-audit — real-bug, draft ADR-009 logging policy
-- `520ec50` investigate(#7): provider-registration-inefficiency — confusion, subsumed by #1
+- `2026-05-18 early` — *"do the bodhi zeno chants now pls, you have the data right and do whatever did for maple for all these chants"* — opened the session with bulk-authoring scope.
+- `2026-05-18` — *"if maple and bodhi zendo has the same 4 great vows chant why are you duplicating efforts?"* — surfaced duplication; ratified status quo (no consolidation).
+- `2026-05-18` — *"cant you get original text and do the same thing with arrows and segments and all that why is it just text?"* — drove the Zen long-text rebuild (Song of Zazen + Xinxin Ming + Hōkyō Zanmai with original Japanese/Chinese).
+- `2026-05-18` — *"I want to break it into smaller phases right now its like 12 words then english the rhytm should be more like 3 words before I see english"* — drove the chant-line segment split (3 mega-segments → 12 breath-sized).
+- `2026-05-18` — *"didnt you use the maple chant sheet? why do you call it AI and loosely based on sheng like cant you make sure its exactly MAPLE"* — exposed the misleading label; drove relabel + sheet verification.
+- `2026-05-18` — *"make sure its matching this, this is the soryu maple translation... is there anything different"* (photo of MAPLE chant sheet) — drove the four-prose-block additions + comparison against actual sheet.
+- `2026-05-18` — *"no need for arrows in the alignment on hover edges"* — drove the arrowhead-marker removal (kept lines, dropped marker).
+- `2026-05-18` — *"the thing is Maybe we've got to think about the data model. Like, it's not just about the English, there are multiple Englishes... we've got to think about handling all of that... what are your recommendations?"* — opened the polyglot data-model design conversation.
+- `2026-05-18` — *"Can you read the vision document in temporal coordination about and the ADRs and things like that? Because I think you're still going for centralization and not understanding that we're going to be living in a in a high actuation world where things are pluralistic and there is weak correspondences. You can't just try to abstract away uh what is common."* — **pivotal redirect**. Killed the Sanskrit-as-anchor-track design I was proposing. Re-grounded in `POLYGLOT.md` + `TEXT_GRAPH.md` ConceptNode primitive (no canonical pivot). This is the load-bearing design principle of the concept-graph implementation.
+- `2026-05-18` — *"i think we should do it now, we have momentum and lets do this right so we can fix all the other chants.... see rather than think of making the perfect model, the goal is to get the heart sutra arrtfact perfect, like I want that page to really reflect our vision, we have a concrete goal"* — **artifact-first framing**. Override of my "defer multi-month investment" recommendation. Heart Sutra page IS the constraint that disciplines the model.
+- `2026-05-18` — *"cant you referece and ground using ALL these sources... the idea is to lean on AI making intelligence cheap and using authoriticative sources to prevent hallucinations"* — set the grounding standard (≥2 authoritative sources per concept beyond Wikipedia).
+- `2026-05-18` — *"yea let us try A and see if it works and if now we can do C wrapping B"* — authorized testing path-A (subagent + MCP claude-in-chrome) before promoting to path-C (skill wrapping path-B GEO browser_chat.py).
+- `2026-05-18` — *"are you using the cookies from GEO"* — surfaced the critical gap; MCP claude-in-chrome was launching a clean Chromium with no cookies. Drove the pivot to GEO's persistent `~/.atlas/browser-state/gemini.google.com/` user-data-dir via Python+Playwright.
+- `2026-05-18` — *"feels like too much, I want it to be lean and sleek require approval from me before affing any affordance, so far we dont need redundancy"* — set AFFORDANCES.md scope: one entry at start, manual approval for each addition, no auto-collection.
+- `2026-05-18` — *"yes you can do an audit the cron job that handles handover of tasks on obsidian is rich runs daily can be useful for recurring tasks"* — approved the second AFFORDANCES.md entry (scheduled-recurring-tasks runner).
+- `2026-05-18` — *"make sure /Handover talks about the affordances using the gemini and chatgpt for deepresearch and asking human for help if there is any blocker"* — drove handover-skill v1.7.0 patch.
 
-## Verbatim user quotes (this session, 2026-05-15 → 2026-05-16)
-
-*(JSONL-extracted; ordered chronologically; the "why" behind decisions
-captured in the user's own words)*
-
-**Initial scope:**
-- 2026-05-15T19:20: *"ok can you review all the issues and see if they are still outstanding?"*
-- 2026-05-15T19:27: *"can you investagetions proper playwright end to end for all 8"*
-- 2026-05-15T19:29: *"make a worktree cause other agents are working on different branches I dont want you interferring 2 full depth 3 per issue"* — established the multi-agent worktree boundary
-- 2026-05-15T20:45: *"this is amazing ok so now what about the other issues, it looks liek we are gaining clarity on which order to tackle these issues"*
-
-**Demand for verbatim conversation RCA (drove the postmortem doc):**
-- 2026-05-15T21:08: *"did you read the ACTUAL CONVERSATIONS? what did the human say? can you SEE the tool uses and claude making the problem?"*
-- 2026-05-15T21:14: *"i want you to do the ACTUAL conversation reading for each bug, we need a section in the report that quotes actual statements so we do RCA PROPERLY"*
-
-**Meta-protocol critique (drove §6a ladder):**
-- 2026-05-15T21:30: *"What about the meta protocol? Like is this even useful, this whole process is should this be a skill?"*
-- 2026-05-15T21:34: *"It's not just about simplifying, but it's also like creating a practice, you know. This is why algorithms are useful. You have to force the model to go through these steps. And these steps ensure that you don't make these mistakes. Rather than saying it, rather than using words, you actually make a practice, you know, a protocol."*
-- 2026-05-15T21:35: *"why is it post and user rep repro? I'm not sure. Why can't we have those? ... I think before we start removing things and changing things, let's try to fix some of them and understand what the solution looks like, and then I think we can actually change the meta protocol."* — practice before protocol
-
-**Pushback on L2-only "FIX" claim (drove L5 enforcement):**
-- 2026-05-15T21:57: *"are you using an actual book to test this"*
-- 2026-05-15T22:09: *"Exactly, we need a actual checklist. Yeah, let's go through the other bugs. We have time. Let's go through systematically."*
-
-**#15 re-scoping (drove InterleavedReader design pivot):**
-- 2026-05-15T22:51: *"Yeah, investigate first. Investigate all of this. Don't just believe any of the issues that I'm saying. You need to understand and make hypothesis, falsify them and The thing is, the gl there's no distinction between translator and reader, right it's just how readers and translators are working together it's interdependent ... we need a different UI for 15. Like like, I don't like the current UI. We need to have aligned interleave text so that it's easy to cycle through and actually see the raw translation of individual words. It's not about translating the whole thing, but in translating individual words. Aren't there other translation sus setups that we can use? Like Yeah, a deep l API could be it's cheaper. We can maybe support both."*
-- 2026-05-16T01:59: *"both"* (in response to single-vs-multi-provider question)
-
-**L5 verification gate:**
-- 2026-05-16T08:24: *"cant you do 2 and confirm it works?"*
-
-**Test-infra survey + immediate pending task:**
-- 2026-05-16T10:49: *"yep and please check if there is any report on tests e2r integration mutation what's the status on this repo"*
-- 2026-05-16T11:55: ***"yep go ahead"*** — authorization to open CI-test-gate follow-up PR. **Model could not respond** ("Prompt is too long"), then `/compact` ran. This is the immediate pending task.
-
-## Pending Threads (enumeration — for the next instance)
+## Pending Threads (enumeration — for the next instance's worklist)
 
 ### Continue Immediately
 
-1. **CI test gate PR (user explicitly authorized "yep go ahead" → blocked by "Prompt is too long" → never started)**
-   - Status: NOT STARTED. The 2026-05-16T11:55 user authorization survived; the model response did not.
-   - Next step: New worktree `../LexiconForge.worktrees/opus-ci-test-gate/` on branch `feat/opus-ci-test-gate` from `main`. Add `.github/workflows/test.yml` running `npm test` on PRs. Open follow-up PR against `main`. Keep PR #60 untouched (separate concern, separate review).
-   - Files: `.github/workflows/test.yml` (new). Existing CI is only `codex-review.yml` (no test execution).
-   - Context: Repo has 1,487 passing tests / 0 failing / 45.5s runtime. Coverage thresholds set per-file in `vitest.config.ts` but unenforced. Stryker not configured. The stale-README pattern (#19/#20 fixed but READMEs lingered 10 days) was enabled in part by lack of CI test gate — agents shipped without anyone running verification.
-   - Optional follow-on moves (NOT explicitly authorized — propose before doing):
-     - Coverage gate (`vitest run --coverage` in same workflow)
-     - E2E gate (`npm run test:e2e` — Playwright, currently 10 specs)
-     - Stryker mutation testing for the 9 modules with explicit coverage thresholds
+1. **Tag remaining 11 Heart Sutra segments with conceptIds** — highest-leverage finish for the artifact.
+   - Status: NOT STARTED. Only `opening-practice` has morpheme/word conceptIds attached (prajñā→wisdom, pāramitā→perfection, caryāṃ→practice, gambhīrāṃ→deep, caramāṇo's `cara` root→practice). The other 11 segments have full word/morpheme data + the 30-concept registry exists, but no conceptIds are attached.
+   - Next step: in `data/liturgy/heart-sutra.ts`, for each segment's `morphemes:` and (where no morphemes) `conceptIds` field at WordGloss level, attach the matching concept ID(s) from `data/concepts/heart-sutra.ts`. The 30 concept IDs are stable; cross-reference each Sanskrit lemma to the right concept.
+   - Estimate: 30-45 min focused. Mechanical edits.
+   - After: concept-membership hover works across the WHOLE page, not just one segment.
 
-2. **PR #60 review/merge** — https://github.com/anantham/LexiconForge/pull/60
-   - Status: OPEN, MERGEABLE, no review yet. 22 commits, 5688 additions, 266 deletions, 48 files.
-   - Next step: Wait for review (`codex-review.yml` auto-runs on `@codex review`). Address feedback if any. Merge when green. After merge: `git worktree remove ../LexiconForge.worktrees/opus-issues-investigation && git branch -d feat/opus-issues-investigation`.
+2. **Push `feat/opus-heart-sutra-split` to remote + open PR** — 6 commits unpushed, none reviewed. User has not authorized push for this branch yet. Surface to user; they decide whether to push as-is or wait for #1 above.
 
-3. **#15 InterleavedReader — production-scale chunking strategy**
-   - Status: L5-verified on a 16-char first paragraph (3 alignment pairs). Real chapters are 2-10k chars; `wordAlignment` currently sends the full text in one LLM call.
-   - Next step: Chunk by sentence or paragraph before alignment, then concatenate alignments with offset rebasing. Or accept a 1-2 min latency budget for first-load. Estimate: 4-6 hr.
-   - Files: `services/wordAlignment.ts`, `components/chapter/ReaderBody.tsx` (caller).
-   - Context: Set `maxTokens: 65536` during L5 debugging because default was clipping. May need higher for full chapters.
+3. **Push `~/Documents/Ongoing Local/expansion/` source to `anantham/expansion` on GitHub + reinstall the plugin** — handover skill v1.7.0 patch is in source only; installed cache still v1.6.1. Without push + `/plugin marketplace update expansion && /plugin install expansion@expansion`, the affordances + ask-when-blocked sections won't fire in future `/handover` runs.
+
+4. **Decide AFFORDANCES.md versioning** — currently a free-floating file at `~/Documents/Ongoing Local/AFFORDANCES.md`. Options: tiny git repo at `~/Documents/Ongoing Local/`, commit into GEO, leave un-versioned. User to decide.
+
+### Carried forward from prior handover (2026-05-16) — none addressed this session
+
+5. **CI test gate PR** — STILL NOT STARTED. User explicitly authorized 2026-05-16T11:55 ("yep go ahead"); 2-day-old authorization. New worktree `../LexiconForge.worktrees/opus-ci-test-gate/` from `main`, branch `feat/opus-ci-test-gate`. Add `.github/workflows/test.yml` running `npm test` on PRs. Context in prior handover lines 107-115.
+6. **PR #60 review/merge** — STILL OPEN. https://github.com/anantham/LexiconForge/pull/60 — last status: OPEN, MERGEABLE, no review yet. Awaiting `@codex review`.
+7. **#15 InterleavedReader — production-scale chunking strategy** — STILL DEFERRED. L5-verified on 16-char paragraph; real chapters are 2-10k chars. Files: `services/wordAlignment.ts`, `components/chapter/ReaderBody.tsx`. Estimate: 4-6 hr.
 
 ### Blocked
 
-None.
+8. **claude-in-chrome MCP extension domain permission** — extension returns `Permission denied by user` for gemini.google.com navigation. User attempted to grant once, didn't take. Workaround discovered: GEO's persistent Chrome session at `~/.atlas/browser-state/gemini.google.com/` via Python+Playwright (now wired as `scripts/gemini_research.py`). The MCP path stays blocked but the workaround is solid.
 
 ### Deferred (acknowledged but parked)
 
-1. **Other phases of issue #1 (defects 2-6: telemetry sample-aggregation, deep-link import race, registry remap, scope validation)**
-   - Why deferred: Single-flight init guard (Defect 1) was the highest-leverage fix and already shipped in `c4386f0`. The remaining defects are smaller and can be addressed independently.
-   - Files: see `issues/1-bootup-time/README.md` for the full 6-defect decomposition.
-   - Revisit: When CORE-006 SLO ratification needs broader cleanup or telemetry consumer ships.
+| Item | Why deferred / sketch |
+|---|---|
+| **Cross-script concept tagging** | Currently only Sanskrit IAST morphemes + English witness tokens emit `data-concept-ids`. Chinese 般若 / Tibetan ཤེས་རབ tokens via `scriptMorphemes` aren't yet plumbed. Requires renderer changes in `TripleScriptWitness.tsx` to call `conceptsForToken('zh', 'Hant', text)` etc. when rendering script-variant tokens. Big quality win for the "no canonical pivot" pluralism principle. Next sprint. |
+| **Vision.md §3 pillars** | Ghost rendering at 30% opacity for supplied English; Visual syntax color logic (gold/blue/orange for grammatical roles); Polysemy Rotator (click contested word, cycle senses). Each ~half-day. |
+| **Deep Research mode toggle in `gemini_research.py`** | Current `--deep-research` flag has placeholder logic that falls back to regular chat if it can't find the toggle. Needs the actual Gemini Deep Research selector. ~30 min to wire properly once you re-run with `--deep-research` and observe the actual button. |
+| **Promote path-A → path-C** (skill wrapping `gemini_research.py`) | User asked: "C wrapping B." Write `~/.claude/skills/research/SKILL.md` (or in expansion) that codifies `/research <prompt>` → calls `gemini_research.py`, optionally `chatgpt_research.py` in parallel, dedupes results. Deferred — works fine as a manual script for now. |
+| **Princeton page numbers for 26/30 concepts** | Marked "Princeton lookup needed" in `data/concepts/heart-sutra.ts`. Requires physical or PDF access to Buswell & Lopez 2014. Gemini research didn't have it. |
+| **Verify 84000 URLs** | Gemini gave 84000 glossary slugs but I didn't click through each one. Some may 404 or point at the wrong entry. Could batch-verify via `gemini_research.py` with a small prompt. |
+| **Princeton physical lookup** | User to do manually if/when they have the book in hand. |
+| Issue #1 phases 2-6 (telemetry, deep-link import race, registry remap, scope validation) | From prior handover — see `issues/1-bootup-time/README.md`. |
+| ADR-009 (logging policy) ratification + implementation | From prior handover — `issues/8-wasted-logs-audit/README.md`. |
+| ADR-010 (liveness probes) ratification | From prior handover — `issues/6-image-models-dynamic-and-tested/README.md`. |
+| Pre-existing TS errors in repo | `AboutThisText.tsx`, `spaNavigate.ts`, `smoke-real-fojin.ts`, etc. From prior handover. |
+| DharmaNexus / MITRA framework | Deferred since 2026-05-14. |
+| Compiler consolidation Phase 3/4 | Tasks #44, #45 still pending. |
+| Path B procedural phases | Task #46 still pending. |
+| Refrain-detector post-pass | Task #52. Plan at `docs/sutta-studio/PLANS/refrain-detector.md`. |
+| Cost-aware preview-and-confirm UX | Task #53. Plan at `docs/sutta-studio/PLANS/cost-preview-confirm.md`. |
 
-2. **ADR-009 (logging policy) ratification + implementation** — from issue #8
-   - Why deferred: Drafted in the issue README; needs human ratification before sweep across the codebase. Estimate: 1-2 hr ratification + 4-8 hr implementation.
-   - Files: `issues/8-wasted-logs-audit/README.md` (draft).
+### Explicit Decisions NOT to Do
 
-3. **ADR-010 (liveness probes) ratification** — from issue #6
-   - Why deferred: Drafted in the issue README; depends on whether the team wants to enforce dynamic-test pattern for all external dependencies.
-   - Files: `issues/6-image-models-dynamic-and-tested/README.md` (draft).
-
-4. **Pre-existing TypeScript errors in repo** — `AboutThisText.tsx`, `spaNavigate.ts`, `smoke-real-fojin.ts`, etc.
-   - Why deferred: Pre-existed before PR #60's work; not in scope for issues-investigation PR.
-   - Revisit: After PR #60 merges, sweep with a focused TS-only PR. Run `npx tsc --noEmit | head -50` to inventory.
-
-### Carried forward from prior handover (2026-05-14, all resolved)
-
-1. **Verify DN22 pilot end-to-end** — RESOLVED. PR #55 merged 2026-05-15T02:13Z (commit 1cf1b37 area). Screenshot `dn22-pilot-verified.png` in main repo working tree confirms.
-2. **GROUNDING Phase 4 via Eudoxos** — RESOLVED. PR #57 merged 2026-05-15T02:44Z (commit `1cf1b37`).
-3. **Persistent segmentCache across refreshes and suttas** — RESOLVED. PR #56 merged 2026-05-15T02:44Z (commit `16cdb77`). Real-LLM smoke test added in commit `1dd0e38`.
-4. **DharmaNexus / MITRA framework** (deferred) — STILL DEFERRED. No movement this session.
-5. **Compiler consolidation Phase 3/4** (deferred) — STILL DEFERRED. Tasks #44, #45 in task list still pending.
-6. **Path B procedural phases** (deferred) — STILL DEFERRED. Task #46 in task list still pending.
-7. **Refrain-detector post-pass** (deferred) — STILL DEFERRED. Task #52 still pending. Plan exists at `docs/sutta-studio/PLANS/refrain-detector.md` (seeded 2026-05-15 for parallel agent pickup).
-8. **Cost-aware preview-and-confirm UX** (deferred) — STILL DEFERRED. Task #53 still pending. Plan exists at `docs/sutta-studio/PLANS/cost-preview-confirm.md`.
+| Item | Why skipped |
+|---|---|
+| Add Concept-graph types as project-level architectural commitment NOW | User redirected: "the goal is to get the heart sutra artifact perfect, like I want that page to really reflect our vision, we have a concrete goal." Artifact-first; model emerges from the artifact's requirements. Other chants (Refuges, EJKG, Bodhi vows) can follow the same pattern later if it proves out. |
+| Auto-collect AFFORDANCES.md entries from project scans | User said "lean and sleek, require approval from me before affing any affordance." Manual curation only. |
+| Register more skills/utilities as affordances (concept-graph types, citation helpers, GEO's contamination audit) | Audited: niche to specific projects, not general affordances. Two entries is the right size. |
+| Cross-script concept-tagging in this commit | Scope expansion — would require renderer changes. Deferred as separate sprint. |
+| Use MCP Playwright for Gemini Deep Research | Confirmed: MCP Playwright launches clean Chromium, no cookies, hits sign-in wall. Use GEO's persistent state path instead. |
 
 ## Key Context
 
-### What this dying context uniquely captured (now in durable artifacts)
+### Pluralism principle (LOAD-BEARING — read POLYGLOT.md + TEXT_GRAPH.md before any data-model change)
 
-- **PR #60 with 22 commits** — each commit message documents the symptom + root cause + which verification ladder rungs cleared
-- **§6a Verification Ladder** — `issues/_template/README.md` now has 5 explicit rungs (L1 Static, L2 Unit-mechanical, L3 Programmatic data-path, L4 Real-event chain, L5 User-driven manual) with pass criteria. Hard gate for "FIX" claims.
-- **RCA postmortem doc** — `docs/postmortem/2026-05-15-issue-rca-with-jsonl-quotes.md` documents the "stop documenting, ship" / "Phase 1 done" anti-pattern that produced stale READMEs, with verbatim quotes from session `830d8ff9`.
-- **Verbatim user quotes section above** — preserved here because the JSONL is local-only and will not survive into the next session.
+The user explicitly redirected away from centralizing data-model patterns. Key principles from `docs/Vision.md`, `docs/sutta-studio/POLYGLOT.md` (manifesto), `docs/sutta-studio/TEXT_GRAPH.md` §4:
 
-### Non-obvious bugs the fresh agent should know
+- **No canonical anchor track.** Sanskrit, Pāli, Chinese, Tibetan, Japanese, Korean, Vietnamese, multiple Englishes all participate as equal attestations of `ConceptNode`s. Don't make Sanskrit (or any single language) the pivot.
+- **Concept membership, not connectivity graph.** Hover semantics = set intersection on `conceptId`s, not edge-following.
+- **Weak correspondences, multiple kinds.** `AttestationRelation` distinguishes `semantic | transliteration | calque | interpretive | ghost`. 般若 ↔ prajñā is `transliteration` (by sound), ཤེས་རབ ↔ prajñā is `calque` (by morpheme-equivalence), MAPLE's "wisdom" ↔ Conze's "Wisdom" both `interpretive`.
+- **Contested concepts are first-class** (`contested: boolean` per node). Polysemy is data, not error.
+- **Per-Work concept curation.** ~30-50 concepts per text. Don't try to build a universal ontology.
 
-- **LLM hallucinates char offsets in CJK** — `services/wordAlignment.ts:validateAlignment` RECOMPUTES offsets via `indexOf` with monotonic source cursor. Do NOT trust the LLM's `sourceStart/sourceEnd/targetStart/targetEnd` — they're systematically wrong in CJK and translated-reordered text. Discovered in L5 testing; previously returned 0 valid pairs.
-- **Glossary lookups must NOT be cached in `perWordTranslation`** — caching empty results blocks new glossary entries from appearing on subsequent hovers. Only cache network results (DeepL/Google). In-memory list filter is free.
-- **Don't add a `fetched` flag inside React hover handlers** — it'll block re-fetch when props (e.g., glossary) change. The service-layer cache deduplicates network calls; rely on that.
-- **`mouseenter` doesn't bubble; synthetic `dispatchEvent('mouseenter')` doesn't trigger React's `onMouseEnter`** — use Playwright's `browser_hover` (real cursor movement) for L5 hover tests. Don't waste time on synthetic events.
-- **`StableId` repository lookups race against URL lookups** — `services/db/repositories/TranslationRepository.ts` uses `Promise.any` to take whichever returns first. Both paths must throw on empty (Promise.any treats resolve-with-empty as "first complete"). See commit `ef5dbd9`.
-- **Single-flight init guard module-level promise** — `store/bootstrap/initializeStore.ts` uses `let initializationPromise: Promise<void> | null = null;` at module scope. React StrictMode double-mount is handled by this. Test exports `__resetInitializationGuard` for test isolation.
+This isn't optional architecture — it's the user's explicit rejection of "abstract away what is common."
+
+### Path-A pattern (browser automation via GEO's persistent cookies) — VALIDATED
+
+`scripts/gemini_research.py` works end-to-end. Test prompt "84000 URL for Heart Sutra Toh 21" returned clean answer in ~40s. The pattern:
+
+1. `playwright.sync_api.chromium.launch_persistent_context(user_data_dir=~/.atlas/browser-state/gemini.google.com)` — inherits user's authenticated session.
+2. Anti-automation flags: `channel="chrome"`, `--disable-blink-features=AutomationControlled`, `ignore_default_args=["--enable-automation"]`. (Copied from `GEO/runner/atlas_runner/browser_chat.py` BrowserGeminiProvider.)
+3. `_wait_and_extract` polls `.markdown` child of `<model-response>` (not parent `innerText` — that contains transient status like "Locating Key Information"). Watches for "Stop generating" button disappearance.
+
+**Reusable for:** any Gemini chat (with `--deep-research` once the toggle selector is wired); analogously could be done for ChatGPT (`~/.atlas/browser-state/chatgpt.com/`), Claude.ai (`~/.atlas/browser-state/claude.ai/`), Grok.
+
+### Non-obvious code knowledge
+
+- **Concept tagging is at MORPHEME granularity, not word.** In `TripleScriptWitness.tsx`, `data-concept-ids` is emitted by `HoverSpan` (one per morpheme) and `EnglishLine` (one per English word with a witness-specific lookup). The arrow-line filter in `adjustedLines` (lines ~945-1010) does idx-match THEN concept-overlap.
+- **Witness identifier matters for lookup.** `conceptsForToken('en', 'Latn', 'wisdom', 'MAPLE chant sheet (after Sheng-yen)')` returns concept-membership specific to the MAPLE witness. The full witness `by` string is used — not "MAPLE" — so concept-attestations in `data/concepts/heart-sutra.ts` must match the exact `Witness.by` field. (Discovered + fixed mid-session.)
+- **The MAPLE chant sheet has 4 prose passages elided from earlier authoring.** Now added as `prose-commentary` sections between the triple-script-witness sections (heart-opening-and-emptiness → maple-all-dharmas → maple-no-eye-no-ear → heart-result → maple-all-buddhas → maple-great-spell → dharani). Don't re-elide.
+- **The Sino-Japanese "longer chant" after the Sanskrit dharani** is a real MAPLE practice — user provided a photo of "Gya tē gya tē ha ra gya tē / Hara sō gya tē bo ji sowa ka" syllabification. Lives as a second sound-formula section `id: 'dharani-japanese-extended'`.
 
 ### Architecture state (snapshot)
 
-- **Issues:** 9 closed this session (#1 Defect 1, #2, #3 anomaly B+E, #6, #9, #10, #13, #15, #16). 3 stale READMEs corrected (#12/#19/#20 were already FIXED). Remaining open: see `issues/README.md` Tier ordering.
-- **Verification ladder:** L1-L5 defined and applied. Future fixes MUST declare which rungs cleared in the commit message.
-- **InterleavedReader:** Settings flag `enableInterleavedView`. When ON + viewMode='english' + translation present + alignment present → renders aligned word pairs. Falls back to standard `ChapterContent` otherwise. Compute-alignment button surfaces if alignment missing.
-- **Test infrastructure:** 1,487/1,503 passing (16 skipped, 0 failing). 198 test files, 10 e2e Playwright specs. **No CI test gate** (the immediate pending task).
+- **Heart Sutra reader at `/liturgy/maple/heart-sutra`** — fully rendering, concept-hover works on `opening-practice` segment, all other segments still alignTo-only.
+- **Concept registry** in `data/concepts/heart-sutra.ts` — 30 entries, ~1750 lines, multi-source citations (84000 + DDB + Princeton + Wikipedia).
+- **Type infrastructure**: `types/conceptGraph.ts` (ConceptNode, ConceptAttestation, AttestationRelation). `WordMorpheme` + `WordGloss` in `types/liturgy.ts` got optional `conceptIds?: string[]`.
+- **alignment-audit tests**: 372/372 passing after the split + concept work.
 
 ### Multi-agent state
 
-- Active worktrees (oldest → newest):
-  - `opus-batch3-curation`, `opus-batch4-curation`, `opus-compiler-consolidation` (stale from 2026-05-13, candidates for cleanup)
-  - `opus-dn22-pilot` (PR #55 merged 2026-05-15 — worktree may be removable now)
-  - `opus-grounded-data-layer` (oldest, 2026-05-12)
-  - `opus-phase2-experiment` (PR #52 merged earlier; removable)
-  - `opus-v2-pipeline-wire` (stale)
-  - `opus-liturgy-reader` (updated 2026-05-15 — likely active, check WORKLOG)
-  - `opus-issues-investigation` (THIS session; PR #60 OPEN — leave until merge)
-- Other agents: WORKLOG mentions Codex/5.2 and Gemini work. Before starting CI test gate work, glance at `docs/WORKLOG.md` to confirm no overlap.
+Other branches in the repo (don't touch from this worktree unless explicitly directed):
+
+- `main` — clean, 6 commits behind this branch
+- `fix/opus-alignment-arrow-stale` — PR #64 open, contains only the arrow-fix that this branch cherry-picked. Either close as superseded once this branch lands, or merge it first and let this branch carry only the unique work.
+- Possibly stale worktrees from prior sessions per memory note: opus-batch3-curation, opus-batch4-curation, opus-compiler-consolidation, opus-schema-reconcile.
 
 ## Operator Cleanup (manual steps for the human)
 
-- **No urgent operator action.** All work committed and pushed. No env vars rotated, no external accounts touched.
-- **Optional sweep**: Untracked PNG screenshots in main working tree (`about-panel-*.png`, `audit-pill-*.png`, `dn22-pilot-verified.png`, `liturgy-*.png`, etc. — ~20 files) are stale traces from prior sessions. Safe to `rm` if you want a clean `git status`. Some may be useful as before/after evidence in past PRs; verify before bulk delete.
-- **Worktree cleanup** (post PR #60 merge):
-  ```bash
-  git worktree remove ../LexiconForge.worktrees/opus-issues-investigation
-  git branch -d feat/opus-issues-investigation
-  git worktree prune
-  ```
-- **Other worktree cleanup** (the merged-PR worktrees still on disk):
-  - `opus-dn22-pilot` (PR #55 merged) — safe to remove
-  - `opus-phase2-experiment` (PR #52 merged) — safe to remove
-  - `opus-batch3/4-curation`, `opus-compiler-consolidation`, `opus-grounded-data-layer`, `opus-v2-pipeline-wire` — verify against WORKLOG before removing
+1. **Decide AFFORDANCES.md versioning** (see Continue Immediately #4).
+2. **Push `anantham/expansion` to GitHub** if you want handover skill v1.7.0 to be live next session. Then `/plugin marketplace update expansion && /plugin install expansion@expansion && /reload-plugins`.
+3. **Close the empty browser tab** the early subagent attempt left open (tabId 1340627427 from the claude-in-chrome MCP probe — couldn't close it without permission). Just a stray new-tab page.
+4. **Authorize push of `feat/opus-heart-sutra-split`** when ready (currently unpushed by design per CLAUDE.md push-auth rule).
+5. **Verify the page visually** at `http://127.0.0.1:5182/liturgy/maple/heart-sutra` — dev server should still be running from earlier (Bash bjxr4kl13). Hover `prajñā` morpheme in the second line of opening; only "wisdom" should highlight. If server is down, restart with `cd ../LexiconForge.worktrees/opus-heart-sutra-split && PORT=5182 npx vite --port 5182 --host 127.0.0.1`.
 
 ## Learnings Captured
 
-- [x] Added to memory: `feedback_issue_readme_staleness.md` — issues/NN-slug/README.md is memory, verify against git log before recommending fix work
-- [x] Added to memory: `feedback_real_network_smoke.md` — real-network smoke beats mocks for multi-conversion pipelines
-- [x] Added to memory: `feedback_inherited_test_failures.md` — don't dismiss "not mine" failures
-- [x] Added to memory: `feedback_subagent_jsonl_access.md` — subagents can read session JSONL for context
-- [x] Added to memory: `feedback_phantom_consumer_audit.md` — periodically grep data fields for UI consumers
-- [x] Added to memory: `feedback_architectural_zoom_pattern.md` — multi-level design conversations can substitute for shipping
-- [x] Added to memory: `feedback_tooltip_bulk.md` — sutta studio reader: tooltips are hover-only, no pin
-- [x] In-repo durable: `issues/_template/README.md` §6a Verification Ladder
-- [x] In-repo durable: `docs/postmortem/2026-05-15-issue-rca-with-jsonl-quotes.md`
-- [ ] Skill update candidate: `handover` skill could add a "Verbatim user-quote carrying" sub-section to Phase 4 template — captures the "why" that gets lost in summarization. Patch idea: add row to Phase 2 EXHAUSTIVENESS CHECKLIST: "Every decision the user made by clarifying/redirecting → verbatim quote captured in Key Context?" The user explicitly requested this on 2026-05-16T12:12: *"does the handover skill specify the .md file generated neds actual verbatim quotes?"* — answer was no, but they wanted it.
+- [x] **Auto-memory** at `~/.claude/projects/-Users-aditya-Documents-Ongoing-Local-LexiconForge/memory/` is the canonical place for project-specific learnings — no new entry written this session because the existing entries (especially `feedback_architectural_zoom_pattern.md`) already cover what would be added.
+- [x] **AFFORDANCES.md** created at `~/Documents/Ongoing Local/AFFORDANCES.md` — 2 entries, lean.
+- [x] **Handover skill v1.7.0** in source (not yet installed) — adds affordances + ask-when-blocked binding sections.
+- [ ] **Possible MEMORY.md candidate**: "When the user invokes the pluralism principle (POLYGLOT.md, Vision.md), they're rejecting any data model that picks one tradition as the canonical anchor. Concept-as-attestation, not edge-following. Multiple kinds of correspondence (semantic / transliteration / calque / interpretive / ghost) — each first-class." Worth promoting to `~/.claude/MEMORY.md` if this pattern recurs across other projects.
+- [ ] **Skill update opportunity**: The expansion:handover skill needs v1.7.0 pushed + reinstalled. Captured in source already.
 
 ## Running Processes
 
-None. No vite, no playwright, no LLM streams. All MCP browser tabs closed.
+- **Dev server** — Bash background ID `bjxr4kl13` — `npx vite --port 5182 --host 127.0.0.1` for the worktree. Idle / running. Check with `curl -s http://127.0.0.1:5182/liturgy/maple/heart-sutra | head -5`. Can be killed when no longer needed.
+- **Background subagent** `a8b81341be72c6b84` (claude-in-chrome probe — completed, blocked on permission, no state to clean).
+- **Background subagent** `a4bd1619bafc82ad5` (verification probe — completed, blocked).
+- **Background subagent** `abbf234fe18e366e1` (capability probe — completed successfully).
 
 ## Resume Instructions
 
-For the next agent starting cold:
+1. **Decide push/scope:** Either authorize push of `feat/opus-heart-sutra-split` as-is (6 commits), OR tag the remaining 11 segments with conceptIds first (Continue Immediately #1) THEN push.
+2. **If continuing the artifact:** open `data/liturgy/heart-sutra.ts` and `data/concepts/heart-sutra.ts` side-by-side. For each segment's morpheme entries, attach `conceptIds: ['concept.X']` from the registry. The 30 concept IDs are stable; cross-reference by Sanskrit lemma.
+3. **If pivoting to other work:** the prior handover's Continue Immediately items (CI test gate, PR #60, InterleavedReader chunking) are still pending. None were touched this session.
 
-1. **Read in this order:**
-   - This file (`docs/HANDOVER.md`)
-   - The "Verbatim user quotes" section above to absorb the user's voice and recent decisions
-   - `~/.claude/CLAUDE.md` (4 ratified principles + anti-patterns)
-   - `issues/README.md` for issue Tier ordering
-   - `issues/_template/README.md` §6a for the verification ladder
+## Calibration moments
 
-2. **Check PR #60 status:**
-   ```bash
-   gh pr view 60 --json state,reviewDecision,mergeable
-   ```
-   If still open: comment `@codex review` to trigger review, or merge if green.
-
-3. **The immediate authorized work (CI test gate):**
-   ```bash
-   cd "/Users/aditya/Documents/Ongoing Local"
-   git worktree add LexiconForge.worktrees/opus-ci-test-gate -b feat/opus-ci-test-gate main
-   cd LexiconForge.worktrees/opus-ci-test-gate
-   # Create .github/workflows/test.yml — npm ci + npm test, on PR + push to main
-   # Use Node 20 (matches package.json engines if any) + actions/checkout@v4 + actions/setup-node@v4 with cache='npm'
-   # Commit + push + gh pr create
-   ```
-   Stop after the basic test gate; do NOT add coverage/e2e/Stryker without re-confirming scope with the user. They explicitly authorized "yep go ahead" to the test gate, with coverage/Stryker as mentioned-but-not-greenlit follow-ons.
-
-4. **Cleanup after PR #60 merges:** remove worktree, delete branch, prune.
+| Moment | Lesson |
+|---|---|
+| Proposed a Sanskrit-as-anchor data model in the polyglot discussion | The user's pluralism principle from Vision.md / POLYGLOT.md is binding; defaulting to "pick one canonical pivot" is the centralization reflex. Read the design docs BEFORE proposing new abstractions. |
+| Tried MCP claude-in-chrome for browser automation; got `Permission denied by user`; user asked "are you using the cookies from GEO" | When user has prior infrastructure (GEO's persistent contexts), use it. The MCP path is a clean-Chromium throwaway; GEO is the actual logged-in state. |
+| Initial Gemini response-extraction script caught only status text ("Locating Key Information") | Gemini's UI streams via parent `model-response` element with transient status, then settles into `.markdown` child. Poll `.markdown` only + watch "Stop generating" button disappearance. Don't trust `.innerText` of the parent during streaming. |
+| Proposed AFFORDANCES.md with 7-bullet entries + per-entry "when not to use" + maintenance pattern | User said "feels like too much, I want it to be lean and sleek." Default toward minimum-viable; expand only if the lean version proves insufficient. |
+| Recommended deferring concept-graph work to "multi-month with scholar collaboration" per POLYGLOT.md §9 | User overrode: artifact-first ("get the Heart Sutra artifact perfect") not perfect-model-first. The concrete artifact disciplines the model design. POLYGLOT.md §9's caution is for the FULL polyglot reader across the canon; one-page MVP is a different scope. |
 
 ---
-
-*Handover by Claude Opus 4.7 (1M context) at post-compaction reconstruction (~30% context remaining when re-reading JSONL). The model that did the original work hit "Prompt is too long" at the moment of acting on "yep go ahead"; this file is the catch-up.*
+*Handover by Claude Opus 4.7 instance at ~83% context · 2026-05-18*
