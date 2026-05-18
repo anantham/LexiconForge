@@ -290,6 +290,7 @@ export const heartSutra: LiturgyDoc = {
               pronunciation: 'gahm-BHEE-rahm',
               etymology: 'Sanskrit *gambhīra* — "deep, profound"',
               gloss: 'deep, profound — qualifying the practice as not surface-level',
+              conceptIds: ['concept.deep-gambhira'],
             },
             {
               form: 'prajñāpāramitācaryāṃ',
@@ -314,9 +315,9 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'the practice of the perfection of wisdom — the activity that *is* this awakening',
               citations: [wikipediaCitation('Prajñāpāramitā')],
               morphemes: [
-                { text: 'prajñā', type: 'stem', gloss: 'wisdom — the kind that sees how things actually are', pronunciation: 'prahj-NYAH', citations: [wikipediaCitation('Prajñā_(Buddhism)')] },
-                { text: 'pāramitā', type: 'stem', gloss: 'perfection — literally "gone-to-the-other-shore"', pronunciation: 'pah-rah-mee-TAH', citations: [wikipediaCitation('Pāramitā')] },
-                { text: 'caryāṃ', type: 'suffix', gloss: 'the practice (of [...])', pronunciation: 'chahr-YAHM' },
+                { text: 'prajñā', type: 'stem', gloss: 'wisdom — the kind that sees how things actually are', pronunciation: 'prahj-NYAH', citations: [wikipediaCitation('Prajñā_(Buddhism)')], conceptIds: ['concept.wisdom-prajna'] },
+                { text: 'pāramitā', type: 'stem', gloss: 'perfection — literally "gone-to-the-other-shore"', pronunciation: 'pah-rah-mee-TAH', citations: [wikipediaCitation('Pāramitā')], conceptIds: ['concept.perfection-paramita'] },
+                { text: 'caryāṃ', type: 'suffix', gloss: 'the practice (of [...])', pronunciation: 'chahr-YAHM', conceptIds: ['concept.practice-carya'] },
               ],
             },
             {
@@ -361,7 +362,7 @@ export const heartSutra: LiturgyDoc = {
               etymology: '√car "to move, practise" + middle present participle',
               gloss: 'practising, moving in — the bodhisattva is *doing* this, not just thinking it',
               morphemes: [
-                { text: 'cara', type: 'root', root: '√car', gloss: 'to move, walk, practise', pronunciation: 'CHAH-rah' },
+                { text: 'cara', type: 'root', root: '√car', gloss: 'to move, walk, practise', pronunciation: 'CHAH-rah', conceptIds: ['concept.practice-carya'] },
                 { text: 'māṇo', type: 'suffix', gloss: 'middle present participle — the one doing [the moving] for themselves', pronunciation: 'MAH-noh' },
               ],
             },

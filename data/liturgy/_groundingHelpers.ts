@@ -107,6 +107,109 @@ export function wikipediaCitation(article: string): Citation {
 }
 
 /**
+ * 84000 Reading-Room glossary entry. Permalinks live at
+ * `84000.co/glossary/<slug>`. If you don't have the slug yet, pass `null`
+ * to get an honest placeholder citation that the UI will surface as
+ * "needs 84000 lookup" — gap stays visible until research lands.
+ *
+ * `excerpt` is the relevant fragment from the entry; embed it so the
+ * reader can show authoritative grounding without re-fetching.
+ */
+export function eightyFourThousandCitation(
+  slug: string | null,
+  term: string,
+  excerpt?: string,
+): Citation {
+  if (!slug) {
+    return {
+      id: `cite:84000:unresolved:${term}`,
+      short: `84000 glossary: ${term} (slug not yet resolved)`,
+      detail: 'Permalink not yet looked up. Search 84000.co/glossary to resolve.',
+      provenance: '84000',
+      query: term,
+      excerpt,
+      fetchedAt: TODAY,
+      license: 'CC BY-NC-ND 4.0 — 84000 Reading Room',
+    };
+  }
+  return {
+    id: `cite:84000:${slug}`,
+    short: `84000 glossary: ${term}`,
+    url: `https://84000.co/glossary/${slug}`,
+    provenance: '84000',
+    query: term,
+    excerpt,
+    fetchedAt: TODAY,
+    license: 'CC BY-NC-ND 4.0 — 84000 Reading Room',
+  };
+}
+
+/**
+ * Digital Dictionary of Buddhism (Charles Muller, ed.). Entries at
+ * buddhism-dict.net; login-walled but URLs are public. Pass the headword
+ * exactly as DDB uses it. Embed the relevant excerpt for in-reader
+ * grounding without round-tripping to the server.
+ */
+export function ddbCitation(headword: string, excerpt?: string): Citation {
+  return {
+    id: `cite:ddb:${headword.replace(/\s+/g, '_').slice(0, 80)}`,
+    short: `DDB s.v. ${headword}`,
+    detail: 'Digital Dictionary of Buddhism (ed. Charles Muller). Login required for full entry.',
+    url: `http://www.buddhism-dict.net/cgi-bin/xpr-ddb.pl?q=${encodeURIComponent(headword)}`,
+    provenance: 'manual' as Citation['provenance'],
+    query: headword,
+    excerpt,
+    fetchedAt: TODAY,
+    license: 'DDB content licensed for academic use; see buddhism-dict.net',
+  };
+}
+
+/**
+ * Princeton Dictionary of Buddhism (Buswell & Lopez 2014). Print-only —
+ * cite by entry headword + page number. UI renders as "Princeton
+ * Dictionary p. 655" with no clickable URL.
+ *
+ * Pass `null` for page if not yet verified; renders as page-needed and
+ * the gap stays visible.
+ */
+export function princetonDictionaryCitation(
+  entry: string,
+  page?: number | null,
+  excerpt?: string,
+): Citation {
+  const pageStr = page ? `p. ${page}` : 'page needed';
+  return {
+    id: `cite:princeton:${entry.replace(/\s+/g, '_').slice(0, 80)}`,
+    short: `Princeton Dictionary of Buddhism, s.v. ${entry} (${pageStr})`,
+    detail: 'Buswell & Lopez (eds.), *The Princeton Dictionary of Buddhism* (2014). Print.',
+    provenance: 'manual' as Citation['provenance'],
+    query: entry,
+    excerpt,
+    fetchedAt: TODAY,
+    license: 'Quoted by entry-name for scholarly reference; © Princeton University Press',
+  };
+}
+
+/**
+ * Soothill & Hodous, *A Dictionary of Chinese Buddhist Terms* (1937).
+ * Older but still standard for Buddhist Chinese vocabulary. Public
+ * domain. DDB embeds it for cross-reference. Pass the Chinese headword.
+ */
+export function soothillHodousCitation(headword: string, excerpt?: string): Citation {
+  return {
+    id: `cite:soothill:${headword}`,
+    short: `Soothill–Hodous s.v. ${headword}`,
+    detail: 'Soothill & Hodous, *A Dictionary of Chinese Buddhist Terms* (1937). Public domain.',
+    url: `http://mahajana.net/texts/soothill-hodous.html`,
+    provenance: 'manual' as Citation['provenance'],
+    query: headword,
+    excerpt,
+    fetchedAt: TODAY,
+    license: 'Public domain (1937)',
+  };
+}
+
+/**
  * H.H. the Dalai Lama's official commentary on a topic. Uses dalailama.com
  * permalinks where they exist.
  */
