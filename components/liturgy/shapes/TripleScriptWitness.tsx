@@ -728,10 +728,23 @@ const AlignmentLines: React.FC<{ lines: Line[]; hovered: HoverTarget }> = ({
   return (
     <svg
       className="absolute inset-0 pointer-events-none"
-      style={{ width: '100%', height: '100%' }}
+      style={{ width: '100%', height: '100%', overflow: 'visible' }}
       aria-hidden="true"
     >
-      {visible.map((l, i) => {
+      <defs>
+        <marker
+          id="alignment-arrowhead"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0,0 L 10,5 L 0,10 z" fill="rgb(110, 231, 183)" />
+        </marker>
+      </defs>
+      {visible.map((l) => {
         const dy = l.y2 - l.y1;
         const cp1y = l.y1 + dy * 0.5;
         const cp2y = l.y2 - dy * 0.5;
@@ -742,8 +755,9 @@ const AlignmentLines: React.FC<{ lines: Line[]; hovered: HoverTarget }> = ({
             d={d}
             fill="none"
             stroke="rgb(110, 231, 183)"
-            strokeOpacity="0.6"
-            strokeWidth="1.5"
+            strokeOpacity="0.9"
+            strokeWidth="2"
+            markerEnd="url(#alignment-arrowhead)"
           />
         );
       })}

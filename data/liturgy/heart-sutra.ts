@@ -34,8 +34,8 @@ export const heartSutra: LiturgyDoc = {
   slug: 'heart-sutra',
   sangha: 'maple',
   order: 4,
-  title: 'Prajñāpāramitā Hṛdaya Sūtra',
-  subtitle: 'The Heart of Perfect Wisdom',
+  title: 'The Scripture on the Heart of Transcendent Wisdom',
+  subtitle: 'Prajñāpāramitā Hṛdaya Sūtra · MAPLE chant text (after Sheng-yen)',
   tradition: 'mahayana',
   context: 'Chanted across Mahāyāna and Vajrayāna traditions worldwide.',
   sources: {
@@ -54,7 +54,7 @@ export const heartSutra: LiturgyDoc = {
     ],
   },
   curator:
-    "Curation by Aditya. Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The 'AI (after Master Sheng-yen)' English is AI-drafted loosely modeled on Sheng-yen's Chinese Chan rendering. The attributed witnesses (Conze 1958, Red Pine 2004, Thich Nhat Hanh 2014) come from their published translations, sliced per Xuanzang chant-line.",
+    "Curation by Aditya. The primary English witness is the MAPLE community chant sheet, titled \"The Scripture on the Heart of Transcendent Wisdom — Adapted from the translation by Master Sheng-yen.\" Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The other witnesses (Conze 1958, Red Pine 2004, Thich Nhat Hanh 2014) come from their published translations, sliced per Xuanzang chant-line for comparison.",
   sections: [
     // ─────────────────────────────────────────────────────────────────────
     // 1. Framing
@@ -117,10 +117,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'Avalokiteśvara Bodhisatva,',
               alignTo: [0, 1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -250,10 +250,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'while going deep into transcendent wisdom,',
               alignTo: [-1, 2, 0, -1, 1, 1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -408,10 +408,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'clearly saw that all five skandhas are empty, and overcame all suffering.',
               alignTo: [0, 7, -1, -1, 2, 3, -1, 6, -1, -1, -1, -1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -589,10 +589,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'Śāriputra, appearance is not different from emptiness.',
               alignTo: [-1, 0, -1, 1, 2, -1, 3],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -705,10 +705,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'Emptiness is not different from appearance.',
               alignTo: [0, -1, 1, 2, -1, 3],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -809,10 +809,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'Appearance itself is emptiness.',
               alignTo: [0, -1, -1, 1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -929,10 +929,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'Emptiness itself is appearance. So also are preference, information, patterning and consciousness.',
               alignTo: [0, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -1007,8 +1007,38 @@ export const heartSutra: LiturgyDoc = {
               accent: 'amber',
             },
           ],
-          note: 'The mathematical centre of the sutra, now visible as four breaths instead of one paragraph. The Chinese fuses the two relations 即是 ("just-is") with no copula gap, no preposition — sharper than any English. The AI witness extends past the Sanskrit to the other skandhas ("preference, information, patterning, consciousness"), naming what the sutra elaborates next in passages this reader doesn\'t yet carry.',
+          note: 'The mathematical centre of the sutra, now visible as four breaths instead of one paragraph. The Chinese fuses the two relations 即是 ("just-is") with no copula gap, no preposition — sharper than any English. The MAPLE chant extends past the Sanskrit to the other skandhas ("preference, information, patterning, consciousness"), naming what the sutra elaborates next.',
         },
+      ],
+      commentary:
+        "Above: the canonical core (Avalokita's vision + the form-emptiness chiasmus) broken into seven Xuanzang chant-lines. Below: MAPLE chants two further prose passages — the *all-dharmas* characterisation and the long enumeration of what is empty — before the result-section. These aren't yet authored at chant-line granularity here, but are reproduced as MAPLE chants them.",
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2b. MAPLE prose — Śāriputra, all dharmas are characterized by emptiness
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'maple-all-dharmas',
+      shape: 'prose-commentary',
+      body: 'Śāriputra, all dharmas are characterized by emptiness that does not arise, is not destroyed, is not defiled, is not pure, does not increase, does not decrease.\n\n*MAPLE chant text. Chinese: 舍利子 是諸法空相 不生不滅 不垢不淨 不增不減 — the "six negations" passage. Not yet broken into per-line segments in this reader.*',
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2c. MAPLE prose — Therefore in emptiness, the long enumeration
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'maple-no-eye-no-ear',
+      shape: 'prose-commentary',
+      body: 'Therefore, in emptiness there is no appearance. There is no preference, information, patterning or consciousness; no eye, ear, nose, tongue, body, or mind; no sight, sound, smell, taste, touch, or thought; there is no realm of the eye, through to no realm of mental cognition; there is no ignorance and no end of ignorance, through to no aging and death and no end of aging and death; there is no suffering, no arising, no cessation, and no path; there is no attainment and no realization — by practicing no apprehension.\n\n*MAPLE chant text. Chinese: 是故空中無色 無受想行識 無眼耳鼻舌身意 無色聲香味觸法 無眼界 乃至無意識界 無無明 亦無無明盡 乃至無老死 亦無老死盡 無苦集滅道 無智亦無得 以無所得故 — emptying the five skandhas, six āyatanas, eighteen dhātus, twelve nidānas, and Four Noble Truths in turn.*',
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2d. The result-section — no fear, ultimate nirvāṇa
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'heart-result',
+      shape: 'triple-script-witness',
+      segments: [
 
         // ══════════════════════════════════════════════════════════════
         // RESULT — no fear, nirvāṇa (one segment per Xuanzang chant-line)
@@ -1049,10 +1079,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'Bodhisatvas rely on transcendent wisdom and their minds have no obstruction;',
               alignTo: [-1, -1, -1, -1, -1, -1, -1, 0, -1, -1, 0],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -1140,10 +1170,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'with no obstruction',
               alignTo: [0, -1, 0],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -1219,10 +1249,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'there is no fear.',
               alignTo: [-1, -1, 0, 0],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -1311,10 +1341,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'Passing far beyond confusion and delusion,',
               alignTo: [0, 0, 0, 0, -1, 0],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -1404,10 +1434,10 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI (after Master Sheng-yen)',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
               text: 'they reach ultimate nirvana.',
               alignTo: [-1, -1, 0, 0],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
@@ -1461,8 +1491,24 @@ export const heartSutra: LiturgyDoc = {
           note: 'The pivot from analysis to result. Having seen everything as empty, the bodhisattva is *unobstructed* — *atrasto*, unafraid. The Chinese 心無罣礙 (*shin mu kege* in Japanese reading) — "mind without obstruction" — is one of the most-quoted lines in East Asian Buddhism.',
         },
       ],
-      commentary:
-        "The body of the sutra continues with a detailed enumeration of what is empty — the six senses and their objects, the eighteen dhātus, the twelve nidānas, the Four Noble Truths — none are denied as conventional designations; all are seen through as devoid of own-being. Not yet authored in this reader at the Xuanzang-line granularity; the canonical short version is c. 260 syllables in Sanskrit and the elided passages are well-attested in the cited canonical sources above.",
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2e. MAPLE prose — All Buddhas of the past, present and future
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'maple-all-buddhas',
+      shape: 'prose-commentary',
+      body: 'All Buddhas of the past, present and future rely on transcendent wisdom, and attain unexcelled, perfect, complete enlightenment.\n\n*MAPLE chant text. Chinese: 三世諸佛 依般若波羅蜜多故 得阿耨多羅三藐三菩提 — the *anuttarā samyaksaṃbodhi* formula. Sanskrit: "Tryadhvavyavasthitāḥ sarvabuddhāḥ prajñāpāramitām āśrityānuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ."*',
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2f. MAPLE prose — Therefore know: the great spell · into the mantra
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'maple-great-spell',
+      shape: 'prose-commentary',
+      body: 'Therefore know: transcendent wisdom is the great spell, the great knowledge, the supreme knowledge, the unequalled knowledge. It can remove all suffering. It is true, not false.\n\nTherefore recite the mantra of transcendent wisdom as follows:\n\n*MAPLE chant text. Chinese: 故知般若波羅蜜多 是大神咒 是大明咒 是無上咒 是無等等咒 能除一切苦 真實不虛 故說般若波羅蜜多咒 即說咒曰 — the praise of prajñāpāramitā as itself a mantra, leading into the gate gate dharani below.*',
     },
 
     // ─────────────────────────────────────────────────────────────────────
@@ -1499,6 +1545,35 @@ export const heartSutra: LiturgyDoc = {
         },
       ],
       reconstruction: 'Read literally: *gate* "gone" (locative or vocative of *gata*, past participle), repeated; *pāragate* "gone to the beyond"; *pārasaṃgate* "completely gone to the beyond"; *bodhi* "awakening"; *svāhā* an exclamation of completion (familiar from Vedic ritual). The repetition enacts the journey it describes.',
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 3b. Longer Japanese recitation — MAPLE practice repeats the dharani
+    //     in Sino-Japanese kanbun-yomi after the Sanskrit
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'dharani-japanese-extended',
+      shape: 'sound-formula',
+      framing: 'At MAPLE the Sanskrit dharani is chanted once; the assembly then continues in a longer Sino-Japanese (kanbun-yomi) recitation, syllabified one mora per beat. The kanji are Xuanzang\'s 7th-century phonetic transliterations of the Sanskrit — themselves an attempt to capture the original sound in Chinese characters. Reading them again in Japanese on-yomi adds another layer of phonetic drift, but the *gate / pāragate / pārasaṃgate* skeleton remains audible underneath.',
+      phonemes: 'Gya tē gya tē ha ra gya tē  /  Hara sō gya tē bo ji sowa ka',
+      native: '羯諦羯諦波羅羯諦 / 波羅僧羯諦菩提薩婆訶',
+      scripts: [
+        {
+          lang: 'ja-Jpan',
+          label: 'Japanese (Sino-Japanese, chant-syllabified)',
+          text: '羯諦羯諦波羅羯諦  /  波羅僧羯諦菩提薩婆訶',
+          source: 'MAPLE chant sheet — kanbun-yomi syllabified for the longer recitation',
+          transliteration: 'Gya tē gya tē ha ra gya tē  /  Hara sō gya tē bo ji sowa ka  (Sino-Japanese, one syllable per beat)',
+        },
+        {
+          lang: 'zh-Hant',
+          label: 'Chinese (Xuanzang) — same kanji, Mandarin reading',
+          text: '羯諦羯諦波羅羯諦 / 波羅僧羯諦菩提薩婆訶',
+          source: 'T251 (same characters as Japanese; Mandarin reading shown for comparison)',
+          transliteration: 'jiē-dì jiē-dì bō-luó jiē-dì  /  bō-luó-sēng jiē-dì pú-tí sà-pó-hē  (Mandarin pinyin)',
+        },
+      ],
+      reconstruction: 'Mapping back: 羯諦 *gya-tē* ↔ *gate*; 波羅 *ha-ra* ↔ *pāra-*; 波羅僧 *Ha-ra-sō* ↔ *pārasaṃ-*; 菩提 *bo-ji* ↔ *bodhi*; 薩婆訶 *sowa ka* ↔ *svāhā*. The Japanese form preserves the Sanskrit consonant-vowel skeleton through two layers of phonetic carry-over.',
     },
 
     // ─────────────────────────────────────────────────────────────────────
