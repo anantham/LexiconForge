@@ -42,6 +42,23 @@ function scriptSubtag(lang: string): string {
   return parts.length >= 2 ? parts[1] : 'Latn';
 }
 
+/** Resolve the primary language subtag from a BCP-47 tag (e.g. "sa-Latn" → "sa"). */
+function languageSubtag(lang: string): string {
+  return lang.split('-')[0] ?? lang;
+}
+
+/**
+ * Merge two conceptId lists into a unique, space-separated string, or
+ * return undefined if both are empty. Used by HoverSpan to combine
+ * explicit author-tagged conceptIds with registry-resolved ones.
+ */
+function mergeConceptIds(a?: string[], b?: string[]): string | undefined {
+  const set = new Set<string>();
+  a?.forEach((id) => id && set.add(id));
+  b?.forEach((id) => id && set.add(id));
+  return set.size > 0 ? Array.from(set).join(' ') : undefined;
+}
+
 /**
  * Derive the list of scripts a segment supports. New chants populate
  * `scripts` directly; legacy chants (morning-chants) use `pali` + `paliDeva`,
@@ -327,9 +344,21 @@ const HoverSpan: React.FC<{
    * data/concepts/lookup.ts).
    */
   conceptIds?: string[];
-}> = ({ text, tooltipText, bold = false, morphemeIdx, conceptIds }) => {
+  /**
+   * BCP-47 language tag (e.g. "sa-Latn"). When provided, the registry is
+   * queried for additional conceptIds that attest this surface form, so
+   * the author doesn't have to manually annotate every morpheme — if the
+   * registry already names `prajñā` as `concept.wisdom-prajna`, the
+   * hover-highlighting works automatically. Explicit `conceptIds` merge
+   * with registry-resolved ones.
+   */
+  lang?: string;
+}> = ({ text, tooltipText, bold = false, morphemeIdx, conceptIds, lang }) => {
   const [open, setOpen] = useState(false);
-  const conceptAttr = conceptIds && conceptIds.length > 0 ? conceptIds.join(' ') : undefined;
+  const registryIds = lang
+    ? conceptsForToken(languageSubtag(lang), scriptSubtag(lang), text)
+    : undefined;
+  const conceptAttr = mergeConceptIds(conceptIds, registryIds);
   return (
     <span
       data-hover-span="true"
@@ -378,7 +407,13 @@ const HoverWord: React.FC<{
   morphemes?: WordMorpheme[];
   /** Suppress the `[pronunciation]` prefix when a transliteration line is shown beneath. */
   hidePron?: boolean;
-}> = ({ text, word, morphemes: morphemesOverride, hidePron = false }) => {
+  /**
+   * BCP-47 language tag of the active script (e.g. "sa-Latn", "zh-Hant").
+   * Threaded down so HoverSpan can query the concept registry by surface
+   * form — see HoverSpan.lang.
+   */
+  lang?: string;
+}> = ({ text, word, morphemes: morphemesOverride, hidePron = false, lang }) => {
   const morphemes = morphemesOverride ?? word.morphemes;
   // If we have morphemes and they cleanly reconstruct the surface, render
   // one hover span per morpheme. Root morphemes render bold so the eye
@@ -396,6 +431,7 @@ const HoverWord: React.FC<{
               bold={piece.morpheme.type === 'root'}
               morphemeIdx={i}
               conceptIds={piece.morpheme.conceptIds}
+              lang={lang}
             />
           ))}
         </>
@@ -407,6 +443,7 @@ const HoverWord: React.FC<{
       text={text}
       tooltipText={tooltipForWord(word, hidePron)}
       conceptIds={word.conceptIds}
+      lang={lang}
     />
   );
 };
@@ -496,9 +533,15 @@ const PaliLine: React.FC<{
             word={word}
             morphemes={script === 'Latn' ? undefined : scriptMorphemes}
             hidePron={hidePron}
+            lang={lang}
           />
         ) : (
-          <HoverSpan text={t.text} tooltipText={tooltipForWord(word, hidePron)} />
+          <HoverSpan
+            text={t.text}
+            tooltipText={tooltipForWord(word, hidePron)}
+            conceptIds={word.conceptIds}
+            lang={lang}
+          />
         );
         return (
           <span
