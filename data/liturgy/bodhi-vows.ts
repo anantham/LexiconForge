@@ -97,7 +97,7 @@ export const bodhiVows: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'Hōmon', scriptAlts: { 'zh-Hant': '法門' }, gloss: 'Dharma-gates. *法* "Dharma" + *門* "gate". Bodhi\'s rendering compresses this to "the Dharma" — the gates and the field they open onto are read as one.', accent: 'rose' },
+            { form: 'Hōmon', scriptAlts: { 'zh-Hant': '法門' }, gloss: 'Dharma-gates. *法* "Dharma" + *門* "gate". Bodhi\'s rendering compresses this to "the Dharma" — the gates and the field they open onto are read as one.', accent: 'sky' },
             { form: 'muryō', scriptAlts: { 'zh-Hant': '無量' }, gloss: 'Immeasurable. *無* "no" + *量* "measure". The same word as in the four *brahmavihāras* (四無量).' },
             { form: 'sē gan', scriptAlts: { 'zh-Hant': '誓願' }, gloss: 'Vow, solemn pledge.', accent: 'amber' },
             { form: 'gaku', scriptAlts: { 'zh-Hant': '學' }, gloss: 'To study, learn, train in. Bodhi reads this as "realize" — the study reaches its completion.' },
@@ -119,7 +119,7 @@ export const bodhiVows: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'Butsudō', scriptAlts: { 'zh-Hant': '佛道' }, gloss: 'The Buddha way. *佛* "Buddha" + *道* "way, path, Tao". Same *道* as in Taoism, here the buddhic path.', accent: 'rose' },
+            { form: 'Butsudō', scriptAlts: { 'zh-Hant': '佛道' }, gloss: 'The Buddha way. *佛* "Buddha" + *道* "way, path, Tao". Same *道* as in Taoism, here the buddhic path.', accent: 'amber' },
             { form: 'mujō', scriptAlts: { 'zh-Hant': '無上' }, gloss: 'Unsurpassed, without anything above it. *無* "no" + *上* "above". Same *anuttara* as in *anuttarā samyaksaṃbodhi*.' },
             { form: 'sē gan', scriptAlts: { 'zh-Hant': '誓願' }, gloss: 'Vow, solemn pledge.', accent: 'amber' },
             { form: 'jō', scriptAlts: { 'zh-Hant': '成' }, gloss: 'To accomplish, complete, become. Bodhi reads this as "walk along" — the way is realised in walking, not in arrival.' },

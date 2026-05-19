@@ -26,13 +26,13 @@ const pronCite = suttaCentralPronunciationCitation();
 
 const REFUGE_OBJECT_WORDS: { [key: string]: WordGloss } = {
   buddhaṁ: {
-    form: 'Buddhaṁ', scriptAlt: 'बुद्धं', pronunciation: 'BUD-dahng', accent: 'sky',
+    form: 'Buddhaṁ', scriptAlt: 'बुद्धं', pronunciation: 'BUD-dahng', accent: 'amber',
     etymology: '√budh "to wake up" + past participle',
     gloss: 'the Awakened One — accusative (object of "I go to")',
     citations: [dpdCitation('buddha'), pronCite],
   },
   dhammaṁ: {
-    form: 'Dhammaṁ', scriptAlt: 'धम्मं', pronunciation: 'DHAHM-mahng', accent: 'amber',
+    form: 'Dhammaṁ', scriptAlt: 'धम्मं', pronunciation: 'DHAHM-mahng', accent: 'sky',
     etymology: '√dhṛ "to hold, support"',
     gloss: 'the Dharma — the teaching, the way things are',
     citations: [dpdCitation('dhamma'), pronCite],

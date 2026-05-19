@@ -551,7 +551,7 @@ export const songOfZazen: LiturgyDoc = {
           words: [
             { form: 'utau', scriptAlts: { 'ja-Jpan': '謡うも' }, gloss: 'To sing (especially nō chanting). *謡* same character as *noh-utai*.', accent: 'sky' },
             { form: 'mau', scriptAlts: { 'ja-Jpan': '舞ふも' }, gloss: 'To dance. *舞* same character as *bugaku*.', accent: 'sky' },
-            { form: 'nori', scriptAlts: { 'ja-Jpan': '法' }, gloss: 'Dharma (vernacular reading). Same *法* (*hō* in Sino-Japanese reading) as in [[vows]] vow 3 *Hōmon*.', accent: 'rose' },
+            { form: 'nori', scriptAlts: { 'ja-Jpan': '法' }, gloss: 'Dharma (vernacular reading). Same *法* (*hō* in Sino-Japanese reading) as in [[vows]] vow 3 *Hōmon*.', accent: 'sky' },
             { form: 'koe', scriptAlts: { 'ja-Jpan': '声' }, gloss: 'Voice, sound.' },
           ],
         },

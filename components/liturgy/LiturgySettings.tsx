@@ -94,7 +94,7 @@ export const SettingsButton: React.FC = () => {
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 bg-slate-900/95 border border-slate-700 rounded shadow-xl text-sm w-64 p-3">
+        <div className="absolute right-0 top-full mt-2 bg-slate-900/95 border border-slate-700 rounded shadow-xl text-sm w-72 p-3">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-3">Reader</div>
           <label className="flex items-center justify-between text-slate-300 cursor-pointer hover:text-slate-100">
             <span>Refrain colors</span>
@@ -105,8 +105,30 @@ export const SettingsButton: React.FC = () => {
               className="accent-emerald-500"
             />
           </label>
+          {/* Color legend — visible while the toggle is on, so the reader
+              knows what each accent marks. Buddha=amber, Dharma=sky,
+              Sangha=rose by convention across all chants and scripts. */}
+          {settings.showAccents && (
+            <div className="mt-2 space-y-1 text-[11px]">
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-sm bg-amber-400/80" />
+                <span className="text-amber-300/80">Buddha</span>
+                <span className="text-slate-500">— 佛 / Butsu / Buddhaṁ</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-sm bg-sky-400/80" />
+                <span className="text-sky-300/80">Dharma</span>
+                <span className="text-slate-500">— 法 / Hō / Dhammaṁ</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-sm bg-rose-400/80" />
+                <span className="text-rose-300/80">Sangha</span>
+                <span className="text-slate-500">— 僧 / Sō / Saṅghaṁ</span>
+              </div>
+            </div>
+          )}
           <div className="text-[10px] text-slate-600 mt-1 leading-snug">
-            Sky/amber/rose on Buddha/Dhamma/Sangha to mark the refrain rhythm.
+            Same color across every script (Sanskrit, Pāli, Chinese, Japanese, Tibetan, English) so the eye can track each refuge across translations.
           </div>
           <label className="flex items-center justify-between text-slate-300 cursor-pointer hover:text-slate-100 mt-4">
             <span>Show transliteration</span>
@@ -118,7 +140,7 @@ export const SettingsButton: React.FC = () => {
             />
           </label>
           <div className="text-[10px] text-slate-600 mt-1 leading-snug">
-            Roman / phonetic line beneath Chinese, Japanese, Tibetan, Devanāgarī — for pronunciation.
+            Phonetic line beneath the chant: romanization beneath non-Latin scripts, pronunciation respelling beneath Latin scripts.
           </div>
         </div>
       )}
