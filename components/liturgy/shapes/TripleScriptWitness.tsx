@@ -115,12 +115,75 @@ const DEVA_STACK = "'Noto Serif Devanagari', 'Cardo', serif";
  * and the user's "Show transliteration" setting is on. Skipped for Latn —
  * Roman scripts don't need a Roman gloss of themselves.
  */
-const TransliterationLine: React.FC<{ variant: ScriptVariant }> = ({ variant }) => {
+/**
+ * Build a per-word pronunciation respelling line for Latin-script
+ * (IAST) chants. Walks the text's word tokens, looks each one up in
+ * the segment's `words` registry by surface form, and joins each
+ * word's `pronunciation` field (a chant-friendly respelling like
+ * "nah-MOH" or "kah-rah-NEE-yah"). Gaps and unknown words pass
+ * through as-is. Returns null when no word has a pronunciation
+ * authored (most chants do; metta-sutta's sparse data falls through).
+ *
+ * Why: IAST diacritics are phonemic but opaque to English-readers
+ * who haven't studied Sanskritic transcription. The per-word
+ * pronunciation respelling makes the chant readable for anyone.
+ */
+function buildRespelling(text: string, words: WordGloss[] | undefined): string | null {
+  if (!words || words.length === 0) return null;
+  const idx = buildWordIndex(words, 'form');
+  const tokens = tokenize(text);
+  let haveAny = false;
+  const parts: string[] = [];
+  for (const t of tokens) {
+    if (t.kind === 'gap') {
+      parts.push(t.text);
+      continue;
+    }
+    const w = matchWord(t.text, idx);
+    if (w?.pronunciation) {
+      parts.push(w.pronunciation);
+      haveAny = true;
+    } else {
+      // Unknown / un-glossed token — keep the surface form so the line
+      // stays aligned with the chant. The reader's eye can fill the gap.
+      parts.push(t.text);
+    }
+  }
+  return haveAny ? parts.join('') : null;
+}
+
+const TransliterationLine: React.FC<{
+  variant: ScriptVariant;
+  /**
+   * The segment's word registry. Used to aggregate per-word
+   * `pronunciation` respellings into a phonetic line when the active
+   * script is Latin (IAST) — see `buildRespelling`. For non-Latin
+   * scripts, the variant's own `transliteration` field is shown
+   * instead.
+   */
+  words?: WordGloss[];
+}> = ({ variant, words }) => {
   const { settings } = useLiturgySettings();
   if (!settings.showTransliteration) return null;
-  if (!variant.transliteration) return null;
   const script = scriptSubtag(variant.lang);
-  if (script === 'Latn') return null;
+  // Latin script: aggregate per-word pronunciation respellings from
+  // the words[] registry. Falls through to null if no word in this
+  // segment has an authored pronunciation.
+  if (script === 'Latn') {
+    const respelling = buildRespelling(variant.text, words);
+    if (!respelling) return null;
+    return (
+      <div
+        className="text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
+        style={{ fontFamily: SCRIPT_FONT.Latn }}
+        aria-label={`Pronunciation respelling of ${variant.label}`}
+      >
+        {respelling}
+      </div>
+    );
+  }
+  // Non-Latin script: show the variant's own transliteration string.
+  if (!variant.transliteration) return null;
   return (
     <div
       className="text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
@@ -1162,7 +1225,7 @@ const SegmentRow: React.FC<{
           lang={activeScript.lang}
           tokens={activeScript.tokens}
         />
-        <TransliterationLine variant={activeScript} />
+        <TransliterationLine variant={activeScript} words={segment.words} />
       </div>
 
       {/* English line — click cycles witness at the section level */}
