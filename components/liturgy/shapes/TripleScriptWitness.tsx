@@ -1238,8 +1238,11 @@ const SegmentRow: React.FC<{
           title={segment.witnesses.length > 1 ? 'Click to switch translation' : undefined}
         >
           <div
-            className="text-slate-300 italic leading-relaxed text-base md:text-lg"
-            style={{ fontFamily: SERIF_STACK }}
+            className="text-slate-300 italic leading-relaxed"
+            style={{
+              fontFamily: SERIF_STACK,
+              fontSize: `calc(1.125rem * var(--liturgy-scale, 1))`,
+            }}
           >
             <EnglishLine
               text={currentWitness.text}
