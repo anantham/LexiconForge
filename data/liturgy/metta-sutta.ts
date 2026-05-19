@@ -870,33 +870,134 @@ export const mettaSutta: LiturgyDoc = {
             { form: 'sukhitattā', pronunciation: 'soo-khee-TAHT-tah', gloss: 'happy of heart, happy from the inside — same word as v3d.', accent: 'amber' },
           ],
         },
+        // ── v6a: na paro paraṁ nikubbetha ──
         {
-          id: 'verse-6',
-          pali: 'Na paro paraṁ nikubbetha, nātimaññetha katthaci naṁ kanci; byārosanā paṭighasaññā, nāññamaññassa dukkhamiccheyya.',
+          id: 'v6a-na-paro-param',
+          pali: 'na paro paraṁ nikubbetha',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Na paro paraṁ nikubbetha, nātimaññetha katthaci naṁ kanci; byārosanā paṭighasaññā, nāññamaññassa dukkhamiccheyya.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'na paro paraṁ nikubbetha' },
           ],
           witnesses: [
+            { by: 'Amaravati', text: 'Let none deceive another,', alignTo: [-1, 0, 3, 2], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Let none deceive another,', alignTo: [-1, 0, 3, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Let no one deceive another', alignTo: [-1, 0, 1, 3, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'na', pronunciation: 'nah', gloss: 'not. Negates the verb at the end of the line.' },
+            { form: 'paro', pronunciation: 'PAH-roh', gloss: 'one person, "the other one" (subject form). *Para* = "other" — same root as English *par* / *peer*.' },
             {
-              by: 'Amaravati',
-              text: 'Let none deceive another, or despise any being in any state. Let none through anger or ill-will wish harm upon another.',
-              url: AMARAVATI_URL,
+              form: 'paraṁ',
+              pronunciation: 'PAH-rahm',
+              etymology: '*para* "other" + *-ṁ* (object-of-the-action ending)',
+              gloss: '"the other one" (object form). Pāli repeats *paro/paraṁ* — "one-person, the-other-person" — instead of saying "anyone…anyone".',
             },
             {
-              by: 'Sujato (SuttaCentral)',
-              text: 'Let none deceive another, nor despise anyone anywhere, nor wish harm for one another out of anger or hostility.',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
+              form: 'nikubbetha',
+              pronunciation: 'nee-KOOB-bay-tah',
+              etymology: '*ni-* (down, against) + *√kub* (a verb of crookedness, "to cheat") + the "-etha" tail (third-person "let him/her"). Together: "let one deceive".',
+              gloss: 'should deceive, should cheat. With *na* in front: "let no one deceive".',
+              morphemes: [
+                { text: 'ni', type: 'prefix', gloss: 'a prefix meaning "down, against" — adds an against-someone flavour', pronunciation: 'nee' },
+                { text: 'kubb', type: 'root', root: '√kub', gloss: 'from a verb meaning "to be crooked, to cheat"', pronunciation: 'KOOB' },
+                { text: 'etha', type: 'suffix', gloss: 'the "-etha" tail says "let one (do this)" — a gentle command', pronunciation: 'AY-tah' },
+              ],
+            },
+          ],
+        },
+        // ── v6b: nātimaññetha katthaci naṁ kanci ──
+        {
+          id: 'v6b-natimannetha',
+          pali: 'nātimaññetha katthaci naṁ kanci',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'nātimaññetha katthaci naṁ kanci' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'or despise any being in any state.', alignTo: [-1, 0, 3, 3, -1, 1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'nor despise anyone anywhere,', alignTo: [-1, 0, 3, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'or despise anyone anywhere,', alignTo: [-1, 0, 3, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'nātimaññetha',
+              pronunciation: 'NAH-tee-MAHN-yay-tah',
+              etymology: '*na* (not) + *ati-* (over, excessive) + *maññetha* (one should think/regard — from *√man* "to think"). The whole verb: "should not think-down-upon", "should not despise".',
+              gloss: '"should not despise" — should not regard someone as less than oneself. The same *ati-māna* "excessive self-regard" we met in v1 as *anatimānī*, but now phrased as an action.',
+              morphemes: [
+                { text: 'na', type: 'prefix', gloss: 'the negation "not" — runs together with the verb', pronunciation: 'nah' },
+                { text: 'ati', type: 'prefix', gloss: 'over, excessive — same prefix as in *anatimānī* (v1)', pronunciation: 'AH-tee' },
+                { text: 'maññetha', type: 'stem', root: '√man', gloss: 'from the verb "to think, regard". The "-etha" tail makes it "let one think/regard".', pronunciation: 'MAHN-yay-tah' },
+              ],
+            },
+            { form: 'katthaci', pronunciation: 'KAHT-tah-chee', gloss: '"anywhere" (the *-ci* suffix makes pronouns sweeping — like English "-ever" in "wherever").' },
+            { form: 'naṁ', pronunciation: 'nahm', gloss: 'him (object form of "this one"). Refers back to the *paro* introduced in 6a.' },
+            { form: 'kanci', pronunciation: 'KAHN-chee', gloss: '"anyone" — *ka* "who" + *-ci* sweeping. Together with *katthaci*: "anywhere, anyone".' },
+          ],
+        },
+        // ── v6c: byārosanā paṭighasaññā ──
+        {
+          id: 'v6c-byarosana-patighasanna',
+          pali: 'byārosanā paṭighasaññā',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'byārosanā paṭighasaññā' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'Let none through anger or ill-will', alignTo: [-1, -1, -1, 0, 1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'out of anger or hostility.', alignTo: [-1, -1, 0, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'or through anger or irritation', alignTo: [-1, -1, 0, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'byārosanā',
+              pronunciation: 'byah-ROH-sah-nah',
+              etymology: '*vi-* (apart) + *ā-* (toward) + *√ruṣ* "to be angry" — "anger turned against someone"',
+              gloss: 'out of anger — the hot kind of anger that flares outward toward a specific target',
             },
             {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'Let no one deceive another or despise anyone anywhere, or through anger or irritation wish for another to suffer.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
+              form: 'paṭighasaññā',
+              pronunciation: 'pah-TEE-gah-SAHN-yah',
+              etymology: '*paṭi-* (back, against) + *gha* (striking — from *√han* "to strike") + *saññā* (perception, sense)',
+              gloss: 'with a sense of resistance — the cold pushed-back-against feeling of ill-will, distinct from hot anger. *Paṭigha* is the technical term for aversion in Buddhist psychology.',
+              morphemes: [
+                { text: 'paṭi', type: 'prefix', gloss: 'a prefix meaning "back, against" — adds a "pushing-back" flavour', pronunciation: 'pah-TEE' },
+                { text: 'gha', type: 'stem', root: '√han', gloss: 'from the verb "to strike". *Paṭi-gha* = "strike-back" — the recoiling, push-back of aversion.', pronunciation: 'gah' },
+                { text: 'saññā', type: 'stem', gloss: 'perception, sense, recognising. Adds an "experiencing-as" flavour — *paṭighasaññā* = "the experience of pushing-back".', pronunciation: 'SAHN-yah' },
+              ],
+            },
+          ],
+        },
+        // ── v6d: nāññamaññassa dukkhamiccheyya ──
+        {
+          id: 'v6d-aniccheyya',
+          pali: 'nāññamaññassa dukkhamiccheyya',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'nāññamaññassa dukkhamiccheyya' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'wish harm upon another.', alignTo: [1, 1, -1, 0], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'nor wish harm for one another', alignTo: [-1, 1, 1, -1, 0, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'wish for another to suffer.', alignTo: [1, -1, 0, -1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'nāññamaññassa',
+              pronunciation: 'NAHN-yah-MAHN-yahs-sah',
+              etymology: '*na* (not) + *aññamañña* "one-another" (the Pāli word for reciprocity) + *-assa* (object marker, "to/for")',
+              gloss: '"not for one-another" — the line\'s subject. *Aññamañña* literally pairs two "other"s: "this-other and that-other", i.e. reciprocally.',
+              morphemes: [
+                { text: 'na', type: 'prefix', gloss: 'the negation "not"', pronunciation: 'nah' },
+                { text: 'aññamañña', type: 'stem', gloss: 'the Pāli word for reciprocity — *añña* "other" doubled to mean "one-another, mutually"', pronunciation: 'AHN-yah-MAHN-yah' },
+                { text: 'ssa', type: 'suffix', gloss: 'the "-(a)ssa" tail marks "to" or "for" — *aññamaññassa* = "for one another"', pronunciation: 'sah' },
+              ],
+            },
+            {
+              form: 'dukkhamiccheyya',
+              pronunciation: 'DOOK-kah-meech-CHAYY-yah',
+              etymology: '*dukkha* (suffering — the First Noble Truth term) + *iccheyya* (one should wish — from *√iṣ* "to wish, desire")',
+              gloss: 'should wish suffering — the verb the line negates with *na*. Together: "should not wish suffering for one-another".',
+              morphemes: [
+                { text: 'dukkham', type: 'stem', gloss: 'suffering — the First Noble Truth term. The "-am" tail marks it as the object of the wishing.', pronunciation: 'DOOK-kahm' },
+                { text: 'iccheyya', type: 'stem', root: '√iṣ', gloss: 'from the verb "to wish, desire". The "-eyya" tail says "should/would wish".', pronunciation: 'eech-CHAYY-yah' },
+              ],
             },
           ],
         },
