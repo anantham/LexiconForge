@@ -813,7 +813,47 @@ type HoverTarget = {
   element: HTMLElement;
 } | null;
 
-const AlignmentLines: React.FC<{ lines: Line[] }> = ({ lines }) => {
+/**
+ * Build a bezier path that bows OUT to a side margin rather than going
+ * straight down the middle of the text block. Without this, a line from
+ * a Sanskrit token to its English mapping cuts through any intervening
+ * row (transliteration, sibling words) and visually appears to
+ * terminate at the first word it touches.
+ *
+ * The arc picks a side based on which margin has more breathing room:
+ * if the line's midpoint X is on the right half of the container, the
+ * arc bulges RIGHT (into the right margin); otherwise it bulges LEFT.
+ * Control points share the same X (the "lane" X), pulled outside
+ * `max(x1, x2)` or `min(x1, x2)` by a fixed bulge so the curve clears
+ * the text column. SVG `overflow: visible` (already set below) lets the
+ * arc render outside the container's bounds.
+ *
+ * Endpoint dots are rendered as little 4px circles at each line end so
+ * the *termination* is unambiguous even when the curve sweeps past
+ * other text — the dot says "I am the actual endpoint, not the text
+ * the line crosses on the way here."
+ */
+function arcPath(l: Line, containerWidth: number): string {
+  const dy = l.y2 - l.y1;
+  const midX = (l.x1 + l.x2) / 2;
+  const arcRight = midX > containerWidth / 2;
+  // Bulge depth: scale with container width so the arc bows visibly on
+  // narrow viewports without ballooning on wide ones. Clamped to a sane
+  // range so it neither disappears nor sails off screen.
+  const bulge = Math.max(40, Math.min(120, containerWidth * 0.06));
+  const laneX = arcRight
+    ? Math.max(l.x1, l.x2) + bulge
+    : Math.min(l.x1, l.x2) - bulge;
+  // Pull the control points along the lane line, biased toward the
+  // endpoints (0.3 from each side) so the curve smoothly exits/enters
+  // the words rather than approaching them sideways.
+  return `M ${l.x1},${l.y1} C ${laneX},${l.y1 + dy * 0.3} ${laneX},${l.y2 - dy * 0.3} ${l.x2},${l.y2}`;
+}
+
+const AlignmentLines: React.FC<{ lines: Line[]; containerWidth: number }> = ({
+  lines,
+  containerWidth,
+}) => {
   // The caller (SegmentRow.adjustedLines) is responsible for filtering by
   // hover state + concept overlap. This component just renders the lines
   // it's given.
@@ -825,19 +865,22 @@ const AlignmentLines: React.FC<{ lines: Line[] }> = ({ lines }) => {
       aria-hidden="true"
     >
       {visible.map((l) => {
-        const dy = l.y2 - l.y1;
-        const cp1y = l.y1 + dy * 0.5;
-        const cp2y = l.y2 - dy * 0.5;
-        const d = `M ${l.x1},${l.y1} C ${l.x1},${cp1y} ${l.x2},${cp2y} ${l.x2},${l.y2}`;
+        const d = arcPath(l, containerWidth);
         return (
-          <path
-            key={`${l.paliIdx}-${l.engIdx}`}
-            d={d}
-            fill="none"
-            stroke="rgb(110, 231, 183)"
-            strokeOpacity="0.9"
-            strokeWidth="2"
-          />
+          <g key={`${l.paliIdx}-${l.engIdx}`}>
+            <path
+              d={d}
+              fill="none"
+              stroke="rgb(110, 231, 183)"
+              strokeOpacity="0.9"
+              strokeWidth="2"
+            />
+            {/* Endpoint markers — small filled circles so the termination
+                point is unambiguous even when the curve sweeps past other
+                text on its way out to the margin. */}
+            <circle cx={l.x1} cy={l.y1} r="2.5" fill="rgb(110, 231, 183)" />
+            <circle cx={l.x2} cy={l.y2} r="2.5" fill="rgb(110, 231, 183)" />
+          </g>
         );
       })}
     </svg>
@@ -1138,7 +1181,10 @@ const SegmentRow: React.FC<{
       {/* SVG alignment overlay — only renders lines for the hovered word.
           Endpoints are adjusted to the actual hovered element so the
           arrow anchors to the morpheme/word under the cursor. */}
-      <AlignmentLines lines={adjustedLines} />
+      <AlignmentLines
+        lines={adjustedLines}
+        containerWidth={containerRef.current?.offsetWidth ?? 0}
+      />
 
       {/* Per-segment note — collapsed by default, expands on click. */}
       {segment.note && <SegmentNote text={segment.note} />}
