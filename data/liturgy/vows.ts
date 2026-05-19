@@ -66,7 +66,7 @@ export const vows: LiturgyDoc = {
               label: 'Hanzi',
               text: '衆生無邊誓願度',
               tokens: ['衆生', '無邊', '誓願', '度'],
-              transliteration: 'Shujō  muhen  sē gan  do  (zhòng shēng wú biān shì yuàn dù in Mandarin)',
+              transliteration: 'zhòng shēng wú biān shì yuàn dù  (Mandarin pinyin)',
             },
           ],
           witnesses: [
@@ -117,7 +117,7 @@ export const vows: LiturgyDoc = {
               label: 'Hanzi',
               text: '煩惱無盡誓願斷',
               tokens: ['煩惱', '無盡', '誓願', '斷'],
-              transliteration: 'Bonnō  mujin  sē gan  dan  (fán nǎo wú jìn shì yuàn duàn in Mandarin)',
+              transliteration: 'fán nǎo wú jìn shì yuàn duàn  (Mandarin pinyin)',
             },
           ],
           witnesses: [
@@ -168,7 +168,7 @@ export const vows: LiturgyDoc = {
               label: 'Hanzi',
               text: '法門無量誓願學',
               tokens: ['法門', '無量', '誓願', '學'],
-              transliteration: 'Hōmon  muryō  sē gan  gaku  (fǎ mén wú liàng shì yuàn xué in Mandarin)',
+              transliteration: 'fǎ mén wú liàng shì yuàn xué  (Mandarin pinyin)',
             },
           ],
           witnesses: [
@@ -219,7 +219,7 @@ export const vows: LiturgyDoc = {
               label: 'Hanzi',
               text: '佛道無上誓願成',
               tokens: ['佛道', '無上', '誓願', '成'],
-              transliteration: 'Butsudō  mujō  sē gan  jō  (fó dào wú shàng shì yuàn chéng in Mandarin)',
+              transliteration: 'fó dào wú shàng shì yuàn chéng  (Mandarin pinyin)',
             },
           ],
           witnesses: [
