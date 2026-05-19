@@ -23,7 +23,7 @@ import {
 export const omManiPadmeHum: LiturgyDoc = {
   slug: 'om-mani-padme-hum',
   sangha: 'maple',
-  order: 6,
+  order: 8,
   time: 'evening, before sleep',
   title: 'Oṃ Maṇi Padme Hūṃ',
   subtitle: 'The heart-mantra of Avalokiteśvara',
