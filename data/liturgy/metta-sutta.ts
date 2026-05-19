@@ -1001,47 +1001,158 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v7a: mātā yathā niyaṁ puttaṁ ──
         {
-          id: 'verse-7',
-          pali: 'Mātā yathā niyaṁ puttaṁ, āyusā ekaputtamanurakkhe; evampi sabbabhūtesu, mānasaṁ bhāvaye aparimāṇaṁ.',
+          id: 'v7a-mata-yatha',
+          pali: 'mātā yathā niyaṁ puttaṁ',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Mātā yathā niyaṁ puttaṁ, āyusā ekaputtamanurakkhe; evampi sabbabhūtesu, mānasaṁ bhāvaye aparimāṇaṁ.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'mātā yathā niyaṁ puttaṁ' },
           ],
           witnesses: [
+            { by: 'Amaravati', text: 'Even as a mother', alignTo: [-1, 1, -1, 0], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'As a mother', alignTo: [1, -1, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'As a mother', alignTo: [1, -1, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
             {
-              by: 'Amaravati',
-              text: 'Even as a mother protects with her life her child, her only child, so should one protect the boundless heart that loves all beings.',
-              url: AMARAVATI_URL,
+              form: 'mātā',
+              pronunciation: 'MAH-tah',
+              etymology: 'Pāli *mātā* "mother". Same root that gives English *mother*, Latin *mater*, Greek *meter* through Indo-European cousins.',
+              gloss: 'a mother — the subject of the line. The simile that the next three lines unpack.',
             },
             {
-              by: 'Sujato (SuttaCentral)',
-              text: 'As a mother would protect with her life her one and only child, so they\'d cultivate a heart of love without limit for all sentient beings.',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
+              form: 'yathā',
+              pronunciation: 'yah-TAH',
+              gloss: '"as, like" — the simile word. *Yathā… evampi…* = "as… even so…" frames the whole verse.',
             },
             {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'As a mother would risk her life to protect her child, her only child, even so should one cultivate the heart limitlessly with regard to all beings.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
+              form: 'niyaṁ',
+              pronunciation: 'NEE-yahm',
+              gloss: '"own, of-one\'s-own". Same root as Skt *nija* "innate". Emphasises that the child is the mother\'s own.',
             },
+            {
+              form: 'puttaṁ',
+              pronunciation: 'POOT-tahm',
+              etymology: 'Pāli *putta* "son, child" + the *-ṁ* tail (object of the action)',
+              gloss: 'a child, a son (object form). Same root as Skt *putra*.',
+            },
+          ],
+        },
+        // ── v7b: āyusā ekaputtamanurakkhe ──
+        {
+          id: 'v7b-ayusa-ekaputta',
+          pali: 'āyusā ekaputtamanurakkhe',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'āyusā ekaputtamanurakkhe' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'protects with her life her child, her only child,', alignTo: [1, -1, 0, 0, 1, 1, 1, 1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'would protect with her life her one and only child,', alignTo: [-1, 1, -1, 0, 0, 1, 1, -1, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'would risk her life to protect her child, her only child,', alignTo: [-1, -1, 0, 0, -1, 1, 1, 1, -1, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'āyusā',
+              pronunciation: 'AH-yoo-sah',
+              etymology: '*āyu* "life, lifespan" + *-sā* (ending marking "by means of" — "with her life")',
+              gloss: '"with her life" — the cost the mother pays. *Āyu* is the same word in *Āyurveda* ("knowledge of life").',
+            },
+            {
+              form: 'ekaputtamanurakkhe',
+              pronunciation: 'AY-kah-POOT-tah-mah-noo-RAHK-khay',
+              etymology: '*eka* (one) + *putta* (child) + *anurakkhe* (would protect — *anu-* "along, after" + *√rakṣ* "to protect")',
+              gloss: '"would protect her one-and-only child". A four-piece compound: *one* + *child* + *along-with* + *protect*. The whole verse pivots on this image — the limit-case of love.',
+              accent: 'amber',
+              morphemes: [
+                { text: 'eka', type: 'prefix', gloss: '"one, only" — emphasises the only-child framing', pronunciation: 'AY-kah' },
+                { text: 'putta', type: 'stem', gloss: '"child, son" — same word as *puttaṁ* in 7a', pronunciation: 'POOT-tah' },
+                { text: 'manu', type: 'prefix', gloss: 'sandhi form of *anu-* ("along, after") — the *m* at the join is a sound-bridging consonant', pronunciation: 'mah-noo' },
+                { text: 'rakkhe', type: 'root', root: '√rakṣ', gloss: 'from the verb "to protect, guard". The "-e" tail makes it "would protect" — the wishful voice.', pronunciation: 'RAHK-khay' },
+              ],
+            },
+          ],
+        },
+        // ── v7c: evampi sabbabhūtesu ──
+        {
+          id: 'v7c-evampi-sabbabhuta',
+          pali: 'evampi sabbabhūtesu',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'evampi sabbabhūtesu' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'so should one protect the boundless heart that loves all beings.', alignTo: [0, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: "so they'd cultivate a heart of love without limit for all sentient beings.", alignTo: [0, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'even so should one cultivate the heart limitlessly with regard to all beings.', alignTo: [0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'evampi',
+              pronunciation: 'AY-vahm-pee',
+              etymology: '*evaṁ* "thus, in this way" + *pi* "too, also"',
+              gloss: '"even so", "in just this way too". The simile-pivot — *yathā* in 7a was "as"; *evampi* here completes "as… so too…".',
+              morphemes: [
+                { text: 'evam', type: 'stem', gloss: '"thus, in this way" — Pāli\'s pointer-back word', pronunciation: 'AY-vahm' },
+                { text: 'pi', type: 'suffix', gloss: '"too, also" — emphasises the parallel: "even so, just so"', pronunciation: 'pee' },
+              ],
+            },
+            {
+              form: 'sabbabhūtesu',
+              pronunciation: 'SAHB-bah-BOO-tay-soo',
+              etymology: '*sabba* (all) + *bhūta* (being, existing — same word as v5c) + *-esu* (plural "in/among")',
+              gloss: '"in/toward all beings" — the wide target of the cultivation. The "-esu" tail marks plural location: like English "among all beings".',
+              accent: 'rose',
+              morphemes: [
+                { text: 'sabba', type: 'stem', gloss: '"all, every" — same root as *sabbe* in v3d', pronunciation: 'SAHB-bah' },
+                { text: 'bhūt', type: 'root', root: '√bhū', gloss: '"being, having become" — same root as *bhūtā* in v5c', pronunciation: 'BOOT' },
+                { text: 'esu', type: 'suffix', gloss: 'the "-esu" tail marks "among/in" with a plural — "among all beings"', pronunciation: 'AY-soo' },
+              ],
+            },
+          ],
+        },
+        // ── v7d: mānasaṁ bhāvaye aparimāṇaṁ ──
+        {
+          id: 'v7d-manasam-bhavaye',
+          pali: 'mānasaṁ bhāvaye aparimāṇaṁ',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'mānasaṁ bhāvaye aparimāṇaṁ' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'so should one protect the boundless heart that loves all beings.', alignTo: [-1, -1, -1, -1, -1, 2, 0, -1, -1, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'cultivate a heart of love without limit', alignTo: [1, -1, 0, -1, -1, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'cultivate the heart limitlessly', alignTo: [1, -1, 0, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
               form: 'mānasaṁ',
-              gloss: '"The heart-mind". *manas* + accusative. The thing to be cultivated boundlessly.',
+              pronunciation: 'MAH-nah-sahm',
+              etymology: '*manas* (mind, heart-mind) + the *-aṁ* tail (object form). The thing-to-be-cultivated.',
+              gloss: 'the heart-mind — *manas* covers what English splits into "mind" + "heart". The thing the line says to cultivate.',
               accent: 'sky',
               citations: [dpdCitation('manas')],
             },
             {
               form: 'bhāvaye',
-              gloss: '"Let one cultivate, let one bring into being". Optative of *√bhū* "to be", causative — to *cause to become*. The technical term for meditative cultivation.',
+              pronunciation: 'BAH-vah-yay',
+              etymology: 'wishing form of the verb *bhāveti* "to cultivate, bring into being". *Bhāveti* is the same root *√bhū* "to be", in its causative form: "to *cause to become*".',
+              gloss: '"let one cultivate, let one bring into being". The technical term for meditative cultivation — *bhāvanā* (development) shares this root. Whatever the action is here, it\'s a *bringing into being*, not just a feeling.',
               accent: 'amber',
+              morphemes: [
+                { text: 'bhāv', type: 'root', root: '√bhū', gloss: 'from the verb "to be, become" — same root as *bhavantu* in v3d. Here in causative: "to make-become, to cultivate".', pronunciation: 'bahv' },
+                { text: 'aye', type: 'suffix', gloss: 'the "-aye" tail says "would/should (do this)" — a wish or gentle instruction', pronunciation: 'AH-yay' },
+              ],
               citations: [dpdCitation('bhāveti')],
+            },
+            {
+              form: 'aparimāṇaṁ',
+              pronunciation: 'ah-PAH-ree-MAH-nahm',
+              etymology: '*a-* (not) + *parimāṇa* (measure, limit — from *pari-* "around" + *√mā* "to measure")',
+              gloss: '"limitless, without measure" — describing the *mānasaṁ* (heart-mind) the line says to cultivate. Same root *√mā* gives English speakers *measure* through Indo-European cousins.',
+              accent: 'rose',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: '"not"', pronunciation: 'ah' },
+                { text: 'pari', type: 'prefix', gloss: '"around, all-around" — adds an enclosing flavour to the next part', pronunciation: 'PAH-ree' },
+                { text: 'māṇaṁ', type: 'stem', root: '√mā', gloss: 'from the verb "to measure". *Pari-māṇa* = "all-around-measure" = limit. *A-pari-māṇa* = "without limit, boundless".', pronunciation: 'MAH-nahm' },
+              ],
             },
           ],
         },
