@@ -1507,7 +1507,6 @@ export const heartSutra: LiturgyDoc = {
     {
       id: 'dharani',
       shape: 'sound-formula',
-      framing: 'The sutra ends not with a translation but with a mantra. *Tadyathā gate gate pāragate pārasaṃgate bodhi svāhā* — "thus: gone, gone, gone-beyond, fully-gone-beyond, awakening, hail."\n\nBut the mantra is more than its semantic content. Chanting it *is* the practice. The sounds carry the entire teaching — every step of *prajñāpāramitā* is enacted in the going-beyond that the syllables describe.',
       phonemes: 'gate gate pāragate pārasaṃgate bodhi svāhā',
       native: 'गते गते पारगते पारसंगते बोधि स्वाहा',
       scripts: [
@@ -1533,8 +1532,12 @@ export const heartSutra: LiturgyDoc = {
           text: 'ག་ཏེ་ག་ཏེ་པཱ་ར་ག་ཏེ་པཱ་ར་སཾ་ག་ཏེ་བོ་དྷི་སྭཱ་ཧཱ',
           transliteration: 'gate gate  pāragate  pārasaṃgate  bodhi  svāhā  (Sanskrit chanted in Tibetan)',
         },
+        {
+          lang: 'en',
+          label: 'Plain English',
+          text: 'gone, gone, gone-beyond, fully-gone-beyond — awakening, svāhā',
+        },
       ],
-      reconstruction: 'Read literally: *gate* "gone" (locative or vocative of *gata*, past participle), repeated; *pāragate* "gone to the beyond"; *pārasaṃgate* "completely gone to the beyond"; *bodhi* "awakening"; *svāhā* an exclamation of completion (familiar from Vedic ritual). The repetition enacts the journey it describes.',
     },
 
     // ─────────────────────────────────────────────────────────────────────
@@ -1566,15 +1569,6 @@ export const heartSutra: LiturgyDoc = {
       reconstruction: 'Mapping back: 羯諦 *gya-tē* ↔ *gate*; 波羅 *ha-ra* ↔ *pāra-*; 波羅僧 *Ha-ra-sō* ↔ *pārasaṃ-*; 菩提 *bo-ji* ↔ *bodhi*; 薩婆訶 *sowa ka* ↔ *svāhā*. The Japanese form preserves the Sanskrit consonant-vowel skeleton through two layers of phonetic carry-over.',
     },
 
-    // ─────────────────────────────────────────────────────────────────────
-    // 4. On translating the Heart Sutra
-    // ─────────────────────────────────────────────────────────────────────
-    {
-      id: 'on-translation',
-      shape: 'prose-commentary',
-      heading: 'On translating the Heart Sutra',
-      body: 'No two English Heart Sutras are alike. Conze\'s "form is emptiness" reads philosophical; Red Pine\'s reads liturgical; Thich Nhat Hanh\'s "this Body itself is Emptiness" reads phenomenological. The Chinese 色即是空 is sharper than any English can be, *just is*, with no copula gap, no preposition. The Tibetan introduces its own scholastic clarifications. Each tradition has been chanting this for over a thousand years; each has put its hand on the text and shaped it.\n\nThe witnesses above are sampled, not exhausted. Karl Brunnhölzl\'s *The Heart Attack Sutra* (2012) offers a careful Tibetan-tradition scholarly reading; Mu Soeng\'s *The Heart of the Universe* (2010) reads it through Zen; H.H. the Dalai Lama\'s commentaries integrate the Tibetan exegetical tradition; the Buddhist Text Translation Society\'s edition follows the Hsuan Hua lineage. All of them are correct and none of them are.\n\nThe instruction the sutra gives, however, is not to translate it but to chant it, and through chanting, to *go*: *gate gate*.',
-    },
   ],
 };
 
