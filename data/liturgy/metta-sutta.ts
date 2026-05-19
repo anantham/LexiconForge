@@ -465,46 +465,172 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v3a: na ca khuddhaṁ samācare kiñci ──
         {
-          id: 'verse-3',
-          pali: 'Na ca khuddhaṁ samācare kiñci, yena viññū pare upavadeyyuṁ; sukhino vā khemino hontu, sabbe sattā bhavantu sukhitattā.',
+          id: 'v3a-na-khuddham',
+          pali: 'na ca khuddhaṁ samācare kiñci',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Na ca khuddhaṁ samācare kiñci, yena viññū pare upavadeyyuṁ; sukhino vā khemino hontu, sabbe sattā bhavantu sukhitattā.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'na ca khuddhaṁ samācare kiñci' },
           ],
           witnesses: [
+            { by: 'Amaravati', text: 'Let them not do the slightest thing', alignTo: [-1, -1, 0, 3, -1, 2, 4], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: "They'd not do the slightest thing", alignTo: [-1, 0, 3, -1, 2, 4], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Do not do the slightest thing', alignTo: [3, 0, 3, -1, 2, 4], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'na', pronunciation: 'nah', gloss: '"not". Combines with the next verb to negate the whole sentence.' },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and. Here it links this verse to the qualities listed in verse 2.' },
             {
-              by: 'Amaravati',
-              text: 'Let them not do the slightest thing that the wise would later reprove. Wishing: in gladness and in safety, may all beings be at ease.',
-              url: AMARAVATI_URL,
+              form: 'khuddhaṁ',
+              pronunciation: 'KHOOD-dahm',
+              etymology: '*khudda* "small, petty, mean" + the *-ṁ* tail marking it as the object of the action',
+              gloss: 'anything petty or mean — not just small in size, but small-minded',
             },
             {
-              by: 'Sujato (SuttaCentral)',
-              text: 'They\'d not do the slightest thing that others might blame them for. Their thought is: \'May all beings be happy and safe! May all beings be happy!\'',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
+              form: 'samācare',
+              pronunciation: 'sah-MAH-chah-ray',
+              etymology: '*saṁ-* (together, fully) + *ā-* (toward) + *√car* (to walk, go, act). The whole verb means "to conduct oneself, behave".',
+              gloss: 'should do, should conduct oneself in. The ending makes it "let one do" — a gentle imperative.',
+              morphemes: [
+                { text: 'sam', type: 'prefix', gloss: 'a prefix meaning "fully, together" (the *ṁ* assimilates to *m* before a vowel)', pronunciation: 'sahm' },
+                { text: 'ā', type: 'prefix', gloss: 'a prefix meaning "toward, at"', pronunciation: 'ah' },
+                { text: 'care', type: 'root', root: '√car', gloss: 'from the verb "to walk, conduct oneself, behave". Same root as *caryā* (practice, conduct).', pronunciation: 'CHAH-ray' },
+              ],
+            },
+            { form: 'kiñci', pronunciation: 'KEEN-chee', gloss: '"anything (at all)". Pairs with the negation *na* — "not anything", i.e. "nothing".' },
+          ],
+        },
+        // ── v3b: yena viññū pare upavadeyyuṁ ──
+        {
+          id: 'v3b-yena-vinnu',
+          pali: 'yena viññū pare upavadeyyuṁ',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'yena viññū pare upavadeyyuṁ' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'that the wise would later reprove.', alignTo: [0, -1, 1, -1, -1, 3], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'that others might blame them for.', alignTo: [0, 2, -1, 3, -1, -1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'that the wise would later censure.', alignTo: [0, -1, 1, -1, -1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'yena',
+              pronunciation: 'YAY-nah',
+              gloss: 'by which, on account of which. A pointer back to the petty thing in 3a — "[the thing] on account of which the wise would reprove".',
             },
             {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'Do not do the slightest thing that the wise would later censure. Think: Happy, at rest, may all beings be happy at heart.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
+              form: 'viññū',
+              pronunciation: 'VEEN-yoo',
+              etymology: '*vi-* (apart, fully) + *√jñā* (to know) — "one who fully discerns"',
+              gloss: 'the wise — specifically, those with discerning knowledge. Same *√jñā* as English *gnostic*, *recognise*.',
+              accent: 'sky',
+              morphemes: [
+                { text: 'vi', type: 'prefix', gloss: 'a prefix meaning "apart, fully" — adds a discerning, analytical flavour', pronunciation: 'vee' },
+                { text: 'ññū', type: 'root', root: '√jñā', gloss: 'from the verb "to know". *Viññū* = "one who discerns, the wise".', pronunciation: 'NYOO' },
+              ],
             },
+            {
+              form: 'pare',
+              pronunciation: 'PAH-ray',
+              gloss: 'others — the other people, the rest of the community. (Plural of *para* "other".)',
+            },
+            {
+              form: 'upavadeyyuṁ',
+              pronunciation: 'oo-pah-vah-DAYY-oom',
+              etymology: '*upa-* (near, against) + *√vad* (to speak) — "to speak against, reprove". The "-eyyuṁ" tail makes it "they would speak against".',
+              gloss: 'would reprove, would blame — the conditional "would" plus a plural "they".',
+              morphemes: [
+                { text: 'upa', type: 'prefix', gloss: 'a prefix meaning "near, against" — adds a "speaking-against" flavour to the verb that follows', pronunciation: 'OO-pah' },
+                { text: 'vad', type: 'root', root: '√vad', gloss: 'from the verb "to speak". Same root as English *vow* via Indo-European cousins.', pronunciation: 'vahd' },
+                { text: 'eyyuṁ', type: 'suffix', gloss: 'the "-eyyuṁ" tail says "they would (do this)". A conditional plural — *vad-eyyuṁ* = "they would speak".', pronunciation: 'AYY-oom' },
+              ],
+            },
+          ],
+        },
+        // ── v3c: sukhino vā khemino hontu ──
+        {
+          id: 'v3c-sukhino-khemino',
+          pali: 'sukhino vā khemino hontu',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'sukhino vā khemino hontu' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'Wishing: in gladness and in safety,', alignTo: [3, -1, 0, 1, -1, 2], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: "'May all beings be happy and safe!", alignTo: [3, -1, -1, 3, 0, 1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Happy, at rest,', alignTo: [0, -1, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'sukhino',
+              pronunciation: 'SOO-khee-noh',
+              etymology: '*sukha* (happiness, ease) + *-in* (possessive) — "having happiness"',
+              gloss: 'happy ones, those-with-ease. *Sukha* is the everyday opposite of *dukkha* (suffering) — it just means "the good kind of feeling".',
+              accent: 'amber',
+            },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or — though here it almost reads "and" in the listing.' },
+            {
+              form: 'khemino',
+              pronunciation: 'KHAY-mee-noh',
+              etymology: '*khema* (safety, security) + *-in* (possessive) — "having safety"',
+              gloss: 'safe ones, those-out-of-danger. *Khema* is the word for the safety of a city behind walls, or a mind out of reach of harm.',
+              accent: 'sky',
+            },
+            {
+              form: 'hontu',
+              pronunciation: 'HOHN-too',
+              etymology: 'from *√hū / √bhū* "to be". The "-ntu" tail makes it "may they be" — a wish or invocation.',
+              gloss: 'may [they] be. The wishing voice — the heart of the metta sutta starts here.',
+            },
+          ],
+        },
+        // ── v3d: sabbe sattā bhavantu sukhitattā ──
+        {
+          id: 'v3d-sabbe-satta',
+          pali: 'sabbe sattā bhavantu sukhitattā',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'sabbe sattā bhavantu sukhitattā' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'may all beings be at ease.', alignTo: [-1, 0, 1, 2, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: "May all beings be happy!'", alignTo: [-1, 0, 1, 2, 3], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'may all beings be happy at heart.', alignTo: [-1, 0, 1, 2, 3, -1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
               form: 'sabbe',
-              gloss: 'All, every. The first appearance of the universalising move that runs through the sutta.',
+              pronunciation: 'SAHB-bay',
+              etymology: 'plural of *sabba* "all, every" (Skt *sarva*)',
+              gloss: 'all, every. The first appearance of the universalising move — the wish covers *everyone*, with no exception.',
               accent: 'rose',
             },
             {
               form: 'sattā',
-              gloss: 'Beings, sentient creatures. *sabbe sattā* = "all beings", the recurring address of the metta wish.',
+              pronunciation: 'SAHT-tah',
+              etymology: 'plural of *satta* "being, sentient creature" — from *√as* "to be", literally "those who are"',
+              gloss: 'beings, sentient creatures. *Sabbe sattā* = "all beings" is the recurring address of the metta wish.',
               accent: 'rose',
               citations: [dpdCitation('satta')],
+            },
+            {
+              form: 'bhavantu',
+              pronunciation: 'bah-VAHN-too',
+              etymology: 'from *√bhū* "to be, become" — the "-ntu" tail makes it "may they be"',
+              gloss: 'may [they] be. Same wishing voice as *hontu* in 3c; the verb just changes register.',
+              morphemes: [
+                { text: 'bhav', type: 'root', root: '√bhū', gloss: 'from the verb "to be, become". Same root that gives English *be* through Indo-European cousins.', pronunciation: 'bahv' },
+                { text: 'antu', type: 'suffix', gloss: 'the "-antu" tail says "may they (be)". A wishing form — *bhav-antu* = "may they be".', pronunciation: 'AHN-too' },
+              ],
+            },
+            {
+              form: 'sukhitattā',
+              pronunciation: 'soo-khee-TAHT-tah',
+              etymology: '*sukhita* (made-happy) + *-attā* (state, condition — from *attan* "self")',
+              gloss: 'happy of heart, in a state of happiness. The "-attā" tail names it as an inner state, not just a passing feeling.',
+              accent: 'amber',
+              morphemes: [
+                { text: 'sukhit', type: 'stem', gloss: '"made happy" — from *sukha* (happiness) with a participle ending', pronunciation: 'soo-KHEET' },
+                { text: 'attā', type: 'suffix', gloss: 'the "-attā" tail names the inner state. *Sukhit-attā* = "happy-of-self", happy from the inside.', pronunciation: 'AHT-tah' },
+              ],
             },
           ],
         },
