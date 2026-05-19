@@ -53,11 +53,6 @@ export const mettaSutta: LiturgyDoc = {
     'Curation by Aditya. Pāli verses from the Khuddakapāṭha 9 / Suttanipāta 1.8 recension (suttafriends.org transcription). English witness is the Amaravati Sangha translation — the version printed on the MAPLE practice sheet, widely used across Theravāda monasteries. Per-word glosses are sparse and authored only on a few key terms.',
   sections: [
     {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'The Karaṇīya Metta Sutta opens by naming the inner posture (capable, upright, gentle, content) of one fit to cultivate boundless [[metta]], and then turns to the practice itself: wishing every kind of being at ease, protecting that wish like a mother protecting her only child, radiating it upwards, downwards, in every direction. Closes with the posture of practice (standing, walking, seated, lying down) and the release that follows (clarity of vision, freedom from desire, no more rebirth).\n\nChanted in Pāli; the prose English below is the Amaravati Sangha rendering, line-mapped approximately to the ten Pāli verses. Word-by-word alignment is not authored here; the verses are short enough to read line-by-line.',
-    },
-    {
       id: 'verses',
       shape: 'triple-script-witness',
       large: true,
