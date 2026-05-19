@@ -468,7 +468,11 @@ const HoverSpan: React.FC<{
       data-hover-span="true"
       data-morpheme-idx={morphemeIdx}
       data-concept-ids={conceptAttr}
-      className={`relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
+      // Each morpheme gets its own underline + tiny horizontal padding so
+      // adjacent morphemes don't merge visually. mn10 pattern: the eye
+      // sees per-segment breaks (kar · aṇī · yam) rather than one long
+      // continuous underline under the whole word.
+      className={`relative inline-block cursor-help px-[2px] border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
         bold ? 'font-semibold' : ''
       }`}
       onMouseEnter={() => setOpen(true)}
