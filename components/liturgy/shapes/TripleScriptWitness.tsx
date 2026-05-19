@@ -69,7 +69,19 @@ function mergeConceptIds(a?: string[], b?: string[]): string | undefined {
 function deriveScripts(seg: TripleScriptWitnessSegment): ScriptVariant[] {
   if (seg.scripts && seg.scripts.length > 0) return seg.scripts;
   const out: ScriptVariant[] = [{ lang: 'pi-Latn', label: 'Pāli', text: seg.pali }];
-  if (seg.paliDeva) out.push({ lang: 'pi-Deva', label: 'Devanāgarī', text: seg.paliDeva });
+  // Carry the IAST as the Devanāgarī variant's transliteration so the
+  // reader gets a phonetic line beneath the Devanāgarī when the
+  // `showTransliteration` setting is on. Without this, legacy chants
+  // (morning-chants, ti-sarana) rendered Devanāgarī silently — no
+  // phonetic respelling underneath.
+  if (seg.paliDeva) {
+    out.push({
+      lang: 'pi-Deva',
+      label: 'Devanāgarī',
+      text: seg.paliDeva,
+      transliteration: seg.pali,
+    });
+  }
   return out;
 }
 
