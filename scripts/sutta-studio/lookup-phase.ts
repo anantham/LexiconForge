@@ -56,7 +56,7 @@ interface CliArgs {
 const parseArgs = (argv: string[]): CliArgs => {
   const out: CliArgs = {
     emitJson: false,
-    demoPacketPath: path.join(REPO_ROOT, 'components', 'sutta-studio', 'demoPacket.json'),
+    demoPacketPath: path.join(REPO_ROOT, 'content', 'references', 'sutta', 'mn10.json'),
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -98,7 +98,7 @@ Options:
                    human-readable report.
   --demo-packet <path>
                    Override the demoPacket location (default:
-                   components/sutta-studio/demoPacket.json).
+                   content/references/sutta/mn10.json).
 `);
 };
 

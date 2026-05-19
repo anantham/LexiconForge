@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import type { LiturgyDoc, Sangha, Witness } from '../../types/liturgy';
 import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
-import { LiturgySettingsProvider, SettingsButton } from './LiturgySettings';
+import { LiturgySettingsProvider, SettingsButton, useLiturgySettings } from './LiturgySettings';
 import { WitnessDots } from './shapes/TripleScriptWitness';
 
 /**
@@ -48,10 +48,22 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
   doc,
   sangha,
 }) => {
+  return (
+    <LiturgySettingsProvider>
+      <LiturgyChantPageBody doc={doc} sangha={sangha} />
+    </LiturgySettingsProvider>
+  );
+};
+
+const LiturgyChantPageBody: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = ({
+  doc,
+  sangha,
+}) => {
   const backHref = sangha ? `/liturgy/${sangha.slug}` : '/liturgy';
   const backLabel = sangha ? sangha.name : 'Liturgy';
   const witnesses = useMemo(() => uniqueWitnesses(doc), [doc]);
   const primaryWitness = witnesses[0]?.by ?? '';
+  const { settings } = useLiturgySettings();
 
   // Page-level witness picker state. The dots row lives once at the top of
   // the chant body; every triple-script-witness section honors the same
@@ -65,8 +77,10 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
   };
 
   return (
-    <LiturgySettingsProvider>
-      <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div
+        className="min-h-screen bg-slate-950 text-slate-100"
+        style={{ ['--liturgy-scale' as string]: settings.fontScale }}
+      >
         {/* Thin nav at top — the chant artifact itself carries title-weight,
             either by way of a recognizable opening line (morning-chants'
             "Namo tassa...") or an explicit title-as-segment first section
@@ -178,7 +192,6 @@ export const LiturgyChantPage: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = 
         )}
       </footer>
       </div>
-    </LiturgySettingsProvider>
   );
 };
 

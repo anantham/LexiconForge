@@ -51,11 +51,6 @@ export const wayOfCompassion: LiturgyDoc = {
     'Curation by Aditya. Pāli verses from the Khuddakapāṭha 9 / Suttanipāta 1.8 recension (same source as MAPLE\'s metta-sutta page). Burtt\'s English transcribed from the Bodhi Sangha booklet; Amaravati / Sujato / Thanissaro included for comparison. Burtt does not translate the preamble (verses 1-2) or the final verse (10); those segments show `—` in the Burtt slot. Closing *Om Tat Sat* mantra is from Bhagavad Gītā 17.23.',
   sections: [
     {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'The *Karaṇīya Metta Sutta* (Sn 1.8 / Khp 9) opens by naming the inner posture (capable, upright, gentle, content) of one fit to cultivate boundless [[metta]], and then turns to the practice itself: wishing every kind of being at ease, protecting that wish like a mother protecting her only child, radiating it upwards, downwards, in every direction.\n\nBodhi Sangha chants this in E.A. Burtt\'s 1955 English — written in a lyric register that reads aloud well. Burtt omits the preamble verses 1-2 (on the chanter\'s inner virtues) and the closing verse 10 (on letting go of views); the booklet leaves those out too. This page presents the full Pāli alongside Burtt\'s text, with Amaravati / Sujato / Thanissaro for comparison on the verses Burtt does translate.',
-    },
-    {
       id: 'verses',
       shape: 'triple-script-witness',
       large: true,

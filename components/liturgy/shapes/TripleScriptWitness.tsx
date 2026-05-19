@@ -37,6 +37,24 @@ const SCRIPT_FONT: Record<string, string> = {
   Hang: "'Noto Serif KR', serif",
 };
 
+/**
+ * Per-script size multipliers. Latin (IAST/Pāli) is the baseline (1.0).
+ * CJK and Devanāgarī benefit from slightly larger rendering because their
+ * glyphs carry more visual detail per unit; the reader needs more pixels
+ * to resolve them comfortably. The English translation line below the
+ * chant body gets its own bump so the gloss reads as easily as the chant.
+ */
+const SCRIPT_SIZE_MULTIPLIER: Record<string, number> = {
+  Latn: 1.0,
+  Deva: 1.05,
+  Hant: 1.2,
+  Hans: 1.2,
+  Jpan: 1.2,
+  Tibt: 1.1,
+  Hang: 1.15,
+};
+const ENGLISH_LINE_MULTIPLIER = 1.4;
+
 /** Resolve the script subtag from a BCP-47 tag (e.g. "sa-Latn" → "Latn"). */
 function scriptSubtag(lang: string): string {
   const parts = lang.split('-');
@@ -174,7 +192,7 @@ const TransliterationLine: React.FC<{
     if (!respelling) return null;
     return (
       <div
-        className="text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
+        className="relative z-0 text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
         style={{ fontFamily: SCRIPT_FONT.Latn }}
         aria-label={`Pronunciation respelling of ${variant.label}`}
       >
@@ -186,7 +204,7 @@ const TransliterationLine: React.FC<{
   if (!variant.transliteration) return null;
   return (
     <div
-      className="text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
+      className="relative z-0 text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
       style={{ fontFamily: SCRIPT_FONT.Latn }}
       aria-label={`Transliteration of ${variant.label}`}
     >
@@ -573,7 +591,11 @@ const PaliLine: React.FC<{
 }> = ({ text, words = [], large = false, lang, tokens: tokenHints }) => {
   const { settings } = useLiturgySettings();
   const script = scriptSubtag(lang);
-  const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
+  // Base font sizes (rem). Reader can tune via the settings slider, which
+  // sets `--liturgy-scale` on the LiturgyChantPage wrapper. Each script
+  // also carries its own multiplier — CJK + Tibetan glyphs benefit from
+  // a slight upscale so the visual weight matches Latin chant body.
+  const baseRem = (large ? 1.875 : 1.5) * (SCRIPT_SIZE_MULTIPLIER[script] ?? 1);
   const fontStack = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
 
   const tokens = (() => {
@@ -615,8 +637,8 @@ const PaliLine: React.FC<{
 
   return (
     <div
-      className={`text-slate-100 leading-loose ${sizeClass}`}
-      style={{ fontFamily: fontStack }}
+      className="text-slate-100 leading-loose"
+      style={{ fontFamily: fontStack, fontSize: `calc(${baseRem}rem * var(--liturgy-scale, 1))` }}
       lang={lang}
     >
       {tokens.map((t, i) => {
@@ -1236,8 +1258,13 @@ const SegmentRow: React.FC<{
           title={segment.witnesses.length > 1 ? 'Click to switch translation' : undefined}
         >
           <div
-            className="text-slate-300 italic leading-relaxed text-base md:text-lg"
-            style={{ fontFamily: SERIF_STACK }}
+            className="text-slate-300 italic leading-relaxed"
+            style={{
+              fontFamily: SERIF_STACK,
+              // English translation line — 1.125rem base × ENGLISH_LINE_MULTIPLIER
+              // (1.4 by default) so the gloss reads as easily as the chant.
+              fontSize: `calc(${1.125 * ENGLISH_LINE_MULTIPLIER}rem * var(--liturgy-scale, 1))`,
+            }}
           >
             <EnglishLine
               text={currentWitness.text}

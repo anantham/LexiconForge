@@ -175,7 +175,8 @@ export const shoSaiMyoKichijoDarani: LiturgyDoc = {
               gloss: 'unimpeded, unobstructed — literally "not struck against"',
               morphemes: [
                 { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
-                { text: 'pratihata', type: 'stem', gloss: 'struck against, obstructed', pronunciation: 'prah-tee-HAH-tah' },
+                { text: 'prati', type: 'prefix', gloss: 'against, toward', pronunciation: 'prah-tee' },
+                { text: 'hata', type: 'stem', root: '√han', gloss: 'struck (past participle)', pronunciation: 'HAH-tah' },
               ],
             },
             {
@@ -195,6 +196,11 @@ export const shoSaiMyoKichijoDarani: LiturgyDoc = {
               pronunciation: 'shah-sah-NAH-nahm',
               etymology: '*śās* "to teach, instruct" → *śāsana* "teaching" + *-ānām* (genitive plural)',
               gloss: 'of the teachings (genitive plural) — together: "of-those-with-unimpeded-teachings"',
+              morphemes: [
+                { text: 'śās', type: 'root', root: '√śās', gloss: 'to teach, instruct', pronunciation: 'shahs' },
+                { text: 'ana', type: 'suffix', gloss: 'noun-forming — yields *śāsana* "teaching"', pronunciation: 'ah-nah' },
+                { text: 'ānām', type: 'suffix', gloss: 'genitive plural ending — "of those …"', pronunciation: 'AH-nahm' },
+              ],
             },
           ],
         },

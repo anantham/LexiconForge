@@ -42,7 +42,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Shujō muhen sē gan do',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Shujō muhen sē gan do', tokens: ['Shujō', 'muhen', 'sē gan', 'do'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '衆生無邊誓願度', tokens: ['衆生', '無邊', '誓願', '度'], transliteration: 'Shujō  muhen  sē gan  do' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '衆生無邊誓願度', tokens: ['衆生', '無邊', '誓願', '度'], transliteration: 'zhòng shēng wú biān shì yuàn dù  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
@@ -64,7 +64,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Bonnō mujin sē gan dan',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Bonnō mujin sē gan dan', tokens: ['Bonnō', 'mujin', 'sē gan', 'dan'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '煩惱無盡誓願斷', tokens: ['煩惱', '無盡', '誓願', '斷'], transliteration: 'Bonnō  mujin  sē gan  dan' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '煩惱無盡誓願斷', tokens: ['煩惱', '無盡', '誓願', '斷'], transliteration: 'fán nǎo wú jìn shì yuàn duàn  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
@@ -86,7 +86,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Hōmon muryō sē gan gaku',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Hōmon muryō sē gan gaku', tokens: ['Hōmon', 'muryō', 'sē gan', 'gaku'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '法門無量誓願學', tokens: ['法門', '無量', '誓願', '學'], transliteration: 'Hōmon  muryō  sē gan  gaku' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '法門無量誓願學', tokens: ['法門', '無量', '誓願', '學'], transliteration: 'fǎ mén wú liàng shì yuàn xué  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
@@ -108,7 +108,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Butsudō mujō sē gan jō',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Butsudō mujō sē gan jō', tokens: ['Butsudō', 'mujō', 'sē gan', 'jō'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '佛道無上誓願成', tokens: ['佛道', '無上', '誓願', '成'], transliteration: 'Butsudō  mujō  sē gan  jō' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '佛道無上誓願成', tokens: ['佛道', '無上', '誓願', '成'], transliteration: 'fó dào wú shàng shì yuàn chéng  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
