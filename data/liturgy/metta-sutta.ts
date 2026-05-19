@@ -1156,41 +1156,133 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v8a: mettañca sabbalokasmiṁ ──
         {
-          id: 'verse-8',
-          pali: 'Mettañca sabbalokasmiṁ, mānasaṁ bhāvaye aparimāṇaṁ; uddhaṁ adho ca tiriyañca, asambādhaṁ averaṁ asapattaṁ.',
+          id: 'v8a-metta-sabbaloka',
+          pali: 'mettañca sabbalokasmiṁ',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Mettañca sabbalokasmiṁ, mānasaṁ bhāvaye aparimāṇaṁ; uddhaṁ adho ca tiriyañca, asambādhaṁ averaṁ asapattaṁ.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'mettañca sabbalokasmiṁ' },
           ],
           witnesses: [
-            {
-              by: 'Amaravati',
-              text: 'Radiating kindness over the entire world: spreading upwards to the skies, and downwards to the depths; outwards and unbounded, freed from hatred and ill-will.',
-              url: AMARAVATI_URL,
-            },
-            {
-              by: 'Sujato (SuttaCentral)',
-              text: 'With love for the whole world, they\'d cultivate a heart that\'s limitless, upwards, downwards and side-to-side, unbounded, free of enmity and hate.',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
-            },
-            {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'With good will for the entire cosmos, cultivate a limitless heart: above, below, & all around, unobstructed, without enmity or hate.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
-            },
+            { by: 'Amaravati', text: 'Radiating kindness over the entire world:', alignTo: [-1, 0, -1, -1, 1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'With love for the whole world,', alignTo: [-1, 0, -1, -1, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'With good will for the entire cosmos,', alignTo: [-1, 0, 0, -1, -1, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
-              form: 'Mettañca',
-              gloss: '*mettā* + *ca* "and". *Mettā* is loving-kindness, friendliness; not affection or warmth alone but a goodwill toward all beings without exception. The name-virtue of the sutta.',
+              form: 'mettañca',
+              pronunciation: 'MAYT-tahn-chah',
+              etymology: '*mettā* (loving-kindness, friendliness) + *ca* "and" — the consonant clusters together for chant rhythm',
+              gloss: 'and loving-kindness. *Mettā* is the name-virtue of the sutta — not affection or warmth alone, but a steady goodwill toward every being without exception. Related to *mitta* "friend".',
               accent: 'rose',
               citations: [dpdCitation('mettā')],
+              morphemes: [
+                { text: 'mettañ', type: 'stem', gloss: '*mettā* "loving-kindness" — the sutta\'s name-virtue. Sound-merged with the next word *ca*.', pronunciation: 'MAYT-tahn' },
+                { text: 'ca', type: 'suffix', gloss: '"and" — same word as elsewhere; here joined to the previous word by chant rhythm', pronunciation: 'chah' },
+              ],
+            },
+            {
+              form: 'sabbalokasmiṁ',
+              pronunciation: 'SAHB-bah-LOH-kah-smeem',
+              etymology: '*sabba* (all) + *loka* (world) + *-smiṁ* (the "in/at" ending)',
+              gloss: '"in the whole world" — the wide target. *Loka* is "world" in the cosmological sense, covering all realms of existence.',
+              morphemes: [
+                { text: 'sabba', type: 'stem', gloss: '"all, every" — same root as *sabbe* in v3d, v5d', pronunciation: 'SAHB-bah' },
+                { text: 'loka', type: 'stem', gloss: '"world, realm" — covers all the realms of existence in Buddhist cosmology', pronunciation: 'LOH-kah' },
+                { text: 'smiṁ', type: 'suffix', gloss: 'the "-smiṁ" tail says "in/at" — *sabba-loka-smiṁ* = "in the whole world"', pronunciation: 'smeem' },
+              ],
+            },
+          ],
+        },
+        // ── v8b: mānasaṁ bhāvaye aparimāṇaṁ (refrain — same as v7d) ──
+        {
+          id: 'v8b-manasam-bhavaye',
+          pali: 'mānasaṁ bhāvaye aparimāṇaṁ',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'mānasaṁ bhāvaye aparimāṇaṁ' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'spreading upwards to the skies,', alignTo: [-1, -1, -1, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: "they'd cultivate a heart that's limitless,", alignTo: [-1, 1, -1, 0, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'cultivate a limitless heart:', alignTo: [1, -1, 2, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'mānasaṁ', pronunciation: 'MAH-nah-sahm', gloss: 'the heart-mind — same word as v7d. The refrain returns: cultivate this thing, boundlessly.', accent: 'sky', citations: [dpdCitation('manas')] },
+            { form: 'bhāvaye', pronunciation: 'BAH-vah-yay', gloss: 'let one cultivate — same wishing form as v7d. The technical term for meditative cultivation.', accent: 'amber', citations: [dpdCitation('bhāveti')] },
+            { form: 'aparimāṇaṁ', pronunciation: 'ah-PAH-ree-MAH-nahm', gloss: 'boundless, without measure — same word as v7d. The line completes the refrain.', accent: 'rose' },
+          ],
+        },
+        // ── v8c: uddhaṁ adho ca tiriyañca ──
+        {
+          id: 'v8c-uddham-adho',
+          pali: 'uddhaṁ adho ca tiriyañca',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'uddhaṁ adho ca tiriyañca' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'and downwards to the depths;', alignTo: [2, 1, -1, -1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'upwards, downwards and side-to-side,', alignTo: [0, 1, 2, 3], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'above, below, & all around,', alignTo: [0, 1, 2, 3, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'uddhaṁ', pronunciation: 'OOD-dahm', gloss: 'upward — the direction-word for "above". The radiating-out begins.' },
+            { form: 'adho', pronunciation: 'AH-doh', gloss: 'downward — paired with *uddhaṁ* "upward". Vertical sweep.' },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+            {
+              form: 'tiriyañca',
+              pronunciation: 'TEE-ree-yahn-chah',
+              etymology: '*tiriyaṁ* "across, horizontally" + *ca* "and" — sound-merged together',
+              gloss: '"and across" — completing the three-axis sweep: up + down + sideways. *Tiriya* is "transverse, horizontal" — the metta covers all directions.',
+              morphemes: [
+                { text: 'tiriyañ', type: 'stem', gloss: '"across, horizontally" — the third axis, completing up + down + side', pronunciation: 'TEE-ree-yahn' },
+                { text: 'ca', type: 'suffix', gloss: '"and" — joined to the previous word', pronunciation: 'chah' },
+              ],
+            },
+          ],
+        },
+        // ── v8d: asambādhaṁ averaṁ asapattaṁ ──
+        {
+          id: 'v8d-asambadham-averam',
+          pali: 'asambādhaṁ averaṁ asapattaṁ',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'asambādhaṁ averaṁ asapattaṁ' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'outwards and unbounded, freed from hatred and ill-will.', alignTo: [-1, -1, 0, -1, -1, 1, -1, 2], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'unbounded, free of enmity and hate.', alignTo: [0, 1, 1, 2, -1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'unobstructed, without enmity or hate.', alignTo: [0, 1, 1, -1, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'asambādhaṁ',
+              pronunciation: 'ah-sahm-BAH-dahm',
+              etymology: '*a-* (not) + *sambādha* (crowded, narrow, constricted)',
+              gloss: '"uncrowded, unconstricted" — the metta-heart has no walls penning it in. *Sambādha* is "narrow", *asambādha* is "wide open".',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: '"not"', pronunciation: 'ah' },
+                { text: 'sambādhaṁ', type: 'stem', gloss: '"narrow, constricted, crowded". *A-sambādhaṁ* = "without constriction, wide-open".', pronunciation: 'sahm-BAH-dahm' },
+              ],
+            },
+            {
+              form: 'averaṁ',
+              pronunciation: 'ah-VAY-rahm',
+              etymology: '*a-* (not) + *vera* (hatred, enmity)',
+              gloss: '"without hate". *Vera* is the technical term for enmity that perpetuates itself across lifetimes — the kind of grudge that won\'t let go. *A-vera* is the heart with no grudge.',
+              accent: 'sky',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: '"not"', pronunciation: 'ah' },
+                { text: 'veraṁ', type: 'stem', gloss: '"hatred, enmity, grudge" — the technical Buddhist term for hate that perpetuates itself. *A-vera* = "without grudge".', pronunciation: 'VAY-rahm' },
+              ],
+            },
+            {
+              form: 'asapattaṁ',
+              pronunciation: 'ah-sah-PAHT-tahm',
+              etymology: '*a-* (not) + *sapatta* (enemy, rival)',
+              gloss: '"without enemy" — without anyone the heart sets itself against. *Sapatta* is "rival, adversary" — *asapatta* is the heart with no adversary.',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: '"not"', pronunciation: 'ah' },
+                { text: 'sapattaṁ', type: 'stem', gloss: '"rival, enemy". *A-sapatta* = "with no rival, with no one to oppose".', pronunciation: 'sah-PAHT-tahm' },
+              ],
             },
           ],
         },
