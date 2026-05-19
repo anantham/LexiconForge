@@ -29,6 +29,17 @@ const SCRIPT_FONT: Record<string, string> = {
   Hang: "'Noto Serif KR', serif",
 };
 
+// Per-script size multipliers — same values used in TripleScriptWitness.
+const SCRIPT_SIZE_MULTIPLIER: Record<string, number> = {
+  Latn: 1.0,
+  Deva: 1.05,
+  Hant: 1.2,
+  Hans: 1.2,
+  Jpan: 1.2,
+  Tibt: 1.1,
+  Hang: 1.15,
+};
+
 function scriptSubtag(lang: string): string {
   const parts = lang.split('-');
   return parts.length >= 2 ? parts[1] : 'Latn';
@@ -58,7 +69,7 @@ const FormulaLine: React.FC<{ variant: ScriptVariant }> = ({ variant }) => {
         style={{
           fontFamily,
           letterSpacing: script === 'Latn' ? '0.05em' : undefined,
-          fontSize: `calc(3rem * var(--liturgy-scale, 1))`,
+          fontSize: `calc(${3 * (SCRIPT_SIZE_MULTIPLIER[script] ?? 1)}rem * var(--liturgy-scale, 1))`,
         }}
         lang={variant.lang}
       >

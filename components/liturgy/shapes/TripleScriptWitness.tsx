@@ -37,6 +37,24 @@ const SCRIPT_FONT: Record<string, string> = {
   Hang: "'Noto Serif KR', serif",
 };
 
+/**
+ * Per-script size multipliers. Latin (IAST/Pāli) is the baseline (1.0).
+ * CJK and Devanāgarī benefit from slightly larger rendering because their
+ * glyphs carry more visual detail per unit; the reader needs more pixels
+ * to resolve them comfortably. The English translation line below the
+ * chant body gets its own bump so the gloss reads as easily as the chant.
+ */
+const SCRIPT_SIZE_MULTIPLIER: Record<string, number> = {
+  Latn: 1.0,
+  Deva: 1.05,
+  Hant: 1.2,
+  Hans: 1.2,
+  Jpan: 1.2,
+  Tibt: 1.1,
+  Hang: 1.15,
+};
+const ENGLISH_LINE_MULTIPLIER = 1.4;
+
 /** Resolve the script subtag from a BCP-47 tag (e.g. "sa-Latn" → "Latn"). */
 function scriptSubtag(lang: string): string {
   const parts = lang.split('-');
@@ -574,8 +592,10 @@ const PaliLine: React.FC<{
   const { settings } = useLiturgySettings();
   const script = scriptSubtag(lang);
   // Base font sizes (rem). Reader can tune via the settings slider, which
-  // sets `--liturgy-scale` on the LiturgyChantPage wrapper.
-  const baseRem = large ? 1.875 : 1.5;
+  // sets `--liturgy-scale` on the LiturgyChantPage wrapper. Each script
+  // also carries its own multiplier — CJK + Tibetan glyphs benefit from
+  // a slight upscale so the visual weight matches Latin chant body.
+  const baseRem = (large ? 1.875 : 1.5) * (SCRIPT_SIZE_MULTIPLIER[script] ?? 1);
   const fontStack = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
 
   const tokens = (() => {
@@ -1241,7 +1261,9 @@ const SegmentRow: React.FC<{
             className="text-slate-300 italic leading-relaxed"
             style={{
               fontFamily: SERIF_STACK,
-              fontSize: `calc(1.125rem * var(--liturgy-scale, 1))`,
+              // English translation line — 1.125rem base × ENGLISH_LINE_MULTIPLIER
+              // (1.4 by default) so the gloss reads as easily as the chant.
+              fontSize: `calc(${1.125 * ENGLISH_LINE_MULTIPLIER}rem * var(--liturgy-scale, 1))`,
             }}
           >
             <EnglishLine
