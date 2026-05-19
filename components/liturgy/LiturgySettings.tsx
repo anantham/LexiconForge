@@ -10,7 +10,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
  */
 
 export type LiturgySettings = {
-  /** Show subtle hue accents on refrain words (Buddhaṁ=sky, Dhammaṁ=amber, etc.). */
+  /** Show subtle hue accents on refrain words (Buddha=amber, Dharma=sky, Sangha=rose). */
   showAccents: boolean;
   /**
    * Show a small Roman / phonetic transliteration line beneath non-Latin
@@ -18,11 +18,20 @@ export type LiturgySettings = {
    * can't read the source script pronounce it.
    */
   showTransliteration: boolean;
+  /**
+   * Multiplier on the chant body's base font size. 1.0 = default
+   * (mn10-matching large chant rendering). Range 0.7–1.6 via the
+   * settings slider. Applied as a `--liturgy-scale` CSS variable on
+   * the LiturgyChantPage wrapper; chant-body Tailwind classes read it
+   * via `text-[calc(var(--liturgy-scale,1)*Xrem)]`.
+   */
+  fontScale: number;
 };
 
 const DEFAULT_SETTINGS: LiturgySettings = {
   showAccents: true,
   showTransliteration: true,
+  fontScale: 1.0,
 };
 
 const STORAGE_KEY = 'liturgy:settings';
@@ -141,6 +150,46 @@ export const SettingsButton: React.FC = () => {
           </label>
           <div className="text-[10px] text-slate-600 mt-1 leading-snug">
             Phonetic line beneath the chant: romanization beneath non-Latin scripts, pronunciation respelling beneath Latin scripts.
+          </div>
+          {/* Font-size slider — multiplies the chant body. Default 1.0
+              matches the mn10 demo's large chant rendering. */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-slate-300">
+              <span>Chant text size</span>
+              <span className="text-[10px] text-slate-500 tabular-nums">{Math.round(settings.fontScale * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min={0.7}
+              max={1.6}
+              step={0.05}
+              value={settings.fontScale}
+              onChange={(e) => setSettings({ ...settings, fontScale: parseFloat(e.target.value) })}
+              className="w-full mt-2 accent-emerald-500"
+              aria-label="Chant body font size"
+            />
+            <div className="flex items-center justify-between text-[10px] text-slate-600 mt-1">
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, fontScale: 0.85 })}
+                className="hover:text-emerald-400"
+              >Small</button>
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, fontScale: 1.0 })}
+                className="hover:text-emerald-400"
+              >Default</button>
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, fontScale: 1.2 })}
+                className="hover:text-emerald-400"
+              >Large</button>
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, fontScale: 1.45 })}
+                className="hover:text-emerald-400"
+              >XL</button>
+            </div>
           </div>
         </div>
       )}

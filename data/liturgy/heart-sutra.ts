@@ -2807,21 +2807,523 @@ export const heartSutra: LiturgyDoc = {
     },
 
     // ─────────────────────────────────────────────────────────────────────
-    // 2e. MAPLE prose — All Buddhas of the past, present and future
+    // 2e. All Buddhas of the three times rely on prajñāpāramitā
     // ─────────────────────────────────────────────────────────────────────
     {
-      id: 'maple-all-buddhas',
-      shape: 'prose-commentary',
-      body: 'All Buddhas of the past, present and future rely on transcendent wisdom, and attain unexcelled, perfect, complete enlightenment.\n\n*MAPLE chant text. Chinese: 三世諸佛 依般若波羅蜜多故 得阿耨多羅三藐三菩提 — the *anuttarā samyaksaṃbodhi* formula. Sanskrit: "Tryadhvavyavasthitāḥ sarvabuddhāḥ prajñāpāramitām āśrityānuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ."*',
+      id: 'heart-buddhas',
+      shape: 'triple-script-witness',
+      segments: [
+        // ── 三世諸佛 — all buddhas of the three times ──
+        {
+          id: 'buddhas-all-three-times',
+          pali: 'Tryadhvavyavasthitāḥ sarvabuddhāḥ',
+          paliDeva: 'त्र्यध्वव्यवस्थिताः सर्वबुद्धाः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Tryadhvavyavasthitāḥ sarvabuddhāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'त्र्यध्वव्यवस्थिताः सर्वबुद्धाः', transliteration: 'Tryadhva-vyavasthitāḥ sarva-buddhāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '三世諸佛',
+              source: 'T251',
+              tokens: ['三世', '諸佛'],
+              transliteration: 'sān-shì zhū-fó  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '三世諸佛',
+              source: 'Hannya Shingyō',
+              tokens: ['三世', '諸佛'],
+              transliteration: 'San-ze sho-butsu  (Sino-Japanese)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'All Buddhas of the past, present and future',
+              alignTo: [-1, 1, -1, 0, -1, 0, -1, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'All those who appear as Buddhas in the three periods of time',
+              alignTo: [-1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'All buddhas past, present, and future',
+              alignTo: [-1, 1, -1, -1, -1, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'All Buddhas in the past, present and future,',
+              alignTo: [-1, 1, -1, 0, -1, 0, -1, 0],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'Tryadhvavyavasthitāḥ',
+              scriptAlt: 'त्र्यध्वव्यवस्थिताः',
+              scriptAlts: { 'zh-Hant': '三世', 'ja-Jpan': '三世' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '三', type: 'semantic', pronunciation: 'sān', gloss: 'three — calques Sanskrit *tri*' },
+                  { text: '世', type: 'semantic', pronunciation: 'shì', gloss: 'world, age, generation — here "time-period". Together 三世 = the three times: past, present, future' },
+                ],
+                'ja-Jpan': [
+                  { text: '三', type: 'semantic', pronunciation: 'san', gloss: 'three' },
+                  { text: '世', type: 'semantic', pronunciation: 'ze', gloss: 'age, time-period. 三世 (san-ze) = the three times' },
+                ],
+              },
+              pronunciation: 'tree-AHD-vah-vyah-vahs-thee-TAHH',
+              etymology: '*tri-* "three" + *adhva* "way, time-period" + *vyavasthita* "established, situated"',
+              gloss: 'established in the three times — past, present, and future',
+              morphemes: [
+                { text: 'tri', type: 'prefix', gloss: 'three', pronunciation: 'tree' },
+                { text: 'adhva', type: 'stem', gloss: 'time, way, road', pronunciation: 'AHD-vah' },
+                { text: 'vyavasthitāḥ', type: 'suffix', root: '√sthā', gloss: 'established, dwelling (plural)', pronunciation: 'vyah-vahs-thee-TAHH' },
+              ],
+            },
+            {
+              form: 'sarvabuddhāḥ',
+              scriptAlt: 'सर्वबुद्धाः',
+              scriptAlts: { 'zh-Hant': '諸佛', 'ja-Jpan': '諸佛' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '諸', type: 'semantic', pronunciation: 'zhū', gloss: 'all, every — calques *sarva*' },
+                  { text: '佛', type: 'semantic', pronunciation: 'fó', gloss: 'Buddha. Phonetic loan from Sanskrit *buddha*; the same 佛 across all Chinese Buddhist literature' },
+                ],
+                'ja-Jpan': [
+                  { text: '諸', type: 'semantic', pronunciation: 'sho', gloss: 'all — calques *sarva*' },
+                  { text: '佛', type: 'semantic', pronunciation: 'butsu', gloss: 'Buddha' },
+                ],
+              },
+              pronunciation: 'sahr-vah-BOOD-dhah',
+              etymology: '*sarva* "all" + *buddha* "awakened" (plural)',
+              gloss: 'all the buddhas',
+              accent: 'amber',
+              morphemes: [
+                { text: 'sarva', type: 'prefix', gloss: 'all, every', pronunciation: 'SAHR-vah' },
+                { text: 'buddhāḥ', type: 'stem', root: '√budh', gloss: 'awakened ones (plural)', pronunciation: 'BOOD-dhah' },
+              ],
+            },
+          ],
+        },
+
+        // ── 依般若波羅蜜多故 — relying on the perfection of wisdom ──
+        {
+          id: 'buddhas-rely-prajna',
+          pali: 'prajñāpāramitām āśritya',
+          paliDeva: 'प्रज्ञापारमिताम् आश्रित्य',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'prajñāpāramitām āśritya' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'प्रज्ञापारमिताम् आश्रित्य', transliteration: 'prajñāpāramitām āśritya' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '依般若波羅蜜多故',
+              source: 'T251',
+              tokens: ['依', '般若', '波羅蜜多', '故'],
+              transliteration: 'yī  bō-rě  bō-luó-mì-duō  gù  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '依般若波羅蜜多故',
+              source: 'Hannya Shingyō',
+              tokens: ['依', '般若', '波羅蜜多', '故'],
+              transliteration: 'e hannya haramita ko  (Sino-Japanese)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'rely on transcendent wisdom,',
+              alignTo: [1, -1, 0, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'fully awake to the utmost, right and perfect Enlightenment because they have relied on the Perfection of Wisdom.',
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 0, -1, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'depend on Prajñāpāramitā',
+              alignTo: [1, -1, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'thanks to this Insight that brings us to the Other Shore,',
+              alignTo: [-1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'prajñāpāramitām',
+              scriptAlt: 'प्रज्ञापारमिताम्',
+              scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '般若', type: 'phonetic', pronunciation: 'bō-rě', gloss: 'phonetic transliteration of Sanskrit *prajñā* (wisdom)' },
+                  { text: '波羅蜜多', type: 'phonetic', pronunciation: 'bō-luó-mì-duō', gloss: 'phonetic transliteration of *pāramitā* (perfection)' },
+                ],
+                'ja-Jpan': [
+                  { text: '般若', type: 'phonetic', pronunciation: 'hannya', gloss: 'phonetic: *prajñā*' },
+                  { text: '波羅蜜多', type: 'phonetic', pronunciation: 'haramita', gloss: 'phonetic: *pāramitā*' },
+                ],
+              },
+              pronunciation: 'prahj-NYAH-pah-rah-mee-TAHM',
+              etymology: '*prajñā* "wisdom" + *pāramitā* "perfection" (accusative)',
+              gloss: 'the perfection of wisdom (accusative — object of "relying on")',
+              accent: 'sky',
+              morphemes: [
+                { text: 'prajñā', type: 'stem', gloss: 'wisdom', pronunciation: 'prahj-NYAH' },
+                { text: 'pāramitām', type: 'suffix', gloss: 'perfection (acc.)', pronunciation: 'pah-rah-mee-TAHM' },
+              ],
+            },
+            {
+              form: 'āśritya',
+              scriptAlt: 'आश्रित्य',
+              scriptAlts: { 'zh-Hant': '依', 'ja-Jpan': '依' },
+              pronunciation: 'AH-shree-tyah',
+              etymology: '*ā-* "toward" + *√śri* "to rest on, depend on"',
+              gloss: 'having taken refuge in, relying on (gerund)',
+            },
+          ],
+        },
+
+        // ── 得阿耨多羅三藐三菩提 — attain unsurpassed perfect enlightenment ──
+        {
+          id: 'buddhas-attain-bodhi',
+          pali: 'anuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ',
+          paliDeva: 'अनुत्तरां सम्यक्संबोधिम् अभिसंबुद्धाः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'anuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अनुत्तरां सम्यक्संबोधिम् अभिसंबुद्धाः', transliteration: 'anuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '得阿耨多羅三藐三菩提',
+              source: 'T251',
+              tokens: ['得', '阿耨多羅', '三藐三', '菩提'],
+              transliteration: 'dé  ā-nòu-duō-luó  sān-miǎo-sān  pú-tí  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '得阿耨多羅三藐三菩提',
+              source: 'Hannya Shingyō',
+              tokens: ['得', '阿耨多羅', '三藐三', '菩提'],
+              transliteration: 'toku a-noku-ta-ra san-myaku-san bo-dai  (Sino-Japanese)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'and attain unexcelled, perfect, complete enlightenment.',
+              alignTo: [-1, 2, 0, 1, 1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: '— see all-in-one (verse 14) above',
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+              license: 'Conze fuses 14 + 15 — no separate alignment',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'and realize unexcelled, perfect Enlightenment.',
+              alignTo: [-1, -1, 0, 1, 1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'are all capable of attaining Authentic and Perfect Enlightenment.',
+              alignTo: [-1, -1, -1, -1, 2, 1, -1, 1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'anuttarāṃ',
+              scriptAlt: 'अनुत्तराम्',
+              scriptAlts: { 'zh-Hant': '阿耨多羅', 'ja-Jpan': '阿耨多羅' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '阿', type: 'phonetic', pronunciation: 'ā', gloss: 'phonetic: *a-* (the negation)' },
+                  { text: '耨', type: 'phonetic', pronunciation: 'nòu', gloss: 'phonetic: *-nu-*' },
+                  { text: '多', type: 'phonetic', pronunciation: 'duō', gloss: 'phonetic: *-tta-*' },
+                  { text: '羅', type: 'phonetic', pronunciation: 'luó', gloss: 'phonetic: *-rām* (accusative)' },
+                ],
+              },
+              pronunciation: 'ah-NOOT-tah-rahm',
+              etymology: '*a-* "not" + *uttara* "higher, superior" — "than which nothing is higher"',
+              gloss: 'unsurpassed, supreme',
+            },
+            {
+              form: 'samyaksaṃbodhim',
+              scriptAlt: 'सम्यक्संबोधिम्',
+              scriptAlts: { 'zh-Hant': '三藐三菩提', 'ja-Jpan': '三藐三菩提' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '三藐', type: 'phonetic', pronunciation: 'sān-miǎo', gloss: 'phonetic: *samyak-* (perfect, complete)' },
+                  { text: '三', type: 'phonetic', pronunciation: 'sān', gloss: 'phonetic: *saṃ-* (together, fully)' },
+                  { text: '菩提', type: 'phonetic', pronunciation: 'pú-tí', gloss: 'phonetic: *bodhi* (awakening) — same 菩提 across all Chinese Buddhist texts' },
+                ],
+              },
+              pronunciation: 'sahm-YAHK-sahm-BOH-dheem',
+              etymology: '*samyak* "perfect, right" + *saṃ-* "together, complete" + *bodhi* "awakening"',
+              gloss: 'perfect complete awakening — the *anuttarā samyaksaṃbodhi* of the bodhisattva path',
+              accent: 'amber',
+              morphemes: [
+                { text: 'samyak', type: 'prefix', gloss: 'right, perfect', pronunciation: 'SAHM-yahk' },
+                { text: 'saṃ', type: 'prefix', gloss: 'fully, completely', pronunciation: 'sahm' },
+                { text: 'bodhim', type: 'stem', root: '√budh', gloss: 'awakening (acc.)', pronunciation: 'BOH-dheem' },
+              ],
+            },
+            {
+              form: 'abhisaṃbuddhāḥ',
+              scriptAlt: 'अभिसंबुद्धाः',
+              scriptAlts: { 'zh-Hant': '得', 'ja-Jpan': '得' },
+              pronunciation: 'ah-bhee-sahm-BOOD-dhah',
+              etymology: '*abhi-* "toward" + *saṃ-* "fully" + *buddha* "awakened" (plural)',
+              gloss: 'fully awakened to (plural — all the buddhas have attained)',
+              morphemes: [
+                { text: 'abhi', type: 'prefix', gloss: 'toward, fully', pronunciation: 'ah-bhee' },
+                { text: 'saṃ', type: 'prefix', gloss: 'completely', pronunciation: 'sahm' },
+                { text: 'buddhāḥ', type: 'stem', root: '√budh', gloss: 'awakened (plural)', pronunciation: 'BOOD-dhah' },
+              ],
+            },
+          ],
+        },
+      ],
     },
 
     // ─────────────────────────────────────────────────────────────────────
-    // 2f. MAPLE prose — Therefore know: the great spell · into the mantra
+    // 2f. Therefore know: prajñāpāramitā is the great mantra
     // ─────────────────────────────────────────────────────────────────────
     {
-      id: 'maple-great-spell',
-      shape: 'prose-commentary',
-      body: 'Therefore know: transcendent wisdom is the great spell, the great knowledge, the supreme knowledge, the unequalled knowledge. It can remove all suffering. It is true, not false.\n\nTherefore recite the mantra of transcendent wisdom as follows:\n\n*MAPLE chant text. Chinese: 故知般若波羅蜜多 是大神咒 是大明咒 是無上咒 是無等等咒 能除一切苦 真實不虛 故說般若波羅蜜多咒 即說咒曰 — the praise of prajñāpāramitā as itself a mantra, leading into the gate gate dharani below.*',
+      id: 'heart-great-mantra',
+      shape: 'triple-script-witness',
+      segments: [
+        // ── 故知般若波羅蜜多 — Therefore know: prajñāpāramitā ──
+        {
+          id: 'mantra-therefore-know',
+          pali: 'tasmāj jñātavyaṃ prajñāpāramitā',
+          paliDeva: 'तस्माज्ज्ञातव्यं प्रज्ञापारमिता',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'tasmāj jñātavyaṃ prajñāpāramitā' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'तस्माज्ज्ञातव्यं प्रज्ञापारमिता', transliteration: 'tasmāj jñātavyaṃ prajñāpāramitā' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '故知般若波羅蜜多', source: 'T251', tokens: ['故', '知', '般若波羅蜜多'], transliteration: 'gù zhī bō-rě bō-luó-mì-duō  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '故知般若波羅蜜多', source: 'Hannya Shingyō', tokens: ['故', '知', '般若波羅蜜多'], transliteration: 'ko chi hannya haramita  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'Therefore know: transcendent wisdom', alignTo: [0, 1, -1, 2], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'Therefore one should know the Prajñāpāramitā', alignTo: [0, -1, -1, 1, -1, 2], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'You should therefore know that Prajñāpāramitā', alignTo: [-1, -1, 0, 1, -1, 2], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'Therefore Shariputra, it should be known that the Insight that brings us to the Other Shore', alignTo: [0, -1, -1, -1, -1, 1, -1, -1, 2, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'tasmāj', scriptAlt: 'तस्माज्', scriptAlts: { 'zh-Hant': '故', 'ja-Jpan': '故' }, pronunciation: 'tahs-MAHJ', gloss: 'therefore (ablative of *tat* "that")' },
+            { form: 'jñātavyaṃ', scriptAlt: 'ज्ञातव्यं', scriptAlts: { 'zh-Hant': '知', 'ja-Jpan': '知' }, pronunciation: 'GYAH-tahv-yahm', gloss: 'should be known (gerundive)' },
+            { form: 'prajñāpāramitā', scriptAlt: 'प्रज्ञापारमिता', scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' }, pronunciation: 'prahj-NYAH-pah-rah-mee-TAH', gloss: 'the Perfection of Wisdom (nominative)', accent: 'sky' },
+          ],
+        },
+
+        // ── 是大神咒 — is the great mantra ──
+        {
+          id: 'mantra-great',
+          pali: 'mahāmantraḥ',
+          paliDeva: 'महामन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'mahāmantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'महामन्त्रः', transliteration: 'mahāmantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是大神咒', source: 'T251', tokens: ['是', '大神', '咒'], transliteration: 'shì dà-shén zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是大神咒', source: 'Hannya Shingyō', tokens: ['是', '大神', '咒'], transliteration: 'ze dai-jin shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'is the great spell,', alignTo: [-1, -1, 0, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'is a great spell,', alignTo: [-1, -1, 0, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'is the great mantra,', alignTo: [-1, -1, 0, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'is a Great Mantra,', alignTo: [-1, -1, 0, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'mahāmantraḥ', scriptAlt: 'महामन्त्रः', scriptAlts: { 'zh-Hant': '大神咒', 'ja-Jpan': '大神咒' }, pronunciation: 'mah-HAH-mahn-trahh', etymology: '*mahā* "great" + *mantra* "spell, sacred utterance"', gloss: 'the great mantra' },
+          ],
+        },
+
+        // ── 是大明咒 — is the great knowledge mantra ──
+        {
+          id: 'mantra-great-knowledge',
+          pali: 'mahāvidyāmantraḥ',
+          paliDeva: 'महाविद्यामन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'mahāvidyāmantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'महाविद्यामन्त्रः', transliteration: 'mahāvidyāmantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是大明咒', source: 'T251', tokens: ['是', '大明', '咒'], transliteration: 'shì dà-míng zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是大明咒', source: 'Hannya Shingyō', tokens: ['是', '大明', '咒'], transliteration: 'ze dai-myō shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'the great knowledge,', alignTo: [-1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'a spell of great knowledge,', alignTo: [-1, -1, -1, -1, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra of great learning,', alignTo: [-1, -1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'the most illuminating mantra,', alignTo: [-1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'mahāvidyāmantraḥ', scriptAlt: 'महाविद्यामन्त्रः', scriptAlts: { 'zh-Hant': '大明咒', 'ja-Jpan': '大明咒' }, pronunciation: 'mah-HAH-veed-YAH-mahn-trahh', etymology: '*mahā* "great" + *vidyā* "knowledge, illumination" + *mantra*. *Vidyā* shares its root √vid with the 明 (míng "bright, clear")', gloss: 'the great knowledge-mantra — knowledge here is illumination, not propositional content' },
+          ],
+        },
+
+        // ── 是無上咒 — is the unsurpassed mantra ──
+        {
+          id: 'mantra-unsurpassed',
+          pali: 'anuttaramantraḥ',
+          paliDeva: 'अनुत्तरमन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'anuttaramantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अनुत्तरमन्त्रः', transliteration: 'anuttaramantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是無上咒', source: 'T251', tokens: ['是', '無上', '咒'], transliteration: 'shì wú-shàng zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是無上咒', source: 'Hannya Shingyō', tokens: ['是', '無上', '咒'], transliteration: 'ze mu-jō shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'the supreme knowledge,', alignTo: [-1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'the utmost spell,', alignTo: [-1, -1, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the unsurpassable mantra,', alignTo: [-1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'the highest mantra,', alignTo: [-1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'anuttaramantraḥ', scriptAlt: 'अनुत्तरमन्त्रः', scriptAlts: { 'zh-Hant': '無上咒', 'ja-Jpan': '無上咒' }, pronunciation: 'ah-NOOT-tah-rah-mahn-trahh', etymology: 'same *anuttara* "unsurpassed" as in *anuttarā samyaksaṃbodhi*', gloss: 'the unsurpassed mantra — nothing surpasses it' },
+          ],
+        },
+
+        // ── 是無等等咒 — is the unequaled mantra ──
+        {
+          id: 'mantra-unequaled',
+          pali: 'asamasamamantraḥ',
+          paliDeva: 'असमसममन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'asamasamamantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'असमसममन्त्रः', transliteration: 'asamasamamantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是無等等咒', source: 'T251', tokens: ['是', '無等等', '咒'], transliteration: 'shì wú-děng-děng zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是無等等咒', source: 'Hannya Shingyō', tokens: ['是', '無等等', '咒'], transliteration: 'ze mu-tō-dō shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'the unequalled knowledge.', alignTo: [-1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'unequalled,', alignTo: [0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra equal to the unequaled,', alignTo: [-1, -1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'the mantra which is the equal of the unequalled,', alignTo: [-1, -1, -1, -1, -1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'asamasamamantraḥ', scriptAlt: 'असमसममन्त्रः', scriptAlts: { 'zh-Hant': '無等等咒', 'ja-Jpan': '無等等咒' }, pronunciation: 'ah-SAH-mah-SAH-mah-mahn-trahh', etymology: '*a-* "not" + *sama* "equal" + *sama* "equal" — "having no equal", "equal to the unequaled"', gloss: 'the unequaled-equal mantra — paradoxical formula: equal to what has no equal' },
+          ],
+        },
+
+        // ── 能除一切苦 — able to remove all suffering ──
+        {
+          id: 'mantra-removes-suffering',
+          pali: 'sarvaduḥkhapraśamanaḥ',
+          paliDeva: 'सर्वदुःखप्रशमनः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'sarvaduḥkhapraśamanaḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'सर्वदुःखप्रशमनः', transliteration: 'sarvaduḥkhapraśamanaḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '能除一切苦', source: 'T251', tokens: ['能', '除', '一切', '苦'], transliteration: 'néng chú yī-qiè kǔ  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '能除一切苦', source: 'Hannya Shingyō', tokens: ['能', '除', '一切', '苦'], transliteration: 'nō jo issai ku  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'It can remove all suffering.', alignTo: [-1, -1, 0, 0, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'allayer of all suffering,', alignTo: [0, 0, 0, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra that ends all suffering.', alignTo: [-1, -1, -1, 0, 0, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'a Mantra which is able to allay all suffering.', alignTo: [-1, -1, -1, -1, -1, 0, 0, 0, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'sarvaduḥkhapraśamanaḥ', scriptAlt: 'सर्वदुःखप्रशमनः', scriptAlts: { 'zh-Hant': '除一切苦', 'ja-Jpan': '除一切苦' }, pronunciation: 'sahr-vah-DOOH-khah-prah-SHAH-mah-nahh', etymology: '*sarva* "all" + *duḥkha* "suffering" + *praśamana* "calming, stilling"', gloss: 'allayer of all suffering — what calms every kind of suffering' },
+          ],
+        },
+
+        // ── 真實不虛 — true, not false ──
+        {
+          id: 'mantra-true-not-false',
+          pali: 'satyam amithyatvāt',
+          paliDeva: 'सत्यम् अमिथ्यत्वात्',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'satyam amithyatvāt' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'सत्यम् अमिथ्यत्वात्', transliteration: 'satyam amithyatvāt' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '真實不虛', source: 'T251', tokens: ['真實', '不虛'], transliteration: 'zhēn-shí bù-xū  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '真實不虛', source: 'Hannya Shingyō', tokens: ['真實', '不虛'], transliteration: 'shin-jitsu fu-ko  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'It is true, not false.', alignTo: [-1, -1, 0, -1, 1], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'in truth — for what could go wrong?', alignTo: [-1, 0, -1, -1, 1, -1, -1, -1], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'It is real and not illusory.', alignTo: [-1, -1, 0, -1, -1, 1], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'This is the truth that can not be doubted,', alignTo: [-1, -1, -1, 0, -1, 1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'satyam', scriptAlt: 'सत्यम्', scriptAlts: { 'zh-Hant': '真實', 'ja-Jpan': '真實' }, pronunciation: 'SAHT-yahm', etymology: '*sat* "being, true" + *-ya* abstract suffix — "truth itself"', gloss: 'true, real (neuter accusative)' },
+            { form: 'amithyatvāt', scriptAlt: 'अमिथ्यत्वात्', scriptAlts: { 'zh-Hant': '不虛', 'ja-Jpan': '不虛' }, pronunciation: 'ah-MEETH-yaht-vaht', etymology: '*a-* "not" + *mithyā* "false" + *-tva* abstract + *-āt* ablative — "due to not being false"', gloss: 'because it is not false (ablative — gives the reason)' },
+          ],
+        },
+
+        // ── 故說般若波羅蜜多咒 — therefore the prajñāpāramitā mantra is spoken ──
+        {
+          id: 'mantra-prajna-spoken',
+          pali: 'prajñāpāramitāyām ukto mantraḥ',
+          paliDeva: 'प्रज्ञापारमितायाम् उक्तो मन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'prajñāpāramitāyām ukto mantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'प्रज्ञापारमितायाम् उक्तो मन्त्रः', transliteration: 'prajñāpāramitāyām ukto mantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '故說般若波羅蜜多咒', source: 'T251', tokens: ['故', '說', '般若波羅蜜多', '咒'], transliteration: 'gù shuō bō-rě bō-luó-mì-duō zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '故說般若波羅蜜多咒', source: 'Hannya Shingyō', tokens: ['故', '說', '般若波羅蜜多', '咒'], transliteration: 'ko setsu hannya haramita shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'Therefore recite the mantra of transcendent wisdom', alignTo: [-1, 1, -1, 2, -1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'By the Prajñāpāramitā has this spell been delivered. It runs like this:', alignTo: [-1, -1, 0, -1, -1, -1, 2, -1, 1, -1, -1, -1, -1], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'So we proclaim the mantra of Prajñāpāramitā,', alignTo: [-1, -1, 1, -1, 2, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'so let us proclaim a mantra to praise the Insight that brings us to the Other Shore.', alignTo: [-1, -1, -1, 1, -1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'prajñāpāramitāyām', scriptAlt: 'प्रज्ञापारमितायाम्', scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' }, pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-yahm', etymology: 'locative of *prajñāpāramitā* — "in / from the Perfection of Wisdom"', gloss: 'in the Perfection of Wisdom (locative)', accent: 'sky' },
+            { form: 'ukto', scriptAlt: 'उक्तो', scriptAlts: { 'zh-Hant': '說', 'ja-Jpan': '說' }, pronunciation: 'OOK-toh', etymology: 'past participle of √vac "to speak"', gloss: 'spoken, declared' },
+            { form: 'mantraḥ', scriptAlt: 'मन्त्रः', scriptAlts: { 'zh-Hant': '咒', 'ja-Jpan': '咒' }, pronunciation: 'MAHN-trahh', etymology: '*man-* "to think" + *-tra* instrument suffix — "instrument of thought"', gloss: 'the mantra (nominative)' },
+          ],
+        },
+
+        // ── 即說咒曰 — thus the mantra is spoken ──
+        {
+          id: 'mantra-thus-spoken',
+          pali: 'tadyathā',
+          paliDeva: 'तद्यथा',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'tadyathā' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'तद्यथा', transliteration: 'tadyathā' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '即說咒曰', source: 'T251', tokens: ['即', '說', '咒', '曰'], transliteration: 'jí shuō zhòu yuē  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '即說咒曰', source: 'Hannya Shingyō', tokens: ['即', '說', '咒', '曰'], transliteration: 'soku setsu shu watsu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'as follows:', alignTo: [0, -1], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'thus:', alignTo: [0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra that goes:', alignTo: [-1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'It is:', alignTo: [-1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'tadyathā', scriptAlt: 'तद्यथा', scriptAlts: { 'zh-Hant': '即說咒曰', 'ja-Jpan': '即說咒曰' }, pronunciation: 'tahd-yah-THAH', etymology: '*tat* "that" + *yathā* "as" — "as that", "namely", "thus"', gloss: 'thus, namely — the formula introducing the mantra' },
+          ],
+        },
+      ],
     },
 
     // ─────────────────────────────────────────────────────────────────────
