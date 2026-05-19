@@ -31,7 +31,7 @@ export const bodhicittaDedication: LiturgyDoc = {
   title: 'Bodhicitta Dedication',
   subtitle: 'May supreme and precious bodhicitta arise…',
   tradition: 'vajrayana',
-  context: 'Recited 3× at MAPLE on Sunday nights, before Monday — the free self-practice day. Not part of the daily morning service.',
+  context: 'Bodhicitta — the aspiration to awaken for the benefit of all beings. This four-line dedication, a standard closing in Tibetan practice, turns merit toward the arising and increase of that aspiration.',
   sources: {
     canonical: [
       {

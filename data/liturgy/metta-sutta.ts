@@ -40,7 +40,7 @@ export const mettaSutta: LiturgyDoc = {
   title: 'Karaṇīya Metta Sutta',
   subtitle: 'The Buddha\'s Words on Loving-Kindness',
   tradition: 'theravada',
-  context: 'Chanted before every meal at MAPLE, Breakfast (7:30 AM) and Lunch (12 PM). Followed after the meal by the Four Great Vows.',
+  context: 'The Buddha\'s teaching on cultivating loving-kindness (*mettā*) toward all beings, without exception. From the *Khuddakapāṭha* (Khp 9) and the *Suttanipāta* (Sn 1.8).',
   sources: {
     canonical: [
       { label: 'Khp 9 / Snp 1.8 (Karaṇīya Metta Sutta)', url: 'https://suttafriends.org/sutta/khp9/' },

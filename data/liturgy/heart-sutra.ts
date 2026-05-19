@@ -37,7 +37,7 @@ export const heartSutra: LiturgyDoc = {
   title: 'The Scripture on the Heart of Transcendent Wisdom',
   subtitle: 'Prajñāpāramitā Hṛdaya Sūtra · MAPLE chant text (after Sheng-yen)',
   tradition: 'mahayana',
-  context: 'Chanted across Mahāyāna and Vajrayāna traditions worldwide.',
+  context: 'The shortest Mahāyāna sutra — the *hṛdaya* (heart, essence) of the Perfection-of-Wisdom literature. Avalokiteśvara speaks to Śāriputra: form is emptiness, emptiness is form.',
   sources: {
     canonical: [
       {

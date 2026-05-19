@@ -26,7 +26,7 @@ export const shinJinNoMei: LiturgyDoc = {
   title: 'On Trust in the Heart-Mind',
   subtitle: 'Shin-Jin-No-Mei (信心銘) — Sengcan, Third Chan Patriarch',
   tradition: 'zen',
-  context: 'Chanted at Bodhi Sangha as the longest sustained verse text in the daily liturgy. Sengcan\'s Xinxin Ming is the foundational articulation of non-duality in the Chan / Zen tradition; nearly every later Zen text quotes it.',
+  context: 'Sengcan\'s *Xinxin Ming* (信心銘) is the foundational articulation of non-duality in the Chan / Zen tradition; nearly every later Zen text quotes it.',
   sources: {
     canonical: [
       { label: 'Xinxin Ming / Shinjin no Mei (信心銘)', url: 'https://en.wikipedia.org/wiki/Xinxin_Ming' },

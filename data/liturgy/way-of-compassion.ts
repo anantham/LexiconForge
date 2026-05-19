@@ -24,7 +24,7 @@ export const wayOfCompassion: LiturgyDoc = {
   title: 'The Way of Compassion',
   subtitle: 'Karaṇīya Metta Sutta (Sn 1.8) — Burtt\'s rendering',
   tradition: 'theravada',
-  context: 'Recited at Bodhi Sangha as the loving-kindness contemplation. Edwin Arthur Burtt\'s English rendering of the *Karaṇīya Metta Sutta*, from his 1955 anthology *The Teachings of the Compassionate Buddha*. Closes with *Om Tat Sat* — a Vedic mantra acknowledging the sangha\'s Indian setting.',
+  context: 'Edwin Arthur Burtt\'s English rendering of the *Karaṇīya Metta Sutta*, from his 1955 anthology *The Teachings of the Compassionate Buddha*. Closes with *Om Tat Sat* — a Vedic mantra acknowledging the sangha\'s Indian setting.',
   sources: {
     canonical: [
       { label: 'Sn 1.8 — Karaṇīya Metta Sutta', url: 'https://suttacentral.net/snp1.8/en/sujato' },

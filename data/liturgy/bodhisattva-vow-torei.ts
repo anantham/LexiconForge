@@ -22,7 +22,7 @@ export const bodhisattvaVowTorei: LiturgyDoc = {
   title: 'Bodhisattva Vow',
   subtitle: 'Tōrei Zenji (1721-1792)',
   tradition: 'zen',
-  context: 'Composed by Tōrei Enji, Hakuin\'s principal Dharma heir, in late 18th-century Japan. Recited at Bodhi Sangha as part of formal liturgy, preceded by the brief *Purification* gātha. The vow extends the bodhisattva ideal into concrete imagery — even the persecutor is the merciful avatar of Buddha.',
+  context: 'Composed by Tōrei Enji, Hakuin\'s principal Dharma heir, in late 18th-century Japan. The vow extends the bodhisattva ideal into concrete imagery — even the persecutor is the merciful avatar of Buddha.',
   sources: {
     canonical: [
       { label: 'Tōrei Enji (1721-1792)', url: 'https://en.wikipedia.org/wiki/T%C5%8Drei_Enji' },

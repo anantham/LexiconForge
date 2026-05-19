@@ -20,7 +20,7 @@ export const bodhiVows: LiturgyDoc = {
   title: 'Four Great Vows',
   subtitle: 'Shi-gu Sei-gan-mon (四弘誓願)',
   tradition: 'zen',
-  context: 'Recited at Bodhi Sangha as part of formal sutra chanting. The pan-Mahāyāna bodhisattva vow formula in Sino-Japanese pronunciation with Bodhi Sangha\'s contemplative English rendering.',
+  context: 'The pan-Mahāyāna bodhisattva vow formula in Sino-Japanese pronunciation, with Bodhi Sangha\'s English rendering.',
   sources: {
     canonical: [
       { label: 'Four Great Vows (pan-Mahāyāna formula)', url: 'https://en.wikipedia.org/wiki/Four_Great_Vows' },

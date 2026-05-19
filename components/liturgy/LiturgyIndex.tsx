@@ -97,7 +97,6 @@ const ChantCard: React.FC<{ doc: LiturgyDoc; sanghaSlug: string }> = ({ doc, san
         <h2 className="text-xl text-slate-100" style={{ fontFamily: SERIF_STACK }}>
           {doc.title}
         </h2>
-        <span className="text-xs uppercase tracking-widest text-slate-500">{doc.tradition}</span>
         {doc.time && (
           <span className="text-xs text-emerald-400/70 ml-auto">{doc.time}</span>
         )}

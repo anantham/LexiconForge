@@ -28,7 +28,7 @@ export const omManiPadmeHum: LiturgyDoc = {
   title: 'Oṃ Maṇi Padme Hūṃ',
   subtitle: 'The heart-mantra of Avalokiteśvara',
   tradition: 'vajrayana',
-  context: 'Chanted at MAPLE in the evening, before sleep.',
+  context: 'The six-syllable mantra of Avalokiteśvara (Tibetan: Chenrezig), the bodhisattva of compassion. Recited across Tibetan Buddhism as one of the most pervasive practices in the tradition.',
   sources: {
     canonical: [
       {

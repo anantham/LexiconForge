@@ -27,7 +27,7 @@ export const shoSaiMyoKichijoDarani: LiturgyDoc = {
   title: 'Sho Sai Myō Kichijō Darani',
   subtitle: 'The Marvelous Auspicious Dharani for Eliminating Disasters — 消災妙吉祥陀羅尼',
   tradition: 'mahayana',
-  context: 'Chanted 3× after the Enmē Jikku Kannon Gyō in the MAPLE morning service.',
+  context: 'A Sanskrit *dharani* — protection-and-averting-of-disasters formula — preserved in Sino-Japanese kanji as phonetic carriers. Title 消災 = "extinguish disaster", 妙吉祥 = "marvelous auspicious".',
   sources: {
     canonical: [
       {
