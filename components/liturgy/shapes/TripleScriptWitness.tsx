@@ -704,7 +704,16 @@ const EnglishLine: React.FC<{
    * attestations.
    */
   witnessBy?: string;
-}> = ({ text, accentByEnIdx, witnessBy }) => {
+  /**
+   * Witness's per-English-word mapping to Pāli surface position. When
+   * an entry is -1, the English word is "glue" — connective tissue
+   * English needs that has no Pāli counterpart ("This is what should be
+   * done" → "is", "what", "be" carry no Pāli, only "done" maps). The
+   * mn10 reader dims those words so the eye lands on content words.
+   * Without alignTo, all words render at full opacity.
+   */
+  alignTo?: number[];
+}> = ({ text, accentByEnIdx, witnessBy, alignTo }) => {
   const { settings } = useLiturgySettings();
   const tokens = tokenizeEnglish(text);
   let engIdx = -1;
@@ -717,6 +726,11 @@ const EnglishLine: React.FC<{
         const accentClass = settings.showAccents && accent ? ACCENT_CLASS[accent] : '';
         const concepts = conceptsForToken('en', 'Latn', t, witnessBy);
         const conceptAttr = concepts.length > 0 ? concepts.join(' ') : undefined;
+        // Glue word: English-only scaffolding with no Pāli source. mn10
+        // renders these at 0.55 opacity (Legend.tsx uses 0.3 for "ghost
+        // words"; we settle higher because liturgy glue is more often
+        // unavoidable English syntax than fully supplied content).
+        const isGlue = alignTo !== undefined && alignTo[engIdx] === -1;
         return (
           <span
             key={i}
@@ -725,6 +739,7 @@ const EnglishLine: React.FC<{
             // bg + z-10 to hide alignment-line strokes behind the word (see
             // PaliLine sibling above for the same treatment).
             className={`relative z-10 inline-block bg-slate-950 ${accentClass}`}
+            style={isGlue ? { opacity: 0.55 } : undefined}
           >
             {t}
           </span>
@@ -1287,6 +1302,7 @@ const SegmentRow: React.FC<{
               text={currentWitness.text}
               accentByEnIdx={accentByEnIdx}
               witnessBy={currentWitness.by}
+              alignTo={currentWitness.alignTo}
             />
           </div>
         </div>
