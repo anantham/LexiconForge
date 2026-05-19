@@ -577,7 +577,11 @@ const PaliLine: React.FC<{
           <span
             key={i}
             data-pali-idx={paliSurfaceIdx}
-            className={`inline-block ${accentClass}`}
+            // bg + z-10 so the alignment-line SVG (sibling rendered last,
+            // would otherwise stack on top) visually goes BEHIND the word.
+            // The bg matches the page bg so it's invisible to the eye but
+            // hides the line where it crosses this word's bounding box.
+            className={`relative z-10 inline-block bg-slate-950 ${accentClass}`}
           >
             {content}
           </span>
@@ -621,7 +625,9 @@ const EnglishLine: React.FC<{
             key={i}
             data-en-idx={engIdx}
             data-concept-ids={conceptAttr}
-            className={`inline-block ${accentClass}`}
+            // bg + z-10 to hide alignment-line strokes behind the word (see
+            // PaliLine sibling above for the same treatment).
+            className={`relative z-10 inline-block bg-slate-950 ${accentClass}`}
           >
             {t}
           </span>
@@ -977,6 +983,15 @@ const SegmentRow: React.FC<{
     };
   }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo, activeScript.lang]);
 
+  // Clear stale hover state when the active script or witness changes.
+  // Without this, hovered.element points at a DOM node from before the
+  // swap — on mobile especially, that node is detached and its
+  // getBoundingClientRect() returns zeros, painting the alignment line
+  // from the viewport corner. (See task #73.)
+  useEffect(() => {
+    setHovered(null);
+  }, [activeScript.lang, witnessIdx]);
+
   // Hover detection via event delegation on the segment container.
   // mouseover bubbles up; we check whether the target sits inside any
   // [data-pali-idx] or [data-en-idx] span and set hovered accordingly.
@@ -1048,6 +1063,12 @@ const SegmentRow: React.FC<{
   //      has no morphemeIdx (otherwise the auto-distributed fan stays).
   const adjustedLines: Line[] = (() => {
     if (!hovered || !containerRef.current) return [];
+    // Guard against stale hover state: if the user swapped scripts while
+    // a hover was active, hovered.element is now detached from the DOM
+    // tree. getBoundingClientRect() on a detached node returns all-zero,
+    // which would paint the line's source endpoint at the viewport corner.
+    // (See task #73, user-reported mobile Devanāgarī bug.)
+    if (!containerRef.current.contains(hovered.element)) return [];
     const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo);
     const cRect = containerRef.current.getBoundingClientRect();
     const r = hovered.element.getBoundingClientRect();
