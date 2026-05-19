@@ -2848,7 +2848,7 @@ export const heartSutra: LiturgyDoc = {
             {
               by: 'Conze (1958)',
               text: 'All those who appear as Buddhas in the three periods of time',
-              alignTo: [-1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 0],
+              alignTo: [-1, -1, -1, -1, -1, 1, -1, -1, 0, -1, -1, -1],
               url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
             },
             {
@@ -2951,7 +2951,7 @@ export const heartSutra: LiturgyDoc = {
             {
               by: 'Conze (1958)',
               text: 'fully awake to the utmost, right and perfect Enlightenment because they have relied on the Perfection of Wisdom.',
-              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 0, -1, 0],
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 0, -1, 0],
               url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
             },
             {
@@ -3039,7 +3039,7 @@ export const heartSutra: LiturgyDoc = {
             {
               by: 'Conze (1958)',
               text: '— see all-in-one (verse 14) above',
-              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1],
+              alignTo: [-1, -1, -1, -1, -1, -1],
               url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
               license: 'Conze fuses 14 + 15 — no separate alignment',
             },
@@ -3136,7 +3136,7 @@ export const heartSutra: LiturgyDoc = {
             { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'Therefore know: transcendent wisdom', alignTo: [0, 1, -1, 2], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
             { by: 'Conze (1958)', text: 'Therefore one should know the Prajñāpāramitā', alignTo: [0, -1, -1, 1, -1, 2], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
             { by: 'Red Pine (2004)', text: 'You should therefore know that Prajñāpāramitā', alignTo: [-1, -1, 0, 1, -1, 2], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
-            { by: 'Thich Nhat Hanh (2014)', text: 'Therefore Shariputra, it should be known that the Insight that brings us to the Other Shore', alignTo: [0, -1, -1, -1, -1, 1, -1, -1, 2, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'Therefore Shariputra, it should be known that the Insight that brings us to the Other Shore', alignTo: [0, -1, -1, -1, -1, 1, -1, -1, 2, -1, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
             { form: 'tasmāj', scriptAlt: 'तस्माज्', scriptAlts: { 'zh-Hant': '故', 'ja-Jpan': '故' }, pronunciation: 'tahs-MAHJ', gloss: 'therefore (ablative of *tat* "that")' },
@@ -3225,8 +3225,8 @@ export const heartSutra: LiturgyDoc = {
           witnesses: [
             { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'the unequalled knowledge.', alignTo: [-1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
             { by: 'Conze (1958)', text: 'unequalled,', alignTo: [0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
-            { by: 'Red Pine (2004)', text: 'the mantra equal to the unequaled,', alignTo: [-1, -1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
-            { by: 'Thich Nhat Hanh (2014)', text: 'the mantra which is the equal of the unequalled,', alignTo: [-1, -1, -1, -1, -1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+            { by: 'Red Pine (2004)', text: 'the mantra equal to the unequaled,', alignTo: [-1, -1, -1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'the mantra which is the equal of the unequalled,', alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
             { form: 'asamasamamantraḥ', scriptAlt: 'असमसममन्त्रः', scriptAlts: { 'zh-Hant': '無等等咒', 'ja-Jpan': '無等等咒' }, pronunciation: 'ah-SAH-mah-SAH-mah-mahn-trahh', etymology: '*a-* "not" + *sama* "equal" + *sama* "equal" — "having no equal", "equal to the unequaled"', gloss: 'the unequaled-equal mantra — paradoxical formula: equal to what has no equal' },
@@ -3291,9 +3291,9 @@ export const heartSutra: LiturgyDoc = {
           ],
           witnesses: [
             { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'Therefore recite the mantra of transcendent wisdom', alignTo: [-1, 1, -1, 2, -1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
-            { by: 'Conze (1958)', text: 'By the Prajñāpāramitā has this spell been delivered. It runs like this:', alignTo: [-1, -1, 0, -1, -1, -1, 2, -1, 1, -1, -1, -1, -1], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Conze (1958)', text: 'By the Prajñāpāramitā has this spell been delivered. It runs like this:', alignTo: [-1, -1, 0, -1, -1, 2, -1, 1, -1, -1, -1, -1], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
             { by: 'Red Pine (2004)', text: 'So we proclaim the mantra of Prajñāpāramitā,', alignTo: [-1, -1, 1, -1, 2, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
-            { by: 'Thich Nhat Hanh (2014)', text: 'so let us proclaim a mantra to praise the Insight that brings us to the Other Shore.', alignTo: [-1, -1, -1, 1, -1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'so let us proclaim a mantra to praise the Insight that brings us to the Other Shore.', alignTo: [-1, -1, -1, 1, -1, 2, -1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
             { form: 'prajñāpāramitāyām', scriptAlt: 'प्रज्ञापारमितायाम्', scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' }, pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-yahm', etymology: 'locative of *prajñāpāramitā* — "in / from the Perfection of Wisdom"', gloss: 'in the Perfection of Wisdom (locative)', accent: 'sky' },
