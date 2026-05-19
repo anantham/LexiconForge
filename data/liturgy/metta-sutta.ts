@@ -57,41 +57,255 @@ export const mettaSutta: LiturgyDoc = {
       shape: 'triple-script-witness',
       large: true,
       segments: [
+        // ── v1a: karaṇīyam-attha-kusalena ──
         {
-          id: 'verse-1',
-          pali: 'Karaṇīyamatthakusalena, yaṁ taṁ santaṁ padaṁ abhisamecca; sakko ujū ca suhujū ca, suvaco c\'assa mudu anatimānī.',
+          id: 'v1a-karaniya',
+          pali: 'karaṇīyam-attha-kusalena',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Karaṇīyamatthakusalena, yaṁ taṁ santaṁ padaṁ abhisamecca; sakko ujū ca suhujū ca, suvaco c\'assa mudu anatimānī.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'karaṇīyam-attha-kusalena' },
           ],
           witnesses: [
             {
               by: 'Amaravati',
-              text: 'This is what should be done by one who is skilled in goodness, and who knows the path of peace: let them be able and upright, straightforward and gentle in speech, humble and not conceited.',
+              text: 'This is what should be done by one who is skilled in goodness,',
+              alignTo: [0, 0, 0, 0, 0, 0, -1, 2, -1, -1, 2, 1, 1],
               url: AMARAVATI_URL,
             },
             {
               by: 'Sujato (SuttaCentral)',
-              text: 'This is what should be done by one skilled in the good who has comprehended the state of peace. They\'d be capable, sincere, and upright, easy to speak to, gentle, and not proud,',
+              text: 'This is what should be done by one skilled in the good',
+              alignTo: [0, 0, 0, 0, 0, 0, -1, 2, 2, -1, -1, 1],
               url: 'https://suttacentral.net/snp1.8/en/sujato',
               license: 'CC0',
             },
             {
               by: 'Thanissaro (Access to Insight)',
-              text: 'This is to be done by one skilled in aims who wants to break through to the state of peace: Be capable, upright, and straightforward, easy to instruct, gentle, and not conceited,',
+              text: 'This is to be done by one skilled in aims',
+              alignTo: [0, 0, 0, 0, 0, -1, 2, 2, -1, 1],
               url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
               license: 'CC BY-NC',
             },
           ],
           words: [
             {
+              form: 'karaṇīyam',
+              pronunciation: 'kah-rah-NEE-yahm',
+              etymology: 'gerundive of *√kṛ* "to do" — "that which should be done"',
+              gloss: 'should be done — the opening word frames the whole sutta as instruction',
+              morphemes: [
+                { text: 'karaṇī', type: 'root', root: '√kṛ', gloss: 'to do, make', pronunciation: 'kah-rah-NEE' },
+                { text: 'yam', type: 'suffix', gloss: 'gerundive ending — "to-be-Xed"', pronunciation: 'yahm' },
+              ],
+              citations: [dpdCitation('karaṇīya')],
+            },
+            {
+              form: 'attha',
+              pronunciation: 'AHT-tah',
+              etymology: 'Pāli *attha* "aim, meaning, the good" (Skt *artha*)',
+              gloss: 'the good, the aim — the goal of practice; what is worth doing',
+              accent: 'amber',
+              citations: [dpdCitation('attha')],
+            },
+            {
+              form: 'kusalena',
+              pronunciation: 'koo-sah-LAY-nah',
+              etymology: '*kusala* "skilful, wholesome" + *-ena* instrumental ending',
+              gloss: 'by one skilled (instrumental) — *kusala* is the same term used for "wholesome" mental states across the Pāli canon',
+              morphemes: [
+                { text: 'kusala', type: 'stem', gloss: 'skilful, wholesome', pronunciation: 'koo-SAH-lah' },
+                { text: 'ena', type: 'suffix', gloss: 'instrumental case ending — "by [one who is]"', pronunciation: 'AY-nah' },
+              ],
+              citations: [dpdCitation('kusala')],
+            },
+          ],
+        },
+        // ── v1b: yaṁ taṁ santaṁ padaṁ abhisamecca ──
+        {
+          id: 'v1b-santam-padam',
+          pali: 'yaṁ taṁ santaṁ padaṁ abhisamecca',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'yaṁ taṁ santaṁ padaṁ abhisamecca' },
+          ],
+          witnesses: [
+            {
+              by: 'Amaravati',
+              text: 'and who knows the path of peace:',
+              alignTo: [-1, -1, 4, -1, 3, -1, 2],
+              url: AMARAVATI_URL,
+            },
+            {
+              by: 'Sujato (SuttaCentral)',
+              text: 'who has comprehended the state of peace.',
+              alignTo: [-1, 4, 4, -1, 3, -1, 2],
+              url: 'https://suttacentral.net/snp1.8/en/sujato',
+              license: 'CC0',
+            },
+            {
+              by: 'Thanissaro (Access to Insight)',
+              text: 'who wants to break through to the state of peace:',
+              alignTo: [-1, -1, -1, 4, 4, -1, -1, 3, -1, 2],
+              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
+              license: 'CC BY-NC',
+            },
+          ],
+          words: [
+            { form: 'yaṁ', pronunciation: 'yahm', etymology: 'relative pronoun "which/that" (neuter accusative)', gloss: 'which, that' },
+            { form: 'taṁ', pronunciation: 'tahm', etymology: 'demonstrative pronoun (neuter accusative)', gloss: 'that' },
+            {
               form: 'santaṁ',
-              gloss: 'Peaceful, calmed. From *√śam* "to calm, quiet". The "path of peace" the worker of goodness is heading toward.',
+              pronunciation: 'SAHN-tahm',
+              etymology: 'past participle of *√śam* "to calm, quiet" (accusative, agreeing with *padaṁ*)',
+              gloss: 'peaceful, calmed — the quality of the state',
               accent: 'sky',
+              morphemes: [
+                { text: 'sant', type: 'root', root: '√śam', gloss: 'calmed, at peace (past participle)', pronunciation: 'sahnt' },
+                { text: 'aṁ', type: 'suffix', gloss: 'accusative singular neuter', pronunciation: 'ahm' },
+              ],
               citations: [dpdCitation('santa')],
+            },
+            {
+              form: 'padaṁ',
+              pronunciation: 'PAH-dahm',
+              etymology: 'Pāli *pada* "foot, step, foothold, state, position" — same root as Skt *pad*',
+              gloss: 'state, foothold, ground — the "peaceful state" (nibbāna in commentarial reading)',
+              citations: [dpdCitation('pada')],
+            },
+            {
+              form: 'abhisamecca',
+              pronunciation: 'ah-bhee-sah-MAYCH-cha',
+              etymology: '*abhi-* "toward" + *sam-* "fully" + *√i* "to go" — gerund "having comprehended"',
+              gloss: 'having comprehended, having broken through to (gerund)',
+              morphemes: [
+                { text: 'abhi', type: 'prefix', gloss: 'toward, fully', pronunciation: 'ah-bhee' },
+                { text: 'sam', type: 'prefix', gloss: 'together, completely', pronunciation: 'sahm' },
+                { text: 'ecca', type: 'suffix', root: '√i', gloss: '*√i* "to go" + gerund ending — "having gone-toward"', pronunciation: 'AYCH-cha' },
+              ],
+            },
+          ],
+        },
+        // ── v1c: sakko ujū ca suhujū ca ──
+        {
+          id: 'v1c-sakko-uju',
+          pali: 'sakko ujū ca suhujū ca',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'sakko ujū ca suhujū ca' },
+          ],
+          witnesses: [
+            {
+              by: 'Amaravati',
+              text: 'let them be able and upright,',
+              alignTo: [-1, -1, -1, 0, -1, 1],
+              url: AMARAVATI_URL,
+            },
+            {
+              by: 'Sujato (SuttaCentral)',
+              text: 'They\'d be capable, sincere, and upright,',
+              alignTo: [-1, -1, 0, 3, -1, 1],
+              url: 'https://suttacentral.net/snp1.8/en/sujato',
+              license: 'CC0',
+            },
+            {
+              by: 'Thanissaro (Access to Insight)',
+              text: 'Be capable, upright, and straightforward,',
+              alignTo: [-1, 0, 1, -1, 3],
+              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
+              license: 'CC BY-NC',
+            },
+          ],
+          words: [
+            {
+              form: 'sakko',
+              pronunciation: 'SAHK-koh',
+              etymology: 'Pāli *sakka* "able, capable" + *-o* nominative (Skt *śakta*, from *√śak* "to be able")',
+              gloss: 'able, capable — first of the chanter\'s inner qualities',
+              citations: [dpdCitation('sakka')],
+            },
+            {
+              form: 'ujū',
+              pronunciation: 'OO-joo',
+              etymology: 'Pāli *uju* "straight, upright" (Skt *ṛju*)',
+              gloss: 'upright, straight — physical and moral uprightness',
+              citations: [dpdCitation('uju')],
+            },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+            {
+              form: 'suhujū',
+              pronunciation: 'SOO-hoo-joo',
+              etymology: '*su-* "well, very" + *uju* "straight"',
+              gloss: 'very upright, perfectly sincere — an intensified form of *ujū*',
+              morphemes: [
+                { text: 'su', type: 'prefix', gloss: 'well, very, properly', pronunciation: 'soo' },
+                { text: 'hujū', type: 'stem', gloss: '*uju* (straight) with sandhi gloss', pronunciation: 'HOO-joo' },
+              ],
+            },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+          ],
+        },
+        // ── v1d: suvaco c'assa mudu anatimānī ──
+        {
+          id: 'v1d-suvaco-mudu',
+          pali: 'suvaco c\'assa mudu anatimānī',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'suvaco c\'assa mudu anatimānī' },
+          ],
+          witnesses: [
+            {
+              by: 'Amaravati',
+              text: 'straightforward and gentle in speech, humble and not conceited.',
+              alignTo: [-1, -1, 2, -1, 0, 3, -1, 3, 3],
+              url: AMARAVATI_URL,
+            },
+            {
+              by: 'Sujato (SuttaCentral)',
+              text: 'easy to speak to, gentle, and not proud,',
+              alignTo: [0, 0, 0, 0, 2, -1, 3, 3],
+              url: 'https://suttacentral.net/snp1.8/en/sujato',
+              license: 'CC0',
+            },
+            {
+              by: 'Thanissaro (Access to Insight)',
+              text: 'easy to instruct, gentle, and not conceited,',
+              alignTo: [0, 0, 0, 2, -1, 3, 3],
+              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
+              license: 'CC BY-NC',
+            },
+          ],
+          words: [
+            {
+              form: 'suvaco',
+              pronunciation: 'SOO-vah-choh',
+              etymology: '*su-* "well" + *vaca* "speech" (root *√vac*) — "easily-spoken-to"',
+              gloss: 'easy to speak to, amenable to correction',
+              morphemes: [
+                { text: 'su', type: 'prefix', gloss: 'well, easily', pronunciation: 'soo' },
+                { text: 'vaco', type: 'stem', root: '√vac', gloss: '*vaca* "speech" + nominative — "spoken-to"', pronunciation: 'VAH-choh' },
+              ],
+              citations: [dpdCitation('suvaca')],
+            },
+            {
+              form: "c'assa",
+              pronunciation: 'CHAHS-sah',
+              etymology: '*ca* "and" + *assa* "(may) be" — sandhi contraction (3sg optative of *√as*)',
+              gloss: 'and may [one] be — the optative carries through the next several verses',
+            },
+            {
+              form: 'mudu',
+              pronunciation: 'MOO-doo',
+              etymology: 'Pāli *mudu* "soft, gentle" (Skt *mṛdu*)',
+              gloss: 'gentle, soft, mild',
+              citations: [dpdCitation('mudu')],
+            },
+            {
+              form: 'anatimānī',
+              pronunciation: 'ah-nah-tee-MAH-nee',
+              etymology: '*an-* "not" + *ati-* "over, excessive" + *māna* "pride" + *-ī* possessive — "not having excessive pride"',
+              gloss: 'not arrogant, not conceited — the opposite of *atimāna* (excessive self-regard)',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'not (assimilated *a-* before vowel)', pronunciation: 'ahn' },
+                { text: 'ati', type: 'prefix', gloss: 'over, beyond, excessive', pronunciation: 'AH-tee' },
+                { text: 'mānī', type: 'stem', root: '√man', gloss: 'one having pride (*māna* + possessive *-ī*)', pronunciation: 'MAH-nee' },
+              ],
+              citations: [dpdCitation('māna')],
             },
           ],
         },

@@ -1170,13 +1170,30 @@ const SegmentRow: React.FC<{
     const cRect = containerRef.current.getBoundingClientRect();
     const r = hovered.element.getBoundingClientRect();
 
-    // Step 3 — idx match
-    const idxMatched = fresh.filter((l) =>
-      hovered.kind === 'pali' ? l.paliIdx === hovered.idx : l.engIdx === hovered.idx,
-    );
-
-    // Step 4 — concept overlap
+    // Step 3 — idx match. When the user is hovering a specific morpheme
+    // within a Pāli word (the inner HoverSpan emits `data-morpheme-idx`),
+    // narrow to lines that anchor at that morpheme. Without this, every
+    // arrow for the whole word stays visible regardless of which morpheme
+    // the cursor is on — and the per-morpheme tooltips feel decoupled
+    // from the arrow shown. See screenshot feedback (verse 1 karaṇīyam).
     const hoveredEl = hovered.element as HTMLElement;
+    const hoveredMorphemeStr = hoveredEl.dataset.morphemeIdx;
+    const hoveredMorphemeIdx =
+      hovered.kind === 'pali' && hoveredMorphemeStr !== undefined
+        ? parseInt(hoveredMorphemeStr, 10)
+        : null;
+    const idxMatched = fresh.filter((l) => {
+      if (hovered.kind === 'pali') {
+        if (l.paliIdx !== hovered.idx) return false;
+        if (hoveredMorphemeIdx !== null && l.morphemeIdx !== undefined) {
+          return l.morphemeIdx === hoveredMorphemeIdx;
+        }
+        return true;
+      }
+      return l.engIdx === hovered.idx;
+    });
+
+    // Step 4 — concept overlap (hoveredEl already declared above)
     const hoveredConceptStr = hoveredEl.dataset.conceptIds;
     const hoveredConcepts = hoveredConceptStr
       ? new Set(hoveredConceptStr.split(/\s+/).filter(Boolean))
