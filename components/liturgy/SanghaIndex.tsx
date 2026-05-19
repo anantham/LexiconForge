@@ -42,11 +42,6 @@ export const SanghaIndex: React.FC = () => {
                   <h2 className="text-2xl text-slate-100" style={{ fontFamily: SERIF_STACK }}>
                     {sangha.name}
                   </h2>
-                  {sangha.primaryTradition && (
-                    <span className="text-xs uppercase tracking-widest text-slate-500">
-                      {sangha.primaryTradition}
-                    </span>
-                  )}
                   <span className="text-xs text-slate-600 ml-auto">
                     {docs.length} {docs.length === 1 ? 'chant' : 'chants'}
                   </span>
@@ -69,14 +64,6 @@ export const SanghaIndex: React.FC = () => {
           })}
         </div>
 
-        <footer className="mt-16 pt-8 border-t border-slate-800 text-xs text-slate-600">
-          <p>
-            Hand-curated. Each sangha's chants are the version *they* chant — different
-            English translations, different orderings, different framings, all valid.
-            Translations cited with attribution and license where known. Pāli canonical
-            text is public domain.
-          </p>
-        </footer>
       </div>
     </div>
   );

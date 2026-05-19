@@ -43,15 +43,8 @@ export const shoSaiMyoKichijoDarani: LiturgyDoc = {
     'Curation by Aditya. Sino-Japanese phonetic + Hanzi forms transcribed directly from the MAPLE chant sheet. Sanskrit reconstruction follows standard scholarly readings (Inagaki, Yokoyama).',
   sections: [
     {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'A *dharani* — a sound-formula, not a translatable phrase. The Sanskrit ancestor reads roughly "Homage to all the buddhas, whose teaching is unimpeded. So: oṃ kha kha khāhi khāhi hūṃ hūṃ jvala jvala prajvala prajvala, stand stand, sphaṭ sphaṭ, for peace and prosperity, svāhā." But the chant is not the translation. The chant is the sound, and the sound is the practice.\n\nThe MAPLE community knows this chant as **Namu Samando** — after its opening words. It\'s recited 3× as a protection / averting of calamities, in the position the Soto Zen tradition reserves for it: after the Enmē Jikku Kannon Gyō, before the Heart Sutra.',
-    },
-    {
       id: 'dharani',
       shape: 'sound-formula',
-      framing:
-        'Sound-formula. Each line, three times. The "meaning" is the sounding.',
       phonemes:
         'Na mu sa man da mo to nan\nO ha ra chi ko to sha so no nan\nTo ji to en gya gya gya ki gya ki\nUn nun shi fu ra shi fu ra\nHa ra shi fu ra ha ra shi fu ra\nChi shu sa chi shu sa\nShi shu ri shi shu ri\nSo ha ja so ha ja\nSe chi gya shi ri ē so mo ko',
       native:

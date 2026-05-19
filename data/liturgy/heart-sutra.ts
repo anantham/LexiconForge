@@ -57,16 +57,7 @@ export const heartSutra: LiturgyDoc = {
     "Curation by Aditya. The primary English witness is the MAPLE community chant sheet, titled \"The Scripture on the Heart of Transcendent Wisdom — Adapted from the translation by Master Sheng-yen.\" Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The other witnesses (Conze 1958, Red Pine 2004, Thich Nhat Hanh 2014) come from their published translations, sliced per Xuanzang chant-line for comparison.",
   sections: [
     // ─────────────────────────────────────────────────────────────────────
-    // 1. Framing
-    // ─────────────────────────────────────────────────────────────────────
-    {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'The shortest and most widely-chanted Mahāyāna sutra. Out of the vast *Perfection-of-Wisdom* literature — some texts run to 100,000 verses — the Heart Sutra distills the teaching into a few minutes of chanting. It is the *hṛdaya* (heart, essence) of [[prajñāpāramitā]].\n\nThe canonical short form opens with the bodhisattva [[Avalokiteśvara]] contemplating the five [[skandhas]] (aggregates of experience) and seeing them as empty of inherent existence. He speaks his realisation to the elder Śāriputra, line by line: form is emptiness, emptiness is form. Every category by which we organise experience — the senses, their objects, consciousness itself, the chain of dependent arising, even the Four Noble Truths — is, from the standpoint of emptiness, empty. The bodhisattva is unafraid; this is nirvāṇa. The sutra ends with a mantra: *gate gate pāragate pārasaṃgate bodhi svāhā*.\n\nBelow, the canonical core is broken into the same units a chanting community hits one at a time — each Xuanzang four-character line as its own breath. English witnesses are sliced to match: Edward Conze (scholarly, 1958), Red Pine (poet-translator, 2004), and Thich Nhat Hanh (Plum Village, 2014). None is canonical; together they map the conversational territory.',
-    },
-
-    // ─────────────────────────────────────────────────────────────────────
-    // 2. The body — broken into chant-line segments
+    // The body — broken into chant-line segments
     // ─────────────────────────────────────────────────────────────────────
     {
       id: 'heart-core',
@@ -1011,8 +1002,6 @@ export const heartSutra: LiturgyDoc = {
           note: 'The mathematical centre of the sutra, now visible as four breaths instead of one paragraph. The Chinese fuses the two relations 即是 ("just-is") with no copula gap, no preposition — sharper than any English. The MAPLE chant extends past the Sanskrit to the other skandhas ("preference, information, patterning, consciousness"), naming what the sutra elaborates next.',
         },
       ],
-      commentary:
-        "Above: the canonical core (Avalokita's vision + the form-emptiness chiasmus) broken into seven Xuanzang chant-lines. Below: MAPLE chants two further prose passages — the *all-dharmas* characterisation and the long enumeration of what is empty — before the result-section. These aren't yet authored at chant-line granularity here, but are reproduced as MAPLE chants them.",
     },
 
     // ─────────────────────────────────────────────────────────────────────
