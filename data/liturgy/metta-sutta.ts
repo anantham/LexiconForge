@@ -109,10 +109,10 @@ export const mettaSutta: LiturgyDoc = {
             {
               form: 'kusalena',
               pronunciation: 'koo-sah-LAY-nah',
-              etymology: '*kusala* "skilful, wholesome" + *-ena* instrumental ending',
+              etymology: '*kusala* "skilful, wholesome" + *-ena* instrumental ending (stem-final *-a* + *-ena* coalesces to *-ena*)',
               gloss: 'by one skilled (instrumental) — *kusala* is the same term used for "wholesome" mental states across the Pāli canon',
               morphemes: [
-                { text: 'kusala', type: 'stem', gloss: 'skilful, wholesome', pronunciation: 'koo-SAH-lah' },
+                { text: 'kusal', type: 'stem', gloss: 'skilful, wholesome (stem *kusala*; final *-a* drops at sandhi)', pronunciation: 'koo-SAHL' },
                 { text: 'ena', type: 'suffix', gloss: 'instrumental case ending — "by [one who is]"', pronunciation: 'AY-nah' },
               ],
               citations: [dpdCitation('kusala')],
@@ -246,7 +246,9 @@ export const mettaSutta: LiturgyDoc = {
           id: 'v1d-suvaco-mudu',
           pali: 'suvaco c\'assa mudu anatimānī',
           scripts: [
-            { lang: 'pi-Latn', label: 'Pāli', text: 'suvaco c\'assa mudu anatimānī' },
+            // tokens hint keeps the sandhi compound c'assa as one hover unit;
+            // without it the default Latin tokenizer splits on the apostrophe.
+            { lang: 'pi-Latn', label: 'Pāli', text: 'suvaco c\'assa mudu anatimānī', tokens: ['suvaco', "c'assa", 'mudu', 'anatimānī'] },
           ],
           witnesses: [
             {
