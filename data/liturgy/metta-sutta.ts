@@ -1428,41 +1428,164 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v10a: diṭṭhiñca anupaggamma ──
         {
-          id: 'verse-10',
-          pali: 'Diṭṭhiñca anupaggamma, sīlavā dassanena sampanno; kāmesu vineyya gedhaṁ, na hi jātuggabbhaseyya puna retīti.',
+          id: 'v10a-ditthi-anupaggamma',
+          pali: 'diṭṭhiñca anupaggamma',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Diṭṭhiñca anupaggamma, sīlavā dassanena sampanno; kāmesu vineyya gedhaṁ, na hi jātuggabbhaseyya puna retīti.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'diṭṭhiñca anupaggamma' },
           ],
           witnesses: [
-            {
-              by: 'Amaravati',
-              text: 'By not holding to fixed views, the pure-hearted one, having clarity of vision, being freed from all sense desires, is not born again into this world.',
-              url: AMARAVATI_URL,
-            },
-            {
-              by: 'Sujato (SuttaCentral)',
-              text: 'Avoiding wrong views, ethical, attaining vision, having removed desire for sensual pleasures, they would never come to lie in a womb again.',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
-            },
-            {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'Not taken with views, but virtuous & consummate in vision, having subdued desire for sensual pleasures, one never again will lie in the womb.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
-            },
+            { by: 'Amaravati', text: 'By not holding to fixed views,', alignTo: [-1, 1, 1, -1, 1, 0], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Avoiding wrong views,', alignTo: [1, 1, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Not taken with views,', alignTo: [1, 1, -1, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
-              form: 'Diṭṭhiñca',
-              gloss: '*diṭṭhi* + *ca*. *Diṭṭhi* is "view" — most often *wrong* view in technical Pāli: a fixed position, a doctrine clung to. Letting go of clinging to views is the closing instruction.',
+              form: 'diṭṭhiñca',
+              pronunciation: 'DEET-tee-nyah-chah',
+              etymology: '*diṭṭhi* (view) + *ca* "and" — sound-merged together. From *√dṛś* "to see".',
+              gloss: 'and views. *Diṭṭhi* is "view" — most often *wrong* view in technical Pāli: a fixed position, a doctrine clung to. Letting go of clinging to views is the closing instruction.',
               accent: 'amber',
               citations: [dpdCitation('diṭṭhi')],
+              morphemes: [
+                { text: 'diṭṭhiñ', type: 'stem', root: '√dṛś', gloss: '"view, position" — same root as *diṭṭhā* (seen) in v5a. Here it means a held position, a doctrine.', pronunciation: 'DEET-tee-nyah' },
+                { text: 'ca', type: 'suffix', gloss: '"and" — joined to the previous word', pronunciation: 'chah' },
+              ],
+            },
+            {
+              form: 'anupaggamma',
+              pronunciation: 'ah-noo-PAH-gahm-mah',
+              etymology: '*an-* (not) + *upa-* (near, up to) + *√gam* (to go) — "not going near, not approaching"',
+              gloss: '"not falling into, not going near". The wise person doesn\'t collapse into the views they encounter. Same *√gam* as English *come* through Indo-European cousins.',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: '"not"', pronunciation: 'ahn' },
+                { text: 'upa', type: 'prefix', gloss: '"up to, near" — adds an approaching-flavour to the verb', pronunciation: 'OO-pah' },
+                { text: 'gamma', type: 'root', root: '√gam', gloss: 'from the verb "to go". *Upa-gamma* = "approach, fall into". *An-upa-gamma* = "not approaching, not falling into".', pronunciation: 'GAHM-mah' },
+              ],
+            },
+          ],
+        },
+        // ── v10b: sīlavā dassanena sampanno ──
+        {
+          id: 'v10b-silava-dassanena',
+          pali: 'sīlavā dassanena sampanno',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'sīlavā dassanena sampanno' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'the pure-hearted one, having clarity of vision,', alignTo: [-1, 0, 0, -1, 2, -1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'ethical, attaining vision,', alignTo: [0, 2, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'but virtuous & consummate in vision,', alignTo: [-1, 0, -1, 2, -1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'sīlavā',
+              pronunciation: 'SEE-lah-vah',
+              etymology: '*sīla* (virtue, ethical conduct) + *-vā* (possessive — "having")',
+              gloss: '"virtuous, ethical". *Sīla* is the technical term for the moral training of Buddhist practice — the precepts. *Sīla-vā* = "the one who has *sīla*".',
+              accent: 'sky',
+              morphemes: [
+                { text: 'sīla', type: 'stem', gloss: '"virtue, ethical conduct" — the technical term for the moral training. The Five Precepts and Eight Precepts are forms of *sīla*.', pronunciation: 'SEE-lah' },
+                { text: 'vā', type: 'suffix', gloss: 'the "-vā" tail means "having" — *sīla-vā* = "one who has virtue, the virtuous one"', pronunciation: 'vah' },
+              ],
+            },
+            {
+              form: 'dassanena',
+              pronunciation: 'DAHS-sah-NAY-nah',
+              etymology: '*dassana* (vision, sight, view) + *-ena* (the "by means of" ending)',
+              gloss: '"with vision, by means of seeing". *Dassana* is from the same *√dṛś* root as *diṭṭhi* in 10a — but where *diṭṭhi* is a *held* view, *dassana* is direct seeing.',
+              morphemes: [
+                { text: 'dassan', type: 'root', root: '√dṛś', gloss: 'from "to see" — same root as *diṭṭhi*. *Dassana* = direct seeing, vision (as opposed to *diṭṭhi* = held position).', pronunciation: 'DAHS-sahn' },
+                { text: 'ena', type: 'suffix', gloss: 'the "-ena" tail says "by means of" — same suffix as *kusalena* in v1', pronunciation: 'AY-nah' },
+              ],
+            },
+            {
+              form: 'sampanno',
+              pronunciation: 'sahm-PAHN-noh',
+              etymology: '*saṁ-* (fully) + past form of *√pad* "to attain" — "fully attained, accomplished"',
+              gloss: '"perfected in, fully attained". *Sampanno* with the previous word: "perfected in vision".',
+            },
+          ],
+        },
+        // ── v10c: kāmesu vineyya gedhaṁ ──
+        {
+          id: 'v10c-kamesu-vineyya',
+          pali: 'kāmesu vineyya gedhaṁ',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'kāmesu vineyya gedhaṁ' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'being freed from all sense desires,', alignTo: [-1, 1, -1, -1, 0, 0], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'having removed desire for sensual pleasures,', alignTo: [-1, 1, 2, -1, 0, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'having subdued desire for sensual pleasures,', alignTo: [-1, 1, 2, -1, 0, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'kāmesu',
+              pronunciation: 'KAH-may-soo',
+              etymology: '*kāma* (sensual pleasure, desire) + *-esu* (plural "in/among" ending)',
+              gloss: '"in/toward sensual pleasures". *Kāma* covers all sense-pleasure attachment — same word in *Kāma Sūtra* (which is actually a manual on the *first* of three life-aims, *kāma*).',
+              morphemes: [
+                { text: 'kām', type: 'stem', gloss: '"sense-pleasure, desire" — broader than just sex; covers all attachment to sense-objects', pronunciation: 'kahm' },
+                { text: 'esu', type: 'suffix', gloss: 'the "-esu" tail says "in/toward" with a plural — same suffix as *kulesu* in v2d', pronunciation: 'AY-soo' },
+              ],
+            },
+            {
+              form: 'vineyya',
+              pronunciation: 'vee-NAYY-yah',
+              etymology: '*vi-* (apart, away) + *√nī* "to lead" — "to lead away, dispel"',
+              gloss: '"having led-away, having dispelled". The "-eyya" tail makes it the wishing voice — "would lead away".',
+              morphemes: [
+                { text: 'vi', type: 'prefix', gloss: '"apart, away" — adds a "leading-away" flavour', pronunciation: 'vee' },
+                { text: 'neyya', type: 'root', root: '√nī', gloss: 'from the verb "to lead". *Vi-nī* = "lead away, dispel".', pronunciation: 'NAYY-yah' },
+              ],
+            },
+            {
+              form: 'gedhaṁ',
+              pronunciation: 'GAY-dahm',
+              etymology: '*gedha* (greed, attachment — same root *√gṛdh* as *ananugiddho* in v2d) + the *-ṁ* tail (object form)',
+              gloss: '"greed, attachment" (the object dispelled). Same root as the *ananugiddho* "not chasing greedily" of v2d — the closing verse returns to the opening virtues.',
+              accent: 'amber',
+            },
+          ],
+        },
+        // ── v10d: na hi jātuggabbhaseyya puna retīti ──
+        {
+          id: 'v10d-na-jatu',
+          pali: "na hi jātu g(g)abbhaseyya puna retīti",
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'na hi jātu gabbhaseyya puna retīti', tokens: ['na', 'hi', 'jātu', 'gabbhaseyya', 'puna', 'retīti'] },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'is not born again into this world.', alignTo: [-1, 0, -1, 4, -1, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'they would never come to lie in a womb again.', alignTo: [-1, 0, 2, -1, -1, 3, -1, -1, 3, 4], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'one never again will lie in the womb.', alignTo: [-1, 0, 4, -1, 3, -1, -1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'na', pronunciation: 'nah', gloss: 'not — together with *hi* below: "not at all, certainly not".' },
+            { form: 'hi', pronunciation: 'hee', gloss: 'an emphatic particle: "indeed, certainly". *Na hi* = "certainly not".' },
+            { form: 'jātu', pronunciation: 'JAH-too', gloss: '"ever, at any time". Pairs with the negation: "not ever, never again".' },
+            {
+              form: 'gabbhaseyya',
+              pronunciation: 'GAHB-bah-SAY-yah',
+              etymology: '*gabbha* (womb) + *seyya* (lying-down — from *√śī* "to lie")',
+              gloss: '"lying in a womb" — the technical phrase for rebirth in mammalian form. Same *√śī* as *sayāno* "lying down" in v9b — but here the lying-down is the womb-state.',
+              morphemes: [
+                { text: 'gabbha', type: 'stem', gloss: '"womb, inner chamber". Same word as *gabbho* in v2d but in a different sense (rude/intrusive there, womb here).', pronunciation: 'GAHB-bah' },
+                { text: 'seyya', type: 'root', root: '√śī', gloss: 'from "to lie down" — same root as *sayāno* in v9b', pronunciation: 'SAY-yah' },
+              ],
+            },
+            { form: 'puna', pronunciation: 'POO-nah', gloss: '"again". *Punarbhava* (re-becoming) is the technical term for rebirth — here the line says *na puna* = "not again".' },
+            {
+              form: 'retīti',
+              pronunciation: 'RAY-tee-tee',
+              etymology: '*eti* (one goes, comes — from *√i*) + *iti* (the quotation closure: "thus")',
+              gloss: '"comes [to it], thus [it is said]". The closing *iti* marks the end of the discourse — like English closing quotation marks. The whole verse-end *eti iti* = "[one] comes [there], thus [is said]".',
+              morphemes: [
+                { text: 'retī', type: 'root', root: '√i', gloss: 'from the verb "to come, go" — sandhi-form of *eti*', pronunciation: 'RAY-tee' },
+                { text: 'ti', type: 'suffix', gloss: 'the closing *iti* = "thus", marking the end of the recited text. Like English closing quote-marks.', pronunciation: 'tee' },
+              ],
             },
           ],
         },
