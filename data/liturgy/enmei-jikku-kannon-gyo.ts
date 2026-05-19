@@ -305,7 +305,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             {
               by: 'Literal English gloss',
               text: 'We are one with the Buddha in karmic connection',
-              alignTo: [-1, -1, -1, 0, 1, -1, 3, -1, 3],
+              alignTo: [-1, -1, -1, 0, -1, 1, -1, 3, 3],
             },
             {
               by: 'Soto Zen',
@@ -355,7 +355,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
             {
               by: 'Literal English gloss',
               text: 'Connected to Buddha, Dharma, Sangha',
-              alignTo: [-1, 0, 1, 2, 3],
+              alignTo: [-1, -1, 0, 1, 2],
             },
             {
               by: 'Soto Zen',

@@ -184,7 +184,7 @@ export const vows: LiturgyDoc = {
               form: 'Hōmon',
               scriptAlts: { 'zh-Hant': '法門' },
               gloss: 'Dharma-gates. *法* "Dharma" + *門* "gate, door". Every teaching, every practice, every authentic encounter is a gate. The vow recognises the plurality of the path.',
-              accent: 'rose',
+              accent: 'sky',
             },
             {
               form: 'muryō',
@@ -235,7 +235,7 @@ export const vows: LiturgyDoc = {
               form: 'Butsudō',
               scriptAlts: { 'zh-Hant': '佛道' },
               gloss: 'The Buddha way. *佛* "Buddha" + *道* "way, path, Tao". Same *道* / *dao* as in Taoism, here the buddhic path.',
-              accent: 'rose',
+              accent: 'amber',
             },
             {
               form: 'mujō',
