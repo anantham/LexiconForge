@@ -47,9 +47,6 @@ export const omManiPadmeHum: LiturgyDoc = {
   curator: 'Curation by Aditya. Per-syllable readings cite the Dalai Lama\'s framework where invoked; the Sanskrit literal reading follows Monier-Williams (via Wikipedia).',
   sections: [
     // ─────────────────────────────────────────────────────────────────────
-    // 1. Framing — what this mantra is, why we say it
-    // ─────────────────────────────────────────────────────────────────────
-    // ─────────────────────────────────────────────────────────────────────
     // 1. The mantra — multi-script, hover for per-syllable readings
     // ─────────────────────────────────────────────────────────────────────
     {
