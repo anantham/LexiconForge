@@ -42,7 +42,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
     ],
   },
   curator:
-    'Curation by Aditya. Sino-Japanese phonetic + Hanzi forms transcribed directly from the MAPLE chant sheet (which carries no English). The "AI" English is an AI-drafted working version, not from a specific publication; "Soto Zen" and "Red Cedar Zen" translations come from the linked sources below.',
+    'Curation by Aditya. Sino-Japanese phonetic + Hanzi forms transcribed directly from the MAPLE chant sheet (which carries no English). The "Literal English gloss" rendering is a working character-by-character translation; "Soto Zen" and "Red Cedar Zen" translations are from the linked sources below.',
   sections: [
     {
       id: 'title',
@@ -69,7 +69,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'The Ten-Verse Sutra of Boundless Compassion',
             },
             {
@@ -136,7 +136,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Kanzeon!',
               alignTo: [0],
             },
@@ -192,7 +192,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Veneration to the Buddha',
               alignTo: [0, -1, -1, 1],
             },
@@ -253,7 +253,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'We are one with the Buddha in cause',
               alignTo: [-1, -1, -1, 0, -1, 1, -1, 3],
             },
@@ -303,7 +303,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'We are one with the Buddha in karmic connection',
               alignTo: [-1, -1, -1, 0, 1, -1, 3, -1, 3],
             },
@@ -353,7 +353,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Connected to Buddha, Dharma, Sangha',
               alignTo: [-1, 0, 1, 2, 3],
             },
@@ -398,7 +398,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Eternity, Joy, Self, Purity',
               alignTo: [0, 1, 2, 3],
             },
@@ -443,7 +443,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Morning thought, Kanzeon',
               alignTo: [0, 1, 2],
             },
@@ -487,7 +487,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Evening thought, Kanzeon',
               alignTo: [0, 1, 2],
             },
@@ -531,7 +531,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Thought after thought arises in the heart-mind',
               alignTo: [0, 0, 0, 3, -1, -1, 2],
             },
@@ -576,7 +576,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'AI',
+              by: 'Literal English gloss',
               text: 'Thought after thought, not separate from the heart-mind',
               alignTo: [0, 0, 0, 1, 2, -1, -1, 3],
             },
