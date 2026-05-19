@@ -18,23 +18,21 @@ export const SANGHAS: Record<string, Sangha> = {
     slug: 'bodhi-sangha',
     name: 'Bodhi Sangha',
     fullName: 'Bodhi Sangha (Bodhi Zendo)',
-    description:
-      'Rinzai-Soto Zen sangha founded by AMA Samy in Tamil Nadu, India, drawing from Yamada Roshi\'s Sanbo Kyodan lineage. Chant book mixes Japanese-Zen liturgy (Hakuin, Torei, Dogen) with Pali Theravāda framing.',
+    // Self-description, bodhizendo.org
+    description: 'Zen training center in South India\'s Kodaikanal Hills.',
     location: 'Perumalmalai, Tamil Nadu, India',
     founded: 'c. 1996',
     url: 'https://bodhizendo.org',
-    primaryTradition: 'zen',
   },
   maple: {
     slug: 'maple',
     name: 'MAPLE',
     fullName: 'Monastic Academy for the Preservation of Life on Earth',
-    description:
-      'Contemporary monastic training centre led by Soryu Forall. Practice draws from Theravāda (morning chants), Vajrayāna (evening mantra), and Mahāyāna (Heart Sutra) — plus original MAPLE-composed practice texts (Jade Method).',
+    // Self-description, monasticacademy.org
+    description: 'Buddhist training for a world in crisis.',
     location: 'Vermont, USA',
     founded: '2014',
     url: 'https://monasticacademy.org',
-    primaryTradition: 'mixed',
     schedule: [
       { time: '4:15 AM', event: 'Wake-up bell', icon: 'bell' },
       { time: '4:35 AM', event: 'Morning chanting in the zendo', icon: 'cushion' },

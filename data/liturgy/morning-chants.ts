@@ -281,7 +281,7 @@ export const morningChants: LiturgyDoc = {
   order: 1,
   time: '4:35 AM',
   title: 'Morning Chants',
-  subtitle: 'Theravāda devotional sequence, chanted before breakfast at MAPLE',
+  subtitle: 'Threefold Refuge · Five Precepts · Ovāda Pāṭimokkha (Dhp 183)',
   tradition: 'theravada',
   sources: {
     canonical: [

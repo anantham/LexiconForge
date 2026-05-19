@@ -29,7 +29,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
   title: 'Enmē Jikku Kannon Gyō',
   subtitle: 'The Ten-Verse Sutra of Boundless Compassion (延命十句觀音經)',
   tradition: 'mahayana',
-  context: 'Chanted 3× in the MAPLE morning service, between the Pāli devotional sequence and the Sho Sai dharani.',
+  context: 'Ten short phrases invoking Kanzeon (Avalokiteśvara). The title 延命 ("life-extending") names its traditional use as a protection-and-longevity chant in East Asian Buddhism.',
   sources: {
     canonical: [
       {

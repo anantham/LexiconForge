@@ -23,6 +23,7 @@ import { Tooltip } from '../../sutta-studio/Tooltip';
 import { ProseBlock } from '../ProseBlock';
 import { useLiturgySettings } from '../LiturgySettings';
 import { conceptsForToken } from '../../../data/concepts/lookup';
+import { conceptFacets } from '../../../data/concepts/tooltipFacets';
 
 // Per-script font stacks. Latn/IAST uses Cardo (already loaded for diacritics).
 // Other scripts use Noto Serif Web Fonts pulled in index.html.
@@ -355,10 +356,20 @@ const HoverSpan: React.FC<{
   lang?: string;
 }> = ({ text, tooltipText, bold = false, morphemeIdx, conceptIds, lang }) => {
   const [open, setOpen] = useState(false);
+  const [facetIdx, setFacetIdx] = useState(0);
   const registryIds = lang
     ? conceptsForToken(languageSubtag(lang), scriptSubtag(lang), text)
     : undefined;
   const conceptAttr = mergeConceptIds(conceptIds, registryIds);
+  // Build facets: the surface-gloss is always facet 0; each concept the
+  // token attests adds one short facet (preferredLabel + first sentence
+  // of the registry definition). When there's more than one facet, click
+  // cycles between them (mn10 pattern — see sutta-studio/Tooltip.tsx).
+  const allConceptIds = conceptAttr ? conceptAttr.split(/\s+/).filter(Boolean) : [];
+  const extraFacets = conceptFacets(allConceptIds);
+  const facets = [tooltipText, ...extraFacets];
+  const currentFacet = facets[facetIdx % facets.length] ?? tooltipText;
+  const hasFacets = facets.length > 1;
   return (
     <span
       data-hover-span="true"
@@ -369,9 +380,28 @@ const HoverSpan: React.FC<{
       }`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
+      onClick={(e) => {
+        // Click advances the tooltip facet when there are multiple. We
+        // stop propagation so the click doesn't bubble to parents that
+        // might also bind onClick (alignment-line clear, etc.). When
+        // there's only one facet, click is a no-op — the cursor:help
+        // hint is unchanged.
+        if (!hasFacets) return;
+        e.stopPropagation();
+        setFacetIdx((i) => (i + 1) % facets.length);
+      }}
+      title={hasFacets ? 'Click: next facet' : undefined}
     >
       {text}
-      <AnimatePresence>{open && <Tooltip text={tooltipText} />}</AnimatePresence>
+      <AnimatePresence>
+        {open && (
+          <Tooltip
+            text={currentFacet}
+            facetIndex={hasFacets ? facetIdx % facets.length : undefined}
+            facetTotal={hasFacets ? facets.length : undefined}
+          />
+        )}
+      </AnimatePresence>
     </span>
   );
 };
@@ -783,10 +813,20 @@ type HoverTarget = {
   element: HTMLElement;
 } | null;
 
-const AlignmentLines: React.FC<{ lines: Line[] }> = ({ lines }) => {
+const AlignmentLines: React.FC<{ lines: Line[]; containerWidth: number }> = ({
+  lines,
+}) => {
   // The caller (SegmentRow.adjustedLines) is responsible for filtering by
   // hover state + concept overlap. This component just renders the lines
   // it's given.
+  //
+  // Path shape: a gentle, near-vertical bezier — both control points
+  // share the endpoint's x-coordinate, so the line goes essentially
+  // straight down with a mild S-curve. The earlier margin-arc variant
+  // (control points pulled to a side lane) read as visually
+  // overwrought; the user explicitly preferred a "gentle, directly
+  // connecting" line. We disambiguate termination via the endpoint
+  // dots below, not the curve shape itself.
   const visible = lines;
   return (
     <svg
@@ -800,14 +840,21 @@ const AlignmentLines: React.FC<{ lines: Line[] }> = ({ lines }) => {
         const cp2y = l.y2 - dy * 0.5;
         const d = `M ${l.x1},${l.y1} C ${l.x1},${cp1y} ${l.x2},${cp2y} ${l.x2},${l.y2}`;
         return (
-          <path
-            key={`${l.paliIdx}-${l.engIdx}`}
-            d={d}
-            fill="none"
-            stroke="rgb(110, 231, 183)"
-            strokeOpacity="0.9"
-            strokeWidth="2"
-          />
+          <g key={`${l.paliIdx}-${l.engIdx}`}>
+            <path
+              d={d}
+              fill="none"
+              stroke="rgb(110, 231, 183)"
+              strokeOpacity="0.9"
+              strokeWidth="2"
+            />
+            {/* Endpoint markers — small filled circles so the termination
+                point is unambiguous, the dot says "this is where the
+                line actually ends" even if the curve appears to brush
+                past other text on its way. */}
+            <circle cx={l.x1} cy={l.y1} r="2.5" fill="rgb(110, 231, 183)" />
+            <circle cx={l.x2} cy={l.y2} r="2.5" fill="rgb(110, 231, 183)" />
+          </g>
         );
       })}
     </svg>
@@ -1108,34 +1155,11 @@ const SegmentRow: React.FC<{
       {/* SVG alignment overlay — only renders lines for the hovered word.
           Endpoints are adjusted to the actual hovered element so the
           arrow anchors to the morpheme/word under the cursor. */}
-      <AlignmentLines lines={adjustedLines} />
+      <AlignmentLines
+        lines={adjustedLines}
+        containerWidth={containerRef.current?.offsetWidth ?? 0}
+      />
 
-      {/* Per-segment note — collapsed by default, expands on click. */}
-      {segment.note && <SegmentNote text={segment.note} />}
-    </div>
-  );
-};
-
-const SegmentNote: React.FC<{ text: string }> = ({ text }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mt-3 text-center">
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((v) => !v);
-        }}
-        className="text-[10px] uppercase tracking-widest text-slate-600 hover:text-emerald-400/80 transition-colors"
-      >
-        {open ? '— hide note —' : '+ note'}
-      </button>
-      {open && (
-        <ProseBlock
-          text={text}
-          className="space-y-2 text-slate-400 text-xs italic leading-relaxed mt-3 max-w-xl mx-auto text-left"
-        />
-      )}
     </div>
   );
 };

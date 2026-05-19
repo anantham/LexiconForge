@@ -20,7 +20,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
   title: 'Maha Prajna Paramita Hrdaya Sutra',
   subtitle: 'The Heart Sutra',
   tradition: 'mahayana',
-  context: 'Chanted at Bodhi Sangha during formal sutra service. Bodhi\'s English recension reads close to the Aitken-Rochester / Diamond Sangha line used across Zen centres in the Yamada Roshi / Sanbo Kyodan tradition.',
+  context: 'Bodhi\'s English recension reads close to the Aitken-Rochester / Diamond Sangha line used across Zen centres in the Yamada Roshi / Sanbo Kyodan tradition.',
   sources: {
     canonical: [
       { label: 'Prajñāpāramitā Hṛdaya — multi-script analysis at /liturgy/maple/heart-sutra' },

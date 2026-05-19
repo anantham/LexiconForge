@@ -54,7 +54,7 @@ const FormulaLine: React.FC<{ variant: ScriptVariant }> = ({ variant }) => {
   return (
     <>
       <div
-        className="text-center text-2xl md:text-3xl leading-relaxed text-slate-100 tracking-wide select-text"
+        className="text-center text-4xl md:text-5xl lg:text-6xl leading-relaxed text-slate-100 tracking-wide select-text"
         style={{ fontFamily, letterSpacing: script === 'Latn' ? '0.05em' : undefined }}
         lang={variant.lang}
       >

@@ -25,7 +25,7 @@ export const songOfZazen: LiturgyDoc = {
   title: 'Song of Zazen',
   subtitle: 'Hakuin Zenji — Zazen Wasan (坐禅和讃)',
   tradition: 'zen',
-  context: 'Composed by Hakuin Ekaku (1685-1768) for lay practitioners. Recited at Bodhi Sangha as a meditation on zazen practice. The closing image — *This very place is the Lotus Land! This very body, the Buddha!* — is the chant\'s defining declaration.',
+  context: 'Composed by Hakuin Ekaku (1685-1768) for lay practitioners. The closing image — *This very place is the Lotus Land! This very body, the Buddha!* — is the chant\'s defining declaration.',
   sources: {
     canonical: [
       { label: 'Hakuin Ekaku (1685-1768)', url: 'https://en.wikipedia.org/wiki/Hakuin_Ekaku' },

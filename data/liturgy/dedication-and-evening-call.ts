@@ -25,7 +25,7 @@ export const dedicationAndEveningCall: LiturgyDoc = {
   title: 'Dedication + Evening Call',
   subtitle: 'Ceremonial closing',
   tradition: 'zen',
-  context: 'The two short ceremonial pieces that close formal chanting at Bodhi Sangha. The *Dedication* offers merit to all teachers and beings; the *Evening Call* — traditional in Zen monastic life — names the urgency of practice before rest.',
+  context: 'The *Dedication* offers merit to all teachers and beings; the *Evening Call* — traditional in Zen monastic life — names the urgency of practice before rest.',
   sources: {
     canonical: [
       { label: 'Zen *Evening Call* / *Han* gātha (traditional)' },

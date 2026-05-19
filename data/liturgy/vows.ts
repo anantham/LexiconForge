@@ -30,7 +30,7 @@ export const vows: LiturgyDoc = {
   title: 'Four Great Vows',
   subtitle: 'Shi-gu Sei-gan-mon (四弘誓願)',
   tradition: 'mahayana',
-  context: 'Recited 3× after every meal at MAPLE — Breakfast (7:30 AM) and Lunch (12 PM). Closed by the Lakota phrase "Mitákuye Oyás\'iŋ" ("all my relations").',
+  context: 'The Four Great Vows of the bodhisattva — sentient beings, defilements, dharma-gates, the Buddha-way — in Sino-Japanese. The MAPLE rendering closes with the Lakota phrase *Mitákuye Oyás\'iŋ* ("all my relations").',
   sources: {
     canonical: [
       {

@@ -66,7 +66,7 @@ export const tiSarana: LiturgyDoc = {
   title: 'Ti-Sarana + Namo Tassa',
   subtitle: 'Threefold Refuge and Homage to the Awakened One',
   tradition: 'theravada',
-  context: 'Pali devotional pieces in Bodhi Sangha\'s otherwise Japanese-Zen liturgy. Recited as a self-contained opening or grounding sequence.',
+  context: 'Pali devotional pieces in Bodhi Sangha\'s otherwise Japanese-Zen liturgy — the Threefold Refuge (in Buddha, Dhamma, Sangha) and the homage formula *Namo tassa bhagavato arahato sammāsambuddhassa*.',
   sources: {
     canonical: [
       { label: 'Khp 1 (Saraṇagamana)', url: 'https://suttacentral.net/kp1/en/sujato' },
