@@ -573,7 +573,9 @@ const PaliLine: React.FC<{
 }> = ({ text, words = [], large = false, lang, tokens: tokenHints }) => {
   const { settings } = useLiturgySettings();
   const script = scriptSubtag(lang);
-  const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
+  // Base font sizes (rem). Reader can tune via the settings slider, which
+  // sets `--liturgy-scale` on the LiturgyChantPage wrapper.
+  const baseRem = large ? 1.875 : 1.5;
   const fontStack = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
 
   const tokens = (() => {
@@ -615,8 +617,8 @@ const PaliLine: React.FC<{
 
   return (
     <div
-      className={`text-slate-100 leading-loose ${sizeClass}`}
-      style={{ fontFamily: fontStack }}
+      className="text-slate-100 leading-loose"
+      style={{ fontFamily: fontStack, fontSize: `calc(${baseRem}rem * var(--liturgy-scale, 1))` }}
       lang={lang}
     >
       {tokens.map((t, i) => {
