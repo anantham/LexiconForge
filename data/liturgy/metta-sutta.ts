@@ -634,33 +634,113 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v4a: ye keci pāṇabhūtatthī ──
         {
-          id: 'verse-4',
-          pali: 'Ye keci pāṇabhūtatthī, tasā vā thāvarā vā anavasesā; dīghā vā ye mahantā vā, majjhimā rassakāṇukathūlā.',
+          id: 'v4a-ye-keci',
+          pali: 'ye keci pāṇabhūtatthī',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Ye keci pāṇabhūtatthī, tasā vā thāvarā vā anavasesā; dīghā vā ye mahantā vā, majjhimā rassakāṇukathūlā.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'ye keci pāṇabhūtatthī' },
           ],
           witnesses: [
+            { by: 'Amaravati', text: 'Whatever living beings there may be,', alignTo: [0, 2, 2, -1, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Whatever creatures there are—', alignTo: [0, 2, -1, -1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Whatever beings there may be,', alignTo: [0, 2, -1, -1, -1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'ye', pronunciation: 'yay', gloss: 'which (plural) — pointer word, paired with *keci* below to sweep "whoever".' },
+            { form: 'keci', pronunciation: 'KAY-chee', gloss: '"some, any (plural)". Together *ye keci* = "whoever there is", a sweeping inclusion.' },
             {
-              by: 'Amaravati',
-              text: 'Whatever living beings there may be, whether they are weak or strong, omitting none, the great and the mighty, medium, short or small.',
-              url: AMARAVATI_URL,
+              form: 'pāṇabhūtatthī',
+              pronunciation: 'PAH-nah-boo-TAHT-thee',
+              etymology: '*pāṇa* (living being, breath) + *bhūta* (existing) + *atthī* (one who is). A piled-up compound emphasising "every kind of being that breathes and exists".',
+              gloss: 'every kind of breathing, existing being — Pāli triples the synonym to leave no creature uncovered',
+              accent: 'rose',
+              morphemes: [
+                { text: 'pāṇa', type: 'stem', gloss: 'living being, breath. From *√pan* "to breathe". Same root as English *pneumatic*.', pronunciation: 'PAH-nah' },
+                { text: 'bhūt', type: 'root', root: '√bhū', gloss: '"having become, existing" — past form of the verb "to be". Same root as *bhavantu*.', pronunciation: 'BOOT' },
+                { text: 'atthī', type: 'suffix', gloss: '"one who is" — adds "the being-one" sense. Final word means "every breathing-existing-being-er".', pronunciation: 'AHT-thee' },
+              ],
             },
+          ],
+        },
+        // ── v4b: tasā vā thāvarā vā anavasesā ──
+        {
+          id: 'v4b-tasa-thavara',
+          pali: 'tasā vā thāvarā vā anavasesā',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'tasā vā thāvarā vā anavasesā' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'whether they are weak or strong, omitting none,', alignTo: [-1, -1, -1, 0, 1, 2, 4, 4], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'none excepted, weak or strong,', alignTo: [4, 4, 0, 1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'weak or strong, without exception,', alignTo: [0, 1, 2, -1, 4], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'tasā', pronunciation: 'TAH-sah', gloss: 'tremblers — beings that startle, the still-frightened (creatures still subject to fear). Sometimes rendered "weak".' },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+            { form: 'thāvarā', pronunciation: 'TAH-vah-rah', gloss: 'standfast — beings firm, stable, no longer trembling. The pair *tasā / thāvarā* sweeps "the still-fearful and the unshaken".' },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
             {
-              by: 'Sujato (SuttaCentral)',
-              text: 'Whatever creatures there are— none excepted, weak or strong, long or large, medium-sized, short, slender or thick,',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
+              form: 'anavasesā',
+              pronunciation: 'ah-NAH-vah-SAY-sah',
+              etymology: '*an-* (not) + *avasesa* (remainder, what is left over)',
+              gloss: 'with-no-remainder — leaving none out. Like saying "every last one" in English.',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'a prefix meaning "not"', pronunciation: 'ahn' },
+                { text: 'avasesā', type: 'stem', gloss: '"remainder, leftover" — *an-avasesā* = "without leftover, with nothing left out"', pronunciation: 'ah-vah-SAY-sah' },
+              ],
             },
+          ],
+        },
+        // ── v4c: dīghā vā ye mahantā vā ──
+        {
+          id: 'v4c-digha-mahanta',
+          pali: 'dīghā vā ye mahantā vā',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'dīghā vā ye mahantā vā' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'the great and the mighty,', alignTo: [-1, 0, -1, -1, 3], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'long or large,', alignTo: [0, 1, 3], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'long, large,', alignTo: [0, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'dīghā', pronunciation: 'DEE-gah', gloss: 'long ones. Pāli *dīgha* "long" gives the *Dīgha Nikāya* (the Long Discourses) its name.' },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+            { form: 'ye', pronunciation: 'yay', gloss: 'which (plural) — opens a new "those who are…" clause' },
             {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'Whatever beings there may be, weak or strong, without exception, long, large, middling, short, subtle, blatant,',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
+              form: 'mahantā',
+              pronunciation: 'mah-HAHN-tah',
+              etymology: '*mahā* "great" (Skt and Pāli) + *-nt* participle ending — "the great-being ones"',
+              gloss: 'great ones, large. Same *mahā-* as in *mahāmantraḥ* in the Heart Sutra.',
+            },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+          ],
+        },
+        // ── v4d: majjhimā rassakāṇukathūlā ──
+        {
+          id: 'v4d-majjhima',
+          pali: 'majjhimā rassakāṇukathūlā',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'majjhimā rassakāṇukathūlā' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'medium, short or small.', alignTo: [0, 1, -1, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'medium-sized, short, slender or thick,', alignTo: [0, 1, 1, -1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'middling, short, subtle, blatant,', alignTo: [0, 1, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'majjhimā', pronunciation: 'MAHJ-jhee-mah', gloss: 'middling ones. *Majjhima* is "middle" — gives the *Majjhima Nikāya* (the Middle-Length Discourses) its name. Same idea as "medium".' },
+            {
+              form: 'rassakāṇukathūlā',
+              pronunciation: 'RAHS-sah-KAH-noo-kah-THOO-lah',
+              etymology: 'a three-part compound: *rassakā* (short) + *aṇukā* (fine, subtle — same word as in *aṇuvīhī*, "atomic") + *thūlā* (gross, coarse). The whole compound sweeps short-fine-thick — every size.',
+              gloss: 'short ones, fine-subtle ones, thick-coarse ones — three sizes piled together to leave none uncovered',
+              morphemes: [
+                { text: 'rassakā', type: 'stem', gloss: 'short, brief. Plural ending makes it "the short ones".', pronunciation: 'RAHS-sah-kah' },
+                { text: 'ṇukā', type: 'stem', gloss: 'subtle, fine, minute. *Aṇu-* gives English speakers *atomic* through Indo-European cousins (Sanskrit *aṇu* = atom).', pronunciation: 'noo-kah' },
+                { text: 'thūlā', type: 'stem', gloss: 'gross, thick, coarse — the opposite of *aṇukā*. Together *aṇu-thūla* covers the whole subtle-to-gross axis.', pronunciation: 'THOO-lah' },
+              ],
             },
           ],
         },
