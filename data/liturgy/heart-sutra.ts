@@ -2030,6 +2030,11 @@ export const heartSutra: LiturgyDoc = {
               pronunciation: 'ah-VEED-yah-KSHAH-yoh',
               etymology: '*avidyā* "ignorance" + *kṣaya* "ending, exhaustion"',
               gloss: 'end of ignorance — both the cause and its cessation are negated',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'vidyā', type: 'stem', root: '√vid', gloss: 'knowledge — *avidyā* = "not-knowing", the first link of dependent origination', pronunciation: 'VEED-yah' },
+                { text: 'kṣayo', type: 'stem', gloss: 'ending, exhaustion (nominative)', pronunciation: 'KSHAH-yoh' },
+              ],
             },
           ],
         },
@@ -2117,6 +2122,11 @@ export const heartSutra: LiturgyDoc = {
               pronunciation: 'jah-RAH-mah-RAH-nah-KSHAH-yah',
               etymology: '*jarā-maraṇa* "aging-death" + *kṣaya* "ending"',
               gloss: 'end of aging-and-death — both the chain and its cessation are negated',
+              morphemes: [
+                { text: 'jarā', type: 'stem', gloss: 'aging', pronunciation: 'jah-RAH' },
+                { text: 'maraṇa', type: 'stem', root: '√mṛ', gloss: 'death — twelfth and final link of dependent origination', pronunciation: 'mah-RAH-nah' },
+                { text: 'kṣayaḥ', type: 'stem', gloss: 'ending, exhaustion (nominative)', pronunciation: 'KSHAH-yahh' },
+              ],
             },
           ],
         },
@@ -2798,6 +2808,11 @@ export const heartSutra: LiturgyDoc = {
               etymology: '*niṣṭhā* "completion, end" + *nirvāṇa* "extinguishing"',
               gloss: 'final/complete nirvāṇa — the extinguishing of grasping that is the end of suffering',
               accent: 'violet',
+              morphemes: [
+                { text: 'niṣṭhā', type: 'stem', gloss: 'completion, fixation, final state', pronunciation: 'neesh-TAH' },
+                { text: 'nir', type: 'prefix', gloss: 'out, away, without', pronunciation: 'near' },
+                { text: 'vāṇaḥ', type: 'stem', root: '√vā', gloss: 'blown — together *nirvāṇa* = "blown out, extinguished" (the metaphor of an oil lamp going out)', pronunciation: 'VAH-nahh' },
+              ],
               citations: [wikipediaCitation('Nirvana_(Buddhism)')],
             },
           ],
@@ -3000,6 +3015,11 @@ export const heartSutra: LiturgyDoc = {
               pronunciation: 'AH-shree-tyah',
               etymology: '*ā-* "toward" + *√śri* "to rest on, depend on"',
               gloss: 'having taken refuge in, relying on (gerund)',
+              morphemes: [
+                { text: 'ā', type: 'prefix', gloss: 'toward, near', pronunciation: 'ah' },
+                { text: 'śri', type: 'root', root: '√śri', gloss: 'to rest on, take refuge in, depend on', pronunciation: 'shree' },
+                { text: 'tya', type: 'suffix', gloss: 'gerund / absolutive ending — "having Xed"', pronunciation: 'tyah' },
+              ],
             },
           ],
         },
@@ -3074,6 +3094,10 @@ export const heartSutra: LiturgyDoc = {
               pronunciation: 'ah-NOOT-tah-rahm',
               etymology: '*a-* "not" + *uttara* "higher, superior" — "than which nothing is higher"',
               gloss: 'unsurpassed, supreme',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'not (assimilated *a-* before vowel)', pronunciation: 'ahn' },
+                { text: 'uttarāṃ', type: 'stem', gloss: 'higher, superior (accusative) — "than which nothing is higher"', pronunciation: 'OOT-tah-rahm' },
+              ],
             },
             {
               form: 'samyaksaṃbodhim',
@@ -3140,8 +3164,29 @@ export const heartSutra: LiturgyDoc = {
           ],
           words: [
             { form: 'tasmāj', scriptAlt: 'तस्माज्', scriptAlts: { 'zh-Hant': '故', 'ja-Jpan': '故' }, pronunciation: 'tahs-MAHJ', gloss: 'therefore (ablative of *tat* "that")' },
-            { form: 'jñātavyaṃ', scriptAlt: 'ज्ञातव्यं', scriptAlts: { 'zh-Hant': '知', 'ja-Jpan': '知' }, pronunciation: 'GYAH-tahv-yahm', gloss: 'should be known (gerundive)' },
-            { form: 'prajñāpāramitā', scriptAlt: 'प्रज्ञापारमिता', scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' }, pronunciation: 'prahj-NYAH-pah-rah-mee-TAH', gloss: 'the Perfection of Wisdom (nominative)', accent: 'sky' },
+            {
+              form: 'jñātavyaṃ',
+              scriptAlt: 'ज्ञातव्यं',
+              scriptAlts: { 'zh-Hant': '知', 'ja-Jpan': '知' },
+              pronunciation: 'GYAH-tahv-yahm',
+              gloss: 'should be known (gerundive)',
+              morphemes: [
+                { text: 'jñā', type: 'root', root: '√jñā', gloss: 'to know', pronunciation: 'gyah' },
+                { text: 'tavyaṃ', type: 'suffix', gloss: 'gerundive suffix — "should/must be Xed"', pronunciation: 'TAHV-yahm' },
+              ],
+            },
+            {
+              form: 'prajñāpāramitā',
+              scriptAlt: 'प्रज्ञापारमिता',
+              scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' },
+              pronunciation: 'prahj-NYAH-pah-rah-mee-TAH',
+              gloss: 'the Perfection of Wisdom (nominative)',
+              accent: 'sky',
+              morphemes: [
+                { text: 'prajñā', type: 'stem', root: '√jñā', gloss: 'wisdom — *pra-* "forth" + *√jñā* "to know"', pronunciation: 'prahj-NYAH' },
+                { text: 'pāramitā', type: 'stem', gloss: 'perfection, "gone-to-the-other-shore" (*pāram* "the far shore" + *itā* "gone")', pronunciation: 'pah-rah-mee-TAH' },
+              ],
+            },
           ],
         },
 
@@ -3163,7 +3208,18 @@ export const heartSutra: LiturgyDoc = {
             { by: 'Thich Nhat Hanh (2014)', text: 'is a Great Mantra,', alignTo: [-1, -1, 0, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
-            { form: 'mahāmantraḥ', scriptAlt: 'महामन्त्रः', scriptAlts: { 'zh-Hant': '大神咒', 'ja-Jpan': '大神咒' }, pronunciation: 'mah-HAH-mahn-trahh', etymology: '*mahā* "great" + *mantra* "spell, sacred utterance"', gloss: 'the great mantra' },
+            {
+              form: 'mahāmantraḥ',
+              scriptAlt: 'महामन्त्रः',
+              scriptAlts: { 'zh-Hant': '大神咒', 'ja-Jpan': '大神咒' },
+              pronunciation: 'mah-HAH-mahn-trahh',
+              etymology: '*mahā* "great" + *mantra* "spell, sacred utterance"',
+              gloss: 'the great mantra',
+              morphemes: [
+                { text: 'mahā', type: 'prefix', gloss: 'great', pronunciation: 'mah-HAH' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra, instrument of thought (nominative)', pronunciation: 'MAHN-trahh' },
+              ],
+            },
           ],
         },
 
@@ -3185,7 +3241,19 @@ export const heartSutra: LiturgyDoc = {
             { by: 'Thich Nhat Hanh (2014)', text: 'the most illuminating mantra,', alignTo: [-1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
-            { form: 'mahāvidyāmantraḥ', scriptAlt: 'महाविद्यामन्त्रः', scriptAlts: { 'zh-Hant': '大明咒', 'ja-Jpan': '大明咒' }, pronunciation: 'mah-HAH-veed-YAH-mahn-trahh', etymology: '*mahā* "great" + *vidyā* "knowledge, illumination" + *mantra*. *Vidyā* shares its root √vid with the 明 (míng "bright, clear")', gloss: 'the great knowledge-mantra — knowledge here is illumination, not propositional content' },
+            {
+              form: 'mahāvidyāmantraḥ',
+              scriptAlt: 'महाविद्यामन्त्रः',
+              scriptAlts: { 'zh-Hant': '大明咒', 'ja-Jpan': '大明咒' },
+              pronunciation: 'mah-HAH-veed-YAH-mahn-trahh',
+              etymology: '*mahā* "great" + *vidyā* "knowledge, illumination" + *mantra*. *Vidyā* shares its root √vid with the 明 (míng "bright, clear")',
+              gloss: 'the great knowledge-mantra — knowledge here is illumination, not propositional content',
+              morphemes: [
+                { text: 'mahā', type: 'prefix', gloss: 'great', pronunciation: 'mah-HAH' },
+                { text: 'vidyā', type: 'stem', root: '√vid', gloss: 'knowledge, illumination — same root as Chinese 明 (míng "bright, clear")', pronunciation: 'veed-YAH' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra (nominative)', pronunciation: 'MAHN-trahh' },
+              ],
+            },
           ],
         },
 
@@ -3207,7 +3275,19 @@ export const heartSutra: LiturgyDoc = {
             { by: 'Thich Nhat Hanh (2014)', text: 'the highest mantra,', alignTo: [-1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
-            { form: 'anuttaramantraḥ', scriptAlt: 'अनुत्तरमन्त्रः', scriptAlts: { 'zh-Hant': '無上咒', 'ja-Jpan': '無上咒' }, pronunciation: 'ah-NOOT-tah-rah-mahn-trahh', etymology: 'same *anuttara* "unsurpassed" as in *anuttarā samyaksaṃbodhi*', gloss: 'the unsurpassed mantra — nothing surpasses it' },
+            {
+              form: 'anuttaramantraḥ',
+              scriptAlt: 'अनुत्तरमन्त्रः',
+              scriptAlts: { 'zh-Hant': '無上咒', 'ja-Jpan': '無上咒' },
+              pronunciation: 'ah-NOOT-tah-rah-mahn-trahh',
+              etymology: 'same *anuttara* "unsurpassed" as in *anuttarā samyaksaṃbodhi*',
+              gloss: 'the unsurpassed mantra — nothing surpasses it',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'not (assimilated form of *a-* before vowel)', pronunciation: 'ahn' },
+                { text: 'uttara', type: 'stem', gloss: 'higher, superior', pronunciation: 'OOT-tah-rah' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra (nominative)', pronunciation: 'MAHN-trahh' },
+              ],
+            },
           ],
         },
 
@@ -3229,7 +3309,20 @@ export const heartSutra: LiturgyDoc = {
             { by: 'Thich Nhat Hanh (2014)', text: 'the mantra which is the equal of the unequalled,', alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
-            { form: 'asamasamamantraḥ', scriptAlt: 'असमसममन्त्रः', scriptAlts: { 'zh-Hant': '無等等咒', 'ja-Jpan': '無等等咒' }, pronunciation: 'ah-SAH-mah-SAH-mah-mahn-trahh', etymology: '*a-* "not" + *sama* "equal" + *sama* "equal" — "having no equal", "equal to the unequaled"', gloss: 'the unequaled-equal mantra — paradoxical formula: equal to what has no equal' },
+            {
+              form: 'asamasamamantraḥ',
+              scriptAlt: 'असमसममन्त्रः',
+              scriptAlts: { 'zh-Hant': '無等等咒', 'ja-Jpan': '無等等咒' },
+              pronunciation: 'ah-SAH-mah-SAH-mah-mahn-trahh',
+              etymology: '*a-* "not" + *sama* "equal" + *sama* "equal" — "having no equal", "equal to the unequaled"',
+              gloss: 'the unequaled-equal mantra — paradoxical formula: equal to what has no equal',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'sama', type: 'stem', gloss: 'equal — first occurrence: "no equal"', pronunciation: 'SAH-mah' },
+                { text: 'sama', type: 'stem', gloss: 'equal — second occurrence: "equal to [the unequaled]"', pronunciation: 'SAH-mah' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra (nominative)', pronunciation: 'MAHN-trahh' },
+              ],
+            },
           ],
         },
 
@@ -3251,7 +3344,19 @@ export const heartSutra: LiturgyDoc = {
             { by: 'Thich Nhat Hanh (2014)', text: 'a Mantra which is able to allay all suffering.', alignTo: [-1, -1, -1, -1, -1, 0, 0, 0, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
-            { form: 'sarvaduḥkhapraśamanaḥ', scriptAlt: 'सर्वदुःखप्रशमनः', scriptAlts: { 'zh-Hant': '除一切苦', 'ja-Jpan': '除一切苦' }, pronunciation: 'sahr-vah-DOOH-khah-prah-SHAH-mah-nahh', etymology: '*sarva* "all" + *duḥkha* "suffering" + *praśamana* "calming, stilling"', gloss: 'allayer of all suffering — what calms every kind of suffering' },
+            {
+              form: 'sarvaduḥkhapraśamanaḥ',
+              scriptAlt: 'सर्वदुःखप्रशमनः',
+              scriptAlts: { 'zh-Hant': '除一切苦', 'ja-Jpan': '除一切苦' },
+              pronunciation: 'sahr-vah-DOOH-khah-prah-SHAH-mah-nahh',
+              etymology: '*sarva* "all" + *duḥkha* "suffering" + *praśamana* "calming, stilling"',
+              gloss: 'allayer of all suffering — what calms every kind of suffering',
+              morphemes: [
+                { text: 'sarva', type: 'prefix', gloss: 'all, every', pronunciation: 'SAHR-vah' },
+                { text: 'duḥkha', type: 'stem', gloss: 'suffering, dis-ease — the First Noble Truth term', pronunciation: 'DOOH-khah' },
+                { text: 'praśamanaḥ', type: 'stem', root: '√śam', gloss: 'calming, stilling, allayer (nominative)', pronunciation: 'prah-SHAH-mah-nahh' },
+              ],
+            },
           ],
         },
 
@@ -3296,9 +3401,44 @@ export const heartSutra: LiturgyDoc = {
             { by: 'Thich Nhat Hanh (2014)', text: 'so let us proclaim a mantra to praise the Insight that brings us to the Other Shore.', alignTo: [-1, -1, -1, 1, -1, 2, -1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
           ],
           words: [
-            { form: 'prajñāpāramitāyām', scriptAlt: 'प्रज्ञापारमितायाम्', scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' }, pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-yahm', etymology: 'locative of *prajñāpāramitā* — "in / from the Perfection of Wisdom"', gloss: 'in the Perfection of Wisdom (locative)', accent: 'sky' },
-            { form: 'ukto', scriptAlt: 'उक्तो', scriptAlts: { 'zh-Hant': '說', 'ja-Jpan': '說' }, pronunciation: 'OOK-toh', etymology: 'past participle of √vac "to speak"', gloss: 'spoken, declared' },
-            { form: 'mantraḥ', scriptAlt: 'मन्त्रः', scriptAlts: { 'zh-Hant': '咒', 'ja-Jpan': '咒' }, pronunciation: 'MAHN-trahh', etymology: '*man-* "to think" + *-tra* instrument suffix — "instrument of thought"', gloss: 'the mantra (nominative)' },
+            {
+              form: 'prajñāpāramitāyām',
+              scriptAlt: 'प्रज्ञापारमितायाम्',
+              scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' },
+              pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-yahm',
+              etymology: 'locative of *prajñāpāramitā* — "in / from the Perfection of Wisdom"',
+              gloss: 'in the Perfection of Wisdom (locative)',
+              accent: 'sky',
+              morphemes: [
+                { text: 'prajñā', type: 'stem', root: '√jñā', gloss: 'wisdom', pronunciation: 'prahj-NYAH' },
+                { text: 'pāramitā', type: 'stem', gloss: 'perfection, the going-beyond', pronunciation: 'pah-rah-mee-TAH' },
+                { text: 'yām', type: 'suffix', gloss: 'locative case ending — "in / from"', pronunciation: 'yahm' },
+              ],
+            },
+            {
+              form: 'ukto',
+              scriptAlt: 'उक्तो',
+              scriptAlts: { 'zh-Hant': '說', 'ja-Jpan': '說' },
+              pronunciation: 'OOK-toh',
+              etymology: 'past participle of √vac "to speak"',
+              gloss: 'spoken, declared',
+              morphemes: [
+                { text: 'ukt', type: 'root', root: '√vac', gloss: 'spoken (past participle of *√vac* "to speak")', pronunciation: 'ookt' },
+                { text: 'o', type: 'suffix', gloss: 'masculine nominative singular ending', pronunciation: 'oh' },
+              ],
+            },
+            {
+              form: 'mantraḥ',
+              scriptAlt: 'मन्त्रः',
+              scriptAlts: { 'zh-Hant': '咒', 'ja-Jpan': '咒' },
+              pronunciation: 'MAHN-trahh',
+              etymology: '*man-* "to think" + *-tra* instrument suffix — "instrument of thought"',
+              gloss: 'the mantra (nominative)',
+              morphemes: [
+                { text: 'man', type: 'root', root: '√man', gloss: 'to think', pronunciation: 'mahn' },
+                { text: 'traḥ', type: 'suffix', gloss: '*-tra* instrument suffix + *-aḥ* nominative — "instrument of [thought]"', pronunciation: 'TRAHH' },
+              ],
+            },
           ],
         },
 
