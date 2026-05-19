@@ -311,40 +311,157 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v2a: santussako ca subharo ca ──
         {
-          id: 'verse-2',
-          pali: 'Santussako ca subharo ca, appakicco ca sallahukavutti; santindriyo ca nipako ca, appagabbho kulesu ananugiddho.',
+          id: 'v2a-santussako',
+          pali: 'santussako ca subharo ca',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Santussako ca subharo ca, appakicco ca sallahukavutti; santindriyo ca nipako ca, appagabbho kulesu ananugiddho.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'santussako ca subharo ca' },
           ],
           witnesses: [
-            {
-              by: 'Amaravati',
-              text: 'Contented and easily satisfied, unburdened with duties and frugal in their ways. Peaceful and calm and wise and skillful, not proud or demanding in nature.',
-              url: AMARAVATI_URL,
-            },
-            {
-              by: 'Sujato (SuttaCentral)',
-              text: 'content and unburdensome, living lightly with few duties, sensible and prudent, not arrogant or fawning over families.',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
-            },
-            {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'content and easy to support, with few duties, living lightly, with peaceful faculties, masterful, modest, and no greed for supporters.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
-            },
+            { by: 'Amaravati', text: 'Contented and easily satisfied,', alignTo: [0, -1, 2, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'content and unburdensome,', alignTo: [0, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'content and easy to support,', alignTo: [0, -1, 2, 2, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
-              form: 'Santussako',
-              gloss: 'Easily content, satisfied with little. *sam* "fully" + *√tuṣ* "be pleased". A core monastic virtue.',
+              form: 'santussako',
+              pronunciation: 'sahn-TOOS-sah-koh',
+              etymology: '*saṁ* (fully) + *tussako* (one who is pleased — from the verb *√tuṣ* "to be pleased, satisfied"). Same *√tuṣ* gives English *santosha* (contentment) in popular usage.',
+              gloss: 'easily contented — pleased with what one has; the temperament of one not chasing more',
               accent: 'amber',
+              morphemes: [
+                { text: 'san', type: 'prefix', gloss: 'the prefix *saṁ-* "fully, together" (the *ṁ* assimilates to *n* before *t*)', pronunciation: 'sahn' },
+                { text: 'tussako', type: 'stem', root: '√tuṣ', gloss: 'one who is pleased — from the verb "to be satisfied". The full word means "fully content, easily pleased".', pronunciation: 'TOOS-sah-koh' },
+              ],
+            },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+            {
+              form: 'subharo',
+              pronunciation: 'SOO-bah-roh',
+              etymology: '*su-* (easily) + *bhara* (carrying, supporting — from *√bhṛ* "to bear, carry")',
+              gloss: 'easy to support — needing little from those who give. Used of monastics who don\'t make a fuss about food, robes, lodging.',
+              morphemes: [
+                { text: 'su', type: 'prefix', gloss: 'a prefix meaning "well, easily". Same prefix as in *suvaco* (verse 1).', pronunciation: 'soo' },
+                { text: 'bharo', type: 'stem', root: '√bhṛ', gloss: 'from the verb "to bear, carry". *Subharo* = "easy to carry, easy to support" — undemanding.', pronunciation: 'BAH-roh' },
+              ],
+            },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+          ],
+        },
+        // ── v2b: appakicco ca sallahukavutti ──
+        {
+          id: 'v2b-appakicco',
+          pali: 'appakicco ca sallahukavutti',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'appakicco ca sallahukavutti' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'unburdened with duties and frugal in their ways.', alignTo: [-1, 0, -1, 0, 2, 2, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'living lightly with few duties,', alignTo: [2, 2, -1, 0, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'with few duties, living lightly,', alignTo: [-1, 0, 0, 2, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'appakicco',
+              pronunciation: 'AHP-pah-keech-choh',
+              etymology: '*appa* (little, few) + *kicca* (duty, what should be done — from the same verb *√kṛ* as *karaṇīyam* in verse 1)',
+              gloss: 'having few duties — light schedule, few external obligations',
+              morphemes: [
+                { text: 'appa', type: 'prefix', gloss: 'a stem meaning "little, few". Used as a first member of compounds to negate or minimise.', pronunciation: 'AHP-pah' },
+                { text: 'kicco', type: 'stem', root: '√kṛ', gloss: 'duty, what should be done — same verb-root as *karaṇīyam* in verse 1. *Appa-kicco* = "few-duties".', pronunciation: 'KEECH-choh' },
+              ],
+            },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+            {
+              form: 'sallahukavutti',
+              pronunciation: 'sahl-LAH-hoo-kah-VOOT-tee',
+              etymology: '*sallahuka* (very light — *sa(ṁ)* intensifier + *lahuka* "light") + *vutti* (mode of life, conduct — from *√vṛt* "to turn, go on")',
+              gloss: 'living lightly — way-of-life with little baggage, easy of habits',
+              morphemes: [
+                { text: 'sallahuka', type: 'stem', gloss: 'very light, easy — *sa-* intensifies *lahuka* "light" (related to English "light" through Indo-European cousins)', pronunciation: 'sahl-LAH-hoo-kah' },
+                { text: 'vutti', type: 'stem', root: '√vṛt', gloss: 'conduct, way of going on — from a verb meaning "to turn, proceed". Same root as English *vortex*.', pronunciation: 'VOOT-tee' },
+              ],
+            },
+          ],
+        },
+        // ── v2c: santindriyo ca nipako ca ──
+        {
+          id: 'v2c-santindriyo',
+          pali: 'santindriyo ca nipako ca',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'santindriyo ca nipako ca' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'Peaceful and calm and wise and skillful,', alignTo: [0, -1, 0, -1, 2, -1, 2], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'sensible and prudent,', alignTo: [0, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'with peaceful faculties, masterful,', alignTo: [-1, 0, 0, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'santindriyo',
+              pronunciation: 'sahn-TEEN-dree-yoh',
+              etymology: '*santa* (peaceful — same *santaṁ* as verse 1) + *indriya* (faculty — the senses, plus mind, treated as a sixth)',
+              gloss: 'with calmed senses — eyes, ears, mind etc. all at peace; not yanked around by sense-impressions',
+              accent: 'sky',
+              morphemes: [
+                { text: 'sant', type: 'root', root: '√śam', gloss: 'calmed, at peace — the same root as *santaṁ* in verse 1', pronunciation: 'sahnt' },
+                { text: 'indriyo', type: 'stem', gloss: 'the senses (sight, hearing, smell, taste, touch, plus mind treated as a sixth). Literally "belonging to Indra" — the powers of the lord of the senses.', pronunciation: 'EEN-dree-yoh' },
+              ],
+            },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+            {
+              form: 'nipako',
+              pronunciation: 'NEE-pah-koh',
+              etymology: 'related to *√pac* "to mature, ripen" — a person whose understanding has fully ripened',
+              gloss: 'wise, prudent — the kind of wisdom that comes from maturity, not book-learning',
+            },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+          ],
+        },
+        // ── v2d: appagabbho kulesu ananugiddho ──
+        {
+          id: 'v2d-appagabbho',
+          pali: 'appagabbho kulesu ananugiddho',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'appagabbho kulesu ananugiddho' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'not proud or demanding in nature.', alignTo: [0, 0, -1, 0, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'not arrogant or fawning over families.', alignTo: [0, 0, -1, 2, -1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'modest, and no greed for supporters.', alignTo: [0, -1, 2, 2, -1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'appagabbho',
+              pronunciation: 'AHP-pah-GAHB-bho',
+              etymology: '*appa* (little, not) + *gabbha* (impudent, rude — from a different sense of the word that also means "womb, interior")',
+              gloss: 'not impudent — not pushy with families, not putting on airs',
+              morphemes: [
+                { text: 'appa', type: 'prefix', gloss: 'a stem meaning "little, not" — same prefix as in *appakicco*', pronunciation: 'AHP-pah' },
+                { text: 'gabbho', type: 'stem', gloss: 'impudent, forward, intrusive. *Appa-gabbho* = "not-pushy".', pronunciation: 'GAHB-bho' },
+              ],
+            },
+            {
+              form: 'kulesu',
+              pronunciation: 'koo-LAY-soo',
+              etymology: '*kula* (family, clan, household) — the "-esu" tail means "in/among"',
+              gloss: 'in/among families — i.e., the lay families a monastic visits for alms',
+              morphemes: [
+                { text: 'kul', type: 'stem', gloss: 'family, household. *Kula* covers the extended sense — clan, lineage, the people in a house.', pronunciation: 'kool' },
+                { text: 'esu', type: 'suffix', gloss: 'the "-esu" tail marks "in/among" with a plural — like English saying "in those families".', pronunciation: 'AY-soo' },
+              ],
+            },
+            {
+              form: 'ananugiddho',
+              pronunciation: 'ah-nah-noo-GEED-dho',
+              etymology: '*an-* (not) + *anu-* (along, after) + *giddha* (greedy, attached — from *√gṛdh* "to be greedy")',
+              gloss: 'not running-after with greed — not chasing the families for what they can give',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'a prefix meaning "not"', pronunciation: 'ahn' },
+                { text: 'anu', type: 'prefix', gloss: 'a prefix meaning "along, after" — adds a "chasing after" flavour', pronunciation: 'AH-noo' },
+                { text: 'giddho', type: 'stem', root: '√gṛdh', gloss: 'greedy, attached — from a verb meaning "to be greedy". *An-anu-giddho* = "not chasing-after-greedily".', pronunciation: 'GEED-dho' },
+              ],
             },
           ],
         },
