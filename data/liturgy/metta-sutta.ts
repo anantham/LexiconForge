@@ -1286,40 +1286,145 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v9a: tiṭṭhaṁ caraṁ nisinno vā ──
         {
-          id: 'verse-9',
-          pali: 'Tiṭṭhaṁ caraṁ nisinno vā, sayāno vā yāvat\'assa vigatamiddho; etaṁ satiṁ adhiṭṭheyya, brahmametaṁ vihāraṁ idhamāhu.',
+          id: 'v9a-tittham-caram',
+          pali: 'tiṭṭhaṁ caraṁ nisinno vā',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Tiṭṭhaṁ caraṁ nisinno vā, sayāno vā yāvat\'assa vigatamiddho; etaṁ satiṁ adhiṭṭheyya, brahmametaṁ vihāraṁ idhamāhu.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'tiṭṭhaṁ caraṁ nisinno vā' },
           ],
           witnesses: [
+            { by: 'Amaravati', text: 'Whether standing or walking, seated', alignTo: [-1, 0, 3, 1, 2], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Standing, walking, sitting,', alignTo: [0, 1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Whether standing, walking, sitting,', alignTo: [-1, 0, 1, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
             {
-              by: 'Amaravati',
-              text: 'Whether standing or walking, seated or lying down, free from drowsiness, one should sustain this recollection. This is said to be the sublime abiding.',
-              url: AMARAVATI_URL,
+              form: 'tiṭṭhaṁ',
+              pronunciation: 'TEET-tahm',
+              etymology: 'present-form of *√sthā* "to stand" — "standing, while-standing"',
+              gloss: 'standing — the first of the four postures. Same *√sthā* gives English speakers *stand* through Indo-European cousins.',
             },
             {
-              by: 'Sujato (SuttaCentral)',
-              text: 'Standing, walking, sitting, or lying down— as long as they\'re not drowsy— they would commit to this kind of mindfulness; this is what they call a divine meditation in this life.',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
+              form: 'caraṁ',
+              pronunciation: 'CHAH-rahm',
+              etymology: 'present-form of *√car* "to walk, go" — same root as *samācare* in v3a',
+              gloss: 'walking — the second posture.',
             },
             {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'Whether standing, walking, sitting, or lying down, as long as one is alert, one should be resolved on this mindfulness. This is called a sublime abiding here & now.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
+              form: 'nisinno',
+              pronunciation: 'nee-SEEN-noh',
+              etymology: '*ni-* (down) + past form of *√sad* "to sit" — "sat down"',
+              gloss: 'seated — the third posture. The *ni-* prefix adds "down".',
+              morphemes: [
+                { text: 'ni', type: 'prefix', gloss: '"down" — same prefix as in *nikubbetha* in v6a', pronunciation: 'nee' },
+                { text: 'sinno', type: 'root', root: '√sad', gloss: 'from the verb "to sit". Same root that gives English *settle* and *sediment* through Indo-European cousins.', pronunciation: 'SEEN-noh' },
+              ],
             },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+          ],
+        },
+        // ── v9b: sayāno vā yāvat'assa vigatamiddho ──
+        {
+          id: 'v9b-sayano-vigatamiddho',
+          pali: "sayāno vā yāvat'assa vigatamiddho",
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: "sayāno vā yāvat'assa vigatamiddho", tokens: ['sayāno', 'vā', "yāvat'assa", 'vigatamiddho'] },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'or lying down, free from drowsiness,', alignTo: [1, 0, 0, -1, -1, 3], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: "or lying down— as long as they're not drowsy—", alignTo: [1, 0, 0, -1, 2, 2, -1, -1, 3], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'or lying down, as long as one is alert,', alignTo: [1, 0, 0, 2, 2, 2, -1, -1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'sayāno', pronunciation: 'sah-YAH-noh', etymology: 'from *√śī* "to lie down"', gloss: 'lying down — the fourth posture. Together with the three above, the verse covers every bodily state.' },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+            { form: "yāvat'assa", pronunciation: 'YAH-vaht-AHS-sah', gloss: '"as long as [one] is" — a clause-opener. *Yāvat* "as long as" + *assa* "would be".' },
+            {
+              form: 'vigatamiddho',
+              pronunciation: 'vee-GAH-tah-MEED-doh',
+              etymology: '*vi-* (away) + *gata* (gone) + *middha* (drowsiness, torpor)',
+              gloss: '"with drowsiness gone away" — alert, free of the sluggish-mind state. *Middha* is one of the five hindrances (drowsiness) in Buddhist psychology.',
+              morphemes: [
+                { text: 'vigata', type: 'prefix', gloss: '"gone away, departed" — *vi-* "away" + *gata* "gone"', pronunciation: 'vee-GAH-tah' },
+                { text: 'middho', type: 'stem', gloss: '"drowsiness, torpor" — one of the five hindrances. *Vi-gata-middho* = "the one whose drowsiness has departed".', pronunciation: 'MEED-doh' },
+              ],
+            },
+          ],
+        },
+        // ── v9c: etaṁ satiṁ adhiṭṭheyya ──
+        {
+          id: 'v9c-etam-satim',
+          pali: 'etaṁ satiṁ adhiṭṭheyya',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'etaṁ satiṁ adhiṭṭheyya' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'one should sustain this recollection.', alignTo: [-1, -1, 2, 0, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'they would commit to this kind of mindfulness;', alignTo: [-1, 2, 2, -1, 0, -1, -1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'one should be resolved on this mindfulness.', alignTo: [-1, 2, -1, 2, -1, 0, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'etaṁ', pronunciation: 'AY-tahm', gloss: 'this (object form) — refers back to the cultivated heart-mind from v8.' },
+            {
+              form: 'satiṁ',
+              pronunciation: 'SAH-teem',
+              etymology: '*sati* (mindfulness, remembering) + *-ṁ* (object form). From *√smṛ* "to remember".',
+              gloss: 'mindfulness, recollection (object). The central Buddhist faculty — keeping something in present awareness. Same root as Skt *smṛti*.',
+              accent: 'sky',
+            },
+            {
+              form: 'adhiṭṭheyya',
+              pronunciation: 'ah-DEET-tay-yah',
+              etymology: '*adhi-* (over, upon) + *√sthā* (to stand) — "to stand upon, take a firm stand on, resolve". The "-eyya" tail says "should/would".',
+              gloss: '"should be resolved on, should stand-firmly-on". *Adhiṭṭhāna* (resolve, determination) is one of the ten *pāramī* (perfections).',
+              accent: 'amber',
+              morphemes: [
+                { text: 'adhi', type: 'prefix', gloss: '"over, upon" — adds a "standing-upon" flavour to the verb', pronunciation: 'AH-dee' },
+                { text: 'ṭṭheyya', type: 'root', root: '√sthā', gloss: 'from the verb "to stand". *Adhi-ṭṭha* = "stand-upon, resolve". Same root as *tiṭṭhaṁ* (standing) in 9a.', pronunciation: 'TAY-yah' },
+              ],
+            },
+          ],
+        },
+        // ── v9d: brahmametaṁ vihāraṁ idhamāhu ──
+        {
+          id: 'v9d-brahma-vihara',
+          pali: 'brahmametaṁ vihāraṁ idhamāhu',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'brahmametaṁ vihāraṁ idhamāhu' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'This is said to be the sublime abiding.', alignTo: [0, -1, 2, -1, -1, -1, 0, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'this is what they call a divine meditation in this life.', alignTo: [0, -1, -1, 2, 2, -1, 0, 1, 2, -1, -1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'This is called a sublime abiding here & now.', alignTo: [0, -1, 2, -1, 0, 1, 2, -1, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
               form: 'brahmametaṁ',
-              gloss: '*brahma* + *etaṁ* "this is divine". The *brahmavihāra* — divine abiding — is the meditator\'s dwelling-place. *Brahma* here doesn\'t name the deity but the highest, sublime register.',
+              pronunciation: 'BRAH-mah-MAY-tahm',
+              etymology: '*brahma* (divine, supreme) + *etaṁ* "this" — sound-merged together',
+              gloss: '"this divine [one]". The *brahmavihāra* — divine abiding — names the meditator\'s dwelling-place. *Brahma* here doesn\'t name the deity but the highest, sublime register.',
               accent: 'sky',
+              morphemes: [
+                { text: 'brahma', type: 'stem', gloss: '"divine, supreme, highest" — same word in Skt and Pāli. *Brahmavihāra* is the technical term for the four sublime states (loving-kindness, compassion, joy, equanimity).', pronunciation: 'BRAH-mah' },
+                { text: 'metaṁ', type: 'stem', gloss: '*etaṁ* "this" — joined to *brahma* by chant rhythm. The whole word means "this divine-state".', pronunciation: 'MAY-tahm' },
+              ],
+            },
+            {
+              form: 'vihāraṁ',
+              pronunciation: 'vee-HAH-rahm',
+              etymology: '*vi-* (apart) + *√hṛ* "to carry, dwell" — "dwelling, abiding"',
+              gloss: 'an abiding, a dwelling-place. *Vihāra* gives the word for a monastery (the place one dwells), and in compounds names the four sublime abidings (*brahmavihāra*).',
+            },
+            {
+              form: 'idhamāhu',
+              pronunciation: 'EE-dah-MAH-hoo',
+              etymology: '*idha* "here" + *āhu* "they say, it is said"',
+              gloss: '"here they call [it]" — closes the verse with the traditional formula *iti āhu* "thus they say". The community\'s naming of the state.',
+              morphemes: [
+                { text: 'idha', type: 'stem', gloss: '"here, in this place" — anchors the divine abiding in *this* life, not a future heaven', pronunciation: 'EE-dah' },
+                { text: 'māhu', type: 'stem', gloss: '*āhu* "they say, it is said" — the traditional Pāli formula that closes a teaching with "thus they say"', pronunciation: 'MAH-hoo' },
+              ],
             },
           ],
         },
