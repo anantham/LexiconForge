@@ -744,41 +744,130 @@ export const mettaSutta: LiturgyDoc = {
             },
           ],
         },
+        // ── v5a: diṭṭhā vā yeva addiṭṭhā ──
         {
-          id: 'verse-5',
-          pali: 'Diṭṭhā vā yeva addiṭṭhā, ye ca dūre vasanti avidūre; bhūtā vā sambhavesī vā, sabbe sattā bhavantu sukhitattā.',
+          id: 'v5a-dittha-adittha',
+          pali: 'diṭṭhā vā yeva addiṭṭhā',
           scripts: [
-            {
-              lang: 'pi-Latn',
-              label: 'Pāli',
-              text: 'Diṭṭhā vā yeva addiṭṭhā, ye ca dūre vasanti avidūre; bhūtā vā sambhavesī vā, sabbe sattā bhavantu sukhitattā.',
-            },
+            { lang: 'pi-Latn', label: 'Pāli', text: 'diṭṭhā vā yeva addiṭṭhā' },
           ],
           witnesses: [
-            {
-              by: 'Amaravati',
-              text: 'The seen and the unseen, those living near and far away, those born and to-be-born. May all beings be at ease!',
-              url: AMARAVATI_URL,
-            },
-            {
-              by: 'Sujato (SuttaCentral)',
-              text: 'those who are seen or unseen, those living far or near, those born or to be born— may all beings be happy!',
-              url: 'https://suttacentral.net/snp1.8/en/sujato',
-              license: 'CC0',
-            },
-            {
-              by: 'Thanissaro (Access to Insight)',
-              text: 'seen or unseen, near or far, born or seeking birth: May all beings be happy at heart.',
-              url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
-              license: 'CC BY-NC',
-            },
+            { by: 'Amaravati', text: 'The seen and the unseen,', alignTo: [-1, 0, 1, -1, 3], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'those who are seen or unseen,', alignTo: [-1, -1, -1, 0, 1, 3], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'seen or unseen,', alignTo: [0, 1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
-              form: 'sambhavesī',
-              gloss: '"Those still seeking birth", those yet to be born. Paired with *bhūtā* "already become" — the wish covers both the born and the yet-to-be-born.',
+              form: 'diṭṭhā',
+              pronunciation: 'DEET-tah',
+              etymology: 'past form of *√dṛś* "to see" — "the seen ones" (creatures we can directly perceive)',
+              gloss: 'the seen — visible beings we can point to. Same root that gives *dassana* (vision, view) later in the sutta.',
+              morphemes: [
+                { text: 'diṭ', type: 'root', root: '√dṛś', gloss: 'from the verb "to see"', pronunciation: 'deet' },
+                { text: 'ṭhā', type: 'suffix', gloss: 'the "-ṭhā" tail makes the verb into "the seen ones" (plural past form)', pronunciation: 'tah' },
+              ],
+            },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+            { form: 'yeva', pronunciation: 'YAY-vah', gloss: '"just, indeed" — emphasis particle, like English "also" or "as well".' },
+            {
+              form: 'addiṭṭhā',
+              pronunciation: 'AHD-deet-tah',
+              etymology: '*a-* (not) + *diṭṭhā* (seen) — "the unseen ones"',
+              gloss: 'the unseen — creatures hidden from us (insects in the earth, beings in other realms). The pair *diṭṭhā / addiṭṭhā* sweeps "everything we see and everything we don\'t".',
+              morphemes: [
+                { text: 'ad', type: 'prefix', gloss: 'the prefix "not" (assimilated *a-* before *d*)', pronunciation: 'ahd' },
+                { text: 'diṭṭhā', type: 'stem', root: '√dṛś', gloss: 'same "seen" stem as the previous word — paired here with the negation prefix', pronunciation: 'DEET-tah' },
+              ],
+            },
+          ],
+        },
+        // ── v5b: ye ca dūre vasanti avidūre ──
+        {
+          id: 'v5b-dure-avidure',
+          pali: 'ye ca dūre vasanti avidūre',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'ye ca dūre vasanti avidūre' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'those living near and far away,', alignTo: [0, 3, 4, 1, 2, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'those living far or near,', alignTo: [0, 3, 2, 1, 4], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'near or far,', alignTo: [4, 1, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'ye', pronunciation: 'yay', gloss: 'which (plural) — opens "those who…"' },
+            { form: 'ca', pronunciation: 'chah', gloss: 'and' },
+            { form: 'dūre', pronunciation: 'DOO-ray', gloss: 'far away (locative). Same word as Skt *dūra*, related to English *durable* through "lasting/distant" semantics.' },
+            {
+              form: 'vasanti',
+              pronunciation: 'vah-SAHN-tee',
+              etymology: 'from *√vas* "to dwell, live" — "they dwell"',
+              gloss: 'they dwell, they live. The "-anti" tail makes it "they (do)".',
+              morphemes: [
+                { text: 'vas', type: 'root', root: '√vas', gloss: 'from the verb "to dwell, live in a place"', pronunciation: 'vahs' },
+                { text: 'anti', type: 'suffix', gloss: 'the "-anti" tail says "they (do this)" — plural present', pronunciation: 'AHN-tee' },
+              ],
+            },
+            {
+              form: 'avidūre',
+              pronunciation: 'ah-vee-DOO-ray',
+              etymology: '*a-* (not) + *vi-* (apart, away) + *dūre* (far) — "not-far-away"',
+              gloss: 'nearby — literally "not-far-away". The double negation gives a softer "near" than a direct word.',
+            },
+          ],
+        },
+        // ── v5c: bhūtā vā sambhavesī vā ──
+        {
+          id: 'v5c-bhuta-sambhavesi',
+          pali: 'bhūtā vā sambhavesī vā',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'bhūtā vā sambhavesī vā' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'those born and to-be-born.', alignTo: [-1, 0, 1, 2], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'those born or to be born—', alignTo: [-1, 0, 1, -1, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'born or seeking birth:', alignTo: [0, 1, 2, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            {
+              form: 'bhūtā',
+              pronunciation: 'BOO-tah',
+              etymology: 'past form of *√bhū* "to become" — "those who have become, the existing ones"',
+              gloss: 'those who have come into being. *Bhū* gives English speakers *be* through Indo-European cousins.',
               accent: 'sky',
             },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+            {
+              form: 'sambhavesī',
+              pronunciation: 'sahm-BAH-vay-see',
+              etymology: '*saṁ-* (together, fully) + *bhava* (being, coming-to-be) + *-esī* (one-who-seeks, from *√iṣ* "to seek")',
+              gloss: 'those still seeking to come-into-being — beings yet to be born. Paired with *bhūtā* "already become" — the wish covers both the born and the yet-to-be-born.',
+              accent: 'sky',
+              morphemes: [
+                { text: 'sam', type: 'prefix', gloss: 'the prefix "fully, together" (the *ṁ* assimilates to *m*)', pronunciation: 'sahm' },
+                { text: 'bhav', type: 'root', root: '√bhū', gloss: '"becoming, coming-to-be" — same root as *bhūtā*', pronunciation: 'bahv' },
+                { text: 'esī', type: 'suffix', root: '√iṣ', gloss: 'from the verb "to seek". *Sam-bhav-esī* = "one who is seeking-to-come-into-being".', pronunciation: 'AY-see' },
+              ],
+            },
+            { form: 'vā', pronunciation: 'vah', gloss: 'or' },
+          ],
+        },
+        // ── v5d: sabbe sattā bhavantu sukhitattā (refrain — same as v3d) ──
+        {
+          id: 'v5d-sabbe-satta',
+          pali: 'sabbe sattā bhavantu sukhitattā',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'sabbe sattā bhavantu sukhitattā' },
+          ],
+          witnesses: [
+            { by: 'Amaravati', text: 'May all beings be at ease!', alignTo: [-1, 0, 1, 2, -1, -1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'may all beings be happy!', alignTo: [-1, 0, 1, 2, 3], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'May all beings be happy at heart.', alignTo: [-1, 0, 1, 2, 3, -1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'sabbe', pronunciation: 'SAHB-bay', gloss: 'all, every — same word as v3d, the refrain that recurs through the sutta.', accent: 'rose' },
+            { form: 'sattā', pronunciation: 'SAHT-tah', gloss: 'beings — same word as v3d. *sabbe sattā* is the metta sutta\'s recurring address.', accent: 'rose', citations: [dpdCitation('satta')] },
+            { form: 'bhavantu', pronunciation: 'bah-VAHN-too', gloss: 'may [they] be — the wishing voice from v3d, repeated here as the refrain closes the stanza.' },
+            { form: 'sukhitattā', pronunciation: 'soo-khee-TAHT-tah', gloss: 'happy of heart, happy from the inside — same word as v3d.', accent: 'amber' },
           ],
         },
         {
