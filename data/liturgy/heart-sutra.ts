@@ -164,7 +164,7 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'the Noble Lord Avalokiteśvara — the bodhisattva of compassion',
               citations: [wikipediaCitation('Avalokiteśvara')],
               morphemes: [
-                { text: 'Ārya', type: 'prefix', gloss: 'noble — an honourific', pronunciation: 'AHR-yah', citations: [wikipediaCitation('Ārya')] },
+                { text: 'Āry', type: 'prefix', gloss: 'noble — an honorific (*ārya*; its final vowel merges with the *ā-* of the next piece)', pronunciation: 'AHR-yah', citations: [wikipediaCitation('Ārya')] },
                 { text: 'āvalokit', type: 'stem', gloss: 'one who looks down (with compassion) on the world', pronunciation: 'ah-vah-loh-KEET' },
                 { text: 'eśvaro', type: 'suffix', gloss: 'lord — the title-ending', pronunciation: 'AYSH-vah-roh' },
               ],
@@ -2451,7 +2451,7 @@ export const heartSutra: LiturgyDoc = {
               etymology: '*citta* "mind" + *āvaraṇa* "obscuration, covering"',
               gloss: 'mental obscurations — the veils that hide things as they are',
               morphemes: [
-                { text: 'citta', type: 'stem', gloss: 'mind', pronunciation: 'CHEET-tah' },
+                { text: 'citt', type: 'stem', gloss: 'mind (the stem *citta*; its final vowel merges with the *ā-* that follows)', pronunciation: 'CHEET-tah' },
                 { text: 'āvaraṇa', type: 'suffix', gloss: 'obscuration, cover', pronunciation: 'AH-vah-rah-nah' },
               ],
             },
@@ -2715,8 +2715,8 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'having crossed beyond inverted views — past the four distortions (taking the impure as pure, the impermanent as permanent, etc.)',
               accent: 'emerald',
               morphemes: [
-                { text: 'viparyāsa', type: 'stem', gloss: 'inverted view — seeing things upside-down (impermanent as permanent, suffering as pleasure, etc.)', pronunciation: 'vee-pahr-YAH-sah', citations: [wikipediaCitation('Viparyasa')] },
-                { text: 'atikrānto', type: 'suffix', gloss: 'having crossed beyond, transcended', pronunciation: 'ah-tee-KRAHN-toh' },
+                { text: 'viparyās', type: 'stem', gloss: 'inverted view — seeing things upside-down (impermanent as permanent, suffering as pleasure, etc.). The stem is *viparyāsa*; its final vowel merges with the *a-* that follows.', pronunciation: 'vee-pahr-YAH-sah', citations: [wikipediaCitation('Viparyasa')] },
+                { text: 'ātikrānto', type: 'suffix', gloss: 'having crossed beyond, transcended (*atikrānto*; it carries the long *ā* formed where the two words\' vowels merged)', pronunciation: 'ah-tee-KRAHN-toh' },
               ],
             },
           ],
@@ -2900,7 +2900,7 @@ export const heartSutra: LiturgyDoc = {
               etymology: '*tri-* "three" + *adhva* "way, time-period" + *vyavasthita* "established, situated"',
               gloss: 'established in the three times — past, present, and future',
               morphemes: [
-                { text: 'tri', type: 'prefix', gloss: 'three', pronunciation: 'tree' },
+                { text: 'try', type: 'prefix', gloss: 'three (*tri-*; the *i* turns to *y* before the vowel that follows)', pronunciation: 'tree' },
                 { text: 'adhva', type: 'stem', gloss: 'time, way, road', pronunciation: 'AHD-vah' },
                 { text: 'vyavasthitāḥ', type: 'suffix', root: '√sthā', gloss: 'established, dwelling (plural)', pronunciation: 'vyah-vahs-thee-TAHH' },
               ],

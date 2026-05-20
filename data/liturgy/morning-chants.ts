@@ -543,7 +543,7 @@ export const morningChants: LiturgyDoc = {
               gloss: 'in sensual pleasures, in sexual matters',
               citations: [dpdCitation('kāma'), pronCite],
               morphemes: [
-                { text: 'kāma', type: 'stem', gloss: 'sensual pleasure, sense-desire — broader than sex; includes pleasures of taste, sound, sight, touch', pronunciation: 'KAH-mah', citations: [dpdCitation('kāma')] },
+                { text: 'kām', type: 'stem', gloss: 'sensual pleasure, sense-desire — broader than sex; includes pleasures of taste, sound, sight, touch (the stem *kāma*; its final vowel merges into the ending)', pronunciation: 'KAH-mah', citations: [dpdCitation('kāma')] },
                 { text: 'esu', type: 'suffix', gloss: '"in [these pleasures]" — locates the conduct', pronunciation: 'AY-soo' },
               ],
             },
