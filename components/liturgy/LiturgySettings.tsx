@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 /**
  * Page-level reader preferences. Lives in localStorage so the reader's
@@ -87,9 +87,31 @@ export function useLiturgySettings() {
 export const SettingsButton: React.FC = () => {
   const { settings, setSettings } = useLiturgySettings();
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Close the popover on a click outside it, or on Escape. Without this
+  // the only way to dismiss it is the gear toggle — clicking the chant
+  // body left it stuck open.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
 
   return (
-    <div className="fixed top-4 right-6 z-40">
+    <div ref={wrapRef} className="fixed top-4 right-6 z-40">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
