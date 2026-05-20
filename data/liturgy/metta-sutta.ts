@@ -69,12 +69,16 @@ export const mettaSutta: LiturgyDoc = {
               by: 'Amaravati',
               text: 'This is what should be done by one who is skilled in goodness,',
               alignTo: [0, 0, 0, 0, 0, 0, -1, 2, -1, -1, 2, -1, 1],
+              // karaṇīyam: "done" → √kṛ root (morpheme 0); the rest → -yam.
+              // kusalena: "skilled" → kusal stem (0); "one" → -ena ending (1).
+              morphemeAlignTo: [1, 1, 1, 1, 1, 0, null, 1, null, null, 0, null, null],
               url: AMARAVATI_URL,
             },
             {
               by: 'Sujato (SuttaCentral)',
               text: 'This is what should be done by one skilled in the good',
               alignTo: [0, 0, 0, 0, 0, 0, -1, 2, 2, -1, -1, 1],
+              morphemeAlignTo: [1, 1, 1, 1, 1, 0, null, 1, 0, null, null, null],
               url: 'https://suttacentral.net/snp1.8/en/sujato',
               license: 'CC0',
             },
@@ -82,6 +86,7 @@ export const mettaSutta: LiturgyDoc = {
               by: 'Thanissaro (Access to Insight)',
               text: 'This is to be done by one skilled in aims',
               alignTo: [0, 0, 0, 0, 0, -1, 2, 2, -1, 1],
+              morphemeAlignTo: [1, 1, 1, 1, 0, null, 1, 0, null, null],
               url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
               license: 'CC BY-NC',
             },

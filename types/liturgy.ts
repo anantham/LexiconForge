@@ -40,6 +40,20 @@ export type Witness = {
    * e.g., "Fully Self-Enlightened One" all aligns to *sammā-sambuddhassa*).
    */
   alignTo?: number[];
+  /**
+   * Optional per-token morpheme target. Parallel-indexed to `alignTo`.
+   * `morphemeAlignTo[i]` is the morpheme index (within the Pāli word that
+   * `alignTo[i]` points to) that English word `i` should anchor its arrow
+   * to. `null`/absent → the renderer falls back to its positional heuristic
+   * (i-th English token mapped to a word → i-th morpheme).
+   *
+   * Why this exists: when English reorders the morphemes of a Pāli word,
+   * the positional heuristic crosses the arrows. Example: `kusalena` =
+   * `kusal` (skilled) + `ena` (by-an-agent); Amaravati renders it "one …
+   * skilled", reversing the order, so the heuristic sends `kusal`'s arrow
+   * to "one". Authoring `morphemeAlignTo` fixes the pairing explicitly.
+   */
+  morphemeAlignTo?: (number | null)[];
 };
 
 /**

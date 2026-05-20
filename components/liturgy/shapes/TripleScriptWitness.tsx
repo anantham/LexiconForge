@@ -849,7 +849,8 @@ type Line = {
 
 function computeAlignmentLines(
   container: HTMLDivElement,
-  alignTo: number[] | undefined
+  alignTo: number[] | undefined,
+  morphemeAlignTo?: (number | null)[]
 ): Line[] {
   if (!alignTo) return [];
   const cRect = container.getBoundingClientRect();
@@ -881,8 +882,12 @@ function computeAlignmentLines(
       if (!enEl) continue;
 
       // Three positioning strategies, in order of preference:
-      //   1. Authored morpheme spans exist → anchor on morpheme #i
-      //      (clamped to last morpheme if more English than morphemes).
+      //   1. Authored morpheme spans exist → anchor on a morpheme.
+      //      Which morpheme: if the witness authored `morphemeAlignTo`
+      //      for this English token, use that index (lets a curator fix
+      //      crossed arrows when English reorders the morphemes). Else
+      //      fall back to the positional heuristic (i-th English → i-th
+      //      morpheme, clamped to the last).
       //   2. No morpheme spans but the group has >1 English mapping to
       //      this word → distribute proportionally along the word's
       //      width so the arrows fan into separate landing zones
@@ -893,11 +898,15 @@ function computeAlignmentLines(
       let y1: number;
       let subIdx: number | undefined = undefined;
       if (morphemeEls.length > 0) {
-        const clamped = Math.min(i, morphemeEls.length - 1);
-        const mr = morphemeEls[clamped].getBoundingClientRect();
+        const authored = morphemeAlignTo?.[engIdx];
+        const target =
+          typeof authored === 'number'
+            ? Math.min(Math.max(authored, 0), morphemeEls.length - 1)
+            : Math.min(i, morphemeEls.length - 1);
+        const mr = morphemeEls[target].getBoundingClientRect();
         x1 = mr.left + mr.width / 2 - cRect.left;
         y1 = mr.bottom - cRect.top;
-        subIdx = clamped;
+        subIdx = target;
       } else if (engIndices.length > 1) {
         const xOffset = ((i + 0.5) / engIndices.length) * wordRect.width;
         x1 = wordRect.left + xOffset - cRect.left;
@@ -1071,7 +1080,7 @@ const SegmentRow: React.FC<{
         setLines([]);
         return;
       }
-      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo));
+      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo));
     };
     compute();
     const raf = requestAnimationFrame(compute);
@@ -1185,7 +1194,7 @@ const SegmentRow: React.FC<{
     // which would paint the line's source endpoint at the viewport corner.
     // (See task #73, user-reported mobile Devanāgarī bug.)
     if (!containerRef.current.contains(hovered.element)) return [];
-    const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo);
+    const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo);
     const cRect = containerRef.current.getBoundingClientRect();
     const r = hovered.element.getBoundingClientRect();
 
