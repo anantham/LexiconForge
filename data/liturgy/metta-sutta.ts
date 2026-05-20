@@ -142,6 +142,7 @@ export const mettaSutta: LiturgyDoc = {
               by: 'Sujato (SuttaCentral)',
               text: 'who has comprehended the state of peace.',
               alignTo: [-1, 4, 4, -1, 3, -1, 2],
+              morphemeAlignTo: [null, 2, 2, null, null, null, null],
               url: 'https://suttacentral.net/snp1.8/en/sujato',
               license: 'CC0',
             },
@@ -149,6 +150,7 @@ export const mettaSutta: LiturgyDoc = {
               by: 'Thanissaro (Access to Insight)',
               text: 'who wants to break through to the state of peace:',
               alignTo: [-1, -1, -1, 4, 4, -1, -1, 3, -1, 2],
+              morphemeAlignTo: [null, null, null, 2, 1, null, null, null, null, null],
               url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
               license: 'CC BY-NC',
             },
@@ -260,12 +262,14 @@ export const mettaSutta: LiturgyDoc = {
               by: 'Amaravati',
               text: 'straightforward and gentle in speech, humble and not conceited.',
               alignTo: [-1, -1, 2, -1, 0, 3, -1, 3, 3],
+              morphemeAlignTo: [null, null, null, null, null, 2, null, 0, 2],
               url: AMARAVATI_URL,
             },
             {
               by: 'Sujato (SuttaCentral)',
               text: 'easy to speak to, gentle, and not proud,',
               alignTo: [0, 0, 0, 0, 2, -1, 3, 3],
+              morphemeAlignTo: [0, 0, 1, 1, null, null, 0, 2],
               url: 'https://suttacentral.net/snp1.8/en/sujato',
               license: 'CC0',
             },
@@ -273,6 +277,7 @@ export const mettaSutta: LiturgyDoc = {
               by: 'Thanissaro (Access to Insight)',
               text: 'easy to instruct, gentle, and not conceited,',
               alignTo: [0, 0, 0, 2, -1, 3, 3],
+              morphemeAlignTo: [0, 0, 1, null, null, 0, 2],
               url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html',
               license: 'CC BY-NC',
             },
@@ -326,7 +331,7 @@ export const mettaSutta: LiturgyDoc = {
           witnesses: [
             { by: 'Amaravati', text: 'Contented and easily satisfied,', alignTo: [0, -1, 2, -1], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: 'content and unburdensome,', alignTo: [0, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'content and easy to support,', alignTo: [0, -1, 2, 2, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Thanissaro (Access to Insight)', text: 'content and easy to support,', alignTo: [0, -1, 2, 2, 2], morphemeAlignTo: [null, null, 0, 0, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -362,9 +367,9 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'appakicco ca sallahukavutti' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'unburdened with duties and frugal in their ways.', alignTo: [-1, 0, -1, 0, 2, 2, -1, -1], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'living lightly with few duties,', alignTo: [2, 2, -1, 0, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'with few duties, living lightly,', alignTo: [-1, 0, 0, 2, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Amaravati', text: 'unburdened with duties and frugal in their ways.', alignTo: [-1, 0, -1, 0, 2, 2, -1, -1], morphemeAlignTo: [null, 0, null, 0, 0, 1, null, null], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'living lightly with few duties,', alignTo: [2, 2, -1, 0, 0], morphemeAlignTo: [1, 0, null, 0, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'with few duties, living lightly,', alignTo: [-1, 0, 0, 2, 2], morphemeAlignTo: [null, 0, 1, 1, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -398,7 +403,7 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'santindriyo ca nipako ca' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'Peaceful and calm and wise and skillful,', alignTo: [0, -1, 0, -1, 2, -1, 2], url: AMARAVATI_URL },
+            { by: 'Amaravati', text: 'Peaceful and calm and wise and skillful,', alignTo: [0, -1, 0, -1, 2, -1, 2], morphemeAlignTo: [0, null, 0, null, null, null, null], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: 'sensible and prudent,', alignTo: [0, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
             { by: 'Thanissaro (Access to Insight)', text: 'with peaceful faculties, masterful,', alignTo: [-1, 0, 0, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
@@ -434,7 +439,7 @@ export const mettaSutta: LiturgyDoc = {
           witnesses: [
             { by: 'Amaravati', text: 'not proud or demanding in nature.', alignTo: [0, 0, -1, 0, -1, -1], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: 'not arrogant or fawning over families.', alignTo: [0, 0, -1, 2, -1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'modest, and no greed for supporters.', alignTo: [0, -1, 2, 2, -1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Thanissaro (Access to Insight)', text: 'modest, and no greed for supporters.', alignTo: [0, -1, 2, 2, -1, 1], morphemeAlignTo: [null, null, 0, 2, null, null], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -480,7 +485,7 @@ export const mettaSutta: LiturgyDoc = {
           witnesses: [
             { by: 'Amaravati', text: 'Let them not do the slightest thing', alignTo: [-1, -1, 0, 3, -1, 2, 4], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: "They'd not do the slightest thing", alignTo: [-1, 0, 3, -1, 2, 4], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'Do not do the slightest thing', alignTo: [3, 0, 3, -1, 2, 4], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Do not do the slightest thing', alignTo: [3, 0, 3, -1, 2, 4], morphemeAlignTo: [2, null, 2, null, null, null], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             { form: 'na', pronunciation: 'nah', gloss: '"not". Combines with the next verb to negate the whole sentence.' },
@@ -676,7 +681,7 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'tasā vā thāvarā vā anavasesā' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'whether they are weak or strong, omitting none,', alignTo: [-1, -1, -1, 0, 1, 2, 4, 4], url: AMARAVATI_URL },
+            { by: 'Amaravati', text: 'whether they are weak or strong, omitting none,', alignTo: [-1, -1, -1, 0, 1, 2, 4, 4], morphemeAlignTo: [null, null, null, null, null, null, 1, 0], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: 'none excepted, weak or strong,', alignTo: [4, 4, 0, 1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
             { by: 'Thanissaro (Access to Insight)', text: 'weak or strong, without exception,', alignTo: [0, 1, 2, -1, 4], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
@@ -830,7 +835,7 @@ export const mettaSutta: LiturgyDoc = {
           witnesses: [
             { by: 'Amaravati', text: 'those born and to-be-born.', alignTo: [-1, 0, 1, 2], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: 'those born or to be born—', alignTo: [-1, 0, 1, -1, -1, 2], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'born or seeking birth:', alignTo: [0, 1, 2, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Thanissaro (Access to Insight)', text: 'born or seeking birth:', alignTo: [0, 1, 2, 2], morphemeAlignTo: [null, null, 2, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -978,9 +983,9 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'nāññamaññassa dukkhamiccheyya' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'wish harm upon another.', alignTo: [1, 1, -1, 0], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'nor wish harm for one another', alignTo: [-1, 1, 1, -1, 0, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'wish for another to suffer.', alignTo: [1, -1, 0, -1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Amaravati', text: 'wish harm upon another.', alignTo: [1, 1, -1, 0], morphemeAlignTo: [1, 0, null, null], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'nor wish harm for one another', alignTo: [-1, 1, 1, -1, 0, 0], morphemeAlignTo: [null, 1, 0, null, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'wish for another to suffer.', alignTo: [1, -1, 0, -1, 1], morphemeAlignTo: [1, null, null, null, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -1051,9 +1056,9 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'āyusā ekaputtamanurakkhe' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'protects with her life her child, her only child,', alignTo: [1, -1, 0, 0, 1, 1, 1, 1, 1], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'would protect with her life her one and only child,', alignTo: [-1, 1, -1, 0, 0, 1, 1, -1, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'would risk her life to protect her child, her only child,', alignTo: [-1, -1, 0, 0, -1, 1, 1, 1, -1, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Amaravati', text: 'protects with her life her child, her only child,', alignTo: [1, -1, 0, 0, 1, 1, 1, 1, 1], morphemeAlignTo: [3, null, null, null, 3, 1, 1, 0, 1], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'would protect with her life her one and only child,', alignTo: [-1, 1, -1, 0, 0, 1, 1, -1, 1, 1], morphemeAlignTo: [null, 3, null, null, null, 3, 0, null, 0, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'would risk her life to protect her child, her only child,', alignTo: [-1, -1, 0, 0, -1, 1, 1, 1, -1, 1, 1], morphemeAlignTo: [null, null, null, null, null, 3, 3, 1, null, 0, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -1086,8 +1091,8 @@ export const mettaSutta: LiturgyDoc = {
           ],
           witnesses: [
             { by: 'Amaravati', text: 'so should one protect the boundless heart that loves all beings.', alignTo: [0, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: "so they'd cultivate a heart of love without limit for all sentient beings.", alignTo: [0, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'even so should one cultivate the heart limitlessly with regard to all beings.', alignTo: [0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Sujato (SuttaCentral)', text: "so they'd cultivate a heart of love without limit for all sentient beings.", alignTo: [0, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1], morphemeAlignTo: [null, null, null, null, null, null, null, null, null, null, 0, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'even so should one cultivate the heart limitlessly with regard to all beings.', alignTo: [0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1], morphemeAlignTo: [1, 0, null, null, null, null, null, null, null, null, null, 0, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -1171,7 +1176,7 @@ export const mettaSutta: LiturgyDoc = {
           witnesses: [
             { by: 'Amaravati', text: 'Radiating kindness over the entire world:', alignTo: [-1, 0, -1, -1, 1, 1], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: 'With love for the whole world,', alignTo: [-1, 0, -1, -1, 1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'With good will for the entire cosmos,', alignTo: [-1, 0, 0, -1, -1, 1, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Thanissaro (Access to Insight)', text: 'With good will for the entire cosmos,', alignTo: [-1, 0, 0, -1, -1, 1, 1], morphemeAlignTo: [null, 0, 0, null, null, null, null], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -1227,7 +1232,7 @@ export const mettaSutta: LiturgyDoc = {
           witnesses: [
             { by: 'Amaravati', text: 'and downwards to the depths;', alignTo: [2, 1, -1, -1, 1], url: AMARAVATI_URL },
             { by: 'Sujato (SuttaCentral)', text: 'upwards, downwards and side-to-side,', alignTo: [0, 1, 2, 3], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'above, below, & all around,', alignTo: [0, 1, 2, 3, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Thanissaro (Access to Insight)', text: 'above, below, & all around,', alignTo: [0, 1, 2, 3, 3], morphemeAlignTo: [null, null, null, 0, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             { form: 'uddhaṁ', pronunciation: 'OOD-dahm', gloss: 'upward — the direction-word for "above". The radiating-out begins.' },
@@ -1254,7 +1259,7 @@ export const mettaSutta: LiturgyDoc = {
           ],
           witnesses: [
             { by: 'Amaravati', text: 'outwards and unbounded, freed from hatred and ill-will.', alignTo: [-1, -1, 0, -1, -1, 1, -1, 2], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'unbounded, free of enmity and hate.', alignTo: [0, 1, 1, 2, -1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Sujato (SuttaCentral)', text: 'unbounded, free of enmity and hate.', alignTo: [0, 1, 1, 2, -1, 1], morphemeAlignTo: [null, 0, 0, null, null, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
             { by: 'Thanissaro (Access to Insight)', text: 'unobstructed, without enmity or hate.', alignTo: [0, 1, 1, -1, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
@@ -1366,8 +1371,8 @@ export const mettaSutta: LiturgyDoc = {
           ],
           witnesses: [
             { by: 'Amaravati', text: 'one should sustain this recollection.', alignTo: [-1, -1, 2, 0, 1], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'they would commit to this kind of mindfulness;', alignTo: [-1, 2, 2, -1, 0, -1, -1, 1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'one should be resolved on this mindfulness.', alignTo: [-1, 2, -1, 2, -1, 0, 1], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Sujato (SuttaCentral)', text: 'they would commit to this kind of mindfulness;', alignTo: [-1, 2, 2, -1, 0, -1, -1, 1], morphemeAlignTo: [null, 1, 1, null, null, null, null, null], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'one should be resolved on this mindfulness.', alignTo: [-1, 2, -1, 2, -1, 0, 1], morphemeAlignTo: [null, 1, null, 1, null, null, null], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             { form: 'etaṁ', pronunciation: 'AY-tahm', gloss: 'this (object form) — refers back to the cultivated heart-mind from v8.' },
@@ -1399,9 +1404,9 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'brahmametaṁ vihāraṁ idhamāhu' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'This is said to be the sublime abiding.', alignTo: [0, -1, 2, -1, -1, -1, 0, 1], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'this is what they call a divine meditation in this life.', alignTo: [0, -1, -1, 2, 2, -1, 0, 1, 2, -1, -1], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'This is called a sublime abiding here & now.', alignTo: [0, -1, 2, -1, 0, 1, 2, -1, 2], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Amaravati', text: 'This is said to be the sublime abiding.', alignTo: [0, -1, 2, -1, -1, -1, 0, 1], morphemeAlignTo: [1, null, null, null, null, null, 0, null], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'this is what they call a divine meditation in this life.', alignTo: [0, -1, -1, 2, 2, -1, 0, 1, 2, -1, -1], morphemeAlignTo: [1, null, null, 1, 1, null, 0, null, 0, null, null], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'This is called a sublime abiding here & now.', alignTo: [0, -1, 2, -1, 0, 1, 2, -1, 2], morphemeAlignTo: [1, null, 1, null, 0, null, 0, null, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -1441,9 +1446,9 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'diṭṭhiñca anupaggamma' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'By not holding to fixed views,', alignTo: [-1, 1, 1, -1, 1, 0], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'Avoiding wrong views,', alignTo: [1, 1, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'Not taken with views,', alignTo: [1, 1, -1, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Amaravati', text: 'By not holding to fixed views,', alignTo: [-1, 1, 1, -1, 1, 0], morphemeAlignTo: [null, 0, 2, null, 2, null], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Avoiding wrong views,', alignTo: [1, 1, 0], morphemeAlignTo: [0, 2, null], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Not taken with views,', alignTo: [1, 1, -1, 0], morphemeAlignTo: [0, 2, null, null], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -1521,9 +1526,9 @@ export const mettaSutta: LiturgyDoc = {
             { lang: 'pi-Latn', label: 'Pāli', text: 'kāmesu vineyya gedhaṁ' },
           ],
           witnesses: [
-            { by: 'Amaravati', text: 'being freed from all sense desires,', alignTo: [-1, 1, -1, -1, 0, 0], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'having removed desire for sensual pleasures,', alignTo: [-1, 1, 2, -1, 0, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'having subdued desire for sensual pleasures,', alignTo: [-1, 1, 2, -1, 0, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Amaravati', text: 'being freed from all sense desires,', alignTo: [-1, 1, -1, -1, 0, 0], morphemeAlignTo: [null, null, null, null, 0, 0], url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'having removed desire for sensual pleasures,', alignTo: [-1, 1, 2, -1, 0, 0], morphemeAlignTo: [null, null, null, null, 0, 0], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'having subdued desire for sensual pleasures,', alignTo: [-1, 1, 2, -1, 0, 0], morphemeAlignTo: [null, null, null, null, 0, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             {
@@ -1564,8 +1569,8 @@ export const mettaSutta: LiturgyDoc = {
           ],
           witnesses: [
             { by: 'Amaravati', text: 'is not born again into this world.', alignTo: [-1, 0, -1, 4, -1, -1, -1], url: AMARAVATI_URL },
-            { by: 'Sujato (SuttaCentral)', text: 'they would never come to lie in a womb again.', alignTo: [-1, 0, 2, -1, -1, 3, -1, -1, 3, 4], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
-            { by: 'Thanissaro (Access to Insight)', text: 'one never again will lie in the womb.', alignTo: [-1, 0, 4, -1, 3, -1, -1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
+            { by: 'Sujato (SuttaCentral)', text: 'they would never come to lie in a womb again.', alignTo: [-1, 0, 2, -1, -1, 3, -1, -1, 3, 4], morphemeAlignTo: [null, null, null, null, null, 1, null, null, 0, null], url: 'https://suttacentral.net/snp1.8/en/sujato', license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'one never again will lie in the womb.', alignTo: [-1, 0, 4, -1, 3, -1, -1, 3], morphemeAlignTo: [null, null, null, null, 1, null, null, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
             { form: 'na', pronunciation: 'nah', gloss: 'not — together with *hi* below: "not at all, certainly not".' },
