@@ -192,7 +192,7 @@ const TransliterationLine: React.FC<{
     if (!respelling) return null;
     return (
       <div
-        className="relative z-0 text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
+        className="relative z-[5] bg-slate-950 text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
         style={{ fontFamily: SCRIPT_FONT.Latn }}
         aria-label={`Pronunciation respelling of ${variant.label}`}
       >
@@ -204,7 +204,7 @@ const TransliterationLine: React.FC<{
   if (!variant.transliteration) return null;
   return (
     <div
-      className="relative z-0 text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
+      className="relative z-[5] bg-slate-950 text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
       style={{ fontFamily: SCRIPT_FONT.Latn }}
       aria-label={`Transliteration of ${variant.label}`}
     >
@@ -961,7 +961,7 @@ const AlignmentLines: React.FC<{ lines: Line[]; containerWidth: number }> = ({
   const visible = lines;
   return (
     <svg
-      className="absolute inset-0 pointer-events-none"
+      className="absolute inset-0 pointer-events-none z-0"
       style={{ width: '100%', height: '100%', overflow: 'visible' }}
       aria-hidden="true"
     >
