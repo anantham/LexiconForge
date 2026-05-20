@@ -105,7 +105,7 @@ const REFUGE_WORDS: WordGloss[] = [
   {
     form: 'buddhaṁ', scriptAlt: 'बुद्धं', pronunciation: 'BOO-dhang', root: '√budh',
     accent: 'sky',
-    etymology: '√budh "to wake" → *buddha* + accusative ending',
+    etymology: '√budh "to wake" → *buddha*, with the ending that marks it the thing one goes to',
     gloss: 'to the Buddha (the one I am going toward)',
     citations: [dpdCitation('buddha'), pronCite],
     morphemes: [
@@ -117,7 +117,7 @@ const REFUGE_WORDS: WordGloss[] = [
   {
     form: 'dhammaṁ', scriptAlt: 'धम्मं', pronunciation: 'DHUM-mang', root: '√dhṛ',
     accent: 'amber',
-    etymology: '√dhṛ "to hold" → *dhamma* + accusative ending',
+    etymology: '√dhṛ "to hold" → *dhamma*, with the ending that marks it the thing one goes to',
     gloss: 'to the Dhamma — the teaching, truth, the way',
     citations: [dpdCitation('dhamma'), pronCite],
     morphemes: [
@@ -141,7 +141,7 @@ const REFUGE_WORDS: WordGloss[] = [
   },
   {
     form: 'saraṇaṁ', scriptAlt: 'सरणं', pronunciation: 'SAH-rah-nang', root: '√śri',
-    etymology: '√śri "to lean on" → *saraṇa* + accusative',
+    etymology: '√śri "to lean on" → *saraṇa*, with the ending that marks it the destination',
     gloss: 'refuge, shelter, protection',
     citations: [dpdCitation('saraṇa'), pronCite],
     morphemes: [
@@ -508,13 +508,13 @@ export const morningChants: LiturgyDoc = {
               citations: [dpdCitation('adinnādāna'), pronCite],
               morphemes: [
                 { text: 'a', type: 'prefix', gloss: 'not (negation)', pronunciation: 'ah' },
-                { text: 'dinnā', type: 'stem', gloss: 'given (past participle of "to give")', pronunciation: 'DEEN-nah' },
+                { text: 'dinnā', type: 'stem', gloss: 'given — the "X-ed" form of the verb "to give"', pronunciation: 'DEEN-nah' },
                 { text: 'dānā', type: 'stem', gloss: 'taking, grasping', pronunciation: 'DAH-nah', citations: [dpdCitation('ādāna')] },
               ],
               scriptMorphemes: {
                 'pi-Deva': [
                   { text: 'अ', type: 'prefix', pronunciation: 'ah', gloss: 'not, negation' },
-                  { text: 'दिन्ना', type: 'stem', pronunciation: 'DEEN-nah', gloss: 'given (past participle of "to give")' },
+                  { text: 'दिन्ना', type: 'stem', pronunciation: 'DEEN-nah', gloss: 'given — the "X-ed" form of the verb "to give"' },
                   { text: 'दाना', type: 'stem', pronunciation: 'DAH-nah', gloss: 'taking, grasping' },
                 ],
               },
@@ -771,7 +771,7 @@ export const morningChants: LiturgyDoc = {
           words: [
             {
               form: 'etaṁ', scriptAlt: 'एतं', pronunciation: 'AY-tang',
-              etymology: '*eta-* "this" + accusative ending',
+              etymology: '*eta-* "this" + the ending that marks it the object of the verb',
               gloss: 'this',
               citations: [dpdCitation('etaṁ'), pronCite],
               morphemes: [

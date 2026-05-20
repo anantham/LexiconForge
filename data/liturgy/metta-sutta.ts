@@ -290,15 +290,15 @@ export const mettaSutta: LiturgyDoc = {
               gloss: 'easy to speak to, amenable to correction',
               morphemes: [
                 { text: 'su', type: 'prefix', gloss: 'well, easily', pronunciation: 'soo' },
-                { text: 'vaco', type: 'stem', root: '√vac', gloss: '*vaca* "speech" + nominative — "spoken-to"', pronunciation: 'VAH-choh' },
+                { text: 'vaco', type: 'stem', root: '√vac', gloss: '*vaca* "speech" — together with *su-*: "spoken-to, easily-addressed"', pronunciation: 'VAH-choh' },
               ],
               citations: [dpdCitation('suvaca')],
             },
             {
               form: "c'assa",
               pronunciation: 'CHAHS-sah',
-              etymology: '*ca* "and" + *assa* "(may) be" — sandhi contraction (3sg optative of *√as*)',
-              gloss: 'and may [one] be — the optative carries through the next several verses',
+              etymology: '*ca* "and" + *assa* "(may) be" — a run-together of two words; *assa* is the wishing form of *√as* "to be"',
+              gloss: 'and may [one] be — this wishing voice carries through the next several verses',
             },
             {
               form: 'mudu',
@@ -806,7 +806,7 @@ export const mettaSutta: LiturgyDoc = {
           words: [
             { form: 'ye', pronunciation: 'yay', gloss: 'which (plural) — opens "those who…"' },
             { form: 'ca', pronunciation: 'chah', gloss: 'and' },
-            { form: 'dūre', pronunciation: 'DOO-ray', gloss: 'far away (locative). Same word as Skt *dūra*, related to English *durable* through "lasting/distant" semantics.' },
+            { form: 'dūre', pronunciation: 'DOO-ray', gloss: 'far away. Same word as Skt *dūra*, related to English *durable* through "lasting/distant" semantics.' },
             {
               form: 'vasanti',
               pronunciation: 'vah-SAHN-tee',

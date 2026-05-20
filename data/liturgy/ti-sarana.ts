@@ -27,8 +27,8 @@ const pronCite = suttaCentralPronunciationCitation();
 const REFUGE_OBJECT_WORDS: { [key: string]: WordGloss } = {
   buddhaṁ: {
     form: 'Buddhaṁ', scriptAlt: 'बुद्धं', pronunciation: 'BUD-dahng', accent: 'amber',
-    etymology: '√budh "to wake up" + past participle',
-    gloss: 'the Awakened One — accusative (object of "I go to")',
+    etymology: '√budh "to wake up" — *buddha* is the "awakened" form of that verb',
+    gloss: 'the Awakened One — here it is what one goes to: the object of "I go to"',
     citations: [dpdCitation('buddha'), pronCite],
   },
   dhammaṁ: {
@@ -48,7 +48,7 @@ const REFUGE_OBJECT_WORDS: { [key: string]: WordGloss } = {
 const SARANAM: WordGloss = {
   form: 'Saraṇaṁ', scriptAlt: 'सरणं', pronunciation: 'SAH-rah-nahng',
   etymology: '√śri "to take shelter, lean on"',
-  gloss: 'refuge, shelter — accusative (the destination)',
+  gloss: 'refuge, shelter — the destination one goes to',
   citations: [dpdCitation('saraṇa'), pronCite],
 };
 

@@ -170,7 +170,7 @@ export const bodhicittaDedication: LiturgyDoc = {
             {
               form: 'kyé pa',
               scriptAlts: { 'bo-Tibt': 'སྐྱེས་པ' },
-              etymology: 'Tibetan *skyes pa* — past participle of *skye* "arise"',
+              etymology: 'Tibetan *skyes pa* — the "arisen" form of the verb *skye* "to arise"',
               gloss: 'having arisen, the arisen one — together with *ma* = "not-arisen"',
             },
             {
@@ -293,7 +293,7 @@ export const bodhicittaDedication: LiturgyDoc = {
             {
               form: 'né',
               scriptAlts: { 'bo-Tibt': 'ནས' },
-              etymology: 'Tibetan ablative particle *nas* — "from"',
+              etymology: 'Tibetan *nas* — the particle that marks "from"',
               gloss: 'from — *gong né* = "from higher"',
             },
             {

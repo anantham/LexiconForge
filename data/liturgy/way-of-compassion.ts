@@ -159,8 +159,8 @@ export const wayOfCompassion: LiturgyDoc = {
             { by: 'Thanissaro (Access to Insight)', text: 'As a mother would risk her life to protect her child, her only child, even so should one cultivate the heart limitlessly with regard to all beings.', url: THANISSARO_URL, license: 'CC BY-NC' },
           ],
           words: [
-            { form: 'mānasaṁ', gloss: '"The heart-mind". *manas* + accusative. The thing to be cultivated boundlessly.', accent: 'sky', citations: [dpdCitation('manas')] },
-            { form: 'bhāvaye', gloss: '"Let one cultivate, let one bring into being". Optative of *√bhū* "to be", causative — to *cause to become*. The technical term for meditative cultivation.', accent: 'amber', citations: [dpdCitation('bhāveti')] },
+            { form: 'mānasaṁ', gloss: '"The heart-mind" — *manas* with the ending that marks it the thing acted on. What is to be cultivated boundlessly.', accent: 'sky', citations: [dpdCitation('manas')] },
+            { form: 'bhāvaye', gloss: '"Let one cultivate, let one bring into being" — the wishing form of *√bhū* "to be", in its make-it-happen sense: to *cause to become*. The technical term for meditative cultivation.', accent: 'amber', citations: [dpdCitation('bhāveti')] },
           ],
         },
         {

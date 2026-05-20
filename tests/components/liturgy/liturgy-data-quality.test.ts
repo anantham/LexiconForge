@@ -35,6 +35,19 @@ function tripleScriptSections(doc: LiturgyDoc): TripleScriptWitnessSection[] {
 // letter (v1a, v7d, v10c). Near-zero false-positive risk in real prose.
 const SEGMENT_ID_SHORTHAND = /\bv\d+[a-z]\b/;
 
+// Grammar jargon that CURATION_PROTOCOL.md §3.4 flags as failure-tone in
+// the plain-prose register. A glossed word should *show* the grammatical
+// idea ("the object of 'I go to'", "the 'X-ed' form") rather than name it
+// with a term a no-Pāli-training reader has to already know.
+//
+// This is a tripwire, not an absolute ban: the protocol's pay-rent rule
+// does allow a technical term IF it does work plain English can't AND is
+// glossed in the same sentence. If a future gloss legitimately earns one,
+// add it to an explicit allowlist here with the rationale — don't just
+// delete the test. Today every liturgy gloss is plain, so the list is bare.
+const JARGON = /\b(gerundive|accusative|nominative|genitive|locative|ablative|optative|vocative|declension|declensional|instrumental case|past participle|present participle)\b/i;
+const JARGON_ALLOWLIST: string[] = [];
+
 for (const doc of ALL_DOCS) {
   const sections = tripleScriptSections(doc);
   if (sections.length === 0) continue;
@@ -91,6 +104,19 @@ for (const doc of ALL_DOCS) {
                 SEGMENT_ID_SHORTHAND.test(text),
                 `reader-facing text contains a segment-ID shorthand — ` +
                   `use "verse N" instead: "${text}"`
+              ).toBe(false);
+            });
+
+            // ── 3. Grammar jargon in plain-register gloss text ────────
+            it(`${segment.id} · ${word.form}: gloss text stays in plain register`, () => {
+              const match = text.match(JARGON);
+              const flagged =
+                match !== null && !JARGON_ALLOWLIST.includes(match[0].toLowerCase());
+              expect(
+                flagged,
+                `reader-facing text uses grammar jargon "${match?.[0]}" — ` +
+                  `show the idea in plain English (CURATION_PROTOCOL §3.4), ` +
+                  `or allowlist it with a pay-rent rationale: "${text}"`
               ).toBe(false);
             });
           }
