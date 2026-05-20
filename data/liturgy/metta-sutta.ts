@@ -874,10 +874,10 @@ export const mettaSutta: LiturgyDoc = {
             { by: 'Thanissaro (Access to Insight)', text: 'May all beings be happy at heart.', alignTo: [-1, 0, 1, 2, 3, -1, 3], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
-            { form: 'sabbe', pronunciation: 'SAHB-bay', gloss: 'all, every — same word as v3d, the refrain that recurs through the sutta.', accent: 'rose' },
-            { form: 'sattā', pronunciation: 'SAHT-tah', gloss: 'beings — same word as v3d. *sabbe sattā* is the metta sutta\'s recurring address.', accent: 'rose', citations: [dpdCitation('satta')] },
-            { form: 'bhavantu', pronunciation: 'bah-VAHN-too', gloss: 'may [they] be — the wishing voice from v3d, repeated here as the refrain closes the stanza.' },
-            { form: 'sukhitattā', pronunciation: 'soo-khee-TAHT-tah', gloss: 'happy of heart, happy from the inside — same word as v3d.', accent: 'amber' },
+            { form: 'sabbe', pronunciation: 'SAHB-bay', gloss: 'all, every — same word as in verse 3, the refrain that recurs through the sutta.', accent: 'rose' },
+            { form: 'sattā', pronunciation: 'SAHT-tah', gloss: 'beings — same word as in verse 3. *sabbe sattā* is the metta sutta\'s recurring address.', accent: 'rose', citations: [dpdCitation('satta')] },
+            { form: 'bhavantu', pronunciation: 'bah-VAHN-too', gloss: 'may [they] be — the wishing voice from verse 3, repeated here as the refrain closes the stanza.' },
+            { form: 'sukhitattā', pronunciation: 'soo-khee-TAHT-tah', gloss: 'happy of heart, happy from the inside — same word as in verse 3.', accent: 'amber' },
           ],
         },
         // ── v6a: na paro paraṁ nikubbetha ──
@@ -931,10 +931,10 @@ export const mettaSutta: LiturgyDoc = {
               form: 'nātimaññetha',
               pronunciation: 'NAH-tee-MAHN-yay-tah',
               etymology: '*na* (not) + *ati-* (over, excessive) + *maññetha* (one should think/regard — from *√man* "to think"). The whole verb: "should not think-down-upon", "should not despise".',
-              gloss: '"should not despise" — should not regard someone as less than oneself. The same *ati-māna* "excessive self-regard" we met in v1 as *anatimānī*, but now phrased as an action.',
+              gloss: '"should not despise" — should not regard someone as less than oneself. The same *ati-māna* "excessive self-regard" we met in verse 1 as *anatimānī*, but now phrased as an action.',
               morphemes: [
                 { text: 'nā', type: 'prefix', gloss: 'the word *na* "not". Its vowel has lengthened — *na* + *ati* runs together as *nāti*, a common Pāli sound-join where two short *a*\'s merge into one long *ā*.', pronunciation: 'nah' },
-                { text: 'ti', type: 'prefix', gloss: 'the tail of *ati* "over, excessive" — the opening *a-* of *ati* was absorbed into the *nā* before it. Same *ati* as in *anatimānī* (v1).', pronunciation: 'tee' },
+                { text: 'ti', type: 'prefix', gloss: 'the tail of *ati* "over, excessive" — the opening *a-* of *ati* was absorbed into the *nā* before it. Same *ati* as in *anatimānī* (verse 1).', pronunciation: 'tee' },
                 { text: 'maññetha', type: 'stem', root: '√man', gloss: 'from the verb "to think, regard". The "-etha" tail makes it "let one think/regard".', pronunciation: 'MAHN-yay-tah' },
               ],
             },
@@ -1108,12 +1108,12 @@ export const mettaSutta: LiturgyDoc = {
             {
               form: 'sabbabhūtesu',
               pronunciation: 'SAHB-bah-BOO-tay-soo',
-              etymology: '*sabba* (all) + *bhūta* (being, existing — same word as v5c) + *-esu* (plural "in/among")',
+              etymology: '*sabba* (all) + *bhūta* (being, existing — same word as in verse 5) + *-esu* (plural "in/among")',
               gloss: '"in/toward all beings" — the wide target of the cultivation. The "-esu" tail marks plural location: like English "among all beings".',
               accent: 'rose',
               morphemes: [
-                { text: 'sabba', type: 'stem', gloss: '"all, every" — same root as *sabbe* in v3d', pronunciation: 'SAHB-bah' },
-                { text: 'bhūt', type: 'root', root: '√bhū', gloss: '"being, having become" — same root as *bhūtā* in v5c', pronunciation: 'BOOT' },
+                { text: 'sabba', type: 'stem', gloss: '"all, every" — same root as *sabbe* in verse 3', pronunciation: 'SAHB-bah' },
+                { text: 'bhūt', type: 'root', root: '√bhū', gloss: '"being, having become" — same root as *bhūtā* in verse 5', pronunciation: 'BOOT' },
                 { text: 'esu', type: 'suffix', gloss: 'the "-esu" tail marks "among/in" with a plural — "among all beings"', pronunciation: 'AY-soo' },
               ],
             },
@@ -1147,7 +1147,7 @@ export const mettaSutta: LiturgyDoc = {
               gloss: '"let one cultivate, let one bring into being". The technical term for meditative cultivation — *bhāvanā* (development) shares this root. Whatever the action is here, it\'s a *bringing into being*, not just a feeling.',
               accent: 'amber',
               morphemes: [
-                { text: 'bhāv', type: 'root', root: '√bhū', gloss: 'from the verb "to be, become" — same root as *bhavantu* in v3d. Here in causative: "to make-become, to cultivate".', pronunciation: 'bahv' },
+                { text: 'bhāv', type: 'root', root: '√bhū', gloss: 'from the verb "to be, become" — same root as *bhavantu* in verse 3. Here in causative: "to make-become, to cultivate".', pronunciation: 'bahv' },
                 { text: 'aye', type: 'suffix', gloss: 'the "-aye" tail says "would/should (do this)" — a wish or gentle instruction', pronunciation: 'AH-yay' },
               ],
               citations: [dpdCitation('bhāveti')],
@@ -1197,7 +1197,7 @@ export const mettaSutta: LiturgyDoc = {
               etymology: '*sabba* (all) + *loka* (world) + *-smiṁ* (the "in/at" ending)',
               gloss: '"in the whole world" — the wide target. *Loka* is "world" in the cosmological sense, covering all realms of existence.',
               morphemes: [
-                { text: 'sabba', type: 'stem', gloss: '"all, every" — same root as *sabbe* in v3d, v5d', pronunciation: 'SAHB-bah' },
+                { text: 'sabba', type: 'stem', gloss: '"all, every" — same root as *sabbe* in verses 3 and 5', pronunciation: 'SAHB-bah' },
                 { text: 'loka', type: 'stem', gloss: '"world, realm" — covers all the realms of existence in Buddhist cosmology', pronunciation: 'LOH-kah' },
                 { text: 'smiṁ', type: 'suffix', gloss: 'the "-smiṁ" tail says "in/at" — *sabba-loka-smiṁ* = "in the whole world"', pronunciation: 'smeem' },
               ],
@@ -1217,9 +1217,9 @@ export const mettaSutta: LiturgyDoc = {
             { by: 'Thanissaro (Access to Insight)', text: 'cultivate a limitless heart:', alignTo: [1, -1, 2, 0], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
-            { form: 'mānasaṁ', pronunciation: 'MAH-nah-sahm', gloss: 'the heart-mind — same word as v7d. The refrain returns: cultivate this thing, boundlessly.', accent: 'sky', citations: [dpdCitation('manas')] },
-            { form: 'bhāvaye', pronunciation: 'BAH-vah-yay', gloss: 'let one cultivate — same wishing form as v7d. The technical term for meditative cultivation.', accent: 'amber', citations: [dpdCitation('bhāveti')] },
-            { form: 'aparimāṇaṁ', pronunciation: 'ah-PAH-ree-MAH-nahm', gloss: 'boundless, without measure — same word as v7d. The line completes the refrain.', accent: 'rose' },
+            { form: 'mānasaṁ', pronunciation: 'MAH-nah-sahm', gloss: 'the heart-mind — same word as in verse 7. The refrain returns: cultivate this thing, boundlessly.', accent: 'sky', citations: [dpdCitation('manas')] },
+            { form: 'bhāvaye', pronunciation: 'BAH-vah-yay', gloss: 'let one cultivate — same wishing form as in verse 7. The technical term for meditative cultivation.', accent: 'amber', citations: [dpdCitation('bhāveti')] },
+            { form: 'aparimāṇaṁ', pronunciation: 'ah-PAH-ree-MAH-nahm', gloss: 'boundless, without measure — same word as in verse 7. The line completes the refrain.', accent: 'rose' },
           ],
         },
         // ── v8c: uddhaṁ adho ca tiriyañca ──
@@ -1318,7 +1318,7 @@ export const mettaSutta: LiturgyDoc = {
             {
               form: 'caraṁ',
               pronunciation: 'CHAH-rahm',
-              etymology: 'present-form of *√car* "to walk, go" — same root as *samācare* in v3a',
+              etymology: 'present-form of *√car* "to walk, go" — same root as *samācare* in verse 3',
               gloss: 'walking — the second posture.',
             },
             {
@@ -1327,7 +1327,7 @@ export const mettaSutta: LiturgyDoc = {
               etymology: '*ni-* (down) + past form of *√sad* "to sit" — "sat down"',
               gloss: 'seated — the third posture. The *ni-* prefix adds "down".',
               morphemes: [
-                { text: 'ni', type: 'prefix', gloss: '"down" — same prefix as in *nikubbetha* in v6a', pronunciation: 'nee' },
+                { text: 'ni', type: 'prefix', gloss: '"down" — same prefix as in *nikubbetha* in verse 6', pronunciation: 'nee' },
                 { text: 'sinno', type: 'root', root: '√sad', gloss: 'from the verb "to sit". Same root that gives English *settle* and *sediment* through Indo-European cousins.', pronunciation: 'SEEN-noh' },
               ],
             },
@@ -1375,7 +1375,7 @@ export const mettaSutta: LiturgyDoc = {
             { by: 'Thanissaro (Access to Insight)', text: 'one should be resolved on this mindfulness.', alignTo: [-1, 2, -1, 2, -1, 0, 1], morphemeAlignTo: [null, 1, null, 1, null, null, null], url: 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html', license: 'CC BY-NC' },
           ],
           words: [
-            { form: 'etaṁ', pronunciation: 'AY-tahm', gloss: 'this (object form) — refers back to the cultivated heart-mind from v8.' },
+            { form: 'etaṁ', pronunciation: 'AY-tahm', gloss: 'this (object form) — refers back to the cultivated heart-mind from verse 8.' },
             {
               form: 'satiṁ',
               pronunciation: 'SAH-teem',
@@ -1459,7 +1459,7 @@ export const mettaSutta: LiturgyDoc = {
               accent: 'amber',
               citations: [dpdCitation('diṭṭhi')],
               morphemes: [
-                { text: 'diṭṭhiñ', type: 'stem', root: '√dṛś', gloss: '"view, position" — same root as *diṭṭhā* (seen) in v5a. Here it means a held position, a doctrine.', pronunciation: 'DEET-tee-nyah' },
+                { text: 'diṭṭhiñ', type: 'stem', root: '√dṛś', gloss: '"view, position" — same root as *diṭṭhā* (seen) in verse 5. Here it means a held position, a doctrine.', pronunciation: 'DEET-tee-nyah' },
                 { text: 'ca', type: 'suffix', gloss: '"and" — joined to the previous word', pronunciation: 'chah' },
               ],
             },
@@ -1507,7 +1507,7 @@ export const mettaSutta: LiturgyDoc = {
               gloss: '"with vision, by means of seeing". *Dassana* is from the same *√dṛś* root as *diṭṭhi* in 10a — but where *diṭṭhi* is a *held* view, *dassana* is direct seeing.',
               morphemes: [
                 { text: 'dassan', type: 'root', root: '√dṛś', gloss: 'from "to see" — same root as *diṭṭhi*. *Dassana* = direct seeing, vision (as opposed to *diṭṭhi* = held position).', pronunciation: 'DAHS-sahn' },
-                { text: 'ena', type: 'suffix', gloss: 'the "-ena" tail says "by means of" — same suffix as *kusalena* in v1', pronunciation: 'AY-nah' },
+                { text: 'ena', type: 'suffix', gloss: 'the "-ena" tail says "by means of" — same suffix as *kusalena* in verse 1', pronunciation: 'AY-nah' },
               ],
             },
             {
@@ -1538,7 +1538,7 @@ export const mettaSutta: LiturgyDoc = {
               gloss: '"in/toward sensual pleasures". *Kāma* covers all sense-pleasure attachment — same word in *Kāma Sūtra* (which is actually a manual on the *first* of three life-aims, *kāma*).',
               morphemes: [
                 { text: 'kām', type: 'stem', gloss: '"sense-pleasure, desire" — broader than just sex; covers all attachment to sense-objects', pronunciation: 'kahm' },
-                { text: 'esu', type: 'suffix', gloss: 'the "-esu" tail says "in/toward" with a plural — same suffix as *kulesu* in v2d', pronunciation: 'AY-soo' },
+                { text: 'esu', type: 'suffix', gloss: 'the "-esu" tail says "in/toward" with a plural — same suffix as *kulesu* in verse 2', pronunciation: 'AY-soo' },
               ],
             },
             {
@@ -1554,8 +1554,8 @@ export const mettaSutta: LiturgyDoc = {
             {
               form: 'gedhaṁ',
               pronunciation: 'GAY-dahm',
-              etymology: '*gedha* (greed, attachment — same root *√gṛdh* as *ananugiddho* in v2d) + the *-ṁ* tail (object form)',
-              gloss: '"greed, attachment" (the object dispelled). Same root as the *ananugiddho* "not chasing greedily" of v2d — the closing verse returns to the opening virtues.',
+              etymology: '*gedha* (greed, attachment — same root *√gṛdh* as *ananugiddho* in verse 2) + the *-ṁ* tail (object form)',
+              gloss: '"greed, attachment" (the object dispelled). Same root as the *ananugiddho* "not chasing greedily" of verse 2 — the closing verse returns to the opening virtues.',
               accent: 'amber',
             },
           ],
@@ -1580,10 +1580,10 @@ export const mettaSutta: LiturgyDoc = {
               form: 'gabbhaseyya',
               pronunciation: 'GAHB-bah-SAY-yah',
               etymology: '*gabbha* (womb) + *seyya* (lying-down — from *√śī* "to lie")',
-              gloss: '"lying in a womb" — the technical phrase for rebirth in mammalian form. Same *√śī* as *sayāno* "lying down" in v9b — but here the lying-down is the womb-state.',
+              gloss: '"lying in a womb" — the technical phrase for rebirth in mammalian form. Same *√śī* as *sayāno* "lying down" in verse 9 — but here the lying-down is the womb-state.',
               morphemes: [
-                { text: 'gabbha', type: 'stem', gloss: '"womb, inner chamber". Same word as *gabbho* in v2d but in a different sense (rude/intrusive there, womb here).', pronunciation: 'GAHB-bah' },
-                { text: 'seyya', type: 'root', root: '√śī', gloss: 'from "to lie down" — same root as *sayāno* in v9b', pronunciation: 'SAY-yah' },
+                { text: 'gabbha', type: 'stem', gloss: '"womb, inner chamber". Same word as *gabbho* in verse 2 but in a different sense (rude/intrusive there, womb here).', pronunciation: 'GAHB-bah' },
+                { text: 'seyya', type: 'root', root: '√śī', gloss: 'from "to lie down" — same root as *sayāno* in verse 9', pronunciation: 'SAY-yah' },
               ],
             },
             { form: 'puna', pronunciation: 'POO-nah', gloss: '"again". *Punarbhava* (re-becoming) is the technical term for rebirth — here the line says *na puna* = "not again".' },
