@@ -175,8 +175,8 @@ export const omManiPadmeHum: LiturgyDoc = {
                 ],
               },
               pronunciation: 'PUHD-meh',
-              etymology: '*padma* "lotus" + locative or vocative ending *-e*',
-              gloss: 'in the lotus (locative) — or "O Lotus One" (vocative) — represents *wisdom* ([[prajñā]])',
+              etymology: '*padma* "lotus" + the *-e* ending — which can mean either "in the …" or "O …!" (addressing)',
+              gloss: '"in the lotus" — or, read as a call, "O Lotus One" — represents *wisdom* ([[prajñā]])',
               accent: 'sky',
               morphemes: [
                 {
@@ -190,7 +190,7 @@ export const omManiPadmeHum: LiturgyDoc = {
                 {
                   text: 'e',
                   type: 'suffix',
-                  gloss: 'either "in the [lotus]" (locative) or addressing "O [Lotus One]" (vocative) — Sanskrit grammars allow both readings',
+                  gloss: 'the *-e* ending — either "in the [lotus]" or, read as a call, "O [Lotus One]!". Sanskrit grammars allow both readings',
                   pronunciation: 'eh',
                   citations: [ungroundedCitation('Sanskrit case morphology — needs grammar reference')],
                 },

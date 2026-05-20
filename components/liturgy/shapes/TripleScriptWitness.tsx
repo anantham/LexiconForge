@@ -192,7 +192,7 @@ const TransliterationLine: React.FC<{
     if (!respelling) return null;
     return (
       <div
-        className="relative z-0 text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
+        className="relative z-[5] bg-slate-950 text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
         style={{ fontFamily: SCRIPT_FONT.Latn }}
         aria-label={`Pronunciation respelling of ${variant.label}`}
       >
@@ -204,7 +204,7 @@ const TransliterationLine: React.FC<{
   if (!variant.transliteration) return null;
   return (
     <div
-      className="relative z-0 text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
+      className="relative z-[5] bg-slate-950 text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
       style={{ fontFamily: SCRIPT_FONT.Latn }}
       aria-label={`Transliteration of ${variant.label}`}
     >
@@ -468,7 +468,11 @@ const HoverSpan: React.FC<{
       data-hover-span="true"
       data-morpheme-idx={morphemeIdx}
       data-concept-ids={conceptAttr}
-      className={`relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
+      // Each morpheme gets its own underline + tiny horizontal padding so
+      // adjacent morphemes don't merge visually. mn10 pattern: the eye
+      // sees per-segment breaks (kar · aṇī · yam) rather than one long
+      // continuous underline under the whole word.
+      className={`relative inline-block cursor-help px-[2px] border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
         bold ? 'font-semibold' : ''
       }`}
       onMouseEnter={() => setOpen(true)}
@@ -704,7 +708,16 @@ const EnglishLine: React.FC<{
    * attestations.
    */
   witnessBy?: string;
-}> = ({ text, accentByEnIdx, witnessBy }) => {
+  /**
+   * Witness's per-English-word mapping to Pāli surface position. When
+   * an entry is -1, the English word is "glue" — connective tissue
+   * English needs that has no Pāli counterpart ("This is what should be
+   * done" → "is", "what", "be" carry no Pāli, only "done" maps). The
+   * mn10 reader dims those words so the eye lands on content words.
+   * Without alignTo, all words render at full opacity.
+   */
+  alignTo?: number[];
+}> = ({ text, accentByEnIdx, witnessBy, alignTo }) => {
   const { settings } = useLiturgySettings();
   const tokens = tokenizeEnglish(text);
   let engIdx = -1;
@@ -717,6 +730,11 @@ const EnglishLine: React.FC<{
         const accentClass = settings.showAccents && accent ? ACCENT_CLASS[accent] : '';
         const concepts = conceptsForToken('en', 'Latn', t, witnessBy);
         const conceptAttr = concepts.length > 0 ? concepts.join(' ') : undefined;
+        // Glue word: English-only scaffolding with no Pāli source. mn10
+        // renders these at 0.55 opacity (Legend.tsx uses 0.3 for "ghost
+        // words"; we settle higher because liturgy glue is more often
+        // unavoidable English syntax than fully supplied content).
+        const isGlue = alignTo !== undefined && alignTo[engIdx] === -1;
         return (
           <span
             key={i}
@@ -725,6 +743,7 @@ const EnglishLine: React.FC<{
             // bg + z-10 to hide alignment-line strokes behind the word (see
             // PaliLine sibling above for the same treatment).
             className={`relative z-10 inline-block bg-slate-950 ${accentClass}`}
+            style={isGlue ? { opacity: 0.55 } : undefined}
           >
             {t}
           </span>
@@ -830,7 +849,8 @@ type Line = {
 
 function computeAlignmentLines(
   container: HTMLDivElement,
-  alignTo: number[] | undefined
+  alignTo: number[] | undefined,
+  morphemeAlignTo?: (number | null)[]
 ): Line[] {
   if (!alignTo) return [];
   const cRect = container.getBoundingClientRect();
@@ -862,8 +882,12 @@ function computeAlignmentLines(
       if (!enEl) continue;
 
       // Three positioning strategies, in order of preference:
-      //   1. Authored morpheme spans exist → anchor on morpheme #i
-      //      (clamped to last morpheme if more English than morphemes).
+      //   1. Authored morpheme spans exist → anchor on a morpheme.
+      //      Which morpheme: if the witness authored `morphemeAlignTo`
+      //      for this English token, use that index (lets a curator fix
+      //      crossed arrows when English reorders the morphemes). Else
+      //      fall back to the positional heuristic (i-th English → i-th
+      //      morpheme, clamped to the last).
       //   2. No morpheme spans but the group has >1 English mapping to
       //      this word → distribute proportionally along the word's
       //      width so the arrows fan into separate landing zones
@@ -874,11 +898,15 @@ function computeAlignmentLines(
       let y1: number;
       let subIdx: number | undefined = undefined;
       if (morphemeEls.length > 0) {
-        const clamped = Math.min(i, morphemeEls.length - 1);
-        const mr = morphemeEls[clamped].getBoundingClientRect();
+        const authored = morphemeAlignTo?.[engIdx];
+        const target =
+          typeof authored === 'number'
+            ? Math.min(Math.max(authored, 0), morphemeEls.length - 1)
+            : Math.min(i, morphemeEls.length - 1);
+        const mr = morphemeEls[target].getBoundingClientRect();
         x1 = mr.left + mr.width / 2 - cRect.left;
         y1 = mr.bottom - cRect.top;
-        subIdx = clamped;
+        subIdx = target;
       } else if (engIndices.length > 1) {
         const xOffset = ((i + 0.5) / engIndices.length) * wordRect.width;
         x1 = wordRect.left + xOffset - cRect.left;
@@ -933,7 +961,7 @@ const AlignmentLines: React.FC<{ lines: Line[]; containerWidth: number }> = ({
   const visible = lines;
   return (
     <svg
-      className="absolute inset-0 pointer-events-none"
+      className="absolute inset-0 pointer-events-none z-0"
       style={{ width: '100%', height: '100%', overflow: 'visible' }}
       aria-hidden="true"
     >
@@ -1052,7 +1080,7 @@ const SegmentRow: React.FC<{
         setLines([]);
         return;
       }
-      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo));
+      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo));
     };
     compute();
     const raf = requestAnimationFrame(compute);
@@ -1166,17 +1194,34 @@ const SegmentRow: React.FC<{
     // which would paint the line's source endpoint at the viewport corner.
     // (See task #73, user-reported mobile Devanāgarī bug.)
     if (!containerRef.current.contains(hovered.element)) return [];
-    const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo);
+    const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo);
     const cRect = containerRef.current.getBoundingClientRect();
     const r = hovered.element.getBoundingClientRect();
 
-    // Step 3 — idx match
-    const idxMatched = fresh.filter((l) =>
-      hovered.kind === 'pali' ? l.paliIdx === hovered.idx : l.engIdx === hovered.idx,
-    );
-
-    // Step 4 — concept overlap
+    // Step 3 — idx match. When the user is hovering a specific morpheme
+    // within a Pāli word (the inner HoverSpan emits `data-morpheme-idx`),
+    // narrow to lines that anchor at that morpheme. Without this, every
+    // arrow for the whole word stays visible regardless of which morpheme
+    // the cursor is on — and the per-morpheme tooltips feel decoupled
+    // from the arrow shown. See screenshot feedback (verse 1 karaṇīyam).
     const hoveredEl = hovered.element as HTMLElement;
+    const hoveredMorphemeStr = hoveredEl.dataset.morphemeIdx;
+    const hoveredMorphemeIdx =
+      hovered.kind === 'pali' && hoveredMorphemeStr !== undefined
+        ? parseInt(hoveredMorphemeStr, 10)
+        : null;
+    const idxMatched = fresh.filter((l) => {
+      if (hovered.kind === 'pali') {
+        if (l.paliIdx !== hovered.idx) return false;
+        if (hoveredMorphemeIdx !== null && l.morphemeIdx !== undefined) {
+          return l.morphemeIdx === hoveredMorphemeIdx;
+        }
+        return true;
+      }
+      return l.engIdx === hovered.idx;
+    });
+
+    // Step 4 — concept overlap (hoveredEl already declared above)
     const hoveredConceptStr = hoveredEl.dataset.conceptIds;
     const hoveredConcepts = hoveredConceptStr
       ? new Set(hoveredConceptStr.split(/\s+/).filter(Boolean))
@@ -1270,6 +1315,7 @@ const SegmentRow: React.FC<{
               text={currentWitness.text}
               accentByEnIdx={accentByEnIdx}
               witnessBy={currentWitness.by}
+              alignTo={currentWitness.alignTo}
             />
           </div>
         </div>
