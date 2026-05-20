@@ -748,8 +748,8 @@ export const mettaSutta: LiturgyDoc = {
               gloss: 'short ones, fine-subtle ones, thick-coarse ones — three sizes piled together to leave none uncovered',
               morphemes: [
                 { text: 'rassakā', type: 'stem', gloss: 'short, brief. Plural ending makes it "the short ones".', pronunciation: 'RAHS-sah-kah' },
-                { text: 'ṇukā', type: 'stem', gloss: 'subtle, fine, minute. *Aṇu-* gives English speakers *atomic* through Indo-European cousins (Sanskrit *aṇu* = atom).', pronunciation: 'noo-kah' },
-                { text: 'thūlā', type: 'stem', gloss: 'gross, thick, coarse — the opposite of *aṇukā*. Together *aṇu-thūla* covers the whole subtle-to-gross axis.', pronunciation: 'THOO-lah' },
+                { text: 'ṇuka', type: 'stem', gloss: 'subtle, fine, minute (*aṇuka*; the final vowel shortens before the next piece). *Aṇu-* gives English speakers *atomic* through Indo-European cousins (Sanskrit *aṇu* = atom).', pronunciation: 'noo-kah' },
+                { text: 'thūlā', type: 'stem', gloss: 'gross, thick, coarse — the opposite of *aṇuka*. Together *aṇu-thūla* covers the whole subtle-to-gross axis.', pronunciation: 'THOO-lah' },
               ],
             },
           ],
@@ -933,8 +933,8 @@ export const mettaSutta: LiturgyDoc = {
               etymology: '*na* (not) + *ati-* (over, excessive) + *maññetha* (one should think/regard — from *√man* "to think"). The whole verb: "should not think-down-upon", "should not despise".',
               gloss: '"should not despise" — should not regard someone as less than oneself. The same *ati-māna* "excessive self-regard" we met in v1 as *anatimānī*, but now phrased as an action.',
               morphemes: [
-                { text: 'na', type: 'prefix', gloss: 'the negation "not" — runs together with the verb', pronunciation: 'nah' },
-                { text: 'ati', type: 'prefix', gloss: 'over, excessive — same prefix as in *anatimānī* (v1)', pronunciation: 'AH-tee' },
+                { text: 'nā', type: 'prefix', gloss: 'the word *na* "not". Its vowel has lengthened — *na* + *ati* runs together as *nāti*, a common Pāli sound-join where two short *a*\'s merge into one long *ā*.', pronunciation: 'nah' },
+                { text: 'ti', type: 'prefix', gloss: 'the tail of *ati* "over, excessive" — the opening *a-* of *ati* was absorbed into the *nā* before it. Same *ati* as in *anatimānī* (v1).', pronunciation: 'tee' },
                 { text: 'maññetha', type: 'stem', root: '√man', gloss: 'from the verb "to think, regard". The "-etha" tail makes it "let one think/regard".', pronunciation: 'MAHN-yay-tah' },
               ],
             },
@@ -994,8 +994,8 @@ export const mettaSutta: LiturgyDoc = {
               etymology: '*na* (not) + *aññamañña* "one-another" (the Pāli word for reciprocity) + *-assa* (object marker, "to/for")',
               gloss: '"not for one-another" — the line\'s subject. *Aññamañña* literally pairs two "other"s: "this-other and that-other", i.e. reciprocally.',
               morphemes: [
-                { text: 'na', type: 'prefix', gloss: 'the negation "not"', pronunciation: 'nah' },
-                { text: 'aññamañña', type: 'stem', gloss: 'the Pāli word for reciprocity — *añña* "other" doubled to mean "one-another, mutually"', pronunciation: 'AHN-yah-MAHN-yah' },
+                { text: 'nā', type: 'prefix', gloss: 'the word *na* "not". Its vowel has lengthened — *na* + *aññamañña* runs together as *nāññamañña*, two short *a*\'s merging into one long *ā*.', pronunciation: 'nah' },
+                { text: 'ññamañña', type: 'stem', gloss: 'the Pāli word for reciprocity — *añña* "other" doubled to mean "one-another, mutually" (its opening *a-* merged into the *nā* before it).', pronunciation: 'AHN-yah-MAHN-yah' },
                 { text: 'ssa', type: 'suffix', gloss: 'the "-(a)ssa" tail marks "to" or "for" — *aññamaññassa* = "for one another"', pronunciation: 'sah' },
               ],
             },
@@ -1471,7 +1471,7 @@ export const mettaSutta: LiturgyDoc = {
               morphemes: [
                 { text: 'an', type: 'prefix', gloss: '"not"', pronunciation: 'ahn' },
                 { text: 'upa', type: 'prefix', gloss: '"up to, near" — adds an approaching-flavour to the verb', pronunciation: 'OO-pah' },
-                { text: 'gamma', type: 'root', root: '√gam', gloss: 'from the verb "to go". *Upa-gamma* = "approach, fall into". *An-upa-gamma* = "not approaching, not falling into".', pronunciation: 'GAHM-mah' },
+                { text: 'ggamma', type: 'root', root: '√gam', gloss: 'from the verb "to go" (the *g* doubles at the prefix-join, a common Pāli sound-strengthening). *Upa-gamma* = "approach, fall into". *An-upa-gamma* = "not approaching, not falling into".', pronunciation: 'GAHM-mah' },
               ],
             },
           ],
