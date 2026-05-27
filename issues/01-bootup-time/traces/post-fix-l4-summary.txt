@@ -1,0 +1,23 @@
+L4 headed Playwright verification — issue #1 (single-flight init guard)
+========================================================================
+
+Setup: localhost:5183 with single-flight fix in place (this commit).
+Fresh page navigation triggers React.StrictMode mount + remount.
+
+POST-FIX COUNTS (from console-2026-05-15T22-41-45-298Z.log, 56 lines):
+  initializeStore – begin              1×   (was 2× pre-fix)
+  joined in-flight init                1×   (new marker — second mount rode the first's promise)
+  initializeStore complete             1×   (was 2× pre-fix)
+  Setting settings from initializeSession  0×  (no fresh-IDB this run)
+  DataRepair Starting repair           0×   (no fresh-IDB this run)
+
+COMPARISON to pre-fix trace (issues/08-wasted-logs-audit/traces/cold-boot-console.log):
+  Pre-fix: 158 console lines, every init marker firing 2×
+  Post-fix:  56 console lines, every init marker firing 1× + one "joined" marker
+  Net reduction: 158 → 56 = 65%
+
+This is the empirical proof of the issue #1 fix AND a major side-effect
+reduction for issue #8 (wasted-logs). The 50% reduction prediction in
+#8 §5 was conservative — actual reduction is 65% because the duplicated
+half also included downstream side-effects (DataRepair logs, migration
+logs, etc.) that compound the StrictMode duplication.

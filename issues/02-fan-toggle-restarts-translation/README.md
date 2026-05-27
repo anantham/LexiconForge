@@ -1,6 +1,16 @@
 # Issue 2 — Fan toggle restarts translation (suspected)
 
-> Status: **investigated · matrix mostly mis-predicted · needs user repro to confirm bug** · Last updated: 2026-05-02 · Investigator: Opus 4.7
+> Status: **CANNOT-REPRODUCE 2026-05-15** (live agent-driven Playwright test) · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+>
+> **Agent-driven repro on 2026-05-15** (`traces/agent-driven-repro-2026-05-15.txt`): instrumented `window.fetch` + `console.log`, then clicked English → Fan → English. **Zero LLM API calls fired across all three toggles.** Both dual-layer guards (mediator's `hasTranslation` check + `handleTranslate`'s `pendingTranslations` check) held as the static analysis predicted.
+>
+> The 2026-05-02 "paused on user repro" status was wrong-direction — the agent had Playwright access and could have run this test at any point. The user-repro request pushed work onto the user with no follow-up trigger; the issue sat for 13 days before this audit.
+>
+> **Framework learning:** `paused-on-user-repro` should be a temporary state with auto-escalation. After N days without user response, agent attempts the obvious repros itself before re-asking.
+>
+> ⚠ Content below is the pre-2026-05-15 static-analysis investigation. Treat as historical record.
+
+> Pre-2026-05-15 status: **investigated · matrix mostly mis-predicted · needs user repro to confirm bug** · Last updated: 2026-05-02 · Investigator: Opus 4.7
 
 ## TL;DR — calibration finding
 

@@ -249,6 +249,10 @@ const TranslationCountdownLoader: React.FC<{ provider: string; model?: string }>
   const [estimatedTotal, setEstimatedTotal] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [source, setSource] = useState<string>('');
+  // Issue #13: track whether the ETA source is 'default' (no historical
+  // data) so we can suppress numeric prediction and show "Estimating…"
+  // rather than the misleading 30s default.
+  const [hasNoData, setHasNoData] = useState(false);
   const startRef = useRef(Date.now());
   const fetchedRef = useRef(false);
 
@@ -257,8 +261,17 @@ const TranslationCountdownLoader: React.FC<{ provider: string; model?: string }>
     if (fetchedRef.current) return;
     fetchedRef.current = true;
     apiMetricsService.getAverageTranslationTime(model || '', provider).then((data) => {
-      setEstimatedTotal(data.avgTimeSeconds);
-      setSource(data.source === 'default' ? '' : `${data.sampleCount} past calls`);
+      if (data.source === 'default') {
+        // No historical data — don't pretend we have an ETA
+        setHasNoData(true);
+        setEstimatedTotal(null);
+        setSource('');
+      } else {
+        setHasNoData(false);
+        setEstimatedTotal(data.avgTimeSeconds);
+        const lowConf = data.confidence === 'low' ? ', low confidence' : '';
+        setSource(`${data.sampleCount} ${data.source} call${data.sampleCount === 1 ? '' : 's'}${lowConf}`);
+      }
     });
   }, [model, provider]);
 
@@ -281,7 +294,12 @@ const TranslationCountdownLoader: React.FC<{ provider: string; model?: string }>
       <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
         Translating with {provider}{model ? ` — ${model}` : ''}...
       </p>
-      {remaining !== null && (
+      {hasNoData ? (
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Estimating…
+          <span className="ml-1 text-xs text-gray-400">(no past calls for this model yet)</span>
+        </p>
+      ) : remaining !== null && (
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           {remaining > 0 ? `~${remaining}s remaining` : 'Almost done...'}
           {source && <span className="ml-1 text-xs text-gray-400">({source})</span>}

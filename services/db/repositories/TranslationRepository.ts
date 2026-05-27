@@ -264,33 +264,37 @@ export class TranslationRepository implements ITranslationRepository {
   }
 
   async getTranslationVersionsByStableId(stableId: string): Promise<TranslationRecord[]> {
-    console.log(`[TranslationRepo] getTranslationVersionsByStableId called`, { stableId, caller: new Error().stack?.split('\n')[2]?.trim() });
-    let versions: TranslationRecord[] = [];
+    // Issue #9 (2026-05-15): race the URL-based and stableId-index paths in
+    // parallel via Promise.any. Pre-fix, the URL path ran first and ALWAYS
+    // returned 0 for stableId-migrated data (~330ms wasted before the
+    // stableId fallback fired). Empirical trace: 574ms visible h1 transition,
+    // 958ms full data resolved. Racing collapses the two lookups to whichever
+    // succeeds first.
+    //
+    // Both inner promises throw on empty results so Promise.any can advance
+    // to the other path. If both throw (no translations anywhere), the
+    // AggregateError is caught and [] is returned.
 
-    // Primary path: resolve stableId → URL via URL_MAPPINGS, then query by chapterUrl
-    try {
+    const urlPath = (async (): Promise<TranslationRecord[]> => {
       const chapterUrl = await this.resolveChapterUrl({ stableId });
-      console.log(`[TranslationRepo] Resolved stableId ${stableId} → URL: ${chapterUrl}`);
-      versions = await this.fetchTranslationsByUrl(chapterUrl);
-      console.log(`[TranslationRepo] Found ${versions.length} translation(s) by URL for ${stableId}`);
-    } catch (urlError) {
-      console.warn(`[TranslationRepo] URL_MAPPINGS miss for stableId ${stableId}`, urlError);
-    }
+      const result = await this.fetchTranslationsByUrl(chapterUrl);
+      if (result.length === 0) throw new Error('url-path-empty');
+      return result;
+    })();
 
-    // Fallback: direct stableId index on translations store
-    // Triggers when URL_MAPPINGS is missing OR URL resolved but translation stored under a different URL
-    if (versions.length === 0) {
-      console.log(`[TranslationRepo] Trying direct stableId index fallback for ${stableId}`);
-      const directVersions = await this.fetchTranslationsByStableId(stableId);
-      if (directVersions.length > 0) {
-        console.log(`[TranslationRepo] ✅ Direct stableId fallback found ${directVersions.length} translation(s) for ${stableId}`);
-        versions = directVersions;
-      } else {
-        console.log(`[TranslationRepo] No translations found via any path for ${stableId}`);
-      }
-    }
+    const stableIdPath = (async (): Promise<TranslationRecord[]> => {
+      const result = await this.fetchTranslationsByStableId(stableId);
+      if (result.length === 0) throw new Error('stableid-path-empty');
+      return result;
+    })();
 
-    return versions.map(v => ({ ...v, stableId }));
+    try {
+      const versions = await Promise.any([urlPath, stableIdPath]);
+      return versions.map(v => ({ ...v, stableId }));
+    } catch {
+      // Both paths returned empty or threw — no translations exist.
+      return [];
+    }
   }
 
   async getActiveTranslation(chapterUrl: string): Promise<TranslationRecord | null> {
