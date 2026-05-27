@@ -3,13 +3,12 @@
  *
  * The `LLMCaller` type is the injection seam that lets benchmarks and tests
  * substitute their own LLM implementation. Production code uses the default
- * caller from services/sutta-studio/llm (Phase 3 wiring; until then the
- * defaultLLMCaller in passes/_default.ts dynamic-imports suttaStudioLLM).
+ * caller from services/sutta-studio/llm.
  */
 
 import type { AppSettings } from '../../../types';
 import type { ChatMessage } from '../../../adapters/providers/Provider';
-import type { CompilerLLMOptions, CompilerLLMResult } from '../../suttaStudioLLM';
+import type { CompilerLLMOptions, CompilerLLMResult } from '../llm';
 
 export type PassName = 'skeleton' | 'anatomist' | 'lexicographer' | 'weaver' | 'typesetter' | 'morphology';
 
