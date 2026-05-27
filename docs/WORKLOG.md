@@ -1836,3 +1836,16 @@
 - `docs/WORKLOG.md` — record follow-up work.
 **Tests:**
 - `npx vitest run tests/services/scraping/scParallels.test.ts`
+
+2026-05-17 14:45 UTC - [Agent: Codex]
+- Status: Complete
+- Task: Build a visual HTML mockup for task manager UX with Capture / Do Next / Clarify modes and mock task sorting.
+- Files:
+  - public/task-planner-mockup.html
+  - docs/WORKLOG.md
+- Why:
+  - User requested a concrete, beautiful UI mockup (not text wireframes) focused on front-end behavior for quick capture, next-action selection, and clarification with dependencies.
+- Details:
+  - Added a standalone local mock page with a modern glassmorphism aesthetic and 3-mode navigation.
+  - Implemented mock-data task list in Do Next mode with quick sort/filter by time, energy, and genre (logistical vs thinking).
+  - Added Clarify mode fields for next physical action and dependency edges.
