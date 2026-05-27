@@ -477,53 +477,97 @@ const initializeAudioServices = async (ctx: BootstrapContext): Promise<void> => 
   }
 };
 
+// Issue #1 (2026-05-15): single-flight in-flight guard. CORE-006 commits to
+// "render shell immediately, lazy-load non-critical." Pre-fix, the only
+// guard was `if (isInitialized) return` — but `isInitialized` only flips
+// AFTER all phases complete (line "ctx.get().setInitialized(true)"). Under
+// React.StrictMode the effect calling `initializeStore()` mounts twice
+// rapidly; both calls arrive while `isInitialized === false`, both pass the
+// guard, both run the full pipeline in parallel. The cold-boot console
+// captured in issue #8's investigation shows 158 lines in 1.5s with
+// `[Store:init]` markers + `[DataRepair]` + `[Migration]` each firing
+// exactly twice — empirical proof of the double-mount.
+//
+// Fix: a module-scope `initializationPromise` shared by all concurrent
+// callers. Second + later callers await the first's promise and return —
+// no work re-runs. After completion the promise stays set so subsequent
+// guard checks via `isInitialized` continue to short-circuit fast.
+let initializationPromise: Promise<void> | null = null;
+
+/** Test-only: reset the single-flight state so back-to-back unit tests
+ *  exercise the guard from a clean slate. NOT exposed for production use. */
+export const __resetInitializationGuard = () => {
+  initializationPromise = null;
+};
+
 export const createInitializeStore = (ctx: BootstrapContext): SessionActions['initializeStore'] => {
   return async () => {
-    // Idempotency guard — prevents StrictMode double-init in dev
+    // Fast path: already-completed initialization (post-init re-call).
     if (ctx.get().isInitialized) {
       bootstrapLog('initializeStore – skipped (already initialized)');
       return;
     }
-    resetBootTelemetry();
-    bootstrapLog('initializeStore – begin');
-    
-    // Set navigationStartTime to 0 (relative to page load) 
-    // to track the time until the first chapter is fully ready.
-    ctx.get().setNavigationStartTime(0);
-    
-    ctx.get().setInitialized(false);
-    ctx.get().openLibrary();
+
+    // Single-flight guard: if an init run is already in flight, ride its
+    // promise instead of starting a parallel one. Prevents StrictMode
+    // double-mount from running the pipeline twice.
+    if (initializationPromise) {
+      bootstrapLog('initializeStore – joined in-flight init');
+      return initializationPromise;
+    }
+
+    initializationPromise = (async () => {
+      resetBootTelemetry();
+      bootstrapLog('initializeStore – begin');
+
+      // Set navigationStartTime to 0 (relative to page load)
+      // to track the time until the first chapter is fully ready.
+      ctx.get().setNavigationStartTime(0);
+
+      ctx.get().setInitialized(false);
+      ctx.get().openLibrary();
+
+      try {
+        // Phase 0: settings and prompt-template configuration
+        ctx.get().loadSettings();
+        bootstrapLog('loadSettings invoked');
+        await loadPromptTemplateState(ctx);
+
+        // Phase 1: boot repairs and compatibility backfills
+        await runBootRepairs();
+
+        // Phase 2: explicit startup intent (?novel, ?import)
+        const startupIntent = await handleBootstrapIntents(
+          ctx,
+          new URLSearchParams(window.location.search)
+        );
+
+        // Phase 3: persisted state hydration (indexes/history/bookmark)
+        await hydratePersistedState(ctx, {
+          restoreReaderState: !startupIntent.hasExplicitReaderIntent,
+        });
+
+        // Phase 4: service initialization
+        await initializeAudioServices(ctx);
+
+        ctx.get().setInitialized(true);
+        bootstrapLog('initializeStore complete – isInitialized true');
+        flushBootTelemetry();
+      } catch (error) {
+        console.error('[Store] Failed to initialize:', error);
+        ctx.get().setError(`Failed to initialize store: ${error}`);
+        flushBootTelemetry();
+        // On failure, clear the promise so a subsequent retry can run.
+        // Successful init keeps the promise resolved so the fast path holds.
+        initializationPromise = null;
+        throw error;
+      }
+    })();
 
     try {
-      // Phase 0: settings and prompt-template configuration
-      ctx.get().loadSettings();
-      bootstrapLog('loadSettings invoked');
-      await loadPromptTemplateState(ctx);
-
-      // Phase 1: boot repairs and compatibility backfills
-      await runBootRepairs();
-
-      // Phase 2: explicit startup intent (?novel, ?import)
-      const startupIntent = await handleBootstrapIntents(
-        ctx,
-        new URLSearchParams(window.location.search)
-      );
-
-      // Phase 3: persisted state hydration (indexes/history/bookmark)
-      await hydratePersistedState(ctx, {
-        restoreReaderState: !startupIntent.hasExplicitReaderIntent,
-      });
-
-      // Phase 4: service initialization
-      await initializeAudioServices(ctx);
-
-      ctx.get().setInitialized(true);
-      bootstrapLog('initializeStore complete – isInitialized true');
-      flushBootTelemetry();
-    } catch (error) {
-      console.error('[Store] Failed to initialize:', error);
-      ctx.get().setError(`Failed to initialize store: ${error}`);
-      flushBootTelemetry();
+      await initializationPromise;
+    } catch {
+      // Error already logged + state already cleared above.
     }
   };
 };

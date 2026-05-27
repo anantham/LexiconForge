@@ -25,7 +25,7 @@ export const songOfZazen: LiturgyDoc = {
   title: 'Song of Zazen',
   subtitle: 'Hakuin Zenji — Zazen Wasan (坐禅和讃)',
   tradition: 'zen',
-  context: 'Composed by Hakuin Ekaku (1685-1768) for lay practitioners. Recited at Bodhi Sangha as a meditation on zazen practice. The closing image — *This very place is the Lotus Land! This very body, the Buddha!* — is the chant\'s defining declaration.',
+  context: 'Composed by Hakuin Ekaku (1685-1768) for lay practitioners. The closing image — *This very place is the Lotus Land! This very body, the Buddha!* — is the chant\'s defining declaration.',
   sources: {
     canonical: [
       { label: 'Hakuin Ekaku (1685-1768)', url: 'https://en.wikipedia.org/wiki/Hakuin_Ekaku' },
@@ -551,7 +551,7 @@ export const songOfZazen: LiturgyDoc = {
           words: [
             { form: 'utau', scriptAlts: { 'ja-Jpan': '謡うも' }, gloss: 'To sing (especially nō chanting). *謡* same character as *noh-utai*.', accent: 'sky' },
             { form: 'mau', scriptAlts: { 'ja-Jpan': '舞ふも' }, gloss: 'To dance. *舞* same character as *bugaku*.', accent: 'sky' },
-            { form: 'nori', scriptAlts: { 'ja-Jpan': '法' }, gloss: 'Dharma (vernacular reading). Same *法* (*hō* in Sino-Japanese reading) as in [[vows]] vow 3 *Hōmon*.', accent: 'rose' },
+            { form: 'nori', scriptAlts: { 'ja-Jpan': '法' }, gloss: 'Dharma (vernacular reading). Same *法* (*hō* in Sino-Japanese reading) as in [[vows]] vow 3 *Hōmon*.', accent: 'sky' },
             { form: 'koe', scriptAlts: { 'ja-Jpan': '声' }, gloss: 'Voice, sound.' },
           ],
         },

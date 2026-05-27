@@ -3,45 +3,41 @@
  *
  * The shortest and most widely-chanted Mahāyāna sutra. The "heart" of the
  * vast Perfection-of-Wisdom corpus, distilled into something a community
- * can chant in a few minutes. First non-Theravāda chant in this reader
- * with a truly polyglot text: Sanskrit, Chinese (Xuanzang's 玄奘 7th-century
- * recension, T251), Tibetan, and Japanese (same kanji as Chinese, different
- * reading) all attested as living chanting traditions.
+ * can chant in a few minutes.
  *
- * Scope of this file (per scope-pass with curator):
+ * Scope of this file:
  *   - Framing
- *   - Opening (Avalokiteśvara contemplating the five skandhas)
- *   - The form-emptiness identity (the canonical core)
- *   - The result section (no fear, nirvāṇa)
+ *   - Opening (3 segments: Avalokiteśvara · the deep practice · the seeing)
+ *   - The form-emptiness identity (4 segments — the canonical chiastic quatrain)
+ *   - The result section (5 segments — one per Xuanzang chant-line)
  *   - Dharani (sound-formula)
  *   - Closing caveat on translating the Heart Sutra
  *
- * Not yet authored: the full enumeration of dhātus, āyatanas, twelve
- * nidānas, four truths. Those are obvious follow-ups.
+ * Segment granularity: each `triple-script-witness` segment matches **one
+ * Xuanzang four-character chant-line** rather than a whole paragraph. That
+ * is the natural rhythmic unit — what a chanting community hits as one
+ * stroke of the *moktak*. The English witnesses are sliced into the
+ * corresponding sub-phrase per segment.
  *
- * Sourcing notes:
- *   - Sanskrit IAST + Devanāgarī follow Conze's 1948 critical edition
- *     (widely used standard short version).
+ * Sourcing:
+ *   - Sanskrit IAST + Devanāgarī follow Conze's 1948 critical edition.
  *   - Chinese is Xuanzang's T251 (the canonical East Asian text).
  *   - Tibetan is the short-form recension found in the Kangyur.
- *   - Several transliterations cite Wikipedia as a starting point and
- *     are tagged ungrounded where I'm not deeply confident.
  */
 
 import type { LiturgyDoc } from '../../types/liturgy';
 import {
   wikipediaCitation,
-  ungroundedCitation,
 } from './_groundingHelpers';
 
 export const heartSutra: LiturgyDoc = {
   slug: 'heart-sutra',
   sangha: 'maple',
   order: 4,
-  title: 'Prajñāpāramitā Hṛdaya Sūtra',
-  subtitle: 'The Heart of Perfect Wisdom',
+  title: 'The Scripture on the Heart of Transcendent Wisdom',
+  subtitle: 'Prajñāpāramitā Hṛdaya Sūtra · MAPLE chant text (after Sheng-yen)',
   tradition: 'mahayana',
-  context: 'Chanted across Mahāyāna and Vajrayāna traditions worldwide.',
+  context: 'The shortest Mahāyāna sutra — the *hṛdaya* (heart, essence) of the Perfection-of-Wisdom literature. Avalokiteśvara speaks to Śāriputra: form is emptiness, emptiness is form.',
   sources: {
     canonical: [
       {
@@ -58,114 +54,82 @@ export const heartSutra: LiturgyDoc = {
     ],
   },
   curator:
-    "Curation by Aditya. Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The 'AI (after Master Sheng-yen)' English is an AI-drafted version loosely modeled on Sheng-yen's Chinese Chan rendering, not from a publication. The attributed witnesses (Conze 1958, Red Pine 2004, Thich Nhat Hanh 2014) come from their published translations.",
+    "Curation by Aditya. The primary English witness is the MAPLE community chant sheet, titled \"The Scripture on the Heart of Transcendent Wisdom — Adapted from the translation by Master Sheng-yen.\" Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The other witnesses (Conze 1958, Red Pine 2004, Thich Nhat Hanh 2014) come from their published translations, sliced per Xuanzang chant-line for comparison.",
   sections: [
     // ─────────────────────────────────────────────────────────────────────
-    // 1. Framing
-    // ─────────────────────────────────────────────────────────────────────
-    {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'The shortest and most widely-chanted Mahāyāna sutra. Out of the vast *Perfection-of-Wisdom* literature — some texts run to 100,000 verses — the Heart Sutra distills the teaching into a few minutes of chanting. It is the *hṛdaya* (heart, essence) of [[prajñāpāramitā]].\n\nThe canonical short form opens with the bodhisattva [[Avalokiteśvara]] contemplating the five [[skandhas]] (aggregates of experience) and seeing them as empty of inherent existence. He speaks his realisation to the elder Śāriputra, line by line: form is emptiness, emptiness is form. Every category by which we organise experience — the senses, their objects, consciousness itself, the chain of dependent arising, even the Four Noble Truths — is, from the standpoint of emptiness, empty. The bodhisattva is unafraid; this is nirvāṇa. The sutra ends with a mantra: *gate gate pāragate pārasaṃgate bodhi svāhā*.\n\nWe present the canonical core in four scripts (Sanskrit IAST + Devanāgarī, Chinese as transmitted by Xuanzang, and Tibetan from the Kangyur). English witnesses sample three reading lineages: Edward Conze (scholarly, 1958), Red Pine (poet-translator, 2004), and Thich Nhat Hanh (Plum Village, 2014). None is canonical; together they map the conversational territory.',
-    },
-
-    // ─────────────────────────────────────────────────────────────────────
-    // 2. The body — Avalokiteśvara's vision + form-emptiness + result
+    // The body — broken into chant-line segments
     // ─────────────────────────────────────────────────────────────────────
     {
       id: 'heart-core',
       shape: 'triple-script-witness',
       segments: [
-        // ── Opening: Avalokiteśvara contemplates the skandhas ──
+
+        // ══════════════════════════════════════════════════════════════
+        // OPENING — Avalokiteśvara contemplating the skandhas
+        // ══════════════════════════════════════════════════════════════
+
+        // ── 觀自在菩薩 — Avalokiteśvara Bodhisattva ──
         {
-          id: 'opening',
-          pali: 'Āryāvalokiteśvaro bodhisattvo gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.',
-          paliDeva: 'आर्यावलोकितेश्वरो बोधिसत्त्वो गम्भीरां प्रज्ञापारमिताचर्यां चरमाणो व्यवलोकयति स्म: पञ्च स्कन्धास्तांश्च स्वभावशून्यान्पश्यति स्म॥',
+          id: 'opening-avalokita',
+          pali: 'Āryāvalokiteśvaro bodhisattvo',
+          paliDeva: 'आर्यावलोकितेश्वरो बोधिसत्त्वो',
           scripts: [
-            {
-              lang: 'sa-Latn',
-              label: 'Sanskrit (IAST)',
-              text: 'Āryāvalokiteśvaro bodhisattvo gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.',
-              source: "Conze critical edition (short form)",
-            },
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Āryāvalokiteśvaro bodhisattvo' },
             {
               lang: 'sa-Deva',
               label: 'Sanskrit (Devanāgarī)',
-              text: 'आर्यावलोकितेश्वरो बोधिसत्त्वो गम्भीरां प्रज्ञापारमिताचर्यां चरमाणो व्यवलोकयति स्म: पञ्च स्कन्धास्तांश्च स्वभावशून्यान्पश्यति स्म॥',
-              transliteration: 'Āryāvalokiteśvaro bodhisattvo gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.',
+              text: 'आर्यावलोकितेश्वरो बोधिसत्त्वो',
+              transliteration: 'Āryāvalokiteśvaro bodhisattvo',
             },
             {
               lang: 'zh-Hant',
               label: 'Chinese (Xuanzang)',
-              text: '觀自在菩薩 行深般若波羅蜜多時 照見五蘊皆空 度一切苦厄',
-              source: 'T251 玄奘譯 (Xuanzang, c. 649 CE)',
-              tokens: ['觀自在', '菩薩', '行', '深', '般若', '波羅蜜多', '時', '照見', '五', '蘊', '皆', '空', '度', '一切', '苦厄'],
-              transliteration: 'guān-zì-zài  pú-sà  xíng  shēn  bō-rě  bō-luó-mì-duō  shí  zhào-jiàn  wǔ  yùn  jiē  kōng  dù  yī-qiè  kǔ-è  (Mandarin pinyin)',
+              text: '觀自在菩薩',
+              source: 'T251 玄奘譯',
+              tokens: ['觀自在', '菩薩'],
+              transliteration: 'guān-zì-zài  pú-sà  (Mandarin pinyin)',
             },
             {
               lang: 'ja-Jpan',
-              label: 'Japanese (Sino-Japanese reading)',
-              text: '観自在菩薩 行深般若波羅蜜多時 照見五蘊皆空 度一切苦厄',
-              source: 'Hannya Shingyō opening, recited in Zen / Pure Land / Shingon traditions',
-              tokens: ['観自在', '菩薩', '行', '深', '般若', '波羅蜜多', '時', '照見', '五', '蘊', '皆', '空', '度', '一切', '苦厄'],
-              transliteration: 'Kanjizai bosatsu  gyō jin hannya haramita ji  shōken go un kai kū  do issai ku yaku  (Sino-Japanese kanbun-yomi)',
+              label: 'Japanese (Sino-Japanese)',
+              text: '観自在菩薩',
+              source: 'Hannya Shingyō',
+              tokens: ['観自在', '菩薩'],
+              transliteration: 'Kanjizai bosatsu  (Sino-Japanese kanbun-yomi)',
             },
             {
               lang: 'bo-Tibt',
               label: 'Tibetan',
-              text: 'བྱང་ཆུབ་སེམས་དཔའ་འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག་ཟབ་མོ་ཤེས་རབ་ཀྱི་ཕ་རོལ་ཏུ་ཕྱིན་པའི་སྤྱོད་པ་ལ་སྤྱོད་པ་ན་ཕུང་པོ་ལྔ་པོ་དེ་དག་ལ་ཡང་རང་བཞིན་གྱིས་སྟོང་པར་རྣམ་པར་བལྟའོ།',
+              text: 'བྱང་ཆུབ་སེམས་དཔའ་འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག',
               source: 'Kangyur short-form recension',
-              transliteration: "jang-chub sem-pa pak-pa chen-ré-zig wang-chuk  zab-mo she-rab kyi pa-rol-tu chin-pé chö-pa la chö-pa na  phung-po nga-po dé-dak la yang  rang-zhin gyi tong-par nam-par ta'o.  (Lhasa Tibetan phonetic)",
-              tokens: [
-                'བྱང་ཆུབ་སེམས་དཔའ',
-                'འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག',
-                'ཟབ་མོ',
-                'ཤེས་རབ',
-                'ཀྱི',
-                'ཕ་རོལ་ཏུ་ཕྱིན་པ',
-                'འི',
-                'སྤྱོད་པ',
-                'ལ',
-                'སྤྱོད་པ',
-                'ན',
-                'ཕུང་པོ',
-                'ལྔ་པོ',
-                'དེ་དག',
-                'ལ',
-                'ཡང',
-                'རང་བཞིན',
-                'གྱིས',
-                'སྟོང་པར',
-                'རྣམ་པར་བལྟའོ',
-              ],
+              transliteration: "jang-chub sem-pa pak-pa chen-ré-zig wang-chuk  (Lhasa Tibetan)",
+              tokens: ['བྱང་ཆུབ་སེམས་དཔའ', 'འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག'],
             },
           ],
           witnesses: [
-            // MAPLE's chanting text, adapted from Master Sheng-yen (Chinese
-            // Chan lineage). Follows Xuanzang's Chinese tradition, which
-            // appends 度一切苦厄 ("overcame all suffering") not present in
-            // the Sanskrit — those tokens map to -1.
             {
-              by: 'AI (after Master Sheng-yen)',
-              text: 'Avalokiteśvara Bodhisatva, while going deep into transcendent wisdom, clearly saw that all five skandhas are empty, and overcame all suffering.',
-              alignTo: [0, 1, -1, 4, 2, -1, 3, 3, 5, 12, -1, -1, 7, 8, -1, 11, -1, -1, -1, -1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Avalokiteśvara Bodhisatva,',
+              alignTo: [0, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
-              text: 'Avalokita, the Holy Lord and Bodhisattva, was moving in the deep course of the Wisdom which has gone beyond. He looked down from on high, He beheld but five heaps, and He saw that in their own-being they were empty.',
+              text: 'Avalokita, the Holy Lord and Bodhisattva,',
+              alignTo: [0, -1, 0, 0, -1, 1],
               url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
-              license: 'Conze translation widely reproduced; full version PD-pending',
             },
             {
               by: 'Red Pine (2004)',
-              text: 'The noble Avalokiteśvara, while practising the deep practice of Prajñāpāramitā, looked upon the five skandhas and seeing they were empty of self-existence …',
+              text: 'The noble Avalokiteśvara,',
+              alignTo: [-1, 0, 0],
               url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
               license: 'Quoted with attribution',
             },
             {
               by: 'Thich Nhat Hanh (2014)',
-              text: 'The Bodhisattva Avalokiteśvara, while practising deeply the Perfection of Understanding, suddenly discovered that all of the five Skandhas are equally empty …',
+              text: 'The Bodhisattva Avalokiteśvara,',
+              alignTo: [-1, 1, 0],
               url: 'https://plumvillage.org/sutra/the-other-shore',
               license: 'Plum Village translation, quoted with attribution',
             },
@@ -200,25 +164,9 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'the Noble Lord Avalokiteśvara — the bodhisattva of compassion',
               citations: [wikipediaCitation('Avalokiteśvara')],
               morphemes: [
-                {
-                  text: 'Ārya',
-                  type: 'prefix',
-                  gloss: 'noble — an honourific',
-                  pronunciation: 'AHR-yah',
-                  citations: [wikipediaCitation('Ārya')],
-                },
-                {
-                  text: 'āvalokit',
-                  type: 'stem',
-                  gloss: 'one who looks down (with compassion) on the world',
-                  pronunciation: 'ah-vah-loh-KEET',
-                },
-                {
-                  text: 'eśvaro',
-                  type: 'suffix',
-                  gloss: 'lord — the title-ending',
-                  pronunciation: 'AYSH-vah-roh',
-                },
+                { text: 'Āry', type: 'prefix', gloss: 'noble — an honorific (*ārya*; its final vowel merges with the *ā-* of the next piece)', pronunciation: 'AHR-yah', citations: [wikipediaCitation('Ārya')] },
+                { text: 'āvalokit', type: 'stem', gloss: 'one who looks down (with compassion) on the world', pronunciation: 'ah-vah-loh-KEET' },
+                { text: 'eśvaro', type: 'suffix', gloss: 'lord — the title-ending', pronunciation: 'AYSH-vah-roh' },
               ],
             },
             {
@@ -227,8 +175,8 @@ export const heartSutra: LiturgyDoc = {
               scriptAlts: { 'zh-Hant': '菩薩', 'ja-Jpan': '菩薩', 'bo-Tibt': 'བྱང་ཆུབ་སེམས་དཔའ' },
               scriptMorphemes: {
                 'zh-Hant': [
-                  { text: '菩', type: 'phonetic', pronunciation: 'pú', gloss: 'phonetic: transliterates "bo-" (from 菩提 *bodhi*); not a semantic character here' },
-                  { text: '薩', type: 'phonetic', pronunciation: 'sà', gloss: 'phonetic: transliterates "-(sa)ttva" (from 薩埵 *sattva*); 菩薩 is the abbreviation of the full 菩提薩埵' },
+                  { text: '菩', type: 'phonetic', pronunciation: 'pú', gloss: 'phonetic: transliterates "bo-" (from 菩提 *bodhi*)' },
+                  { text: '薩', type: 'phonetic', pronunciation: 'sà', gloss: 'phonetic: transliterates "-(sa)ttva" (from 薩埵 *sattva*); 菩薩 abbreviates 菩提薩埵' },
                 ],
                 'ja-Jpan': [
                   { text: '菩', type: 'phonetic', pronunciation: 'bo', gloss: 'phonetic: transliterates "bo-" (*bodhi*)' },
@@ -236,9 +184,9 @@ export const heartSutra: LiturgyDoc = {
                 ],
                 'bo-Tibt': [
                   { text: 'བྱང་', type: 'semantic', pronunciation: 'byang', gloss: 'purified, cleansed' },
-                  { text: 'ཆུབ་', type: 'semantic', pronunciation: 'chub', gloss: 'perfected, complete — together བྱང་ཆུབ ("byang chub") = "fully purified" = *bodhi* (awakening)' },
+                  { text: 'ཆུབ་', type: 'semantic', pronunciation: 'chub', gloss: 'perfected — together བྱང་ཆུབ = "fully purified" = *bodhi* (awakening)' },
                   { text: 'སེམས་', type: 'semantic', pronunciation: 'sems', gloss: 'mind' },
-                  { text: 'དཔའ', type: 'semantic', pronunciation: "dpa'", gloss: 'hero, brave — together སེམས་དཔའ = "mind-hero" = *sattva* (an awakening-being)' },
+                  { text: 'དཔའ', type: 'semantic', pronunciation: "dpa'", gloss: 'hero — together སེམས་དཔའ = "mind-hero" = *sattva* (an awakening-being)' },
                 ],
               },
               pronunciation: 'boh-dee-SAHT-voh',
@@ -246,20 +194,94 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'awakening-being; one bound for full awakening but staying to liberate others',
               citations: [wikipediaCitation('Bodhisattva')],
               morphemes: [
-                {
-                  text: 'bodhi',
-                  type: 'stem',
-                  root: '√budh',
-                  gloss: 'awakening, enlightenment',
-                  pronunciation: 'BOH-dee',
-                },
-                {
-                  text: 'sattvo',
-                  type: 'suffix',
-                  gloss: 'being, sentient one',
-                  pronunciation: 'SAHT-voh',
-                },
+                { text: 'bodhi', type: 'stem', root: '√budh', gloss: 'awakening, enlightenment', pronunciation: 'BOH-dee' },
+                { text: 'sattvo', type: 'suffix', gloss: 'being, sentient one', pronunciation: 'SAHT-voh' },
               ],
+            },
+          ],
+        },
+
+        // ── 行深般若波羅蜜多時 — going deep into transcendent wisdom ──
+        {
+          id: 'opening-practice',
+          pali: 'gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo',
+          paliDeva: 'गम्भीरां प्रज्ञापारमिताचर्यां चरमाणो',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo' },
+            {
+              lang: 'sa-Deva',
+              label: 'Sanskrit (Devanāgarī)',
+              text: 'गम्भीरां प्रज्ञापारमिताचर्यां चरमाणो',
+              transliteration: 'gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo',
+            },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '行深般若波羅蜜多時',
+              source: 'T251',
+              tokens: ['行', '深', '般若', '波羅蜜多', '時'],
+              transliteration: 'xíng  shēn  bō-rě  bō-luó-mì-duō  shí  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '行深般若波羅蜜多時',
+              source: 'Hannya Shingyō',
+              tokens: ['行', '深', '般若', '波羅蜜多', '時'],
+              transliteration: 'gyō jin hannya haramita ji  (Sino-Japanese kanbun-yomi)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཟབ་མོ་ཤེས་རབ་ཀྱི་ཕ་རོལ་ཏུ་ཕྱིན་པའི་སྤྱོད་པ་ལ་སྤྱོད་པ་ན',
+              source: 'Kangyur',
+              transliteration: "zab-mo she-rab kyi pa-rol-tu chin-pé chö-pa la chö-pa na  (Lhasa Tibetan)",
+              tokens: ['ཟབ་མོ', 'ཤེས་རབ', 'ཀྱི', 'ཕ་རོལ་ཏུ་ཕྱིན་པ', 'འི', 'སྤྱོད་པ', 'ལ', 'སྤྱོད་པ', 'ན'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'while going deep into transcendent wisdom,',
+              alignTo: [-1, 2, 0, -1, 1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'was moving in the deep course of the Wisdom which has gone beyond.',
+              alignTo: [-1, 2, -1, -1, 0, 2, -1, -1, 1, -1, -1, 1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'while practising the deep practice of Prajñāpāramitā,',
+              alignTo: [-1, 2, -1, 0, 2, -1, 1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'while practising deeply the Perfection of Understanding,',
+              alignTo: [-1, 2, 0, -1, 1, -1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'gambhīrāṃ',
+              scriptAlt: 'गम्भीरां',
+              scriptAlts: { 'zh-Hant': '深', 'ja-Jpan': '深', 'bo-Tibt': 'ཟབ་མོ' },
+              scriptMorphemes: {
+                'bo-Tibt': [
+                  { text: 'ཟབ་', type: 'semantic', pronunciation: 'zab', gloss: 'deep, profound' },
+                  { text: 'མོ', type: 'semantic', pronunciation: 'mo', gloss: 'feminine suffix — *gambhīrāṃ* is grammatically feminine, agreeing with *caryāṃ*' },
+                ],
+              },
+              pronunciation: 'gahm-BHEE-rahm',
+              etymology: 'Sanskrit *gambhīra* — "deep, profound"',
+              gloss: 'deep, profound — qualifying the practice as not surface-level',
+              conceptIds: ['concept.deep-gambhira'],
             },
             {
               form: 'prajñāpāramitācaryāṃ',
@@ -267,15 +289,13 @@ export const heartSutra: LiturgyDoc = {
               scriptAlts: { 'zh-Hant': '般若', 'ja-Jpan': '般若', 'bo-Tibt': 'ཤེས་རབ' },
               scriptMorphemes: {
                 'zh-Hant': [
-                  { text: '般', type: 'phonetic', pronunciation: 'bān', gloss: 'phonetic: transliterates "pra-" — chosen for sound, the character\'s usual meaning ("kind of, sort") is unrelated' },
-                  { text: '若', type: 'phonetic', pronunciation: 'ruò', gloss: 'phonetic: transliterates "-jñā" — the character\'s usual meaning ("if, like") is unrelated' },
+                  { text: '般', type: 'phonetic', pronunciation: 'bān', gloss: 'phonetic: transliterates "pra-"; usual meaning ("kind of") unrelated' },
+                  { text: '若', type: 'phonetic', pronunciation: 'ruò', gloss: 'phonetic: transliterates "-jñā"; usual meaning ("if, like") unrelated' },
                 ],
                 'ja-Jpan': [
                   { text: '般', type: 'phonetic', pronunciation: 'han', gloss: 'phonetic: transliterates "pra-" — read as "han" in 般若 (*hannya*)' },
                   { text: '若', type: 'phonetic', pronunciation: 'nya', gloss: 'phonetic: transliterates "-jñā" — read as "nya" in 般若' },
                 ],
-                // Tibetan: semantic, not phonetic. The Lotsawas built native
-                // compounds for Sanskrit terms rather than transliterating.
                 'bo-Tibt': [
                   { text: 'ཤེས་', type: 'semantic', pronunciation: 'shes', gloss: 'to know, knowledge' },
                   { text: 'རབ', type: 'semantic', pronunciation: 'rab', gloss: 'supreme, excellent — together ཤེས་རབ = "supreme knowing" = *prajñā* (wisdom)' },
@@ -286,33 +306,11 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'the practice of the perfection of wisdom — the activity that *is* this awakening',
               citations: [wikipediaCitation('Prajñāpāramitā')],
               morphemes: [
-                {
-                  text: 'prajñā',
-                  type: 'stem',
-                  gloss: 'wisdom — the kind that sees how things actually are',
-                  pronunciation: 'prahj-NYAH',
-                  citations: [wikipediaCitation('Prajñā_(Buddhism)')],
-                },
-                {
-                  text: 'pāramitā',
-                  type: 'stem',
-                  gloss: 'perfection — literally "gone-to-the-other-shore"',
-                  pronunciation: 'pah-rah-mee-TAH',
-                  citations: [wikipediaCitation('Pāramitā')],
-                },
-                {
-                  text: 'caryāṃ',
-                  type: 'suffix',
-                  gloss: 'the practice (of [...])',
-                  pronunciation: 'chahr-YAHM',
-                },
+                { text: 'prajñā', type: 'stem', gloss: 'wisdom — the kind that sees how things actually are', pronunciation: 'prahj-NYAH', citations: [wikipediaCitation('Prajñā_(Buddhism)')], conceptIds: ['concept.wisdom-prajna'] },
+                { text: 'pāramitā', type: 'stem', gloss: 'perfection — literally "gone-to-the-other-shore"', pronunciation: 'pah-rah-mee-TAH', citations: [wikipediaCitation('Pāramitā')], conceptIds: ['concept.perfection-paramita'] },
+                { text: 'caryāṃ', type: 'suffix', gloss: 'the practice (of [...])', pronunciation: 'chahr-YAHM', conceptIds: ['concept.practice-carya'] },
               ],
             },
-            // pāramitā as its own WordGloss — Sanskrit's compound is one
-            // word but Xuanzang's Chinese gives it 4 characters (波羅蜜多)
-            // that deserve their own hover. The phonetic decomposition
-            // below shows how each Chinese character borrows one syllable
-            // of Sanskrit's *pāramitā*.
             {
               form: 'pāramitā',
               scriptAlt: 'पारमिता',
@@ -330,7 +328,6 @@ export const heartSutra: LiturgyDoc = {
                   { text: '蜜', type: 'phonetic', pronunciation: 'mi', gloss: 'phonetic: transliterates "-mi-"' },
                   { text: '多', type: 'phonetic', pronunciation: 'ta', gloss: 'phonetic: transliterates "-tā"' },
                 ],
-                // Tibetan reads the etymology literally: "gone to the other shore"
                 'bo-Tibt': [
                   { text: 'ཕ་', type: 'semantic', pronunciation: 'pha', gloss: 'the far' },
                   { text: 'རོལ་', type: 'semantic', pronunciation: 'rol', gloss: 'shore, side — together ཕ་རོལ = "the other shore" (= Sanskrit *pāram*)' },
@@ -345,8 +342,120 @@ export const heartSutra: LiturgyDoc = {
               citations: [wikipediaCitation('Pāramitā')],
               morphemes: [
                 { text: 'pāram', type: 'stem', gloss: 'the other shore — what awakening looks like from this shore', pronunciation: 'PAH-rahm' },
-                { text: 'itā', type: 'suffix', gloss: 'gone (past participle, feminine) — turning the noun into "having gone"', pronunciation: 'ee-TAH' },
+                { text: 'itā', type: 'suffix', gloss: 'gone — the "X-ed" form, turning the word into "having gone"', pronunciation: 'ee-TAH' },
               ],
+            },
+            {
+              form: 'caramāṇo',
+              scriptAlt: 'चरमाणो',
+              scriptAlts: { 'zh-Hant': '行', 'ja-Jpan': '行', 'bo-Tibt': 'སྤྱོད་པ' },
+              pronunciation: 'chah-rah-MAH-noh',
+              etymology: '√car "to move, practise" + the "-ing" ending (the form that means doing it for oneself)',
+              gloss: 'practising, moving in — the bodhisattva is *doing* this, not just thinking it',
+              morphemes: [
+                { text: 'cara', type: 'root', root: '√car', gloss: 'to move, walk, practise', pronunciation: 'CHAH-rah', conceptIds: ['concept.practice-carya'] },
+                { text: 'māṇo', type: 'suffix', gloss: 'the "-ing" form — here, the one doing [the moving] for themselves', pronunciation: 'MAH-noh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 照見五蘊皆空 度一切苦厄 — saw five skandhas empty; overcame all suffering ──
+        {
+          id: 'opening-seeing',
+          pali: 'vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.',
+          paliDeva: 'व्यवलोकयति स्म: पञ्च स्कन्धास्तांश्च स्वभावशून्यान्पश्यति स्म॥',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.' },
+            {
+              lang: 'sa-Deva',
+              label: 'Sanskrit (Devanāgarī)',
+              text: 'व्यवलोकयति स्म: पञ्च स्कन्धास्तांश्च स्वभावशून्यान्पश्यति स्म॥',
+              transliteration: 'vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.',
+            },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '照見五蘊皆空 度一切苦厄',
+              source: 'T251 (the 度一切苦厄 line is Xuanzang\'s addition, not in canonical Sanskrit)',
+              tokens: ['照見', '五', '蘊', '皆', '空', '度', '一切', '苦厄'],
+              transliteration: 'zhào-jiàn  wǔ  yùn  jiē  kōng  ·  dù  yī-qiè  kǔ-è  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '照見五蘊皆空 度一切苦厄',
+              source: 'Hannya Shingyō',
+              tokens: ['照見', '五', '蘊', '皆', '空', '度', '一切', '苦厄'],
+              transliteration: 'shōken go un kai kū  ·  do issai ku yaku  (Sino-Japanese kanbun-yomi)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཕུང་པོ་ལྔ་པོ་དེ་དག་ལ་ཡང་རང་བཞིན་གྱིས་སྟོང་པར་རྣམ་པར་བལྟའོ།',
+              source: 'Kangyur (Tibetan omits Xuanzang\'s 度一切苦厄 addition — follows Sanskrit)',
+              transliteration: "phung-po nga-po dé-dak la yang  rang-zhin gyi tong-par nam-par ta'o.  (Lhasa Tibetan)",
+              tokens: ['ཕུང་པོ', 'ལྔ་པོ', 'དེ་དག', 'ལ', 'ཡང', 'རང་བཞིན', 'གྱིས', 'སྟོང་པར', 'རྣམ་པར་བལྟའོ'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'clearly saw that all five skandhas are empty, and overcame all suffering.',
+              alignTo: [0, 7, -1, -1, 2, 3, -1, 6, -1, -1, -1, -1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'He looked down from on high, He beheld but five heaps, and He saw that in their own-being they were empty.',
+              alignTo: [-1, 0, 0, -1, -1, -1, -1, 0, -1, 2, 3, -1, -1, 7, -1, -1, -1, 6, -1, -1, 6],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'looked upon the five skandhas and seeing they were empty of self-existence …',
+              alignTo: [0, -1, -1, 2, 3, -1, 7, -1, -1, 6, -1, 6, -1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'suddenly discovered that all of the five Skandhas are equally empty …',
+              alignTo: [-1, 7, -1, -1, -1, -1, 2, 3, -1, -1, 6, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'vyavalokayati',
+              scriptAlt: 'व्यवलोकयति',
+              scriptAlts: { 'zh-Hant': '照見', 'ja-Jpan': '照見' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '照', type: 'semantic', pronunciation: 'zhào', gloss: 'illuminate, shine upon — the *avalok* "look down" with light' },
+                  { text: '見', type: 'semantic', pronunciation: 'jiàn', gloss: 'see, perceive — Xuanzang fuses *vyavalokayati* and *paśyati* into 照見' },
+                ],
+                'ja-Jpan': [
+                  { text: '照', type: 'semantic', pronunciation: 'shō', gloss: 'illuminate, shine upon' },
+                  { text: '見', type: 'semantic', pronunciation: 'ken', gloss: 'see, perceive — together 照見 (*shōken*) = "illuminate-and-see"' },
+                ],
+              },
+              pronunciation: 'vyah-vah-loh-KAH-yah-tee',
+              etymology: '*vi-* + *ava-* + √lok "look" — to look down/over carefully',
+              gloss: 'examines closely, looks-down-upon — same √lok root as in *Avalokita*',
+              morphemes: [
+                { text: 'vy', type: 'prefix', gloss: 'thorough, distinguishing', pronunciation: 'vy' },
+                { text: 'avalok', type: 'stem', gloss: 'look down upon (with attention)', pronunciation: 'ah-vah-LOHK' },
+                { text: 'ayati', type: 'suffix', gloss: 'present-tense 3rd-person — "he/she examines"', pronunciation: 'ah-YAH-tee' },
+              ],
+            },
+            {
+              form: 'sma',
+              scriptAlt: 'स्म',
+              pronunciation: 'smah',
+              etymology: 'Sanskrit particle',
+              gloss: '*sma* — a particle that gives a present-tense verb a past-tense flavour ("was practising / did see")',
             },
             {
               form: 'pañca',
@@ -372,138 +481,10 @@ export const heartSutra: LiturgyDoc = {
               citations: [wikipediaCitation('Skandha')],
             },
             {
-              form: 'svabhāvaśūnyān',
-              scriptAlt: 'स्वभावशून्यान्',
-              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'རང་བཞིན' },
-              scriptMorphemes: {
-                // Tibetan maps the *svabhāva* "own-being" portion to
-                // རང་བཞིན (rang bzhin). The "empty" portion lives in a
-                // separate Tibetan word (སྟོང་པ) downstream in the sentence.
-                'bo-Tibt': [
-                  { text: 'རང་', type: 'semantic', pronunciation: 'rang', gloss: 'self, own' },
-                  { text: 'བཞིན', type: 'semantic', pronunciation: 'bzhin', gloss: 'nature, manner — together རང་བཞིན = "self-nature" = *svabhāva* (own-being)' },
-                ],
-              },
-              pronunciation: 'svah-BAH-vah-SHOON-yahn',
-              etymology: '*svabhāva* "own-being" + *śūnya* "empty"',
-              gloss: 'empty of own-being — having no fixed, inherent self-existence',
-              accent: 'sky',
-              morphemes: [
-                {
-                  text: 'sva',
-                  type: 'prefix',
-                  gloss: 'self, own',
-                  pronunciation: 'svah',
-                },
-                {
-                  text: 'bhāva',
-                  type: 'stem',
-                  gloss: 'being, nature',
-                  pronunciation: 'BAH-vah',
-                },
-                {
-                  text: 'śūnyān',
-                  type: 'suffix',
-                  gloss: 'empty (of) — qualifying the aggregates',
-                  pronunciation: 'SHOON-yahn',
-                  citations: [wikipediaCitation('Śūnyatā')],
-                },
-              ],
-            },
-            {
-              form: 'gambhīrāṃ',
-              scriptAlt: 'गम्भीरां',
-              scriptAlts: { 'zh-Hant': '深', 'ja-Jpan': '深', 'bo-Tibt': 'ཟབ་མོ' },
-              scriptMorphemes: {
-                'bo-Tibt': [
-                  { text: 'ཟབ་', type: 'semantic', pronunciation: 'zab', gloss: 'deep, profound' },
-                  { text: 'མོ', type: 'semantic', pronunciation: 'mo', gloss: 'feminine suffix — *gambhīrāṃ* is grammatically feminine in Sanskrit, agreeing with *caryāṃ*' },
-                ],
-              },
-              pronunciation: 'gahm-BHEE-rahm',
-              etymology: 'Sanskrit *gambhīra* — "deep, profound"',
-              gloss: 'deep, profound — qualifying the practice as not surface-level',
-            },
-            {
-              form: 'caramāṇo',
-              scriptAlt: 'चरमाणो',
-              scriptAlts: { 'zh-Hant': '行', 'ja-Jpan': '行', 'bo-Tibt': 'སྤྱོད་པ' },
-              pronunciation: 'chah-rah-MAH-noh',
-              etymology: '√car "to move, practise" + middle present participle',
-              gloss: 'practising, moving in — the bodhisattva is *doing* this, not just thinking it',
-              morphemes: [
-                {
-                  text: 'cara',
-                  type: 'root',
-                  root: '√car',
-                  gloss: 'to move, walk, practise',
-                  pronunciation: 'CHAH-rah',
-                },
-                {
-                  text: 'māṇo',
-                  type: 'suffix',
-                  gloss: 'middle present participle — the one doing [the moving] for themselves',
-                  pronunciation: 'MAH-noh',
-                },
-              ],
-            },
-            {
-              form: 'vyavalokayati',
-              scriptAlt: 'व्यवलोकयति',
-              scriptAlts: { 'zh-Hant': '照見', 'ja-Jpan': '照見' },
-              scriptMorphemes: {
-                'zh-Hant': [
-                  { text: '照', type: 'semantic', pronunciation: 'zhào', gloss: 'illuminate, shine upon — the *avalok* "look down" with light' },
-                  { text: '見', type: 'semantic', pronunciation: 'jiàn', gloss: 'see, perceive — Xuanzang fuses *vyavalokayati* and *paśyati* into 照見' },
-                ],
-                'ja-Jpan': [
-                  { text: '照', type: 'semantic', pronunciation: 'shō', gloss: 'illuminate, shine upon' },
-                  { text: '見', type: 'semantic', pronunciation: 'ken', gloss: 'see, perceive — together 照見 (*shōken*) = "illuminate-and-see"' },
-                ],
-              },
-              pronunciation: 'vyah-vah-loh-KAH-yah-tee',
-              etymology: '*vi-* + *ava-* + √lok "look" — to look down/over carefully',
-              gloss: 'examines closely, looks-down-upon — same √lok root as in *Avalokita*',
-              morphemes: [
-                {
-                  text: 'vy',
-                  type: 'prefix',
-                  gloss: 'thorough, distinguishing',
-                  pronunciation: 'vy',
-                },
-                {
-                  text: 'avalok',
-                  type: 'stem',
-                  gloss: 'look down upon (with attention)',
-                  pronunciation: 'ah-vah-LOHK',
-                },
-                {
-                  text: 'ayati',
-                  type: 'suffix',
-                  gloss: 'present-tense 3rd-person — "he/she examines"',
-                  pronunciation: 'ah-YAH-tee',
-                },
-              ],
-            },
-            {
-              form: 'sma',
-              scriptAlt: 'स्म',
-              pronunciation: 'smah',
-              etymology: 'Sanskrit particle',
-              gloss: '*sma* — a particle that gives a present-tense verb a past-tense flavour ("was practising / did see")',
-            },
-            {
-              form: 'pañca',
-              scriptAlt: 'पञ्च',
-              pronunciation: 'PAHN-chah',
-              etymology: 'Sanskrit *pañca* — "five"',
-              gloss: 'five',
-            },
-            {
               form: 'tāṃś',
               scriptAlt: 'तांश्',
               pronunciation: 'TAHM-sh',
-              etymology: '*tān* (accusative plural masculine of *tad*) + sandhi *-ś*',
+              etymology: '*tān* — the "those" object-form of *tad* — with a sandhi *-ś*',
               gloss: 'those — refers back to the five skandhas',
             },
             {
@@ -514,140 +495,148 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'and (a conjunction that always follows the word it joins)',
             },
             {
+              form: 'svabhāvaśūnyān',
+              scriptAlt: 'स्वभावशून्यान्',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'རང་བཞིན' },
+              scriptMorphemes: {
+                'bo-Tibt': [
+                  { text: 'རང་', type: 'semantic', pronunciation: 'rang', gloss: 'self, own' },
+                  { text: 'བཞིན', type: 'semantic', pronunciation: 'bzhin', gloss: 'nature, manner — together རང་བཞིན = "self-nature" = *svabhāva* (own-being)' },
+                ],
+              },
+              pronunciation: 'svah-BAH-vah-SHOON-yahn',
+              etymology: '*svabhāva* "own-being" + *śūnya* "empty"',
+              gloss: 'empty of own-being — having no fixed, inherent self-existence',
+              accent: 'sky',
+              morphemes: [
+                { text: 'sva', type: 'prefix', gloss: 'self, own', pronunciation: 'svah' },
+                { text: 'bhāva', type: 'stem', gloss: 'being, nature', pronunciation: 'BAH-vah' },
+                { text: 'śūnyān', type: 'suffix', gloss: 'empty (of) — qualifying the aggregates', pronunciation: 'SHOON-yahn', citations: [wikipediaCitation('Śūnyatā')] },
+              ],
+            },
+            {
               form: 'paśyati',
               scriptAlt: 'पश्यति',
               pronunciation: 'PAHSH-yah-tee',
               etymology: '√paś / √dṛś "to see"',
               gloss: 'sees — the second seeing-verb, after *vyavalokayati*: he looks, and then he sees',
               morphemes: [
-                {
-                  text: 'paś',
-                  type: 'root',
-                  root: '√paś',
-                  gloss: 'to see — the present-stem of √dṛś',
-                  pronunciation: 'PAHSH',
-                },
-                {
-                  text: 'yati',
-                  type: 'suffix',
-                  gloss: 'present-tense 3rd-person',
-                  pronunciation: 'YAH-tee',
-                },
+                { text: 'paś', type: 'root', root: '√paś', gloss: 'to see — the present-stem of √dṛś', pronunciation: 'PAHSH' },
+                { text: 'yati', type: 'suffix', gloss: 'present-tense 3rd-person', pronunciation: 'YAH-tee' },
               ],
             },
+            {
+              form: 'sma',
+              scriptAlt: 'स्म',
+              pronunciation: 'smah',
+              etymology: 'Sanskrit particle',
+              gloss: '*sma* — the past-tense flavour particle, repeated to bracket both verbs',
+            },
           ],
-          note: 'The opening establishes the *who* (Avalokiteśvara), the *what* (the practice of perfect wisdom), and the *finding* (the five skandhas are empty of own-being). Notice the doctrinal precision: skandhas are not denied — only their *inherent self-existence*. The form is here, feeling is here; what is empty is the idea that any of them stands on its own.',
+          note: 'Xuanzang appends a fifth Chinese line — 度一切苦厄 *dù yī-qiè kǔ-è*, "and overcame all suffering" — that has no Sanskrit original. It became canonical in East Asian recitation. The Tibetan and Sanskrit traditions don\'t include it. AI\'s witness preserves it; Conze, Red Pine, and Thich Nhat Hanh follow the Sanskrit and end at "empty."',
         },
 
-        // ── The form-emptiness identity ──
+        // ══════════════════════════════════════════════════════════════
+        // FORM-EMPTINESS — the canonical chiastic quatrain
+        // Chant order: 色不異空 · 空不異色 · 色即是空 · 空即是色
+        // ══════════════════════════════════════════════════════════════
+
+        // ── 色不異空 — Form is not different from emptiness ──
         {
-          id: 'form-emptiness',
-          pali: 'Rūpaṃ śūnyatā, śūnyataiva rūpaṃ. Rūpān na pṛthak śūnyatā, śūnyatāyā na pṛthag rūpaṃ. Yad rūpaṃ sā śūnyatā, yā śūnyatā tad rūpaṃ.',
-          paliDeva: 'रूपं शून्यता, शून्यतैव रूपम्। रूपान्न पृथक्शून्यता, शून्यताया न पृथग्रूपम्। यद्रूपं सा शून्यता, या शून्यता तद्रूपम्॥',
+          id: 'form-not-different-emptiness',
+          pali: 'Rūpān na pṛthak śūnyatā',
+          paliDeva: 'रूपान्न पृथक्शून्यता',
           scripts: [
-            {
-              lang: 'sa-Latn',
-              label: 'Sanskrit (IAST)',
-              text: 'Rūpaṃ śūnyatā, śūnyataiva rūpaṃ. Rūpān na pṛthak śūnyatā, śūnyatāyā na pṛthag rūpaṃ. Yad rūpaṃ sā śūnyatā, yā śūnyatā tad rūpaṃ.',
-            },
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Rūpān na pṛthak śūnyatā' },
             {
               lang: 'sa-Deva',
               label: 'Sanskrit (Devanāgarī)',
-              text: 'रूपं शून्यता, शून्यतैव रूपम्। रूपान्न पृथक्शून्यता, शून्यताया न पृथग्रूपम्। यद्रूपं सा शून्यता, या शून्यता तद्रूपम्॥',
-              transliteration: 'Rūpaṃ śūnyatā, śūnyataiva rūpaṃ. Rūpān na pṛthak śūnyatā, śūnyatāyā na pṛthag rūpaṃ. Yad rūpaṃ sā śūnyatā, yā śūnyatā tad rūpaṃ.',
+              text: 'रूपान्न पृथक्शून्यता',
+              transliteration: 'Rūpān na pṛthak śūnyatā',
             },
             {
               lang: 'zh-Hant',
               label: 'Chinese (Xuanzang)',
-              text: '色不異空 空不異色 色即是空 空即是色',
+              text: '色不異空',
               source: 'T251',
-              tokens: ['色', '不', '異', '空', '空', '不', '異', '色', '色', '即', '是', '空', '空', '即', '是', '色'],
-              transliteration: 'sè bù yì kōng,  kōng bù yì sè,  sè jí shì kōng,  kōng jí shì sè  (Mandarin pinyin)',
+              tokens: ['色', '不', '異', '空'],
+              transliteration: 'sè bù yì kōng  (Mandarin pinyin)',
             },
             {
               lang: 'ja-Jpan',
               label: 'Japanese (Sino-Japanese)',
-              text: '色不異空 空不異色 色即是空 空即是色',
-              source: 'Hannya Shingyō, form-emptiness identity passage',
-              tokens: ['色', '不', '異', '空', '空', '不', '異', '色', '色', '即', '是', '空', '空', '即', '是', '色'],
-              transliteration: 'Shiki fu i kū,  kū fu i shiki,  shiki soku ze kū,  kū soku ze shiki  (Sino-Japanese kanbun-yomi)',
+              text: '色不異空',
+              source: 'Hannya Shingyō',
+              tokens: ['色', '不', '異', '空'],
+              transliteration: 'shiki fu i kū  (Sino-Japanese)',
             },
             {
               lang: 'bo-Tibt',
               label: 'Tibetan',
-              text: 'གཟུགས་སྟོང་པའོ། སྟོང་པ་ཉིད་གཟུགས་སོ། གཟུགས་ལས་སྟོང་པ་ཉིད་གཞན་མ་ཡིན།',
+              text: 'གཟུགས་ལས་སྟོང་པ་ཉིད་གཞན་མ་ཡིན།',
               source: 'Kangyur',
-              transliteration: "zuk tong-pa'o.  tong-pa-nyi zuk so.  zuk lé tong-pa-nyi shen ma yin.  (Lhasa Tibetan phonetic)",
-              tokens: [
-                'གཟུགས', 'སྟོང་པ', 'འོ',
-                'སྟོང་པ་ཉིད', 'གཟུགས', 'སོ',
-                'གཟུགས', 'ལས', 'སྟོང་པ་ཉིད', 'གཞན', 'མ', 'ཡིན',
-              ],
+              transliteration: "zuk lé tong-pa-nyi shen ma yin  (Lhasa Tibetan)",
+              tokens: ['གཟུགས', 'ལས', 'སྟོང་པ་ཉིད', 'གཞན', 'མ', 'ཡིན'],
             },
           ],
           witnesses: [
-            // Surface: Rūpaṃ(0) śūnyatā,(1) śūnyataiva(2) rūpaṃ.(3) Rūpān(4) na(5) pṛthak(6) śūnyatā,(7) śūnyatāyā(8) na(9) pṛthag(10) rūpaṃ.(11) Yad(12) rūpaṃ(13) sā(14) śūnyatā,(15) yā(16) śūnyatā(17) tad(18) rūpaṃ.(19) — 20 words
-            // Conze: "Form is emptiness, emptiness is form. Form does not differ from emptiness, emptiness does not differ from form. Whatever is form, that is emptiness; whatever is emptiness, that is form."
-            // Conze tokens: Form(0) is(1) emptiness,(2) emptiness(3) is(4) form.(5) Form(6) does(7) not(8) differ(9) from(10) emptiness,(11) emptiness(12) does(13) not(14) differ(15) from(16) form.(17) Whatever(18) is(19) form,(20) that(21) is(22) emptiness;(23) whatever(24) is(25) emptiness,(26) that(27) is(28) form.(29) — 30 tokens
-            // Aligning Conze's 30 tokens to Sanskrit 20:
-            //   "Form(0) is(1) emptiness,(2)" → rūpaṃ(0) -1 śūnyatā(1)
-            //   "emptiness(3) is(4) form.(5)" → śūnyataiva(2) -1 rūpaṃ(3)
-            //   "Form(6) does(7) not(8) differ(9) from(10) emptiness,(11)" → rūpān(4) -1 na(5) pṛthak(6) -1 śūnyatā(7)
-            //   "emptiness(12) does(13) not(14) differ(15) from(16) form.(17)" → śūnyatāyā(8) -1 na(9) pṛthag(10) -1 rūpaṃ(11)
-            //   "Whatever(18) is(19) form,(20)" → yad(12) -1 rūpaṃ(13)
-            //   "that(21) is(22) emptiness;(23)" → sā(14) -1 śūnyatā(15)
-            //   "whatever(24) is(25) emptiness,(26)" → yā(16) -1 śūnyatā(17)
-            //   "that(27) is(28) form.(29)" → tad(18) -1 rūpaṃ(19)
-            // MAPLE follows the Xuanzang Chinese order: "not different from"
-            // BEFORE the "is" identity. Sanskrit IAST has the reverse order,
-            // so MAPLE's alignment arrows cross visibly — that's the
-            // cross-tradition reordering made visual.
-            // The "preference / information / patterning / consciousness"
-            // tail extends to the other skandhas, which our truncated
-            // Sanskrit doesn't include — those tokens map to -1.
             {
-              by: 'AI (after Master Sheng-yen)',
-              text: 'Śāriputra, appearance is not different from emptiness. Emptiness is not different from appearance. Appearance itself is emptiness. Emptiness itself is appearance. So also are preference, information, patterning and consciousness.',
-              alignTo: [-1, 4, -1, 5, 6, -1, 7, 8, -1, 9, 10, -1, 11, 0, -1, -1, 1, 2, 2, -1, 3, -1, -1, -1, -1, -1, -1, -1, -1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Śāriputra, appearance is not different from emptiness.',
+              alignTo: [-1, 0, -1, 1, 2, -1, 3],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
-              text: 'Form is emptiness, emptiness is form. Form does not differ from emptiness, emptiness does not differ from form. Whatever is form, that is emptiness; whatever is emptiness, that is form.',
-              alignTo: [0, -1, 1, 2, -1, 3, 4, -1, 5, 6, -1, 7, 8, -1, 9, 10, -1, 11, 12, -1, 13, 14, -1, 15, 16, -1, 17, 18, -1, 19],
+              text: 'Form does not differ from emptiness,',
+              alignTo: [0, -1, 1, 2, -1, 3],
               url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
-              license: 'Conze translation widely reproduced',
             },
             {
               by: 'Red Pine (2004)',
-              text: 'Form is emptiness, emptiness is form; form is not separate from emptiness, emptiness is not separate from form; whatever is form is emptiness, whatever is emptiness is form.',
+              text: 'form is not separate from emptiness,',
+              alignTo: [0, -1, 1, 2, -1, 3],
               url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
               license: 'Quoted with attribution',
             },
             {
               by: 'Thich Nhat Hanh (2014)',
-              text: 'This Body itself is Emptiness, and Emptiness itself is this Body. This Body is not other than Emptiness, and Emptiness is not other than this Body.',
+              text: 'This Body is not other than Emptiness,',
+              alignTo: [-1, 0, -1, 1, 2, 2, 3],
               url: 'https://plumvillage.org/sutra/the-other-shore',
               license: 'Plum Village translation, quoted with attribution',
             },
           ],
           words: [
             {
-              form: 'rūpaṃ',
-              scriptAlt: 'रूपम्',
+              form: 'Rūpān',
+              scriptAlt: 'रूपान्',
               scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
-              pronunciation: 'ROO-pahm',
-              etymology: 'Sanskrit *rūpa* — "form, appearance, body"',
-              gloss: 'form — the first of the five skandhas; visible/material appearance',
+              pronunciation: 'ROO-pahn',
+              etymology: '*rūpa* "form" + the "-from" ending',
+              gloss: 'from form — "X is not different *from* form"',
               accent: 'amber',
               citations: [wikipediaCitation('Rūpa')],
             },
             {
+              form: 'na',
+              scriptAlt: 'न',
+              scriptAlts: { 'zh-Hant': '不', 'ja-Jpan': '不', 'bo-Tibt': 'མ' },
+              pronunciation: 'nah',
+              etymology: 'Sanskrit negation particle',
+              gloss: 'not',
+            },
+            {
+              form: 'pṛthak',
+              scriptAlt: 'पृथक्',
+              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異', 'bo-Tibt': 'གཞན' },
+              pronunciation: 'PRTH-ahk',
+              etymology: 'Sanskrit *pṛthak* — "apart, separate, distinct"',
+              gloss: 'separate, distinct (from)',
+            },
+            {
               form: 'śūnyatā',
               scriptAlt: 'शून्यता',
-              // Tibetan match keys on 'སྟོང་པ' which is a prefix of 'སྟོང་པ་ཉིད'
-              // — so both the 2-syllable adjectival form and the 3-syllable
-              // abstract-noun form fire this tooltip via longest-prefix-match.
               scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
               scriptMorphemes: {
                 'bo-Tibt': [
@@ -661,61 +650,87 @@ export const heartSutra: LiturgyDoc = {
               accent: 'sky',
               citations: [wikipediaCitation('Śūnyatā')],
               morphemes: [
-                {
-                  text: 'śūnya',
-                  type: 'stem',
-                  gloss: 'empty, void',
-                  pronunciation: 'SHOON-yah',
-                },
-                {
-                  text: 'tā',
-                  type: 'suffix',
-                  gloss: 'turns "empty" into "emptiness" — the abstract quality',
-                  pronunciation: 'TAH',
-                },
+                { text: 'śūnya', type: 'stem', gloss: 'empty, void', pronunciation: 'SHOON-yah' },
+                { text: 'tā', type: 'suffix', gloss: 'turns "empty" into "emptiness" — the abstract quality', pronunciation: 'TAH' },
               ],
             },
+          ],
+        },
+
+        // ── 空不異色 — Emptiness is not different from form ──
+        {
+          id: 'emptiness-not-different-form',
+          pali: 'śūnyatāyā na pṛthag rūpaṃ.',
+          paliDeva: 'शून्यताया न पृथग्रूपम्।',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'śūnyatāyā na pṛthag rūpaṃ.' },
             {
-              form: 'śūnyataiva',
-              scriptAlt: 'शून्यतैव',
-              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
-              pronunciation: 'SHOON-yah-TIE-vah',
-              etymology: '*śūnyatā* + *eva* (intensifier)',
-              gloss: 'emptiness itself — the emphatic "the very emptiness"',
-              accent: 'sky',
+              lang: 'sa-Deva',
+              label: 'Sanskrit (Devanāgarī)',
+              text: 'शून्यताया न पृथग्रूपम्।',
+              transliteration: 'śūnyatāyā na pṛthag rūpaṃ.',
             },
             {
-              form: 'pṛthak',
-              scriptAlt: 'पृथक्',
-              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異', 'bo-Tibt': 'གཞན' },
-              pronunciation: 'PRTH-ahk',
-              etymology: 'Sanskrit *pṛthak* — "apart, separate, distinct"',
-              gloss: 'separate, distinct (from)',
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '空不異色',
+              source: 'T251',
+              tokens: ['空', '不', '異', '色'],
+              transliteration: 'kōng bù yì sè  (Mandarin pinyin)',
             },
             {
-              form: 'pṛthag',
-              scriptAlt: 'पृथग्',
-              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異', 'bo-Tibt': 'གཞན' },
-              pronunciation: 'PRTH-ahg',
-              etymology: 'Sandhi variant of *pṛthak* before voiced consonants',
-              gloss: 'separate, distinct (from) — same word as pṛthak, different sandhi form',
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '空不異色',
+              source: 'Hannya Shingyō',
+              tokens: ['空', '不', '異', '色'],
+              transliteration: 'kū fu i shiki  (Sino-Japanese)',
             },
             {
-              form: 'Rūpān',
-              scriptAlt: 'रूपान्',
-              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
-              pronunciation: 'ROO-pahn',
-              etymology: '*rūpa* "form" + ablative ending',
-              gloss: 'from form — "X is not different *from* form"',
-              accent: 'amber',
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'སྟོང་པ་ཉིད་ལས་ཀྱང་གཟུགས་གཞན་མ་ཡིན།',
+              source: 'Kangyur',
+              transliteration: "tong-pa-nyi lé kyang zuk shen ma yin  (Lhasa Tibetan)",
+              tokens: ['སྟོང་པ་ཉིད', 'ལས', 'ཀྱང', 'གཟུགས', 'གཞན', 'མ', 'ཡིན'],
             },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Emptiness is not different from appearance.',
+              alignTo: [0, -1, 1, 2, -1, 3],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'emptiness does not differ from form.',
+              alignTo: [0, -1, 1, 2, -1, 3],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'emptiness is not separate from form;',
+              alignTo: [0, -1, 1, 2, -1, 3],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'and Emptiness is not other than this Body.',
+              alignTo: [-1, 0, -1, 1, 2, 2, -1, 3],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
             {
               form: 'śūnyatāyā',
               scriptAlt: 'शून्यताया',
               scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
               pronunciation: 'SHOON-yah-TAH-yah',
-              etymology: '*śūnyatā* "emptiness" + genitive/ablative ending',
-              gloss: 'of/from emptiness — "X is not different from *emptiness*"',
+              etymology: '*śūnyatā* "emptiness" + the "-from" ending',
+              gloss: 'from emptiness — "X is not different from *emptiness*"',
               accent: 'sky',
             },
             {
@@ -727,18 +742,125 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'not',
             },
             {
-              form: 'Yad',
+              form: 'pṛthag',
+              scriptAlt: 'पृथग्',
+              scriptAlts: { 'zh-Hant': '異', 'ja-Jpan': '異', 'bo-Tibt': 'གཞན' },
+              pronunciation: 'PRTH-ahg',
+              etymology: 'Sandhi variant of *pṛthak* before voiced consonants',
+              gloss: 'separate, distinct (from) — same word as pṛthak, different sandhi form',
+            },
+            {
+              form: 'rūpaṃ',
+              scriptAlt: 'रूपम्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
+              pronunciation: 'ROO-pahm',
+              etymology: 'Sanskrit *rūpa* — "form, appearance, body"',
+              gloss: 'form — visible/material appearance, the first skandha',
+              accent: 'amber',
+            },
+          ],
+        },
+
+        // ── 色即是空 — Form itself is emptiness ──
+        {
+          id: 'form-is-emptiness',
+          pali: 'Rūpaṃ śūnyatā · yad rūpaṃ sā śūnyatā,',
+          paliDeva: 'रूपं शून्यता ॥ यद्रूपं सा शून्यता,',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Rūpaṃ śūnyatā · yad rūpaṃ sā śūnyatā,' },
+            {
+              lang: 'sa-Deva',
+              label: 'Sanskrit (Devanāgarī)',
+              text: 'रूपं शून्यता ॥ यद्रूपं सा शून्यता,',
+              transliteration: 'Rūpaṃ śūnyatā · yad rūpaṃ sā śūnyatā,',
+            },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '色即是空',
+              source: 'T251',
+              tokens: ['色', '即', '是', '空'],
+              transliteration: 'sè jí shì kōng  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '色即是空',
+              source: 'Hannya Shingyō',
+              tokens: ['色', '即', '是', '空'],
+              transliteration: 'shiki soku ze kū  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'གཟུགས་སྟོང་པའོ།',
+              source: 'Kangyur',
+              transliteration: "zuk tong-pa'o  (Lhasa Tibetan)",
+              tokens: ['གཟུགས', 'སྟོང་པ', 'འོ'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Appearance itself is emptiness.',
+              alignTo: [0, -1, -1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'Form is emptiness; whatever is form, that is emptiness;',
+              alignTo: [0, -1, 1, 2, -1, 3, 4, -1, 5],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'form is emptiness — whatever is form is emptiness,',
+              alignTo: [0, -1, 1, -1, 2, -1, 3, -1, 5],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'This Body itself is Emptiness,',
+              alignTo: [-1, 0, -1, -1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'Rūpaṃ',
+              scriptAlt: 'रूपम्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
+              pronunciation: 'ROO-pahm',
+              etymology: 'Sanskrit *rūpa* — "form, appearance, body"',
+              gloss: 'form — visible/material appearance, the first skandha',
+              accent: 'amber',
+            },
+            {
+              form: 'śūnyatā',
+              scriptAlt: 'शून्यता',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
+              pronunciation: 'SHOON-yah-TAH',
+              etymology: '*śūnya* "empty" + abstract noun suffix *-tā*',
+              gloss: 'emptiness',
+              accent: 'sky',
+            },
+            {
+              form: 'yad',
               scriptAlt: 'यद्',
               pronunciation: 'yahd',
               etymology: 'Sanskrit relative pronoun *yad* (neuter)',
               gloss: 'what, whatever — opens the "whatever is form, that is emptiness" relative clause',
             },
             {
-              form: 'yā',
-              scriptAlt: 'या',
-              pronunciation: 'yah',
-              etymology: 'Sanskrit relative pronoun *yā* (feminine)',
-              gloss: 'whatever (feminine) — agrees with the feminine noun *śūnyatā*',
+              form: 'rūpaṃ',
+              scriptAlt: 'रूपम्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
+              pronunciation: 'ROO-pahm',
+              etymology: 'Sanskrit *rūpa* — "form"',
+              gloss: 'form — the relative-clause echo of the opening *rūpaṃ*',
+              accent: 'amber',
             },
             {
               form: 'sā',
@@ -748,89 +870,1560 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'that (feminine) — the demonstrative answering the relative *yā*',
             },
             {
+              form: 'śūnyatā',
+              scriptAlt: 'शून्यता',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
+              pronunciation: 'SHOON-yah-TAH',
+              etymology: '*śūnya* "empty" + abstract noun suffix *-tā*',
+              gloss: 'emptiness — the answering term',
+              accent: 'sky',
+            },
+          ],
+        },
+
+        // ── 空即是色 — Emptiness itself is form ──
+        {
+          id: 'emptiness-is-form',
+          pali: 'śūnyataiva rūpaṃ · yā śūnyatā tad rūpaṃ.',
+          paliDeva: 'शून्यतैव रूपम् ॥ या शून्यता तद्रूपम्॥',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'śūnyataiva rūpaṃ · yā śūnyatā tad rūpaṃ.' },
+            {
+              lang: 'sa-Deva',
+              label: 'Sanskrit (Devanāgarī)',
+              text: 'शून्यतैव रूपम् ॥ या शून्यता तद्रूपम्॥',
+              transliteration: 'śūnyataiva rūpaṃ · yā śūnyatā tad rūpaṃ.',
+            },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '空即是色',
+              source: 'T251',
+              tokens: ['空', '即', '是', '色'],
+              transliteration: 'kōng jí shì sè  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '空即是色',
+              source: 'Hannya Shingyō',
+              tokens: ['空', '即', '是', '色'],
+              transliteration: 'kū soku ze shiki  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'སྟོང་པ་ཉིད་གཟུགས་སོ།',
+              source: 'Kangyur',
+              transliteration: "tong-pa-nyi zuk so  (Lhasa Tibetan)",
+              tokens: ['སྟོང་པ་ཉིད', 'གཟུགས', 'སོ'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Emptiness itself is appearance. So also are preference, information, patterning and consciousness.',
+              alignTo: [0, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'whatever is emptiness, that is form.',
+              alignTo: [2, -1, 3, 4, -1, 5],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'whatever is emptiness is form.',
+              alignTo: [2, -1, 3, -1, 5],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'and Emptiness itself is this Body.',
+              alignTo: [-1, 0, -1, -1, -1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'śūnyataiva',
+              scriptAlt: 'शून्यतैव',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
+              pronunciation: 'SHOON-yah-TIE-vah',
+              etymology: '*śūnyatā* + *eva* (intensifier)',
+              gloss: 'emptiness itself — the emphatic "the very emptiness"',
+              accent: 'sky',
+            },
+            {
+              form: 'rūpaṃ',
+              scriptAlt: 'रूपम्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
+              pronunciation: 'ROO-pahm',
+              etymology: 'Sanskrit *rūpa* — "form"',
+              gloss: 'form',
+              accent: 'amber',
+            },
+            {
+              form: 'yā',
+              scriptAlt: 'या',
+              pronunciation: 'yah',
+              etymology: 'Sanskrit relative pronoun *yā* (feminine)',
+              gloss: 'whatever (feminine) — agrees with the feminine noun *śūnyatā*',
+            },
+            {
+              form: 'śūnyatā',
+              scriptAlt: 'शून्यता',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ' },
+              pronunciation: 'SHOON-yah-TAH',
+              etymology: '*śūnya* "empty" + abstract noun suffix *-tā*',
+              gloss: 'emptiness',
+              accent: 'sky',
+            },
+            {
               form: 'tad',
               scriptAlt: 'तद्',
               pronunciation: 'tahd',
               etymology: 'Sanskrit demonstrative pronoun *tad* (neuter)',
               gloss: 'that (neuter) — agrees with the neuter noun *rūpaṃ*',
             },
+            {
+              form: 'rūpaṃ',
+              scriptAlt: 'रूपम्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
+              pronunciation: 'ROO-pahm',
+              etymology: 'Sanskrit *rūpa* — "form"',
+              gloss: 'form — the closing term of the chiasmus',
+              accent: 'amber',
+            },
           ],
-          note: 'The mathematical centre of the sutra. Two assertions, both bidirectional:\n\n— *Form is not other than emptiness; emptiness is not other than form.*\n— *Whatever is form, that is emptiness; whatever is emptiness, that is form.*\n\nThe Chinese is sharper still: 色即是空, 空即是色 — *form-just-is-emptiness, emptiness-just-is-form*. Thich Nhat Hanh translates *rūpa* not as "form" but as "this Body" — naming the bodily, lived encounter with the doctrine rather than treating it abstractly.',
+          note: 'The mathematical centre of the sutra, now visible as four breaths instead of one paragraph. The Chinese fuses the two relations 即是 ("just-is") with no copula gap, no preposition — sharper than any English. The MAPLE chant extends past the Sanskrit to the other skandhas ("preference, information, patterning, consciousness"), naming what the sutra elaborates next.',
         },
+      ],
+    },
 
-        // ── Result: no fear, nirvāṇa ──
+    // ─────────────────────────────────────────────────────────────────────
+    // 2b. The six negations + long enumeration — MAPLE chants two further
+    //     passages between the form-emptiness chiasmus and the result-section.
+    //     Each Xuanzang four-character line as its own breath.
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'heart-middle',
+      shape: 'triple-script-witness',
+      segments: [
+
+        // ══════════════════════════════════════════════════════════════
+        // SIX NEGATIONS — 舍利子 是諸法空相 不生不滅 不垢不淨 不增不減
+        // ══════════════════════════════════════════════════════════════
+
+        // ── 舍利子 — Śāriputra, addressee ──
         {
-          id: 'result',
-          pali: 'Cittāvaraṇa nāstitvād atrasto viparyāsātikrānto niṣṭhānirvāṇaḥ.',
-          paliDeva: 'चित्तावरणनास्तित्वादत्रस्तो विपर्यासातिक्रान्तो निष्ठानिर्वाणः॥',
+          id: 'middle-shariputra',
+          pali: 'Iha Śāriputra',
+          paliDeva: 'इह शारिपुत्र',
           scripts: [
-            {
-              lang: 'sa-Latn',
-              label: 'Sanskrit (IAST)',
-              text: 'Cittāvaraṇa nāstitvād atrasto viparyāsātikrānto niṣṭhānirvāṇaḥ.',
-            },
-            {
-              lang: 'sa-Deva',
-              label: 'Sanskrit (Devanāgarī)',
-              text: 'चित्तावरणनास्तित्वादत्रस्तो विपर्यासातिक्रान्तो निष्ठानिर्वाणः॥',
-              transliteration: 'Cittāvaraṇa nāstitvād atrasto viparyāsātikrānto niṣṭhānirvāṇaḥ.',
-            },
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Iha Śāriputra' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'इह शारिपुत्र', transliteration: 'Iha Śāriputra' },
             {
               lang: 'zh-Hant',
               label: 'Chinese (Xuanzang)',
-              text: '心無罣礙 無罣礙故 無有恐怖 遠離顛倒夢想 究竟涅槃',
+              text: '舍利子',
               source: 'T251',
-              tokens: ['心', '無', '罣礙', '無', '罣礙', '故', '無', '有', '恐怖', '遠離', '顛倒', '夢想', '究竟', '涅槃'],
-              transliteration: 'xīn wú guà-ài,  wú guà-ài gù,  wú yǒu kǒng-bù,  yuǎn-lí diān-dǎo mèng-xiǎng,  jiū-jìng niè-pán  (Mandarin pinyin)',
+              tokens: ['舍利子'],
+              transliteration: 'shè-lì-zǐ  (Mandarin pinyin)',
             },
             {
               lang: 'ja-Jpan',
               label: 'Japanese (Sino-Japanese)',
-              text: '心無罣礙 無罣礙故 無有恐怖 遠離顛倒夢想 究竟涅槃',
-              source: 'Hannya Shingyō, result passage',
-              tokens: ['心', '無', '罣礙', '無', '罣礙', '故', '無', '有', '恐怖', '遠離', '顛倒', '夢想', '究竟', '涅槃'],
-              transliteration: 'Shin mu kege,  mu kege ko,  mu u kufu,  on-ri ten-dō mu-sō,  ku-kyō ne-han  (Sino-Japanese kanbun-yomi)',
+              text: '舍利子',
+              source: 'Hannya Shingyō',
+              tokens: ['舍利子'],
+              transliteration: 'Sharishi  (Sino-Japanese)',
             },
             {
               lang: 'bo-Tibt',
               label: 'Tibetan',
-              text: 'སེམས་ལ་སྒྲིབ་པ་མེད་པས་སྐྲག་པ་མེད་དེ། ཕྱིན་ཅི་ལོག་ལས་ཤིན་ཏུ་འདས་ནས་མྱ་ངན་ལས་འདས་པའི་མཐར་ཕྱིན་ཏོ།',
-              source: 'Derge Kangyur Toh 21 / Toh 531 (Heart Sūtra long-form recension A, F.145.b); verified via prajnaparamitahrdaya.wordpress.com',
-              transliteration: "sem la drib-pa mé-pé trak-pa mé-dé.  chin-chi-lok lé shin-tu dé né  nya-ngen lé dé-pé tar-chin to.  (Lhasa Tibetan phonetic)",
-              tokens: [
-                'སེམས', 'ལ', 'སྒྲིབ་པ', 'མེད་པས', 'སྐྲག་པ', 'མེད་དེ',
-                'ཕྱིན་ཅི་ལོག', 'ལས', 'ཤིན་ཏུ་འདས', 'ནས',
-                'མྱ་ངན་ལས་འདས་པ', 'འི', 'མཐར་ཕྱིན', 'ཏོ',
-              ],
+              text: 'ཤཱ་རིའི་བུ',
+              source: 'Kangyur',
+              transliteration: "shā-ri'i bu  (Lhasa Tibetan)",
             },
           ],
           witnesses: [
-            // MAPLE's result-section text spans much more Sanskrit than our
-            // truncated segment — the "Bodhisattvasya prajñāpāramitām
-            // āśritya viharati …" opening and the "Tryadhvavyavasthitāḥ
-            // sarvabuddhāḥ …" closing are both omitted in our pali field.
-            // alignTo maps only the load-bearing centre (cittāvaraṇa →
-            // niṣṭhānirvāṇaḥ); the rest is -1.
             {
-              by: 'AI (after Master Sheng-yen)',
-              text: 'Bodhisatvas rely on transcendent wisdom and their minds have no obstruction; with no obstruction there is no fear. Passing far beyond confusion and delusion, they reach ultimate nirvana. All Buddhas of the past, present and future rely on transcendent wisdom, and attain unexcelled, perfect, complete enlightenment.',
-              alignTo: [-1, -1, -1, -1, -1, -1, -1, 0, -1, 1, 0, -1, -1, -1, -1, -1, 2, 2, 3, 3, 3, 3, -1, 3, -1, 4, 4, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-              license: 'AI-drafted, loosely after Sheng-yen',
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Śāriputra,',
+              alignTo: [1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
             },
             {
               by: 'Conze (1958)',
-              text: 'With no mental obstructions, he has no fears. He has overcome what can upset, and reaches in the end to Nirvāṇa.',
+              text: 'Here, O Śāriputra,',
+              alignTo: [0, -1, 1],
               url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
             },
             {
               by: 'Red Pine (2004)',
-              text: 'Without obstructions in their minds they have no fears. Far beyond all distorted views they reach final nirvāṇa.',
+              text: 'Here, Shariputra,',
+              alignTo: [0, 1],
               url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
               license: 'Quoted with attribution',
             },
             {
               by: 'Thich Nhat Hanh (2014)',
-              text: 'There are no more obstacles in their mind, and because there are no more obstacles in their mind, they can overcome all fear, destroy all wrong perceptions and realize Perfect Nirvāṇa.',
+              text: 'Listen Shariputra,',
+              alignTo: [-1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'Iha',
+              scriptAlt: 'इह',
+              pronunciation: 'EE-hah',
+              gloss: 'here — i.e. in this context, in this teaching',
+            },
+            {
+              form: 'Śāriputra',
+              scriptAlt: 'शारिपुत्र',
+              scriptAlts: { 'zh-Hant': '舍利子', 'ja-Jpan': '舍利子', 'bo-Tibt': 'ཤཱ་རིའི་བུ' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '舍利', type: 'phonetic', pronunciation: 'shè-lì', gloss: 'phonetic: transliterates *śāri* (the proper name)' },
+                  { text: '子', type: 'semantic', pronunciation: 'zǐ', gloss: 'child, son — calques Sanskrit *putra* ("son")' },
+                ],
+                'ja-Jpan': [
+                  { text: '舍利', type: 'phonetic', pronunciation: 'shari', gloss: 'phonetic: *śāri*' },
+                  { text: '子', type: 'semantic', pronunciation: 'shi', gloss: 'child — calques *putra*' },
+                ],
+                'bo-Tibt': [
+                  { text: 'ཤཱ་རི', type: 'phonetic', pronunciation: 'shā-ri', gloss: 'phonetic: *śāri* (the mother\'s name)' },
+                  { text: 'འི', type: 'semantic', pronunciation: "'i", gloss: 'the particle that marks "of" — possession' },
+                  { text: 'བུ', type: 'semantic', pronunciation: 'bu', gloss: 'son — together: "son of Śāri"' },
+                ],
+              },
+              pronunciation: 'SHAH-ree-poo-trah',
+              etymology: '*Śāri* (his mother) + *putra* "son"',
+              gloss: 'son of Śāri — the elder disciple to whom Avalokiteśvara speaks',
+              accent: 'rose',
+            },
+          ],
+        },
+
+        // ── 是諸法空相 — all dharmas characterized by emptiness ──
+        {
+          id: 'middle-all-dharmas-empty',
+          pali: 'sarvadharmāḥ śūnyatālakṣaṇāḥ',
+          paliDeva: 'सर्वधर्माः शून्यतालक्षणाः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'sarvadharmāḥ śūnyatālakṣaṇāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'सर्वधर्माः शून्यतालक्षणाः', transliteration: 'sarvadharmāḥ śūnyatālakṣaṇāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '是諸法空相',
+              source: 'T251',
+              tokens: ['是', '諸法', '空', '相'],
+              transliteration: 'shì zhū-fǎ kōng xiàng  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '是諸法空相',
+              source: 'Hannya Shingyō',
+              tokens: ['是', '諸法', '空', '相'],
+              transliteration: 'ze sho-hō kū-sō  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཆོས་ཐམས་ཅད་སྟོང་པ་ཉིད་དེ་མཚན་ཉིད་མེད་པ',
+              source: 'Kangyur',
+              transliteration: 'chö-tham-ché tong-pa nyi-dé tsen-nyi mé-pa  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'all dharmas are characterized by emptiness',
+              alignTo: [0, 0, -1, -1, -1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'all dharmas are marked with emptiness;',
+              alignTo: [0, 0, -1, -1, -1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'all dharmas are defined by emptiness,',
+              alignTo: [0, 0, -1, -1, -1, 1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'all phenomena bear the mark of Emptiness;',
+              alignTo: [0, 0, -1, -1, -1, 1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'sarvadharmāḥ',
+              scriptAlt: 'सर्वधर्माः',
+              scriptAlts: { 'zh-Hant': '諸法', 'ja-Jpan': '諸法', 'bo-Tibt': 'ཆོས་ཐམས་ཅད' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '諸', type: 'semantic', pronunciation: 'zhū', gloss: 'all, every — calques *sarva*' },
+                  { text: '法', type: 'semantic', pronunciation: 'fǎ', gloss: 'dharma — phenomenon, teaching, factor' },
+                ],
+                'ja-Jpan': [
+                  { text: '諸', type: 'semantic', pronunciation: 'sho', gloss: 'all — calques *sarva*' },
+                  { text: '法', type: 'semantic', pronunciation: 'hō', gloss: 'dharma — phenomenon' },
+                ],
+              },
+              pronunciation: 'sahr-vah-DHAR-mah',
+              etymology: '*sarva* "all" + *dharmāḥ* "phenomena" (plural)',
+              gloss: 'all phenomena, all dharmas',
+              morphemes: [
+                { text: 'sarva', type: 'prefix', gloss: 'all, every', pronunciation: 'SAHR-vah' },
+                { text: 'dharmāḥ', type: 'stem', gloss: 'phenomena, factors of experience', pronunciation: 'DHAR-mah' },
+              ],
+            },
+            {
+              form: 'śūnyatālakṣaṇāḥ',
+              scriptAlt: 'शून्यतालक्षणाः',
+              scriptAlts: { 'zh-Hant': '空相', 'ja-Jpan': '空相', 'bo-Tibt': 'སྟོང་པ་ཉིད' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '空', type: 'semantic', pronunciation: 'kōng', gloss: 'empty — calques *śūnya*' },
+                  { text: '相', type: 'semantic', pronunciation: 'xiàng', gloss: 'mark, characteristic — calques *lakṣaṇa*' },
+                ],
+                'ja-Jpan': [
+                  { text: '空', type: 'semantic', pronunciation: 'kū', gloss: 'emptiness — calques *śūnyatā*' },
+                  { text: '相', type: 'semantic', pronunciation: 'sō', gloss: 'mark, characteristic — calques *lakṣaṇa*' },
+                ],
+              },
+              pronunciation: 'SHOON-yah-tah-LAHK-shah-nah',
+              etymology: '*śūnyatā* "emptiness" + *lakṣaṇa* "mark, characteristic" — compound: "having emptiness as their mark"',
+              gloss: 'characterized by emptiness — emptiness is their defining mark',
+              accent: 'sky',
+              morphemes: [
+                { text: 'śūnyatā', type: 'stem', root: '√śū', gloss: 'emptiness', pronunciation: 'SHOON-yah-tah' },
+                { text: 'lakṣaṇāḥ', type: 'suffix', gloss: 'marks, characteristics', pronunciation: 'LAHK-shah-nah' },
+              ],
+            },
+          ],
+        },
+
+        // ── 不生不滅 — neither arising nor ceasing ──
+        {
+          id: 'middle-no-arise-no-cease',
+          pali: 'anutpannā aniruddhā',
+          paliDeva: 'अनुत्पन्ना अनिरुद्धा',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'anutpannā aniruddhā' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अनुत्पन्ना अनिरुद्धा', transliteration: 'anutpannā aniruddhā' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '不生不滅',
+              source: 'T251',
+              tokens: ['不', '生', '不', '滅'],
+              transliteration: 'bù shēng bù miè  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '不生不滅',
+              source: 'Hannya Shingyō',
+              tokens: ['不', '生', '不', '滅'],
+              transliteration: 'fu-shō fu-metsu  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'མ་སྐྱེས་པ་མ་འགགས་པ',
+              source: 'Kangyur',
+              transliteration: 'ma-kyé-pa ma-gak-pa  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'that does not arise, is not destroyed,',
+              alignTo: [-1, -1, -1, 0, -1, -1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'they are not produced or stopped,',
+              alignTo: [-1, -1, -1, 0, -1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'not by birth or destruction,',
+              alignTo: [-1, -1, 0, -1, 1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'no Birth no Death,',
+              alignTo: [-1, 0, -1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'anutpannā',
+              scriptAlt: 'अनुत्पन्ना',
+              scriptAlts: { 'zh-Hant': '不生', 'ja-Jpan': '不生', 'bo-Tibt': 'མ་སྐྱེས་པ' },
+              pronunciation: 'ah-noot-PAHN-nah',
+              etymology: '*a-* (not) + *utpannā* "arisen" — the "X-ed" form of √pad',
+              gloss: 'unarisen, not having come into being',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'not — the negation', pronunciation: 'ahn' },
+                { text: 'utpannā', type: 'stem', root: '√pad', gloss: 'arisen, come into being', pronunciation: 'oot-PAHN-nah' },
+              ],
+            },
+            {
+              form: 'aniruddhā',
+              scriptAlt: 'अनिरुद्धा',
+              scriptAlts: { 'zh-Hant': '不滅', 'ja-Jpan': '不滅', 'bo-Tibt': 'མ་འགགས་པ' },
+              pronunciation: 'ah-nee-ROOD-dhah',
+              etymology: '*a-* (not) + *niruddhā* "stopped, ceased" — the "X-ed" form of √rudh',
+              gloss: 'unceased, not stopped',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'niruddhā', type: 'stem', root: '√rudh', gloss: 'stopped, ceased', pronunciation: 'nee-ROOD-dhah' },
+              ],
+            },
+          ],
+        },
+
+        // ── 不垢不淨 — neither defiled nor pure ──
+        {
+          id: 'middle-no-defile-no-pure',
+          pali: 'amalā na vimalā',
+          paliDeva: 'अमला न विमला',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'amalā na vimalā' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अमला न विमला', transliteration: 'amalā na vimalā' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '不垢不淨',
+              source: 'T251',
+              tokens: ['不', '垢', '不', '淨'],
+              transliteration: 'bù gòu bù jìng  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '不垢不淨',
+              source: 'Hannya Shingyō',
+              tokens: ['不', '垢', '不', '淨'],
+              transliteration: 'fu-ku fu-jō  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'དྲི་མ་མེད་པ་དྲི་མ་དང་བྲལ་བ་མེད་པ',
+              source: 'Kangyur',
+              transliteration: 'dri-ma mé-pa dri-ma dang dral-wa mé-pa  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'is not defiled, is not pure,',
+              alignTo: [-1, -1, 0, -1, -1, 2],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'not defiled or immaculate,',
+              alignTo: [-1, 0, -1, 2],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'purity or defilement,',
+              alignTo: [2, -1, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'no Defilement no Purity,',
+              alignTo: [-1, 0, -1, 2],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'amalā',
+              scriptAlt: 'अमला',
+              scriptAlts: { 'zh-Hant': '不垢', 'ja-Jpan': '不垢', 'bo-Tibt': 'དྲི་མ་མེད་པ' },
+              pronunciation: 'ah-MAH-lah',
+              etymology: '*a-* (not) + *mala* "stain, defilement"',
+              gloss: 'undefiled, without stain',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'malā', type: 'stem', gloss: 'stain, defilement', pronunciation: 'MAH-lah' },
+              ],
+            },
+            {
+              form: 'na',
+              scriptAlt: 'न',
+              pronunciation: 'nah',
+              gloss: 'not',
+            },
+            {
+              form: 'vimalā',
+              scriptAlt: 'विमला',
+              scriptAlts: { 'zh-Hant': '不淨', 'ja-Jpan': '不淨', 'bo-Tibt': 'དྲི་མ་དང་བྲལ་བ' },
+              pronunciation: 'vee-MAH-lah',
+              etymology: '*vi-* "apart from" + *mala* "stain" — "free of stain, pure"',
+              gloss: 'free of defilement, immaculate',
+              morphemes: [
+                { text: 'vi', type: 'prefix', gloss: 'apart from, free of', pronunciation: 'vee' },
+                { text: 'malā', type: 'stem', gloss: 'stain', pronunciation: 'MAH-lah' },
+              ],
+            },
+          ],
+        },
+
+        // ── 不增不減 — neither increasing nor decreasing ──
+        {
+          id: 'middle-no-increase-no-decrease',
+          pali: 'anūnā na paripūrṇāḥ',
+          paliDeva: 'अनूना न परिपूर्णाः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'anūnā na paripūrṇāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अनूना न परिपूर्णाः', transliteration: 'anūnā na paripūrṇāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '不增不減',
+              source: 'T251',
+              tokens: ['不', '增', '不', '減'],
+              transliteration: 'bù zēng bù jiǎn  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '不增不減',
+              source: 'Hannya Shingyō',
+              tokens: ['不', '增', '不', '減'],
+              transliteration: 'fu-zō fu-gen  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'བྲི་བ་མེད་པ་གང་བ་མེད་པའོ',
+              source: 'Kangyur',
+              transliteration: 'dri-wa mé-pa gang-wa mé-pa\'o  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'does not increase, does not decrease.',
+              alignTo: [-1, -1, 2, -1, -1, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'not deficient or complete.',
+              alignTo: [-1, 0, -1, 2],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'completeness or deficiency.',
+              alignTo: [2, -1, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'no Increasing no Decreasing.',
+              alignTo: [-1, 2, -1, 0],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'anūnā',
+              scriptAlt: 'अनूना',
+              scriptAlts: { 'zh-Hant': '不減', 'ja-Jpan': '不減', 'bo-Tibt': 'བྲི་བ་མེད་པ' },
+              pronunciation: 'ah-NOO-nah',
+              etymology: '*a-* (not) + *ūna* "deficient, lacking"',
+              gloss: 'not deficient, not lacking',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'nūnā', type: 'stem', gloss: 'deficient', pronunciation: 'NOO-nah' },
+              ],
+            },
+            {
+              form: 'na',
+              scriptAlt: 'न',
+              pronunciation: 'nah',
+              gloss: 'not',
+            },
+            {
+              form: 'paripūrṇāḥ',
+              scriptAlt: 'परिपूर्णाः',
+              scriptAlts: { 'zh-Hant': '不增', 'ja-Jpan': '不增', 'bo-Tibt': 'གང་བ' },
+              pronunciation: 'pah-ree-POOR-nah',
+              etymology: '*pari-* "around, completely" + *pūrṇa* "filled"',
+              gloss: 'completely full, complete',
+              morphemes: [
+                { text: 'pari', type: 'prefix', gloss: 'completely, around', pronunciation: 'PAH-ree' },
+                { text: 'pūrṇāḥ', type: 'stem', root: '√pṛ', gloss: 'filled, complete', pronunciation: 'POOR-nah' },
+              ],
+            },
+          ],
+        },
+
+        // ══════════════════════════════════════════════════════════════
+        // LONG ENUMERATION — what emptiness empties
+        // ══════════════════════════════════════════════════════════════
+
+        // ── 是故空中無色 — therefore in emptiness no form ──
+        {
+          id: 'middle-emptiness-no-form',
+          pali: 'Tasmāc Chāriputra śūnyatāyāṃ na rūpaṃ',
+          paliDeva: 'तस्माच्छारिपुत्र शून्यतायां न रूपम्',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Tasmāc Chāriputra śūnyatāyāṃ na rūpaṃ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'तस्माच्छारिपुत्र शून्यतायां न रूपम्', transliteration: 'Tasmāc Chāriputra śūnyatāyāṃ na rūpaṃ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '是故空中無色',
+              source: 'T251',
+              tokens: ['是故', '空', '中', '無', '色'],
+              transliteration: 'shì-gù kōng-zhōng wú sè  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '是故空中無色',
+              source: 'Hannya Shingyō',
+              tokens: ['是故', '空', '中', '無', '色'],
+              transliteration: 'ze-ko kū-chū mu shiki  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'དེ་ལྟ་བས་ན་སྟོང་པ་ཉིད་ལ་གཟུགས་མེད་པ',
+              source: 'Kangyur',
+              transliteration: 'dé-ta wé-na tong-pa nyi-la zuk mé-pa  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Therefore, in emptiness there is no appearance.',
+              alignTo: [0, -1, 2, -1, -1, -1, 4],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'Therefore, O Śāriputra, in emptiness there is no form,',
+              alignTo: [0, -1, 1, -1, 2, -1, -1, -1, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'Therefore, Shariputra, in emptiness there is no form,',
+              alignTo: [0, 1, -1, 2, -1, -1, -1, 4],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'That is why in Emptiness, Body, Feelings, Perceptions, Mental Formations and Consciousness are not separate self entities.',
+              alignTo: [0, 0, -1, -1, 2, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'Tasmāc',
+              scriptAlt: 'तस्माच्',
+              scriptAlts: { 'zh-Hant': '是故', 'ja-Jpan': '是故', 'bo-Tibt': 'དེ་ལྟ་བས་ན' },
+              pronunciation: 'tahs-MAHCH',
+              etymology: 'the "from" form of *tat* "that" — "from that", "therefore"',
+              gloss: 'therefore — drawing the consequence from what came before',
+            },
+            {
+              form: 'Chāriputra',
+              scriptAlt: 'छारिपुत्र',
+              pronunciation: 'CHAH-ree-poo-trah',
+              gloss: 'Śāriputra (sandhi form after *tasmāc*)',
+            },
+            {
+              form: 'śūnyatāyāṃ',
+              scriptAlt: 'शून्यतायाम्',
+              scriptAlts: { 'zh-Hant': '空', 'ja-Jpan': '空', 'bo-Tibt': 'སྟོང་པ་ཉིད' },
+              pronunciation: 'shoon-yah-TAH-yahm',
+              etymology: 'the "in" form of *śūnyatā* "emptiness" — "in emptiness"',
+              gloss: 'in emptiness',
+              accent: 'sky',
+            },
+            {
+              form: 'na',
+              scriptAlt: 'न',
+              scriptAlts: { 'zh-Hant': '無', 'ja-Jpan': '無', 'bo-Tibt': 'མེད་པ' },
+              pronunciation: 'nah',
+              gloss: 'not, no — the great negation that this whole passage hammers',
+            },
+            {
+              form: 'rūpaṃ',
+              scriptAlt: 'रूपम्',
+              scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' },
+              pronunciation: 'ROO-pahm',
+              etymology: '*rūpa* "form, appearance"',
+              gloss: 'form, appearance — the first of the five skandhas',
+              accent: 'amber',
+            },
+          ],
+        },
+
+        // ── 無受想行識 — no feeling, perception, formation, consciousness ──
+        {
+          id: 'middle-no-other-skandhas',
+          pali: 'na vedanā na saṃjñā na saṃskārāḥ na vijñānam',
+          paliDeva: 'न वेदना न संज्ञा न संस्काराः न विज्ञानम्',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'na vedanā na saṃjñā na saṃskārāḥ na vijñānam' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'न वेदना न संज्ञा न संस्काराः न विज्ञानम्', transliteration: 'na vedanā na saṃjñā na saṃskārāḥ na vijñānam' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無受想行識',
+              source: 'T251',
+              tokens: ['無', '受', '想', '行', '識'],
+              transliteration: 'wú shòu xiǎng xíng shì  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無受想行識',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '受', '想', '行', '識'],
+              transliteration: 'mu ju sō gyō shiki  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཚོར་བ་མེད་འདུ་ཤེས་མེད་འདུ་བྱེད་མེད་རྣམ་པར་ཤེས་པ་མེད',
+              source: 'Kangyur',
+              transliteration: 'tsor-wa mé du-shé mé du-jé mé nam-par shé-pa mé  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'There is no preference, information, patterning or consciousness;',
+              alignTo: [-1, -1, 0, 2, 4, -1, 6, 7],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'no feeling, no perception, no impulse, no consciousness;',
+              alignTo: [0, 2, 0, 4, 0, 6, 0, 7],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'no sensation, no perception, no memory, and no consciousness;',
+              alignTo: [0, 2, 0, 4, 0, 6, -1, 0, 7],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'no Feelings, no Perceptions, no Mental Formations, no Consciousness',
+              alignTo: [0, 2, 0, 4, 0, -1, 6, 0, 7],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'vedanā',
+              scriptAlt: 'वेदना',
+              scriptAlts: { 'zh-Hant': '受', 'ja-Jpan': '受', 'bo-Tibt': 'ཚོར་བ' },
+              pronunciation: 'vay-dah-NAH',
+              etymology: '√vid "to feel, know" → *vedanā* "feeling, sensation"',
+              gloss: 'feeling, sensation — the affective tone (pleasant / unpleasant / neutral) attached to experience; the second skandha',
+            },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'saṃjñā',
+              scriptAlt: 'संज्ञा',
+              scriptAlts: { 'zh-Hant': '想', 'ja-Jpan': '想', 'bo-Tibt': 'འདུ་ཤེས' },
+              pronunciation: 'sahm-GYAH',
+              etymology: '*saṃ-* "together" + √jñā "to know" — "co-cognition, identification"',
+              gloss: 'perception, recognition — the act of naming/identifying; the third skandha',
+            },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'saṃskārāḥ',
+              scriptAlt: 'संस्काराः',
+              scriptAlts: { 'zh-Hant': '行', 'ja-Jpan': '行', 'bo-Tibt': 'འདུ་བྱེད' },
+              pronunciation: 'sahm-SKAH-rah',
+              etymology: '*saṃ-* "together" + √kṛ "to make" — "co-construction, formation"',
+              gloss: 'mental formations — volitional patterns, dispositions, karmic seeds; the fourth skandha',
+            },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'vijñānam',
+              scriptAlt: 'विज्ञानम्',
+              scriptAlts: { 'zh-Hant': '識', 'ja-Jpan': '識', 'bo-Tibt': 'རྣམ་པར་ཤེས་པ' },
+              pronunciation: 'veej-NYAH-nahm',
+              etymology: '*vi-* "discriminating" + √jñā "to know" — "discriminating knowing"',
+              gloss: 'consciousness — discriminating awareness, the fifth skandha',
+            },
+          ],
+        },
+
+        // ── 無眼耳鼻舌身意 — no eye, ear, nose, tongue, body, mind ──
+        {
+          id: 'middle-no-six-faculties',
+          pali: 'na cakṣur na śrotraṃ na ghrāṇaṃ na jihvā na kāyo na manaḥ',
+          paliDeva: 'न चक्षुर्न श्रोत्रं न घ्राणं न जिह्वा न कायो न मनः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'na cakṣur na śrotraṃ na ghrāṇaṃ na jihvā na kāyo na manaḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'न चक्षुर्न श्रोत्रं न घ्राणं न जिह्वा न कायो न मनः', transliteration: 'na cakṣur na śrotraṃ na ghrāṇaṃ na jihvā na kāyo na manaḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無眼耳鼻舌身意',
+              source: 'T251',
+              tokens: ['無', '眼', '耳', '鼻', '舌', '身', '意'],
+              transliteration: 'wú yǎn ěr bí shé shēn yì  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無眼耳鼻舌身意',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '眼', '耳', '鼻', '舌', '身', '意'],
+              transliteration: 'mu gen ni bi zes shin i  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'མིག་མེད་རྣ་བ་མེད་སྣ་མེད་ལྕེ་མེད་ལུས་མེད་ཡིད་མེད',
+              source: 'Kangyur',
+              transliteration: 'mik mé na-wa mé na mé ché mé lü mé yi mé  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'no eye, ear, nose, tongue, body, or mind;',
+              alignTo: [0, 1, 3, 5, 7, 9, -1, 11],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'no eye, ear, nose, tongue, body, mind;',
+              alignTo: [0, 1, 3, 5, 7, 9, 11],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'no eye, no ear, no nose, no tongue, no body, no mind;',
+              alignTo: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'no Eye, no Ear, no Nose, no Tongue, no Body, no Mind;',
+              alignTo: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'cakṣur', scriptAlt: 'चक्षुर्', scriptAlts: { 'zh-Hant': '眼', 'ja-Jpan': '眼', 'bo-Tibt': 'མིག' }, pronunciation: 'CHAHK-shoor', gloss: 'eye' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'śrotraṃ', scriptAlt: 'श्रोत्रम्', scriptAlts: { 'zh-Hant': '耳', 'ja-Jpan': '耳', 'bo-Tibt': 'རྣ་བ' }, pronunciation: 'SHROH-trahm', gloss: 'ear' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'ghrāṇaṃ', scriptAlt: 'घ्राणम्', scriptAlts: { 'zh-Hant': '鼻', 'ja-Jpan': '鼻', 'bo-Tibt': 'སྣ' }, pronunciation: 'GHRAH-nahm', gloss: 'nose' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'jihvā', scriptAlt: 'जिह्वा', scriptAlts: { 'zh-Hant': '舌', 'ja-Jpan': '舌', 'bo-Tibt': 'ལྕེ' }, pronunciation: 'JEEH-vah', gloss: 'tongue' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'kāyo', scriptAlt: 'कायो', scriptAlts: { 'zh-Hant': '身', 'ja-Jpan': '身', 'bo-Tibt': 'ལུས' }, pronunciation: 'KAH-yoh', gloss: 'body' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'manaḥ', scriptAlt: 'मनः', scriptAlts: { 'zh-Hant': '意', 'ja-Jpan': '意', 'bo-Tibt': 'ཡིད' }, pronunciation: 'MAH-nah', gloss: 'mind — the sixth sense-faculty in the Indian schema (along with the five senses)' },
+          ],
+        },
+
+        // ── 無色聲香味觸法 — no sight, sound, smell, taste, touch, thought ──
+        {
+          id: 'middle-no-six-objects',
+          pali: 'na rūpaṃ na śabdo na gandho na raso na spraṣṭavyaṃ na dharmāḥ',
+          paliDeva: 'न रूपं न शब्दो न गन्धो न रसो न स्प्रष्टव्यं न धर्माः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'na rūpaṃ na śabdo na gandho na raso na spraṣṭavyaṃ na dharmāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'न रूपं न शब्दो न गन्धो न रसो न स्प्रष्टव्यं न धर्माः', transliteration: 'na rūpaṃ na śabdo na gandho na raso na spraṣṭavyaṃ na dharmāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無色聲香味觸法',
+              source: 'T251',
+              tokens: ['無', '色', '聲', '香', '味', '觸', '法'],
+              transliteration: 'wú sè shēng xiāng wèi chù fǎ  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無色聲香味觸法',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '色', '聲', '香', '味', '觸', '法'],
+              transliteration: 'mu shiki shō kō mi soku hō  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'གཟུགས་མེད་སྒྲ་མེད་དྲི་མེད་རོ་མེད་རེག་བྱ་མེད་ཆོས་མེད',
+              source: 'Kangyur',
+              transliteration: 'zuk mé dra mé dri mé ro mé reg-ja mé chö mé  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'no sight, sound, smell, taste, touch, or thought;',
+              alignTo: [0, 1, 3, 5, 7, 9, -1, 11],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'no forms, sounds, smells, tastes, touchables or objects of mind;',
+              alignTo: [0, 1, 3, 5, 7, 9, -1, 11, -1, -1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'no shape, no sound, no smell, no taste, no feeling, and no thought;',
+              alignTo: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10, 11],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'no Form, no Sound, no Smell, no Taste, no Touch, no Object of Mind;',
+              alignTo: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, -1, 11],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'rūpaṃ', scriptAlt: 'रूपम्', scriptAlts: { 'zh-Hant': '色', 'ja-Jpan': '色', 'bo-Tibt': 'གཟུགས' }, pronunciation: 'ROO-pahm', gloss: 'visible form, sight' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'śabdo', scriptAlt: 'शब्दो', scriptAlts: { 'zh-Hant': '聲', 'ja-Jpan': '聲', 'bo-Tibt': 'སྒྲ' }, pronunciation: 'SHAHB-doh', gloss: 'sound' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'gandho', scriptAlt: 'गन्धो', scriptAlts: { 'zh-Hant': '香', 'ja-Jpan': '香', 'bo-Tibt': 'དྲི' }, pronunciation: 'GAHN-dhoh', gloss: 'smell, scent' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'raso', scriptAlt: 'रसो', scriptAlts: { 'zh-Hant': '味', 'ja-Jpan': '味', 'bo-Tibt': 'རོ' }, pronunciation: 'RAH-soh', gloss: 'taste, flavour' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'spraṣṭavyaṃ', scriptAlt: 'स्प्रष्टव्यम्', scriptAlts: { 'zh-Hant': '觸', 'ja-Jpan': '觸', 'bo-Tibt': 'རེག་བྱ' }, pronunciation: 'sprahsh-TAHV-yahm', gloss: 'touch — that which can be touched' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'dharmāḥ', scriptAlt: 'धर्माः', scriptAlts: { 'zh-Hant': '法', 'ja-Jpan': '法', 'bo-Tibt': 'ཆོས' }, pronunciation: 'DHAR-mah', gloss: 'mental objects, dharmas — the objects of the mind-faculty, sixth in the sense-object schema' },
+          ],
+        },
+
+        // ── 無眼界 乃至 無意識界 — no eye-realm... to no mind-consciousness-realm ──
+        {
+          id: 'middle-no-dhatus',
+          pali: 'na cakṣurdhātur yāvan na manovijñānadhātuḥ',
+          paliDeva: 'न चक्षुर्धातुर्यावन्न मनोविज्ञानधातुः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'na cakṣurdhātur yāvan na manovijñānadhātuḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'न चक्षुर्धातुर्यावन्न मनोविज्ञानधातुः', transliteration: 'na cakṣurdhātur yāvan na manovijñānadhātuḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無眼界 乃至 無意識界',
+              source: 'T251',
+              tokens: ['無', '眼界', '乃至', '無', '意識界'],
+              transliteration: 'wú yǎn-jiè nǎi-zhì wú yì-shì-jiè  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無眼界 乃至 無意識界',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '眼界', '乃至', '無', '意識界'],
+              transliteration: 'mu gen-kai nai-shi mu i-shiki-kai  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'མིག་གི་ཁམས་མེད་པ་ནས་ཡིད་ཀྱི་རྣམ་པར་ཤེས་པའི་ཁམས་མེད་པའི་བར་དུ',
+              source: 'Kangyur',
+              transliteration: 'mik-gi kham mé-pa né yi-kyi nam-par shé-pé kham mé-pé bar-du  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'there is no realm of the eye, through to no realm of mental cognition;',
+              alignTo: [-1, -1, 0, -1, -1, -1, 1, 2, 2, 3, -1, -1, 4, 4],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'no sight-organ element, and so forth, until we come to: no mind-consciousness element;',
+              alignTo: [0, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 4, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'no element of perception, from eye to conceptual consciousness;',
+              alignTo: [0, 1, -1, 1, 2, 1, 2, 4, 4],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'The Eighteen Realms of Phenomena which are the six Sense Organs, the six Sense Objects, and the six Consciousnesses do not exist as separate self entities;',
+              alignTo: [-1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 4, 0, 0, -1, -1, -1, -1, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'cakṣurdhātur',
+              scriptAlt: 'चक्षुर्धातुः',
+              scriptAlts: { 'zh-Hant': '眼界', 'ja-Jpan': '眼界', 'bo-Tibt': 'མིག་གི་ཁམས' },
+              pronunciation: 'CHAHK-shoor-DHAH-toor',
+              etymology: '*cakṣur* "eye" + *dhātu* "element, realm"',
+              gloss: 'eye-realm — the first of the eighteen dhātus',
+              morphemes: [
+                { text: 'cakṣur', type: 'stem', gloss: 'eye', pronunciation: 'CHAHK-shoor' },
+                { text: 'dhātur', type: 'suffix', gloss: 'realm, element', pronunciation: 'DHAH-toor' },
+              ],
+            },
+            { form: 'yāvan', scriptAlt: 'यावन्', scriptAlts: { 'zh-Hant': '乃至', 'ja-Jpan': '乃至', 'bo-Tibt': 'བར་དུ' }, pronunciation: 'YAH-vahn', gloss: 'up to, as far as — the "etcetera" particle marking the elided middle of the eighteen' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'manovijñānadhātuḥ',
+              scriptAlt: 'मनोविज्ञानधातुः',
+              scriptAlts: { 'zh-Hant': '意識界', 'ja-Jpan': '意識界', 'bo-Tibt': 'ཡིད་ཀྱི་རྣམ་པར་ཤེས་པའི་ཁམས' },
+              pronunciation: 'mah-noh-veej-NYAH-nah-DHAH-too',
+              etymology: '*manas* "mind" + *vijñāna* "consciousness" + *dhātu* "realm"',
+              gloss: 'mind-consciousness-realm — the last of the eighteen dhātus',
+              morphemes: [
+                { text: 'mano', type: 'prefix', gloss: 'mind', pronunciation: 'MAH-noh' },
+                { text: 'vijñāna', type: 'stem', gloss: 'consciousness', pronunciation: 'veej-NYAH-nah' },
+                { text: 'dhātuḥ', type: 'suffix', gloss: 'realm', pronunciation: 'DHAH-too' },
+              ],
+            },
+          ],
+        },
+
+        // ── 無無明 亦無無明盡 — no ignorance and no end of ignorance ──
+        {
+          id: 'middle-no-ignorance',
+          pali: 'na avidyā na avidyākṣayo',
+          paliDeva: 'न अविद्या न अविद्याक्षयो',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'na avidyā na avidyākṣayo' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'न अविद्या न अविद्याक्षयो', transliteration: 'na avidyā na avidyākṣayo' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無無明 亦無無明盡',
+              source: 'T251',
+              tokens: ['無', '無明', '亦', '無', '無明', '盡'],
+              transliteration: 'wú wú-míng yì wú wú-míng jìn  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無無明 亦無無明盡',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '無明', '亦', '無', '無明', '盡'],
+              transliteration: 'mu mu-myō yaku mu mu-myō jin  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'མ་རིག་པ་མེད་མ་རིག་པ་ཟད་པ་མེད་པ',
+              source: 'Kangyur',
+              transliteration: 'ma-rig-pa mé ma-rig-pa zé-pa mé-pa  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'there is no ignorance and no end of ignorance,',
+              alignTo: [-1, -1, -1, 1, -1, -1, -1, -1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'no ignorance, no extinction of ignorance,',
+              alignTo: [0, 1, 0, -1, -1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'no ignorance or end of ignorance,',
+              alignTo: [0, 1, -1, -1, -1, 1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'there is no Ignorance, and no End of Ignorance,',
+              alignTo: [-1, -1, 0, 1, -1, -1, -1, -1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'avidyā',
+              scriptAlt: 'अविद्या',
+              scriptAlts: { 'zh-Hant': '無明', 'ja-Jpan': '無明', 'bo-Tibt': 'མ་རིག་པ' },
+              pronunciation: 'ah-VEED-yah',
+              etymology: '*a-* "not" + *vidyā* "knowledge"',
+              gloss: 'ignorance — the first link of the twelve nidānas of dependent origination',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'vidyā', type: 'stem', root: '√vid', gloss: 'knowledge', pronunciation: 'VEED-yah' },
+              ],
+            },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'avidyākṣayo',
+              scriptAlt: 'अविद्याक्षयो',
+              scriptAlts: { 'zh-Hant': '無明盡', 'ja-Jpan': '無明盡', 'bo-Tibt': 'མ་རིག་པ་ཟད་པ' },
+              pronunciation: 'ah-VEED-yah-KSHAH-yoh',
+              etymology: '*avidyā* "ignorance" + *kṣaya* "ending, exhaustion"',
+              gloss: 'end of ignorance — both the cause and its cessation are negated',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'vidyā', type: 'stem', root: '√vid', gloss: 'knowledge — *avidyā* = "not-knowing", the first link of dependent origination', pronunciation: 'VEED-yah' },
+                { text: 'kṣayo', type: 'stem', gloss: 'ending, exhaustion', pronunciation: 'KSHAH-yoh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 乃至 無老死 亦無老死盡 — through to no aging-death and no end of aging-death ──
+        {
+          id: 'middle-no-aging-death',
+          pali: 'yāvan na jarāmaraṇaṃ na jarāmaraṇakṣayaḥ',
+          paliDeva: 'यावन्न जरामरणं न जरामरणक्षयः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'yāvan na jarāmaraṇaṃ na jarāmaraṇakṣayaḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'यावन्न जरामरणं न जरामरणक्षयः', transliteration: 'yāvan na jarāmaraṇaṃ na jarāmaraṇakṣayaḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '乃至 無老死 亦無老死盡',
+              source: 'T251',
+              tokens: ['乃至', '無', '老死', '亦', '無', '老死', '盡'],
+              transliteration: 'nǎi-zhì wú lǎo-sǐ yì wú lǎo-sǐ jìn  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '乃至 無老死 亦無老死盡',
+              source: 'Hannya Shingyō',
+              tokens: ['乃至', '無', '老死', '亦', '無', '老死', '盡'],
+              transliteration: 'nai-shi mu rō-shi yaku mu rō-shi jin  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'རྒ་ཤི་མེད་ཅིང་རྒ་ཤི་ཟད་པ་མེད་པའི་བར་དུ',
+              source: 'Kangyur',
+              transliteration: 'ga-shi mé-ching ga-shi zé-pa mé-pé bar-du  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'through to no aging and death and no end of aging and death;',
+              alignTo: [0, 0, 1, 2, 2, 2, -1, 3, 4, 4, 4, 4, 4],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'and so forth, until we come to: no decay and death, no extinction of decay and death,',
+              alignTo: [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'and so forth until no old age and death or end of old age and death;',
+              alignTo: [0, 0, 0, 0, 1, 2, 2, 2, 2, -1, 4, 4, 4, 4, 4, 4],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'all the way to no Old Age and Death, and no End of Old Age and Death;',
+              alignTo: [-1, -1, -1, -1, -1, 2, -1, 2, -1, -1, -1, -1, -1, -1, 2, -1, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'yāvan', scriptAlt: 'यावन्', scriptAlts: { 'zh-Hant': '乃至', 'ja-Jpan': '乃至' }, pronunciation: 'YAH-vahn', gloss: 'up to, as far as — marking the elided middle of the twelve nidānas' },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'jarāmaraṇaṃ',
+              scriptAlt: 'जरामरणम्',
+              scriptAlts: { 'zh-Hant': '老死', 'ja-Jpan': '老死', 'bo-Tibt': 'རྒ་ཤི' },
+              pronunciation: 'jah-RAH-mah-RAH-nahm',
+              etymology: '*jarā* "aging" + *maraṇa* "death" — the final, twelfth link of dependent origination',
+              gloss: 'aging-and-death — the final link in the twelve nidānas of dependent origination',
+              morphemes: [
+                { text: 'jarā', type: 'stem', gloss: 'aging', pronunciation: 'jah-RAH' },
+                { text: 'maraṇaṃ', type: 'suffix', gloss: 'death', pronunciation: 'mah-RAH-nahm' },
+              ],
+            },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'jarāmaraṇakṣayaḥ',
+              scriptAlt: 'जरामरणक्षयः',
+              scriptAlts: { 'zh-Hant': '老死盡', 'ja-Jpan': '老死盡' },
+              pronunciation: 'jah-RAH-mah-RAH-nah-KSHAH-yah',
+              etymology: '*jarā-maraṇa* "aging-death" + *kṣaya* "ending"',
+              gloss: 'end of aging-and-death — both the chain and its cessation are negated',
+              morphemes: [
+                { text: 'jarā', type: 'stem', gloss: 'aging', pronunciation: 'jah-RAH' },
+                { text: 'maraṇa', type: 'stem', root: '√mṛ', gloss: 'death — twelfth and final link of dependent origination', pronunciation: 'mah-RAH-nah' },
+                { text: 'kṣayaḥ', type: 'stem', gloss: 'ending, exhaustion', pronunciation: 'KSHAH-yahh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 無苦集滅道 — no suffering, arising, cessation, path ──
+        {
+          id: 'middle-no-four-truths',
+          pali: 'na duḥkha-samudaya-nirodha-mārgāḥ',
+          paliDeva: 'न दुःखसमुदयनिरोधमार्गाः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'na duḥkha-samudaya-nirodha-mārgāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'न दुःखसमुदयनिरोधमार्गाः', transliteration: 'na duḥkha-samudaya-nirodha-mārgāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無苦集滅道',
+              source: 'T251',
+              tokens: ['無', '苦', '集', '滅', '道'],
+              transliteration: 'wú kǔ jí miè dào  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無苦集滅道',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '苦', '集', '滅', '道'],
+              transliteration: 'mu ku shū metsu dō  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'སྡུག་བསྔལ་མེད་ཀུན་འབྱུང་མེད་འགོག་པ་མེད་ལམ་མེད',
+              source: 'Kangyur',
+              transliteration: 'duk-ngal mé kün-jung mé gok-pa mé lam mé  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'there is no suffering, no arising, no cessation, and no path;',
+              alignTo: [-1, -1, 0, 1, 0, 2, 0, 3, -1, 0, 4],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'there is no suffering, no origination, no stopping, no path,',
+              alignTo: [-1, -1, 0, 1, 0, 2, 0, 3, 0, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'no suffering, no source, no relief, no path;',
+              alignTo: [-1, 1, -1, 2, -1, 3, -1, 4],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'neither is there Ill-being, nor a Cause of Ill-being, nor the End of Ill-being, nor a Path which leads to the End of Ill-being.',
+              alignTo: [-1, -1, -1, 1, -1, -1, 2, -1, -1, -1, -1, 3, -1, -1, -1, -1, 4, -1, -1, -1, -1, -1, -1, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            { form: 'duḥkha', scriptAlt: 'दुःख', scriptAlts: { 'zh-Hant': '苦', 'ja-Jpan': '苦', 'bo-Tibt': 'སྡུག་བསྔལ' }, pronunciation: 'DOOH-khah', gloss: 'suffering — the First Noble Truth' },
+            { form: 'samudaya', scriptAlt: 'समुदय', scriptAlts: { 'zh-Hant': '集', 'ja-Jpan': '集', 'bo-Tibt': 'ཀུན་འབྱུང' }, pronunciation: 'sah-MOO-dah-yah', gloss: 'arising, origin — the Second Noble Truth (the cause of suffering)' },
+            { form: 'nirodha', scriptAlt: 'निरोध', scriptAlts: { 'zh-Hant': '滅', 'ja-Jpan': '滅', 'bo-Tibt': 'འགོག་པ' }, pronunciation: 'nee-ROH-dhah', gloss: 'cessation — the Third Noble Truth' },
+            { form: 'mārgāḥ', scriptAlt: 'मार्गाः', scriptAlts: { 'zh-Hant': '道', 'ja-Jpan': '道', 'bo-Tibt': 'ལམ' }, pronunciation: 'MAHR-gah', gloss: 'path — the Fourth Noble Truth, the eightfold path' },
+          ],
+        },
+
+        // ── 無智亦無得 — no wisdom no attainment ──
+        {
+          id: 'middle-no-wisdom-no-attainment',
+          pali: 'na jñānaṃ na prāptiḥ',
+          paliDeva: 'न ज्ञानं न प्राप्तिः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'na jñānaṃ na prāptiḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'न ज्ञानं न प्राप्तिः', transliteration: 'na jñānaṃ na prāptiḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無智亦無得',
+              source: 'T251',
+              tokens: ['無', '智', '亦', '無', '得'],
+              transliteration: 'wú zhì yì wú dé  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無智亦無得',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '智', '亦', '無', '得'],
+              transliteration: 'mu chi yaku mu toku  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཡེ་ཤེས་མེད་ཐོབ་པ་མེད',
+              source: 'Kangyur',
+              transliteration: 'yé-shé mé top-pa mé  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'there is no attainment and no realization',
+              alignTo: [-1, -1, -1, 3, -1, -1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'there is no cognition, no attainment',
+              alignTo: [-1, -1, -1, 1, -1, 3],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'no knowledge and no attainment.',
+              alignTo: [0, 1, -1, 0, 3],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'Whoever can see this no longer needs anything to attain.',
+              alignTo: [-1, -1, 1, -1, 0, -1, -1, 3, -1, 3],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'jñānaṃ',
+              scriptAlt: 'ज्ञानम्',
+              scriptAlts: { 'zh-Hant': '智', 'ja-Jpan': '智', 'bo-Tibt': 'ཡེ་ཤེས' },
+              pronunciation: 'GYAH-nahm',
+              etymology: '√jñā "to know" → *jñāna* "knowledge"',
+              gloss: 'wisdom, knowledge — pristine awareness, distinct from prajñā (the path-faculty)',
+            },
+            { form: 'na', scriptAlt: 'न', pronunciation: 'nah', gloss: 'no' },
+            {
+              form: 'prāptiḥ',
+              scriptAlt: 'प्राप्तिः',
+              scriptAlts: { 'zh-Hant': '得', 'ja-Jpan': '得', 'bo-Tibt': 'ཐོབ་པ' },
+              pronunciation: 'PRAHP-tee',
+              etymology: '*pra-* + √āp "to obtain" → *prāpti* "attainment"',
+              gloss: 'attainment — the soteriological goal, here negated',
+            },
+          ],
+        },
+
+        // ── 以無所得故 — because there is nothing to attain ──
+        {
+          id: 'middle-because-no-attainment',
+          pali: 'tasmād aprāptitvāt',
+          paliDeva: 'तस्मादप्राप्तित्वात्',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'tasmād aprāptitvāt' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'तस्मादप्राप्तित्वात्', transliteration: 'tasmād aprāptitvāt' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '以無所得故',
+              source: 'T251',
+              tokens: ['以', '無所得', '故'],
+              transliteration: 'yǐ wú-suǒ-dé gù  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '以無所得故',
+              source: 'Hannya Shingyō',
+              tokens: ['以', '無所得', '故'],
+              transliteration: 'i mu-sho-toku ko  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཐོབ་པ་མེད་པའི་ཕྱིར',
+              source: 'Kangyur',
+              transliteration: 'top-pa mé-pé chir  (Lhasa Tibetan)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: '— by practicing no apprehension.',
+              alignTo: [-1, -1, 1, -1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'because there is nothing to be attained.',
+              alignTo: [0, -1, -1, -1, -1, -1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'And since they have nothing to attain,',
+              alignTo: [-1, -1, -1, -1, -1, 1, -1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+          ],
+          words: [
+            { form: 'tasmād', scriptAlt: 'तस्माद्', scriptAlts: { 'zh-Hant': '故', 'ja-Jpan': '故' }, pronunciation: 'tahs-MAHD', gloss: 'therefore — literally "from that"' },
+            {
+              form: 'aprāptitvāt',
+              scriptAlt: 'अप्राप्तित्वात्',
+              scriptAlts: { 'zh-Hant': '無所得', 'ja-Jpan': '無所得', 'bo-Tibt': 'ཐོབ་པ་མེད་པ' },
+              pronunciation: 'ah-PRAHP-teet-vaht',
+              etymology: '*a-* "not" + *prāpti* "attainment" + *-tva* "-ness" + *-āt* "due to" — "from-the-not-being-of-attainment"',
+              gloss: 'due to non-attainment — because there is nothing to attain',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'prāpti', type: 'stem', gloss: 'attainment', pronunciation: 'PRAHP-tee' },
+                { text: 'tvāt', type: 'suffix', gloss: 'forms an abstract noun ("-ness") and marks "due to"', pronunciation: 'TVAHT' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2d. The result-section — no fear, ultimate nirvāṇa
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'heart-result',
+      shape: 'triple-script-witness',
+      segments: [
+
+        // ══════════════════════════════════════════════════════════════
+        // RESULT — no fear, nirvāṇa (one segment per Xuanzang chant-line)
+        // ══════════════════════════════════════════════════════════════
+
+        // ── 心無罣礙 — Mind has no obstruction ──
+        {
+          id: 'result-no-obstruction',
+          pali: 'Cittāvaraṇa',
+          paliDeva: 'चित्तावरण',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Cittāvaraṇa-' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'चित्तावरण-', transliteration: 'Cittāvaraṇa-' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '心無罣礙',
+              source: 'T251',
+              tokens: ['心', '無', '罣礙'],
+              transliteration: 'xīn wú guà-ài  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '心無罣礙',
+              source: 'Hannya Shingyō',
+              tokens: ['心', '無', '罣礙'],
+              transliteration: 'shin mu kege  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'སེམས་ལ་སྒྲིབ་པ་མེད་',
+              source: 'Kangyur',
+              transliteration: "sem la drib-pa mé  (Lhasa Tibetan)",
+              tokens: ['སེམས', 'ལ', 'སྒྲིབ་པ', 'མེད'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Bodhisatvas rely on transcendent wisdom and their minds have no obstruction;',
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, 0, -1, -1, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'With no mental obstructions,',
+              alignTo: [-1, -1, 0, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'Without obstructions in their minds',
+              alignTo: [-1, 0, -1, -1, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'There are no more obstacles in their mind,',
+              alignTo: [-1, -1, -1, -1, 0, -1, -1, 0],
               url: 'https://plumvillage.org/sutra/the-other-shore',
               license: 'Plum Village translation, quoted with attribution',
             },
@@ -849,9 +2442,6 @@ export const heartSutra: LiturgyDoc = {
                   { text: '罣', type: 'semantic', pronunciation: 'ke', gloss: 'snare, catch (read *ke* in 罣礙 *kege*)' },
                   { text: '礙', type: 'semantic', pronunciation: 'ge', gloss: 'block, hinder — doublet with 罣 = "obstruction"' },
                 ],
-                // Tibetan keys on just the *āvaraṇa* portion. The *citta*
-                // (mind) lives as a separate Tibetan word སེམས earlier in
-                // the line.
                 'bo-Tibt': [
                   { text: 'སྒྲིབ་', type: 'semantic', pronunciation: 'sgrib', gloss: 'to obstruct, to obscure (verb root)' },
                   { text: 'པ', type: 'semantic', pronunciation: 'pa', gloss: 'nominaliser — turns the verb into "obstruction"' },
@@ -861,10 +2451,154 @@ export const heartSutra: LiturgyDoc = {
               etymology: '*citta* "mind" + *āvaraṇa* "obscuration, covering"',
               gloss: 'mental obscurations — the veils that hide things as they are',
               morphemes: [
-                { text: 'citta', type: 'stem', gloss: 'mind', pronunciation: 'CHEET-tah' },
+                { text: 'citt', type: 'stem', gloss: 'mind (the stem *citta*; its final vowel merges with the *ā-* that follows)', pronunciation: 'CHEET-tah' },
                 { text: 'āvaraṇa', type: 'suffix', gloss: 'obscuration, cover', pronunciation: 'AH-vah-rah-nah' },
               ],
             },
+          ],
+        },
+
+        // ── 無罣礙故 — Because of no obstruction ──
+        {
+          id: 'result-because-no-obstruction',
+          pali: 'nāstitvād',
+          paliDeva: 'नास्तित्वाद्',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'nāstitvād' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'नास्तित्वाद्', transliteration: 'nāstitvād' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無罣礙故',
+              source: 'T251',
+              tokens: ['無', '罣礙', '故'],
+              transliteration: 'wú guà-ài gù  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無罣礙故',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '罣礙', '故'],
+              transliteration: 'mu kege ko  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'པས་',
+              source: 'Kangyur (the "because" particle absorbed into the preceding clause)',
+              transliteration: "pé  (Lhasa Tibetan)",
+              tokens: ['པས'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'with no obstruction',
+              alignTo: [0, -1, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: '',
+              alignTo: [],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+              license: 'Conze fuses this into the preceding clause — no separate fragment here',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: '',
+              alignTo: [],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Red Pine fuses this into the preceding clause',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'and because there are no more obstacles in their mind,',
+              alignTo: [-1, 0, -1, -1, -1, -1, -1, -1, -1, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'nāstitvād',
+              scriptAlt: 'नास्तित्वाद्',
+              pronunciation: 'NAHS-teet-vahd',
+              etymology: '*na* "not" + *asti* "is" + *-tva* "-ness" + *-ād*, the "due to" ending',
+              gloss: 'due to the absence (of) — literally "from the not-being-ness of"',
+              morphemes: [
+                { text: 'nā', type: 'prefix', gloss: 'not (the negation)', pronunciation: 'nah' },
+                { text: 'sti', type: 'stem', gloss: 'being (root √as "to be")', pronunciation: 'STEE' },
+                { text: 'tvād', type: 'suffix', gloss: 'forms an abstract noun ("-ness") and marks "due to"', pronunciation: 'TVAHD' },
+              ],
+            },
+          ],
+          note: 'Sanskrit binds *Cittāvaraṇa* and *nāstitvād* into a single compound — "because-of-the-absence-of-mental-obstruction." Xuanzang\'s Chinese splits this into two breaths, 心無罣礙 then 無罣礙故, repeating the obstruction word to underline the causal hinge. Conze and Red Pine fuse the two lines in English; Thich Nhat Hanh preserves both.',
+        },
+
+        // ── 無有恐怖 — No fear ──
+        {
+          id: 'result-no-fear',
+          pali: 'atrasto',
+          paliDeva: 'अत्रस्तो',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'atrasto' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अत्रस्तो', transliteration: 'atrasto' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '無有恐怖',
+              source: 'T251',
+              tokens: ['無', '有', '恐怖'],
+              transliteration: 'wú yǒu kǒng-bù  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '無有恐怖',
+              source: 'Hannya Shingyō',
+              tokens: ['無', '有', '恐怖'],
+              transliteration: 'mu u kufu  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'སྐྲག་པ་མེད་དེ།',
+              source: 'Kangyur',
+              transliteration: "trak-pa mé-dé  (Lhasa Tibetan)",
+              tokens: ['སྐྲག་པ', 'མེད་དེ'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'there is no fear.',
+              alignTo: [-1, -1, 0, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'he has no fears.',
+              alignTo: [-1, -1, 0, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'they have no fears.',
+              alignTo: [-1, -1, 0, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'they can overcome all fear,',
+              alignTo: [-1, -1, 0, -1, 0],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
             {
               form: 'atrasto',
               scriptAlt: 'अत्रस्तो',
@@ -878,9 +2612,6 @@ export const heartSutra: LiturgyDoc = {
                   { text: '恐', type: 'semantic', pronunciation: 'ku', gloss: 'fear (read *ku* in 恐怖 *kufu*)' },
                   { text: '怖', type: 'semantic', pronunciation: 'fu', gloss: 'terror — doublet with 恐' },
                 ],
-                // Tibetan: སྐྲག་པ = "fear" (the noun). The negation (མེད་ "not")
-                // sits in the adjacent token; Tibetan splits "unafraid" into
-                // "fear is not", unlike Sanskrit's *a-trasta* prefix-negation.
                 'bo-Tibt': [
                   { text: 'སྐྲག་', type: 'semantic', pronunciation: 'skrag', gloss: 'to fear, be afraid (verb root)' },
                   { text: 'པ', type: 'semantic', pronunciation: 'pa', gloss: 'nominaliser — turns the verb into "fear" (noun)' },
@@ -892,50 +2623,74 @@ export const heartSutra: LiturgyDoc = {
               accent: 'emerald',
               morphemes: [
                 { text: 'a', type: 'prefix', gloss: 'not — the negation', pronunciation: 'ah' },
-                { text: 'trasto', type: 'stem', gloss: 'afraid (past participle)', pronunciation: 'TRAHS-toh' },
+                { text: 'trasto', type: 'stem', gloss: 'afraid — the "X-ed" form', pronunciation: 'TRAHS-toh' },
               ],
             },
+          ],
+        },
+
+        // ── 遠離顛倒夢想 — Far from inverted dreams ──
+        {
+          id: 'result-far-from-inversion',
+          pali: 'viparyāsātikrānto',
+          paliDeva: 'विपर्यासातिक्रान्तो',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'viparyāsātikrānto' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'विपर्यासातिक्रान्तो', transliteration: 'viparyāsātikrānto' },
             {
-              form: 'niṣṭhānirvāṇaḥ',
-              scriptAlt: 'निष्ठानिर्वाणः',
-              scriptAlts: { 'zh-Hant': '涅槃', 'ja-Jpan': '涅槃', 'bo-Tibt': 'མྱ་ངན་ལས་འདས་པ' },
-              scriptMorphemes: {
-                'zh-Hant': [
-                  { text: '涅', type: 'phonetic', pronunciation: 'niè', gloss: 'phonetic: transliterates "nir-"; the character\'s usual meaning ("black mud, dye") is unrelated' },
-                  { text: '槃', type: 'phonetic', pronunciation: 'pán', gloss: 'phonetic: transliterates "-vāṇa"; usual meaning ("plate, dish") is unrelated' },
-                ],
-                'ja-Jpan': [
-                  { text: '涅', type: 'phonetic', pronunciation: 'ne', gloss: 'phonetic: transliterates "nir-" (read *ne* in 涅槃 *nehan*)' },
-                  { text: '槃', type: 'phonetic', pronunciation: 'han', gloss: 'phonetic: transliterates "-vāṇa"' },
-                ],
-                // Tibetan reads nirvāṇa literally: "having passed beyond
-                // sorrow" — no phonetic loan, the whole concept rendered
-                // through native morphemes.
-                'bo-Tibt': [
-                  { text: 'མྱ་', type: 'semantic', pronunciation: 'mya', gloss: 'ill, afflicted' },
-                  { text: 'ངན་', type: 'semantic', pronunciation: 'ngan', gloss: 'bad — together མྱ་ངན ("mya ngan") = "sorrow, grief, affliction"' },
-                  { text: 'ལས་', type: 'semantic', pronunciation: 'las', gloss: 'from, beyond (ablative particle)' },
-                  { text: 'འདས་པ', type: 'semantic', pronunciation: "'das pa", gloss: 'having passed beyond — together: "passed-beyond sorrow" = *nirvāṇa*' },
-                ],
-              },
-              pronunciation: 'neesh-TAH-near-VAH-nah-h',
-              etymology: '*niṣṭhā* "completion, end" + *nirvāṇa* "extinguishing"',
-              gloss: 'final/complete nirvāṇa — the extinguishing of grasping that is the end of suffering',
-              accent: 'violet',
-              citations: [wikipediaCitation('Nirvana_(Buddhism)')],
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '遠離顛倒夢想',
+              source: 'T251',
+              tokens: ['遠離', '顛倒', '夢想'],
+              transliteration: 'yuǎn-lí diān-dǎo mèng-xiǎng  (Mandarin pinyin)',
             },
             {
-              form: 'nāstitvād',
-              scriptAlt: 'नास्तित्वाद्',
-              pronunciation: 'NAHS-teet-vahd',
-              etymology: '*na* "not" + *asti* "is" + *-tva* "-ness" + *-ād* ablative ending',
-              gloss: 'due to the absence (of) — literally "from the not-being-ness of"',
-              morphemes: [
-                { text: 'nā', type: 'prefix', gloss: 'not (the negation)', pronunciation: 'nah' },
-                { text: 'sti', type: 'stem', gloss: 'being (root √as "to be")', pronunciation: 'STEE' },
-                { text: 'tvād', type: 'suffix', gloss: '"-ness, from" — forms the abstract noun and marks ablative ("due to")', pronunciation: 'TVAHD' },
-              ],
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '遠離顛倒夢想',
+              source: 'Hannya Shingyō',
+              tokens: ['遠離', '顛倒', '夢想'],
+              transliteration: 'on-ri ten-dō mu-sō  (Sino-Japanese)',
             },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'ཕྱིན་ཅི་ལོག་ལས་ཤིན་ཏུ་འདས་ནས་',
+              source: 'Kangyur',
+              transliteration: "chin-chi-lok lé shin-tu dé né  (Lhasa Tibetan)",
+              tokens: ['ཕྱིན་ཅི་ལོག', 'ལས', 'ཤིན་ཏུ་འདས', 'ནས'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'Passing far beyond confusion and delusion,',
+              alignTo: [0, 0, 0, 0, -1, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'He has overcome what can upset,',
+              alignTo: [-1, -1, 0, -1, -1, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'Far beyond all distorted views',
+              alignTo: [0, 0, -1, 0, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'destroy all wrong perceptions',
+              alignTo: [0, -1, 0, 0],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
             {
               form: 'viparyāsātikrānto',
               scriptAlt: 'विपर्यासातिक्रान्तो',
@@ -949,8 +2704,6 @@ export const heartSutra: LiturgyDoc = {
                   { text: '顛', type: 'semantic', pronunciation: 'ten', gloss: 'overturn — read *ten* in 顛倒 (*tendō*)' },
                   { text: '倒', type: 'semantic', pronunciation: 'dō', gloss: 'upside-down — doublet with 顛' },
                 ],
-                // Tibetan: idiomatic "the gone-gone-wrong" — three syllables
-                // form a fixed compound for "inverted view".
                 'bo-Tibt': [
                   { text: 'ཕྱིན་', type: 'semantic', pronunciation: 'phyin', gloss: 'gone (here: a "going", a direction)' },
                   { text: 'ཅི་', type: 'semantic', pronunciation: 'ci', gloss: 'what (interrogative; used here as a binding particle in the compound)' },
@@ -962,27 +2715,755 @@ export const heartSutra: LiturgyDoc = {
               gloss: 'having crossed beyond inverted views — past the four distortions (taking the impure as pure, the impermanent as permanent, etc.)',
               accent: 'emerald',
               morphemes: [
-                {
-                  text: 'viparyāsa',
-                  type: 'stem',
-                  gloss: 'inverted view — seeing things upside-down (impermanent as permanent, suffering as pleasure, etc.)',
-                  pronunciation: 'vee-pahr-YAH-sah',
-                  citations: [wikipediaCitation('Viparyasa')],
-                },
-                {
-                  text: 'atikrānto',
-                  type: 'suffix',
-                  gloss: 'having crossed beyond, transcended',
-                  pronunciation: 'ah-tee-KRAHN-toh',
-                },
+                { text: 'viparyās', type: 'stem', gloss: 'inverted view — seeing things upside-down (impermanent as permanent, suffering as pleasure, etc.). The stem is *viparyāsa*; its final vowel merges with the *a-* that follows.', pronunciation: 'vee-pahr-YAH-sah', citations: [wikipediaCitation('Viparyasa')] },
+                { text: 'ātikrānto', type: 'suffix', gloss: 'having crossed beyond, transcended (*atikrānto*; it carries the long *ā* formed where the two words\' vowels merged)', pronunciation: 'ah-tee-KRAHN-toh' },
               ],
+            },
+          ],
+        },
+
+        // ── 究竟涅槃 — Ultimate nirvāṇa ──
+        {
+          id: 'result-ultimate-nirvana',
+          pali: 'niṣṭhānirvāṇaḥ.',
+          paliDeva: 'निष्ठानिर्वाणः॥',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'niṣṭhānirvāṇaḥ.' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'निष्ठानिर्वाणः॥', transliteration: 'niṣṭhānirvāṇaḥ.' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '究竟涅槃',
+              source: 'T251',
+              tokens: ['究竟', '涅槃'],
+              transliteration: 'jiū-jìng niè-pán  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '究竟涅槃',
+              source: 'Hannya Shingyō',
+              tokens: ['究竟', '涅槃'],
+              transliteration: 'ku-kyō ne-han  (Sino-Japanese)',
+            },
+            {
+              lang: 'bo-Tibt',
+              label: 'Tibetan',
+              text: 'མྱ་ངན་ལས་འདས་པའི་མཐར་ཕྱིན་ཏོ།',
+              source: 'Kangyur',
+              transliteration: "nya-ngen lé dé-pé tar-chin to  (Lhasa Tibetan)",
+              tokens: ['མྱ་ངན་ལས་འདས་པ', 'འི', 'མཐར་ཕྱིན', 'ཏོ'],
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'they reach ultimate nirvana.',
+              alignTo: [-1, -1, 0, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'and reaches in the end to Nirvāṇa.',
+              alignTo: [-1, -1, -1, -1, -1, -1, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'they reach final nirvāṇa.',
+              alignTo: [-1, -1, 0, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'and realize Perfect Nirvāṇa.',
+              alignTo: [-1, -1, 0, 0],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'niṣṭhānirvāṇaḥ',
+              scriptAlt: 'निष्ठानिर्वाणः',
+              scriptAlts: { 'zh-Hant': '涅槃', 'ja-Jpan': '涅槃', 'bo-Tibt': 'མྱ་ངན་ལས་འདས་པ' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '涅', type: 'phonetic', pronunciation: 'niè', gloss: 'phonetic: transliterates "nir-"; the character\'s usual meaning ("black mud, dye") is unrelated' },
+                  { text: '槃', type: 'phonetic', pronunciation: 'pán', gloss: 'phonetic: transliterates "-vāṇa"; usual meaning ("plate, dish") is unrelated' },
+                ],
+                'ja-Jpan': [
+                  { text: '涅', type: 'phonetic', pronunciation: 'ne', gloss: 'phonetic: transliterates "nir-" (read *ne* in 涅槃 *nehan*)' },
+                  { text: '槃', type: 'phonetic', pronunciation: 'han', gloss: 'phonetic: transliterates "-vāṇa"' },
+                ],
+                'bo-Tibt': [
+                  { text: 'མྱ་', type: 'semantic', pronunciation: 'mya', gloss: 'ill, afflicted' },
+                  { text: 'ངན་', type: 'semantic', pronunciation: 'ngan', gloss: 'bad — together མྱ་ངན ("mya ngan") = "sorrow, grief, affliction"' },
+                  { text: 'ལས་', type: 'semantic', pronunciation: 'las', gloss: 'from, beyond — the particle that marks "from"' },
+                  { text: 'འདས་པ', type: 'semantic', pronunciation: "'das pa", gloss: 'having passed beyond — together: "passed-beyond sorrow" = *nirvāṇa*' },
+                ],
+              },
+              pronunciation: 'neesh-TAH-near-VAH-nah-h',
+              etymology: '*niṣṭhā* "completion, end" + *nirvāṇa* "extinguishing"',
+              gloss: 'final/complete nirvāṇa — the extinguishing of grasping that is the end of suffering',
+              accent: 'violet',
+              morphemes: [
+                { text: 'niṣṭhā', type: 'stem', gloss: 'completion, fixation, final state', pronunciation: 'neesh-TAH' },
+                { text: 'nir', type: 'prefix', gloss: 'out, away, without', pronunciation: 'near' },
+                { text: 'vāṇaḥ', type: 'stem', root: '√vā', gloss: 'blown — together *nirvāṇa* = "blown out, extinguished" (the metaphor of an oil lamp going out)', pronunciation: 'VAH-nahh' },
+              ],
+              citations: [wikipediaCitation('Nirvana_(Buddhism)')],
             },
           ],
           note: 'The pivot from analysis to result. Having seen everything as empty, the bodhisattva is *unobstructed* — *atrasto*, unafraid. The Chinese 心無罣礙 (*shin mu kege* in Japanese reading) — "mind without obstruction" — is one of the most-quoted lines in East Asian Buddhism.',
         },
       ],
-      commentary:
-        "The body of the sutra continues with a detailed enumeration of what is empty — the six senses and their objects, the eighteen dhātus, the twelve nidānas, the Four Noble Truths — none are denied as conventional designations; all are seen through as devoid of own-being. Not yet authored in this reader; the canonical short version is c. 260 syllables in Sanskrit and the elided passages are well-attested in the cited canonical sources above.",
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2e. All Buddhas of the three times rely on prajñāpāramitā
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'heart-buddhas',
+      shape: 'triple-script-witness',
+      segments: [
+        // ── 三世諸佛 — all buddhas of the three times ──
+        {
+          id: 'buddhas-all-three-times',
+          pali: 'Tryadhvavyavasthitāḥ sarvabuddhāḥ',
+          paliDeva: 'त्र्यध्वव्यवस्थिताः सर्वबुद्धाः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'Tryadhvavyavasthitāḥ sarvabuddhāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'त्र्यध्वव्यवस्थिताः सर्वबुद्धाः', transliteration: 'Tryadhva-vyavasthitāḥ sarva-buddhāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '三世諸佛',
+              source: 'T251',
+              tokens: ['三世', '諸佛'],
+              transliteration: 'sān-shì zhū-fó  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '三世諸佛',
+              source: 'Hannya Shingyō',
+              tokens: ['三世', '諸佛'],
+              transliteration: 'San-ze sho-butsu  (Sino-Japanese)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'All Buddhas of the past, present and future',
+              alignTo: [-1, 1, -1, 0, -1, 0, -1, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'All those who appear as Buddhas in the three periods of time',
+              alignTo: [-1, -1, -1, -1, -1, 1, -1, -1, 0, -1, -1, -1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'All buddhas past, present, and future',
+              alignTo: [-1, 1, -1, -1, -1, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'All Buddhas in the past, present and future,',
+              alignTo: [-1, 1, -1, 0, -1, 0, -1, 0],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'Tryadhvavyavasthitāḥ',
+              scriptAlt: 'त्र्यध्वव्यवस्थिताः',
+              scriptAlts: { 'zh-Hant': '三世', 'ja-Jpan': '三世' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '三', type: 'semantic', pronunciation: 'sān', gloss: 'three — calques Sanskrit *tri*' },
+                  { text: '世', type: 'semantic', pronunciation: 'shì', gloss: 'world, age, generation — here "time-period". Together 三世 = the three times: past, present, future' },
+                ],
+                'ja-Jpan': [
+                  { text: '三', type: 'semantic', pronunciation: 'san', gloss: 'three' },
+                  { text: '世', type: 'semantic', pronunciation: 'ze', gloss: 'age, time-period. 三世 (san-ze) = the three times' },
+                ],
+              },
+              pronunciation: 'tree-AHD-vah-vyah-vahs-thee-TAHH',
+              etymology: '*tri-* "three" + *adhva* "way, time-period" + *vyavasthita* "established, situated"',
+              gloss: 'established in the three times — past, present, and future',
+              morphemes: [
+                { text: 'try', type: 'prefix', gloss: 'three (*tri-*; the *i* turns to *y* before the vowel that follows)', pronunciation: 'tree' },
+                { text: 'adhva', type: 'stem', gloss: 'time, way, road', pronunciation: 'AHD-vah' },
+                { text: 'vyavasthitāḥ', type: 'suffix', root: '√sthā', gloss: 'established, dwelling (plural)', pronunciation: 'vyah-vahs-thee-TAHH' },
+              ],
+            },
+            {
+              form: 'sarvabuddhāḥ',
+              scriptAlt: 'सर्वबुद्धाः',
+              scriptAlts: { 'zh-Hant': '諸佛', 'ja-Jpan': '諸佛' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '諸', type: 'semantic', pronunciation: 'zhū', gloss: 'all, every — calques *sarva*' },
+                  { text: '佛', type: 'semantic', pronunciation: 'fó', gloss: 'Buddha. Phonetic loan from Sanskrit *buddha*; the same 佛 across all Chinese Buddhist literature' },
+                ],
+                'ja-Jpan': [
+                  { text: '諸', type: 'semantic', pronunciation: 'sho', gloss: 'all — calques *sarva*' },
+                  { text: '佛', type: 'semantic', pronunciation: 'butsu', gloss: 'Buddha' },
+                ],
+              },
+              pronunciation: 'sahr-vah-BOOD-dhah',
+              etymology: '*sarva* "all" + *buddha* "awakened" (plural)',
+              gloss: 'all the buddhas',
+              accent: 'amber',
+              morphemes: [
+                { text: 'sarva', type: 'prefix', gloss: 'all, every', pronunciation: 'SAHR-vah' },
+                { text: 'buddhāḥ', type: 'stem', root: '√budh', gloss: 'awakened ones (plural)', pronunciation: 'BOOD-dhah' },
+              ],
+            },
+          ],
+        },
+
+        // ── 依般若波羅蜜多故 — relying on the perfection of wisdom ──
+        {
+          id: 'buddhas-rely-prajna',
+          pali: 'prajñāpāramitām āśritya',
+          paliDeva: 'प्रज्ञापारमिताम् आश्रित्य',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'prajñāpāramitām āśritya' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'प्रज्ञापारमिताम् आश्रित्य', transliteration: 'prajñāpāramitām āśritya' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '依般若波羅蜜多故',
+              source: 'T251',
+              tokens: ['依', '般若', '波羅蜜多', '故'],
+              transliteration: 'yī  bō-rě  bō-luó-mì-duō  gù  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '依般若波羅蜜多故',
+              source: 'Hannya Shingyō',
+              tokens: ['依', '般若', '波羅蜜多', '故'],
+              transliteration: 'e hannya haramita ko  (Sino-Japanese)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'rely on transcendent wisdom,',
+              alignTo: [1, -1, 0, 0],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: 'fully awake to the utmost, right and perfect Enlightenment because they have relied on the Perfection of Wisdom.',
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 0, -1, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'depend on Prajñāpāramitā',
+              alignTo: [1, -1, 0],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'thanks to this Insight that brings us to the Other Shore,',
+              alignTo: [-1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'prajñāpāramitām',
+              scriptAlt: 'प्रज्ञापारमिताम्',
+              scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '般若', type: 'phonetic', pronunciation: 'bō-rě', gloss: 'phonetic transliteration of Sanskrit *prajñā* (wisdom)' },
+                  { text: '波羅蜜多', type: 'phonetic', pronunciation: 'bō-luó-mì-duō', gloss: 'phonetic transliteration of *pāramitā* (perfection)' },
+                ],
+                'ja-Jpan': [
+                  { text: '般若', type: 'phonetic', pronunciation: 'hannya', gloss: 'phonetic: *prajñā*' },
+                  { text: '波羅蜜多', type: 'phonetic', pronunciation: 'haramita', gloss: 'phonetic: *pāramitā*' },
+                ],
+              },
+              pronunciation: 'prahj-NYAH-pah-rah-mee-TAHM',
+              etymology: '*prajñā* "wisdom" + *pāramitā* "perfection"',
+              gloss: 'the perfection of wisdom — here the object of "relying on"',
+              accent: 'sky',
+              morphemes: [
+                { text: 'prajñā', type: 'stem', gloss: 'wisdom', pronunciation: 'prahj-NYAH' },
+                { text: 'pāramitām', type: 'suffix', gloss: 'perfection (acc.)', pronunciation: 'pah-rah-mee-TAHM' },
+              ],
+            },
+            {
+              form: 'āśritya',
+              scriptAlt: 'आश्रित्य',
+              scriptAlts: { 'zh-Hant': '依', 'ja-Jpan': '依' },
+              pronunciation: 'AH-shree-tyah',
+              etymology: '*ā-* "toward" + *√śri* "to rest on, depend on"',
+              gloss: 'having taken refuge in, relying on (gerund)',
+              morphemes: [
+                { text: 'ā', type: 'prefix', gloss: 'toward, near', pronunciation: 'ah' },
+                { text: 'śri', type: 'root', root: '√śri', gloss: 'to rest on, take refuge in, depend on', pronunciation: 'shree' },
+                { text: 'tya', type: 'suffix', gloss: 'gerund / absolutive ending — "having Xed"', pronunciation: 'tyah' },
+              ],
+            },
+          ],
+        },
+
+        // ── 得阿耨多羅三藐三菩提 — attain unsurpassed perfect enlightenment ──
+        {
+          id: 'buddhas-attain-bodhi',
+          pali: 'anuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ',
+          paliDeva: 'अनुत्तरां सम्यक्संबोधिम् अभिसंबुद्धाः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'anuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अनुत्तरां सम्यक्संबोधिम् अभिसंबुद्धाः', transliteration: 'anuttarāṃ samyaksaṃbodhim abhisaṃbuddhāḥ' },
+            {
+              lang: 'zh-Hant',
+              label: 'Chinese (Xuanzang)',
+              text: '得阿耨多羅三藐三菩提',
+              source: 'T251',
+              tokens: ['得', '阿耨多羅', '三藐三', '菩提'],
+              transliteration: 'dé  ā-nòu-duō-luó  sān-miǎo-sān  pú-tí  (Mandarin pinyin)',
+            },
+            {
+              lang: 'ja-Jpan',
+              label: 'Japanese (Sino-Japanese)',
+              text: '得阿耨多羅三藐三菩提',
+              source: 'Hannya Shingyō',
+              tokens: ['得', '阿耨多羅', '三藐三', '菩提'],
+              transliteration: 'toku a-noku-ta-ra san-myaku-san bo-dai  (Sino-Japanese)',
+            },
+          ],
+          witnesses: [
+            {
+              by: 'MAPLE chant sheet (after Sheng-yen)',
+              text: 'and attain unexcelled, perfect, complete enlightenment.',
+              alignTo: [-1, 2, 0, 1, 1, 1],
+              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+            },
+            {
+              by: 'Conze (1958)',
+              text: '— see all-in-one (verse 14) above',
+              alignTo: [-1, -1, -1, -1, -1, -1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra',
+              license: 'Conze fuses 14 + 15 — no separate alignment',
+            },
+            {
+              by: 'Red Pine (2004)',
+              text: 'and realize unexcelled, perfect Enlightenment.',
+              alignTo: [-1, -1, 0, 1, 1],
+              url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/',
+              license: 'Quoted with attribution',
+            },
+            {
+              by: 'Thich Nhat Hanh (2014)',
+              text: 'are all capable of attaining Authentic and Perfect Enlightenment.',
+              alignTo: [-1, -1, -1, -1, 2, 1, -1, 1, 1],
+              url: 'https://plumvillage.org/sutra/the-other-shore',
+              license: 'Plum Village translation, quoted with attribution',
+            },
+          ],
+          words: [
+            {
+              form: 'anuttarāṃ',
+              scriptAlt: 'अनुत्तराम्',
+              scriptAlts: { 'zh-Hant': '阿耨多羅', 'ja-Jpan': '阿耨多羅' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '阿', type: 'phonetic', pronunciation: 'ā', gloss: 'phonetic: *a-* (the negation)' },
+                  { text: '耨', type: 'phonetic', pronunciation: 'nòu', gloss: 'phonetic: *-nu-*' },
+                  { text: '多', type: 'phonetic', pronunciation: 'duō', gloss: 'phonetic: *-tta-*' },
+                  { text: '羅', type: 'phonetic', pronunciation: 'luó', gloss: 'phonetic: *-rām*, the object-marking ending' },
+                ],
+              },
+              pronunciation: 'ah-NOOT-tah-rahm',
+              etymology: '*a-* "not" + *uttara* "higher, superior" — "than which nothing is higher"',
+              gloss: 'unsurpassed, supreme',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'not (assimilated *a-* before vowel)', pronunciation: 'ahn' },
+                { text: 'uttarāṃ', type: 'stem', gloss: 'higher, superior — "than which nothing is higher"', pronunciation: 'OOT-tah-rahm' },
+              ],
+            },
+            {
+              form: 'samyaksaṃbodhim',
+              scriptAlt: 'सम्यक्संबोधिम्',
+              scriptAlts: { 'zh-Hant': '三藐三菩提', 'ja-Jpan': '三藐三菩提' },
+              scriptMorphemes: {
+                'zh-Hant': [
+                  { text: '三藐', type: 'phonetic', pronunciation: 'sān-miǎo', gloss: 'phonetic: *samyak-* (perfect, complete)' },
+                  { text: '三', type: 'phonetic', pronunciation: 'sān', gloss: 'phonetic: *saṃ-* (together, fully)' },
+                  { text: '菩提', type: 'phonetic', pronunciation: 'pú-tí', gloss: 'phonetic: *bodhi* (awakening) — same 菩提 across all Chinese Buddhist texts' },
+                ],
+              },
+              pronunciation: 'sahm-YAHK-sahm-BOH-dheem',
+              etymology: '*samyak* "perfect, right" + *saṃ-* "together, complete" + *bodhi* "awakening"',
+              gloss: 'perfect complete awakening — the *anuttarā samyaksaṃbodhi* of the bodhisattva path',
+              accent: 'amber',
+              morphemes: [
+                { text: 'samyak', type: 'prefix', gloss: 'right, perfect', pronunciation: 'SAHM-yahk' },
+                { text: 'saṃ', type: 'prefix', gloss: 'fully, completely', pronunciation: 'sahm' },
+                { text: 'bodhim', type: 'stem', root: '√budh', gloss: 'awakening (acc.)', pronunciation: 'BOH-dheem' },
+              ],
+            },
+            {
+              form: 'abhisaṃbuddhāḥ',
+              scriptAlt: 'अभिसंबुद्धाः',
+              scriptAlts: { 'zh-Hant': '得', 'ja-Jpan': '得' },
+              pronunciation: 'ah-bhee-sahm-BOOD-dhah',
+              etymology: '*abhi-* "toward" + *saṃ-* "fully" + *buddha* "awakened" (plural)',
+              gloss: 'fully awakened to (plural — all the buddhas have attained)',
+              morphemes: [
+                { text: 'abhi', type: 'prefix', gloss: 'toward, fully', pronunciation: 'ah-bhee' },
+                { text: 'saṃ', type: 'prefix', gloss: 'completely', pronunciation: 'sahm' },
+                { text: 'buddhāḥ', type: 'stem', root: '√budh', gloss: 'awakened (plural)', pronunciation: 'BOOD-dhah' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 2f. Therefore know: prajñāpāramitā is the great mantra
+    // ─────────────────────────────────────────────────────────────────────
+    {
+      id: 'heart-great-mantra',
+      shape: 'triple-script-witness',
+      segments: [
+        // ── 故知般若波羅蜜多 — Therefore know: prajñāpāramitā ──
+        {
+          id: 'mantra-therefore-know',
+          pali: 'tasmāj jñātavyaṃ prajñāpāramitā',
+          paliDeva: 'तस्माज्ज्ञातव्यं प्रज्ञापारमिता',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'tasmāj jñātavyaṃ prajñāpāramitā' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'तस्माज्ज्ञातव्यं प्रज्ञापारमिता', transliteration: 'tasmāj jñātavyaṃ prajñāpāramitā' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '故知般若波羅蜜多', source: 'T251', tokens: ['故', '知', '般若波羅蜜多'], transliteration: 'gù zhī bō-rě bō-luó-mì-duō  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '故知般若波羅蜜多', source: 'Hannya Shingyō', tokens: ['故', '知', '般若波羅蜜多'], transliteration: 'ko chi hannya haramita  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'Therefore know: transcendent wisdom', alignTo: [0, 1, -1, 2], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'Therefore one should know the Prajñāpāramitā', alignTo: [0, -1, -1, 1, -1, 2], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'You should therefore know that Prajñāpāramitā', alignTo: [-1, -1, 0, 1, -1, 2], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'Therefore Shariputra, it should be known that the Insight that brings us to the Other Shore', alignTo: [0, -1, -1, -1, -1, 1, -1, -1, 2, -1, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'tasmāj', scriptAlt: 'तस्माज्', scriptAlts: { 'zh-Hant': '故', 'ja-Jpan': '故' }, pronunciation: 'tahs-MAHJ', gloss: 'therefore — literally "from that"' },
+            {
+              form: 'jñātavyaṃ',
+              scriptAlt: 'ज्ञातव्यं',
+              scriptAlts: { 'zh-Hant': '知', 'ja-Jpan': '知' },
+              pronunciation: 'GYAH-tahv-yahm',
+              gloss: 'should be known',
+              morphemes: [
+                { text: 'jñā', type: 'root', root: '√jñā', gloss: 'to know', pronunciation: 'gyah' },
+                { text: 'tavyaṃ', type: 'suffix', gloss: 'the "should-be-Xed" ending — turns the verb into an instruction', pronunciation: 'TAHV-yahm' },
+              ],
+            },
+            {
+              form: 'prajñāpāramitā',
+              scriptAlt: 'प्रज्ञापारमिता',
+              scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' },
+              pronunciation: 'prahj-NYAH-pah-rah-mee-TAH',
+              gloss: 'the Perfection of Wisdom',
+              accent: 'sky',
+              morphemes: [
+                { text: 'prajñā', type: 'stem', root: '√jñā', gloss: 'wisdom — *pra-* "forth" + *√jñā* "to know"', pronunciation: 'prahj-NYAH' },
+                { text: 'pāramitā', type: 'stem', gloss: 'perfection, "gone-to-the-other-shore" (*pāram* "the far shore" + *itā* "gone")', pronunciation: 'pah-rah-mee-TAH' },
+              ],
+            },
+          ],
+        },
+
+        // ── 是大神咒 — is the great mantra ──
+        {
+          id: 'mantra-great',
+          pali: 'mahāmantraḥ',
+          paliDeva: 'महामन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'mahāmantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'महामन्त्रः', transliteration: 'mahāmantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是大神咒', source: 'T251', tokens: ['是', '大神', '咒'], transliteration: 'shì dà-shén zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是大神咒', source: 'Hannya Shingyō', tokens: ['是', '大神', '咒'], transliteration: 'ze dai-jin shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'is the great spell,', alignTo: [-1, -1, 0, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'is a great spell,', alignTo: [-1, -1, 0, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'is the great mantra,', alignTo: [-1, -1, 0, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'is a Great Mantra,', alignTo: [-1, -1, 0, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            {
+              form: 'mahāmantraḥ',
+              scriptAlt: 'महामन्त्रः',
+              scriptAlts: { 'zh-Hant': '大神咒', 'ja-Jpan': '大神咒' },
+              pronunciation: 'mah-HAH-mahn-trahh',
+              etymology: '*mahā* "great" + *mantra* "spell, sacred utterance"',
+              gloss: 'the great mantra',
+              morphemes: [
+                { text: 'mahā', type: 'prefix', gloss: 'great', pronunciation: 'mah-HAH' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra — an instrument of thought', pronunciation: 'MAHN-trahh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 是大明咒 — is the great knowledge mantra ──
+        {
+          id: 'mantra-great-knowledge',
+          pali: 'mahāvidyāmantraḥ',
+          paliDeva: 'महाविद्यामन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'mahāvidyāmantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'महाविद्यामन्त्रः', transliteration: 'mahāvidyāmantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是大明咒', source: 'T251', tokens: ['是', '大明', '咒'], transliteration: 'shì dà-míng zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是大明咒', source: 'Hannya Shingyō', tokens: ['是', '大明', '咒'], transliteration: 'ze dai-myō shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'the great knowledge,', alignTo: [-1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'a spell of great knowledge,', alignTo: [-1, -1, -1, -1, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra of great learning,', alignTo: [-1, -1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'the most illuminating mantra,', alignTo: [-1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            {
+              form: 'mahāvidyāmantraḥ',
+              scriptAlt: 'महाविद्यामन्त्रः',
+              scriptAlts: { 'zh-Hant': '大明咒', 'ja-Jpan': '大明咒' },
+              pronunciation: 'mah-HAH-veed-YAH-mahn-trahh',
+              etymology: '*mahā* "great" + *vidyā* "knowledge, illumination" + *mantra*. *Vidyā* shares its root √vid with the 明 (míng "bright, clear")',
+              gloss: 'the great knowledge-mantra — knowledge here is illumination, not propositional content',
+              morphemes: [
+                { text: 'mahā', type: 'prefix', gloss: 'great', pronunciation: 'mah-HAH' },
+                { text: 'vidyā', type: 'stem', root: '√vid', gloss: 'knowledge, illumination — same root as Chinese 明 (míng "bright, clear")', pronunciation: 'veed-YAH' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra', pronunciation: 'MAHN-trahh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 是無上咒 — is the unsurpassed mantra ──
+        {
+          id: 'mantra-unsurpassed',
+          pali: 'anuttaramantraḥ',
+          paliDeva: 'अनुत्तरमन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'anuttaramantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'अनुत्तरमन्त्रः', transliteration: 'anuttaramantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是無上咒', source: 'T251', tokens: ['是', '無上', '咒'], transliteration: 'shì wú-shàng zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是無上咒', source: 'Hannya Shingyō', tokens: ['是', '無上', '咒'], transliteration: 'ze mu-jō shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'the supreme knowledge,', alignTo: [-1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'the utmost spell,', alignTo: [-1, -1, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the unsurpassable mantra,', alignTo: [-1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'the highest mantra,', alignTo: [-1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            {
+              form: 'anuttaramantraḥ',
+              scriptAlt: 'अनुत्तरमन्त्रः',
+              scriptAlts: { 'zh-Hant': '無上咒', 'ja-Jpan': '無上咒' },
+              pronunciation: 'ah-NOOT-tah-rah-mahn-trahh',
+              etymology: 'same *anuttara* "unsurpassed" as in *anuttarā samyaksaṃbodhi*',
+              gloss: 'the unsurpassed mantra — nothing surpasses it',
+              morphemes: [
+                { text: 'an', type: 'prefix', gloss: 'not (assimilated form of *a-* before vowel)', pronunciation: 'ahn' },
+                { text: 'uttara', type: 'stem', gloss: 'higher, superior', pronunciation: 'OOT-tah-rah' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra', pronunciation: 'MAHN-trahh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 是無等等咒 — is the unequaled mantra ──
+        {
+          id: 'mantra-unequaled',
+          pali: 'asamasamamantraḥ',
+          paliDeva: 'असमसममन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'asamasamamantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'असमसममन्त्रः', transliteration: 'asamasamamantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '是無等等咒', source: 'T251', tokens: ['是', '無等等', '咒'], transliteration: 'shì wú-děng-děng zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '是無等等咒', source: 'Hannya Shingyō', tokens: ['是', '無等等', '咒'], transliteration: 'ze mu-tō-dō shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'the unequalled knowledge.', alignTo: [-1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'unequalled,', alignTo: [0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra equal to the unequaled,', alignTo: [-1, -1, -1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'the mantra which is the equal of the unequalled,', alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            {
+              form: 'asamasamamantraḥ',
+              scriptAlt: 'असमसममन्त्रः',
+              scriptAlts: { 'zh-Hant': '無等等咒', 'ja-Jpan': '無等等咒' },
+              pronunciation: 'ah-SAH-mah-SAH-mah-mahn-trahh',
+              etymology: '*a-* "not" + *sama* "equal" + *sama* "equal" — "having no equal", "equal to the unequaled"',
+              gloss: 'the unequaled-equal mantra — paradoxical formula: equal to what has no equal',
+              morphemes: [
+                { text: 'a', type: 'prefix', gloss: 'not', pronunciation: 'ah' },
+                { text: 'sama', type: 'stem', gloss: 'equal — first occurrence: "no equal"', pronunciation: 'SAH-mah' },
+                { text: 'sama', type: 'stem', gloss: 'equal — second occurrence: "equal to [the unequaled]"', pronunciation: 'SAH-mah' },
+                { text: 'mantraḥ', type: 'stem', root: '√man', gloss: 'mantra', pronunciation: 'MAHN-trahh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 能除一切苦 — able to remove all suffering ──
+        {
+          id: 'mantra-removes-suffering',
+          pali: 'sarvaduḥkhapraśamanaḥ',
+          paliDeva: 'सर्वदुःखप्रशमनः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'sarvaduḥkhapraśamanaḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'सर्वदुःखप्रशमनः', transliteration: 'sarvaduḥkhapraśamanaḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '能除一切苦', source: 'T251', tokens: ['能', '除', '一切', '苦'], transliteration: 'néng chú yī-qiè kǔ  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '能除一切苦', source: 'Hannya Shingyō', tokens: ['能', '除', '一切', '苦'], transliteration: 'nō jo issai ku  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'It can remove all suffering.', alignTo: [-1, -1, 0, 0, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'allayer of all suffering,', alignTo: [0, 0, 0, 0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra that ends all suffering.', alignTo: [-1, -1, -1, 0, 0, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'a Mantra which is able to allay all suffering.', alignTo: [-1, -1, -1, -1, -1, 0, 0, 0, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            {
+              form: 'sarvaduḥkhapraśamanaḥ',
+              scriptAlt: 'सर्वदुःखप्रशमनः',
+              scriptAlts: { 'zh-Hant': '除一切苦', 'ja-Jpan': '除一切苦' },
+              pronunciation: 'sahr-vah-DOOH-khah-prah-SHAH-mah-nahh',
+              etymology: '*sarva* "all" + *duḥkha* "suffering" + *praśamana* "calming, stilling"',
+              gloss: 'allayer of all suffering — what calms every kind of suffering',
+              morphemes: [
+                { text: 'sarva', type: 'prefix', gloss: 'all, every', pronunciation: 'SAHR-vah' },
+                { text: 'duḥkha', type: 'stem', gloss: 'suffering, dis-ease — the First Noble Truth term', pronunciation: 'DOOH-khah' },
+                { text: 'praśamanaḥ', type: 'stem', root: '√śam', gloss: 'calming, stilling, allayer', pronunciation: 'prah-SHAH-mah-nahh' },
+              ],
+            },
+          ],
+        },
+
+        // ── 真實不虛 — true, not false ──
+        {
+          id: 'mantra-true-not-false',
+          pali: 'satyam amithyatvāt',
+          paliDeva: 'सत्यम् अमिथ्यत्वात्',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'satyam amithyatvāt' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'सत्यम् अमिथ्यत्वात्', transliteration: 'satyam amithyatvāt' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '真實不虛', source: 'T251', tokens: ['真實', '不虛'], transliteration: 'zhēn-shí bù-xū  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '真實不虛', source: 'Hannya Shingyō', tokens: ['真實', '不虛'], transliteration: 'shin-jitsu fu-ko  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'It is true, not false.', alignTo: [-1, -1, 0, -1, 1], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'in truth — for what could go wrong?', alignTo: [-1, 0, -1, -1, 1, -1, -1, -1], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'It is real and not illusory.', alignTo: [-1, -1, 0, -1, -1, 1], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'This is the truth that can not be doubted,', alignTo: [-1, -1, -1, 0, -1, 1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'satyam', scriptAlt: 'सत्यम्', scriptAlts: { 'zh-Hant': '真實', 'ja-Jpan': '真實' }, pronunciation: 'SAHT-yahm', etymology: '*sat* "being, true" + *-ya* abstract suffix — "truth itself"', gloss: 'true, real' },
+            { form: 'amithyatvāt', scriptAlt: 'अमिथ्यत्वात्', scriptAlts: { 'zh-Hant': '不虛', 'ja-Jpan': '不虛' }, pronunciation: 'ah-MEETH-yaht-vaht', etymology: '*a-* "not" + *mithyā* "false" + *-tva* abstract + *-āt* "due to" — "due to not being false"', gloss: 'because it is not false — the ending carries the "because"' },
+          ],
+        },
+
+        // ── 故說般若波羅蜜多咒 — therefore the prajñāpāramitā mantra is spoken ──
+        {
+          id: 'mantra-prajna-spoken',
+          pali: 'prajñāpāramitāyām ukto mantraḥ',
+          paliDeva: 'प्रज्ञापारमितायाम् उक्तो मन्त्रः',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'prajñāpāramitāyām ukto mantraḥ' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'प्रज्ञापारमितायाम् उक्तो मन्त्रः', transliteration: 'prajñāpāramitāyām ukto mantraḥ' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '故說般若波羅蜜多咒', source: 'T251', tokens: ['故', '說', '般若波羅蜜多', '咒'], transliteration: 'gù shuō bō-rě bō-luó-mì-duō zhòu  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '故說般若波羅蜜多咒', source: 'Hannya Shingyō', tokens: ['故', '說', '般若波羅蜜多', '咒'], transliteration: 'ko setsu hannya haramita shu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'Therefore recite the mantra of transcendent wisdom', alignTo: [-1, 1, -1, 2, -1, -1, 0], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'By the Prajñāpāramitā has this spell been delivered. It runs like this:', alignTo: [-1, -1, 0, -1, -1, 2, -1, 1, -1, -1, -1, -1], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'So we proclaim the mantra of Prajñāpāramitā,', alignTo: [-1, -1, 1, -1, 2, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'so let us proclaim a mantra to praise the Insight that brings us to the Other Shore.', alignTo: [-1, -1, -1, 1, -1, 2, -1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            {
+              form: 'prajñāpāramitāyām',
+              scriptAlt: 'प्रज्ञापारमितायाम्',
+              scriptAlts: { 'zh-Hant': '般若波羅蜜多', 'ja-Jpan': '般若波羅蜜多' },
+              pronunciation: 'prahj-NYAH-pah-rah-mee-TAH-yahm',
+              etymology: 'the "in / from" form of *prajñāpāramitā* — "in / from the Perfection of Wisdom"',
+              gloss: 'in the Perfection of Wisdom',
+              accent: 'sky',
+              morphemes: [
+                { text: 'prajñā', type: 'stem', root: '√jñā', gloss: 'wisdom', pronunciation: 'prahj-NYAH' },
+                { text: 'pāramitā', type: 'stem', gloss: 'perfection, the going-beyond', pronunciation: 'pah-rah-mee-TAH' },
+                { text: 'yām', type: 'suffix', gloss: 'the "-in / -from" ending', pronunciation: 'yahm' },
+              ],
+            },
+            {
+              form: 'ukto',
+              scriptAlt: 'उक्तो',
+              scriptAlts: { 'zh-Hant': '說', 'ja-Jpan': '說' },
+              pronunciation: 'OOK-toh',
+              etymology: 'the "X-ed" form of √vac "to speak"',
+              gloss: 'spoken, declared',
+              morphemes: [
+                { text: 'ukt', type: 'root', root: '√vac', gloss: 'spoken — the "X-ed" form of *√vac* "to speak"', pronunciation: 'ookt' },
+                { text: 'o', type: 'suffix', gloss: 'the ending that marks it the subject — one thing', pronunciation: 'oh' },
+              ],
+            },
+            {
+              form: 'mantraḥ',
+              scriptAlt: 'मन्त्रः',
+              scriptAlts: { 'zh-Hant': '咒', 'ja-Jpan': '咒' },
+              pronunciation: 'MAHN-trahh',
+              etymology: '*man-* "to think" + *-tra* "instrument-of" — "instrument of thought"',
+              gloss: 'the mantra',
+              morphemes: [
+                { text: 'man', type: 'root', root: '√man', gloss: 'to think', pronunciation: 'mahn' },
+                { text: 'traḥ', type: 'suffix', gloss: '*-tra* "instrument-of" + the subject-marking *-aḥ* — "instrument of [thought]"', pronunciation: 'TRAHH' },
+              ],
+            },
+          ],
+        },
+
+        // ── 即說咒曰 — thus the mantra is spoken ──
+        {
+          id: 'mantra-thus-spoken',
+          pali: 'tadyathā',
+          paliDeva: 'तद्यथा',
+          scripts: [
+            { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'tadyathā' },
+            { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'तद्यथा', transliteration: 'tadyathā' },
+            { lang: 'zh-Hant', label: 'Chinese (Xuanzang)', text: '即說咒曰', source: 'T251', tokens: ['即', '說', '咒', '曰'], transliteration: 'jí shuō zhòu yuē  (Mandarin pinyin)' },
+            { lang: 'ja-Jpan', label: 'Japanese (Sino-Japanese)', text: '即說咒曰', source: 'Hannya Shingyō', tokens: ['即', '說', '咒', '曰'], transliteration: 'soku setsu shu watsu  (Sino-Japanese)' },
+          ],
+          witnesses: [
+            { by: 'MAPLE chant sheet (after Sheng-yen)', text: 'as follows:', alignTo: [0, -1], license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation' },
+            { by: 'Conze (1958)', text: 'thus:', alignTo: [0], url: 'https://en.wikipedia.org/wiki/Heart_Sutra' },
+            { by: 'Red Pine (2004)', text: 'the mantra that goes:', alignTo: [-1, -1, -1, 0], url: 'https://www.counterpointpress.com/dd-product/the-heart-sutra/', license: 'Quoted with attribution' },
+            { by: 'Thich Nhat Hanh (2014)', text: 'It is:', alignTo: [-1, 0], url: 'https://plumvillage.org/sutra/the-other-shore', license: 'Plum Village translation, quoted with attribution' },
+          ],
+          words: [
+            { form: 'tadyathā', scriptAlt: 'तद्यथा', scriptAlts: { 'zh-Hant': '即說咒曰', 'ja-Jpan': '即說咒曰' }, pronunciation: 'tahd-yah-THAH', etymology: '*tat* "that" + *yathā* "as" — "as that", "namely", "thus"', gloss: 'thus, namely — the formula introducing the mantra' },
+          ],
+        },
+      ],
     },
 
     // ─────────────────────────────────────────────────────────────────────
@@ -991,21 +3472,11 @@ export const heartSutra: LiturgyDoc = {
     {
       id: 'dharani',
       shape: 'sound-formula',
-      framing: 'The sutra ends not with a translation but with a mantra. *Tadyathā gate gate pāragate pārasaṃgate bodhi svāhā* — "thus: gone, gone, gone-beyond, fully-gone-beyond, awakening, hail."\n\nBut the mantra is more than its semantic content. Chanting it *is* the practice. The sounds carry the entire teaching — every step of *prajñāpāramitā* is enacted in the going-beyond that the syllables describe.',
       phonemes: 'gate gate pāragate pārasaṃgate bodhi svāhā',
       native: 'गते गते पारगते पारसंगते बोधि स्वाहा',
       scripts: [
-        {
-          lang: 'sa-Latn',
-          label: 'Sanskrit (IAST)',
-          text: 'gate gate pāragate pārasaṃgate bodhi svāhā',
-        },
-        {
-          lang: 'sa-Deva',
-          label: 'Sanskrit (Devanāgarī)',
-          text: 'गते गते पारगते पारसंगते बोधि स्वाहा',
-          transliteration: 'gate gate pāragate pārasaṃgate bodhi svāhā',
-        },
+        { lang: 'sa-Latn', label: 'Sanskrit (IAST)', text: 'gate gate pāragate pārasaṃgate bodhi svāhā' },
+        { lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', text: 'गते गते पारगते पारसंगते बोधि स्वाहा', transliteration: 'gate gate pāragate pārasaṃgate bodhi svāhā' },
         {
           lang: 'zh-Hant',
           label: 'Chinese (Xuanzang)',
@@ -1026,19 +3497,43 @@ export const heartSutra: LiturgyDoc = {
           text: 'ག་ཏེ་ག་ཏེ་པཱ་ར་ག་ཏེ་པཱ་ར་སཾ་ག་ཏེ་བོ་དྷི་སྭཱ་ཧཱ',
           transliteration: 'gate gate  pāragate  pārasaṃgate  bodhi  svāhā  (Sanskrit chanted in Tibetan)',
         },
+        {
+          lang: 'en',
+          label: 'Plain English',
+          text: 'gone, gone, gone-beyond, fully-gone-beyond — awakening, svāhā',
+        },
       ],
-      reconstruction: 'Read literally: *gate* "gone" (locative or vocative of *gata*, past participle), repeated; *pāragate* "gone to the beyond"; *pārasaṃgate* "completely gone to the beyond"; *bodhi* "awakening"; *svāhā* an exclamation of completion (familiar from Vedic ritual). The repetition enacts the journey it describes.',
     },
 
     // ─────────────────────────────────────────────────────────────────────
-    // 4. On translating the Heart Sutra
+    // 3b. Longer Japanese recitation — MAPLE practice repeats the dharani
+    //     in Sino-Japanese kanbun-yomi after the Sanskrit
     // ─────────────────────────────────────────────────────────────────────
     {
-      id: 'on-translation',
-      shape: 'prose-commentary',
-      heading: 'On translating the Heart Sutra',
-      body: 'No two English Heart Sutras are alike. Conze\'s "form is emptiness" reads philosophical; Red Pine\'s reads liturgical; Thich Nhat Hanh\'s "this Body itself is Emptiness" reads phenomenological. The Chinese 色即是空 is sharper than any English can be, *just is*, with no copula gap, no preposition. The Tibetan introduces its own scholastic clarifications. Each tradition has been chanting this for over a thousand years; each has put its hand on the text and shaped it.\n\nThe witnesses above are sampled, not exhausted. Karl Brunnhölzl\'s *The Heart Attack Sutra* (2012) offers a careful Tibetan-tradition scholarly reading; Mu Soeng\'s *The Heart of the Universe* (2010) reads it through Zen; H.H. the Dalai Lama\'s commentaries integrate the Tibetan exegetical tradition; the Buddhist Text Translation Society\'s edition follows the Hsuan Hua lineage. All of them are correct and none of them are.\n\nThe instruction the sutra gives, however, is not to translate it but to chant it, and through chanting, to *go*: *gate gate*.',
+      id: 'dharani-japanese-extended',
+      shape: 'sound-formula',
+      framing: 'At MAPLE the Sanskrit dharani is chanted once; the assembly then continues in a longer Sino-Japanese (kanbun-yomi) recitation, syllabified one mora per beat. The kanji are Xuanzang\'s 7th-century phonetic transliterations of the Sanskrit — themselves an attempt to capture the original sound in Chinese characters. Reading them again in Japanese on-yomi adds another layer of phonetic drift, but the *gate / pāragate / pārasaṃgate* skeleton remains audible underneath.',
+      phonemes: 'Gya tē gya tē ha ra gya tē  /  Hara sō gya tē bo ji sowa ka',
+      native: '羯諦羯諦波羅羯諦 / 波羅僧羯諦菩提薩婆訶',
+      scripts: [
+        {
+          lang: 'ja-Jpan',
+          label: 'Japanese (Sino-Japanese, chant-syllabified)',
+          text: '羯諦羯諦波羅羯諦  /  波羅僧羯諦菩提薩婆訶',
+          source: 'MAPLE chant sheet — kanbun-yomi syllabified for the longer recitation',
+          transliteration: 'Gya tē gya tē ha ra gya tē  /  Hara sō gya tē bo ji sowa ka  (Sino-Japanese, one syllable per beat)',
+        },
+        {
+          lang: 'zh-Hant',
+          label: 'Chinese (Xuanzang) — same kanji, Mandarin reading',
+          text: '羯諦羯諦波羅羯諦 / 波羅僧羯諦菩提薩婆訶',
+          source: 'T251 (same characters as Japanese; Mandarin reading shown for comparison)',
+          transliteration: 'jiē-dì jiē-dì bō-luó jiē-dì  /  bō-luó-sēng jiē-dì pú-tí sà-pó-hē  (Mandarin pinyin)',
+        },
+      ],
+      reconstruction: 'Mapping back: 羯諦 *gya-tē* ↔ *gate*; 波羅 *ha-ra* ↔ *pāra-*; 波羅僧 *Ha-ra-sō* ↔ *pārasaṃ-*; 菩提 *bo-ji* ↔ *bodhi*; 薩婆訶 *sowa ka* ↔ *svāhā*. The Japanese form preserves the Sanskrit consonant-vowel skeleton through two layers of phonetic carry-over.',
     },
+
   ],
 };
 

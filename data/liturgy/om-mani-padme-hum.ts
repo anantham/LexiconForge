@@ -23,12 +23,12 @@ import {
 export const omManiPadmeHum: LiturgyDoc = {
   slug: 'om-mani-padme-hum',
   sangha: 'maple',
-  order: 6,
+  order: 8,
   time: 'evening, before sleep',
   title: 'Oṃ Maṇi Padme Hūṃ',
   subtitle: 'The heart-mantra of Avalokiteśvara',
   tradition: 'vajrayana',
-  context: 'Chanted at MAPLE in the evening, before sleep.',
+  context: 'The six-syllable mantra of Avalokiteśvara (Tibetan: Chenrezig), the bodhisattva of compassion. Recited across Tibetan Buddhism as one of the most pervasive practices in the tradition.',
   sources: {
     canonical: [
       {
@@ -47,16 +47,7 @@ export const omManiPadmeHum: LiturgyDoc = {
   curator: 'Curation by Aditya. Per-syllable readings cite the Dalai Lama\'s framework where invoked; the Sanskrit literal reading follows Monier-Williams (via Wikipedia).',
   sections: [
     // ─────────────────────────────────────────────────────────────────────
-    // 1. Framing — what this mantra is, why we say it
-    // ─────────────────────────────────────────────────────────────────────
-    {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'The mantra of compassion. Chanted across the Buddhist world — from Bodh Gayā to Lhasa to Beijing to Kyoto. Its six syllables are the heart-essence of [[Avalokiteśvara]], the bodhisattva who hears the cries of all beings: *Chenrezig* in Tibet, *Guanyin* (觀音) in China, *Kannon* (観音) in Japan.\n\nEach tradition reads the mantra slightly differently — both in pronunciation and in interpretation. The Sanskrit reads as a vocative or locative ("O Jewel-Lotus One" / "the jewel in the lotus" — addressing or naming the bodhisattva). The widely-known syllable-by-syllable interpretation (six perfections, six realms) is a Tibetan exegetical tradition.\n\nThe mantra is *more than* its meaning. It works as sound, intention, embodiment — not just as a translatable phrase. As Donald Lopez warns in *Prisoners of Shangri-La*, much that is said about this mantra in the West reduces it to translation; the practice is doing none of that.',
-    },
-
-    // ─────────────────────────────────────────────────────────────────────
-    // 2. The mantra in Sanskrit — with per-syllable hover-glimpse
+    // 1. The mantra — multi-script, hover for per-syllable readings
     // ─────────────────────────────────────────────────────────────────────
     {
       id: 'sanskrit-mantra',
@@ -184,8 +175,8 @@ export const omManiPadmeHum: LiturgyDoc = {
                 ],
               },
               pronunciation: 'PUHD-meh',
-              etymology: '*padma* "lotus" + locative or vocative ending *-e*',
-              gloss: 'in the lotus (locative) — or "O Lotus One" (vocative) — represents *wisdom* ([[prajñā]])',
+              etymology: '*padma* "lotus" + the *-e* ending — which can mean either "in the …" or "O …!" (addressing)',
+              gloss: '"in the lotus" — or, read as a call, "O Lotus One" — represents *wisdom* ([[prajñā]])',
               accent: 'sky',
               morphemes: [
                 {
@@ -199,7 +190,7 @@ export const omManiPadmeHum: LiturgyDoc = {
                 {
                   text: 'e',
                   type: 'suffix',
-                  gloss: 'either "in the [lotus]" (locative) or addressing "O [Lotus One]" (vocative) — Sanskrit grammars allow both readings',
+                  gloss: 'the *-e* ending — either "in the [lotus]" or, read as a call, "O [Lotus One]!". Sanskrit grammars allow both readings',
                   pronunciation: 'eh',
                   citations: [ungroundedCitation('Sanskrit case morphology — needs grammar reference')],
                 },
@@ -226,25 +217,6 @@ export const omManiPadmeHum: LiturgyDoc = {
         'Traditionally chanted 108 times (one *mālā* — string of beads). Practice may be silent, whispered, or aloud, alone or in chorus. In Tibetan tradition, prayer wheels and prayer flags inscribed with the mantra extend its presence beyond the moment of saying it.',
     },
 
-    // ─────────────────────────────────────────────────────────────────────
-    // 3. The mantra across traditions — multi-script showcase
-    // ─────────────────────────────────────────────────────────────────────
-    {
-      id: 'across-traditions',
-      shape: 'prose-commentary',
-      heading: 'Across traditions',
-      body: '**Sanskrit** (Devanāgarī — the source)\n\n*Script:* {{sa|ॐ मणि पद्मे हूँ}}\n*Pronunciation:* Oṃ maṇi padme hūṃ ("ohm MAH-nee PUHD-meh hoong")\n\nThe Indic source language. The literal grammatical reading is what we explored above.\n\n— ❦ —\n\n**Tibetan** (Uchen script — {{bo|བོད་ཡིག་}})\n\n*Script:* {{bo|ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ}}\n*Wylie:* oṃ ma ṇi pad me hūṃ\n*Spoken (Lhasa):* "Om mani peme hung"\n\nThe heart-mantra of [[Chenrezig]] ({{bo|སྤྱན་རས་གཟིགས་}}), the Tibetan name for Avalokiteśvara — and the patron deity of Tibet itself. H.H. the Dalai Lama is considered an emanation of Chenrezig; his commentary on this mantra is the most widely-cited Tibetan reading in the West. Prayer wheels (*mani khorlo*) inscribed with the mantra are spun to multiply the practice.\n\n— ❦ —\n\n**Chinese** (Hanzi — Han Buddhism transliteration)\n\n*Script:* {{zh|唵嘛呢叭咪吽}}\n*Pinyin:* ǎn ma ní bā mī hōng\n\nThe mantra of [[Guanyin]] ({{zh|觀音}} — "perceiver of sounds"), the Chinese form of Avalokiteśvara. Guanyin is among the most widely venerated bodhisattvas in East Asia, often depicted in female form. The mantra is recited in Pure Land practice and in esoteric (Mizong / Zhenyan) traditions.\n\n— ❦ —\n\n**Japanese** (Kanji + furigana — Shingon esoteric tradition)\n\n*Script:* {{ja|唵 麼抳 鉢納銘 吽}}\n*Reading (Sino-Japanese):* On mani hatsuno mei un\n\nIn [[Shingon]] ({{ja|真言}}, "true word"), the esoteric school founded by Kūkai ({{ja|空海}}, 774–835), this mantra invokes [[Kannon]] ({{ja|観音}} — Japanese for Avalokiteśvara). Shingon practice unites mantra (speech), mudrā (body), and visualisation (mind) — the *sanmitsu* ({{ja|三密}}, "three mysteries"). Chanted with attention to all three.\n\n— ❦ —\n\n*Note:* Cross-script transliterations especially for Chinese and Japanese have several attested forms; these are widely used but not the only correct ones. Pronunciation drifts with the host language — *padme* becomes *peme* in Tibetan, *bāmī* in Chinese, *hatsumei* in Sino-Japanese.',
-    },
-
-    // ─────────────────────────────────────────────────────────────────────
-    // 4. On translating mantras — Lopez's caveat
-    // ─────────────────────────────────────────────────────────────────────
-    {
-      id: 'on-translation',
-      shape: 'prose-commentary',
-      heading: 'On translating mantras',
-      body: 'Donald Lopez, in *Prisoners of Shangri-La: Tibetan Buddhism and the West* (1998), devotes a chapter to this mantra. His warning, paraphrased: the Western fascination with finding *the meaning* of *Oṃ Maṇi Padme Hūṃ* — "the jewel in the lotus" — projects onto the mantra a literalism that the practitioners chanting it rarely impose. The mantra is a sonic embodiment of the bodhisattva of compassion, not a phrase awaiting decryption.\n\nWe present the readings above as *witnesses* — different cultural lenses for a sound that exceeds them all. Choose one and the others recede; chant the mantra and all of them recede.',
-    },
   ],
 };
 

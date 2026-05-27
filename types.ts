@@ -18,6 +18,10 @@ export interface Chapter {
   sourceLanguage?: string | null;
   targetLanguage?: string | null;
   translationResult?: TranslationResult | null;
+  // Issue #15 — word-level alignment between content (source) and translationResult.translation (target).
+  // Computed on-demand via services/wordAlignment.ts; cached per (chapterId, translationResult.id).
+  // Cleared when translationResult changes (handled by store action).
+  wordAlignment?: import('./services/wordAlignment').WordAlignment | null;
 }
 
 export interface ChapterSummary {
@@ -368,6 +372,12 @@ export interface AppSettings {
     autoGenerateImages?: boolean;             // Auto-generate illustrations after translation (default: false)
     // Inline comment markers
     showInlineComments?: boolean;             // Show feedback comments floating near text (default: true)
+    // Issue #15 — interleaved word-aligned reader (Phase 3 wire-up)
+    enableInterleavedView?: boolean;          // Show source↔target word pairs with per-word lookup tooltips (default: false)
+    // Issue #15 — DeepL API key for per-word lookups (Free tier keys end with :fx)
+    deeplApiKey?: string;
+    // Issue #15 — Google Cloud Translate API key for per-word lookups
+    googleTranslateApiKey?: string;
     // Prompt snapshot metadata
     promptId?: string;
     promptName?: string;

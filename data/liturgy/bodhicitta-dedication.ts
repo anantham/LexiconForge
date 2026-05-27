@@ -31,7 +31,7 @@ export const bodhicittaDedication: LiturgyDoc = {
   title: 'Bodhicitta Dedication',
   subtitle: 'May supreme and precious bodhicitta arise…',
   tradition: 'vajrayana',
-  context: 'Recited 3× at MAPLE on Sunday nights, before Monday — the free self-practice day. Not part of the daily morning service.',
+  context: 'Bodhicitta — the aspiration to awaken for the benefit of all beings. This four-line dedication, a standard closing in Tibetan practice, turns merit toward the arising and increase of that aspiration.',
   sources: {
     canonical: [
       {
@@ -83,7 +83,7 @@ export const bodhicittaDedication: LiturgyDoc = {
             // English: May(0) supreme(1) and(2) precious(3) bodhicitta(4)
             // → 5 tokens
             {
-              by: 'AI',
+              by: 'Standard English (Tibetan tradition)',
               text: 'May supreme and precious bodhicitta',
               alignTo: [-1, 2, -1, 3, 0],
             },
@@ -155,7 +155,7 @@ export const bodhicittaDedication: LiturgyDoc = {
           witnesses: [
             // English: Arise(0) where(1) it(2) has(3) not(4) yet(5) arisen(6) → 7 tokens
             {
-              by: 'AI',
+              by: 'Standard English (Tibetan tradition)',
               text: 'Arise where it has not yet arisen',
               alignTo: [3, -1, -1, -1, 0, -1, 1],
             },
@@ -170,7 +170,7 @@ export const bodhicittaDedication: LiturgyDoc = {
             {
               form: 'kyé pa',
               scriptAlts: { 'bo-Tibt': 'སྐྱེས་པ' },
-              etymology: 'Tibetan *skyes pa* — past participle of *skye* "arise"',
+              etymology: 'Tibetan *skyes pa* — the "arisen" form of the verb *skye* "to arise"',
               gloss: 'having arisen, the arisen one — together with *ma* = "not-arisen"',
             },
             {
@@ -223,7 +223,7 @@ export const bodhicittaDedication: LiturgyDoc = {
           witnesses: [
             // English: Where(0) it(1) has(2) arisen,(3) may(4) it(5) never(6) decline(7) → 8 tokens
             {
-              by: 'AI',
+              by: 'Standard English (Tibetan tradition)',
               text: 'Where it has arisen, may it never decline',
               alignTo: [-1, -1, -1, 0, -1, -1, 2, 1],
             },
@@ -278,7 +278,7 @@ export const bodhicittaDedication: LiturgyDoc = {
             // English: But(0) increase(1) forever(2) more(3) → 4 tokens
             // (Tight English; the Tibetan "gong né gong du" = "from-higher-to-higher" is idiomatic for "ever-increasing")
             {
-              by: 'AI',
+              by: 'Standard English (Tibetan tradition)',
               text: 'But increase forever more',
               alignTo: [-1, 4, 0, 2],
             },
@@ -293,7 +293,7 @@ export const bodhicittaDedication: LiturgyDoc = {
             {
               form: 'né',
               scriptAlts: { 'bo-Tibt': 'ནས' },
-              etymology: 'Tibetan ablative particle *nas* — "from"',
+              etymology: 'Tibetan *nas* — the particle that marks "from"',
               gloss: 'from — *gong né* = "from higher"',
             },
             {

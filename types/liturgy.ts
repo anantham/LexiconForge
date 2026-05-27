@@ -40,6 +40,20 @@ export type Witness = {
    * e.g., "Fully Self-Enlightened One" all aligns to *sammā-sambuddhassa*).
    */
   alignTo?: number[];
+  /**
+   * Optional per-token morpheme target. Parallel-indexed to `alignTo`.
+   * `morphemeAlignTo[i]` is the morpheme index (within the Pāli word that
+   * `alignTo[i]` points to) that English word `i` should anchor its arrow
+   * to. `null`/absent → the renderer falls back to its positional heuristic
+   * (i-th English token mapped to a word → i-th morpheme).
+   *
+   * Why this exists: when English reorders the morphemes of a Pāli word,
+   * the positional heuristic crosses the arrows. Example: `kusalena` =
+   * `kusal` (skilled) + `ena` (by-an-agent); Amaravati renders it "one …
+   * skilled", reversing the order, so the heuristic sends `kusal`'s arrow
+   * to "one". Authoring `morphemeAlignTo` fixes the pairing explicitly.
+   */
+  morphemeAlignTo?: (number | null)[];
 };
 
 /**
@@ -82,6 +96,15 @@ export type WordMorpheme = {
   note?: string;
   /** Per-morpheme grounding citations. */
   citations?: import('./suttaStudio').Citation[];
+  /**
+   * Concept node IDs this morpheme attests. When set, hovering this
+   * morpheme highlights every other token on the page (any language,
+   * any script, any witness) that attests the same concept.
+   *
+   * Looked up against the concept registry at render time. See
+   * types/conceptGraph.ts and data/concepts/.
+   */
+  conceptIds?: string[];
 };
 
 /**
@@ -154,6 +177,15 @@ export type WordGloss = {
    * same chip aesthetic + same provenance contract as the Sutta Studio reader.
    */
   citations?: import('./suttaStudio').Citation[];
+  /**
+   * Concept-graph IDs this whole word attests. Used when the word doesn't
+   * have a `morphemes` breakdown — a single-morpheme word can still
+   * participate in the concept graph at word level.
+   *
+   * When `morphemes` is present, prefer tagging morphemes individually
+   * (more granular hover filtering).
+   */
+  conceptIds?: string[];
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

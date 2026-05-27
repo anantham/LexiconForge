@@ -291,9 +291,15 @@ const setWindowLocation = (search = '') => {
 describe('bootstrap helpers', () => {
   const originalWindow = globalThis.window;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     setWindowLocation('');
+    // Issue #1: reset the module-scope single-flight guard so each test
+    // starts from a clean slate. Without this, the resolved promise from
+    // a previous test's initializeStore() persists across tests, causing
+    // later tests to short-circuit before running their pipeline.
+    const { __resetInitializationGuard } = await import('../../../store/bootstrap/initializeStore');
+    __resetInitializationGuard();
     settingsOpsMock.getKey.mockReset();
     settingsOpsMock.getKey.mockResolvedValue(null);
     settingsOpsMock.set.mockReset();
@@ -714,6 +720,76 @@ describe('bootstrap helpers', () => {
         { registryNovelId: 'orv', registryVersionId: 'v2' }
       );
       expect(state.openNovel).toHaveBeenCalledWith('orv', 'v2');
+    });
+
+    // Issue #1 — single-flight guard (enforce CORE-006).
+    // Pre-fix the guard at initializeStore.ts checked only `isInitialized`,
+    // which doesn't flip to `true` until after all phases. Under StrictMode
+    // both effect-calls arrived while isInitialized===false, both passed,
+    // both ran the full pipeline in parallel. The cold-boot trace in
+    // issue #8 confirmed every [Store:init] marker firing exactly 2×.
+    //
+    // Fix: module-scope initializationPromise. Concurrent callers ride one
+    // in-flight promise; the pipeline runs once.
+    describe('issue #1 — single-flight in-flight guard', () => {
+      it('does NOT run the pipeline twice on concurrent invocations (StrictMode shape)', async () => {
+        const { __resetInitializationGuard } = await import('../../../store/bootstrap/initializeStore');
+        __resetInitializationGuard();
+
+        const { ctx, state } = createCtx(createState());
+        const initializeStore = createInitializeStore(ctx);
+
+        // Fire TWO concurrent calls, mimicking React.StrictMode mount + remount.
+        // Pre-fix: both proceed → state.loadSettings called 2×.
+        // Post-fix: second call awaits the first's promise → state.loadSettings called 1×.
+        await Promise.all([initializeStore(), initializeStore()]);
+
+        expect(state.loadSettings).toHaveBeenCalledTimes(1);
+        expect(sessionServiceMock.loadPromptTemplates).toHaveBeenCalledTimes(1);
+        expect(state.setInitialized).toHaveBeenLastCalledWith(true);
+      });
+
+      it('still re-runs after explicit guard reset (failure-recovery path)', async () => {
+        const { __resetInitializationGuard } = await import('../../../store/bootstrap/initializeStore');
+        __resetInitializationGuard();
+
+        const { ctx, state } = createCtx(createState());
+        const initializeStore = createInitializeStore(ctx);
+
+        await initializeStore();
+        const callsAfterFirst = (state.loadSettings as ReturnType<typeof vi.fn>).mock.calls.length;
+
+        // Reset the in-flight guard (simulates a fresh page load or test reset).
+        // Also reset isInitialized so the fast-path doesn't skip the second run.
+        __resetInitializationGuard();
+        state.setInitialized = vi.fn();
+        // Simulate post-reset state: app is no longer initialized
+        (state as any).isInitialized = false;
+
+        await initializeStore();
+        const callsAfterSecond = (state.loadSettings as ReturnType<typeof vi.fn>).mock.calls.length;
+
+        // Second pipeline RAN — proving guard reset works for recovery / retry.
+        expect(callsAfterSecond).toBe(callsAfterFirst + 1);
+      });
+
+      it('short-circuits via isInitialized fast-path on post-init re-call', async () => {
+        const { __resetInitializationGuard } = await import('../../../store/bootstrap/initializeStore');
+        __resetInitializationGuard();
+
+        const { ctx, state } = createCtx(createState());
+        const initializeStore = createInitializeStore(ctx);
+
+        await initializeStore();
+        // First run sets state.setInitialized.mock.calls[0][0] === true.
+        // Simulate that state.isInitialized is now true (post-init).
+        (state as any).isInitialized = true;
+        (state.loadSettings as ReturnType<typeof vi.fn>).mockClear();
+
+        await initializeStore();
+        // Second call should hit the fast-path and NOT call loadSettings again.
+        expect(state.loadSettings).toHaveBeenCalledTimes(0);
+      });
     });
   });
 });

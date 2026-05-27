@@ -26,7 +26,7 @@ export const jadeMethod: LiturgyDoc = {
   title: 'The Jade Method',
   subtitle: 'A contemplative practice in seven stages',
   tradition: 'maple',
-  context: 'Chanted / contemplated at MAPLE as part of training.',
+  context: 'A MAPLE-composed contemplative practice in seven stages.',
   sources: {
     ritual: [
       { label: 'MAPLE practice text (Soryu Forall)' },

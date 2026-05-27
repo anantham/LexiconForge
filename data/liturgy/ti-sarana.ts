@@ -26,13 +26,13 @@ const pronCite = suttaCentralPronunciationCitation();
 
 const REFUGE_OBJECT_WORDS: { [key: string]: WordGloss } = {
   buddhaṁ: {
-    form: 'Buddhaṁ', scriptAlt: 'बुद्धं', pronunciation: 'BUD-dahng', accent: 'sky',
-    etymology: '√budh "to wake up" + past participle',
-    gloss: 'the Awakened One — accusative (object of "I go to")',
+    form: 'Buddhaṁ', scriptAlt: 'बुद्धं', pronunciation: 'BUD-dahng', accent: 'amber',
+    etymology: '√budh "to wake up" — *buddha* is the "awakened" form of that verb',
+    gloss: 'the Awakened One — here it is what one goes to: the object of "I go to"',
     citations: [dpdCitation('buddha'), pronCite],
   },
   dhammaṁ: {
-    form: 'Dhammaṁ', scriptAlt: 'धम्मं', pronunciation: 'DHAHM-mahng', accent: 'amber',
+    form: 'Dhammaṁ', scriptAlt: 'धम्मं', pronunciation: 'DHAHM-mahng', accent: 'sky',
     etymology: '√dhṛ "to hold, support"',
     gloss: 'the Dharma — the teaching, the way things are',
     citations: [dpdCitation('dhamma'), pronCite],
@@ -48,7 +48,7 @@ const REFUGE_OBJECT_WORDS: { [key: string]: WordGloss } = {
 const SARANAM: WordGloss = {
   form: 'Saraṇaṁ', scriptAlt: 'सरणं', pronunciation: 'SAH-rah-nahng',
   etymology: '√śri "to take shelter, lean on"',
-  gloss: 'refuge, shelter — accusative (the destination)',
+  gloss: 'refuge, shelter — the destination one goes to',
   citations: [dpdCitation('saraṇa'), pronCite],
 };
 
@@ -66,7 +66,7 @@ export const tiSarana: LiturgyDoc = {
   title: 'Ti-Sarana + Namo Tassa',
   subtitle: 'Threefold Refuge and Homage to the Awakened One',
   tradition: 'theravada',
-  context: 'Pali devotional pieces in Bodhi Sangha\'s otherwise Japanese-Zen liturgy. Recited as a self-contained opening or grounding sequence.',
+  context: 'Pali devotional pieces in Bodhi Sangha\'s otherwise Japanese-Zen liturgy — the Threefold Refuge (in Buddha, Dhamma, Sangha) and the homage formula *Namo tassa bhagavato arahato sammāsambuddhassa*.',
   sources: {
     canonical: [
       { label: 'Khp 1 (Saraṇagamana)', url: 'https://suttacentral.net/kp1/en/sujato' },

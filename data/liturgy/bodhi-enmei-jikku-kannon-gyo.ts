@@ -21,7 +21,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
   title: 'En-mei Jikku Kan-non Gyō',
   subtitle: 'Ten-Phrase Life-Prolonging Kannon Sutra (延命十句觀音經)',
   tradition: 'zen',
-  context: 'Chanted at Bodhi Sangha as part of formal liturgy. Ten short phrases invoking Kanzeon (Avalokiteśvara) — the same Sino-Japanese as MAPLE\'s version, with Bodhi\'s contemplative English rendering.',
+  context: 'Ten short phrases invoking Kanzeon (Avalokiteśvara), in Sino-Japanese. The same chant as MAPLE\'s, with Bodhi Sangha\'s English rendering.',
   sources: {
     canonical: [
       { label: 'En-mei Jikku Kannon Gyō (延命十句觀音經)', url: 'https://en.wikipedia.org/wiki/Ten_Verse_Kannon_Sutra_for_Timeless_Life' },

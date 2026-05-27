@@ -1,21 +1,33 @@
 /**
- * The Way of Compassion — Karaṇīya Metta Sutta in E.A. Burtt\'s rendering.
+ * The Way of Compassion — Karaṇīya Metta Sutta in E.A. Burtt's rendering.
  *
  * The same Sutta-Nipāta 1.8 / Khuddakapāṭha 9 *loving-kindness* text
- * that lives under [[metta-sutta]] (MAPLE / Amaravati English), here in
- * a different translation: Edwin Arthur Burtt\'s rendering from *The
- * Teachings of the Compassionate Buddha* (Mentor Books, 1955). Burtt\'s
- * English is more lyrical and Victorian than Amaravati\'s — "let all-
- * embracing thoughts for all that lives be thine, an all-embracing love
- * for all the universe…"
+ * that lives under [[metta-sutta]] (MAPLE / Amaravati English), here
+ * chanted at Bodhi Sangha in Edwin Arthur Burtt's 1955 rendering from
+ * *The Teachings of the Compassionate Buddha* (Mentor Books). Burtt's
+ * English is lyrical and Victorian — "let all-embracing thoughts for
+ * all that lives be thine, an all-embracing love for all the universe…"
  *
- * Bodhi Sangha booklet, p.15. Followed in the booklet by the *Om Tat
- * Sat* closing — a Vedic / Hindu mantra acknowledging the Indian
- * setting of AMA Samy\'s community.
+ * Burtt does not translate the preamble verses (1-2, on the inner
+ * posture of one fit to cultivate metta) or the final verse (10, on
+ * letting go of fixed views). Those segments carry Burtt's absence
+ * honestly — `—` in the witness text — while presenting the Pāli
+ * source and the three contemporary translations (Amaravati, Sujato,
+ * Thanissaro) for comparison.
+ *
+ * Source: Bodhi Sangha Sutras booklet (May 2016), p.15. Followed in
+ * the booklet by *Om Tat Sat* — a Bhagavad Gītā 17.23 mantra
+ * acknowledging the Tamil-Nadu sangha's Indian setting.
  */
 
 import type { LiturgyDoc } from '../../types/liturgy';
-import { ungroundedCitation } from './_groundingHelpers';
+import { dpdCitation } from './_groundingHelpers';
+
+const BURTT_LABEL = 'Burtt (1955)';
+const BURTT_NOTE = 'E.A. Burtt, *The Teachings of the Compassionate Buddha* (Mentor Books, 1955) — quoted with attribution';
+const AMARAVATI_URL = 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.amar.html';
+const SUJATO_URL = 'https://suttacentral.net/snp1.8/en/sujato';
+const THANISSARO_URL = 'https://www.accesstoinsight.org/tipitaka/kn/snp/snp.1.08.than.html';
 
 export const wayOfCompassion: LiturgyDoc = {
   slug: 'way-of-compassion',
@@ -24,48 +36,182 @@ export const wayOfCompassion: LiturgyDoc = {
   title: 'The Way of Compassion',
   subtitle: 'Karaṇīya Metta Sutta (Sn 1.8) — Burtt\'s rendering',
   tradition: 'theravada',
-  context: 'Recited at Bodhi Sangha as the loving-kindness contemplation. Edwin Arthur Burtt\'s English rendering of the *Karaṇīya Metta Sutta*, from his 1955 anthology *The Teachings of the Compassionate Buddha*. Closes with *Om Tat Sat* — a Vedic mantra acknowledging the sangha\'s Indian setting.',
+  context: 'Edwin Arthur Burtt\'s English rendering of the *Karaṇīya Metta Sutta*, from his 1955 anthology *The Teachings of the Compassionate Buddha*. Closes with *Om Tat Sat* — a Vedic mantra acknowledging the sangha\'s Indian setting.',
   sources: {
     canonical: [
-      { label: 'Sn 1.8 — Karaṇīya Metta Sutta', url: 'https://suttacentral.net/snp1.8/en/sujato' },
-      { label: 'Multi-script Pali version at /liturgy/maple/metta-sutta' },
-      { label: 'E.A. Burtt, *The Teachings of the Compassionate Buddha* (1955)' },
+      { label: 'Khp 9 / Snp 1.8 — Karaṇīya Metta Sutta', url: 'https://suttacentral.net/snp1.8/en/sujato' },
+      { label: 'E.A. Burtt, *The Teachings of the Compassionate Buddha* (Mentor Books, 1955)' },
+      { label: 'Multi-script Pāli version at /liturgy/maple/metta-sutta' },
     ],
     ritual: [
       { label: 'Bodhi Sangha Sutras booklet (May 2016), p.15' },
     ],
   },
   curator:
-    'Curation by Aditya. The English here is Burtt\'s translation as transcribed from the Bodhi Sangha booklet. For the Pali source text + Amaravati English rendering used at MAPLE, see [[metta-sutta]]. The closing *Om Tat Sat* mantra is from Bhagavad Gītā 17.23 — a Vedic affirmation, here used as Indo-syncretic closing in the Tamil-Nadu sangha\'s context.',
+    'Curation by Aditya. Pāli verses from the Khuddakapāṭha 9 / Suttanipāta 1.8 recension (same source as MAPLE\'s metta-sutta page). Burtt\'s English transcribed from the Bodhi Sangha booklet; Amaravati / Sujato / Thanissaro included for comparison. Burtt does not translate the preamble (verses 1-2) or the final verse (10); those segments show `—` in the Burtt slot. Closing *Om Tat Sat* mantra is from Bhagavad Gītā 17.23.',
   sections: [
     {
-      id: 'framing',
-      shape: 'prose-commentary',
-      body: 'The *Karaṇīya Metta Sutta* (Sn 1.8 / Khp 9) is the canonical Theravāda loving-kindness text. It opens with the formula for one who would do good — peaceful, content, restrained — then turns to the wish: *that all beings be at ease*, extending without limit through all categories of life.\n\nBodhi Sangha chants this in E.A. Burtt\'s 1955 English rendering — written in a lyric register that reads aloud well: *Just as with her own life / a mother shields from hurt / her own, her only, child, / let all-embracing thoughts / for all that lives be thine, / an all-embracing love / for all the universe…*\n\nThe Pali source + a more contemporary English (Amaravati Sangha) live under [[metta-sutta]] in MAPLE\'s liturgy. This page presents Bodhi\'s alternative.',
-    },
-    {
-      id: 'opening',
-      shape: 'prose-commentary',
-      heading: 'May all beings be blessed',
-      body: 'May creatures all abound in weal and peace;\nmay all be blessed with peace always;\nall creatures weak or strong,\nall creatures great and small;\ncreatures unseen or seen,\ndwelling afar or near,\nborn or awaiting birth,\nmay all be blessed with peace!',
-    },
-    {
-      id: 'no-harm',
-      shape: 'prose-commentary',
-      heading: 'No harm',
-      body: 'Let none cajole or flout\nhis fellow anywhere;\nlet none wish others harm\nin dudgeon or in hate.',
-    },
-    {
-      id: 'mother-child',
-      shape: 'prose-commentary',
-      heading: 'As a mother shields her child',
-      body: 'Just as with her own life\na mother shields from hurt\nher own, her only, child,\nlet all-embracing thoughts\nfor all that lives be thine,\nan all-embracing love\nfor all the universe\nin all its heights and depths\nand breadth, unstinted love,\nunmarred by hate within,\nnot rousing enmity.',
-    },
-    {
-      id: 'state-divine',
-      shape: 'prose-commentary',
-      heading: 'A state divine',
-      body: 'So, as you stand or walk,\nor sit, or lie, reflect\nwith all your might on this;\n\'tis deemed "a state divine."\n\n*(Sutta-Nipāta 1.8)*',
+      id: 'verses',
+      shape: 'triple-script-witness',
+      large: true,
+      segments: [
+        {
+          id: 'verse-1',
+          pali: 'Karaṇīyamatthakusalena, yaṁ taṁ santaṁ padaṁ abhisamecca; sakko ujū ca suhujū ca, suvaco c\'assa mudu anatimānī.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Karaṇīyamatthakusalena, yaṁ taṁ santaṁ padaṁ abhisamecca; sakko ujū ca suhujū ca, suvaco c\'assa mudu anatimānī.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: '— (Burtt omits the preamble verses 1-2)', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'This is what should be done by one who is skilled in goodness, and who knows the path of peace: let them be able and upright, straightforward and gentle in speech, humble and not conceited.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'This is what should be done by one skilled in the good who has comprehended the state of peace. They\'d be capable, sincere, and upright, easy to speak to, gentle, and not proud,', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'This is to be done by one skilled in aims who wants to break through to the state of peace: Be capable, upright, and straightforward, easy to instruct, gentle, and not conceited,', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'santaṁ', gloss: 'Peaceful, calmed. From *√śam* "to calm, quiet". The "path of peace" the worker of goodness is heading toward.', accent: 'sky', citations: [dpdCitation('santa')] },
+          ],
+        },
+        {
+          id: 'verse-2',
+          pali: 'Santussako ca subharo ca, appakicco ca sallahukavutti; santindriyo ca nipako ca, appagabbho kulesu ananugiddho.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Santussako ca subharo ca, appakicco ca sallahukavutti; santindriyo ca nipako ca, appagabbho kulesu ananugiddho.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: '— (Burtt omits the preamble verses 1-2)', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'Contented and easily satisfied, unburdened with duties and frugal in their ways. Peaceful and calm and wise and skillful, not proud or demanding in nature.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'content and unburdensome, living lightly with few duties, sensible and prudent, not arrogant or fawning over families.', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'content and easy to support, with few duties, living lightly, with peaceful faculties, masterful, modest, and no greed for supporters.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'Santussako', gloss: 'Easily content, satisfied with little. *sam* "fully" + *√tuṣ* "be pleased". A core monastic virtue.', accent: 'amber' },
+          ],
+        },
+        {
+          id: 'verse-3',
+          pali: 'Na ca khuddhaṁ samācare kiñci, yena viññū pare upavadeyyuṁ; sukhino vā khemino hontu, sabbe sattā bhavantu sukhitattā.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Na ca khuddhaṁ samācare kiñci, yena viññū pare upavadeyyuṁ; sukhino vā khemino hontu, sabbe sattā bhavantu sukhitattā.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: 'May creatures all abound in weal and peace; may all be blessed with peace always;', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'Let them not do the slightest thing that the wise would later reprove. Wishing: in gladness and in safety, may all beings be at ease.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'They\'d not do the slightest thing that others might blame them for. Their thought is: \'May all beings be happy and safe! May all beings be happy!\'', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Do not do the slightest thing that the wise would later censure. Think: Happy, at rest, may all beings be happy at heart.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'sabbe', gloss: 'All, every. The first appearance of the universalising move that runs through the sutta.', accent: 'rose' },
+            { form: 'sattā', gloss: 'Beings, sentient creatures. *sabbe sattā* = "all beings", the recurring address of the metta wish.', accent: 'rose', citations: [dpdCitation('satta')] },
+          ],
+        },
+        {
+          id: 'verse-4',
+          pali: 'Ye keci pāṇabhūtatthī, tasā vā thāvarā vā anavasesā; dīghā vā ye mahantā vā, majjhimā rassakāṇukathūlā.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Ye keci pāṇabhūtatthī, tasā vā thāvarā vā anavasesā; dīghā vā ye mahantā vā, majjhimā rassakāṇukathūlā.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: 'all creatures weak or strong, all creatures great and small;', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'Whatever living beings there may be, whether they are weak or strong, omitting none, the great and the mighty, medium, short or small.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Whatever creatures there are— none excepted, weak or strong, long or large, medium-sized, short, slender or thick,', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Whatever beings there may be, weak or strong, without exception, long, large, middling, short, subtle, blatant,', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+        },
+        {
+          id: 'verse-5',
+          pali: 'Diṭṭhā vā yeva addiṭṭhā, ye ca dūre vasanti avidūre; bhūtā vā sambhavesī vā, sabbe sattā bhavantu sukhitattā.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Diṭṭhā vā yeva addiṭṭhā, ye ca dūre vasanti avidūre; bhūtā vā sambhavesī vā, sabbe sattā bhavantu sukhitattā.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: 'creatures unseen or seen, dwelling afar or near, born or awaiting birth, may all be blessed with peace!', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'The seen and the unseen, those living near and far away, those born and to-be-born. May all beings be at ease!', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'those who are seen or unseen, those living far or near, those born or to be born— may all beings be happy!', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'seen or unseen, near or far, born or seeking birth: May all beings be happy at heart.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'sambhavesī', gloss: '"Those still seeking birth", those yet to be born. Paired with *bhūtā* "already become" — the wish covers both the born and the yet-to-be-born.', accent: 'sky' },
+          ],
+        },
+        {
+          id: 'verse-6',
+          pali: 'Na paro paraṁ nikubbetha, nātimaññetha katthaci naṁ kanci; byārosanā paṭighasaññā, nāññamaññassa dukkhamiccheyya.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Na paro paraṁ nikubbetha, nātimaññetha katthaci naṁ kanci; byārosanā paṭighasaññā, nāññamaññassa dukkhamiccheyya.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: 'Let none cajole or flout his fellow anywhere; let none wish others harm in dudgeon or in hate.', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'Let none deceive another, or despise any being in any state. Let none through anger or ill-will wish harm upon another.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Let none deceive another, nor despise anyone anywhere, nor wish harm for one another out of anger or hostility.', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Let no one deceive another or despise anyone anywhere, or through anger or irritation wish for another to suffer.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+        },
+        {
+          id: 'verse-7',
+          pali: 'Mātā yathā niyaṁ puttaṁ, āyusā ekaputtamanurakkhe; evampi sabbabhūtesu, mānasaṁ bhāvaye aparimāṇaṁ.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Mātā yathā niyaṁ puttaṁ, āyusā ekaputtamanurakkhe; evampi sabbabhūtesu, mānasaṁ bhāvaye aparimāṇaṁ.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: 'Just as with her own life a mother shields from hurt her own, her only, child, let all-embracing thoughts for all that lives be thine,', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'Even as a mother protects with her life her child, her only child, so should one protect the boundless heart that loves all beings.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'As a mother would protect with her life her one and only child, so they\'d cultivate a heart of love without limit for all sentient beings.', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'As a mother would risk her life to protect her child, her only child, even so should one cultivate the heart limitlessly with regard to all beings.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'mānasaṁ', gloss: '"The heart-mind" — *manas* with the ending that marks it the thing acted on. What is to be cultivated boundlessly.', accent: 'sky', citations: [dpdCitation('manas')] },
+            { form: 'bhāvaye', gloss: '"Let one cultivate, let one bring into being" — the wishing form of *√bhū* "to be", in its make-it-happen sense: to *cause to become*. The technical term for meditative cultivation.', accent: 'amber', citations: [dpdCitation('bhāveti')] },
+          ],
+        },
+        {
+          id: 'verse-8',
+          pali: 'Mettañca sabbalokasmiṁ, mānasaṁ bhāvaye aparimāṇaṁ; uddhaṁ adho ca tiriyañca, asambādhaṁ averaṁ asapattaṁ.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Mettañca sabbalokasmiṁ, mānasaṁ bhāvaye aparimāṇaṁ; uddhaṁ adho ca tiriyañca, asambādhaṁ averaṁ asapattaṁ.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: 'an all-embracing love for all the universe in all its heights and depths and breadth, unstinted love, unmarred by hate within, not rousing enmity.', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'Radiating kindness over the entire world: spreading upwards to the skies, and downwards to the depths; outwards and unbounded, freed from hatred and ill-will.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'With love for the whole world, they\'d cultivate a heart that\'s limitless, upwards, downwards and side-to-side, unbounded, free of enmity and hate.', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'With good will for the entire cosmos, cultivate a limitless heart: above, below, & all around, unobstructed, without enmity or hate.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'Mettañca', gloss: '*mettā* + *ca* "and". *Mettā* is loving-kindness, friendliness; not affection or warmth alone but a goodwill toward all beings without exception. The name-virtue of the sutta.', accent: 'rose', citations: [dpdCitation('mettā')] },
+          ],
+        },
+        {
+          id: 'verse-9',
+          pali: 'Tiṭṭhaṁ caraṁ nisinno vā, sayāno vā yāvat\'assa vigatamiddho; etaṁ satiṁ adhiṭṭheyya, brahmametaṁ vihāraṁ idhamāhu.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Tiṭṭhaṁ caraṁ nisinno vā, sayāno vā yāvat\'assa vigatamiddho; etaṁ satiṁ adhiṭṭheyya, brahmametaṁ vihāraṁ idhamāhu.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: 'So, as you stand or walk, or sit, or lie, reflect with all your might on this; \'tis deemed "a state divine."', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'Whether standing or walking, seated or lying down, free from drowsiness, one should sustain this recollection. This is said to be the sublime abiding.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Standing, walking, sitting, or lying down— as long as they\'re not drowsy— they would commit to this kind of mindfulness; this is what they call a divine meditation in this life.', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Whether standing, walking, sitting, or lying down, as long as one is alert, one should be resolved on this mindfulness. This is called a sublime abiding here & now.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'brahmametaṁ', gloss: '*brahma* + *etaṁ* "this is divine". The *brahmavihāra* — divine abiding — is the meditator\'s dwelling-place. *Brahma* here doesn\'t name the deity but the highest, sublime register.', accent: 'sky' },
+          ],
+        },
+        {
+          id: 'verse-10',
+          pali: 'Diṭṭhiñca anupaggamma, sīlavā dassanena sampanno; kāmesu vineyya gedhaṁ, na hi jātuggabbhaseyya puna retīti.',
+          scripts: [
+            { lang: 'pi-Latn', label: 'Pāli', text: 'Diṭṭhiñca anupaggamma, sīlavā dassanena sampanno; kāmesu vineyya gedhaṁ, na hi jātuggabbhaseyya puna retīti.' },
+          ],
+          witnesses: [
+            { by: BURTT_LABEL, text: '— (Burtt omits the closing verse on letting go of views)', license: BURTT_NOTE },
+            { by: 'Amaravati', text: 'By not holding to fixed views, the pure-hearted one, having clarity of vision, being freed from all sense desires, is not born again into this world.', url: AMARAVATI_URL },
+            { by: 'Sujato (SuttaCentral)', text: 'Avoiding wrong views, ethical, attaining vision, having removed desire for sensual pleasures, they would never come to lie in a womb again.', url: SUJATO_URL, license: 'CC0' },
+            { by: 'Thanissaro (Access to Insight)', text: 'Not taken with views, but virtuous & consummate in vision, having subdued desire for sensual pleasures, one never again will lie in the womb.', url: THANISSARO_URL, license: 'CC BY-NC' },
+          ],
+          words: [
+            { form: 'Diṭṭhiñca', gloss: '*diṭṭhi* + *ca*. *Diṭṭhi* is "view" — most often *wrong* view in technical Pāli: a fixed position, a doctrine clung to. Letting go of clinging to views is the closing instruction.', accent: 'amber' },
+          ],
+        },
+      ],
     },
     {
       id: 'om-tat-sat',

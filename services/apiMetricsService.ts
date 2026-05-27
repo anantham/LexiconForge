@@ -51,6 +51,88 @@ export interface ApiMetricsSummary {
   };
 }
 
+/**
+ * Issue #13: pure helpers extracted so unit tests can exercise the
+ * estimate logic without needing the IDB connection.
+ */
+export interface TranslationTimeEstimate {
+  avgTimeSeconds: number;
+  sampleCount: number;
+  source: 'model' | 'provider' | 'global' | 'default';
+  /**
+   * 'high' when sampleCount ≥ 3, 'low' when 1-2, 'unknown' for default
+   * (no data). UI can suppress numeric ETA when confidence is 'unknown'
+   * and show e.g. "Estimating…" instead.
+   */
+  confidence: 'high' | 'low' | 'unknown';
+}
+
+export function median(durations: number[]): number {
+  if (durations.length === 0) return 0;
+  const sorted = [...durations].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[mid]
+    : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+const confidenceFor = (sampleCount: number): 'high' | 'low' =>
+  sampleCount >= 3 ? 'high' : 'low';
+
+/**
+ * Compute the translation-time estimate from a metrics array.
+ *
+ * Pure function — no IDB access, fully unit-testable. The service method
+ * `getAverageTranslationTime` is just an IDB read + a call to this helper.
+ *
+ * Priority: model (≥1 sample) → provider (≥2) → global (≥1) → default 30s.
+ */
+export function estimateTranslationTime(
+  allMetrics: ApiCallMetric[],
+  model: string,
+  provider?: string,
+): TranslationTimeEstimate {
+  const translationMetrics = allMetrics.filter(m =>
+    m.apiType === 'translation' && m.success && typeof m.duration === 'number' && m.duration > 0
+  );
+
+  // Exact model match (≥1 sample — lowered from ≥2 per #13)
+  const modelMetrics = translationMetrics.filter(m => m.model === model);
+  if (modelMetrics.length >= 1) {
+    return {
+      avgTimeSeconds: median(modelMetrics.map(m => m.duration!)),
+      sampleCount: modelMetrics.length,
+      source: 'model',
+      confidence: confidenceFor(modelMetrics.length),
+    };
+  }
+
+  // Same provider (≥2 retained — cross-model aggregate is noisier)
+  if (provider) {
+    const providerMetrics = translationMetrics.filter(m => m.provider === provider);
+    if (providerMetrics.length >= 2) {
+      return {
+        avgTimeSeconds: median(providerMetrics.map(m => m.duration!)),
+        sampleCount: providerMetrics.length,
+        source: 'provider',
+        confidence: confidenceFor(providerMetrics.length),
+      };
+    }
+  }
+
+  // Global aggregate (≥1 sample)
+  if (translationMetrics.length >= 1) {
+    return {
+      avgTimeSeconds: median(translationMetrics.map(m => m.duration!)),
+      sampleCount: translationMetrics.length,
+      source: 'global',
+      confidence: confidenceFor(translationMetrics.length),
+    };
+  }
+
+  return { avgTimeSeconds: 30, sampleCount: 0, source: 'default', confidence: 'unknown' };
+}
+
 class ApiMetricsService {
   private storeName = 'api_metrics';
   private sessionMetrics: ApiCallMetric[] = [];
@@ -451,14 +533,20 @@ class ApiMetricsService {
   }
 
   /**
-   * Get average translation time for a model, with ensemble fallback.
+   * Get median translation time for a model, with ensemble fallback.
+   *
+   * Issue #13 (2026-05-15):
+   *   - Switched from mean to median (matches Illustration.tsx pattern; median
+   *     is robust to outlier translation stalls / timeouts).
+   *   - Lowered model-match threshold from ≥2 samples to ≥1 (the 2-sample
+   *     cliff produced misleading provider/global aggregates for first-use
+   *     of any new model).
+   *   - Added `confidence` field so UI can display low-data caveat or hide
+   *     the numeric value entirely.
+   *
    * Priority: exact model → same provider → all translations → 30s default.
    */
-  async getAverageTranslationTime(model: string, provider?: string): Promise<{
-    avgTimeSeconds: number;
-    sampleCount: number;
-    source: 'model' | 'provider' | 'global' | 'default';
-  }> {
+  async getAverageTranslationTime(model: string, provider?: string): Promise<TranslationTimeEstimate> {
     try {
       const db = await this.openDatabase();
       const tx = db.transaction([this.storeName], 'readonly');
@@ -470,35 +558,9 @@ class ApiMetricsService {
         request.onerror = () => reject(request.error);
       });
 
-      const translationMetrics = allMetrics.filter(m =>
-        m.apiType === 'translation' && m.success && typeof m.duration === 'number' && m.duration > 0
-      );
-
-      // Try exact model match
-      const modelMetrics = translationMetrics.filter(m => m.model === model);
-      if (modelMetrics.length >= 2) {
-        const avg = modelMetrics.reduce((s, m) => s + m.duration!, 0) / modelMetrics.length;
-        return { avgTimeSeconds: avg, sampleCount: modelMetrics.length, source: 'model' };
-      }
-
-      // Try same provider
-      if (provider) {
-        const providerMetrics = translationMetrics.filter(m => m.provider === provider);
-        if (providerMetrics.length >= 2) {
-          const avg = providerMetrics.reduce((s, m) => s + m.duration!, 0) / providerMetrics.length;
-          return { avgTimeSeconds: avg, sampleCount: providerMetrics.length, source: 'provider' };
-        }
-      }
-
-      // Global average
-      if (translationMetrics.length >= 1) {
-        const avg = translationMetrics.reduce((s, m) => s + m.duration!, 0) / translationMetrics.length;
-        return { avgTimeSeconds: avg, sampleCount: translationMetrics.length, source: 'global' };
-      }
-
-      return { avgTimeSeconds: 30, sampleCount: 0, source: 'default' };
+      return estimateTranslationTime(allMetrics, model, provider);
     } catch {
-      return { avgTimeSeconds: 30, sampleCount: 0, source: 'default' };
+      return { avgTimeSeconds: 30, sampleCount: 0, source: 'default', confidence: 'unknown' };
     }
   }
 

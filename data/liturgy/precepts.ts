@@ -27,7 +27,7 @@ export const precepts: LiturgyDoc = {
   title: 'The Precepts',
   subtitle: 'Seven Buddhas + Three Pure + Ten Grave Precepts',
   tradition: 'zen',
-  context: 'Recited at Bodhi Sangha during ordination ceremonies and on precept-renewal days. The two-voice format (Bodhidharma + Dōgen Zenji) is the standard Sōtō / Zen liturgical presentation.',
+  context: 'The two-voice format (Bodhidharma + Dōgen Zenji) is the standard Sōtō / Zen liturgical presentation, paired with Dhammapada 183 — the Teaching of the Seven Buddhas.',
   sources: {
     canonical: [
       { label: 'Dhammapada 183 — Teaching of the Seven Buddhas', url: 'https://suttacentral.net/dhp179-196/en/sujato' },

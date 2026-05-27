@@ -26,7 +26,7 @@ export const shinJinNoMei: LiturgyDoc = {
   title: 'On Trust in the Heart-Mind',
   subtitle: 'Shin-Jin-No-Mei (信心銘) — Sengcan, Third Chan Patriarch',
   tradition: 'zen',
-  context: 'Chanted at Bodhi Sangha as the longest sustained verse text in the daily liturgy. Sengcan\'s Xinxin Ming is the foundational articulation of non-duality in the Chan / Zen tradition; nearly every later Zen text quotes it.',
+  context: 'Sengcan\'s *Xinxin Ming* (信心銘) is the foundational articulation of non-duality in the Chan / Zen tradition; nearly every later Zen text quotes it.',
   sources: {
     canonical: [
       { label: 'Xinxin Ming / Shinjin no Mei (信心銘)', url: 'https://en.wikipedia.org/wiki/Xinxin_Ming' },
@@ -281,7 +281,7 @@ export const shinJinNoMei: LiturgyDoc = {
           ],
           words: [
             { form: 'isshin', scriptAlts: { 'zh-Hant': '一心' }, gloss: 'One mind, single mind. The Mahāyāna *eka-citta* — also the title of major Yogācāra and Huayan teachings.', accent: 'rose' },
-            { form: 'manbō', scriptAlts: { 'zh-Hant': '萬法' }, gloss: 'The ten thousand dharmas — *sarva-dharma*. Same *法* (Dharma) as in the Refuges.', accent: 'amber' },
+            { form: 'manbō', scriptAlts: { 'zh-Hant': '萬法' }, gloss: 'The ten thousand dharmas — *sarva-dharma*. Same *法* (Dharma) as in the Refuges.', accent: 'sky' },
             { form: 'muku', scriptAlts: { 'zh-Hant': '無咎' }, gloss: 'Without fault, blameless.' },
           ],
         },
@@ -364,7 +364,7 @@ export const shinJinNoMei: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'hō', scriptAlts: { 'zh-Hant': '法' }, gloss: 'Dharma. Same *法* across all Chinese Buddhist texts.', accent: 'rose' },
+            { form: 'hō', scriptAlts: { 'zh-Hant': '法' }, gloss: 'Dharma. Same *法* across all Chinese Buddhist texts.', accent: 'sky' },
             { form: 'aijaku', scriptAlts: { 'zh-Hant': '愛著' }, gloss: 'Clinging-attachment. *愛* "love, crave" + *著* "stick, attach". *Tṛṣṇā-upādāna*.', accent: 'amber' },
           ],
         },
@@ -467,7 +467,7 @@ export const shinJinNoMei: LiturgyDoc = {
           ],
           words: [
             { form: 'shinnyo', scriptAlts: { 'zh-Hant': '真如' }, gloss: '*Tathatā* — Suchness, things-as-they-are. *真* "true" + *如* "thus".', accent: 'rose' },
-            { form: 'hōkai', scriptAlts: { 'zh-Hant': '法界' }, gloss: '*Dharmadhātu* — Dharma-realm, the Mahāyāna term for the totality of reality. *法* "Dharma" + *界* "realm".', accent: 'amber' },
+            { form: 'hōkai', scriptAlts: { 'zh-Hant': '法界' }, gloss: '*Dharmadhātu* — Dharma-realm, the Mahāyāna term for the totality of reality. *法* "Dharma" + *界* "realm".', accent: 'sky' },
           ],
         },
         {

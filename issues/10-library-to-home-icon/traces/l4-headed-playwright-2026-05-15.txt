@@ -1,0 +1,23 @@
+L4 headed Playwright verification — issue #10 (library label → home icon)
+=========================================================================
+
+Setup: localhost:5183 with #10 fix in place. Loaded Dungeon Defense Ch2.
+
+L4 OBSERVATIONS:
+  - 2 home-icon buttons rendered (desktop + mobile variants of ChapterHeader)
+  - 0 buttons with literal "Library" text remain
+  - Each home-icon button has 1 SVG inside (correct)
+  - aria-label="Return to library (home)" present for screen readers
+  - title="Return to the novel library" preserved for hover tooltip
+
+L4 CLICK FLOW:
+  Pre:  h1 = "Dungeon Defense - Chapter 2"   (reader view)
+  Action: click button[aria-label="Return to library (home)"]
+  Post: h1 = "Lexicon Forge"
+        Novel Library page visible (h2 contains "Novel Library")
+        5 novel cards rendered
+  → Navigation works. Fix achieves the user's stated intent.
+
+L5 deferred — cosmetic icon swap with screen-reader label; manual user
+confirmation not required for verification but the user can replace
+their UI gesture at any time.

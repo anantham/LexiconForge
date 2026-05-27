@@ -20,7 +20,7 @@ export const bodhiVows: LiturgyDoc = {
   title: 'Four Great Vows',
   subtitle: 'Shi-gu Sei-gan-mon (四弘誓願)',
   tradition: 'zen',
-  context: 'Recited at Bodhi Sangha as part of formal sutra chanting. The pan-Mahāyāna bodhisattva vow formula in Sino-Japanese pronunciation with Bodhi Sangha\'s contemplative English rendering.',
+  context: 'The pan-Mahāyāna bodhisattva vow formula in Sino-Japanese pronunciation, with Bodhi Sangha\'s English rendering.',
   sources: {
     canonical: [
       { label: 'Four Great Vows (pan-Mahāyāna formula)', url: 'https://en.wikipedia.org/wiki/Four_Great_Vows' },
@@ -42,7 +42,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Shujō muhen sē gan do',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Shujō muhen sē gan do', tokens: ['Shujō', 'muhen', 'sē gan', 'do'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '衆生無邊誓願度', tokens: ['衆生', '無邊', '誓願', '度'], transliteration: 'Shujō  muhen  sē gan  do' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '衆生無邊誓願度', tokens: ['衆生', '無邊', '誓願', '度'], transliteration: 'zhòng shēng wú biān shì yuàn dù  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
@@ -64,7 +64,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Bonnō mujin sē gan dan',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Bonnō mujin sē gan dan', tokens: ['Bonnō', 'mujin', 'sē gan', 'dan'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '煩惱無盡誓願斷', tokens: ['煩惱', '無盡', '誓願', '斷'], transliteration: 'Bonnō  mujin  sē gan  dan' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '煩惱無盡誓願斷', tokens: ['煩惱', '無盡', '誓願', '斷'], transliteration: 'fán nǎo wú jìn shì yuàn duàn  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
@@ -86,7 +86,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Hōmon muryō sē gan gaku',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Hōmon muryō sē gan gaku', tokens: ['Hōmon', 'muryō', 'sē gan', 'gaku'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '法門無量誓願學', tokens: ['法門', '無量', '誓願', '學'], transliteration: 'Hōmon  muryō  sē gan  gaku' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '法門無量誓願學', tokens: ['法門', '無量', '誓願', '學'], transliteration: 'fǎ mén wú liàng shì yuàn xué  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
@@ -97,7 +97,7 @@ export const bodhiVows: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'Hōmon', scriptAlts: { 'zh-Hant': '法門' }, gloss: 'Dharma-gates. *法* "Dharma" + *門* "gate". Bodhi\'s rendering compresses this to "the Dharma" — the gates and the field they open onto are read as one.', accent: 'rose' },
+            { form: 'Hōmon', scriptAlts: { 'zh-Hant': '法門' }, gloss: 'Dharma-gates. *法* "Dharma" + *門* "gate". Bodhi\'s rendering compresses this to "the Dharma" — the gates and the field they open onto are read as one.', accent: 'sky' },
             { form: 'muryō', scriptAlts: { 'zh-Hant': '無量' }, gloss: 'Immeasurable. *無* "no" + *量* "measure". The same word as in the four *brahmavihāras* (四無量).' },
             { form: 'sē gan', scriptAlts: { 'zh-Hant': '誓願' }, gloss: 'Vow, solemn pledge.', accent: 'amber' },
             { form: 'gaku', scriptAlts: { 'zh-Hant': '學' }, gloss: 'To study, learn, train in. Bodhi reads this as "realize" — the study reaches its completion.' },
@@ -108,7 +108,7 @@ export const bodhiVows: LiturgyDoc = {
           pali: 'Butsudō mujō sē gan jō',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Butsudō mujō sē gan jō', tokens: ['Butsudō', 'mujō', 'sē gan', 'jō'] },
-            { lang: 'zh-Hant', label: 'Hanzi', text: '佛道無上誓願成', tokens: ['佛道', '無上', '誓願', '成'], transliteration: 'Butsudō  mujō  sē gan  jō' },
+            { lang: 'zh-Hant', label: 'Hanzi', text: '佛道無上誓願成', tokens: ['佛道', '無上', '誓願', '成'], transliteration: 'fó dào wú shàng shì yuàn chéng  (Mandarin pinyin)' },
           ],
           witnesses: [
             {
@@ -119,7 +119,7 @@ export const bodhiVows: LiturgyDoc = {
             },
           ],
           words: [
-            { form: 'Butsudō', scriptAlts: { 'zh-Hant': '佛道' }, gloss: 'The Buddha way. *佛* "Buddha" + *道* "way, path, Tao". Same *道* as in Taoism, here the buddhic path.', accent: 'rose' },
+            { form: 'Butsudō', scriptAlts: { 'zh-Hant': '佛道' }, gloss: 'The Buddha way. *佛* "Buddha" + *道* "way, path, Tao". Same *道* as in Taoism, here the buddhic path.', accent: 'amber' },
             { form: 'mujō', scriptAlts: { 'zh-Hant': '無上' }, gloss: 'Unsurpassed, without anything above it. *無* "no" + *上* "above". Same *anuttara* as in *anuttarā samyaksaṃbodhi*.' },
             { form: 'sē gan', scriptAlts: { 'zh-Hant': '誓願' }, gloss: 'Vow, solemn pledge.', accent: 'amber' },
             { form: 'jō', scriptAlts: { 'zh-Hant': '成' }, gloss: 'To accomplish, complete, become. Bodhi reads this as "walk along" — the way is realised in walking, not in arrival.' },

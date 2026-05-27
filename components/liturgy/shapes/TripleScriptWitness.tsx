@@ -22,6 +22,8 @@ const ACCENT_CLASS: Record<AccentColor, string> = {
 import { Tooltip } from '../../sutta-studio/Tooltip';
 import { ProseBlock } from '../ProseBlock';
 import { useLiturgySettings } from '../LiturgySettings';
+import { conceptsForToken } from '../../../data/concepts/lookup';
+import { conceptFacets } from '../../../data/concepts/tooltipFacets';
 
 // Per-script font stacks. Latn/IAST uses Cardo (already loaded for diacritics).
 // Other scripts use Noto Serif Web Fonts pulled in index.html.
@@ -35,10 +37,45 @@ const SCRIPT_FONT: Record<string, string> = {
   Hang: "'Noto Serif KR', serif",
 };
 
+/**
+ * Per-script size multipliers. Latin (IAST/Pāli) is the baseline (1.0).
+ * CJK and Devanāgarī benefit from slightly larger rendering because their
+ * glyphs carry more visual detail per unit; the reader needs more pixels
+ * to resolve them comfortably. The English translation line below the
+ * chant body gets its own bump so the gloss reads as easily as the chant.
+ */
+const SCRIPT_SIZE_MULTIPLIER: Record<string, number> = {
+  Latn: 1.0,
+  Deva: 1.05,
+  Hant: 1.2,
+  Hans: 1.2,
+  Jpan: 1.2,
+  Tibt: 1.1,
+  Hang: 1.15,
+};
+const ENGLISH_LINE_MULTIPLIER = 1.4;
+
 /** Resolve the script subtag from a BCP-47 tag (e.g. "sa-Latn" → "Latn"). */
 function scriptSubtag(lang: string): string {
   const parts = lang.split('-');
   return parts.length >= 2 ? parts[1] : 'Latn';
+}
+
+/** Resolve the primary language subtag from a BCP-47 tag (e.g. "sa-Latn" → "sa"). */
+function languageSubtag(lang: string): string {
+  return lang.split('-')[0] ?? lang;
+}
+
+/**
+ * Merge two conceptId lists into a unique, space-separated string, or
+ * return undefined if both are empty. Used by HoverSpan to combine
+ * explicit author-tagged conceptIds with registry-resolved ones.
+ */
+function mergeConceptIds(a?: string[], b?: string[]): string | undefined {
+  const set = new Set<string>();
+  a?.forEach((id) => id && set.add(id));
+  b?.forEach((id) => id && set.add(id));
+  return set.size > 0 ? Array.from(set).join(' ') : undefined;
 }
 
 /**
@@ -50,7 +87,19 @@ function scriptSubtag(lang: string): string {
 function deriveScripts(seg: TripleScriptWitnessSegment): ScriptVariant[] {
   if (seg.scripts && seg.scripts.length > 0) return seg.scripts;
   const out: ScriptVariant[] = [{ lang: 'pi-Latn', label: 'Pāli', text: seg.pali }];
-  if (seg.paliDeva) out.push({ lang: 'pi-Deva', label: 'Devanāgarī', text: seg.paliDeva });
+  // Carry the IAST as the Devanāgarī variant's transliteration so the
+  // reader gets a phonetic line beneath the Devanāgarī when the
+  // `showTransliteration` setting is on. Without this, legacy chants
+  // (morning-chants, ti-sarana) rendered Devanāgarī silently — no
+  // phonetic respelling underneath.
+  if (seg.paliDeva) {
+    out.push({
+      lang: 'pi-Deva',
+      label: 'Devanāgarī',
+      text: seg.paliDeva,
+      transliteration: seg.pali,
+    });
+  }
   return out;
 }
 
@@ -84,15 +133,78 @@ const DEVA_STACK = "'Noto Serif Devanagari', 'Cardo', serif";
  * and the user's "Show transliteration" setting is on. Skipped for Latn —
  * Roman scripts don't need a Roman gloss of themselves.
  */
-const TransliterationLine: React.FC<{ variant: ScriptVariant }> = ({ variant }) => {
+/**
+ * Build a per-word pronunciation respelling line for Latin-script
+ * (IAST) chants. Walks the text's word tokens, looks each one up in
+ * the segment's `words` registry by surface form, and joins each
+ * word's `pronunciation` field (a chant-friendly respelling like
+ * "nah-MOH" or "kah-rah-NEE-yah"). Gaps and unknown words pass
+ * through as-is. Returns null when no word has a pronunciation
+ * authored (most chants do; metta-sutta's sparse data falls through).
+ *
+ * Why: IAST diacritics are phonemic but opaque to English-readers
+ * who haven't studied Sanskritic transcription. The per-word
+ * pronunciation respelling makes the chant readable for anyone.
+ */
+function buildRespelling(text: string, words: WordGloss[] | undefined): string | null {
+  if (!words || words.length === 0) return null;
+  const idx = buildWordIndex(words, 'form');
+  const tokens = tokenize(text);
+  let haveAny = false;
+  const parts: string[] = [];
+  for (const t of tokens) {
+    if (t.kind === 'gap') {
+      parts.push(t.text);
+      continue;
+    }
+    const w = matchWord(t.text, idx);
+    if (w?.pronunciation) {
+      parts.push(w.pronunciation);
+      haveAny = true;
+    } else {
+      // Unknown / un-glossed token — keep the surface form so the line
+      // stays aligned with the chant. The reader's eye can fill the gap.
+      parts.push(t.text);
+    }
+  }
+  return haveAny ? parts.join('') : null;
+}
+
+const TransliterationLine: React.FC<{
+  variant: ScriptVariant;
+  /**
+   * The segment's word registry. Used to aggregate per-word
+   * `pronunciation` respellings into a phonetic line when the active
+   * script is Latin (IAST) — see `buildRespelling`. For non-Latin
+   * scripts, the variant's own `transliteration` field is shown
+   * instead.
+   */
+  words?: WordGloss[];
+}> = ({ variant, words }) => {
   const { settings } = useLiturgySettings();
   if (!settings.showTransliteration) return null;
-  if (!variant.transliteration) return null;
   const script = scriptSubtag(variant.lang);
-  if (script === 'Latn') return null;
+  // Latin script: aggregate per-word pronunciation respellings from
+  // the words[] registry. Falls through to null if no word in this
+  // segment has an authored pronunciation.
+  if (script === 'Latn') {
+    const respelling = buildRespelling(variant.text, words);
+    if (!respelling) return null;
+    return (
+      <div
+        className="relative z-[5] bg-slate-950 text-slate-500 italic text-sm mt-1 leading-relaxed select-text tracking-wide"
+        style={{ fontFamily: SCRIPT_FONT.Latn }}
+        aria-label={`Pronunciation respelling of ${variant.label}`}
+      >
+        {respelling}
+      </div>
+    );
+  }
+  // Non-Latin script: show the variant's own transliteration string.
+  if (!variant.transliteration) return null;
   return (
     <div
-      className="text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
+      className="relative z-[5] bg-slate-950 text-slate-500 italic text-sm mt-1 leading-relaxed select-text"
       style={{ fontFamily: SCRIPT_FONT.Latn }}
       aria-label={`Transliteration of ${variant.label}`}
     >
@@ -319,20 +431,74 @@ const HoverSpan: React.FC<{
    * across them when multiple English words map to one Pāli word.
    */
   morphemeIdx?: number;
-}> = ({ text, tooltipText, bold = false, morphemeIdx }) => {
+  /**
+   * Optional concept-graph IDs this morpheme attests. Emitted as a
+   * space-separated `data-concept-ids` attribute that the hover handler
+   * uses for cross-language highlighting (see types/conceptGraph.ts and
+   * data/concepts/lookup.ts).
+   */
+  conceptIds?: string[];
+  /**
+   * BCP-47 language tag (e.g. "sa-Latn"). When provided, the registry is
+   * queried for additional conceptIds that attest this surface form, so
+   * the author doesn't have to manually annotate every morpheme — if the
+   * registry already names `prajñā` as `concept.wisdom-prajna`, the
+   * hover-highlighting works automatically. Explicit `conceptIds` merge
+   * with registry-resolved ones.
+   */
+  lang?: string;
+}> = ({ text, tooltipText, bold = false, morphemeIdx, conceptIds, lang }) => {
   const [open, setOpen] = useState(false);
+  const [facetIdx, setFacetIdx] = useState(0);
+  const registryIds = lang
+    ? conceptsForToken(languageSubtag(lang), scriptSubtag(lang), text)
+    : undefined;
+  const conceptAttr = mergeConceptIds(conceptIds, registryIds);
+  // Build facets: the surface-gloss is always facet 0; each concept the
+  // token attests adds one short facet (preferredLabel + first sentence
+  // of the registry definition). When there's more than one facet, click
+  // cycles between them (mn10 pattern — see sutta-studio/Tooltip.tsx).
+  const allConceptIds = conceptAttr ? conceptAttr.split(/\s+/).filter(Boolean) : [];
+  const extraFacets = conceptFacets(allConceptIds);
+  const facets = [tooltipText, ...extraFacets];
+  const currentFacet = facets[facetIdx % facets.length] ?? tooltipText;
+  const hasFacets = facets.length > 1;
   return (
     <span
       data-hover-span="true"
       data-morpheme-idx={morphemeIdx}
-      className={`relative inline-block cursor-help border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
+      data-concept-ids={conceptAttr}
+      // Each morpheme gets its own underline + tiny horizontal padding so
+      // adjacent morphemes don't merge visually. mn10 pattern: the eye
+      // sees per-segment breaks (kar · aṇī · yam) rather than one long
+      // continuous underline under the whole word.
+      className={`relative inline-block cursor-help px-[2px] border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
         bold ? 'font-semibold' : ''
       }`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
+      onClick={(e) => {
+        // Click advances the tooltip facet when there are multiple. We
+        // stop propagation so the click doesn't bubble to parents that
+        // might also bind onClick (alignment-line clear, etc.). When
+        // there's only one facet, click is a no-op — the cursor:help
+        // hint is unchanged.
+        if (!hasFacets) return;
+        e.stopPropagation();
+        setFacetIdx((i) => (i + 1) % facets.length);
+      }}
+      title={hasFacets ? 'Click: next facet' : undefined}
     >
       {text}
-      <AnimatePresence>{open && <Tooltip text={tooltipText} />}</AnimatePresence>
+      <AnimatePresence>
+        {open && (
+          <Tooltip
+            text={currentFacet}
+            facetIndex={hasFacets ? facetIdx % facets.length : undefined}
+            facetTotal={hasFacets ? facets.length : undefined}
+          />
+        )}
+      </AnimatePresence>
     </span>
   );
 };
@@ -368,7 +534,13 @@ const HoverWord: React.FC<{
   morphemes?: WordMorpheme[];
   /** Suppress the `[pronunciation]` prefix when a transliteration line is shown beneath. */
   hidePron?: boolean;
-}> = ({ text, word, morphemes: morphemesOverride, hidePron = false }) => {
+  /**
+   * BCP-47 language tag of the active script (e.g. "sa-Latn", "zh-Hant").
+   * Threaded down so HoverSpan can query the concept registry by surface
+   * form — see HoverSpan.lang.
+   */
+  lang?: string;
+}> = ({ text, word, morphemes: morphemesOverride, hidePron = false, lang }) => {
   const morphemes = morphemesOverride ?? word.morphemes;
   // If we have morphemes and they cleanly reconstruct the surface, render
   // one hover span per morpheme. Root morphemes render bold so the eye
@@ -385,13 +557,22 @@ const HoverWord: React.FC<{
               tooltipText={tooltipForMorpheme(piece.morpheme, hidePron)}
               bold={piece.morpheme.type === 'root'}
               morphemeIdx={i}
+              conceptIds={piece.morpheme.conceptIds}
+              lang={lang}
             />
           ))}
         </>
       );
     }
   }
-  return <HoverSpan text={text} tooltipText={tooltipForWord(word, hidePron)} />;
+  return (
+    <HoverSpan
+      text={text}
+      tooltipText={tooltipForWord(word, hidePron)}
+      conceptIds={word.conceptIds}
+      lang={lang}
+    />
+  );
 };
 
 const PaliLine: React.FC<{
@@ -414,7 +595,11 @@ const PaliLine: React.FC<{
 }> = ({ text, words = [], large = false, lang, tokens: tokenHints }) => {
   const { settings } = useLiturgySettings();
   const script = scriptSubtag(lang);
-  const sizeClass = large ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
+  // Base font sizes (rem). Reader can tune via the settings slider, which
+  // sets `--liturgy-scale` on the LiturgyChantPage wrapper. Each script
+  // also carries its own multiplier — CJK + Tibetan glyphs benefit from
+  // a slight upscale so the visual weight matches Latin chant body.
+  const baseRem = (large ? 1.875 : 1.5) * (SCRIPT_SIZE_MULTIPLIER[script] ?? 1);
   const fontStack = SCRIPT_FONT[script] ?? SCRIPT_FONT.Latn;
 
   const tokens = (() => {
@@ -456,8 +641,8 @@ const PaliLine: React.FC<{
 
   return (
     <div
-      className={`text-slate-100 leading-loose ${sizeClass}`}
-      style={{ fontFamily: fontStack }}
+      className="text-slate-100 leading-loose"
+      style={{ fontFamily: fontStack, fontSize: `calc(${baseRem}rem * var(--liturgy-scale, 1))` }}
       lang={lang}
     >
       {tokens.map((t, i) => {
@@ -479,15 +664,25 @@ const PaliLine: React.FC<{
             word={word}
             morphemes={script === 'Latn' ? undefined : scriptMorphemes}
             hidePron={hidePron}
+            lang={lang}
           />
         ) : (
-          <HoverSpan text={t.text} tooltipText={tooltipForWord(word, hidePron)} />
+          <HoverSpan
+            text={t.text}
+            tooltipText={tooltipForWord(word, hidePron)}
+            conceptIds={word.conceptIds}
+            lang={lang}
+          />
         );
         return (
           <span
             key={i}
             data-pali-idx={paliSurfaceIdx}
-            className={`inline-block ${accentClass}`}
+            // bg + z-10 so the alignment-line SVG (sibling rendered last,
+            // would otherwise stack on top) visually goes BEHIND the word.
+            // The bg matches the page bg so it's invisible to the eye but
+            // hides the line where it crosses this word's bounding box.
+            className={`relative z-10 inline-block bg-slate-950 ${accentClass}`}
           >
             {content}
           </span>
@@ -505,7 +700,24 @@ function tokenizeEnglish(text: string): string[] {
 const EnglishLine: React.FC<{
   text: string;
   accentByEnIdx?: Map<number, AccentColor>;
-}> = ({ text, accentByEnIdx }) => {
+  /**
+   * Witness identifier (e.g. `"MAPLE chant sheet (after Sheng-yen)"`,
+   * `"Conze (1958)"`). Used to look up per-witness conceptIds for each
+   * English word, so MAPLE's "wisdom" can attest a different concept
+   * than Conze's "Wisdom" if the registry has witness-specific
+   * attestations.
+   */
+  witnessBy?: string;
+  /**
+   * Witness's per-English-word mapping to Pāli surface position. When
+   * an entry is -1, the English word is "glue" — connective tissue
+   * English needs that has no Pāli counterpart ("This is what should be
+   * done" → "is", "what", "be" carry no Pāli, only "done" maps). The
+   * mn10 reader dims those words so the eye lands on content words.
+   * Without alignTo, all words render at full opacity.
+   */
+  alignTo?: number[];
+}> = ({ text, accentByEnIdx, witnessBy, alignTo }) => {
   const { settings } = useLiturgySettings();
   const tokens = tokenizeEnglish(text);
   let engIdx = -1;
@@ -516,11 +728,22 @@ const EnglishLine: React.FC<{
         engIdx += 1;
         const accent = accentByEnIdx?.get(engIdx);
         const accentClass = settings.showAccents && accent ? ACCENT_CLASS[accent] : '';
+        const concepts = conceptsForToken('en', 'Latn', t, witnessBy);
+        const conceptAttr = concepts.length > 0 ? concepts.join(' ') : undefined;
+        // Glue word: English-only scaffolding with no Pāli source. mn10
+        // renders these at 0.55 opacity (Legend.tsx uses 0.3 for "ghost
+        // words"; we settle higher because liturgy glue is more often
+        // unavoidable English syntax than fully supplied content).
+        const isGlue = alignTo !== undefined && alignTo[engIdx] === -1;
         return (
           <span
             key={i}
             data-en-idx={engIdx}
-            className={`inline-block ${accentClass}`}
+            data-concept-ids={conceptAttr}
+            // bg + z-10 to hide alignment-line strokes behind the word (see
+            // PaliLine sibling above for the same treatment).
+            className={`relative z-10 inline-block bg-slate-950 ${accentClass}`}
+            style={isGlue ? { opacity: 0.55 } : undefined}
           >
             {t}
           </span>
@@ -626,7 +849,8 @@ type Line = {
 
 function computeAlignmentLines(
   container: HTMLDivElement,
-  alignTo: number[] | undefined
+  alignTo: number[] | undefined,
+  morphemeAlignTo?: (number | null)[]
 ): Line[] {
   if (!alignTo) return [];
   const cRect = container.getBoundingClientRect();
@@ -658,8 +882,12 @@ function computeAlignmentLines(
       if (!enEl) continue;
 
       // Three positioning strategies, in order of preference:
-      //   1. Authored morpheme spans exist → anchor on morpheme #i
-      //      (clamped to last morpheme if more English than morphemes).
+      //   1. Authored morpheme spans exist → anchor on a morpheme.
+      //      Which morpheme: if the witness authored `morphemeAlignTo`
+      //      for this English token, use that index (lets a curator fix
+      //      crossed arrows when English reorders the morphemes). Else
+      //      fall back to the positional heuristic (i-th English → i-th
+      //      morpheme, clamped to the last).
       //   2. No morpheme spans but the group has >1 English mapping to
       //      this word → distribute proportionally along the word's
       //      width so the arrows fan into separate landing zones
@@ -670,11 +898,15 @@ function computeAlignmentLines(
       let y1: number;
       let subIdx: number | undefined = undefined;
       if (morphemeEls.length > 0) {
-        const clamped = Math.min(i, morphemeEls.length - 1);
-        const mr = morphemeEls[clamped].getBoundingClientRect();
+        const authored = morphemeAlignTo?.[engIdx];
+        const target =
+          typeof authored === 'number'
+            ? Math.min(Math.max(authored, 0), morphemeEls.length - 1)
+            : Math.min(i, morphemeEls.length - 1);
+        const mr = morphemeEls[target].getBoundingClientRect();
         x1 = mr.left + mr.width / 2 - cRect.left;
         y1 = mr.bottom - cRect.top;
-        subIdx = clamped;
+        subIdx = target;
       } else if (engIndices.length > 1) {
         const xOffset = ((i + 0.5) / engIndices.length) * wordRect.width;
         x1 = wordRect.left + xOffset - cRect.left;
@@ -712,39 +944,48 @@ type HoverTarget = {
   element: HTMLElement;
 } | null;
 
-const AlignmentLines: React.FC<{ lines: Line[]; hovered: HoverTarget }> = ({
+const AlignmentLines: React.FC<{ lines: Line[]; containerWidth: number }> = ({
   lines,
-  hovered,
 }) => {
-  // Hover-triggered: show ONLY the line(s) involving the hovered word.
-  // Hover Pāli word → all English fragments aligned to it light up.
-  // Hover English word → its single Pāli counterpart lights up.
-  // No hover → no lines (the chant breathes uncluttered).
-  const visible = hovered
-    ? lines.filter((l) =>
-        hovered.kind === 'pali' ? l.paliIdx === hovered.idx : l.engIdx === hovered.idx
-      )
-    : [];
+  // The caller (SegmentRow.adjustedLines) is responsible for filtering by
+  // hover state + concept overlap. This component just renders the lines
+  // it's given.
+  //
+  // Path shape: a gentle, near-vertical bezier — both control points
+  // share the endpoint's x-coordinate, so the line goes essentially
+  // straight down with a mild S-curve. The earlier margin-arc variant
+  // (control points pulled to a side lane) read as visually
+  // overwrought; the user explicitly preferred a "gentle, directly
+  // connecting" line. We disambiguate termination via the endpoint
+  // dots below, not the curve shape itself.
+  const visible = lines;
   return (
     <svg
-      className="absolute inset-0 pointer-events-none"
-      style={{ width: '100%', height: '100%' }}
+      className="absolute inset-0 pointer-events-none z-0"
+      style={{ width: '100%', height: '100%', overflow: 'visible' }}
       aria-hidden="true"
     >
-      {visible.map((l, i) => {
+      {visible.map((l) => {
         const dy = l.y2 - l.y1;
         const cp1y = l.y1 + dy * 0.5;
         const cp2y = l.y2 - dy * 0.5;
         const d = `M ${l.x1},${l.y1} C ${l.x1},${cp1y} ${l.x2},${cp2y} ${l.x2},${l.y2}`;
         return (
-          <path
-            key={`${l.paliIdx}-${l.engIdx}`}
-            d={d}
-            fill="none"
-            stroke="rgb(110, 231, 183)"
-            strokeOpacity="0.6"
-            strokeWidth="1.5"
-          />
+          <g key={`${l.paliIdx}-${l.engIdx}`}>
+            <path
+              d={d}
+              fill="none"
+              stroke="rgb(110, 231, 183)"
+              strokeOpacity="0.9"
+              strokeWidth="2"
+            />
+            {/* Endpoint markers — small filled circles so the termination
+                point is unambiguous, the dot says "this is where the
+                line actually ends" even if the curve appears to brush
+                past other text on its way. */}
+            <circle cx={l.x1} cy={l.y1} r="2.5" fill="rgb(110, 231, 183)" />
+            <circle cx={l.x2} cy={l.y2} r="2.5" fill="rgb(110, 231, 183)" />
+          </g>
         );
       })}
     </svg>
@@ -839,7 +1080,7 @@ const SegmentRow: React.FC<{
         setLines([]);
         return;
       }
-      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo));
+      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo));
     };
     compute();
     const raf = requestAnimationFrame(compute);
@@ -866,6 +1107,15 @@ const SegmentRow: React.FC<{
       ro.disconnect();
     };
   }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo, activeScript.lang]);
+
+  // Clear stale hover state when the active script or witness changes.
+  // Without this, hovered.element points at a DOM node from before the
+  // swap — on mobile especially, that node is detached and its
+  // getBoundingClientRect() returns zeros, painting the alignment line
+  // from the viewport corner. (See task #73.)
+  useEffect(() => {
+    setHovered(null);
+  }, [activeScript.lang, witnessIdx]);
 
   // Hover detection via event delegation on the segment container.
   // mouseover bubbles up; we check whether the target sits inside any
@@ -920,21 +1170,85 @@ const SegmentRow: React.FC<{
     cb();
   };
 
-  // Adjust the endpoint of any hovered line so it anchors to the actual
-  // morpheme/word element under the cursor, not the centre of the whole
-  // Pāli word. Cheap — only runs while something is hovered.
+  // Compute the visible arrow lines for the current hover state.
   //
-  // Important: when lines already carry a `morphemeIdx` (because the
-  // Pāli word was rendered with per-morpheme HoverSpans), each line is
-  // already anchored at its correct morpheme position. The Pāli-side
-  // override must only fire when the line has no morphemeIdx — otherwise
-  // hovering a morpheme would yank every arrow on the word over to that
-  // one morpheme's centre, collapsing the auto-distributed fan.
-  const adjustedLines = (() => {
-    if (!hovered || !containerRef.current) return lines;
+  // Pipeline:
+  //   1. Bail to empty list if nothing is hovered → no arrows.
+  //   2. Recompute lines fresh from the live DOM — the cached `lines`
+  //      state can be stale after a script swap (computeAlignmentLines
+  //      ran when fonts hadn't loaded, returning zero-size rects).
+  //   3. Filter by index match: hovered Pāli word keeps lines with that
+  //      paliIdx; hovered English word keeps lines with that engIdx.
+  //   4. Concept-graph filter: if the hovered element has
+  //      `data-concept-ids`, narrow further to lines whose OTHER endpoint
+  //      also attests at least one of those concepts. This is the
+  //      "hover prajñā → show only the wisdom arrow, not the pāramitā
+  //      arrow" behavior. Falls through if no concepts are tagged.
+  //   5. Adjust endpoints to anchor at the hover element when the line
+  //      has no morphemeIdx (otherwise the auto-distributed fan stays).
+  const adjustedLines: Line[] = (() => {
+    if (!hovered || !containerRef.current) return [];
+    // Guard against stale hover state: if the user swapped scripts while
+    // a hover was active, hovered.element is now detached from the DOM
+    // tree. getBoundingClientRect() on a detached node returns all-zero,
+    // which would paint the line's source endpoint at the viewport corner.
+    // (See task #73, user-reported mobile Devanāgarī bug.)
+    if (!containerRef.current.contains(hovered.element)) return [];
+    const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo);
     const cRect = containerRef.current.getBoundingClientRect();
     const r = hovered.element.getBoundingClientRect();
-    return lines.map((l) => {
+
+    // Step 3 — idx match. When the user is hovering a specific morpheme
+    // within a Pāli word (the inner HoverSpan emits `data-morpheme-idx`),
+    // narrow to lines that anchor at that morpheme. Without this, every
+    // arrow for the whole word stays visible regardless of which morpheme
+    // the cursor is on — and the per-morpheme tooltips feel decoupled
+    // from the arrow shown. See screenshot feedback (verse 1 karaṇīyam).
+    const hoveredEl = hovered.element as HTMLElement;
+    const hoveredMorphemeStr = hoveredEl.dataset.morphemeIdx;
+    const hoveredMorphemeIdx =
+      hovered.kind === 'pali' && hoveredMorphemeStr !== undefined
+        ? parseInt(hoveredMorphemeStr, 10)
+        : null;
+    const idxMatched = fresh.filter((l) => {
+      if (hovered.kind === 'pali') {
+        if (l.paliIdx !== hovered.idx) return false;
+        if (hoveredMorphemeIdx !== null && l.morphemeIdx !== undefined) {
+          return l.morphemeIdx === hoveredMorphemeIdx;
+        }
+        return true;
+      }
+      return l.engIdx === hovered.idx;
+    });
+
+    // Step 4 — concept overlap (hoveredEl already declared above)
+    const hoveredConceptStr = hoveredEl.dataset.conceptIds;
+    const hoveredConcepts = hoveredConceptStr
+      ? new Set(hoveredConceptStr.split(/\s+/).filter(Boolean))
+      : null;
+    const conceptMatched = !hoveredConcepts
+      ? idxMatched
+      : idxMatched.filter((l) => {
+          const otherSelector =
+            hovered.kind === 'pali'
+              ? `[data-en-idx="${l.engIdx}"]`
+              : `[data-pali-idx="${l.paliIdx}"]`;
+          const otherEl = containerRef.current!.querySelector<HTMLElement>(otherSelector);
+          if (!otherEl) return true; // can't verify → keep (don't suppress on missing data)
+          const otherConcepts: string[] = [];
+          const direct = otherEl.dataset.conceptIds;
+          if (direct) otherConcepts.push(...direct.split(/\s+/).filter(Boolean));
+          // Pāli word may have morpheme sub-spans each with their own concepts
+          otherEl.querySelectorAll<HTMLElement>('[data-concept-ids]').forEach((child) => {
+            const ids = child.dataset.conceptIds;
+            if (ids) otherConcepts.push(...ids.split(/\s+/).filter(Boolean));
+          });
+          if (otherConcepts.length === 0) return true; // untagged endpoint → keep
+          return otherConcepts.some((c) => hoveredConcepts.has(c));
+        });
+
+    // Step 5 — anchor endpoints at hover element
+    return conceptMatched.map((l) => {
       if (
         hovered.kind === 'pali' &&
         l.paliIdx === hovered.idx &&
@@ -978,7 +1292,7 @@ const SegmentRow: React.FC<{
           lang={activeScript.lang}
           tokens={activeScript.tokens}
         />
-        <TransliterationLine variant={activeScript} />
+        <TransliterationLine variant={activeScript} words={segment.words} />
       </div>
 
       {/* English line — click cycles witness at the section level */}
@@ -989,10 +1303,20 @@ const SegmentRow: React.FC<{
           title={segment.witnesses.length > 1 ? 'Click to switch translation' : undefined}
         >
           <div
-            className="text-slate-300 italic leading-relaxed text-base md:text-lg"
-            style={{ fontFamily: SERIF_STACK }}
+            className="text-slate-300 italic leading-relaxed"
+            style={{
+              fontFamily: SERIF_STACK,
+              // English translation line — 1.125rem base × ENGLISH_LINE_MULTIPLIER
+              // (1.4 by default) so the gloss reads as easily as the chant.
+              fontSize: `calc(${1.125 * ENGLISH_LINE_MULTIPLIER}rem * var(--liturgy-scale, 1))`,
+            }}
           >
-            <EnglishLine text={currentWitness.text} accentByEnIdx={accentByEnIdx} />
+            <EnglishLine
+              text={currentWitness.text}
+              accentByEnIdx={accentByEnIdx}
+              witnessBy={currentWitness.by}
+              alignTo={currentWitness.alignTo}
+            />
           </div>
         </div>
       )}
@@ -1000,34 +1324,11 @@ const SegmentRow: React.FC<{
       {/* SVG alignment overlay — only renders lines for the hovered word.
           Endpoints are adjusted to the actual hovered element so the
           arrow anchors to the morpheme/word under the cursor. */}
-      <AlignmentLines lines={adjustedLines} hovered={hovered} />
+      <AlignmentLines
+        lines={adjustedLines}
+        containerWidth={containerRef.current?.offsetWidth ?? 0}
+      />
 
-      {/* Per-segment note — collapsed by default, expands on click. */}
-      {segment.note && <SegmentNote text={segment.note} />}
-    </div>
-  );
-};
-
-const SegmentNote: React.FC<{ text: string }> = ({ text }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mt-3 text-center">
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((v) => !v);
-        }}
-        className="text-[10px] uppercase tracking-widest text-slate-600 hover:text-emerald-400/80 transition-colors"
-      >
-        {open ? '— hide note —' : '+ note'}
-      </button>
-      {open && (
-        <ProseBlock
-          text={text}
-          className="space-y-2 text-slate-400 text-xs italic leading-relaxed mt-3 max-w-xl mx-auto text-left"
-        />
-      )}
     </div>
   );
 };
