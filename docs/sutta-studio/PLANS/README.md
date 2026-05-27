@@ -23,7 +23,7 @@ coordination rules in `CLAUDE.md` / `AGENTS.md`.
 |---|---|---|---|
 | 🟢 ready | [cost-preview-confirm](cost-preview-confirm.md) | 2–4 hr | high — touches compiler + one new modal |
 | 🟢 ready | [refrain-detector](refrain-detector.md) | 2–3 hr | high — post-pass + reader affordance |
-| 🟢 ready | [polyglot-foundations](polyglot-foundations.md) | 4–8 hr | high — adapter + sidebar, no schema changes |
+| ✅ shipped ([PR](https://github.com/anantham/LexiconForge/pull/58)) | [polyglot-foundations](SHIPPED/polyglot-foundations.md) | 4–8 hr | high — adapter + sidebar, no schema changes |
 
 "Independence" means how parallel-safe the work is. All three plans above
 are designed to be claimable by separate agents simultaneously without

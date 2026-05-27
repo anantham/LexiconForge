@@ -51,6 +51,18 @@ export type Citation = {
 
 export type SourceProvider = 'suttacentral';
 
+
+export type ParallelType = 'full' | 'resembling' | 'mention';
+
+export type ParallelInfo = {
+  uid: string;
+  rootLang: string;
+  type: ParallelType;
+  acronym?: string;
+  isPali: boolean;
+};
+
+
 export type ValidationIssue = {
   level: 'warn' | 'error';
   code:
