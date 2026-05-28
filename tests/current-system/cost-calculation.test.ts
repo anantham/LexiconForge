@@ -62,6 +62,17 @@ describe('Text model cost calculation', () => {
     expect(pricingSpy).toHaveBeenCalledWith('openai/gpt-4o');
   });
 
+  it('uses exact static pricing before OpenRouter dynamic lookup', async () => {
+    const fetchSpy = vi.spyOn(openrouterService, 'fetchModels');
+    const pricingSpy = vi.spyOn(openrouterService, 'getPricingForModel');
+
+    const cost = await calculateCost('openrouter/google/gemini-3-pro-image-preview', 1000, 500);
+
+    expect(cost).toBeCloseTo((1000 * 2.00 + 500 * 12.00) / 1_000_000, 8);
+    expect(pricingSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });

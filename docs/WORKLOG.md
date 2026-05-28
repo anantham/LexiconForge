@@ -1881,3 +1881,26 @@
 **Tests:**
 - `npx playwright test tests/e2e/initialization.spec.ts tests/e2e/stale-issues-verification.spec.ts --reporter=list` ✅ 7 passed.
 - `npx playwright test --reporter=list` ✅ 13 passed, 7 skipped.
+
+### [2026-05-28 14:09 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Fix PR #78 CI vitest blocker without weakening test signal.
+**Worktree:** `/private/tmp/LexiconForge-e2e-issues`
+**Branch:** `fix/codex-e2e-signal-triage`
+**Files likely affected:**
+- `services/ai/cost.ts` - exact static model costs should be resolved before dynamic OpenRouter lookup so configured slash-model costs do not require network.
+- `tests/current-system/cost-calculation.test.ts` - cover the static slash-model path and assert no OpenRouter fetch occurs.
+**Investigation notes:**
+- CI failed in `tests/current-system/cost-calculation.test.ts`, outside the e2e PR scope.
+- Local reproduction showed `calculateCost('openrouter/google/gemini-3-pro-image-preview', ...)` attempted `openrouterService.fetchModels()` and failed when `openrouter.ai` was unreachable.
+- Root cause: `calculateCost()` routes every model ID containing `/` through dynamic OpenRouter pricing before checking the exact static `COSTS_PER_MILLION_TOKENS` entry.
+**Files modified (line numbers + why):**
+- `services/ai/cost.ts:39-66` - resolve exact/static configured model costs before attempting dynamic OpenRouter pricing.
+- `tests/current-system/cost-calculation.test.ts:65-75` - add regression coverage that a configured OpenRouter-style static model does not call OpenRouter fetch/pricing APIs.
+- `docs/WORKLOG.md` - record CI blocker investigation, root cause, and verification.
+**Tests:**
+- `npx vitest run tests/current-system/cost-calculation.test.ts` ✅ 16 passed.
+- `npx vitest run` ⚠️ local environment failure in `scripts/build-dpd.test.ts` because root symlinked `node_modules` lacks installed `better-sqlite3`; cost suite passed in this run.
+- `npx playwright test --reporter=list` ✅ exit 0 with configured retry; 12 passed, 1 flaky (`fojin-sutta-studio-m2`, Chinese-title wait), 7 skipped.
+**Residual signal:**
+- FoJin M2 first attempt rendered the FoJin chapter with English title `The Heart Sūtra` and the Sutta Studio link, then passed on retry. This appears to be pre-existing test brittleness around the chapter heading expectation, not caused by the cost fix.
