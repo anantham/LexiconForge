@@ -1866,3 +1866,18 @@
 **Tests:**
 - `npx playwright test tests/e2e/chapterview-media.spec.ts tests/e2e/initialization.spec.ts --reporter=list --workers=1` ✅ 6 passed.
 - `npx playwright test --reporter=list --workers=1` ✅ 13 passed, 7 skipped.
+
+### [2026-05-28 14:03 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Harden PR #78 after Claude review flagged residual e2e flake vectors.
+**Worktree:** `/private/tmp/LexiconForge-e2e-issues`
+**Branch:** `fix/codex-e2e-signal-triage`
+**Files modified (line numbers + why):**
+- `tests/e2e/initialization.spec.ts:164-176,212-224,233-244` - replace remaining fixed sleeps with init-complete log waits before checking stores, prompt templates, and reload behavior.
+- `tests/e2e/stale-issues-verification.spec.ts:74-106,124-132` - remove serial coupling so #26 and #45 report independently; scope Hetushu error capture to Hetushu/scraping runtime errors and page exceptions; select the tooltip by its visible content instead of Tailwind classes.
+**Investigation notes:**
+- Claude review found no blocking goodharting issue, but correctly identified flake risks in serial test mode, fixed init sleeps, and broad console-error gating.
+- Targeted tests passed with default parallel workers after hardening.
+**Tests:**
+- `npx playwright test tests/e2e/initialization.spec.ts tests/e2e/stale-issues-verification.spec.ts --reporter=list` ✅ 7 passed.
+- `npx playwright test --reporter=list` ✅ 13 passed, 7 skipped.

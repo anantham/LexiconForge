@@ -78,15 +78,16 @@ async function setupHetushuMocks(page: Page) {
   );
 }
 
-test.describe.configure({ mode: 'serial' });
-
 test.describe('stale issue verification', () => {
   test('issue #26: Hetushu URL loads through the app fetch path', async ({ page }) => {
-    const errors: string[] = [];
+    const hetushuRuntimeErrors: string[] = [];
     page.on('console', (msg) => {
-      if (msg.type() === 'error') errors.push(msg.text());
+      const text = msg.text();
+      if (msg.type() === 'error' && /hetushu|site adapter|scraping/i.test(text)) {
+        hetushuRuntimeErrors.push(text);
+      }
     });
-    page.on('pageerror', (err) => errors.push(`pageerror: ${err.message}`));
+    page.on('pageerror', (err) => hetushuRuntimeErrors.push(`pageerror: ${err.message}`));
 
     await setupHetushuMocks(page);
     await prepareFreshApp(page);
@@ -106,14 +107,10 @@ test.describe('stale issue verification', () => {
     await expect(contentArea).toContainText('Second paragraph survives watermark cleanup.');
     await expect(contentArea).not.toContainText('hetushu.com');
 
-    const significantErrors = errors.filter(
-      (e) =>
-        !e.includes('Failed to load resource') &&
-        !e.includes('favicon') &&
-        !e.includes('raw.githubusercontent.com') &&
-        !e.includes('lexiconforge-novels')
-    );
-    expect(significantErrors, `Console errors during Hetushu flow:\n${significantErrors.join('\n')}`).toEqual([]);
+    expect(
+      hetushuRuntimeErrors,
+      `Hetushu runtime errors:\n${hetushuRuntimeErrors.join('\n')}`
+    ).toEqual([]);
   });
 
   test('issue #45: citation chips live in audit panel, not hover tooltip footer', async ({ page }) => {
@@ -127,9 +124,10 @@ test.describe('stale issue verification', () => {
     await expect(evaSegment).toBeVisible({ timeout: 10_000 });
 
     await evaSegment.hover();
-    await expect(page.getByText(/evaṁ means 'thus; in this way'/)).toBeVisible({ timeout: 5_000 });
+    const evaTooltip = page.getByText(/evaṁ means 'thus; in this way'/).first();
+    await expect(evaTooltip).toBeVisible({ timeout: 5_000 });
 
-    const tooltipText = await page.locator('.absolute.bg-slate-900\\/90').first().innerText();
+    const tooltipText = await evaTooltip.innerText();
     expect(tooltipText).toContain("evaṁ means 'thus; in this way'");
     expect(tooltipText).not.toContain('SOURCES');
     expect(tooltipText).not.toContain('DPD');

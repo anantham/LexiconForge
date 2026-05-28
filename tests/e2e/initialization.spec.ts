@@ -162,10 +162,14 @@ test.describe('Fresh Install Initialization', () => {
   });
 
   test('should create all required IndexedDB stores', async ({ page }) => {
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    const consoleMessages: string[] = [];
+    page.on('console', msg => {
+      consoleMessages.push(msg.text());
+    });
 
-    // Wait for initialization
-    await page.waitForTimeout(5000);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    const initCompleted = await waitForInitializationLog(page, consoleMessages, 20_000);
+    expect(initCompleted, 'Initialization should complete before checking stores').toBe(true);
 
     // Check IndexedDB stores
     const stores = await getObjectStoreNames(page);
@@ -217,7 +221,8 @@ test.describe('Fresh Install Initialization', () => {
     });
 
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForInitializationLog(page, consoleMessages, 10_000);
+    const initCompleted = await waitForInitializationLog(page, consoleMessages, 20_000);
+    expect(initCompleted, 'Initialization should complete before checking prompt templates').toBe(true);
 
     const promptTemplateCount = await getStoreCount(page, STORE_NAMES.PROMPT_TEMPLATES);
     expect(promptTemplateCount, 'Prompt templates should be initialized').toBeGreaterThan(0);
@@ -226,10 +231,14 @@ test.describe('Fresh Install Initialization', () => {
 
 test.describe('Existing Database Upgrade', () => {
   test('should handle database already at current version', async ({ page }) => {
-    await page.goto('/');
+    const firstVisitMessages: string[] = [];
+    page.on('console', msg => {
+      firstVisitMessages.push(msg.text());
+    });
 
-    // First visit - creates database
-    await page.waitForTimeout(5000);
+    await page.goto('/');
+    const firstVisitComplete = await waitForInitializationLog(page, firstVisitMessages, 20_000);
+    expect(firstVisitComplete, 'First visit should initialize the database').toBe(true);
 
     // Clear console and visit again
     const consoleMessages: string[] = [];
