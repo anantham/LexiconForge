@@ -6,7 +6,7 @@ const ONE_BY_ONE_PNG =
 
 test.describe('ChapterView (E2E) — Media Rendering', () => {
   test.beforeEach(async ({ page }) => {
-    await prepareFreshApp(page);
+    await prepareFreshApp(page, { appSettings: { enableAudio: true } });
   });
 
   test('renders inline illustrations from suggestedIllustrations', async ({ page }) => {

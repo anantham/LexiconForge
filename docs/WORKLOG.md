@@ -1849,3 +1849,20 @@
   - Added a standalone local mock page with a modern glassmorphism aesthetic and 3-mode navigation.
   - Implemented mock-data task list in Do Next mode with quick sort/filter by time, energy, and genre (logistical vs thinking).
   - Added Clarify mode fields for next physical action and dependency edges.
+
+### [2026-05-28 08:47 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Treat Playwright failures as signal before closing stale issues.
+**Worktree:** `/private/tmp/LexiconForge-e2e-issues`
+**Branch:** `fix/codex-e2e-signal-triage`
+**Files modified (line numbers + why):**
+- `tests/e2e/chapterview-media.spec.ts:8-9` - enable the audio feature explicitly before asserting the generated background-music control; the product gates audio UI behind `settings.enableAudio`.
+- `tests/e2e/initialization.spec.ts:14-75,118,132,150,171-185,197,213-223,238-254` - replace stale exact `[Store:init]` prefix checks and hard-coded 10-store expectations with current timestamped init-log detection, schema-derived store assertions, and actual prompt-template persistence checks.
+- `tests/e2e/stale-issues-verification.spec.ts:1-143` - add issue-specific e2e coverage for Hetushu loading/watermark cleanup (#26) and Sutta tooltip-vs-audit-panel citation behavior (#45).
+**Investigation notes:**
+- `chapterview-media.spec.ts` failed deterministically because the test asserted audio UI while using default settings where audio is intentionally disabled.
+- `fojin-sutta-studio-m2.spec.ts` passed in isolation; its earlier full-suite failure was cascade/timing noise after prior failures.
+- `initialization.spec.ts` failed deterministically even though debug output showed `initializeStore complete – isInitialized true`; root cause was stale log matching and stale store-count assertions after `api_metrics` became part of schema v16.
+**Tests:**
+- `npx playwright test tests/e2e/chapterview-media.spec.ts tests/e2e/initialization.spec.ts --reporter=list --workers=1` ✅ 6 passed.
+- `npx playwright test --reporter=list --workers=1` ✅ 13 passed, 7 skipped.
