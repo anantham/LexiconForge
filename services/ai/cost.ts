@@ -36,6 +36,13 @@ export const calculateCost = async (
     );
   }
 
+  const modelCosts = resolveModelCosts(model);
+  if (modelCosts) {
+    const inputCost = (promptTokens / 1_000_000) * modelCosts.input;
+    const outputCost = (completionTokens / 1_000_000) * modelCosts.output;
+    return inputCost + outputCost;
+  }
+
   if (model.includes('/')) {
     const pricing = await fetchDynamicPricing(model);
     if (pricing) {
@@ -52,13 +59,6 @@ export const calculateCost = async (
     }
   }
 
-  const modelCosts = resolveModelCosts(model);
-  if (!modelCosts) {
-    console.warn(`[Cost] No pricing information found for model: ${model}. Cost will be reported as 0.`);
-    return 0;
-  }
-
-  const inputCost = (promptTokens / 1_000_000) * modelCosts.input;
-  const outputCost = (completionTokens / 1_000_000) * modelCosts.output;
-  return inputCost + outputCost;
+  console.warn(`[Cost] No pricing information found for model: ${model}. Cost will be reported as 0.`);
+  return 0;
 };

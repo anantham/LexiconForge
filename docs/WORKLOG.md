@@ -1849,3 +1849,58 @@
   - Added a standalone local mock page with a modern glassmorphism aesthetic and 3-mode navigation.
   - Implemented mock-data task list in Do Next mode with quick sort/filter by time, energy, and genre (logistical vs thinking).
   - Added Clarify mode fields for next physical action and dependency edges.
+
+### [2026-05-28 08:47 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Treat Playwright failures as signal before closing stale issues.
+**Worktree:** `/private/tmp/LexiconForge-e2e-issues`
+**Branch:** `fix/codex-e2e-signal-triage`
+**Files modified (line numbers + why):**
+- `tests/e2e/chapterview-media.spec.ts:8-9` - enable the audio feature explicitly before asserting the generated background-music control; the product gates audio UI behind `settings.enableAudio`.
+- `tests/e2e/initialization.spec.ts:14-75,118,132,150,171-185,197,213-223,238-254` - replace stale exact `[Store:init]` prefix checks and hard-coded 10-store expectations with current timestamped init-log detection, schema-derived store assertions, and actual prompt-template persistence checks.
+- `tests/e2e/stale-issues-verification.spec.ts:1-143` - add issue-specific e2e coverage for Hetushu loading/watermark cleanup (#26) and Sutta tooltip-vs-audit-panel citation behavior (#45).
+**Investigation notes:**
+- `chapterview-media.spec.ts` failed deterministically because the test asserted audio UI while using default settings where audio is intentionally disabled.
+- `fojin-sutta-studio-m2.spec.ts` passed in isolation; its earlier full-suite failure was cascade/timing noise after prior failures.
+- `initialization.spec.ts` failed deterministically even though debug output showed `initializeStore complete – isInitialized true`; root cause was stale log matching and stale store-count assertions after `api_metrics` became part of schema v16.
+**Tests:**
+- `npx playwright test tests/e2e/chapterview-media.spec.ts tests/e2e/initialization.spec.ts --reporter=list --workers=1` ✅ 6 passed.
+- `npx playwright test --reporter=list --workers=1` ✅ 13 passed, 7 skipped.
+
+### [2026-05-28 14:03 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Harden PR #78 after Claude review flagged residual e2e flake vectors.
+**Worktree:** `/private/tmp/LexiconForge-e2e-issues`
+**Branch:** `fix/codex-e2e-signal-triage`
+**Files modified (line numbers + why):**
+- `tests/e2e/initialization.spec.ts:164-176,212-224,233-244` - replace remaining fixed sleeps with init-complete log waits before checking stores, prompt templates, and reload behavior.
+- `tests/e2e/stale-issues-verification.spec.ts:74-106,124-132` - remove serial coupling so #26 and #45 report independently; scope Hetushu error capture to Hetushu/scraping runtime errors and page exceptions; select the tooltip by its visible content instead of Tailwind classes.
+**Investigation notes:**
+- Claude review found no blocking goodharting issue, but correctly identified flake risks in serial test mode, fixed init sleeps, and broad console-error gating.
+- Targeted tests passed with default parallel workers after hardening.
+**Tests:**
+- `npx playwright test tests/e2e/initialization.spec.ts tests/e2e/stale-issues-verification.spec.ts --reporter=list` ✅ 7 passed.
+- `npx playwright test --reporter=list` ✅ 13 passed, 7 skipped.
+
+### [2026-05-28 14:09 EDT] [Agent: Codex]
+**Status:** Progress
+**Task:** Fix PR #78 CI vitest blocker without weakening test signal.
+**Worktree:** `/private/tmp/LexiconForge-e2e-issues`
+**Branch:** `fix/codex-e2e-signal-triage`
+**Files likely affected:**
+- `services/ai/cost.ts` - exact static model costs should be resolved before dynamic OpenRouter lookup so configured slash-model costs do not require network.
+- `tests/current-system/cost-calculation.test.ts` - cover the static slash-model path and assert no OpenRouter fetch occurs.
+**Investigation notes:**
+- CI failed in `tests/current-system/cost-calculation.test.ts`, outside the e2e PR scope.
+- Local reproduction showed `calculateCost('openrouter/google/gemini-3-pro-image-preview', ...)` attempted `openrouterService.fetchModels()` and failed when `openrouter.ai` was unreachable.
+- Root cause: `calculateCost()` routes every model ID containing `/` through dynamic OpenRouter pricing before checking the exact static `COSTS_PER_MILLION_TOKENS` entry.
+**Files modified (line numbers + why):**
+- `services/ai/cost.ts:39-66` - resolve exact/static configured model costs before attempting dynamic OpenRouter pricing.
+- `tests/current-system/cost-calculation.test.ts:65-75` - add regression coverage that a configured OpenRouter-style static model does not call OpenRouter fetch/pricing APIs.
+- `docs/WORKLOG.md` - record CI blocker investigation, root cause, and verification.
+**Tests:**
+- `npx vitest run tests/current-system/cost-calculation.test.ts` ✅ 16 passed.
+- `npx vitest run` ⚠️ local environment failure in `scripts/build-dpd.test.ts` because root symlinked `node_modules` lacks installed `better-sqlite3`; cost suite passed in this run.
+- `npx playwright test --reporter=list` ✅ exit 0 with configured retry; 12 passed, 1 flaky (`fojin-sutta-studio-m2`, Chinese-title wait), 7 skipped.
+**Residual signal:**
+- FoJin M2 first attempt rendered the FoJin chapter with English title `The Heart Sūtra` and the Sutta Studio link, then passed on retry. This appears to be pre-existing test brittleness around the chapter heading expectation, not caused by the cost fix.
