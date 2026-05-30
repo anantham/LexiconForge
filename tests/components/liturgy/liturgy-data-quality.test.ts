@@ -20,6 +20,9 @@
 import { describe, it, expect } from 'vitest';
 import { LITURGY_DOCS_BY_SANGHA } from '../../../data/liturgy';
 import type { LiturgyDoc, TripleScriptWitnessSection } from '../../../types/liturgy';
+// Canonical tripwires, shared with the generator and the corpus validator so
+// the regexes can't drift between copies.
+import { SEGMENT_ID_SHORTHAND, JARGON } from '../../../services/liturgy/validation';
 
 const ALL_DOCS: LiturgyDoc[] = Object.values(LITURGY_DOCS_BY_SANGHA).flatMap(
   (docsForSangha) => Object.values(docsForSangha)
@@ -31,21 +34,13 @@ function tripleScriptSections(doc: LiturgyDoc): TripleScriptWitnessSection[] {
   );
 }
 
-// The curator's internal segment-ID shorthand: v + digits + a trailing
-// letter (v1a, v7d, v10c). Near-zero false-positive risk in real prose.
-const SEGMENT_ID_SHORTHAND = /\bv\d+[a-z]\b/;
-
-// Grammar jargon that CURATION_PROTOCOL.md §3.4 flags as failure-tone in
-// the plain-prose register. A glossed word should *show* the grammatical
-// idea ("the object of 'I go to'", "the 'X-ed' form") rather than name it
-// with a term a no-Pāli-training reader has to already know.
+// SEGMENT_ID_SHORTHAND and JARGON are imported from the shared validator.
 //
-// This is a tripwire, not an absolute ban: the protocol's pay-rent rule
-// does allow a technical term IF it does work plain English can't AND is
-// glossed in the same sentence. If a future gloss legitimately earns one,
-// add it to an explicit allowlist here with the rationale — don't just
-// delete the test. Today every liturgy gloss is plain, so the list is bare.
-const JARGON = /\b(gerundive|accusative|nominative|genitive|locative|ablative|optative|vocative|declension|declensional|instrumental case|past participle|present participle)\b/i;
+// JARGON is a tripwire, not an absolute ban: the pay-rent rule allows a
+// technical term IF it does work plain English can't AND is glossed in the
+// same sentence. If a future gloss legitimately earns one, add it to this
+// allowlist with the rationale — don't just delete the test. Today every
+// liturgy gloss is plain, so the list is bare.
 const JARGON_ALLOWLIST: string[] = [];
 
 for (const doc of ALL_DOCS) {
