@@ -1,0 +1,98 @@
+{
+  "exportName": "tiSaranaMini",
+  "doc": {
+    "slug": "ti-sarana-mini",
+    "sangha": "bodhi-sangha",
+    "title": "Ti-Sarana Mini",
+    "subtitle": "One generated refuge line",
+    "tradition": "theravada",
+    "context": "Fixture packet for the liturgy generator pipeline.",
+    "curator": "Generated fixture for tests."
+  },
+  "sections": [
+    {
+      "id": "ti-sarana",
+      "shape": "triple-script-witness",
+      "segments": [
+        {
+          "id": "buddha-refuge",
+          "pali": "Buddhaṁ saraṇaṁ gacchāmi.",
+          "paliDeva": "बुद्धं सरणं गच्छामि।",
+          "alignmentHints": [
+            {
+              "wordIndex": 1,
+              "terms": ["take"],
+              "morphemes": [
+                {
+                  "morphemeIndex": 0,
+                  "terms": ["take"]
+                }
+              ]
+            }
+          ],
+          "witnesses": [
+            {
+              "by": "Fixture",
+              "text": "I take refuge in the Buddha.",
+              "license": "Fixture text"
+            }
+          ],
+          "words": [
+            {
+              "form": "Buddhaṁ",
+              "scriptAlt": "बुद्धं",
+              "accent": "amber",
+              "gloss": "Buddha, the Awakened One",
+              "morphemes": [
+                {
+                  "text": "Buddha",
+                  "type": "stem",
+                  "gloss": "Buddha, awakened"
+                },
+                {
+                  "text": "ṁ",
+                  "type": "suffix",
+                  "gloss": "the chanted nasal close"
+                }
+              ]
+            },
+            {
+              "form": "saraṇaṁ",
+              "scriptAlt": "सरणं",
+              "gloss": "refuge, shelter; what one takes refuge in",
+              "morphemes": [
+                {
+                  "text": "saraṇa",
+                  "type": "stem",
+                  "gloss": "refuge, shelter"
+                },
+                {
+                  "text": "ṁ",
+                  "type": "suffix",
+                  "gloss": "the chanted nasal close"
+                }
+              ]
+            },
+            {
+              "form": "gacchāmi",
+              "scriptAlt": "गच्छामि",
+              "gloss": "I go",
+              "morphemes": [
+                {
+                  "text": "gacchā",
+                  "type": "stem",
+                  "gloss": "go"
+                },
+                {
+                  "text": "mi",
+                  "type": "suffix",
+                  "gloss": "I"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

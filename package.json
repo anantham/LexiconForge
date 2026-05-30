@@ -20,6 +20,7 @@
     "merge-fan-translations": "tsx scripts/merge-fan-translations.ts",
     "polyglot-merge": "tsx scripts/polyglot-merge.ts",
     "build-library-session": "tsx scripts/build-library-session.ts",
+    "build:liturgy-draft": "tsx scripts/liturgy-generator/build-liturgy-draft.ts",
     "discover-chapter-alignment": "tsx scripts/discover-chapter-alignment.ts",
     "build:dpd": "tsx scripts/build-dpd.ts",
     "sutta:lookup": "tsx scripts/sutta-studio/lookup-phase.ts",
