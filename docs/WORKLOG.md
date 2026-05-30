@@ -1,3 +1,16 @@
+### [2026-05-30 17:16 EDT] [Agent: Opus 4.8 (1M)]
+**Status:** Complete (kernel)
+**Task:** Continue Codex's liturgy-generator — the user-chosen "kernel first" path (commit, consolidate validation, harden alignment, drop redundant draft). Not the LLM content-authoring slice.
+**Worktree:** ../LexiconForge.worktrees/codex-liturgy-generator/ · **Branch:** feat/codex-liturgy-generator (4 commits, local only — NOT pushed, NOT merged)
+**Findings that shaped the work (grounded, not from the transcript):**
+- The "generator" authors zero linguistic content — every gloss/morpheme/etymology is hand-authored in the input packet; it only computes alignTo/morphemeAlignTo + serializes. It is an aligner + linter, not a content generator. It does NOT address the user's actual complaint (depth/grounding inconsistency).
+- Its validate.ts duplicated 5/6 invariants already in the corpus tests; the Pāli tokenizer was a 4th hand-synced copy of the renderer's.
+- The alignment inference silently produces wrong-but-valid arrays on real chants (mass gloss collisions → content words fall to -1 → rendered as false "glue"); `infer` was the silent default.
+- No schema collision with feat/opus-liturgy-community (additive phraseId only). Follow-on: generated chants need phraseId to join cross-community pools.
+**Commits:** 44e4ba9 preserve WIP · f134627 consolidate validation into services/liturgy/validation.ts (one validateLiturgyDoc run over BOTH drafts and the shipped corpus) · 9abc235 loud alignment (low_alignment_coverage + inferred_alignment_unreviewed warns; CLI REVIEW REQUIRED banner) · 6d6a6f7 relocate redundant Three Refuges draft to test-fixtures (it duplicated ti-sarana with 0 citations).
+**Verification:** full repo suite + tsc on touched files (see commit bodies); liturgy+generator: 5777 passed | 101 skipped (was 5756; +20 corpus-validation, +1 coverage test, no regressions).
+**Next (unstarted — user's fork):** LLM content-authoring stage (the real lever for depth/grounding consistency, per ADR LITURGY-001 "Next steps"), OR audit the shipped corpus for sub-Metta depth. The em-dash voice rule appears unenforced (metta-sutta.ts has 251) — reconcile before any voice pass.
+
 ### [2026-05-30 10:27 EDT] [Agent: Codex]
 **Status:** Starting
 **Task:** Build Option B: a dedicated liturgy generator pipeline inspired by Sutta Studio.
