@@ -98,11 +98,11 @@ needs to move — so no sacred-text scholarship is rewritten.
 
 ### Heart Sutra is the special case
 
-Bodhi's Heart Sutra adds *no distinct witness*, so it is a true fork to retire: Bodhi
-becomes a thin `CommunityChant` selecting its section subset from the shared Heart Sutra
-content, contributing no duplicate witnesses. Sariputta later contributes its one
-genuinely new English rendering, which then appears (cyclable) on every community's
-Heart Sutra page.
+The shipped `bodhi-heart-sutra.ts` *appeared* to add no distinct witness — its segments
+carried MAPLE's four witnesses, defaulting to `MAPLE chant sheet (after Sheng-yen)`. But
+that was a **lost-translation bug**, not the intended state (see Implementation log).
+Bodhi's own English exists; once restored it pools (cyclable) onto every community's
+Heart Sutra page, with Sariputta's rendering to follow.
 
 ## Migration sequence (each step ships green)
 
@@ -116,20 +116,41 @@ Heart Sutra page.
 2. **Enmei pilot:** tag both Enmei files' segments with shared `phraseId`s, convert to
    `CommunityChant`s, register via the resolver. Validate witness pooling end-to-end
    (Bodhi page shows Soto/Red Cedar/Literal + Bodhi; MAPLE page defaults to its own).
-3. **Heart Sutra:** make `heart-sutra.ts` the shared content; Bodhi → thin section-subset
-   `CommunityChant`; delete `bodhi-heart-sutra.ts` **and** the orphaned generator
-   `scripts/build-bodhi-heart-sutra.py`.
+3. **Heart Sutra (done — witness layer):** convert both heart-sutra files to
+   `CommunityChant`s, tag the 27 shared core/middle/result segments with `phraseId`,
+   **restore Bodhi's own translation** (recovered from the generator's `BODHI_TEXTS`,
+   verified against booklet photo IMG_2342 p.3) as the `Bodhi Sangha` witness leading
+   the Bodhi route; pool via the resolver. Delete the orphaned/stale generator. The
+   **source-data dedup** (extracting the identical scripts/words/Conze-Red Pine-TNH
+   witnesses into one shared module so the two files stop duplicating ~2k lines) is the
+   remaining, deferred hygiene step — higher risk, no user-visible change, guarded by
+   the topology snapshot.
 4. **Sariputta Ambedkar Monastery:** register the sangha; add its Heart Sutra witness,
    Song of Zazen community chant, and the new Teidai Dempo content (needs OCR of the
    `chants/rinzai zen chants/` sheets).
 
-## Open curation question (checkpoint before step 2)
+## Open curation question (resolved 2026-05-30)
 
-Confirm the boundary: **only English witnesses pool across communities; each community's
-word-by-word glosses/notes/accents stay exactly as that community authored them.** This
-is the no-re-curation contract above. (Alternative — converging on a single canonical
-word breakdown per phrase — is more work and a curatorial judgment on sacred text;
-deferred unless explicitly wanted.)
+Boundary confirmed by the curator: **only English witnesses pool across communities;
+each community's word-by-word glosses/notes/accents stay exactly as authored.** No
+single canonical word breakdown — no sacred-text re-curation. Corollary enforced in the
+resolver: a *foreign* (pooled) witness has its `alignTo`/`morphemeAlignTo` **stripped**,
+because alignment indexes the authoring segment's `words[]` and communities segment the
+same phrase differently (MAPLE `Bup·pō` vs Bodhi `bup-pō`).
+
+## Implementation log
+
+- **2026-05-30 — Enmei pilot (done).** Both Enmei routes cycle all four translations,
+  each leading with its own default. Browser-verified.
+- **2026-05-30 — Heart Sutra lost-translation discovery.** The shipped
+  `bodhi-heart-sutra.ts` showed **MAPLE's** translation: it was hand-authored "at MAPLE
+  depth" (commit e8c8478) by copying MAPLE wholesale, which dropped Bodhi's own English.
+  That English survived only in the orphaned + stale `scripts/build-bodhi-heart-sutra.py`
+  (`BODHI_TEXTS`, 27 segments, booklet p.3). Verified `BODHI_TEXTS` verbatim against the
+  takeout photo IMG_2342, restored it as the `Bodhi Sangha` witness, deleted the
+  generator. Bodhi's page now leads with Bodhi's words; MAPLE's gains Bodhi as a 5th
+  cyclable witness. Browser-verified both routes. **Lesson:** a "duplicate" can be a
+  silent regression — always check whether the dup *replaced* distinct content.
 
 ## Evolution note
 

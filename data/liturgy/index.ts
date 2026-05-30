@@ -50,14 +50,17 @@ import dedicationAndEveningCall from './dedication-and-evening-call';
 export const COMMUNITY_CHANTS: CommunityChant[] = [
   enmeiJikkuKannonGyo, // maple
   bodhiEnmeiJikkuKannonGyo, // bodhi-sangha
+  heartSutra, // maple
+  bodhiHeartSutra, // bodhi-sangha
 ];
-const [enmeiMapleDoc, enmeiBodhiDoc] = resolveAll(COMMUNITY_CHANTS);
+const [enmeiMapleDoc, enmeiBodhiDoc, heartSutraDoc, bodhiHeartSutraDoc] =
+  resolveAll(COMMUNITY_CHANTS);
 
 const ALL_DOCS: LiturgyDoc[] = [
   morningChants,
   enmeiMapleDoc,
   shoSaiMyoKichijoDarani,
-  heartSutra,
+  heartSutraDoc,
   mettaSutta,
   vows,
   bodhicittaDedication,
@@ -66,7 +69,7 @@ const ALL_DOCS: LiturgyDoc[] = [
   // Bodhi Sangha
   tiSarana,
   bodhiVows,
-  bodhiHeartSutra,
+  bodhiHeartSutraDoc,
   enmeiBodhiDoc,
   shinJinNoMei,
   hokyoZanmai,

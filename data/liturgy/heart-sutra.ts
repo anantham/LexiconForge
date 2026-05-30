@@ -25,12 +25,18 @@
  *   - Tibetan is the short-form recension found in the Kangyur.
  */
 
-import type { LiturgyDoc } from '../../types/liturgy';
+import type { CommunityChant } from '../../types/liturgy';
 import {
   wikipediaCitation,
 } from './_groundingHelpers';
 
-export const heartSutra: LiturgyDoc = {
+export const heartSutra: CommunityChant = {
+  // Shared chant with Bodhi Sangha (same contentId): English witnesses pool
+  // across both, keyed by segment phraseId. MAPLE reads the chant-sheet
+  // (after Sheng-yen) rendering by default; Bodhi's own translation is
+  // cyclable here too. See docs/sutta-studio/COMMUNITY_CHANT_MODEL.md.
+  contentId: 'heart-sutra',
+  defaultWitnessBy: 'MAPLE chant sheet (after Sheng-yen)',
   slug: 'heart-sutra',
   sangha: 'maple',
   order: 4,
@@ -71,6 +77,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 觀自在菩薩 — Avalokiteśvara Bodhisattva ──
         {
           id: 'opening-avalokita',
+          phraseId: 'opening-avalokita',
           pali: 'Āryāvalokiteśvaro bodhisattvo',
           paliDeva: 'आर्यावलोकितेश्वरो बोधिसत्त्वो',
           scripts: [
@@ -204,6 +211,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 行深般若波羅蜜多時 — going deep into transcendent wisdom ──
         {
           id: 'opening-practice',
+          phraseId: 'opening-practice',
           pali: 'gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo',
           paliDeva: 'गम्भीरां प्रज्ञापारमिताचर्यां चरमाणो',
           scripts: [
@@ -363,6 +371,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 照見五蘊皆空 度一切苦厄 — saw five skandhas empty; overcame all suffering ──
         {
           id: 'opening-seeing',
+          phraseId: 'opening-seeing',
           pali: 'vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.',
           paliDeva: 'व्यवलोकयति स्म: पञ्च स्कन्धास्तांश्च स्वभावशून्यान्पश्यति स्म॥',
           scripts: [
@@ -544,6 +553,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 色不異空 — Form is not different from emptiness ──
         {
           id: 'form-not-different-emptiness',
+          phraseId: 'form-not-different-emptiness',
           pali: 'Rūpān na pṛthak śūnyatā',
           paliDeva: 'रूपान्न पृथक्शून्यता',
           scripts: [
@@ -660,6 +670,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 空不異色 — Emptiness is not different from form ──
         {
           id: 'emptiness-not-different-form',
+          phraseId: 'emptiness-not-different-form',
           pali: 'śūnyatāyā na pṛthag rūpaṃ.',
           paliDeva: 'शून्यताया न पृथग्रूपम्।',
           scripts: [
@@ -764,6 +775,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 色即是空 — Form itself is emptiness ──
         {
           id: 'form-is-emptiness',
+          phraseId: 'form-is-emptiness',
           pali: 'Rūpaṃ śūnyatā · yad rūpaṃ sā śūnyatā,',
           paliDeva: 'रूपं शून्यता ॥ यद्रूपं सा शून्यता,',
           scripts: [
@@ -884,6 +896,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 空即是色 — Emptiness itself is form ──
         {
           id: 'emptiness-is-form',
+          phraseId: 'emptiness-is-form',
           pali: 'śūnyataiva rūpaṃ · yā śūnyatā tad rūpaṃ.',
           paliDeva: 'शून्यतैव रूपम् ॥ या शून्यता तद्रूपम्॥',
           scripts: [
@@ -1021,6 +1034,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 舍利子 — Śāriputra, addressee ──
         {
           id: 'middle-shariputra',
+          phraseId: 'middle-shariputra',
           pali: 'Iha Śāriputra',
           paliDeva: 'इह शारिपुत्र',
           scripts: [
@@ -1115,6 +1129,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 是諸法空相 — all dharmas characterized by emptiness ──
         {
           id: 'middle-all-dharmas-empty',
+          phraseId: 'middle-all-dharmas-empty',
           pali: 'sarvadharmāḥ śūnyatālakṣaṇāḥ',
           paliDeva: 'सर्वधर्माः शून्यतालक्षणाः',
           scripts: [
@@ -1224,6 +1239,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 不生不滅 — neither arising nor ceasing ──
         {
           id: 'middle-no-arise-no-cease',
+          phraseId: 'middle-no-arise-no-cease',
           pali: 'anutpannā aniruddhā',
           paliDeva: 'अनुत्पन्ना अनिरुद्धा',
           scripts: [
@@ -1312,6 +1328,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 不垢不淨 — neither defiled nor pure ──
         {
           id: 'middle-no-defile-no-pure',
+          phraseId: 'middle-no-defile-no-pure',
           pali: 'amalā na vimalā',
           paliDeva: 'अमला न विमला',
           scripts: [
@@ -1406,6 +1423,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 不增不減 — neither increasing nor decreasing ──
         {
           id: 'middle-no-increase-no-decrease',
+          phraseId: 'middle-no-increase-no-decrease',
           pali: 'anūnā na paripūrṇāḥ',
           paliDeva: 'अनूना न परिपूर्णाः',
           scripts: [
@@ -1504,6 +1522,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 是故空中無色 — therefore in emptiness no form ──
         {
           id: 'middle-emptiness-no-form',
+          phraseId: 'middle-emptiness-no-form',
           pali: 'Tasmāc Chāriputra śūnyatāyāṃ na rūpaṃ',
           paliDeva: 'तस्माच्छारिपुत्र शून्यतायां न रूपम्',
           scripts: [
@@ -1607,6 +1626,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無受想行識 — no feeling, perception, formation, consciousness ──
         {
           id: 'middle-no-other-skandhas',
+          phraseId: 'middle-no-other-skandhas',
           pali: 'na vedanā na saṃjñā na saṃskārāḥ na vijñānam',
           paliDeva: 'न वेदना न संज्ञा न संस्काराः न विज्ञानम्',
           scripts: [
@@ -1707,6 +1727,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無眼耳鼻舌身意 — no eye, ear, nose, tongue, body, mind ──
         {
           id: 'middle-no-six-faculties',
+          phraseId: 'middle-no-six-faculties',
           pali: 'na cakṣur na śrotraṃ na ghrāṇaṃ na jihvā na kāyo na manaḥ',
           paliDeva: 'न चक्षुर्न श्रोत्रं न घ्राणं न जिह्वा न कायो न मनः',
           scripts: [
@@ -1783,6 +1804,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無色聲香味觸法 — no sight, sound, smell, taste, touch, thought ──
         {
           id: 'middle-no-six-objects',
+          phraseId: 'middle-no-six-objects',
           pali: 'na rūpaṃ na śabdo na gandho na raso na spraṣṭavyaṃ na dharmāḥ',
           paliDeva: 'न रूपं न शब्दो न गन्धो न रसो न स्प्रष्टव्यं न धर्माः',
           scripts: [
@@ -1859,6 +1881,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無眼界 乃至 無意識界 — no eye-realm... to no mind-consciousness-realm ──
         {
           id: 'middle-no-dhatus',
+          phraseId: 'middle-no-dhatus',
           pali: 'na cakṣurdhātur yāvan na manovijñānadhātuḥ',
           paliDeva: 'न चक्षुर्धातुर्यावन्न मनोविज्ञानधातुः',
           scripts: [
@@ -1951,6 +1974,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無無明 亦無無明盡 — no ignorance and no end of ignorance ──
         {
           id: 'middle-no-ignorance',
+          phraseId: 'middle-no-ignorance',
           pali: 'na avidyā na avidyākṣayo',
           paliDeva: 'न अविद्या न अविद्याक्षयो',
           scripts: [
@@ -2042,6 +2066,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 乃至 無老死 亦無老死盡 — through to no aging-death and no end of aging-death ──
         {
           id: 'middle-no-aging-death',
+          phraseId: 'middle-no-aging-death',
           pali: 'yāvan na jarāmaraṇaṃ na jarāmaraṇakṣayaḥ',
           paliDeva: 'यावन्न जरामरणं न जरामरणक्षयः',
           scripts: [
@@ -2134,6 +2159,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無苦集滅道 — no suffering, arising, cessation, path ──
         {
           id: 'middle-no-four-truths',
+          phraseId: 'middle-no-four-truths',
           pali: 'na duḥkha-samudaya-nirodha-mārgāḥ',
           paliDeva: 'न दुःखसमुदयनिरोधमार्गाः',
           scripts: [
@@ -2203,6 +2229,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無智亦無得 — no wisdom no attainment ──
         {
           id: 'middle-no-wisdom-no-attainment',
+          phraseId: 'middle-no-wisdom-no-attainment',
           pali: 'na jñānaṃ na prāptiḥ',
           paliDeva: 'न ज्ञानं न प्राप्तिः',
           scripts: [
@@ -2285,6 +2312,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 以無所得故 — because there is nothing to attain ──
         {
           id: 'middle-because-no-attainment',
+          phraseId: 'middle-because-no-attainment',
           pali: 'tasmād aprāptitvāt',
           paliDeva: 'तस्मादप्राप्तित्वात्',
           scripts: [
@@ -2370,6 +2398,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 心無罣礙 — Mind has no obstruction ──
         {
           id: 'result-no-obstruction',
+          phraseId: 'result-no-obstruction',
           pali: 'Cittāvaraṇa',
           paliDeva: 'चित्तावरण',
           scripts: [
@@ -2461,6 +2490,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無罣礙故 — Because of no obstruction ──
         {
           id: 'result-because-no-obstruction',
+          phraseId: 'result-because-no-obstruction',
           pali: 'nāstitvād',
           paliDeva: 'नास्तित्वाद्',
           scripts: [
@@ -2540,6 +2570,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 無有恐怖 — No fear ──
         {
           id: 'result-no-fear',
+          phraseId: 'result-no-fear',
           pali: 'atrasto',
           paliDeva: 'अत्रस्तो',
           scripts: [
@@ -2632,6 +2663,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 遠離顛倒夢想 — Far from inverted dreams ──
         {
           id: 'result-far-from-inversion',
+          phraseId: 'result-far-from-inversion',
           pali: 'viparyāsātikrānto',
           paliDeva: 'विपर्यासातिक्रान्तो',
           scripts: [
@@ -2725,6 +2757,7 @@ export const heartSutra: LiturgyDoc = {
         // ── 究竟涅槃 — Ultimate nirvāṇa ──
         {
           id: 'result-ultimate-nirvana',
+          phraseId: 'result-ultimate-nirvana',
           pali: 'niṣṭhānirvāṇaḥ.',
           paliDeva: 'निष्ठानिर्वाणः॥',
           scripts: [
