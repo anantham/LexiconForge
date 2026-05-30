@@ -59,6 +59,19 @@ function materializeWitness(params: {
 
   const inferred = inferWitnessAlignment({ sectionId, segment, witness });
   diagnostics.push(...inferred.diagnostics);
+  // Inference is never silent: a machine-guessed alignment must be human-
+  // verified before it can back a registered chant. Once reviewed, author the
+  // arrays so the witness uses 'preserve' mode and this warning disappears.
+  diagnostics.push({
+    level: 'warn',
+    code: 'liturgy_generator.inferred_alignment_unreviewed',
+    stage: 'alignment',
+    sectionId,
+    segmentId: segment.id,
+    witnessBy: witness.by,
+    path: `witnesses.${witness.by}.alignTo`,
+    message: `materializeWitness: alignment for "${witness.by}" in segment "${segment.id}" was machine-inferred and must be human-verified before registration. To accept it, author the reviewed arrays (alignmentMode "preserve").`,
+  });
   stats.inferredAlignments++;
   stats.unmappedTokens += inferred.unmappedTokenCount;
   stats.inferredMorphemeAlignments += inferred.morphemeMatchCount;

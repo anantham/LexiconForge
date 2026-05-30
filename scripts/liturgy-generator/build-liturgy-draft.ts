@@ -78,6 +78,14 @@ async function main(): Promise<void> {
   console.log(
     `Stats: ${result.stats.inferredAlignments} inferred alignments, ${result.stats.unmappedTokens} unmapped token(s), ${result.stats.warningCount} warning(s).`
   );
+
+  if (result.stats.inferredAlignments > 0) {
+    console.warn(
+      `\n⚠ REVIEW REQUIRED: ${result.stats.inferredAlignments} witness alignment(s) were machine-inferred. ` +
+        `Verify every arrow against the source by hand before registering this draft in data/liturgy/index.ts; ` +
+        `then author the confirmed alignTo arrays so the witnesses use "preserve" mode.`
+    );
+  }
 }
 
 main().catch((error: unknown) => {

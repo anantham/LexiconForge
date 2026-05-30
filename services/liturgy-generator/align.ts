@@ -135,6 +135,7 @@ export function inferWitnessAlignment(params: {
   const morphemeAlignTo: (number | null)[] = [];
   let unmappedTokenCount = 0;
   let morphemeMatchCount = 0;
+  let contentTokenCount = 0;
 
   witnessTokens.forEach((rawToken, tokenIndex) => {
     const token = normalizeToken(rawToken);
@@ -143,6 +144,7 @@ export function inferWitnessAlignment(params: {
       morphemeAlignTo.push(null);
       return;
     }
+    contentTokenCount += 1;
 
     const wordIndex = findUniqueWordMatch(token, candidates.wordTerms);
     alignTo.push(wordIndex);
@@ -167,6 +169,32 @@ export function inferWitnessAlignment(params: {
     morphemeAlignTo.push(morphemeIndex);
     if (morphemeIndex !== null) morphemeMatchCount++;
   });
+
+  // Coverage tripwire. The matcher only maps a content word when it UNIQUELY
+  // matches one source word's term set; real chants with sentence-length
+  // glosses collide constantly, so most content words fall to -1 and render as
+  // un-arrowed glue. When fewer than COVERAGE_FLOOR of content words mapped,
+  // inference is unreliable for this witness — say so loudly instead of
+  // emitting a confident-looking but mostly-empty alignment.
+  const COVERAGE_FLOOR = 0.6;
+  if (contentTokenCount > 0) {
+    const mappedContentCount = contentTokenCount - unmappedTokenCount;
+    const coverage = mappedContentCount / contentTokenCount;
+    if (coverage < COVERAGE_FLOOR) {
+      diagnostics.push({
+        level: 'warn',
+        code: 'liturgy_generator.low_alignment_coverage',
+        stage: 'alignment',
+        sectionId,
+        segmentId: segment.id,
+        witnessBy: witness.by,
+        path: `witnesses.${witness.by}.text`,
+        message: `inferWitnessAlignment: only ${mappedContentCount}/${contentTokenCount} content words in witness "${witness.by}" matched a source word (${Math.round(
+          coverage * 100
+        )}%); the rest render as un-arrowed glue. Inference is unreliable here — author alignTo by hand.`,
+      });
+    }
+  }
 
   const hasAnyMorphemeData = sourceWords.some((word) => (word.morphemes ?? []).length > 0);
 

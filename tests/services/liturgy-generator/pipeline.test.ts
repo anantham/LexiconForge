@@ -49,13 +49,36 @@ describe('liturgy generator pipeline', () => {
     );
   });
 
-  it('reproduces the committed Three Refuges pilot draft without warnings', () => {
+  it('reproduces the committed Three Refuges pilot draft and flags it for review', () => {
     const result = buildLiturgyDraft(threeRefugesPilot as LiturgyGeneratorInput);
 
     expect(result.stats.inferredAlignments).toBe(3);
     expect(result.stats.unmappedTokens).toBe(0);
-    expect(result.stats.warningCount).toBe(0);
     expect(result.stats.errorCount).toBe(0);
+    // The emitted arrays are deterministic and unchanged...
     expect(result.doc).toEqual(threeRefugesGeneratedDraft);
+    // ...but inference is never silent: each inferred witness gets a review
+    // warning, so a machine-guessed alignment can't quietly become a chant.
+    expect(result.stats.warningCount).toBe(3);
+    expect(result.diagnostics.map((d) => d.code)).toContain(
+      'liturgy_generator.inferred_alignment_unreviewed'
+    );
+  });
+
+  it('warns loudly when too few content words align (real-chant collision case)', () => {
+    // A witness whose English words do not appear in any source gloss: the
+    // matcher can map almost nothing, which on a real chant means most words
+    // render as un-arrowed glue. That must surface, not pass silently.
+    const sparse = structuredClone(fixture) as LiturgyGeneratorInput;
+    const section = sparse.sections[0];
+    if (section.shape !== 'triple-script-witness') {
+      throw new Error('fixture invariant failed: expected triple-script-witness section');
+    }
+    section.segments[0].witnesses[0].text = 'Homage devotion reverence prostration entirely.';
+
+    const result = buildLiturgyDraft(sparse);
+    expect(result.diagnostics.map((d) => d.code)).toContain(
+      'liturgy_generator.low_alignment_coverage'
+    );
   });
 });
