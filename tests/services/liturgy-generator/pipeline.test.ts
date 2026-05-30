@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fixture from '../../../test-fixtures/liturgy-generator/ti-sarana-mini.json';
 import threeRefugesPilot from '../../../test-fixtures/liturgy-generator/three-refuges-pilot.json';
-import threeRefugesGeneratedDraft from '../../../data/liturgy/three-refuges.generated.draft';
+import threeRefugesGeneratedDraft from '../../../test-fixtures/liturgy-generator/three-refuges.generated.draft';
 import { buildLiturgyDraft } from '../../../services/liturgy-generator/pipeline';
 import { emitLiturgyDocModule } from '../../../services/liturgy-generator/emit';
 import type { LiturgyGeneratorInput } from '../../../services/liturgy-generator/types';

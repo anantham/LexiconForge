@@ -2,11 +2,12 @@
 
 /**
  * Build a draft `LiturgyDoc` TypeScript module from a structured generator
- * packet. The output is intentionally a draft: run the liturgy data tests and
- * review it before registering the file in `data/liturgy/index.ts`.
+ * packet. The output is intentionally a draft: write it OUTSIDE
+ * `data/liturgy/` (which is for reviewed, registered chants), verify any
+ * machine-inferred alignment by hand, then move + register it.
  *
  * Usage:
- *   npm run build:liturgy-draft -- <input.json> --out data/liturgy/<slug>.draft.ts
+ *   npm run build:liturgy-draft -- <input.json> --out drafts/<slug>.draft.ts
  */
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -23,7 +24,8 @@ Usage:
   npm run build:liturgy-draft -- <input.json> --out <output.ts>
 
 The input is a structured LiturgyGeneratorInput packet. Generated output is a
-draft module, not an auto-registered chant.
+draft module, not an auto-registered chant — write it outside data/liturgy/,
+review it, then move + register it.
 `);
 }
 
