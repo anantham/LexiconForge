@@ -256,6 +256,18 @@ export type ScriptVariant = {
 
 export type TripleScriptWitnessSegment = {
   id: string;
+  /**
+   * Canonical, community-neutral phrase identity. Optional. When two
+   * communities chant the same phrase under different segment `id`s
+   * (MAPLE `line-1-kan-ze-on` vs Bodhi `kanzeon`), giving both the same
+   * `phraseId` lets the community-chant resolver pool their English
+   * witnesses onto one segment so a reader can cycle every community's
+   * translation of that phrase. Word glosses / notes / accents do NOT
+   * pool — only `witnesses`. See docs/sutta-studio/COMMUNITY_CHANT_MODEL.md.
+   * Absent → the segment participates in no cross-community pool (its own
+   * witnesses only), preserving today's single-doc behaviour.
+   */
+  phraseId?: string;
   /** Pāli (Roman/IAST). One line typically, can be a short verse. */
   pali: string;
   /** Pāli in Devanāgarī. Same content, different script. */
@@ -508,4 +520,55 @@ export type LiturgyDoc = {
   sections: LiturgySection[];
   /** Closing notes — historical context, related practices. */
   postamble?: string;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Community-chant model (Option B) — see docs/sutta-studio/COMMUNITY_CHANT_MODEL.md
+//
+// A chant is chanted by multiple sanghas with distinct English translations.
+// Rather than fork a whole LiturgyDoc per (sangha, chant), each sangha authors
+// a CommunityChant; the resolver pools English witnesses across communities
+// (keyed by segment `phraseId`) and produces an ordinary LiturgyDoc render
+// view with that community's preferred translation leading. Word glosses,
+// section topology, and framing stay per-community — only witnesses pool.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * One sangha's authored version of one chant. Structurally a LiturgyDoc
+ * (same sections, the render contract) plus the join key (`contentId`) and
+ * the community's preferred default translation.
+ *
+ * The resolver turns a CommunityChant into a LiturgyDoc by pooling witnesses
+ * from every CommunityChant sharing the same `contentId` (matched per segment
+ * `phraseId`) and ordering them so `defaultWitnessBy` leads.
+ */
+export type CommunityChant = LiturgyDoc & {
+  /**
+   * Join key grouping every community's version of the same chant. All
+   * CommunityChants with the same `contentId` pool their English witnesses.
+   * Example: MAPLE and Bodhi versions of the Heart Sutra both use
+   * `contentId: 'heart-sutra'`.
+   */
+  contentId: string;
+  /**
+   * The `by` name of the witness this community reads by default. The
+   * resolver reorders each segment's pooled witnesses so this one is first
+   * (the renderer defaults to `witnesses[0]`). Must match a witness `by`
+   * present on this community's own segments — enforced by the
+   * default-witness coverage test, so a typo fails loudly rather than
+   * silently showing another community's translation.
+   */
+  defaultWitnessBy?: string;
+};
+
+/**
+ * Lightweight grouping record: which CommunityChants belong to one chant.
+ * Built by the registry from the registered CommunityChants; passed to the
+ * resolver so it can find the witness pool for a given content.
+ */
+export type ChantContent = {
+  /** Matches `CommunityChant.contentId`. */
+  id: string;
+  /** Every community's version of this chant. */
+  communities: CommunityChant[];
 };

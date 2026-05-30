@@ -1904,3 +1904,12 @@
 - `npx playwright test --reporter=list` ✅ exit 0 with configured retry; 12 passed, 1 flaky (`fojin-sutta-studio-m2`, Chinese-title wait), 7 skipped.
 **Residual signal:**
 - FoJin M2 first attempt rendered the FoJin chapter with English title `The Heart Sūtra` and the Sutta Studio link, then passed on retry. This appears to be pre-existing test brittleness around the chapter heading expectation, not caused by the cost fix.
+
+### [2026-05-30] [Agent: Opus]
+**Status:** In progress
+**Task:** Liturgy community-chant model (Option B) — let one chant serve many sanghas with a per-community default translation, instead of forking a `LiturgyDoc` file per (sangha, chant).
+**Worktree:** `../LexiconForge.worktrees/opus-liturgy-community`
+**Branch:** `feat/opus-liturgy-community`
+**Why:** `heart-sutra.ts`/`bodhi-heart-sutra.ts` and `enmei-jikku-kannon-gyo.ts`/`bodhi-enmei-jikku-kannon-gyo.ts` are forks of the same chant. Bodhi's Heart Sutra reuses MAPLE's exact four witnesses (pure dup); the two Enmei files carry genuinely distinct English + word scholarship. A third community (Sariputta Ambedkar Monastery, Rinzai sheets) is incoming.
+**Design (cross-validated with Codex gpt-5.5; it rejected my original `sanghas[]` overlay → Option B):** `docs/sutta-studio/COMMUNITY_CHANT_MODEL.md`. Key finding: segments differ across communities in IDs (`line-1-kan-ze-on` vs `kanzeon`), word scholarship, and section topology (MAPLE Heart Sutra: 39 TSW segments incl. `dharani-japanese-extended`; Bodhi: 27 + 2 prose, none of those). So the truly-shared unit is the *canonical phrase source text*; English **witnesses pool by phrase identity** while word glosses stay per-community — no sacred-text re-curation.
+**Scope this pass (safe, additive, nothing deleted):** design doc + resolver foundation (`data/liturgy/resolve.ts`) + types + unit test on synthetic data. Content migration (Heart Sutra hard-dedupe, Enmei witness-pool) + Sariputta registration deferred to a checkpoint.
