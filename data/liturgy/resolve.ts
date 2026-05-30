@@ -34,6 +34,20 @@ function mergeByName(into: Witness[], incoming: Witness[]): Witness[] {
 }
 
 /**
+ * Drop word-level alignment from a witness. `alignTo` / `morphemeAlignTo`
+ * index into the `words[]` of the segment the witness was AUTHORED on; when a
+ * witness is pooled onto another community's segment (whose word segmentation
+ * may differ — e.g. MAPLE splits `Bup·pō` where Bodhi groups `bup-pō`), those
+ * indices mis-anchor the hover arrows. Pool the English text, not the
+ * alignment — the witness keeps its arrows on its own community's page.
+ */
+function stripAlignment(w: Witness): Witness {
+  if (w.alignTo === undefined && w.morphemeAlignTo === undefined) return w;
+  const { alignTo: _alignTo, morphemeAlignTo: _morphemeAlignTo, ...rest } = w;
+  return rest;
+}
+
+/**
  * Cross-community witness pool keyed by `phraseId`. `pool.get(id)` is the
  * deduped (by `by`) list of every witness contributed for that phrase, in
  * community-iteration then authored order.
@@ -78,12 +92,14 @@ export function resolveCommunityChant(cc: CommunityChant, content: ChantContent)
   const sections: LiturgySection[] = cc.sections.map((section) => {
     if (section.shape !== 'triple-script-witness') return section;
     const segments: TripleScriptWitnessSegment[] = section.segments.map((seg) => {
-      // Seed with this community's own witnesses (authored order) so its
-      // readings lead before pooled ones; then fold in the cross-community
-      // pool for this phrase; then float the chosen default to the front.
+      // This community's own witnesses keep their authored word-alignment and
+      // lead the list. Witnesses contributed by OTHER communities for the same
+      // phrase are folded in as plain text (alignment stripped — see
+      // stripAlignment), then the chosen default is floated to the front.
+      const ownBys = new Set(seg.witnesses.map((w) => w.by));
       const pooled = seg.phraseId ? pool.get(seg.phraseId) ?? [] : [];
-      const merged = mergeByName(seg.witnesses, pooled);
-      const ordered = leadWith(merged, cc.defaultWitnessBy);
+      const foreign = pooled.filter((w) => !ownBys.has(w.by)).map(stripAlignment);
+      const ordered = leadWith([...seg.witnesses, ...foreign], cc.defaultWitnessBy);
       if (sameOrder(ordered, seg.witnesses)) return seg;
       return { ...seg, witnesses: ordered };
     });

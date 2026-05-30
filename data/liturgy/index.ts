@@ -15,7 +15,8 @@
  * English witnesses).
  */
 
-import type { LiturgyDoc } from '../../types/liturgy';
+import type { CommunityChant, LiturgyDoc } from '../../types/liturgy';
+import { resolveAll } from './resolve';
 import morningChants from './morning-chants';
 import enmeiJikkuKannonGyo from './enmei-jikku-kannon-gyo';
 import shoSaiMyoKichijoDarani from './sho-sai-myo-kichijo-darani';
@@ -38,9 +39,23 @@ import songOfZazen from './song-of-zazen';
 import wayOfCompassion from './way-of-compassion';
 import dedicationAndEveningCall from './dedication-and-evening-call';
 
+/**
+ * Community chants — multiple sanghas chanting the same chant (same
+ * `contentId`). The resolver pools their English witnesses (keyed by segment
+ * `phraseId`) so each sangha's page can cycle every community's translation
+ * while leading with its own. The resolved render views slot into ALL_DOCS
+ * at the same positions their source files used to occupy, so the flat index
+ * order is unchanged. See docs/sutta-studio/COMMUNITY_CHANT_MODEL.md.
+ */
+export const COMMUNITY_CHANTS: CommunityChant[] = [
+  enmeiJikkuKannonGyo, // maple
+  bodhiEnmeiJikkuKannonGyo, // bodhi-sangha
+];
+const [enmeiMapleDoc, enmeiBodhiDoc] = resolveAll(COMMUNITY_CHANTS);
+
 const ALL_DOCS: LiturgyDoc[] = [
   morningChants,
-  enmeiJikkuKannonGyo,
+  enmeiMapleDoc,
   shoSaiMyoKichijoDarani,
   heartSutra,
   mettaSutta,
@@ -52,7 +67,7 @@ const ALL_DOCS: LiturgyDoc[] = [
   tiSarana,
   bodhiVows,
   bodhiHeartSutra,
-  bodhiEnmeiJikkuKannonGyo,
+  enmeiBodhiDoc,
   shinJinNoMei,
   hokyoZanmai,
   precepts,

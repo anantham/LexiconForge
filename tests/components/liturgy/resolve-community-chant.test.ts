@@ -89,6 +89,33 @@ describe('resolveCommunityChant', () => {
     expect(beforeLen).toBe(1);
   });
 
+  it('keeps own witnesses’ alignTo but strips it from pooled foreign witnesses', () => {
+    // Two communities chant phrase X but segment its source words differently,
+    // so a foreign witness's alignTo would mis-anchor on the host segment.
+    const a: CommunityChant = {
+      contentId: 'x', slug: 'x', sangha: 'a', title: 'A', tradition: 'zen', defaultWitnessBy: 'A-trans',
+      sections: [{ id: 'b', shape: 'triple-script-witness', segments: [
+        { id: 'a-seg', phraseId: 'p', pali: 'one two', witnesses: [{ by: 'A-trans', text: 'aaa', alignTo: [0, 1] }] },
+      ]}],
+    };
+    const b: CommunityChant = {
+      contentId: 'x', slug: 'x', sangha: 'b', title: 'B', tradition: 'zen', defaultWitnessBy: 'B-trans',
+      sections: [{ id: 'b', shape: 'triple-script-witness', segments: [
+        { id: 'b-seg', phraseId: 'p', pali: 'one two', witnesses: [{ by: 'B-trans', text: 'bbb', alignTo: [1, 0], morphemeAlignTo: [0, 1] }] },
+      ]}],
+    };
+    const content = { id: 'x', communities: [a, b] };
+
+    const aResolved = resolveCommunityChant(a, content);
+    const aWits = tsw(aResolved).segments[0].witnesses;
+    const ownA = aWits.find((w) => w.by === 'A-trans')!;
+    const foreignB = aWits.find((w) => w.by === 'B-trans')!;
+    expect(ownA.alignTo).toEqual([0, 1]); // own alignment preserved
+    expect(foreignB.text).toBe('bbb'); // English text pooled
+    expect(foreignB.alignTo).toBeUndefined(); // but alignment stripped
+    expect(foreignB.morphemeAlignTo).toBeUndefined();
+  });
+
   it('leaves segments without a phraseId pooling only their own witnesses', () => {
     const solo: CommunityChant = {
       contentId: 'solo',
