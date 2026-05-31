@@ -44,8 +44,8 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
       segments: [
         {
           id: 'avoid-evil',
-          pali: 'Sabba pāpassa akaraṇaṃ,',
-          paliDeva: 'सब्ब पापस्स अकरणं,',
+          pali: 'Sabba pāpassa akaraṇaṃ',
+          paliDeva: 'सब्ब पापस्स अकरणं',
           witnesses: [
             {
               by: 'Literal gloss',
@@ -83,8 +83,8 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
         },
         {
           id: 'cultivate-good',
-          pali: 'kusalassa upasampadā,',
-          paliDeva: 'कुसलस्स उपसम्पदा,',
+          pali: 'Kusalassa upasampadā.',
+          paliDeva: 'कुसलस्स उपसम्पदा।',
           witnesses: [
             {
               by: 'Literal gloss',
@@ -116,8 +116,8 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
         },
         {
           id: 'purify-mind',
-          pali: 'sacittapariyodapanaṃ,',
-          paliDeva: 'सचित्तपरियोदपनं,',
+          pali: 'Sacittapariyodapanaṃ',
+          paliDeva: 'सचित्तपरियोदपनं',
           witnesses: [
             {
               by: 'Literal gloss',
@@ -126,8 +126,8 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
             },
             {
               by: 'Buddharakkhita (1985)',
-              text: 'to purify the mind —',
-              alignTo: [-1, 0, -1, 0, -1],
+              text: 'and to cleanse one’s mind —',
+              alignTo: [-1, -1, 0, -1, 0, -1],
               url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html',
               license: 'Buddharakkhita translation, quoted with attribution',
             },
@@ -136,12 +136,12 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
             {
               form: 'sacittapariyodapanaṃ', scriptAlt: 'सचित्तपरियोदपनं', pronunciation: 'sah-CHIT-tah-pah-ree-yoh-DAH-pah-nahng',
               etymology: '*sa-* "one’s own" + *citta* "mind, heart" + *pariyodapana* "thorough cleansing" (*pari-* "around, completely" + *√dā/dav* "to cleanse")',
-              gloss: 'the complete purification of one’s own mind — the same *pariyodapana* that names the mind’s natural luminosity when defilements fall away',
+              gloss: 'the complete cleansing of one’s own mind — purifying the heart-mind of its defilements',
               morphemes: [
                 { text: 'sa', type: 'prefix', gloss: 'one’s own', pronunciation: 'sah' },
-                { text: 'citta', type: 'stem', gloss: 'mind, heart — the *citta* of the Heart Sutra’s *hṛdaya* lineage', pronunciation: 'CHIT-tah', citations: [dpdCitation('citta')] },
-                { text: 'pariyodapana', type: 'stem', gloss: 'thorough cleansing, brightening', pronunciation: 'pah-ree-yoh-DAH-pah-nah', citations: [dpdCitation('pariyodapeti')] },
-                { text: 'ṃ', type: 'suffix', gloss: 'the "-ṃ" ending that marks the word as the object' },
+                { text: 'citta', type: 'stem', gloss: 'mind, heart (from √cit "to think, cognize"). Note: the *Heart* Sutra’s "heart" is the unrelated Sanskrit word *hṛdaya* ("heart, core, essence", as in the sutra\'s title) — *citta* only shares the English word "heart".', pronunciation: 'CHIT-tah', citations: [dpdCitation('citta')] },
+                { text: 'pariyodapana', type: 'stem', gloss: 'thorough cleansing, washing clean', pronunciation: 'pah-ree-yoh-DAH-pah-nah', citations: [dpdCitation('pariyodapeti')] },
+                { text: 'ṃ', type: 'suffix', gloss: 'the "-ṃ" singular ending — here it names the line’s subject (what is to be done), not an object acted upon' },
               ],
               citations: [pronCite],
             },
@@ -149,7 +149,7 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
         },
         {
           id: 'teaching-of-buddhas',
-          pali: 'etaṃ Buddhāna sāsanaṃ.',
+          pali: 'Etaṃ Buddhāna sāsanaṃ.',
           paliDeva: 'एतं बुद्धान सासनं।',
           witnesses: [
             {
@@ -168,19 +168,19 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
           words: [
             {
               form: 'etaṃ', scriptAlt: 'एतं', pronunciation: 'EH-tahng',
-              etymology: '*eta* "this" + the "-ṃ" object ending',
+              etymology: '*eta* "this" + the "-ṃ" singular ending (here the subject of the line)',
               gloss: 'this — pointing back to the three preceding lines',
               citations: [dpdCitation('eta'), pronCite],
             },
             {
               form: 'Buddhāna', scriptAlt: 'बुद्धान', pronunciation: 'bood-DHAH-nah', accent: 'amber',
-              etymology: '*buddha* "awakened one" (√budh); the *-āna* ending makes it "of the Buddhas"',
+              etymology: '*buddha* "awakened one" (√budh), here a shortened verse-form of *buddhānaṃ* "of the Buddhas" — the final *-ṃ* dropped for the metre',
               gloss: 'of the Buddhas — all the awakened ones across time share this one instruction',
               citations: [dpdCitation('buddha'), pronCite],
             },
             {
               form: 'sāsanaṃ', scriptAlt: 'सासनं', pronunciation: 'SAH-sah-nahng',
-              etymology: '*√sās* "to instruct, teach" + *-ana* + the "-ṃ" object ending — "that which is taught"',
+              etymology: '*√sās* "to instruct, teach" + *-ana* + the "-ṃ" singular ending — "that which is taught"',
               gloss: 'the teaching, instruction, dispensation — the *sāsana* itself, summed in three lines',
               citations: [dpdCitation('sāsana'), pronCite],
             },
@@ -189,7 +189,7 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
         },
       ],
       commentary:
-        'The shortest possible Dharma: three trainings and their source. Where the Zen Three Pure Precepts phrase them as vows (I vow to refrain from evil, to do good, to do good for all beings), the Pali states them as the standing instruction of every Buddha — *etaṃ Buddhāna sāsanaṃ*.',
+        'The shortest possible Dharma: three trainings and their source. Where the Zen Three Pure Precepts phrase them as vows (I vow to refrain from evil, to do good, to do good for all beings), the Pali states them as the standing instruction of every Buddha — *etaṃ Buddhāna sāsanaṃ*.\n\nTranscribed verbatim from the monastery sheet, including its conventions: the sheet writes *Sabba pāpassa* as two words (the canonical Dhammapada edition compounds it, *Sabbapāpassa*) and marks the nasal with a dot-below (ṃ) where some editions use a dot-above (ṁ). These are preserved as chanted rather than normalised.',
     },
   ],
 };

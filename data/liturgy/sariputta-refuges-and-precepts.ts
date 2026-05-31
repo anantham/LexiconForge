@@ -62,7 +62,7 @@ const REFUGE_OBJECT_WORDS: { [key: string]: WordGloss } = {
   },
   saṅghaṃ: {
     form: 'Saṅghaṃ', scriptAlt: 'सङ्घं', pronunciation: 'SUNG-hahng', accent: 'rose',
-    etymology: 'saṃ- "together" + √han "to come, gather"',
+    etymology: 'saṃ- "together" + √han here in the sense "come together" (√han usually means "strike"; the coming-together sense yields *saṅgha*)',
     gloss: 'the community of practitioners, especially the noble Saṅgha',
     citations: [dpdCitation('saṅgha'), pronCite],
     morphemes: [
@@ -103,12 +103,13 @@ const GACCHAMI: WordGloss = {
 
 const VERAMANI: WordGloss = {
   form: 'veramaṇī', scriptAlt: 'वेरमणी', pronunciation: 'vay-rah-MAH-nee',
-  etymology: 'vi- "away" + √ram "to delight, dwell" → *viramaṇa* "turning away from"',
+  etymology: 've- (the strengthened form of vi- "away from") + √ram + -aṇī. The bare root √ram means "to delight, rest, dwell"; under the ve-/vi- prefix (*viramati*) it flips to "turn away, desist, abstain" — hence "abstaining from"',
   gloss: 'abstaining from, turning away from',
   citations: [dpdCitation('veramaṇī'), pronCite],
   morphemes: [
-    { text: 'vera', type: 'prefix', gloss: 'turning-away (from vi- "away" + √ram "to dwell")', pronunciation: 'VAY-rah' },
-    { text: 'maṇī', type: 'suffix', gloss: 'makes it the act of abstaining', pronunciation: 'MAH-nee' },
+    { text: 've', type: 'prefix', gloss: 'away from (the strengthened form of *vi-*). NOTE: this is NOT the separate Pali word *vera* "hatred" — they only look alike.', pronunciation: 'vay' },
+    { text: 'ram', type: 'root', root: '√ram', gloss: '√ram "delight, rest, dwell" on its own; under the *ve-/vi-* prefix (as in *viramati*) it means "turn away, desist, abstain"', pronunciation: 'rah' },
+    { text: 'aṇī', type: 'suffix', gloss: 'the ending that turns it into "an abstaining-from"', pronunciation: 'mah-NEE' },
   ],
 };
 
@@ -126,13 +127,13 @@ const SIKKHAPADAM: WordGloss = {
 
 const SAMADIYAMI: WordGloss = {
   form: 'samādiyāmi', scriptAlt: 'समादियामि', pronunciation: 'sah-mah-dee-YAH-mee',
-  etymology: 'saṃ- "fully" + ā- "toward" + √dā "to take" — "I take fully upon myself"',
+  etymology: 'saṃ- "fully" + ā- "toward" + √dā "to give" — with the ā- prefix (*ā+dā*) the sense flips to "take up, receive", so "I take fully upon myself"',
   gloss: 'I undertake, I take on (of myself, here and now)',
   citations: [dpdCitation('samādiyati'), pronCite],
   morphemes: [
     { text: 'sam', type: 'prefix', gloss: 'fully, completely', pronunciation: 'sah' },
     { text: 'ā', type: 'prefix', gloss: 'toward, onto oneself', pronunciation: 'ah' },
-    { text: 'diy', type: 'root', root: '√dā', gloss: 'to take, receive', pronunciation: 'dee-y' },
+    { text: 'diy', type: 'root', root: '√dā', gloss: '√dā "to give"; with the *ā-* prefix (*ā+dā*) it means "take up, receive"', pronunciation: 'dee-y' },
     { text: 'āmi', type: 'suffix', gloss: 'the "I … now" ending — "I undertake"', pronunciation: 'AH-mee' },
   ],
 };
@@ -141,10 +142,10 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
   slug: 'refuges-and-precepts',
   sangha: 'sariputta-ambedkar',
   title: 'Vandana, Trisaraṇam, Pañcasīl',
-  subtitle: 'Homage, the Threefold Refuge, and the Five Precepts',
+  subtitle: 'Homage, the Threefold Refuge, the Five Precepts, and the Buddha recollection (Itipiso)',
   tradition: 'theravada',
   context:
-    'The Pali opening of the Sariputta Ambedkar Monastery\'s daily practice: the homage to the Buddha (*Namo tassa…*, three times), going for refuge in the Buddha, Dhamma, and Saṅgha (each line repeated a second and a third time), and the undertaking of the Five Precepts.',
+    'The Pali opening of the Sariputta Ambedkar Monastery\'s daily practice: the homage to the Buddha (*Namo tassa…*, three times), going for refuge in the Buddha, Dhamma, and Saṅgha (each line repeated a second and a third time), the undertaking of the Five Precepts, and the recollection of the Buddha (the *Itipiso*, headed "Buddha Vandana" on the sheet).',
   sources: {
     canonical: [
       { label: 'Khp 1–2 (Saraṇagamana + Dasasikkhāpada)', url: 'https://suttacentral.net/kp1/en/sujato' },
@@ -155,7 +156,7 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
     ],
   },
   curator:
-    'Curation by Aditya. Pali transcribed verbatim from the Sariputta Ambedkar Monastery chant sheet (block headed "Vandana, Trisaraṇam, Pañcasīl"), preserving the sheet\'s dot-below nasal spelling (ṃ). Plain English glosses are the curator\'s; word data follows the same DPD + SuttaCentral-pronunciation grounding used elsewhere in this reader.',
+    'Curation by Aditya. The Pali (`pali` fields) is transcribed verbatim from the Sariputta Ambedkar Monastery chant sheet (block headed "Vandana, Trisaraṇam, Pañcasīl"), preserving the sheet\'s dot-below nasal spelling (ṃ). The sheet is Pali-only: the English (witness "Literal gloss") and the Devanāgarī (`paliDeva`) are the curator\'s, NOT on the sheet — attributed as such rather than to the monastery. Word data follows the same DPD + SuttaCentral-pronunciation grounding used elsewhere in this reader.',
   sections: [
     // ── Homage ──────────────────────────────────────────────────────────────
     {
@@ -170,11 +171,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'नमो तस्स भगवतो अरहतो सम्मासम्बुद्धस्स।',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'Homage to the Blessed One, the Worthy One, the Fully Self-Awakened One.',
-              alignTo: [0, -1, -1, 2, 2, -1, 3, 3, -1, 4, 4, 4],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [0, -1, -1, 2, 2, -1, 3, 3, -1, 4, 4, 4],            },
           ],
           words: [
             {
@@ -234,11 +233,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'बुद्धं सरणं गच्छामि,',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I go to the Buddha for refuge,',
-              alignTo: [-1, 2, -1, -1, 0, -1, 1],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [-1, 2, -1, -1, 0, -1, 1],            },
           ],
           words: [REFUGE_OBJECT_WORDS.buddhaṃ, SARANAM, GACCHAMI],
         },
@@ -248,11 +245,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'धम्मं सरणं गच्छामि,',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I go to the Dhamma for refuge,',
-              alignTo: [-1, 2, -1, -1, 0, -1, 1],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [-1, 2, -1, -1, 0, -1, 1],            },
           ],
           words: [REFUGE_OBJECT_WORDS.dhammaṃ, SARANAM, GACCHAMI],
         },
@@ -262,35 +257,31 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'सङ्घं सरणं गच्छामि।',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I go to the Saṅgha for refuge.',
-              alignTo: [-1, 2, -1, -1, 0, -1, 1],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [-1, 2, -1, -1, 0, -1, 1],            },
           ],
           words: [REFUGE_OBJECT_WORDS.saṅghaṃ, SARANAM, GACCHAMI],
         },
         {
           id: 'dutiyampi',
-          pali: 'Dutiyampi… (for each line above)',
-          paliDeva: 'दुतियम्पि… (बुद्धं सरणं गच्छामि …)',
+          pali: 'Dutiyampi... (for each line above)',
+          paliDeva: 'दुतियम्पि... (बुद्धं सरणं गच्छामि ...)',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'For a second time… (each refuge line above is repeated)',
-              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],            },
           ],
           words: [
             {
               form: 'Dutiyampi', scriptAlt: 'दुतियम्पि', pronunciation: 'doo-tee-YAHM-pee',
-              etymology: '*dutiya* "second" + *-pi* "also, even"',
+              etymology: '*dutiyaṃ* "a second time" (the adverb form of *dutiya* "second") + *-pi* "also, even"; the *-ṃ* is written *m* before *p*',
               gloss: 'for a second time as well — the cue to chant all three refuge lines again',
               citations: [dpdCitation('dutiya'), pronCite],
               morphemes: [
                 { text: 'dutiya', type: 'stem', gloss: 'second', pronunciation: 'doo-TEE-yah', citations: [dpdCitation('dutiya')] },
-                { text: 'm', type: 'stem', gloss: 'a linking sound before *pi*', pronunciation: 'm' },
+                { text: 'm', type: 'suffix', gloss: 'the "-ṃ" adverb ending (of *dutiyaṃ* / *tatiyaṃ*, "a … time"), written *m* before *p*', pronunciation: 'm' },
                 { text: 'pi', type: 'suffix', gloss: 'also, even, too', pronunciation: 'pee', citations: [dpdCitation('pi')] },
               ],
             },
@@ -299,25 +290,23 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
         },
         {
           id: 'tatiyampi',
-          pali: 'Tatiyampi… (for each line above)',
-          paliDeva: 'ततियम्पि… (बुद्धं सरणं गच्छामि …)',
+          pali: 'Tatiyampi... (for each line above)',
+          paliDeva: 'ततियम्पि... (बुद्धं सरणं गच्छामि ...)',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'For a third time… (each refuge line above is repeated)',
-              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],            },
           ],
           words: [
             {
               form: 'Tatiyampi', scriptAlt: 'ततियम्पि', pronunciation: 'tah-tee-YAHM-pee',
-              etymology: '*tatiya* "third" + *-pi* "also, even"',
+              etymology: '*tatiyaṃ* "a third time" (the adverb form of *tatiya* "third") + *-pi* "also, even"; the *-ṃ* is written *m* before *p*',
               gloss: 'for a third time as well — the cue to chant all three refuge lines a final time',
               citations: [dpdCitation('tatiya'), pronCite],
               morphemes: [
                 { text: 'tatiya', type: 'stem', gloss: 'third', pronunciation: 'tah-TEE-yah', citations: [dpdCitation('tatiya')] },
-                { text: 'm', type: 'stem', gloss: 'a linking sound before *pi*', pronunciation: 'm' },
+                { text: 'm', type: 'suffix', gloss: 'the "-ṃ" adverb ending (of *dutiyaṃ* / *tatiyaṃ*, "a … time"), written *m* before *p*', pronunciation: 'm' },
                 { text: 'pi', type: 'suffix', gloss: 'also, even, too', pronunciation: 'pee', citations: [dpdCitation('pi')] },
               ],
             },
@@ -340,11 +329,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'पाणातिपाता वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I undertake the training-rule to abstain from killing living beings.',
-              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0, 0],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0, 0],            },
           ],
           words: [
             {
@@ -367,11 +354,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'अदिन्नादाना वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I undertake the training-rule to abstain from taking what is not given.',
-              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0, 0, 0, 0],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0, 0, 0, 0],            },
           ],
           words: [
             {
@@ -395,11 +380,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'कामेसु मिच्छाचारा वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I undertake the training-rule to abstain from wrong conduct in sensual pleasures.',
-              alignTo: [4, 4, 3, 3, -1, 2, 1, 1, 1, 0, 0, 0],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [4, 4, 3, 3, -1, 2, 1, 1, 1, 0, 0, 0],            },
           ],
           words: [
             {
@@ -432,11 +415,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'मुसावादा वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I undertake the training-rule to abstain from false speech.',
-              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0],            },
           ],
           words: [
             {
@@ -459,11 +440,9 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
           paliDeva: 'सुरामेरयमज्जपमादट्ठाना वेरमणी सिक्खापदं समादियामि।',
           witnesses: [
             {
-              by: 'Sariputta Ambedkar Monastery',
+              by: 'Literal gloss',
               text: 'I undertake the training-rule to abstain from wines, liquors, and intoxicants that are a basis for heedlessness.',
-              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0],
-              license: 'Sariputta Ambedkar Monastery chant sheet',
-            },
+              alignTo: [3, 3, 2, 2, -1, 1, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0],            },
           ],
           words: [
             {
@@ -481,11 +460,107 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
             },
             VERAMANI, SIKKHAPADAM, SAMADIYAMI,
           ],
-          note: 'The fifth precept: abstaining from intoxicants — *surā* (distilled liquor), *meraya* (fermented drink), and *majja* (intoxicants generally) — described as a *pamādaṭṭhāna*, "a basis for heedlessness". The harm named is not the drink itself but the heedlessness it grounds.',
+          note: 'The fifth precept: abstaining from intoxicants — *surā* (distilled liquor), *meraya* (fermented drink), and *majja* (intoxicants generally) — which the formula names as a *pamādaṭṭhāna*, "a basis for heedlessness". One abstains from the intoxicants themselves precisely because they are an occasion for heedlessness.',
         },
       ],
       commentary:
         'The Five Precepts (*Pañcasīla*), the basic training the laity take on. Every line shares the same closing: *… veramaṇī sikkhāpadaṃ samādiyāmi* — "I undertake the training-rule to abstain from …". Only the opening compound, the thing abstained from, changes line to line. They are undertaken — *samādiyāmi*, "I take this on myself" — not commanded.',
+    },
+
+    // ── Buddha Vandana (Itipiso) ───────────────────────────────────────────────
+    {
+      id: 'buddha-vandana',
+      shape: 'triple-script-witness',
+      segments: [
+        {
+          id: 'itipiso-line-1',
+          pali: 'Itipo so bhagava araham samma sambuddho',
+          witnesses: [
+            {
+              by: 'Literal gloss',
+              text: 'Thus indeed he, the Blessed One, is worthy, fully self-awakened.',
+              alignTo: [0, 0, 1, -1, 2, 2, -1, 3, 4, 5],
+            },
+          ],
+          words: [
+            { form: 'Itipo', pronunciation: 'ee-TEE-poh', etymology: 'sheet spelling of *iti pi* "thus indeed"', gloss: 'thus, in this way (the sheet writes *Itipo*; the standard form is *iti pi so*)', citations: [pronCite] },
+            { form: 'so', pronunciation: 'soh', gloss: 'he, that one — the Buddha being recollected', citations: [pronCite] },
+            { form: 'bhagava', pronunciation: 'bah-gah-VAH', etymology: '*bhaga* "fortune, blessing" + *-vant* "possessing" (sheet *bhagava*; standard *bhagavā*)', gloss: 'the Blessed One, the Fortunate One', citations: [dpdCitation('bhagavant'), pronCite] },
+            { form: 'araham', pronunciation: 'AH-rah-hahng', etymology: 'from √arh "to be worthy" (sheet *araham*; standard *arahaṃ*)', gloss: 'worthy; one free of all defilement', citations: [dpdCitation('arahant'), pronCite] },
+            { form: 'samma', pronunciation: 'SAHM-mah', gloss: 'rightly, fully (sheet *samma*; standard *sammā*)', citations: [dpdCitation('sammā'), pronCite] },
+            { form: 'sambuddho', pronunciation: 'sahm-BUD-dhoh', root: '√budh', etymology: '*saṃ-* "fully, self" + *buddha* "awakened" (√budh)', gloss: 'fully self-awakened — the Buddha', citations: [dpdCitation('sambuddha'), pronCite] },
+          ],
+        },
+        {
+          id: 'itipiso-line-2',
+          pali: 'Vijja charan sampanno sugato loko vidhu',
+          witnesses: [
+            {
+              by: 'Literal gloss',
+              text: 'accomplished in knowledge and conduct, well-gone, knower of worlds,',
+              alignTo: [2, -1, 0, -1, 1, 3, 5, -1, 4],
+            },
+          ],
+          words: [
+            { form: 'Vijja', pronunciation: 'VIJ-jah', gloss: 'knowledge, the higher knowings (sheet *Vijja*; standard *vijjā*)', citations: [dpdCitation('vijjā'), pronCite] },
+            { form: 'charan', pronunciation: 'CHAH-rahn', gloss: 'conduct, practice (sheet *charan*; standard *caraṇa*)', citations: [dpdCitation('caraṇa'), pronCite] },
+            { form: 'sampanno', pronunciation: 'sahm-PAHN-noh', gloss: 'endowed with, accomplished in', citations: [dpdCitation('sampanna'), pronCite] },
+            { form: 'sugato', pronunciation: 'soo-GAH-toh', etymology: '*su-* "well" + *gata* "gone"', gloss: 'the Well-Gone One, the Fortunate One', citations: [dpdCitation('sugata'), pronCite] },
+            { form: 'loko', pronunciation: 'LOH-koh', gloss: 'world, the world(s)', citations: [dpdCitation('loka'), pronCite] },
+            { form: 'vidhu', pronunciation: 'VEE-doo', gloss: 'knower (sheet *vidhu*; standard *vidū*, "one who knows") — together *loko vidhu* = "knower of worlds"', citations: [dpdCitation('vidū'), pronCite] },
+          ],
+        },
+        // Itipiso continuation + the recollection-homage stanza — transcribed
+        // from the top of the following sheet photo (PXL_20260530_141420478).
+        // Faithful Pali + working English; word-by-word depth still to be curated.
+        {
+          id: 'itipiso-line-3',
+          pali: 'Anuttaro purisa dhamma sarathi',
+          witnesses: [{ by: 'Literal gloss', text: 'the unsurpassed guide for those to be tamed,' }],
+        },
+        {
+          id: 'itipiso-line-4',
+          pali: 'Satthadeva manussanam Buddho Bhagawati',
+          witnesses: [{ by: 'Literal gloss', text: 'teacher of gods and humans, the Awakened One, the Blessed One.' }],
+        },
+        {
+          id: 'buddha-homage-1',
+          pali: 'Buddham jivita pariyantam sarnam gacchami',
+          witnesses: [{ by: 'Literal gloss', text: 'To the Buddha I go for refuge as long as life lasts.' }],
+        },
+        {
+          id: 'buddha-homage-2',
+          pali: 'Ye cha Buddha atitacha ye cha Buddha anagata',
+          witnesses: [{ by: 'Literal gloss', text: 'Whatever Buddhas there have been, and Buddhas yet to come,' }],
+        },
+        {
+          id: 'buddha-homage-3',
+          pali: 'Pacchupanna cha ye Buddha, aham vandaami sabbada',
+          witnesses: [{ by: 'Literal gloss', text: 'and the Buddhas of the present — I revere them always.' }],
+        },
+        {
+          id: 'buddha-homage-4',
+          pali: 'Natthi me saranam ayyam, Buddho me saranam varam',
+          witnesses: [{ by: 'Literal gloss', text: 'No other refuge have I; the Buddha is my supreme refuge.' }],
+        },
+        {
+          id: 'buddha-homage-5',
+          pali: 'Yetena saccha vajjena hotu me jaya mangalam',
+          witnesses: [{ by: 'Literal gloss', text: 'By this utterance of truth, may the blessing of victory be mine.' }],
+        },
+        {
+          id: 'buddha-homage-6',
+          pali: 'Uttamangena vandcham padpanshu varuttamam',
+          witnesses: [{ by: 'Literal gloss', text: 'With my head I revere the dust of his most excellent feet.' }],
+        },
+        {
+          id: 'buddha-homage-7',
+          pali: 'Buddhe yo khalito to doso, Buddho khamtu tam mamam',
+          witnesses: [{ by: 'Literal gloss', text: 'Whatever wrong I have done toward the Buddha, may the Buddha forgive it.' }],
+        },
+      ],
+      commentary:
+        'Buddha Vandana — the recollection of the Buddha (*Buddhānussati*), the "Itipiso", recited across the Theravāda world, followed by the recollection-homage stanza (*Buddhaṃ jīvitapariyantaṃ saraṇaṃ gacchāmi…*). Transcribed verbatim from the monastery sheets — the block spans the bottom of PXL_20260530_141418331 and the top of PXL_20260530_141420478 — preserving the sheet\'s simplified romanization (*Itipo* for *iti pi so*, *araham* for *arahaṃ*, *charan* for *caraṇa*, *vidhu* for *vidū*, *ayyam* for *aññaṃ*). The first two lines carry full word-by-word data; the continuation is faithful Pali + a working English gloss, with per-word depth still to be curated.',
     },
   ],
 };
