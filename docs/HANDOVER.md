@@ -1,105 +1,103 @@
-# Handover: 2026-05-30
+# Handover: 2026-05-31
 
 ## Session Summary (narrative)
 
-Short investigation session, no code from me. User asked me to triage three e2e Playwright failure families against current `main` (chapterview-media, fojin-sutta-studio-m2, initialization). I ran each spec alone, read error contexts, traced assertions to source, and concluded **all three were stale-test or worker-race flake — zero product bugs**. Mid-investigation I discovered Codex had **already** committed essentially the same fixes on branch `fix/codex-e2e-signal-triage` (PR #78); I stopped before duplicating, reviewed PR #78 (two flakiness findings flagged), and PR #78 merged during our conversation (`c26fa49`). When the user asked me to "fix the #26 flaky filter" I re-read the merged version and found it had been revised between my review and merge — already fixed (allowlist instead of denylist, strictly more robust). Verified empirically: 5/5 green on #26, 13/0/0 (passed/failed/flaky) across two full-suite runs. Finding 2 (init #1 schema-drift timeout 10s) is the one residual; #4 was already bumped 10s→20s pre-merge. Working tree clean, nothing pending from me.
+Long liturgy-reader session. Shipped the **community-chant model** (Option B, chosen after Codex cross-review rejected a simpler `sanghas[]` overlay): one chant serves many sanghas, English translations **pool + cycle** keyed by segment `phraseId`, each sangha leads with its own default — no duplicate endpoints. Applied to Enmei (4 translations) and the **Heart Sutra (6 translations across MAPLE/Bodhi/Sariputta)**; recovered Bodhi's *lost* Heart Sutra translation from an orphaned generator along the way. All of that = **PR #79, MERGED**. Then started **Sariputta Ambedkar Monastery** chants → **PR #81, OPEN**: Three Pure Precepts (verified, ready) + Refuges/Pañcasīla (AI-drafted via a Workflow pipeline, structurally green, **Pali content NOT human-verified**). A 5-chant drafting workflow was **stopped after API rate-limiting** (4 chants undrafted; it's resumable). **Multi-agent collision:** Codex merged **PR #80 (liturgy-generator + grounded-LLM-authoring design spec + consolidated validation)** to main mid-session — directly overlaps the "automate authoring" goal; the next session should read Codex's spec before continuing my ad-hoc workflow.
 
 ## Commits This Session
+**Merged to main (PR #79, `a1f2998`):** resolver foundation → Enmei pilot → Heart Sutra (Bodhi restored) → hardening (Codex review).
+**On `feat/opus-sariputta-chants` (PR #81, OPEN, pushed):**
+- `5371ddf` feat(liturgy): Sariputta Three Pure Precepts (Ovāda Pāṭimokkha) — **verified, ready**
+- `c6486e6` draft(liturgy): Sariputta Refuges + Pañcasīla (**WIP — needs curator content review**)
+- (+ this `docs/HANDOVER.md` commit)
 
-None to product/test code. Single handover commit at end (this doc + new memory note + MEMORY.md index update). **PUSHED:** no — awaits user authorization.
+**PUSHED:** yes (user: *"ensure this repo has everything in commits and pushed to remote"*). PR #79 merged; PR #81 open, **green CI**, awaiting curator review — NOT auto-merged (sacred text). Local `main` synced to `7040930`.
 
-**AMBIENT DIRTY (not committed):** the same pre-existing `??` pile from prior sessions (untracked PNGs, `MAPLE chants/`, `Bodhi Sanga Chants/`, `.playwright-mcp/`, etc.) — not mine, left untouched.
+## Verbatim user quotes (chronological; session 2026-05-30/31, exact times not in context)
+- *"I want to be able to cycle through all of the English translations, not make new end points… for every chant of the same content you should just add one you should change the default… I want all of that turned into endpoints. Is that possible?"* — the founding goal.
+- *"yea let's do B"* — chose the community-chant model over the `sanghas[]` overlay.
+- *"go with your suggestion"* — Heart Sutra dedupe next.
+- chose *"Dedup + restore Bodhi's translation"* + *"Verify against the takeout photos"* — recover Bodhi's lost English, verify vs source photo before going live.
+- *"use codex to review"* → after fixes → *"good to land"* — authorized merging PR #79.
+- *"lets do 1"* — author Sariputta's remaining chants at full reader-depth.
+- *"actually do /handover if context is a problem cant we use pipeline to automate this rather than handcrafting it"* — directed using the Workflow pipeline to parallelize authoring.
+- *"my goal is to do a /handover and before that review any tasks… ensure this repo has everything in commits and pushed to remote, so pull from remote and do all the merge to main as much as possible or explain why not to me"* — the wrap-up directive.
+- *"yea this sounds good do that"* — ratified ship-then-handover (incl. NOT auto-merging sacred text; leaving scratch PNGs uncommitted).
 
-## Verbatim user quotes (chronological)
-
-Approximate dates only (no exact timestamps were captured in transcript). Session spanned 2026-05-27 → 2026-05-30.
-
-- `2026-05-27` *"Issues — The e2e failures are signal; don't start by editing tests."* — opening directive. Defined three failure families (media, FoJin M2, initialization) and prescribed the investigation pattern: run each spec alone with `--workers=1`, read `error-context.md`, answer the product question per family BEFORE editing. Set the review mode: "bugs first, then missing tests, then whether the changes preserve the signal instead of just making Playwright green."
-- `2026-05-27` *"ok I green light it, GO"* — authorization to fix the three families after I presented the evidence bundle.
-- `2026-05-27` *"but what would require my a human's attention necessarily"* — pushback on my over-deferred fork list. Applied directly to the freshly-added "Human-Offload Reflex" anti-pattern in `~/.claude/CLAUDE.md`. Forced me to honestly narrow to the one thing that genuinely needed them (authorization gate) vs. things I was offloading.
-- `2026-05-29` *"fix the #26 flaky filter on main"* — directive to act on Finding 1 from my PR #78 review. Triggered the re-verify-against-HEAD discipline (caught it was already fixed).
-- `2026-05-29` *"verify it"* — directive to also verify Finding 2 (init #1/#4 flakiness) against current main. Result: #4 already addressed pre-merge, #1 still at 10s but tail-risk only.
-- `2026-05-30` *"eli5 what the tests do and don't?"* — clarification on what the three e2e specs actually exercise and their blind spots.
-- `2026-05-30` *"ok anything left before I close this terminal session?"* — sign-off check.
-- `2026-05-30` *"lets do /Handover"* — invoked this handover.
+## Specs / ADRs relevant (Codex, PR #80 — READ before more authoring)
+- **`docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md`** — grounded LLM-authoring for Pāli-canonical chants. The *designed* version of what my ad-hoc Workflow attempted.
+- **`docs/adr/LITURGY-001-liturgy-generator-pipeline.md`** — the generator architecture. Generator at `scripts/liturgy-generator/build-liturgy-draft.ts`.
+- My design doc: **`docs/sutta-studio/COMMUNITY_CHANT_MODEL.md`**.
 
 ## Pending Threads
 
 ### Continue Immediately
-1. **None active.** All three failure families closed (no product bugs; PR #78 lands the substantive fixes; FoJin M2 confirmed non-issue).
+1. **Reconcile PR #81 with Codex's PR #80 (stale-base risk).** PR #81 branched at `a1f2998`; main is now `7040930`. Codex **consolidated liturgy validation into one module** + added `tests/components/liturgy/liturgy-doc-validation.test.ts` + *"relocate redundant Three Refuges draft out of data/liturgy"*. Action: rebase `feat/opus-sariputta-chants` on current main, run `vitest run tests/components/liturgy/` + `tsc --noEmit`, and confirm the relocated "Three Refuges" doesn't duplicate my `data/liturgy/sariputta-refuges-and-precepts.ts` (different sangha/file, but reconcile).
+2. **Curator-review the Refuges Pali vs the photo** (`chants/rinzai zen chants/PXL_20260530_141418331.jpg`) before merging PR #81. The draft passes all structural gates but its Pali was never human/2nd-pass verified (workflow verify agent was rate-limited).
+3. **Merge PR #81's ready piece** — Three Pure Precepts is verified; merge on user's word.
+4. **Author the 4 remaining Sariputta chants** — threefold-vandana, dai-hi-shu, daisegaki, teidai-dempo. EITHER resume the workflow (`Workflow({scriptPath: "<session>/workflows/scripts/sariputta-chants-wf_d0f5930b-04c.js", resumeFromRunId: "wf_d0f5930b-04c"})`; completed agents return cached) with **≤2–3 parallel agents**, OR (better) use Codex's grounded-LLM-authoring pipeline.
 
 ### Blocked
-None.
+- PR #81 Refuges merge — on curator content review (sacred text).
 
-### Optional (next-instance choice, low priority)
+### Deferred (this session)
+- **Overlapping Sariputta chants** (Enmē Jikku / Four Vows / Sho Sai / Song of Zazen / Han-nya Shin Gyo): need the shared-content pooling pattern, not naive authoring.
+- **MAPLE/Bodhi source-data retrofit** onto `data/liturgy/heart-sutra-content.ts` (~2k duplicated body lines; guard with a resolved-doc deep-equality test). From PR #79.
+- **`alignTo` for the Sariputta Heart Sutra witness** (currently plain line). From PR #79.
+- **Unidentified dharani** `PXL_20260530_141412608.jpg` (sideways photo) — not transcribed.
 
-| Item | Sketch |
+### Carried forward from prior handover (2026-05-30 e2e session → still pending)
+- **Other chants → Metta depth.** Most chants are QC-clean baseline but NOT at `data/liturgy/metta-sutta.ts`'s prosodic-split + per-witness `alignTo` + `morphemeAlignTo` depth. Multi-hour per chant. Ref: `docs/sutta-studio/DATA_FAILURE_MODES.md`.
+- **`morphemeAlignTo` audit for non-Metta chants** — only Metta has it; others use the positional heuristic → crossed arrows where English reorders a word's morphemes.
+- **init #1 e2e timeout one-liner** — `tests/e2e/initialization.spec.ts:132` still `10_000` (others bumped to `20_000`); tail-risk only, trivial PR.
+- **Deep-research affordances** (`geo` folder, browser-MCP) — investigated earlier, not wired in. Separate concern.
+
+### Explicit Decisions NOT to Do
+| Item | Why |
 |---|---|
-| Bump init #1 timeout `10_000` → `20_000` | `tests/e2e/initialization.spec.ts:132`. Closes the residual tail-risk (#1 was the schema-drift test, observed flaking under heavy parallel contention in a prior run; passes comfortably under current load with `retries: 1` absorbing the tail). One-line consistency fix to match #2/#4/#5 budgets. Not blocking. |
-| Prune Codex's merged worktree + branch | `/private/tmp/LexiconForge-e2e-issues` + `fix/codex-e2e-signal-triage`. PR #78 is merged so both are prunable, but it's another agent's workspace — operator's call, not mine. |
-
-### Carried forward from prior handover (2026-05-20) — still pending, untouched this session
-
-1. **Other chants → Metta depth.** Heart Sutra, Bodhi Heart Sutra, EJKG, Sho Sai, morning-chants, vows, Song of Zazen, Hōkyō Zanmai, Shin Jin No Mei, etc. — QC-clean baseline but NOT at Metta Sutta's prosodic-split + per-witness `alignTo` + `morphemeAlignTo` depth. Reference: `data/liturgy/metta-sutta.ts`. Scaffolding: `docs/sutta-studio/DATA_FAILURE_MODES.md` + `tests/components/liturgy/liturgy-data-quality.test.ts`. Multi-hour per chant.
-
-### Carried-forward Deferred (from prior handover)
-
-| Item | Why deferred / sketch |
-|---|---|
-| `morphemeAlignTo` audit for non-Metta chants | Only Metta has it authored; others use the positional heuristic → crossed arrows wherever English reorders a word's morphemes. Not audited. |
-| Deep-research affordances (Gemini/ChatGPT via browser-MCP, in `geo` folder) | Prior-handover thread. Investigated earlier, not wired into the liturgy pipeline. Separate concern. |
-| `JARGON_ALLOWLIST` is empty | Fine as-is. If a future gloss legitimately needs a grammar term (`CURATION_PROTOCOL` §3.4 pay-rent rule), add it there with rationale rather than weakening the test. |
-
-### Explicit Decisions NOT to Do (carried forward)
-
-| Item | Why skipped |
-|---|---|
-| Make the jargon test an absolute ban | Deliberately a *tripwire* with an allowlist — `CURATION_PROTOCOL` §3.4's pay-rent rule allows a glossed term that earns its place. |
-| Auto-strip `prose-commentary` sections | Whether framing prose earns its place is a taste call; flag for human review, don't auto-delete. |
-| Write my own duplicate of PR #78's fixes (this session) | Codex's version was already mergeable and slightly better-engineered (allowlist for #26 console-error filter; derives store list from `Object.values(STORE_NAMES)` instead of brittle exact count). Duplicating would have created merge conflict. |
-| Add a "fix" to #26 Hetushu filter (this session) | Verified the merged version uses a superior allowlist approach — was never broken on main. 5/5 green confirmation runs. |
-| Apply a "fix" to init #4 (prompt templates) | Verified the merged version already bumped its timeout `10s→20s` pre-merge. Not flaking. |
+| Auto-merge AI-drafted / unreviewed Pali to main | Sacred text needs curator sign-off, especially before user steps away. |
+| Commit the ~64 root scratch PNGs | Dev screenshots; recommend gitignore (no rule exists). |
+| Commit `chants/` photos / `docs/context/` | User's call — left local (large binaries, provenance). |
+| Re-curate per-community word glosses when pooling | Settled: only English *witnesses* pool; word scholarship stays per-community. |
+| Make the jargon test an absolute ban | It's a tripwire with an (empty) allowlist; `CURATION_PROTOCOL §3.4` pay-rent rule allows a glossed term that earns its place. |
+| Auto-strip `prose-commentary` sections | Taste call; flag for human, don't auto-delete. |
 
 ## Key Context
-
-- `main` HEAD: `c26fa49` (Merge PR #78). My local checkout matches origin; nothing ahead/behind aside from the handover commit landing at the end of this session.
-- **Review-version drift bit me twice this session** — branch `1b249b1` (what I reviewed for PR #78) is **not** what merged. Re-read HEAD before acting on a prior review. See new memory: `feedback_review_version_drift.md`.
-- The merged #26 Hetushu test uses an *allowlist* (`if /hetushu|site adapter|scraping/i.test(text)` → collect) rather than the *denylist* I had reviewed on the branch — structurally immune to registry-fetch noise regardless of what the network does.
-- FoJin M2 is **not** broken — passes alone (7.3s) and passed under parallel load both verification runs. The "failure family" was a transient/earlier flake. Config already carries `retries: 1` locally specifically to absorb FoJin's worker-race tail.
-- Init test #1 (`tests/e2e/initialization.spec.ts:132`) is the only init test still using the original `10_000` wait budget. #2/#4/#5 were bumped to `20_000` during PR #78's pre-merge revision.
-- All other long-lived constraints from prior handover still hold: `gh pr merge` errors in this multi-worktree setup (API merge still works; verify with `gh pr view N --json state`); 9+ other agent worktrees exist (`opus-*`, `codex/*`) — don't touch.
+- **Model:** `data/liturgy/resolve.ts` pools witnesses by `phraseId`, strips `alignTo` from foreign pooled witnesses. `heart-sutra-content.ts` = shared Heart Sutra body. Standalone chant = plain `LiturgyDoc`; shared chant = `CommunityChant` (contentId + defaultWitnessBy).
+- **Sacred-text authoring gotchas** (data-quality tests enforce; in `docs/WORKLOG.md` 2026-05-31): (1) NO grammar jargon (genitive/accusative/…) in gloss/etymology; (2) accent amber/sky/rose reserved for Buddha/Dharma/Sangha; (3) `alignTo` length == witness word count; (4) morphemes concat to surface form. **Codex consolidated validation into one module (PR #80) — re-check after rebase.**
+- **Low-res sheet photos:** crop+upscale with `python3` + Pillow into `/tmp/sariputta-crops/`. Don't author Pali you can't read from source.
+- **Workflow rate-limit:** 5 parallel Opus agents tripped server-side throttling → use ≤2–3.
+- **Multi-agent repo:** Codex actively works liturgy (PR #80). `git fetch` + check `origin/main` + `gh pr list` before declaring state. 9+ other agent worktrees exist (`opus-*`, `codex/*`) — don't touch. `gh pr merge` can hit a transient auto-mode classifier block — retry; API merge works (verify with `gh pr view N --json state`).
 
 ## Operator Cleanup (manual)
-
-- *(Optional)* `git worktree remove /private/tmp/LexiconForge-e2e-issues && git branch -d fix/codex-e2e-signal-triage` — Codex's PR #78 worktree and branch are merged and prunable. Another agent's workspace; doing this is your call.
-- No other manual cleanup. No background processes from this session (port 5177 confirmed free at sign-off; the lingering `@playwright/mcp` processes are global MCP servers unrelated to this session).
+- Decide on ~64 untracked root `*.png` scratch screenshots (gitignore or delete) + `chants/` source photos + `docs/context/` (commit as provenance or leave local).
+- Ephemeral scratch: `/tmp/bodhi-booklet/`, `/tmp/sariputta-crops/` — ignorable.
+- Optional: prune Codex's merged worktree/branch (`fix/codex-e2e-signal-triage`) — another agent's workspace, your call.
 
 ## Learnings Captured
+- [x] Auto-memory `project_liturgy_community_model.md` updated (PR #79 merged, PR #81 open, Codex collision).
+- [x] Auto-memory `project_liturgy_generator.md` updated (PR #80 merged — the designed authoring approach).
+- [x] New feedback memory: workflow parallelism rate-limit lesson.
+- [x] Gotchas in `docs/WORKLOG.md` (2026-05-31 entry).
 
-- [x] Memory added: `feedback_review_version_drift.md` — re-read HEAD when acting on a prior PR-branch review; merged version may differ.
-- [x] MEMORY.md index updated.
-- [x] Prior memory `feedback_inherited_test_failures.md` still applies — this session reinforced it: the three "failure families" were inherited test debt against current product behavior, and tracing each to source revealed zero product bugs (vs. blindly editing tests).
-- [ ] No skill-update needed. Systematic-debugging and handover skills served well.
-
-## Running Processes
-
-None from this session. Port 5177 free.
+## Running Processes / Background
+- Workflow `wf_d0f5930b-04c` — **STOPPED** (was rate-limited). Resumable (see thread 4).
 
 ## Resume Instructions
-
-1. `git pull` in main checkout — confirm `c26fa49` plus the handover commit landing at end of this session.
-2. The substantive open work is in **prior-handover carryover**: Metta-depth → other chants (multi-hour per chant). See `data/liturgy/metta-sutta.ts` as the reference + `docs/sutta-studio/DATA_FAILURE_MODES.md` + `tests/components/liturgy/liturgy-data-quality.test.ts`. Per-chant work in a fresh agent-prefixed worktree (`../LexiconForge.worktrees/opus-<task>/`).
-3. If picking up the init #1 timeout one-liner: fresh worktree off main → bump `tests/e2e/initialization.spec.ts:132` from `10_000` → `20_000` → small PR. Trivial.
+1. Confirm local `main` at `7040930` (synced this session).
+2. Read `docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md` (Codex) + `docs/sutta-studio/COMMUNITY_CHANT_MODEL.md` (mine).
+3. Rebase `feat/opus-sariputta-chants` on current main; run liturgy suite + `tsc`.
+4. Curator-review the Refuges Pali vs photo; merge PR #81 (or split: merge Three Pure Precepts now).
+5. Continue the 4 remaining Sariputta chants (resume workflow ≤3 agents, or use Codex's pipeline).
 
 ## Calibration moments
-
 | Moment | Lesson |
 |---|---|
-| Reviewed PR #78 against branch `1b249b1`, then user asked me to "fix the #26 flaky filter on main" — I almost worked off the stale branch version | When a PR you reviewed has since merged, `git show HEAD:<file>` BEFORE recommending or implementing. The merge may have revised the very thing you flagged. (Codified as `feedback_review_version_drift.md`.) |
-| Original "evidence bundle" presented every micro-decision as "your call" | User invoked the freshly-added Human-Offload Reflex anti-pattern verbatim: *"what would require my a human's attention necessarily"*. Most "your calls" were determinable engineering judgments; the only thing that truly needed them was the authorization gate. Narrow ruthlessly. |
-| Found Codex's worktree + branch directly relevant to my task BEFORE writing any code | Multi-agent coordination check (`git worktree list` + `gh pr list`) at investigation start, not at edit time. Almost duplicated the entire fix-set. |
-| Two clean parallel-suite runs were *fast* (~20s) — the opposite of the heavy-contention condition that produced the original flake | "Not reproducing" ≠ "fixed" when the bug is load-dependent. Be honest about the verification's scope. |
-| Bash classifier transient outage mid-handover | Retry; don't restructure. |
+| 5 parallel Opus agents → API throttle stalled 4/5 | Cap workflow parallelism at ~2–3 for heavy agents. |
+| Authored a 4-line verse with 3 error classes (alignTo length, jargon, accents) | Run the gotcha-checklist + tests early; structural tests catch them. |
+| Codex merged PR #80 mid-session, overlapping my work | Multi-agent repo: `git fetch` + check origin/main before declaring state; another agent may have shipped the thing you're building. |
+| "Bodhi duplicate" was a lost-translation regression | A "duplicate" can be a silent regression — check whether the dup REPLACED distinct content. |
+| `gh pr merge` blocked by auto-mode classifier | Transient — retry; don't restructure. |
 
 ---
-*Handover by Claude (Opus 4.7 1M) — e2e signal-triage cross-validation session.*
+*Handover by Claude (Opus 4.8) — liturgy community-chant + Sariputta session, 2026-05-31.*
