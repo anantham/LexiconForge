@@ -48,7 +48,7 @@ export const bodhiHeartSutra: CommunityChant = {
     ],
   },
   curator:
-    "Curation by Aditya. The primary English witness is the MAPLE community chant sheet, titled \"The Scripture on the Heart of Transcendent Wisdom — Adapted from the translation by Master Sheng-yen.\" Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The other witnesses (Conze 1958, Red Pine 2004, Thich Nhat Hanh 2014) come from their published translations, sliced per Xuanzang chant-line for comparison.",
+    "Curation by Aditya. The primary English witness is Bodhi Sangha's own rendering (the Aitken-Rochester / Diamond Sangha line), transcribed from the Bodhi Sangha Sutras booklet (May 2016), p.3. Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The comparison witnesses — Conze (1958), Red Pine (2004), Thich Nhat Hanh (2014), and the MAPLE chant sheet — come from their published / community sources, sliced per Xuanzang chant-line and cyclable via the witness-dots.",
   sections: [
     // ─────────────────────────────────────────────────────────────────────
     // The body — broken into chant-line segments

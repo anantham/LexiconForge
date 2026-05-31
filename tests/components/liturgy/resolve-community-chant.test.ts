@@ -14,6 +14,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { resolveCommunityChant, resolveAll } from '../../../data/liturgy/resolve';
+import { overlayHeartBody, HEART_SUTRA_PHRASE_IDS } from '../../../data/liturgy/heart-sutra-content';
 import type { CommunityChant, TripleScriptWitnessSection } from '../../../types/liturgy';
 
 function seg(phraseId: string, witnessBys: string[]) {
@@ -133,6 +134,23 @@ describe('resolveCommunityChant', () => {
     };
     const resolved = resolveCommunityChant(solo, { id: 'solo', communities: [solo] });
     expect(tsw(resolved).segments[0].witnesses.map((w) => w.by)).toEqual(['Only']);
+  });
+});
+
+describe('overlayHeartBody (shared-content typo guard)', () => {
+  const realKey = [...HEART_SUTRA_PHRASE_IDS][0];
+
+  it('throws on a phraseId key that names no shared Heart Sutra phrase', () => {
+    expect(() =>
+      overlayHeartBody('Test', { [realKey]: 'ok', 'middle-no-such-phrase': 'typo' }),
+    ).toThrow(/middle-no-such-phrase/);
+  });
+
+  it('overlays a valid key onto the matching body segment (leading the witnesses)', () => {
+    const body = overlayHeartBody('Test', { [realKey]: 'my rendering' });
+    const seg = [...body.core, ...body.middle, ...body.result].find((s) => s.phraseId === realKey)!;
+    expect(seg.witnesses[0].by).toBe('Test');
+    expect(seg.witnesses[0].text).toBe('my rendering');
   });
 });
 

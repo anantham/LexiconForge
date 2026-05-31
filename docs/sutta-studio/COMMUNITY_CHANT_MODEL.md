@@ -140,6 +140,18 @@ same phrase differently (MAPLE `Bup·pō` vs Bodhi `bup-pō`).
 
 ## Implementation log
 
+- **2026-05-30 — Codex review hardening (PR #79).** Codex (gpt-5.5) reviewed the
+  branch: no live data bug, but four fail-open/staleness issues, all fixed:
+  (1) `defaultWitnessBy` was optional + the coverage test `continue`d past a
+  missing one → added a fail-closed presence test, dropped the `continue`s.
+  (2) The route-topology snapshot keyed sections by id in an object → snapshot
+  serialization key-sorts, hiding a section REORDER; switched to ordered arrays.
+  (3) `overlayWitness` could silently ignore a typo'd `phraseId` → replaced with
+  `overlayHeartBody`, which validates the whole text map against the shared
+  body's phrase set and throws on any unknown key (unit-tested). (This guard
+  immediately caught a real conflation in the first cut — per-call vs whole-body
+  key validation.) (4) Bodhi's curator note still named MAPLE as the primary
+  witness → corrected to Bodhi's own rendering.
 - **2026-05-30 — Enmei pilot (done).** Both Enmei routes cycle all four translations,
   each leading with its own default. Browser-verified.
 - **2026-05-30 — Sariputta Heart Sutra + shared-content module (done).** Built

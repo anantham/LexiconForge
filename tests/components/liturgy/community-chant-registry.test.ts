@@ -32,18 +32,20 @@ function tswSections(doc: LiturgyDoc): TripleScriptWitnessSection[] {
 }
 
 describe('route topology', () => {
-  it('every (sangha, slug) route has a stable section + segment id map', () => {
-    const topology: Record<string, Record<string, string[]>> = {};
+  it('every (sangha, slug) route has a stable, ordered section + segment id list', () => {
+    // Ordered arrays, NOT objects: snapshot serialization key-sorts object keys,
+    // which would hide a section/segment REORDER. Arrays preserve chant order,
+    // so a reorder (not just an add/drop) fails the snapshot too.
+    const topology: Record<string, Array<{ id: string; segs: string[] }>> = {};
     for (const [sangha, docs] of Object.entries(LITURGY_DOCS_BY_SANGHA)) {
       for (const [slug, doc] of Object.entries(docs)) {
-        const sections: Record<string, string[]> = {};
-        for (const section of doc.sections) {
-          sections[section.id] =
+        topology[`${sangha}/${slug}`] = doc.sections.map((section) => ({
+          id: section.id,
+          segs:
             section.shape === 'triple-script-witness'
               ? section.segments.map((seg) => seg.id)
-              : [];
-        }
-        topology[`${sangha}/${slug}`] = sections;
+              : [],
+        }));
       }
     }
     expect(topology).toMatchSnapshot();
@@ -51,9 +53,17 @@ describe('route topology', () => {
 });
 
 describe('default-witness coverage', () => {
+  it('every community chant declares a defaultWitnessBy (fail-closed)', () => {
+    // The "lead with your own translation" invariant is only meaningful if the
+    // field exists. Without this, a future CommunityChant that omits it would
+    // silently default to witnesses[0] and skip the coverage checks below.
+    for (const cc of COMMUNITY_CHANTS) {
+      expect(cc.defaultWitnessBy, `${cc.sangha}/${cc.slug} has no defaultWitnessBy`).toBeTruthy();
+    }
+  });
+
   it("every community chant's defaultWitnessBy is present on all its TSW segments", () => {
     for (const cc of COMMUNITY_CHANTS) {
-      if (!cc.defaultWitnessBy) continue;
       for (const section of tswSections(cc)) {
         for (const seg of section.segments) {
           const present = seg.witnesses.some((w) => w.by === cc.defaultWitnessBy);
@@ -71,7 +81,6 @@ describe('default-witness coverage', () => {
     // resolver floats defaultWitnessBy to the front of each segment, so the
     // first segment's first witness must equal the default.
     for (const cc of COMMUNITY_CHANTS) {
-      if (!cc.defaultWitnessBy) continue;
       const resolved = LITURGY_DOCS_BY_SANGHA[cc.sangha]?.[cc.slug];
       expect(resolved, `${cc.sangha}/${cc.slug} not in registry`).toBeTruthy();
       const firstSeg = tswSections(resolved!)[0]?.segments[0];

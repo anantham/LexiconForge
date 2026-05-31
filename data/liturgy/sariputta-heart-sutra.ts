@@ -18,7 +18,7 @@
  */
 
 import type { CommunityChant } from '../../types/liturgy';
-import { HEART_SUTRA_BODY, overlayWitness } from './heart-sutra-content';
+import { overlayHeartBody } from './heart-sutra-content';
 
 const WITNESS_BY = 'Sariputta Ambedkar';
 const WITNESS_META = {
@@ -67,6 +67,10 @@ const SARIPUTTA_TEXTS: Record<string, string> = {
   'result-ultimate-nirvana': 'they dwell in Nirvana.',
 };
 
+// Overlay Sariputta's English onto the shared body. Validates that every key
+// in SARIPUTTA_TEXTS names a real shared phrase (a typo throws at module load).
+const SARIPUTTA_BODY = overlayHeartBody(WITNESS_BY, SARIPUTTA_TEXTS, WITNESS_META);
+
 export const sariputtaHeartSutra: CommunityChant = {
   contentId: 'heart-sutra',
   defaultWitnessBy: WITNESS_BY,
@@ -90,17 +94,17 @@ export const sariputtaHeartSutra: CommunityChant = {
     {
       id: 'sariputta-heart-core',
       shape: 'triple-script-witness',
-      segments: overlayWitness(HEART_SUTRA_BODY.core, WITNESS_BY, SARIPUTTA_TEXTS, WITNESS_META),
+      segments: SARIPUTTA_BODY.core,
     },
     {
       id: 'sariputta-heart-middle',
       shape: 'triple-script-witness',
-      segments: overlayWitness(HEART_SUTRA_BODY.middle, WITNESS_BY, SARIPUTTA_TEXTS, WITNESS_META),
+      segments: SARIPUTTA_BODY.middle,
     },
     {
       id: 'sariputta-heart-result',
       shape: 'triple-script-witness',
-      segments: overlayWitness(HEART_SUTRA_BODY.result, WITNESS_BY, SARIPUTTA_TEXTS, WITNESS_META),
+      segments: SARIPUTTA_BODY.result,
     },
     {
       id: 'sariputta-all-buddhas',
