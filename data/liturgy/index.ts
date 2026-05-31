@@ -38,6 +38,8 @@ import bodhisattvaVowTorei from './bodhisattva-vow-torei';
 import songOfZazen from './song-of-zazen';
 import wayOfCompassion from './way-of-compassion';
 import dedicationAndEveningCall from './dedication-and-evening-call';
+// Sariputta Ambedkar Monastery
+import sariputtaHeartSutra from './sariputta-heart-sutra';
 
 /**
  * Community chants — multiple sanghas chanting the same chant (same
@@ -52,8 +54,9 @@ export const COMMUNITY_CHANTS: CommunityChant[] = [
   bodhiEnmeiJikkuKannonGyo, // bodhi-sangha
   heartSutra, // maple
   bodhiHeartSutra, // bodhi-sangha
+  sariputtaHeartSutra, // sariputta-ambedkar
 ];
-const [enmeiMapleDoc, enmeiBodhiDoc, heartSutraDoc, bodhiHeartSutraDoc] =
+const [enmeiMapleDoc, enmeiBodhiDoc, heartSutraDoc, bodhiHeartSutraDoc, sariputtaHeartSutraDoc] =
   resolveAll(COMMUNITY_CHANTS);
 
 const ALL_DOCS: LiturgyDoc[] = [
@@ -78,6 +81,8 @@ const ALL_DOCS: LiturgyDoc[] = [
   songOfZazen,
   wayOfCompassion,
   dedicationAndEveningCall,
+  // Sariputta Ambedkar Monastery
+  sariputtaHeartSutraDoc,
 ];
 
 /**

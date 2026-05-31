@@ -142,6 +142,18 @@ same phrase differently (MAPLE `Bup·pō` vs Bodhi `bup-pō`).
 
 - **2026-05-30 — Enmei pilot (done).** Both Enmei routes cycle all four translations,
   each leading with its own default. Browser-verified.
+- **2026-05-30 — Sariputta Heart Sutra + shared-content module (done).** Built
+  `heart-sutra-content.ts` — derives the canonical body segments (Sanskrit/
+  Chinese/Japanese/Tibetan + word-morphemes + Conze/Red Pine/TNH) from the MAPLE
+  authoring and strips community-only witnesses, so additional communities
+  reference one source instead of re-copying ~2k lines. Added Sariputta Ambedkar
+  Monastery's Heart Sutra (Rochester/Kapleau English, transcribed from its chant
+  sheet) via `overlayWitness` — its rendering leads; the other five pool in. The
+  Heart Sutra now cycles **6 translations across 3 sanghas**, each route leading
+  with its own. Sariputta's witness has no `alignTo` yet (plain line — alignment
+  is a deferred curation pass). NOTE: MAPLE + Bodhi still author their own copies
+  of the body; retrofitting them onto `heart-sutra-content.ts` (full source dedup,
+  guarded by a resolved-doc deep-equality test) remains the deferred hygiene step.
 - **2026-05-30 — Heart Sutra lost-translation discovery.** The shipped
   `bodhi-heart-sutra.ts` showed **MAPLE's** translation: it was hand-authored "at MAPLE
   depth" (commit e8c8478) by copying MAPLE wholesale, which dropped Bodhi's own English.
