@@ -23,14 +23,10 @@
 import { describe, it, expect } from 'vitest';
 import { LITURGY_DOCS_BY_SANGHA } from '../../../data/liturgy';
 import type { LiturgyDoc, TripleScriptWitnessSection } from '../../../types/liturgy';
+// Canonical tokenizers (mirror the renderer's word class), shared so the
+// Pāli regex can't drift between this audit and the renderer/generator.
+import { tokenizePali, tokenizeEnglish } from '../../../services/liturgy/validation';
 
-function tokenizePali(text: string): string[] {
-  const re = /[A-Za-zĀāĪīŪūṚṛṂṃṄṅÑñṬṭḌḍṆṇŚśṢṣḤḥṁÀ-ɏ]+/g;
-  return text.match(re) || [];
-}
-function tokenizeEnglish(text: string): string[] {
-  return text.split(/\s+/).filter((s) => s.length > 0);
-}
 function strip(w: string): string {
   return w.toLowerCase().replace(/[.,;:!?'"()—–\-]/g, '');
 }

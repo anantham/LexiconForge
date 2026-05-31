@@ -1,3 +1,71 @@
+### [2026-05-30 17:16 EDT] [Agent: Opus 4.8 (1M)]
+**Status:** Complete (kernel)
+**Task:** Continue Codex's liturgy-generator — the user-chosen "kernel first" path (commit, consolidate validation, harden alignment, drop redundant draft). Not the LLM content-authoring slice.
+**Worktree:** ../LexiconForge.worktrees/codex-liturgy-generator/ · **Branch:** feat/codex-liturgy-generator (4 commits, local only — NOT pushed, NOT merged)
+**Findings that shaped the work (grounded, not from the transcript):**
+- The "generator" authors zero linguistic content — every gloss/morpheme/etymology is hand-authored in the input packet; it only computes alignTo/morphemeAlignTo + serializes. It is an aligner + linter, not a content generator. It does NOT address the user's actual complaint (depth/grounding inconsistency).
+- Its validate.ts duplicated 5/6 invariants already in the corpus tests; the Pāli tokenizer was a 4th hand-synced copy of the renderer's.
+- The alignment inference silently produces wrong-but-valid arrays on real chants (mass gloss collisions → content words fall to -1 → rendered as false "glue"); `infer` was the silent default.
+- No schema collision with feat/opus-liturgy-community (additive phraseId only). Follow-on: generated chants need phraseId to join cross-community pools.
+**Commits:** 44e4ba9 preserve WIP · f134627 consolidate validation into services/liturgy/validation.ts (one validateLiturgyDoc run over BOTH drafts and the shipped corpus) · 9abc235 loud alignment (low_alignment_coverage + inferred_alignment_unreviewed warns; CLI REVIEW REQUIRED banner) · 6d6a6f7 relocate redundant Three Refuges draft to test-fixtures (it duplicated ti-sarana with 0 citations).
+**Verification:** full repo suite + tsc on touched files (see commit bodies); liturgy+generator: 5777 passed | 101 skipped (was 5756; +20 corpus-validation, +1 coverage test, no regressions).
+**Next (unstarted — user's fork):** LLM content-authoring stage (the real lever for depth/grounding consistency, per ADR LITURGY-001 "Next steps"), OR audit the shipped corpus for sub-Metta depth. The em-dash voice rule appears unenforced (metta-sutta.ts has 251) — reconcile before any voice pass.
+
+### [2026-05-30 10:27 EDT] [Agent: Codex]
+**Status:** Starting
+**Task:** Build Option B: a dedicated liturgy generator pipeline inspired by Sutta Studio.
+**Worktree:** ../LexiconForge.worktrees/codex-liturgy-generator/
+**Branch:** feat/codex-liturgy-generator
+**Files likely affected:** docs/adr/LITURGY-001-liturgy-generator-pipeline.md; services/liturgy-generator/*; scripts/liturgy-generator/*; tests/services/liturgy-generator/*; test-fixtures/liturgy-generator/*; package.json.
+**Hypotheses:** H1 inconsistent chant-sheet quality is primarily caused by hand-authored alignment/morpheme drift; H2 a staged generator with mandatory validation can make those failure modes loud; H3 raw OCR/markdown-to-polished-sheet is too broad for the first implementation slice, so this pass should consume structured source packets and emit `LiturgyDoc` drafts.
+
+### [2026-05-30 10:34 EDT] [Agent: Codex]
+**Status:** Complete
+**Progress:** Implemented initial liturgy generator scaffold on `feat/codex-liturgy-generator`.
+**Files modified:**
+- `docs/WORKLOG.md:1` — session start/end entries for multi-agent continuity.
+- `docs/adr/LITURGY-001-liturgy-generator-pipeline.md:1` — architecture decision for a dedicated `LiturgyDoc` generator rather than direct Sutta Studio adaptation.
+- `services/liturgy-generator/types.ts:1` — generator input, diagnostics, alignment hint, and stats contracts.
+- `services/liturgy-generator/tokenize.ts:1` — renderer-compatible source/witness token helpers and export-name helper.
+- `services/liturgy-generator/align.ts:1` — deterministic witness alignment + morpheme alignment inference with explicit unmapped-token diagnostics.
+- `services/liturgy-generator/validate.ts:1` — generator-side guardrails for morpheme reconstruction, alignment shape/range, internal-ID leaks, and plain-register jargon tripwires.
+- `services/liturgy-generator/emit.ts:1` — TypeScript `LiturgyDoc` draft module emitter.
+- `services/liturgy-generator/pipeline.ts:1` — staged draft builder orchestration.
+- `scripts/liturgy-generator/build-liturgy-draft.ts:1` — CLI for structured input packet → draft `.ts` output.
+- `test-fixtures/liturgy-generator/ti-sarana-mini.json:1` — fixture packet including an explicit idiom alignment hint for "take refuge".
+- `tests/services/liturgy-generator/pipeline.test.ts:1` — coverage for inferred alignment, emitter output, and loud morpheme failures.
+- `package.json:22` — `build:liturgy-draft` script.
+**Verification:**
+- PASS `../../LexiconForge/node_modules/.bin/vitest run tests/services/liturgy-generator/pipeline.test.ts`
+- PASS `../../LexiconForge/node_modules/.bin/tsx scripts/liturgy-generator/build-liturgy-draft.ts test-fixtures/liturgy-generator/ti-sarana-mini.json --out /private/tmp/ti-sarana-mini.draft.ts`
+- PASS `../../LexiconForge/node_modules/.bin/vitest run tests/components/liturgy/liturgy-data-quality.test.ts tests/components/liturgy/alignment-audit.test.ts`
+- BLOCKED/known repo debt: `../../LexiconForge/node_modules/.bin/tsc --noEmit --pretty false` still fails in unrelated existing files (`components/sutta-studio/AboutThisText.tsx`, `data/liturgy/song-of-zazen.ts`, `scripts/build-dpd.ts`, `services/db/operations/chapters.ts`, `services/providers/scBilaraVariants.ts`, `tests/current-system/unwrap-nested-scoped-ids.test.ts`, `utils/spaNavigate.ts`). No reported diagnostic named `services/liturgy-generator`, `scripts/liturgy-generator`, or the new test file.
+**Next steps:** Add a model-backed authoring stage only after this deterministic scaffold is reviewed; likely first target is raw MAPLE/Bodhi markdown or OCR normalization into the structured generator packet.
+
+### [2026-05-30 13:28 EDT] [Agent: Codex]
+**Status:** Starting
+**Task:** Option 1 pilot — run the dedicated liturgy generator against a real small chant before adding LLM ingestion.
+**Worktree:** ../LexiconForge.worktrees/codex-liturgy-generator/
+**Branch:** feat/codex-liturgy-generator
+**Files likely affected:** test-fixtures/liturgy-generator/*; data/liturgy/drafts/*; tests/services/liturgy-generator/*; docs/WORKLOG.md.
+**Assumptions:** Use a compact Bodhi Sangha Three Refuges pilot because it contains real ritual wording and the "take refuge" idiom but stays small enough for review. Do not register the generated draft in `data/liturgy/index.ts`.
+
+### [2026-05-30 13:31 EDT] [Agent: Codex]
+**Status:** Complete
+**Progress:** Added the real Three Refuges pilot as a structured packet and generated unregistered draft artifact.
+**Files modified:**
+- `test-fixtures/liturgy-generator/three-refuges-pilot.json:1` — real compact Bodhi Sangha Three Refuges source packet with explicit idiom hints for "take refuge".
+- `data/liturgy/three-refuges.generated.draft.ts:1` — generated draft `LiturgyDoc`, intentionally not registered in `data/liturgy/index.ts`.
+- `services/liturgy-generator/align.ts:50` — word-level candidates now include morpheme text/root/gloss/note so base forms like English "Buddha" match source `Buddhaṁ`.
+- `tests/services/liturgy-generator/pipeline.test.ts:1` — pilot reproducibility test verifies the committed draft is exactly regenerated from the source packet with zero warnings.
+- `docs/WORKLOG.md:1` — pilot start/end notes.
+**Verification:**
+- PASS `../../LexiconForge/node_modules/.bin/vitest run tests/services/liturgy-generator/pipeline.test.ts`
+- PASS `../../LexiconForge/node_modules/.bin/tsx scripts/liturgy-generator/build-liturgy-draft.ts test-fixtures/liturgy-generator/three-refuges-pilot.json --out data/liturgy/three-refuges.generated.draft.ts` → 3 inferred alignments, 0 unmapped tokens, 0 warnings.
+- PASS `../../LexiconForge/node_modules/.bin/vitest run tests/components/liturgy/liturgy-data-quality.test.ts tests/components/liturgy/alignment-audit.test.ts`
+- BLOCKED/known repo debt: `../../LexiconForge/node_modules/.bin/tsc --noEmit --pretty false` still fails in unrelated existing files; no diagnostic names the new generator or draft files.
+**Next steps:** Review the draft artifact for taste. If accepted, the next implementation step is a structured-packet authoring helper for raw markdown/OCR lines, not a full model-backed generator yet.
+
 2026-05-15 (PLANS folder seeded for parallel agent pickup) - [Agent: Opus 4.7 (1M)]
 - Status: COMMITTED to main. Three pickup-ready plans seeded under `docs/sutta-studio/PLANS/`:
   - `cost-preview-confirm.md` (2-4 hr) — modal before full compile shows estimated cost + duration; cancel option discards skeleton cleanly. Touches compiler entry + new modal.

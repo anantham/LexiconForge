@@ -17,20 +17,10 @@ import type {
   LiturgyDoc,
   TripleScriptWitnessSection,
 } from '../../../types/liturgy';
-
-// Mirror of the renderer's Pāli tokenizer (Roman). Word class is Latin +
-// IAST diacritics; everything else is gap. Keep in sync with
-// components/liturgy/shapes/TripleScriptWitness.tsx#tokenize.
-function countPaliWords(text: string): number {
-  const re = /[A-Za-zĀāĪīŪūṚṛṂṃṄṅÑñṬṭḌḍṆṇŚśṢṣḤḥṁÀ-ɏ]+/g;
-  const matches = text.match(re);
-  return matches ? matches.length : 0;
-}
-
-// Mirror of EnglishLine: whitespace split, non-empty tokens count as words.
-function countEnglishWords(text: string): number {
-  return text.split(/\s+/).filter((s) => s.length > 0).length;
-}
+// Canonical tokenizers (mirror the renderer's word class). Previously these
+// were re-declared inline here; they now live in one place so the Pāli regex
+// can't drift between the renderer, the generator, and this audit.
+import { countPaliWords, countEnglishWords } from '../../../services/liturgy/validation';
 
 function tripleScriptSections(
   doc: LiturgyDoc
