@@ -796,6 +796,13 @@ exports[`route topology > every (sangha, slug) route has a stable, ordered secti
         "precept-5-suramerayamajja",
       ],
     },
+    {
+      "id": "buddha-vandana",
+      "segs": [
+        "itipiso-line-1",
+        "itipiso-line-2",
+      ],
+    },
   ],
   "sariputta-ambedkar/three-pure-precepts": [
     {

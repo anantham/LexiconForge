@@ -22,9 +22,8 @@ import { overlayHeartBody } from './heart-sutra-content';
 
 const WITNESS_BY = 'Sariputta Ambedkar';
 const WITNESS_META = {
-  url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
   license:
-    'Sariputta Ambedkar Monastery chant sheet (Rochester Zen Center / Kapleau line) — transcribed with attribution',
+    'Sariputta Ambedkar Monastery chant sheet — the Rochester Zen Center / Kapleau English body, with this sheet\'s own local variants (see curator note). Transcribed verbatim.',
 };
 
 /**
@@ -77,7 +76,7 @@ export const sariputtaHeartSutra: CommunityChant = {
   slug: 'heart-sutra',
   sangha: 'sariputta-ambedkar',
   title: 'Maha Prajna Paramita Hridaya Sutra',
-  subtitle: 'The Heart Sutra — Sariputta Ambedkar Monastery (Rochester / Kapleau line)',
+  subtitle: 'The Heart Sutra — Sariputta Ambedkar Monastery (Rochester / Kapleau English body, with local variants)',
   tradition: 'mahayana',
   context:
     'The Heart Sutra in the Rochester Zen Center / Kapleau English recension, as chanted at Sariputta Ambedkar Monastery. The Sanskrit and East-Asian scripts are shared with the MAPLE and Bodhi Sangha versions; the witness-dots cycle every community\'s translation.',
@@ -89,7 +88,7 @@ export const sariputtaHeartSutra: CommunityChant = {
     ritual: [{ label: 'Sariputta Ambedkar Monastery chant sheet' }],
   },
   curator:
-    'Curation by Aditya. Sariputta\'s English is transcribed from the monastery chant sheet (the Rochester Zen Center / Kapleau line); the canonical scripts and word-level morphemes are the shared Heart Sutra body. Per-word alignment for the Sariputta rendering is not yet authored.',
+    'Curation by Aditya. Sariputta\'s English is transcribed verbatim from the monastery chant sheet — the Rochester Zen Center / Kapleau English body, with two local variants preserved rather than normalised: the sheet reads "Far apart from every deluded view" where Kapleau\'s published text has "perverted view", and it gives the mantra in the Sino-Japanese reading "Gyate, gyate, paragyate, parasam gyate, bodhi svaha" rather than the romanised Sanskrit "Gate, gate, pāragate, pārasaṃgate, bodhi svāhā". The canonical scripts and word-level morphemes are the shared Heart Sutra body. Per-word alignment for the Sariputta rendering is not yet authored.',
   sections: [
     {
       id: 'sariputta-heart-core',
