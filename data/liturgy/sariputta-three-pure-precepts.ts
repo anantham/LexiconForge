@@ -45,7 +45,7 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
         {
           id: 'avoid-evil',
           pali: 'Sabba pāpassa akaraṇaṃ',
-          paliDeva: 'सब्ब पापस्स अकरणं,',
+          paliDeva: 'सब्ब पापस्स अकरणं',
           witnesses: [
             {
               by: 'Literal gloss',
@@ -84,7 +84,7 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
         {
           id: 'cultivate-good',
           pali: 'Kusalassa upasampadā.',
-          paliDeva: 'कुसलस्स उपसम्पदा,',
+          paliDeva: 'कुसलस्स उपसम्पदा।',
           witnesses: [
             {
               by: 'Literal gloss',
@@ -117,7 +117,7 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
         {
           id: 'purify-mind',
           pali: 'Sacittapariyodapanaṃ',
-          paliDeva: 'सचित्तपरियोदपनं,',
+          paliDeva: 'सचित्तपरियोदपनं',
           witnesses: [
             {
               by: 'Literal gloss',
@@ -126,8 +126,8 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
             },
             {
               by: 'Buddharakkhita (1985)',
-              text: 'to cleanse one’s mind —',
-              alignTo: [-1, 0, -1, 0, -1],
+              text: 'and to cleanse one’s mind —',
+              alignTo: [-1, -1, 0, -1, 0, -1],
               url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html',
               license: 'Buddharakkhita translation, quoted with attribution',
             },
@@ -139,7 +139,7 @@ export const sariputtaThreePurePrecepts: LiturgyDoc = {
               gloss: 'the complete cleansing of one’s own mind — purifying the heart-mind of its defilements',
               morphemes: [
                 { text: 'sa', type: 'prefix', gloss: 'one’s own', pronunciation: 'sah' },
-                { text: 'citta', type: 'stem', gloss: 'mind, heart (from √cit "to think, cognize"). Note: the *Heart* Sutra’s "heart" is the unrelated word *hṛdaya* (the physical heart) — *citta* only shares the English word "heart".', pronunciation: 'CHIT-tah', citations: [dpdCitation('citta')] },
+                { text: 'citta', type: 'stem', gloss: 'mind, heart (from √cit "to think, cognize"). Note: the *Heart* Sutra’s "heart" is the unrelated Sanskrit word *hṛdaya* ("heart, core, essence", as in the sutra\'s title) — *citta* only shares the English word "heart".', pronunciation: 'CHIT-tah', citations: [dpdCitation('citta')] },
                 { text: 'pariyodapana', type: 'stem', gloss: 'thorough cleansing, washing clean', pronunciation: 'pah-ree-yoh-DAH-pah-nah', citations: [dpdCitation('pariyodapeti')] },
                 { text: 'ṃ', type: 'suffix', gloss: 'the "-ṃ" singular ending — here it names the line’s subject (what is to be done), not an object acted upon' },
               ],

@@ -103,12 +103,12 @@ const GACCHAMI: WordGloss = {
 
 const VERAMANI: WordGloss = {
   form: 'veramaṇī', scriptAlt: 'वेरमणी', pronunciation: 'vay-rah-MAH-nee',
-  etymology: 've- (the strengthened form of vi- "away from") + √ram "to cease, desist" + -aṇī → "abstaining from" (cf. *viramati* "he desists")',
+  etymology: 've- (the strengthened form of vi- "away from") + √ram + -aṇī. The bare root √ram means "to delight, rest, dwell"; under the ve-/vi- prefix (*viramati*) it flips to "turn away, desist, abstain" — hence "abstaining from"',
   gloss: 'abstaining from, turning away from',
   citations: [dpdCitation('veramaṇī'), pronCite],
   morphemes: [
     { text: 've', type: 'prefix', gloss: 'away from (the strengthened form of *vi-*). NOTE: this is NOT the separate Pali word *vera* "hatred" — they only look alike.', pronunciation: 'vay' },
-    { text: 'ram', type: 'root', root: '√ram', gloss: 'to cease, desist (here "abstain"), not "delight/dwell"', pronunciation: 'rah' },
+    { text: 'ram', type: 'root', root: '√ram', gloss: '√ram "delight, rest, dwell" on its own; under the *ve-/vi-* prefix (as in *viramati*) it means "turn away, desist, abstain"', pronunciation: 'rah' },
     { text: 'aṇī', type: 'suffix', gloss: 'the ending that turns it into "an abstaining-from"', pronunciation: 'mah-NEE' },
   ],
 };
@@ -509,11 +509,58 @@ export const sariputtaRefugesAndPrecepts: LiturgyDoc = {
             { form: 'loko', pronunciation: 'LOH-koh', gloss: 'world, the world(s)', citations: [dpdCitation('loka'), pronCite] },
             { form: 'vidhu', pronunciation: 'VEE-doo', gloss: 'knower (sheet *vidhu*; standard *vidū*, "one who knows") — together *loko vidhu* = "knower of worlds"', citations: [dpdCitation('vidū'), pronCite] },
           ],
-          note: 'TODO (curator): the Itipiso continues on the sheet, but the remaining lines are obscured by the page-curl in the source photo (PXL_20260530_141418331). The standard formula continues *anuttaro purisadammasārathi satthā devamanussānaṃ buddho bhagavā ti*; add the sheet\'s exact wording once a clearer photo is available.',
+        },
+        // Itipiso continuation + the recollection-homage stanza — transcribed
+        // from the top of the following sheet photo (PXL_20260530_141420478).
+        // Faithful Pali + working English; word-by-word depth still to be curated.
+        {
+          id: 'itipiso-line-3',
+          pali: 'Anuttaro purisa dhamma sarathi',
+          witnesses: [{ by: 'Literal gloss', text: 'the unsurpassed guide for those to be tamed,' }],
+        },
+        {
+          id: 'itipiso-line-4',
+          pali: 'Satthadeva manussanam Buddho Bhagawati',
+          witnesses: [{ by: 'Literal gloss', text: 'teacher of gods and humans, the Awakened One, the Blessed One.' }],
+        },
+        {
+          id: 'buddha-homage-1',
+          pali: 'Buddham jivita pariyantam sarnam gacchami',
+          witnesses: [{ by: 'Literal gloss', text: 'To the Buddha I go for refuge as long as life lasts.' }],
+        },
+        {
+          id: 'buddha-homage-2',
+          pali: 'Ye cha Buddha atitacha ye cha Buddha anagata',
+          witnesses: [{ by: 'Literal gloss', text: 'Whatever Buddhas there have been, and Buddhas yet to come,' }],
+        },
+        {
+          id: 'buddha-homage-3',
+          pali: 'Pacchupanna cha ye Buddha, aham vandaami sabbada',
+          witnesses: [{ by: 'Literal gloss', text: 'and the Buddhas of the present — I revere them always.' }],
+        },
+        {
+          id: 'buddha-homage-4',
+          pali: 'Natthi me saranam ayyam, Buddho me saranam varam',
+          witnesses: [{ by: 'Literal gloss', text: 'No other refuge have I; the Buddha is my supreme refuge.' }],
+        },
+        {
+          id: 'buddha-homage-5',
+          pali: 'Yetena saccha vajjena hotu me jaya mangalam',
+          witnesses: [{ by: 'Literal gloss', text: 'By this utterance of truth, may the blessing of victory be mine.' }],
+        },
+        {
+          id: 'buddha-homage-6',
+          pali: 'Uttamangena vandcham padpanshu varuttamam',
+          witnesses: [{ by: 'Literal gloss', text: 'With my head I revere the dust of his most excellent feet.' }],
+        },
+        {
+          id: 'buddha-homage-7',
+          pali: 'Buddhe yo khalito to doso, Buddho khamtu tam mamam',
+          witnesses: [{ by: 'Literal gloss', text: 'Whatever wrong I have done toward the Buddha, may the Buddha forgive it.' }],
         },
       ],
       commentary:
-        'Buddha Vandana — the recollection of the Buddha (*Buddhānussati*), the "Itipiso" recited across the Theravāda world. Transcribed verbatim from the sheet, which uses a simplified romanization (*Itipo* for *iti pi so*, *araham* for *arahaṃ*, *charan* for *caraṇa*, *vidhu* for *vidū*). Only the first two lines are legible on the source photo; the rest is obscured (see the note above).',
+        'Buddha Vandana — the recollection of the Buddha (*Buddhānussati*), the "Itipiso", recited across the Theravāda world, followed by the recollection-homage stanza (*Buddhaṃ jīvitapariyantaṃ saraṇaṃ gacchāmi…*). Transcribed verbatim from the monastery sheets — the block spans the bottom of PXL_20260530_141418331 and the top of PXL_20260530_141420478 — preserving the sheet\'s simplified romanization (*Itipo* for *iti pi so*, *araham* for *arahaṃ*, *charan* for *caraṇa*, *vidhu* for *vidū*, *ayyam* for *aññaṃ*). The first two lines carry full word-by-word data; the continuation is faithful Pali + a working English gloss, with per-word depth still to be curated.',
     },
   ],
 };
